@@ -82,3 +82,11 @@ npm run demo:one-shot
 ```
 
 That command also writes `examples/demo/one-shot-demo.html` for visual review.
+
+For an early standalone comparison harness:
+
+```bash
+npm run demo:comparison
+```
+
+That command writes two independently runnable apps plus a manifest under `examples/comparison/`. Use it for qualitative paired comparisons of the raw brief baseline versus the JudgmentKit2 handoff path.

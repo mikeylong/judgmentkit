@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Refund Review Workspace B</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1d2730;
+      --muted: #5c6b78;
+      --line: #c9d3dc;
+      --surface: #f6f8fa;
+      --panel: #ffffff;
+      --accent: #255f85;
+      --accent-dark: #174461;
+      --warning: #874c1d;
+      font-family:
+        Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--surface);
+    }
+
+    button,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button,
+    select,
+    textarea {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    button {
+      min-height: 40px;
+      padding: 0 14px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .primary-action {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      padding: 28px;
+    }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: start;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1,
+    h2,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 0;
+      font-size: 2rem;
+      line-height: 1.1;
+    }
+
+    h2 {
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+      line-height: 1.25;
+    }
+
+    .eyebrow,
+    dt {
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 760;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .task-prompt {
+      max-width: 360px;
+      margin-bottom: 0;
+      color: var(--muted);
+      line-height: 1.45;
+      text-align: right;
+    }
+
+    section,
+    aside,
+    .record-table,
+    .debug-panel,
+    .case-panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    section,
+    aside,
+    .record-table,
+    .debug-panel {
+      padding: 18px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 22px 0;
+      border-color: #dfb98c;
+      background: #fff8ef;
+    }
+
+    .record-grid,
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 13px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+    }
+
+    dl,
+    dd {
+      margin: 0;
+    }
+
+    dl div + div {
+      margin-top: 14px;
+    }
+
+    dd {
+      font-weight: 650;
+    }
+
+    .debug-panel p {
+      color: var(--warning);
+      line-height: 1.45;
+    }
+
+    .workflow-strip {
+      margin: 22px 0;
+    }
+
+    .workflow-strip ol {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .workflow-strip li {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-height: 52px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    .workflow-strip li span {
+      display: inline-grid;
+      flex: 0 0 auto;
+      width: 26px;
+      height: 26px;
+      place-items: center;
+      border-radius: 50%;
+      background: #e9f2f7;
+      color: var(--accent-dark);
+      font-weight: 760;
+    }
+
+    .workflow-strip li.is-current {
+      border-color: var(--accent);
+      background: #f0f7fb;
+    }
+
+    .queue-panel {
+      align-self: start;
+    }
+
+    .queue-row {
+      display: grid;
+      width: 100%;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 54px;
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    .queue-row.is-selected {
+      border-color: var(--accent);
+      background: #f0f7fb;
+    }
+
+    .case-panel {
+      display: grid;
+      gap: 14px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .case-facts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      padding-left: 20px;
+      margin-bottom: 0;
+      line-height: 1.45;
+    }
+
+    .decision-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .handoff-panel {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      color: var(--ink);
+    }
+
+    @media (max-width: 760px) {
+      .app-shell {
+        padding: 18px;
+      }
+
+      .app-header,
+      .record-grid,
+      .workspace-grid {
+        display: block;
+      }
+
+      .task-prompt {
+        max-width: none;
+        margin-top: 10px;
+        text-align: left;
+      }
+
+      .debug-panel,
+      .record-table,
+      .queue-panel,
+      .workflow-strip,
+      .case-panel {
+        margin-top: 14px;
+      }
+
+      .workflow-strip ol,
+      .case-facts {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body data-comparison-id="refund-triage-standalone-v1" data-variant="B">
+  
+    <main class="app-shell guided-shell" data-primary-surface>
+      
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Refund operations</p>
+        <h1>Refund Review Workspace</h1>
+      </div>
+      <p class="task-prompt" data-study-task>Review the selected refund request and prepare the next handoff.</p>
+    </header>
+  
+
+      <section class="workflow-strip" aria-label="Refund workflow">
+        <div class="section-heading">
+          <p class="eyebrow">Daily triage</p>
+          <h2>Refund escalation queue</h2>
+        </div>
+        <ol>
+        <li class="is-current">
+          <span>1</span>
+          Review selected case
+        </li>
+      
+        <li>
+          <span>2</span>
+          Check evidence
+        </li>
+      
+        <li>
+          <span>3</span>
+          Choose refund path
+        </li>
+      
+        <li>
+          <span>4</span>
+          Prepare handoff
+        </li>
+      </ol>
+      </section>
+
+      <section class="workspace-grid">
+        <aside class="queue-panel" aria-label="Refund cases">
+          <div class="section-heading">
+            <p class="eyebrow">Queue</p>
+            <h2>Selected case</h2>
+          </div>
+          
+      <button type="button" class="queue-row is-selected">
+        <span>R-1842</span>
+        <strong>Nora Diaz</strong>
+        <small>$184.20</small>
+      </button>
+    
+      <button type="button" class="queue-row">
+        <span>R-1843</span>
+        <strong>Jun Park</strong>
+        <small>$89.00</small>
+      </button>
+    
+      <button type="button" class="queue-row">
+        <span>R-1844</span>
+        <strong>Amara Blake</strong>
+        <small>$312.75</small>
+      </button>
+    
+        </aside>
+
+        <div class="case-panel">
+          <section class="case-summary">
+            <div class="section-heading">
+              <p class="eyebrow">Customer refund escalation</p>
+              <h2>R-1842: Nora Diaz</h2>
+            </div>
+            <dl class="case-facts">
+              <div>
+                <dt>Request</dt>
+                <dd>$184.20 refund</dd>
+              </div>
+              <div>
+                <dt>Reason</dt>
+                <dd>Subscription renewal disputed after agent escalation.</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section>
+            <h2>Evidence checklist</h2>
+            <ul class="checklist"><li>Purchase history confirms the renewal date.</li><li>Support agent note explains the customer request.</li><li>Receipt photo is still needed before final approval.</li></ul>
+          </section>
+
+          <section>
+            <h2>Policy review context</h2>
+            <p>Renewal is inside the exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p>
+          </section>
+
+          <section>
+            <h2>Choose a path</h2>
+            <div class="decision-actions">
+              <button type="button" class="primary-action">Approve refund</button><button type="button">Send to policy review</button><button type="button">Return for evidence</button>
+            </div>
+          </section>
+
+          <section class="handoff-panel">
+            <h2>Handoff</h2>
+            <label>
+              Next owner
+              <select>
+                <option>Support agent</option>
+                <option>Policy reviewer</option>
+                <option>Refund operations</option>
+              </select>
+            </label>
+            <label>
+              Handoff reason
+              <textarea rows="3">Receipt photo is missing. Ask the customer to attach proof before approval</textarea>
+            </label>
+            <button type="button" class="primary-action">Send handoff to the support agent requesting the missing receipt photo</button>
+          </section>
+        </div>
+      </section>
+    </main>
+  
+  <script type="application/json" id="comparison-metadata">{
+  "comparison_id": "refund-triage-standalone-v1",
+  "variant": "B",
+  "treatment": "judgmentkit2_handoff",
+  "task_prompt": "Review the selected refund request and prepare the next handoff.",
+  "selected_case_id": "R-1842",
+  "generation_source": {
+    "handoff_status": "ready_for_generation",
+    "activity_review_status": "ready_for_review",
+    "workflow_review_status": "ready_for_review",
+    "surface_name": "Refund escalation queue"
+  },
+  "terms_kept_out_of_primary_ui": [
+    "API endpoint",
+    "CRUD",
+    "data model",
+    "database table",
+    "field",
+    "JSON schema",
+    "prompt",
+    "prompt template",
+    "resource",
+    "resource id",
+    "schema",
+    "tool call",
+    "ready_for_review",
+    "activity_model",
+    "interaction_contract",
+    "review_status",
+    "guardrails",
+    "JudgmentKit2"
+  ]
+}</script>
+</body>
+</html>

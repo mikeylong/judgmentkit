@@ -10,6 +10,7 @@
 - Added eval tags for workflow type, failure mode, and expected next action.
 - Added GitHub Actions CI for tests, benchmark, and MCP smoke.
 - Added deterministic visual one-shot before/after demo comparing baseline generation with JudgmentKit2-guided generation.
+- Added a standalone comparison harness for qualitative paired review of raw-brief and JudgmentKit2 handoff app variants.
 - Added model-assisted UI workflow candidate review as a library and MCP seam, with deterministic checks for workflow completeness, source grounding, implementation leakage, and review-packet term leakage.
 - Added an optional OpenAI Responses UI workflow proposer provider with fake-fetch coverage and an env-gated smoke command.
 - Added a UI generation handoff gate so only ready workflow reviews can become generation handoffs.

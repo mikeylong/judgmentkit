@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Refund Review Workspace A</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #1d2730;
+      --muted: #5c6b78;
+      --line: #c9d3dc;
+      --surface: #f6f8fa;
+      --panel: #ffffff;
+      --accent: #255f85;
+      --accent-dark: #174461;
+      --warning: #874c1d;
+      font-family:
+        Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--surface);
+    }
+
+    button,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button,
+    select,
+    textarea {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    button {
+      min-height: 40px;
+      padding: 0 14px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .primary-action {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      padding: 28px;
+    }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: start;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1,
+    h2,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 0;
+      font-size: 2rem;
+      line-height: 1.1;
+    }
+
+    h2 {
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+      line-height: 1.25;
+    }
+
+    .eyebrow,
+    dt {
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 760;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .task-prompt {
+      max-width: 360px;
+      margin-bottom: 0;
+      color: var(--muted);
+      line-height: 1.45;
+      text-align: right;
+    }
+
+    section,
+    aside,
+    .record-table,
+    .debug-panel,
+    .case-panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    section,
+    aside,
+    .record-table,
+    .debug-panel {
+      padding: 18px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 22px 0;
+      border-color: #dfb98c;
+      background: #fff8ef;
+    }
+
+    .record-grid,
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 320px;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 13px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+    }
+
+    dl,
+    dd {
+      margin: 0;
+    }
+
+    dl div + div {
+      margin-top: 14px;
+    }
+
+    dd {
+      font-weight: 650;
+    }
+
+    .debug-panel p {
+      color: var(--warning);
+      line-height: 1.45;
+    }
+
+    .workflow-strip {
+      margin: 22px 0;
+    }
+
+    .workflow-strip ol {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .workflow-strip li {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-height: 52px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    .workflow-strip li span {
+      display: inline-grid;
+      flex: 0 0 auto;
+      width: 26px;
+      height: 26px;
+      place-items: center;
+      border-radius: 50%;
+      background: #e9f2f7;
+      color: var(--accent-dark);
+      font-weight: 760;
+    }
+
+    .workflow-strip li.is-current {
+      border-color: var(--accent);
+      background: #f0f7fb;
+    }
+
+    .queue-panel {
+      align-self: start;
+    }
+
+    .queue-row {
+      display: grid;
+      width: 100%;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      min-height: 54px;
+      margin-top: 10px;
+      text-align: left;
+    }
+
+    .queue-row.is-selected {
+      border-color: var(--accent);
+      background: #f0f7fb;
+    }
+
+    .case-panel {
+      display: grid;
+      gap: 14px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .case-facts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      padding-left: 20px;
+      margin-bottom: 0;
+      line-height: 1.45;
+    }
+
+    .decision-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .handoff-panel {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      color: var(--ink);
+    }
+
+    @media (max-width: 760px) {
+      .app-shell {
+        padding: 18px;
+      }
+
+      .app-header,
+      .record-grid,
+      .workspace-grid {
+        display: block;
+      }
+
+      .task-prompt {
+        max-width: none;
+        margin-top: 10px;
+        text-align: left;
+      }
+
+      .debug-panel,
+      .record-table,
+      .queue-panel,
+      .workflow-strip,
+      .case-panel {
+        margin-top: 14px;
+      }
+
+      .workflow-strip ol,
+      .case-facts {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body data-comparison-id="refund-triage-standalone-v1" data-variant="A">
+  
+    <main class="app-shell baseline-shell" data-primary-surface>
+      
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Refund operations</p>
+        <h1>Refund Review Workspace</h1>
+      </div>
+      <p class="task-prompt" data-study-task>Review the selected refund request and prepare the next handoff.</p>
+    </header>
+  
+
+      <section class="toolbar" aria-label="Record actions">
+        <button type="button">Create</button>
+        <button type="button">Read</button>
+        <button type="button">Update</button>
+        <button type="button">Delete</button>
+        <button type="button">Refresh JSON schema</button>
+        <button type="button">Rerun prompt template</button>
+      </section>
+
+      <section class="record-grid">
+        <div class="record-table">
+          <div class="section-heading">
+            <p class="eyebrow">Admin record</p>
+            <h2>refund_case database table</h2>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>database table field</th>
+                <th>value</th>
+                <th>JSON schema</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>refund_case.id</td>
+                <td>R-1842</td>
+                <td>valid</td>
+              </tr>
+              <tr>
+                <td>refund_case.customer_id</td>
+                <td>cus_1842</td>
+                <td>valid</td>
+              </tr>
+              <tr>
+                <td>refund_case.prompt_version</td>
+                <td>refund_triage_v12</td>
+                <td>warning</td>
+              </tr>
+              <tr>
+                <td>refund_case.tool_call_result</td>
+                <td>policy_check.pending</td>
+                <td>missing receipt field</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <aside class="debug-panel">
+          <h2>Record controls</h2>
+          <dl>
+            <div>
+              <dt>resource id</dt>
+              <dd>rfc_87291</dd>
+            </div>
+            <div>
+              <dt>API endpoint</dt>
+              <dd>/v1/refunds/escalations</dd>
+            </div>
+            <div>
+              <dt>CRUD status</dt>
+              <dd>Unsaved update</dd>
+            </div>
+          </dl>
+          <button type="button" class="primary-action">Save CRUD update</button>
+        </aside>
+      </section>
+
+      <section class="record-grid">
+        <div class="debug-panel">
+          <h2>Prompt template</h2>
+          <p>refund_triage_v12 runs before the CRUD save action.</p>
+        </div>
+        <div class="debug-panel">
+          <h2>Tool call result</h2>
+          <p>policy_check.pending requires another tool call before the update can be saved.</p>
+        </div>
+      </section>
+    </main>
+  
+  <script type="application/json" id="comparison-metadata">{
+  "comparison_id": "refund-triage-standalone-v1",
+  "variant": "A",
+  "treatment": "raw_brief_baseline",
+  "task_prompt": "Review the selected refund request and prepare the next handoff.",
+  "selected_case_id": "R-1842",
+  "source_brief_excerpt": "A support operations manager is reviewing customer refund escalation cases. The request says to build the surface from the refund_case data model, expose every database table field, show JSON schema validation errors, show prompt template version, show tool call results, include resource id and API endpoint status, and make it CRUD. The activity is deciding whether an escalation should be approved, sent to policy review, or returned to the support agent for missing evidence. The outcome is a clear handoff with the next action and reason for the decision.",
+  "visible_leakage_terms_expected": [
+    "database table",
+    "JSON schema",
+    "prompt template",
+    "tool call",
+    "resource id",
+    "API endpoint",
+    "CRUD"
+  ]
+}</script>
+</body>
+</html>
