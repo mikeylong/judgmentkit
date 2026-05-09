@@ -43,6 +43,7 @@ try {
       "create_activity_model_review",
       "review_activity_model_candidate",
       "review_ui_workflow_candidate",
+      "create_ui_generation_handoff",
     ],
   );
 
@@ -212,6 +213,22 @@ try {
     workflowReviewResponse.structuredContent.candidate.workflow.primary_actions.includes(
       "Approve refund",
     ),
+  );
+
+  const handoffResponse = await withTimeout(
+    client.callTool({
+      name: "create_ui_generation_handoff",
+      arguments: {
+        workflow_review: workflowReviewResponse.structuredContent,
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(handoffResponse.isError, undefined);
+  assert.equal(handoffResponse.structuredContent.handoff_status, "ready_for_generation");
+  assert.ok(
+    handoffResponse.structuredContent.workflow.primary_actions.includes("Approve refund"),
   );
   assert.equal(stderrOutput.includes("JudgmentKit 2 stdio MCP failed"), false);
 } finally {

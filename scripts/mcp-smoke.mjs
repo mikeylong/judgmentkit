@@ -43,6 +43,7 @@ try {
     "create_activity_model_review",
     "review_activity_model_candidate",
     "review_ui_workflow_candidate",
+    "create_ui_generation_handoff",
   ]);
 
   const reviewResponse = await withTimeout(

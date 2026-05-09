@@ -5,6 +5,7 @@ import {
   JudgmentKitInputError,
   analyzeImplementationBrief,
   createActivityModelReview,
+  createUiGenerationHandoff,
   reviewActivityModelCandidate,
   reviewUiWorkflowCandidate,
 } from "./index.mjs";
@@ -96,13 +97,37 @@ const REVIEW_UI_WORKFLOW_CANDIDATE_TOOL = {
   },
 };
 
-function createError(code, message) {
-  return {
+const UI_GENERATION_HANDOFF_TOOL = {
+  name: "create_ui_generation_handoff",
+  description:
+    "Create a UI generation handoff from a ready UI workflow review packet, blocking non-ready reviews.",
+  inputSchema: {
+    type: "object",
+    required: ["workflow_review"],
+    properties: {
+      workflow_review: {
+        type: "object",
+        description:
+          "UI workflow review packet returned by review_ui_workflow_candidate or equivalent library API.",
+      },
+    },
+    additionalProperties: false,
+  },
+};
+
+function createError(code, message, details) {
+  const error = {
     error: {
       code,
       message,
     },
   };
+
+  if (details !== undefined) {
+    error.error.details = details;
+  }
+
+  return error;
 }
 
 export function listTools() {
@@ -111,6 +136,7 @@ export function listTools() {
     ACTIVITY_MODEL_REVIEW_TOOL,
     REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL,
     REVIEW_UI_WORKFLOW_CANDIDATE_TOOL,
+    UI_GENERATION_HANDOFF_TOOL,
   ];
 }
 
@@ -133,15 +159,20 @@ export async function handleToolCall(name, args = {}) {
       ACTIVITY_MODEL_REVIEW_TOOL.name,
       REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL.name,
       REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name,
+      UI_GENERATION_HANDOFF_TOOL.name,
     ].includes(name)
   ) {
     return createError(
       "invalid_request",
-      `Tool ${name} is not supported. Use ${ANALYZE_TOOL.name}, ${ACTIVITY_MODEL_REVIEW_TOOL.name}, ${REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL.name}, or ${REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name}.`,
+      `Tool ${name} is not supported. Use ${ANALYZE_TOOL.name}, ${ACTIVITY_MODEL_REVIEW_TOOL.name}, ${REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL.name}, ${REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name}, or ${UI_GENERATION_HANDOFF_TOOL.name}.`,
     );
   }
 
   try {
+    if (name === UI_GENERATION_HANDOFF_TOOL.name) {
+      return createUiGenerationHandoff(args.workflow_review);
+    }
+
     if (name === REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name) {
       return reviewUiWorkflowCandidate(args.brief, args.candidate);
     }
@@ -157,7 +188,7 @@ export async function handleToolCall(name, args = {}) {
     return analyzeImplementationBrief(args.brief);
   } catch (error) {
     if (error instanceof JudgmentKitInputError) {
-      return createError(error.code, error.message);
+      return createError(error.code, error.message, error.details);
     }
 
     throw error;
@@ -232,6 +263,18 @@ export function createJudgmentKitMcpServer() {
     },
     async (args) =>
       createToolResult(await handleToolCall(REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name, args)),
+  );
+
+  server.registerTool(
+    UI_GENERATION_HANDOFF_TOOL.name,
+    {
+      description: UI_GENERATION_HANDOFF_TOOL.description,
+      inputSchema: {
+        workflow_review: z.record(z.any()),
+      },
+    },
+    async (args) =>
+      createToolResult(await handleToolCall(UI_GENERATION_HANDOFF_TOOL.name, args)),
   );
 
   return server;

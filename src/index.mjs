@@ -9,10 +9,13 @@ const DEFAULT_CONTRACT_PATH = path.resolve(
 );
 
 export class JudgmentKitInputError extends Error {
-  constructor(message) {
+  constructor(message, options = {}) {
     super(message);
     this.name = "JudgmentKitInputError";
-    this.code = "invalid_input";
+    this.code = options.code ?? "invalid_input";
+    if (options.details !== undefined) {
+      this.details = options.details;
+    }
   }
 }
 
@@ -1843,4 +1846,167 @@ export async function createModelAssistedUiWorkflowReview(input, options = {}) {
     activity_review: activityReview,
     proposer: "injected",
   });
+}
+
+function assertReadyUiWorkflowReviewShape(workflowReview) {
+  if (!isPlainObject(workflowReview.candidate)) {
+    throw new JudgmentKitInputError(
+      "createUiGenerationHandoff requires a workflow_review with candidate.",
+    );
+  }
+
+  if (!isPlainObject(workflowReview.candidate.workflow)) {
+    throw new JudgmentKitInputError(
+      "createUiGenerationHandoff requires candidate.workflow.",
+    );
+  }
+
+  if (!isPlainObject(workflowReview.candidate.primary_ui)) {
+    throw new JudgmentKitInputError(
+      "createUiGenerationHandoff requires candidate.primary_ui.",
+    );
+  }
+
+  if (!isPlainObject(workflowReview.candidate.handoff)) {
+    throw new JudgmentKitInputError(
+      "createUiGenerationHandoff requires candidate.handoff.",
+    );
+  }
+
+  if (!isPlainObject(workflowReview.activity_review?.candidate)) {
+    throw new JudgmentKitInputError(
+      "createUiGenerationHandoff requires activity_review.candidate.",
+    );
+  }
+}
+
+function termEntriesToNames(entries) {
+  if (!Array.isArray(entries)) {
+    return [];
+  }
+
+  return entries
+    .map((entry) => {
+      if (typeof entry === "string") {
+        return cleanClause(entry);
+      }
+
+      if (isPlainObject(entry)) {
+        return cleanClause(entry.term ?? entry.detected_term ?? "");
+      }
+
+      return "";
+    })
+    .filter(Boolean);
+}
+
+function buildUiGenerationHandoffBlockDetails(workflowReview) {
+  return {
+    review_status: workflowReview.review_status,
+    confidence: workflowReview.review?.confidence,
+    targeted_questions: workflowReview.review?.targeted_questions ?? [],
+    missing_fields: workflowReview.guardrails?.candidate_missing_fields ?? {},
+    source_missing_evidence: workflowReview.guardrails?.source_missing_evidence ?? {},
+    implementation_leakage_terms:
+      workflowReview.guardrails?.candidate_primary_terms_detected ?? [],
+    review_packet_leakage_terms:
+      workflowReview.guardrails?.candidate_primary_meta_terms_detected ?? [],
+    activity_review_status: workflowReview.guardrails?.activity_review_status,
+  };
+}
+
+function buildTermsToKeepOutOfPrimaryUi(workflowReview) {
+  return unique([
+    ...termEntriesToNames(workflowReview.guardrails?.implementation_terms_detected),
+    ...termEntriesToNames(workflowReview.guardrails?.candidate_primary_terms_detected),
+    ...termEntriesToNames(workflowReview.guardrails?.candidate_primary_meta_terms_detected),
+  ]);
+}
+
+export function createUiGenerationHandoff(workflowReview) {
+  if (!isPlainObject(workflowReview)) {
+    throw new JudgmentKitInputError(
+      "createUiGenerationHandoff requires a workflow_review object.",
+    );
+  }
+
+  if (typeof workflowReview.review_status !== "string") {
+    throw new JudgmentKitInputError(
+      "createUiGenerationHandoff requires workflow_review.review_status.",
+    );
+  }
+
+  if (workflowReview.review_status !== "ready_for_review") {
+    throw new JudgmentKitInputError(
+      "UI generation handoff requires a ready_for_review workflow review.",
+      {
+        code: "handoff_blocked",
+        details: buildUiGenerationHandoffBlockDetails(workflowReview),
+      },
+    );
+  }
+
+  assertReadyUiWorkflowReviewShape(workflowReview);
+
+  const activityCandidate = workflowReview.activity_review.candidate;
+  const workflowCandidate = workflowReview.candidate;
+  const handoff = {
+    version: workflowReview.version,
+    contract_id: workflowReview.contract_id,
+    handoff_status: "ready_for_generation",
+    source: {
+      mode: workflowReview.source?.mode,
+      proposer: workflowReview.source?.proposer,
+      input_excerpt: workflowReview.source?.input_excerpt,
+    },
+    activity_model: {
+      activity: optionalString(activityCandidate.activity_model?.activity),
+      participants: toStringArray(activityCandidate.activity_model?.participants),
+      objective: optionalString(activityCandidate.activity_model?.objective),
+      outcomes: toStringArray(activityCandidate.activity_model?.outcomes),
+      domain_vocabulary: toStringArray(
+        activityCandidate.activity_model?.domain_vocabulary,
+      ),
+    },
+    interaction_contract: {
+      primary_decision: optionalString(
+        activityCandidate.interaction_contract?.primary_decision,
+      ),
+      next_actions: toStringArray(activityCandidate.interaction_contract?.next_actions),
+      completion: optionalString(activityCandidate.interaction_contract?.completion),
+      make_easy: toStringArray(activityCandidate.interaction_contract?.make_easy),
+    },
+    workflow: {
+      surface_name: optionalString(workflowCandidate.workflow.surface_name),
+      steps: toStringArray(workflowCandidate.workflow.steps),
+      primary_actions: toStringArray(workflowCandidate.workflow.primary_actions),
+      decision_points: toStringArray(workflowCandidate.workflow.decision_points),
+      completion_state: optionalString(workflowCandidate.workflow.completion_state),
+    },
+    primary_surface: {
+      sections: toStringArray(workflowCandidate.primary_ui.sections),
+      controls: toStringArray(workflowCandidate.primary_ui.controls),
+      user_facing_terms: toStringArray(workflowCandidate.primary_ui.user_facing_terms),
+    },
+    handoff: {
+      next_owner: optionalString(workflowCandidate.handoff.next_owner),
+      reason: optionalString(workflowCandidate.handoff.reason),
+      next_action: optionalString(workflowCandidate.handoff.next_action),
+    },
+    disclosure_reminders: {
+      diagnostic_terms: termEntriesToNames(
+        workflowReview.guardrails?.implementation_terms_detected,
+      ),
+      diagnostic_contexts: toStringArray(workflowCandidate.diagnostics?.reveal_contexts),
+      translation_candidates:
+        workflowReview.guardrails?.disclosure_translation_candidates ?? [],
+      terms_to_keep_out_of_primary_ui: buildTermsToKeepOutOfPrimaryUi(workflowReview),
+      primary_ui_rule:
+        "Keep implementation details and JudgmentKit review-packet terms out of product UI.",
+    },
+  };
+
+  assertNoStyleFields(handoff);
+
+  return handoff;
 }

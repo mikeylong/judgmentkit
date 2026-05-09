@@ -57,6 +57,23 @@ JudgmentKit2 accepts the workflow only when:
 
 There is no CLI command for this slice. Use MCP or the library API.
 
+## Before Generating UI From A Workflow
+
+Call `create_ui_generation_handoff` with the ready workflow review packet.
+
+Use the returned handoff as the immediate input to UI generation. It contains the activity model, interaction contract, workflow, primary surface responsibilities, handoff action, and disclosure reminders in one compact artifact.
+
+If the tool returns `handoff_blocked`, do not generate UI. Resolve the returned targeted questions or leakage details first, then review a corrected workflow candidate.
+
+Library equivalent:
+
+```js
+const workflowReview = reviewUiWorkflowCandidate(brief, workflowCandidate);
+const handoff = createUiGenerationHandoff(workflowReview);
+```
+
+There is no CLI command for this gate. Use MCP or the library API.
+
 ## Optional OpenAI Workflow Provider
 
 Use `createOpenAIResponsesUiWorkflowProposer` from `judgmentkit-2/providers/openai-responses` when a model should propose the UI workflow candidate. Pass that proposer to `createModelAssistedUiWorkflowReview`; do not use the provider output directly for UI generation.

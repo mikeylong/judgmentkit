@@ -15,6 +15,7 @@ assert.deepEqual(
     "create_activity_model_review",
     "review_activity_model_candidate",
     "review_ui_workflow_candidate",
+    "create_ui_generation_handoff",
   ],
 );
 assert.deepEqual(getMcpMetadata("stdio").capabilities.prompts, []);
@@ -26,6 +27,7 @@ assert.equal(tools[2].inputSchema.required.includes("brief"), true);
 assert.equal(tools[2].inputSchema.required.includes("candidate"), true);
 assert.equal(tools[3].inputSchema.required.includes("brief"), true);
 assert.equal(tools[3].inputSchema.required.includes("candidate"), true);
+assert.equal(tools[4].inputSchema.required.includes("workflow_review"), true);
 
 const refundTriageCandidate = {
   activity_model: {
@@ -193,6 +195,15 @@ const refundWorkflowCandidate = {
   assert.ok(result.candidate.workflow.primary_actions.includes("Approve refund"));
   assert.deepEqual(result.guardrails.candidate_primary_terms_detected, []);
   assert.deepEqual(result.guardrails.candidate_primary_meta_terms_detected, []);
+
+  const handoffResult = await handleToolCall("create_ui_generation_handoff", {
+    workflow_review: result,
+  });
+
+  assert.equal("error" in handoffResult, false);
+  assert.equal(handoffResult.handoff_status, "ready_for_generation");
+  assert.ok(handoffResult.workflow.primary_actions.includes("Approve refund"));
+  assert.ok(handoffResult.primary_surface.sections.includes("Evidence checklist"));
 }
 
 {
@@ -226,6 +237,19 @@ const refundWorkflowCandidate = {
   );
   assert.equal(JSON.stringify(result.candidate.workflow).includes("JSON schema"), false);
   assert.equal(JSON.stringify(result.candidate.primary_ui).includes("Prompt template"), false);
+
+  const handoffResult = await handleToolCall("create_ui_generation_handoff", {
+    workflow_review: result,
+  });
+
+  assert.equal("error" in handoffResult, true);
+  assert.equal(handoffResult.error.code, "handoff_blocked");
+  assert.equal(handoffResult.error.details.review_status, "needs_source_context");
+  assert.ok(
+    handoffResult.error.details.implementation_leakage_terms.some(
+      (entry) => entry.term === "JSON schema",
+    ),
+  );
 }
 
 {
@@ -262,6 +286,15 @@ const refundWorkflowCandidate = {
     brief:
       "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
     candidate: {},
+  });
+
+  assert.equal("error" in result, true);
+  assert.equal(result.error.code, "invalid_input");
+}
+
+{
+  const result = await handleToolCall("create_ui_generation_handoff", {
+    workflow_review: {},
   });
 
   assert.equal("error" in result, true);

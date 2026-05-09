@@ -8,7 +8,8 @@ Use JudgmentKit2 before UI generation, UI critique, implementation planning, or 
 2. Call `create_activity_model_review`.
 3. Use the review packet to decide whether to proceed, ask targeted questions, or review a model-proposed activity candidate.
 4. If a model or agent proposes a UI workflow, call `review_ui_workflow_candidate` before treating it as acceptable.
-5. Generate or critique UI only after the activity, decision, outcome, disclosure boundary, and workflow candidate are clear enough.
+5. Call `create_ui_generation_handoff` on the reviewed workflow before generating UI.
+6. Generate or critique UI from the handoff only after the activity, decision, outcome, disclosure boundary, and workflow candidate are clear enough.
 
 ## Rules For Agents
 
@@ -18,6 +19,7 @@ Use JudgmentKit2 before UI generation, UI critique, implementation planning, or 
 - Keep implementation terms out of primary UI unless the activity is setup, debugging, auditing, integration, or explicit source inspection.
 - When a model proposes an activity model, call `review_activity_model_candidate` before trusting it.
 - When a model proposes a UI workflow, call `review_ui_workflow_candidate` before implementing it.
+- Do not generate UI directly from a raw workflow review packet when `create_ui_generation_handoff` is available.
 - Keep JudgmentKit review-packet terms such as `ready_for_review`, `activity_model`, `review_status`, `Primary user`, and `Main decision` out of product UI.
 - Do not use visual polish, components, tokens, or design-system compliance as a substitute for activity fit.
 
@@ -38,6 +40,8 @@ Before handing off UI work, confirm:
 ## Status Interpretation
 
 `ready_for_review` means the packet is usable for the next design or implementation pass.
+
+`ready_for_generation` means a reviewed workflow has passed the handoff gate and can be used as the immediate input to UI generation.
 
 `needs_source_context` means the agent should pause primary UI generation and resolve the smallest set of missing facts.
 

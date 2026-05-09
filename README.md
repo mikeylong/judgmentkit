@@ -34,7 +34,8 @@ JudgmentKit 2 keeps the core deterministic and lets model assistance enter throu
 3. Model-assisted candidate review seam: accepts a model-proposed candidate through dependency injection or MCP and runs the same guardrails.
 4. Provider-neutral proposer adapter: builds a serializable activity-model request for an injected model caller and returns the proposed candidate to the review seam.
 5. UI workflow candidate review seam: accepts a model- or agent-proposed workflow candidate and checks grounding, action support, handoff clarity, and disclosure containment before UI implementation.
-6. Optional provider adapters: provider configuration and network calls stay outside the kernel and feed proposed candidates back through the same review contract.
+6. UI generation handoff gate: turns only ready workflow reviews into compact handoffs for the next UI generation pass.
+7. Optional provider adapters: provider configuration and network calls stay outside the kernel and feed proposed candidates back through the same review contract.
 
 ## Structure
 
