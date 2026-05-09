@@ -181,7 +181,8 @@
     .policy-card,
     .decision-panel,
     .handoff-panel,
-    .diagnostic-drawer {
+    .diagnostic-drawer,
+    .blocked-review {
       margin: 16px;
     }
 
@@ -229,7 +230,8 @@
     .evidence-card,
     .policy-card,
     .handoff-panel,
-    .diagnostic-drawer {
+    .diagnostic-drawer,
+    .blocked-review {
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #ffffff;
@@ -243,7 +245,7 @@
 
     .workflow-steps {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 8px;
       padding: 0;
       list-style: none;
@@ -395,6 +397,12 @@
     .diagnostic-drawer {
       color: #3d4d5d;
       background: #f8fafc;
+    }
+
+    .blocked-review {
+      border-color: #e0b5ad;
+      background: #fff8f6;
+      color: #4f3330;
     }
 
     .diagnostic-drawer summary {
@@ -567,9 +575,7 @@
         </header>
 
         <ol class="workflow-steps" aria-label="Refund escalation workflow">
-          <li class="is-current"><span>1</span>Review evidence</li>
-          <li><span>2</span>Choose path</li>
-          <li><span>3</span>Prepare handoff</li>
+          <li class="is-current"><span>1</span>Review selected case</li><li><span>2</span>Check evidence</li><li><span>3</span>Choose refund path</li><li><span>4</span>Send handoff</li>
         </ol>
 
         <div class="triage-shell">
@@ -633,9 +639,7 @@
             <section class="decision-panel workflow-decision">
               <h3>Choose a path</h3>
               <div class="decision-actions">
-                <button type="button" class="primary-action">Approve refund</button>
-                <button type="button">Send to policy review</button>
-                <button type="button">Return for evidence</button>
+                <button type="button" class="primary-action">Approve refund</button><button type="button">Send to policy review</button><button type="button">Return for evidence</button>
               </div>
             </section>
 
@@ -652,7 +656,7 @@
                 </label>
                 <label>
                   Handoff reason
-                  <textarea rows="3">Receipt photo is missing. Ask the customer to attach proof before approval.</textarea>
+                  <textarea rows="3">Receipt photo is missing. Ask the customer to attach proof before approval</textarea>
                 </label>
               </div>
               <button type="button" class="primary-action">Send handoff</button>
@@ -666,7 +670,11 @@
         <p>Available for setup, debugging, auditing, integration, or source inspection.</p>
         <dl class="diagnostic-meta">
           <div>
-            <dt>Review status</dt>
+            <dt>Activity review status</dt>
+            <dd>ready_for_review</dd>
+          </div>
+          <div>
+            <dt>Workflow review status</dt>
             <dd>ready_for_review</dd>
           </div>
           <div>
@@ -676,6 +684,32 @@
         </dl>
         <div class="diagnostic-terms"><span class="pill">API endpoint</span><span class="pill">CRUD</span><span class="pill">data model</span><span class="pill">database table</span><span class="pill">field</span><span class="pill">JSON schema</span><span class="pill">prompt</span><span class="pill">prompt template</span><span class="pill">resource</span><span class="pill">resource id</span><span class="pill">schema</span><span class="pill">tool call</span></div>
       </details>
+
+      <section class="blocked-review" data-demo-rejected-review>
+        <h3>Rejected candidate guardrail result</h3>
+        <p>The same source brief also gets a model-like workflow candidate that exposes machinery. JudgmentKit2 blocks it before it becomes product UI.</p>
+        <dl class="diagnostic-meta">
+          <div>
+            <dt>Workflow review status</dt>
+            <dd>needs_source_context</dd>
+          </div>
+          <div>
+            <dt>Primary-field implementation terms</dt>
+            <dd>API endpoint, CRUD, database table, field, JSON schema, prompt, prompt template, schema</dd>
+          </div>
+          <div>
+            <dt>Primary-field review terms</dt>
+            <dd>Activity, activity_model, interaction_contract, Main decision, ready_for_review, review_status</dd>
+          </div>
+          <div>
+            <dt>Targeted questions</dt>
+            <dd>Which detected implementation details are diagnostic only, and which should be translated into domain language?, Which implementation terms in the workflow candidate should move to diagnostics or be translated?, Which JudgmentKit review terms in the workflow candidate should be removed from the product UI?</dd>
+          </div>
+        </dl>
+        <div class="diagnostic-terms">
+          <span class="pill">API endpoint</span><span class="pill">CRUD</span><span class="pill">database table</span><span class="pill">field</span><span class="pill">JSON schema</span><span class="pill">prompt</span><span class="pill">prompt template</span><span class="pill">schema</span><span class="pill">Activity</span><span class="pill">activity_model</span><span class="pill">interaction_contract</span><span class="pill">Main decision</span><span class="pill">ready_for_review</span><span class="pill">review_status</span>
+        </div>
+      </section>
     </section>
   
     </section>

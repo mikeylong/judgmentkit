@@ -49,6 +49,8 @@ const reviewPacketTerms = [
   "ready_for_review",
   "activity_model",
   "interaction_contract",
+  "review_status",
+  "guardrails",
   "Terms on the surface",
   "Review status",
 ];
@@ -70,6 +72,10 @@ assert.ok(transcript.includes("## Source Brief"));
 assert.ok(transcript.includes(sourceBrief));
 assert.ok(transcript.includes("## Without JudgmentKit2"));
 assert.ok(transcript.includes("## With JudgmentKit2"));
+assert.ok(transcript.includes("### Activity Review Summary"));
+assert.ok(transcript.includes("### Accepted Workflow Review"));
+assert.ok(transcript.includes("### Rejected Workflow Review"));
+assert.ok(transcript.includes("### Accepted Workflow UI Concept"));
 assert.ok(transcript.includes("## What Changed"));
 
 const baselineSection = sectionBetween(
@@ -79,10 +85,43 @@ const baselineSection = sectionBetween(
 );
 const guidedPrimarySection = sectionBetween(
   transcript,
-  "### Primary UI Concept",
+  "### Accepted Workflow UI Concept",
   "### Disclosure Boundary",
 );
+const acceptedWorkflowReviewSection = sectionBetween(
+  transcript,
+  "### Accepted Workflow Review",
+  "### Rejected Workflow Review",
+);
+const rejectedWorkflowReviewSection = sectionBetween(
+  transcript,
+  "### Rejected Workflow Review",
+  "### Accepted Workflow UI Concept",
+);
 const comparisonSection = transcript.slice(transcript.indexOf("## What Changed"));
+
+assert.ok(
+  acceptedWorkflowReviewSection.includes("Review status: ready_for_review"),
+  "accepted workflow review should be ready",
+);
+assert.ok(
+  acceptedWorkflowReviewSection.includes("Implementation terms in primary fields: none"),
+  "accepted workflow review should not report implementation leakage",
+);
+assert.ok(
+  acceptedWorkflowReviewSection.includes("Review terms in primary fields: none"),
+  "accepted workflow review should not report review-packet leakage",
+);
+assert.ok(
+  rejectedWorkflowReviewSection.includes("Review status: needs_source_context"),
+  "rejected workflow review should be blocked",
+);
+for (const term of ["JSON schema", "CRUD", "ready_for_review"]) {
+  assert.ok(
+    rejectedWorkflowReviewSection.toLowerCase().includes(term.toLowerCase()),
+    `rejected workflow review should include blocked term: ${term}`,
+  );
+}
 
 for (const term of implementationTerms) {
   assert.ok(
@@ -136,13 +175,19 @@ const guidedPrimaryHtml = sectionBetween(
 const diagnosticHtml = sectionBetween(
   html,
   "data-demo-diagnostics",
-  "</section>",
+  "data-demo-rejected-review",
+);
+const rejectedHtml = sectionBetween(
+  html,
+  "data-demo-rejected-review",
+  '<section class="compare"',
 );
 
 assert.ok(html.includes("JudgmentKit2 One-Shot UI Demo"));
 assert.ok(html.includes(sourceBrief));
 assert.ok(html.includes("Refund Case CRUD Console"));
 assert.ok(html.includes("Refund Escalation Queue"));
+assert.ok(html.includes("Rejected candidate guardrail result"));
 
 for (const term of implementationTerms) {
   assert.ok(
@@ -187,5 +232,16 @@ assert.ok(
   diagnosticHtml.toLowerCase().includes("ready_for_review"),
   "diagnostic visual should include analyzer readiness",
 );
+
+assert.ok(
+  rejectedHtml.toLowerCase().includes("needs_source_context"),
+  "rejected visual should show blocked status",
+);
+for (const term of ["JSON schema", "CRUD", "ready_for_review"]) {
+  assert.ok(
+    rejectedHtml.toLowerCase().includes(term.toLowerCase()),
+    `rejected visual should include blocked term: ${term}`,
+  );
+}
 
 console.log("one-shot demo checks passed.");

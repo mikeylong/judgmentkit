@@ -2,7 +2,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { createActivityModelReview } from "../src/index.mjs";
+import {
+  createActivityModelReview,
+  reviewUiWorkflowCandidate,
+} from "../src/index.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, "..");
@@ -47,6 +50,122 @@ function renderPills(values) {
   return values
     .map((value) => `<span class="pill">${escapeHtml(value)}</span>`)
     .join("");
+}
+
+function termNames(entries) {
+  return entries.map((entry) => entry.term);
+}
+
+function buildAcceptedUiWorkflowCandidate() {
+  return {
+    workflow: {
+      surface_name: "Refund Escalation Queue",
+      steps: [
+        "Review selected case",
+        "Check evidence",
+        "Choose refund path",
+        "Send handoff",
+      ],
+      primary_actions: [
+        "Approve refund",
+        "Send to policy review",
+        "Return for evidence",
+        "Send handoff",
+      ],
+      decision_points: [
+        "Choose whether the refund can be approved, needs policy review, or needs more evidence.",
+      ],
+      completion_state:
+        "A clear handoff with the next action and reason is sent to the right owner.",
+    },
+    primary_ui: {
+      sections: [
+        "Selected case",
+        "Customer refund summary",
+        "Evidence checklist",
+        "Policy review context",
+        "Decision path",
+        "Handoff",
+      ],
+      controls: [
+        "Assign next case",
+        "Approve refund",
+        "Send to policy review",
+        "Return for evidence",
+        "Next owner",
+        "Handoff reason",
+        "Send handoff",
+      ],
+      user_facing_terms: [
+        "refund escalation",
+        "selected case",
+        "evidence checklist",
+        "policy review",
+        "handoff reason",
+        "next owner",
+      ],
+    },
+    handoff: {
+      next_owner: "Support agent",
+      reason:
+        "Receipt photo is missing. Ask the customer to attach proof before approval.",
+      next_action:
+        "Send handoff to the support agent requesting the missing receipt photo.",
+    },
+    diagnostics: {
+      implementation_terms: IMPLEMENTATION_TERMS,
+      reveal_contexts: ["setup", "debugging", "auditing", "integration"],
+    },
+  };
+}
+
+function buildRejectedUiWorkflowCandidate() {
+  return {
+    workflow: {
+      surface_name: "Refund case ready_for_review console",
+      steps: [
+        "Activity: inspect JSON schema errors",
+        "Update CRUD row",
+        "Check prompt template result",
+      ],
+      primary_actions: [
+        "Save CRUD update",
+        "Show ready_for_review status",
+        "Refresh JSON schema",
+      ],
+      decision_points: [
+        "Main decision: whether the database table field is valid.",
+      ],
+      completion_state:
+        "review_status becomes ready_for_review after schema validation.",
+    },
+    primary_ui: {
+      sections: [
+        "Activity diagnostics",
+        "JSON schema validation",
+        "CRUD editor",
+      ],
+      controls: [
+        "Rerun prompt template",
+        "Save CRUD update",
+        "Show ready_for_review",
+      ],
+      user_facing_terms: [
+        "activity_model",
+        "interaction_contract",
+        "JSON schema",
+      ],
+    },
+    handoff: {
+      next_owner: "API endpoint owner",
+      reason: "Schema field is missing from the CRUD update.",
+      next_action: "Set review_status to ready_for_review.",
+    },
+    diagnostics: {
+      implementation_terms: IMPLEMENTATION_TERMS,
+      reveal_contexts: ["debugging", "auditing"],
+    },
+  };
 }
 
 function buildBaselineOneShot() {
@@ -140,28 +259,59 @@ function buildBaselineVisualHtml() {
   `;
 }
 
-function buildGuidedPrimaryConcept(reviewPacket) {
+function renderWorkflowSteps(steps) {
+  return steps
+    .map(
+      (step, index) =>
+        `<li${index === 0 ? ' class="is-current"' : ""}><span>${index + 1}</span>${escapeHtml(step)}</li>`,
+    )
+    .join("");
+}
+
+function renderActionButtons(actions) {
+  return actions
+    .map(
+      (action, index) =>
+        `<button type="button"${index === 0 ? ' class="primary-action"' : ""}>${escapeHtml(action)}</button>`,
+    )
+    .join("");
+}
+
+function buildGuidedPrimaryConcept(workflowReview) {
+  const candidate = workflowReview.candidate;
+
   return [
-    "### Primary UI Concept",
+    "### Accepted Workflow UI Concept",
     "",
-    "**Refund Escalation Queue**",
+    `**${candidate.workflow.surface_name}**`,
     "",
     "- The support operations manager opens a selected case from the refund escalation queue.",
-    "- The workspace shows the customer refund escalation cases as customer, refund, support note, evidence checklist, and policy review context.",
-    "- The manager can approve refund, send to policy review, or return for evidence.",
-    "- The handoff area captures next owner, handoff reason, and a send handoff action.",
-    "- The user leaves with a clear handoff, next action, and reason for the decision.",
+    `- The workspace keeps customer refund escalation cases organized around ${joinList(candidate.primary_ui.sections.map((section) => section.toLowerCase()))}.`,
+    `- The main controls are ${joinList(candidate.workflow.primary_actions.map((action) => action.toLowerCase()))}.`,
+    `- The handoff area captures next owner, handoff reason, and ${candidate.handoff.next_action.toLowerCase()}`,
+    `- Done means ${candidate.workflow.completion_state.toLowerCase()}`,
   ].join("\n");
 }
 
-function buildGuidedVisualHtml(reviewPacket) {
+function buildGuidedVisualHtml(activityReview, workflowReview, rejectedWorkflowReview) {
+  const candidate = workflowReview.candidate;
+  const decisionActions = candidate.workflow.primary_actions.filter(
+    (action) => action.toLowerCase() !== "send handoff",
+  );
   const diagnosticTerms =
-    reviewPacket.guardrails.implementation_terms_detected.map((entry) => entry.term);
+    activityReview.guardrails.implementation_terms_detected.map((entry) => entry.term);
   const reviewEvidence = [
-    reviewPacket.candidate.activity_model.activity,
-    reviewPacket.candidate.interaction_contract.primary_decision,
-    reviewPacket.candidate.interaction_contract.completion,
+    activityReview.candidate.activity_model.activity,
+    activityReview.candidate.interaction_contract.primary_decision,
+    activityReview.candidate.interaction_contract.completion,
   ];
+  const rejectedImplementationTerms = termNames(
+    rejectedWorkflowReview.guardrails.candidate_primary_terms_detected,
+  );
+  const rejectedMetaTerms = termNames(
+    rejectedWorkflowReview.guardrails.candidate_primary_meta_terms_detected,
+  );
+  const rejectedQuestions = rejectedWorkflowReview.review.targeted_questions;
 
   return `
     <section class="demo-panel guided-panel" data-demo-section="with-judgmentkit">
@@ -170,15 +320,13 @@ function buildGuidedVisualHtml(reviewPacket) {
         <header class="panel-header workflow-header">
           <div>
             <p class="eyebrow">Escalation review</p>
-            <h2>Refund Escalation Queue</h2>
+            <h2>${escapeHtml(candidate.workflow.surface_name)}</h2>
           </div>
-          <button type="button" class="secondary-action">Assign next case</button>
+          <button type="button" class="secondary-action">${escapeHtml(candidate.primary_ui.controls[0])}</button>
         </header>
 
         <ol class="workflow-steps" aria-label="Refund escalation workflow">
-          <li class="is-current"><span>1</span>Review evidence</li>
-          <li><span>2</span>Choose path</li>
-          <li><span>3</span>Prepare handoff</li>
+          ${renderWorkflowSteps(candidate.workflow.steps)}
         </ol>
 
         <div class="triage-shell">
@@ -246,9 +394,7 @@ function buildGuidedVisualHtml(reviewPacket) {
             <section class="decision-panel workflow-decision">
               <h3>Choose a path</h3>
               <div class="decision-actions">
-                <button type="button" class="primary-action">Approve refund</button>
-                <button type="button">Send to policy review</button>
-                <button type="button">Return for evidence</button>
+                ${renderActionButtons(decisionActions)}
               </div>
             </section>
 
@@ -258,14 +404,14 @@ function buildGuidedVisualHtml(reviewPacket) {
                 <label>
                   Next owner
                   <select>
-                    <option>Support agent</option>
+                    <option>${escapeHtml(candidate.handoff.next_owner)}</option>
                     <option>Policy reviewer</option>
                     <option>Refund operations</option>
                   </select>
                 </label>
                 <label>
                   Handoff reason
-                  <textarea rows="3">Receipt photo is missing. Ask the customer to attach proof before approval.</textarea>
+                  <textarea rows="3">${escapeHtml(candidate.handoff.reason)}</textarea>
                 </label>
               </div>
               <button type="button" class="primary-action">Send handoff</button>
@@ -279,8 +425,12 @@ function buildGuidedVisualHtml(reviewPacket) {
         <p>Available for setup, debugging, auditing, integration, or source inspection.</p>
         <dl class="diagnostic-meta">
           <div>
-            <dt>Review status</dt>
-            <dd>${escapeHtml(reviewPacket.review_status)}</dd>
+            <dt>Activity review status</dt>
+            <dd>${escapeHtml(activityReview.review_status)}</dd>
+          </div>
+          <div>
+            <dt>Workflow review status</dt>
+            <dd>${escapeHtml(workflowReview.review_status)}</dd>
           </div>
           <div>
             <dt>Source grounding</dt>
@@ -289,24 +439,65 @@ function buildGuidedVisualHtml(reviewPacket) {
         </dl>
         <div class="diagnostic-terms">${renderPills(diagnosticTerms)}</div>
       </details>
+
+      <section class="blocked-review" data-demo-rejected-review>
+        <h3>Rejected candidate guardrail result</h3>
+        <p>The same source brief also gets a model-like workflow candidate that exposes machinery. JudgmentKit2 blocks it before it becomes product UI.</p>
+        <dl class="diagnostic-meta">
+          <div>
+            <dt>Workflow review status</dt>
+            <dd>${escapeHtml(rejectedWorkflowReview.review_status)}</dd>
+          </div>
+          <div>
+            <dt>Primary-field implementation terms</dt>
+            <dd>${escapeHtml(joinList(rejectedImplementationTerms))}</dd>
+          </div>
+          <div>
+            <dt>Primary-field review terms</dt>
+            <dd>${escapeHtml(joinList(rejectedMetaTerms))}</dd>
+          </div>
+          <div>
+            <dt>Targeted questions</dt>
+            <dd>${escapeHtml(joinList(rejectedQuestions))}</dd>
+          </div>
+        </dl>
+        <div class="diagnostic-terms">
+          ${renderPills([...rejectedImplementationTerms, ...rejectedMetaTerms])}
+        </div>
+      </section>
     </section>
   `;
 }
 
-function buildDisclosureBoundary(reviewPacket) {
+function buildDisclosureBoundary(activityReview, workflowReview, rejectedWorkflowReview) {
   const diagnosticTerms =
-    reviewPacket.guardrails.implementation_terms_detected.map((entry) => entry.term);
+    activityReview.guardrails.implementation_terms_detected.map((entry) => entry.term);
+  const rejectedTerms = [
+    ...termNames(rejectedWorkflowReview.guardrails.candidate_primary_terms_detected),
+    ...termNames(rejectedWorkflowReview.guardrails.candidate_primary_meta_terms_detected),
+  ];
 
   return [
     "### Disclosure Boundary",
     "",
+    `Accepted workflow review: ${workflowReview.review_status}`,
+    "",
+    `Rejected workflow review: ${rejectedWorkflowReview.review_status}`,
+    "",
     `Diagnostic-only terms: ${joinList(diagnosticTerms)}`,
+    "",
+    `Blocked primary terms: ${joinList(rejectedTerms)}`,
     "",
     "These terms can appear in setup, debugging, auditing, integration, or source inspection. They do not belong in the primary triage surface.",
   ].join("\n");
 }
 
-function buildVisualDemoHtml(brief, reviewPacket) {
+function buildVisualDemoHtml(
+  brief,
+  activityReview,
+  acceptedWorkflowReview,
+  rejectedWorkflowReview,
+) {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -490,7 +681,8 @@ function buildVisualDemoHtml(brief, reviewPacket) {
     .policy-card,
     .decision-panel,
     .handoff-panel,
-    .diagnostic-drawer {
+    .diagnostic-drawer,
+    .blocked-review {
       margin: 16px;
     }
 
@@ -538,7 +730,8 @@ function buildVisualDemoHtml(brief, reviewPacket) {
     .evidence-card,
     .policy-card,
     .handoff-panel,
-    .diagnostic-drawer {
+    .diagnostic-drawer,
+    .blocked-review {
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #ffffff;
@@ -552,7 +745,7 @@ function buildVisualDemoHtml(brief, reviewPacket) {
 
     .workflow-steps {
       display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 8px;
       padding: 0;
       list-style: none;
@@ -706,6 +899,12 @@ function buildVisualDemoHtml(brief, reviewPacket) {
       background: #f8fafc;
     }
 
+    .blocked-review {
+      border-color: #e0b5ad;
+      background: #fff8f6;
+      color: #4f3330;
+    }
+
     .diagnostic-drawer summary {
       cursor: pointer;
       font-weight: 750;
@@ -790,7 +989,11 @@ function buildVisualDemoHtml(brief, reviewPacket) {
 
     <section class="demo-grid" aria-label="Before and after UI demo">
       ${buildBaselineVisualHtml()}
-      ${buildGuidedVisualHtml(reviewPacket)}
+      ${buildGuidedVisualHtml(
+        activityReview,
+        acceptedWorkflowReview,
+        rejectedWorkflowReview,
+      )}
     </section>
 
     <section class="compare" aria-label="What changed">
@@ -832,23 +1035,33 @@ function buildVisualDemoHtml(brief, reviewPacket) {
 </html>`;
 }
 
-function writeVisualDemoHtml(brief, reviewPacket) {
-  const html = buildVisualDemoHtml(brief, reviewPacket);
+function writeVisualDemoHtml(
+  brief,
+  activityReview,
+  acceptedWorkflowReview,
+  rejectedWorkflowReview,
+) {
+  const html = buildVisualDemoHtml(
+    brief,
+    activityReview,
+    acceptedWorkflowReview,
+    rejectedWorkflowReview,
+  );
   fs.writeFileSync(HTML_OUTPUT_PATH, html);
   return HTML_OUTPUT_PATH;
 }
 
-function buildReviewSummary(reviewPacket) {
-  const activity = reviewPacket.candidate.activity_model.activity;
-  const participants = reviewPacket.candidate.activity_model.participants;
-  const decision = reviewPacket.candidate.interaction_contract.primary_decision;
-  const outcome = reviewPacket.candidate.interaction_contract.completion;
-  const questions = reviewPacket.review.targeted_questions;
+function buildActivityReviewSummary(activityReview) {
+  const activity = activityReview.candidate.activity_model.activity;
+  const participants = activityReview.candidate.activity_model.participants;
+  const decision = activityReview.candidate.interaction_contract.primary_decision;
+  const outcome = activityReview.candidate.interaction_contract.completion;
+  const questions = activityReview.review.targeted_questions;
 
   return [
-    "### Review Packet Summary",
+    "### Activity Review Summary",
     "",
-    `- Review status: ${reviewPacket.review_status}`,
+    `- Review status: ${activityReview.review_status}`,
     `- Activity: ${activity}`,
     `- Participants: ${joinList(participants)}`,
     `- Primary decision: ${decision}`,
@@ -857,17 +1070,39 @@ function buildReviewSummary(reviewPacket) {
   ].join("\n");
 }
 
-function buildComparisonTable(reviewPacket) {
-  const terms = reviewPacket.candidate.activity_model.domain_vocabulary.slice(0, 4);
+function buildWorkflowReviewSummary(label, workflowReview) {
+  const implementationTerms = termNames(
+    workflowReview.guardrails.candidate_primary_terms_detected,
+  );
+  const metaTerms = termNames(
+    workflowReview.guardrails.candidate_primary_meta_terms_detected,
+  );
+  const questions = workflowReview.review.targeted_questions;
+
+  return [
+    `### ${label}`,
+    "",
+    `- Review status: ${workflowReview.review_status}`,
+    `- Surface: ${workflowReview.candidate.workflow.surface_name}`,
+    `- Workflow steps: ${joinList(workflowReview.candidate.workflow.steps)}`,
+    `- Primary actions: ${joinList(workflowReview.candidate.workflow.primary_actions)}`,
+    `- Implementation terms in primary fields: ${joinList(implementationTerms)}`,
+    `- Review terms in primary fields: ${joinList(metaTerms)}`,
+    `- Targeted questions: ${questions.length > 0 ? joinList(questions) : "none"}`,
+  ].join("\n");
+}
+
+function buildComparisonTable(activityReview) {
+  const terms = activityReview.candidate.activity_model.domain_vocabulary.slice(0, 4);
   const diagnosticTerms =
-    reviewPacket.guardrails.implementation_terms_detected.map((entry) => entry.term);
+    activityReview.guardrails.implementation_terms_detected.map((entry) => entry.term);
 
   return [
     "| Dimension | Without JudgmentKit2 | With JudgmentKit2 |",
     "| --- | --- | --- |",
     "| Starting point | Data model and CRUD surface | Refund triage workflow and handoff |",
     "| Primary user | Admin inspecting records | Support operations manager reviewing triage |",
-    `| Activity | Managing refund_case records | ${reviewPacket.candidate.activity_model.activity} |`,
+    `| Activity | Managing refund_case records | ${activityReview.candidate.activity_model.activity} |`,
     "| Decision | Edit fields and save | Approve, send to policy review, or return for missing evidence |",
     "| Outcome | Record saved or validation failed | Clear handoff with next action and reason |",
     `| Terms used | ${joinList(IMPLEMENTATION_TERMS.slice(0, 4))} | ${joinList(terms)} |`,
@@ -877,8 +1112,23 @@ function buildComparisonTable(reviewPacket) {
 
 export function buildOneShotDemoTranscript() {
   const brief = readBrief();
-  const reviewPacket = createActivityModelReview(brief);
-  const htmlOutputPath = writeVisualDemoHtml(brief, reviewPacket);
+  const activityReview = createActivityModelReview(brief);
+  const acceptedWorkflowReview = reviewUiWorkflowCandidate(
+    brief,
+    buildAcceptedUiWorkflowCandidate(),
+    { activity_review: activityReview },
+  );
+  const rejectedWorkflowReview = reviewUiWorkflowCandidate(
+    brief,
+    buildRejectedUiWorkflowCandidate(),
+    { activity_review: activityReview },
+  );
+  const htmlOutputPath = writeVisualDemoHtml(
+    brief,
+    activityReview,
+    acceptedWorkflowReview,
+    rejectedWorkflowReview,
+  );
 
   return [
     "# JudgmentKit2 One-Shot Before/After Demo",
@@ -897,15 +1147,23 @@ export function buildOneShotDemoTranscript() {
     "",
     "## With JudgmentKit2",
     "",
-    buildReviewSummary(reviewPacket),
+    buildActivityReviewSummary(activityReview),
     "",
-    buildGuidedPrimaryConcept(reviewPacket),
+    buildWorkflowReviewSummary("Accepted Workflow Review", acceptedWorkflowReview),
     "",
-    buildDisclosureBoundary(reviewPacket),
+    buildWorkflowReviewSummary("Rejected Workflow Review", rejectedWorkflowReview),
+    "",
+    buildGuidedPrimaryConcept(acceptedWorkflowReview),
+    "",
+    buildDisclosureBoundary(
+      activityReview,
+      acceptedWorkflowReview,
+      rejectedWorkflowReview,
+    ),
     "",
     "## What Changed",
     "",
-    buildComparisonTable(reviewPacket),
+    buildComparisonTable(activityReview),
     "",
   ].join("\n");
 }
