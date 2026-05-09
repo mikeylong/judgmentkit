@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "JudgmentKit 2 Activity Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "version",
+    "source_model",
+    "quality_order",
+    "activity_model",
+    "interaction_contract",
+    "disclosure_policy",
+    "evaluation"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "source_model": {
+      "type": "string",
+      "const": "fresh_v2"
+    },
+    "quality_order": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "string"
+      }
+    },
+    "non_goals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "activity_model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "activity_supported",
+        "participants",
+        "objective",
+        "outcomes",
+        "existing_tools_artifacts",
+        "rules_rituals",
+        "division_of_labor",
+        "domain_vocabulary",
+        "implementation_concepts_to_hide",
+        "diagnostic_disclosure"
+      ],
+      "properties": {
+        "activity_supported": { "type": "string" },
+        "participants": { "type": "array", "items": { "type": "string" } },
+        "objective": { "type": "string" },
+        "outcomes": { "type": "array", "items": { "type": "string" } },
+        "existing_tools_artifacts": { "type": "array", "items": { "type": "string" } },
+        "rules_rituals": { "type": "array", "items": { "type": "string" } },
+        "division_of_labor": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["participant", "responsibility"],
+            "properties": {
+              "participant": { "type": "string" },
+              "responsibility": { "type": "string" }
+            }
+          }
+        },
+        "domain_vocabulary": { "type": "array", "items": { "type": "string" } },
+        "implementation_concepts_to_hide": { "type": "array", "items": { "type": "string" } },
+        "diagnostic_disclosure": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["concept", "reveal_when"],
+            "properties": {
+              "concept": { "type": "string" },
+              "reveal_when": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "interaction_contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "user_is_trying_to",
+        "user_thinks_about_work_as",
+        "user_does_not_think_about_work_as",
+        "primary_decisions",
+        "make_easy",
+        "make_harder",
+        "state_changes",
+        "leave_screen_knowing_or_done"
+      ],
+      "properties": {
+        "user_is_trying_to": { "type": "string" },
+        "user_thinks_about_work_as": { "type": "string" },
+        "user_does_not_think_about_work_as": { "type": "string" },
+        "primary_decisions": { "type": "array", "items": { "type": "string" } },
+        "make_easy": { "type": "array", "items": { "type": "string" } },
+        "make_harder": { "type": "array", "items": { "type": "string" } },
+        "state_changes": { "type": "array", "items": { "type": "string" } },
+        "leave_screen_knowing_or_done": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "disclosure_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "primary_ui_can_show",
+        "primary_ui_must_not_show",
+        "diagnostic_contexts",
+        "term_replacements"
+      ],
+      "properties": {
+        "primary_ui_can_show": { "type": "array", "items": { "type": "string" } },
+        "primary_ui_must_not_show": { "type": "array", "items": { "type": "string" } },
+        "diagnostic_contexts": { "type": "array", "items": { "type": "string" } },
+        "term_replacements": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["avoid", "prefer"],
+            "properties": {
+              "avoid": { "type": "string" },
+              "prefer": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "evaluation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["must_pass", "failure_signals"],
+      "properties": {
+        "must_pass": { "type": "array", "items": { "type": "string" } },
+        "failure_signals": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

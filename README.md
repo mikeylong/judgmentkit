@@ -1,0 +1,56 @@
+# JudgmentKit 2
+
+JudgmentKit 2 is a fresh activity-first kernel for AI-generated interface work.
+
+It is not a beautifier, design-system compliance layer, prompt library, schema browser, or MCP reference surface. Those may exist later as adapters. The core job is to help an agent generate or critique UI that is relevant, succinct, and appropriate to the activity it supports.
+
+## Product Thesis
+
+AI-generated UI fails when the implementation model becomes the user experience. Tables become screens, schemas become forms, tool calls become buttons, and internal prompts become product vocabulary.
+
+JudgmentKit 2 gives the agent a better order of operations:
+
+1. Understand the activity.
+2. Translate the activity into interaction responsibilities.
+3. Decide what implementation detail should stay hidden, be translated, or appear only as diagnostics.
+4. Generate or critique the UI.
+5. Apply visual system choices only after the activity and interaction model are sound.
+
+Aesthetics are adapter-layer work. They should refine a relevant UI, not rescue a broken one.
+
+## Kernel
+
+- `ActivityModel`: the activity system the UI enters.
+- `InteractionContract`: the specific user actions, decisions, state changes, and success criteria the UI must support.
+- `DisclosurePolicy`: the vocabulary and visibility rules that prevent implementation leakage.
+- `JudgmentExample`: a before/after case that calibrates what good and bad generated UI look like.
+
+## Architecture
+
+JudgmentKit 2 keeps the core deterministic and lets model assistance enter through explicit seams:
+
+1. Deterministic analyzer: extracts activity evidence, implementation terms, review questions, and disclosure risks from a brief.
+2. Deterministic review packet: turns that evidence into a reviewable activity model candidate with guardrails.
+3. Model-assisted candidate review seam: accepts a model-proposed candidate through dependency injection or MCP and runs the same guardrails.
+4. Provider-neutral proposer adapter: builds a serializable candidate request for an injected model caller and returns the proposed candidate to the review seam.
+5. Provider adapters later: provider configuration and network calls stay outside the kernel until the review contract is stable.
+
+## Structure
+
+- `AGENTS.md`: operating rules for agents working in this repository.
+- `DESIGN.md`: activity-first judgment contract.
+- `specs/`: product and interface specs for the v2 kernel.
+- `contracts/`: machine-readable activity and disclosure contracts.
+- `tests/`: checks that protect the kernel from drifting back to aesthetic-first or implementation-first work.
+
+## First Workflow
+
+The first workflow is AI UI generation. It starts with one contract:
+
+- `contracts/ai-ui-generation.activity-contract.json`
+
+The first validation command is:
+
+```bash
+npm test
+```

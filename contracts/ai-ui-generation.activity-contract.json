@@ -1,0 +1,231 @@
+{
+  "$schema": "./judgmentkit-v2-kernel.schema.json",
+  "id": "judgmentkit2.ai-ui-generation.activity-contract",
+  "version": "0.1.0",
+  "source_model": "fresh_v2",
+  "quality_order": [
+    "activity fit",
+    "domain appropriateness",
+    "succinct interaction",
+    "decision support",
+    "disclosure discipline",
+    "aesthetic fit"
+  ],
+  "non_goals": [
+    "make generated UI prettier without changing its underlying concept",
+    "enforce a design system before the activity model is understood",
+    "turn implementation artifacts into the primary user experience",
+    "copy JudgmentKit v1 resource, prompt, schema, or MCP structures"
+  ],
+  "activity_model": {
+    "activity_supported": "Guiding or reviewing an AI-generated interface pass so the result supports a real user activity instead of exposing data structures or implementation machinery.",
+    "participants": [
+      "product designer",
+      "product manager",
+      "frontend engineer",
+      "domain expert",
+      "AI agent",
+      "reviewer"
+    ],
+    "objective": "Produce UI guidance that helps the user complete meaningful work in their domain with less translation, cleanup, and misdirected implementation.",
+    "outcomes": [
+      "a clear statement of the activity the UI supports",
+      "a short interaction contract for the proposed surface",
+      "a vocabulary boundary that separates domain concepts from implementation concepts",
+      "a list of review questions when the activity, decisions, or disclosure boundary is unclear"
+    ],
+    "existing_tools_artifacts": [
+      "product brief",
+      "domain workflow notes",
+      "current screen or prototype",
+      "user research or task evidence",
+      "data model or API reference",
+      "design system tokens and components as later visual adapters"
+    ],
+    "rules_rituals": [
+      "activity understanding comes before screen structure",
+      "domain vocabulary comes before implementation vocabulary",
+      "diagnostic detail appears only when it helps setup, debugging, auditing, or explicit inspection",
+      "visual styling is applied after relevance, succinctness, and activity fit are established"
+    ],
+    "division_of_labor": [
+      {
+        "participant": "product designer",
+        "responsibility": "defines the activity, interaction responsibilities, and review criteria"
+      },
+      {
+        "participant": "domain expert",
+        "responsibility": "validates domain vocabulary, rules, and meaningful outcomes"
+      },
+      {
+        "participant": "AI agent",
+        "responsibility": "generates or critiques UI against the activity, interaction, and disclosure contracts"
+      },
+      {
+        "participant": "frontend engineer",
+        "responsibility": "implements the chosen interaction with appropriate system adapters"
+      },
+      {
+        "participant": "reviewer",
+        "responsibility": "decides whether the UI supports the activity well enough to proceed"
+      }
+    ],
+    "domain_vocabulary": [
+      "activity",
+      "participant",
+      "objective",
+      "outcome",
+      "decision",
+      "next action",
+      "handoff",
+      "review question",
+      "diagnostic detail"
+    ],
+    "implementation_concepts_to_hide": [
+      "MCP server",
+      "tools/list",
+      "tool call",
+      "prompt template",
+      "JSON schema",
+      "resource id",
+      "data model",
+      "database table",
+      "API endpoint",
+      "field",
+      "CRUD",
+      "trace",
+      "model configuration",
+      "token set",
+      "component inventory"
+    ],
+    "diagnostic_disclosure": [
+      {
+        "concept": "MCP server",
+        "reveal_when": "The user is installing, debugging, or auditing an agent integration."
+      },
+      {
+        "concept": "JSON schema",
+        "reveal_when": "The user is validating or changing the machine-readable contract."
+      },
+      {
+        "concept": "prompt template",
+        "reveal_when": "The user is explicitly inspecting how the agent instruction is composed."
+      },
+      {
+        "concept": "resource id",
+        "reveal_when": "The user needs a stable reference for a developer handoff or automated test."
+      }
+    ]
+  },
+  "interaction_contract": {
+    "user_is_trying_to": "Get a generated UI concept or critique that fits the activity and can be trusted as a starting point.",
+    "user_thinks_about_work_as": "shaping a workflow, decision, or handoff in a domain",
+    "user_does_not_think_about_work_as": "choosing schemas, prompts, resources, tools, or backend objects to expose",
+    "primary_decisions": [
+      "what activity the UI should support",
+      "what the user must decide or do next",
+      "which domain terms belong on the surface",
+      "which implementation details must stay hidden or diagnostic",
+      "whether enough is known to generate UI or whether review questions are required"
+    ],
+    "make_easy": [
+      "state the activity in one sentence",
+      "name the user's next meaningful action",
+      "separate domain terms from implementation terms",
+      "turn implementation-heavy input into activity-centered guidance",
+      "produce a concise UI brief that can be implemented or reviewed"
+    ],
+    "make_harder": [
+      "starting from a database table, schema, prompt, or tool list",
+      "using visual polish to cover conceptual mismatch",
+      "inventing domain vocabulary without evidence",
+      "exposing diagnostics in the primary user flow"
+    ],
+    "state_changes": [
+      "activity unknown",
+      "activity modeled",
+      "interaction contract ready",
+      "disclosure boundary ready",
+      "ready to generate UI",
+      "blocked for review questions"
+    ],
+    "leave_screen_knowing_or_done": [
+      "what activity the UI supports",
+      "what the UI should help the user do next",
+      "which terms belong in the interface",
+      "which implementation details must remain hidden",
+      "whether the agent can proceed or must ask review questions"
+    ]
+  },
+  "disclosure_policy": {
+    "primary_ui_can_show": [
+      "activity",
+      "user goal",
+      "decision",
+      "next action",
+      "outcome",
+      "review question",
+      "handoff"
+    ],
+    "primary_ui_must_not_show": [
+      "MCP server",
+      "tools/list",
+      "tool call",
+      "prompt template",
+      "JSON schema",
+      "resource id",
+      "data model",
+      "database table",
+      "API endpoint",
+      "field",
+      "CRUD",
+      "trace",
+      "model configuration"
+    ],
+    "diagnostic_contexts": [
+      "setup",
+      "debugging",
+      "auditing",
+      "integration",
+      "explicit source inspection"
+    ],
+    "term_replacements": [
+      {
+        "avoid": "resource",
+        "prefer": "guidance"
+      },
+      {
+        "avoid": "schema",
+        "prefer": "contract"
+      },
+      {
+        "avoid": "prompt",
+        "prefer": "instruction"
+      },
+      {
+        "avoid": "tool call",
+        "prefer": "system action"
+      },
+      {
+        "avoid": "component inventory",
+        "prefer": "available interface patterns"
+      }
+    ]
+  },
+  "evaluation": {
+    "must_pass": [
+      "names the activity before naming screens or components",
+      "prioritizes relevance, succinctness, and domain appropriateness over visual polish",
+      "translates implementation-heavy input into domain-facing interaction guidance",
+      "keeps diagnostic machinery out of the primary user flow",
+      "asks review questions when the activity or vocabulary is under-specified"
+    ],
+    "failure_signals": [
+      "starts by listing backend objects, schemas, prompts, tools, or resources",
+      "uses design-system compliance as a substitute for activity fit",
+      "presents visual style changes as the main fix for a broken concept",
+      "leaks MCP or prompt vocabulary into a non-technical primary surface",
+      "creates a full UI before identifying the user activity and decisions"
+    ]
+  }
+}

@@ -1,0 +1,547 @@
+[
+  {
+    "id": "implementation-heavy-admin-surface",
+    "brief": "Build an admin screen from the customer data model. Show every database table field, the JSON schema, prompt template, tool call result, resource id, and API endpoint. Make it CRUD so the agent can expose tools/list diagnostics.",
+    "expect": {
+      "status": "needs_review",
+      "detected_includes": [
+        "API endpoint",
+        "CRUD",
+        "JSON schema",
+        "data model",
+        "database table",
+        "field",
+        "prompt template",
+        "resource id",
+        "tool call",
+        "tools/list"
+      ],
+      "min_review_questions": 3,
+      "diagnostic_terms_includes": [
+        "JSON schema",
+        "prompt template",
+        "resource id"
+      ],
+      "observed_empty": [
+        "activity",
+        "primary_decisions",
+        "outcomes"
+      ],
+      "ui_brief_excludes": [
+        "API endpoint",
+        "CRUD",
+        "JSON schema",
+        "data model",
+        "database table",
+        "field",
+        "prompt template",
+        "resource id",
+        "tool call",
+        "tools/list"
+      ],
+      "review": {
+        "status": "needs_source_context",
+        "max_targeted_questions": 3,
+        "candidate_includes": {
+          "activity_model.activity": [
+            "Clarify the activity"
+          ],
+          "interaction_contract.primary_decision": [
+            "decision or next action"
+          ]
+        },
+        "candidate_primary_excludes": [
+          "API endpoint",
+          "JSON schema",
+          "prompt template",
+          "data model",
+          "resource id",
+          "tool call"
+        ],
+        "guardrail_terms_includes": [
+          "JSON schema",
+          "prompt template",
+          "resource id"
+        ]
+      }
+    }
+  },
+  {
+    "id": "activity-rich-refund-triage",
+    "brief": "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+    "model_candidate": {
+      "activity_model": {
+        "activity": "Support lead reviews refund requests during daily triage workflow.",
+        "participants": [
+          "support lead"
+        ],
+        "objective": "Decide whether a case should be approved, sent to policy review, or returned for missing evidence.",
+        "outcomes": [
+          "Clear handoff with next action and decision reason."
+        ],
+        "domain_vocabulary": [
+          "refund requests",
+          "policy review",
+          "missing evidence"
+        ]
+      },
+      "interaction_contract": {
+        "primary_decision": "Decide whether a case should be approved, sent to policy review, or returned for missing evidence.",
+        "next_actions": [
+          "Confirm the handoff path."
+        ],
+        "completion": "Clear handoff with next action and decision reason.",
+        "make_easy": [
+          "Review decision options in domain language."
+        ]
+      },
+      "disclosure_policy": {
+        "terms_to_use": [
+          "refund requests",
+          "policy review",
+          "missing evidence"
+        ],
+        "hidden_implementation_terms": [],
+        "translation_candidates": [],
+        "diagnostic_contexts": [
+          "setup",
+          "debugging",
+          "auditing",
+          "integration"
+        ]
+      }
+    },
+    "expect": {
+      "status": "ready",
+      "max_review_questions": 0,
+      "detected_excludes": [
+        "field",
+        "resource"
+      ],
+      "evidence": {
+        "activity": true,
+        "domain_vocabulary": true,
+        "decision": true,
+        "outcome": true
+      },
+      "observed_includes": {
+        "activity": [
+          "case should be approved"
+        ],
+        "participants": [
+          "support lead"
+        ],
+        "domain_terms": [
+          "refund requests",
+          "policy review",
+          "missing evidence"
+        ],
+        "primary_decisions": [
+          "case should be approved"
+        ],
+        "outcomes": [
+          "clear handoff"
+        ]
+      },
+      "ui_brief_includes": {
+        "activity_focus": [
+          "case should be approved"
+        ],
+        "primary_decision": [
+          "case should be approved"
+        ],
+        "outcome": [
+          "clear handoff"
+        ],
+        "terms_to_use": [
+          "refund requests",
+          "policy review"
+        ]
+      },
+      "review": {
+        "status": "ready_for_review",
+        "max_targeted_questions": 0,
+        "candidate_includes": {
+          "activity_model.activity": [
+            "refund requests",
+            "daily triage workflow"
+          ],
+          "activity_model.participants": [
+            "support lead"
+          ],
+          "interaction_contract.primary_decision": [
+            "case should be approved"
+          ],
+          "interaction_contract.completion": [
+            "clear handoff"
+          ]
+        }
+      },
+      "model_assisted": {
+        "status": "ready_for_review",
+        "max_targeted_questions": 0,
+        "candidate_includes": {
+          "activity_model.activity": [
+            "refund requests"
+          ],
+          "interaction_contract.primary_decision": [
+            "case should be approved"
+          ],
+          "interaction_contract.completion": [
+            "Clear handoff"
+          ]
+        }
+      },
+      "model_proposer": {
+        "status": "ready_for_review",
+        "max_targeted_questions": 0,
+        "candidate_includes": {
+          "activity_model.activity": [
+            "refund requests"
+          ],
+          "interaction_contract.primary_decision": [
+            "case should be approved"
+          ],
+          "interaction_contract.completion": [
+            "Clear handoff"
+          ]
+        },
+        "candidate_primary_excludes": [
+          "JSON schema",
+          "prompt template",
+          "data model",
+          "resource id",
+          "tool call"
+        ]
+      }
+    }
+  },
+  {
+    "id": "vague-dashboard-request",
+    "brief": "Make a dashboard for the system.",
+    "model_candidate": {
+      "activity_model": {
+        "activity": "Support lead reviews refund requests during daily triage workflow.",
+        "participants": [
+          "support lead"
+        ],
+        "objective": "Decide whether a case should be approved, sent to policy review, or returned for missing evidence.",
+        "outcomes": [
+          "Clear handoff with next action and decision reason."
+        ],
+        "domain_vocabulary": [
+          "refund requests",
+          "policy review",
+          "missing evidence"
+        ]
+      },
+      "interaction_contract": {
+        "primary_decision": "Decide whether a case should be approved, sent to policy review, or returned for missing evidence.",
+        "next_actions": [
+          "Confirm the handoff path."
+        ],
+        "completion": "Clear handoff with next action and decision reason.",
+        "make_easy": [
+          "Review decision options in domain language."
+        ]
+      }
+    },
+    "expect": {
+      "status": "needs_review",
+      "min_review_questions": 4,
+      "review_question_includes": [
+        "activity",
+        "domain vocabulary",
+        "decision or next action",
+        "leave the surface"
+      ],
+      "observed_empty": [
+        "activity",
+        "participants",
+        "domain_terms",
+        "primary_decisions",
+        "outcomes"
+      ],
+      "review": {
+        "status": "needs_source_context",
+        "max_targeted_questions": 3,
+        "candidate_includes": {
+          "activity_model.activity": [
+            "Clarify the activity"
+          ],
+          "interaction_contract.primary_decision": [
+            "decision or next action"
+          ]
+        }
+      },
+      "model_assisted": {
+        "status": "needs_source_context",
+        "max_targeted_questions": 3,
+        "candidate_includes": {
+          "activity_model.activity": [
+            "refund requests"
+          ],
+          "interaction_contract.primary_decision": [
+            "case should be approved"
+          ]
+        }
+      },
+      "model_proposer": {
+        "status": "needs_source_context",
+        "max_targeted_questions": 3,
+        "candidate_includes": {
+          "activity_model.activity": [
+            "refund requests"
+          ],
+          "interaction_contract.primary_decision": [
+            "case should be approved"
+          ]
+        }
+      }
+    }
+  },
+  {
+    "id": "diagnostic-integration-audit",
+    "brief": "A support operations manager is auditing an integration setup workflow. The activity is deciding whether a JSON schema change and prompt template update are safe to ship, then producing a handoff with the next action for the platform team.",
+    "model_candidate": {
+      "activity_model": {
+        "activity": "Support operations manager reviews JSON schema changes during integration setup workflow.",
+        "participants": [
+          "support operations manager",
+          "platform team"
+        ],
+        "objective": "Decide whether a JSON schema change and prompt template update are safe to ship.",
+        "outcomes": [
+          "Handoff with the next action for the platform team."
+        ],
+        "domain_vocabulary": [
+          "integration setup workflow",
+          "platform team"
+        ]
+      },
+      "interaction_contract": {
+        "primary_decision": "Decide whether a JSON schema change and prompt template update are safe to ship.",
+        "next_actions": [
+          "Confirm the platform team handoff."
+        ],
+        "completion": "Handoff with the next action for the platform team.",
+        "make_easy": [
+          "Review integration risk in domain language."
+        ]
+      },
+      "disclosure_policy": {
+        "terms_to_use": [
+          "integration setup workflow",
+          "platform team"
+        ],
+        "hidden_implementation_terms": [
+          {
+            "detected_term": "JSON schema",
+            "count": 1
+          },
+          {
+            "detected_term": "prompt template",
+            "count": 1
+          }
+        ],
+        "translation_candidates": [],
+        "diagnostic_contexts": [
+          "setup",
+          "debugging",
+          "auditing",
+          "integration"
+        ]
+      }
+    },
+    "expect": {
+      "status": "needs_review",
+      "detected_includes": [
+        "JSON schema",
+        "prompt template"
+      ],
+      "max_review_questions": 1,
+      "review_question_includes": [
+        "diagnostic only"
+      ],
+      "ui_brief_excludes": [
+        "JSON schema",
+        "prompt template"
+      ],
+      "diagnostic_terms_includes": [
+        "JSON schema",
+        "prompt template"
+      ],
+      "evidence": {
+        "activity": true,
+        "domain_vocabulary": true,
+        "decision": true,
+        "outcome": true
+      },
+      "observed_includes": {
+        "activity": [
+          "JSON schema",
+          "safe to ship"
+        ],
+        "participants": [
+          "support operations manager",
+          "platform team"
+        ],
+        "domain_terms": [
+          "integration setup workflow",
+          "platform team"
+        ],
+        "outcomes": [
+          "handoff"
+        ]
+      },
+      "ui_brief_includes": {
+        "terms_to_use": [
+          "integration setup workflow",
+          "platform team"
+        ],
+        "outcome": [
+          "handoff"
+        ]
+      },
+      "review": {
+        "status": "ready_for_review",
+        "max_targeted_questions": 1,
+        "candidate_includes": {
+          "activity_model.activity": [
+            "integration setup workflow"
+          ],
+          "activity_model.participants": [
+            "support operations manager",
+            "platform team"
+          ],
+          "interaction_contract.completion": [
+            "handoff"
+          ],
+          "disclosure_policy.terms_to_use": [
+            "integration setup workflow"
+          ]
+        },
+        "candidate_primary_excludes": [
+          "JSON schema",
+          "prompt template"
+        ],
+        "guardrail_terms_includes": [
+          "JSON schema",
+          "prompt template"
+        ]
+      },
+      "model_assisted": {
+        "status": "needs_source_context",
+        "max_targeted_questions": 2,
+        "candidate_includes": {
+          "activity_model.participants": [
+            "support operations manager",
+            "platform team"
+          ],
+          "interaction_contract.completion": [
+            "Handoff"
+          ],
+          "disclosure_policy.terms_to_use": [
+            "integration setup workflow"
+          ]
+        },
+        "candidate_primary_excludes": [
+          "JSON schema",
+          "prompt template"
+        ],
+        "guardrail_terms_includes": [
+          "JSON schema",
+          "prompt template"
+        ]
+      },
+      "model_proposer": {
+        "status": "needs_source_context",
+        "max_targeted_questions": 2,
+        "candidate_includes": {
+          "activity_model.participants": [
+            "support operations manager",
+            "platform team"
+          ],
+          "interaction_contract.completion": [
+            "Handoff"
+          ],
+          "disclosure_policy.terms_to_use": [
+            "integration setup workflow"
+          ]
+        },
+        "candidate_primary_excludes": [
+          "JSON schema",
+          "prompt template"
+        ],
+        "guardrail_terms_includes": [
+          "JSON schema",
+          "prompt template"
+        ]
+      }
+    }
+  },
+  {
+    "id": "field-operations-false-positive",
+    "brief": "A field operations manager is reviewing repair visits. The activity is deciding which technician should handle the next job, comparing route constraints, approving the handoff, and leaving the dispatch team with a completed next action.",
+    "expect": {
+      "status": "ready",
+      "max_review_questions": 0,
+      "detected_excludes": [
+        "field"
+      ],
+      "evidence": {
+        "activity": true,
+        "domain_vocabulary": true,
+        "decision": true,
+        "outcome": true
+      },
+      "observed_includes": {
+        "activity": [
+          "technician should handle"
+        ],
+        "participants": [
+          "field operations manager",
+          "dispatch team"
+        ],
+        "domain_terms": [
+          "repair visits",
+          "route constraints",
+          "technician",
+          "next job"
+        ],
+        "primary_decisions": [
+          "technician should handle"
+        ],
+        "outcomes": [
+          "completed next action"
+        ]
+      },
+      "ui_brief_includes": {
+        "activity_focus": [
+          "technician should handle"
+        ],
+        "terms_to_use": [
+          "field operations manager",
+          "route constraints",
+          "next job"
+        ]
+      },
+      "review": {
+        "status": "ready_for_review",
+        "max_targeted_questions": 0,
+        "candidate_includes": {
+          "activity_model.activity": [
+            "repair visits"
+          ],
+          "activity_model.participants": [
+            "field operations manager",
+            "dispatch team"
+          ],
+          "interaction_contract.primary_decision": [
+            "technician should handle"
+          ]
+        }
+      }
+    }
+  }
+]

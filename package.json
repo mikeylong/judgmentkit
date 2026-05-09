@@ -1,0 +1,23 @@
+{
+  "name": "judgmentkit-2",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "judgmentkit2": "./bin/judgmentkit2.mjs",
+    "judgmentkit2-mcp-stdio": "./bin/judgmentkit2-mcp-stdio.mjs"
+  },
+  "exports": {
+    ".": "./src/index.mjs"
+  },
+  "scripts": {
+    "benchmark": "node evals/benchmark.mjs",
+    "eval": "node evals/run-evals.mjs",
+    "mcp:stdio": "node ./bin/judgmentkit2-mcp-stdio.mjs",
+    "test": "node tests/kernel-contract.test.mjs && node tests/analyze-implementation-brief.test.mjs && node tests/activity-model-review.test.mjs && node tests/cli.test.mjs && node tests/mcp.test.mjs && node tests/mcp-stdio.test.mjs && node evals/run-evals.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "zod": "^3.25.76"
+  }
+}
