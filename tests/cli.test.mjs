@@ -62,6 +62,85 @@ const cliPath = path.join(root, "bin/judgmentkit2.mjs");
 }
 
 {
+  const result = spawnSync(
+    process.execPath,
+    [cliPath, "review"],
+    {
+      input:
+        "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+      encoding: "utf8",
+    },
+  );
+
+  assert.equal(result.status, 0, result.stderr);
+  const packet = JSON.parse(result.stdout);
+  assert.equal(packet.review_status, "ready_for_review");
+  assert.equal(packet.source.mode, "deterministic");
+  assert.ok(packet.candidate.activity_model.activity.includes("refund requests"));
+}
+
+{
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit2-cli-"));
+  const inputPath = path.join(tempDir, "brief.txt");
+  const candidatePath = path.join(tempDir, "candidate.json");
+
+  fs.writeFileSync(
+    inputPath,
+    "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+  );
+  fs.writeFileSync(
+    candidatePath,
+    JSON.stringify({
+      activity_model: {
+        activity: "Support lead reviews refund requests during daily triage workflow.",
+        participants: ["support lead"],
+        objective:
+          "Decide whether a case should be approved, sent to policy review, or returned for missing evidence.",
+        outcomes: ["Clear handoff with next action and decision reason."],
+        domain_vocabulary: ["refund requests", "policy review", "missing evidence"],
+      },
+      interaction_contract: {
+        primary_decision:
+          "Decide whether a case should be approved, sent to policy review, or returned for missing evidence.",
+        next_actions: ["Confirm the handoff path."],
+        completion: "Clear handoff with next action and decision reason.",
+        make_easy: ["Review decision options in domain language."],
+      },
+      disclosure_policy: {
+        terms_to_use: ["refund requests", "policy review", "missing evidence"],
+        hidden_implementation_terms: [],
+        translation_candidates: [],
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+      },
+    }),
+  );
+
+  const result = spawnSync(
+    process.execPath,
+    [cliPath, "review-candidate", "--input", inputPath, "--candidate", candidatePath],
+    { encoding: "utf8" },
+  );
+
+  assert.equal(result.status, 0, result.stderr);
+  const packet = JSON.parse(result.stdout);
+  assert.equal(packet.review_status, "ready_for_review");
+  assert.equal(packet.source.mode, "model_assisted");
+  assert.equal(packet.source.proposer, "external_candidate");
+}
+
+{
+  const result = spawnSync(process.execPath, [cliPath, "review-candidate"], {
+    input: "Make a dashboard for the system.",
+    encoding: "utf8",
+  });
+
+  assert.notEqual(result.status, 0);
+  const error = JSON.parse(result.stderr);
+  assert.equal(error.error.code, "invalid_input");
+  assert.ok(error.error.message.includes("--candidate"));
+}
+
+{
   const result = spawnSync(process.execPath, [cliPath, "analyze"], {
     input: "   ",
     encoding: "utf8",

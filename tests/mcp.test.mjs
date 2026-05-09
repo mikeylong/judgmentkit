@@ -14,6 +14,7 @@ assert.deepEqual(
     "analyze_implementation_brief",
     "create_activity_model_review",
     "review_activity_model_candidate",
+    "review_ui_workflow_candidate",
   ],
 );
 assert.deepEqual(getMcpMetadata("stdio").capabilities.prompts, []);
@@ -23,6 +24,8 @@ assert.equal(tools[1].inputSchema.required.includes("brief"), true);
 assert.equal(tools[1].inputSchema.properties.brief.minLength, 1);
 assert.equal(tools[2].inputSchema.required.includes("brief"), true);
 assert.equal(tools[2].inputSchema.required.includes("candidate"), true);
+assert.equal(tools[3].inputSchema.required.includes("brief"), true);
+assert.equal(tools[3].inputSchema.required.includes("candidate"), true);
 
 const refundTriageCandidate = {
   activity_model: {
@@ -45,6 +48,32 @@ const refundTriageCandidate = {
     hidden_implementation_terms: [],
     translation_candidates: [],
     diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
+  },
+};
+
+const refundWorkflowCandidate = {
+  workflow: {
+    surface_name: "Refund escalation queue",
+    steps: ["Review evidence", "Choose path", "Prepare handoff"],
+    primary_actions: ["Approve refund", "Send to policy review", "Return for evidence"],
+    decision_points: [
+      "Decide whether the case should be approved, sent to policy review, or returned for missing evidence.",
+    ],
+    completion_state: "Clear handoff with next action and decision reason.",
+  },
+  primary_ui: {
+    sections: ["Selected case", "Evidence checklist", "Policy review context", "Handoff"],
+    controls: ["Approve refund", "Send to policy review", "Return for evidence", "Send handoff"],
+    user_facing_terms: ["refund request", "policy review", "missing evidence", "handoff reason"],
+  },
+  handoff: {
+    next_owner: "support agent",
+    reason: "Receipt or support evidence is missing.",
+    next_action: "Send handoff with next action and decision reason.",
+  },
+  diagnostics: {
+    implementation_terms: [],
+    reveal_contexts: ["setup", "debugging", "auditing", "integration"],
   },
 };
 
@@ -150,6 +179,56 @@ const refundTriageCandidate = {
 }
 
 {
+  const result = await handleToolCall("review_ui_workflow_candidate", {
+    brief:
+      "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+    candidate: refundWorkflowCandidate,
+  });
+
+  assert.equal("error" in result, false);
+  assert.equal(result.review_status, "ready_for_review");
+  assert.equal(result.source.mode, "model_assisted");
+  assert.equal(result.source.proposer, "external_candidate");
+  assert.ok(result.candidate.workflow.surface_name.includes("Refund escalation"));
+  assert.ok(result.candidate.workflow.primary_actions.includes("Approve refund"));
+  assert.deepEqual(result.guardrails.candidate_primary_terms_detected, []);
+  assert.deepEqual(result.guardrails.candidate_primary_meta_terms_detected, []);
+}
+
+{
+  const result = await handleToolCall("review_ui_workflow_candidate", {
+    brief:
+      "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+    candidate: {
+      ...refundWorkflowCandidate,
+      workflow: {
+        ...refundWorkflowCandidate.workflow,
+        surface_name: "ready_for_review JSON schema console",
+      },
+      primary_ui: {
+        ...refundWorkflowCandidate.primary_ui,
+        sections: ["Activity", "Prompt template"],
+      },
+    },
+  });
+
+  assert.equal("error" in result, false);
+  assert.equal(result.review_status, "needs_source_context");
+  assert.ok(
+    result.guardrails.candidate_primary_terms_detected.some(
+      (entry) => entry.term === "JSON schema",
+    ),
+  );
+  assert.ok(
+    result.guardrails.candidate_primary_meta_terms_detected.some(
+      (entry) => entry.term === "ready_for_review",
+    ),
+  );
+  assert.equal(JSON.stringify(result.candidate.workflow).includes("JSON schema"), false);
+  assert.equal(JSON.stringify(result.candidate.primary_ui).includes("Prompt template"), false);
+}
+
+{
   const result = await handleToolCall("analyze_implementation_brief", {
     brief: "  ",
   });
@@ -169,6 +248,17 @@ const refundTriageCandidate = {
 
 {
   const result = await handleToolCall("review_activity_model_candidate", {
+    brief:
+      "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+    candidate: {},
+  });
+
+  assert.equal("error" in result, true);
+  assert.equal(result.error.code, "invalid_input");
+}
+
+{
+  const result = await handleToolCall("review_ui_workflow_candidate", {
     brief:
       "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
     candidate: {},

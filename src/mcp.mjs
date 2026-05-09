@@ -6,6 +6,7 @@ import {
   analyzeImplementationBrief,
   createActivityModelReview,
   reviewActivityModelCandidate,
+  reviewUiWorkflowCandidate,
 } from "./index.mjs";
 
 const MCP_SERVER_NAME = "JudgmentKit 2";
@@ -72,6 +73,29 @@ const REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL = {
   },
 };
 
+const REVIEW_UI_WORKFLOW_CANDIDATE_TOOL = {
+  name: "review_ui_workflow_candidate",
+  description:
+    "Review an externally proposed UI workflow candidate against the source brief, activity review, and JudgmentKit guardrails.",
+  inputSchema: {
+    type: "object",
+    required: ["brief", "candidate"],
+    properties: {
+      brief: {
+        type: "string",
+        minLength: 1,
+        description: "Source UI brief the proposed workflow candidate should be grounded in.",
+      },
+      candidate: {
+        type: "object",
+        description:
+          "Externally proposed UI workflow candidate with workflow, primary_ui, handoff, and diagnostics.",
+      },
+    },
+    additionalProperties: false,
+  },
+};
+
 function createError(code, message) {
   return {
     error: {
@@ -82,7 +106,12 @@ function createError(code, message) {
 }
 
 export function listTools() {
-  return [ANALYZE_TOOL, ACTIVITY_MODEL_REVIEW_TOOL, REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL];
+  return [
+    ANALYZE_TOOL,
+    ACTIVITY_MODEL_REVIEW_TOOL,
+    REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL,
+    REVIEW_UI_WORKFLOW_CANDIDATE_TOOL,
+  ];
 }
 
 export function getMcpMetadata(transport = "stdio") {
@@ -103,15 +132,20 @@ export async function handleToolCall(name, args = {}) {
       ANALYZE_TOOL.name,
       ACTIVITY_MODEL_REVIEW_TOOL.name,
       REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL.name,
+      REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name,
     ].includes(name)
   ) {
     return createError(
       "invalid_request",
-      `Tool ${name} is not supported. Use ${ANALYZE_TOOL.name}, ${ACTIVITY_MODEL_REVIEW_TOOL.name}, or ${REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL.name}.`,
+      `Tool ${name} is not supported. Use ${ANALYZE_TOOL.name}, ${ACTIVITY_MODEL_REVIEW_TOOL.name}, ${REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL.name}, or ${REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name}.`,
     );
   }
 
   try {
+    if (name === REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name) {
+      return reviewUiWorkflowCandidate(args.brief, args.candidate);
+    }
+
     if (name === REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL.name) {
       return reviewActivityModelCandidate(args.brief, args.candidate);
     }
@@ -185,6 +219,19 @@ export function createJudgmentKitMcpServer() {
     },
     async (args) =>
       createToolResult(await handleToolCall(REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL.name, args)),
+  );
+
+  server.registerTool(
+    REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name,
+    {
+      description: REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.description,
+      inputSchema: {
+        brief: z.string(),
+        candidate: z.record(z.any()),
+      },
+    },
+    async (args) =>
+      createToolResult(await handleToolCall(REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name, args)),
   );
 
   return server;

@@ -1,0 +1,42 @@
+{
+  "activity_model": {
+    "activity": "Support lead reviews refund requests during daily triage workflow.",
+    "participants": [
+      "support lead"
+    ],
+    "objective": "Decide whether a case should be approved, sent to policy review, or returned for missing evidence.",
+    "outcomes": [
+      "Clear handoff with next action and decision reason."
+    ],
+    "domain_vocabulary": [
+      "refund requests",
+      "policy review",
+      "missing evidence"
+    ]
+  },
+  "interaction_contract": {
+    "primary_decision": "Decide whether a case should be approved, sent to policy review, or returned for missing evidence.",
+    "next_actions": [
+      "Confirm the handoff path."
+    ],
+    "completion": "Clear handoff with next action and decision reason.",
+    "make_easy": [
+      "Review decision options in domain language."
+    ]
+  },
+  "disclosure_policy": {
+    "terms_to_use": [
+      "refund requests",
+      "policy review",
+      "missing evidence"
+    ],
+    "hidden_implementation_terms": [],
+    "translation_candidates": [],
+    "diagnostic_contexts": [
+      "setup",
+      "debugging",
+      "auditing",
+      "integration"
+    ]
+  }
+}

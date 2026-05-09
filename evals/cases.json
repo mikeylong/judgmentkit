@@ -1,7 +1,58 @@
 [
   {
     "id": "implementation-heavy-admin-surface",
+    "tags": [
+      "implementation-heavy",
+      "missing-source-context",
+      "disclosure-risk",
+      "expected-next-action:ask-targeted-questions"
+    ],
     "brief": "Build an admin screen from the customer data model. Show every database table field, the JSON schema, prompt template, tool call result, resource id, and API endpoint. Make it CRUD so the agent can expose tools/list diagnostics.",
+    "ui_workflow_candidate": {
+      "workflow": {
+        "surface_name": "Customer data model CRUD console",
+        "steps": [
+          "Review JSON schema",
+          "Edit database table field"
+        ],
+        "primary_actions": [
+          "Save CRUD update"
+        ],
+        "decision_points": [
+          "Decide whether the prompt template is ready"
+        ],
+        "completion_state": "Schema validation passed"
+      },
+      "primary_ui": {
+        "sections": [
+          "JSON schema",
+          "Prompt template"
+        ],
+        "controls": [
+          "Save CRUD update"
+        ],
+        "user_facing_terms": [
+          "database table",
+          "resource id"
+        ]
+      },
+      "handoff": {
+        "next_owner": "admin",
+        "reason": "Schema validation failed",
+        "next_action": "Update resource id"
+      },
+      "diagnostics": {
+        "implementation_terms": [
+          "JSON schema",
+          "prompt template",
+          "resource id"
+        ],
+        "reveal_contexts": [
+          "debugging",
+          "integration"
+        ]
+      }
+    },
     "expect": {
       "status": "needs_review",
       "detected_includes": [
@@ -63,11 +114,35 @@
           "prompt template",
           "resource id"
         ]
+      },
+      "ui_workflow": {
+        "status": "needs_source_context",
+        "max_targeted_questions": 3,
+        "candidate_primary_excludes": [
+          "JSON schema",
+          "prompt template",
+          "data model",
+          "database table",
+          "resource id",
+          "CRUD"
+        ],
+        "guardrail_terms_includes": [
+          "JSON schema",
+          "prompt template",
+          "resource id",
+          "CRUD"
+        ]
       }
     }
   },
   {
     "id": "activity-rich-refund-triage",
+    "tags": [
+      "activity-rich",
+      "ready",
+      "model-candidate",
+      "expected-next-action:proceed-to-ui-concept"
+    ],
     "brief": "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
     "model_candidate": {
       "activity_model": {
@@ -104,6 +179,59 @@
         "hidden_implementation_terms": [],
         "translation_candidates": [],
         "diagnostic_contexts": [
+          "setup",
+          "debugging",
+          "auditing",
+          "integration"
+        ]
+      }
+    },
+    "ui_workflow_candidate": {
+      "workflow": {
+        "surface_name": "Refund escalation queue",
+        "steps": [
+          "Review evidence",
+          "Choose path",
+          "Prepare handoff"
+        ],
+        "primary_actions": [
+          "Approve refund",
+          "Send to policy review",
+          "Return for evidence"
+        ],
+        "decision_points": [
+          "Decide whether the case should be approved, sent to policy review, or returned for missing evidence."
+        ],
+        "completion_state": "Clear handoff with next action and decision reason."
+      },
+      "primary_ui": {
+        "sections": [
+          "Selected case",
+          "Evidence checklist",
+          "Policy review context",
+          "Handoff"
+        ],
+        "controls": [
+          "Approve refund",
+          "Send to policy review",
+          "Return for evidence",
+          "Send handoff"
+        ],
+        "user_facing_terms": [
+          "refund request",
+          "policy review",
+          "missing evidence",
+          "handoff reason"
+        ]
+      },
+      "handoff": {
+        "next_owner": "support agent",
+        "reason": "Evidence status explains the handoff path.",
+        "next_action": "Send handoff with next action and decision reason."
+      },
+      "diagnostics": {
+        "implementation_terms": [],
+        "reveal_contexts": [
           "setup",
           "debugging",
           "auditing",
@@ -213,11 +341,48 @@
           "resource id",
           "tool call"
         ]
+      },
+      "ui_workflow": {
+        "status": "ready_for_review",
+        "max_targeted_questions": 0,
+        "candidate_includes": {
+          "workflow.surface_name": [
+            "Refund escalation queue"
+          ],
+          "workflow.primary_actions": [
+            "Approve refund",
+            "Send to policy review",
+            "Return for evidence"
+          ],
+          "primary_ui.sections": [
+            "Evidence checklist",
+            "Handoff"
+          ],
+          "handoff.next_action": [
+            "Send handoff"
+          ]
+        },
+        "candidate_primary_excludes": [
+          "JSON schema",
+          "prompt template",
+          "data model",
+          "resource id",
+          "tool call",
+          "ready_for_review",
+          "activity_model",
+          "interaction_contract"
+        ]
       }
     }
   },
   {
     "id": "vague-dashboard-request",
+    "tags": [
+      "vague-brief",
+      "missing-source-context",
+      "model-candidate-unsupported",
+      "expected-next-action:ask-targeted-questions"
+    ],
     "brief": "Make a dashboard for the system.",
     "model_candidate": {
       "activity_model": {
@@ -243,6 +408,59 @@
         "completion": "Clear handoff with next action and decision reason.",
         "make_easy": [
           "Review decision options in domain language."
+        ]
+      }
+    },
+    "ui_workflow_candidate": {
+      "workflow": {
+        "surface_name": "Refund escalation queue",
+        "steps": [
+          "Review evidence",
+          "Choose path",
+          "Prepare handoff"
+        ],
+        "primary_actions": [
+          "Approve refund",
+          "Send to policy review",
+          "Return for evidence"
+        ],
+        "decision_points": [
+          "Decide whether the case should be approved, sent to policy review, or returned for missing evidence."
+        ],
+        "completion_state": "Clear handoff with next action and decision reason."
+      },
+      "primary_ui": {
+        "sections": [
+          "Selected case",
+          "Evidence checklist",
+          "Policy review context",
+          "Handoff"
+        ],
+        "controls": [
+          "Approve refund",
+          "Send to policy review",
+          "Return for evidence",
+          "Send handoff"
+        ],
+        "user_facing_terms": [
+          "refund request",
+          "policy review",
+          "missing evidence",
+          "handoff reason"
+        ]
+      },
+      "handoff": {
+        "next_owner": "support agent",
+        "reason": "Evidence status explains the handoff path.",
+        "next_action": "Send handoff with next action and decision reason."
+      },
+      "diagnostics": {
+        "implementation_terms": [],
+        "reveal_contexts": [
+          "setup",
+          "debugging",
+          "auditing",
+          "integration"
         ]
       }
     },
@@ -297,11 +515,29 @@
             "case should be approved"
           ]
         }
+      },
+      "ui_workflow": {
+        "status": "needs_source_context",
+        "max_targeted_questions": 3,
+        "candidate_includes": {
+          "workflow.surface_name": [
+            "Refund escalation queue"
+          ],
+          "workflow.primary_actions": [
+            "Approve refund"
+          ]
+        }
       }
     }
   },
   {
     "id": "diagnostic-integration-audit",
+    "tags": [
+      "diagnostic-audit",
+      "implementation-terms-allowed-in-disclosure",
+      "model-candidate-leakage",
+      "expected-next-action:contain-diagnostic-language"
+    ],
     "brief": "A support operations manager is auditing an integration setup workflow. The activity is deciding whether a JSON schema change and prompt template update are safe to ship, then producing a handoff with the next action for the platform team.",
     "model_candidate": {
       "activity_model": {
@@ -346,6 +582,56 @@
         ],
         "translation_candidates": [],
         "diagnostic_contexts": [
+          "setup",
+          "debugging",
+          "auditing",
+          "integration"
+        ]
+      }
+    },
+    "ui_workflow_candidate": {
+      "workflow": {
+        "surface_name": "Integration JSON schema audit",
+        "steps": [
+          "Review JSON schema",
+          "Check prompt template",
+          "Prepare platform team handoff"
+        ],
+        "primary_actions": [
+          "Approve JSON schema",
+          "Send to platform team"
+        ],
+        "decision_points": [
+          "Decide whether the prompt template update is safe to ship."
+        ],
+        "completion_state": "Handoff with the next action for the platform team."
+      },
+      "primary_ui": {
+        "sections": [
+          "JSON schema",
+          "Prompt template",
+          "Platform team handoff"
+        ],
+        "controls": [
+          "Approve JSON schema",
+          "Send handoff"
+        ],
+        "user_facing_terms": [
+          "integration setup workflow",
+          "platform team"
+        ]
+      },
+      "handoff": {
+        "next_owner": "platform team",
+        "reason": "Integration risk needs platform team follow-up.",
+        "next_action": "Send handoff with next action."
+      },
+      "diagnostics": {
+        "implementation_terms": [
+          "JSON schema",
+          "prompt template"
+        ],
+        "reveal_contexts": [
           "setup",
           "debugging",
           "auditing",
@@ -477,12 +763,89 @@
           "JSON schema",
           "prompt template"
         ]
+      },
+      "ui_workflow": {
+        "status": "needs_source_context",
+        "max_targeted_questions": 3,
+        "candidate_includes": {
+          "handoff.next_owner": [
+            "platform team"
+          ],
+          "handoff.next_action": [
+            "Send handoff"
+          ]
+        },
+        "candidate_primary_excludes": [
+          "JSON schema",
+          "prompt template"
+        ],
+        "guardrail_terms_includes": [
+          "JSON schema",
+          "prompt template"
+        ]
       }
     }
   },
   {
     "id": "field-operations-false-positive",
+    "tags": [
+      "false-positive-guard",
+      "field-operations",
+      "ready",
+      "expected-next-action:proceed-to-ui-concept"
+    ],
     "brief": "A field operations manager is reviewing repair visits. The activity is deciding which technician should handle the next job, comparing route constraints, approving the handoff, and leaving the dispatch team with a completed next action.",
+    "ui_workflow_candidate": {
+      "workflow": {
+        "surface_name": "Repair visit dispatch review",
+        "steps": [
+          "Review repair visit",
+          "Compare route constraints",
+          "Approve handoff"
+        ],
+        "primary_actions": [
+          "Assign technician",
+          "Approve handoff"
+        ],
+        "decision_points": [
+          "Decide which technician should handle the next job."
+        ],
+        "completion_state": "Dispatch team leaves with a completed next action."
+      },
+      "primary_ui": {
+        "sections": [
+          "Repair visit",
+          "Route constraints",
+          "Technician options",
+          "Handoff"
+        ],
+        "controls": [
+          "Assign technician",
+          "Approve handoff"
+        ],
+        "user_facing_terms": [
+          "field operations manager",
+          "repair visits",
+          "route constraints",
+          "technician",
+          "next job"
+        ]
+      },
+      "handoff": {
+        "next_owner": "dispatch team",
+        "reason": "Technician assignment is ready for dispatch.",
+        "next_action": "Approve the handoff."
+      },
+      "diagnostics": {
+        "implementation_terms": [],
+        "reveal_contexts": [
+          "setup",
+          "debugging",
+          "auditing",
+          "integration"
+        ]
+      }
+    },
     "expect": {
       "status": "ready",
       "max_review_questions": 0,
@@ -541,6 +904,124 @@
             "technician should handle"
           ]
         }
+      },
+      "ui_workflow": {
+        "status": "ready_for_review",
+        "max_targeted_questions": 0,
+        "candidate_includes": {
+          "workflow.surface_name": [
+            "Repair visit dispatch review"
+          ],
+          "primary_ui.user_facing_terms": [
+            "field operations manager",
+            "technician"
+          ],
+          "handoff.next_owner": [
+            "dispatch team"
+          ]
+        },
+        "candidate_primary_excludes": [
+          "JSON schema",
+          "prompt template",
+          "CRUD"
+        ]
+      }
+    }
+  },
+  {
+    "id": "ui-workflow-review-packet-leakage",
+    "tags": [
+      "activity-rich",
+      "ui-workflow-candidate",
+      "review-packet-leakage",
+      "expected-next-action:remove-meta-language"
+    ],
+    "brief": "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+    "ui_workflow_candidate": {
+      "workflow": {
+        "surface_name": "ready_for_review",
+        "steps": [
+          "Review evidence",
+          "Choose path",
+          "Prepare handoff"
+        ],
+        "primary_actions": [
+          "Approve refund",
+          "Send to policy review",
+          "Return for evidence"
+        ],
+        "decision_points": [
+          "Main decision: approve or return the case."
+        ],
+        "completion_state": "Clear handoff with next action and decision reason."
+      },
+      "primary_ui": {
+        "sections": [
+          "Activity",
+          "Evidence checklist",
+          "Handoff"
+        ],
+        "controls": [
+          "Approve refund",
+          "Send handoff"
+        ],
+        "user_facing_terms": [
+          "refund request",
+          "policy review",
+          "missing evidence"
+        ]
+      },
+      "handoff": {
+        "next_owner": "support agent",
+        "reason": "Evidence status explains the handoff path.",
+        "next_action": "Send handoff with next action and decision reason."
+      },
+      "diagnostics": {
+        "implementation_terms": [],
+        "reveal_contexts": [
+          "setup",
+          "debugging",
+          "auditing",
+          "integration"
+        ]
+      }
+    },
+    "expect": {
+      "status": "ready",
+      "max_review_questions": 0,
+      "evidence": {
+        "activity": true,
+        "domain_vocabulary": true,
+        "decision": true,
+        "outcome": true
+      },
+      "review": {
+        "status": "ready_for_review",
+        "max_targeted_questions": 0,
+        "candidate_includes": {
+          "activity_model.activity": [
+            "refund requests"
+          ],
+          "interaction_contract.primary_decision": [
+            "case should be approved"
+          ]
+        }
+      },
+      "ui_workflow": {
+        "status": "needs_source_context",
+        "max_targeted_questions": 3,
+        "candidate_primary_excludes": [
+          "ready_for_review",
+          "Activity",
+          "Main decision",
+          "activity_model",
+          "interaction_contract"
+        ],
+        "guardrail_meta_terms_includes": [
+          "ready_for_review",
+          "Activity",
+          "Main decision"
+        ]
       }
     }
   }

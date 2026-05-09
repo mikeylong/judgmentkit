@@ -32,8 +32,9 @@ JudgmentKit 2 keeps the core deterministic and lets model assistance enter throu
 1. Deterministic analyzer: extracts activity evidence, implementation terms, review questions, and disclosure risks from a brief.
 2. Deterministic review packet: turns that evidence into a reviewable activity model candidate with guardrails.
 3. Model-assisted candidate review seam: accepts a model-proposed candidate through dependency injection or MCP and runs the same guardrails.
-4. Provider-neutral proposer adapter: builds a serializable candidate request for an injected model caller and returns the proposed candidate to the review seam.
-5. Provider adapters later: provider configuration and network calls stay outside the kernel until the review contract is stable.
+4. Provider-neutral proposer adapter: builds a serializable activity-model request for an injected model caller and returns the proposed candidate to the review seam.
+5. UI workflow candidate review seam: accepts a model- or agent-proposed workflow candidate and checks grounding, action support, handoff clarity, and disclosure containment before UI implementation.
+6. Provider adapters later: provider configuration and network calls stay outside the kernel until the review contract is stable.
 
 ## Structure
 
@@ -41,6 +42,8 @@ JudgmentKit 2 keeps the core deterministic and lets model assistance enter throu
 - `DESIGN.md`: activity-first judgment contract.
 - `specs/`: product and interface specs for the v2 kernel.
 - `contracts/`: machine-readable activity and disclosure contracts.
+- `docs/`: daily workflow guidance for agents and local usage.
+- `examples/`: copyable briefs and candidate fixtures for CLI and MCP checks.
 - `tests/`: checks that protect the kernel from drifting back to aesthetic-first or implementation-first work.
 
 ## First Workflow
@@ -54,3 +57,18 @@ The first validation command is:
 ```bash
 npm test
 ```
+
+For daily local use:
+
+```bash
+npm run mcp:smoke
+judgmentkit2 review --input examples/refund-triage.brief.txt
+```
+
+For a deterministic one-shot before/after demo:
+
+```bash
+npm run demo:one-shot
+```
+
+That command also writes `examples/demo/one-shot-demo.html` for visual review.

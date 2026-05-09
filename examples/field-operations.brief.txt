@@ -1,0 +1,1 @@
+A field operations manager is reviewing repair visits. The activity is deciding which technician should handle the next job, comparing route constraints, approving the handoff, and leaving the dispatch team with a completed next action.

@@ -8,6 +8,7 @@ import {
   createActivityModelReview,
   createModelAssistedActivityModelReview,
   reviewActivityModelCandidate,
+  reviewUiWorkflowCandidate,
 } from "../src/index.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -218,6 +219,103 @@ function checkReviewGuardrailTerms(reviewPacket, expectedValues, failures) {
   checkIncludes("review.guardrails.implementation_terms_detected", actualSet, expectedValues, failures);
 }
 
+function checkUiWorkflowCandidateIncludes(reviewPacket, expectedFields, failures) {
+  for (const [pathExpression, expectedValues] of Object.entries(expectedFields ?? {})) {
+    checkPhrases(
+      `ui_workflow.candidate.${pathExpression}`,
+      getPath(reviewPacket.candidate, pathExpression),
+      expectedValues,
+    );
+  }
+}
+
+function checkUiWorkflowPrimaryExcludes(reviewPacket, expectedValues, failures) {
+  const primaryText = stringifyLower({
+    workflow: reviewPacket.candidate.workflow,
+    primary_ui: reviewPacket.candidate.primary_ui,
+    handoff: reviewPacket.candidate.handoff,
+  });
+
+  for (const expectedValue of expectedValues ?? []) {
+    if (primaryText.includes(expectedValue.toLowerCase())) {
+      failures.push(`ui workflow primary fields leaked term: ${expectedValue}`);
+    }
+  }
+}
+
+function checkUiWorkflowGuardrailTerms(reviewPacket, expectedValues, failures) {
+  const actualSet = new Set(
+    reviewPacket.guardrails.candidate_primary_terms_detected.map((entry) => entry.term),
+  );
+
+  checkIncludes(
+    "ui_workflow.guardrails.candidate_primary_terms_detected",
+    actualSet,
+    expectedValues,
+    failures,
+  );
+}
+
+function checkUiWorkflowGuardrailMetaTerms(reviewPacket, expectedValues, failures) {
+  const actualSet = new Set(
+    reviewPacket.guardrails.candidate_primary_meta_terms_detected.map((entry) => entry.term),
+  );
+
+  checkIncludes(
+    "ui_workflow.guardrails.candidate_primary_meta_terms_detected",
+    actualSet,
+    expectedValues,
+    failures,
+  );
+}
+
+function checkUiWorkflowPacket(reviewPacket, expectedWorkflow, failures) {
+  if (!expectedWorkflow) {
+    return;
+  }
+
+  if (!reviewPacket) {
+    failures.push("ui_workflow expected review packet but no candidate was provided");
+    return;
+  }
+
+  if (reviewPacket.review_status !== expectedWorkflow.status) {
+    failures.push(
+      `ui_workflow.review_status expected ${expectedWorkflow.status}, got ${reviewPacket.review_status}`,
+    );
+  }
+
+  if (
+    Number.isInteger(expectedWorkflow.max_targeted_questions) &&
+    reviewPacket.review.targeted_questions.length > expectedWorkflow.max_targeted_questions
+  ) {
+    failures.push(
+      `ui_workflow.review.targeted_questions expected at most ${expectedWorkflow.max_targeted_questions}, got ${reviewPacket.review.targeted_questions.length}`,
+    );
+  }
+
+  checkUiWorkflowCandidateIncludes(
+    reviewPacket,
+    expectedWorkflow.candidate_includes,
+    failures,
+  );
+  checkUiWorkflowPrimaryExcludes(
+    reviewPacket,
+    expectedWorkflow.candidate_primary_excludes,
+    failures,
+  );
+  checkUiWorkflowGuardrailTerms(
+    reviewPacket,
+    expectedWorkflow.guardrail_terms_includes,
+    failures,
+  );
+  checkUiWorkflowGuardrailMetaTerms(
+    reviewPacket,
+    expectedWorkflow.guardrail_meta_terms_includes,
+    failures,
+  );
+}
+
 function checkReviewPacket(reviewPacket, expectedReview, failures) {
   if (!expectedReview) {
     return;
@@ -271,6 +369,9 @@ async function evaluateCase(testCase) {
           }),
         })
       : null;
+  const uiWorkflowReviewPacket = testCase.ui_workflow_candidate
+    ? reviewUiWorkflowCandidate(testCase.brief, testCase.ui_workflow_candidate)
+    : null;
   const failures = [];
   const terms = detectedTerms(packet);
 
@@ -308,13 +409,16 @@ async function evaluateCase(testCase) {
   checkReviewPacket(reviewPacket, expected.review, failures);
   checkReviewPacket(modelAssistedReviewPacket, expected.model_assisted, failures);
   checkReviewPacket(modelProposerReviewPacket, expected.model_proposer, failures);
+  checkUiWorkflowPacket(uiWorkflowReviewPacket, expected.ui_workflow, failures);
   checkForbiddenPacketKeys(packet, failures);
   checkForbiddenPacketKeys(reviewPacket, failures);
   checkForbiddenPacketKeys(modelAssistedReviewPacket, failures);
   checkForbiddenPacketKeys(modelProposerReviewPacket, failures);
+  checkForbiddenPacketKeys(uiWorkflowReviewPacket, failures);
 
   return {
     id: testCase.id,
+    tags: testCase.tags ?? [],
     passed: failures.length === 0,
     failures,
     observed: {
@@ -353,6 +457,15 @@ async function evaluateCase(testCase) {
               modelProposerReviewPacket.review.targeted_questions.length,
             candidate_activity:
               modelProposerReviewPacket.candidate.activity_model.activity,
+          }
+        : undefined,
+      ui_workflow: uiWorkflowReviewPacket
+        ? {
+            status: uiWorkflowReviewPacket.review_status,
+            confidence: uiWorkflowReviewPacket.review.confidence,
+            targeted_questions_count:
+              uiWorkflowReviewPacket.review.targeted_questions.length,
+            surface_name: uiWorkflowReviewPacket.candidate.workflow.surface_name,
           }
         : undefined,
     },

@@ -42,6 +42,7 @@ try {
       "analyze_implementation_brief",
       "create_activity_model_review",
       "review_activity_model_candidate",
+      "review_ui_workflow_candidate",
     ],
   );
 
@@ -149,6 +150,69 @@ try {
     "external_candidate",
   );
   assert.equal(candidateReviewResponse.structuredContent.review_status, "ready_for_review");
+
+  const workflowReviewResponse = await withTimeout(
+    client.callTool({
+      name: "review_ui_workflow_candidate",
+      arguments: {
+        brief:
+          "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+        candidate: {
+          workflow: {
+            surface_name: "Refund escalation queue",
+            steps: ["Review evidence", "Choose path", "Prepare handoff"],
+            primary_actions: [
+              "Approve refund",
+              "Send to policy review",
+              "Return for evidence",
+            ],
+            decision_points: [
+              "Decide whether the case should be approved, sent to policy review, or returned for missing evidence.",
+            ],
+            completion_state: "Clear handoff with next action and decision reason.",
+          },
+          primary_ui: {
+            sections: ["Selected case", "Evidence checklist", "Policy review context", "Handoff"],
+            controls: [
+              "Approve refund",
+              "Send to policy review",
+              "Return for evidence",
+              "Send handoff",
+            ],
+            user_facing_terms: [
+              "refund request",
+              "policy review",
+              "missing evidence",
+              "handoff reason",
+            ],
+          },
+          handoff: {
+            next_owner: "support agent",
+            reason: "Receipt or support evidence is missing.",
+            next_action: "Send handoff with next action and decision reason.",
+          },
+          diagnostics: {
+            implementation_terms: [],
+            reveal_contexts: ["setup", "debugging", "auditing", "integration"],
+          },
+        },
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(workflowReviewResponse.isError, undefined);
+  assert.equal(workflowReviewResponse.structuredContent.source.mode, "model_assisted");
+  assert.equal(
+    workflowReviewResponse.structuredContent.source.proposer,
+    "external_candidate",
+  );
+  assert.equal(workflowReviewResponse.structuredContent.review_status, "ready_for_review");
+  assert.ok(
+    workflowReviewResponse.structuredContent.candidate.workflow.primary_actions.includes(
+      "Approve refund",
+    ),
+  );
   assert.equal(stderrOutput.includes("JudgmentKit 2 stdio MCP failed"), false);
 } finally {
   await transport?.close();

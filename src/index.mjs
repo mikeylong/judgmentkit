@@ -1249,3 +1249,598 @@ export async function createModelAssistedActivityModelReview(input, options = {}
     proposer: "injected",
   });
 }
+
+const REVIEW_PACKET_MACHINE_TERMS = [
+  "activity_model",
+  "candidate",
+  "guardrails",
+  "interaction_contract",
+  "needs_source_context",
+  "ready_for_review",
+  "review_status",
+];
+
+const REVIEW_PACKET_LABEL_TERMS = [
+  "Activity",
+  "Main decision",
+  "Outcome",
+  "Primary user",
+  "Review status",
+];
+
+function collectStringValues(value, values = []) {
+  if (typeof value === "string") {
+    values.push(value);
+    return values;
+  }
+
+  if (Array.isArray(value)) {
+    for (const entry of value) {
+      collectStringValues(entry, values);
+    }
+    return values;
+  }
+
+  if (value && typeof value === "object") {
+    for (const child of Object.values(value)) {
+      collectStringValues(child, values);
+    }
+  }
+
+  return values;
+}
+
+function uiWorkflowPrimaryFields(candidate) {
+  return {
+    workflow: candidate.workflow,
+    primary_ui: candidate.primary_ui,
+    handoff: candidate.handoff,
+  };
+}
+
+function textContainsReviewPacketMetaTerm(value) {
+  const normalized = normalizeText(value);
+
+  if (
+    REVIEW_PACKET_MACHINE_TERMS.some((term) =>
+      normalized.includes(normalizeText(term)),
+    )
+  ) {
+    return true;
+  }
+
+  return REVIEW_PACKET_LABEL_TERMS.some((term) => {
+    const normalizedTerm = normalizeText(term);
+
+    return (
+      normalized === normalizedTerm ||
+      normalized.startsWith(`${normalizedTerm}:`) ||
+      normalized.startsWith(`${normalizedTerm} `)
+    );
+  });
+}
+
+function buildCandidatePrimaryMetaTermsDetected(candidate) {
+  const counts = new Map();
+
+  for (const value of collectStringValues(uiWorkflowPrimaryFields(candidate))) {
+    const normalized = normalizeText(value);
+
+    for (const term of REVIEW_PACKET_MACHINE_TERMS) {
+      if (normalized.includes(normalizeText(term))) {
+        counts.set(term, (counts.get(term) ?? 0) + 1);
+      }
+    }
+
+    for (const term of REVIEW_PACKET_LABEL_TERMS) {
+      const normalizedTerm = normalizeText(term);
+
+      if (
+        normalized === normalizedTerm ||
+        normalized.startsWith(`${normalizedTerm}:`) ||
+        normalized.startsWith(`${normalizedTerm} `)
+      ) {
+        counts.set(term, (counts.get(term) ?? 0) + 1);
+      }
+    }
+  }
+
+  return [...counts.entries()]
+    .map(([term, count]) => ({ term, count }))
+    .sort((left, right) => left.term.localeCompare(right.term));
+}
+
+function buildUiWorkflowPrimaryTermsDetected(candidate, contract) {
+  return detectImplementationTerms(
+    JSON.stringify(uiWorkflowPrimaryFields(candidate)),
+    contract,
+  );
+}
+
+function containsPrimaryWorkflowLeak(value, implementationTermsDetected) {
+  return (
+    containsDetectedImplementationTerm(value, implementationTermsDetected) ||
+    textContainsReviewPacketMetaTerm(value)
+  );
+}
+
+function sanitizeUiWorkflowString(value, implementationTermsDetected, fallback = "") {
+  const cleaned = optionalString(value);
+
+  if (!cleaned || containsPrimaryWorkflowLeak(cleaned, implementationTermsDetected)) {
+    return fallback;
+  }
+
+  return cleaned;
+}
+
+function sanitizeUiWorkflowList(values, implementationTermsDetected) {
+  return toStringArray(values).filter(
+    (value) => !containsPrimaryWorkflowLeak(value, implementationTermsDetected),
+  );
+}
+
+function toDiagnosticTermArray(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((entry) => {
+      if (typeof entry === "string") {
+        return cleanClause(entry);
+      }
+
+      if (isPlainObject(entry)) {
+        return cleanClause(entry.term ?? entry.detected_term ?? "");
+      }
+
+      return "";
+    })
+    .filter(Boolean);
+}
+
+function assertUiWorkflowCandidateShape(candidate) {
+  if (!isPlainObject(candidate)) {
+    throw new JudgmentKitInputError("UI workflow candidate must be an object.");
+  }
+
+  if (!isPlainObject(candidate.workflow)) {
+    throw new JudgmentKitInputError("UI workflow candidate requires workflow.");
+  }
+
+  if (!isPlainObject(candidate.primary_ui)) {
+    throw new JudgmentKitInputError("UI workflow candidate requires primary_ui.");
+  }
+
+  if (!isPlainObject(candidate.handoff)) {
+    throw new JudgmentKitInputError("UI workflow candidate requires handoff.");
+  }
+
+  if (!isPlainObject(candidate.diagnostics)) {
+    throw new JudgmentKitInputError("UI workflow candidate requires diagnostics.");
+  }
+}
+
+function buildUiWorkflowCandidateMissingFields(candidate) {
+  const workflow = candidate.workflow;
+  const primaryUi = candidate.primary_ui;
+  const handoff = candidate.handoff;
+  const completionState = optionalString(workflow.completion_state);
+  const handoffCompletion =
+    optionalString(handoff.next_action).length > 0 &&
+    optionalString(handoff.reason).length > 0;
+
+  return {
+    workflow_steps: toStringArray(workflow.steps).length === 0,
+    primary_actions: toStringArray(workflow.primary_actions).length === 0,
+    decision_support: toStringArray(workflow.decision_points).length === 0,
+    primary_ui_sections: toStringArray(primaryUi.sections).length === 0,
+    completion_or_handoff:
+      completionState.length === 0 && !handoffCompletion,
+  };
+}
+
+function buildUiWorkflowCandidateGuardrails(candidate, contract) {
+  return {
+    candidate_primary_terms_detected: buildUiWorkflowPrimaryTermsDetected(
+      candidate,
+      contract,
+    ),
+    candidate_primary_meta_terms_detected:
+      buildCandidatePrimaryMetaTermsDetected(candidate),
+    candidate_missing_fields: buildUiWorkflowCandidateMissingFields(candidate),
+  };
+}
+
+function hasUiWorkflowMissingField(candidateMissingFields) {
+  return Object.values(candidateMissingFields).some(Boolean);
+}
+
+function normalizeUiWorkflowCandidate(candidate, activityReview, candidatePrimaryTermsDetected) {
+  const workflow = candidate.workflow;
+  const primaryUi = candidate.primary_ui;
+  const handoff = candidate.handoff;
+  const diagnostics = candidate.diagnostics;
+  const activityCandidate = activityReview.candidate;
+  const defaultTerms =
+    activityCandidate?.disclosure_policy?.terms_to_use ??
+    activityCandidate?.activity_model?.domain_vocabulary ??
+    [];
+  const defaultDiagnosticTerms =
+    activityReview.guardrails?.implementation_terms_detected?.map((entry) => entry.term) ?? [];
+  const defaultDiagnosticContexts =
+    activityCandidate?.disclosure_policy?.diagnostic_contexts ?? [
+      "setup",
+      "debugging",
+      "auditing",
+      "integration",
+    ];
+  const sanitizedUserTerms = unique([
+    ...sanitizeUiWorkflowList(primaryUi.user_facing_terms, candidatePrimaryTermsDetected),
+    ...sanitizeUiWorkflowList(defaultTerms, candidatePrimaryTermsDetected),
+  ]);
+
+  return {
+    workflow: {
+      surface_name: sanitizeUiWorkflowString(
+        workflow.surface_name,
+        candidatePrimaryTermsDetected,
+        "Workflow review",
+      ),
+      steps: sanitizeUiWorkflowList(workflow.steps, candidatePrimaryTermsDetected),
+      primary_actions: sanitizeUiWorkflowList(
+        workflow.primary_actions,
+        candidatePrimaryTermsDetected,
+      ),
+      decision_points: sanitizeUiWorkflowList(
+        workflow.decision_points,
+        candidatePrimaryTermsDetected,
+      ),
+      completion_state: sanitizeUiWorkflowString(
+        workflow.completion_state,
+        candidatePrimaryTermsDetected,
+        activityCandidate?.interaction_contract?.completion ?? "",
+      ),
+    },
+    primary_ui: {
+      sections: sanitizeUiWorkflowList(primaryUi.sections, candidatePrimaryTermsDetected),
+      controls: sanitizeUiWorkflowList(primaryUi.controls, candidatePrimaryTermsDetected),
+      user_facing_terms: sanitizedUserTerms,
+    },
+    handoff: {
+      next_owner: sanitizeUiWorkflowString(
+        handoff.next_owner,
+        candidatePrimaryTermsDetected,
+      ),
+      reason: sanitizeUiWorkflowString(handoff.reason, candidatePrimaryTermsDetected),
+      next_action: sanitizeUiWorkflowString(
+        handoff.next_action,
+        candidatePrimaryTermsDetected,
+        activityCandidate?.interaction_contract?.next_actions?.[0] ?? "",
+      ),
+    },
+    diagnostics: {
+      implementation_terms:
+        toDiagnosticTermArray(diagnostics.implementation_terms).length > 0
+          ? toDiagnosticTermArray(diagnostics.implementation_terms)
+          : defaultDiagnosticTerms,
+      reveal_contexts:
+        toStringArray(diagnostics.reveal_contexts).length > 0
+          ? toStringArray(diagnostics.reveal_contexts)
+          : defaultDiagnosticContexts,
+    },
+  };
+}
+
+function buildUiWorkflowQuestions(activityReview, candidateGuardrails) {
+  const questions = [...(activityReview.review?.targeted_questions ?? [])];
+  const missing = candidateGuardrails.candidate_missing_fields;
+
+  if (missing.workflow_steps) {
+    questions.push("What workflow steps should the UI candidate support?");
+  }
+
+  if (missing.primary_actions) {
+    questions.push("What primary actions should the UI make available?");
+  }
+
+  if (missing.decision_support) {
+    questions.push("What decision points should the workflow help the user resolve?");
+  }
+
+  if (missing.completion_or_handoff) {
+    questions.push("What completion state or handoff should the workflow make clear?");
+  }
+
+  if (candidateGuardrails.candidate_primary_terms_detected.length > 0) {
+    questions.push(
+      "Which implementation terms in the workflow candidate should move to diagnostics or be translated?",
+    );
+  }
+
+  if (candidateGuardrails.candidate_primary_meta_terms_detected.length > 0) {
+    questions.push(
+      "Which JudgmentKit review terms in the workflow candidate should be removed from the product UI?",
+    );
+  }
+
+  return selectTargetedQuestionsFromCandidates(questions);
+}
+
+function buildUiWorkflowReviewAssumptions(activityReview, source) {
+  const assumptions = [
+    "Treat this as a reviewable UI workflow candidate, not final product approval.",
+    "Activity review remains the source of truth for grounding and disclosure.",
+  ];
+
+  if (source.mode === "model_assisted") {
+    assumptions.push(
+      "Model-assisted workflow candidates are reviewed before implementation.",
+    );
+  }
+
+  if (activityReview.review_status !== "ready_for_review") {
+    assumptions.push(
+      "The UI workflow cannot be accepted until source activity evidence is resolved.",
+    );
+  }
+
+  return assumptions;
+}
+
+function buildUiWorkflowConfidence(activityReview, candidateGuardrails) {
+  if (
+    activityReview.review_status !== "ready_for_review" ||
+    hasUiWorkflowMissingField(candidateGuardrails.candidate_missing_fields) ||
+    candidateGuardrails.candidate_primary_terms_detected.length > 0 ||
+    candidateGuardrails.candidate_primary_meta_terms_detected.length > 0
+  ) {
+    return "low";
+  }
+
+  if ((activityReview.guardrails?.implementation_terms_detected ?? []).length > 0) {
+    return "medium";
+  }
+
+  return "high";
+}
+
+function buildUiWorkflowReviewPacket(activityReview, candidate, source, contract) {
+  const sourceReady = activityReview.review_status === "ready_for_review";
+  const candidateGuardrails = buildUiWorkflowCandidateGuardrails(candidate, contract);
+  const candidateReady =
+    !hasUiWorkflowMissingField(candidateGuardrails.candidate_missing_fields) &&
+    candidateGuardrails.candidate_primary_terms_detected.length === 0 &&
+    candidateGuardrails.candidate_primary_meta_terms_detected.length === 0;
+  const normalizedCandidate = normalizeUiWorkflowCandidate(
+    candidate,
+    activityReview,
+    candidateGuardrails.candidate_primary_terms_detected,
+  );
+  const sourceMissingEvidence =
+    activityReview.guardrails?.source_missing_evidence ??
+    activityReview.guardrails?.missing_evidence ??
+    {};
+  const packet = {
+    version: activityReview.version,
+    contract_id: activityReview.contract_id,
+    review_status: sourceReady && candidateReady
+      ? "ready_for_review"
+      : "needs_source_context",
+    collaboration_mode: "propose_then_review",
+    source: {
+      ...source,
+      input_excerpt: activityReview.source?.input_excerpt,
+    },
+    activity_review: activityReview,
+    candidate: normalizedCandidate,
+    review: {
+      evidence: {
+        activity_review_ready: sourceReady,
+        workflow_steps: !candidateGuardrails.candidate_missing_fields.workflow_steps,
+        primary_actions: !candidateGuardrails.candidate_missing_fields.primary_actions,
+        decision_support: !candidateGuardrails.candidate_missing_fields.decision_support,
+        completion_or_handoff:
+          !candidateGuardrails.candidate_missing_fields.completion_or_handoff,
+        implementation_terms_detected:
+          activityReview.guardrails?.implementation_terms_detected ?? [],
+        candidate_primary_terms_detected:
+          candidateGuardrails.candidate_primary_terms_detected,
+        candidate_primary_meta_terms_detected:
+          candidateGuardrails.candidate_primary_meta_terms_detected,
+      },
+      assumptions: buildUiWorkflowReviewAssumptions(activityReview, source),
+      confidence: buildUiWorkflowConfidence(activityReview, candidateGuardrails),
+      targeted_questions: buildUiWorkflowQuestions(activityReview, candidateGuardrails),
+    },
+    guardrails: {
+      activity_review_status: activityReview.review_status,
+      source_missing_evidence: sourceMissingEvidence,
+      candidate_missing_fields: candidateGuardrails.candidate_missing_fields,
+      candidate_primary_terms_detected:
+        candidateGuardrails.candidate_primary_terms_detected,
+      candidate_primary_meta_terms_detected:
+        candidateGuardrails.candidate_primary_meta_terms_detected,
+      implementation_terms_detected:
+        activityReview.guardrails?.implementation_terms_detected ?? [],
+      disclosure_translation_candidates:
+        activityReview.guardrails?.disclosure_translation_candidates ?? [],
+    },
+  };
+
+  assertNoStyleFields(packet);
+
+  return packet;
+}
+
+function buildUiWorkflowCandidateShapeGuide() {
+  return {
+    workflow: {
+      surface_name: "Short domain name for the workflow surface.",
+      steps: ["Ordered workflow steps in user-facing language."],
+      primary_actions: ["Actions the user can take to move the work forward."],
+      decision_points: ["Decisions the workflow helps the user resolve."],
+      completion_state: "What done means for this workflow.",
+    },
+    primary_ui: {
+      sections: ["Primary sections the user needs for the work."],
+      controls: ["Named controls or commands in user-facing language."],
+      user_facing_terms: ["Domain terms suitable for the primary UI."],
+    },
+    handoff: {
+      next_owner: "Who receives the next action.",
+      reason: "Reason the decision or handoff is being made.",
+      next_action: "Next action after the workflow decision.",
+    },
+    diagnostics: {
+      implementation_terms: ["Implementation terms allowed only outside primary UI."],
+      reveal_contexts: ["Contexts where diagnostics may be shown."],
+    },
+  };
+}
+
+function buildUiWorkflowReviewContext(activityReview) {
+  return {
+    review_status: activityReview.review_status,
+    contract_id: activityReview.contract_id,
+    candidate_activity_model: activityReview.candidate?.activity_model,
+    candidate_interaction_contract: activityReview.candidate?.interaction_contract,
+    candidate_disclosure_policy: activityReview.candidate?.disclosure_policy,
+    targeted_questions: activityReview.review?.targeted_questions ?? [],
+    guardrails: {
+      source_missing_evidence:
+        activityReview.guardrails?.source_missing_evidence ??
+        activityReview.guardrails?.missing_evidence,
+      implementation_terms_detected:
+        activityReview.guardrails?.implementation_terms_detected ?? [],
+      disclosure_translation_candidates:
+        activityReview.guardrails?.disclosure_translation_candidates ?? [],
+    },
+  };
+}
+
+export function buildUiWorkflowCandidateRequest({ brief, activity_review: activityReview } = {}) {
+  if (typeof brief !== "string" || brief.trim().length === 0) {
+    throw new JudgmentKitInputError(
+      "buildUiWorkflowCandidateRequest requires non-empty brief text.",
+    );
+  }
+
+  if (!isPlainObject(activityReview)) {
+    throw new JudgmentKitInputError(
+      "buildUiWorkflowCandidateRequest requires an activity_review object.",
+    );
+  }
+
+  return {
+    messages: [
+      {
+        role: "system",
+        content: [
+          "You propose a reviewable JudgmentKit 2 UI workflow candidate.",
+          "Return only JSON whose root object matches the UI workflow candidate shape.",
+          "Ground workflow steps, actions, decisions, handoff, and user-facing terms in the source brief and activity review.",
+          "Keep implementation terms and JudgmentKit review-packet terms out of workflow, primary_ui, and handoff.",
+          "Implementation terms may appear only in diagnostics when they are diagnostic.",
+          "Do not propose styling, components, design tokens, framework code, provider configuration, or network behavior.",
+        ].join(" "),
+      },
+      {
+        role: "user",
+        content: JSON.stringify(
+          {
+            brief: brief.trim(),
+            activity_review: buildUiWorkflowReviewContext(activityReview),
+            candidate_shape: buildUiWorkflowCandidateShapeGuide(),
+          },
+          null,
+          2,
+        ),
+      },
+    ],
+    response_format: {
+      type: "json_object",
+      root: "candidate",
+      required_top_level_keys: [
+        "workflow",
+        "primary_ui",
+        "handoff",
+        "diagnostics",
+      ],
+    },
+    metadata: {
+      request_kind: "ui_workflow_candidate",
+      contract_id: activityReview.contract_id,
+      version: activityReview.version,
+      source_review_status: activityReview.review_status,
+      collaboration_mode: activityReview.collaboration_mode,
+    },
+  };
+}
+
+export function createUiWorkflowProposer({ callModel } = {}) {
+  if (typeof callModel !== "function") {
+    throw new JudgmentKitInputError(
+      "createUiWorkflowProposer requires a callModel function.",
+    );
+  }
+
+  return async function proposeUiWorkflowCandidate({
+    brief,
+    activity_review: activityReview,
+  } = {}) {
+    const request = buildUiWorkflowCandidateRequest({
+      brief,
+      activity_review: activityReview,
+    });
+    const candidate = parseCandidateResponse(await callModel(request));
+
+    assertUiWorkflowCandidateShape(candidate);
+
+    return candidate;
+  };
+}
+
+export function reviewUiWorkflowCandidate(input, candidate, options = {}) {
+  const {
+    proposer = "external_candidate",
+    activity_review: providedActivityReview,
+    ...analysisOptions
+  } = options;
+
+  assertUiWorkflowCandidateShape(candidate);
+
+  const activityReview =
+    providedActivityReview ?? createActivityModelReview(input, analysisOptions);
+  const contract = analysisOptions.contract ?? loadActivityContract(analysisOptions.contractPath);
+
+  return buildUiWorkflowReviewPacket(
+    activityReview,
+    candidate,
+    { mode: "model_assisted", proposer },
+    contract,
+  );
+}
+
+export async function createModelAssistedUiWorkflowReview(input, options = {}) {
+  const { propose, ...analysisOptions } = options;
+
+  if (typeof propose !== "function") {
+    throw new JudgmentKitInputError(
+      "createModelAssistedUiWorkflowReview requires a propose function.",
+    );
+  }
+
+  const activityReview = createActivityModelReview(input, analysisOptions);
+  const candidate = await propose({
+    brief: input,
+    activity_review: activityReview,
+  });
+
+  return reviewUiWorkflowCandidate(input, candidate, {
+    ...analysisOptions,
+    activity_review: activityReview,
+    proposer: "injected",
+  });
+}

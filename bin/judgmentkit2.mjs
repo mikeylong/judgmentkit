@@ -2,10 +2,23 @@
 import fs from "node:fs/promises";
 import process from "node:process";
 
-import { JudgmentKitInputError, analyzeImplementationBrief } from "../src/index.mjs";
+import {
+  JudgmentKitInputError,
+  analyzeImplementationBrief,
+  createActivityModelReview,
+  reviewActivityModelCandidate,
+} from "../src/index.mjs";
 
 function printUsage() {
-  process.stderr.write("Usage: judgmentkit2 analyze [--input <file>]\n");
+  process.stderr.write(
+    [
+      "Usage:",
+      "  judgmentkit2 analyze [--input <file>]",
+      "  judgmentkit2 review [--input <file>]",
+      "  judgmentkit2 review-candidate [--input <file>] --candidate <file>",
+      "",
+    ].join("\n"),
+  );
 }
 
 async function readStdin() {
@@ -25,11 +38,11 @@ function parseArgs(argv) {
     return { command: "help" };
   }
 
-  if (command !== "analyze") {
+  if (!["analyze", "review", "review-candidate"].includes(command)) {
     return { command: "unknown" };
   }
 
-  const parsed = { command, inputPath: undefined };
+  const parsed = { command, inputPath: undefined, candidatePath: undefined };
 
   for (let index = 0; index < rest.length; index += 1) {
     const arg = rest[index];
@@ -44,10 +57,46 @@ function parseArgs(argv) {
       continue;
     }
 
+    if (arg === "--candidate") {
+      const next = rest[index + 1];
+      if (!next) {
+        throw new JudgmentKitInputError("--candidate requires a file path.");
+      }
+      parsed.candidatePath = next;
+      index += 1;
+      continue;
+    }
+
     throw new JudgmentKitInputError(`Unsupported argument: ${arg}`);
   }
 
+  if (parsed.command !== "review-candidate" && parsed.candidatePath) {
+    throw new JudgmentKitInputError("--candidate is only supported for review-candidate.");
+  }
+
+  if (parsed.command === "review-candidate" && !parsed.candidatePath) {
+    throw new JudgmentKitInputError("review-candidate requires --candidate <file>.");
+  }
+
   return parsed;
+}
+
+async function readInput(inputPath) {
+  return inputPath
+    ? await fs.readFile(inputPath, "utf8")
+    : await readStdin();
+}
+
+async function readCandidate(candidatePath) {
+  try {
+    return JSON.parse(await fs.readFile(candidatePath, "utf8"));
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw new JudgmentKitInputError("--candidate must point to a valid JSON file.");
+    }
+
+    throw error;
+  }
 }
 
 async function main() {
@@ -64,10 +113,16 @@ async function main() {
     return;
   }
 
-  const input = args.inputPath
-    ? await fs.readFile(args.inputPath, "utf8")
-    : await readStdin();
-  const result = analyzeImplementationBrief(input);
+  const input = await readInput(args.inputPath);
+  let result;
+
+  if (args.command === "review") {
+    result = createActivityModelReview(input);
+  } else if (args.command === "review-candidate") {
+    result = reviewActivityModelCandidate(input, await readCandidate(args.candidatePath));
+  } else {
+    result = analyzeImplementationBrief(input);
+  }
 
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);
 }
