@@ -11,6 +11,7 @@
 - Added GitHub Actions CI for tests, benchmark, and MCP smoke.
 - Added deterministic visual one-shot before/after demo comparing baseline generation with JudgmentKit2-guided generation.
 - Added model-assisted UI workflow candidate review as a library and MCP seam, with deterministic checks for workflow completeness, source grounding, implementation leakage, and review-packet term leakage.
+- Added an optional OpenAI Responses UI workflow proposer provider with fake-fetch coverage and an env-gated smoke command.
 
 ## 0.1.0
 

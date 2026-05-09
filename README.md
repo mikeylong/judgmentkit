@@ -34,7 +34,7 @@ JudgmentKit 2 keeps the core deterministic and lets model assistance enter throu
 3. Model-assisted candidate review seam: accepts a model-proposed candidate through dependency injection or MCP and runs the same guardrails.
 4. Provider-neutral proposer adapter: builds a serializable activity-model request for an injected model caller and returns the proposed candidate to the review seam.
 5. UI workflow candidate review seam: accepts a model- or agent-proposed workflow candidate and checks grounding, action support, handoff clarity, and disclosure containment before UI implementation.
-6. Provider adapters later: provider configuration and network calls stay outside the kernel until the review contract is stable.
+6. Optional provider adapters: provider configuration and network calls stay outside the kernel and feed proposed candidates back through the same review contract.
 
 ## Structure
 
@@ -63,6 +63,15 @@ For daily local use:
 ```bash
 npm run mcp:smoke
 judgmentkit2 review --input examples/refund-triage.brief.txt
+```
+
+Optional OpenAI Responses smoke checks are opt-in:
+
+```bash
+JUDGMENTKIT_OPENAI_SMOKE=1 \
+OPENAI_API_KEY=... \
+JUDGMENTKIT_OPENAI_MODEL=... \
+npm run smoke:openai-ui-workflow
 ```
 
 For a deterministic one-shot before/after demo:

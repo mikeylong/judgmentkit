@@ -57,6 +57,21 @@ JudgmentKit2 accepts the workflow only when:
 
 There is no CLI command for this slice. Use MCP or the library API.
 
+## Optional OpenAI Workflow Provider
+
+Use `createOpenAIResponsesUiWorkflowProposer` from `judgmentkit-2/providers/openai-responses` when a model should propose the UI workflow candidate. Pass that proposer to `createModelAssistedUiWorkflowReview`; do not use the provider output directly for UI generation.
+
+The provider requires `OPENAI_API_KEY` and `JUDGMENTKIT_OPENAI_MODEL`, or explicit `apiKey` and `model` options. It has no default model and does not add CLI or MCP behavior.
+
+Env-gated smoke check:
+
+```bash
+JUDGMENTKIT_OPENAI_SMOKE=1 \
+OPENAI_API_KEY=... \
+JUDGMENTKIT_OPENAI_MODEL=... \
+npm run smoke:openai-ui-workflow
+```
+
 ## When The Brief Is Vague
 
 Do not ask a broad discovery interview first. Start from the packet.
