@@ -2,8 +2,8 @@
 
 This demo shows the same implementation-heavy brief handled two ways:
 
-- a scripted baseline one-shot generation without JudgmentKit2
-- a scripted JudgmentKit2-guided generation using activity review plus UI workflow candidate review
+- a scripted baseline one-shot generation without JudgmentKit
+- a scripted JudgmentKit-guided generation using activity review plus UI workflow candidate review
 
 It is deterministic. It does not call a model, use provider configuration, or claim that the fixture text came from an LLM.
 
@@ -33,9 +33,9 @@ examples/demo/refund-ops-implementation-heavy.brief.txt
 
 Look for the order of operations.
 
-Without JudgmentKit2, the concept starts from the implementation request: data model, database fields, JSON schema, prompt template, tool call result, resource id, API endpoint, and CRUD.
+Without JudgmentKit, the concept starts from the implementation request: data model, database fields, JSON schema, prompt template, tool call result, resource id, API endpoint, and CRUD.
 
-With JudgmentKit2, the script follows the full local agentic loop:
+With JudgmentKit, the script follows the full local agentic loop:
 
 ```text
 source brief
@@ -54,19 +54,19 @@ The guided concept starts from the work:
 - decision buttons
 - handoff reason and next owner
 
-The demo also includes a rejected model-like workflow candidate that leaks terms such as JSON schema, CRUD, and ready_for_review into primary fields. JudgmentKit2 returns needs_source_context for that candidate and the HTML renders the result only as guardrail diagnostics.
+The demo also includes a rejected model-like workflow candidate that leaks terms such as JSON schema, CRUD, and ready_for_review into primary fields. JudgmentKit returns needs_source_context for that candidate and the HTML renders the result only as guardrail diagnostics.
 
-The JudgmentKit2 branch still uses the review packet, but the product UI does not render the packet as interface copy. The demo renderer translates the packet into a familiar refund triage workflow. Review status, source grounding, and implementation terms stay in the collapsed demo diagnostics area.
+The JudgmentKit branch still uses the review packet, but the product UI does not render the packet as interface copy. The demo renderer translates the packet into a familiar refund triage workflow. Review status, source grounding, and implementation terms stay in the collapsed demo diagnostics area.
 
-In the visual demo, implementation terms are allowed in the baseline UI and in the JudgmentKit2 diagnostic area. They should not appear in the JudgmentKit2 primary work surface. Review-packet vocabulary such as activity, primary user, outcome, and review status should also stay out of the primary product UI.
+In the visual demo, implementation terms are allowed in the baseline UI and in the JudgmentKit diagnostic area. They should not appear in the JudgmentKit primary work surface. Review-packet vocabulary such as activity, primary user, outcome, and review status should also stay out of the primary product UI.
 
 ## What The Demo Is For
 
-Use this to explain why JudgmentKit2 sits before UI generation. The point is not final UI quality. The point is that the agent starts from a better model of the activity before it names screens, controls, or data structures.
+Use this to explain why JudgmentKit sits before UI generation. The point is not final UI quality. The point is that the agent starts from a better model of the activity before it names screens, controls, or data structures.
 
 The demo is still deterministic. It uses a curated workflow fixture to show what a better order of operations should produce.
 
-That curated renderer is today's stand-in for a model-assisted workflow proposer. In daily agent use, a model or external agent can propose the workflow candidate, then JudgmentKit2 reviews that candidate before it is accepted. The guardrail stays the same: JudgmentKit2 reviews and constrains the candidate instead of trusting model output as source truth.
+That curated renderer is today's stand-in for a model-assisted workflow proposer. In daily agent use, a model or external agent can propose the workflow candidate, then JudgmentKit reviews that candidate before it is accepted. The guardrail stays the same: JudgmentKit reviews and constrains the candidate instead of trusting model output as source truth.
 
 ## What It Is Not
 

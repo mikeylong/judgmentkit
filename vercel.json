@@ -1,0 +1,71 @@
+{
+  "buildCommand": "npm run site:build",
+  "installCommand": "npm ci",
+  "outputDirectory": "site/dist",
+  "headers": [
+    {
+      "source": "/install",
+      "headers": [
+        {
+          "key": "content-type",
+          "value": "text/x-shellscript; charset=utf-8"
+        }
+      ]
+    },
+    {
+      "source": "/mcp",
+      "headers": [
+        {
+          "key": "content-type",
+          "value": "application/json; charset=utf-8"
+        }
+      ]
+    }
+  ],
+  "redirects": [
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "judgmentkit.design"
+        }
+      ],
+      "destination": "https://judgmentkit.ai/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.judgmentkit.design"
+        }
+      ],
+      "destination": "https://judgmentkit.ai/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "judgmentkit.com"
+        }
+      ],
+      "destination": "https://judgmentkit.ai/$1",
+      "permanent": true
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.judgmentkit.com"
+        }
+      ],
+      "destination": "https://judgmentkit.ai/$1",
+      "permanent": true
+    }
+  ]
+}

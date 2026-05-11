@@ -13,9 +13,9 @@ function printUsage() {
   process.stderr.write(
     [
       "Usage:",
-      "  judgmentkit2 analyze [--input <file>]",
-      "  judgmentkit2 review [--input <file>]",
-      "  judgmentkit2 review-candidate [--input <file>] --candidate <file>",
+      "  judgmentkit analyze [--input <file>]",
+      "  judgmentkit review [--input <file>]",
+      "  judgmentkit review-candidate [--input <file>] --candidate <file>",
       "",
     ].join("\n"),
   );
@@ -129,7 +129,7 @@ async function main() {
 
 main().catch((error) => {
   const code = error instanceof JudgmentKitInputError ? error.code : "command_error";
-  const message = error instanceof Error ? error.message : "Unknown JudgmentKit 2 CLI error.";
+  const message = error instanceof Error ? error.message : "Unknown JudgmentKit CLI error.";
 
   process.stderr.write(`${JSON.stringify({ error: { code, message } }, null, 2)}\n`);
   process.exitCode = 1;

@@ -7,27 +7,47 @@ import {
 } from "../src/mcp.mjs";
 
 const tools = listTools();
+const metadata = getMcpMetadata("stdio");
+const OLD_TOOL_NAMES = [
+  "list_resources",
+  "get_resource",
+  "get_workflow_bundle",
+  "get_page_markdown",
+  "get_example",
+  "resolve_related",
+];
 
 assert.deepEqual(
   tools.map((tool) => tool.name),
   [
     "analyze_implementation_brief",
     "create_activity_model_review",
+    "recommend_ui_workflow_profiles",
     "review_activity_model_candidate",
     "review_ui_workflow_candidate",
     "create_ui_generation_handoff",
   ],
 );
-assert.deepEqual(getMcpMetadata("stdio").capabilities.prompts, []);
+assert.equal(metadata.name, "JudgmentKit");
+assert.deepEqual(metadata.capabilities.prompts, []);
+for (const oldToolName of OLD_TOOL_NAMES) {
+  assert.equal(
+    tools.some((tool) => tool.name === oldToolName),
+    false,
+    `MCP catalog must not expose old tool ${oldToolName}`,
+  );
+}
 assert.equal(tools[0].inputSchema.required.includes("brief"), true);
 assert.equal(tools[0].inputSchema.properties.brief.minLength, 1);
 assert.equal(tools[1].inputSchema.required.includes("brief"), true);
 assert.equal(tools[1].inputSchema.properties.brief.minLength, 1);
 assert.equal(tools[2].inputSchema.required.includes("brief"), true);
-assert.equal(tools[2].inputSchema.required.includes("candidate"), true);
 assert.equal(tools[3].inputSchema.required.includes("brief"), true);
 assert.equal(tools[3].inputSchema.required.includes("candidate"), true);
-assert.equal(tools[4].inputSchema.required.includes("workflow_review"), true);
+assert.equal(tools[4].inputSchema.required.includes("brief"), true);
+assert.equal(tools[4].inputSchema.required.includes("candidate"), true);
+assert.equal(tools[4].inputSchema.properties.profile_id.type, "string");
+assert.equal(tools[5].inputSchema.required.includes("workflow_review"), true);
 
 const refundTriageCandidate = {
   activity_model: {
@@ -86,7 +106,7 @@ const refundWorkflowCandidate = {
   });
 
   assert.equal("error" in result, false);
-  assert.equal(result.contract_id, "judgmentkit2.ai-ui-generation.activity-contract");
+  assert.equal(result.contract_id, "judgmentkit.ai-ui-generation.activity-contract");
   assert.equal(result.status, "needs_review");
   assert.ok(
     result.implementation_terms_detected.some((entry) => entry.term === "JSON schema"),
@@ -112,7 +132,7 @@ const refundWorkflowCandidate = {
   });
 
   assert.equal("error" in result, false);
-  assert.equal(result.contract_id, "judgmentkit2.ai-ui-generation.activity-contract");
+  assert.equal(result.contract_id, "judgmentkit.ai-ui-generation.activity-contract");
   assert.equal(result.review_status, "ready_for_review");
   assert.equal(result.collaboration_mode, "propose_then_review");
   assert.equal(result.source.mode, "deterministic");
@@ -139,6 +159,18 @@ const refundWorkflowCandidate = {
       (entry) => entry.detected_term === "JSON schema",
     ),
   );
+}
+
+{
+  const result = await handleToolCall("recommend_ui_workflow_profiles", {
+    brief:
+      "An operator reviews several AI agent findings, compares evidence and release risk, decides whether each finding is approved, blocked, deferred, tightened, or handed off, and leaves an audit receipt while raw tool call traces stay diagnostic.",
+  });
+
+  assert.equal("error" in result, false);
+  assert.deepEqual(result.recommended_profile_ids, ["operator-review-ui"]);
+  assert.deepEqual(result.blocked_profile_ids, []);
+  assert.equal(result.recommendations[0].status, "recommended");
 }
 
 {
@@ -185,12 +217,14 @@ const refundWorkflowCandidate = {
     brief:
       "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
     candidate: refundWorkflowCandidate,
+    profile_id: "operator-review-ui",
   });
 
   assert.equal("error" in result, false);
   assert.equal(result.review_status, "ready_for_review");
   assert.equal(result.source.mode, "model_assisted");
   assert.equal(result.source.proposer, "external_candidate");
+  assert.equal(result.guidance_profile.profile_id, "operator-review-ui");
   assert.ok(result.candidate.workflow.surface_name.includes("Refund escalation"));
   assert.ok(result.candidate.workflow.primary_actions.includes("Approve refund"));
   assert.deepEqual(result.guardrails.candidate_primary_terms_detected, []);
@@ -202,6 +236,7 @@ const refundWorkflowCandidate = {
 
   assert.equal("error" in handoffResult, false);
   assert.equal(handoffResult.handoff_status, "ready_for_generation");
+  assert.equal(handoffResult.guidance_profile.profile_id, "operator-review-ui");
   assert.ok(handoffResult.workflow.primary_actions.includes("Approve refund"));
   assert.ok(handoffResult.primary_surface.sections.includes("Evidence checklist"));
 }
@@ -250,6 +285,19 @@ const refundWorkflowCandidate = {
       (entry) => entry.term === "JSON schema",
     ),
   );
+}
+
+{
+  const result = await handleToolCall("review_ui_workflow_candidate", {
+    brief:
+      "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+    candidate: refundWorkflowCandidate,
+    profile_id: "missing-profile",
+  });
+
+  assert.equal("error" in result, true);
+  assert.equal(result.error.code, "invalid_input");
+  assert.ok(result.error.message.includes("Unknown UI workflow guidance profile"));
 }
 
 {

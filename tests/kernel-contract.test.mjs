@@ -16,7 +16,7 @@ function readJson(relativePath) {
 
 const contract = readJson("contracts/ai-ui-generation.activity-contract.json");
 
-assert.equal(contract.source_model, "fresh_v2");
+assert.equal(contract.source_model, "fresh_start");
 assert.deepEqual(contract.quality_order.slice(0, 4), [
   "activity fit",
   "domain appropriateness",
@@ -61,6 +61,67 @@ assert.ok(
   "The kernel must fail aesthetic-first fixes.",
 );
 
+assert.equal(contract.workflow.id, "workflow.ai-ui-generation");
+
+const operatorReviewProfile = contract.profiles["operator-review-ui"];
+assert.equal(operatorReviewProfile.pattern_id, "operator-review");
+assert.deepEqual(
+  operatorReviewProfile.guardrails.map((guardrail) => guardrail.id),
+  [
+    "guardrail.activity-first-ia",
+    "guardrail.work-queue-topology",
+    "guardrail.primary-surface-economy",
+    "guardrail.selector-density-boundary",
+    "guardrail.control-proximity",
+    "guardrail.readable-label-value-patterns",
+    "guardrail.contextual-help-disclosure",
+    "guardrail.quiet-operational-state",
+  ],
+);
+assert.ok(
+  operatorReviewProfile.applies_when_most_true.some((trigger) =>
+    trigger.includes("system-produced work"),
+  ),
+  "operator-review-ui must describe AI/system work review triggers.",
+);
+assert.ok(
+  operatorReviewProfile.do_not_use_when.some((entry) =>
+    entry.includes("passive dashboard"),
+  ),
+  "operator-review-ui must include false-positive exclusions.",
+);
+assert.ok(
+  operatorReviewProfile.review_criteria.some((entry) =>
+    entry.includes("current item"),
+  ),
+  "operator-review-ui must include review criteria for current item clarity.",
+);
+assert.ok(
+  operatorReviewProfile.test_scenarios.some((entry) =>
+    entry.includes("False-positive"),
+  ),
+  "operator-review-ui must include false-positive test scenarios.",
+);
+
+const operatorProfileText = JSON.stringify(operatorReviewProfile).toLowerCase();
+for (const forbiddenPhrase of [
+  "surfaces",
+  "css selector",
+  "figma",
+  "left rail",
+]) {
+  assert.equal(
+    operatorProfileText.includes(forbiddenPhrase),
+    false,
+    `operator-review-ui must stay implementation-agnostic and avoid ${forbiddenPhrase}`,
+  );
+}
+assert.equal(
+  /\b\d+\s*px\b/.test(operatorProfileText),
+  false,
+  "operator-review-ui must not include pixel-level guidance.",
+);
+
 const readme = readText("README.md");
 assert.ok(
   readme.includes("Aesthetics are adapter-layer work"),
@@ -75,4 +136,4 @@ for (const staleFile of [
   assert.equal(fs.existsSync(path.join(root, staleFile)), false, `${staleFile} should not exist`);
 }
 
-console.log("JudgmentKit 2 kernel contract checks passed.");
+console.log("JudgmentKit kernel contract checks passed.");

@@ -1,6 +1,6 @@
-# JudgmentKit 2
+# JudgmentKit
 
-JudgmentKit 2 is a fresh activity-first kernel for AI-generated interface work.
+JudgmentKit is a fresh activity-first kernel for AI-generated interface work.
 
 It is not a beautifier, design-system compliance layer, prompt library, schema browser, or MCP reference surface. Those may exist later as adapters. The core job is to help an agent generate or critique UI that is relevant, succinct, and appropriate to the activity it supports.
 
@@ -8,7 +8,7 @@ It is not a beautifier, design-system compliance layer, prompt library, schema b
 
 AI-generated UI fails when the implementation model becomes the user experience. Tables become screens, schemas become forms, tool calls become buttons, and internal prompts become product vocabulary.
 
-JudgmentKit 2 gives the agent a better order of operations:
+JudgmentKit gives the agent a better order of operations:
 
 1. Understand the activity.
 2. Translate the activity into interaction responsibilities.
@@ -27,7 +27,7 @@ Aesthetics are adapter-layer work. They should refine a relevant UI, not rescue 
 
 ## Architecture
 
-JudgmentKit 2 keeps the core deterministic and lets model assistance enter through explicit seams:
+JudgmentKit keeps the core deterministic and lets model assistance enter through explicit seams:
 
 1. Deterministic analyzer: extracts activity evidence, implementation terms, review questions, and disclosure risks from a brief.
 2. Deterministic review packet: turns that evidence into a reviewable activity model candidate with guardrails.
@@ -41,7 +41,7 @@ JudgmentKit 2 keeps the core deterministic and lets model assistance enter throu
 
 - `AGENTS.md`: operating rules for agents working in this repository.
 - `DESIGN.md`: activity-first judgment contract.
-- `specs/`: product and interface specs for the v2 kernel.
+- `specs/`: product and interface specs for the kernel.
 - `contracts/`: machine-readable activity and disclosure contracts.
 - `docs/`: daily workflow guidance for agents and local usage.
 - `examples/`: copyable briefs and candidate fixtures for CLI and MCP checks.
@@ -63,7 +63,13 @@ For daily local use:
 
 ```bash
 npm run mcp:smoke
-judgmentkit2 review --input examples/refund-triage.brief.txt
+judgmentkit review --input examples/refund-triage.brief.txt
+```
+
+For a Codex stdio install from a checkout:
+
+```bash
+npm run install:mcp -- --client codex --dry-run
 ```
 
 Optional OpenAI Responses smoke checks are opt-in:
@@ -89,4 +95,20 @@ For an early standalone comparison harness:
 npm run demo:comparison
 ```
 
-That command writes two independently runnable apps plus a manifest under `examples/comparison/`. Use it for qualitative paired comparisons of the raw brief baseline versus the JudgmentKit2 handoff path.
+That command writes two independently runnable apps plus a manifest under `examples/comparison/`. Use it for qualitative paired comparisons of the raw brief baseline versus the JudgmentKit handoff path.
+
+For a music-app standalone comparison:
+
+```bash
+npm run demo:comparison:music
+```
+
+That command writes a dinner-playlist brief, two independently runnable apps, a manifest, and a facilitator scorecard under `examples/comparison/music/`.
+
+For the replacement website build:
+
+```bash
+npm run site:build
+```
+
+That command writes static routes for `/`, `/docs/`, `/examples/`, `/install`, and `/mcp` under `site/dist/`.

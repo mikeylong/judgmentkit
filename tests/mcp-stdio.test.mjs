@@ -28,7 +28,7 @@ try {
   });
 
   client = new Client({
-    name: "judgmentkit2-stdio-test-client",
+    name: "judgmentkit-stdio-test-client",
     version: "1.0.0",
   });
 
@@ -41,6 +41,7 @@ try {
     [
       "analyze_implementation_brief",
       "create_activity_model_review",
+      "recommend_ui_workflow_profiles",
       "review_activity_model_candidate",
       "review_ui_workflow_candidate",
       "create_ui_generation_handoff",
@@ -108,6 +109,23 @@ try {
     reviewResponse.structuredContent.candidate.interaction_contract.primary_decision.includes(
       "case should be approved",
     ),
+  );
+
+  const recommendationResponse = await withTimeout(
+    client.callTool({
+      name: "recommend_ui_workflow_profiles",
+      arguments: {
+        brief:
+          "An operator reviews several AI agent findings, compares evidence and risk, decides whether each finding is approved, blocked, deferred, tightened, or handed off, and leaves an audit receipt while raw tool call traces stay diagnostic.",
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(recommendationResponse.isError, undefined);
+  assert.deepEqual(
+    recommendationResponse.structuredContent.recommended_profile_ids,
+    ["operator-review-ui"],
   );
 
   const candidateReviewResponse = await withTimeout(
@@ -197,6 +215,7 @@ try {
             reveal_contexts: ["setup", "debugging", "auditing", "integration"],
           },
         },
+        profile_id: "operator-review-ui",
       },
     }),
     5_000,
@@ -209,6 +228,10 @@ try {
     "external_candidate",
   );
   assert.equal(workflowReviewResponse.structuredContent.review_status, "ready_for_review");
+  assert.equal(
+    workflowReviewResponse.structuredContent.guidance_profile.profile_id,
+    "operator-review-ui",
+  );
   assert.ok(
     workflowReviewResponse.structuredContent.candidate.workflow.primary_actions.includes(
       "Approve refund",
@@ -227,10 +250,14 @@ try {
 
   assert.equal(handoffResponse.isError, undefined);
   assert.equal(handoffResponse.structuredContent.handoff_status, "ready_for_generation");
+  assert.equal(
+    handoffResponse.structuredContent.guidance_profile.profile_id,
+    "operator-review-ui",
+  );
   assert.ok(
     handoffResponse.structuredContent.workflow.primary_actions.includes("Approve refund"),
   );
-  assert.equal(stderrOutput.includes("JudgmentKit 2 stdio MCP failed"), false);
+  assert.equal(stderrOutput.includes("JudgmentKit stdio MCP failed"), false);
 } finally {
   await transport?.close();
 }

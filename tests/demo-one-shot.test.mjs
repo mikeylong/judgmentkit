@@ -65,13 +65,13 @@ const workflowPhrases = [
   "send handoff",
 ];
 
-assert.ok(transcript.includes("# JudgmentKit2 One-Shot Before/After Demo"));
+assert.ok(transcript.includes("# JudgmentKit One-Shot Before/After Demo"));
 assert.ok(transcript.includes("This is a scripted fixture demo."));
 assert.ok(transcript.includes("Static visual demo: examples/demo/one-shot-demo.html"));
 assert.ok(transcript.includes("## Source Brief"));
 assert.ok(transcript.includes(sourceBrief));
-assert.ok(transcript.includes("## Without JudgmentKit2"));
-assert.ok(transcript.includes("## With JudgmentKit2"));
+assert.ok(transcript.includes("## Without JudgmentKit"));
+assert.ok(transcript.includes("## With JudgmentKit"));
 assert.ok(transcript.includes("### Activity Review Summary"));
 assert.ok(transcript.includes("### Accepted Workflow Review"));
 assert.ok(transcript.includes("### Rejected Workflow Review"));
@@ -80,8 +80,8 @@ assert.ok(transcript.includes("## What Changed"));
 
 const baselineSection = sectionBetween(
   transcript,
-  "## Without JudgmentKit2",
-  "## With JudgmentKit2",
+  "## Without JudgmentKit",
+  "## With JudgmentKit",
 );
 const guidedPrimarySection = sectionBetween(
   transcript,
@@ -183,7 +183,7 @@ const rejectedHtml = sectionBetween(
   '<section class="compare"',
 );
 
-assert.ok(html.includes("JudgmentKit2 One-Shot UI Demo"));
+assert.ok(html.includes("JudgmentKit One-Shot UI Demo"));
 assert.ok(html.includes(sourceBrief));
 assert.ok(html.includes("Refund Case CRUD Console"));
 assert.ok(html.includes("Refund Escalation Queue"));

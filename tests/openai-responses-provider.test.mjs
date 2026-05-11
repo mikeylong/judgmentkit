@@ -6,7 +6,7 @@ import {
   createActivityModelReview,
   createModelAssistedUiWorkflowReview,
 } from "../src/index.mjs";
-import { createOpenAIResponsesUiWorkflowProposer } from "judgmentkit-2/providers/openai-responses";
+import { createOpenAIResponsesUiWorkflowProposer } from "judgmentkit/providers/openai-responses";
 
 const REFUND_TRIAGE_BRIEF = `
   A support lead is reviewing refund requests during the daily triage workflow.

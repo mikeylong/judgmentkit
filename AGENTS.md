@@ -2,7 +2,7 @@
 
 ## Operating Rules
 
-- Treat this as a fresh v2 project. Do not import, copy, or preserve JudgmentKit v1 concepts unless the user explicitly asks.
+- Treat this as a fresh-start project. Do not import, copy, or preserve old JudgmentKit concepts unless the user explicitly asks.
 - Read `README.md`, `DESIGN.md`, relevant files in `specs/`, and relevant files in `contracts/` before making product or UI changes.
 - Start with activity fit, domain appropriateness, succinct interaction, and disclosure discipline.
 - Do not make aesthetics, design tokens, component novelty, or visual polish the primary contract.
@@ -44,7 +44,7 @@ Primary user-facing UI should not expose machinery such as prompts, schemas, res
 
 ## Daily JudgmentKit Usage
 
-- Use `docs/agent-usage-contract.md` before applying JudgmentKit2 to UI generation, UI critique, implementation planning, or handoff review.
+- Use `docs/agent-usage-contract.md` before applying JudgmentKit to UI generation, UI critique, implementation planning, or handoff review.
 - Use `docs/daily-agent-workflows.md` for MCP and CLI recipes.
 - Prefer `create_activity_model_review` before generating UI from a brief.
 - Prefer `review_activity_model_candidate` before trusting an externally proposed activity model.

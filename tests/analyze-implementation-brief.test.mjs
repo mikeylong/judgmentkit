@@ -98,7 +98,7 @@ function assertTextIncludes(value, expectedValue) {
   `);
 
   assert.equal(packet.version, "0.1.0");
-  assert.equal(packet.contract_id, "judgmentkit2.ai-ui-generation.activity-contract");
+  assert.equal(packet.contract_id, "judgmentkit.ai-ui-generation.activity-contract");
   assert.equal(packet.status, "needs_review");
   assert.ok(terms(packet).includes("JSON schema"));
   assert.ok(terms(packet).includes("prompt template"));

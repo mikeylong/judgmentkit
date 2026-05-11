@@ -27,7 +27,7 @@ const REVIEW_PACKET_TERMS = [
   "interaction_contract",
   "review_status",
   "guardrails",
-  "JudgmentKit2",
+  "JudgmentKit",
 ];
 
 function sectionBetween(text, startMarker, endMarker) {
@@ -62,7 +62,7 @@ const result = spawnSync(process.execPath, [scriptPath], {
 
 assert.equal(result.status, 0, result.stderr);
 assert.equal(result.stderr, "");
-assert.ok(result.stdout.includes("# JudgmentKit2 Standalone Comparison"));
+assert.ok(result.stdout.includes("# JudgmentKit Standalone Comparison"));
 assert.ok(result.stdout.includes("Version A: examples/comparison/version-a.html"));
 assert.ok(result.stdout.includes("Version B: examples/comparison/version-b.html"));
 assert.ok(result.stdout.includes("Guided handoff status: ready_for_generation"));
@@ -104,7 +104,7 @@ for (const primary of [versionAPrimary, versionBPrimary]) {
 }
 
 assert.equal(versionAMetadata.treatment, "raw_brief_baseline");
-assert.equal(versionBMetadata.treatment, "judgmentkit2_handoff");
+assert.equal(versionBMetadata.treatment, "judgmentkit_handoff");
 assert.equal(versionBMetadata.generation_source.handoff_status, "ready_for_generation");
 assert.equal(versionBMetadata.generation_source.workflow_review_status, "ready_for_review");
 
@@ -116,7 +116,7 @@ for (const term of IMPLEMENTATION_TERMS) {
   assert.equal(
     versionBPrimary.toLowerCase().includes(term.toLowerCase()),
     false,
-    `JudgmentKit2 primary surface leaked implementation term: ${term}`,
+    `JudgmentKit primary surface leaked implementation term: ${term}`,
   );
 }
 
@@ -124,7 +124,7 @@ for (const term of REVIEW_PACKET_TERMS) {
   assert.equal(
     versionBPrimary.toLowerCase().includes(term.toLowerCase()),
     false,
-    `JudgmentKit2 primary surface leaked review-packet term: ${term}`,
+    `JudgmentKit primary surface leaked review-packet term: ${term}`,
   );
 }
 
@@ -138,7 +138,7 @@ for (const phrase of [
 ]) {
   assert.ok(
     versionBPrimary.toLowerCase().includes(phrase.toLowerCase()),
-    `JudgmentKit2 primary surface missing activity phrase: ${phrase}`,
+    `JudgmentKit primary surface missing activity phrase: ${phrase}`,
   );
 }
 

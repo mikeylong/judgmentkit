@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dinner Playlist Builder A</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17232a;
+      --muted: #627078;
+      --line: #cbd6d1;
+      --surface: #f5f7f2;
+      --panel: #ffffff;
+      --accent: #276b61;
+      --accent-dark: #17483f;
+      --warning: #8a3f31;
+      --soft: #edf5f1;
+      --warm: #fbf4e8;
+      --note: #f2eff8;
+      font-family:
+        Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--surface);
+    }
+
+    button,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button,
+    textarea {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    button {
+      min-height: 40px;
+      padding: 0 14px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .primary-action {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      padding: 28px;
+    }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: start;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1,
+    h2,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 0;
+      font-size: 2rem;
+      line-height: 1.1;
+    }
+
+    h2 {
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+      line-height: 1.25;
+    }
+
+    .eyebrow,
+    dt {
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 760;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .task-prompt {
+      max-width: 430px;
+      margin-bottom: 0;
+      color: var(--muted);
+      line-height: 1.45;
+      text-align: right;
+    }
+
+    section,
+    aside,
+    .record-table,
+    .debug-panel,
+    .brief-panel,
+    .playlist-panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    section,
+    aside,
+    .record-table,
+    .debug-panel,
+    .brief-panel {
+      padding: 18px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 22px 0;
+      border-color: #d7b36f;
+      background: var(--warm);
+    }
+
+    .record-grid,
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .workspace-grid {
+      grid-template-columns: 430px minmax(0, 1fr);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 13px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+    }
+
+    dl,
+    dd {
+      margin: 0;
+    }
+
+    dl div + div {
+      margin-top: 14px;
+    }
+
+    dd {
+      font-weight: 650;
+    }
+
+    .debug-panel p {
+      color: var(--warning);
+      line-height: 1.45;
+    }
+
+    .workflow-strip {
+      margin: 22px 0;
+    }
+
+    .workflow-strip ol {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .workflow-strip li {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-height: 58px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    .workflow-strip li span,
+    .sequence-number {
+      display: inline-grid;
+      flex: 0 0 auto;
+      width: 26px;
+      height: 26px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--soft);
+      color: var(--accent-dark);
+      font-weight: 760;
+    }
+
+    .workflow-strip li.is-current {
+      border-color: var(--accent);
+      background: var(--soft);
+    }
+
+    .brief-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 22px;
+      background: var(--note);
+    }
+
+    .brief-panel p {
+      margin-bottom: 0;
+      line-height: 1.5;
+    }
+
+    .brief-panel ul {
+      display: grid;
+      gap: 8px;
+      padding-left: 20px;
+      margin: 0;
+      line-height: 1.45;
+    }
+
+    .suggested-panel {
+      align-self: start;
+    }
+
+    .track-row {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      gap: 12px;
+      padding: 12px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .track-row.has-conflict {
+      background: #fff7f4;
+    }
+
+    .album-mark {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #ddece6, #f3e2c3);
+      color: var(--accent-dark);
+      font-size: 0.72rem;
+      font-weight: 780;
+    }
+
+    .track-row strong,
+    .track-row span,
+    .track-row small,
+    .playlist-sequence strong,
+    .playlist-sequence span {
+      display: block;
+    }
+
+    .track-row span,
+    .track-row small,
+    .playlist-sequence span {
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .track-row small {
+      margin-top: 4px;
+    }
+
+    .track-actions {
+      grid-column: 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .track-actions span {
+      color: var(--warning);
+      font-weight: 680;
+    }
+
+    .playlist-panel {
+      display: grid;
+      gap: 14px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .playlist-sequence {
+      display: grid;
+      gap: 8px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .playlist-sequence li {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .move-actions,
+    .decision-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .move-actions button {
+      min-height: 34px;
+      padding: 0 10px;
+    }
+
+    .checks-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      padding-left: 20px;
+      margin-bottom: 0;
+      line-height: 1.45;
+    }
+
+    .sequence-note {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      color: var(--ink);
+    }
+
+    @media (max-width: 900px) {
+      .app-header,
+      .record-grid,
+      .workspace-grid,
+      .brief-panel,
+      .checks-panel {
+        display: block;
+      }
+
+      .task-prompt {
+        max-width: none;
+        margin-top: 10px;
+        text-align: left;
+      }
+
+      .debug-panel,
+      .record-table,
+      .suggested-panel,
+      .workflow-strip,
+      .playlist-panel,
+      .brief-panel > div + div {
+        margin-top: 14px;
+      }
+
+      .workflow-strip ol {
+        grid-template-columns: 1fr;
+      }
+
+      .playlist-sequence li {
+        grid-template-columns: auto minmax(0, 1fr);
+      }
+
+      .move-actions {
+        grid-column: 2;
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body data-comparison-id="dinner-playlist-standalone-v1" data-variant="A">
+  
+    <main class="app-shell baseline-shell" data-primary-surface>
+      
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Dinner music</p>
+        <h1>Dinner Playlist Builder</h1>
+      </div>
+      <p class="task-prompt" data-study-task>Build a 10-song dinner playlist that starts mellow, lifts in the middle, avoids disliked artists and explicit tracks, and leaves a sequence note.</p>
+    </header>
+  
+
+      <section class="toolbar" aria-label="Record actions">
+        <button type="button">Create</button>
+        <button type="button">Read</button>
+        <button type="button">Update</button>
+        <button type="button">Delete</button>
+        <button type="button">Refresh JSON schema</button>
+        <button type="button">Rerun prompt template</button>
+      </section>
+
+      <section class="record-grid">
+        <div class="record-table">
+          <div class="section-heading">
+            <p class="eyebrow">Admin record</p>
+            <h2>track_library data model</h2>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>track table field</th>
+                <th>value</th>
+                <th>JSON schema</th>
+              </tr>
+            </thead>
+            <tbody>
+              
+                  <tr>
+                    <td>track_library.TRK-101</td>
+                    <td>Lantern Hour / Mira Vale / energy_2</td>
+                    <td>valid</td>
+                  </tr>
+                
+                  <tr>
+                    <td>track_library.TRK-102</td>
+                    <td>Table Glow / The Knoll Tapes / energy_3</td>
+                    <td>valid</td>
+                  </tr>
+                
+                  <tr>
+                    <td>track_library.TRK-103</td>
+                    <td>Window Seat / Rafi Lane / energy_3</td>
+                    <td>valid</td>
+                  </tr>
+                
+                  <tr>
+                    <td>track_library.TRK-104</td>
+                    <td>Apricot Static / Northline / energy_4</td>
+                    <td>valid</td>
+                  </tr>
+                
+                  <tr>
+                    <td>track_library.TRK-105</td>
+                    <td>Second Serving / Lena Moss / energy_5</td>
+                    <td>valid</td>
+                  </tr>
+                
+                  <tr>
+                    <td>track_library.TRK-106</td>
+                    <td>Kitchen Lights / Harbor Trio / energy_4</td>
+                    <td>valid</td>
+                  </tr>
+                
+                  <tr>
+                    <td>track_library.TRK-107</td>
+                    <td>Low Tide Signal / Sol Arras / energy_5</td>
+                    <td>valid</td>
+                  </tr>
+                
+                  <tr>
+                    <td>track_library.TRK-108</td>
+                    <td>Porch Current / Ever Vale / energy_4</td>
+                    <td>valid</td>
+                  </tr>
+                
+                  <tr>
+                    <td>track_library.TRK-109</td>
+                    <td>Afterglow Maps / Inez House / energy_3</td>
+                    <td>valid</td>
+                  </tr>
+                
+                  <tr>
+                    <td>track_library.TRK-110</td>
+                    <td>Nightcap Sketch / Moir &amp; Co. / energy_2</td>
+                    <td>valid</td>
+                  </tr>
+                
+                  <tr>
+                    <td>track_library.TRK-111</td>
+                    <td>Midnight Spill / DJ Cinder / energy_6</td>
+                    <td>warning</td>
+                  </tr>
+                
+                  <tr>
+                    <td>track_library.TRK-112</td>
+                    <td>Velvet Return / The Grey Glass / energy_4</td>
+                    <td>warning</td>
+                  </tr>
+                
+              <tr>
+                <td>track_library.prompt_template</td>
+                <td>dinner_playlist_v07</td>
+                <td>valid</td>
+              </tr>
+              <tr>
+                <td>track_library.tool_call_result</td>
+                <td>recommendation.rank.pending</td>
+                <td>needs manual CRUD update</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <aside class="debug-panel">
+          <h2>Record controls</h2>
+          <dl>
+            <div>
+              <dt>resource id</dt>
+              <dd>music_playlist_2917</dd>
+            </div>
+            <div>
+              <dt>API endpoint</dt>
+              <dd>/v1/music/track-library</dd>
+            </div>
+            <div>
+              <dt>CRUD status</dt>
+              <dd>Unsaved update</dd>
+            </div>
+          </dl>
+          <button type="button" class="primary-action">Save CRUD update</button>
+        </aside>
+      </section>
+
+      <section class="record-grid">
+        <div class="debug-panel">
+          <h2>Prompt template</h2>
+          <p>dinner_playlist_v07 sorts the track table field values before the CRUD save action.</p>
+        </div>
+        <div class="debug-panel">
+          <h2>Tool call result</h2>
+          <p>recommendation.rank.pending requires another tool call before the playlist data model can be saved.</p>
+        </div>
+      </section>
+    </main>
+  
+  <script type="application/json" id="comparison-metadata">{
+  "comparison_id": "dinner-playlist-standalone-v1",
+  "variant": "A",
+  "treatment": "raw_brief_baseline",
+  "task_prompt": "Build a 10-song dinner playlist that starts mellow, lifts in the middle, avoids disliked artists and explicit tracks, and leaves a sequence note.",
+  "selected_playlist_id": "DINNER-10",
+  "source_brief_file": "examples/comparison/music/dinner-playlist-implementation-heavy.brief.txt",
+  "visible_leakage_terms_expected": [
+    "data model",
+    "track table field",
+    "JSON schema",
+    "prompt template",
+    "tool call",
+    "resource id",
+    "API endpoint",
+    "CRUD"
+  ]
+}</script>
+</body>
+</html>

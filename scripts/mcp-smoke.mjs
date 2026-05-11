@@ -29,7 +29,7 @@ try {
   });
 
   client = new Client({
-    name: "judgmentkit2-smoke-client",
+    name: "judgmentkit-smoke-client",
     version: "1.0.0",
   });
 
@@ -41,6 +41,7 @@ try {
   assert.deepEqual(toolNames, [
     "analyze_implementation_brief",
     "create_activity_model_review",
+    "recommend_ui_workflow_profiles",
     "review_activity_model_candidate",
     "review_ui_workflow_candidate",
     "create_ui_generation_handoff",
@@ -60,7 +61,7 @@ try {
   assert.equal(reviewResponse.isError, undefined);
   assert.equal(reviewResponse.structuredContent.review_status, "ready_for_review");
   assert.equal(reviewResponse.structuredContent.source.mode, "deterministic");
-  assert.equal(stderrOutput.includes("JudgmentKit 2 stdio MCP failed"), false);
+  assert.equal(stderrOutput.includes("JudgmentKit stdio MCP failed"), false);
 
   console.log(
     JSON.stringify(

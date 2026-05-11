@@ -9,6 +9,7 @@ import {
   createActivityModelReview,
   createModelAssistedActivityModelReview,
   createModelAssistedUiWorkflowReview,
+  recommendUiWorkflowProfiles,
   reviewActivityModelCandidate,
   reviewUiWorkflowCandidate,
 } from "../src/index.mjs";
@@ -652,6 +653,154 @@ function fieldOperationsWorkflowCandidate() {
   assertIncludes(packet.candidate.primary_ui.user_facing_terms, "field operations manager");
   assertIncludes(packet.candidate.primary_ui.user_facing_terms, "technician");
   assertNoPrimaryUiWorkflowLeaks(packet);
+}
+
+{
+  const packet = recommendUiWorkflowProfiles(`
+    An operations lead reviews several AI agent findings before release.
+    Multiple candidates compete for attention. The activity is comparing evidence
+    and release risk, then deciding whether each finding should be approved,
+    blocked, deferred, tightened, or handed off. Completion requires an audit
+    receipt and closure state. Raw tool call traces stay diagnostic.
+  `);
+  const recommendation = packet.recommendations[0];
+
+  assert.deepEqual(packet.recommended_profile_ids, ["operator-review-ui"]);
+  assert.deepEqual(packet.blocked_profile_ids, []);
+  assert.equal(recommendation.status, "recommended");
+  assert.ok(recommendation.trigger_match_count >= recommendation.trigger_threshold);
+  assertIncludes(recommendation.matched_triggers, "competing_work_items");
+  assertIncludes(recommendation.matched_triggers, "raw_mechanics_secondary");
+}
+
+{
+  const packet = recommendUiWorkflowProfiles(`
+    A reviewer checks one AI-generated coverage finding before it advances.
+    The activity is comparing evidence and risk, deciding whether to approve
+    or block the finding, and leaving an audit receipt with the handoff reason.
+  `);
+
+  assert.deepEqual(packet.recommended_profile_ids, ["operator-review-ui"]);
+  assert.equal(packet.recommendations[0].status, "recommended");
+  assert.equal(
+    packet.recommendations[0].matched_triggers.includes("competing_work_items"),
+    false,
+  );
+}
+
+{
+  const packet = recommendUiWorkflowProfiles(`
+    A support operations manager is reviewing an AI-produced integration audit.
+    The source brief includes JSON schema changes, prompt template notes, and
+    tool call traces, but the activity is comparing evidence and release risk,
+    deciding whether to approve, block, or defer the release, and handing off an
+    audit receipt to the platform team.
+  `);
+
+  assert.deepEqual(packet.recommended_profile_ids, ["operator-review-ui"]);
+  assert.ok(
+    packet.evidence["operator-review-ui"].implementation_terms_detected.some(
+      (entry) => entry.term === "JSON schema",
+    ),
+  );
+  assertIncludes(
+    packet.recommendations[0].matched_triggers,
+    "raw_mechanics_secondary",
+  );
+}
+
+for (const brief of [
+  "Build a simple form to submit one setting.",
+  "Make a dashboard for the system.",
+  "Create a report meant only for reading.",
+  "Build an open-ended live chat where the primary activity is conversation.",
+  "Run a fully automated workflow with no human review.",
+  "Create a debugging tool where raw system mechanics are the primary task.",
+]) {
+  const packet = recommendUiWorkflowProfiles(brief);
+
+  assert.deepEqual(packet.recommended_profile_ids, []);
+  assert.deepEqual(packet.blocked_profile_ids, ["operator-review-ui"]);
+  assert.equal(packet.recommendations[0].status, "blocked");
+}
+
+{
+  const activityReview = createActivityModelReview(REFUND_TRIAGE_BRIEF);
+  const request = buildUiWorkflowCandidateRequest({
+    brief: REFUND_TRIAGE_BRIEF,
+    activity_review: activityReview,
+    profile_id: "operator-review-ui",
+  });
+
+  assert.equal(request.metadata.guidance_profile_id, "operator-review-ui");
+  assert.equal(request.metadata.guidance_profile.pattern_id, "operator-review");
+  assertTextIncludes(stringify(request), "guidance_profile");
+  assertTextIncludes(stringify(request), "guardrail.control-proximity");
+  assertTextIncludes(stringify(request), "do not copy guardrail ids");
+  assertNoAdapterRequestKeys(request);
+}
+
+{
+  let callModelSawProfile = false;
+  const activityReview = createActivityModelReview(REFUND_TRIAGE_BRIEF);
+  const propose = createUiWorkflowProposer({
+    profile_id: "operator-review-ui",
+    callModel: async (request) => {
+      callModelSawProfile =
+        request.metadata.guidance_profile_id === "operator-review-ui" &&
+        request.messages.some((message) => message.content.includes("guidance_profile"));
+
+      return refundWorkflowCandidate();
+    },
+  });
+  const candidate = await propose({
+    brief: REFUND_TRIAGE_BRIEF,
+    activity_review: activityReview,
+  });
+
+  assert.equal(callModelSawProfile, true);
+  assertTextIncludes(candidate.workflow.surface_name, "Refund escalation");
+}
+
+{
+  const packet = reviewUiWorkflowCandidate(
+    REFUND_TRIAGE_BRIEF,
+    refundWorkflowCandidate(),
+    { profile_id: "operator-review-ui" },
+  );
+
+  assert.equal(packet.review_status, "ready_for_review");
+  assert.equal(packet.guidance_profile.profile_id, "operator-review-ui");
+  assert.equal(packet.guidance_profile.pattern_id, "operator-review");
+  assert.equal(packet.guardrails.guidance_profile_id, "operator-review-ui");
+  assertNoPrimaryUiWorkflowLeaks(packet);
+}
+
+{
+  const packet = await createModelAssistedUiWorkflowReview(REFUND_TRIAGE_BRIEF, {
+    profile_id: "operator-review-ui",
+    propose: async ({ profile_id: profileId }) => {
+      assert.equal(profileId, "operator-review-ui");
+      return refundWorkflowCandidate();
+    },
+  });
+
+  assert.equal(packet.review_status, "ready_for_review");
+  assert.equal(packet.guidance_profile.profile_id, "operator-review-ui");
+}
+
+{
+  assert.throws(
+    () =>
+      reviewUiWorkflowCandidate(REFUND_TRIAGE_BRIEF, refundWorkflowCandidate(), {
+        profile_id: "missing-profile",
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "invalid_input" &&
+      error.message.includes("Unknown UI workflow guidance profile") &&
+      error.details.available_profile_ids.includes("operator-review-ui"),
+  );
 }
 
 {

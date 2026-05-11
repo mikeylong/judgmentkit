@@ -1,6 +1,6 @@
 # Agent Usage Contract
 
-Use JudgmentKit2 before UI generation, UI critique, implementation planning, or handoff review when the work depends on understanding an activity.
+Use JudgmentKit before UI generation, UI critique, implementation planning, or handoff review when the work depends on understanding an activity.
 
 ## Default Order
 
@@ -13,7 +13,7 @@ Use JudgmentKit2 before UI generation, UI critique, implementation planning, or 
 
 ## Rules For Agents
 
-- Do not ask broad discovery questions before using JudgmentKit2 when a brief is available.
+- Do not ask broad discovery questions before using JudgmentKit when a brief is available.
 - Treat `ready_for_review` as permission to proceed with UI concept work, not final product approval.
 - Treat `needs_source_context` as a prompt to gather source context or ask the packet's targeted questions.
 - Keep implementation terms out of primary UI unless the activity is setup, debugging, auditing, integration, or explicit source inspection.

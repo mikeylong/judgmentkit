@@ -1,4 +1,4 @@
-# JudgmentKit 2 Kernel Spec
+# JudgmentKit Kernel Spec
 
 ## Activity
 
@@ -27,9 +27,9 @@ Help an agent generate or critique UI that is relevant, succinct, and appropriat
 
 ## Non-Goals
 
-- Do not make v2 a design-system enforcement project.
-- Do not make v2 a cleaner-output aesthetic wrapper.
-- Do not make v2 a prompt catalog or schema browser.
+- Do not make JudgmentKit a design-system enforcement project.
+- Do not make JudgmentKit a cleaner-output aesthetic wrapper.
+- Do not make JudgmentKit a prompt catalog or schema browser.
 - Do not copy JudgmentKit v1 source, docs, contracts, or examples into this kernel.
 
 ## Contract Stack
@@ -42,4 +42,4 @@ Help an agent generate or critique UI that is relevant, succinct, and appropriat
 
 ## First Acceptance Test
 
-Given implementation-heavy input, JudgmentKit 2 should produce guidance that names the activity, the user's decisions, the domain vocabulary, and the disclosure boundaries before it suggests any screen structure or visual treatment.
+Given implementation-heavy input, JudgmentKit should produce guidance that names the activity, the user's decisions, the domain vocabulary, and the disclosure boundaries before it suggests any screen structure or visual treatment.

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "title": "JudgmentKit 2 Activity Contract",
+  "title": "JudgmentKit Activity Contract",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -25,7 +25,7 @@
     },
     "source_model": {
       "type": "string",
-      "const": "fresh_v2"
+      "const": "fresh_start"
     },
     "quality_order": {
       "type": "array",
@@ -38,6 +38,54 @@
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "workflow": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "const": "workflow.ai-ui-generation"
+        }
+      }
+    },
+    "profiles": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "operator-review-ui": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "pattern_id",
+            "applies_when_most_true",
+            "do_not_use_when",
+            "guardrails",
+            "review_criteria",
+            "test_scenarios"
+          ],
+          "properties": {
+            "pattern_id": { "type": "string", "const": "operator-review" },
+            "applies_when_most_true": { "type": "array", "items": { "type": "string" } },
+            "do_not_use_when": { "type": "array", "items": { "type": "string" } },
+            "guardrails": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["id", "guidance"],
+                "properties": {
+                  "id": { "type": "string" },
+                  "guidance": { "type": "string" }
+                }
+              }
+            },
+            "review_criteria": { "type": "array", "items": { "type": "string" } },
+            "test_scenarios": { "type": "array", "items": { "type": "string" } }
+          }
+        }
       }
     },
     "activity_model": {

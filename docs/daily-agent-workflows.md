@@ -1,8 +1,24 @@
 # Daily Agent Workflows
 
-JudgmentKit2 should run before an agent turns a brief into UI, critiques an interface, or accepts model-proposed interaction logic.
+JudgmentKit should run before an agent turns a brief into UI, critiques an interface, or accepts model-proposed interaction logic.
 
 The daily path is MCP-first. Use the CLI when scripting, debugging, or checking a fixture from the terminal.
+
+## Installing For Codex
+
+Use the hosted installer after deployment:
+
+```bash
+curl -fsSL https://judgmentkit.ai/install | bash
+```
+
+From a local checkout, use:
+
+```bash
+npm run install:mcp -- --client codex
+```
+
+The first relaunch supports Codex only. The configured local server name is `judgmentkit`, and the install verifies that tools/list returns the current JudgmentKit review and handoff tools.
 
 ## Before Generating UI
 
@@ -17,30 +33,47 @@ Use the returned packet this way:
 CLI equivalent:
 
 ```bash
-judgmentkit2 review --input examples/refund-triage.brief.txt
+judgmentkit review --input examples/refund-triage.brief.txt
 ```
 
 From an unlinked checkout, use:
 
 ```bash
-node bin/judgmentkit2.mjs review --input examples/refund-triage.brief.txt
+node bin/judgmentkit.mjs review --input examples/refund-triage.brief.txt
 ```
 
 ## Before Accepting A Model Activity Candidate
 
 Call `review_activity_model_candidate` with the original brief and the proposed candidate.
 
-Use this when another model or agent has already drafted an activity model. JudgmentKit2 does not treat that candidate as source of truth. The original brief still has to contain enough evidence.
+Use this when another model or agent has already drafted an activity model. JudgmentKit does not treat that candidate as source of truth. The original brief still has to contain enough evidence.
 
 CLI equivalent:
 
 ```bash
-judgmentkit2 review-candidate \
+judgmentkit review-candidate \
   --input examples/refund-triage.brief.txt \
   --candidate examples/refund-triage.candidate.json
 ```
 
-From an unlinked checkout, use `node bin/judgmentkit2.mjs` with the same arguments.
+From an unlinked checkout, use `node bin/judgmentkit.mjs` with the same arguments.
+
+## Before Choosing Optional Workflow Guidance
+
+Call `recommend_ui_workflow_profiles` when the brief sounds like a specialized review activity and you need to know whether an optional profile should guide the UI workflow candidate.
+
+Use `operator-review-ui` when most of these are true:
+
+- a human reviews AI- or system-produced work before it advances
+- multiple items, agents, workstreams, candidates, or findings compete for attention
+- the user compares evidence, understands risk, and makes a bounded decision
+- the next step may be approved, blocked, deferred, tightened, returned, or handed off
+- completion requires a handoff, receipt, audit, or closure state
+- raw system mechanics exist but should not drive the primary UI
+
+Do not use it for simple forms, passive dashboards with no decision, reading-only pages or reports, open-ended chat, fully automated workflows with no human review, or debugging tools where raw system mechanics are the primary task.
+
+The recommendation only classifies the brief. It does not apply a profile automatically. If `operator-review-ui` appears in `recommended_profile_ids`, pass `profile_id: "operator-review-ui"` to `review_ui_workflow_candidate` or the library equivalent when reviewing the workflow candidate.
 
 ## Before Accepting A Model UI Workflow
 
@@ -48,12 +81,14 @@ Call `review_ui_workflow_candidate` with the original brief and the proposed wor
 
 Use this after activity review and before turning a model-proposed workflow into UI implementation. The candidate should name workflow steps, primary actions, decision points, completion or handoff, primary UI sections, controls, user-facing terms, and diagnostics.
 
-JudgmentKit2 accepts the workflow only when:
+JudgmentKit accepts the workflow only when:
 
 - the source activity review is `ready_for_review`
 - workflow steps, actions, decision support, and completion or handoff are present
 - implementation terms stay out of workflow, `primary_ui`, and handoff
 - review-packet terms such as `ready_for_review`, `activity_model`, `review_status`, `Primary user`, and `Main decision` stay out of the product UI
+
+When `profile_id: "operator-review-ui"` is selected, JudgmentKit adds guidance that checks the workflow against operator-review expectations: activity-first structure, queue/detail density boundaries, evidence-adjacent actions, contextual help disclosure, readable label/value evidence, and restrained operational states. Guardrail ids remain guidance metadata; do not copy them into product UI text.
 
 There is no CLI command for this slice. Use MCP or the library API.
 
@@ -76,7 +111,7 @@ There is no CLI command for this gate. Use MCP or the library API.
 
 ## Optional OpenAI Workflow Provider
 
-Use `createOpenAIResponsesUiWorkflowProposer` from `judgmentkit-2/providers/openai-responses` when a model should propose the UI workflow candidate. Pass that proposer to `createModelAssistedUiWorkflowReview`; do not use the provider output directly for UI generation.
+Use `createOpenAIResponsesUiWorkflowProposer` from `judgmentkit/providers/openai-responses` when a model should propose the UI workflow candidate. Pass that proposer to `createModelAssistedUiWorkflowReview`; do not use the provider output directly for UI generation.
 
 The provider requires `OPENAI_API_KEY` and `JUDGMENTKIT_OPENAI_MODEL`, or explicit `apiKey` and `model` options. It has no default model and does not add CLI or MCP behavior.
 

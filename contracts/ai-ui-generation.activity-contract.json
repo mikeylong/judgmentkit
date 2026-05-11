@@ -1,8 +1,8 @@
 {
-  "$schema": "./judgmentkit-v2-kernel.schema.json",
-  "id": "judgmentkit2.ai-ui-generation.activity-contract",
+  "$schema": "./judgmentkit-kernel.schema.json",
+  "id": "judgmentkit.ai-ui-generation.activity-contract",
   "version": "0.1.0",
-  "source_model": "fresh_v2",
+  "source_model": "fresh_start",
   "quality_order": [
     "activity fit",
     "domain appropriateness",
@@ -17,6 +17,81 @@
     "turn implementation artifacts into the primary user experience",
     "copy JudgmentKit v1 resource, prompt, schema, or MCP structures"
   ],
+  "workflow": {
+    "id": "workflow.ai-ui-generation"
+  },
+  "profiles": {
+    "operator-review-ui": {
+      "pattern_id": "operator-review",
+      "applies_when_most_true": [
+        "A human must review AI- or system-produced work before it advances.",
+        "Multiple work items, agents, workstreams, candidates, or findings compete for attention.",
+        "The user must compare evidence, understand risk, and make a bounded decision.",
+        "The next step may be approved, blocked, deferred, tightened, or handed off.",
+        "Completion requires a trustworthy handoff, receipt, audit, or closure state.",
+        "Raw system mechanics exist, but should not drive the primary UI."
+      ],
+      "do_not_use_when": [
+        "The surface is a simple single-action form.",
+        "The surface is a passive dashboard with no decision.",
+        "The surface is a content page or report meant only for reading.",
+        "The primary activity is open-ended live conversation.",
+        "The workflow is fully automated with no human review or authorization.",
+        "The task is a debugging tool where raw system mechanics are the primary work."
+      ],
+      "guardrails": [
+        {
+          "id": "guardrail.activity-first-ia",
+          "guidance": "Primary structure follows the user activity, not internal system history."
+        },
+        {
+          "id": "guardrail.work-queue-topology",
+          "guidance": "Multi-item review defaults to master-detail unless the brief establishes a better activity pattern."
+        },
+        {
+          "id": "guardrail.primary-surface-economy",
+          "guidance": "Primary UI shows only information that helps the user advance the work."
+        },
+        {
+          "id": "guardrail.selector-density-boundary",
+          "guidance": "Selectors summarize; detail workspaces explain."
+        },
+        {
+          "id": "guardrail.control-proximity",
+          "guidance": "Controls and help affordances sit next to the evidence, label, or object they affect."
+        },
+        {
+          "id": "guardrail.readable-label-value-patterns",
+          "guidance": "Repeated label/value rows align, wrap, and scan consistently."
+        },
+        {
+          "id": "guardrail.contextual-help-disclosure",
+          "guidance": "Explanatory guidance moves into adjacent help disclosure when it would crowd active work."
+        },
+        {
+          "id": "guardrail.quiet-operational-state",
+          "guidance": "Selected, focus, and status states are clear but restrained."
+        }
+      ],
+      "review_criteria": [
+        "The generated UI lets the target user identify current item, key evidence, required decision, and completion or handoff state quickly.",
+        "Internal mechanics are secondary unless the task is explicitly diagnostic.",
+        "Queue or list rows summarize work; detail workspaces explain it.",
+        "Actions are adjacent to the evidence or object they affect.",
+        "Help triggers are adjacent to the label or concept they explain.",
+        "Persistent selected states are visible without dominating the work."
+      ],
+      "test_scenarios": [
+        "Multi-item review surface with several agent or workstream outputs.",
+        "Single-item evidence review with one decision and one handoff.",
+        "Diagnostic-heavy source brief that must be translated into activity language.",
+        "Dense label/value evidence panel with long labels and wrapping values.",
+        "UI containing explanatory copy that should be moved into contextual help.",
+        "Selected or focused list item where state must remain visible but restrained.",
+        "False-positive case: simple dashboard or form that should not invoke operator-review."
+      ]
+    }
+  },
   "activity_model": {
     "activity_supported": "Guiding or reviewing an AI-generated interface pass so the result supports a real user activity instead of exposing data structures or implementation machinery.",
     "participants": [

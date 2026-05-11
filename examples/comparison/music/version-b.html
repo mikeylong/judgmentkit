@@ -1,0 +1,848 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dinner Playlist Builder B</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17232a;
+      --muted: #627078;
+      --line: #cbd6d1;
+      --surface: #f5f7f2;
+      --panel: #ffffff;
+      --accent: #276b61;
+      --accent-dark: #17483f;
+      --warning: #8a3f31;
+      --soft: #edf5f1;
+      --warm: #fbf4e8;
+      --note: #f2eff8;
+      font-family:
+        Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--surface);
+    }
+
+    button,
+    select,
+    textarea {
+      font: inherit;
+    }
+
+    button,
+    textarea {
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    button {
+      min-height: 40px;
+      padding: 0 14px;
+      font-weight: 650;
+      cursor: pointer;
+    }
+
+    .primary-action {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .app-shell {
+      min-height: 100vh;
+      padding: 28px;
+    }
+
+    .app-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: start;
+      padding-bottom: 22px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1,
+    h2,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 0;
+      font-size: 2rem;
+      line-height: 1.1;
+    }
+
+    h2 {
+      margin-bottom: 12px;
+      font-size: 1.1rem;
+      line-height: 1.25;
+    }
+
+    .eyebrow,
+    dt {
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 760;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    .task-prompt {
+      max-width: 430px;
+      margin-bottom: 0;
+      color: var(--muted);
+      line-height: 1.45;
+      text-align: right;
+    }
+
+    section,
+    aside,
+    .record-table,
+    .debug-panel,
+    .brief-panel,
+    .playlist-panel {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    section,
+    aside,
+    .record-table,
+    .debug-panel,
+    .brief-panel {
+      padding: 18px;
+    }
+
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin: 22px 0;
+      border-color: #d7b36f;
+      background: var(--warm);
+    }
+
+    .record-grid,
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 340px;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .workspace-grid {
+      grid-template-columns: 430px minmax(0, 1fr);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.94rem;
+    }
+
+    th,
+    td {
+      padding: 13px 10px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+    }
+
+    dl,
+    dd {
+      margin: 0;
+    }
+
+    dl div + div {
+      margin-top: 14px;
+    }
+
+    dd {
+      font-weight: 650;
+    }
+
+    .debug-panel p {
+      color: var(--warning);
+      line-height: 1.45;
+    }
+
+    .workflow-strip {
+      margin: 22px 0;
+    }
+
+    .workflow-strip ol {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 10px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .workflow-strip li {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      min-height: 58px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+    }
+
+    .workflow-strip li span,
+    .sequence-number {
+      display: inline-grid;
+      flex: 0 0 auto;
+      width: 26px;
+      height: 26px;
+      place-items: center;
+      border-radius: 50%;
+      background: var(--soft);
+      color: var(--accent-dark);
+      font-weight: 760;
+    }
+
+    .workflow-strip li.is-current {
+      border-color: var(--accent);
+      background: var(--soft);
+    }
+
+    .brief-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      gap: 22px;
+      background: var(--note);
+    }
+
+    .brief-panel p {
+      margin-bottom: 0;
+      line-height: 1.5;
+    }
+
+    .brief-panel ul {
+      display: grid;
+      gap: 8px;
+      padding-left: 20px;
+      margin: 0;
+      line-height: 1.45;
+    }
+
+    .suggested-panel {
+      align-self: start;
+    }
+
+    .track-row {
+      display: grid;
+      grid-template-columns: 44px minmax(0, 1fr);
+      gap: 12px;
+      padding: 12px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .track-row.has-conflict {
+      background: #fff7f4;
+    }
+
+    .album-mark {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      place-items: center;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #ddece6, #f3e2c3);
+      color: var(--accent-dark);
+      font-size: 0.72rem;
+      font-weight: 780;
+    }
+
+    .track-row strong,
+    .track-row span,
+    .track-row small,
+    .playlist-sequence strong,
+    .playlist-sequence span {
+      display: block;
+    }
+
+    .track-row span,
+    .track-row small,
+    .playlist-sequence span {
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .track-row small {
+      margin-top: 4px;
+    }
+
+    .track-actions {
+      grid-column: 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .track-actions span {
+      color: var(--warning);
+      font-weight: 680;
+    }
+
+    .playlist-panel {
+      display: grid;
+      gap: 14px;
+      padding: 0;
+      border: 0;
+      background: transparent;
+    }
+
+    .playlist-sequence {
+      display: grid;
+      gap: 8px;
+      padding: 0;
+      margin: 0;
+      list-style: none;
+    }
+
+    .playlist-sequence li {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .move-actions,
+    .decision-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    .move-actions button {
+      min-height: 34px;
+      padding: 0 10px;
+    }
+
+    .checks-panel {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .checklist {
+      display: grid;
+      gap: 10px;
+      padding-left: 20px;
+      margin-bottom: 0;
+      line-height: 1.45;
+    }
+
+    .sequence-note {
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-weight: 650;
+    }
+
+    textarea {
+      width: 100%;
+      padding: 10px 12px;
+      color: var(--ink);
+    }
+
+    @media (max-width: 900px) {
+      .app-header,
+      .record-grid,
+      .workspace-grid,
+      .brief-panel,
+      .checks-panel {
+        display: block;
+      }
+
+      .task-prompt {
+        max-width: none;
+        margin-top: 10px;
+        text-align: left;
+      }
+
+      .debug-panel,
+      .record-table,
+      .suggested-panel,
+      .workflow-strip,
+      .playlist-panel,
+      .brief-panel > div + div {
+        margin-top: 14px;
+      }
+
+      .workflow-strip ol {
+        grid-template-columns: 1fr;
+      }
+
+      .playlist-sequence li {
+        grid-template-columns: auto minmax(0, 1fr);
+      }
+
+      .move-actions {
+        grid-column: 2;
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+<body data-comparison-id="dinner-playlist-standalone-v1" data-variant="B">
+  
+    <main class="app-shell guided-shell" data-primary-surface>
+      
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Dinner music</p>
+        <h1>Dinner Playlist Builder</h1>
+      </div>
+      <p class="task-prompt" data-study-task>Build a 10-song dinner playlist that starts mellow, lifts in the middle, avoids disliked artists and explicit tracks, and leaves a sequence note.</p>
+    </header>
+  
+
+      <section class="workflow-strip" aria-label="Playlist workflow">
+        <div class="section-heading">
+          <p class="eyebrow">Hosting flow</p>
+          <h2>Dinner playlist builder</h2>
+        </div>
+        <ol>
+        <li class="is-current">
+          <span>1</span>
+          Review the dinner brief
+        </li>
+      
+        <li>
+          <span>2</span>
+          Compare suggested tracks
+        </li>
+      
+        <li>
+          <span>3</span>
+          Shape the energy flow
+        </li>
+      
+        <li>
+          <span>4</span>
+          Resolve playlist conflicts
+        </li>
+      
+        <li>
+          <span>5</span>
+          Save and share the playlist
+        </li>
+      </ol>
+      </section>
+
+      <section class="brief-panel">
+        <div>
+          <p class="eyebrow">Dinner brief</p>
+          <h2>DINNER-10</h2>
+          <p>Friday dinner with friends. Start with a mellow opener, build into a warm middle, and close softly enough for dessert and conversation.</p>
+        </div>
+        <div>
+          <p class="eyebrow">Guest preferences</p>
+          <ul><li>Maya likes warm soul and has asked to avoid The Grey Glass.</li><li>Jon wants a mellow opener and no explicit tracks during dinner.</li><li>Priya likes light electronic textures when they stay conversational.</li><li>Keep indie, soul, jazz, and electronic represented without letting one genre dominate.</li></ul>
+        </div>
+      </section>
+
+      <section class="workspace-grid">
+        <aside class="suggested-panel" aria-label="Suggested tracks">
+          <div class="section-heading">
+            <p class="eyebrow">Suggested tracks</p>
+            <h2>Compare fit</h2>
+          </div>
+          
+      <div class="track-row">
+        <div class="album-mark" aria-hidden="true">JA</div>
+        <div>
+          <strong>Lantern Hour</strong>
+          <span>Mira Vale · jazz · energy 2</span>
+          <small>Soft piano and brushed drums for the first pour.</small>
+        </div>
+        <div class="track-actions">
+          <span>Fits brief</span>
+          <button type="button">Add to playlist</button>
+        </div>
+      </div>
+    
+      <div class="track-row">
+        <div class="album-mark" aria-hidden="true">SO</div>
+        <div>
+          <strong>Table Glow</strong>
+          <span>The Knoll Tapes · soul · energy 3</span>
+          <small>Warm vocal line without pulling focus from conversation.</small>
+        </div>
+        <div class="track-actions">
+          <span>Fits brief</span>
+          <button type="button">Add to playlist</button>
+        </div>
+      </div>
+    
+      <div class="track-row">
+        <div class="album-mark" aria-hidden="true">IN</div>
+        <div>
+          <strong>Window Seat</strong>
+          <span>Rafi Lane · indie · energy 3</span>
+          <small>Gentle guitar rhythm that keeps the room relaxed.</small>
+        </div>
+        <div class="track-actions">
+          <span>Fits brief</span>
+          <button type="button">Add to playlist</button>
+        </div>
+      </div>
+    
+      <div class="track-row">
+        <div class="album-mark" aria-hidden="true">EL</div>
+        <div>
+          <strong>Apricot Static</strong>
+          <span>Northline · electronic · energy 4</span>
+          <small>Light synth pulse for the first lift in the sequence.</small>
+        </div>
+        <div class="track-actions">
+          <span>Fits brief</span>
+          <button type="button">Add to playlist</button>
+        </div>
+      </div>
+    
+      <div class="track-row">
+        <div class="album-mark" aria-hidden="true">SO</div>
+        <div>
+          <strong>Second Serving</strong>
+          <span>Lena Moss · soul · energy 5</span>
+          <small>Best midpoint lift; upbeat but still dinner-friendly.</small>
+        </div>
+        <div class="track-actions">
+          <span>Fits brief</span>
+          <button type="button">Add to playlist</button>
+        </div>
+      </div>
+    
+      <div class="track-row">
+        <div class="album-mark" aria-hidden="true">JA</div>
+        <div>
+          <strong>Kitchen Lights</strong>
+          <span>Harbor Trio · jazz · energy 4</span>
+          <small>Keeps the lift while giving the room more space.</small>
+        </div>
+        <div class="track-actions">
+          <span>Fits brief</span>
+          <button type="button">Add to playlist</button>
+        </div>
+      </div>
+    
+      <div class="track-row">
+        <div class="album-mark" aria-hidden="true">EL</div>
+        <div>
+          <strong>Low Tide Signal</strong>
+          <span>Sol Arras · electronic · energy 5</span>
+          <small>A clean pulse for the highest-energy stretch.</small>
+        </div>
+        <div class="track-actions">
+          <span>Fits brief</span>
+          <button type="button">Add to playlist</button>
+        </div>
+      </div>
+    
+      <div class="track-row">
+        <div class="album-mark" aria-hidden="true">IN</div>
+        <div>
+          <strong>Porch Current</strong>
+          <span>Ever Vale · indie · energy 4</span>
+          <small>Returns to guitars after the electronic lift.</small>
+        </div>
+        <div class="track-actions">
+          <span>Fits brief</span>
+          <button type="button">Add to playlist</button>
+        </div>
+      </div>
+    
+      <div class="track-row">
+        <div class="album-mark" aria-hidden="true">SO</div>
+        <div>
+          <strong>Afterglow Maps</strong>
+          <span>Inez House · soul · energy 3</span>
+          <small>A warm descent before the closing track.</small>
+        </div>
+        <div class="track-actions">
+          <span>Fits brief</span>
+          <button type="button">Add to playlist</button>
+        </div>
+      </div>
+    
+      <div class="track-row">
+        <div class="album-mark" aria-hidden="true">JA</div>
+        <div>
+          <strong>Nightcap Sketch</strong>
+          <span>Moir &amp; Co. · jazz · energy 2</span>
+          <small>Quiet closer for dessert and lingering conversation.</small>
+        </div>
+        <div class="track-actions">
+          <span>Fits brief</span>
+          <button type="button">Add to playlist</button>
+        </div>
+      </div>
+    
+      <div class="track-row has-conflict">
+        <div class="album-mark" aria-hidden="true">EL</div>
+        <div>
+          <strong>Midnight Spill</strong>
+          <span>DJ Cinder · electronic · energy 6</span>
+          <small>Good tempo, but the lyrics violate the dinner rule.</small>
+        </div>
+        <div class="track-actions">
+          <span>Explicit track</span>
+          <button type="button">Mark as conflict</button>
+        </div>
+      </div>
+    
+      <div class="track-row has-conflict">
+        <div class="album-mark" aria-hidden="true">IN</div>
+        <div>
+          <strong>Velvet Return</strong>
+          <span>The Grey Glass · indie · energy 4</span>
+          <small>Close mood fit, but this artist is on Maya&#39;s avoid list.</small>
+        </div>
+        <div class="track-actions">
+          <span>Disliked artist</span>
+          <button type="button">Mark as conflict</button>
+        </div>
+      </div>
+    
+        </aside>
+
+        <div class="playlist-panel">
+          <section>
+            <div class="section-heading">
+              <p class="eyebrow">Playlist sequence</p>
+              <h2>10 tracks ready to play</h2>
+            </div>
+            <ol class="playlist-sequence">
+      <li>
+        <span class="sequence-number">1</span>
+        <div>
+          <strong>Lantern Hour</strong>
+          <span>Mira Vale · mellow opener · energy 2</span>
+        </div>
+        <div class="move-actions">
+          <button type="button">Move earlier</button>
+          <button type="button">Move later</button>
+          <button type="button">Remove track</button>
+        </div>
+      </li>
+    
+      <li>
+        <span class="sequence-number">2</span>
+        <div>
+          <strong>Table Glow</strong>
+          <span>The Knoll Tapes · early warmth · energy 3</span>
+        </div>
+        <div class="move-actions">
+          <button type="button">Move earlier</button>
+          <button type="button">Move later</button>
+          <button type="button">Remove track</button>
+        </div>
+      </li>
+    
+      <li>
+        <span class="sequence-number">3</span>
+        <div>
+          <strong>Window Seat</strong>
+          <span>Rafi Lane · settled groove · energy 3</span>
+        </div>
+        <div class="move-actions">
+          <button type="button">Move earlier</button>
+          <button type="button">Move later</button>
+          <button type="button">Remove track</button>
+        </div>
+      </li>
+    
+      <li>
+        <span class="sequence-number">4</span>
+        <div>
+          <strong>Apricot Static</strong>
+          <span>Northline · warm middle · energy 4</span>
+        </div>
+        <div class="move-actions">
+          <button type="button">Move earlier</button>
+          <button type="button">Move later</button>
+          <button type="button">Remove track</button>
+        </div>
+      </li>
+    
+      <li>
+        <span class="sequence-number">5</span>
+        <div>
+          <strong>Second Serving</strong>
+          <span>Lena Moss · warm middle · energy 5</span>
+        </div>
+        <div class="move-actions">
+          <button type="button">Move earlier</button>
+          <button type="button">Move later</button>
+          <button type="button">Remove track</button>
+        </div>
+      </li>
+    
+      <li>
+        <span class="sequence-number">6</span>
+        <div>
+          <strong>Kitchen Lights</strong>
+          <span>Harbor Trio · middle reset · energy 4</span>
+        </div>
+        <div class="move-actions">
+          <button type="button">Move earlier</button>
+          <button type="button">Move later</button>
+          <button type="button">Remove track</button>
+        </div>
+      </li>
+    
+      <li>
+        <span class="sequence-number">7</span>
+        <div>
+          <strong>Low Tide Signal</strong>
+          <span>Sol Arras · late lift · energy 5</span>
+        </div>
+        <div class="move-actions">
+          <button type="button">Move earlier</button>
+          <button type="button">Move later</button>
+          <button type="button">Remove track</button>
+        </div>
+      </li>
+    
+      <li>
+        <span class="sequence-number">8</span>
+        <div>
+          <strong>Porch Current</strong>
+          <span>Ever Vale · soft landing · energy 4</span>
+        </div>
+        <div class="move-actions">
+          <button type="button">Move earlier</button>
+          <button type="button">Move later</button>
+          <button type="button">Remove track</button>
+        </div>
+      </li>
+    
+      <li>
+        <span class="sequence-number">9</span>
+        <div>
+          <strong>Afterglow Maps</strong>
+          <span>Inez House · wind down · energy 3</span>
+        </div>
+        <div class="move-actions">
+          <button type="button">Move earlier</button>
+          <button type="button">Move later</button>
+          <button type="button">Remove track</button>
+        </div>
+      </li>
+    
+      <li>
+        <span class="sequence-number">10</span>
+        <div>
+          <strong>Nightcap Sketch</strong>
+          <span>Moir &amp; Co. · closing track · energy 2</span>
+        </div>
+        <div class="move-actions">
+          <button type="button">Move earlier</button>
+          <button type="button">Move later</button>
+          <button type="button">Remove track</button>
+        </div>
+      </li>
+    </ol>
+          </section>
+
+          <section class="checks-panel">
+            <div>
+              <h2>Conflict checks</h2>
+              <ul class="checklist">
+                <li>No explicit track in the saved playlist.</li>
+                <li>No disliked artist in the saved playlist.</li>
+                <li>Mellow opener, warm middle, and closing track are present.</li>
+              </ul>
+            </div>
+            <div>
+              <h2>Genre balance</h2>
+              <ul class="checklist"><li>jazz: 3 tracks</li><li>soul: 3 tracks</li><li>indie: 2 tracks</li><li>electronic: 2 tracks</li></ul>
+            </div>
+          </section>
+
+          <section class="sequence-note">
+            <h2>Sequence note</h2>
+            <label>
+              Note for sharing
+              <textarea rows="4">The selected tracks fit the dinner mood, avoid known guest and content conflicts, and follow the intended energy flow</textarea>
+            </label>
+            <div class="decision-actions">
+              <button type="button" class="primary-action">Save playlist</button>
+              <button type="button">Share playlist</button>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+  
+  <script type="application/json" id="comparison-metadata">{
+  "comparison_id": "dinner-playlist-standalone-v1",
+  "variant": "B",
+  "treatment": "judgmentkit_handoff",
+  "task_prompt": "Build a 10-song dinner playlist that starts mellow, lifts in the middle, avoids disliked artists and explicit tracks, and leaves a sequence note.",
+  "selected_playlist_id": "DINNER-10",
+  "source_brief_file": "examples/comparison/music/dinner-playlist-implementation-heavy.brief.txt",
+  "generation_source": {
+    "handoff_status": "ready_for_generation",
+    "activity_review_status": "ready_for_review",
+    "workflow_review_status": "ready_for_review",
+    "surface_name": "Dinner playlist builder"
+  },
+  "terms_kept_out_of_primary_ui": [
+    "API endpoint",
+    "CRUD",
+    "data model",
+    "field",
+    "JSON schema",
+    "prompt",
+    "prompt template",
+    "resource",
+    "resource id",
+    "schema",
+    "tool call",
+    "ready_for_review",
+    "activity_model",
+    "interaction_contract",
+    "review_status",
+    "guardrails",
+    "JudgmentKit"
+  ]
+}</script>
+</body>
+</html>

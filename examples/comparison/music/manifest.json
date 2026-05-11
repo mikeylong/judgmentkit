@@ -1,0 +1,29 @@
+{
+  "comparison_id": "dinner-playlist-standalone-v1",
+  "task_prompt": "Build a 10-song dinner playlist that starts mellow, lifts in the middle, avoids disliked artists and explicit tracks, and leaves a sequence note.",
+  "selected_playlist_id": "DINNER-10",
+  "source_brief_file": "examples/comparison/music/dinner-playlist-implementation-heavy.brief.txt",
+  "scorecard_file": "examples/comparison/music/facilitator-scorecard.md",
+  "randomized_order_required": true,
+  "variants": [
+    {
+      "label": "Version A",
+      "file": "examples/comparison/music/version-a.html",
+      "treatment": "raw_brief_baseline"
+    },
+    {
+      "label": "Version B",
+      "file": "examples/comparison/music/version-b.html",
+      "treatment": "judgmentkit_handoff"
+    }
+  ],
+  "metrics": [
+    "task success",
+    "time to playable playlist",
+    "constraint misses",
+    "implementation leakage noticed",
+    "host confidence",
+    "required rework before usable",
+    "participant preference with rationale"
+  ]
+}

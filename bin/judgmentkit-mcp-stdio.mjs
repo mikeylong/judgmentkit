@@ -13,6 +13,6 @@ async function main() {
 
 main().catch((error) => {
   const message = error instanceof Error ? error.stack ?? error.message : String(error);
-  process.stderr.write(`JudgmentKit 2 stdio MCP failed: ${message}\n`);
+  process.stderr.write(`JudgmentKit stdio MCP failed: ${message}\n`);
   process.exit(1);
 });

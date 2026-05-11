@@ -171,6 +171,25 @@ function primaryHandoffText(handoff) {
 }
 
 {
+  const workflowReview = reviewUiWorkflowCandidate(
+    REFUND_TRIAGE_BRIEF,
+    refundWorkflowCandidate(),
+    { profile_id: "operator-review-ui" },
+  );
+  const handoff = createUiGenerationHandoff(workflowReview);
+
+  assert.equal(handoff.handoff_status, "ready_for_generation");
+  assert.equal(handoff.guidance_profile.profile_id, "operator-review-ui");
+  assert.equal(handoff.guidance_profile.pattern_id, "operator-review");
+  assert.ok(
+    handoff.guidance_profile.review_criteria.some((entry) =>
+      entry.includes("current item"),
+    ),
+  );
+  assertNoForbiddenHandoffKeys(handoff);
+}
+
+{
   const leakyReview = reviewUiWorkflowCandidate(
     REFUND_TRIAGE_BRIEF,
     leakyWorkflowCandidate(),

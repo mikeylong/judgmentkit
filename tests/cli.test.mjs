@@ -7,7 +7,16 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
-const cliPath = path.join(root, "bin/judgmentkit2.mjs");
+const cliPath = path.join(root, "bin/judgmentkit.mjs");
+const packageJson = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
+
+assert.equal(packageJson.name, "judgmentkit");
+assert.deepEqual(packageJson.bin, {
+  judgmentkit: "./bin/judgmentkit.mjs",
+  "judgmentkit-mcp-stdio": "./bin/judgmentkit-mcp-stdio.mjs",
+});
+assert.equal(fs.existsSync(path.join(root, "bin/judgmentkit2.mjs")), false);
+assert.equal(fs.existsSync(path.join(root, "bin/judgmentkit2-mcp-stdio.mjs")), false);
 
 {
   const result = spawnSync(
@@ -22,7 +31,7 @@ const cliPath = path.join(root, "bin/judgmentkit2.mjs");
 
   assert.equal(result.status, 0, result.stderr);
   const packet = JSON.parse(result.stdout);
-  assert.equal(packet.contract_id, "judgmentkit2.ai-ui-generation.activity-contract");
+  assert.equal(packet.contract_id, "judgmentkit.ai-ui-generation.activity-contract");
   assert.ok(
     packet.implementation_terms_detected.some((entry) => entry.term === "JSON schema"),
   );
@@ -37,7 +46,7 @@ const cliPath = path.join(root, "bin/judgmentkit2.mjs");
 }
 
 {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit2-cli-"));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-cli-"));
   const inputPath = path.join(tempDir, "brief.txt");
 
   fs.writeFileSync(
@@ -80,7 +89,7 @@ const cliPath = path.join(root, "bin/judgmentkit2.mjs");
 }
 
 {
-  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit2-cli-"));
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-cli-"));
   const inputPath = path.join(tempDir, "brief.txt");
   const candidatePath = path.join(tempDir, "candidate.json");
 

@@ -185,7 +185,7 @@ function buildBaselineOneShot() {
 function buildBaselineVisualHtml() {
   return `
     <section class="demo-panel baseline-panel" data-demo-section="without-judgmentkit">
-      <div class="panel-kicker">Without JudgmentKit2</div>
+      <div class="panel-kicker">Without JudgmentKit</div>
       <header class="panel-header">
         <div>
           <p class="eyebrow">Admin console</p>
@@ -315,7 +315,7 @@ function buildGuidedVisualHtml(activityReview, workflowReview, rejectedWorkflowR
 
   return `
     <section class="demo-panel guided-panel" data-demo-section="with-judgmentkit">
-      <div class="panel-kicker">With JudgmentKit2</div>
+      <div class="panel-kicker">With JudgmentKit</div>
       <div data-demo-primary-ui>
         <header class="panel-header workflow-header">
           <div>
@@ -442,7 +442,7 @@ function buildGuidedVisualHtml(activityReview, workflowReview, rejectedWorkflowR
 
       <section class="blocked-review" data-demo-rejected-review>
         <h3>Rejected candidate guardrail result</h3>
-        <p>The same source brief also gets a model-like workflow candidate that exposes machinery. JudgmentKit2 blocks it before it becomes product UI.</p>
+        <p>The same source brief also gets a model-like workflow candidate that exposes machinery. JudgmentKit blocks it before it becomes product UI.</p>
         <dl class="diagnostic-meta">
           <div>
             <dt>Workflow review status</dt>
@@ -503,7 +503,7 @@ function buildVisualDemoHtml(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>JudgmentKit2 One-Shot UI Demo</title>
+  <title>JudgmentKit One-Shot UI Demo</title>
   <style>
     :root {
       color-scheme: light;
@@ -979,7 +979,7 @@ function buildVisualDemoHtml(
 <body>
   <main>
     <section class="intro">
-      <h1>JudgmentKit2 One-Shot UI Demo</h1>
+      <h1>JudgmentKit One-Shot UI Demo</h1>
       <p>This deterministic demo renders the same implementation-heavy brief as two UI concepts. It does not call a model or use provider configuration.</p>
       <div class="source-brief">
         <span class="label">Source brief</span>
@@ -1002,8 +1002,8 @@ function buildVisualDemoHtml(
         <thead>
           <tr>
             <th>Dimension</th>
-            <th>Without JudgmentKit2</th>
-            <th>With JudgmentKit2</th>
+            <th>Without JudgmentKit</th>
+            <th>With JudgmentKit</th>
           </tr>
         </thead>
         <tbody>
@@ -1098,7 +1098,7 @@ function buildComparisonTable(activityReview) {
     activityReview.guardrails.implementation_terms_detected.map((entry) => entry.term);
 
   return [
-    "| Dimension | Without JudgmentKit2 | With JudgmentKit2 |",
+    "| Dimension | Without JudgmentKit | With JudgmentKit |",
     "| --- | --- | --- |",
     "| Starting point | Data model and CRUD surface | Refund triage workflow and handoff |",
     "| Primary user | Admin inspecting records | Support operations manager reviewing triage |",
@@ -1131,7 +1131,7 @@ export function buildOneShotDemoTranscript() {
   );
 
   return [
-    "# JudgmentKit2 One-Shot Before/After Demo",
+    "# JudgmentKit One-Shot Before/After Demo",
     "",
     "This is a scripted fixture demo. It does not call a model or depend on provider configuration.",
     "",
@@ -1141,11 +1141,11 @@ export function buildOneShotDemoTranscript() {
     "",
     brief,
     "",
-    "## Without JudgmentKit2",
+    "## Without JudgmentKit",
     "",
     buildBaselineOneShot(),
     "",
-    "## With JudgmentKit2",
+    "## With JudgmentKit",
     "",
     buildActivityReviewSummary(activityReview),
     "",

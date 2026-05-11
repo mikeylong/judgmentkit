@@ -7,6 +7,8 @@ const DEFAULT_CONTRACT_PATH = path.resolve(
   __dirname,
   "../contracts/ai-ui-generation.activity-contract.json",
 );
+const DEFAULT_WORKFLOW_ID = "workflow.ai-ui-generation";
+const OPERATOR_REVIEW_PROFILE_ID = "operator-review-ui";
 
 export class JudgmentKitInputError extends Error {
   constructor(message, options = {}) {
@@ -21,6 +23,55 @@ export class JudgmentKitInputError extends Error {
 
 export function loadActivityContract(contractPath = DEFAULT_CONTRACT_PATH) {
   return JSON.parse(fs.readFileSync(contractPath, "utf8"));
+}
+
+function getContractWorkflowId(contract) {
+  return contract.workflow?.id ?? DEFAULT_WORKFLOW_ID;
+}
+
+function getUiWorkflowProfiles(contract) {
+  return isPlainObject(contract.profiles) ? contract.profiles : {};
+}
+
+function normalizeOptionalProfileId(profileId) {
+  if (profileId === undefined || profileId === null) {
+    return null;
+  }
+
+  if (typeof profileId !== "string" || profileId.trim().length === 0) {
+    throw new JudgmentKitInputError("profile_id must be a non-empty string when provided.");
+  }
+
+  return profileId.trim();
+}
+
+function resolveUiWorkflowGuidanceProfile(contract, profileId) {
+  const resolvedProfileId = normalizeOptionalProfileId(profileId);
+
+  if (!resolvedProfileId) {
+    return null;
+  }
+
+  const profiles = getUiWorkflowProfiles(contract);
+  const profile = profiles[resolvedProfileId];
+
+  if (!profile) {
+    throw new JudgmentKitInputError(
+      `Unknown UI workflow guidance profile: ${resolvedProfileId}.`,
+      {
+        details: {
+          profile_id: resolvedProfileId,
+          available_profile_ids: Object.keys(profiles),
+        },
+      },
+    );
+  }
+
+  return {
+    profile_id: resolvedProfileId,
+    workflow_id: getContractWorkflowId(contract),
+    ...profile,
+  };
 }
 
 function normalizeText(value) {
@@ -137,6 +188,172 @@ function detectImplementationTerms(input, contract) {
 function hasAny(text, patterns) {
   const normalized = normalizeText(text);
   return patterns.some((pattern) => normalized.includes(pattern));
+}
+
+function matchedEvidence(id, label, matched, reason) {
+  return {
+    id,
+    label,
+    matched,
+    reason,
+  };
+}
+
+function buildOperatorReviewTriggerEvidence(input, contract) {
+  const normalized = normalizeText(input);
+  const implementationTermsDetected = detectImplementationTerms(input, contract);
+  const hasReviewActor = /\b(?:human|operator|reviewer|lead|manager|approver)\b/.test(normalized) ||
+    /\b(?:review|reviews|reviewing|approve|approval|authorize|authorization)\b/.test(normalized);
+  const hasProducedWork = /\b(?:ai|system|agent|model|generated|output|workstream|candidate|finding)\b/.test(normalized);
+  const hasDecision = /\b(?:decision|decide|deciding|approve|block|defer|tighten|handoff|authorize|return|escalate)\b/.test(normalized);
+  const hasEvidenceOrRisk = /\b(?:evidence|risk|compare|comparing|confidence|finding|reason|policy|source)\b/.test(normalized);
+  const hasAdvancementAction = /\b(?:approve(?:d)?|block(?:ed)?|defer(?:red)?|tighten(?:ed)?|handoff|handed off|return(?:ed)?|escalate(?:d)?|authorize(?:d)?)\b/.test(normalized);
+  const hasClosure = /\b(?:handoff|receipt|audit|closure|closed|complete|completion|done|accepted|rejected)\b/.test(normalized);
+  const hasRawMechanics = implementationTermsDetected.length > 0 ||
+    /\b(?:raw system|internal mechanics|system mechanics|trace|prompt|schema|tool call|resource id|api endpoint|model configuration)\b/.test(normalized);
+
+  return {
+    implementationTermsDetected,
+    triggers: [
+      matchedEvidence(
+        "human_review_before_advance",
+        "A human reviews AI- or system-produced work before it advances.",
+        hasReviewActor && hasProducedWork,
+        hasReviewActor && hasProducedWork
+          ? "The brief names human review of AI/system/agent/model output."
+          : "Human review of produced work is not clear.",
+      ),
+      matchedEvidence(
+        "competing_work_items",
+        "Multiple work items, agents, workstreams, candidates, or findings compete for attention.",
+        /\b(?:multiple|several|queue|list|items|cases|agents|workstreams|candidates|findings)\b/.test(normalized),
+        "Looked for competing items, agents, workstreams, candidates, findings, queues, or lists.",
+      ),
+      matchedEvidence(
+        "evidence_risk_decision",
+        "The user compares evidence, understands risk, and makes a bounded decision.",
+        hasDecision && hasEvidenceOrRisk,
+        hasDecision && hasEvidenceOrRisk
+          ? "The brief combines decision language with evidence or risk language."
+          : "Decision support with evidence or risk is not clear.",
+      ),
+      matchedEvidence(
+        "bounded_next_step",
+        "The next step may be approved, blocked, deferred, tightened, or handed off.",
+        hasAdvancementAction,
+        "Looked for approve, block, defer, tighten, return, escalate, authorize, or handoff language.",
+      ),
+      matchedEvidence(
+        "handoff_receipt_audit_closure",
+        "Completion requires a trustworthy handoff, receipt, audit, or closure state.",
+        hasClosure,
+        "Looked for handoff, receipt, audit, closure, completion, accepted, or rejected states.",
+      ),
+      matchedEvidence(
+        "raw_mechanics_secondary",
+        "Raw system mechanics exist, but should not drive the primary UI.",
+        hasRawMechanics,
+        implementationTermsDetected.length > 0
+          ? "Implementation terms were detected and should stay diagnostic."
+          : "Looked for raw or internal system mechanics.",
+      ),
+    ],
+  };
+}
+
+function buildOperatorReviewExclusionEvidence(input) {
+  const normalized = normalizeText(input);
+  const hasDecisionOrReview = /\b(?:review|reviewing|decision|decide|approve|block|handoff|authorize)\b/.test(normalized);
+
+  return [
+    matchedEvidence(
+      "simple_single_action_form",
+      "Simple single-action forms should not use operator-review.",
+      /\b(?:single-action form|single action form|simple form|submit form)\b/.test(normalized),
+      "Looked for simple form language.",
+    ),
+    matchedEvidence(
+      "passive_dashboard_no_decision",
+      "Passive dashboards with no decision should not use operator-review.",
+      /\bpassive dashboard\b/.test(normalized) ||
+        /\bno decision\b/.test(normalized) ||
+        (/\bdashboard\b/.test(normalized) && !hasDecisionOrReview),
+      "Looked for passive dashboard or dashboard language without review or decision work.",
+    ),
+    matchedEvidence(
+      "reading_only_content",
+      "Content pages and reports meant only for reading should not use operator-review.",
+      /\b(?:content page|only for reading|read-only report|reading only|report meant only)\b/.test(normalized),
+      "Looked for reading-only page or report language.",
+    ),
+    matchedEvidence(
+      "open_ended_live_chat",
+      "Open-ended live chat should not use operator-review.",
+      /\b(?:open-ended live chat|open ended live chat|live chat|primary activity is conversation|open-ended conversation|open ended conversation)\b/.test(normalized),
+      "Looked for open-ended conversation or live chat language.",
+    ),
+    matchedEvidence(
+      "fully_automated_no_human_review",
+      "Fully automated workflows without human review or authorization should not use operator-review.",
+      /\bfully automated\b/.test(normalized) ||
+        /\bno human review\b/.test(normalized) ||
+        /\bno human authorization\b/.test(normalized),
+      "Looked for fully automated workflow language or absence of human review.",
+    ),
+    matchedEvidence(
+      "debugging_primary_mechanics",
+      "Debugging tools where raw system mechanics are primary should not use operator-review.",
+      /\b(?:debugging tool|debug console|raw system mechanics are the primary|system mechanics are the primary|diagnostic console)\b/.test(normalized),
+      "Looked for debugging-primary or raw-mechanics-primary language.",
+    ),
+  ];
+}
+
+export function recommendUiWorkflowProfiles(input, options = {}) {
+  if (typeof input !== "string" || input.trim().length === 0) {
+    throw new JudgmentKitInputError(
+      "recommendUiWorkflowProfiles requires non-empty text input.",
+    );
+  }
+
+  const contract = options.contract ?? loadActivityContract(options.contractPath);
+  const profile = resolveUiWorkflowGuidanceProfile(contract, OPERATOR_REVIEW_PROFILE_ID);
+  const triggerEvidence = buildOperatorReviewTriggerEvidence(input, contract);
+  const exclusions = buildOperatorReviewExclusionEvidence(input);
+  const matchedTriggers = triggerEvidence.triggers.filter((entry) => entry.matched);
+  const matchedExclusions = exclusions.filter((entry) => entry.matched);
+  const triggerThreshold = Math.floor(triggerEvidence.triggers.length / 2) + 1;
+  const status = matchedExclusions.length > 0
+    ? "blocked"
+    : matchedTriggers.length >= triggerThreshold
+      ? "recommended"
+      : "not_recommended";
+  const profileSummary = {
+    profile_id: profile.profile_id,
+    workflow_id: profile.workflow_id,
+    pattern_id: profile.pattern_id,
+    status,
+    trigger_threshold: triggerThreshold,
+    trigger_match_count: matchedTriggers.length,
+    matched_triggers: matchedTriggers.map((entry) => entry.id),
+    matched_exclusions: matchedExclusions.map((entry) => entry.id),
+  };
+
+  return {
+    version: contract.version,
+    contract_id: contract.id,
+    workflow_id: getContractWorkflowId(contract),
+    recommended_profile_ids: status === "recommended" ? [profile.profile_id] : [],
+    blocked_profile_ids: status === "blocked" ? [profile.profile_id] : [],
+    recommendations: [profileSummary],
+    evidence: {
+      [profile.profile_id]: {
+        triggers: triggerEvidence.triggers,
+        exclusions,
+        implementation_terms_detected: triggerEvidence.implementationTermsDetected,
+      },
+    },
+  };
 }
 
 function inferActivityEvidence(input) {
@@ -1155,7 +1372,7 @@ export function buildActivityModelCandidateRequest({ brief, deterministic_review
       {
         role: "system",
         content: [
-          "You propose a reviewable JudgmentKit 2 activity model candidate.",
+          "You propose a reviewable JudgmentKit activity model candidate.",
           "Return only JSON whose root object matches the candidate shape.",
           "Ground every primary field in the source brief and deterministic review evidence.",
           "Keep implementation terms out of candidate.activity_model and candidate.interaction_contract.",
@@ -1571,7 +1788,7 @@ function buildUiWorkflowQuestions(activityReview, candidateGuardrails) {
   return selectTargetedQuestionsFromCandidates(questions);
 }
 
-function buildUiWorkflowReviewAssumptions(activityReview, source) {
+function buildUiWorkflowReviewAssumptions(activityReview, source, guidanceProfile) {
   const assumptions = [
     "Treat this as a reviewable UI workflow candidate, not final product approval.",
     "Activity review remains the source of truth for grounding and disclosure.",
@@ -1586,6 +1803,12 @@ function buildUiWorkflowReviewAssumptions(activityReview, source) {
   if (activityReview.review_status !== "ready_for_review") {
     assumptions.push(
       "The UI workflow cannot be accepted until source activity evidence is resolved.",
+    );
+  }
+
+  if (guidanceProfile) {
+    assumptions.push(
+      "Selected guidance profiles shape review expectations but remain outside product UI copy.",
     );
   }
 
@@ -1609,7 +1832,13 @@ function buildUiWorkflowConfidence(activityReview, candidateGuardrails) {
   return "high";
 }
 
-function buildUiWorkflowReviewPacket(activityReview, candidate, source, contract) {
+function buildUiWorkflowReviewPacket(
+  activityReview,
+  candidate,
+  source,
+  contract,
+  guidanceProfile = null,
+) {
   const sourceReady = activityReview.review_status === "ready_for_review";
   const candidateGuardrails = buildUiWorkflowCandidateGuardrails(candidate, contract);
   const candidateReady =
@@ -1636,6 +1865,7 @@ function buildUiWorkflowReviewPacket(activityReview, candidate, source, contract
       ...source,
       input_excerpt: activityReview.source?.input_excerpt,
     },
+    ...(guidanceProfile ? { guidance_profile: guidanceProfile } : {}),
     activity_review: activityReview,
     candidate: normalizedCandidate,
     review: {
@@ -1653,7 +1883,7 @@ function buildUiWorkflowReviewPacket(activityReview, candidate, source, contract
         candidate_primary_meta_terms_detected:
           candidateGuardrails.candidate_primary_meta_terms_detected,
       },
-      assumptions: buildUiWorkflowReviewAssumptions(activityReview, source),
+      assumptions: buildUiWorkflowReviewAssumptions(activityReview, source, guidanceProfile),
       confidence: buildUiWorkflowConfidence(activityReview, candidateGuardrails),
       targeted_questions: buildUiWorkflowQuestions(activityReview, candidateGuardrails),
     },
@@ -1669,6 +1899,7 @@ function buildUiWorkflowReviewPacket(activityReview, candidate, source, contract
         activityReview.guardrails?.implementation_terms_detected ?? [],
       disclosure_translation_candidates:
         activityReview.guardrails?.disclosure_translation_candidates ?? [],
+      ...(guidanceProfile ? { guidance_profile_id: guidanceProfile.profile_id } : {}),
     },
   };
 
@@ -1723,7 +1954,13 @@ function buildUiWorkflowReviewContext(activityReview) {
   };
 }
 
-export function buildUiWorkflowCandidateRequest({ brief, activity_review: activityReview } = {}) {
+export function buildUiWorkflowCandidateRequest({
+  brief,
+  activity_review: activityReview,
+  profile_id: profileId,
+  contract,
+  contractPath,
+} = {}) {
   if (typeof brief !== "string" || brief.trim().length === 0) {
     throw new JudgmentKitInputError(
       "buildUiWorkflowCandidateRequest requires non-empty brief text.",
@@ -1736,30 +1973,41 @@ export function buildUiWorkflowCandidateRequest({ brief, activity_review: activi
     );
   }
 
+  const guidanceProfile = profileId === undefined || profileId === null
+    ? null
+    : resolveUiWorkflowGuidanceProfile(
+        contract ?? loadActivityContract(contractPath),
+        profileId,
+      );
+  const userPayload = {
+    brief: brief.trim(),
+    activity_review: buildUiWorkflowReviewContext(activityReview),
+    candidate_shape: buildUiWorkflowCandidateShapeGuide(),
+  };
+
+  if (guidanceProfile) {
+    userPayload.guidance_profile = guidanceProfile;
+  }
+
   return {
     messages: [
       {
         role: "system",
         content: [
-          "You propose a reviewable JudgmentKit 2 UI workflow candidate.",
+          "You propose a reviewable JudgmentKit UI workflow candidate.",
           "Return only JSON whose root object matches the UI workflow candidate shape.",
           "Ground workflow steps, actions, decisions, handoff, and user-facing terms in the source brief and activity review.",
           "Keep implementation terms and JudgmentKit review-packet terms out of workflow, primary_ui, and handoff.",
           "Implementation terms may appear only in diagnostics when they are diagnostic.",
+          guidanceProfile
+            ? "Apply the selected guidance_profile as activity guidance; do not copy guardrail ids or internal mechanics into product UI copy."
+            : "",
           "Do not propose styling, components, design tokens, framework code, provider configuration, or network behavior.",
-        ].join(" "),
+        ].filter(Boolean).join(" "),
       },
       {
         role: "user",
-        content: JSON.stringify(
-          {
-            brief: brief.trim(),
-            activity_review: buildUiWorkflowReviewContext(activityReview),
-            candidate_shape: buildUiWorkflowCandidateShapeGuide(),
-          },
-          null,
-          2,
-        ),
+        content: JSON.stringify(userPayload, null, 2),
       },
     ],
     response_format: {
@@ -1778,11 +2026,22 @@ export function buildUiWorkflowCandidateRequest({ brief, activity_review: activi
       version: activityReview.version,
       source_review_status: activityReview.review_status,
       collaboration_mode: activityReview.collaboration_mode,
+      ...(guidanceProfile
+        ? {
+            guidance_profile_id: guidanceProfile.profile_id,
+            guidance_profile: guidanceProfile,
+          }
+        : {}),
     },
   };
 }
 
-export function createUiWorkflowProposer({ callModel } = {}) {
+export function createUiWorkflowProposer({
+  callModel,
+  profile_id: defaultProfileId,
+  contract,
+  contractPath,
+} = {}) {
   if (typeof callModel !== "function") {
     throw new JudgmentKitInputError(
       "createUiWorkflowProposer requires a callModel function.",
@@ -1792,10 +2051,14 @@ export function createUiWorkflowProposer({ callModel } = {}) {
   return async function proposeUiWorkflowCandidate({
     brief,
     activity_review: activityReview,
+    profile_id: requestProfileId,
   } = {}) {
     const request = buildUiWorkflowCandidateRequest({
       brief,
       activity_review: activityReview,
+      profile_id: requestProfileId ?? defaultProfileId,
+      contract,
+      contractPath,
     });
     const candidate = parseCandidateResponse(await callModel(request));
 
@@ -1809,6 +2072,7 @@ export function reviewUiWorkflowCandidate(input, candidate, options = {}) {
   const {
     proposer = "external_candidate",
     activity_review: providedActivityReview,
+    profile_id: profileId,
     ...analysisOptions
   } = options;
 
@@ -1817,17 +2081,19 @@ export function reviewUiWorkflowCandidate(input, candidate, options = {}) {
   const activityReview =
     providedActivityReview ?? createActivityModelReview(input, analysisOptions);
   const contract = analysisOptions.contract ?? loadActivityContract(analysisOptions.contractPath);
+  const guidanceProfile = resolveUiWorkflowGuidanceProfile(contract, profileId);
 
   return buildUiWorkflowReviewPacket(
     activityReview,
     candidate,
     { mode: "model_assisted", proposer },
     contract,
+    guidanceProfile,
   );
 }
 
 export async function createModelAssistedUiWorkflowReview(input, options = {}) {
-  const { propose, ...analysisOptions } = options;
+  const { propose, profile_id: profileId, ...analysisOptions } = options;
 
   if (typeof propose !== "function") {
     throw new JudgmentKitInputError(
@@ -1839,11 +2105,13 @@ export async function createModelAssistedUiWorkflowReview(input, options = {}) {
   const candidate = await propose({
     brief: input,
     activity_review: activityReview,
+    profile_id: profileId,
   });
 
   return reviewUiWorkflowCandidate(input, candidate, {
     ...analysisOptions,
     activity_review: activityReview,
+    profile_id: profileId,
     proposer: "injected",
   });
 }
@@ -1959,6 +2227,9 @@ export function createUiGenerationHandoff(workflowReview) {
       proposer: workflowReview.source?.proposer,
       input_excerpt: workflowReview.source?.input_excerpt,
     },
+    ...(workflowReview.guidance_profile
+      ? { guidance_profile: workflowReview.guidance_profile }
+      : {}),
     activity_model: {
       activity: optionalString(activityCandidate.activity_model?.activity),
       participants: toStringArray(activityCandidate.activity_model?.participants),

@@ -1,11 +1,11 @@
 {
-  "name": "judgmentkit-2",
+  "name": "judgmentkit",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "bin": {
-    "judgmentkit2": "./bin/judgmentkit2.mjs",
-    "judgmentkit2-mcp-stdio": "./bin/judgmentkit2-mcp-stdio.mjs"
+    "judgmentkit": "./bin/judgmentkit.mjs",
+    "judgmentkit-mcp-stdio": "./bin/judgmentkit-mcp-stdio.mjs"
   },
   "exports": {
     ".": "./src/index.mjs",
@@ -14,12 +14,15 @@
   "scripts": {
     "benchmark": "node evals/benchmark.mjs",
     "demo:comparison": "node scripts/demo-comparison.mjs",
+    "demo:comparison:music": "node scripts/demo-music-comparison.mjs",
     "demo:one-shot": "node scripts/demo-one-shot.mjs",
     "eval": "node evals/run-evals.mjs",
+    "install:mcp": "node scripts/install-mcp.mjs",
     "mcp:smoke": "node scripts/mcp-smoke.mjs",
-    "mcp:stdio": "node ./bin/judgmentkit2-mcp-stdio.mjs",
+    "mcp:stdio": "node ./bin/judgmentkit-mcp-stdio.mjs",
+    "site:build": "node site/build-site.mjs",
     "smoke:openai-ui-workflow": "node scripts/smoke-openai-ui-workflow.mjs",
-    "test": "node tests/kernel-contract.test.mjs && node tests/analyze-implementation-brief.test.mjs && node tests/activity-model-review.test.mjs && node tests/ui-generation-handoff.test.mjs && node tests/openai-responses-provider.test.mjs && node tests/cli.test.mjs && node tests/demo-one-shot.test.mjs && node tests/demo-comparison.test.mjs && node tests/mcp.test.mjs && node tests/mcp-stdio.test.mjs && node evals/run-evals.mjs"
+    "test": "node tests/kernel-contract.test.mjs && node tests/analyze-implementation-brief.test.mjs && node tests/activity-model-review.test.mjs && node tests/ui-generation-handoff.test.mjs && node tests/openai-responses-provider.test.mjs && node tests/cli.test.mjs && node tests/demo-one-shot.test.mjs && node tests/demo-comparison.test.mjs && node tests/demo-music-comparison.test.mjs && node tests/mcp.test.mjs && node tests/mcp-stdio.test.mjs && node tests/install-mcp.test.mjs && node tests/site.test.mjs && node evals/run-evals.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",

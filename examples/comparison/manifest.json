@@ -12,7 +12,7 @@
     {
       "label": "Version B",
       "file": "examples/comparison/version-b.html",
-      "treatment": "judgmentkit2_handoff"
+      "treatment": "judgmentkit_handoff"
     }
   ],
   "metrics": [

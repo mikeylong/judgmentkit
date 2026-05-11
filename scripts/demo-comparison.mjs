@@ -40,7 +40,7 @@ const REVIEW_PACKET_TERMS = [
   "interaction_contract",
   "review_status",
   "guardrails",
-  "JudgmentKit2",
+  "JudgmentKit",
 ];
 
 const CASES = [
@@ -753,7 +753,7 @@ function main() {
   const guidedMetadata = {
     comparison_id: COMPARISON_ID,
     variant: "B",
-    treatment: "judgmentkit2_handoff",
+    treatment: "judgmentkit_handoff",
     task_prompt: TASK_PROMPT,
     selected_case_id: SELECTED_CASE_ID,
     generation_source: {
@@ -798,7 +798,7 @@ function main() {
       {
         label: "Version B",
         file: path.relative(ROOT_DIR, VERSION_B_PATH),
-        treatment: "judgmentkit2_handoff",
+        treatment: "judgmentkit_handoff",
       },
     ],
     metrics: [
@@ -812,7 +812,7 @@ function main() {
 
   process.stdout.write(
     [
-      "# JudgmentKit2 Standalone Comparison",
+      "# JudgmentKit Standalone Comparison",
       "",
       `Comparison id: ${COMPARISON_ID}`,
       `Task: ${TASK_PROMPT}`,
