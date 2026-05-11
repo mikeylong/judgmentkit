@@ -54,6 +54,8 @@ const docs = fs.readFileSync(path.join(tempDir, "docs", "index.html"), "utf8");
 assert.ok(docs.includes("curl -fsSL https://judgmentkit.ai/install | bash"));
 assert.ok(docs.includes("node bin/judgmentkit.mjs review --input examples/refund-triage.brief.txt"));
 assert.ok(docs.includes("does not require a live model provider"));
+assert.ok(docs.includes("The public <code>/mcp</code> URL is a metadata route"));
+assert.ok(docs.includes("not a hosted MCP transport endpoint"));
 assert.ok(docs.includes("create_activity_model_review"));
 assert.ok(docs.includes("review_ui_workflow_candidate"));
 assert.ok(docs.includes("create_ui_generation_handoff"));
@@ -96,6 +98,13 @@ assert.equal(fs.existsSync(path.join(tempDir, "favicon.svg")), true);
 
 const mcp = JSON.parse(fs.readFileSync(path.join(tempDir, "mcp"), "utf8"));
 assert.equal(mcp.name, "JudgmentKit");
+assert.equal(mcp.transport, "stdio");
+assert.deepEqual(mcp.public_route, {
+  role: "metadata",
+  hosted_mcp_endpoint: false,
+  usage:
+    "Install the local stdio MCP server with /install. This URL is not a hosted MCP transport endpoint.",
+});
 assert.deepEqual(
   mcp.capabilities.tools.map((tool) => tool.name),
   EXPECTED_TOOL_NAMES,

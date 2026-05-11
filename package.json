@@ -20,6 +20,7 @@
     "install:mcp": "node scripts/install-mcp.mjs",
     "mcp:smoke": "node scripts/mcp-smoke.mjs",
     "mcp:stdio": "node ./bin/judgmentkit-mcp-stdio.mjs",
+    "release:verify": "node scripts/verify-public-release.mjs",
     "site:build": "node site/build-site.mjs",
     "smoke:openai-ui-workflow": "node scripts/smoke-openai-ui-workflow.mjs",
     "test": "node tests/kernel-contract.test.mjs && node tests/analyze-implementation-brief.test.mjs && node tests/activity-model-review.test.mjs && node tests/ui-generation-handoff.test.mjs && node tests/openai-responses-provider.test.mjs && node tests/cli.test.mjs && node tests/demo-one-shot.test.mjs && node tests/demo-comparison.test.mjs && node tests/demo-music-comparison.test.mjs && node tests/mcp.test.mjs && node tests/mcp-stdio.test.mjs && node tests/install-mcp.test.mjs && node tests/site.test.mjs && node evals/run-evals.mjs"

@@ -361,6 +361,7 @@ function docsPage() {
       <div class="doc-layout">
         <aside class="doc-nav" aria-label="Docs sections">
           <a href="#quickstart">Quickstart</a>
+          <a href="#mcp">MCP</a>
           <a href="#activity-review">Activity Review</a>
           <a href="#workflow-review">Workflow Review</a>
           <a href="#handoff">Handoff</a>
@@ -376,6 +377,10 @@ cd ~/.codex/judgmentkit
 npm run mcp:smoke
 node bin/judgmentkit.mjs review --input examples/refund-triage.brief.txt</code></pre>
             <p class="note">The smoke path is deterministic and does not require a live model provider.</p>
+          </section>
+          <section class="doc-section" id="mcp">
+            <h2>MCP</h2>
+            <p>JudgmentKit currently supports MCP through the installed local stdio server named <code>judgmentkit</code>. The public <code>/mcp</code> URL is a metadata route for release verification, not a hosted MCP transport endpoint.</p>
           </section>
           <section class="doc-section" id="activity-review">
             <h2>Activity Review</h2>
@@ -536,7 +541,19 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.writeFile(path.join(outDir, "install"), bootstrapScript(), { mode: 0o755 });
   await fs.writeFile(
     path.join(outDir, "mcp"),
-    `${JSON.stringify(getMcpMetadata("stdio"), null, 2)}\n`,
+    `${JSON.stringify(
+      {
+        ...getMcpMetadata("stdio"),
+        public_route: {
+          role: "metadata",
+          hosted_mcp_endpoint: false,
+          usage:
+            "Install the local stdio MCP server with /install. This URL is not a hosted MCP transport endpoint.",
+        },
+      },
+      null,
+      2,
+    )}\n`,
   );
   await fs.writeFile(
     path.join(outDir, "llms.txt"),

@@ -170,3 +170,9 @@ Run the full local validation before committing behavior changes:
 npm test
 npm run benchmark
 ```
+
+Run this after a production deploy to verify the public site, `/mcp` metadata, legacy redirects, hosted installer, and the expected failure mode when treating the public `/mcp` URL as a hosted MCP transport endpoint:
+
+```bash
+npm run release:verify
+```
