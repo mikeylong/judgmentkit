@@ -39,6 +39,8 @@ function page(title, body, options = {}) {
   const description =
     options.description ??
     "JudgmentKit is an activity-first judgment layer for AI-generated product work.";
+  const pathName = options.path ?? "/";
+  const canonicalUrl = `https://judgmentkit.ai${pathName}`;
 
   return `<!doctype html>
 <html lang="en">
@@ -47,6 +49,16 @@ function page(title, body, options = {}) {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${escapeHtml(title)}</title>
     <meta name="description" content="${escapeHtml(description)}">
+    <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <meta property="og:site_name" content="JudgmentKit">
+    <meta property="og:title" content="${escapeHtml(title)}">
+    <meta property="og:description" content="${escapeHtml(description)}">
+    <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="${escapeHtml(title)}">
+    <meta name="twitter:description" content="${escapeHtml(description)}">
     <link rel="stylesheet" href="/assets/site.css">
   </head>
   <body>
@@ -153,6 +165,26 @@ h2 {
   color: var(--muted);
   font-size: 19px;
 }
+.note {
+  max-width: 74ch;
+  color: var(--muted);
+}
+.link-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 14px 0 0;
+}
+.pill-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 700;
+}
 .proof-panel,
 .route-grid article,
 .example-card {
@@ -213,6 +245,7 @@ pre {
 }
 .command {
   display: block;
+  margin: 14px 0;
   padding: 14px;
   border: 1px solid var(--line);
   background: #f2f1eb;
@@ -267,7 +300,7 @@ function homepage() {
       <div>
         <p class="eyebrow">Activity-first judgment for AI agents</p>
         <h1>Judgment before generation.</h1>
-        <p class="lede">JudgmentKit stops implementation mechanics from becoming UX. It turns a raw product brief into activity guidance, workflow review, and a compact handoff before an agent builds the interface.</p>
+        <p class="lede">JudgmentKit stops implementation mechanics from becoming UX. Use it before accepting AI-generated product work, so the next interface starts from the activity, decision, evidence, and handoff instead of from schemas, prompts, or tool traces.</p>
       </div>
       <div class="proof-panel" aria-label="JudgmentKit proof path">
         <div class="proof-step">
@@ -289,7 +322,7 @@ function homepage() {
       </div>
     </section>
     <section class="section">
-      <h2>The public workflow</h2>
+      <h2>How agents use it</h2>
       <div class="route-grid">
         <article>
           <h3>Review the activity</h3>
@@ -307,10 +340,16 @@ function homepage() {
     </section>
     <section class="section">
       <h2>Install for Codex</h2>
-      <p class="lede">The first relaunch supports Codex over local stdio.</p>
+      <p class="lede">The installer clones the public repo, installs dependencies, configures a local MCP server named <code>judgmentkit</code>, and verifies the tool catalog before finishing.</p>
       <code class="command">curl -fsSL https://judgmentkit.ai/install | bash</code>
+      <p class="note">First release support is intentionally Codex-only over local stdio.</p>
     </section>
   `,
+    {
+      description:
+        "JudgmentKit helps AI agents review activity, workflow, disclosure, and handoff quality before generating product UI.",
+      path: "/",
+    },
   );
 }
 
@@ -331,8 +370,12 @@ function docsPage() {
           <section class="doc-section" id="quickstart">
             <h1>Docs</h1>
             <h2>Quickstart</h2>
-            <pre><code>npm run mcp:smoke
-judgmentkit review --input examples/refund-triage.brief.txt</code></pre>
+            <p>Install JudgmentKit for Codex, then run a local smoke check from the cloned checkout.</p>
+            <pre><code>curl -fsSL https://judgmentkit.ai/install | bash
+cd ~/.codex/judgmentkit
+npm run mcp:smoke
+node bin/judgmentkit.mjs review --input examples/refund-triage.brief.txt</code></pre>
+            <p class="note">The smoke path is deterministic and does not require a live model provider.</p>
           </section>
           <section class="doc-section" id="activity-review">
             <h2>Activity Review</h2>
@@ -357,6 +400,7 @@ judgmentkit review --input examples/refund-triage.brief.txt</code></pre>
     {
       description:
         "JudgmentKit docs for CLI, MCP, activity review, workflow review, handoff, and guidance profiles.",
+      path: "/docs/",
     },
   );
 }
@@ -370,27 +414,20 @@ async function readJsonIfExists(relativePath) {
   }
 }
 
-function manifestCards(manifest) {
-  if (!manifest?.variants) {
-    return "";
-  }
-
-  return manifest.variants
-    .map(
-      (variant) => `
-      <article class="example-card">
-        <h3>${escapeHtml(variant.label ?? variant.id)}</h3>
-        <p>${escapeHtml(variant.summary ?? variant.treatment ?? "Standalone example variant.")}</p>
-        <p><strong>Treatment:</strong> ${escapeHtml(variant.treatment ?? "baseline")}</p>
-      </article>`,
-    )
-    .join("");
+function exampleComparisonCard({ title, description, baselineHref, guidedHref, scorecardHref }) {
+  return `
+    <article class="example-card">
+      <h3>${escapeHtml(title)}</h3>
+      <p>${escapeHtml(description)}</p>
+      <div class="link-row">
+        <a class="pill-link" href="${escapeHtml(baselineHref)}">Open baseline</a>
+        <a class="pill-link" href="${escapeHtml(guidedHref)}">Open JudgmentKit version</a>
+        ${scorecardHref ? `<a class="pill-link" href="${escapeHtml(scorecardHref)}">Scorecard</a>` : ""}
+      </div>
+    </article>`;
 }
 
 async function examplesPage() {
-  const comparison = await readJsonIfExists("examples/comparison/manifest.json");
-  const music = await readJsonIfExists("examples/comparison/music/manifest.json");
-
   return page(
     "JudgmentKit Examples",
     `
@@ -403,11 +440,29 @@ async function examplesPage() {
           <p>A baseline refund-ops UI beside a JudgmentKit-guided operational review workflow.</p>
           <a href="/examples/one-shot-demo.html">Open artifact</a>
         </article>
-        ${manifestCards(comparison)}
-        ${manifestCards(music)}
+        ${exampleComparisonCard({
+          title: "Refund triage comparison",
+          description:
+            "Two standalone review surfaces from the same refund-operations brief: one raw implementation baseline, one JudgmentKit handoff path.",
+          baselineHref: "/examples/comparison/refund/version-a.html",
+          guidedHref: "/examples/comparison/refund/version-b.html",
+        })}
+        ${exampleComparisonCard({
+          title: "Dinner playlist comparison",
+          description:
+            "A non-admin workflow test for activity fit: build a sequenced dinner playlist while honoring constraints and leaving a usable handoff note.",
+          baselineHref: "/examples/comparison/music/version-a.html",
+          guidedHref: "/examples/comparison/music/version-b.html",
+          scorecardHref: "/examples/comparison/music/facilitator-scorecard.md",
+        })}
       </div>
     </section>
   `,
+    {
+      description:
+        "JudgmentKit examples comparing raw brief outputs with activity-first handoff outputs.",
+      path: "/examples/",
+    },
   );
 }
 
@@ -471,6 +526,10 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.mkdir(path.join(outDir, "examples"), { recursive: true });
 
   await fs.writeFile(path.join(outDir, "assets", "site.css"), stylesheet.trimStart());
+  await fs.writeFile(
+    path.join(outDir, "favicon.svg"),
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#133f4e"/><path d="M18 34.5 28 44l19-24" fill="none" stroke="#f8f7f2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>\n`,
+  );
   await fs.writeFile(path.join(outDir, "index.html"), homepage());
   await fs.writeFile(path.join(outDir, "docs", "index.html"), docsPage());
   await fs.writeFile(path.join(outDir, "examples", "index.html"), await examplesPage());
@@ -496,6 +555,11 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   );
 
   await copyIfExists("examples/demo/one-shot-demo.html", path.join(outDir, "examples", "one-shot-demo.html"));
+  await copyIfExists("examples/comparison/version-a.html", path.join(outDir, "examples", "comparison", "refund", "version-a.html"));
+  await copyIfExists("examples/comparison/version-b.html", path.join(outDir, "examples", "comparison", "refund", "version-b.html"));
+  await copyIfExists("examples/comparison/music/version-a.html", path.join(outDir, "examples", "comparison", "music", "version-a.html"));
+  await copyIfExists("examples/comparison/music/version-b.html", path.join(outDir, "examples", "comparison", "music", "version-b.html"));
+  await copyIfExists("examples/comparison/music/facilitator-scorecard.md", path.join(outDir, "examples", "comparison", "music", "facilitator-scorecard.md"));
 
   return {
     out_dir: outDir,

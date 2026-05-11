@@ -34,10 +34,13 @@ assert.deepEqual(result.routes, ["/", "/docs/", "/examples/", "/install", "/mcp"
 const homepage = fs.readFileSync(path.join(tempDir, "index.html"), "utf8");
 assert.ok(homepage.includes("Judgment before generation."));
 assert.ok(homepage.includes("implementation mechanics from becoming UX"));
+assert.ok(homepage.includes("Use it before accepting AI-generated product work"));
 assert.ok(homepage.includes("Raw brief"));
 assert.ok(homepage.includes("Judgment"));
 assert.ok(homepage.includes("Handoff"));
 assert.ok(homepage.includes("ready for generation"));
+assert.ok(homepage.includes('rel="canonical" href="https://judgmentkit.ai/"'));
+assert.ok(homepage.includes('rel="icon" href="/favicon.svg"'));
 
 for (const forbidden of OLD_FRAMING) {
   assert.equal(
@@ -48,7 +51,9 @@ for (const forbidden of OLD_FRAMING) {
 }
 
 const docs = fs.readFileSync(path.join(tempDir, "docs", "index.html"), "utf8");
-assert.ok(docs.includes("judgmentkit review --input examples/refund-triage.brief.txt"));
+assert.ok(docs.includes("curl -fsSL https://judgmentkit.ai/install | bash"));
+assert.ok(docs.includes("node bin/judgmentkit.mjs review --input examples/refund-triage.brief.txt"));
+assert.ok(docs.includes("does not require a live model provider"));
 assert.ok(docs.includes("create_activity_model_review"));
 assert.ok(docs.includes("review_ui_workflow_candidate"));
 assert.ok(docs.includes("create_ui_generation_handoff"));
@@ -58,6 +63,28 @@ assert.equal(docs.includes("judgmentkit2"), false);
 const examples = fs.readFileSync(path.join(tempDir, "examples", "index.html"), "utf8");
 assert.ok(examples.includes("Deterministic artifacts"));
 assert.ok(examples.includes("JudgmentKit-guided handoff"));
+assert.ok(examples.includes("Refund triage comparison"));
+assert.ok(examples.includes("Dinner playlist comparison"));
+assert.ok(examples.includes("/examples/comparison/refund/version-a.html"));
+assert.ok(examples.includes("/examples/comparison/refund/version-b.html"));
+assert.ok(examples.includes("/examples/comparison/music/version-a.html"));
+assert.ok(examples.includes("/examples/comparison/music/version-b.html"));
+assert.equal(examples.includes("raw_brief_baseline"), false);
+assert.equal(examples.includes("judgmentkit_handoff"), false);
+
+for (const copiedExamplePath of [
+  ["examples", "comparison", "refund", "version-a.html"],
+  ["examples", "comparison", "refund", "version-b.html"],
+  ["examples", "comparison", "music", "version-a.html"],
+  ["examples", "comparison", "music", "version-b.html"],
+  ["examples", "comparison", "music", "facilitator-scorecard.md"],
+]) {
+  assert.equal(
+    fs.existsSync(path.join(tempDir, ...copiedExamplePath)),
+    true,
+    `expected copied example artifact ${copiedExamplePath.join("/")}`,
+  );
+}
 
 const install = fs.readFileSync(path.join(tempDir, "install"), "utf8");
 assert.ok(install.startsWith("#!/usr/bin/env bash"));
@@ -65,6 +92,7 @@ assert.ok(install.includes("https://github.com/mikeylong/judgmentkit.git"));
 assert.ok(install.includes("node ./scripts/install-mcp.mjs --client codex"));
 assert.equal(install.includes("--client claude"), false);
 assert.equal(install.includes("--client cursor"), false);
+assert.equal(fs.existsSync(path.join(tempDir, "favicon.svg")), true);
 
 const mcp = JSON.parse(fs.readFileSync(path.join(tempDir, "mcp"), "utf8"));
 assert.equal(mcp.name, "JudgmentKit");
