@@ -35,7 +35,7 @@ function parseArgs(argv) {
     baseUrl: DEFAULT_BASE_URL,
     skipInstall: false,
     skipRedirects: false,
-    expectRemoteMcp: false,
+    expectRemoteMcp: true,
   };
 
   for (let index = 0; index < argv.length; index += 1) {
@@ -49,6 +49,8 @@ function parseArgs(argv) {
       options.skipRedirects = true;
     } else if (arg === "--expect-remote-mcp") {
       options.expectRemoteMcp = true;
+    } else if (arg === "--expect-metadata-only") {
+      options.expectRemoteMcp = false;
     } else if (arg === "--help" || arg === "-h") {
       options.help = true;
     } else {
@@ -67,9 +69,9 @@ function printUsage() {
   process.stdout.write(
     [
       "Usage:",
-      "  node scripts/verify-public-release.mjs [--base-url <url>] [--skip-install] [--skip-redirects] [--expect-remote-mcp]",
+      "  node scripts/verify-public-release.mjs [--base-url <url>] [--skip-install] [--skip-redirects] [--expect-metadata-only]",
       "",
-      "By default the verifier expects /mcp to be public metadata only, not a hosted MCP transport endpoint.",
+      "By default the verifier expects /mcp to work as a hosted MCP Streamable HTTP endpoint.",
       "",
     ].join("\n"),
   );
@@ -131,8 +133,9 @@ async function verifyPublicRoutes(baseUrl) {
       "curl -fsSL https://judgmentkit.ai/install | bash",
       "npm run mcp:smoke",
       "node bin/judgmentkit.mjs review --input examples/refund-triage.brief.txt",
-      "The public <code>/mcp</code> URL is a metadata route",
-      "not a hosted MCP transport endpoint",
+      "https://judgmentkit.ai/mcp",
+      "hosted Streamable HTTP endpoint",
+      "installed local stdio server",
       "create_activity_model_review",
       "review_ui_workflow_candidate",
       "create_ui_generation_handoff",
@@ -202,9 +205,9 @@ async function verifyMcpMetadata(baseUrl) {
 
   assert.equal(metadata.name, "JudgmentKit");
   assert.equal(metadata.version, "0.1.0");
-  assert.equal(metadata.transport, "stdio");
-  assert.equal(metadata.public_route.role, "metadata");
-  assert.equal(metadata.public_route.hosted_mcp_endpoint, false);
+  assert.equal(metadata.transport, "streamable-http");
+  assert.equal(metadata.public_route.role, "mcp_endpoint_and_metadata");
+  assert.equal(metadata.public_route.hosted_mcp_endpoint, true);
   assert.deepEqual(toolNames, JUDGMENTKIT_MCP_TOOL_NAMES);
   assert.deepEqual(metadata.capabilities.prompts, []);
 
@@ -286,6 +289,7 @@ async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
   let client;
   let supported = false;
   let tools = [];
+  let reviewStatus;
   let errorMessage = "";
 
   try {
@@ -298,6 +302,18 @@ async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
     await withTimeout(client.connect(transport), 8_000, "public MCP connect");
     const toolsResponse = await withTimeout(client.listTools(), 8_000, "public MCP tools/list");
     tools = toolsResponse.tools.map((tool) => tool.name);
+    const reviewResponse = await withTimeout(
+      client.callTool({
+        name: "create_activity_model_review",
+        arguments: {
+          brief:
+            "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+        },
+      }),
+      8_000,
+      "public MCP tool call",
+    );
+    reviewStatus = reviewResponse.structuredContent?.review_status;
     supported = true;
   } catch (error) {
     errorMessage = error instanceof Error ? error.message : String(error);
@@ -311,13 +327,15 @@ async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
   }
 
   if (expectRemoteMcp) {
+    assert.equal(postResponse.ok, true, `/mcp JSON-RPC POST should succeed, got ${postResponse.status}`);
     assert.equal(supported, true, `Expected ${endpointUrl} to work as a remote MCP endpoint: ${errorMessage}`);
     assert.deepEqual(tools, JUDGMENTKIT_MCP_TOOL_NAMES);
+    assert.equal(reviewStatus, "ready_for_review");
   } else {
     assert.equal(
       supported,
       false,
-      `${endpointUrl} unexpectedly worked as a hosted MCP endpoint while docs say local stdio only.`,
+      `${endpointUrl} unexpectedly worked as a hosted MCP endpoint.`,
     );
     assert.ok(postResponse.status >= 400, `/mcp JSON-RPC POST should not succeed, got ${postResponse.status}`);
   }
@@ -328,6 +346,7 @@ async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
     supported,
     post_status: postResponse.status,
     sdk_error: errorMessage,
+    review_status: reviewStatus,
     tools,
   };
 }

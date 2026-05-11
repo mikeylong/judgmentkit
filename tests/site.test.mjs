@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 
 import { buildSite } from "../site/build-site.mjs";
+import { getHostedMcpMetadata } from "../src/mcp-http.mjs";
 
 const EXPECTED_TOOL_NAMES = [
   "analyze_implementation_brief",
@@ -54,8 +55,9 @@ const docs = fs.readFileSync(path.join(tempDir, "docs", "index.html"), "utf8");
 assert.ok(docs.includes("curl -fsSL https://judgmentkit.ai/install | bash"));
 assert.ok(docs.includes("node bin/judgmentkit.mjs review --input examples/refund-triage.brief.txt"));
 assert.ok(docs.includes("does not require a live model provider"));
-assert.ok(docs.includes("The public <code>/mcp</code> URL is a metadata route"));
-assert.ok(docs.includes("not a hosted MCP transport endpoint"));
+assert.ok(docs.includes("https://judgmentkit.ai/mcp"));
+assert.ok(docs.includes("hosted Streamable HTTP endpoint"));
+assert.ok(docs.includes("installed local stdio server"));
 assert.ok(docs.includes("create_activity_model_review"));
 assert.ok(docs.includes("review_ui_workflow_candidate"));
 assert.ok(docs.includes("create_ui_generation_handoff"));
@@ -96,14 +98,14 @@ assert.equal(install.includes("--client claude"), false);
 assert.equal(install.includes("--client cursor"), false);
 assert.equal(fs.existsSync(path.join(tempDir, "favicon.svg")), true);
 
-const mcp = JSON.parse(fs.readFileSync(path.join(tempDir, "mcp"), "utf8"));
+const mcp = getHostedMcpMetadata();
 assert.equal(mcp.name, "JudgmentKit");
-assert.equal(mcp.transport, "stdio");
+assert.equal(mcp.transport, "streamable-http");
 assert.deepEqual(mcp.public_route, {
-  role: "metadata",
-  hosted_mcp_endpoint: false,
+  role: "mcp_endpoint_and_metadata",
+  hosted_mcp_endpoint: true,
   usage:
-    "Install the local stdio MCP server with /install. This URL is not a hosted MCP transport endpoint.",
+    "Connect an MCP Streamable HTTP client to this URL. GET without an SSE Accept header returns this metadata.",
 });
 assert.deepEqual(
   mcp.capabilities.tools.map((tool) => tool.name),

@@ -3,7 +3,6 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { getMcpMetadata } from "../src/mcp.mjs";
 import {
   DEFAULT_REPOSITORY_URL,
   JUDGMENTKIT_MCP_TOOL_NAMES,
@@ -380,7 +379,7 @@ node bin/judgmentkit.mjs review --input examples/refund-triage.brief.txt</code><
           </section>
           <section class="doc-section" id="mcp">
             <h2>MCP</h2>
-            <p>JudgmentKit currently supports MCP through the installed local stdio server named <code>judgmentkit</code>. The public <code>/mcp</code> URL is a metadata route for release verification, not a hosted MCP transport endpoint.</p>
+            <p>JudgmentKit supports MCP through the hosted Streamable HTTP endpoint at <code>https://judgmentkit.ai/mcp</code> and through the installed local stdio server named <code>judgmentkit</code>. A browser GET to <code>/mcp</code> returns endpoint metadata; MCP clients should connect to the same URL with Streamable HTTP.</p>
           </section>
           <section class="doc-section" id="activity-review">
             <h2>Activity Review</h2>
@@ -539,22 +538,6 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.writeFile(path.join(outDir, "docs", "index.html"), docsPage());
   await fs.writeFile(path.join(outDir, "examples", "index.html"), await examplesPage());
   await fs.writeFile(path.join(outDir, "install"), bootstrapScript(), { mode: 0o755 });
-  await fs.writeFile(
-    path.join(outDir, "mcp"),
-    `${JSON.stringify(
-      {
-        ...getMcpMetadata("stdio"),
-        public_route: {
-          role: "metadata",
-          hosted_mcp_endpoint: false,
-          usage:
-            "Install the local stdio MCP server with /install. This URL is not a hosted MCP transport endpoint.",
-        },
-      },
-      null,
-      2,
-    )}\n`,
-  );
   await fs.writeFile(
     path.join(outDir, "llms.txt"),
     [

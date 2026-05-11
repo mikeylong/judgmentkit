@@ -111,4 +111,4 @@ For the replacement website build:
 npm run site:build
 ```
 
-That command writes static routes for `/`, `/docs/`, `/examples/`, `/install`, and `/mcp` under `site/dist/`.
+That command writes static routes for `/`, `/docs/`, `/examples/`, and `/install` under `site/dist/`. The public `/mcp` route is served by the hosted Streamable HTTP MCP function and returns metadata for browser GET requests.

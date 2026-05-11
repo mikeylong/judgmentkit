@@ -11,15 +11,12 @@
           "value": "text/x-shellscript; charset=utf-8"
         }
       ]
-    },
+    }
+  ],
+  "rewrites": [
     {
       "source": "/mcp",
-      "headers": [
-        {
-          "key": "content-type",
-          "value": "application/json; charset=utf-8"
-        }
-      ]
+      "destination": "/api/mcp"
     }
   ],
   "redirects": [
