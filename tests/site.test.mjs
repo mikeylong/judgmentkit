@@ -102,6 +102,17 @@ assert.ok(docs.includes("curl -fsSL https://judgmentkit.ai/install | bash -s -- 
 assert.ok(docs.includes("curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor"));
 assert.ok(docs.includes("Install JudgmentKit for your MCP client"));
 assert.ok(docs.includes("Codex is the default client"));
+assert.ok(docs.includes("Planning Mode Examples"));
+assert.ok(docs.includes("review whether an agent is using JudgmentKit well"));
+assert.ok(docs.includes("Plan a UI for a support lead reviewing refund requests during daily triage"));
+assert.ok(docs.includes("approval, policy review, return for evidence, and handoff reasons"));
+assert.ok(docs.includes("Plan a dashboard for the system."));
+assert.ok(docs.includes("pause instead of inventing a dashboard"));
+assert.ok(docs.includes("what work the dashboard supports"));
+assert.ok(docs.includes("full dashboard plan with metrics, cards, charts, and navigation invented from no source context"));
+assert.ok(docs.includes("Plan an admin UI from our JSON schema"));
+assert.ok(docs.includes("implementation terms move into diagnostics"));
+assert.ok(docs.includes("tables, schemas, prompt templates, tool calls, or API endpoints become the main product UI"));
 assert.ok(docs.includes("https://judgmentkit.ai/mcp"));
 assert.ok(docs.includes("hosted Streamable HTTP endpoint"));
 assert.ok(docs.includes("Codex, Claude Code, or Cursor"));

@@ -35,6 +35,76 @@ Use the planning card to explain the current status, next step, blocking questio
 
 In planning mode, show the card-level takeaway, ask only the listed blocking questions when source context is missing, and keep raw guardrails or diagnostic terms out of product UI language.
 
+## Planning Mode Examples
+
+Use these examples to review whether an agent is using JudgmentKit well. A good planning response should make the activity, decision, outcome, and disclosure boundary clearer before it proposes UI structure.
+
+### Ready Brief
+
+Human prompt:
+
+```text
+Plan a UI for a support lead reviewing refund requests during daily triage. They decide whether each case is approved, sent to policy review, or returned for missing evidence. The outcome is a clear handoff with the next action and reason.
+```
+
+Good agent behavior:
+
+- Proceeds to concept planning because the activity, participant, decision, and outcome are clear.
+- Names the activity as refund triage or refund request review, not as a generic dashboard.
+- Keeps the plan centered on evidence review, decision options, and handoff.
+
+Reviewer should accept:
+
+- A plan that makes approval, policy review, return for evidence, and handoff reasons easy to compare and complete.
+
+Reviewer should reject:
+
+- A plan that starts with charts, widgets, or visual polish before naming the refund review work.
+
+### Vague Brief
+
+Human prompt:
+
+```text
+Plan a dashboard for the system.
+```
+
+Good agent behavior:
+
+- Pauses instead of inventing a dashboard.
+- Asks targeted questions about the activity, primary decision or next action, and outcome.
+- Keeps the question count small.
+
+Reviewer should accept:
+
+- A response that asks what work the dashboard supports, what decision it should make easier, and what the user should leave knowing or having done.
+
+Reviewer should reject:
+
+- A full dashboard plan with metrics, cards, charts, and navigation invented from no source context.
+
+### Implementation-Heavy Brief
+
+Human prompt:
+
+```text
+Plan an admin UI from our JSON schema, database tables, tool call traces, prompt template, and API endpoints.
+```
+
+Good agent behavior:
+
+- Treats schemas, tables, traces, prompts, and endpoints as diagnostic details unless the task is explicitly setup, debugging, auditing, or integration work.
+- Translates toward the user's activity before proposing a primary surface.
+- Asks what decision, workflow, or handoff those technical details are meant to support.
+
+Reviewer should accept:
+
+- A response that moves implementation terms into diagnostics and asks for the domain activity or decision behind the admin surface.
+
+Reviewer should reject:
+
+- A plan that exposes tables, schemas, prompt templates, tool calls, or API endpoints as the main product UI.
+
 ## Before Generating UI
 
 Call `create_activity_model_review` with the source brief.

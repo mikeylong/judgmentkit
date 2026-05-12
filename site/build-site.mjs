@@ -1174,6 +1174,7 @@ function docsPage() {
       <div class="doc-layout">
         <aside class="doc-nav" aria-label="Docs sections">
           <a href="#quickstart">Quickstart</a>
+          <a href="#planning-examples">Planning Examples</a>
           <a href="#mcp">MCP</a>
           <a href="#system-map">System Map</a>
           <a href="#activity-review">Activity Review</a>
@@ -1190,6 +1191,25 @@ function docsPage() {
 curl -fsSL https://judgmentkit.ai/install | bash -s -- --client claude
 curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></pre>
             <p class="note">Codex is the default client. Use <code>--client codex</code>, <code>--client claude</code>, or <code>--client cursor</code> when scripting.</p>
+          </section>
+          <section class="doc-section" id="planning-examples">
+            <h2>Planning Mode Examples</h2>
+            <p>Use these examples to review whether an agent is using JudgmentKit well. A good planning response should make the activity, decision, outcome, and disclosure boundary clearer before it proposes UI structure.</p>
+            <h3>Ready brief</h3>
+            <pre><code>Plan a UI for a support lead reviewing refund requests during daily triage. They decide whether each case is approved, sent to policy review, or returned for missing evidence. The outcome is a clear handoff with the next action and reason.</code></pre>
+            <p><strong>Good response:</strong> proceed to concept planning because the activity, participant, decision, and outcome are clear. Keep the plan centered on evidence review, decision options, and handoff.</p>
+            <p><strong>Accept:</strong> approval, policy review, return for evidence, and handoff reasons are easy to compare and complete.</p>
+            <p><strong>Reject:</strong> charts, widgets, or visual polish appear before the refund review work is named.</p>
+            <h3>Vague brief</h3>
+            <pre><code>Plan a dashboard for the system.</code></pre>
+            <p><strong>Good response:</strong> pause instead of inventing a dashboard. Ask only targeted questions about the activity, primary decision or next action, and outcome.</p>
+            <p><strong>Accept:</strong> the agent asks what work the dashboard supports, what decision it should make easier, and what the user should leave knowing or having done.</p>
+            <p><strong>Reject:</strong> a full dashboard plan with metrics, cards, charts, and navigation invented from no source context.</p>
+            <h3>Implementation-heavy brief</h3>
+            <pre><code>Plan an admin UI from our JSON schema, database tables, tool call traces, prompt template, and API endpoints.</code></pre>
+            <p><strong>Good response:</strong> treat schemas, tables, traces, prompts, and endpoints as diagnostic details unless the task is explicitly setup, debugging, auditing, or integration work. Translate toward the user's activity before proposing a primary surface.</p>
+            <p><strong>Accept:</strong> implementation terms move into diagnostics and the agent asks for the domain activity or decision behind the admin surface.</p>
+            <p><strong>Reject:</strong> tables, schemas, prompt templates, tool calls, or API endpoints become the main product UI.</p>
           </section>
           <section class="doc-section" id="mcp">
             <h2>MCP</h2>
