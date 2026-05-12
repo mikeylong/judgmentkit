@@ -115,6 +115,14 @@ npm run demo:comparison:music
 
 That command writes a dinner-playlist brief, two independently runnable apps, a manifest, and a facilitator scorecard under `examples/comparison/music/`.
 
+To score the committed comparison artifacts as a deterministic paired UI-generation eval:
+
+```bash
+npm run eval:ui
+```
+
+That command writes JSON and HTML reports under `evals/reports/`. It is qualitative paired-artifact evidence, not a statistically powered benchmark.
+
 For the system-map model UI matrix:
 
 ```bash

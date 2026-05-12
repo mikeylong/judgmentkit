@@ -159,10 +159,12 @@ assert.ok(examples.includes('id="examples-data"'));
 assert.ok(examples.includes("Refund triage comparison"));
 assert.ok(examples.includes("Model UI generation matrix"));
 assert.ok(examples.includes("Dinner playlist comparison"));
+assert.ok(examples.includes("UI generation eval report"));
 assert.ok(examples.includes('data-example-id="one-shot-proof"'));
 assert.ok(examples.includes('data-example-id="refund-triage"'));
 assert.ok(examples.includes('data-example-id="model-ui-system-map"'));
 assert.ok(examples.includes('data-example-id="dinner-playlist"'));
+assert.ok(examples.includes('data-example-id="ui-generation-eval"'));
 assert.ok(examples.includes("/examples/one-shot-demo.html"));
 assert.ok(examples.includes("/examples/comparison/refund/version-a.html"));
 assert.ok(examples.includes("/examples/comparison/refund/version-b.html"));
@@ -171,6 +173,8 @@ assert.ok(examples.includes("/examples/model-ui/refund-system-map/manifest.json"
 assert.ok(examples.includes("/examples/comparison/music/version-a.html"));
 assert.ok(examples.includes("/examples/comparison/music/version-b.html"));
 assert.ok(examples.includes("/examples/comparison/music/facilitator-scorecard.md"));
+assert.ok(examples.includes("/examples/evals/ui-generation-report.html"));
+assert.ok(examples.includes("/examples/evals/ui-generation-report.json"));
 assert.ok(examples.includes("Gemma 4 (local LLM)"));
 assert.ok(examples.includes("GPT-5.5"));
 assert.equal(examples.includes("raw_brief_baseline"), false);
@@ -193,6 +197,8 @@ for (const copiedExamplePath of [
   ["examples", "comparison", "music", "version-a.html"],
   ["examples", "comparison", "music", "version-b.html"],
   ["examples", "comparison", "music", "facilitator-scorecard.md"],
+  ["examples", "evals", "ui-generation-report.html"],
+  ["examples", "evals", "ui-generation-report.json"],
 ]) {
   const artifactPath = path.join(tempDir, ...copiedExamplePath);
 

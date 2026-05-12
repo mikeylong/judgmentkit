@@ -197,6 +197,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "Gemma 4 (local LLM)",
       "GPT-5.5",
       "Dinner playlist comparison",
+      "UI generation eval report",
       "/examples/comparison/refund/version-a.html",
       "/examples/comparison/refund/version-b.html",
       "/examples/model-ui/refund-system-map/index.html",
@@ -204,6 +205,8 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "/examples/comparison/music/version-a.html",
       "/examples/comparison/music/version-b.html",
       "/examples/comparison/music/facilitator-scorecard.md",
+      "/examples/evals/ui-generation-report.html",
+      "/examples/evals/ui-generation-report.json",
     ],
     "examples",
   );
@@ -224,12 +227,14 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     "/examples/model-ui/refund-system-map/artifacts/gpt55-with-design-system.html",
     "/examples/comparison/music/version-a.html",
     "/examples/comparison/music/version-b.html",
+    "/examples/evals/ui-generation-report.html",
   ]) {
     const artifact = await fetchText(baseUrl, artifactRoute);
     assert.equal(getAnalyticsScriptSrc(artifact.text, artifactRoute), analyticsScriptSrc);
   }
 
   await fetchText(baseUrl, "/examples/comparison/music/facilitator-scorecard.md");
+  await fetchText(baseUrl, "/examples/evals/ui-generation-report.json");
   await fetchText(baseUrl, "/examples/model-ui/refund-system-map/manifest.json");
   await fetchText(baseUrl, "/examples/model-ui/refund-system-map/reviewed-handoff.fixture.json");
   await fetchText(baseUrl, "/examples/model-ui/refund-system-map/design-system-adapter.json");
@@ -272,6 +277,8 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "/examples/comparison/music/version-a.html",
       "/examples/comparison/music/version-b.html",
       "/examples/comparison/music/facilitator-scorecard.md",
+      "/examples/evals/ui-generation-report.html",
+      "/examples/evals/ui-generation-report.json",
     ],
     analytics: options.skipAnalyticsScript
       ? "script_fetch_skipped"

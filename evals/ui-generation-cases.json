@@ -1,0 +1,203 @@
+[
+  {
+    "id": "refund-triage-standalone-v1",
+    "title": "Refund triage handoff",
+    "task_prompt": "Review the selected refund request and prepare the next handoff.",
+    "comparison_manifest": "examples/comparison/manifest.json",
+    "claim_level": "single_pair_signal",
+    "expected_winner": "judgmentkit_handoff",
+    "minimum_score_delta": 20,
+    "hidden_treatment_terms": [
+      "raw_brief_baseline",
+      "judgmentkit_handoff",
+      "JudgmentKit",
+      "Version A",
+      "Version B"
+    ],
+    "variants": [
+      {
+        "id": "baseline",
+        "label": "Version A",
+        "treatment": "raw_brief_baseline",
+        "artifact": "examples/comparison/version-a.html",
+        "public_artifact": "/examples/comparison/refund/version-a.html"
+      },
+      {
+        "id": "guided",
+        "label": "Version B",
+        "treatment": "judgmentkit_handoff",
+        "artifact": "examples/comparison/version-b.html",
+        "public_artifact": "/examples/comparison/refund/version-b.html"
+      }
+    ],
+    "scoring_weights": {
+      "activity_fit": 0.2,
+      "decision_support": 0.2,
+      "disclosure_discipline": 0.25,
+      "handoff_completeness": 0.2,
+      "task_success_support": 0.1,
+      "confidence_rework_signals": 0.05
+    },
+    "implementation_leakage_terms": [
+      "database table",
+      "JSON schema",
+      "prompt template",
+      "tool call",
+      "resource id",
+      "API endpoint",
+      "CRUD",
+      "data model",
+      "field",
+      "model"
+    ],
+    "review_packet_terms": [
+      "ready_for_review",
+      "activity_model",
+      "interaction_contract",
+      "review_status",
+      "guardrails",
+      "candidate"
+    ],
+    "rubric_terms": {
+      "activity_fit": [
+        "Daily triage",
+        "Refund escalation queue",
+        "Customer refund escalation",
+        "Evidence checklist",
+        "Policy review context"
+      ],
+      "decision_support": [
+        "Choose a path",
+        "Approve refund",
+        "Send to policy review",
+        "Return for evidence"
+      ],
+      "handoff_completeness": [
+        "Handoff",
+        "Next owner",
+        "Support agent",
+        "Policy reviewer",
+        "Handoff reason"
+      ],
+      "task_success_support": [
+        "Review selected case",
+        "Check evidence",
+        "Choose refund path",
+        "Prepare handoff",
+        "Receipt photo is missing"
+      ],
+      "confidence_rework_signals": [
+        "Policy review context",
+        "Evidence checklist",
+        "missing receipt photo"
+      ]
+    },
+    "expected_outcomes": [
+      "The reviewer can identify the selected case.",
+      "The reviewer can choose approve, policy review, or return for evidence.",
+      "The reviewer can complete a handoff with a reason and next owner."
+    ]
+  },
+  {
+    "id": "dinner-playlist-standalone-v1",
+    "title": "Dinner playlist builder",
+    "task_prompt": "Build a 10-song dinner playlist that starts mellow, lifts in the middle, avoids disliked artists and explicit tracks, and leaves a sequence note.",
+    "comparison_manifest": "examples/comparison/music/manifest.json",
+    "claim_level": "single_pair_signal",
+    "expected_winner": "judgmentkit_handoff",
+    "minimum_score_delta": 20,
+    "hidden_treatment_terms": [
+      "raw_brief_baseline",
+      "judgmentkit_handoff",
+      "JudgmentKit",
+      "Version A",
+      "Version B"
+    ],
+    "variants": [
+      {
+        "id": "baseline",
+        "label": "Version A",
+        "treatment": "raw_brief_baseline",
+        "artifact": "examples/comparison/music/version-a.html",
+        "public_artifact": "/examples/comparison/music/version-a.html"
+      },
+      {
+        "id": "guided",
+        "label": "Version B",
+        "treatment": "judgmentkit_handoff",
+        "artifact": "examples/comparison/music/version-b.html",
+        "public_artifact": "/examples/comparison/music/version-b.html"
+      }
+    ],
+    "scoring_weights": {
+      "activity_fit": 0.2,
+      "decision_support": 0.2,
+      "disclosure_discipline": 0.25,
+      "handoff_completeness": 0.2,
+      "task_success_support": 0.1,
+      "confidence_rework_signals": 0.05
+    },
+    "implementation_leakage_terms": [
+      "data model",
+      "track table field",
+      "JSON schema",
+      "prompt template",
+      "tool call",
+      "resource id",
+      "API endpoint",
+      "CRUD",
+      "field",
+      "model"
+    ],
+    "review_packet_terms": [
+      "ready_for_review",
+      "activity_model",
+      "interaction_contract",
+      "review_status",
+      "guardrails",
+      "candidate"
+    ],
+    "rubric_terms": {
+      "activity_fit": [
+        "Dinner brief",
+        "Guest preferences",
+        "Suggested tracks",
+        "Playlist sequence",
+        "Conflict checks",
+        "Sequence note"
+      ],
+      "decision_support": [
+        "Add to playlist",
+        "Move earlier",
+        "Move later",
+        "Remove track",
+        "Mark as conflict"
+      ],
+      "handoff_completeness": [
+        "Save playlist",
+        "Share playlist",
+        "Sequence note",
+        "10 tracks ready to play"
+      ],
+      "task_success_support": [
+        "explicit track",
+        "disliked artist",
+        "genre balance",
+        "energy flow",
+        "mellow opener",
+        "warm middle",
+        "closing track"
+      ],
+      "confidence_rework_signals": [
+        "Fits brief",
+        "Conflict checks",
+        "ready to play"
+      ]
+    },
+    "expected_outcomes": [
+      "The host can assemble a 10-song playlist.",
+      "The host can catch explicit and disliked-artist conflicts.",
+      "The host can explain the sequence from mellow start through lifted middle to soft close."
+    ]
+  }
+]

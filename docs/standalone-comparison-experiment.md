@@ -43,6 +43,14 @@ Open the two HTML files as separate apps. Randomize order for each participant.
 
 For the music-app comparison, use `examples/comparison/music/facilitator-scorecard.md` to record order, timing, constraint misses, implementation leakage, confidence, rework, and preference rationale.
 
+To run the deterministic artifact scorer over the committed comparison apps:
+
+```bash
+npm run eval:ui
+```
+
+The scorer writes `evals/reports/ui-generation-report.json` and `evals/reports/ui-generation-report.html`. It checks activity-fit terms, decision support, disclosure discipline, handoff completeness, task-success support, and confidence/rework signals. Treat the output as paired-artifact evidence, not as a statistically powered benchmark.
+
 ## Evaluation Task
 
 Ask the participant to review the selected refund request and prepare the next handoff.

@@ -225,6 +225,7 @@ function checkUiWorkflowCandidateIncludes(reviewPacket, expectedFields, failures
       `ui_workflow.candidate.${pathExpression}`,
       getPath(reviewPacket.candidate, pathExpression),
       expectedValues,
+      failures,
     );
   }
 }

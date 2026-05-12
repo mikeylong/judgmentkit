@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JudgmentKit UI-Generation Eval</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17212b;
+      --muted: #5c6875;
+      --line: #d6dde5;
+      --panel: #ffffff;
+      --surface: #f6f8fa;
+      --accent: #236458;
+      --danger: #8a2f24;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--surface);
+      line-height: 1.45;
+    }
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 32px 24px 48px;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 10px; font-size: 2rem; line-height: 1.1; }
+    h2 { margin-bottom: 8px; font-size: 1.35rem; }
+    h3 { margin-bottom: 8px; font-size: 1rem; }
+    a { color: #174d7a; }
+    .lede { color: var(--muted); max-width: 760px; }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .summary-grid div, .case, .variant, .notice {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .summary-grid div { padding: 14px; }
+    dt {
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 750;
+      text-transform: uppercase;
+    }
+    dd { margin: 4px 0 0; font-weight: 700; }
+    .notice {
+      padding: 14px 16px;
+      color: var(--muted);
+    }
+    .case {
+      margin-top: 24px;
+      padding: 20px;
+    }
+    .case-heading, .variant-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .status {
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.8rem;
+      font-weight: 750;
+    }
+    .passed { background: #dff3e8; color: var(--accent); }
+    .failed { background: #f8ded9; color: var(--danger); }
+    .rationale, .expected { margin-top: 16px; }
+    .variants {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 16px;
+      margin-top: 18px;
+    }
+    .variant { padding: 16px; overflow-x: auto; }
+    .variant-heading p { margin-bottom: 0; color: var(--muted); }
+    .variant-heading strong { font-size: 1.3rem; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 0.9rem;
+    }
+    th, td {
+      border-top: 1px solid var(--line);
+      padding: 9px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    thead th { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; }
+    tbody th { font-weight: 700; }
+    ul { margin: 6px 0 0; padding-left: 18px; }
+    .muted { color: var(--muted); }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>JudgmentKit UI-Generation Eval</h1>
+    <p class="lede">Deterministic paired-artifact scoring for existing standalone comparison apps.</p>
+    <dl class="summary-grid">
+      <div><dt>Eval id</dt><dd>judgmentkit-ui-generation-paired-artifact-v1</dd></div>
+      <div><dt>Claim level</dt><dd>repeated_pair_signal</dd></div>
+      <div><dt>Cases</dt><dd>2</dd></div>
+      <div><dt>Passed</dt><dd>2</dd></div>
+      <div><dt>Guided wins</dt><dd>2</dd></div>
+      <div><dt>Baseline wins</dt><dd>0</dd></div>
+    </dl>
+    <p class="notice">Qualitative paired-artifact evidence only; not a statistically powered benchmark.</p>
+    
+    <section class="case">
+      <div class="case-heading">
+        <div>
+          <h2>Refund triage handoff</h2>
+          <p>Review the selected refund request and prepare the next handoff.</p>
+        </div>
+        <span class="status passed">Passed</span>
+      </div>
+      <dl class="summary-grid">
+        <div><dt>Winner</dt><dd>judgmentkit_handoff</dd></div>
+        <div><dt>Expected winner</dt><dd>judgmentkit_handoff</dd></div>
+        <div><dt>Score delta</dt><dd>96</dd></div>
+        <div><dt>Minimum delta</dt><dd>20</dd></div>
+      </dl>
+      <div class="rationale">
+        <h3>Rationale</h3>
+        <ul><li>JudgmentKit-guided artifact scored 96 points above baseline.</li><li>Implementation leakage changed from 8 baseline terms to 0 guided terms.</li><li>Activity-fit evidence changed from 0 matched terms to 5 matched terms.</li></ul>
+      </div>
+      <div class="expected">
+        <h3>Expected Outcomes</h3>
+        <ul><li>The reviewer can identify the selected case.</li><li>The reviewer can choose approve, policy review, or return for evidence.</li><li>The reviewer can complete a handoff with a reason and next owner.</li></ul>
+      </div>
+      <div class="variants">
+        
+    <section class="variant">
+      <div class="variant-heading">
+        <div>
+          <h3>Version A</h3>
+          <p>raw_brief_baseline</p>
+        </div>
+        <strong>4/100</strong>
+      </div>
+      <p><a href="/examples/comparison/refund/version-a.html">examples/comparison/version-a.html</a></p>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Metric</th>
+            <th scope="col">Score</th>
+            <th scope="col">Summary</th>
+            <th scope="col">Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+      <tr>
+        <th scope="row">activity_fit</th>
+        <td>0</td>
+        <td>0 present</td>
+        <td>
+      <div><strong>Present:</strong> <span class="muted">None</span></div>
+      <div><strong>Missing:</strong> <ul><li>Daily triage</li><li>Refund escalation queue</li><li>Customer refund escalation</li><li>Evidence checklist</li><li>Policy review context</li></ul></div>
+    </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">decision_support</th>
+        <td>0</td>
+        <td>0 present</td>
+        <td>
+      <div><strong>Present:</strong> <span class="muted">None</span></div>
+      <div><strong>Missing:</strong> <ul><li>Choose a path</li><li>Approve refund</li><li>Send to policy review</li><li>Return for evidence</li></ul></div>
+    </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">disclosure_discipline</th>
+        <td>0</td>
+        <td>8 leaks</td>
+        <td>
+    <div><strong>Implementation leakage:</strong> <ul><li>database table</li><li>JSON schema</li><li>prompt template</li><li>tool call</li><li>resource id</li><li>API endpoint</li><li>CRUD</li><li>field</li></ul></div>
+    <div><strong>Review-packet leakage:</strong> <span class="muted">None</span></div>
+  </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">handoff_completeness</th>
+        <td>1</td>
+        <td>1 present</td>
+        <td>
+      <div><strong>Present:</strong> <ul><li>Handoff</li></ul></div>
+      <div><strong>Missing:</strong> <ul><li>Next owner</li><li>Support agent</li><li>Policy reviewer</li><li>Handoff reason</li></ul></div>
+    </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">task_success_support</th>
+        <td>0</td>
+        <td>0 present</td>
+        <td>
+      <div><strong>Present:</strong> <span class="muted">None</span></div>
+      <div><strong>Missing:</strong> <ul><li>Review selected case</li><li>Check evidence</li><li>Choose refund path</li><li>Prepare handoff</li><li>Receipt photo is missing</li></ul></div>
+    </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">confidence_rework_signals</th>
+        <td>0</td>
+        <td>0 present</td>
+        <td>
+      <div><strong>Present:</strong> <span class="muted">None</span></div>
+      <div><strong>Missing:</strong> <ul><li>Policy review context</li><li>Evidence checklist</li><li>missing receipt photo</li></ul></div>
+    </td>
+      </tr>
+    </tbody>
+      </table>
+    </section>
+  
+    <section class="variant">
+      <div class="variant-heading">
+        <div>
+          <h3>Version B</h3>
+          <p>judgmentkit_handoff</p>
+        </div>
+        <strong>100/100</strong>
+      </div>
+      <p><a href="/examples/comparison/refund/version-b.html">examples/comparison/version-b.html</a></p>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Metric</th>
+            <th scope="col">Score</th>
+            <th scope="col">Summary</th>
+            <th scope="col">Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+      <tr>
+        <th scope="row">activity_fit</th>
+        <td>5</td>
+        <td>5 present</td>
+        <td>
+      <div><strong>Present:</strong> <ul><li>Daily triage</li><li>Refund escalation queue</li><li>Customer refund escalation</li><li>Evidence checklist</li><li>Policy review context</li></ul></div>
+      <div><strong>Missing:</strong> <span class="muted">None</span></div>
+    </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">decision_support</th>
+        <td>5</td>
+        <td>4 present</td>
+        <td>
+      <div><strong>Present:</strong> <ul><li>Choose a path</li><li>Approve refund</li><li>Send to policy review</li><li>Return for evidence</li></ul></div>
+      <div><strong>Missing:</strong> <span class="muted">None</span></div>
+    </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">disclosure_discipline</th>
+        <td>5</td>
+        <td>0 leaks</td>
+        <td>
+    <div><strong>Implementation leakage:</strong> <span class="muted">None</span></div>
+    <div><strong>Review-packet leakage:</strong> <span class="muted">None</span></div>
+  </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">handoff_completeness</th>
+        <td>5</td>
+        <td>5 present</td>
+        <td>
+      <div><strong>Present:</strong> <ul><li>Handoff</li><li>Next owner</li><li>Support agent</li><li>Policy reviewer</li><li>Handoff reason</li></ul></div>
+      <div><strong>Missing:</strong> <span class="muted">None</span></div>
+    </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">task_success_support</th>
+        <td>5</td>
+        <td>5 present</td>
+        <td>
+      <div><strong>Present:</strong> <ul><li>Review selected case</li><li>Check evidence</li><li>Choose refund path</li><li>Prepare handoff</li><li>Receipt photo is missing</li></ul></div>
+      <div><strong>Missing:</strong> <span class="muted">None</span></div>
+    </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">confidence_rework_signals</th>
+        <td>5</td>
+        <td>3 present</td>
+        <td>
+      <div><strong>Present:</strong> <ul><li>Policy review context</li><li>Evidence checklist</li><li>missing receipt photo</li></ul></div>
+      <div><strong>Missing:</strong> <span class="muted">None</span></div>
+    </td>
+      </tr>
+    </tbody>
+      </table>
+    </section>
+  
+      </div>
+    </section>
+  
+    <section class="case">
+      <div class="case-heading">
+        <div>
+          <h2>Dinner playlist builder</h2>
+          <p>Build a 10-song dinner playlist that starts mellow, lifts in the middle, avoids disliked artists and explicit tracks, and leaves a sequence note.</p>
+        </div>
+        <span class="status passed">Passed</span>
+      </div>
+      <dl class="summary-grid">
+        <div><dt>Winner</dt><dd>judgmentkit_handoff</dd></div>
+        <div><dt>Expected winner</dt><dd>judgmentkit_handoff</dd></div>
+        <div><dt>Score delta</dt><dd>88.82</dd></div>
+        <div><dt>Minimum delta</dt><dd>20</dd></div>
+      </dl>
+      <div class="rationale">
+        <h3>Rationale</h3>
+        <ul><li>JudgmentKit-guided artifact scored 88.82 points above baseline.</li><li>Implementation leakage changed from 10 baseline terms to 0 guided terms.</li><li>Activity-fit evidence changed from 1 matched terms to 6 matched terms.</li></ul>
+      </div>
+      <div class="expected">
+        <h3>Expected Outcomes</h3>
+        <ul><li>The host can assemble a 10-song playlist.</li><li>The host can catch explicit and disliked-artist conflicts.</li><li>The host can explain the sequence from mellow start through lifted middle to soft close.</li></ul>
+      </div>
+      <div class="variants">
+        
+    <section class="variant">
+      <div class="variant-heading">
+        <div>
+          <h3>Version A</h3>
+          <p>raw_brief_baseline</p>
+        </div>
+        <strong>11.18/100</strong>
+      </div>
+      <p><a href="/examples/comparison/music/version-a.html">examples/comparison/music/version-a.html</a></p>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Metric</th>
+            <th scope="col">Score</th>
+            <th scope="col">Summary</th>
+            <th scope="col">Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+      <tr>
+        <th scope="row">activity_fit</th>
+        <td>0.83</td>
+        <td>1 present</td>
+        <td>
+      <div><strong>Present:</strong> <ul><li>Sequence note</li></ul></div>
+      <div><strong>Missing:</strong> <ul><li>Dinner brief</li><li>Guest preferences</li><li>Suggested tracks</li><li>Playlist sequence</li><li>Conflict checks</li></ul></div>
+    </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">decision_support</th>
+        <td>0</td>
+        <td>0 present</td>
+        <td>
+      <div><strong>Present:</strong> <span class="muted">None</span></div>
+      <div><strong>Missing:</strong> <ul><li>Add to playlist</li><li>Move earlier</li><li>Move later</li><li>Remove track</li><li>Mark as conflict</li></ul></div>
+    </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">disclosure_discipline</th>
+        <td>0</td>
+        <td>10 leaks</td>
+        <td>
+    <div><strong>Implementation leakage:</strong> <ul><li>data model</li><li>track table field</li><li>JSON schema</li><li>prompt template</li><li>tool call</li><li>resource id</li><li>API endpoint</li><li>CRUD</li><li>field</li><li>model</li></ul></div>
+    <div><strong>Review-packet leakage:</strong> <span class="muted">None</span></div>
+  </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">handoff_completeness</th>
+        <td>1.25</td>
+        <td>1 present</td>
+        <td>
+      <div><strong>Present:</strong> <ul><li>Sequence note</li></ul></div>
+      <div><strong>Missing:</strong> <ul><li>Save playlist</li><li>Share playlist</li><li>10 tracks ready to play</li></ul></div>
+    </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">task_success_support</th>
+        <td>1.43</td>
+        <td>2 present</td>
+        <td>
+      <div><strong>Present:</strong> <ul><li>explicit track</li><li>disliked artist</li></ul></div>
+      <div><strong>Missing:</strong> <ul><li>genre balance</li><li>energy flow</li><li>mellow opener</li><li>warm middle</li><li>closing track</li></ul></div>
+    </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">confidence_rework_signals</th>
+        <td>0</td>
+        <td>0 present</td>
+        <td>
+      <div><strong>Present:</strong> <span class="muted">None</span></div>
+      <div><strong>Missing:</strong> <ul><li>Fits brief</li><li>Conflict checks</li><li>ready to play</li></ul></div>
+    </td>
+      </tr>
+    </tbody>
+      </table>
+    </section>
+  
+    <section class="variant">
+      <div class="variant-heading">
+        <div>
+          <h3>Version B</h3>
+          <p>judgmentkit_handoff</p>
+        </div>
+        <strong>100/100</strong>
+      </div>
+      <p><a href="/examples/comparison/music/version-b.html">examples/comparison/music/version-b.html</a></p>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Metric</th>
+            <th scope="col">Score</th>
+            <th scope="col">Summary</th>
+            <th scope="col">Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+      <tr>
+        <th scope="row">activity_fit</th>
+        <td>5</td>
+        <td>6 present</td>
+        <td>
+      <div><strong>Present:</strong> <ul><li>Dinner brief</li><li>Guest preferences</li><li>Suggested tracks</li><li>Playlist sequence</li><li>Conflict checks</li><li>Sequence note</li></ul></div>
+      <div><strong>Missing:</strong> <span class="muted">None</span></div>
+    </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">decision_support</th>
+        <td>5</td>
+        <td>5 present</td>
+        <td>
+      <div><strong>Present:</strong> <ul><li>Add to playlist</li><li>Move earlier</li><li>Move later</li><li>Remove track</li><li>Mark as conflict</li></ul></div>
+      <div><strong>Missing:</strong> <span class="muted">None</span></div>
+    </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">disclosure_discipline</th>
+        <td>5</td>
+        <td>0 leaks</td>
+        <td>
+    <div><strong>Implementation leakage:</strong> <span class="muted">None</span></div>
+    <div><strong>Review-packet leakage:</strong> <span class="muted">None</span></div>
+  </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">handoff_completeness</th>
+        <td>5</td>
+        <td>4 present</td>
+        <td>
+      <div><strong>Present:</strong> <ul><li>Save playlist</li><li>Share playlist</li><li>Sequence note</li><li>10 tracks ready to play</li></ul></div>
+      <div><strong>Missing:</strong> <span class="muted">None</span></div>
+    </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">task_success_support</th>
+        <td>5</td>
+        <td>7 present</td>
+        <td>
+      <div><strong>Present:</strong> <ul><li>explicit track</li><li>disliked artist</li><li>genre balance</li><li>energy flow</li><li>mellow opener</li><li>warm middle</li><li>closing track</li></ul></div>
+      <div><strong>Missing:</strong> <span class="muted">None</span></div>
+    </td>
+      </tr>
+    
+      <tr>
+        <th scope="row">confidence_rework_signals</th>
+        <td>5</td>
+        <td>3 present</td>
+        <td>
+      <div><strong>Present:</strong> <ul><li>Fits brief</li><li>Conflict checks</li><li>ready to play</li></ul></div>
+      <div><strong>Missing:</strong> <span class="muted">None</span></div>
+    </td>
+      </tr>
+    </tbody>
+      </table>
+    </section>
+  
+      </div>
+    </section>
+  
+  </main>
+</body>
+</html>
