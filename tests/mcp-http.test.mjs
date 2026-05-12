@@ -23,6 +23,10 @@ const EXPECTED_TOOL_NAMES = [
 const REVIEW_BRIEF =
   "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.";
 
+function textContent(response) {
+  return response.content.find((entry) => entry.type === "text")?.text ?? "";
+}
+
 function withTimeout(promise, timeoutMs) {
   return Promise.race([
     promise,
@@ -90,6 +94,9 @@ async function runMcpClient(endpoint) {
     );
 
     assert.equal(reviewResponse.isError, undefined);
+    assert.ok(textContent(reviewResponse).includes("## JudgmentKit Activity Review"));
+    assert.ok(textContent(reviewResponse).includes("**Status:** Ready for concept planning"));
+    assert.equal(textContent(reviewResponse).trim().startsWith("{"), false);
     assert.equal(reviewResponse.structuredContent.review_status, "ready_for_review");
     assert.equal(reviewResponse.structuredContent.source.mode, "deterministic");
   } finally {

@@ -155,6 +155,325 @@ function createError(code, message, details) {
   return error;
 }
 
+function compactText(value) {
+  return typeof value === "string" ? value.replace(/\s+/g, " ").trim() : "";
+}
+
+function toDisplayList(values, limit = 4) {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  return values
+    .map((entry) => compactText(entry))
+    .filter(Boolean)
+    .slice(0, limit);
+}
+
+function termName(entry) {
+  if (typeof entry === "string") {
+    return compactText(entry);
+  }
+
+  if (entry && typeof entry === "object") {
+    return compactText(entry.term ?? entry.detected_term ?? "");
+  }
+
+  return "";
+}
+
+function termList(entries, limit = 4) {
+  if (!Array.isArray(entries)) {
+    return [];
+  }
+
+  return [...new Set(entries.map(termName).filter(Boolean))].slice(0, limit);
+}
+
+function missingFieldList(fields) {
+  if (!fields || typeof fields !== "object") {
+    return [];
+  }
+
+  return Object.entries(fields)
+    .filter(([, missing]) => Boolean(missing))
+    .map(([name]) => name.replaceAll("_", " "));
+}
+
+function firstLine(label, value) {
+  const text = compactText(value);
+
+  return text ? `**${label}:** ${text}` : "";
+}
+
+function listLine(label, values) {
+  const entries = toDisplayList(values);
+
+  return entries.length > 0 ? `**${label}:** ${entries.join("; ")}` : "";
+}
+
+function addSection(lines, title, entries) {
+  const visibleEntries = entries.filter(Boolean);
+
+  if (visibleEntries.length === 0) {
+    return;
+  }
+
+  lines.push("", `**${title}**`, ...visibleEntries);
+}
+
+function bulletList(values) {
+  return toDisplayList(values, 3).map((value) => `- ${value}`);
+}
+
+function planningStatus(result) {
+  if (result.handoff_status === "ready_for_generation") {
+    return "Ready for UI generation";
+  }
+
+  if (result.review_status === "ready_for_review") {
+    return result.candidate?.workflow ? "Ready for UI handoff" : "Ready for concept planning";
+  }
+
+  if (result.review_status === "needs_source_context") {
+    return "Needs source context";
+  }
+
+  if (result.status === "needs_review") {
+    return "Needs review";
+  }
+
+  if (result.status === "ready") {
+    return "Ready";
+  }
+
+  return "Blocked";
+}
+
+function diagnosticSummary(result) {
+  const diagnostics = [];
+  const confidence = compactText(result.review?.confidence);
+
+  if (confidence) {
+    diagnostics.push(`confidence ${confidence}`);
+  }
+
+  const implementationTerms = termList(
+    result.guardrails?.implementation_terms_detected ??
+      result.implementation_terms_detected ??
+      result.review?.evidence?.implementation_terms_detected,
+  );
+
+  if (implementationTerms.length > 0) {
+    diagnostics.push(`diagnostic terms: ${implementationTerms.join(", ")}`);
+  }
+
+  const primaryTerms = termList(result.guardrails?.candidate_primary_terms_detected);
+
+  if (primaryTerms.length > 0) {
+    diagnostics.push(`primary-field leaks: ${primaryTerms.join(", ")}`);
+  }
+
+  const reviewTerms = termList(result.guardrails?.candidate_primary_meta_terms_detected);
+
+  if (reviewTerms.length > 0) {
+    diagnostics.push(`review terms in UI candidate: ${reviewTerms.join(", ")}`);
+  }
+
+  const sourceMissing = missingFieldList(
+    result.guardrails?.source_missing_evidence ?? result.guardrails?.missing_evidence,
+  );
+
+  if (sourceMissing.length > 0) {
+    diagnostics.push(`missing source evidence: ${sourceMissing.join(", ")}`);
+  }
+
+  const missingFields = missingFieldList(result.guardrails?.candidate_missing_fields);
+
+  if (missingFields.length > 0) {
+    diagnostics.push(`missing candidate fields: ${missingFields.join(", ")}`);
+  }
+
+  return diagnostics.length > 0 ? diagnostics.join("; ") : "No blocking diagnostics in the planning card.";
+}
+
+function formatActivityReviewCard(result) {
+  const activity = result.candidate?.activity_model ?? {};
+  const interaction = result.candidate?.interaction_contract ?? {};
+  const status = planningStatus(result);
+  const nextStep = result.review_status === "ready_for_review"
+    ? "Use this activity model to plan the UI concept; review any workflow candidate before implementation."
+    : "Resolve the targeted questions before UI concept work.";
+  const lines = [
+    "## JudgmentKit Activity Review",
+    `**Status:** ${status}`,
+    `**Next step:** ${nextStep}`,
+  ];
+
+  addSection(lines, "Plan from this", [
+    firstLine("Activity", activity.activity),
+    listLine("Participants", activity.participants),
+    firstLine("Primary decision", interaction.primary_decision),
+    firstLine("Outcome", interaction.completion),
+    listLine("Terms to use", activity.domain_vocabulary),
+  ]);
+  addSection(lines, "Targeted questions", bulletList(result.review?.targeted_questions));
+  addSection(lines, "Diagnostics", [`${diagnosticSummary(result)}`]);
+
+  return lines.join("\n");
+}
+
+function formatWorkflowReviewCard(result) {
+  const workflow = result.candidate?.workflow ?? {};
+  const primaryUi = result.candidate?.primary_ui ?? {};
+  const handoff = result.candidate?.handoff ?? {};
+  const status = planningStatus(result);
+  const nextStep = result.review_status === "ready_for_review"
+    ? "Call create_ui_generation_handoff with this workflow review before UI implementation."
+    : "Revise the workflow candidate or resolve the targeted questions before handoff.";
+  const lines = [
+    "## JudgmentKit Workflow Review",
+    `**Status:** ${status}`,
+    `**Next step:** ${nextStep}`,
+  ];
+
+  addSection(lines, "Plan from this", [
+    firstLine("Workflow", workflow.surface_name),
+    listLine("Primary actions", workflow.primary_actions),
+    listLine("Decision points", workflow.decision_points),
+    firstLine("Completion", workflow.completion_state),
+    listLine("Primary sections", primaryUi.sections),
+    firstLine("Handoff", handoff.next_action),
+  ]);
+  addSection(lines, "Targeted questions", bulletList(result.review?.targeted_questions));
+  addSection(lines, "Diagnostics", [`${diagnosticSummary(result)}`]);
+
+  return lines.join("\n");
+}
+
+function formatHandoffCard(result) {
+  const lines = [
+    "## JudgmentKit UI Handoff",
+    `**Status:** ${planningStatus(result)}`,
+    "**Next step:** Generate UI from this handoff, keeping disclosure reminders out of the primary product surface.",
+  ];
+
+  addSection(lines, "Plan from this", [
+    firstLine("Activity", result.activity_model?.activity),
+    firstLine("Primary decision", result.interaction_contract?.primary_decision),
+    firstLine("Outcome", result.interaction_contract?.completion),
+    firstLine("Workflow", result.workflow?.surface_name),
+    listLine("Primary actions", result.workflow?.primary_actions),
+    listLine("Primary sections", result.primary_surface?.sections),
+    firstLine("Handoff", result.handoff?.next_action),
+  ]);
+  addSection(lines, "Diagnostics", [
+    listLine("Terms to keep out", result.disclosure_reminders?.terms_to_keep_out_of_primary_ui),
+    listLine("Diagnostic terms", result.disclosure_reminders?.diagnostic_terms),
+  ]);
+
+  return lines.join("\n");
+}
+
+function formatAnalysisCard(result) {
+  const lines = [
+    "## JudgmentKit Brief Analysis",
+    `**Status:** ${planningStatus(result)}`,
+    "**Next step:** Use create_activity_model_review before UI concept work.",
+  ];
+
+  addSection(lines, "Plan from this", [
+    firstLine("Activity", result.ui_brief?.activity_focus),
+    firstLine("Primary decision", result.ui_brief?.primary_decision),
+    firstLine("Outcome", result.ui_brief?.outcome),
+    listLine("Terms to use", result.ui_brief?.terms_to_use),
+  ]);
+  addSection(lines, "Targeted questions", bulletList(result.review_questions));
+  addSection(lines, "Diagnostics", [`${diagnosticSummary(result)}`]);
+
+  return lines.join("\n");
+}
+
+function formatProfileRecommendationCard(result) {
+  const recommended = toDisplayList(result.recommended_profile_ids);
+  const blocked = toDisplayList(result.blocked_profile_ids);
+  const summary = result.recommendations?.[0] ?? {};
+  const status = compactText(summary.status) || "not_recommended";
+  const lines = [
+    "## JudgmentKit Workflow Profile Recommendation",
+    `**Status:** ${status.replaceAll("_", " ")}`,
+    recommended.length > 0
+      ? `**Next step:** Pass profile_id "${recommended[0]}" when reviewing the workflow candidate.`
+      : "**Next step:** Continue without an optional workflow profile unless product context says otherwise.",
+  ];
+
+  addSection(lines, "Plan from this", [
+    listLine("Recommended profiles", recommended),
+    listLine("Blocked profiles", blocked),
+    firstLine("Trigger matches", `${summary.trigger_match_count ?? 0} of ${summary.trigger_threshold ?? 0}`),
+    listLine("Matched triggers", summary.matched_triggers),
+    listLine("Matched exclusions", summary.matched_exclusions),
+  ]);
+
+  return lines.join("\n");
+}
+
+function formatErrorCard(result) {
+  const details = result.error?.details ?? {};
+  const lines = [
+    "## JudgmentKit Error",
+    "**Status:** Blocked",
+    "**Next step:** Fix the request or resolve the blocked review details, then retry the MCP call.",
+    "",
+    `**Error:** ${compactText(result.error?.message) || "Unknown error."}`,
+  ];
+
+  addSection(lines, "Targeted questions", bulletList(details.targeted_questions));
+  addSection(lines, "Diagnostics", [
+    firstLine("Code", result.error?.code),
+    firstLine("Review status", details.review_status),
+    firstLine("Confidence", details.confidence),
+    listLine("Implementation leakage", termList(details.implementation_leakage_terms)),
+    listLine("Review-packet leakage", termList(details.review_packet_leakage_terms)),
+    listLine("Missing fields", missingFieldList(details.missing_fields)),
+    listLine("Missing source evidence", missingFieldList(details.source_missing_evidence)),
+  ]);
+
+  return lines.join("\n");
+}
+
+function formatPlanningCard(result) {
+  if (result?.error) {
+    return formatErrorCard(result);
+  }
+
+  if (result?.handoff_status) {
+    return formatHandoffCard(result);
+  }
+
+  if (result?.candidate?.workflow) {
+    return formatWorkflowReviewCard(result);
+  }
+
+  if (result?.candidate?.activity_model) {
+    return formatActivityReviewCard(result);
+  }
+
+  if (Array.isArray(result?.recommendations)) {
+    return formatProfileRecommendationCard(result);
+  }
+
+  if (result?.ui_brief) {
+    return formatAnalysisCard(result);
+  }
+
+  return [
+    "## JudgmentKit Result",
+    "**Status:** Ready",
+    "**Next step:** Use structuredContent for machine-readable details.",
+  ].join("\n");
+}
+
 export function listTools() {
   return [
     ANALYZE_TOOL,
@@ -235,7 +554,7 @@ function createToolResult(result) {
     content: [
       {
         type: "text",
-        text: JSON.stringify(result, null, 2),
+        text: formatPlanningCard(result),
       },
     ],
     structuredContent: result,

@@ -11,6 +11,21 @@ function withTimeout(promise, timeoutMs) {
   ]);
 }
 
+function textContent(response) {
+  return response.content.find((entry) => entry.type === "text")?.text ?? "";
+}
+
+function assertPlanningCard(response, heading, status) {
+  const text = textContent(response);
+
+  assert.ok(text.includes(heading));
+  assert.ok(text.includes(`**Status:** ${status}`));
+  assert.equal(text.trim().startsWith("{"), false);
+  assert.equal(text.includes('"structuredContent"'), false);
+
+  return text;
+}
+
 let transport;
 let client;
 let stderrOutput = "";
@@ -60,6 +75,13 @@ try {
   );
 
   assert.equal(analyzeResponse.isError, undefined);
+  assert.ok(
+    assertPlanningCard(
+      analyzeResponse,
+      "## JudgmentKit Brief Analysis",
+      "Needs review",
+    ).includes("JSON schema"),
+  );
   assert.equal(analyzeResponse.structuredContent.status, "needs_review");
   assert.ok(
     analyzeResponse.structuredContent.implementation_terms_detected.some(
@@ -98,6 +120,14 @@ try {
   );
 
   assert.equal(reviewResponse.isError, undefined);
+  const reviewText = assertPlanningCard(
+    reviewResponse,
+    "## JudgmentKit Activity Review",
+    "Ready for concept planning",
+  );
+
+  assert.ok(reviewText.includes("**Primary decision:**"));
+  assert.ok(reviewText.includes("case should be approved"));
   assert.equal(reviewResponse.structuredContent.review_status, "ready_for_review");
   assert.equal(reviewResponse.structuredContent.collaboration_mode, "propose_then_review");
   assert.ok(
@@ -123,6 +153,13 @@ try {
   );
 
   assert.equal(recommendationResponse.isError, undefined);
+  assert.ok(
+    assertPlanningCard(
+      recommendationResponse,
+      "## JudgmentKit Workflow Profile Recommendation",
+      "recommended",
+    ).includes('Pass profile_id "operator-review-ui"'),
+  );
   assert.deepEqual(
     recommendationResponse.structuredContent.recommended_profile_ids,
     ["operator-review-ui"],
@@ -163,6 +200,11 @@ try {
   );
 
   assert.equal(candidateReviewResponse.isError, undefined);
+  assertPlanningCard(
+    candidateReviewResponse,
+    "## JudgmentKit Activity Review",
+    "Ready for concept planning",
+  );
   assert.equal(candidateReviewResponse.structuredContent.source.mode, "model_assisted");
   assert.equal(
     candidateReviewResponse.structuredContent.source.proposer,
@@ -222,6 +264,14 @@ try {
   );
 
   assert.equal(workflowReviewResponse.isError, undefined);
+  const workflowText = assertPlanningCard(
+    workflowReviewResponse,
+    "## JudgmentKit Workflow Review",
+    "Ready for UI handoff",
+  );
+
+  assert.ok(workflowText.includes("**Workflow:** Refund escalation queue"));
+  assert.ok(workflowText.includes("Approve refund"));
   assert.equal(workflowReviewResponse.structuredContent.source.mode, "model_assisted");
   assert.equal(
     workflowReviewResponse.structuredContent.source.proposer,
@@ -238,6 +288,38 @@ try {
     ),
   );
 
+  const blockedWorkflowResponse = await withTimeout(
+    client.callTool({
+      name: "review_ui_workflow_candidate",
+      arguments: {
+        brief:
+          "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+        candidate: {
+          ...workflowReviewResponse.structuredContent.candidate,
+          workflow: {
+            ...workflowReviewResponse.structuredContent.candidate.workflow,
+            surface_name: "ready_for_review JSON schema console",
+          },
+          primary_ui: {
+            ...workflowReviewResponse.structuredContent.candidate.primary_ui,
+            sections: ["Activity", "Prompt template"],
+          },
+        },
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(blockedWorkflowResponse.isError, undefined);
+  const blockedWorkflowText = assertPlanningCard(
+    blockedWorkflowResponse,
+    "## JudgmentKit Workflow Review",
+    "Needs source context",
+  );
+
+  assert.ok(blockedWorkflowText.includes("primary-field leaks: JSON schema"));
+  assert.equal(blockedWorkflowResponse.structuredContent.review_status, "needs_source_context");
+
   const handoffResponse = await withTimeout(
     client.callTool({
       name: "create_ui_generation_handoff",
@@ -249,6 +331,14 @@ try {
   );
 
   assert.equal(handoffResponse.isError, undefined);
+  const handoffText = assertPlanningCard(
+    handoffResponse,
+    "## JudgmentKit UI Handoff",
+    "Ready for UI generation",
+  );
+
+  assert.ok(handoffText.includes("Generate UI from this handoff"));
+  assert.ok(handoffText.includes("**Handoff:**"));
   assert.equal(handoffResponse.structuredContent.handoff_status, "ready_for_generation");
   assert.equal(
     handoffResponse.structuredContent.guidance_profile.profile_id,
@@ -256,6 +346,30 @@ try {
   );
   assert.ok(
     handoffResponse.structuredContent.workflow.primary_actions.includes("Approve refund"),
+  );
+
+  const blockedHandoffResponse = await withTimeout(
+    client.callTool({
+      name: "create_ui_generation_handoff",
+      arguments: {
+        workflow_review: blockedWorkflowResponse.structuredContent,
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(blockedHandoffResponse.isError, true);
+  const blockedHandoffText = assertPlanningCard(
+    blockedHandoffResponse,
+    "## JudgmentKit Error",
+    "Blocked",
+  );
+
+  assert.ok(blockedHandoffText.includes("handoff_blocked"));
+  assert.ok(blockedHandoffText.includes("Implementation leakage"));
+  assert.equal(
+    blockedHandoffResponse.structuredContent.error.details.review_status,
+    "needs_source_context",
   );
   assert.equal(stderrOutput.includes("JudgmentKit stdio MCP failed"), false);
 } finally {

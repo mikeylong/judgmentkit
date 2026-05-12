@@ -20,6 +20,17 @@ npm run install:mcp -- --client codex
 
 The first relaunch supports Codex only. The configured local server name is `judgmentkit`, and the install verifies that tools/list returns the current JudgmentKit review and handoff tools.
 
+## MCP Planning Cards
+
+MCP tool responses include two surfaces:
+
+- `structuredContent` is the stable machine-readable contract for agents and integrations.
+- `content[0].text` is a concise Markdown planning card for Codex-style planning chat.
+
+Use the planning card to explain the current status, next step, blocking questions, and compact diagnostics to the human collaborator. Use `structuredContent` for implementation decisions, data extraction, and follow-up MCP calls.
+
+In planning mode, show the card-level takeaway, ask only the listed blocking questions when source context is missing, and keep raw guardrails or diagnostic terms out of product UI language.
+
 ## Before Generating UI
 
 Call `create_activity_model_review` with the source brief.
