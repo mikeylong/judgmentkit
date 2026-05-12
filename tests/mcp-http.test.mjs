@@ -7,6 +7,7 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 import {
   getHostedMcpMetadata,
   handleJudgmentKitMcpNodeRequest,
+  MAX_MCP_POST_BODY_BYTES,
 } from "../src/mcp-http.mjs";
 import { getMcpAnalyticsEvents } from "../src/analytics.mjs";
 
@@ -97,6 +98,14 @@ async function runMcpClient(endpoint) {
   }
 }
 
+async function postRaw(endpoint, body, headers = {}) {
+  return fetch(endpoint, {
+    method: "POST",
+    headers,
+    body,
+  });
+}
+
 const metadata = getHostedMcpMetadata();
 
 assert.equal(metadata.name, "JudgmentKit");
@@ -162,6 +171,40 @@ await withTestServer(
       optionsResponse.headers.get("access-control-allow-methods"),
       "GET, POST, DELETE, OPTIONS",
     );
+
+    const unsupportedMediaResponse = await postRaw(endpoint, "{}", {
+      "content-type": "text/plain",
+    });
+    const unsupportedMediaBody = await unsupportedMediaResponse.json();
+
+    assert.equal(unsupportedMediaResponse.status, 415);
+    assert.equal(
+      unsupportedMediaBody.error.message,
+      "Unsupported media type: POST /mcp requires application/json.",
+    );
+
+    const oversizedResponse = await postRaw(
+      endpoint,
+      JSON.stringify({ value: "x".repeat(MAX_MCP_POST_BODY_BYTES) }),
+      {
+        "content-type": "application/json",
+      },
+    );
+    const oversizedBody = await oversizedResponse.json();
+
+    assert.equal(oversizedResponse.status, 413);
+    assert.equal(
+      oversizedBody.error.message,
+      "Request body too large: POST /mcp is limited to 128KB.",
+    );
+
+    const parseErrorResponse = await postRaw(endpoint, "{", {
+      "content-type": "application/json",
+    });
+    const parseErrorBody = await parseErrorResponse.json();
+
+    assert.equal(parseErrorResponse.status, 400);
+    assert.equal(parseErrorBody.error.code, -32700);
 
     await runMcpClient(endpoint);
   },
