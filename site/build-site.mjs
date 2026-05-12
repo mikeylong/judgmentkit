@@ -877,115 +877,117 @@ function systemMapViewerScript() {
   return `
     <script>
       (() => {
-        const viewer = document.querySelector("[data-system-map-viewer]");
-        if (!viewer) return;
+        const viewers = document.querySelectorAll("[data-system-map-viewer]");
+        if (!viewers.length) return;
 
-        const svg = viewer.querySelector("[data-system-map-svg]");
-        const canvas = viewer.matches("[data-system-map-canvas]")
-          ? viewer
-          : viewer.querySelector("[data-system-map-canvas]");
-        const zoomIn = viewer.querySelector("[data-system-map-zoom-in]");
-        const zoomOut = viewer.querySelector("[data-system-map-zoom-out]");
-        const reset = viewer.querySelector("[data-system-map-reset]");
-        if (!svg || !canvas || !zoomIn || !zoomOut || !reset) return;
+        viewers.forEach((viewer) => {
+          const svg = viewer.querySelector("[data-system-map-svg]");
+          const canvas = viewer.matches("[data-system-map-canvas]")
+            ? viewer
+            : viewer.querySelector("[data-system-map-canvas]");
+          const zoomIn = viewer.querySelector("[data-system-map-zoom-in]");
+          const zoomOut = viewer.querySelector("[data-system-map-zoom-out]");
+          const reset = viewer.querySelector("[data-system-map-reset]");
+          if (!svg || !canvas || !zoomIn || !zoomOut || !reset) return;
 
-        const base = { x: 0, y: 0, width: 1760, height: 1040 };
-        const minWidth = 620;
-        const maxWidth = 2200;
-        const ratio = base.height / base.width;
-        let view = { ...base };
-        let drag = null;
+          const base = { x: 0, y: 0, width: 1760, height: 1040 };
+          const minWidth = 620;
+          const maxWidth = 2200;
+          const ratio = base.height / base.width;
+          let view = { ...base };
+          let drag = null;
 
-        function clampView() {
-          view.width = Math.min(maxWidth, Math.max(minWidth, view.width));
-          view.height = view.width * ratio;
-          const margin = 140;
-          const minX = base.x - margin;
-          const maxX = base.x + base.width - view.width + margin;
-          const minY = base.y - margin;
-          const maxY = base.y + base.height - view.height + margin;
-          view.x = Math.min(maxX, Math.max(minX, view.x));
-          view.y = Math.min(maxY, Math.max(minY, view.y));
-        }
+          function clampView() {
+            view.width = Math.min(maxWidth, Math.max(minWidth, view.width));
+            view.height = view.width * ratio;
+            const margin = 140;
+            const minX = base.x - margin;
+            const maxX = base.x + base.width - view.width + margin;
+            const minY = base.y - margin;
+            const maxY = base.y + base.height - view.height + margin;
+            view.x = Math.min(maxX, Math.max(minX, view.x));
+            view.y = Math.min(maxY, Math.max(minY, view.y));
+          }
 
-        function applyView() {
-          clampView();
-          svg.setAttribute(
-            "viewBox",
-            [view.x, view.y, view.width, view.height].map((value) => value.toFixed(2)).join(" "),
-          );
-        }
+          function applyView() {
+            clampView();
+            svg.setAttribute(
+              "viewBox",
+              [view.x, view.y, view.width, view.height].map((value) => value.toFixed(2)).join(" "),
+            );
+          }
 
-        function pointFromEvent(event) {
-          const rect = svg.getBoundingClientRect();
-          return {
-            x: view.x + ((event.clientX - rect.left) / rect.width) * view.width,
-            y: view.y + ((event.clientY - rect.top) / rect.height) * view.height,
-          };
-        }
+          function pointFromEvent(event) {
+            const rect = svg.getBoundingClientRect();
+            return {
+              x: view.x + ((event.clientX - rect.left) / rect.width) * view.width,
+              y: view.y + ((event.clientY - rect.top) / rect.height) * view.height,
+            };
+          }
 
-        function zoom(factor, center) {
-          const target = center ?? {
-            x: view.x + view.width / 2,
-            y: view.y + view.height / 2,
-          };
-          const nextWidth = view.width * factor;
-          const nextHeight = nextWidth * ratio;
-          const xRatio = (target.x - view.x) / view.width;
-          const yRatio = (target.y - view.y) / view.height;
-          view = {
-            x: target.x - nextWidth * xRatio,
-            y: target.y - nextHeight * yRatio,
-            width: nextWidth,
-            height: nextHeight,
-          };
-          applyView();
-        }
+          function zoom(factor, center) {
+            const target = center ?? {
+              x: view.x + view.width / 2,
+              y: view.y + view.height / 2,
+            };
+            const nextWidth = view.width * factor;
+            const nextHeight = nextWidth * ratio;
+            const xRatio = (target.x - view.x) / view.width;
+            const yRatio = (target.y - view.y) / view.height;
+            view = {
+              x: target.x - nextWidth * xRatio,
+              y: target.y - nextHeight * yRatio,
+              width: nextWidth,
+              height: nextHeight,
+            };
+            applyView();
+          }
 
-        zoomIn.addEventListener("click", () => zoom(0.82));
-        zoomOut.addEventListener("click", () => zoom(1.22));
-        reset.addEventListener("click", () => {
-          view = { ...base };
+          zoomIn.addEventListener("click", () => zoom(0.82));
+          zoomOut.addEventListener("click", () => zoom(1.22));
+          reset.addEventListener("click", () => {
+            view = { ...base };
+            applyView();
+          });
+
+          canvas.addEventListener("wheel", (event) => {
+            event.preventDefault();
+            zoom(event.deltaY < 0 ? 0.88 : 1.14, pointFromEvent(event));
+          }, { passive: false });
+
+          canvas.addEventListener("pointerdown", (event) => {
+            if (event.button !== 0) return;
+            drag = {
+              id: event.pointerId,
+              x: event.clientX,
+              y: event.clientY,
+            };
+            canvas.classList.add("is-dragging");
+            canvas.setPointerCapture(event.pointerId);
+          });
+
+          canvas.addEventListener("pointermove", (event) => {
+            if (!drag || drag.id !== event.pointerId) return;
+            const rect = svg.getBoundingClientRect();
+            const dx = event.clientX - drag.x;
+            const dy = event.clientY - drag.y;
+            drag.x = event.clientX;
+            drag.y = event.clientY;
+            view.x -= (dx / rect.width) * view.width;
+            view.y -= (dy / rect.height) * view.height;
+            applyView();
+          });
+
+          function endDrag(event) {
+            if (!drag || drag.id !== event.pointerId) return;
+            canvas.classList.remove("is-dragging");
+            drag = null;
+          }
+
+          canvas.addEventListener("pointerup", endDrag);
+          canvas.addEventListener("pointercancel", endDrag);
           applyView();
         });
-
-        canvas.addEventListener("wheel", (event) => {
-          event.preventDefault();
-          zoom(event.deltaY < 0 ? 0.88 : 1.14, pointFromEvent(event));
-        }, { passive: false });
-
-        canvas.addEventListener("pointerdown", (event) => {
-          if (event.button !== 0) return;
-          drag = {
-            id: event.pointerId,
-            x: event.clientX,
-            y: event.clientY,
-          };
-          canvas.classList.add("is-dragging");
-          canvas.setPointerCapture(event.pointerId);
-        });
-
-        canvas.addEventListener("pointermove", (event) => {
-          if (!drag || drag.id !== event.pointerId) return;
-          const rect = svg.getBoundingClientRect();
-          const dx = event.clientX - drag.x;
-          const dy = event.clientY - drag.y;
-          drag.x = event.clientX;
-          drag.y = event.clientY;
-          view.x -= (dx / rect.width) * view.width;
-          view.y -= (dy / rect.height) * view.height;
-          applyView();
-        });
-
-        function endDrag(event) {
-          if (!drag || drag.id !== event.pointerId) return;
-          canvas.classList.remove("is-dragging");
-          drag = null;
-        }
-
-        canvas.addEventListener("pointerup", endDrag);
-        canvas.addEventListener("pointercancel", endDrag);
-        applyView();
       })();
     </script>`;
 }
