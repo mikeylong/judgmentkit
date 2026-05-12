@@ -173,6 +173,11 @@ export async function handleJudgmentKitMcpNodeRequest(req, res, options = {}) {
       return;
     }
 
+    if (contentLengthExceedsLimit(req)) {
+      sendRequestTooLarge(res);
+      return;
+    }
+
     try {
       parsedBody = await parsedBodyFromRequest(req);
     } catch (error) {
