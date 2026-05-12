@@ -167,6 +167,9 @@ body {
 a {
   color: var(--accent-strong);
 }
+[id] {
+  scroll-margin-top: 126px;
+}
 .site-header {
   display: flex;
   align-items: center;
@@ -266,7 +269,7 @@ h2 {
   display: grid;
   grid-template-columns: 134px minmax(0, 1fr);
   gap: 16px;
-  padding: 18px;
+  padding: 16px 18px;
   border-top: 1px solid var(--line);
 }
 .proof-step:first-child {
@@ -279,6 +282,31 @@ h2 {
 pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+}
+.proof-step code {
+  font-size: 14px;
+  line-height: 1.4;
+}
+.prompt-evidence {
+  color: var(--accent-strong);
+  text-decoration-line: underline;
+  text-decoration-color: rgba(36, 95, 115, 0.48);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.18em;
+  text-decoration-skip-ink: auto;
+}
+.prompt-evidence-diagnostic {
+  color: #684310;
+  text-decoration-color: rgba(138, 90, 22, 0.52);
+}
+.prompt-evidence-block {
+  display: grid;
+  gap: 12px;
+}
+.prompt-evidence-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .status {
   display: inline-flex;
@@ -294,6 +322,21 @@ pre {
   background: #f4fbf6;
   width: fit-content;
 }
+.status.prompt-evidence-pill {
+  min-height: 26px;
+  padding: 3px 9px;
+  font-size: 12px;
+}
+.status.prompt-evidence-pill-activity {
+  border-color: rgba(36, 95, 115, 0.24);
+  color: var(--accent-strong);
+  background: rgba(36, 95, 115, 0.05);
+}
+.status.prompt-evidence-pill-diagnostic {
+  border-color: rgba(138, 90, 22, 0.24);
+  color: #684310;
+  background: rgba(138, 90, 22, 0.05);
+}
 .section {
   border-top: 1px solid var(--line);
 }
@@ -307,6 +350,105 @@ pre {
 }
 .route-grid h3 {
   margin-bottom: 8px;
+}
+.system-diagram {
+  margin-top: 18px;
+}
+.system-diagram-intro {
+  max-width: 78ch;
+}
+.system-flow {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.system-flow-detailed {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.system-node {
+  position: relative;
+  min-height: 118px;
+  padding: 13px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.system-node::after {
+  content: "->";
+  position: absolute;
+  top: 14px;
+  right: -9px;
+  z-index: 1;
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--muted);
+  background: var(--bg);
+  font-size: 11px;
+  font-weight: 800;
+}
+.system-node:last-child::after {
+  content: "loop";
+  right: 10px;
+  width: auto;
+  padding: 0 6px;
+}
+.system-flow-detailed .system-node::after {
+  content: none;
+}
+.system-flow-detailed .system-node:last-child::after {
+  content: "loops to 1";
+  top: auto;
+  right: 10px;
+  bottom: 10px;
+  width: auto;
+  padding: 0 6px;
+}
+.system-node-kernel {
+  border-color: rgba(36, 95, 115, 0.28);
+  background: rgba(36, 95, 115, 0.05);
+}
+.system-node-output {
+  border-color: rgba(46, 115, 70, 0.26);
+  background: rgba(46, 115, 70, 0.05);
+}
+.system-node span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.system-node strong {
+  display: block;
+  margin-top: 7px;
+  color: var(--accent-strong);
+}
+.system-node p {
+  margin-top: 8px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.system-node code {
+  font-size: 12px;
+}
+.system-note {
+  max-width: 78ch;
+  margin-top: 14px;
+  color: var(--muted);
+}
+.system-branch {
+  margin-top: 14px;
+  padding: 13px;
+  border-left: 3px solid rgba(138, 90, 22, 0.35);
+  background: rgba(138, 90, 22, 0.06);
+  color: #684310;
 }
 .command {
   display: block;
@@ -492,8 +634,26 @@ pre {
   .doc-nav {
     margin-top: 18px;
   }
+  .doc-nav {
+    position: static;
+  }
   .route-grid {
     grid-template-columns: 1fr;
+  }
+  .system-flow,
+  .system-flow-detailed {
+    grid-template-columns: 1fr;
+  }
+  .system-node {
+    min-height: auto;
+  }
+  .system-node::after {
+    top: auto;
+    right: 12px;
+    bottom: -9px;
+  }
+  .system-node:last-child::after {
+    bottom: 10px;
   }
   .proof-step {
     grid-template-columns: 1fr;
@@ -536,7 +696,13 @@ function homepage() {
       <div class="proof-panel" aria-label="JudgmentKit proof path">
         <div class="proof-step">
           <strong>Raw brief</strong>
-          <code>Create a dashboard from the refund schema, prompt output, and agent status fields.</code>
+          <div class="prompt-evidence-block">
+            <code>A <span class="prompt-evidence" title="Participant">support operations manager</span> is <span class="prompt-evidence" title="Objective and activity">reviewing refund escalation cases</span>. The request says to build from the <span class="prompt-evidence prompt-evidence-diagnostic" title="Diagnostic implementation detail">refund_case data model, database fields, JSON schema, prompt template, tool call results, resource id, API endpoint status, and CRUD</span>. The activity is deciding whether an escalation should be <span class="prompt-evidence" title="Decision">approved, sent to policy review, or returned for missing evidence</span>. The outcome is a <span class="prompt-evidence" title="Outcome">clear handoff with the next action and reason</span>.</code>
+            <div class="prompt-evidence-key" aria-label="Prompt evidence color key">
+              <span class="status prompt-evidence-pill prompt-evidence-pill-activity">activity evidence</span>
+              <span class="status prompt-evidence-pill prompt-evidence-pill-diagnostic">implementation detail</span>
+            </div>
+          </div>
         </div>
         <div class="proof-step">
           <strong>Judgment</strong>
@@ -569,6 +735,44 @@ function homepage() {
         </article>
       </div>
     </section>
+    <section class="section" aria-labelledby="generation-loop-title">
+      <h2 id="generation-loop-title">Generation loop</h2>
+      <p class="lede system-diagram-intro">JudgmentKit sits before generation and stays in the loop across iterations. It does not render the final UI; it keeps each LLM or agent draft grounded in the activity, decision, vocabulary, and handoff.</p>
+      <div class="system-diagram" aria-label="JudgmentKit generation loop">
+        <ol class="system-flow">
+          <li class="system-node">
+            <span>Context</span>
+            <strong>Source brief</strong>
+            <p>Product context, constraints, and implementation-heavy source detail enter the loop.</p>
+          </li>
+          <li class="system-node system-node-kernel">
+            <span>Judgment</span>
+            <strong>Activity review</strong>
+            <p>Name the participant, objective, decision, outcome, vocabulary, and disclosure boundary.</p>
+          </li>
+          <li class="system-node system-node-kernel">
+            <span>Handoff</span>
+            <strong>Ready brief</strong>
+            <p>Pass only reviewed workflow guidance to the next generation step.</p>
+          </li>
+          <li class="system-node system-node-output">
+            <span>Generate</span>
+            <strong>LLM draft</strong>
+            <p>The model or agent generates the UI from the reviewed handoff.</p>
+          </li>
+          <li class="system-node">
+            <span>Review</span>
+            <strong>Findings</strong>
+            <p>Human or agent review identifies gaps, leaks, missing decisions, or changed constraints.</p>
+          </li>
+          <li class="system-node system-node-kernel">
+            <span>Iterate</span>
+            <strong>Updated context</strong>
+            <p>Feed the findings back into JudgmentKit instead of just making a longer prompt.</p>
+          </li>
+        </ol>
+      </div>
+    </section>
     <section class="section">
       <h2>Install for Codex</h2>
       <p class="lede">The installer clones the public repo, installs dependencies, configures a local MCP server named <code>judgmentkit</code>, and verifies the tool catalog before finishing.</p>
@@ -593,6 +797,7 @@ function docsPage() {
         <aside class="doc-nav" aria-label="Docs sections">
           <a href="#quickstart">Quickstart</a>
           <a href="#mcp">MCP</a>
+          <a href="#generation-loop">Generation Loop</a>
           <a href="#activity-review">Activity Review</a>
           <a href="#workflow-review">Workflow Review</a>
           <a href="#handoff">Handoff</a>
@@ -612,6 +817,56 @@ node bin/judgmentkit.mjs review --input examples/refund-triage.brief.txt</code><
           <section class="doc-section" id="mcp">
             <h2>MCP</h2>
             <p>JudgmentKit supports MCP through the hosted Streamable HTTP endpoint at <code>https://judgmentkit.ai/mcp</code> and through the installed local stdio server named <code>judgmentkit</code>. A browser GET to <code>/mcp</code> returns endpoint metadata; MCP clients should connect to the same URL with Streamable HTTP.</p>
+          </section>
+          <section class="doc-section" id="generation-loop">
+            <h2>Generation Loop</h2>
+            <p>Use JudgmentKit before generation and across iterations. It is the contract and review layer around the LLM or agent, not the final UI renderer.</p>
+            <div class="system-diagram" aria-label="JudgmentKit generation loop for agents">
+              <ol class="system-flow system-flow-detailed">
+                <li class="system-node">
+                  <span>1. Context</span>
+                  <strong>Source brief + product context</strong>
+                  <p>Start from the user brief, source artifacts, current UI, domain constraints, and implementation detail that may need disclosure control.</p>
+                </li>
+                <li class="system-node system-node-kernel">
+                  <span>2. Activity</span>
+                  <strong><code>create_activity_model_review</code></strong>
+                  <p>Extract the participant, objective, decision, outcome, vocabulary, and implementation terms before screen structure.</p>
+                </li>
+                <li class="system-node">
+                  <span>3. Candidate</span>
+                  <strong>Workflow candidate</strong>
+                  <p>An agent, model, or deterministic path proposes steps, actions, decisions, UI responsibilities, and handoff behavior.</p>
+                </li>
+                <li class="system-node system-node-kernel">
+                  <span>4. Review</span>
+                  <strong><code>review_ui_workflow_candidate</code></strong>
+                  <p>Check grounding, action support, completion clarity, handoff clarity, and leakage containment.</p>
+                </li>
+                <li class="system-node system-node-kernel">
+                  <span>5. Gate</span>
+                  <strong><code>create_ui_generation_handoff</code></strong>
+                  <p>Only a ready workflow becomes the compact handoff for UI generation.</p>
+                </li>
+                <li class="system-node system-node-output">
+                  <span>6. Generate</span>
+                  <strong>LLM or agent UI draft</strong>
+                  <p>Generate the interface from the reviewed handoff, not directly from the raw implementation brief.</p>
+                </li>
+                <li class="system-node">
+                  <span>7. Review</span>
+                  <strong>Draft findings</strong>
+                  <p>Capture missing evidence, wrong vocabulary, weak decisions, leakage, and changed constraints.</p>
+                </li>
+                <li class="system-node system-node-kernel">
+                  <span>8. Iterate</span>
+                  <strong>Updated context</strong>
+                  <p>Feed findings and revised constraints back into JudgmentKit for the next turn.</p>
+                </li>
+              </ol>
+            </div>
+            <p class="system-note">The durable artifact across turns is the reviewed handoff and updated context, not just a longer prompt.</p>
+            <p class="system-branch"><strong>Blocked path:</strong> if the handoff gate blocks, resolve targeted questions or leakage details before generating UI.</p>
           </section>
           <section class="doc-section" id="activity-review">
             <h2>Activity Review</h2>
