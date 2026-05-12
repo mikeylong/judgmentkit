@@ -569,9 +569,9 @@ function homepage() {
     </section>
     <section class="section">
       <h2>Install for Codex</h2>
-      <p class="lede">The installer clones the public repo, installs dependencies, configures a Codex MCP server named <code>judgmentkit</code> at the hosted Streamable HTTP endpoint, and verifies the tool catalog before finishing.</p>
+      <p class="lede">The installer clones the public repo, installs dependencies, configures a local MCP server named <code>judgmentkit</code>, and verifies the tool catalog before finishing.</p>
       <code class="command">curl -fsSL https://judgmentkit.ai/install | bash</code>
-      <p class="note">First release support is intentionally Codex-only over hosted Streamable HTTP. The repo-local stdio server remains available for development smoke checks.</p>
+      <p class="note">First release support is intentionally Codex-only over local stdio.</p>
     </section>
   `,
     {
@@ -600,7 +600,7 @@ function docsPage() {
           <section class="doc-section" id="quickstart">
             <h1>Docs</h1>
             <h2>Quickstart</h2>
-            <p>Install JudgmentKit for Codex. The installer configures the <code>judgmentkit</code> server to use the hosted Streamable HTTP endpoint, then you can run a repo-local stdio smoke check from the cloned checkout.</p>
+            <p>Install JudgmentKit for Codex, then run a local smoke check from the cloned checkout.</p>
             <pre><code>curl -fsSL https://judgmentkit.ai/install | bash
 cd ~/.codex/judgmentkit
 npm run mcp:smoke
@@ -609,7 +609,7 @@ node bin/judgmentkit.mjs review --input examples/refund-triage.brief.txt</code><
           </section>
           <section class="doc-section" id="mcp">
             <h2>MCP</h2>
-            <p>JudgmentKit supports MCP through the hosted Streamable HTTP endpoint at <code>https://judgmentkit.ai/mcp</code>. The Codex installer names that server <code>judgmentkit</code>. A browser GET to <code>/mcp</code> returns endpoint metadata; MCP clients should connect to the same URL with Streamable HTTP. The repo-local stdio server is kept for development smoke checks.</p>
+            <p>JudgmentKit supports MCP through the hosted Streamable HTTP endpoint at <code>https://judgmentkit.ai/mcp</code> and through the installed local stdio server named <code>judgmentkit</code>. A browser GET to <code>/mcp</code> returns endpoint metadata; MCP clients should connect to the same URL with Streamable HTTP.</p>
           </section>
           <section class="doc-section" id="activity-review">
             <h2>Activity Review</h2>

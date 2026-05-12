@@ -6,14 +6,12 @@ import process from "node:process";
 import { spawn } from "node:child_process";
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
-import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
 
 export const DEFAULT_REPOSITORY_URL =
   process.env.JUDGMENTKIT_REPOSITORY_URL ?? "https://github.com/mikeylong/judgmentkit.git";
 export const DEFAULT_CHECKOUT_PATH = path.join(os.homedir(), ".codex", "judgmentkit");
 export const DEFAULT_CODEX_CONFIG_PATH = path.join(os.homedir(), ".codex", "config.toml");
-export const DEFAULT_MCP_ENDPOINT_URL =
-  process.env.JUDGMENTKIT_MCP_ENDPOINT_URL ?? "https://judgmentkit.ai/mcp";
 
 export const JUDGMENTKIT_MCP_TOOL_NAMES = [
   "analyze_implementation_brief",
@@ -38,10 +36,23 @@ function tomlString(value) {
   return JSON.stringify(value);
 }
 
-export function createCodexConfigBlock(_checkoutPath, endpointUrl = DEFAULT_MCP_ENDPOINT_URL) {
+function tomlArray(values) {
+  return `[${values.map((value) => tomlString(value)).join(", ")}]`;
+}
+
+export function createCodexConfigBlock(checkoutPath) {
+  const resolvedCheckoutPath = path.resolve(checkoutPath);
+
   return [
     "[mcp_servers.judgmentkit]",
-    `url = ${tomlString(endpointUrl)}`,
+    'command = "npm"',
+    `args = ${tomlArray([
+      "--prefix",
+      resolvedCheckoutPath,
+      "run",
+      "mcp:stdio",
+      "--silent",
+    ])}`,
     "",
   ].join("\n");
 }
@@ -93,8 +104,6 @@ export async function writeCodexConfig({ configPath, checkoutPath }) {
   return {
     config_path: resolvedConfigPath,
     config_block: block,
-    mcp_transport: "streamable-http",
-    mcp_endpoint_url: DEFAULT_MCP_ENDPOINT_URL,
   };
 }
 
@@ -141,13 +150,17 @@ function withTimeout(promise, timeoutMs) {
   ]);
 }
 
-export async function verifyJudgmentKitMcp(_checkoutPath, options = {}) {
+export async function verifyJudgmentKitMcp(checkoutPath, options = {}) {
   let transport;
   let client;
-  const endpointUrl = options.endpointUrl ?? DEFAULT_MCP_ENDPOINT_URL;
 
   try {
-    transport = new StreamableHTTPClientTransport(new URL(endpointUrl));
+    transport = new StdioClientTransport({
+      command: "npm",
+      args: ["--prefix", path.resolve(checkoutPath), "run", "mcp:stdio", "--silent"],
+      cwd: path.resolve(checkoutPath),
+      stderr: "pipe",
+    });
 
     client = new Client({
       name: "judgmentkit-install-verifier",
@@ -167,8 +180,6 @@ export async function verifyJudgmentKitMcp(_checkoutPath, options = {}) {
 
     return {
       verified: true,
-      transport: "streamable-http",
-      endpoint_url: endpointUrl,
       tools: toolNames,
     };
   } finally {
@@ -254,8 +265,6 @@ export async function installJudgmentKitMcp(rawOptions = {}) {
       checkout_path: checkoutPath,
       config_path: configPath,
       repository_url: options.repositoryUrl,
-      mcp_transport: "streamable-http",
-      mcp_endpoint_url: DEFAULT_MCP_ENDPOINT_URL,
       config_block: configBlock,
       tools: JUDGMENTKIT_MCP_TOOL_NAMES,
     };
@@ -271,13 +280,7 @@ export async function installJudgmentKitMcp(rawOptions = {}) {
   await runCommand("npm", ["install"], { cwd: checkoutPath, phase: "install" });
 
   const config = options.manual
-    ? {
-        config_path: configPath,
-        config_block: configBlock,
-        manual: true,
-        mcp_transport: "streamable-http",
-        mcp_endpoint_url: DEFAULT_MCP_ENDPOINT_URL,
-      }
+    ? { config_path: configPath, config_block: configBlock, manual: true }
     : await writeCodexConfig({ configPath, checkoutPath });
 
   const verification = options.noVerify

@@ -66,8 +66,7 @@ assert.ok(docs.includes("node bin/judgmentkit.mjs review --input examples/refund
 assert.ok(docs.includes("does not require a live model provider"));
 assert.ok(docs.includes("https://judgmentkit.ai/mcp"));
 assert.ok(docs.includes("hosted Streamable HTTP endpoint"));
-assert.ok(docs.includes("Codex installer names that server"));
-assert.ok(docs.includes("repo-local stdio server is kept for development smoke checks"));
+assert.ok(docs.includes("installed local stdio server"));
 assert.ok(docs.includes("create_activity_model_review"));
 assert.ok(docs.includes("review_ui_workflow_candidate"));
 assert.ok(docs.includes("create_ui_generation_handoff"));
