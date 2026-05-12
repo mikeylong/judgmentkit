@@ -8,7 +8,7 @@ JudgmentKit currently keeps the hosted MCP endpoint open and capped. The goal is
 - Vercel project: `surfaces-platform/judgmentkit-ai`
 - WAF rule name: `Rate limit JudgmentKit MCP POST`
 - Limit: `60` requests per `60` seconds per IP
-- Action: deny with `429` when the limit is exceeded
+- Action: rate-limit response with `429` when the limit is exceeded
 
 Static pages, `/install`, and `GET /mcp` metadata remain open. Vercel's CLI-backed WAF rate-limit window currently supports up to one hour, so the optional `1,000 requests/day/IP` guard is deferred unless a durable app-level quota store is added.
 
