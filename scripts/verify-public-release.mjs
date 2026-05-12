@@ -175,11 +175,10 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     docs.text,
     [
       "curl -fsSL https://judgmentkit.ai/install | bash",
-      "npm run mcp:smoke",
-      "node bin/judgmentkit.mjs review --input examples/refund-triage.brief.txt",
+      "bash -s -- --client claude",
+      "bash -s -- --client cursor",
       "https://judgmentkit.ai/mcp",
       "hosted Streamable HTTP endpoint",
-      "installed local stdio server",
       "create_activity_model_review",
       "review_ui_workflow_candidate",
       "create_ui_generation_handoff",
@@ -225,13 +224,15 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   assertIncludes(
     install.text,
     [
-      "https://github.com/mikeylong/judgmentkit.git",
-      "npm install",
-      "node ./scripts/install-mcp.mjs --client codex",
+      "node --input-type=module -",
+      "DEFAULT_MCP_URL",
+      "--client codex|claude|cursor",
+      "createCursorConfigBlock",
+      "createClaudeInstallCommand",
     ],
     "install script",
   );
-  assertExcludes(install.text, ["--client claude", "--client cursor"], "install script");
+  assertExcludes(install.text, ["git clone", "npm install", "mcp:stdio"], "install script");
 
   return {
     checked: [
@@ -479,14 +480,34 @@ function parseLastJsonObject(output) {
 async function verifyHostedInstall(baseUrl) {
   const { text: script } = await fetchText(baseUrl, "/install");
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "judgmentkit-public-install-"));
-  const checkoutPath = path.join(tempDir, "judgmentkit");
+  const mcpUrl = urlFor(baseUrl, "/mcp");
   const configPath = path.join(tempDir, "config.toml");
+  const dryRuns = {};
+
+  for (const client of ["codex", "claude", "cursor"]) {
+    const { stdout } = await runCommand(
+      "bash",
+      ["-s", "--", "--client", client, "--mcp-url", mcpUrl, "--dry-run"],
+      {
+        input: script,
+        timeoutMs: 60_000,
+      },
+    );
+    const dryRun = parseLastJsonObject(stdout);
+
+    assert.equal(dryRun.status, "dry_run");
+    assert.equal(dryRun.client, client);
+    assert.equal(dryRun.mcp_url, mcpUrl);
+    assert.deepEqual(dryRun.tools, JUDGMENTKIT_MCP_TOOL_NAMES);
+    dryRuns[client] = dryRun;
+  }
+
   const { stdout } = await runCommand(
     "bash",
-    ["-s", "--", "--path", checkoutPath, "--config-path", configPath],
+    ["-s", "--", "--client", "codex", "--mcp-url", mcpUrl, "--config-path", configPath],
     {
       input: script,
-      timeoutMs: 240_000,
+      timeoutMs: 120_000,
     },
   );
   const result = parseLastJsonObject(stdout);
@@ -494,19 +515,25 @@ async function verifyHostedInstall(baseUrl) {
 
   assert.equal(result.status, "installed");
   assert.equal(result.client, "codex");
-  assert.equal(result.repository_url, "https://github.com/mikeylong/judgmentkit.git");
-  assert.equal(result.checkout_path, checkoutPath);
+  assert.equal(result.mcp_url, mcpUrl);
   assert.equal(result.config_path, configPath);
   assert.equal(result.verification.verified, true);
   assert.deepEqual(result.verification.tools, JUDGMENTKIT_MCP_TOOL_NAMES);
   assert.ok(configText.includes("[mcp_servers.judgmentkit]"));
-  assert.ok(configText.includes('"mcp:stdio"'));
-  assert.ok(configText.includes(JSON.stringify(checkoutPath)));
+  assert.ok(configText.includes(`url = ${JSON.stringify(mcpUrl)}`));
 
   return {
     temp_dir: tempDir,
-    checkout_path: checkoutPath,
     config_path: configPath,
+    dry_runs: Object.fromEntries(
+      Object.entries(dryRuns).map(([client, dryRun]) => [
+        client,
+        {
+          status: dryRun.status,
+          mcp_url: dryRun.mcp_url,
+        },
+      ]),
+    ),
     verified: result.verification.verified,
     tools: result.verification.tools,
   };

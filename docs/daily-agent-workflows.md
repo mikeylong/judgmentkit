@@ -4,21 +4,25 @@ JudgmentKit should run before an agent turns a brief into UI, critiques an inter
 
 The daily path is MCP-first. Use the CLI when scripting, debugging, or checking a fixture from the terminal.
 
-## Installing For Codex
+## Installing For Codex, Claude Code, Or Cursor
 
 Use the hosted installer after deployment:
 
 ```bash
 curl -fsSL https://judgmentkit.ai/install | bash
+curl -fsSL https://judgmentkit.ai/install | bash -s -- --client claude
+curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor
 ```
 
 From a local checkout, use:
 
 ```bash
 npm run install:mcp -- --client codex
+npm run install:mcp -- --client claude
+npm run install:mcp -- --client cursor
 ```
 
-The first relaunch supports Codex only. The configured local server name is `judgmentkit`, and the install verifies that tools/list returns the current JudgmentKit review and handoff tools.
+Codex is the default when no `--client` is supplied. The installer registers the hosted Streamable HTTP endpoint as `judgmentkit` and verifies that tools/list returns the current JudgmentKit review and handoff tools. Local stdio remains a repo-local dev check through `npm run mcp:smoke`.
 
 ## MCP Planning Cards
 
@@ -182,7 +186,7 @@ npm test
 npm run benchmark
 ```
 
-Run this after a production deploy to verify the public site, hosted `/mcp` Streamable HTTP endpoint, legacy redirects, hosted installer, and stdio tool catalog:
+Run this after a production deploy to verify the public site, hosted `/mcp` Streamable HTTP endpoint, legacy redirects, hosted installer, and hosted MCP tool catalog:
 
 ```bash
 npm run release:verify

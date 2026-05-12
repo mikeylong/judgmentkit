@@ -66,10 +66,20 @@ npm run mcp:smoke
 judgmentkit review --input examples/refund-triage.brief.txt
 ```
 
-For a Codex stdio install from a checkout:
+For a hosted MCP install:
+
+```bash
+curl -fsSL https://judgmentkit.ai/install | bash
+curl -fsSL https://judgmentkit.ai/install | bash -s -- --client claude
+curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor
+```
+
+From a checkout, the same installer can be dry-run locally:
 
 ```bash
 npm run install:mcp -- --client codex --dry-run
+npm run install:mcp -- --client claude --dry-run
+npm run install:mcp -- --client cursor --dry-run
 ```
 
 Optional OpenAI Responses smoke checks are opt-in:

@@ -5,7 +5,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  DEFAULT_REPOSITORY_URL,
   JUDGMENTKIT_MCP_TOOL_NAMES,
 } from "../scripts/install-mcp.mjs";
 
@@ -449,41 +448,6 @@ pre {
   background: rgba(138, 90, 22, 0.06);
   color: #684310;
 }
-.system-map-preview {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 18px;
-  align-items: center;
-  margin-top: 18px;
-  padding: 18px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--panel);
-}
-.system-map-preview h3 {
-  margin-bottom: 6px;
-}
-.system-map-preview p {
-  margin-bottom: 0;
-}
-.system-map-preview-steps {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-}
-.system-map-preview-steps span {
-  display: inline-flex;
-  align-items: center;
-  min-height: 26px;
-  padding: 3px 8px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  color: var(--accent-strong);
-  background: rgba(36, 95, 115, 0.05);
-  font-size: 12px;
-  font-weight: 800;
-}
 .system-map-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -837,9 +801,6 @@ pre {
   .system-node:last-child::after {
     bottom: 10px;
   }
-  .system-map-preview {
-    grid-template-columns: 1fr;
-  }
   .system-map-canvas {
     aspect-ratio: auto;
     height: clamp(320px, 82vw, 420px);
@@ -1044,29 +1005,158 @@ function homepage() {
         </article>
       </div>
     </section>
-    <section class="section" aria-labelledby="generation-loop-title">
+    <section class="section" id="system-map" aria-labelledby="generation-loop-title" data-system-map-viewer>
       <h2 id="generation-loop-title">System map</h2>
       <p class="lede system-diagram-intro">JudgmentKit sits before generation and stays in the loop across iterations. It is the judgment layer around LLM UI generation, not the final renderer.</p>
-      <div class="system-map-preview" aria-label="JudgmentKit system map preview">
-        <div>
-          <h3>MCP, LLM, design system, and JudgmentKit boundaries</h3>
-          <p class="note">The detailed SVG map shows where agents call MCP tools, where optional models propose candidates, what JudgmentKit reviews, and where design-system styling may enter after the handoff.</p>
-          <div class="system-map-preview-steps" aria-label="System map areas">
-            <span>MCP boundary</span>
-            <span>JudgmentKit kernel</span>
-            <span>LLM / provider seam</span>
-            <span>design-system adapter</span>
-          </div>
+      <div class="system-map-toolbar">
+        <p class="note">Drag to pan. Use the controls or trackpad wheel to zoom the SVG canvas.</p>
+        <div class="system-map-controls" aria-label="System map controls">
+          <button type="button" data-system-map-zoom-in>Zoom in</button>
+          <button type="button" data-system-map-zoom-out>Zoom out</button>
+          <button type="button" data-system-map-reset>Reset / fit</button>
         </div>
-        <a class="pill-link" href="/docs/#system-map">Open system map</a>
       </div>
+      <div class="system-map-canvas" data-system-map-canvas>
+        <svg class="system-map-svg" data-system-map-svg viewBox="0 0 1760 1040" preserveAspectRatio="xMidYMin meet" role="img" aria-labelledby="homepage-system-map-svg-title homepage-system-map-svg-desc">
+          <title id="homepage-system-map-svg-title">JudgmentKit system design map</title>
+          <desc id="homepage-system-map-svg-desc">A node and edge diagram showing the MCP boundary, JudgmentKit kernel, optional LLM provider seam, UI generation outside JudgmentKit, design-system adapter, blocked path, and iteration with updated context.</desc>
+          <defs>
+            <marker id="system-map-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#245f73"></path>
+            </marker>
+          </defs>
+
+          <rect class="map-zone" x="36" y="64" width="310" height="360" rx="18"></rect>
+          <text class="map-boundary" x="60" y="104">MCP boundary</text>
+          <text class="map-zone-title" x="60" y="138">Agent / Client / MCP</text>
+          <rect class="map-node" x="60" y="170" width="262" height="82" rx="12"></rect>
+          <text class="map-node-title" x="78" y="202">Codex or agent client</text>
+          <text class="map-node-text" x="78" y="226">Calls tools; owns the turn.</text>
+          <rect class="map-node" x="60" y="274" width="262" height="116" rx="12"></rect>
+          <text class="map-node-title" x="78" y="306">MCP server</text>
+          <text class="map-node-text" x="78" y="330">Access and transport only.</text>
+          <text class="map-node-text" x="78" y="354">MCP is not the LLM.</text>
+          <text class="map-node-code" x="78" y="378">tools/list + tools/call</text>
+
+          <rect class="map-zone map-zone-kernel" x="430" y="64" width="700" height="670" rx="18"></rect>
+          <text class="map-boundary" x="458" y="104">JudgmentKit kernel</text>
+          <text class="map-zone-title" x="458" y="138">Deterministic review, guardrails, handoff</text>
+          <rect class="map-node map-node-kernel" x="462" y="170" width="292" height="100" rx="12"></rect>
+          <text class="map-node-code" x="482" y="202">analyze_implementation_brief</text>
+          <text class="map-node-text" x="482" y="228">Extract activity evidence, source gaps,</text>
+          <text class="map-node-text" x="482" y="250">implementation terms, disclosure risks.</text>
+          <rect class="map-node map-node-kernel" x="804" y="170" width="292" height="100" rx="12"></rect>
+          <text class="map-node-code" x="824" y="202">create_activity_model_review</text>
+          <text class="map-node-text" x="824" y="228">Name activity, participant, objective,</text>
+          <text class="map-node-text" x="824" y="250">decision, outcome, vocabulary.</text>
+          <rect class="map-node map-node-kernel" x="462" y="318" width="292" height="100" rx="12"></rect>
+          <text class="map-node-code" x="482" y="350">review_activity_model_candidate</text>
+          <text class="map-node-text" x="482" y="376">Review model or agent candidates</text>
+          <text class="map-node-text" x="482" y="398">before trusting them.</text>
+          <rect class="map-node map-node-kernel" x="804" y="318" width="292" height="100" rx="12"></rect>
+          <text class="map-node-code" x="824" y="350">review_ui_workflow_candidate</text>
+          <text class="map-node-text" x="824" y="376">Check grounding, action support,</text>
+          <text class="map-node-text" x="824" y="398">handoff clarity, leakage containment.</text>
+          <rect class="map-node map-node-kernel" x="462" y="466" width="292" height="100" rx="12"></rect>
+          <text class="map-node-code" x="482" y="498">recommend_ui_workflow_profiles</text>
+          <text class="map-node-text" x="482" y="524">Optional guidance such as</text>
+          <text class="map-node-text" x="482" y="546">operator-review-ui; not styling.</text>
+          <rect class="map-node map-node-kernel" x="804" y="466" width="292" height="100" rx="12"></rect>
+          <text class="map-node-code" x="824" y="498">create_ui_generation_handoff</text>
+          <text class="map-node-text" x="824" y="524">Gate: only ready workflow reviews</text>
+          <text class="map-node-text" x="824" y="546">become generation handoffs.</text>
+          <rect class="map-node map-node-blocked" x="594" y="606" width="370" height="82" rx="12"></rect>
+          <text class="map-node-title" x="616" y="638">Blocked path</text>
+          <text class="map-node-text" x="616" y="662">Resolve targeted questions or leakage before UI generation.</text>
+
+          <rect class="map-zone map-zone-llm" x="1212" y="64" width="500" height="286" rx="18"></rect>
+          <text class="map-boundary" x="1240" y="104">LLM / provider seam</text>
+          <text class="map-zone-title" x="1240" y="138">Optional model assistance</text>
+          <rect class="map-node map-node-llm" x="1240" y="170" width="204" height="116" rx="12"></rect>
+          <text class="map-node-title" x="1258" y="202">Provider adapter</text>
+          <text class="map-node-text" x="1258" y="226">OpenAI, local model,</text>
+          <text class="map-node-text" x="1258" y="250">or injected caller.</text>
+          <rect class="map-node map-node-llm" x="1470" y="170" width="204" height="116" rx="12"></rect>
+          <text class="map-node-title" x="1488" y="202">Candidate proposal</text>
+          <text class="map-node-text" x="1488" y="226">Activity/workflow JSON.</text>
+          <text class="map-node-text" x="1488" y="250">Reviewed before use.</text>
+
+          <rect class="map-zone map-zone-output" x="1212" y="412" width="500" height="260" rx="18"></rect>
+          <text class="map-boundary" x="1240" y="452">Outside JudgmentKit</text>
+          <text class="map-zone-title" x="1240" y="486">UI generation</text>
+          <rect class="map-node map-node-output" x="1240" y="518" width="204" height="94" rx="12"></rect>
+          <text class="map-node-title" x="1258" y="550">LLM / agent UI pass</text>
+          <text class="map-node-text" x="1258" y="574">Generate from reviewed</text>
+          <text class="map-node-text" x="1258" y="596">handoff, not raw brief.</text>
+          <rect class="map-node map-node-output" x="1470" y="518" width="204" height="94" rx="12"></rect>
+          <text class="map-node-title" x="1488" y="550">UI draft</text>
+          <text class="map-node-text" x="1488" y="574">Reviewed by human or</text>
+          <text class="map-node-text" x="1488" y="596">agent for next iteration.</text>
+
+          <rect class="map-zone" x="1212" y="734" width="500" height="236" rx="18"></rect>
+          <text class="map-boundary" x="1240" y="774">Design-system adapter</text>
+          <text class="map-zone-title" x="1240" y="808">Optional visual layer after judgment</text>
+          <rect class="map-node" x="1240" y="838" width="204" height="88" rx="12"></rect>
+          <text class="map-node-title" x="1258" y="870">with design system</text>
+          <text class="map-node-text" x="1258" y="894">Tokens, components,</text>
+          <text class="map-node-text" x="1258" y="916">layout rules applied later.</text>
+          <rect class="map-node" x="1470" y="838" width="204" height="88" rx="12"></rect>
+          <text class="map-node-title" x="1488" y="870">without design system</text>
+          <text class="map-node-text" x="1488" y="894">Still use the handoff;</text>
+          <text class="map-node-text" x="1488" y="916">choose simple UI primitives.</text>
+
+          <rect class="map-zone" x="430" y="780" width="700" height="190" rx="18"></rect>
+          <text class="map-boundary" x="458" y="820">Iteration loop</text>
+          <text class="map-zone-title" x="458" y="854">Draft findings become updated context</text>
+          <rect class="map-node" x="462" y="884" width="292" height="60" rx="12"></rect>
+          <text class="map-node-title" x="482" y="920">Review findings</text>
+          <rect class="map-node map-node-kernel" x="804" y="884" width="292" height="60" rx="12"></rect>
+          <text class="map-node-title" x="824" y="920">updated context</text>
+
+          <path class="map-edge" d="M 322 330 C 374 330 374 220 462 220"></path>
+          <text class="map-edge-label" x="352" y="292">MCP tool call</text>
+          <path class="map-edge map-edge-muted" d="M 754 220 L 804 220"></path>
+          <path class="map-edge map-edge-muted" d="M 950 270 L 950 318"></path>
+          <path class="map-edge map-edge-muted" d="M 754 368 L 804 368"></path>
+          <path class="map-edge map-edge-muted" d="M 950 418 L 950 466"></path>
+          <path class="map-edge map-edge-blocked" d="M 804 544 C 744 580 704 590 672 606"></path>
+          <path class="map-edge map-edge-blocked" d="M 594 650 C 372 650 342 452 292 390"></path>
+          <text class="map-edge-label" x="348" y="620">needs source context</text>
+          <path class="map-edge map-edge-llm" d="M 1096 368 C 1166 338 1192 238 1240 226"></path>
+          <text class="map-edge-label" x="1130" y="302">request candidate</text>
+          <path class="map-edge map-edge-llm" d="M 1470 226 C 1340 300 1220 362 1096 368"></path>
+          <text class="map-edge-label" x="1302" y="338">proposed JSON returns for review</text>
+          <path class="map-edge map-edge-output" d="M 1096 516 C 1158 516 1178 564 1240 564"></path>
+          <text class="map-edge-label" x="1124" y="546">reviewed handoff</text>
+          <path class="map-edge map-edge-output" d="M 1444 564 L 1470 564"></path>
+          <path class="map-edge map-edge-muted" d="M 1572 612 L 1572 838"></path>
+          <text class="map-edge-label" x="1586" y="720">optional styling path</text>
+          <path class="map-edge map-edge-muted" d="M 1444 882 L 1470 882"></path>
+          <path class="map-edge" d="M 1470 596 C 1290 754 1040 846 754 914"></path>
+          <text class="map-edge-label" x="1090" y="812">review draft</text>
+          <path class="map-edge" d="M 804 914 C 648 820 582 736 608 566"></path>
+          <text class="map-edge-label" x="650" y="790">next turn</text>
+        </svg>
+      </div>
+      <div class="system-map-summary" aria-label="System map text summary">
+        <p><strong>MCP boundary:</strong> agents call JudgmentKit tools through MCP; MCP is access and transport, not the LLM.</p>
+        <p><strong>JudgmentKit kernel:</strong> deterministic review, candidate review, disclosure rules, targeted questions, and the handoff gate decide whether UI generation is ready.</p>
+        <p><strong>LLM / provider seam:</strong> a model may propose activity or workflow candidates, but JudgmentKit reviews those candidates before trusting them.</p>
+        <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
+        <p><strong>Design-system adapter:</strong> teams can generate with design-system tokens/components or without design system support; in both cases, styling comes after activity/workflow judgment.</p>
+        <p><strong>Iteration:</strong> draft review produces updated context that re-enters JudgmentKit rather than becoming only a longer prompt.</p>
+      </div>
+      <p class="system-branch"><strong>Blocked path:</strong> if activity, workflow, or handoff is not ready, resolve targeted questions or leakage details before generating UI.</p>
     </section>
     <section class="section">
-      <h2>Install for Codex</h2>
-      <p class="lede">The installer clones the public repo, installs dependencies, configures a local MCP server named <code>judgmentkit</code>, and verifies the tool catalog before finishing.</p>
+      <h2>Install for Codex, Claude Code, or Cursor</h2>
+      <p class="lede">The installer configures a hosted Streamable HTTP MCP server named <code>judgmentkit</code> and verifies the current tool catalog before finishing.</p>
       <code class="command">curl -fsSL https://judgmentkit.ai/install | bash</code>
-      <p class="note">First release support is intentionally Codex-only over local stdio.</p>
+      <code class="command">curl -fsSL https://judgmentkit.ai/install | bash -s -- --client claude</code>
+      <code class="command">curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code>
+      <p class="note">Codex is the default when no client is provided. Hosted installs do not clone the repo or require npm.</p>
     </section>
+    ${systemMapViewerScript()}
   `,
     {
       description:
@@ -1095,16 +1185,15 @@ function docsPage() {
           <section class="doc-section" id="quickstart">
             <h1>Docs</h1>
             <h2>Quickstart</h2>
-            <p>Install JudgmentKit for Codex, then run a local smoke check from the cloned checkout.</p>
+            <p>Install JudgmentKit for your MCP client, then connect to the hosted Streamable HTTP endpoint.</p>
             <pre><code>curl -fsSL https://judgmentkit.ai/install | bash
-cd ~/.codex/judgmentkit
-npm run mcp:smoke
-node bin/judgmentkit.mjs review --input examples/refund-triage.brief.txt</code></pre>
-            <p class="note">The smoke path is deterministic and does not require a live model provider.</p>
+curl -fsSL https://judgmentkit.ai/install | bash -s -- --client claude
+curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></pre>
+            <p class="note">Codex is the default client. Use <code>--client codex</code>, <code>--client claude</code>, or <code>--client cursor</code> when scripting.</p>
           </section>
           <section class="doc-section" id="mcp">
             <h2>MCP</h2>
-            <p>JudgmentKit supports MCP through the hosted Streamable HTTP endpoint at <code>https://judgmentkit.ai/mcp</code> and through the installed local stdio server named <code>judgmentkit</code>. A browser GET to <code>/mcp</code> returns endpoint metadata; MCP clients should connect to the same URL with Streamable HTTP.</p>
+            <p>JudgmentKit supports MCP through the hosted Streamable HTTP endpoint at <code>https://judgmentkit.ai/mcp</code>. The installer registers that endpoint as <code>judgmentkit</code> in Codex, Claude Code, or Cursor. A browser GET to <code>/mcp</code> returns endpoint metadata; MCP clients should connect to the same URL with Streamable HTTP.</p>
             <p>MCP tool responses include <code>structuredContent</code> as the stable machine-readable contract and <code>content[0].text</code> as a concise Markdown planning card for Codex-style planning chat. Use the card to explain status, next step, blocking questions, and compact diagnostics; use structured content for implementation decisions and follow-up tool calls.</p>
           </section>
           <section class="doc-section" id="system-map" data-system-map-viewer>
@@ -1503,7 +1592,13 @@ async function examplesPage() {
   );
 }
 
-function bootstrapScript() {
+async function bootstrapScript() {
+  const installerSource = await fs.readFile(path.join(ROOT, "scripts", "install-mcp.mjs"), "utf8");
+
+  if (installerSource.includes("JUDGMENTKIT_INSTALLER_JS")) {
+    throw new Error("Installer source cannot contain the bootstrap heredoc delimiter.");
+  }
+
   return `#!/usr/bin/env bash
 set -euo pipefail
 
@@ -1514,32 +1609,23 @@ require_cmd() {
   fi
 }
 
-require_cmd git
 require_cmd node
-require_cmd npm
 
-CHECKOUT_PATH="$HOME/.codex/judgmentkit"
-ARGS=("$@")
-FORWARDED_ARGS=()
+exec node --input-type=module - "$@" <<'JUDGMENTKIT_INSTALLER_JS'
+${installerSource}
 
-for ((index = 0; index < \${#ARGS[@]}; index += 1)); do
-  if [[ "\${ARGS[$index]}" == "--path" ]]; then
-    CHECKOUT_PATH="\${ARGS[$((index + 1))]}"
-    index=$((index + 1))
-    continue
-  fi
-
-  FORWARDED_ARGS+=("\${ARGS[$index]}")
-done
-
-if [[ ! -d "$CHECKOUT_PATH/.git" ]]; then
-  mkdir -p "$(dirname "$CHECKOUT_PATH")"
-  git clone "${DEFAULT_REPOSITORY_URL}" "$CHECKOUT_PATH"
-fi
-
-cd "$CHECKOUT_PATH"
-npm install
-exec node ./scripts/install-mcp.mjs --client codex --path "$CHECKOUT_PATH" "\${FORWARDED_ARGS[@]}"
+try {
+  await runInstallCli(process.argv.slice(2));
+} catch (error) {
+  if (error?.name === "InstallError") {
+    process.stderr.write(\`JudgmentKit installer failed during \${error.phase}: \${error.message}\\n\`);
+  } else {
+    const message = error instanceof Error ? error.message : String(error);
+    process.stderr.write(\`JudgmentKit installer failed: \${message}\\n\`);
+  }
+  process.exitCode = 1;
+}
+JUDGMENTKIT_INSTALLER_JS
 `;
 }
 
@@ -1577,7 +1663,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.writeFile(path.join(outDir, "index.html"), homepage());
   await fs.writeFile(path.join(outDir, "docs", "index.html"), docsPage());
   await fs.writeFile(path.join(outDir, "examples", "index.html"), await examplesPage());
-  await fs.writeFile(path.join(outDir, "install"), bootstrapScript(), { mode: 0o755 });
+  await fs.writeFile(path.join(outDir, "install"), await bootstrapScript(), { mode: 0o755 });
   await fs.writeFile(
     path.join(outDir, "llms.txt"),
     [
