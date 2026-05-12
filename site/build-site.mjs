@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import fs from "node:fs/promises";
+import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -11,6 +12,8 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const DEFAULT_OUT_DIR = path.join(__dirname, "dist");
+const require = createRequire(import.meta.url);
+const ANALYTICS_SDK_VERSION = require("@vercel/analytics/package.json").version;
 
 function parseArgs(argv) {
   const outIndex = argv.indexOf("--out");
@@ -32,6 +35,66 @@ function escapeHtml(value) {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+}
+
+function getAnalyticsConfig() {
+  let analyticsConfig = {};
+
+  try {
+    analyticsConfig = JSON.parse(process.env.VERCEL_OBSERVABILITY_CLIENT_CONFIG ?? "{}").analytics ?? {};
+  } catch {
+    analyticsConfig = {};
+  }
+
+  return {
+    scriptSrc: analyticsConfig.scriptSrc ?? "/_vercel/insights/script.js",
+    eventEndpoint: analyticsConfig.eventEndpoint,
+    viewEndpoint: analyticsConfig.viewEndpoint,
+    sessionEndpoint: analyticsConfig.sessionEndpoint,
+    endpoint: analyticsConfig.endpoint,
+    dsn: analyticsConfig.dsn,
+  };
+}
+
+function analyticsAttributes() {
+  const config = getAnalyticsConfig();
+  const attributes = {
+    defer: true,
+    src: config.scriptSrc,
+    "data-sdkn": "@vercel/analytics",
+    "data-sdkv": ANALYTICS_SDK_VERSION,
+    "data-event-endpoint": config.eventEndpoint,
+    "data-view-endpoint": config.viewEndpoint,
+    "data-session-endpoint": config.sessionEndpoint,
+    "data-endpoint": config.endpoint,
+    "data-dsn": config.dsn,
+  };
+
+  return Object.entries(attributes)
+    .filter(([, value]) => value !== undefined && value !== false)
+    .map(([name, value]) => (value === true ? name : `${name}="${escapeHtml(value)}"`))
+    .join(" ");
+}
+
+function analyticsBootstrap() {
+  return `    <script>
+      window.va = window.va || function () {
+        (window.vaq = window.vaq || []).push(arguments);
+      };
+    </script>
+    <script ${analyticsAttributes()}></script>`;
+}
+
+function addAnalyticsToHtml(html) {
+  if (html.includes("window.va = window.va || function")) {
+    return html;
+  }
+
+  if (html.includes("</head>")) {
+    return html.replace("</head>", `${analyticsBootstrap()}\n  </head>`);
+  }
+
+  return html;
 }
 
 function page(title, body, options = {}) {
@@ -59,6 +122,7 @@ function page(title, body, options = {}) {
     <meta name="twitter:title" content="${escapeHtml(title)}">
     <meta name="twitter:description" content="${escapeHtml(description)}">
     <link rel="stylesheet" href="/assets/site.css">
+${analyticsBootstrap()}
   </head>
   <body>
     <header class="site-header">
@@ -515,6 +579,13 @@ async function copyIfExists(fromRelative, toPath) {
 
   try {
     await fs.mkdir(path.dirname(toPath), { recursive: true });
+
+    if (from.endsWith(".html")) {
+      const html = await fs.readFile(from, "utf8");
+      await fs.writeFile(toPath, addAnalyticsToHtml(html));
+      return;
+    }
+
     await fs.copyFile(from, toPath);
   } catch (error) {
     if (error.code !== "ENOENT") {

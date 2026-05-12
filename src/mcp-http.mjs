@@ -4,6 +4,7 @@ import {
   createJudgmentKitMcpServer,
   getMcpMetadata,
 } from "./mcp.mjs";
+import { trackMcpAnalyticsEvents } from "./analytics.mjs";
 
 export function getHostedMcpMetadata() {
   return {
@@ -49,9 +50,28 @@ function sendJson(res, statusCode, value) {
   res.end(`${JSON.stringify(value, null, 2)}\n`);
 }
 
-function parsedBodyFromRequest(req) {
+function readStream(req) {
+  return new Promise((resolve, reject) => {
+    let body = "";
+
+    req.setEncoding?.("utf8");
+    req.on("data", (chunk) => {
+      body += chunk;
+    });
+    req.on("end", () => resolve(body));
+    req.on("error", reject);
+  });
+}
+
+async function parsedBodyFromRequest(req) {
   if (req.body === undefined) {
-    return undefined;
+    const rawBody = await readStream(req);
+
+    if (rawBody.trim().length === 0) {
+      return undefined;
+    }
+
+    return JSON.parse(rawBody);
   }
 
   if (typeof req.body === "string") {
@@ -61,7 +81,18 @@ function parsedBodyFromRequest(req) {
   return req.body;
 }
 
-export async function handleJudgmentKitMcpNodeRequest(req, res) {
+function sendJsonRpcParseError(res) {
+  sendJson(res, 400, {
+    jsonrpc: "2.0",
+    error: {
+      code: -32700,
+      message: "Parse error: Invalid JSON",
+    },
+    id: null,
+  });
+}
+
+export async function handleJudgmentKitMcpNodeRequest(req, res, options = {}) {
   setCorsHeaders(res);
 
   if (req.method === "OPTIONS") {
@@ -75,6 +106,21 @@ export async function handleJudgmentKitMcpNodeRequest(req, res) {
     return;
   }
 
+  let parsedBody;
+
+  if (req.method === "POST") {
+    try {
+      parsedBody = await parsedBodyFromRequest(req);
+    } catch {
+      sendJsonRpcParseError(res);
+      return;
+    }
+
+    await trackMcpAnalyticsEvents(parsedBody, req, {
+      tracker: options.analyticsTracker,
+    });
+  }
+
   const transport = new StreamableHTTPServerTransport({
     sessionIdGenerator: undefined,
     enableJsonResponse: true,
@@ -82,5 +128,5 @@ export async function handleJudgmentKitMcpNodeRequest(req, res) {
   const server = createJudgmentKitMcpServer();
 
   await server.connect(transport);
-  await transport.handleRequest(req, res, parsedBodyFromRequest(req));
+  await transport.handleRequest(req, res, parsedBody);
 }

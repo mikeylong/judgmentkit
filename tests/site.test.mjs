@@ -32,6 +32,13 @@ const result = await buildSite(tempDir);
 
 assert.deepEqual(result.routes, ["/", "/docs/", "/examples/", "/install", "/mcp"]);
 
+function assertAnalyticsBootstrap(html, label) {
+  assert.ok(html.includes("window.va = window.va || function"), `${label} should initialize Vercel Analytics queue`);
+  assert.ok(html.includes('src="/_vercel/insights/script.js"'), `${label} should load Vercel Analytics script`);
+  assert.ok(html.includes('data-sdkn="@vercel/analytics"'), `${label} should name the analytics SDK`);
+  assert.ok(html.includes('data-sdkv="2.0.1"'), `${label} should include the analytics SDK version`);
+}
+
 const homepage = fs.readFileSync(path.join(tempDir, "index.html"), "utf8");
 assert.ok(homepage.includes("Judgment before generation."));
 assert.ok(homepage.includes("implementation mechanics from becoming UX"));
@@ -42,6 +49,7 @@ assert.ok(homepage.includes("Handoff"));
 assert.ok(homepage.includes("ready for generation"));
 assert.ok(homepage.includes('rel="canonical" href="https://judgmentkit.ai/"'));
 assert.ok(homepage.includes('rel="icon" href="/favicon.svg"'));
+assertAnalyticsBootstrap(homepage, "homepage");
 
 for (const forbidden of OLD_FRAMING) {
   assert.equal(
@@ -52,6 +60,7 @@ for (const forbidden of OLD_FRAMING) {
 }
 
 const docs = fs.readFileSync(path.join(tempDir, "docs", "index.html"), "utf8");
+assertAnalyticsBootstrap(docs, "docs");
 assert.ok(docs.includes("curl -fsSL https://judgmentkit.ai/install | bash"));
 assert.ok(docs.includes("node bin/judgmentkit.mjs review --input examples/refund-triage.brief.txt"));
 assert.ok(docs.includes("does not require a live model provider"));
@@ -65,29 +74,42 @@ assert.ok(docs.includes("operator-review-ui"));
 assert.equal(docs.includes("judgmentkit2"), false);
 
 const examples = fs.readFileSync(path.join(tempDir, "examples", "index.html"), "utf8");
+assertAnalyticsBootstrap(examples, "examples");
 assert.ok(examples.includes("Deterministic artifacts"));
 assert.ok(examples.includes("JudgmentKit-guided handoff"));
 assert.ok(examples.includes("Refund triage comparison"));
 assert.ok(examples.includes("Dinner playlist comparison"));
+assert.ok(examples.includes("/examples/one-shot-demo.html"));
 assert.ok(examples.includes("/examples/comparison/refund/version-a.html"));
 assert.ok(examples.includes("/examples/comparison/refund/version-b.html"));
 assert.ok(examples.includes("/examples/comparison/music/version-a.html"));
 assert.ok(examples.includes("/examples/comparison/music/version-b.html"));
+assert.ok(examples.includes("/examples/comparison/music/facilitator-scorecard.md"));
 assert.equal(examples.includes("raw_brief_baseline"), false);
 assert.equal(examples.includes("judgmentkit_handoff"), false);
 
 for (const copiedExamplePath of [
+  ["examples", "one-shot-demo.html"],
   ["examples", "comparison", "refund", "version-a.html"],
   ["examples", "comparison", "refund", "version-b.html"],
   ["examples", "comparison", "music", "version-a.html"],
   ["examples", "comparison", "music", "version-b.html"],
   ["examples", "comparison", "music", "facilitator-scorecard.md"],
 ]) {
+  const artifactPath = path.join(tempDir, ...copiedExamplePath);
+
   assert.equal(
-    fs.existsSync(path.join(tempDir, ...copiedExamplePath)),
+    fs.existsSync(artifactPath),
     true,
     `expected copied example artifact ${copiedExamplePath.join("/")}`,
   );
+
+  if (artifactPath.endsWith(".html")) {
+    assertAnalyticsBootstrap(
+      fs.readFileSync(artifactPath, "utf8"),
+      copiedExamplePath.join("/"),
+    );
+  }
 }
 
 const install = fs.readFileSync(path.join(tempDir, "install"), "utf8");
@@ -125,6 +147,39 @@ for (const oldToolName of [
     false,
     `site MCP route must not expose old tool ${oldToolName}`,
   );
+}
+
+{
+  const originalAnalyticsConfig = process.env.VERCEL_OBSERVABILITY_CLIENT_CONFIG;
+  const configuredTempDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-site-analytics-"));
+
+  process.env.VERCEL_OBSERVABILITY_CLIENT_CONFIG = JSON.stringify({
+    analytics: {
+      scriptSrc: "/custom/insights/script.js",
+      eventEndpoint: "/custom/insights/event",
+      viewEndpoint: "/custom/insights/view",
+      sessionEndpoint: "/custom/insights/session",
+    },
+  });
+
+  try {
+    await buildSite(configuredTempDir);
+    const configuredHomepage = fs.readFileSync(
+      path.join(configuredTempDir, "index.html"),
+      "utf8",
+    );
+
+    assert.ok(configuredHomepage.includes('src="/custom/insights/script.js"'));
+    assert.ok(configuredHomepage.includes('data-event-endpoint="/custom/insights/event"'));
+    assert.ok(configuredHomepage.includes('data-view-endpoint="/custom/insights/view"'));
+    assert.ok(configuredHomepage.includes('data-session-endpoint="/custom/insights/session"'));
+  } finally {
+    if (originalAnalyticsConfig === undefined) {
+      delete process.env.VERCEL_OBSERVABILITY_CLIENT_CONFIG;
+    } else {
+      process.env.VERCEL_OBSERVABILITY_CLIENT_CONFIG = originalAnalyticsConfig;
+    }
+  }
 }
 
 console.log("Site checks passed.");

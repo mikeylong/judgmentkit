@@ -35,6 +35,7 @@ function parseArgs(argv) {
     baseUrl: DEFAULT_BASE_URL,
     skipInstall: false,
     skipRedirects: false,
+    skipAnalyticsScript: false,
     expectRemoteMcp: true,
   };
 
@@ -47,6 +48,8 @@ function parseArgs(argv) {
       options.skipInstall = true;
     } else if (arg === "--skip-redirects") {
       options.skipRedirects = true;
+    } else if (arg === "--skip-analytics-script") {
+      options.skipAnalyticsScript = true;
     } else if (arg === "--expect-remote-mcp") {
       options.expectRemoteMcp = true;
     } else if (arg === "--expect-metadata-only") {
@@ -69,7 +72,7 @@ function printUsage() {
   process.stdout.write(
     [
       "Usage:",
-      "  node scripts/verify-public-release.mjs [--base-url <url>] [--skip-install] [--skip-redirects] [--expect-metadata-only]",
+      "  node scripts/verify-public-release.mjs [--base-url <url>] [--skip-install] [--skip-redirects] [--skip-analytics-script] [--expect-metadata-only]",
       "",
       "By default the verifier expects /mcp to work as a hosted MCP Streamable HTTP endpoint.",
       "",
@@ -111,8 +114,41 @@ function assertExcludes(text, needles, label) {
   }
 }
 
-async function verifyPublicRoutes(baseUrl) {
+function getAnalyticsScriptSrc(text, label) {
+  assertIncludes(
+    text,
+    [
+      "window.va = window.va || function",
+      'data-sdkn="@vercel/analytics"',
+      'data-sdkv="2.0.1"',
+    ],
+    `${label} analytics`,
+  );
+
+  const match = text.match(/<script[^>]+src="([^"]*\/insights\/script\.js)"[^>]*><\/script>/);
+  assert.ok(match, `${label} should include the Vercel Analytics script`);
+
+  return match[1];
+}
+
+async function verifyAnalyticsScript(baseUrl, scriptSrc) {
+  const response = await fetch(new URL(scriptSrc, baseUrl));
+
+  assert.equal(
+    response.ok,
+    true,
+    `Vercel Analytics script should load from ${scriptSrc}, got ${response.status}. Enable Web Analytics in Vercel before running production verification.`,
+  );
+
+  return {
+    script_src: scriptSrc,
+    status: response.status,
+  };
+}
+
+async function verifyPublicRoutes(baseUrl, options = {}) {
   const home = await fetchText(baseUrl, "/");
+  const analyticsScriptSrc = getAnalyticsScriptSrc(home.text, "homepage");
   assertIncludes(
     home.text,
     [
@@ -127,6 +163,7 @@ async function verifyPublicRoutes(baseUrl) {
   assertExcludes(home.text, OLD_FRAMING, "homepage");
 
   const docs = await fetchText(baseUrl, "/docs/");
+  assert.equal(getAnalyticsScriptSrc(docs.text, "docs"), analyticsScriptSrc);
   assertIncludes(
     docs.text,
     [
@@ -145,6 +182,7 @@ async function verifyPublicRoutes(baseUrl) {
   );
 
   const examples = await fetchText(baseUrl, "/examples/");
+  assert.equal(getAnalyticsScriptSrc(examples.text, "examples"), analyticsScriptSrc);
   assertIncludes(
     examples.text,
     [
@@ -161,11 +199,18 @@ async function verifyPublicRoutes(baseUrl) {
   assertExcludes(examples.text, ["raw_brief_baseline", "judgmentkit_handoff"], "examples");
 
   await fetchText(baseUrl, "/favicon.svg");
-  await fetchText(baseUrl, "/examples/one-shot-demo.html");
-  await fetchText(baseUrl, "/examples/comparison/refund/version-a.html");
-  await fetchText(baseUrl, "/examples/comparison/refund/version-b.html");
-  await fetchText(baseUrl, "/examples/comparison/music/version-a.html");
-  await fetchText(baseUrl, "/examples/comparison/music/version-b.html");
+
+  for (const artifactRoute of [
+    "/examples/one-shot-demo.html",
+    "/examples/comparison/refund/version-a.html",
+    "/examples/comparison/refund/version-b.html",
+    "/examples/comparison/music/version-a.html",
+    "/examples/comparison/music/version-b.html",
+  ]) {
+    const artifact = await fetchText(baseUrl, artifactRoute);
+    assert.equal(getAnalyticsScriptSrc(artifact.text, artifactRoute), analyticsScriptSrc);
+  }
+
   await fetchText(baseUrl, "/examples/comparison/music/facilitator-scorecard.md");
 
   const install = await fetchText(baseUrl, "/install");
@@ -195,6 +240,9 @@ async function verifyPublicRoutes(baseUrl) {
       "/examples/comparison/music/version-b.html",
       "/examples/comparison/music/facilitator-scorecard.md",
     ],
+    analytics: options.skipAnalyticsScript
+      ? "script_fetch_skipped"
+      : await verifyAnalyticsScript(baseUrl, analyticsScriptSrc),
   };
 }
 
@@ -468,7 +516,9 @@ async function main() {
   const baseUrl = new URL(options.baseUrl);
   const report = {
     base_url: baseUrl.toString(),
-    routes: await verifyPublicRoutes(baseUrl.toString()),
+    routes: await verifyPublicRoutes(baseUrl.toString(), {
+      skipAnalyticsScript: options.skipAnalyticsScript,
+    }),
     mcp_metadata: await verifyMcpMetadata(baseUrl.toString()),
     public_mcp_endpoint_probe: await probeRemoteMcpEndpoint(
       baseUrl.toString(),
