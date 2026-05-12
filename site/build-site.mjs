@@ -289,15 +289,15 @@ pre {
 }
 .prompt-evidence {
   color: var(--accent-strong);
-  text-decoration-line: underline;
-  text-decoration-color: rgba(36, 95, 115, 0.48);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.18em;
-  text-decoration-skip-ink: auto;
+  background: rgba(36, 95, 115, 0.07);
+  border-radius: 3px;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  padding: 0 0.08em;
 }
 .prompt-evidence-diagnostic {
   color: #684310;
-  text-decoration-color: rgba(138, 90, 22, 0.52);
+  background: rgba(138, 90, 22, 0.08);
 }
 .prompt-evidence-block {
   display: grid;
@@ -323,19 +323,18 @@ pre {
   width: fit-content;
 }
 .status.prompt-evidence-pill {
+  border-color: transparent;
   min-height: 26px;
   padding: 3px 9px;
   font-size: 12px;
 }
 .status.prompt-evidence-pill-activity {
-  border-color: rgba(36, 95, 115, 0.24);
   color: var(--accent-strong);
-  background: rgba(36, 95, 115, 0.05);
+  background: rgba(36, 95, 115, 0.08);
 }
 .status.prompt-evidence-pill-diagnostic {
-  border-color: rgba(138, 90, 22, 0.24);
   color: #684310;
-  background: rgba(138, 90, 22, 0.05);
+  background: rgba(138, 90, 22, 0.09);
 }
 .section {
   border-top: 1px solid var(--line);

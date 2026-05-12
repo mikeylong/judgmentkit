@@ -40,6 +40,7 @@ function assertAnalyticsBootstrap(html, label) {
 }
 
 const homepage = fs.readFileSync(path.join(tempDir, "index.html"), "utf8");
+const siteCss = fs.readFileSync(path.join(tempDir, "assets", "site.css"), "utf8");
 assert.ok(homepage.includes("Judgment before generation."));
 assert.ok(homepage.includes("implementation mechanics from becoming UX"));
 assert.ok(homepage.includes("Use it before accepting AI-generated product work"));
@@ -49,6 +50,10 @@ assert.ok(homepage.includes('class="prompt-evidence" title="Objective and activi
 assert.ok(homepage.includes('class="prompt-evidence prompt-evidence-diagnostic" title="Diagnostic implementation detail"'));
 assert.ok(homepage.includes('class="prompt-evidence" title="Decision"'));
 assert.ok(homepage.includes('class="prompt-evidence" title="Outcome"'));
+assert.ok(siteCss.includes("background: rgba(36, 95, 115, 0.07);"));
+assert.ok(siteCss.includes("background: rgba(138, 90, 22, 0.08);"));
+assert.ok(siteCss.includes("-webkit-box-decoration-break: clone;"));
+assert.equal(siteCss.includes("text-decoration-line: underline;"), false);
 assert.ok(homepage.includes('aria-label="Prompt evidence color key"'));
 assert.ok(homepage.includes("activity evidence"));
 assert.ok(homepage.includes("implementation detail"));
