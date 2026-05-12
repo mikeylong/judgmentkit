@@ -1427,6 +1427,25 @@ const EXAMPLES = [
     ],
   },
   {
+    id: "model-ui-system-map",
+    title: "Model UI generation matrix",
+    label: "System map",
+    description:
+      "One reviewed refund-triage handoff shown across deterministic, Gemma 4 (local LLM), and GPT-5.5 branches, with and without a design-system adapter.",
+    previewHref: "/examples/model-ui/refund-system-map/index.html",
+    previewLabel: "Model UI generation matrix",
+    actions: [
+      {
+        label: "Open matrix",
+        href: "/examples/model-ui/refund-system-map/index.html",
+      },
+      {
+        label: "Manifest",
+        href: "/examples/model-ui/refund-system-map/manifest.json",
+      },
+    ],
+  },
+  {
     id: "dinner-playlist",
     title: "Dinner playlist comparison",
     label: "Music app",
@@ -1560,7 +1579,7 @@ async function examplesPage() {
     <section class="section examples-page">
       <div class="examples-intro">
         <h1>Examples</h1>
-        <p class="lede">Deterministic artifacts show the difference between raw brief generation and JudgmentKit-guided handoff generation without requiring a live model call.</p>
+        <p class="lede">Static artifacts show deterministic demos and captured-fixture model UI paths with explicit provenance. Website builds copy committed files and do not call live providers.</p>
       </div>
       <div class="examples-browser" data-examples-browser>
         <aside class="examples-rail" aria-label="Examples list">
@@ -1669,6 +1688,34 @@ async function copyIfExists(fromRelative, toPath) {
   }
 }
 
+async function copyDirectoryIfExists(fromRelative, toPath) {
+  const from = path.join(ROOT, fromRelative);
+
+  let entries;
+  try {
+    entries = await fs.readdir(from, { withFileTypes: true });
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return;
+    }
+    throw error;
+  }
+
+  await fs.mkdir(toPath, { recursive: true });
+
+  for (const entry of entries) {
+    const childFromRelative = path.join(fromRelative, entry.name);
+    const childToPath = path.join(toPath, entry.name);
+
+    if (entry.isDirectory()) {
+      await copyDirectoryIfExists(childFromRelative, childToPath);
+      continue;
+    }
+
+    await copyIfExists(childFromRelative, childToPath);
+  }
+}
+
 export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.rm(outDir, { recursive: true, force: true });
   await fs.mkdir(path.join(outDir, "assets"), { recursive: true });
@@ -1706,6 +1753,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await copyIfExists("examples/comparison/music/version-a.html", path.join(outDir, "examples", "comparison", "music", "version-a.html"));
   await copyIfExists("examples/comparison/music/version-b.html", path.join(outDir, "examples", "comparison", "music", "version-b.html"));
   await copyIfExists("examples/comparison/music/facilitator-scorecard.md", path.join(outDir, "examples", "comparison", "music", "facilitator-scorecard.md"));
+  await copyDirectoryIfExists("examples/model-ui", path.join(outDir, "examples", "model-ui"));
 
   return {
     out_dir: outDir,

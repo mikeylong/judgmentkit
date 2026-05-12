@@ -1,0 +1,153 @@
+{
+  "matrix_id": "refund-system-map-model-ui-v1",
+  "title": "Model UI generation matrix",
+  "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+  "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+  "design_system_adapter_file": "examples/model-ui/refund-system-map/design-system-adapter.json",
+  "generation_policy": "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model.",
+  "system_map_branches": [
+    "JudgmentKit reviewed handoff",
+    "LLM / agent UI pass",
+    "with design system",
+    "without design system"
+  ],
+  "model_labels": [
+    "Deterministic renderer",
+    "Gemma 4 (local LLM)",
+    "GPT-5.5"
+  ],
+  "artifacts": [
+    {
+      "id": "deterministic-without-design-system",
+      "model_label": "Deterministic renderer",
+      "title": "Deterministic renderer",
+      "generation_source": "deterministic",
+      "design_system_mode": "without_design_system",
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "deterministic-renderer",
+        "captured_at": "2026-05-12",
+        "runner": "scripts/demo-model-ui-matrix.mjs",
+        "provider": "none",
+        "model": "none",
+        "notes": "Rendered from the reviewed JudgmentKit handoff with no provider or model call."
+      },
+      "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": null,
+      "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
+      "artifact_path": "artifacts/deterministic-without-design-system.html"
+    },
+    {
+      "id": "deterministic-with-design-system",
+      "model_label": "Deterministic renderer",
+      "title": "Deterministic renderer with design-system adapter",
+      "generation_source": "deterministic",
+      "design_system_mode": "with_design_system",
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "deterministic-renderer",
+        "captured_at": "2026-05-12",
+        "runner": "scripts/demo-model-ui-matrix.mjs",
+        "provider": "none",
+        "model": "none",
+        "notes": "Rendered from the same reviewed JudgmentKit handoff with the example-only design-system adapter applied."
+      },
+      "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": "examples/model-ui/refund-system-map/design-system-adapter.json",
+      "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
+      "artifact_path": "artifacts/deterministic-with-design-system.html"
+    },
+    {
+      "id": "gemma4-without-design-system",
+      "model_label": "Gemma 4 (local LLM)",
+      "title": "Gemma 4 local LLM capture",
+      "generation_source": "captured_model_output",
+      "design_system_mode": "without_design_system",
+      "capture_provenance": {
+        "status": "capture-required",
+        "capture_type": "model-output-slot",
+        "captured_at": null,
+        "intended_provider": "ollama",
+        "intended_model": "gemma4:e2b",
+        "model_label": "Gemma 4 (local LLM)",
+        "notes": "No real Gemma 4 capture transcript is committed yet. This artifact keeps the public matrix wired without claiming benchmark evidence."
+      },
+      "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": null,
+      "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
+      "artifact_path": "artifacts/gemma4-without-design-system.html"
+    },
+    {
+      "id": "gemma4-with-design-system",
+      "model_label": "Gemma 4 (local LLM)",
+      "title": "Gemma 4 local LLM capture with design-system adapter",
+      "generation_source": "captured_model_output",
+      "design_system_mode": "with_design_system",
+      "capture_provenance": {
+        "status": "capture-required",
+        "capture_type": "model-output-slot",
+        "captured_at": null,
+        "intended_provider": "ollama",
+        "intended_model": "gemma4:e2b",
+        "model_label": "Gemma 4 (local LLM)",
+        "notes": "No real Gemma 4 capture transcript is committed yet. Apply the example-only design-system adapter only after a real output is captured."
+      },
+      "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": "examples/model-ui/refund-system-map/design-system-adapter.json",
+      "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
+      "artifact_path": "artifacts/gemma4-with-design-system.html"
+    },
+    {
+      "id": "gpt55-without-design-system",
+      "model_label": "GPT-5.5",
+      "title": "GPT-5.5 capture",
+      "generation_source": "captured_model_output",
+      "design_system_mode": "without_design_system",
+      "capture_provenance": {
+        "status": "capture-required",
+        "capture_type": "model-output-slot",
+        "captured_at": null,
+        "intended_provider": "openai-responses",
+        "intended_model": "gpt-5.5",
+        "model_label": "GPT-5.5",
+        "notes": "No real GPT-5.5 capture transcript is committed yet. This artifact is a provenance slot, not a generated-output claim."
+      },
+      "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": null,
+      "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
+      "artifact_path": "artifacts/gpt55-without-design-system.html"
+    },
+    {
+      "id": "gpt55-with-design-system",
+      "model_label": "GPT-5.5",
+      "title": "GPT-5.5 capture with design-system adapter",
+      "generation_source": "captured_model_output",
+      "design_system_mode": "with_design_system",
+      "capture_provenance": {
+        "status": "capture-required",
+        "capture_type": "model-output-slot",
+        "captured_at": null,
+        "intended_provider": "openai-responses",
+        "intended_model": "gpt-5.5",
+        "model_label": "GPT-5.5",
+        "notes": "No real GPT-5.5 capture transcript is committed yet. Apply the example-only design-system adapter only after a real output is captured."
+      },
+      "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": "examples/model-ui/refund-system-map/design-system-adapter.json",
+      "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
+      "artifact_path": "artifacts/gpt55-with-design-system.html"
+    }
+  ]
+}

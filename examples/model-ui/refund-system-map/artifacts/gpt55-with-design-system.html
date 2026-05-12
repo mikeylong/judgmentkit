@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GPT-5.5 capture with design-system adapter</title>
+    <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f5f3ed;
+      --panel: #ffffff;
+      --ink: #17231f;
+      --muted: #65726d;
+      --line: #d9d3c7;
+      --accent: #245f73;
+      --accent-strong: #174352;
+      --warning: #8a5a16;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .app-header,
+    .case-header,
+    .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #eef6f7;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: #fff7e8;
+      color: var(--warning);
+    }
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .queue,
+    .detail,
+    .detail > section,
+    .handoff {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .queue,
+    .detail {
+      padding: 16px;
+    }
+    .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      text-align: left;
+    }
+    .queue-item small {
+      color: var(--muted);
+    }
+    .queue-item.is-selected {
+      border-color: var(--accent);
+      background: #edf6f7;
+    }
+    .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .info-grid > div,
+    .detail > section {
+      padding: 14px;
+    }
+    .info-grid > div {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #faf9f5;
+    }
+    .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--accent-strong);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .actions button,
+    .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .handoff {
+      padding: 14px;
+      background: #f3f8f8;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--ink);
+    }
+    .design-system {
+      --canvas: #f7f4ee;
+      --panel: #ffffff;
+      --ink: #182521;
+      --muted: #64716b;
+      --line: #d9d3c5;
+      --accent: #0f766e;
+      --accent-strong: #0f4f49;
+      --warning: #9a5b16;
+    }
+    .design-system .app-header {
+      padding: 14px 16px;
+      border-bottom: 3px solid var(--accent);
+      background: #ffffff;
+    }
+    .design-system .queue,
+    .design-system .detail,
+    .design-system .detail > section,
+    .design-system .handoff {
+      box-shadow: 0 1px 0 rgba(24, 37, 33, 0.04);
+    }
+    .design-system .queue-item.is-selected {
+      border-left: 5px solid var(--accent);
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-header,
+      .case-header,
+      .handoff {
+        display: grid;
+      }
+      .workspace,
+      .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  </head>
+  <body data-artifact-id="gpt55-with-design-system" data-design-system-mode="with_design_system">
+    
+    <main class="app-shell design-system" data-primary-surface>
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">GPT-5.5</p>
+          <h1>Refund Review Workspace</h1>
+        </div>
+        <span class="status">Adapter applied</span>
+      </header>
+      <p class="capture-warning">Capture required before this slot can be described as GPT-5.5 generated UI.</p>
+      <section class="workspace">
+        <aside class="queue" aria-label="Refund queue">
+          <div class="section-heading">
+            <p class="eyebrow">Queue</p>
+            <h2>Refund escalations</h2>
+          </div>
+          
+      <button class="queue-item is-selected" type="button">
+        <span>R-1842</span>
+        <strong>Nora Diaz</strong>
+        <small>Needs receipt · $184.20</small>
+      </button>
+      <button class="queue-item" type="button">
+        <span>R-1843</span>
+        <strong>Jun Park</strong>
+        <small>Policy question · $89.00</small>
+      </button>
+      <button class="queue-item" type="button">
+        <span>R-1844</span>
+        <strong>Amara Blake</strong>
+        <small>Manager review · $312.75</small>
+      </button>
+        </aside>
+        <section class="detail">
+          <div class="case-header">
+            <div>
+              <p class="eyebrow">Selected request</p>
+              <h2>R-1842 · Nora Diaz</h2>
+              <p>Subscription renewal disputed after agent escalation.</p>
+            </div>
+            <strong>$184.20</strong>
+          </div>
+          <div class="info-grid">
+            <div>
+              <span>Plan</span>
+              <strong>Pro annual</strong>
+            </div>
+            <div>
+              <span>Review state</span>
+              <strong>Evidence incomplete</strong>
+            </div>
+          </div>
+          <section>
+            <div class="section-heading">
+              <p class="eyebrow">Evidence</p>
+              <h3>Checklist</h3>
+            </div>
+            <ul class="evidence-list">
+        <li>
+          <span class="check">OK</span>
+          <span>Renewal date confirmed in purchase history.</span>
+        </li>
+        <li>
+          <span class="check">OK</span>
+          <span>Support note captures the customer&#39;s refund reason.</span>
+        </li>
+        <li>
+          <span class="check">!</span>
+          <span>Receipt photo is missing before manager approval.</span>
+        </li></ul>
+          </section>
+          <section class="policy">
+            <div class="section-heading">
+              <p class="eyebrow">Policy context</p>
+              <h3>Exception window</h3>
+            </div>
+            <p>Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p>
+          </section>
+          <section>
+            <div class="section-heading">
+              <p class="eyebrow">Decision path</p>
+              <h3>Choose next action</h3>
+            </div>
+            <div class="actions">
+              <button type="button">Approve refund</button>
+              <button type="button">Send to policy review</button>
+              <button type="button" class="primary">Return for evidence</button>
+            </div>
+          </section>
+          <section class="handoff">
+            <div>
+              <p class="eyebrow">Handoff</p>
+              <h3>Support agent</h3>
+              <p>Receipt photo is missing. Ask the customer to attach proof before approval.</p>
+            </div>
+            <button type="button" class="primary">Send handoff</button>
+          </section>
+        </section>
+      </section>
+    </main>
+    <aside class="provenance" aria-label="Artifact provenance">
+      <strong>Provenance:</strong>
+      <span>capture-required</span>
+      <span> · captured_model_output</span>
+      <span> · with_design_system</span>
+      <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies this file and does not call a model.</p>
+      <p>Manifest entry: <code>artifacts/gpt55-with-design-system.html</code></p>
+    </aside>
+    <script type="application/json" id="model-ui-provenance">{
+  "matrix_id": "refund-system-map-model-ui-v1",
+  "artifact_id": "gpt55-with-design-system",
+  "model_label": "GPT-5.5",
+  "generation_source": "captured_model_output",
+  "design_system_mode": "with_design_system",
+  "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+  "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+  "design_system_adapter_file": "examples/model-ui/refund-system-map/design-system-adapter.json",
+  "capture_provenance": {
+    "status": "capture-required",
+    "capture_type": "model-output-slot",
+    "captured_at": null,
+    "intended_provider": "openai-responses",
+    "intended_model": "gpt-5.5",
+    "model_label": "GPT-5.5",
+    "notes": "No real GPT-5.5 capture transcript is committed yet. Apply the example-only design-system adapter only after a real output is captured."
+  },
+  "artifact_path": "artifacts/gpt55-with-design-system.html"
+}</script>
+  </body>
+</html>

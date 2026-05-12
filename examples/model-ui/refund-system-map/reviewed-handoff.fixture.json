@@ -1,0 +1,194 @@
+{
+  "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+  "activity_review_status": "ready_for_review",
+  "workflow_review_status": "ready_for_review",
+  "handoff_status": "ready_for_generation",
+  "activity_model": {
+    "activity": "Support operations manager reviews customer refund escalation cases",
+    "participants": [
+      "support operations manager",
+      "support agent"
+    ],
+    "objective": "Whether an escalation should be approved, sent to policy review, or returned to the support agent for missing evidence",
+    "outcomes": [
+      "A clear handoff with the next action and reason for the decision"
+    ],
+    "domain_vocabulary": [
+      "support operations manager",
+      "support agent",
+      "customer refund escalation cases",
+      "policy review",
+      "missing evidence",
+      "handoff",
+      "next action",
+      "reason for the decision"
+    ]
+  },
+  "interaction_contract": {
+    "primary_decision": "Whether an escalation should be approved, sent to policy review, or returned to the support agent for missing evidence",
+    "next_actions": [
+      "The outcome is a clear handoff with the next action and reason for the decision"
+    ],
+    "completion": "A clear handoff with the next action and reason for the decision",
+    "make_easy": [
+      "Confirm the activity model before screen structure",
+      "Review the primary decision and outcome in domain language",
+      "Adjust vocabulary before implementation detail reaches the primary UI"
+    ]
+  },
+  "workflow": {
+    "surface_name": "Refund escalation review",
+    "steps": [
+      "Choose the active refund request",
+      "Review customer context and evidence",
+      "Choose the next refund path",
+      "Send a clear handoff"
+    ],
+    "primary_actions": [
+      "Approve refund",
+      "Send to policy review",
+      "Return for evidence",
+      "Send handoff"
+    ],
+    "decision_points": [
+      "Decide whether the refund can be approved, needs policy review, or must return to the support agent for missing evidence"
+    ],
+    "completion_state": "The next owner receives a handoff with the chosen path and the reason"
+  },
+  "primary_surface": {
+    "sections": [
+      "Refund queue",
+      "Selected request",
+      "Evidence checklist",
+      "Policy context",
+      "Decision path",
+      "Handoff reason"
+    ],
+    "controls": [
+      "Select request",
+      "Approve refund",
+      "Send to policy review",
+      "Return for evidence",
+      "Choose next owner",
+      "Send handoff"
+    ],
+    "user_facing_terms": [
+      "refund escalation",
+      "selected request",
+      "evidence checklist",
+      "policy review",
+      "handoff reason",
+      "support agent",
+      "support operations manager",
+      "customer refund escalation cases",
+      "missing evidence",
+      "handoff",
+      "next action",
+      "reason for the decision"
+    ]
+  },
+  "handoff": {
+    "next_owner": "Support agent",
+    "reason": "Receipt photo is missing. Ask the customer to attach proof before approval",
+    "next_action": "Return the request to the support agent with the missing evidence request"
+  },
+  "disclosure_reminders": {
+    "diagnostic_terms": [
+      "API endpoint",
+      "CRUD",
+      "data model",
+      "database table",
+      "field",
+      "JSON schema",
+      "prompt",
+      "prompt template",
+      "resource",
+      "resource id",
+      "schema",
+      "tool call"
+    ],
+    "diagnostic_contexts": [
+      "setup",
+      "debugging",
+      "auditing",
+      "integration"
+    ],
+    "translation_candidates": [
+      {
+        "detected_term": "API endpoint",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "CRUD",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "data model",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "database table",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "field",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "JSON schema",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "prompt",
+        "count": 1,
+        "prefer": "instruction"
+      },
+      {
+        "detected_term": "prompt template",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "resource",
+        "count": 1,
+        "prefer": "guidance"
+      },
+      {
+        "detected_term": "resource id",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "schema",
+        "count": 1,
+        "prefer": "contract"
+      },
+      {
+        "detected_term": "tool call",
+        "count": 1,
+        "prefer": "system action"
+      }
+    ],
+    "terms_to_keep_out_of_primary_ui": [
+      "API endpoint",
+      "CRUD",
+      "data model",
+      "database table",
+      "field",
+      "JSON schema",
+      "prompt",
+      "prompt template",
+      "resource",
+      "resource id",
+      "schema",
+      "tool call"
+    ],
+    "primary_ui_rule": "Keep implementation details and JudgmentKit review-packet terms out of product UI."
+  }
+}

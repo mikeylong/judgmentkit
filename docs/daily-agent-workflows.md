@@ -24,6 +24,16 @@ npm run install:mcp -- --client cursor
 
 Codex is the default when no `--client` is supplied. The installer registers the hosted Streamable HTTP endpoint as `judgmentkit` and verifies that tools/list returns the current JudgmentKit review and handoff tools. Local stdio remains a repo-local dev check through `npm run mcp:smoke`.
 
+## Local Site And MCP Preview
+
+Use the repo-native local server when reviewing the website from a checkout:
+
+```bash
+npm run site:dev -- --host 127.0.0.1 --port 4173
+```
+
+This rebuilds `site/dist`, serves the static website, and routes localhost `/mcp` through the same Streamable HTTP handler used by the hosted endpoint. Do not use `python3 -m http.server` for MCP route review; it cannot emulate the `/mcp` server route.
+
 ## MCP Planning Cards
 
 MCP tool responses include two surfaces:

@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Model UI generation matrix</title>
+    <style>
+      :root {
+        --canvas: #f8f7f2;
+        --panel: #ffffff;
+        --ink: #17231f;
+        --muted: #64716b;
+        --line: #d9d3c5;
+        --accent: #245f73;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+        font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      main {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: clamp(24px, 5vw, 52px);
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(32px, 5vw, 56px);
+        letter-spacing: 0;
+      }
+      p {
+        max-width: 760px;
+        color: var(--muted);
+      }
+      .eyebrow {
+        margin-bottom: 8px;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+        margin: 28px 0;
+      }
+      .summary div,
+      table {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+      .summary div {
+        padding: 14px;
+      }
+      .summary strong,
+      .summary span {
+        display: block;
+      }
+      .summary span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+      }
+      th,
+      td {
+        padding: 12px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+      th {
+        color: var(--muted);
+        font-size: 12px;
+        text-transform: uppercase;
+      }
+      tr:last-child td {
+        border-bottom: 0;
+      }
+      a {
+        color: var(--accent);
+        font-weight: 800;
+      }
+      .note {
+        margin-top: 18px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff8ea;
+      }
+      @media (max-width: 760px) {
+        .summary {
+          grid-template-columns: 1fr;
+        }
+        table,
+        thead,
+        tbody,
+        tr,
+        th,
+        td {
+          display: block;
+        }
+        thead {
+          display: none;
+        }
+        td {
+          border-bottom: 0;
+        }
+        tr {
+          border-bottom: 1px solid var(--line);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">System-map example pack</p>
+      <h1>Model UI generation matrix</h1>
+      <p>One refund-triage handoff moves through the system-map branches: deterministic generation, optional model assistance, and the later design-system adapter. The site build copies these static artifacts and does not call a provider.</p>
+      <div class="summary" aria-label="Matrix summary">
+        <div><span>Source brief</span><strong>examples/demo/refund-ops-implementation-heavy.brief.txt</strong></div>
+        <div><span>Reviewed handoff</span><strong>examples/model-ui/refund-system-map/reviewed-handoff.fixture.json</strong></div>
+        <div><span>Artifacts</span><strong>6 snapshots</strong></div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Generation branch</th>
+            <th>Adapter branch</th>
+            <th>Provenance</th>
+            <th>Artifact</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>Deterministic renderer</td>
+          <td>Without design system</td>
+          <td>captured</td>
+          <td><a href="artifacts/deterministic-without-design-system.html">Deterministic renderer</a></td>
+        </tr>
+        <tr>
+          <td>Deterministic renderer</td>
+          <td>With design system</td>
+          <td>captured</td>
+          <td><a href="artifacts/deterministic-with-design-system.html">Deterministic renderer with design-system adapter</a></td>
+        </tr>
+        <tr>
+          <td>Gemma 4 (local LLM)</td>
+          <td>Without design system</td>
+          <td>capture-required</td>
+          <td><a href="artifacts/gemma4-without-design-system.html">Gemma 4 local LLM capture</a></td>
+        </tr>
+        <tr>
+          <td>Gemma 4 (local LLM)</td>
+          <td>With design system</td>
+          <td>capture-required</td>
+          <td><a href="artifacts/gemma4-with-design-system.html">Gemma 4 local LLM capture with design-system adapter</a></td>
+        </tr>
+        <tr>
+          <td>GPT-5.5</td>
+          <td>Without design system</td>
+          <td>capture-required</td>
+          <td><a href="artifacts/gpt55-without-design-system.html">GPT-5.5 capture</a></td>
+        </tr>
+        <tr>
+          <td>GPT-5.5</td>
+          <td>With design system</td>
+          <td>capture-required</td>
+          <td><a href="artifacts/gpt55-with-design-system.html">GPT-5.5 capture with design-system adapter</a></td>
+        </tr></tbody>
+      </table>
+      <p class="note">Entries marked <strong>capture-required</strong> are wired as truthful provenance slots until real Gemma 4 and GPT-5.5 run transcripts are captured and committed.</p>
+    </main>
+    <script type="application/json" id="model-ui-manifest">{
+  "matrix_id": "refund-system-map-model-ui-v1",
+  "title": "Model UI generation matrix",
+  "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+  "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+  "design_system_adapter_file": "examples/model-ui/refund-system-map/design-system-adapter.json",
+  "generation_policy": "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model.",
+  "system_map_branches": [
+    "JudgmentKit reviewed handoff",
+    "LLM / agent UI pass",
+    "with design system",
+    "without design system"
+  ],
+  "model_labels": [
+    "Deterministic renderer",
+    "Gemma 4 (local LLM)",
+    "GPT-5.5"
+  ],
+  "artifacts": [
+    {
+      "id": "deterministic-without-design-system",
+      "model_label": "Deterministic renderer",
+      "title": "Deterministic renderer",
+      "generation_source": "deterministic",
+      "design_system_mode": "without_design_system",
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "deterministic-renderer",
+        "captured_at": "2026-05-12",
+        "runner": "scripts/demo-model-ui-matrix.mjs",
+        "provider": "none",
+        "model": "none",
+        "notes": "Rendered from the reviewed JudgmentKit handoff with no provider or model call."
+      },
+      "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": null,
+      "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
+      "artifact_path": "artifacts/deterministic-without-design-system.html"
+    },
+    {
+      "id": "deterministic-with-design-system",
+      "model_label": "Deterministic renderer",
+      "title": "Deterministic renderer with design-system adapter",
+      "generation_source": "deterministic",
+      "design_system_mode": "with_design_system",
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "deterministic-renderer",
+        "captured_at": "2026-05-12",
+        "runner": "scripts/demo-model-ui-matrix.mjs",
+        "provider": "none",
+        "model": "none",
+        "notes": "Rendered from the same reviewed JudgmentKit handoff with the example-only design-system adapter applied."
+      },
+      "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": "examples/model-ui/refund-system-map/design-system-adapter.json",
+      "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
+      "artifact_path": "artifacts/deterministic-with-design-system.html"
+    },
+    {
+      "id": "gemma4-without-design-system",
+      "model_label": "Gemma 4 (local LLM)",
+      "title": "Gemma 4 local LLM capture",
+      "generation_source": "captured_model_output",
+      "design_system_mode": "without_design_system",
+      "capture_provenance": {
+        "status": "capture-required",
+        "capture_type": "model-output-slot",
+        "captured_at": null,
+        "intended_provider": "ollama",
+        "intended_model": "gemma4:e2b",
+        "model_label": "Gemma 4 (local LLM)",
+        "notes": "No real Gemma 4 capture transcript is committed yet. This artifact keeps the public matrix wired without claiming benchmark evidence."
+      },
+      "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": null,
+      "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
+      "artifact_path": "artifacts/gemma4-without-design-system.html"
+    },
+    {
+      "id": "gemma4-with-design-system",
+      "model_label": "Gemma 4 (local LLM)",
+      "title": "Gemma 4 local LLM capture with design-system adapter",
+      "generation_source": "captured_model_output",
+      "design_system_mode": "with_design_system",
+      "capture_provenance": {
+        "status": "capture-required",
+        "capture_type": "model-output-slot",
+        "captured_at": null,
+        "intended_provider": "ollama",
+        "intended_model": "gemma4:e2b",
+        "model_label": "Gemma 4 (local LLM)",
+        "notes": "No real Gemma 4 capture transcript is committed yet. Apply the example-only design-system adapter only after a real output is captured."
+      },
+      "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": "examples/model-ui/refund-system-map/design-system-adapter.json",
+      "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
+      "artifact_path": "artifacts/gemma4-with-design-system.html"
+    },
+    {
+      "id": "gpt55-without-design-system",
+      "model_label": "GPT-5.5",
+      "title": "GPT-5.5 capture",
+      "generation_source": "captured_model_output",
+      "design_system_mode": "without_design_system",
+      "capture_provenance": {
+        "status": "capture-required",
+        "capture_type": "model-output-slot",
+        "captured_at": null,
+        "intended_provider": "openai-responses",
+        "intended_model": "gpt-5.5",
+        "model_label": "GPT-5.5",
+        "notes": "No real GPT-5.5 capture transcript is committed yet. This artifact is a provenance slot, not a generated-output claim."
+      },
+      "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": null,
+      "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
+      "artifact_path": "artifacts/gpt55-without-design-system.html"
+    },
+    {
+      "id": "gpt55-with-design-system",
+      "model_label": "GPT-5.5",
+      "title": "GPT-5.5 capture with design-system adapter",
+      "generation_source": "captured_model_output",
+      "design_system_mode": "with_design_system",
+      "capture_provenance": {
+        "status": "capture-required",
+        "capture_type": "model-output-slot",
+        "captured_at": null,
+        "intended_provider": "openai-responses",
+        "intended_model": "gpt-5.5",
+        "model_label": "GPT-5.5",
+        "notes": "No real GPT-5.5 capture transcript is committed yet. Apply the example-only design-system adapter only after a real output is captured."
+      },
+      "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": "examples/model-ui/refund-system-map/design-system-adapter.json",
+      "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
+      "artifact_path": "artifacts/gpt55-with-design-system.html"
+    }
+  ]
+}</script>
+  </body>
+</html>

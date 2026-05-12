@@ -193,9 +193,14 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     examples.text,
     [
       "Refund triage comparison",
+      "Model UI generation matrix",
+      "Gemma 4 (local LLM)",
+      "GPT-5.5",
       "Dinner playlist comparison",
       "/examples/comparison/refund/version-a.html",
       "/examples/comparison/refund/version-b.html",
+      "/examples/model-ui/refund-system-map/index.html",
+      "/examples/model-ui/refund-system-map/manifest.json",
       "/examples/comparison/music/version-a.html",
       "/examples/comparison/music/version-b.html",
       "/examples/comparison/music/facilitator-scorecard.md",
@@ -210,6 +215,13 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     "/examples/one-shot-demo.html",
     "/examples/comparison/refund/version-a.html",
     "/examples/comparison/refund/version-b.html",
+    "/examples/model-ui/refund-system-map/index.html",
+    "/examples/model-ui/refund-system-map/artifacts/deterministic-without-design-system.html",
+    "/examples/model-ui/refund-system-map/artifacts/deterministic-with-design-system.html",
+    "/examples/model-ui/refund-system-map/artifacts/gemma4-without-design-system.html",
+    "/examples/model-ui/refund-system-map/artifacts/gemma4-with-design-system.html",
+    "/examples/model-ui/refund-system-map/artifacts/gpt55-without-design-system.html",
+    "/examples/model-ui/refund-system-map/artifacts/gpt55-with-design-system.html",
     "/examples/comparison/music/version-a.html",
     "/examples/comparison/music/version-b.html",
   ]) {
@@ -218,6 +230,9 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   }
 
   await fetchText(baseUrl, "/examples/comparison/music/facilitator-scorecard.md");
+  await fetchText(baseUrl, "/examples/model-ui/refund-system-map/manifest.json");
+  await fetchText(baseUrl, "/examples/model-ui/refund-system-map/reviewed-handoff.fixture.json");
+  await fetchText(baseUrl, "/examples/model-ui/refund-system-map/design-system-adapter.json");
 
   const install = await fetchText(baseUrl, "/install");
   assert.ok(install.text.startsWith("#!/usr/bin/env bash"), "install route should return a shell script");
@@ -244,6 +259,16 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "/examples/one-shot-demo.html",
       "/examples/comparison/refund/version-a.html",
       "/examples/comparison/refund/version-b.html",
+      "/examples/model-ui/refund-system-map/index.html",
+      "/examples/model-ui/refund-system-map/manifest.json",
+      "/examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+      "/examples/model-ui/refund-system-map/design-system-adapter.json",
+      "/examples/model-ui/refund-system-map/artifacts/deterministic-without-design-system.html",
+      "/examples/model-ui/refund-system-map/artifacts/deterministic-with-design-system.html",
+      "/examples/model-ui/refund-system-map/artifacts/gemma4-without-design-system.html",
+      "/examples/model-ui/refund-system-map/artifacts/gemma4-with-design-system.html",
+      "/examples/model-ui/refund-system-map/artifacts/gpt55-without-design-system.html",
+      "/examples/model-ui/refund-system-map/artifacts/gpt55-with-design-system.html",
       "/examples/comparison/music/version-a.html",
       "/examples/comparison/music/version-b.html",
       "/examples/comparison/music/facilitator-scorecard.md",

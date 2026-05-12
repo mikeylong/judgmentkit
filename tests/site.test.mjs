@@ -147,8 +147,8 @@ assert.equal(docs.includes("judgmentkit2"), false);
 
 const examples = fs.readFileSync(path.join(tempDir, "examples", "index.html"), "utf8");
 assertAnalyticsBootstrap(examples, "examples");
-assert.ok(examples.includes("Deterministic artifacts"));
-assert.ok(examples.includes("JudgmentKit-guided handoff"));
+assert.ok(examples.includes("Static artifacts"));
+assert.ok(examples.includes("captured-fixture model UI paths"));
 assert.ok(examples.includes('class="examples-browser" data-examples-browser'));
 assert.ok(examples.includes('class="examples-rail" aria-label="Examples list"'));
 assert.ok(examples.includes('class="example-menu" data-example-menu'));
@@ -157,25 +157,39 @@ assert.ok(examples.includes('aria-label="Selected example"'));
 assert.ok(examples.includes('class="example-frame" data-example-frame src="/examples/one-shot-demo.html"'));
 assert.ok(examples.includes('id="examples-data"'));
 assert.ok(examples.includes("Refund triage comparison"));
+assert.ok(examples.includes("Model UI generation matrix"));
 assert.ok(examples.includes("Dinner playlist comparison"));
 assert.ok(examples.includes('data-example-id="one-shot-proof"'));
 assert.ok(examples.includes('data-example-id="refund-triage"'));
+assert.ok(examples.includes('data-example-id="model-ui-system-map"'));
 assert.ok(examples.includes('data-example-id="dinner-playlist"'));
 assert.ok(examples.includes("/examples/one-shot-demo.html"));
 assert.ok(examples.includes("/examples/comparison/refund/version-a.html"));
 assert.ok(examples.includes("/examples/comparison/refund/version-b.html"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/index.html"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/manifest.json"));
 assert.ok(examples.includes("/examples/comparison/music/version-a.html"));
 assert.ok(examples.includes("/examples/comparison/music/version-b.html"));
 assert.ok(examples.includes("/examples/comparison/music/facilitator-scorecard.md"));
+assert.ok(examples.includes("Gemma 4 (local LLM)"));
+assert.ok(examples.includes("GPT-5.5"));
 assert.equal(examples.includes("raw_brief_baseline"), false);
 assert.equal(examples.includes("judgmentkit_handoff"), false);
-assert.equal(examples.includes("Gemma"), false);
-assert.equal(examples.includes("GPT-5.5"), false);
 
 for (const copiedExamplePath of [
   ["examples", "one-shot-demo.html"],
   ["examples", "comparison", "refund", "version-a.html"],
   ["examples", "comparison", "refund", "version-b.html"],
+  ["examples", "model-ui", "refund-system-map", "index.html"],
+  ["examples", "model-ui", "refund-system-map", "manifest.json"],
+  ["examples", "model-ui", "refund-system-map", "reviewed-handoff.fixture.json"],
+  ["examples", "model-ui", "refund-system-map", "design-system-adapter.json"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "deterministic-without-design-system.html"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "deterministic-with-design-system.html"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "gemma4-without-design-system.html"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "gemma4-with-design-system.html"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-without-design-system.html"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-with-design-system.html"],
   ["examples", "comparison", "music", "version-a.html"],
   ["examples", "comparison", "music", "version-b.html"],
   ["examples", "comparison", "music", "facilitator-scorecard.md"],

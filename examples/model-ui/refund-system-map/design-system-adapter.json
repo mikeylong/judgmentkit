@@ -1,0 +1,29 @@
+{
+  "id": "refund-ops-review-adapter",
+  "name": "Refund Ops Review Adapter",
+  "scope": "example-only",
+  "role": "visual layer after JudgmentKit handoff",
+  "tokens": {
+    "color": {
+      "canvas": "#f7f4ee",
+      "surface": "#ffffff",
+      "ink": "#182521",
+      "muted": "#64716b",
+      "accent": "#0f766e",
+      "warning": "#9a5b16",
+      "line": "#d9d3c5"
+    },
+    "radius": {
+      "control": "6px",
+      "panel": "8px"
+    },
+    "density": "operational"
+  },
+  "components": [
+    "queue row",
+    "evidence checklist",
+    "decision group",
+    "handoff receipt"
+  ],
+  "constraint": "The adapter changes visual treatment and control grouping only; it does not change the activity, decision, evidence, or handoff."
+}

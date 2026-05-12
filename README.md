@@ -115,6 +115,14 @@ npm run demo:comparison:music
 
 That command writes a dinner-playlist brief, two independently runnable apps, a manifest, and a facilitator scorecard under `examples/comparison/music/`.
 
+For the system-map model UI matrix:
+
+```bash
+npm run demo:model-ui
+```
+
+That command writes a static refund-triage matrix under `examples/model-ui/refund-system-map/`, including deterministic, Gemma 4 local LLM, and GPT-5.5 branches with and without the example-only design-system adapter. The website build copies those committed artifacts, records provenance in the manifest, and does not call live providers.
+
 For the replacement website build:
 
 ```bash
@@ -122,3 +130,11 @@ npm run site:build
 ```
 
 That command writes static routes for `/`, `/docs/`, `/examples/`, and `/install` under `site/dist/`. The public `/mcp` route is served by the hosted Streamable HTTP MCP function and returns metadata for browser GET requests.
+
+For local site review with the same `/mcp` behavior:
+
+```bash
+npm run site:dev -- --host 127.0.0.1 --port 4173
+```
+
+That command rebuilds `site/dist`, serves static routes locally, and routes localhost `/mcp` through the same Streamable HTTP handler used in production.
