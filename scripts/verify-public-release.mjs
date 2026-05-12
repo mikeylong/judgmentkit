@@ -9,7 +9,10 @@ import { spawn } from "node:child_process";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
-import { JUDGMENTKIT_MCP_TOOL_NAMES } from "./install-mcp.mjs";
+import {
+  DEFAULT_MCP_ENDPOINT_URL,
+  JUDGMENTKIT_MCP_TOOL_NAMES,
+} from "./install-mcp.mjs";
 
 const DEFAULT_BASE_URL = "https://judgmentkit.ai";
 const REDIRECT_HOSTS = [
@@ -172,7 +175,8 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "node bin/judgmentkit.mjs review --input examples/refund-triage.brief.txt",
       "https://judgmentkit.ai/mcp",
       "hosted Streamable HTTP endpoint",
-      "installed local stdio server",
+      "Codex installer names that server",
+      "repo-local stdio server is kept for development smoke checks",
       "create_activity_model_review",
       "review_ui_workflow_candidate",
       "create_ui_generation_handoff",
@@ -490,11 +494,16 @@ async function verifyHostedInstall(baseUrl) {
   assert.equal(result.repository_url, "https://github.com/mikeylong/judgmentkit.git");
   assert.equal(result.checkout_path, checkoutPath);
   assert.equal(result.config_path, configPath);
+  assert.equal(result.mcp_transport, "streamable-http");
+  assert.equal(result.mcp_endpoint_url, DEFAULT_MCP_ENDPOINT_URL);
   assert.equal(result.verification.verified, true);
+  assert.equal(result.verification.transport, "streamable-http");
+  assert.equal(result.verification.endpoint_url, DEFAULT_MCP_ENDPOINT_URL);
   assert.deepEqual(result.verification.tools, JUDGMENTKIT_MCP_TOOL_NAMES);
   assert.ok(configText.includes("[mcp_servers.judgmentkit]"));
-  assert.ok(configText.includes('"mcp:stdio"'));
-  assert.ok(configText.includes(JSON.stringify(checkoutPath)));
+  assert.ok(configText.includes(`url = "${DEFAULT_MCP_ENDPOINT_URL}"`));
+  assert.equal(configText.includes('"mcp:stdio"'), false);
+  assert.equal(configText.includes(JSON.stringify(checkoutPath)), false);
 
   return {
     temp_dir: tempDir,

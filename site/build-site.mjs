@@ -37,6 +37,10 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;");
 }
 
+function serializeJsonForHtml(value) {
+  return JSON.stringify(value).replaceAll("<", "\\u003c");
+}
+
 function getAnalyticsConfig() {
   let analyticsConfig = {};
 
@@ -249,8 +253,7 @@ h2 {
   font-weight: 700;
 }
 .proof-panel,
-.route-grid article,
-.example-card {
+.route-grid article {
   border: 1px solid var(--line);
   background: var(--panel);
   border-radius: 8px;
@@ -292,18 +295,15 @@ pre {
 .section {
   border-top: 1px solid var(--line);
 }
-.route-grid,
-.example-grid {
+.route-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
-.route-grid article,
-.example-card {
+.route-grid article {
   padding: 18px;
 }
-.route-grid h3,
-.example-card h3 {
+.route-grid h3 {
   margin-bottom: 8px;
 }
 .command {
@@ -330,6 +330,151 @@ pre {
 .doc-section {
   padding-bottom: 28px;
 }
+.examples-page {
+  padding-top: clamp(36px, 5vw, 62px);
+}
+.examples-intro {
+  margin-bottom: 28px;
+}
+.examples-browser {
+  display: grid;
+  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+  gap: clamp(22px, 4vw, 42px);
+  align-items: start;
+}
+.examples-rail {
+  position: sticky;
+  top: 88px;
+  display: grid;
+  gap: 10px;
+  padding-right: 18px;
+  border-right: 1px solid var(--line);
+}
+.examples-rail-title {
+  margin: 0 0 4px;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.example-list {
+  display: grid;
+  gap: 8px;
+}
+.example-select {
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+.example-select:hover,
+.example-select:focus-visible {
+  border-color: var(--line);
+  background: rgba(255, 255, 255, 0.7);
+  outline: none;
+}
+.example-select[aria-current="true"] {
+  border-color: var(--accent);
+  background: #ecf4f6;
+}
+.example-select strong {
+  display: block;
+  margin-bottom: 2px;
+}
+.example-select span {
+  display: block;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
+}
+.examples-main {
+  min-width: 0;
+}
+.example-menu {
+  display: none;
+  margin-bottom: 18px;
+}
+.example-menu summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+  font-weight: 700;
+}
+.example-menu summary::-webkit-details-marker {
+  display: none;
+}
+.example-menu[open] .example-list {
+  margin-top: 10px;
+}
+.example-preview-header {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.example-preview-title-row {
+  display: flex;
+  gap: 18px;
+  align-items: start;
+  justify-content: space-between;
+}
+.example-preview-title-row h2 {
+  margin-bottom: 6px;
+}
+.example-actions {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.example-frame-shell {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.example-frame-toolbar {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  background: #f2f1eb;
+  color: var(--muted);
+  font-size: 13px;
+}
+.example-frame-title {
+  overflow: hidden;
+  color: var(--ink);
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.example-frame {
+  display: block;
+  width: 100%;
+  height: min(76vh, 760px);
+  min-height: 520px;
+  border: 0;
+  background: #ffffff;
+}
+.example-noscript-links {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
 @media (max-width: 820px) {
   .site-header,
   .hero {
@@ -345,12 +490,33 @@ pre {
   .doc-nav {
     margin-top: 18px;
   }
-  .route-grid,
-  .example-grid {
+  .route-grid {
     grid-template-columns: 1fr;
   }
   .proof-step {
     grid-template-columns: 1fr;
+  }
+  .examples-browser {
+    display: block;
+  }
+  .examples-rail {
+    display: none;
+  }
+  .example-menu {
+    display: block;
+  }
+  .example-preview-title-row {
+    display: block;
+  }
+  .example-actions {
+    justify-content: flex-start;
+  }
+  .example-frame-toolbar {
+    display: block;
+  }
+  .example-frame {
+    height: 68vh;
+    min-height: 430px;
   }
 }
 `;
@@ -403,9 +569,9 @@ function homepage() {
     </section>
     <section class="section">
       <h2>Install for Codex</h2>
-      <p class="lede">The installer clones the public repo, installs dependencies, configures a local MCP server named <code>judgmentkit</code>, and verifies the tool catalog before finishing.</p>
+      <p class="lede">The installer clones the public repo, installs dependencies, configures a Codex MCP server named <code>judgmentkit</code> at the hosted Streamable HTTP endpoint, and verifies the tool catalog before finishing.</p>
       <code class="command">curl -fsSL https://judgmentkit.ai/install | bash</code>
-      <p class="note">First release support is intentionally Codex-only over local stdio.</p>
+      <p class="note">First release support is intentionally Codex-only over hosted Streamable HTTP. The repo-local stdio server remains available for development smoke checks.</p>
     </section>
   `,
     {
@@ -434,7 +600,7 @@ function docsPage() {
           <section class="doc-section" id="quickstart">
             <h1>Docs</h1>
             <h2>Quickstart</h2>
-            <p>Install JudgmentKit for Codex, then run a local smoke check from the cloned checkout.</p>
+            <p>Install JudgmentKit for Codex. The installer configures the <code>judgmentkit</code> server to use the hosted Streamable HTTP endpoint, then you can run a repo-local stdio smoke check from the cloned checkout.</p>
             <pre><code>curl -fsSL https://judgmentkit.ai/install | bash
 cd ~/.codex/judgmentkit
 npm run mcp:smoke
@@ -443,7 +609,7 @@ node bin/judgmentkit.mjs review --input examples/refund-triage.brief.txt</code><
           </section>
           <section class="doc-section" id="mcp">
             <h2>MCP</h2>
-            <p>JudgmentKit supports MCP through the hosted Streamable HTTP endpoint at <code>https://judgmentkit.ai/mcp</code> and through the installed local stdio server named <code>judgmentkit</code>. A browser GET to <code>/mcp</code> returns endpoint metadata; MCP clients should connect to the same URL with Streamable HTTP.</p>
+            <p>JudgmentKit supports MCP through the hosted Streamable HTTP endpoint at <code>https://judgmentkit.ai/mcp</code>. The Codex installer names that server <code>judgmentkit</code>. A browser GET to <code>/mcp</code> returns endpoint metadata; MCP clients should connect to the same URL with Streamable HTTP. The repo-local stdio server is kept for development smoke checks.</p>
           </section>
           <section class="doc-section" id="activity-review">
             <h2>Activity Review</h2>
@@ -482,48 +648,211 @@ async function readJsonIfExists(relativePath) {
   }
 }
 
-function exampleComparisonCard({ title, description, baselineHref, guidedHref, scorecardHref }) {
+const EXAMPLES = [
+  {
+    id: "one-shot-proof",
+    title: "One-shot proof",
+    label: "Proof",
+    description:
+      "A baseline refund-ops UI beside a JudgmentKit-guided operational review workflow.",
+    previewHref: "/examples/one-shot-demo.html",
+    previewLabel: "One-shot proof artifact",
+    actions: [
+      { label: "Open artifact", href: "/examples/one-shot-demo.html" },
+    ],
+  },
+  {
+    id: "refund-triage",
+    title: "Refund triage comparison",
+    label: "Refund ops",
+    description:
+      "Two standalone review surfaces from the same refund-operations brief: one raw implementation baseline, one JudgmentKit handoff path.",
+    previewHref: "/examples/comparison/refund/version-b.html",
+    previewLabel: "Refund triage JudgmentKit version",
+    actions: [
+      { label: "Open baseline", href: "/examples/comparison/refund/version-a.html" },
+      {
+        label: "Open JudgmentKit version",
+        href: "/examples/comparison/refund/version-b.html",
+      },
+    ],
+  },
+  {
+    id: "dinner-playlist",
+    title: "Dinner playlist comparison",
+    label: "Music app",
+    description:
+      "A non-admin workflow test for activity fit: build a sequenced dinner playlist while honoring constraints and leaving a usable handoff note.",
+    previewHref: "/examples/comparison/music/version-b.html",
+    previewLabel: "Dinner playlist JudgmentKit version",
+    actions: [
+      { label: "Open baseline", href: "/examples/comparison/music/version-a.html" },
+      {
+        label: "Open JudgmentKit version",
+        href: "/examples/comparison/music/version-b.html",
+      },
+      {
+        label: "Scorecard",
+        href: "/examples/comparison/music/facilitator-scorecard.md",
+      },
+    ],
+  },
+];
+
+function renderExampleSelector(example, isActive = false) {
   return `
-    <article class="example-card">
-      <h3>${escapeHtml(title)}</h3>
-      <p>${escapeHtml(description)}</p>
-      <div class="link-row">
-        <a class="pill-link" href="${escapeHtml(baselineHref)}">Open baseline</a>
-        <a class="pill-link" href="${escapeHtml(guidedHref)}">Open JudgmentKit version</a>
-        ${scorecardHref ? `<a class="pill-link" href="${escapeHtml(scorecardHref)}">Scorecard</a>` : ""}
-      </div>
-    </article>`;
+    <button class="example-select" type="button" data-example-id="${escapeHtml(example.id)}" aria-current="${isActive ? "true" : "false"}">
+      <strong>${escapeHtml(example.title)}</strong>
+      <span>${escapeHtml(example.label)}</span>
+    </button>`;
+}
+
+function renderExampleActions(actions) {
+  return actions
+    .map(
+      (action) =>
+        `<a class="pill-link" href="${escapeHtml(action.href)}" target="_blank" rel="noreferrer">${escapeHtml(action.label)}</a>`,
+    )
+    .join("");
+}
+
+function renderNoScriptExampleLinks(examples) {
+  return examples
+    .map(
+      (example) => `
+        <section>
+          <h3>${escapeHtml(example.title)}</h3>
+          <div class="link-row">${renderExampleActions(example.actions)}</div>
+        </section>`,
+    )
+    .join("");
+}
+
+function examplesBrowserScript() {
+  return `
+    <script>
+      (() => {
+        const dataNode = document.getElementById("examples-data");
+        const browser = document.querySelector("[data-examples-browser]");
+        if (!dataNode || !browser) return;
+
+        const examples = JSON.parse(dataNode.textContent);
+        const examplesById = new Map(examples.map((example) => [example.id, example]));
+        const titleNode = browser.querySelector("[data-example-title]");
+        const descriptionNode = browser.querySelector("[data-example-description]");
+        const frameNode = browser.querySelector("[data-example-frame]");
+        const frameTitleNode = browser.querySelector("[data-example-frame-title]");
+        const actionsNode = browser.querySelector("[data-example-actions]");
+        const menuNode = browser.querySelector("[data-example-menu]");
+        const selectors = Array.from(browser.querySelectorAll("[data-example-id]"));
+
+        function renderActions(actions) {
+          actionsNode.replaceChildren();
+          for (const action of actions) {
+            const link = document.createElement("a");
+            link.className = "pill-link";
+            link.href = action.href;
+            link.target = "_blank";
+            link.rel = "noreferrer";
+            link.textContent = action.label;
+            actionsNode.append(link);
+          }
+        }
+
+        function selectExample(id, options = {}) {
+          const example = examplesById.get(id) ?? examples[0];
+          titleNode.textContent = example.title;
+          descriptionNode.textContent = example.description;
+          frameTitleNode.textContent = example.previewLabel;
+          frameNode.src = example.previewHref;
+          frameNode.title = example.previewLabel;
+          renderActions(example.actions);
+
+          for (const selector of selectors) {
+            selector.setAttribute("aria-current", String(selector.dataset.exampleId === example.id));
+          }
+
+          if (options.updateHash !== false) {
+            history.replaceState(null, "", "#" + encodeURIComponent(example.id));
+          }
+
+          if (menuNode && window.matchMedia("(max-width: 820px)").matches) {
+            menuNode.removeAttribute("open");
+          }
+        }
+
+        for (const selector of selectors) {
+          selector.addEventListener("click", () => {
+            selectExample(selector.dataset.exampleId);
+          });
+        }
+
+        window.addEventListener("hashchange", () => {
+          selectExample(decodeURIComponent(window.location.hash.slice(1)), {
+            updateHash: false,
+          });
+        });
+
+        const initialId = window.location.hash
+          ? decodeURIComponent(window.location.hash.slice(1))
+          : examples[0].id;
+        selectExample(initialId, { updateHash: false });
+      })();
+    </script>`;
 }
 
 async function examplesPage() {
+  const firstExample = EXAMPLES[0];
+  const selectors = EXAMPLES.map((example, index) => renderExampleSelector(example, index === 0)).join("");
+
   return page(
     "JudgmentKit Examples",
     `
-    <section class="section">
-      <h1>Examples</h1>
-      <p class="lede">Deterministic artifacts show the difference between raw brief generation and JudgmentKit-guided handoff generation without requiring a live model call.</p>
-      <div class="example-grid">
-        <article class="example-card">
-          <h3>One-shot proof</h3>
-          <p>A baseline refund-ops UI beside a JudgmentKit-guided operational review workflow.</p>
-          <a href="/examples/one-shot-demo.html">Open artifact</a>
-        </article>
-        ${exampleComparisonCard({
-          title: "Refund triage comparison",
-          description:
-            "Two standalone review surfaces from the same refund-operations brief: one raw implementation baseline, one JudgmentKit handoff path.",
-          baselineHref: "/examples/comparison/refund/version-a.html",
-          guidedHref: "/examples/comparison/refund/version-b.html",
-        })}
-        ${exampleComparisonCard({
-          title: "Dinner playlist comparison",
-          description:
-            "A non-admin workflow test for activity fit: build a sequenced dinner playlist while honoring constraints and leaving a usable handoff note.",
-          baselineHref: "/examples/comparison/music/version-a.html",
-          guidedHref: "/examples/comparison/music/version-b.html",
-          scorecardHref: "/examples/comparison/music/facilitator-scorecard.md",
-        })}
+    <section class="section examples-page">
+      <div class="examples-intro">
+        <h1>Examples</h1>
+        <p class="lede">Deterministic artifacts show the difference between raw brief generation and JudgmentKit-guided handoff generation without requiring a live model call.</p>
       </div>
+      <div class="examples-browser" data-examples-browser>
+        <aside class="examples-rail" aria-label="Examples list">
+          <p class="examples-rail-title">Examples</p>
+          <div class="example-list">${selectors}</div>
+        </aside>
+        <div class="examples-main">
+          <details class="example-menu" data-example-menu>
+            <summary>Browse examples</summary>
+            <div class="example-list">${selectors}</div>
+          </details>
+          <section class="example-preview" aria-label="Selected example">
+            <div class="example-preview-header">
+              <div class="example-preview-title-row">
+                <div>
+                  <h2 data-example-title>${escapeHtml(firstExample.title)}</h2>
+                  <p class="note" data-example-description>${escapeHtml(firstExample.description)}</p>
+                </div>
+                <div class="example-actions" data-example-actions>
+                  ${renderExampleActions(firstExample.actions)}
+                </div>
+              </div>
+            </div>
+            <div class="example-frame-shell">
+              <div class="example-frame-toolbar">
+                <span class="example-frame-title" data-example-frame-title>${escapeHtml(firstExample.previewLabel)}</span>
+                <span>Inline preview</span>
+              </div>
+              <iframe class="example-frame" data-example-frame src="${escapeHtml(firstExample.previewHref)}" title="${escapeHtml(firstExample.previewLabel)}" loading="eager"></iframe>
+            </div>
+          </section>
+          <noscript>
+            <div class="example-noscript-links">
+              <p class="note">JavaScript is disabled. The first artifact is previewed above; direct links remain available here.</p>
+              ${renderNoScriptExampleLinks(EXAMPLES)}
+            </div>
+          </noscript>
+        </div>
+      </div>
+      <script type="application/json" id="examples-data">${serializeJsonForHtml(EXAMPLES)}</script>
+      ${examplesBrowserScript()}
     </section>
   `,
     {

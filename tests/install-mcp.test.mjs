@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 
 import {
+  DEFAULT_MCP_ENDPOINT_URL,
   DEFAULT_REPOSITORY_URL,
   JUDGMENTKIT_MCP_TOOL_NAMES,
   createCodexConfigBlock,
@@ -31,6 +32,7 @@ const OLD_TOOL_NAMES = [
 
 {
   assert.equal(DEFAULT_REPOSITORY_URL, "https://github.com/mikeylong/judgmentkit.git");
+  assert.equal(DEFAULT_MCP_ENDPOINT_URL, "https://judgmentkit.ai/mcp");
   assert.deepEqual(JUDGMENTKIT_MCP_TOOL_NAMES, EXPECTED_TOOL_NAMES);
 
   for (const oldToolName of OLD_TOOL_NAMES) {
@@ -46,10 +48,9 @@ const OLD_TOOL_NAMES = [
   const block = createCodexConfigBlock("/tmp/judgmentkit checkout");
 
   assert.ok(block.includes("[mcp_servers.judgmentkit]"));
-  assert.ok(block.includes('command = "npm"'));
-  assert.ok(block.includes('"--prefix"'));
-  assert.ok(block.includes('"/tmp/judgmentkit checkout"'));
-  assert.ok(block.includes('"mcp:stdio"'));
+  assert.ok(block.includes(`url = "${DEFAULT_MCP_ENDPOINT_URL}"`));
+  assert.equal(block.includes('command = "npm"'), false);
+  assert.equal(block.includes('"mcp:stdio"'), false);
   assert.equal(block.includes("judgmentkit2"), false);
   assert.equal(block.includes("get_workflow_bundle"), false);
 }
@@ -69,6 +70,9 @@ const OLD_TOOL_NAMES = [
       'command = "node"',
       'args = ["old-server.js"]',
       "",
+      "[mcp_servers.judgmentkit.tools.create_activity_model_review]",
+      'approval_mode = "approve"',
+      "",
       "[mcp_servers.other]",
       'command = "node"',
       'args = ["other.js"]',
@@ -80,10 +84,15 @@ const OLD_TOOL_NAMES = [
   const nextConfig = fs.readFileSync(configPath, "utf8");
 
   assert.equal(result.config_path, configPath);
+  assert.equal(result.mcp_transport, "streamable-http");
+  assert.equal(result.mcp_endpoint_url, DEFAULT_MCP_ENDPOINT_URL);
   assert.equal((nextConfig.match(/\[mcp_servers\.judgmentkit\]/g) ?? []).length, 1);
+  assert.ok(nextConfig.includes("[mcp_servers.judgmentkit.tools.create_activity_model_review]"));
+  assert.ok(nextConfig.includes('approval_mode = "approve"'));
   assert.ok(nextConfig.includes("[mcp_servers.other]"));
-  assert.ok(nextConfig.includes(`"${checkoutPath}"`));
+  assert.ok(nextConfig.includes(`"${DEFAULT_MCP_ENDPOINT_URL}"`));
   assert.equal(nextConfig.includes("old-server.js"), false);
+  assert.equal(nextConfig.includes("mcp:stdio"), false);
 }
 
 {
@@ -97,8 +106,11 @@ const OLD_TOOL_NAMES = [
 
   assert.equal(result.status, "dry_run");
   assert.equal(result.client, "codex");
+  assert.equal(result.mcp_transport, "streamable-http");
+  assert.equal(result.mcp_endpoint_url, DEFAULT_MCP_ENDPOINT_URL);
   assert.deepEqual(result.tools, EXPECTED_TOOL_NAMES);
   assert.ok(result.config_block.includes("[mcp_servers.judgmentkit]"));
+  assert.ok(result.config_block.includes(`url = "${DEFAULT_MCP_ENDPOINT_URL}"`));
 }
 
 {

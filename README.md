@@ -66,11 +66,13 @@ npm run mcp:smoke
 judgmentkit review --input examples/refund-triage.brief.txt
 ```
 
-For a Codex stdio install from a checkout:
+For a Codex Streamable HTTP install from a checkout:
 
 ```bash
 npm run install:mcp -- --client codex --dry-run
 ```
+
+The installed Codex server is named `judgmentkit` and points at the hosted Streamable HTTP endpoint, `https://judgmentkit.ai/mcp`. The repo-local stdio transport remains available for development smoke checks through `npm run mcp:smoke`.
 
 Optional OpenAI Responses smoke checks are opt-in:
 

@@ -84,6 +84,10 @@ export async function trackMcpAnalyticsEvents(parsedBody, req, options = {}) {
   const tracker = options.tracker ?? track;
   const events = getMcpAnalyticsEvents(parsedBody);
 
+  if (!options.tracker && process.env.VERCEL_ENV !== "production") {
+    return;
+  }
+
   await Promise.all(
     events.map(async (event) => {
       try {

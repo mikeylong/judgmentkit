@@ -18,7 +18,7 @@ From a local checkout, use:
 npm run install:mcp -- --client codex
 ```
 
-The first relaunch supports Codex only. The configured local server name is `judgmentkit`, and the install verifies that tools/list returns the current JudgmentKit review and handoff tools.
+The first relaunch supports Codex only. The configured server name is `judgmentkit`, and the install points Codex at the hosted Streamable HTTP endpoint, `https://judgmentkit.ai/mcp`. The install verifies that tools/list returns the current JudgmentKit review and handoff tools.
 
 ## Before Generating UI
 
@@ -158,7 +158,7 @@ They should not leak into activity-model primary fields or UI workflow primary f
 
 ## Quick Checks
 
-Run this before relying on the MCP server in a fresh setup:
+Run this before relying on the repo-local stdio development server:
 
 ```bash
 npm run mcp:smoke
@@ -171,7 +171,7 @@ npm test
 npm run benchmark
 ```
 
-Run this after a production deploy to verify the public site, hosted `/mcp` Streamable HTTP endpoint, legacy redirects, hosted installer, and stdio tool catalog:
+Run this after a production deploy to verify the public site, hosted `/mcp` Streamable HTTP endpoint, legacy redirects, hosted installer, and installed HTTP tool catalog:
 
 ```bash
 npm run release:verify

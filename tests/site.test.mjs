@@ -66,7 +66,8 @@ assert.ok(docs.includes("node bin/judgmentkit.mjs review --input examples/refund
 assert.ok(docs.includes("does not require a live model provider"));
 assert.ok(docs.includes("https://judgmentkit.ai/mcp"));
 assert.ok(docs.includes("hosted Streamable HTTP endpoint"));
-assert.ok(docs.includes("installed local stdio server"));
+assert.ok(docs.includes("Codex installer names that server"));
+assert.ok(docs.includes("repo-local stdio server is kept for development smoke checks"));
 assert.ok(docs.includes("create_activity_model_review"));
 assert.ok(docs.includes("review_ui_workflow_candidate"));
 assert.ok(docs.includes("create_ui_generation_handoff"));
@@ -77,8 +78,18 @@ const examples = fs.readFileSync(path.join(tempDir, "examples", "index.html"), "
 assertAnalyticsBootstrap(examples, "examples");
 assert.ok(examples.includes("Deterministic artifacts"));
 assert.ok(examples.includes("JudgmentKit-guided handoff"));
+assert.ok(examples.includes('class="examples-browser" data-examples-browser'));
+assert.ok(examples.includes('class="examples-rail" aria-label="Examples list"'));
+assert.ok(examples.includes('class="example-menu" data-example-menu'));
+assert.ok(examples.includes("<summary>Browse examples</summary>"));
+assert.ok(examples.includes('aria-label="Selected example"'));
+assert.ok(examples.includes('class="example-frame" data-example-frame src="/examples/one-shot-demo.html"'));
+assert.ok(examples.includes('id="examples-data"'));
 assert.ok(examples.includes("Refund triage comparison"));
 assert.ok(examples.includes("Dinner playlist comparison"));
+assert.ok(examples.includes('data-example-id="one-shot-proof"'));
+assert.ok(examples.includes('data-example-id="refund-triage"'));
+assert.ok(examples.includes('data-example-id="dinner-playlist"'));
 assert.ok(examples.includes("/examples/one-shot-demo.html"));
 assert.ok(examples.includes("/examples/comparison/refund/version-a.html"));
 assert.ok(examples.includes("/examples/comparison/refund/version-b.html"));
@@ -87,6 +98,8 @@ assert.ok(examples.includes("/examples/comparison/music/version-b.html"));
 assert.ok(examples.includes("/examples/comparison/music/facilitator-scorecard.md"));
 assert.equal(examples.includes("raw_brief_baseline"), false);
 assert.equal(examples.includes("judgmentkit_handoff"), false);
+assert.equal(examples.includes("Gemma"), false);
+assert.equal(examples.includes("GPT-5.5"), false);
 
 for (const copiedExamplePath of [
   ["examples", "one-shot-demo.html"],
