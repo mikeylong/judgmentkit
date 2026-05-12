@@ -283,6 +283,7 @@ pre {
 .status {
   display: inline-flex;
   align-items: center;
+  justify-self: start;
   min-height: 28px;
   padding: 4px 9px;
   border: 1px solid var(--line);
@@ -291,6 +292,7 @@ pre {
   font-weight: 700;
   color: var(--ok);
   background: #f4fbf6;
+  width: fit-content;
 }
 .section {
   border-top: 1px solid var(--line);
