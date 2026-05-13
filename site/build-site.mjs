@@ -934,7 +934,12 @@ pre {
 }
 .evals-page {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
+  min-width: 0;
+}
+.evals-page > * {
+  min-width: 0;
 }
 .evals-header {
   max-width: 820px;
@@ -976,6 +981,7 @@ pre {
   gap: 10px;
 }
 .evals-table-shell {
+  max-width: 100%;
   overflow-x: auto;
   border: 1px solid var(--line);
   border-radius: 8px;
