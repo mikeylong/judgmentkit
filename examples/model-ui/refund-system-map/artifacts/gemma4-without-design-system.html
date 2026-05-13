@@ -227,6 +227,7 @@
       }
     }
   </style>
+
   </head>
   <body data-artifact-id="gemma4-without-design-system" data-design-system-mode="without_design_system">
     
@@ -236,9 +237,8 @@
           <p class="eyebrow">Gemma 4 (local LLM)</p>
           <h1>Refund Review Workspace</h1>
         </div>
-        <span class="status">Simple primitives</span>
+        <span class="status">Transcript-backed</span>
       </header>
-      <p class="capture-warning">Capture required before this slot can be described as Gemma 4 (local LLM) generated UI.</p>
       <section class="workspace">
         <aside class="queue" aria-label="Refund queue">
           <div class="section-heading">
@@ -331,10 +331,11 @@
     </main>
     <aside class="provenance" aria-label="Artifact provenance">
       <strong>Provenance:</strong>
-      <span>capture-required</span>
+      <span>captured</span>
       <span> · captured_model_output</span>
       <span> · without_design_system</span>
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies this file and does not call a model.</p>
+      <p>The raw model transcript is committed as provenance; the visible UI is rendered from the reviewed JudgmentKit handoff with simple UI primitives.</p>
       <p>Manifest entry: <code>artifacts/gemma4-without-design-system.html</code></p>
     </aside>
     <script type="application/json" id="model-ui-provenance">{
@@ -342,20 +343,37 @@
   "artifact_id": "gemma4-without-design-system",
   "model_label": "Gemma 4 (local LLM)",
   "generation_source": "captured_model_output",
+  "visible_render_source": "reviewed_handoff_simple_renderer",
+  "rendering_policy": "The raw model transcript is committed as provenance; the visible UI is rendered from the reviewed JudgmentKit handoff with simple UI primitives.",
   "design_system_mode": "without_design_system",
+  "design_system_name": null,
+  "design_system_package": null,
   "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
   "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
   "design_system_adapter_file": null,
+  "capture_file": "captures/gemma4-without-design-system.json",
+  "model_response_summary": "A workspace for support operations managers to review customer refund escalation cases, assess evidence, determine a decision path, and initiate a handoff.",
   "capture_provenance": {
-    "status": "capture-required",
-    "capture_type": "model-output-slot",
-    "captured_at": null,
-    "intended_provider": "ollama",
-    "intended_model": "gemma4:e2b",
-    "model_label": "Gemma 4 (local LLM)",
-    "notes": "No real Gemma 4 capture transcript is committed yet. This artifact keeps the public matrix wired without claiming benchmark evidence."
+    "status": "captured",
+    "capture_type": "model-output-transcript",
+    "captured_at": "2026-05-13T20:54:52.277Z",
+    "runner": "scripts/capture-model-ui-matrix.mjs",
+    "provider": "lmstudio",
+    "model": "google/gemma-4-e2b",
+    "cli": "lms",
+    "transcript_file": "captures/gemma4-without-design-system.json",
+    "prompt_sha256": "22bb09a32f59bde807ccd672742dda52df6bc28e83413f98523d49034759c4b2",
+    "raw_response_sha256": "4933aad7bb38bbccad4eea94d26e0685f5a3e3611a9d378b861e6c2298805f5a",
+    "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+    "design_system_name": null,
+    "design_system_package": null,
+    "design_system_render_mode": null,
+    "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit model UI matrix."
   },
-  "artifact_path": "artifacts/gemma4-without-design-system.html"
+  "artifact_path": "artifacts/gemma4-without-design-system.html",
+  "screenshot_path": "screenshots/gemma4-without-design-system.png",
+  "approach_title": "Gemma 4 via LM Studio lms · without design system",
+  "approach_caption": "A local Gemma 4 transcript captured through LM Studio lms is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives."
 }</script>
   </body>
 </html>

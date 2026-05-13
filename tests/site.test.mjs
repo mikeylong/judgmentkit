@@ -46,17 +46,28 @@ const systemMapFlowCss = fs.readFileSync(path.join(tempDir, "assets", "system-ma
 const systemMapFlowSource = fs.readFileSync(new URL("../site/system-map-flow.jsx", import.meta.url), "utf8");
 assert.ok(systemMapFlowJs.includes("MCP boundary"));
 assert.ok(systemMapFlowJs.includes("JudgmentKit React Flow system design map"));
+assert.ok(systemMapFlowJs.includes("Source brief + product context"));
+assert.ok(systemMapFlowJs.includes("Renderer choice after reviewed handoff"));
+assert.ok(systemMapFlowJs.includes("Material UI adapter"));
+assert.ok(systemMapFlowJs.includes("@mui/material components"));
+assert.ok(systemMapFlowJs.includes("updated context returns to source/activity review"));
+assert.equal(systemMapFlowJs.includes("optional styling path"), false);
 assert.ok(systemMapFlowCss.includes(".rf-map-node"));
 assert.ok(systemMapFlowCss.includes("overflow-wrap:anywhere"));
 assert.ok(systemMapFlowCss.includes(".react-flow__controls"));
 assert.match(
   systemMapFlowSource,
-  /id: "with-design-system"[\s\S]*?style: \{ width: 224, height: 112 \}/,
+  /id: "material-ui-adapter"[\s\S]*?style: \{ width: 204, height: 112 \}/,
 );
 assert.match(
   systemMapFlowSource,
-  /id: "without-design-system"[\s\S]*?style: \{ width: 224, height: 112 \}/,
+  /id: "without-design-system"[\s\S]*?style: \{ width: 204, height: 112 \}/,
 );
+assert.match(
+  systemMapFlowSource,
+  /id: "zone-generation"[\s\S]*?style: \{ width: 500, height: 640 \}/,
+);
+assert.equal(systemMapFlowSource.includes('id: "with-design-system"'), false);
 assert.ok(homepage.includes("Judgment before generation."));
 assert.ok(homepage.includes("implementation mechanics from becoming UX"));
 assert.ok(homepage.includes("Use it before accepting AI-generated product work"));
@@ -87,8 +98,8 @@ assert.ok(homepage.includes("Handoff"));
 assert.ok(homepage.includes("ready for generation"));
 assert.ok(homepage.includes("System map"));
 assert.ok(homepage.includes('id="system-map"'));
-assert.ok(homepage.includes('href="/assets/system-map-flow.css?v=scroll-first-node-fit"'));
-assert.ok(homepage.includes('src="/assets/system-map-flow.js?v=scroll-first-node-fit"'));
+assert.ok(homepage.includes('href="/assets/system-map-flow.css?v=judgmentkit-flow-aligned"'));
+assert.ok(homepage.includes('src="/assets/system-map-flow.js?v=judgmentkit-flow-aligned"'));
 assert.ok(homepage.includes('data-system-map-flow-section'));
 assert.ok(homepage.includes('data-system-map-flow-viewer'));
 assert.ok(homepage.includes('data-system-map-flow-root'));
@@ -105,10 +116,17 @@ assert.ok(homepage.includes("JudgmentKit system design map"));
 assert.ok(homepage.includes("MCP boundary"));
 assert.ok(homepage.includes("JudgmentKit kernel"));
 assert.ok(homepage.includes("LLM / provider seam"));
-assert.ok(homepage.includes("design-system adapter"));
+assert.ok(homepage.includes("Design-system adapter"));
+assert.ok(homepage.includes("Source brief + product context"));
+assert.ok(homepage.includes("Material UI adapter"));
+assert.ok(homepage.includes("renderer choice after reviewed handoff"));
+assert.ok(homepage.includes("JudgmentKit does not enforce"));
+assert.ok(homepage.includes("design-system compliance is not a substitute for activity fit"));
 assert.ok(homepage.includes("without design system"));
 assert.ok(homepage.includes("updated context"));
+assert.ok(homepage.includes("source/activity review"));
 assert.ok(homepage.includes("resolve targeted questions or leakage details before generating UI"));
+assert.equal(homepage.includes("optional styling path"), false);
 assert.equal(homepage.includes("Open system map"), false);
 assert.ok(homepage.includes("stays in the loop across iterations"));
 assert.ok(homepage.includes("not the final renderer"));
@@ -151,8 +169,8 @@ assert.ok(docs.includes("Markdown planning card"));
 assert.ok(docs.includes("Codex-style planning chat"));
 assert.ok(docs.includes('id="system-map"'));
 assert.ok(docs.includes("System Map"));
-assert.ok(docs.includes('href="/assets/system-map-flow.css?v=scroll-first-node-fit"'));
-assert.ok(docs.includes('src="/assets/system-map-flow.js?v=scroll-first-node-fit"'));
+assert.ok(docs.includes('href="/assets/system-map-flow.css?v=judgmentkit-flow-aligned"'));
+assert.ok(docs.includes('src="/assets/system-map-flow.js?v=judgmentkit-flow-aligned"'));
 assert.ok(docs.includes('data-system-map-flow-section'));
 assert.ok(docs.includes('data-system-map-flow-viewer'));
 assert.ok(docs.includes('data-system-map-flow-root'));
@@ -174,12 +192,18 @@ assert.ok(docs.includes("MCP boundary"));
 assert.ok(docs.includes("MCP is access and transport, not the LLM"));
 assert.ok(docs.includes("LLM / provider seam"));
 assert.ok(docs.includes("JudgmentKit kernel"));
-assert.ok(docs.includes("design-system adapter"));
+assert.ok(docs.includes("Design-system adapter"));
+assert.ok(docs.includes("Source brief + product context"));
+assert.ok(docs.includes("Material UI adapter"));
+assert.ok(docs.includes("renderer choice after reviewed handoff"));
+assert.ok(docs.includes("JudgmentKit does not enforce"));
+assert.ok(docs.includes("design-system compliance is not a substitute for activity fit"));
 assert.ok(docs.includes("without design system"));
 assert.ok(docs.includes("updated context"));
-assert.ok(docs.includes("re-enters JudgmentKit rather than becoming only a longer prompt"));
+assert.ok(docs.includes("re-enters source/activity review rather than becoming only a longer prompt"));
 assert.ok(docs.includes("resolve targeted questions or leakage details before generating UI"));
 assert.ok(docs.includes("not the final UI renderer"));
+assert.equal(docs.includes("optional styling path"), false);
 assert.ok(docs.includes("operator-review-ui"));
 assert.equal(docs.includes("judgmentkit2"), false);
 
@@ -192,7 +216,15 @@ assert.ok(examples.includes('class="examples-rail" aria-label="Examples list"'))
 assert.ok(examples.includes('class="example-menu" data-example-menu'));
 assert.ok(examples.includes("<summary>Browse examples</summary>"));
 assert.ok(examples.includes('aria-label="Selected example"'));
-assert.ok(examples.includes('class="example-frame" data-example-frame src="/examples/one-shot-demo.html"'));
+assert.equal(examples.includes("<iframe"), false);
+assert.equal(examples.includes("data-example-frame"), false);
+assert.equal(examples.includes("Inline preview"), false);
+assert.ok(examples.includes('class="example-preview-body" data-example-preview-body'));
+assert.ok(examples.includes('class=\\"example-gallery\\" aria-label=\\"Model UI screenshot gallery\\"'));
+assert.ok(examples.includes('data-example-gallery-modal'));
+assert.ok(examples.includes('role="dialog" aria-modal="true"'));
+assert.ok(examples.includes('data-gallery-open=\\"0\\"'));
+assert.ok(examples.includes('data-gallery-modal-image'));
 assert.ok(examples.includes('id="examples-data"'));
 assert.ok(examples.includes("Refund triage comparison"));
 assert.ok(examples.includes("Model UI generation matrix"));
@@ -208,6 +240,12 @@ assert.ok(examples.includes("/examples/comparison/refund/version-a.html"));
 assert.ok(examples.includes("/examples/comparison/refund/version-b.html"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/index.html"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/manifest.json"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-without-design-system.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-with-design-system.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gemma4-without-design-system.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gemma4-with-design-system.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gpt55-without-design-system.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gpt55-with-design-system.png"));
 assert.ok(examples.includes("/examples/comparison/music/version-a.html"));
 assert.ok(examples.includes("/examples/comparison/music/version-b.html"));
 assert.ok(examples.includes("/examples/comparison/music/facilitator-scorecard.md"));
@@ -215,6 +253,11 @@ assert.equal(examples.includes("/examples/evals/"), false);
 assert.equal(examples.includes("/examples/evals/index.json"), false);
 assert.ok(examples.includes("Gemma 4 (local LLM)"));
 assert.ok(examples.includes("GPT-5.5"));
+assert.ok(examples.includes("Gemma 4 via LM Studio lms"));
+assert.ok(examples.includes("GPT-5.5 via codex exec"));
+assert.ok(examples.includes("without design system"));
+assert.ok(examples.includes("with Material UI adapter"));
+assert.equal(examples.includes("with design-system adapter"), false);
 assert.equal(examples.includes("raw_brief_baseline"), false);
 assert.equal(examples.includes("judgmentkit_handoff"), false);
 
@@ -290,6 +333,16 @@ for (const copiedExamplePath of [
   ["examples", "model-ui", "refund-system-map", "artifacts", "gemma4-with-design-system.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-without-design-system.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-with-design-system.html"],
+  ["examples", "model-ui", "refund-system-map", "captures", "gemma4-without-design-system.json"],
+  ["examples", "model-ui", "refund-system-map", "captures", "gemma4-with-design-system.json"],
+  ["examples", "model-ui", "refund-system-map", "captures", "gpt55-without-design-system.json"],
+  ["examples", "model-ui", "refund-system-map", "captures", "gpt55-with-design-system.json"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-without-design-system.png"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-with-design-system.png"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "gemma4-without-design-system.png"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "gemma4-with-design-system.png"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "gpt55-without-design-system.png"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "gpt55-with-design-system.png"],
   ["examples", "comparison", "music", "version-a.html"],
   ["examples", "comparison", "music", "version-b.html"],
   ["examples", "comparison", "music", "facilitator-scorecard.md"],

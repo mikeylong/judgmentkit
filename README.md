@@ -130,7 +130,21 @@ For the system-map model UI matrix:
 npm run demo:model-ui
 ```
 
-That command writes a static refund-triage matrix under `examples/model-ui/refund-system-map/`, including deterministic, Gemma 4 local LLM, and GPT-5.5 branches with and without the example-only design-system adapter. The website build copies those committed artifacts, records provenance in the manifest, and does not call live providers.
+That command writes a static refund-triage matrix under `examples/model-ui/refund-system-map/`, including deterministic, Gemma 4 local LLM, and GPT-5.5 branches with and without the Material UI adapter. The website build copies those committed artifacts, records provenance in the manifest, and does not call live providers.
+
+To refresh the committed Gemma 4 and GPT-5.5 transcripts for that matrix:
+
+```bash
+npm run capture:model-ui
+```
+
+That command uses LM Studio's `lms` CLI for Gemma 4 and the `codex` CLI for GPT-5.5, writes capture transcripts under `examples/model-ui/refund-system-map/captures/`, and regenerates the static matrix from those committed files.
+
+To refresh only the committed gallery screenshots after regenerating the matrix:
+
+```bash
+npm run capture:model-ui:screenshots
+```
 
 For the replacement website build:
 

@@ -15,7 +15,7 @@ const ROOT = path.resolve(__dirname, "..");
 const DEFAULT_OUT_DIR = path.join(__dirname, "dist");
 const require = createRequire(import.meta.url);
 const ANALYTICS_SDK_VERSION = require("@vercel/analytics/package.json").version;
-const SYSTEM_MAP_FLOW_ASSET_VERSION = "scroll-first-node-fit";
+const SYSTEM_MAP_FLOW_ASSET_VERSION = "judgmentkit-flow-aligned";
 
 function parseArgs(argv) {
   const outIndex = argv.indexOf("--out");
@@ -167,26 +167,30 @@ function systemMapShell(titleId, descId) {
 }
 
 function systemMapFallbackSvg(titleId, descId) {
-  return `<svg class="system-map-svg system-map-fallback-svg" data-system-map-svg-fallback viewBox="0 0 1760 1040" preserveAspectRatio="xMidYMin meet" role="img" aria-labelledby="${escapeHtml(titleId)} ${escapeHtml(descId)}">
+  return `<svg class="system-map-svg system-map-fallback-svg" data-system-map-svg-fallback viewBox="0 0 1760 1120" preserveAspectRatio="xMidYMin meet" role="img" aria-labelledby="${escapeHtml(titleId)} ${escapeHtml(descId)}">
           <title id="${escapeHtml(titleId)}">JudgmentKit system design map</title>
-          <desc id="${escapeHtml(descId)}">A static fallback node and edge diagram showing the MCP boundary, JudgmentKit kernel, optional LLM provider seam, UI generation outside JudgmentKit, design-system adapter, blocked path, and iteration with updated context.</desc>
+          <desc id="${escapeHtml(descId)}">A static fallback node and edge diagram showing source context, the MCP boundary, JudgmentKit kernel, optional LLM provider seam, UI rendering outside JudgmentKit, Material UI adapter, blocked path, and iteration with updated context returning to source and activity review.</desc>
           <defs>
             <marker id="system-map-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#245f73"></path>
             </marker>
           </defs>
 
-          <rect class="map-zone" x="36" y="64" width="310" height="360" rx="18"></rect>
+          <rect class="map-zone" x="36" y="64" width="330" height="470" rx="18"></rect>
           <text class="map-boundary" x="60" y="104">MCP boundary</text>
           <text class="map-zone-title" x="60" y="138">Agent / Client / MCP</text>
-          <rect class="map-node" x="60" y="170" width="262" height="82" rx="12"></rect>
-          <text class="map-node-title" x="78" y="202">Codex or agent client</text>
-          <text class="map-node-text" x="78" y="226">Calls tools; owns the turn.</text>
-          <rect class="map-node" x="60" y="274" width="262" height="116" rx="12"></rect>
-          <text class="map-node-title" x="78" y="306">MCP server</text>
-          <text class="map-node-text" x="78" y="330">Access and transport only.</text>
-          <text class="map-node-text" x="78" y="354">MCP is not the LLM.</text>
-          <text class="map-node-code" x="78" y="378">tools/list + tools/call</text>
+          <rect class="map-node" x="60" y="156" width="282" height="78" rx="12"></rect>
+          <text class="map-node-title" x="78" y="188">Codex or agent client</text>
+          <text class="map-node-text" x="78" y="212">Calls tools; owns the turn.</text>
+          <rect class="map-node" x="60" y="258" width="282" height="112" rx="12"></rect>
+          <text class="map-node-title" x="78" y="290">Source brief + product context</text>
+          <text class="map-node-text" x="78" y="314">Brief, product facts,</text>
+          <text class="map-node-text" x="78" y="338">current draft findings.</text>
+          <rect class="map-node" x="60" y="392" width="282" height="116" rx="12"></rect>
+          <text class="map-node-title" x="78" y="424">MCP server</text>
+          <text class="map-node-text" x="78" y="448">Access and transport only.</text>
+          <text class="map-node-text" x="78" y="472">MCP is not the LLM.</text>
+          <text class="map-node-code" x="78" y="496">tools/list + tools/call</text>
 
           <rect class="map-zone map-zone-kernel" x="430" y="64" width="700" height="670" rx="18"></rect>
           <text class="map-boundary" x="458" y="104">JudgmentKit kernel</text>
@@ -232,30 +236,29 @@ function systemMapFallbackSvg(titleId, descId) {
           <text class="map-node-text" x="1488" y="226">Activity/workflow JSON.</text>
           <text class="map-node-text" x="1488" y="250">Reviewed before use.</text>
 
-          <rect class="map-zone map-zone-output" x="1212" y="412" width="500" height="260" rx="18"></rect>
+          <rect class="map-zone map-zone-output" x="1212" y="412" width="500" height="640" rx="18"></rect>
           <text class="map-boundary" x="1240" y="452">Outside JudgmentKit</text>
-          <text class="map-zone-title" x="1240" y="486">UI generation</text>
-          <rect class="map-node map-node-output" x="1240" y="518" width="204" height="94" rx="12"></rect>
+          <text class="map-zone-title" x="1240" y="486">UI rendering from reviewed handoff</text>
+          <rect class="map-node map-node-output" x="1240" y="518" width="434" height="94" rx="12"></rect>
           <text class="map-node-title" x="1258" y="550">LLM / agent UI pass</text>
-          <text class="map-node-text" x="1258" y="574">Generate from reviewed</text>
-          <text class="map-node-text" x="1258" y="596">handoff, not raw brief.</text>
-          <rect class="map-node map-node-output" x="1470" y="518" width="204" height="94" rx="12"></rect>
-          <text class="map-node-title" x="1488" y="550">UI draft</text>
-          <text class="map-node-text" x="1488" y="574">Reviewed by human or</text>
-          <text class="map-node-text" x="1488" y="596">agent for next iteration.</text>
-
-          <rect class="map-zone" x="1212" y="734" width="500" height="236" rx="18"></rect>
-          <text class="map-boundary" x="1240" y="774">Design-system adapter</text>
-          <text class="map-zone-title" x="1240" y="808">Optional visual layer after judgment</text>
-          <rect class="map-node" x="1240" y="838" width="224" height="112" rx="12"></rect>
-          <text class="map-node-title" x="1258" y="870">with design system</text>
-          <text class="map-node-text" x="1258" y="894">Tokens, components,</text>
-          <text class="map-node-text" x="1258" y="916">layout rules applied later.</text>
-          <rect class="map-node" x="1470" y="838" width="224" height="112" rx="12"></rect>
-          <text class="map-node-title" x="1488" y="870">without design</text>
-          <text class="map-node-title" x="1488" y="892">system</text>
-          <text class="map-node-text" x="1488" y="918">Still use the handoff;</text>
-          <text class="map-node-text" x="1488" y="940">choose simple UI primitives.</text>
+          <text class="map-node-text" x="1258" y="574">Generate from reviewed handoff,</text>
+          <text class="map-node-text" x="1258" y="596">not raw brief.</text>
+          <rect class="map-node map-node-output" x="1240" y="640" width="434" height="106" rx="12"></rect>
+          <text class="map-node-title" x="1258" y="672">Renderer choice after reviewed handoff</text>
+          <text class="map-node-text" x="1258" y="696">JudgmentKit does not enforce</text>
+          <text class="map-node-text" x="1258" y="720">Material UI or any design system.</text>
+          <rect class="map-node map-node-output" x="1240" y="774" width="204" height="112" rx="12"></rect>
+          <text class="map-node-title" x="1258" y="806">Material UI adapter</text>
+          <text class="map-node-text" x="1258" y="830">@mui/material components</text>
+          <text class="map-node-text" x="1258" y="854">applied after judgment.</text>
+          <rect class="map-node map-node-output" x="1470" y="774" width="204" height="112" rx="12"></rect>
+          <text class="map-node-title" x="1488" y="806">without design</text>
+          <text class="map-node-title" x="1488" y="828">system</text>
+          <text class="map-node-text" x="1488" y="854">Still use the handoff;</text>
+          <text class="map-node-text" x="1488" y="876">choose simple UI primitives.</text>
+          <rect class="map-node map-node-output" x="1240" y="916" width="434" height="82" rx="12"></rect>
+          <text class="map-node-title" x="1258" y="948">UI draft</text>
+          <text class="map-node-text" x="1258" y="972">Reviewed by human or agent for next iteration.</text>
 
           <rect class="map-zone" x="430" y="780" width="700" height="190" rx="18"></rect>
           <text class="map-boundary" x="458" y="820">Iteration loop</text>
@@ -265,14 +268,15 @@ function systemMapFallbackSvg(titleId, descId) {
           <rect class="map-node map-node-kernel" x="804" y="884" width="292" height="60" rx="12"></rect>
           <text class="map-node-title" x="824" y="920">updated context</text>
 
-          <path class="map-edge" d="M 322 330 C 374 330 374 220 462 220"></path>
-          <text class="map-edge-label" x="352" y="292">MCP tool call</text>
+          <path class="map-edge map-edge-muted" d="M 201 370 L 201 392"></path>
+          <path class="map-edge" d="M 342 450 C 388 450 382 220 462 220"></path>
+          <text class="map-edge-label" x="350" y="360">MCP tool call</text>
           <path class="map-edge map-edge-muted" d="M 754 220 L 804 220"></path>
           <path class="map-edge map-edge-muted" d="M 950 270 L 950 318"></path>
           <path class="map-edge map-edge-muted" d="M 754 368 L 804 368"></path>
           <path class="map-edge map-edge-muted" d="M 950 418 L 950 466"></path>
           <path class="map-edge map-edge-blocked" d="M 804 544 C 744 580 704 590 672 606"></path>
-          <path class="map-edge map-edge-blocked" d="M 594 650 C 372 650 342 452 292 390"></path>
+          <path class="map-edge map-edge-blocked" d="M 594 650 C 372 650 342 512 292 508"></path>
           <text class="map-edge-label" x="348" y="620">needs source context</text>
           <path class="map-edge map-edge-llm" d="M 1096 368 C 1166 338 1192 238 1240 226"></path>
           <text class="map-edge-label" x="1130" y="302">request candidate</text>
@@ -280,14 +284,18 @@ function systemMapFallbackSvg(titleId, descId) {
           <text class="map-edge-label" x="1302" y="338">proposed JSON returns for review</text>
           <path class="map-edge map-edge-output" d="M 1096 516 C 1158 516 1178 564 1240 564"></path>
           <text class="map-edge-label" x="1124" y="546">reviewed handoff</text>
-          <path class="map-edge map-edge-output" d="M 1444 564 L 1470 564"></path>
-          <path class="map-edge map-edge-muted" d="M 1572 612 L 1572 838"></path>
-          <text class="map-edge-label" x="1586" y="720">optional styling path</text>
-          <path class="map-edge map-edge-muted" d="M 1444 882 L 1470 882"></path>
-          <path class="map-edge" d="M 1470 596 C 1290 754 1040 846 754 914"></path>
-          <text class="map-edge-label" x="1090" y="812">review draft</text>
-          <path class="map-edge" d="M 804 914 C 648 820 582 736 608 566"></path>
-          <text class="map-edge-label" x="650" y="790">next turn</text>
+          <path class="map-edge map-edge-output" d="M 1457 612 L 1457 640"></path>
+          <path class="map-edge map-edge-output" d="M 1457 746 C 1356 746 1342 774 1342 774"></path>
+          <text class="map-edge-label" x="1246" y="760">with design system</text>
+          <path class="map-edge map-edge-output" d="M 1457 746 C 1560 746 1572 774 1572 774"></path>
+          <text class="map-edge-label" x="1500" y="760">without design system</text>
+          <path class="map-edge map-edge-output" d="M 1342 886 C 1342 904 1457 904 1457 916"></path>
+          <path class="map-edge map-edge-output" d="M 1572 886 C 1572 904 1457 904 1457 916"></path>
+          <path class="map-edge" d="M 1240 958 C 1068 920 912 914 754 914"></path>
+          <text class="map-edge-label" x="1030" y="930">review draft</text>
+          <path class="map-edge map-edge-muted" d="M 754 914 L 804 914"></path>
+          <path class="map-edge" d="M 804 914 C 640 760 420 420 342 314"></path>
+          <text class="map-edge-label" x="492" y="766">updated context returns to source/activity review</text>
         </svg>`;
 }
 
@@ -401,6 +409,10 @@ h2 {
   padding: 6px 10px;
   border: 1px solid var(--line);
   border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
   text-decoration: none;
   font-weight: 700;
 }
@@ -895,37 +907,192 @@ pre {
   justify-content: flex-end;
   gap: 10px;
 }
-.example-frame-shell {
-  overflow: hidden;
+.example-preview-body {
+  min-width: 0;
+}
+.example-static-preview,
+.example-gallery-card {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--panel);
 }
-.example-frame-toolbar {
-  display: flex;
-  gap: 14px;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 12px;
+.example-static-preview {
+  padding: clamp(18px, 3vw, 28px);
+}
+.example-static-preview h3,
+.example-gallery-intro h3 {
+  margin-bottom: 8px;
+}
+.example-static-preview p,
+.example-gallery-intro p {
+  margin-bottom: 16px;
+}
+.example-gallery {
+  display: grid;
+  gap: 18px;
+}
+.example-gallery-intro {
+  max-width: 760px;
+}
+.example-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.example-gallery-card {
+  overflow: hidden;
+}
+.example-gallery-thumb {
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
   border-bottom: 1px solid var(--line);
   background: #f2f1eb;
-  color: var(--muted);
-  font-size: 13px;
 }
-.example-frame-title {
-  overflow: hidden;
-  color: var(--ink);
-  font-weight: 700;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.example-frame {
+.example-gallery-thumb img {
   display: block;
   width: 100%;
-  height: min(76vh, 760px);
-  min-height: 520px;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transition: transform 180ms ease;
+}
+.example-gallery-thumb:hover img,
+.example-gallery-thumb:focus-visible img {
+  transform: scale(1.025);
+}
+.example-gallery-card-copy {
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+}
+.example-gallery-card-copy h3 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.18;
+}
+.example-gallery-card-copy p {
+  margin: 0;
+}
+.example-gallery-meta,
+.example-gallery-modal-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.example-gallery-meta div,
+.example-gallery-modal-meta div {
+  min-width: 0;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8f7f1;
+}
+.example-gallery-meta dt,
+.example-gallery-modal-meta dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.example-gallery-meta dd,
+.example-gallery-modal-meta dd {
+  margin: 2px 0 0;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.example-gallery-card-actions,
+.example-gallery-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.example-gallery-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  padding: clamp(12px, 2vw, 24px);
+}
+.example-gallery-modal[hidden] {
+  display: none;
+}
+.example-gallery-modal-backdrop {
+  position: absolute;
+  inset: 0;
   border: 0;
+  background: rgba(20, 28, 31, 0.72);
+  cursor: zoom-out;
+}
+.example-gallery-modal-panel {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 360px);
+  gap: 0;
+  width: min(1360px, 100%);
+  height: min(860px, calc(100vh - clamp(24px, 4vw, 48px)));
+  margin: auto;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 24px 80px rgba(20, 28, 31, 0.25);
+}
+.example-gallery-modal-image {
+  display: grid;
+  min-width: 0;
+  min-height: 0;
+  place-items: center;
+  padding: clamp(12px, 2vw, 22px);
+  background: #10181b;
+}
+.example-gallery-modal-image img {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  border-radius: 6px;
+  object-fit: contain;
   background: #ffffff;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
+}
+.example-gallery-modal-copy {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 18px;
+  min-width: 0;
+  min-height: 0;
+  padding: clamp(18px, 2.4vw, 28px);
+  overflow-y: auto;
+  border-left: 1px solid var(--line);
+}
+.example-gallery-modal-close {
+  justify-self: start;
+}
+.example-gallery-modal-detail {
+  min-width: 0;
+}
+.example-gallery-modal-detail h2 {
+  margin-bottom: 10px;
+  font-size: clamp(24px, 3vw, 34px);
+}
+.example-gallery-modal-detail p {
+  margin-bottom: 14px;
+}
+.example-gallery-modal-footer {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid var(--line);
+  padding-top: 16px;
+}
+.example-gallery-modal-buttons {
+  display: flex;
+  gap: 8px;
+}
+.example-gallery-open,
+.example-gallery-open body {
+  overflow: hidden;
 }
 .example-noscript-links {
   margin-top: 18px;
@@ -1073,12 +1240,25 @@ pre {
   .example-actions {
     justify-content: flex-start;
   }
-  .example-frame-toolbar {
-    display: block;
+  .example-gallery-grid,
+  .example-gallery-modal-panel {
+    grid-template-columns: 1fr;
   }
-  .example-frame {
-    height: 68vh;
-    min-height: 430px;
+  .example-gallery-modal-panel {
+    height: calc(100vh - 24px);
+  }
+  .example-gallery-modal-image {
+    min-height: 46vh;
+    padding: 10px;
+  }
+  .example-gallery-modal-copy {
+    grid-template-rows: auto auto auto;
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+  .example-gallery-meta,
+  .example-gallery-modal-meta {
+    grid-template-columns: 1fr;
   }
   .evals-summary {
     grid-template-columns: 1fr;
@@ -1161,8 +1341,8 @@ function homepage() {
         <p><strong>JudgmentKit kernel:</strong> deterministic review, candidate review, disclosure rules, targeted questions, and the handoff gate decide whether UI generation is ready.</p>
         <p><strong>LLM / provider seam:</strong> a model may propose activity or workflow candidates, but JudgmentKit reviews those candidates before trusting them.</p>
         <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
-        <p><strong>Design-system adapter:</strong> teams can generate with design-system tokens/components or without design system support; in both cases, styling comes after activity/workflow judgment.</p>
-        <p><strong>Iteration:</strong> draft review produces updated context that re-enters JudgmentKit rather than becoming only a longer prompt.</p>
+        <p><strong>Design-system adapter:</strong> the renderer choice after reviewed handoff can use a Material UI adapter or simple primitives without design system support. JudgmentKit does not enforce the visual system, and design-system compliance is not a substitute for activity fit.</p>
+        <p><strong>Iteration:</strong> draft review produces updated context that re-enters source/activity review rather than becoming only a longer prompt.</p>
       </div>
       <p class="system-branch"><strong>Blocked path:</strong> if activity, workflow, or handoff is not ready, resolve targeted questions or leakage details before generating UI.</p>
     </section>
@@ -1246,8 +1426,8 @@ curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></p
               <p><strong>JudgmentKit kernel:</strong> deterministic review, candidate review, disclosure rules, targeted questions, and the handoff gate decide whether UI generation is ready.</p>
               <p><strong>LLM / provider seam:</strong> a model may propose activity or workflow candidates, but JudgmentKit reviews those candidates before trusting them.</p>
               <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
-              <p><strong>Design-system adapter:</strong> teams can generate with design-system tokens/components or without design system support; in both cases, styling comes after activity/workflow judgment.</p>
-              <p><strong>Iteration:</strong> draft review produces updated context that re-enters JudgmentKit rather than becoming only a longer prompt.</p>
+              <p><strong>Design-system adapter:</strong> the renderer choice after reviewed handoff can use a Material UI adapter or simple primitives without design system support. JudgmentKit does not enforce the visual system, and design-system compliance is not a substitute for activity fit.</p>
+              <p><strong>Iteration:</strong> draft review produces updated context that re-enters source/activity review rather than becoming only a longer prompt.</p>
             </div>
             <p class="system-branch"><strong>Blocked path:</strong> if activity, workflow, or handoff is not ready, resolve targeted questions or leakage details before generating UI.</p>
           </section>
@@ -1323,7 +1503,7 @@ const EXAMPLES = [
     title: "Model UI generation matrix",
     label: "System map",
     description:
-      "One reviewed refund-triage handoff shown across deterministic, Gemma 4 (local LLM), and GPT-5.5 branches, with and without a design-system adapter.",
+      "One reviewed refund-triage handoff shown across deterministic, Gemma 4 (local LLM), and GPT-5.5 branches, with and without a Material UI adapter.",
     previewHref: "/examples/model-ui/refund-system-map/index.html",
     previewLabel: "Model UI generation matrix",
     actions: [
@@ -1359,6 +1539,125 @@ const EXAMPLES = [
   },
 ];
 
+const MODEL_UI_EXAMPLE_BASE_HREF = "/examples/model-ui/refund-system-map";
+
+function modelUiExampleHref(relativePath) {
+  return `${MODEL_UI_EXAMPLE_BASE_HREF}/${relativePath}`;
+}
+
+function designSystemModeLabel(mode) {
+  return mode === "with_design_system" ? "with Material UI adapter" : "without design system";
+}
+
+function galleryProvenanceLabel(artifact) {
+  if (artifact.generation_source === "captured_model_output") {
+    const cli = artifact.capture_provenance?.cli;
+    if (cli === "lms") {
+      return "captured transcript from LM Studio lms";
+    }
+    if (cli === "codex") {
+      return "captured transcript from codex exec";
+    }
+    return "captured model transcript";
+  }
+
+  return "deterministic renderer, no provider call";
+}
+
+function buildModelUiGalleryItems(manifest) {
+  return (manifest?.artifacts ?? []).map((artifact) => ({
+    id: artifact.id,
+    title: artifact.approach_title ?? artifact.title,
+    caption: artifact.approach_caption ?? "",
+    modelLabel: artifact.model_label ?? artifact.title,
+    adapterLabel: designSystemModeLabel(artifact.design_system_mode),
+    provenance: galleryProvenanceLabel(artifact),
+    artifactHref: modelUiExampleHref(artifact.artifact_path),
+    imageHref: modelUiExampleHref(artifact.screenshot_path),
+    captureHref: artifact.capture_file ? modelUiExampleHref(artifact.capture_file) : "",
+  }));
+}
+
+function renderExampleStaticPreview(example) {
+  return `
+    <article class="example-static-preview">
+      <p class="eyebrow">Standalone artifact</p>
+      <h3>${escapeHtml(example.previewLabel)}</h3>
+      <p>${escapeHtml(example.description)}</p>
+      <div class="link-row">${renderExampleActions(example.actions)}</div>
+    </article>`;
+}
+
+function renderExampleGalleryCard(item, index) {
+  return `
+    <article class="example-gallery-card">
+      <a class="example-gallery-thumb" href="${escapeHtml(item.artifactHref)}" data-gallery-open="${index}" aria-label="Open gallery view for ${escapeHtml(item.title)}">
+        <img src="${escapeHtml(item.imageHref)}" alt="${escapeHtml(item.title)} screenshot" loading="${index < 2 ? "eager" : "lazy"}">
+      </a>
+      <div class="example-gallery-card-copy">
+        <h3>${escapeHtml(item.title)}</h3>
+        <p class="note">${escapeHtml(item.caption)}</p>
+        <dl class="example-gallery-meta">
+          <div><dt>Approach</dt><dd>${escapeHtml(item.modelLabel)}</dd></div>
+          <div><dt>Adapter</dt><dd>${escapeHtml(item.adapterLabel)}</dd></div>
+        </dl>
+        <div class="example-gallery-card-actions">
+          <a class="pill-link" href="${escapeHtml(item.artifactHref)}" target="_blank" rel="noreferrer">Open artifact</a>
+          <a class="pill-link" href="${escapeHtml(item.imageHref)}" target="_blank" rel="noreferrer">Open image</a>
+        </div>
+      </div>
+    </article>`;
+}
+
+function renderModelUiGalleryPreview(example) {
+  const galleryItems = example.galleryItems ?? [];
+  const cards = galleryItems.map(renderExampleGalleryCard).join("");
+
+  return `
+    <section class="example-gallery" aria-label="Model UI screenshot gallery">
+      <div class="example-gallery-intro">
+        <p class="eyebrow">Committed screenshots</p>
+        <h3>Six generation paths from the same reviewed handoff</h3>
+        <p>Each thumbnail is a committed desktop PNG from a static artifact. Select a thumbnail for a full-page gallery view, or open the artifact directly outside the JudgmentKit page UI.</p>
+      </div>
+      <div class="example-gallery-grid">
+        ${cards}
+      </div>
+    </section>`;
+}
+
+function renderExamplePreview(example) {
+  if (example.previewKind === "gallery") {
+    return renderModelUiGalleryPreview(example);
+  }
+
+  return renderExampleStaticPreview(example);
+}
+
+function buildExamples(modelUiManifest) {
+  const modelUiGalleryItems = buildModelUiGalleryItems(modelUiManifest);
+
+  return EXAMPLES.map((example) => {
+    const previewExample =
+      example.id === "model-ui-system-map"
+        ? {
+            ...example,
+            previewKind: "gallery",
+            galleryItems: modelUiGalleryItems,
+          }
+        : {
+            ...example,
+            previewKind: "links",
+            galleryItems: [],
+          };
+
+    return {
+      ...previewExample,
+      previewHtml: renderExamplePreview(previewExample),
+    };
+  });
+}
+
 function renderExampleSelector(example, isActive = false) {
   return `
     <button class="example-select" type="button" data-example-id="${escapeHtml(example.id)}" aria-current="${isActive ? "true" : "false"}">
@@ -1378,13 +1677,21 @@ function renderExampleActions(actions) {
 
 function renderNoScriptExampleLinks(examples) {
   return examples
-    .map(
-      (example) => `
+    .map((example) => {
+      const galleryLinks = (example.galleryItems ?? [])
+        .map(
+          (item) =>
+            `<a class="pill-link" href="${escapeHtml(item.artifactHref)}" target="_blank" rel="noreferrer">${escapeHtml(item.title)}</a>`,
+        )
+        .join("");
+
+      return `
         <section>
           <h3>${escapeHtml(example.title)}</h3>
           <div class="link-row">${renderExampleActions(example.actions)}</div>
-        </section>`,
-    )
+          ${galleryLinks ? `<div class="link-row">${galleryLinks}</div>` : ""}
+        </section>`;
+    })
     .join("");
 }
 
@@ -1400,11 +1707,24 @@ function examplesBrowserScript() {
         const examplesById = new Map(examples.map((example) => [example.id, example]));
         const titleNode = browser.querySelector("[data-example-title]");
         const descriptionNode = browser.querySelector("[data-example-description]");
-        const frameNode = browser.querySelector("[data-example-frame]");
-        const frameTitleNode = browser.querySelector("[data-example-frame-title]");
+        const previewNode = browser.querySelector("[data-example-preview-body]");
         const actionsNode = browser.querySelector("[data-example-actions]");
         const menuNode = browser.querySelector("[data-example-menu]");
         const selectors = Array.from(browser.querySelectorAll("[data-example-id]"));
+        const modal = document.querySelector("[data-example-gallery-modal]");
+        const modalImage = modal?.querySelector("[data-gallery-modal-image]");
+        const modalKicker = modal?.querySelector("[data-gallery-modal-kicker]");
+        const modalTitle = modal?.querySelector("[data-gallery-modal-title]");
+        const modalCaption = modal?.querySelector("[data-gallery-modal-caption]");
+        const modalAdapter = modal?.querySelector("[data-gallery-modal-adapter]");
+        const modalProvenance = modal?.querySelector("[data-gallery-modal-provenance]");
+        const modalArtifactLink = modal?.querySelector("[data-gallery-modal-artifact]");
+        const modalImageLink = modal?.querySelector("[data-gallery-modal-source]");
+        const modalCount = modal?.querySelector("[data-gallery-modal-count]");
+        const modalCloseButton = modal?.querySelector("[data-gallery-close]:not(.example-gallery-modal-backdrop)");
+        let activeGalleryItems = [];
+        let activeGalleryIndex = 0;
+        let previousFocus = null;
 
         function renderActions(actions) {
           actionsNode.replaceChildren();
@@ -1419,13 +1739,59 @@ function examplesBrowserScript() {
           }
         }
 
+        function renderGalleryModal(index) {
+          if (!modal || activeGalleryItems.length === 0) return;
+          activeGalleryIndex = (index + activeGalleryItems.length) % activeGalleryItems.length;
+          const item = activeGalleryItems[activeGalleryIndex];
+          modalImage.src = item.imageHref;
+          modalImage.alt = item.title + " screenshot";
+          modalKicker.textContent = item.modelLabel;
+          modalTitle.textContent = item.title;
+          modalCaption.textContent = item.caption;
+          modalAdapter.textContent = item.adapterLabel;
+          modalProvenance.textContent = item.provenance;
+          modalArtifactLink.href = item.artifactHref;
+          modalImageLink.href = item.imageHref;
+          modalCount.textContent = String(activeGalleryIndex + 1) + " of " + String(activeGalleryItems.length);
+        }
+
+        function openGallery(items, index) {
+          if (!modal || !items?.length) return;
+          activeGalleryItems = items;
+          previousFocus = document.activeElement;
+          renderGalleryModal(index);
+          modal.hidden = false;
+          modal.setAttribute("aria-hidden", "false");
+          document.documentElement.classList.add("example-gallery-open");
+          modalCloseButton?.focus();
+        }
+
+        function closeGallery() {
+          if (!modal || modal.hidden) return;
+          modal.hidden = true;
+          modal.setAttribute("aria-hidden", "true");
+          document.documentElement.classList.remove("example-gallery-open");
+          previousFocus?.focus?.();
+        }
+
+        function bindGalleryLinks(example) {
+          if (!previewNode) return;
+          const galleryItems = example.galleryItems ?? [];
+          previewNode.querySelectorAll("[data-gallery-open]").forEach((link) => {
+            link.addEventListener("click", (event) => {
+              if (!galleryItems.length) return;
+              event.preventDefault();
+              openGallery(galleryItems, Number(link.getAttribute("data-gallery-open") || "0"));
+            });
+          });
+        }
+
         function selectExample(id, options = {}) {
           const example = examplesById.get(id) ?? examples[0];
           titleNode.textContent = example.title;
           descriptionNode.textContent = example.description;
-          frameTitleNode.textContent = example.previewLabel;
-          frameNode.src = example.previewHref;
-          frameNode.title = example.previewLabel;
+          previewNode.innerHTML = example.previewHtml ?? "";
+          bindGalleryLinks(example);
           renderActions(example.actions);
 
           for (const selector of selectors) {
@@ -1439,6 +1805,24 @@ function examplesBrowserScript() {
           if (menuNode && window.matchMedia("(max-width: 820px)").matches) {
             menuNode.removeAttribute("open");
           }
+        }
+
+        if (modal) {
+          modal.querySelectorAll("[data-gallery-close]").forEach((button) => {
+            button.addEventListener("click", closeGallery);
+          });
+          modal.querySelector("[data-gallery-prev]")?.addEventListener("click", () => renderGalleryModal(activeGalleryIndex - 1));
+          modal.querySelector("[data-gallery-next]")?.addEventListener("click", () => renderGalleryModal(activeGalleryIndex + 1));
+          document.addEventListener("keydown", (event) => {
+            if (modal.hidden) return;
+            if (event.key === "Escape") {
+              closeGallery();
+            } else if (event.key === "ArrowLeft") {
+              renderGalleryModal(activeGalleryIndex - 1);
+            } else if (event.key === "ArrowRight") {
+              renderGalleryModal(activeGalleryIndex + 1);
+            }
+          });
         }
 
         for (const selector of selectors) {
@@ -1461,9 +1845,46 @@ function examplesBrowserScript() {
     </script>`;
 }
 
+function renderExampleGalleryModal() {
+  return `
+    <section class="example-gallery-modal" data-example-gallery-modal hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="example-gallery-modal-title">
+      <button class="example-gallery-modal-backdrop" type="button" data-gallery-close aria-label="Close gallery"></button>
+      <div class="example-gallery-modal-panel">
+        <div class="example-gallery-modal-image">
+          <img data-gallery-modal-image src="" alt="">
+        </div>
+        <aside class="example-gallery-modal-copy">
+          <button class="pill-link example-gallery-modal-close" type="button" data-gallery-close>Close</button>
+          <div class="example-gallery-modal-detail">
+            <p class="eyebrow" data-gallery-modal-kicker></p>
+            <h2 id="example-gallery-modal-title" data-gallery-modal-title></h2>
+            <p data-gallery-modal-caption></p>
+            <dl class="example-gallery-modal-meta">
+              <div><dt>Adapter</dt><dd data-gallery-modal-adapter></dd></div>
+              <div><dt>Provenance</dt><dd data-gallery-modal-provenance></dd></div>
+            </dl>
+            <div class="example-gallery-modal-actions">
+              <a class="pill-link" data-gallery-modal-artifact href="" target="_blank" rel="noreferrer">Open artifact</a>
+              <a class="pill-link" data-gallery-modal-source href="" target="_blank" rel="noreferrer">Open image</a>
+            </div>
+          </div>
+          <div class="example-gallery-modal-footer">
+            <span class="note" data-gallery-modal-count></span>
+            <div class="example-gallery-modal-buttons">
+              <button class="pill-link" type="button" data-gallery-prev>Previous</button>
+              <button class="pill-link" type="button" data-gallery-next>Next</button>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>`;
+}
+
 async function examplesPage() {
-  const firstExample = EXAMPLES[0];
-  const selectors = EXAMPLES.map((example, index) => renderExampleSelector(example, index === 0)).join("");
+  const modelUiManifest = await readJsonIfExists("examples/model-ui/refund-system-map/manifest.json");
+  const examples = buildExamples(modelUiManifest);
+  const firstExample = examples[0];
+  const selectors = examples.map((example, index) => renderExampleSelector(example, index === 0)).join("");
 
   return page(
     "JudgmentKit Examples",
@@ -1495,23 +1916,20 @@ async function examplesPage() {
                 </div>
               </div>
             </div>
-            <div class="example-frame-shell">
-              <div class="example-frame-toolbar">
-                <span class="example-frame-title" data-example-frame-title>${escapeHtml(firstExample.previewLabel)}</span>
-                <span>Inline preview</span>
-              </div>
-              <iframe class="example-frame" data-example-frame src="${escapeHtml(firstExample.previewHref)}" title="${escapeHtml(firstExample.previewLabel)}" loading="eager"></iframe>
+            <div class="example-preview-body" data-example-preview-body>
+              ${firstExample.previewHtml}
             </div>
           </section>
           <noscript>
             <div class="example-noscript-links">
-              <p class="note">JavaScript is disabled. The first artifact is previewed above; direct links remain available here.</p>
-              ${renderNoScriptExampleLinks(EXAMPLES)}
+              <p class="note">JavaScript is disabled. Direct artifact links remain available here.</p>
+              ${renderNoScriptExampleLinks(examples)}
             </div>
           </noscript>
         </div>
       </div>
-      <script type="application/json" id="examples-data">${serializeJsonForHtml(EXAMPLES)}</script>
+      ${renderExampleGalleryModal()}
+      <script type="application/json" id="examples-data">${serializeJsonForHtml(examples)}</script>
       ${examplesBrowserScript()}
     </section>
   `,

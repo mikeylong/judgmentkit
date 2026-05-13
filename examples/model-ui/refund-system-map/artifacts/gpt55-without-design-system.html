@@ -227,6 +227,7 @@
       }
     }
   </style>
+
   </head>
   <body data-artifact-id="gpt55-without-design-system" data-design-system-mode="without_design_system">
     
@@ -236,9 +237,8 @@
           <p class="eyebrow">GPT-5.5</p>
           <h1>Refund Review Workspace</h1>
         </div>
-        <span class="status">Simple primitives</span>
+        <span class="status">Transcript-backed</span>
       </header>
-      <p class="capture-warning">Capture required before this slot can be described as GPT-5.5 generated UI.</p>
       <section class="workspace">
         <aside class="queue" aria-label="Refund queue">
           <div class="section-heading">
@@ -331,10 +331,11 @@
     </main>
     <aside class="provenance" aria-label="Artifact provenance">
       <strong>Provenance:</strong>
-      <span>capture-required</span>
+      <span>captured</span>
       <span> · captured_model_output</span>
       <span> · without_design_system</span>
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies this file and does not call a model.</p>
+      <p>The raw model transcript is committed as provenance; the visible UI is rendered from the reviewed JudgmentKit handoff with simple UI primitives.</p>
       <p>Manifest entry: <code>artifacts/gpt55-without-design-system.html</code></p>
     </aside>
     <script type="application/json" id="model-ui-provenance">{
@@ -342,20 +343,37 @@
   "artifact_id": "gpt55-without-design-system",
   "model_label": "GPT-5.5",
   "generation_source": "captured_model_output",
+  "visible_render_source": "reviewed_handoff_simple_renderer",
+  "rendering_policy": "The raw model transcript is committed as provenance; the visible UI is rendered from the reviewed JudgmentKit handoff with simple UI primitives.",
   "design_system_mode": "without_design_system",
+  "design_system_name": null,
+  "design_system_package": null,
   "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
   "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
   "design_system_adapter_file": null,
+  "capture_file": "captures/gpt55-without-design-system.json",
+  "model_response_summary": "Static refund escalation review workspace for the GPT-5.5 comparison fixture.",
   "capture_provenance": {
-    "status": "capture-required",
-    "capture_type": "model-output-slot",
-    "captured_at": null,
-    "intended_provider": "openai-responses",
-    "intended_model": "gpt-5.5",
-    "model_label": "GPT-5.5",
-    "notes": "No real GPT-5.5 capture transcript is committed yet. This artifact is a provenance slot, not a generated-output claim."
+    "status": "captured",
+    "capture_type": "model-output-transcript",
+    "captured_at": "2026-05-13T20:59:51.759Z",
+    "runner": "scripts/capture-model-ui-matrix.mjs",
+    "provider": "codex-cli",
+    "model": "gpt-5.5",
+    "cli": "codex",
+    "transcript_file": "captures/gpt55-without-design-system.json",
+    "prompt_sha256": "bbce67f615fa90446e99e9517821bdcfc3965771930cafddd409d96b32d35fc7",
+    "raw_response_sha256": "14021a55d1d28d3f72ee855fe928311e2426a5569ca9771d278c9a3380d711bc",
+    "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+    "design_system_name": null,
+    "design_system_package": null,
+    "design_system_render_mode": null,
+    "notes": "GPT-5.5 output captured through codex for the JudgmentKit model UI matrix."
   },
-  "artifact_path": "artifacts/gpt55-without-design-system.html"
+  "artifact_path": "artifacts/gpt55-without-design-system.html",
+  "screenshot_path": "screenshots/gpt55-without-design-system.png",
+  "approach_title": "GPT-5.5 via codex exec · without design system",
+  "approach_caption": "A GPT-5.5 transcript captured through codex exec is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives."
 }</script>
   </body>
 </html>

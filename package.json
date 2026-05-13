@@ -13,6 +13,8 @@
   },
   "scripts": {
     "benchmark": "node evals/benchmark.mjs",
+    "capture:model-ui": "node scripts/capture-model-ui-matrix.mjs",
+    "capture:model-ui:screenshots": "node scripts/capture-model-ui-screenshots.mjs",
     "demo:comparison": "node scripts/demo-comparison.mjs",
     "demo:comparison:music": "node scripts/demo-music-comparison.mjs",
     "demo:model-ui": "node scripts/demo-model-ui-matrix.mjs",
@@ -30,7 +32,12 @@
     "test": "node tests/kernel-contract.test.mjs && node tests/analyze-implementation-brief.test.mjs && node tests/activity-model-review.test.mjs && node tests/ui-generation-handoff.test.mjs && node tests/openai-responses-provider.test.mjs && node tests/cli.test.mjs && node tests/demo-one-shot.test.mjs && node tests/demo-comparison.test.mjs && node tests/demo-music-comparison.test.mjs && node tests/demo-model-ui-matrix.test.mjs && node tests/ui-generation-evals.test.mjs && node tests/mcp.test.mjs && node tests/mcp-stdio.test.mjs && node tests/mcp-http.test.mjs && node tests/install-mcp.test.mjs && node tests/site.test.mjs && node tests/site-local-server.test.mjs && node tests/skills.test.mjs && node evals/run-evals.mjs"
   },
   "dependencies": {
+    "@emotion/cache": "^11.14.0",
+    "@emotion/react": "^11.14.0",
+    "@emotion/server": "^11.11.0",
+    "@emotion/styled": "^11.14.1",
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "@mui/material": "^9.0.1",
     "@vercel/analytics": "^2.0.1",
     "@xyflow/react": "^12.10.2",
     "esbuild": "^0.28.0",

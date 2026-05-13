@@ -29,6 +29,7 @@ const OLD_FRAMING = [
   "JudgmentKit 2",
   "judgmentkit-2",
 ];
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 function parseArgs(argv) {
   const options = {
@@ -100,6 +101,23 @@ async function fetchText(baseUrl, route, options = {}) {
   }
 
   return { response, text };
+}
+
+async function fetchBytes(baseUrl, route, options = {}) {
+  const response = await fetch(urlFor(baseUrl, route), {
+    method: options.method ?? "GET",
+    headers: options.headers,
+    redirect: options.redirect ?? "follow",
+  });
+  const bytes = Buffer.from(await response.arrayBuffer());
+
+  if (options.expectStatus !== undefined) {
+    assert.equal(response.status, options.expectStatus, `${route} should return ${options.expectStatus}`);
+  } else if (options.expectOk !== false) {
+    assert.equal(response.ok, true, `${route} should return a 2xx response, got ${response.status}`);
+  }
+
+  return { response, bytes };
 }
 
 function assertIncludes(text, needles, label) {
@@ -301,7 +319,77 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   }
 
   await fetchText(baseUrl, "/examples/comparison/music/facilitator-scorecard.md");
-  await fetchText(baseUrl, "/examples/model-ui/refund-system-map/manifest.json");
+  const modelUiManifestResponse = await fetchText(
+    baseUrl,
+    "/examples/model-ui/refund-system-map/manifest.json",
+  );
+  const modelUiManifest = JSON.parse(modelUiManifestResponse.text);
+  assert.equal(modelUiManifest.design_system_name, "Material UI");
+  assert.equal(modelUiManifest.design_system_package, "@mui/material");
+  assert.equal(modelUiManifest.design_system_render_mode, "static-ssr");
+  assert.ok(
+    modelUiManifest.generation_policy.includes("Material UI"),
+    "model UI manifest should describe the Material UI adapter",
+  );
+  const modelUiCaptureRoutes = [];
+  const modelUiScreenshotRoutes = [];
+
+  for (const artifact of modelUiManifest.artifacts) {
+    assert.ok(artifact.screenshot_path, `${artifact.id} should include a screenshot_path`);
+    assert.ok(artifact.approach_title, `${artifact.id} should include an approach_title`);
+    assert.ok(artifact.approach_caption, `${artifact.id} should include an approach_caption`);
+    if (artifact.design_system_mode === "with_design_system") {
+      assert.equal(artifact.design_system_name, "Material UI");
+      assert.equal(artifact.design_system_package, "@mui/material");
+      assert.ok(
+        artifact.approach_title.includes("with Material UI adapter"),
+        `${artifact.id} should name Material UI in the approach title`,
+      );
+    }
+
+    const screenshotRoute = `/examples/model-ui/refund-system-map/${artifact.screenshot_path}`;
+    const screenshotResponse = await fetchBytes(baseUrl, screenshotRoute);
+    assert.equal(
+      screenshotResponse.bytes.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE),
+      true,
+      `${artifact.id} screenshot should be a PNG`,
+    );
+    modelUiScreenshotRoutes.push(screenshotRoute);
+
+    if (artifact.generation_source !== "captured_model_output") {
+      continue;
+    }
+
+    assert.equal(
+      artifact.capture_provenance.status,
+      "captured",
+      `${artifact.id} should be backed by a committed model capture transcript`,
+    );
+    assert.ok(artifact.capture_file, `${artifact.id} should include a capture_file`);
+    const captureRoute = `/examples/model-ui/refund-system-map/${artifact.capture_file}`;
+    const captureResponse = await fetchText(baseUrl, captureRoute);
+    const capture = JSON.parse(captureResponse.text);
+
+    assert.equal(capture.artifact_id, artifact.id);
+    assert.equal(capture.model_label, artifact.model_label);
+    assert.equal(capture.design_system_mode, artifact.design_system_mode);
+    assert.equal(capture.source_context_sha256, artifact.capture_provenance.source_context_sha256);
+    assert.ok(capture.prompt_sha256, `${artifact.id} capture should include prompt_sha256`);
+    assert.ok(capture.raw_response_sha256, `${artifact.id} capture should include raw_response_sha256`);
+    if (artifact.design_system_mode === "with_design_system") {
+      assert.equal(capture.design_system_name, "Material UI");
+      assert.equal(capture.design_system_package, "@mui/material");
+      assert.equal(capture.design_system_render_mode, "static-ssr");
+    }
+    assert.ok(capture.raw_response, `${artifact.id} capture should include raw_response`);
+    assert.ok(
+      capture.parsed?.html?.includes("data-primary-surface"),
+      `${artifact.id} capture should include parsed primary surface HTML`,
+    );
+
+    modelUiCaptureRoutes.push(captureRoute);
+  }
+
   await fetchText(baseUrl, "/examples/model-ui/refund-system-map/reviewed-handoff.fixture.json");
   await fetchText(baseUrl, "/examples/model-ui/refund-system-map/design-system-adapter.json");
 
@@ -340,6 +428,8 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "/examples/model-ui/refund-system-map/artifacts/gemma4-with-design-system.html",
       "/examples/model-ui/refund-system-map/artifacts/gpt55-without-design-system.html",
       "/examples/model-ui/refund-system-map/artifacts/gpt55-with-design-system.html",
+      ...modelUiCaptureRoutes,
+      ...modelUiScreenshotRoutes,
       "/examples/comparison/music/version-a.html",
       "/examples/comparison/music/version-b.html",
       "/examples/comparison/music/facilitator-scorecard.md",

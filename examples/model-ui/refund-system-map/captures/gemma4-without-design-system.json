@@ -1,0 +1,28 @@
+{
+  "artifact_id": "gemma4-without-design-system",
+  "model_label": "Gemma 4 (local LLM)",
+  "provider": "lmstudio",
+  "cli": "lms",
+  "model": "google/gemma-4-e2b",
+  "design_system_mode": "without_design_system",
+  "design_system_name": null,
+  "design_system_package": null,
+  "design_system_render_mode": null,
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-05-13T20:54:52.277Z",
+  "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+  "prompt_sha256": "22bb09a32f59bde807ccd672742dda52df6bc28e83413f98523d49034759c4b2",
+  "raw_response_sha256": "4933aad7bb38bbccad4eea94d26e0685f5a3e3611a9d378b861e6c2298805f5a",
+  "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI artifact for a JudgmentKit comparison fixture. Return one minified valid JSON object only. Do not use Markdown fences. The html value must be one compact string with escaped quotes and no literal newlines. Do not include <script>, external assets, or implementation/debugging vocabulary in visible UI. Design-system variants are captured with Material UI adapter context, but the visible site artifact is rendered later from the reviewed handoff. --prompt <prompt> --ttl 300 --yes",
+  "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit model UI matrix.",
+  "parsed": {
+    "summary": "A workspace for support operations managers to review customer refund escalation cases, assess evidence, determine a decision path, and initiate a handoff.",
+    "html": "<main class=\"app-shell\" data-primary-surface><h1 class=\"app-header\">Refund Review Workspace</h1><section class=\"workspace\"><div class=\"queue\"><h2>Refund queue</h2><div class=\"queue-item is-selected\" id=\"R-1842\"><h3>Case R-1842</h3><p>Customer: Nora Diaz | Amount: $184.20 | Status: Evidence incomplete</p></div><div class=\"queue-item\"><h3>Case R-1843</h3><p>Customer: Jun Park | Amount: $89.00 | Status: Policy question</p></div><div class=\"queue-item\"><h3>Case R-1844</h3><p>Customer: Amara Blake | Amount: $312.75 | Status: Manager review</p></div></div><section class=\"detail\" id=\"R-1842\"><h2 class=\"case-header\">Selected request</h2><p><strong>Request:</strong> Subscription renewal disputed after agent escalation.</p><p><strong>Policy:</strong> Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p></section><section class=\"evidence-list\"><h2>Evidence</h2><ul><li>Renewal date confirmed in purchase history.</li><li>Support note captures the customer's refund reason.</li><li>Receipt photo is missing before manager approval.</li></ul></section><section class=\"decision-path\"><h2>Decision path</h2><div class=\"actions\"><button class=\"primary\">Approve refund</button><button>Send to policy review</button><button>Return for evidence</button></div></section><section class=\"handoff\"><h2 class=\"handoff\">Handoff</h2><p><strong>Next owner:</strong> Support agent</p><p><strong>Reason:</strong> Receipt photo is missing. Ask the customer to attach proof before approval.</p><p><strong>Next action:</strong> Return the request to the support agent with the missing evidence request</p></section></main>"
+  },
+  "raw_response": "{\"summary\":\"A workspace for support operations managers to review customer refund escalation cases, assess evidence, determine a decision path, and initiate a handoff.\",\"html\":\"<main class=\\\"app-shell\\\" data-primary-surface><h1 class=\\\"app-header\\\">Refund Review Workspace</h1><section class=\\\"workspace\\\"><div class=\\\"queue\\\"><h2>Refund queue</h2><div class=\\\"queue-item is-selected\\\" id=\\\"R-1842\\\"><h3>Case R-1842</h3><p>Customer: Nora Diaz | Amount: $184.20 | Status: Evidence incomplete</p></div><div class=\\\"queue-item\\\"><h3>Case R-1843</h3><p>Customer: Jun Park | Amount: $89.00 | Status: Policy question</p></div><div class=\\\"queue-item\\\"><h3>Case R-1844</h3><p>Customer: Amara Blake | Amount: $312.75 | Status: Manager review</p></div></div><section class=\\\"detail\\\" id=\\\"R-1842\\\"><h2 class=\\\"case-header\\\">Selected request</h2><p><strong>Request:</strong> Subscription renewal disputed after agent escalation.</p><p><strong>Policy:</strong> Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p></section><section class=\\\"evidence-list\\\"><h2>Evidence</h2><ul><li>Renewal date confirmed in purchase history.</li><li>Support note captures the customer's refund reason.</li><li>Receipt photo is missing before manager approval.</li></ul></section><section class=\\\"decision-path\\\"><h2>Decision path</h2><div class=\\\"actions\\\"><button class=\\\"primary\\\">Approve refund</button><button>Send to policy review</button><button>Return for evidence</button></div></section><section class=\\\"handoff\\\"><h2 class=\\\"handoff\\\">Handoff</h2><p><strong>Next owner:</strong> Support agent</p><p><strong>Reason:</strong> Receipt photo is missing. Ask the customer to attach proof before approval.</p><p><strong>Next action:</strong> Return the request to the support agent with the missing evidence request</p></section></main>\"}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "c3a85de62e2ad03b5cf547e3d3233c6da36be7439a989bd3ab733a9fdd1f9969",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

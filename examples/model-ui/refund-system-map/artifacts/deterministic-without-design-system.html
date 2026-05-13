@@ -227,6 +227,7 @@
       }
     }
   </style>
+
   </head>
   <body data-artifact-id="deterministic-without-design-system" data-design-system-mode="without_design_system">
     
@@ -238,7 +239,6 @@
         </div>
         <span class="status">Simple primitives</span>
       </header>
-      
       <section class="workspace">
         <aside class="queue" aria-label="Refund queue">
           <div class="section-heading">
@@ -335,6 +335,7 @@
       <span> · deterministic</span>
       <span> · without_design_system</span>
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies this file and does not call a model.</p>
+      <p>The visible UI is rendered directly from the reviewed JudgmentKit handoff with simple UI primitives; no provider or model call is used.</p>
       <p>Manifest entry: <code>artifacts/deterministic-without-design-system.html</code></p>
     </aside>
     <script type="application/json" id="model-ui-provenance">{
@@ -342,10 +343,16 @@
   "artifact_id": "deterministic-without-design-system",
   "model_label": "Deterministic renderer",
   "generation_source": "deterministic",
+  "visible_render_source": "reviewed_handoff_simple_renderer",
+  "rendering_policy": "The visible UI is rendered directly from the reviewed JudgmentKit handoff with simple UI primitives; no provider or model call is used.",
   "design_system_mode": "without_design_system",
+  "design_system_name": null,
+  "design_system_package": null,
   "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
   "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
   "design_system_adapter_file": null,
+  "capture_file": null,
+  "model_response_summary": null,
   "capture_provenance": {
     "status": "captured",
     "capture_type": "deterministic-renderer",
@@ -355,7 +362,10 @@
     "model": "none",
     "notes": "Rendered from the reviewed JudgmentKit handoff with no provider or model call."
   },
-  "artifact_path": "artifacts/deterministic-without-design-system.html"
+  "artifact_path": "artifacts/deterministic-without-design-system.html",
+  "screenshot_path": "screenshots/deterministic-without-design-system.png",
+  "approach_title": "Deterministic renderer · without design system",
+  "approach_caption": "The visible snapshot is rendered from the reviewed JudgmentKit handoff with simple HTML primitives and no provider or model call."
 }</script>
   </body>
 </html>

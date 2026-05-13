@@ -1,0 +1,28 @@
+{
+  "artifact_id": "gpt55-with-design-system",
+  "model_label": "GPT-5.5",
+  "provider": "codex-cli",
+  "cli": "codex",
+  "model": "gpt-5.5",
+  "design_system_mode": "with_design_system",
+  "design_system_name": "Material UI",
+  "design_system_package": "@mui/material",
+  "design_system_render_mode": "static-ssr",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-05-13T21:03:15.167Z",
+  "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+  "prompt_sha256": "7f0d365a92ed95e585df39c488b60870d7df2ad15caa1f412dbbeec621dbc48f",
+  "raw_response_sha256": "241179db6f4b33389e496efc005b832da8194b128fb71db42097949710c4030d",
+  "command_display": "codex exec --model gpt-5.5 --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",
+  "notes": "GPT-5.5 output captured through codex for the JudgmentKit model UI matrix.",
+  "parsed": {
+    "summary": "Material UI variant refund review workspace with evidence, decision path, and handoff.",
+    "html": "<main class=\"app-shell design-system\" data-primary-surface><h1>Refund Review Workspace</h1><p>R-1842 Nora Diaz Needs receipt $184.20;R-1843 Jun Park Policy question $89.00;R-1844 Amara Blake Manager review $312.75. R-1842 Nora Diaz Pro annual $184.20 Evidence incomplete. Subscription renewal disputed after agent escalation.<h2>Evidence</h2><p>Renewal date confirmed in purchase history. Support note captures the customer's refund reason. Receipt photo is missing before manager approval. Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.<h2>Decision path</h2><select><option>Approve refund<option>Send to policy review<option>Return for evidence</select><h2>Handoff</h2><p>Support agent: Receipt photo is missing. Ask the customer to attach proof before approval<button>Send handoff</button></main>"
+  },
+  "raw_response": "{\"summary\":\"Material UI variant refund review workspace with evidence, decision path, and handoff.\",\"html\":\"<main class=\\\"app-shell design-system\\\" data-primary-surface><h1>Refund Review Workspace</h1><p>R-1842 Nora Diaz Needs receipt $184.20;R-1843 Jun Park Policy question $89.00;R-1844 Amara Blake Manager review $312.75. R-1842 Nora Diaz Pro annual $184.20 Evidence incomplete. Subscription renewal disputed after agent escalation.<h2>Evidence</h2><p>Renewal date confirmed in purchase history. Support note captures the customer's refund reason. Receipt photo is missing before manager approval. Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.<h2>Decision path</h2><select><option>Approve refund<option>Send to policy review<option>Return for evidence</select><h2>Handoff</h2><p>Support agent: Receipt photo is missing. Ask the customer to attach proof before approval<button>Send handoff</button></main>\"}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "c12bcc2ee205a293a16d5ce2f55640d7c2bc231278a05143e32c5421d4637ad8",
+    "stderr_sha256": "2e20ee3e069e2247150882f999e44d4e4fa926ed847eb626020b45a106120072"
+  }
+}

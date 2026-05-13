@@ -1,0 +1,28 @@
+{
+  "artifact_id": "gpt55-without-design-system",
+  "model_label": "GPT-5.5",
+  "provider": "codex-cli",
+  "cli": "codex",
+  "model": "gpt-5.5",
+  "design_system_mode": "without_design_system",
+  "design_system_name": null,
+  "design_system_package": null,
+  "design_system_render_mode": null,
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-05-13T20:59:51.759Z",
+  "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+  "prompt_sha256": "bbce67f615fa90446e99e9517821bdcfc3965771930cafddd409d96b32d35fc7",
+  "raw_response_sha256": "14021a55d1d28d3f72ee855fe928311e2426a5569ca9771d278c9a3380d711bc",
+  "command_display": "codex exec --model gpt-5.5 --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",
+  "notes": "GPT-5.5 output captured through codex for the JudgmentKit model UI matrix.",
+  "parsed": {
+    "summary": "Static refund escalation review workspace for the GPT-5.5 comparison fixture.",
+    "html": "<main class=\"app-shell\" data-primary-surface><h1>Refund Review Workspace</h1><p class=\"queue\">R-1842 Nora Diaz Needs receipt $184.20 | R-1843 Jun Park Policy question $89.00 | R-1844 Amara Blake Manager review $312.75</p><h2>R-1842 Nora Diaz</h2><p>Pro annual $184.20; Evidence incomplete; Subscription renewal disputed after agent escalation.</p><h2>Evidence</h2><p>Renewal date confirmed in purchase history. Support note captures the customer's refund reason. Receipt photo is missing before manager approval.</p><h2>Decision path</h2><p>Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p><h2>Handoff</h2><p>Support agent; Return the request to the support agent with the missing evidence request. Receipt photo is missing. Ask the customer to attach proof before approval</p><button>Send handoff</button></main>"
+  },
+  "raw_response": "{\"summary\":\"Static refund escalation review workspace for the GPT-5.5 comparison fixture.\",\"html\":\"<main class=\\\"app-shell\\\" data-primary-surface><h1>Refund Review Workspace</h1><p class=\\\"queue\\\">R-1842 Nora Diaz Needs receipt $184.20 | R-1843 Jun Park Policy question $89.00 | R-1844 Amara Blake Manager review $312.75</p><h2>R-1842 Nora Diaz</h2><p>Pro annual $184.20; Evidence incomplete; Subscription renewal disputed after agent escalation.</p><h2>Evidence</h2><p>Renewal date confirmed in purchase history. Support note captures the customer's refund reason. Receipt photo is missing before manager approval.</p><h2>Decision path</h2><p>Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p><h2>Handoff</h2><p>Support agent; Return the request to the support agent with the missing evidence request. Receipt photo is missing. Ask the customer to attach proof before approval</p><button>Send handoff</button></main>\"}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "85109664547265c4dabc122f803efe458340b8ca9ef713344c6034b3ccf2e310",
+    "stderr_sha256": "da0c3442964a329ec5509e4a6481914dff33e38723cde5b51762a21a3f81d3bf"
+  }
+}

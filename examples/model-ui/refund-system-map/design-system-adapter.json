@@ -1,29 +1,40 @@
 {
-  "id": "refund-ops-review-adapter",
-  "name": "Refund Ops Review Adapter",
+  "id": "material-ui-refund-ops-adapter",
+  "name": "Material UI Refund Ops Review Adapter",
   "scope": "example-only",
   "role": "visual layer after JudgmentKit handoff",
-  "tokens": {
-    "color": {
-      "canvas": "#f7f4ee",
-      "surface": "#ffffff",
-      "ink": "#182521",
-      "muted": "#64716b",
-      "accent": "#0f766e",
-      "warning": "#9a5b16",
-      "line": "#d9d3c5"
+  "design_system_name": "Material UI",
+  "design_system_package": "@mui/material",
+  "render_mode": "static-ssr",
+  "renderer": "React server rendering with Emotion critical CSS inlined into the artifact.",
+  "theme": {
+    "palette": {
+      "primary": "#245f73",
+      "success": "#2e6b48",
+      "warning": "#8a5a16",
+      "background": "#f5f3ed"
     },
-    "radius": {
-      "control": "6px",
-      "panel": "8px"
-    },
-    "density": "operational"
+    "density": "operational",
+    "shape": {
+      "border_radius": 8
+    }
   },
   "components": [
-    "queue row",
-    "evidence checklist",
-    "decision group",
-    "handoff receipt"
+    "ThemeProvider",
+    "CssBaseline",
+    "AppBar",
+    "Toolbar",
+    "Paper",
+    "Stack",
+    "List",
+    "ListItemButton",
+    "ListItemText",
+    "Chip",
+    "Button",
+    "Card",
+    "CardContent",
+    "Typography",
+    "Alert"
   ],
-  "constraint": "The adapter changes visual treatment and control grouping only; it does not change the activity, decision, evidence, or handoff."
+  "constraint": "Material UI changes the visual/component layer only; it does not change the activity, decision, evidence, or handoff."
 }

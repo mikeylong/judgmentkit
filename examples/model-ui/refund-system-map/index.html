@@ -49,7 +49,8 @@
         margin: 28px 0;
       }
       .summary div,
-      table {
+      .gallery-card,
+      .details-row {
         border: 1px solid var(--line);
         border-radius: 8px;
         background: var(--panel);
@@ -65,30 +66,93 @@
         color: var(--muted);
         font-size: 13px;
       }
-      table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        overflow: hidden;
-      }
-      th,
-      td {
-        padding: 12px;
-        border-bottom: 1px solid var(--line);
-        text-align: left;
-        vertical-align: top;
-      }
-      th {
-        color: var(--muted);
-        font-size: 12px;
-        text-transform: uppercase;
-      }
-      tr:last-child td {
-        border-bottom: 0;
-      }
       a {
         color: var(--accent);
         font-weight: 800;
+      }
+      .gallery-intro {
+        display: flex;
+        gap: 16px;
+        align-items: end;
+        justify-content: space-between;
+        margin: 34px 0 14px;
+      }
+      .gallery-intro h2 {
+        margin: 0 0 6px;
+        font-size: 24px;
+        letter-spacing: 0;
+      }
+      .gallery-intro p {
+        margin: 0;
+      }
+      .gallery {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+      .gallery-card {
+        display: grid;
+        overflow: hidden;
+      }
+      .thumbnail-link {
+        display: block;
+        position: relative;
+        aspect-ratio: 16 / 10;
+        overflow: hidden;
+        border-bottom: 1px solid var(--line);
+        background: #edf3f4;
+      }
+      .thumbnail-link img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top left;
+        display: block;
+      }
+      .thumbnail-link:focus-visible {
+        outline: 3px solid var(--accent);
+        outline-offset: -3px;
+      }
+      .gallery-card-copy {
+        display: grid;
+        gap: 10px;
+        padding: 16px;
+      }
+      .gallery-card-copy h2 {
+        margin: 0;
+        font-size: 19px;
+        letter-spacing: 0;
+      }
+      .gallery-card-copy p {
+        margin: 0;
+      }
+      dl {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin: 0;
+      }
+      dl div {
+        padding: 9px 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #faf9f5;
+      }
+      dt {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+      dd {
+        margin: 2px 0 0;
+        font-weight: 800;
+      }
+      .card-actions,
+      .carousel-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
       }
       .note {
         margin-top: 18px;
@@ -97,26 +161,140 @@
         border-radius: 8px;
         background: #fff8ea;
       }
+      .details {
+        margin-top: 20px;
+      }
+      .details summary {
+        cursor: pointer;
+        font-weight: 900;
+      }
+      .details-grid {
+        display: grid;
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .details-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr) auto;
+        gap: 12px;
+        align-items: center;
+        padding: 12px;
+      }
+      .details-row h3,
+      .details-row p {
+        margin: 0;
+      }
+      .carousel {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+      }
+      .carousel[hidden] {
+        display: none;
+      }
+      .carousel-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(23, 35, 31, 0.72);
+      }
+      .carousel-panel {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.7fr);
+        width: min(1180px, 100%);
+        max-height: min(860px, calc(100vh - 36px));
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+      .carousel-image {
+        min-height: 0;
+        overflow: auto;
+        background: #edf3f4;
+      }
+      .carousel-image img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .carousel-copy {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: 16px;
+        min-height: 0;
+        padding: 18px;
+      }
+      .carousel-copy h2 {
+        margin: 0 0 8px;
+        font-size: 24px;
+        letter-spacing: 0;
+      }
+      .carousel-copy p {
+        margin: 0;
+      }
+      .carousel-meta {
+        display: grid;
+        gap: 8px;
+      }
+      .carousel-controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .carousel-buttons {
+        display: flex;
+        gap: 8px;
+      }
+      .carousel button {
+        min-height: 38px;
+        padding: 8px 11px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: #ffffff;
+        color: var(--ink);
+        cursor: pointer;
+        font: inherit;
+        font-weight: 900;
+      }
+      .carousel .carousel-backdrop {
+        min-height: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: rgba(23, 35, 31, 0.72);
+      }
+      .carousel-close {
+        justify-self: end;
+      }
+      html.carousel-open,
+      html.carousel-open body {
+        overflow: hidden;
+      }
       @media (max-width: 760px) {
+        main {
+          padding: 20px;
+        }
         .summary {
           grid-template-columns: 1fr;
         }
-        table,
-        thead,
-        tbody,
-        tr,
-        th,
-        td {
-          display: block;
+        .gallery-intro {
+          display: grid;
+          align-items: start;
         }
-        thead {
-          display: none;
+        .gallery,
+        .carousel-panel {
+          grid-template-columns: 1fr;
         }
-        td {
-          border-bottom: 0;
+        .carousel-panel {
+          max-height: calc(100vh - 24px);
         }
-        tr {
-          border-bottom: 1px solid var(--line);
+        .details-row {
+          grid-template-columns: 1fr;
         }
       }
     </style>
@@ -125,72 +303,299 @@
     <main>
       <p class="eyebrow">System-map example pack</p>
       <h1>Model UI generation matrix</h1>
-      <p>One refund-triage handoff moves through the system-map branches: deterministic generation, optional model assistance, and the later design-system adapter. The site build copies these static artifacts and does not call a provider.</p>
+      <p>One refund-triage handoff moves through the system-map branches: deterministic generation, committed model transcripts, and the Material UI adapter. The visible artifacts are rendered from the reviewed handoff; the site build copies these static files and does not call a provider.</p>
       <div class="summary" aria-label="Matrix summary">
         <div><span>Source brief</span><strong>examples/demo/refund-ops-implementation-heavy.brief.txt</strong></div>
         <div><span>Reviewed handoff</span><strong>examples/model-ui/refund-system-map/reviewed-handoff.fixture.json</strong></div>
         <div><span>Artifacts</span><strong>6 snapshots</strong></div>
       </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Generation branch</th>
-            <th>Adapter branch</th>
-            <th>Provenance</th>
-            <th>Artifact</th>
-          </tr>
-        </thead>
-        <tbody>
-        <tr>
-          <td>Deterministic renderer</td>
-          <td>Without design system</td>
-          <td>captured</td>
-          <td><a href="artifacts/deterministic-without-design-system.html">Deterministic renderer</a></td>
-        </tr>
-        <tr>
-          <td>Deterministic renderer</td>
-          <td>With design system</td>
-          <td>captured</td>
-          <td><a href="artifacts/deterministic-with-design-system.html">Deterministic renderer with design-system adapter</a></td>
-        </tr>
-        <tr>
-          <td>Gemma 4 (local LLM)</td>
-          <td>Without design system</td>
-          <td>capture-required</td>
-          <td><a href="artifacts/gemma4-without-design-system.html">Gemma 4 local LLM capture</a></td>
-        </tr>
-        <tr>
-          <td>Gemma 4 (local LLM)</td>
-          <td>With design system</td>
-          <td>capture-required</td>
-          <td><a href="artifacts/gemma4-with-design-system.html">Gemma 4 local LLM capture with design-system adapter</a></td>
-        </tr>
-        <tr>
-          <td>GPT-5.5</td>
-          <td>Without design system</td>
-          <td>capture-required</td>
-          <td><a href="artifacts/gpt55-without-design-system.html">GPT-5.5 capture</a></td>
-        </tr>
-        <tr>
-          <td>GPT-5.5</td>
-          <td>With design system</td>
-          <td>capture-required</td>
-          <td><a href="artifacts/gpt55-with-design-system.html">GPT-5.5 capture with design-system adapter</a></td>
-        </tr></tbody>
-      </table>
-      <p class="note">Entries marked <strong>capture-required</strong> are wired as truthful provenance slots until real Gemma 4 and GPT-5.5 run transcripts are captured and committed.</p>
+      <div class="gallery-intro">
+        <div>
+          <h2>Thumbnail gallery</h2>
+          <p>Each screenshot shows the first desktop viewport of a committed, adapter-rendered artifact. Select a thumbnail for a larger carousel view.</p>
+        </div>
+        <a href="artifacts/deterministic-without-design-system.html">Open first live artifact</a>
+      </div>
+      <section class="gallery" aria-label="Model UI screenshot gallery">
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/deterministic-without-design-system.html" data-carousel-open="0" aria-label="Open larger view for Deterministic renderer · without design system">
+            <img src="screenshots/deterministic-without-design-system.png" alt="Deterministic renderer · without design system screenshot" loading="eager">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">Deterministic renderer</p>
+            <h2>Deterministic renderer · without design system</h2>
+            <p>The visible snapshot is rendered from the reviewed JudgmentKit handoff with simple HTML primitives and no provider or model call.</p>
+            <dl>
+              <div><dt>Adapter</dt><dd>Without design system</dd></div>
+              <div><dt>Provenance</dt><dd>captured</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/deterministic-without-design-system.html">Open live artifact</a>
+              <a href="screenshots/deterministic-without-design-system.png">Open image</a>
+            </div>
+          </div>
+        </article>
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/deterministic-with-design-system.html" data-carousel-open="1" aria-label="Open larger view for Deterministic renderer · with Material UI adapter">
+            <img src="screenshots/deterministic-with-design-system.png" alt="Deterministic renderer · with Material UI adapter screenshot" loading="eager">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">Deterministic renderer</p>
+            <h2>Deterministic renderer · with Material UI adapter</h2>
+            <p>The visible snapshot is rendered from the reviewed JudgmentKit handoff through a build-time Material UI adapter.</p>
+            <dl>
+              <div><dt>Adapter</dt><dd>With Material UI adapter</dd></div>
+              <div><dt>Provenance</dt><dd>captured</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/deterministic-with-design-system.html">Open live artifact</a>
+              <a href="screenshots/deterministic-with-design-system.png">Open image</a>
+            </div>
+          </div>
+        </article>
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gemma4-without-design-system.html" data-carousel-open="2" aria-label="Open larger view for Gemma 4 via LM Studio lms · without design system">
+            <img src="screenshots/gemma4-without-design-system.png" alt="Gemma 4 via LM Studio lms · without design system screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">Gemma 4 (local LLM)</p>
+            <h2>Gemma 4 via LM Studio lms · without design system</h2>
+            <p>A local Gemma 4 transcript captured through LM Studio lms is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives.</p>
+            <dl>
+              <div><dt>Adapter</dt><dd>Without design system</dd></div>
+              <div><dt>Provenance</dt><dd>captured</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gemma4-without-design-system.html">Open live artifact</a>
+              <a href="screenshots/gemma4-without-design-system.png">Open image</a>
+            </div>
+          </div>
+        </article>
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gemma4-with-design-system.html" data-carousel-open="3" aria-label="Open larger view for Gemma 4 via LM Studio lms · with Material UI adapter">
+            <img src="screenshots/gemma4-with-design-system.png" alt="Gemma 4 via LM Studio lms · with Material UI adapter screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">Gemma 4 (local LLM)</p>
+            <h2>Gemma 4 via LM Studio lms · with Material UI adapter</h2>
+            <p>A local Gemma 4 transcript captured through LM Studio lms with Material UI context is committed as provenance; the visible snapshot is rendered from the reviewed handoff through the Material UI adapter.</p>
+            <dl>
+              <div><dt>Adapter</dt><dd>With Material UI adapter</dd></div>
+              <div><dt>Provenance</dt><dd>captured</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gemma4-with-design-system.html">Open live artifact</a>
+              <a href="screenshots/gemma4-with-design-system.png">Open image</a>
+            </div>
+          </div>
+        </article>
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gpt55-without-design-system.html" data-carousel-open="4" aria-label="Open larger view for GPT-5.5 via codex exec · without design system">
+            <img src="screenshots/gpt55-without-design-system.png" alt="GPT-5.5 via codex exec · without design system screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">GPT-5.5</p>
+            <h2>GPT-5.5 via codex exec · without design system</h2>
+            <p>A GPT-5.5 transcript captured through codex exec is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives.</p>
+            <dl>
+              <div><dt>Adapter</dt><dd>Without design system</dd></div>
+              <div><dt>Provenance</dt><dd>captured</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gpt55-without-design-system.html">Open live artifact</a>
+              <a href="screenshots/gpt55-without-design-system.png">Open image</a>
+            </div>
+          </div>
+        </article>
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gpt55-with-design-system.html" data-carousel-open="5" aria-label="Open larger view for GPT-5.5 via codex exec · with Material UI adapter">
+            <img src="screenshots/gpt55-with-design-system.png" alt="GPT-5.5 via codex exec · with Material UI adapter screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">GPT-5.5</p>
+            <h2>GPT-5.5 via codex exec · with Material UI adapter</h2>
+            <p>A GPT-5.5 transcript captured through codex exec with Material UI context is committed as provenance; the visible snapshot is rendered from the reviewed handoff through the Material UI adapter.</p>
+            <dl>
+              <div><dt>Adapter</dt><dd>With Material UI adapter</dd></div>
+              <div><dt>Provenance</dt><dd>captured</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gpt55-with-design-system.html">Open live artifact</a>
+              <a href="screenshots/gpt55-with-design-system.png">Open image</a>
+            </div>
+          </div>
+        </article>
+      </section>
+      <p class="note">Model entries include committed capture transcripts. Material UI entries were captured with Material UI adapter context; visible artifacts are rendered from the reviewed handoff, and the site build does not call live providers.</p>
+      <details class="details">
+        <summary>Provenance details</summary>
+        <div class="details-grid">
+
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">Deterministic renderer</p>
+            <h3>Without design system</h3>
+          </div>
+          <p>Rendered deterministically from the reviewed handoff.</p>
+          <a href="artifacts/deterministic-without-design-system.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">Deterministic renderer</p>
+            <h3>With Material UI adapter</h3>
+          </div>
+          <p>Rendered deterministically from the reviewed handoff.</p>
+          <a href="artifacts/deterministic-with-design-system.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">Gemma 4 (local LLM)</p>
+            <h3>Without design system</h3>
+          </div>
+          <p>Transcript: captures/gemma4-without-design-system.json</p>
+          <a href="artifacts/gemma4-without-design-system.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">Gemma 4 (local LLM)</p>
+            <h3>With Material UI adapter</h3>
+          </div>
+          <p>Transcript: captures/gemma4-with-design-system.json</p>
+          <a href="artifacts/gemma4-with-design-system.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">GPT-5.5</p>
+            <h3>Without design system</h3>
+          </div>
+          <p>Transcript: captures/gpt55-without-design-system.json</p>
+          <a href="artifacts/gpt55-without-design-system.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">GPT-5.5</p>
+            <h3>With Material UI adapter</h3>
+          </div>
+          <p>Transcript: captures/gpt55-with-design-system.json</p>
+          <a href="artifacts/gpt55-with-design-system.html">Artifact</a>
+        </article>
+        </div>
+      </details>
+      <section class="carousel" data-carousel hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="carousel-title">
+        <button class="carousel-backdrop" type="button" data-carousel-close aria-label="Close larger screenshot view"></button>
+        <div class="carousel-panel">
+          <div class="carousel-image">
+            <img data-carousel-image src="" alt="">
+          </div>
+          <aside class="carousel-copy">
+            <button class="carousel-close" type="button" data-carousel-close>Close</button>
+            <div class="carousel-meta">
+              <p class="eyebrow" data-carousel-kicker></p>
+              <h2 id="carousel-title" data-carousel-title></h2>
+              <p data-carousel-caption></p>
+              <dl>
+                <div><dt>Adapter</dt><dd data-carousel-adapter></dd></div>
+                <div><dt>Provenance</dt><dd data-carousel-provenance></dd></div>
+              </dl>
+              <div class="carousel-actions">
+                <a data-carousel-artifact href="">Open live artifact</a>
+                <a data-carousel-source href="">Open image</a>
+              </div>
+            </div>
+            <div class="carousel-controls">
+              <span data-carousel-count></span>
+              <div class="carousel-buttons">
+                <button type="button" data-carousel-prev>Previous</button>
+                <button type="button" data-carousel-next>Next</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
     </main>
+    <script type="application/json" id="model-ui-gallery-data">[
+  {
+    "id": "deterministic-without-design-system",
+    "title": "Deterministic renderer · without design system",
+    "caption": "The visible snapshot is rendered from the reviewed JudgmentKit handoff with simple HTML primitives and no provider or model call.",
+    "model_label": "Deterministic renderer",
+    "adapter_label": "Without design system",
+    "provenance": "captured",
+    "rendering_policy": "The visible UI is rendered directly from the reviewed JudgmentKit handoff with simple UI primitives; no provider or model call is used.",
+    "image": "screenshots/deterministic-without-design-system.png",
+    "artifact": "artifacts/deterministic-without-design-system.html"
+  },
+  {
+    "id": "deterministic-with-design-system",
+    "title": "Deterministic renderer · with Material UI adapter",
+    "caption": "The visible snapshot is rendered from the reviewed JudgmentKit handoff through a build-time Material UI adapter.",
+    "model_label": "Deterministic renderer",
+    "adapter_label": "With Material UI adapter",
+    "provenance": "captured",
+    "rendering_policy": "The visible UI is rendered directly from the reviewed JudgmentKit handoff through the Material UI adapter; no provider or model call is used.",
+    "image": "screenshots/deterministic-with-design-system.png",
+    "artifact": "artifacts/deterministic-with-design-system.html"
+  },
+  {
+    "id": "gemma4-without-design-system",
+    "title": "Gemma 4 via LM Studio lms · without design system",
+    "caption": "A local Gemma 4 transcript captured through LM Studio lms is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives.",
+    "model_label": "Gemma 4 (local LLM)",
+    "adapter_label": "Without design system",
+    "provenance": "captured",
+    "rendering_policy": "The raw model transcript is committed as provenance; the visible UI is rendered from the reviewed JudgmentKit handoff with simple UI primitives.",
+    "image": "screenshots/gemma4-without-design-system.png",
+    "artifact": "artifacts/gemma4-without-design-system.html"
+  },
+  {
+    "id": "gemma4-with-design-system",
+    "title": "Gemma 4 via LM Studio lms · with Material UI adapter",
+    "caption": "A local Gemma 4 transcript captured through LM Studio lms with Material UI context is committed as provenance; the visible snapshot is rendered from the reviewed handoff through the Material UI adapter.",
+    "model_label": "Gemma 4 (local LLM)",
+    "adapter_label": "With Material UI adapter",
+    "provenance": "captured",
+    "rendering_policy": "The raw model transcript is committed as provenance after capture with Material UI adapter context; the visible UI is rendered from the reviewed JudgmentKit handoff through the Material UI adapter.",
+    "image": "screenshots/gemma4-with-design-system.png",
+    "artifact": "artifacts/gemma4-with-design-system.html"
+  },
+  {
+    "id": "gpt55-without-design-system",
+    "title": "GPT-5.5 via codex exec · without design system",
+    "caption": "A GPT-5.5 transcript captured through codex exec is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives.",
+    "model_label": "GPT-5.5",
+    "adapter_label": "Without design system",
+    "provenance": "captured",
+    "rendering_policy": "The raw model transcript is committed as provenance; the visible UI is rendered from the reviewed JudgmentKit handoff with simple UI primitives.",
+    "image": "screenshots/gpt55-without-design-system.png",
+    "artifact": "artifacts/gpt55-without-design-system.html"
+  },
+  {
+    "id": "gpt55-with-design-system",
+    "title": "GPT-5.5 via codex exec · with Material UI adapter",
+    "caption": "A GPT-5.5 transcript captured through codex exec with Material UI context is committed as provenance; the visible snapshot is rendered from the reviewed handoff through the Material UI adapter.",
+    "model_label": "GPT-5.5",
+    "adapter_label": "With Material UI adapter",
+    "provenance": "captured",
+    "rendering_policy": "The raw model transcript is committed as provenance after capture with Material UI adapter context; the visible UI is rendered from the reviewed JudgmentKit handoff through the Material UI adapter.",
+    "image": "screenshots/gpt55-with-design-system.png",
+    "artifact": "artifacts/gpt55-with-design-system.html"
+  }
+]</script>
     <script type="application/json" id="model-ui-manifest">{
   "matrix_id": "refund-system-map-model-ui-v1",
   "title": "Model UI generation matrix",
   "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
   "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
   "design_system_adapter_file": "examples/model-ui/refund-system-map/design-system-adapter.json",
-  "generation_policy": "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model.",
+  "design_system_name": "Material UI",
+  "design_system_package": "@mui/material",
+  "design_system_render_mode": "static-ssr",
+  "generation_policy": "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model. Model transcripts are provenance; Material UI entries are captured with Material UI adapter context, and visible artifacts are rendered from the reviewed handoff through the selected renderer.",
   "system_map_branches": [
     "JudgmentKit reviewed handoff",
     "LLM / agent UI pass",
-    "with design system",
+    "with Material UI adapter",
     "without design system"
   ],
   "model_labels": [
@@ -217,14 +622,22 @@
       "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
       "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
       "design_system_adapter_file": null,
+      "design_system_name": null,
+      "design_system_package": null,
       "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
-      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
-      "artifact_path": "artifacts/deterministic-without-design-system.html"
+      "prompt_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+      "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+      "artifact_path": "artifacts/deterministic-without-design-system.html",
+      "screenshot_path": "screenshots/deterministic-without-design-system.png",
+      "visible_render_source": "reviewed_handoff_simple_renderer",
+      "rendering_policy": "The visible UI is rendered directly from the reviewed JudgmentKit handoff with simple UI primitives; no provider or model call is used.",
+      "approach_title": "Deterministic renderer · without design system",
+      "approach_caption": "The visible snapshot is rendered from the reviewed JudgmentKit handoff with simple HTML primitives and no provider or model call."
     },
     {
       "id": "deterministic-with-design-system",
       "model_label": "Deterministic renderer",
-      "title": "Deterministic renderer with design-system adapter",
+      "title": "Deterministic renderer with Material UI adapter",
       "generation_source": "deterministic",
       "design_system_mode": "with_design_system",
       "capture_provenance": {
@@ -234,14 +647,22 @@
         "runner": "scripts/demo-model-ui-matrix.mjs",
         "provider": "none",
         "model": "none",
-        "notes": "Rendered from the same reviewed JudgmentKit handoff with the example-only design-system adapter applied."
+        "notes": "Rendered from the same reviewed JudgmentKit handoff with the Material UI adapter applied."
       },
       "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
       "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
       "design_system_adapter_file": "examples/model-ui/refund-system-map/design-system-adapter.json",
+      "design_system_name": "Material UI",
+      "design_system_package": "@mui/material",
       "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
-      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
-      "artifact_path": "artifacts/deterministic-with-design-system.html"
+      "prompt_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+      "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+      "artifact_path": "artifacts/deterministic-with-design-system.html",
+      "screenshot_path": "screenshots/deterministic-with-design-system.png",
+      "visible_render_source": "reviewed_handoff_material_ui_adapter",
+      "rendering_policy": "The visible UI is rendered directly from the reviewed JudgmentKit handoff through the Material UI adapter; no provider or model call is used.",
+      "approach_title": "Deterministic renderer · with Material UI adapter",
+      "approach_caption": "The visible snapshot is rendered from the reviewed JudgmentKit handoff through a build-time Material UI adapter."
     },
     {
       "id": "gemma4-without-design-system",
@@ -249,43 +670,77 @@
       "title": "Gemma 4 local LLM capture",
       "generation_source": "captured_model_output",
       "design_system_mode": "without_design_system",
+      "capture_file": "captures/gemma4-without-design-system.json",
       "capture_provenance": {
-        "status": "capture-required",
-        "capture_type": "model-output-slot",
-        "captured_at": null,
-        "intended_provider": "ollama",
-        "intended_model": "gemma4:e2b",
-        "model_label": "Gemma 4 (local LLM)",
-        "notes": "No real Gemma 4 capture transcript is committed yet. This artifact keeps the public matrix wired without claiming benchmark evidence."
+        "status": "captured",
+        "capture_type": "model-output-transcript",
+        "captured_at": "2026-05-13T20:54:52.277Z",
+        "runner": "scripts/capture-model-ui-matrix.mjs",
+        "provider": "lmstudio",
+        "model": "google/gemma-4-e2b",
+        "cli": "lms",
+        "transcript_file": "captures/gemma4-without-design-system.json",
+        "prompt_sha256": "22bb09a32f59bde807ccd672742dda52df6bc28e83413f98523d49034759c4b2",
+        "raw_response_sha256": "4933aad7bb38bbccad4eea94d26e0685f5a3e3611a9d378b861e6c2298805f5a",
+        "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+        "design_system_name": null,
+        "design_system_package": null,
+        "design_system_render_mode": null,
+        "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit model UI matrix."
       },
       "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
       "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
       "design_system_adapter_file": null,
+      "design_system_name": null,
+      "design_system_package": null,
       "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
-      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
-      "artifact_path": "artifacts/gemma4-without-design-system.html"
+      "prompt_sha256": "22bb09a32f59bde807ccd672742dda52df6bc28e83413f98523d49034759c4b2",
+      "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+      "artifact_path": "artifacts/gemma4-without-design-system.html",
+      "screenshot_path": "screenshots/gemma4-without-design-system.png",
+      "visible_render_source": "reviewed_handoff_simple_renderer",
+      "rendering_policy": "The raw model transcript is committed as provenance; the visible UI is rendered from the reviewed JudgmentKit handoff with simple UI primitives.",
+      "approach_title": "Gemma 4 via LM Studio lms · without design system",
+      "approach_caption": "A local Gemma 4 transcript captured through LM Studio lms is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives."
     },
     {
       "id": "gemma4-with-design-system",
       "model_label": "Gemma 4 (local LLM)",
-      "title": "Gemma 4 local LLM capture with design-system adapter",
+      "title": "Gemma 4 local LLM capture with Material UI adapter",
       "generation_source": "captured_model_output",
       "design_system_mode": "with_design_system",
+      "capture_file": "captures/gemma4-with-design-system.json",
       "capture_provenance": {
-        "status": "capture-required",
-        "capture_type": "model-output-slot",
-        "captured_at": null,
-        "intended_provider": "ollama",
-        "intended_model": "gemma4:e2b",
-        "model_label": "Gemma 4 (local LLM)",
-        "notes": "No real Gemma 4 capture transcript is committed yet. Apply the example-only design-system adapter only after a real output is captured."
+        "status": "captured",
+        "capture_type": "model-output-transcript",
+        "captured_at": "2026-05-13T20:55:08.260Z",
+        "runner": "scripts/capture-model-ui-matrix.mjs",
+        "provider": "lmstudio",
+        "model": "google/gemma-4-e2b",
+        "cli": "lms",
+        "transcript_file": "captures/gemma4-with-design-system.json",
+        "prompt_sha256": "435f8a42d8aaa3d4b02b2f0908872592e43091b0f75114b0b87099bd6372de45",
+        "raw_response_sha256": "1b2d34b30cf5774fb2e7baab9cc57b3d59eb41a707ab46508e2e60a7b0fd6200",
+        "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+        "design_system_name": "Material UI",
+        "design_system_package": "@mui/material",
+        "design_system_render_mode": "static-ssr",
+        "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit model UI matrix."
       },
       "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
       "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
       "design_system_adapter_file": "examples/model-ui/refund-system-map/design-system-adapter.json",
+      "design_system_name": "Material UI",
+      "design_system_package": "@mui/material",
       "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
-      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
-      "artifact_path": "artifacts/gemma4-with-design-system.html"
+      "prompt_sha256": "435f8a42d8aaa3d4b02b2f0908872592e43091b0f75114b0b87099bd6372de45",
+      "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+      "artifact_path": "artifacts/gemma4-with-design-system.html",
+      "screenshot_path": "screenshots/gemma4-with-design-system.png",
+      "visible_render_source": "reviewed_handoff_material_ui_adapter",
+      "rendering_policy": "The raw model transcript is committed as provenance after capture with Material UI adapter context; the visible UI is rendered from the reviewed JudgmentKit handoff through the Material UI adapter.",
+      "approach_title": "Gemma 4 via LM Studio lms · with Material UI adapter",
+      "approach_caption": "A local Gemma 4 transcript captured through LM Studio lms with Material UI context is committed as provenance; the visible snapshot is rendered from the reviewed handoff through the Material UI adapter."
     },
     {
       "id": "gpt55-without-design-system",
@@ -293,45 +748,150 @@
       "title": "GPT-5.5 capture",
       "generation_source": "captured_model_output",
       "design_system_mode": "without_design_system",
+      "capture_file": "captures/gpt55-without-design-system.json",
       "capture_provenance": {
-        "status": "capture-required",
-        "capture_type": "model-output-slot",
-        "captured_at": null,
-        "intended_provider": "openai-responses",
-        "intended_model": "gpt-5.5",
-        "model_label": "GPT-5.5",
-        "notes": "No real GPT-5.5 capture transcript is committed yet. This artifact is a provenance slot, not a generated-output claim."
+        "status": "captured",
+        "capture_type": "model-output-transcript",
+        "captured_at": "2026-05-13T20:59:51.759Z",
+        "runner": "scripts/capture-model-ui-matrix.mjs",
+        "provider": "codex-cli",
+        "model": "gpt-5.5",
+        "cli": "codex",
+        "transcript_file": "captures/gpt55-without-design-system.json",
+        "prompt_sha256": "bbce67f615fa90446e99e9517821bdcfc3965771930cafddd409d96b32d35fc7",
+        "raw_response_sha256": "14021a55d1d28d3f72ee855fe928311e2426a5569ca9771d278c9a3380d711bc",
+        "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+        "design_system_name": null,
+        "design_system_package": null,
+        "design_system_render_mode": null,
+        "notes": "GPT-5.5 output captured through codex for the JudgmentKit model UI matrix."
       },
       "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
       "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
       "design_system_adapter_file": null,
+      "design_system_name": null,
+      "design_system_package": null,
       "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
-      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
-      "artifact_path": "artifacts/gpt55-without-design-system.html"
+      "prompt_sha256": "bbce67f615fa90446e99e9517821bdcfc3965771930cafddd409d96b32d35fc7",
+      "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+      "artifact_path": "artifacts/gpt55-without-design-system.html",
+      "screenshot_path": "screenshots/gpt55-without-design-system.png",
+      "visible_render_source": "reviewed_handoff_simple_renderer",
+      "rendering_policy": "The raw model transcript is committed as provenance; the visible UI is rendered from the reviewed JudgmentKit handoff with simple UI primitives.",
+      "approach_title": "GPT-5.5 via codex exec · without design system",
+      "approach_caption": "A GPT-5.5 transcript captured through codex exec is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives."
     },
     {
       "id": "gpt55-with-design-system",
       "model_label": "GPT-5.5",
-      "title": "GPT-5.5 capture with design-system adapter",
+      "title": "GPT-5.5 capture with Material UI adapter",
       "generation_source": "captured_model_output",
       "design_system_mode": "with_design_system",
+      "capture_file": "captures/gpt55-with-design-system.json",
       "capture_provenance": {
-        "status": "capture-required",
-        "capture_type": "model-output-slot",
-        "captured_at": null,
-        "intended_provider": "openai-responses",
-        "intended_model": "gpt-5.5",
-        "model_label": "GPT-5.5",
-        "notes": "No real GPT-5.5 capture transcript is committed yet. Apply the example-only design-system adapter only after a real output is captured."
+        "status": "captured",
+        "capture_type": "model-output-transcript",
+        "captured_at": "2026-05-13T21:03:15.167Z",
+        "runner": "scripts/capture-model-ui-matrix.mjs",
+        "provider": "codex-cli",
+        "model": "gpt-5.5",
+        "cli": "codex",
+        "transcript_file": "captures/gpt55-with-design-system.json",
+        "prompt_sha256": "7f0d365a92ed95e585df39c488b60870d7df2ad15caa1f412dbbeec621dbc48f",
+        "raw_response_sha256": "241179db6f4b33389e496efc005b832da8194b128fb71db42097949710c4030d",
+        "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+        "design_system_name": "Material UI",
+        "design_system_package": "@mui/material",
+        "design_system_render_mode": "static-ssr",
+        "notes": "GPT-5.5 output captured through codex for the JudgmentKit model UI matrix."
       },
       "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
       "reviewed_handoff_file": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
       "design_system_adapter_file": "examples/model-ui/refund-system-map/design-system-adapter.json",
+      "design_system_name": "Material UI",
+      "design_system_package": "@mui/material",
       "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
-      "prompt_sha256": "d22844e0d4121d9796a405d8fde9bbd31629d0c261550eec4eaaf3063e02584f",
-      "artifact_path": "artifacts/gpt55-with-design-system.html"
+      "prompt_sha256": "7f0d365a92ed95e585df39c488b60870d7df2ad15caa1f412dbbeec621dbc48f",
+      "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+      "artifact_path": "artifacts/gpt55-with-design-system.html",
+      "screenshot_path": "screenshots/gpt55-with-design-system.png",
+      "visible_render_source": "reviewed_handoff_material_ui_adapter",
+      "rendering_policy": "The raw model transcript is committed as provenance after capture with Material UI adapter context; the visible UI is rendered from the reviewed JudgmentKit handoff through the Material UI adapter.",
+      "approach_title": "GPT-5.5 via codex exec · with Material UI adapter",
+      "approach_caption": "A GPT-5.5 transcript captured through codex exec with Material UI context is committed as provenance; the visible snapshot is rendered from the reviewed handoff through the Material UI adapter."
     }
   ]
 }</script>
+    <script>
+      (() => {
+        const data = document.getElementById("model-ui-gallery-data");
+        const carousel = document.querySelector("[data-carousel]");
+        if (!data || !carousel) return;
+
+        const items = JSON.parse(data.textContent);
+        const image = carousel.querySelector("[data-carousel-image]");
+        const kicker = carousel.querySelector("[data-carousel-kicker]");
+        const title = carousel.querySelector("[data-carousel-title]");
+        const caption = carousel.querySelector("[data-carousel-caption]");
+        const adapter = carousel.querySelector("[data-carousel-adapter]");
+        const provenance = carousel.querySelector("[data-carousel-provenance]");
+        const artifact = carousel.querySelector("[data-carousel-artifact]");
+        const source = carousel.querySelector("[data-carousel-source]");
+        const count = carousel.querySelector("[data-carousel-count]");
+        const closeButton = carousel.querySelector("[data-carousel-close]:not(.carousel-backdrop)");
+        let activeIndex = 0;
+        let lastFocus = null;
+
+        function render(index) {
+          activeIndex = (index + items.length) % items.length;
+          const item = items[activeIndex];
+          image.src = item.image;
+          image.alt = item.title + " screenshot";
+          kicker.textContent = item.model_label;
+          title.textContent = item.title;
+          caption.textContent = item.caption;
+          adapter.textContent = item.adapter_label;
+          provenance.textContent = item.provenance;
+          artifact.href = item.artifact;
+          source.href = item.image;
+          count.textContent = String(activeIndex + 1) + " / " + String(items.length);
+        }
+
+        function open(index) {
+          lastFocus = document.activeElement;
+          render(index);
+          carousel.hidden = false;
+          carousel.setAttribute("aria-hidden", "false");
+          document.documentElement.classList.add("carousel-open");
+          closeButton.focus();
+        }
+
+        function close() {
+          carousel.hidden = true;
+          carousel.setAttribute("aria-hidden", "true");
+          document.documentElement.classList.remove("carousel-open");
+          if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
+        }
+
+        document.querySelectorAll("[data-carousel-open]").forEach((link) => {
+          link.addEventListener("click", (event) => {
+            event.preventDefault();
+            open(Number(link.getAttribute("data-carousel-open") || "0"));
+          });
+        });
+
+        carousel.querySelectorAll("[data-carousel-close]").forEach((button) => {
+          button.addEventListener("click", close);
+        });
+        carousel.querySelector("[data-carousel-prev]").addEventListener("click", () => render(activeIndex - 1));
+        carousel.querySelector("[data-carousel-next]").addEventListener("click", () => render(activeIndex + 1));
+        document.addEventListener("keydown", (event) => {
+          if (carousel.hidden) return;
+          if (event.key === "Escape") close();
+          if (event.key === "ArrowLeft") render(activeIndex - 1);
+          if (event.key === "ArrowRight") render(activeIndex + 1);
+        });
+      })();
+    </script>
   </body>
 </html>
