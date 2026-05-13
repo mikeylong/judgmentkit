@@ -965,34 +965,137 @@ pre {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
-.example-matrix-list {
-  display: grid;
-  gap: 18px;
-}
-.example-matrix-row {
-  display: grid;
-  gap: 14px;
-  padding: clamp(14px, 2vw, 18px);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fbfaf6;
-}
-.example-matrix-heading {
-  display: grid;
-  gap: 4px;
-  max-width: 840px;
-}
-.example-matrix-heading h3,
-.example-matrix-heading p {
-  margin: 0;
-}
-.example-matrix-cells {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
-}
 .example-gallery-card {
   overflow: hidden;
+}
+.example-matrix-scroll {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.example-matrix-table {
+  display: grid;
+  grid-template-columns: minmax(128px, 0.9fr) repeat(4, minmax(0, 1fr));
+  min-width: 620px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.example-matrix-axis,
+.example-matrix-column-header,
+.example-matrix-row-heading,
+.example-matrix-cell {
+  min-width: 0;
+}
+.example-matrix-axis,
+.example-matrix-column-header {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  background: #f5f3ec;
+}
+.example-matrix-axis {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.example-matrix-column-header {
+  border-left: 1px solid var(--line);
+}
+.example-matrix-column-header strong,
+.example-matrix-column-header span {
+  display: block;
+}
+.example-matrix-column-header strong {
+  font-size: 13px;
+  line-height: 1.2;
+}
+.example-matrix-column-header span {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.25;
+}
+.example-matrix-row-heading,
+.example-matrix-cell {
+  border-top: 1px solid var(--line);
+}
+.example-matrix-row-heading {
+  display: grid;
+  align-content: start;
+  gap: 4px;
+  padding: 12px;
+  background: #fbfaf6;
+}
+.example-matrix-row-heading .eyebrow,
+.example-matrix-row-heading h3,
+.example-matrix-row-heading p {
+  margin: 0;
+}
+.example-matrix-row-heading h3 {
+  font-size: 16px;
+  line-height: 1.2;
+}
+.example-matrix-row-heading p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+.example-matrix-cell {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 8px;
+  border-left: 1px solid var(--line);
+  background: #ffffff;
+}
+.example-matrix-thumb {
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #f2f1eb;
+}
+.example-matrix-thumb img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  transition: transform 180ms ease;
+}
+.example-matrix-thumb:hover img,
+.example-matrix-thumb:focus-visible img {
+  transform: scale(1.025);
+}
+.example-matrix-cell-copy {
+  display: grid;
+  gap: 4px;
+}
+.example-matrix-cell-copy .eyebrow {
+  margin: 0;
+  overflow: hidden;
+  color: var(--accent);
+  font-size: 10px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.example-matrix-cell-copy h4 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.2;
+}
+.example-matrix-cell-copy .note {
+  margin: 0;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
 }
 .example-gallery-thumb {
   display: block;
@@ -1294,7 +1397,6 @@ pre {
   }
   .example-gallery-grid,
   .example-comparison-pair,
-  .example-matrix-cells,
   .example-gallery-modal-panel {
     grid-template-columns: 1fr;
   }
@@ -1681,22 +1783,52 @@ function renderExampleGalleryCard(item, index) {
     </article>`;
 }
 
-function renderExampleMatrixRow(row) {
-  const cards = row.items
-    .map((item) => renderExampleGalleryCard(item, item.index))
+function renderExampleMatrixCell(item) {
+  return `
+        <article class="example-matrix-cell" role="cell">
+          <a class="example-matrix-thumb" href="${escapeHtml(item.artifactHref)}" data-gallery-open="${item.index}" aria-label="Open gallery view for ${escapeHtml(item.title)}">
+            <img src="${escapeHtml(item.imageHref)}" alt="${escapeHtml(item.title)} screenshot" loading="${item.index < 4 ? "eager" : "lazy"}">
+          </a>
+          <div class="example-matrix-cell-copy">
+            <p class="eyebrow">${escapeHtml(item.renderLabel)}</p>
+            <h4>${escapeHtml(item.columnLabel)}</h4>
+            <p class="note">${escapeHtml(item.promptContext)}</p>
+          </div>
+        </article>`;
+}
+
+function renderExampleMatrixTable(matrixRows) {
+  const columns = matrixRows[0]?.items ?? [];
+  const columnHeaders = columns
+    .map(
+      (item) => `
+        <div class="example-matrix-column-header" role="columnheader">
+          <strong>${escapeHtml(item.columnLabel)}</strong>
+          <span>${escapeHtml(item.renderLabel)}</span>
+        </div>`,
+    )
+    .join("");
+
+  const rows = matrixRows
+    .map(
+      (row) => `
+        <div class="example-matrix-row-heading" role="rowheader">
+          <p class="eyebrow">Generation path</p>
+          <h3>${escapeHtml(row.title)}</h3>
+          <p>${escapeHtml(row.summary)}</p>
+        </div>
+        ${row.items.map(renderExampleMatrixCell).join("")}`,
+    )
     .join("");
 
   return `
-        <article class="example-matrix-row">
-          <div class="example-matrix-heading">
-            <p class="eyebrow">Generation path</p>
-            <h3>${escapeHtml(row.title)}</h3>
-            <p>${escapeHtml(row.summary)}</p>
-          </div>
-          <div class="example-matrix-cells">
-            ${cards}
-          </div>
-        </article>`;
+      <div class="example-matrix-scroll">
+        <div class="example-matrix-table" role="table" aria-label="Model UI 3 by 4 comparison matrix">
+          <div class="example-matrix-axis" role="columnheader">Path</div>
+          ${columnHeaders}
+          ${rows}
+        </div>
+      </div>`;
 }
 
 function renderExampleComparisonGroup(group) {
@@ -1716,7 +1848,7 @@ function renderExampleComparisonGroup(group) {
 
 function renderModelUiGalleryPreview(example) {
   const matrixRows = example.comparisonRows ?? [];
-  const rows = matrixRows.map(renderExampleMatrixRow).join("");
+  const matrix = renderExampleMatrixTable(matrixRows);
 
   return `
     <section class="example-gallery" aria-label="Model UI screenshot gallery">
@@ -1725,9 +1857,7 @@ function renderModelUiGalleryPreview(example) {
         <h3>3x4 JudgmentKit and Material UI comparison</h3>
         <p>Columns separate Raw brief, JudgmentKit handoff, Material UI only, and JudgmentKit + Material UI. Material UI improves visual consistency; JudgmentKit improves activity fit, workflow fit, and disclosure discipline.</p>
       </div>
-      <div class="example-matrix-list">
-        ${rows}
-      </div>
+      ${matrix}
     </section>`;
 }
 
