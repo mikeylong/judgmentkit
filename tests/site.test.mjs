@@ -233,6 +233,8 @@ assert.ok(evals.includes("/evals/index.json"));
 assert.ok(evals.includes(`/evals/${evalCatalog.latest.html_report}`));
 assert.ok(evals.includes(`/evals/${evalCatalog.latest.json_report}`));
 assert.equal(evals.includes("/examples/evals/"), false);
+assert.ok(siteCss.includes(".evals-page {\n  display: grid;\n  grid-template-columns: minmax(0, 1fr);"));
+assert.ok(siteCss.includes(".evals-table-shell {\n  max-width: 100%;"));
 
 assert.equal(evalCatalog.catalog_id, "judgmentkit-ui-generation-eval-runs");
 assert.ok(evalCatalog.latest, "eval catalog should expose latest run");
