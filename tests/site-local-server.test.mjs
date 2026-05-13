@@ -92,7 +92,7 @@ const { server, url } = await listenSiteLocalServer({
 });
 
 try {
-  for (const route of ["/", "/docs/", "/docs", "/examples/", "/install"]) {
+  for (const route of ["/", "/docs/", "/docs", "/examples/", "/evals/", "/install"]) {
     const response = await fetchRoute(url, route);
 
     assert.equal(response.status, 200, `${route} should return 200`);

@@ -1,0 +1,165 @@
+.system-map-flow-root {
+  color: #171717;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.system-map-flow-root .react-flow {
+  background: #fbfaf6;
+}
+
+.system-map-flow-root .react-flow__pane {
+  cursor: grab;
+}
+
+.system-map-flow-root .react-flow__pane.dragging {
+  cursor: grabbing;
+}
+
+.system-map-flow-root .react-flow__controls {
+  border: 1px solid #d7d3c8;
+  border-radius: 8px;
+  box-shadow: none;
+  overflow: hidden;
+}
+
+.system-map-flow-root .react-flow__controls-button {
+  width: 30px;
+  height: 30px;
+  border-color: #d7d3c8;
+  background: #ffffff;
+  color: #133f4e;
+}
+
+.system-map-flow-root .react-flow__controls-button:hover {
+  background: #eef5f3;
+}
+
+.react-flow__node.rf-zone-wrapper,
+.react-flow__node.rf-map-wrapper {
+  pointer-events: none;
+}
+
+.rf-zone-node,
+.rf-map-node {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border: 2px solid #d7d3c8;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.rf-zone-node {
+  padding: 28px 26px;
+  border-radius: 18px;
+}
+
+.rf-zone-node span {
+  display: block;
+  margin-bottom: 10px;
+  color: #61615c;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.rf-zone-node strong {
+  display: block;
+  color: #133f4e;
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.12;
+  overflow-wrap: anywhere;
+}
+
+.rf-zone-kernel {
+  border-color: rgba(36, 95, 115, 0.34);
+  background: rgba(36, 95, 115, 0.06);
+}
+
+.rf-zone-llm {
+  border-color: rgba(138, 90, 22, 0.32);
+  background: rgba(138, 90, 22, 0.07);
+}
+
+.rf-zone-output {
+  border-color: rgba(46, 115, 70, 0.32);
+  background: rgba(46, 115, 70, 0.07);
+}
+
+.rf-map-node {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #171717;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.rf-map-node strong,
+.rf-map-node code {
+  display: block;
+  max-width: 100%;
+  color: #133f4e;
+  font-size: 16px;
+  font-weight: 800;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+
+.rf-map-node code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  font-size: 11px;
+  line-height: 1.22;
+  white-space: normal;
+}
+
+.rf-map-node span {
+  display: block;
+  color: #171717;
+  font-size: 13px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.rf-map-node-kernel {
+  border-color: rgba(36, 95, 115, 0.34);
+  background: #eef5f3;
+}
+
+.rf-map-node-llm {
+  border-color: rgba(138, 90, 22, 0.34);
+  background: #fbf3e7;
+}
+
+.rf-map-node-output {
+  border-color: rgba(46, 115, 70, 0.32);
+  background: #f0f8f2;
+}
+
+.rf-map-node-blocked {
+  border-color: rgba(138, 90, 22, 0.42);
+  border-style: dashed;
+  background: #fff7ec;
+}
+
+.rf-map-handle {
+  width: 1px;
+  height: 1px;
+  border: 0;
+  background: transparent;
+  opacity: 0;
+}
+
+.system-map-flow-root .react-flow__edge-path {
+  stroke-linecap: round;
+}
+
+.system-map-flow-root .react-flow__edge-text {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}

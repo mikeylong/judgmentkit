@@ -30,7 +30,7 @@ const OLD_FRAMING = [
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-site-"));
 const result = await buildSite(tempDir);
 
-assert.deepEqual(result.routes, ["/", "/docs/", "/examples/", "/install", "/mcp"]);
+assert.deepEqual(result.routes, ["/", "/docs/", "/examples/", "/evals/", "/install", "/mcp"]);
 
 function assertAnalyticsBootstrap(html, label) {
   assert.ok(html.includes("window.va = window.va || function"), `${label} should initialize Vercel Analytics queue`);
@@ -43,13 +43,27 @@ const homepage = fs.readFileSync(path.join(tempDir, "index.html"), "utf8");
 const siteCss = fs.readFileSync(path.join(tempDir, "assets", "site.css"), "utf8");
 const systemMapFlowJs = fs.readFileSync(path.join(tempDir, "assets", "system-map-flow.js"), "utf8");
 const systemMapFlowCss = fs.readFileSync(path.join(tempDir, "assets", "system-map-flow.css"), "utf8");
+const systemMapFlowSource = fs.readFileSync(new URL("../site/system-map-flow.jsx", import.meta.url), "utf8");
 assert.ok(systemMapFlowJs.includes("MCP boundary"));
 assert.ok(systemMapFlowJs.includes("JudgmentKit React Flow system design map"));
 assert.ok(systemMapFlowCss.includes(".rf-map-node"));
+assert.ok(systemMapFlowCss.includes("overflow-wrap:anywhere"));
 assert.ok(systemMapFlowCss.includes(".react-flow__controls"));
+assert.match(
+  systemMapFlowSource,
+  /id: "with-design-system"[\s\S]*?style: \{ width: 224, height: 112 \}/,
+);
+assert.match(
+  systemMapFlowSource,
+  /id: "without-design-system"[\s\S]*?style: \{ width: 224, height: 112 \}/,
+);
 assert.ok(homepage.includes("Judgment before generation."));
 assert.ok(homepage.includes("implementation mechanics from becoming UX"));
 assert.ok(homepage.includes("Use it before accepting AI-generated product work"));
+assert.ok(homepage.includes('href="/evals/"'));
+assert.ok(homepage.includes('class="hero-actions" aria-label="Primary proof paths"'));
+assert.ok(homepage.includes('class="hero-action hero-action-primary" data-hero-action="primary" href="/examples/"'));
+assert.ok(homepage.includes('class="hero-action hero-action-secondary" data-hero-action="secondary" href="/evals/"'));
 assert.ok(homepage.includes("Raw brief"));
 assert.ok(homepage.includes('class="prompt-evidence" title="Participant"'));
 assert.ok(homepage.includes('class="prompt-evidence" title="Objective and activity"'));
@@ -73,14 +87,15 @@ assert.ok(homepage.includes("Handoff"));
 assert.ok(homepage.includes("ready for generation"));
 assert.ok(homepage.includes("System map"));
 assert.ok(homepage.includes('id="system-map"'));
-assert.ok(homepage.includes('href="/assets/system-map-flow.css"'));
-assert.ok(homepage.includes('src="/assets/system-map-flow.js"'));
+assert.ok(homepage.includes('href="/assets/system-map-flow.css?v=scroll-first-node-fit"'));
+assert.ok(homepage.includes('src="/assets/system-map-flow.js?v=scroll-first-node-fit"'));
 assert.ok(homepage.includes('data-system-map-flow-section'));
 assert.ok(homepage.includes('data-system-map-flow-viewer'));
 assert.ok(homepage.includes('data-system-map-flow-root'));
 assert.ok(homepage.includes('data-system-map-fallback'));
 assert.ok(homepage.includes('data-system-map-svg-fallback'));
-assert.ok(homepage.includes("React Flow canvas"));
+assert.ok(homepage.includes("Scroll the page normally. Drag to pan the map; use controls or pinch/ctrl-wheel to zoom."));
+assert.equal(homepage.includes("trackpad wheel to zoom"), false);
 assert.equal(homepage.includes('data-system-map-viewer'), false);
 assert.equal(homepage.includes('data-system-map-canvas'), false);
 assert.equal(homepage.includes('data-system-map-zoom-in'), false);
@@ -136,14 +151,15 @@ assert.ok(docs.includes("Markdown planning card"));
 assert.ok(docs.includes("Codex-style planning chat"));
 assert.ok(docs.includes('id="system-map"'));
 assert.ok(docs.includes("System Map"));
-assert.ok(docs.includes('href="/assets/system-map-flow.css"'));
-assert.ok(docs.includes('src="/assets/system-map-flow.js"'));
+assert.ok(docs.includes('href="/assets/system-map-flow.css?v=scroll-first-node-fit"'));
+assert.ok(docs.includes('src="/assets/system-map-flow.js?v=scroll-first-node-fit"'));
 assert.ok(docs.includes('data-system-map-flow-section'));
 assert.ok(docs.includes('data-system-map-flow-viewer'));
 assert.ok(docs.includes('data-system-map-flow-root'));
 assert.ok(docs.includes('data-system-map-fallback'));
 assert.ok(docs.includes('data-system-map-svg-fallback'));
-assert.ok(docs.includes("React Flow canvas"));
+assert.ok(docs.includes("Scroll the page normally. Drag to pan the map; use controls or pinch/ctrl-wheel to zoom."));
+assert.equal(docs.includes("trackpad wheel to zoom"), false);
 assert.equal(docs.includes('data-system-map-viewer'), false);
 assert.equal(docs.includes('data-system-map-canvas'), false);
 assert.equal(docs.includes('data-system-map-zoom-in'), false);
@@ -181,12 +197,12 @@ assert.ok(examples.includes('id="examples-data"'));
 assert.ok(examples.includes("Refund triage comparison"));
 assert.ok(examples.includes("Model UI generation matrix"));
 assert.ok(examples.includes("Dinner playlist comparison"));
-assert.ok(examples.includes("UI generation eval report"));
 assert.ok(examples.includes('data-example-id="one-shot-proof"'));
 assert.ok(examples.includes('data-example-id="refund-triage"'));
 assert.ok(examples.includes('data-example-id="model-ui-system-map"'));
 assert.ok(examples.includes('data-example-id="dinner-playlist"'));
-assert.ok(examples.includes('data-example-id="ui-generation-eval"'));
+assert.equal(examples.includes("UI generation eval report"), false);
+assert.equal(examples.includes('data-example-id="ui-generation-eval"'), false);
 assert.ok(examples.includes("/examples/one-shot-demo.html"));
 assert.ok(examples.includes("/examples/comparison/refund/version-a.html"));
 assert.ok(examples.includes("/examples/comparison/refund/version-b.html"));
@@ -195,29 +211,52 @@ assert.ok(examples.includes("/examples/model-ui/refund-system-map/manifest.json"
 assert.ok(examples.includes("/examples/comparison/music/version-a.html"));
 assert.ok(examples.includes("/examples/comparison/music/version-b.html"));
 assert.ok(examples.includes("/examples/comparison/music/facilitator-scorecard.md"));
-assert.ok(examples.includes("/examples/evals/"));
-assert.ok(examples.includes("/examples/evals/index.json"));
+assert.equal(examples.includes("/examples/evals/"), false);
+assert.equal(examples.includes("/examples/evals/index.json"), false);
 assert.ok(examples.includes("Gemma 4 (local LLM)"));
 assert.ok(examples.includes("GPT-5.5"));
 assert.equal(examples.includes("raw_brief_baseline"), false);
 assert.equal(examples.includes("judgmentkit_handoff"), false);
 
-const evalCatalogPath = path.join(tempDir, "examples", "evals", "index.json");
+const evalCatalogPath = path.join(tempDir, "evals", "index.json");
 assert.equal(fs.existsSync(evalCatalogPath), true, "expected copied eval catalog");
 const evalCatalog = JSON.parse(fs.readFileSync(evalCatalogPath, "utf8"));
+
+const evals = fs.readFileSync(path.join(tempDir, "evals", "index.html"), "utf8");
+assertAnalyticsBootstrap(evals, "evals");
+assert.ok(evals.includes("Evaluation evidence"));
+assert.ok(evals.includes("<h1>Evals</h1>"));
+assert.ok(evals.includes("Latest run"));
+assert.ok(evals.includes("Claim level"));
+assert.ok(evals.includes("statistically powered benchmark"));
+assert.ok(evals.includes("/evals/index.json"));
+assert.ok(evals.includes(`/evals/${evalCatalog.latest.html_report}`));
+assert.ok(evals.includes(`/evals/${evalCatalog.latest.json_report}`));
+assert.equal(evals.includes("/examples/evals/"), false);
+
 assert.equal(evalCatalog.catalog_id, "judgmentkit-ui-generation-eval-runs");
 assert.ok(evalCatalog.latest, "eval catalog should expose latest run");
 assert.ok(evalCatalog.latest.html_report.endsWith("/ui-generation-report.html"));
 assert.ok(evalCatalog.latest.json_report.endsWith("/ui-generation-report.json"));
 assert.equal(
-  fs.existsSync(path.join(tempDir, "examples", "evals", evalCatalog.latest.html_report)),
+  fs.existsSync(path.join(tempDir, "evals", evalCatalog.latest.html_report)),
   true,
   "expected latest eval HTML report to be copied",
 );
 assert.equal(
-  fs.existsSync(path.join(tempDir, "examples", "evals", evalCatalog.latest.json_report)),
+  fs.existsSync(path.join(tempDir, "evals", evalCatalog.latest.json_report)),
   true,
   "expected latest eval JSON report to be copied",
+);
+assert.equal(
+  fs.existsSync(path.join(tempDir, "examples", "evals", "index.html")),
+  true,
+  "expected legacy examples eval index compatibility path",
+);
+assert.equal(
+  fs.existsSync(path.join(tempDir, "examples", "evals", evalCatalog.latest.html_report)),
+  true,
+  "expected legacy examples eval report compatibility path",
 );
 
 for (const copiedExamplePath of [
@@ -237,6 +276,10 @@ for (const copiedExamplePath of [
   ["examples", "comparison", "music", "version-a.html"],
   ["examples", "comparison", "music", "version-b.html"],
   ["examples", "comparison", "music", "facilitator-scorecard.md"],
+  ["evals", "index.html"],
+  ["evals", "index.json"],
+  ["evals", ...evalCatalog.latest.html_report.split("/")],
+  ["evals", ...evalCatalog.latest.json_report.split("/")],
   ["examples", "evals", "index.html"],
   ["examples", "evals", "index.json"],
   ["examples", "evals", ...evalCatalog.latest.html_report.split("/")],

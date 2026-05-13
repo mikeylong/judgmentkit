@@ -4,6 +4,8 @@ import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { build as buildWithEsbuild } from "esbuild";
+
 import {
   JUDGMENTKIT_MCP_TOOL_NAMES,
 } from "../scripts/install-mcp.mjs";
@@ -13,6 +15,7 @@ const ROOT = path.resolve(__dirname, "..");
 const DEFAULT_OUT_DIR = path.join(__dirname, "dist");
 const require = createRequire(import.meta.url);
 const ANALYTICS_SDK_VERSION = require("@vercel/analytics/package.json").version;
+const SYSTEM_MAP_FLOW_ASSET_VERSION = "scroll-first-node-fit";
 
 function parseArgs(argv) {
   const outIndex = argv.indexOf("--out");
@@ -125,6 +128,7 @@ function page(title, body, options = {}) {
     <meta name="twitter:title" content="${escapeHtml(title)}">
     <meta name="twitter:description" content="${escapeHtml(description)}">
     <link rel="stylesheet" href="/assets/site.css">
+${options.headExtra ?? ""}
 ${analyticsBootstrap()}
   </head>
   <body>
@@ -133,12 +137,158 @@ ${analyticsBootstrap()}
       <nav aria-label="Primary">
         <a href="/docs/">Docs</a>
         <a href="/examples/">Examples</a>
+        <a href="/evals/">Evals</a>
         <a href="/mcp">MCP</a>
       </nav>
     </header>
     <main>${body}</main>
   </body>
 </html>`;
+}
+
+function systemMapFlowAssets() {
+  return `    <link rel="stylesheet" href="/assets/system-map-flow.css?v=${SYSTEM_MAP_FLOW_ASSET_VERSION}">
+    <script type="module" src="/assets/system-map-flow.js?v=${SYSTEM_MAP_FLOW_ASSET_VERSION}"></script>`;
+}
+
+function systemMapShell(titleId, descId) {
+  return `
+      <div class="system-map-canvas system-map-flow-shell" data-system-map-flow-viewer>
+        <div
+          class="system-map-flow-root"
+          data-system-map-flow-root
+          role="application"
+          aria-label="React Flow system design map"
+        ></div>
+        <div class="system-map-fallback" data-system-map-fallback>
+          ${systemMapFallbackSvg(titleId, descId)}
+        </div>
+      </div>`;
+}
+
+function systemMapFallbackSvg(titleId, descId) {
+  return `<svg class="system-map-svg system-map-fallback-svg" data-system-map-svg-fallback viewBox="0 0 1760 1040" preserveAspectRatio="xMidYMin meet" role="img" aria-labelledby="${escapeHtml(titleId)} ${escapeHtml(descId)}">
+          <title id="${escapeHtml(titleId)}">JudgmentKit system design map</title>
+          <desc id="${escapeHtml(descId)}">A static fallback node and edge diagram showing the MCP boundary, JudgmentKit kernel, optional LLM provider seam, UI generation outside JudgmentKit, design-system adapter, blocked path, and iteration with updated context.</desc>
+          <defs>
+            <marker id="system-map-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="#245f73"></path>
+            </marker>
+          </defs>
+
+          <rect class="map-zone" x="36" y="64" width="310" height="360" rx="18"></rect>
+          <text class="map-boundary" x="60" y="104">MCP boundary</text>
+          <text class="map-zone-title" x="60" y="138">Agent / Client / MCP</text>
+          <rect class="map-node" x="60" y="170" width="262" height="82" rx="12"></rect>
+          <text class="map-node-title" x="78" y="202">Codex or agent client</text>
+          <text class="map-node-text" x="78" y="226">Calls tools; owns the turn.</text>
+          <rect class="map-node" x="60" y="274" width="262" height="116" rx="12"></rect>
+          <text class="map-node-title" x="78" y="306">MCP server</text>
+          <text class="map-node-text" x="78" y="330">Access and transport only.</text>
+          <text class="map-node-text" x="78" y="354">MCP is not the LLM.</text>
+          <text class="map-node-code" x="78" y="378">tools/list + tools/call</text>
+
+          <rect class="map-zone map-zone-kernel" x="430" y="64" width="700" height="670" rx="18"></rect>
+          <text class="map-boundary" x="458" y="104">JudgmentKit kernel</text>
+          <text class="map-zone-title" x="458" y="138">Deterministic review, guardrails, handoff</text>
+          <rect class="map-node map-node-kernel" x="462" y="170" width="292" height="100" rx="12"></rect>
+          <text class="map-node-code" x="482" y="202">analyze_implementation_brief</text>
+          <text class="map-node-text" x="482" y="228">Extract activity evidence, source gaps,</text>
+          <text class="map-node-text" x="482" y="250">implementation terms, disclosure risks.</text>
+          <rect class="map-node map-node-kernel" x="804" y="170" width="292" height="100" rx="12"></rect>
+          <text class="map-node-code" x="824" y="202">create_activity_model_review</text>
+          <text class="map-node-text" x="824" y="228">Name activity, participant, objective,</text>
+          <text class="map-node-text" x="824" y="250">decision, outcome, vocabulary.</text>
+          <rect class="map-node map-node-kernel" x="462" y="318" width="292" height="100" rx="12"></rect>
+          <text class="map-node-code" x="482" y="350">review_activity_model_candidate</text>
+          <text class="map-node-text" x="482" y="376">Review model or agent candidates</text>
+          <text class="map-node-text" x="482" y="398">before trusting them.</text>
+          <rect class="map-node map-node-kernel" x="804" y="318" width="292" height="100" rx="12"></rect>
+          <text class="map-node-code" x="824" y="350">review_ui_workflow_candidate</text>
+          <text class="map-node-text" x="824" y="376">Check grounding, action support,</text>
+          <text class="map-node-text" x="824" y="398">handoff clarity, leakage containment.</text>
+          <rect class="map-node map-node-kernel" x="462" y="466" width="292" height="100" rx="12"></rect>
+          <text class="map-node-code" x="482" y="498">recommend_ui_workflow_profiles</text>
+          <text class="map-node-text" x="482" y="524">Optional guidance such as</text>
+          <text class="map-node-text" x="482" y="546">operator-review-ui; not styling.</text>
+          <rect class="map-node map-node-kernel" x="804" y="466" width="292" height="100" rx="12"></rect>
+          <text class="map-node-code" x="824" y="498">create_ui_generation_handoff</text>
+          <text class="map-node-text" x="824" y="524">Gate: only ready workflow reviews</text>
+          <text class="map-node-text" x="824" y="546">become generation handoffs.</text>
+          <rect class="map-node map-node-blocked" x="594" y="606" width="420" height="94" rx="12"></rect>
+          <text class="map-node-title" x="616" y="638">Blocked path</text>
+          <text class="map-node-text" x="616" y="662">Resolve targeted questions or leakage</text>
+          <text class="map-node-text" x="616" y="684">before UI generation.</text>
+
+          <rect class="map-zone map-zone-llm" x="1212" y="64" width="500" height="286" rx="18"></rect>
+          <text class="map-boundary" x="1240" y="104">LLM / provider seam</text>
+          <text class="map-zone-title" x="1240" y="138">Optional model assistance</text>
+          <rect class="map-node map-node-llm" x="1240" y="170" width="204" height="116" rx="12"></rect>
+          <text class="map-node-title" x="1258" y="202">Provider adapter</text>
+          <text class="map-node-text" x="1258" y="226">OpenAI, local model,</text>
+          <text class="map-node-text" x="1258" y="250">or injected caller.</text>
+          <rect class="map-node map-node-llm" x="1470" y="170" width="204" height="116" rx="12"></rect>
+          <text class="map-node-title" x="1488" y="202">Candidate proposal</text>
+          <text class="map-node-text" x="1488" y="226">Activity/workflow JSON.</text>
+          <text class="map-node-text" x="1488" y="250">Reviewed before use.</text>
+
+          <rect class="map-zone map-zone-output" x="1212" y="412" width="500" height="260" rx="18"></rect>
+          <text class="map-boundary" x="1240" y="452">Outside JudgmentKit</text>
+          <text class="map-zone-title" x="1240" y="486">UI generation</text>
+          <rect class="map-node map-node-output" x="1240" y="518" width="204" height="94" rx="12"></rect>
+          <text class="map-node-title" x="1258" y="550">LLM / agent UI pass</text>
+          <text class="map-node-text" x="1258" y="574">Generate from reviewed</text>
+          <text class="map-node-text" x="1258" y="596">handoff, not raw brief.</text>
+          <rect class="map-node map-node-output" x="1470" y="518" width="204" height="94" rx="12"></rect>
+          <text class="map-node-title" x="1488" y="550">UI draft</text>
+          <text class="map-node-text" x="1488" y="574">Reviewed by human or</text>
+          <text class="map-node-text" x="1488" y="596">agent for next iteration.</text>
+
+          <rect class="map-zone" x="1212" y="734" width="500" height="236" rx="18"></rect>
+          <text class="map-boundary" x="1240" y="774">Design-system adapter</text>
+          <text class="map-zone-title" x="1240" y="808">Optional visual layer after judgment</text>
+          <rect class="map-node" x="1240" y="838" width="224" height="112" rx="12"></rect>
+          <text class="map-node-title" x="1258" y="870">with design system</text>
+          <text class="map-node-text" x="1258" y="894">Tokens, components,</text>
+          <text class="map-node-text" x="1258" y="916">layout rules applied later.</text>
+          <rect class="map-node" x="1470" y="838" width="224" height="112" rx="12"></rect>
+          <text class="map-node-title" x="1488" y="870">without design</text>
+          <text class="map-node-title" x="1488" y="892">system</text>
+          <text class="map-node-text" x="1488" y="918">Still use the handoff;</text>
+          <text class="map-node-text" x="1488" y="940">choose simple UI primitives.</text>
+
+          <rect class="map-zone" x="430" y="780" width="700" height="190" rx="18"></rect>
+          <text class="map-boundary" x="458" y="820">Iteration loop</text>
+          <text class="map-zone-title" x="458" y="854">Draft findings become updated context</text>
+          <rect class="map-node" x="462" y="884" width="292" height="60" rx="12"></rect>
+          <text class="map-node-title" x="482" y="920">Review findings</text>
+          <rect class="map-node map-node-kernel" x="804" y="884" width="292" height="60" rx="12"></rect>
+          <text class="map-node-title" x="824" y="920">updated context</text>
+
+          <path class="map-edge" d="M 322 330 C 374 330 374 220 462 220"></path>
+          <text class="map-edge-label" x="352" y="292">MCP tool call</text>
+          <path class="map-edge map-edge-muted" d="M 754 220 L 804 220"></path>
+          <path class="map-edge map-edge-muted" d="M 950 270 L 950 318"></path>
+          <path class="map-edge map-edge-muted" d="M 754 368 L 804 368"></path>
+          <path class="map-edge map-edge-muted" d="M 950 418 L 950 466"></path>
+          <path class="map-edge map-edge-blocked" d="M 804 544 C 744 580 704 590 672 606"></path>
+          <path class="map-edge map-edge-blocked" d="M 594 650 C 372 650 342 452 292 390"></path>
+          <text class="map-edge-label" x="348" y="620">needs source context</text>
+          <path class="map-edge map-edge-llm" d="M 1096 368 C 1166 338 1192 238 1240 226"></path>
+          <text class="map-edge-label" x="1130" y="302">request candidate</text>
+          <path class="map-edge map-edge-llm" d="M 1470 226 C 1340 300 1220 362 1096 368"></path>
+          <text class="map-edge-label" x="1302" y="338">proposed JSON returns for review</text>
+          <path class="map-edge map-edge-output" d="M 1096 516 C 1158 516 1178 564 1240 564"></path>
+          <text class="map-edge-label" x="1124" y="546">reviewed handoff</text>
+          <path class="map-edge map-edge-output" d="M 1444 564 L 1470 564"></path>
+          <path class="map-edge map-edge-muted" d="M 1572 612 L 1572 838"></path>
+          <text class="map-edge-label" x="1586" y="720">optional styling path</text>
+          <path class="map-edge map-edge-muted" d="M 1444 882 L 1470 882"></path>
+          <path class="map-edge" d="M 1470 596 C 1290 754 1040 846 754 914"></path>
+          <text class="map-edge-label" x="1090" y="812">review draft</text>
+          <path class="map-edge" d="M 804 914 C 648 820 582 736 608 566"></path>
+          <text class="map-edge-label" x="650" y="790">next turn</text>
+        </svg>`;
 }
 
 const stylesheet = `
@@ -253,6 +403,31 @@ h2 {
   border-radius: 999px;
   text-decoration: none;
   font-weight: 700;
+}
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+.hero-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 9px 14px;
+  border: 1px solid var(--accent-strong);
+  border-radius: 8px;
+  font-weight: 800;
+  text-decoration: none;
+}
+.hero-action-primary {
+  color: var(--bg);
+  background: var(--accent-strong);
+}
+.hero-action-secondary {
+  color: var(--accent-strong);
+  background: transparent;
 }
 .proof-panel,
 .route-grid article {
@@ -449,43 +624,34 @@ pre {
   color: #684310;
 }
 .system-map-toolbar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  justify-content: space-between;
   margin: 18px 0 10px;
-}
-.system-map-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.system-map-controls button {
-  min-height: 32px;
-  padding: 5px 10px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  color: var(--accent-strong);
-  background: var(--panel);
-  font: inherit;
-  font-size: 13px;
-  font-weight: 800;
-  cursor: pointer;
 }
 .system-map-canvas {
   aspect-ratio: 1760 / 1040;
+  position: relative;
   min-height: 420px;
   max-height: 760px;
   border: 1px solid var(--line);
   border-radius: 8px;
   background: #fbfaf6;
   overflow: hidden;
-  touch-action: none;
-  cursor: grab;
 }
-.system-map-canvas.is-dragging {
-  cursor: grabbing;
+.system-map-flow-root,
+.system-map-fallback {
+  position: absolute;
+  inset: 0;
+}
+.system-map-flow-root {
+  z-index: 2;
+}
+.system-map-flow-root:empty {
+  display: none;
+}
+.system-map-fallback {
+  z-index: 1;
+}
+.system-map-fallback[hidden] {
+  display: none;
 }
 .system-map-svg {
   display: block;
@@ -607,7 +773,8 @@ pre {
 }
 .doc-layout {
   display: grid;
-  grid-template-columns: minmax(180px, 240px) minmax(0, 820px);
+  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
+  max-width: 1120px;
   gap: 32px;
   align-items: start;
 }
@@ -765,6 +932,82 @@ pre {
   padding-top: 18px;
   border-top: 1px solid var(--line);
 }
+.evals-page {
+  display: grid;
+  gap: 24px;
+}
+.evals-header {
+  max-width: 820px;
+}
+.evals-summary {
+  display: grid;
+  grid-template-columns: minmax(260px, 1.1fr) repeat(3, minmax(160px, 0.75fr));
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  overflow: hidden;
+}
+.evals-summary div {
+  min-width: 0;
+  padding: 16px;
+  border-right: 1px solid var(--line);
+}
+.evals-summary div:last-child {
+  border-right: 0;
+}
+.evals-summary dt {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.evals-summary dd {
+  margin: 4px 0 0;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.evals-summary-primary dd {
+  font-size: 28px;
+  line-height: 1.05;
+}
+.evals-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.evals-table-shell {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.evals-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+}
+.evals-table th,
+.evals-table td {
+  padding: 11px 12px;
+  border-top: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+.evals-table thead th {
+  border-top: 0;
+  color: var(--muted);
+  font-size: 13px;
+  text-transform: uppercase;
+}
+.evals-table td {
+  overflow-wrap: anywhere;
+}
+@media (max-width: 1120px) and (min-width: 821px) {
+  .doc-layout {
+    grid-template-columns: minmax(160px, 200px) minmax(0, 1fr);
+    gap: 24px;
+  }
+}
 @media (max-width: 820px) {
   .site-header,
   .hero {
@@ -831,127 +1074,18 @@ pre {
     height: 68vh;
     min-height: 430px;
   }
+  .evals-summary {
+    grid-template-columns: 1fr;
+  }
+  .evals-summary div {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .evals-summary div:last-child {
+    border-bottom: 0;
+  }
 }
 `;
-
-function systemMapViewerScript() {
-  return `
-    <script>
-      (() => {
-        const viewers = document.querySelectorAll("[data-system-map-viewer]");
-        if (!viewers.length) return;
-
-        viewers.forEach((viewer) => {
-          const svg = viewer.querySelector("[data-system-map-svg]");
-          const canvas = viewer.matches("[data-system-map-canvas]")
-            ? viewer
-            : viewer.querySelector("[data-system-map-canvas]");
-          const zoomIn = viewer.querySelector("[data-system-map-zoom-in]");
-          const zoomOut = viewer.querySelector("[data-system-map-zoom-out]");
-          const reset = viewer.querySelector("[data-system-map-reset]");
-          if (!svg || !canvas || !zoomIn || !zoomOut || !reset) return;
-
-          const base = { x: 0, y: 0, width: 1760, height: 1040 };
-          const minWidth = 620;
-          const maxWidth = 2200;
-          const ratio = base.height / base.width;
-          let view = { ...base };
-          let drag = null;
-
-          function clampView() {
-            view.width = Math.min(maxWidth, Math.max(minWidth, view.width));
-            view.height = view.width * ratio;
-            const margin = 140;
-            const minX = base.x - margin;
-            const maxX = base.x + base.width - view.width + margin;
-            const minY = base.y - margin;
-            const maxY = base.y + base.height - view.height + margin;
-            view.x = Math.min(maxX, Math.max(minX, view.x));
-            view.y = Math.min(maxY, Math.max(minY, view.y));
-          }
-
-          function applyView() {
-            clampView();
-            svg.setAttribute(
-              "viewBox",
-              [view.x, view.y, view.width, view.height].map((value) => value.toFixed(2)).join(" "),
-            );
-          }
-
-          function pointFromEvent(event) {
-            const rect = svg.getBoundingClientRect();
-            return {
-              x: view.x + ((event.clientX - rect.left) / rect.width) * view.width,
-              y: view.y + ((event.clientY - rect.top) / rect.height) * view.height,
-            };
-          }
-
-          function zoom(factor, center) {
-            const target = center ?? {
-              x: view.x + view.width / 2,
-              y: view.y + view.height / 2,
-            };
-            const nextWidth = view.width * factor;
-            const nextHeight = nextWidth * ratio;
-            const xRatio = (target.x - view.x) / view.width;
-            const yRatio = (target.y - view.y) / view.height;
-            view = {
-              x: target.x - nextWidth * xRatio,
-              y: target.y - nextHeight * yRatio,
-              width: nextWidth,
-              height: nextHeight,
-            };
-            applyView();
-          }
-
-          zoomIn.addEventListener("click", () => zoom(0.82));
-          zoomOut.addEventListener("click", () => zoom(1.22));
-          reset.addEventListener("click", () => {
-            view = { ...base };
-            applyView();
-          });
-
-          canvas.addEventListener("wheel", (event) => {
-            event.preventDefault();
-            zoom(event.deltaY < 0 ? 0.88 : 1.14, pointFromEvent(event));
-          }, { passive: false });
-
-          canvas.addEventListener("pointerdown", (event) => {
-            if (event.button !== 0) return;
-            drag = {
-              id: event.pointerId,
-              x: event.clientX,
-              y: event.clientY,
-            };
-            canvas.classList.add("is-dragging");
-            canvas.setPointerCapture(event.pointerId);
-          });
-
-          canvas.addEventListener("pointermove", (event) => {
-            if (!drag || drag.id !== event.pointerId) return;
-            const rect = svg.getBoundingClientRect();
-            const dx = event.clientX - drag.x;
-            const dy = event.clientY - drag.y;
-            drag.x = event.clientX;
-            drag.y = event.clientY;
-            view.x -= (dx / rect.width) * view.width;
-            view.y -= (dy / rect.height) * view.height;
-            applyView();
-          });
-
-          function endDrag(event) {
-            if (!drag || drag.id !== event.pointerId) return;
-            canvas.classList.remove("is-dragging");
-            drag = null;
-          }
-
-          canvas.addEventListener("pointerup", endDrag);
-          canvas.addEventListener("pointercancel", endDrag);
-          applyView();
-        });
-      })();
-    </script>`;
-}
 
 function homepage() {
   return page(
@@ -962,6 +1096,10 @@ function homepage() {
         <p class="eyebrow">Activity-first judgment for AI agents</p>
         <h1>Judgment before generation.</h1>
         <p class="lede">JudgmentKit stops implementation mechanics from becoming UX. Use it before accepting AI-generated product work, so the next interface starts from the activity, decision, evidence, and handoff instead of from schemas, prompts, or tool traces.</p>
+        <div class="hero-actions" aria-label="Primary proof paths">
+          <a class="hero-action hero-action-primary" data-hero-action="primary" href="/examples/">Examples</a>
+          <a class="hero-action hero-action-secondary" data-hero-action="secondary" href="/evals/">Evals</a>
+        </div>
       </div>
       <div class="proof-panel" aria-label="JudgmentKit proof path">
         <div class="proof-step">
@@ -1005,139 +1143,13 @@ function homepage() {
         </article>
       </div>
     </section>
-    <section class="section" id="system-map" aria-labelledby="generation-loop-title" data-system-map-viewer>
+    <section class="section" id="system-map" aria-labelledby="generation-loop-title" data-system-map-flow-section>
       <h2 id="generation-loop-title">System map</h2>
       <p class="lede system-diagram-intro">JudgmentKit sits before generation and stays in the loop across iterations. It is the judgment layer around LLM UI generation, not the final renderer.</p>
       <div class="system-map-toolbar">
-        <p class="note">Drag to pan. Use the controls or trackpad wheel to zoom the SVG canvas.</p>
-        <div class="system-map-controls" aria-label="System map controls">
-          <button type="button" data-system-map-zoom-in>Zoom in</button>
-          <button type="button" data-system-map-zoom-out>Zoom out</button>
-          <button type="button" data-system-map-reset>Reset / fit</button>
-        </div>
+        <p class="note">Scroll the page normally. Drag to pan the map; use controls or pinch/ctrl-wheel to zoom.</p>
       </div>
-      <div class="system-map-canvas" data-system-map-canvas>
-        <svg class="system-map-svg" data-system-map-svg viewBox="0 0 1760 1040" preserveAspectRatio="xMidYMin meet" role="img" aria-labelledby="homepage-system-map-svg-title homepage-system-map-svg-desc">
-          <title id="homepage-system-map-svg-title">JudgmentKit system design map</title>
-          <desc id="homepage-system-map-svg-desc">A node and edge diagram showing the MCP boundary, JudgmentKit kernel, optional LLM provider seam, UI generation outside JudgmentKit, design-system adapter, blocked path, and iteration with updated context.</desc>
-          <defs>
-            <marker id="system-map-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#245f73"></path>
-            </marker>
-          </defs>
-
-          <rect class="map-zone" x="36" y="64" width="310" height="360" rx="18"></rect>
-          <text class="map-boundary" x="60" y="104">MCP boundary</text>
-          <text class="map-zone-title" x="60" y="138">Agent / Client / MCP</text>
-          <rect class="map-node" x="60" y="170" width="262" height="82" rx="12"></rect>
-          <text class="map-node-title" x="78" y="202">Codex or agent client</text>
-          <text class="map-node-text" x="78" y="226">Calls tools; owns the turn.</text>
-          <rect class="map-node" x="60" y="274" width="262" height="116" rx="12"></rect>
-          <text class="map-node-title" x="78" y="306">MCP server</text>
-          <text class="map-node-text" x="78" y="330">Access and transport only.</text>
-          <text class="map-node-text" x="78" y="354">MCP is not the LLM.</text>
-          <text class="map-node-code" x="78" y="378">tools/list + tools/call</text>
-
-          <rect class="map-zone map-zone-kernel" x="430" y="64" width="700" height="670" rx="18"></rect>
-          <text class="map-boundary" x="458" y="104">JudgmentKit kernel</text>
-          <text class="map-zone-title" x="458" y="138">Deterministic review, guardrails, handoff</text>
-          <rect class="map-node map-node-kernel" x="462" y="170" width="292" height="100" rx="12"></rect>
-          <text class="map-node-code" x="482" y="202">analyze_implementation_brief</text>
-          <text class="map-node-text" x="482" y="228">Extract activity evidence, source gaps,</text>
-          <text class="map-node-text" x="482" y="250">implementation terms, disclosure risks.</text>
-          <rect class="map-node map-node-kernel" x="804" y="170" width="292" height="100" rx="12"></rect>
-          <text class="map-node-code" x="824" y="202">create_activity_model_review</text>
-          <text class="map-node-text" x="824" y="228">Name activity, participant, objective,</text>
-          <text class="map-node-text" x="824" y="250">decision, outcome, vocabulary.</text>
-          <rect class="map-node map-node-kernel" x="462" y="318" width="292" height="100" rx="12"></rect>
-          <text class="map-node-code" x="482" y="350">review_activity_model_candidate</text>
-          <text class="map-node-text" x="482" y="376">Review model or agent candidates</text>
-          <text class="map-node-text" x="482" y="398">before trusting them.</text>
-          <rect class="map-node map-node-kernel" x="804" y="318" width="292" height="100" rx="12"></rect>
-          <text class="map-node-code" x="824" y="350">review_ui_workflow_candidate</text>
-          <text class="map-node-text" x="824" y="376">Check grounding, action support,</text>
-          <text class="map-node-text" x="824" y="398">handoff clarity, leakage containment.</text>
-          <rect class="map-node map-node-kernel" x="462" y="466" width="292" height="100" rx="12"></rect>
-          <text class="map-node-code" x="482" y="498">recommend_ui_workflow_profiles</text>
-          <text class="map-node-text" x="482" y="524">Optional guidance such as</text>
-          <text class="map-node-text" x="482" y="546">operator-review-ui; not styling.</text>
-          <rect class="map-node map-node-kernel" x="804" y="466" width="292" height="100" rx="12"></rect>
-          <text class="map-node-code" x="824" y="498">create_ui_generation_handoff</text>
-          <text class="map-node-text" x="824" y="524">Gate: only ready workflow reviews</text>
-          <text class="map-node-text" x="824" y="546">become generation handoffs.</text>
-          <rect class="map-node map-node-blocked" x="594" y="606" width="370" height="82" rx="12"></rect>
-          <text class="map-node-title" x="616" y="638">Blocked path</text>
-          <text class="map-node-text" x="616" y="662">Resolve targeted questions or leakage before UI generation.</text>
-
-          <rect class="map-zone map-zone-llm" x="1212" y="64" width="500" height="286" rx="18"></rect>
-          <text class="map-boundary" x="1240" y="104">LLM / provider seam</text>
-          <text class="map-zone-title" x="1240" y="138">Optional model assistance</text>
-          <rect class="map-node map-node-llm" x="1240" y="170" width="204" height="116" rx="12"></rect>
-          <text class="map-node-title" x="1258" y="202">Provider adapter</text>
-          <text class="map-node-text" x="1258" y="226">OpenAI, local model,</text>
-          <text class="map-node-text" x="1258" y="250">or injected caller.</text>
-          <rect class="map-node map-node-llm" x="1470" y="170" width="204" height="116" rx="12"></rect>
-          <text class="map-node-title" x="1488" y="202">Candidate proposal</text>
-          <text class="map-node-text" x="1488" y="226">Activity/workflow JSON.</text>
-          <text class="map-node-text" x="1488" y="250">Reviewed before use.</text>
-
-          <rect class="map-zone map-zone-output" x="1212" y="412" width="500" height="260" rx="18"></rect>
-          <text class="map-boundary" x="1240" y="452">Outside JudgmentKit</text>
-          <text class="map-zone-title" x="1240" y="486">UI generation</text>
-          <rect class="map-node map-node-output" x="1240" y="518" width="204" height="94" rx="12"></rect>
-          <text class="map-node-title" x="1258" y="550">LLM / agent UI pass</text>
-          <text class="map-node-text" x="1258" y="574">Generate from reviewed</text>
-          <text class="map-node-text" x="1258" y="596">handoff, not raw brief.</text>
-          <rect class="map-node map-node-output" x="1470" y="518" width="204" height="94" rx="12"></rect>
-          <text class="map-node-title" x="1488" y="550">UI draft</text>
-          <text class="map-node-text" x="1488" y="574">Reviewed by human or</text>
-          <text class="map-node-text" x="1488" y="596">agent for next iteration.</text>
-
-          <rect class="map-zone" x="1212" y="734" width="500" height="236" rx="18"></rect>
-          <text class="map-boundary" x="1240" y="774">Design-system adapter</text>
-          <text class="map-zone-title" x="1240" y="808">Optional visual layer after judgment</text>
-          <rect class="map-node" x="1240" y="838" width="204" height="88" rx="12"></rect>
-          <text class="map-node-title" x="1258" y="870">with design system</text>
-          <text class="map-node-text" x="1258" y="894">Tokens, components,</text>
-          <text class="map-node-text" x="1258" y="916">layout rules applied later.</text>
-          <rect class="map-node" x="1470" y="838" width="204" height="88" rx="12"></rect>
-          <text class="map-node-title" x="1488" y="870">without design system</text>
-          <text class="map-node-text" x="1488" y="894">Still use the handoff;</text>
-          <text class="map-node-text" x="1488" y="916">choose simple UI primitives.</text>
-
-          <rect class="map-zone" x="430" y="780" width="700" height="190" rx="18"></rect>
-          <text class="map-boundary" x="458" y="820">Iteration loop</text>
-          <text class="map-zone-title" x="458" y="854">Draft findings become updated context</text>
-          <rect class="map-node" x="462" y="884" width="292" height="60" rx="12"></rect>
-          <text class="map-node-title" x="482" y="920">Review findings</text>
-          <rect class="map-node map-node-kernel" x="804" y="884" width="292" height="60" rx="12"></rect>
-          <text class="map-node-title" x="824" y="920">updated context</text>
-
-          <path class="map-edge" d="M 322 330 C 374 330 374 220 462 220"></path>
-          <text class="map-edge-label" x="352" y="292">MCP tool call</text>
-          <path class="map-edge map-edge-muted" d="M 754 220 L 804 220"></path>
-          <path class="map-edge map-edge-muted" d="M 950 270 L 950 318"></path>
-          <path class="map-edge map-edge-muted" d="M 754 368 L 804 368"></path>
-          <path class="map-edge map-edge-muted" d="M 950 418 L 950 466"></path>
-          <path class="map-edge map-edge-blocked" d="M 804 544 C 744 580 704 590 672 606"></path>
-          <path class="map-edge map-edge-blocked" d="M 594 650 C 372 650 342 452 292 390"></path>
-          <text class="map-edge-label" x="348" y="620">needs source context</text>
-          <path class="map-edge map-edge-llm" d="M 1096 368 C 1166 338 1192 238 1240 226"></path>
-          <text class="map-edge-label" x="1130" y="302">request candidate</text>
-          <path class="map-edge map-edge-llm" d="M 1470 226 C 1340 300 1220 362 1096 368"></path>
-          <text class="map-edge-label" x="1302" y="338">proposed JSON returns for review</text>
-          <path class="map-edge map-edge-output" d="M 1096 516 C 1158 516 1178 564 1240 564"></path>
-          <text class="map-edge-label" x="1124" y="546">reviewed handoff</text>
-          <path class="map-edge map-edge-output" d="M 1444 564 L 1470 564"></path>
-          <path class="map-edge map-edge-muted" d="M 1572 612 L 1572 838"></path>
-          <text class="map-edge-label" x="1586" y="720">optional styling path</text>
-          <path class="map-edge map-edge-muted" d="M 1444 882 L 1470 882"></path>
-          <path class="map-edge" d="M 1470 596 C 1290 754 1040 846 754 914"></path>
-          <text class="map-edge-label" x="1090" y="812">review draft</text>
-          <path class="map-edge" d="M 804 914 C 648 820 582 736 608 566"></path>
-          <text class="map-edge-label" x="650" y="790">next turn</text>
-        </svg>
-      </div>
+      ${systemMapShell("homepage-system-map-svg-title", "homepage-system-map-svg-desc")}
       <div class="system-map-summary" aria-label="System map text summary">
         <p><strong>MCP boundary:</strong> agents call JudgmentKit tools through MCP; MCP is access and transport, not the LLM.</p>
         <p><strong>JudgmentKit kernel:</strong> deterministic review, candidate review, disclosure rules, targeted questions, and the handoff gate decide whether UI generation is ready.</p>
@@ -1156,11 +1168,11 @@ function homepage() {
       <code class="command">curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code>
       <p class="note">Codex is the default when no client is provided. Hosted installs do not clone the repo or require npm.</p>
     </section>
-    ${systemMapViewerScript()}
   `,
     {
       description:
         "JudgmentKit helps AI agents review activity, workflow, disclosure, and handoff quality before generating product UI.",
+      headExtra: systemMapFlowAssets(),
       path: "/",
     },
   );
@@ -1216,139 +1228,13 @@ curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></p
             <p>JudgmentKit supports MCP through the hosted Streamable HTTP endpoint at <code>https://judgmentkit.ai/mcp</code>. The installer registers that endpoint as <code>judgmentkit</code> in Codex, Claude Code, or Cursor. A browser GET to <code>/mcp</code> returns endpoint metadata; MCP clients should connect to the same URL with Streamable HTTP.</p>
             <p>MCP tool responses include <code>structuredContent</code> as the stable machine-readable contract and <code>content[0].text</code> as a concise Markdown planning card for Codex-style planning chat. Use the card to explain status, next step, blocking questions, and compact diagnostics; use structured content for implementation decisions and follow-up tool calls.</p>
           </section>
-          <section class="doc-section" id="system-map" data-system-map-viewer>
+          <section class="doc-section" id="system-map" data-system-map-flow-section>
             <h2>System Map</h2>
             <p>Use JudgmentKit before generation and across iterations. It is the contract and review layer around the LLM or agent, not the final UI renderer.</p>
             <div class="system-map-toolbar">
-              <p class="note">Drag to pan. Use the controls or trackpad wheel to zoom the SVG canvas.</p>
-              <div class="system-map-controls" aria-label="System map controls">
-                <button type="button" data-system-map-zoom-in>Zoom in</button>
-                <button type="button" data-system-map-zoom-out>Zoom out</button>
-                <button type="button" data-system-map-reset>Reset / fit</button>
-              </div>
+              <p class="note">Scroll the page normally. Drag to pan the map; use controls or pinch/ctrl-wheel to zoom.</p>
             </div>
-            <div class="system-map-canvas" data-system-map-canvas>
-              <svg class="system-map-svg" data-system-map-svg viewBox="0 0 1760 1040" preserveAspectRatio="xMidYMin meet" role="img" aria-labelledby="system-map-svg-title system-map-svg-desc">
-                <title id="system-map-svg-title">JudgmentKit system design map</title>
-                <desc id="system-map-svg-desc">A node and edge diagram showing the MCP boundary, JudgmentKit kernel, optional LLM provider seam, UI generation outside JudgmentKit, design-system adapter, blocked path, and iteration with updated context.</desc>
-                <defs>
-                  <marker id="system-map-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-                    <path d="M 0 0 L 10 5 L 0 10 z" fill="#245f73"></path>
-                  </marker>
-                </defs>
-
-                <rect class="map-zone" x="36" y="64" width="310" height="360" rx="18"></rect>
-                <text class="map-boundary" x="60" y="104">MCP boundary</text>
-                <text class="map-zone-title" x="60" y="138">Agent / Client / MCP</text>
-                <rect class="map-node" x="60" y="170" width="262" height="82" rx="12"></rect>
-                <text class="map-node-title" x="78" y="202">Codex or agent client</text>
-                <text class="map-node-text" x="78" y="226">Calls tools; owns the turn.</text>
-                <rect class="map-node" x="60" y="274" width="262" height="116" rx="12"></rect>
-                <text class="map-node-title" x="78" y="306">MCP server</text>
-                <text class="map-node-text" x="78" y="330">Access and transport only.</text>
-                <text class="map-node-text" x="78" y="354">MCP is not the LLM.</text>
-                <text class="map-node-code" x="78" y="378">tools/list + tools/call</text>
-
-                <rect class="map-zone map-zone-kernel" x="430" y="64" width="700" height="670" rx="18"></rect>
-                <text class="map-boundary" x="458" y="104">JudgmentKit kernel</text>
-                <text class="map-zone-title" x="458" y="138">Deterministic review, guardrails, handoff</text>
-                <rect class="map-node map-node-kernel" x="462" y="170" width="292" height="100" rx="12"></rect>
-                <text class="map-node-code" x="482" y="202">analyze_implementation_brief</text>
-                <text class="map-node-text" x="482" y="228">Extract activity evidence, source gaps,</text>
-                <text class="map-node-text" x="482" y="250">implementation terms, disclosure risks.</text>
-                <rect class="map-node map-node-kernel" x="804" y="170" width="292" height="100" rx="12"></rect>
-                <text class="map-node-code" x="824" y="202">create_activity_model_review</text>
-                <text class="map-node-text" x="824" y="228">Name activity, participant, objective,</text>
-                <text class="map-node-text" x="824" y="250">decision, outcome, vocabulary.</text>
-                <rect class="map-node map-node-kernel" x="462" y="318" width="292" height="100" rx="12"></rect>
-                <text class="map-node-code" x="482" y="350">review_activity_model_candidate</text>
-                <text class="map-node-text" x="482" y="376">Review model or agent candidates</text>
-                <text class="map-node-text" x="482" y="398">before trusting them.</text>
-                <rect class="map-node map-node-kernel" x="804" y="318" width="292" height="100" rx="12"></rect>
-                <text class="map-node-code" x="824" y="350">review_ui_workflow_candidate</text>
-                <text class="map-node-text" x="824" y="376">Check grounding, action support,</text>
-                <text class="map-node-text" x="824" y="398">handoff clarity, leakage containment.</text>
-                <rect class="map-node map-node-kernel" x="462" y="466" width="292" height="100" rx="12"></rect>
-                <text class="map-node-code" x="482" y="498">recommend_ui_workflow_profiles</text>
-                <text class="map-node-text" x="482" y="524">Optional guidance such as</text>
-                <text class="map-node-text" x="482" y="546">operator-review-ui; not styling.</text>
-                <rect class="map-node map-node-kernel" x="804" y="466" width="292" height="100" rx="12"></rect>
-                <text class="map-node-code" x="824" y="498">create_ui_generation_handoff</text>
-                <text class="map-node-text" x="824" y="524">Gate: only ready workflow reviews</text>
-                <text class="map-node-text" x="824" y="546">become generation handoffs.</text>
-                <rect class="map-node map-node-blocked" x="594" y="606" width="370" height="82" rx="12"></rect>
-                <text class="map-node-title" x="616" y="638">Blocked path</text>
-                <text class="map-node-text" x="616" y="662">Resolve targeted questions or leakage before UI generation.</text>
-
-                <rect class="map-zone map-zone-llm" x="1212" y="64" width="500" height="286" rx="18"></rect>
-                <text class="map-boundary" x="1240" y="104">LLM / provider seam</text>
-                <text class="map-zone-title" x="1240" y="138">Optional model assistance</text>
-                <rect class="map-node map-node-llm" x="1240" y="170" width="204" height="116" rx="12"></rect>
-                <text class="map-node-title" x="1258" y="202">Provider adapter</text>
-                <text class="map-node-text" x="1258" y="226">OpenAI, local model,</text>
-                <text class="map-node-text" x="1258" y="250">or injected caller.</text>
-                <rect class="map-node map-node-llm" x="1470" y="170" width="204" height="116" rx="12"></rect>
-                <text class="map-node-title" x="1488" y="202">Candidate proposal</text>
-                <text class="map-node-text" x="1488" y="226">Activity/workflow JSON.</text>
-                <text class="map-node-text" x="1488" y="250">Reviewed before use.</text>
-
-                <rect class="map-zone map-zone-output" x="1212" y="412" width="500" height="260" rx="18"></rect>
-                <text class="map-boundary" x="1240" y="452">Outside JudgmentKit</text>
-                <text class="map-zone-title" x="1240" y="486">UI generation</text>
-                <rect class="map-node map-node-output" x="1240" y="518" width="204" height="94" rx="12"></rect>
-                <text class="map-node-title" x="1258" y="550">LLM / agent UI pass</text>
-                <text class="map-node-text" x="1258" y="574">Generate from reviewed</text>
-                <text class="map-node-text" x="1258" y="596">handoff, not raw brief.</text>
-                <rect class="map-node map-node-output" x="1470" y="518" width="204" height="94" rx="12"></rect>
-                <text class="map-node-title" x="1488" y="550">UI draft</text>
-                <text class="map-node-text" x="1488" y="574">Reviewed by human or</text>
-                <text class="map-node-text" x="1488" y="596">agent for next iteration.</text>
-
-                <rect class="map-zone" x="1212" y="734" width="500" height="236" rx="18"></rect>
-                <text class="map-boundary" x="1240" y="774">Design-system adapter</text>
-                <text class="map-zone-title" x="1240" y="808">Optional visual layer after judgment</text>
-                <rect class="map-node" x="1240" y="838" width="204" height="88" rx="12"></rect>
-                <text class="map-node-title" x="1258" y="870">with design system</text>
-                <text class="map-node-text" x="1258" y="894">Tokens, components,</text>
-                <text class="map-node-text" x="1258" y="916">layout rules applied later.</text>
-                <rect class="map-node" x="1470" y="838" width="204" height="88" rx="12"></rect>
-                <text class="map-node-title" x="1488" y="870">without design system</text>
-                <text class="map-node-text" x="1488" y="894">Still use the handoff;</text>
-                <text class="map-node-text" x="1488" y="916">choose simple UI primitives.</text>
-
-                <rect class="map-zone" x="430" y="780" width="700" height="190" rx="18"></rect>
-                <text class="map-boundary" x="458" y="820">Iteration loop</text>
-                <text class="map-zone-title" x="458" y="854">Draft findings become updated context</text>
-                <rect class="map-node" x="462" y="884" width="292" height="60" rx="12"></rect>
-                <text class="map-node-title" x="482" y="920">Review findings</text>
-                <rect class="map-node map-node-kernel" x="804" y="884" width="292" height="60" rx="12"></rect>
-                <text class="map-node-title" x="824" y="920">updated context</text>
-
-                <path class="map-edge" d="M 322 330 C 374 330 374 220 462 220"></path>
-                <text class="map-edge-label" x="352" y="292">MCP tool call</text>
-                <path class="map-edge map-edge-muted" d="M 754 220 L 804 220"></path>
-                <path class="map-edge map-edge-muted" d="M 950 270 L 950 318"></path>
-                <path class="map-edge map-edge-muted" d="M 754 368 L 804 368"></path>
-                <path class="map-edge map-edge-muted" d="M 950 418 L 950 466"></path>
-                <path class="map-edge map-edge-blocked" d="M 804 544 C 744 580 704 590 672 606"></path>
-                <path class="map-edge map-edge-blocked" d="M 594 650 C 372 650 342 452 292 390"></path>
-                <text class="map-edge-label" x="348" y="620">needs source context</text>
-                <path class="map-edge map-edge-llm" d="M 1096 368 C 1166 338 1192 238 1240 226"></path>
-                <text class="map-edge-label" x="1130" y="302">request candidate</text>
-                <path class="map-edge map-edge-llm" d="M 1470 226 C 1340 300 1220 362 1096 368"></path>
-                <text class="map-edge-label" x="1302" y="338">proposed JSON returns for review</text>
-                <path class="map-edge map-edge-output" d="M 1096 516 C 1158 516 1178 564 1240 564"></path>
-                <text class="map-edge-label" x="1124" y="546">reviewed handoff</text>
-                <path class="map-edge map-edge-output" d="M 1444 564 L 1470 564"></path>
-                <path class="map-edge map-edge-muted" d="M 1572 612 L 1572 838"></path>
-                <text class="map-edge-label" x="1586" y="720">optional styling path</text>
-                <path class="map-edge map-edge-muted" d="M 1444 882 L 1470 882"></path>
-                <path class="map-edge" d="M 1470 596 C 1290 754 1040 846 754 914"></path>
-                <text class="map-edge-label" x="1090" y="812">review draft</text>
-                <path class="map-edge" d="M 804 914 C 648 820 582 736 608 566"></path>
-                <text class="map-edge-label" x="650" y="790">next turn</text>
-              </svg>
-            </div>
+            ${systemMapShell("system-map-svg-title", "system-map-svg-desc")}
             <div class="system-map-summary" aria-label="System map text summary">
               <p><strong>MCP boundary:</strong> agents call JudgmentKit tools through MCP; MCP is access and transport, not the LLM.</p>
               <p><strong>JudgmentKit kernel:</strong> deterministic review, candidate review, disclosure rules, targeted questions, and the handoff gate decide whether UI generation is ready.</p>
@@ -1378,11 +1264,11 @@ curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></p
         </div>
       </div>
     </section>
-    ${systemMapViewerScript()}
   `,
     {
       description:
         "JudgmentKit docs for CLI, MCP, activity review, workflow review, handoff, and guidance profiles.",
+      headExtra: systemMapFlowAssets(),
       path: "/docs/",
     },
   );
@@ -1462,25 +1348,6 @@ const EXAMPLES = [
       {
         label: "Scorecard",
         href: "/examples/comparison/music/facilitator-scorecard.md",
-      },
-    ],
-  },
-  {
-    id: "ui-generation-eval",
-    title: "UI generation eval report",
-    label: "Eval report",
-    description:
-      "Immutable paired-artifact score reports comparing raw generated interfaces with JudgmentKit-guided handoff outputs.",
-    previewHref: "/examples/evals/",
-    previewLabel: "UI generation eval runs",
-    actions: [
-      {
-        label: "Open eval runs",
-        href: "/examples/evals/",
-      },
-      {
-        label: "Run catalog",
-        href: "/examples/evals/index.json",
       },
     ],
   },
@@ -1650,6 +1517,108 @@ async function examplesPage() {
   );
 }
 
+function evalRunTitle(run) {
+  return `${run.date} / ${run.mcp_release_segment} / ${run.run_id}`;
+}
+
+function evalReportPath(reportPath) {
+  return `/evals/${reportPath}`;
+}
+
+function renderEvalRunRows(runs) {
+  return runs
+    .map(
+      (run) => `
+      <tr>
+        <td>${escapeHtml(run.date)}</td>
+        <td>${escapeHtml(run.mcp_release)}</td>
+        <td>${escapeHtml(run.run_id)}</td>
+        <td>${escapeHtml(run.claim_level)}</td>
+        <td>${escapeHtml(run.summary.passed)}/${escapeHtml(run.summary.cases)} passed</td>
+        <td><a href="${escapeHtml(evalReportPath(run.html_report))}">HTML</a> · <a href="${escapeHtml(evalReportPath(run.json_report))}">JSON</a></td>
+      </tr>`,
+    )
+    .join("");
+}
+
+async function evalsPage() {
+  const catalog = await readJsonIfExists("evals/reports/index.json");
+  const latestReport = catalog?.latest
+    ? await readJsonIfExists(path.join("evals/reports", catalog.latest.json_report))
+    : null;
+
+  if (!catalog?.latest) {
+    return page(
+      "JudgmentKit Evals",
+      `
+      <section class="section evals-page">
+        <div class="evals-header">
+          <h1>Evals</h1>
+          <p class="lede">No eval report catalog has been generated yet.</p>
+        </div>
+      </section>
+    `,
+      {
+        description: "JudgmentKit eval reports and evidence artifacts.",
+        path: "/evals/",
+      },
+    );
+  }
+
+  const latest = catalog.latest;
+  const benchmarkPolicy =
+    latestReport?.benchmark_policy ??
+    "Qualitative paired-artifact evidence only; not a statistically powered benchmark.";
+
+  return page(
+    "JudgmentKit Evals",
+    `
+    <section class="section evals-page">
+      <div class="evals-header">
+        <p class="eyebrow">Evaluation evidence</p>
+        <h1>Evals</h1>
+        <p class="lede">Immutable UI generation eval runs compare raw generated interfaces with JudgmentKit-guided handoff outputs. Use these reports as evidence, not as broad benchmark claims.</p>
+      </div>
+      <dl class="evals-summary" aria-label="Latest eval run summary">
+        <div class="evals-summary-primary"><dt>Latest run</dt><dd>${escapeHtml(evalRunTitle(latest))}</dd></div>
+        <div><dt>Claim level</dt><dd>${escapeHtml(latest.claim_level)}</dd></div>
+        <div><dt>Result</dt><dd>${escapeHtml(latest.summary.passed)}/${escapeHtml(latest.summary.cases)} passed</dd></div>
+        <div><dt>Guided wins</dt><dd>${escapeHtml(latest.summary.guided_wins)}</dd></div>
+      </dl>
+      <p class="note">${escapeHtml(benchmarkPolicy)}</p>
+      <div class="evals-actions" aria-label="Eval report links">
+        <a class="pill-link" href="${escapeHtml(evalReportPath(latest.html_report))}">Latest HTML report</a>
+        <a class="pill-link" href="${escapeHtml(evalReportPath(latest.json_report))}">Latest JSON report</a>
+        <a class="pill-link" href="/evals/index.json">Catalog JSON</a>
+      </div>
+      <section>
+        <h2>All runs</h2>
+        <div class="evals-table-shell">
+          <table class="evals-table">
+            <thead>
+              <tr>
+                <th scope="col">Date</th>
+                <th scope="col">MCP release</th>
+                <th scope="col">Run</th>
+                <th scope="col">Claim level</th>
+                <th scope="col">Result</th>
+                <th scope="col">Reports</th>
+              </tr>
+            </thead>
+            <tbody>${renderEvalRunRows(catalog.runs)}</tbody>
+          </table>
+        </div>
+      </section>
+    </section>
+  `,
+    {
+      description:
+        "JudgmentKit eval reports for reviewing UI generation evidence and claim levels.",
+      path: "/evals/",
+    },
+  );
+}
+
 async function bootstrapScript() {
   const installerSource = await fs.readFile(path.join(ROOT, "scripts", "install-mcp.mjs"), "utf8");
 
@@ -1735,13 +1704,27 @@ async function copyDirectoryIfExists(fromRelative, toPath) {
   }
 }
 
+async function buildSystemMapFlowAssets(outDir) {
+  await buildWithEsbuild({
+    entryPoints: [path.join(__dirname, "system-map-flow.jsx")],
+    outfile: path.join(outDir, "assets", "system-map-flow.js"),
+    bundle: true,
+    format: "esm",
+    target: "es2020",
+    minify: true,
+    logLevel: "silent",
+  });
+}
+
 export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.rm(outDir, { recursive: true, force: true });
   await fs.mkdir(path.join(outDir, "assets"), { recursive: true });
   await fs.mkdir(path.join(outDir, "docs"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "evals"), { recursive: true });
   await fs.mkdir(path.join(outDir, "examples"), { recursive: true });
 
   await fs.writeFile(path.join(outDir, "assets", "site.css"), stylesheet.trimStart());
+  await buildSystemMapFlowAssets(outDir);
   await fs.writeFile(
     path.join(outDir, "favicon.svg"),
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#133f4e"/><path d="M18 34.5 28 44l19-24" fill="none" stroke="#f8f7f2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>\n`,
@@ -1759,6 +1742,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
       "",
       "- /docs/",
       "- /examples/",
+      "- /evals/",
       "- /install",
       "- /mcp",
       "",
@@ -1772,12 +1756,14 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await copyIfExists("examples/comparison/music/version-a.html", path.join(outDir, "examples", "comparison", "music", "version-a.html"));
   await copyIfExists("examples/comparison/music/version-b.html", path.join(outDir, "examples", "comparison", "music", "version-b.html"));
   await copyIfExists("examples/comparison/music/facilitator-scorecard.md", path.join(outDir, "examples", "comparison", "music", "facilitator-scorecard.md"));
+  await copyDirectoryIfExists("evals/reports", path.join(outDir, "evals"));
   await copyDirectoryIfExists("evals/reports", path.join(outDir, "examples", "evals"));
+  await fs.writeFile(path.join(outDir, "evals", "index.html"), await evalsPage());
   await copyDirectoryIfExists("examples/model-ui", path.join(outDir, "examples", "model-ui"));
 
   return {
     out_dir: outDir,
-    routes: ["/", "/docs/", "/examples/", "/install", "/mcp"],
+    routes: ["/", "/docs/", "/examples/", "/evals/", "/install", "/mcp"],
   };
 }
 

@@ -32,6 +32,10 @@
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
     "@vercel/analytics": "^2.0.1",
+    "@xyflow/react": "^12.10.2",
+    "esbuild": "^0.28.0",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
     "zod": "^3.25.76"
   }
 }

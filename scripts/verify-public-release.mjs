@@ -154,27 +154,29 @@ async function verifyAnalyticsScript(baseUrl, scriptSrc) {
 }
 
 async function verifyEvalArchive(baseUrl, analyticsScriptSrc) {
-  const index = await fetchText(baseUrl, "/examples/evals/");
+  const index = await fetchText(baseUrl, "/evals/");
   assert.equal(getAnalyticsScriptSrc(index.text, "eval archive"), analyticsScriptSrc);
   assertIncludes(
     index.text,
     [
-      "JudgmentKit UI Eval Runs",
+      "Evaluation evidence",
+      "<h1>Evals</h1>",
       "Latest run",
       "Catalog JSON",
     ],
     "eval archive",
   );
+  assertExcludes(index.text, ["/examples/evals/"], "eval archive");
 
-  const catalogResponse = await fetchText(baseUrl, "/examples/evals/index.json");
+  const catalogResponse = await fetchText(baseUrl, "/evals/index.json");
   const catalog = JSON.parse(catalogResponse.text);
   assert.equal(catalog.catalog_id, "judgmentkit-ui-generation-eval-runs");
   assert.ok(catalog.latest, "eval catalog should include latest run");
   assert.ok(Array.isArray(catalog.runs), "eval catalog should include runs");
   assert.ok(catalog.runs.length > 0, "eval catalog should include at least one run");
 
-  const latestHtmlRoute = `/examples/evals/${catalog.latest.html_report}`;
-  const latestJsonRoute = `/examples/evals/${catalog.latest.json_report}`;
+  const latestHtmlRoute = `/evals/${catalog.latest.html_report}`;
+  const latestJsonRoute = `/evals/${catalog.latest.json_report}`;
   const latestHtml = await fetchText(baseUrl, latestHtmlRoute);
   assert.equal(getAnalyticsScriptSrc(latestHtml.text, latestHtmlRoute), analyticsScriptSrc);
   assertIncludes(
@@ -194,11 +196,17 @@ async function verifyEvalArchive(baseUrl, analyticsScriptSrc) {
   assert.equal(latestJson.run.html_report, catalog.latest.html_report);
   assert.equal(latestJson.run.json_report, catalog.latest.json_report);
 
+  await fetchText(baseUrl, "/examples/evals/");
+  await fetchText(baseUrl, "/examples/evals/index.json");
+  await fetchText(baseUrl, `/examples/evals/${catalog.latest.html_report}`);
+  await fetchText(baseUrl, `/examples/evals/${catalog.latest.json_report}`);
+
   return {
-    index_route: "/examples/evals/",
-    catalog_route: "/examples/evals/index.json",
+    index_route: "/evals/",
+    catalog_route: "/evals/index.json",
     latest_html_route: latestHtmlRoute,
     latest_json_route: latestJsonRoute,
+    compatibility_index_route: "/examples/evals/",
   };
 }
 
@@ -246,7 +254,6 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "Gemma 4 (local LLM)",
       "GPT-5.5",
       "Dinner playlist comparison",
-      "UI generation eval report",
       "/examples/comparison/refund/version-a.html",
       "/examples/comparison/refund/version-b.html",
       "/examples/model-ui/refund-system-map/index.html",
@@ -254,12 +261,14 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "/examples/comparison/music/version-a.html",
       "/examples/comparison/music/version-b.html",
       "/examples/comparison/music/facilitator-scorecard.md",
-      "/examples/evals/",
-      "/examples/evals/index.json",
     ],
     "examples",
   );
-  assertExcludes(examples.text, ["raw_brief_baseline", "judgmentkit_handoff"], "examples");
+  assertExcludes(
+    examples.text,
+    ["raw_brief_baseline", "judgmentkit_handoff", "UI generation eval report", "/examples/evals/"],
+    "examples",
+  );
 
   const evalArchive = await verifyEvalArchive(baseUrl, analyticsScriptSrc);
 
