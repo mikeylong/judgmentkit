@@ -2,11 +2,11 @@
   "id": "material-ui-refund-ops-adapter",
   "name": "Material UI Refund Ops Review Adapter",
   "scope": "example-only",
-  "role": "visual layer after JudgmentKit handoff",
+  "role": "visual renderer after context selection",
   "design_system_name": "Material UI",
   "design_system_package": "@mui/material",
   "render_mode": "static-ssr",
-  "renderer": "React server rendering with Emotion critical CSS inlined into the artifact.",
+  "renderer": "React server rendering with Emotion critical CSS inlined into each artifact.",
   "theme": {
     "palette": {
       "primary": "#245f73",
@@ -36,5 +36,5 @@
     "Typography",
     "Alert"
   ],
-  "constraint": "Material UI changes the visual/component layer only; it does not change the activity, decision, evidence, or handoff."
+  "constraint": "Material UI changes the visual/component layer only; it does not supply activity fit, workflow fit, or disclosure discipline."
 }

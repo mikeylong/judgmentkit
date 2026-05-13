@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Deterministic - JudgmentKit handoff</title>
+    <title>Deterministic - Raw brief</title>
     <style>
     :root {
       color-scheme: light;
@@ -245,37 +245,37 @@
   </style>
 
   </head>
-  <body data-artifact-id="deterministic-with-judgmentkit" data-row-id="deterministic" data-column-id="with-judgmentkit" data-judgmentkit-mode="with_judgmentkit" data-design-system-mode="none">
+  <body data-artifact-id="deterministic-no-judgmentkit" data-row-id="deterministic" data-column-id="no-judgmentkit" data-judgmentkit-mode="no_judgmentkit" data-design-system-mode="none">
 
-    <main class="app-shell reviewed-candidate" data-primary-surface>
+    <main class="app-shell raw-brief-candidate" data-primary-surface>
       <header class="app-header">
         <div>
-          <p class="eyebrow">JudgmentKit handoff</p>
-          <h1>Refund Review Workspace</h1>
+          <p class="eyebrow">Raw source brief</p>
+          <h1>refund_case Admin Console</h1>
         </div>
-        <span class="status">Activity-fit</span>
+        <span class="status">Implementation-first</span>
       </header>
       <section class="workspace">
-        <aside class="queue" aria-label="Refund escalations">
+        <aside class="queue" aria-label="Database records">
           <div class="section-heading">
             <p class="eyebrow">Queue</p>
-            <h2>Refund escalations</h2>
+            <h2>Database records</h2>
           </div>
 
       <button class="queue-item is-selected" type="button">
         <span>R-1842</span>
         <strong>Nora Diaz</strong>
-        <small>Needs receipt - $184.20</small>
+        <small>Needs receipt - CRUD row - $184.20</small>
       </button>
       <button class="queue-item" type="button">
         <span>R-1843</span>
         <strong>Jun Park</strong>
-        <small>Policy question - $89.00</small>
+        <small>Policy question - CRUD row - $89.00</small>
       </button>
       <button class="queue-item" type="button">
         <span>R-1844</span>
         <strong>Amara Blake</strong>
-        <small>Manager review - $312.75</small>
+        <small>Manager review - CRUD row - $312.75</small>
       </button>
         </aside>
         <section class="detail">
@@ -290,12 +290,12 @@
           <div class="info-grid">
 
             <div>
-              <span>Plan</span>
-              <strong>Pro annual</strong>
+              <span>Data model</span>
+              <strong>refund_case</strong>
             </div>
             <div>
-              <span>Review state</span>
-              <strong>Evidence incomplete</strong>
+              <span>Schema</span>
+              <strong>JSON schema + database fields</strong>
             </div>
           </div>
           <section>
@@ -306,40 +306,40 @@
             <ul class="evidence-list">
         <li>
           <span class="check">OK</span>
-          <span>Renewal date confirmed in purchase history.</span>
+          <span>database table fields mapped to editable controls</span>
         </li>
         <li>
           <span class="check">OK</span>
-          <span>Support note captures the customer&#39;s refund reason.</span>
+          <span>prompt template output copied into reviewer notes</span>
         </li>
         <li>
           <span class="check">!</span>
-          <span>Receipt photo is missing before manager approval.</span>
+          <span>tool call results and resource id visible for debugging</span>
         </li></ul>
           </section>
           <section class="policy">
             <div class="section-heading">
               <p class="eyebrow">Context</p>
-              <h3>Exception window</h3>
+              <h3>Implementation context</h3>
             </div>
-            <p>Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p>
+            <p>Show refund_case data model, database fields, JSON schema, prompt template, tool call results, resource id, API endpoint status, and CRUD.</p>
           </section>
           <section>
             <div class="section-heading">
               <p class="eyebrow">Decision path</p>
-              <h3>Choose next action</h3>
+              <h3>CRUD actions</h3>
             </div>
             <div class="actions">
-              <button type="button" class="">Approve refund</button><button type="button" class="">Send to policy review</button><button type="button" class="primary">Return for evidence</button>
+              <button type="button" class="">Update field</button><button type="button" class="">Run tool call</button><button type="button" class="primary">Save JSON</button>
             </div>
           </section>
           <section class="handoff">
             <div>
               <p class="eyebrow">Handoff</p>
-              <h3>Support agent</h3>
-              <p>Receipt photo is missing. Ask the customer to attach proof before approval.</p>
+              <h3>API endpoint</h3>
+              <p>Resource id and prompt template state are ready for the next CRUD operation.</p>
             </div>
-            <button type="button" class="primary">Send handoff</button>
+            <button type="button" class="primary">Send to endpoint</button>
           </section>
         </section>
       </section>
@@ -348,33 +348,33 @@
       <strong>Provenance:</strong>
       <span>captured</span>
       <span> - deterministic</span>
-      <span> - JudgmentKit handoff</span>
+      <span> - Raw brief</span>
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
-      <p>Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.</p>
-      <p>Manifest entry: <code>artifacts/deterministic-with-judgmentkit.html</code></p>
+      <p>Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.</p>
+      <p>Manifest entry: <code>artifacts/deterministic-no-judgmentkit.html</code></p>
     </aside>
     <script type="application/json" id="model-ui-provenance">{
   "matrix_id": "refund-system-map-model-ui-v2",
-  "artifact_id": "deterministic-with-judgmentkit",
+  "artifact_id": "deterministic-no-judgmentkit",
   "row_id": "deterministic",
-  "column_id": "with-judgmentkit",
+  "column_id": "no-judgmentkit",
   "model_label": "Deterministic renderer",
   "generation_source": "deterministic",
-  "judgmentkit_mode": "with_judgmentkit",
+  "judgmentkit_mode": "no_judgmentkit",
   "design_system_mode": "none",
-  "render_source": "deterministic_judgmentkit_html",
-  "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
+  "render_source": "deterministic_raw_brief_html",
+  "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
   "reasoning_effort": null,
   "context_included": {
     "source_brief": true,
     "sample_case": true,
-    "reviewed_handoff": true,
+    "reviewed_handoff": false,
     "material_ui_adapter": false
   },
   "design_system_name": null,
   "design_system_package": null,
   "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
-  "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+  "handoff_source": null,
   "design_system_adapter_file": null,
   "capture_file": null,
   "model_response_summary": null,
@@ -389,10 +389,10 @@
     "reasoning_effort": null,
     "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
   },
-  "artifact_path": "artifacts/deterministic-with-judgmentkit.html",
-  "screenshot_path": "screenshots/deterministic-with-judgmentkit.png",
-  "approach_title": "Deterministic - JudgmentKit handoff",
-  "approach_caption": "Deterministic receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+  "artifact_path": "artifacts/deterministic-no-judgmentkit.html",
+  "screenshot_path": "screenshots/deterministic-no-judgmentkit.png",
+  "approach_title": "Deterministic - Raw brief",
+  "approach_caption": "Deterministic receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
 }</script>
   </body>
 </html>

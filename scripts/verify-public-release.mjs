@@ -305,6 +305,18 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     "/examples/comparison/refund/version-a.html",
     "/examples/comparison/refund/version-b.html",
     "/examples/model-ui/refund-system-map/index.html",
+    "/examples/model-ui/refund-system-map/artifacts/deterministic-no-judgmentkit.html",
+    "/examples/model-ui/refund-system-map/artifacts/deterministic-with-judgmentkit.html",
+    "/examples/model-ui/refund-system-map/artifacts/deterministic-material-ui-only.html",
+    "/examples/model-ui/refund-system-map/artifacts/deterministic-judgmentkit-material-ui.html",
+    "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-no-judgmentkit.html",
+    "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-with-judgmentkit.html",
+    "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-material-ui-only.html",
+    "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-judgmentkit-material-ui.html",
+    "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
+    "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-with-judgmentkit.html",
+    "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-material-ui-only.html",
+    "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
     "/examples/model-ui/refund-system-map/artifacts/deterministic-without-design-system.html",
     "/examples/model-ui/refund-system-map/artifacts/deterministic-with-design-system.html",
     "/examples/model-ui/refund-system-map/artifacts/gemma4-without-design-system.html",
@@ -332,9 +344,19 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     "model UI manifest should describe the Material UI adapter",
   );
   assert.equal(
-    modelUiManifest.comparison_groups?.length,
+    modelUiManifest.comparison_rows?.length,
     3,
-    "model UI manifest should expose three before/after comparison groups",
+    "model UI manifest should expose three comparison rows",
+  );
+  assert.equal(
+    modelUiManifest.comparison_columns?.length,
+    4,
+    "model UI manifest should expose four comparison columns",
+  );
+  assert.equal(
+    modelUiManifest.artifacts?.length,
+    12,
+    "model UI manifest should expose twelve canonical artifacts",
   );
   const modelUiCaptureRoutes = [];
   const modelUiScreenshotRoutes = [];
@@ -343,25 +365,28 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     assert.ok(artifact.screenshot_path, `${artifact.id} should include a screenshot_path`);
     assert.ok(artifact.approach_title, `${artifact.id} should include an approach_title`);
     assert.ok(artifact.approach_caption, `${artifact.id} should include an approach_caption`);
-    assert.ok(artifact.candidate_role, `${artifact.id} should include a candidate_role`);
-    if (artifact.candidate_role === "raw_model_candidate") {
+    assert.ok(artifact.row_id, `${artifact.id} should include row_id`);
+    assert.ok(artifact.column_id, `${artifact.id} should include column_id`);
+    assert.ok(artifact.context_included, `${artifact.id} should include context_included`);
+    assert.ok(artifact.render_source, `${artifact.id} should include render_source`);
+    if (artifact.judgmentkit_mode === "no_judgmentkit") {
       assert.equal(
-        artifact.visible_render_source,
-        "raw_model_candidate_html",
-        `${artifact.id} should expose raw model candidate render source`,
-      );
-      assert.ok(
-        artifact.approach_caption.toLowerCase().includes("raw candidate"),
-        `${artifact.id} should describe raw candidate variability`,
+        artifact.context_included.reviewed_handoff,
+        false,
+        `${artifact.id} should not include reviewed handoff context`,
       );
     }
-    if (artifact.design_system_mode === "with_design_system") {
+    if (artifact.design_system_mode === "material_ui") {
       assert.equal(artifact.design_system_name, "Material UI");
       assert.equal(artifact.design_system_package, "@mui/material");
-      assert.ok(
-        artifact.approach_title.includes("reviewed Material UI render"),
-        `${artifact.id} should name the reviewed Material UI render in the approach title`,
+      assert.equal(
+        artifact.context_included.material_ui_adapter,
+        true,
+        `${artifact.id} should include Material UI context`,
       );
+    }
+    if (artifact.row_id === "gpt55-xhigh-codex") {
+      assert.equal(artifact.reasoning_effort, "xhigh", `${artifact.id} should record xhigh`);
     }
 
     const screenshotRoute = `/examples/model-ui/refund-system-map/${artifact.screenshot_path}`;
@@ -389,22 +414,46 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
 
     assert.equal(capture.artifact_id, artifact.id);
     assert.equal(capture.model_label, artifact.model_label);
+    assert.equal(capture.row_id, artifact.row_id);
+    assert.equal(capture.column_id, artifact.column_id);
+    assert.equal(capture.judgmentkit_mode, artifact.judgmentkit_mode);
     assert.equal(capture.design_system_mode, artifact.design_system_mode);
+    assert.deepEqual(capture.context_included, artifact.context_included);
     assert.equal(capture.source_context_sha256, artifact.capture_provenance.source_context_sha256);
     assert.ok(capture.prompt_sha256, `${artifact.id} capture should include prompt_sha256`);
     assert.ok(capture.raw_response_sha256, `${artifact.id} capture should include raw_response_sha256`);
-    if (artifact.design_system_mode === "with_design_system") {
+    if (artifact.row_id === "gpt55-xhigh-codex") {
+      assert.equal(capture.reasoning_effort, "xhigh", `${artifact.id} capture should record xhigh`);
+    }
+    if (artifact.design_system_mode === "material_ui") {
       assert.equal(capture.design_system_name, "Material UI");
       assert.equal(capture.design_system_package, "@mui/material");
       assert.equal(capture.design_system_render_mode, "static-ssr");
+      assert.equal(capture.render_mode, "material_ui");
+      assert.ok(capture.parsed?.surface, `${artifact.id} capture should include surface data`);
+    } else {
+      assert.equal(capture.render_mode, "html");
+      assert.ok(
+        capture.parsed?.html?.includes("data-primary-surface"),
+        `${artifact.id} capture should include parsed primary surface HTML`,
+      );
     }
     assert.ok(capture.raw_response, `${artifact.id} capture should include raw_response`);
-    assert.ok(
-      capture.parsed?.html?.includes("data-primary-surface"),
-      `${artifact.id} capture should include parsed primary surface HTML`,
-    );
 
     modelUiCaptureRoutes.push(captureRoute);
+  }
+
+  for (const alias of modelUiManifest.legacy_aliases ?? []) {
+    await fetchText(baseUrl, `/examples/model-ui/refund-system-map/${alias.artifact_path}`);
+    const screenshotResponse = await fetchBytes(
+      baseUrl,
+      `/examples/model-ui/refund-system-map/${alias.screenshot_path}`,
+    );
+    assert.equal(
+      screenshotResponse.bytes.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE),
+      true,
+      `${alias.id} legacy screenshot should be a PNG`,
+    );
   }
 
   await fetchText(baseUrl, "/examples/model-ui/refund-system-map/reviewed-handoff.fixture.json");
@@ -439,6 +488,18 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "/examples/model-ui/refund-system-map/manifest.json",
       "/examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
       "/examples/model-ui/refund-system-map/design-system-adapter.json",
+      "/examples/model-ui/refund-system-map/artifacts/deterministic-no-judgmentkit.html",
+      "/examples/model-ui/refund-system-map/artifacts/deterministic-with-judgmentkit.html",
+      "/examples/model-ui/refund-system-map/artifacts/deterministic-material-ui-only.html",
+      "/examples/model-ui/refund-system-map/artifacts/deterministic-judgmentkit-material-ui.html",
+      "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-no-judgmentkit.html",
+      "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-with-judgmentkit.html",
+      "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-material-ui-only.html",
+      "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-judgmentkit-material-ui.html",
+      "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
+      "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-with-judgmentkit.html",
+      "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-material-ui-only.html",
+      "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
       "/examples/model-ui/refund-system-map/artifacts/deterministic-without-design-system.html",
       "/examples/model-ui/refund-system-map/artifacts/deterministic-with-design-system.html",
       "/examples/model-ui/refund-system-map/artifacts/gemma4-without-design-system.html",

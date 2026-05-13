@@ -1,5 +1,5 @@
 {
-  "artifact_id": "gemma4-with-design-system",
+  "artifact_id": "gemma4-lms-judgmentkit-material-ui",
   "row_id": "gemma4-lms",
   "row_label": "Gemma 4 via LM Studio lms",
   "column_id": "judgmentkit-material-ui",
@@ -27,7 +27,7 @@
   "prompt_sha256": "f4d731b7e6a1bea45ce808e3e0b63e843bef9c3c6f3bd18a2618be86212a333d",
   "raw_response_sha256": "52ff05998fbdcf7062b82dde35be5a87a8eff1583d637b1605aabb4205478a1b",
   "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
-  "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix. Compatibility alias for the previous six-artifact matrix URL.",
+  "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
   "parsed": {
     "summary": "The refund review is incomplete because the necessary receipt photograph has not been provided.",
     "surface": {
@@ -55,7 +55,5 @@
     "status": 0,
     "stdout_sha256": "8ebb8feb0aab22b2798afaa96551401742c24a69460a69dec04671e287ad8364",
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-  },
-  "canonical_artifact_id": "gemma4-lms-judgmentkit-material-ui",
-  "compatibility_alias": true
+  }
 }

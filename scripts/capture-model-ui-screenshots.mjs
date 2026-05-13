@@ -312,6 +312,19 @@ async function main() {
       await captureArtifactScreenshot(client, artifact);
     }
   });
+
+  for (const alias of manifest.legacy_aliases ?? []) {
+    if (!alias.screenshot_path) continue;
+    const canonical = manifest.artifacts.find((artifact) => artifact.id === alias.canonical_id);
+    if (!canonical) {
+      throw new Error(`Missing canonical screenshot for legacy alias ${alias.id}.`);
+    }
+    const sourcePath = path.join(OUTPUT_DIR, canonical.screenshot_path);
+    const aliasPath = path.join(OUTPUT_DIR, alias.screenshot_path);
+    fs.mkdirSync(path.dirname(aliasPath), { recursive: true });
+    fs.copyFileSync(sourcePath, aliasPath);
+    process.stdout.write(`Copied ${canonical.screenshot_path} -> ${alias.screenshot_path}\n`);
+  }
 }
 
 await main();

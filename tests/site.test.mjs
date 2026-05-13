@@ -221,16 +221,22 @@ assert.equal(examples.includes("data-example-frame"), false);
 assert.equal(examples.includes("Inline preview"), false);
 assert.ok(examples.includes('class="example-preview-body" data-example-preview-body'));
 assert.ok(examples.includes('class=\\"example-gallery\\" aria-label=\\"Model UI screenshot gallery\\"'));
-assert.ok(examples.includes('class=\\"example-comparison-row\\"'));
-assert.ok(examples.includes('class=\\"example-comparison-pair\\"'));
-assert.ok(examples.includes("Raw candidates and reviewed Material UI renders"));
-assert.ok(examples.includes("raw candidate"));
-assert.ok(examples.includes("reviewed Material UI render"));
-assert.ok(examples.includes("Raw model output is evidence"));
+assert.ok(examples.includes('class=\\"example-matrix-row\\"'));
+assert.ok(examples.includes('class=\\"example-matrix-cells\\"'));
+assert.ok(examples.includes("3x4 JudgmentKit and Material UI comparison"));
+assert.ok(examples.includes("Raw brief"));
+assert.ok(examples.includes("JudgmentKit handoff"));
+assert.ok(examples.includes("Material UI only"));
+assert.ok(examples.includes("JudgmentKit + Material UI"));
+assert.ok(examples.includes("Material UI improves visual consistency"));
+assert.ok(examples.includes("JudgmentKit improves activity fit"));
 assert.ok(examples.includes('data-example-gallery-modal'));
 assert.ok(examples.includes('role="dialog" aria-modal="true"'));
 assert.ok(examples.includes('data-gallery-open=\\"0\\"'));
 assert.ok(examples.includes('data-gallery-modal-image'));
+assert.ok(examples.includes('data-gallery-modal-context'));
+assert.ok(examples.includes('data-gallery-modal-render'));
+assert.ok(examples.includes('data-gallery-modal-prompt'));
 assert.ok(examples.includes('id="examples-data"'));
 assert.ok(examples.includes("Refund triage comparison"));
 assert.ok(examples.includes("Model UI generation matrix"));
@@ -246,12 +252,18 @@ assert.ok(examples.includes("/examples/comparison/refund/version-a.html"));
 assert.ok(examples.includes("/examples/comparison/refund/version-b.html"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/index.html"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/manifest.json"));
-assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-without-design-system.png"));
-assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-with-design-system.png"));
-assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gemma4-without-design-system.png"));
-assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gemma4-with-design-system.png"));
-assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gpt55-without-design-system.png"));
-assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gpt55-with-design-system.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-no-judgmentkit.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-with-judgmentkit.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-material-ui-only.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-judgmentkit-material-ui.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gemma4-lms-no-judgmentkit.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gemma4-lms-with-judgmentkit.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gemma4-lms-material-ui-only.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gemma4-lms-judgmentkit-material-ui.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gpt55-xhigh-codex-no-judgmentkit.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gpt55-xhigh-codex-with-judgmentkit.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gpt55-xhigh-codex-material-ui-only.png"));
+assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png"));
 assert.ok(examples.includes("/examples/comparison/music/version-a.html"));
 assert.ok(examples.includes("/examples/comparison/music/version-b.html"));
 assert.ok(examples.includes("/examples/comparison/music/facilitator-scorecard.md"));
@@ -260,11 +272,9 @@ assert.equal(examples.includes("/examples/evals/index.json"), false);
 assert.ok(examples.includes("Gemma 4 (local LLM)"));
 assert.ok(examples.includes("GPT-5.5"));
 assert.ok(examples.includes("Gemma 4 via LM Studio lms"));
-assert.ok(examples.includes("GPT-5.5 via codex exec"));
-assert.ok(examples.includes("without design system"));
-assert.ok(examples.includes("with Material UI adapter"));
-assert.ok(examples.includes("raw model candidate"));
-assert.ok(examples.includes("deterministic simple candidate"));
+assert.ok(examples.includes("GPT-5.5 xhigh via codex exec"));
+assert.ok(examples.includes("static HTML/CSS"));
+assert.ok(examples.includes("Material UI SSR"));
 assert.equal(examples.includes("with design-system adapter"), false);
 assert.equal(examples.includes("raw_brief_baseline"), false);
 assert.equal(examples.includes("judgmentkit_handoff"), false);
@@ -335,16 +345,48 @@ for (const copiedExamplePath of [
   ["examples", "model-ui", "refund-system-map", "manifest.json"],
   ["examples", "model-ui", "refund-system-map", "reviewed-handoff.fixture.json"],
   ["examples", "model-ui", "refund-system-map", "design-system-adapter.json"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "deterministic-no-judgmentkit.html"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "deterministic-with-judgmentkit.html"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "deterministic-material-ui-only.html"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "deterministic-judgmentkit-material-ui.html"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "gemma4-lms-no-judgmentkit.html"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "gemma4-lms-with-judgmentkit.html"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "gemma4-lms-material-ui-only.html"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "gemma4-lms-judgmentkit-material-ui.html"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-xhigh-codex-no-judgmentkit.html"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-xhigh-codex-with-judgmentkit.html"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-xhigh-codex-material-ui-only.html"],
+  ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-xhigh-codex-judgmentkit-material-ui.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "deterministic-without-design-system.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "deterministic-with-design-system.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gemma4-without-design-system.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gemma4-with-design-system.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-without-design-system.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-with-design-system.html"],
+  ["examples", "model-ui", "refund-system-map", "captures", "gemma4-lms-no-judgmentkit.json"],
+  ["examples", "model-ui", "refund-system-map", "captures", "gemma4-lms-with-judgmentkit.json"],
+  ["examples", "model-ui", "refund-system-map", "captures", "gemma4-lms-material-ui-only.json"],
+  ["examples", "model-ui", "refund-system-map", "captures", "gemma4-lms-judgmentkit-material-ui.json"],
+  ["examples", "model-ui", "refund-system-map", "captures", "gpt55-xhigh-codex-no-judgmentkit.json"],
+  ["examples", "model-ui", "refund-system-map", "captures", "gpt55-xhigh-codex-with-judgmentkit.json"],
+  ["examples", "model-ui", "refund-system-map", "captures", "gpt55-xhigh-codex-material-ui-only.json"],
+  ["examples", "model-ui", "refund-system-map", "captures", "gpt55-xhigh-codex-judgmentkit-material-ui.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gemma4-without-design-system.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gemma4-with-design-system.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gpt55-without-design-system.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gpt55-with-design-system.json"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-no-judgmentkit.png"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-with-judgmentkit.png"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-material-ui-only.png"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-judgmentkit-material-ui.png"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "gemma4-lms-no-judgmentkit.png"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "gemma4-lms-with-judgmentkit.png"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "gemma4-lms-material-ui-only.png"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "gemma4-lms-judgmentkit-material-ui.png"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "gpt55-xhigh-codex-no-judgmentkit.png"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "gpt55-xhigh-codex-with-judgmentkit.png"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "gpt55-xhigh-codex-material-ui-only.png"],
+  ["examples", "model-ui", "refund-system-map", "screenshots", "gpt55-xhigh-codex-judgmentkit-material-ui.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-without-design-system.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-with-design-system.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "gemma4-without-design-system.png"],

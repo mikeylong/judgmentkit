@@ -965,6 +965,32 @@ pre {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
 }
+.example-matrix-list {
+  display: grid;
+  gap: 18px;
+}
+.example-matrix-row {
+  display: grid;
+  gap: 14px;
+  padding: clamp(14px, 2vw, 18px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfaf6;
+}
+.example-matrix-heading {
+  display: grid;
+  gap: 4px;
+  max-width: 840px;
+}
+.example-matrix-heading h3,
+.example-matrix-heading p {
+  margin: 0;
+}
+.example-matrix-cells {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
 .example-gallery-card {
   overflow: hidden;
 }
@@ -1268,6 +1294,7 @@ pre {
   }
   .example-gallery-grid,
   .example-comparison-pair,
+  .example-matrix-cells,
   .example-gallery-modal-panel {
     grid-template-columns: 1fr;
   }
@@ -1530,7 +1557,7 @@ const EXAMPLES = [
     title: "Model UI generation matrix",
     label: "System map",
     description:
-      "One reviewed refund-triage handoff shown across deterministic, Gemma 4 (local LLM), and GPT-5.5 branches, with and without a Material UI adapter.",
+      "A 3x4 comparison across deterministic, Gemma 4 (local LLM), and GPT-5.5 xhigh paths, separating raw brief, JudgmentKit handoff, Material UI only, and JudgmentKit plus Material UI.",
     previewHref: "/examples/model-ui/refund-system-map/index.html",
     previewLabel: "Model UI generation matrix",
     actions: [
@@ -1572,10 +1599,6 @@ function modelUiExampleHref(relativePath) {
   return `${MODEL_UI_EXAMPLE_BASE_HREF}/${relativePath}`;
 }
 
-function designSystemModeLabel(mode) {
-  return mode === "with_design_system" ? "with Material UI adapter" : "without design system";
-}
-
 function galleryProvenanceLabel(artifact) {
   if (artifact.generation_source === "captured_model_output") {
     const cli = artifact.capture_provenance?.cli;
@@ -1592,13 +1615,9 @@ function galleryProvenanceLabel(artifact) {
 }
 
 function galleryRenderLabel(artifact) {
-  if (artifact.candidate_role === "reviewed_material_ui_render") {
-    return "reviewed Material UI render";
-  }
-  if (artifact.candidate_role === "raw_model_candidate") {
-    return "raw model candidate";
-  }
-  return "deterministic simple candidate";
+  if (artifact.design_system_mode === "material_ui") return "Material UI SSR";
+  if (artifact.generation_source === "captured_model_output") return "static HTML/CSS";
+  return "deterministic HTML";
 }
 
 function buildModelUiGalleryItems(manifest) {
@@ -1606,10 +1625,12 @@ function buildModelUiGalleryItems(manifest) {
     id: artifact.id,
     title: artifact.approach_title ?? artifact.title,
     caption: artifact.approach_caption ?? "",
-    modelLabel: artifact.model_label ?? artifact.title,
-    adapterLabel: designSystemModeLabel(artifact.design_system_mode),
+    modelLabel: artifact.row_label ?? artifact.model_label ?? artifact.title,
+    rowLabel: artifact.row_label ?? artifact.model_label ?? artifact.title,
+    columnLabel: artifact.column_label ?? "",
     renderLabel: galleryRenderLabel(artifact),
-    candidateRole: artifact.candidate_role ?? "",
+    renderSource: artifact.render_source ?? artifact.visible_render_source ?? "",
+    promptContext: artifact.context_summary ?? "",
     provenance: galleryProvenanceLabel(artifact),
     artifactHref: modelUiExampleHref(artifact.artifact_path),
     imageHref: modelUiExampleHref(artifact.screenshot_path),
@@ -1617,16 +1638,15 @@ function buildModelUiGalleryItems(manifest) {
   }));
 }
 
-function buildModelUiComparisonGroups(manifest, galleryItems) {
+function buildModelUiComparisonRows(manifest, galleryItems) {
   const itemsById = new Map(galleryItems.map((item) => [item.id, item]));
 
-  return (manifest?.comparison_groups ?? []).map((group) => ({
-    id: group.id,
-    title: group.title,
-    summary: group.summary,
-    candidate: itemsById.get(group.candidate_artifact_id),
-    reviewed: itemsById.get(group.reviewed_artifact_id),
-  })).filter((group) => group.candidate && group.reviewed);
+  return (manifest?.comparison_rows ?? []).map((row) => ({
+    id: row.id,
+    title: row.label,
+    summary: row.summary,
+    items: (row.artifact_ids ?? []).map((id) => itemsById.get(id)).filter(Boolean),
+  })).filter((row) => row.items.length);
 }
 
 function renderExampleStaticPreview(example) {
@@ -1650,7 +1670,7 @@ function renderExampleGalleryCard(item, index) {
         <h3>${escapeHtml(item.title)}</h3>
         <p class="note">${escapeHtml(item.caption)}</p>
         <dl class="example-gallery-meta">
-          <div><dt>Approach</dt><dd>${escapeHtml(item.modelLabel)}</dd></div>
+          <div><dt>Context</dt><dd>${escapeHtml(item.columnLabel)}</dd></div>
           <div><dt>Render</dt><dd>${escapeHtml(item.renderLabel)}</dd></div>
         </dl>
         <div class="example-gallery-card-actions">
@@ -1659,6 +1679,24 @@ function renderExampleGalleryCard(item, index) {
         </div>
       </div>
     </article>`;
+}
+
+function renderExampleMatrixRow(row) {
+  const cards = row.items
+    .map((item) => renderExampleGalleryCard(item, item.index))
+    .join("");
+
+  return `
+        <article class="example-matrix-row">
+          <div class="example-matrix-heading">
+            <p class="eyebrow">Generation path</p>
+            <h3>${escapeHtml(row.title)}</h3>
+            <p>${escapeHtml(row.summary)}</p>
+          </div>
+          <div class="example-matrix-cells">
+            ${cards}
+          </div>
+        </article>`;
 }
 
 function renderExampleComparisonGroup(group) {
@@ -1677,18 +1715,17 @@ function renderExampleComparisonGroup(group) {
 }
 
 function renderModelUiGalleryPreview(example) {
-  const galleryItems = example.galleryItems ?? [];
-  const groups = example.comparisonGroups ?? [];
-  const rows = groups.map(renderExampleComparisonGroup).join("");
+  const matrixRows = example.comparisonRows ?? [];
+  const rows = matrixRows.map(renderExampleMatrixRow).join("");
 
   return `
     <section class="example-gallery" aria-label="Model UI screenshot gallery">
       <div class="example-gallery-intro">
         <p class="eyebrow">Committed screenshots</p>
-        <h3>Raw candidates and reviewed Material UI renders</h3>
-        <p>Each row pairs a raw candidate with the reviewed Material UI render. Raw model output is evidence, not the recommended product UI.</p>
+        <h3>3x4 JudgmentKit and Material UI comparison</h3>
+        <p>Columns separate Raw brief, JudgmentKit handoff, Material UI only, and JudgmentKit + Material UI. Material UI improves visual consistency; JudgmentKit improves activity fit, workflow fit, and disclosure discipline.</p>
       </div>
-      <div class="example-comparison-list">
+      <div class="example-matrix-list">
         ${rows}
       </div>
     </section>`;
@@ -1707,7 +1744,7 @@ function buildExamples(modelUiManifest) {
     ...item,
     index,
   }));
-  const modelUiComparisonGroups = buildModelUiComparisonGroups(
+  const modelUiComparisonRows = buildModelUiComparisonRows(
     modelUiManifest,
     modelUiGalleryItems,
   );
@@ -1719,7 +1756,7 @@ function buildExamples(modelUiManifest) {
             ...example,
             previewKind: "gallery",
             galleryItems: modelUiGalleryItems,
-            comparisonGroups: modelUiComparisonGroups,
+            comparisonRows: modelUiComparisonRows,
           }
         : {
             ...example,
@@ -1792,7 +1829,9 @@ function examplesBrowserScript() {
         const modalKicker = modal?.querySelector("[data-gallery-modal-kicker]");
         const modalTitle = modal?.querySelector("[data-gallery-modal-title]");
         const modalCaption = modal?.querySelector("[data-gallery-modal-caption]");
-        const modalAdapter = modal?.querySelector("[data-gallery-modal-adapter]");
+        const modalContext = modal?.querySelector("[data-gallery-modal-context]");
+        const modalRender = modal?.querySelector("[data-gallery-modal-render]");
+        const modalPrompt = modal?.querySelector("[data-gallery-modal-prompt]");
         const modalProvenance = modal?.querySelector("[data-gallery-modal-provenance]");
         const modalArtifactLink = modal?.querySelector("[data-gallery-modal-artifact]");
         const modalImageLink = modal?.querySelector("[data-gallery-modal-source]");
@@ -1821,10 +1860,12 @@ function examplesBrowserScript() {
           const item = activeGalleryItems[activeGalleryIndex];
           modalImage.src = item.imageHref;
           modalImage.alt = item.title + " screenshot";
-          modalKicker.textContent = item.modelLabel;
+          modalKicker.textContent = item.rowLabel;
           modalTitle.textContent = item.title;
           modalCaption.textContent = item.caption;
-          modalAdapter.textContent = item.renderLabel;
+          modalContext.textContent = item.columnLabel;
+          modalRender.textContent = item.renderSource;
+          modalPrompt.textContent = item.promptContext;
           modalProvenance.textContent = item.provenance;
           modalArtifactLink.href = item.artifactHref;
           modalImageLink.href = item.imageHref;
@@ -1936,7 +1977,9 @@ function renderExampleGalleryModal() {
             <h2 id="example-gallery-modal-title" data-gallery-modal-title></h2>
             <p data-gallery-modal-caption></p>
             <dl class="example-gallery-modal-meta">
-              <div><dt>Render</dt><dd data-gallery-modal-adapter></dd></div>
+              <div><dt>Context</dt><dd data-gallery-modal-context></dd></div>
+              <div><dt>Render</dt><dd data-gallery-modal-render></dd></div>
+              <div><dt>Prompt</dt><dd data-gallery-modal-prompt></dd></div>
               <div><dt>Provenance</dt><dd data-gallery-modal-provenance></dd></div>
             </dl>
             <div class="example-gallery-modal-actions">

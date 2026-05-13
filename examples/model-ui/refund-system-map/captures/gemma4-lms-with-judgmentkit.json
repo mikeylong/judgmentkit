@@ -1,5 +1,5 @@
 {
-  "artifact_id": "gemma4-without-design-system",
+  "artifact_id": "gemma4-lms-with-judgmentkit",
   "row_id": "gemma4-lms",
   "row_label": "Gemma 4 via LM Studio lms",
   "column_id": "with-judgmentkit",
@@ -27,7 +27,7 @@
   "prompt_sha256": "c6392a1fc8fbf735b4c1413b3f9c8867f8804a707785f8e6ecc75b8740896845",
   "raw_response_sha256": "af61ba969974e896ee7edc99cbcc5ee78c7cec6a542abd1c4ab7dbee24d7e318",
   "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
-  "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix. Compatibility alias for the previous six-artifact matrix URL.",
+  "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
   "parsed": {
     "summary": "A support operations manager reviews a customer refund escalation case, assesses the evidence, and decides the next action: approve the refund, send it to policy review, or return it to the support agent for missing evidence.",
     "html": "<main data-primary-surface>\n  <div class=\"container\">\n    <div class=\"header\">\n      <div class=\"case-summary\">\n        <h1>Refund Escalation Review</h1>\n        <p>Reviewing case ID: R-1842</p>\n      </div>\n      <div>\n        <span class=\"amount\">Amount: $184.20</span>\n      </div>\n    </div>\n\n    <section class=\"case-details\">\n      <h2>Customer & Request</h2>\n      <p><strong>Customer:</strong> Nora Diaz</p>\n      <p><strong>Plan:</strong> Pro annual</p>\n      <p><strong>Request:</strong> Subscription renewal disputed after agent escalation.</p>\n      <p><strong>Current Status:</strong> Evidence incomplete</p>\n    </section>\n\n    <section class=\"evidence-checklist\">\n      <h2>Evidence Checklist</h2>\n      <ul class=\"evidence-list\">\n        <li>Renewal date confirmed in purchase history.</li>\n        <li>Support note captures the customer's refund reason.</li>\n        <li style=\"color: #f44336; font-weight: bold;\">Receipt photo is missing before manager approval.</li>\n      </ul>\n    </section>\n\n    <section class=\"policy-context\">\n      <h2>Policy Context</h2>\n      <div class=\"policy-note\">\n        <p><strong>Guidance:</strong> Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p>\n      </div>\n    </section>\n\n    <section class=\"decision-path\">\n      <h2>Decision Path</h2>\n      <p>Determine the next action for this escalation:</p>\n      <div class=\"action-buttons\">\n        <button class=\"approve\">Approve refund</button>\n        <button class=\"policy\">Send to policy review</button>\n        <button class=\"return\">Return for evidence</button>\n      </div>\n    </section>\n\n  </div>\n</main>"
@@ -37,7 +37,5 @@
     "status": 0,
     "stdout_sha256": "fe938122f9c94a2d6305c07225e34fec63fdfdfd5eeb6f99ea2d298ad3049341",
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-  },
-  "canonical_artifact_id": "gemma4-lms-with-judgmentkit",
-  "compatibility_alias": true
+  }
 }
