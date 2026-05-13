@@ -2,15 +2,21 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { getMcpMetadata } from "../src/mcp.mjs";
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, "..");
 const CASES_PATH = path.join(__dirname, "ui-generation-cases.json");
-const REPORTS_DIR = path.join(__dirname, "reports");
-const JSON_REPORT_PATH = path.join(REPORTS_DIR, "ui-generation-report.json");
-const HTML_REPORT_PATH = path.join(REPORTS_DIR, "ui-generation-report.html");
-const STALE_MARKDOWN_REPORT_PATH = path.join(REPORTS_DIR, "ui-generation-report.md");
+const DEFAULT_REPORTS_DIR = path.join(__dirname, "reports");
+const REPORT_BASENAME = "ui-generation-report";
+const JSON_REPORT_FILENAME = `${REPORT_BASENAME}.json`;
+const HTML_REPORT_FILENAME = `${REPORT_BASENAME}.html`;
+const CATALOG_JSON_FILENAME = "index.json";
+const CATALOG_HTML_FILENAME = "index.html";
+const STALE_MARKDOWN_REPORT_FILENAME = `${REPORT_BASENAME}.md`;
 
 const EVAL_ID = "judgmentkit-ui-generation-paired-artifact-v1";
+const CATALOG_ID = "judgmentkit-ui-generation-eval-runs";
 const METRIC_IDS = [
   "activity_fit",
   "decision_support",
@@ -34,6 +40,11 @@ function relativePath(filePath) {
   return path.relative(ROOT_DIR, filePath);
 }
 
+function repoRelativeOrAbsolute(filePath) {
+  const relative = relativePath(filePath);
+  return relative.startsWith("..") ? filePath : relative;
+}
+
 function resolveRepoPath(repoPath) {
   return path.join(ROOT_DIR, repoPath);
 }
@@ -48,6 +59,10 @@ function stripTags(html) {
 
 function collapseWhitespace(text) {
   return text.replace(/\s+/g, " ").trim();
+}
+
+function stripTrailingWhitespace(text) {
+  return text.replace(/[ \t]+$/gm, "");
 }
 
 function decodeHtmlEntities(text) {
@@ -141,12 +156,12 @@ function escapeHtml(value) {
     .replace(/'/g, "&#39;");
 }
 
-function reportRelativeHref(repoPath) {
-  return path.relative(REPORTS_DIR, resolveRepoPath(repoPath));
+function reportRelativeHref(repoPath, reportDir) {
+  return path.relative(reportDir, resolveRepoPath(repoPath));
 }
 
-function variantHref(variant) {
-  return variant.public_artifact ?? reportRelativeHref(variant.artifact);
+function variantHref(variant, reportDir) {
+  return variant.public_artifact ?? reportRelativeHref(variant.artifact, reportDir);
 }
 
 function scoreVariant(testCase, variant) {
@@ -332,7 +347,84 @@ function summarizeClaimLevel(results) {
   return "repeated_pair_signal";
 }
 
-function buildReport(results) {
+function currentLocalDate() {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: process.env.TZ ?? "America/Los_Angeles",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+  const part = (type) => parts.find((value) => value.type === type)?.value;
+
+  return `${part("year")}-${part("month")}-${part("day")}`;
+}
+
+function runDate() {
+  return process.env.JUDGMENTKIT_UI_EVAL_RUN_DATE ?? currentLocalDate();
+}
+
+function reportsDir() {
+  const configured = process.env.JUDGMENTKIT_UI_EVAL_REPORTS_DIR;
+  return configured ? path.resolve(configured) : DEFAULT_REPORTS_DIR;
+}
+
+function mcpReleaseVersion() {
+  return process.env.JUDGMENTKIT_UI_EVAL_MCP_VERSION ?? getMcpMetadata("streamable-http").version;
+}
+
+function releaseSegment(version) {
+  return `mcp-${String(version).replace(/[^a-zA-Z0-9._-]/g, "-")}`;
+}
+
+function runNumber(runId) {
+  const match = runId.match(/^run-(\d{3})$/);
+  return match ? Number(match[1]) : 0;
+}
+
+function nextRunId(releaseDir) {
+  let entries = [];
+  try {
+    entries = fs.readdirSync(releaseDir, { withFileTypes: true });
+  } catch (error) {
+    if (error.code !== "ENOENT") {
+      throw error;
+    }
+  }
+
+  const maxRun = entries
+    .filter((entry) => entry.isDirectory() && /^run-\d{3}$/.test(entry.name))
+    .map((entry) => runNumber(entry.name))
+    .reduce((max, value) => Math.max(max, value), 0);
+
+  return `run-${String(maxRun + 1).padStart(3, "0")}`;
+}
+
+function createRunPaths({ baseReportsDir, date, mcpVersion }) {
+  const segment = releaseSegment(mcpVersion);
+  const releaseDir = path.join(baseReportsDir, date, segment);
+  const runId = nextRunId(releaseDir);
+  const runDir = path.join(releaseDir, runId);
+
+  fs.mkdirSync(releaseDir, { recursive: true });
+  fs.mkdirSync(runDir);
+
+  return {
+    baseReportsDir,
+    date,
+    mcpVersion,
+    releaseSegment: segment,
+    runId,
+    runDir,
+    jsonReportPath: path.join(runDir, JSON_REPORT_FILENAME),
+    htmlReportPath: path.join(runDir, HTML_REPORT_FILENAME),
+  };
+}
+
+function runRelativePath(baseReportsDir, filePath) {
+  return path.relative(baseReportsDir, filePath).split(path.sep).join("/");
+}
+
+function buildReport(results, runInfo) {
   const guidedWins = results.filter((result) => result.winner === "judgmentkit_handoff").length;
   const baselineWins = results.filter((result) => result.winner === "raw_brief_baseline").length;
   const ties = results.filter((result) => result.winner === "tie").length;
@@ -347,6 +439,15 @@ function buildReport(results) {
     benchmark_policy:
       "Qualitative paired-artifact evidence only; not a statistically powered benchmark.",
     claim_level: summarizeClaimLevel(results),
+    run: {
+      date: runInfo.date,
+      mcp_release: runInfo.mcpVersion,
+      mcp_release_segment: runInfo.releaseSegment,
+      run_id: runInfo.runId,
+      run_path: runRelativePath(runInfo.baseReportsDir, runInfo.runDir),
+      html_report: runRelativePath(runInfo.baseReportsDir, runInfo.htmlReportPath),
+      json_report: runRelativePath(runInfo.baseReportsDir, runInfo.jsonReportPath),
+    },
     summary: {
       cases: results.length,
       passed,
@@ -385,7 +486,7 @@ function htmlMetricEvidence(metric) {
   `;
 }
 
-function htmlMetricTable(variant) {
+function htmlMetricTable(variant, reportDir) {
   const rows = METRIC_IDS.map((metricId) => {
     const metric = variant.metric_results[metricId];
     const evidenceSummary =
@@ -409,7 +510,7 @@ function htmlMetricTable(variant) {
         </div>
         <strong>${escapeHtml(variant.score)}/100</strong>
       </div>
-      <p><a href="${escapeHtml(variantHref(variant))}">${escapeHtml(variant.artifact)}</a></p>
+      <p><a href="${escapeHtml(variantHref(variant, reportDir))}">${escapeHtml(variant.artifact)}</a></p>
       <table>
         <thead>
           <tr>
@@ -425,7 +526,7 @@ function htmlMetricTable(variant) {
   `;
 }
 
-function htmlCase(result) {
+function htmlCase(result, reportDir) {
   return `
     <section class="case">
       <div class="case-heading">
@@ -450,13 +551,13 @@ function htmlCase(result) {
         ${htmlList(result.expected_outcomes)}
       </div>
       <div class="variants">
-        ${result.variants.map(htmlMetricTable).join("")}
+        ${result.variants.map((variant) => htmlMetricTable(variant, reportDir)).join("")}
       </div>
     </section>
   `;
 }
 
-function buildHtmlReport(report) {
+function buildHtmlReport(report, runInfo) {
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -559,6 +660,7 @@ function buildHtmlReport(report) {
     thead th { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; }
     tbody th { font-weight: 700; }
     ul { margin: 6px 0 0; padding-left: 18px; }
+    .report-links { margin: 0 0 20px; }
     .muted { color: var(--muted); }
   </style>
 </head>
@@ -566,43 +668,237 @@ function buildHtmlReport(report) {
   <main>
     <h1>JudgmentKit UI-Generation Eval</h1>
     <p class="lede">Deterministic paired-artifact scoring for existing standalone comparison apps.</p>
+    <p class="report-links"><a href="../../..">All eval runs</a> · <a href="${JSON_REPORT_FILENAME}">JSON report</a></p>
     <dl class="summary-grid">
       <div><dt>Eval id</dt><dd>${escapeHtml(report.eval_id)}</dd></div>
       <div><dt>Claim level</dt><dd>${escapeHtml(report.claim_level)}</dd></div>
+      <div><dt>Run date</dt><dd>${escapeHtml(report.run.date)}</dd></div>
+      <div><dt>MCP release</dt><dd>${escapeHtml(report.run.mcp_release)}</dd></div>
+      <div><dt>Run</dt><dd>${escapeHtml(report.run.run_id)}</dd></div>
       <div><dt>Cases</dt><dd>${escapeHtml(report.summary.cases)}</dd></div>
       <div><dt>Passed</dt><dd>${escapeHtml(report.summary.passed)}</dd></div>
       <div><dt>Guided wins</dt><dd>${escapeHtml(report.summary.guided_wins)}</dd></div>
       <div><dt>Baseline wins</dt><dd>${escapeHtml(report.summary.baseline_wins)}</dd></div>
     </dl>
     <p class="notice">${escapeHtml(report.benchmark_policy)}</p>
-    ${report.results.map(htmlCase).join("")}
+    ${report.results.map((result) => htmlCase(result, runInfo.runDir)).join("")}
   </main>
 </body>
 </html>
 `;
 }
 
-function writeReport(report) {
-  fs.mkdirSync(REPORTS_DIR, { recursive: true });
-  fs.writeFileSync(JSON_REPORT_PATH, `${JSON.stringify(report, null, 2)}\n`);
-  fs.writeFileSync(HTML_REPORT_PATH, buildHtmlReport(report));
-  if (fs.existsSync(STALE_MARKDOWN_REPORT_PATH)) {
-    fs.unlinkSync(STALE_MARKDOWN_REPORT_PATH);
+function listDirectoryNames(dirPath) {
+  try {
+    return fs
+      .readdirSync(dirPath, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => entry.name);
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return [];
+    }
+    throw error;
   }
+}
+
+function collectRuns(baseReportsDir) {
+  const runs = [];
+  for (const date of listDirectoryNames(baseReportsDir).filter((name) => /^\d{4}-\d{2}-\d{2}$/.test(name))) {
+    const dateDir = path.join(baseReportsDir, date);
+    for (const segment of listDirectoryNames(dateDir).filter((name) => name.startsWith("mcp-"))) {
+      const releaseDir = path.join(dateDir, segment);
+      for (const runId of listDirectoryNames(releaseDir).filter((name) => /^run-\d{3}$/.test(name))) {
+        const runDir = path.join(releaseDir, runId);
+        const htmlReportPath = path.join(runDir, HTML_REPORT_FILENAME);
+        const jsonReportPath = path.join(runDir, JSON_REPORT_FILENAME);
+
+        if (!fs.existsSync(htmlReportPath) || !fs.existsSync(jsonReportPath)) {
+          continue;
+        }
+
+        const report = readJson(jsonReportPath);
+        runs.push({
+          date,
+          mcp_release: report.run?.mcp_release ?? segment.replace(/^mcp-/, ""),
+          mcp_release_segment: segment,
+          run_id: runId,
+          run_path: runRelativePath(baseReportsDir, runDir),
+          html_report: runRelativePath(baseReportsDir, htmlReportPath),
+          json_report: runRelativePath(baseReportsDir, jsonReportPath),
+          eval_id: report.eval_id,
+          claim_level: report.claim_level,
+          summary: report.summary,
+        });
+      }
+    }
+  }
+
+  return runs.sort((left, right) => {
+    const dateOrder = right.date.localeCompare(left.date);
+    if (dateOrder !== 0) {
+      return dateOrder;
+    }
+    const releaseOrder = right.mcp_release_segment.localeCompare(left.mcp_release_segment);
+    if (releaseOrder !== 0) {
+      return releaseOrder;
+    }
+    return runNumber(right.run_id) - runNumber(left.run_id);
+  });
+}
+
+function buildCatalog(baseReportsDir) {
+  const runs = collectRuns(baseReportsDir);
+
+  return {
+    catalog_id: CATALOG_ID,
+    latest: runs[0] ?? null,
+    runs,
+  };
+}
+
+function catalogRunRow(run) {
+  return `
+      <tr>
+        <td>${escapeHtml(run.date)}</td>
+        <td>${escapeHtml(run.mcp_release)}</td>
+        <td>${escapeHtml(run.run_id)}</td>
+        <td>${escapeHtml(run.claim_level)}</td>
+        <td>${escapeHtml(run.summary?.passed ?? 0)}/${escapeHtml(run.summary?.cases ?? 0)} passed</td>
+        <td><a href="${escapeHtml(run.html_report)}">HTML</a> · <a href="${escapeHtml(run.json_report)}">JSON</a></td>
+      </tr>`;
+}
+
+function buildCatalogHtml(catalog) {
+  const latest = catalog.latest;
+  const rows = catalog.runs.map(catalogRunRow).join("");
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JudgmentKit UI Eval Runs</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17212b;
+      --muted: #5c6875;
+      --line: #d6dde5;
+      --panel: #ffffff;
+      --surface: #f6f8fa;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--surface); line-height: 1.45; }
+    main { max-width: 1100px; margin: 0 auto; padding: 32px 24px 48px; }
+    h1, h2, p { margin-top: 0; }
+    a { color: #174d7a; }
+    .lede { color: var(--muted); max-width: 760px; }
+    .panel {
+      margin: 20px 0;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; background: var(--panel); }
+    th, td { border-top: 1px solid var(--line); padding: 10px 8px; text-align: left; vertical-align: top; }
+    thead th { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>JudgmentKit UI Eval Runs</h1>
+    <p class="lede">Immutable UI-generation eval reports organized by run date, JudgmentKit MCP release, and sequential run id.</p>
+    <section class="panel">
+      <h2>Latest run</h2>
+      ${
+        latest
+          ? `<p><strong>${escapeHtml(latest.date)} / ${escapeHtml(latest.mcp_release_segment)} / ${escapeHtml(latest.run_id)}</strong></p>
+      <p><a href="${escapeHtml(latest.html_report)}">Open HTML report</a> · <a href="${escapeHtml(latest.json_report)}">Open JSON report</a></p>`
+          : `<p>No eval runs have been generated.</p>`
+      }
+    </section>
+    <section class="panel">
+      <h2>All runs</h2>
+      <p><a href="${CATALOG_JSON_FILENAME}">Catalog JSON</a></p>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Date</th>
+            <th scope="col">MCP release</th>
+            <th scope="col">Run</th>
+            <th scope="col">Claim level</th>
+            <th scope="col">Result</th>
+            <th scope="col">Reports</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </section>
+  </main>
+</body>
+</html>
+`;
+}
+
+function writeCatalog(baseReportsDir) {
+  const catalog = buildCatalog(baseReportsDir);
+  fs.writeFileSync(
+    path.join(baseReportsDir, CATALOG_JSON_FILENAME),
+    `${JSON.stringify(catalog, null, 2)}\n`,
+  );
+  fs.writeFileSync(
+    path.join(baseReportsDir, CATALOG_HTML_FILENAME),
+    stripTrailingWhitespace(buildCatalogHtml(catalog)),
+  );
+
+  return catalog;
+}
+
+function removeLegacyReports(baseReportsDir) {
+  for (const filename of [
+    JSON_REPORT_FILENAME,
+    HTML_REPORT_FILENAME,
+    STALE_MARKDOWN_REPORT_FILENAME,
+  ]) {
+    const legacyPath = path.join(baseReportsDir, filename);
+    if (fs.existsSync(legacyPath)) {
+      fs.unlinkSync(legacyPath);
+    }
+  }
+}
+
+function writeReport(report, runInfo) {
+  fs.writeFileSync(runInfo.jsonReportPath, `${JSON.stringify(report, null, 2)}\n`);
+  fs.writeFileSync(runInfo.htmlReportPath, stripTrailingWhitespace(buildHtmlReport(report, runInfo)));
+  removeLegacyReports(runInfo.baseReportsDir);
+
+  return writeCatalog(runInfo.baseReportsDir);
 }
 
 const cases = readJson(CASES_PATH);
 const results = cases.map(evaluateCase);
-const report = buildReport(results);
+const baseReportsDir = reportsDir();
+const runInfo = createRunPaths({
+  baseReportsDir,
+  date: runDate(),
+  mcpVersion: mcpReleaseVersion(),
+});
+const report = buildReport(results, runInfo);
 
-writeReport(report);
+const catalog = writeReport(report, runInfo);
 
 console.log("# JudgmentKit UI-Generation Eval");
-console.log(`Report: ${relativePath(JSON_REPORT_PATH)}`);
-console.log(`HTML: ${relativePath(HTML_REPORT_PATH)}`);
+console.log(`Report: ${repoRelativeOrAbsolute(runInfo.jsonReportPath)}`);
+console.log(`HTML: ${repoRelativeOrAbsolute(runInfo.htmlReportPath)}`);
+console.log(`Catalog: ${repoRelativeOrAbsolute(path.join(baseReportsDir, CATALOG_JSON_FILENAME))}`);
+console.log(`Catalog HTML: ${repoRelativeOrAbsolute(path.join(baseReportsDir, CATALOG_HTML_FILENAME))}`);
 console.log(
-  `Summary: ${report.summary.guided_wins}/${report.summary.cases} JudgmentKit-guided wins, ${report.summary.failed} failed thresholds, claim level ${report.claim_level}`,
+  `Summary: ${report.summary.guided_wins}/${report.summary.cases} JudgmentKit-guided wins, ${report.summary.failed} failed thresholds, claim level ${report.claim_level}, ${runInfo.date}/${runInfo.releaseSegment}/${runInfo.runId}`,
 );
+console.log(`Latest: ${catalog.latest?.html_report ?? "none"}`);
 
 if (report.summary.failed > 0) {
   process.exitCode = 1;

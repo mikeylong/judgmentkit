@@ -100,6 +100,7 @@
     thead th { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; }
     tbody th { font-weight: 700; }
     ul { margin: 6px 0 0; padding-left: 18px; }
+    .report-links { margin: 0 0 20px; }
     .muted { color: var(--muted); }
   </style>
 </head>
@@ -107,16 +108,20 @@
   <main>
     <h1>JudgmentKit UI-Generation Eval</h1>
     <p class="lede">Deterministic paired-artifact scoring for existing standalone comparison apps.</p>
+    <p class="report-links"><a href="../../..">All eval runs</a> · <a href="ui-generation-report.json">JSON report</a></p>
     <dl class="summary-grid">
       <div><dt>Eval id</dt><dd>judgmentkit-ui-generation-paired-artifact-v1</dd></div>
       <div><dt>Claim level</dt><dd>repeated_pair_signal</dd></div>
+      <div><dt>Run date</dt><dd>2026-05-12</dd></div>
+      <div><dt>MCP release</dt><dd>0.1.0</dd></div>
+      <div><dt>Run</dt><dd>run-001</dd></div>
       <div><dt>Cases</dt><dd>2</dd></div>
       <div><dt>Passed</dt><dd>2</dd></div>
       <div><dt>Guided wins</dt><dd>2</dd></div>
       <div><dt>Baseline wins</dt><dd>0</dd></div>
     </dl>
     <p class="notice">Qualitative paired-artifact evidence only; not a statistically powered benchmark.</p>
-    
+
     <section class="case">
       <div class="case-heading">
         <div>
@@ -140,7 +145,7 @@
         <ul><li>The reviewer can identify the selected case.</li><li>The reviewer can choose approve, policy review, or return for evidence.</li><li>The reviewer can complete a handoff with a reason and next owner.</li></ul>
       </div>
       <div class="variants">
-        
+
     <section class="variant">
       <div class="variant-heading">
         <div>
@@ -169,7 +174,7 @@
       <div><strong>Missing:</strong> <ul><li>Daily triage</li><li>Refund escalation queue</li><li>Customer refund escalation</li><li>Evidence checklist</li><li>Policy review context</li></ul></div>
     </td>
       </tr>
-    
+
       <tr>
         <th scope="row">decision_support</th>
         <td>0</td>
@@ -179,7 +184,7 @@
       <div><strong>Missing:</strong> <ul><li>Choose a path</li><li>Approve refund</li><li>Send to policy review</li><li>Return for evidence</li></ul></div>
     </td>
       </tr>
-    
+
       <tr>
         <th scope="row">disclosure_discipline</th>
         <td>0</td>
@@ -189,7 +194,7 @@
     <div><strong>Review-packet leakage:</strong> <span class="muted">None</span></div>
   </td>
       </tr>
-    
+
       <tr>
         <th scope="row">handoff_completeness</th>
         <td>1</td>
@@ -199,7 +204,7 @@
       <div><strong>Missing:</strong> <ul><li>Next owner</li><li>Support agent</li><li>Policy reviewer</li><li>Handoff reason</li></ul></div>
     </td>
       </tr>
-    
+
       <tr>
         <th scope="row">task_success_support</th>
         <td>0</td>
@@ -209,7 +214,7 @@
       <div><strong>Missing:</strong> <ul><li>Review selected case</li><li>Check evidence</li><li>Choose refund path</li><li>Prepare handoff</li><li>Receipt photo is missing</li></ul></div>
     </td>
       </tr>
-    
+
       <tr>
         <th scope="row">confidence_rework_signals</th>
         <td>0</td>
@@ -222,7 +227,7 @@
     </tbody>
       </table>
     </section>
-  
+
     <section class="variant">
       <div class="variant-heading">
         <div>
@@ -251,7 +256,7 @@
       <div><strong>Missing:</strong> <span class="muted">None</span></div>
     </td>
       </tr>
-    
+
       <tr>
         <th scope="row">decision_support</th>
         <td>5</td>
@@ -261,7 +266,7 @@
       <div><strong>Missing:</strong> <span class="muted">None</span></div>
     </td>
       </tr>
-    
+
       <tr>
         <th scope="row">disclosure_discipline</th>
         <td>5</td>
@@ -271,7 +276,7 @@
     <div><strong>Review-packet leakage:</strong> <span class="muted">None</span></div>
   </td>
       </tr>
-    
+
       <tr>
         <th scope="row">handoff_completeness</th>
         <td>5</td>
@@ -281,7 +286,7 @@
       <div><strong>Missing:</strong> <span class="muted">None</span></div>
     </td>
       </tr>
-    
+
       <tr>
         <th scope="row">task_success_support</th>
         <td>5</td>
@@ -291,7 +296,7 @@
       <div><strong>Missing:</strong> <span class="muted">None</span></div>
     </td>
       </tr>
-    
+
       <tr>
         <th scope="row">confidence_rework_signals</th>
         <td>5</td>
@@ -304,10 +309,10 @@
     </tbody>
       </table>
     </section>
-  
+
       </div>
     </section>
-  
+
     <section class="case">
       <div class="case-heading">
         <div>
@@ -331,7 +336,7 @@
         <ul><li>The host can assemble a 10-song playlist.</li><li>The host can catch explicit and disliked-artist conflicts.</li><li>The host can explain the sequence from mellow start through lifted middle to soft close.</li></ul>
       </div>
       <div class="variants">
-        
+
     <section class="variant">
       <div class="variant-heading">
         <div>
@@ -360,7 +365,7 @@
       <div><strong>Missing:</strong> <ul><li>Dinner brief</li><li>Guest preferences</li><li>Suggested tracks</li><li>Playlist sequence</li><li>Conflict checks</li></ul></div>
     </td>
       </tr>
-    
+
       <tr>
         <th scope="row">decision_support</th>
         <td>0</td>
@@ -370,7 +375,7 @@
       <div><strong>Missing:</strong> <ul><li>Add to playlist</li><li>Move earlier</li><li>Move later</li><li>Remove track</li><li>Mark as conflict</li></ul></div>
     </td>
       </tr>
-    
+
       <tr>
         <th scope="row">disclosure_discipline</th>
         <td>0</td>
@@ -380,7 +385,7 @@
     <div><strong>Review-packet leakage:</strong> <span class="muted">None</span></div>
   </td>
       </tr>
-    
+
       <tr>
         <th scope="row">handoff_completeness</th>
         <td>1.25</td>
@@ -390,7 +395,7 @@
       <div><strong>Missing:</strong> <ul><li>Save playlist</li><li>Share playlist</li><li>10 tracks ready to play</li></ul></div>
     </td>
       </tr>
-    
+
       <tr>
         <th scope="row">task_success_support</th>
         <td>1.43</td>
@@ -400,7 +405,7 @@
       <div><strong>Missing:</strong> <ul><li>genre balance</li><li>energy flow</li><li>mellow opener</li><li>warm middle</li><li>closing track</li></ul></div>
     </td>
       </tr>
-    
+
       <tr>
         <th scope="row">confidence_rework_signals</th>
         <td>0</td>
@@ -413,7 +418,7 @@
     </tbody>
       </table>
     </section>
-  
+
     <section class="variant">
       <div class="variant-heading">
         <div>
@@ -442,7 +447,7 @@
       <div><strong>Missing:</strong> <span class="muted">None</span></div>
     </td>
       </tr>
-    
+
       <tr>
         <th scope="row">decision_support</th>
         <td>5</td>
@@ -452,7 +457,7 @@
       <div><strong>Missing:</strong> <span class="muted">None</span></div>
     </td>
       </tr>
-    
+
       <tr>
         <th scope="row">disclosure_discipline</th>
         <td>5</td>
@@ -462,7 +467,7 @@
     <div><strong>Review-packet leakage:</strong> <span class="muted">None</span></div>
   </td>
       </tr>
-    
+
       <tr>
         <th scope="row">handoff_completeness</th>
         <td>5</td>
@@ -472,7 +477,7 @@
       <div><strong>Missing:</strong> <span class="muted">None</span></div>
     </td>
       </tr>
-    
+
       <tr>
         <th scope="row">task_success_support</th>
         <td>5</td>
@@ -482,7 +487,7 @@
       <div><strong>Missing:</strong> <span class="muted">None</span></div>
     </td>
       </tr>
-    
+
       <tr>
         <th scope="row">confidence_rework_signals</th>
         <td>5</td>
@@ -495,10 +500,10 @@
     </tbody>
       </table>
     </section>
-  
+
       </div>
     </section>
-  
+
   </main>
 </body>
 </html>

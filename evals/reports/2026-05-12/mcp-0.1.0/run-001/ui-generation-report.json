@@ -4,6 +4,15 @@
   "generation_policy": "Scores committed standalone artifacts only. Does not call providers or generate apps.",
   "benchmark_policy": "Qualitative paired-artifact evidence only; not a statistically powered benchmark.",
   "claim_level": "repeated_pair_signal",
+  "run": {
+    "date": "2026-05-12",
+    "mcp_release": "0.1.0",
+    "mcp_release_segment": "mcp-0.1.0",
+    "run_id": "run-001",
+    "run_path": "2026-05-12/mcp-0.1.0/run-001",
+    "html_report": "2026-05-12/mcp-0.1.0/run-001/ui-generation-report.html",
+    "json_report": "2026-05-12/mcp-0.1.0/run-001/ui-generation-report.json"
+  },
   "summary": {
     "cases": 2,
     "passed": 2,

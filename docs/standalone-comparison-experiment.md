@@ -49,7 +49,7 @@ To run the deterministic artifact scorer over the committed comparison apps:
 npm run eval:ui
 ```
 
-The scorer writes `evals/reports/ui-generation-report.json` and `evals/reports/ui-generation-report.html`. It checks activity-fit terms, decision support, disclosure discipline, handoff completeness, task-success support, and confidence/rework signals. Treat the output as paired-artifact evidence, not as a statistically powered benchmark.
+The scorer writes immutable reports under `evals/reports/<date>/mcp-<version>/run-NNN/` and updates `evals/reports/index.json` plus `evals/reports/index.html`. It checks activity-fit terms, decision support, disclosure discipline, handoff completeness, task-success support, and confidence/rework signals. Treat the output as paired-artifact evidence, not as a statistically powered benchmark.
 
 ## Evaluation Task
 

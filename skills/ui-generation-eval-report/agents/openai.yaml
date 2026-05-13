@@ -1,0 +1,4 @@
+interface:
+  display_name: "UI Generation Eval Report"
+  short_description: "Generate and QA JudgmentKit UI eval reports"
+  default_prompt: "Use $ui-generation-eval-report to refresh the UI eval report and QA the generated HTML."

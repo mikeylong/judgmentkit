@@ -153,6 +153,55 @@ async function verifyAnalyticsScript(baseUrl, scriptSrc) {
   };
 }
 
+async function verifyEvalArchive(baseUrl, analyticsScriptSrc) {
+  const index = await fetchText(baseUrl, "/examples/evals/");
+  assert.equal(getAnalyticsScriptSrc(index.text, "eval archive"), analyticsScriptSrc);
+  assertIncludes(
+    index.text,
+    [
+      "JudgmentKit UI Eval Runs",
+      "Latest run",
+      "Catalog JSON",
+    ],
+    "eval archive",
+  );
+
+  const catalogResponse = await fetchText(baseUrl, "/examples/evals/index.json");
+  const catalog = JSON.parse(catalogResponse.text);
+  assert.equal(catalog.catalog_id, "judgmentkit-ui-generation-eval-runs");
+  assert.ok(catalog.latest, "eval catalog should include latest run");
+  assert.ok(Array.isArray(catalog.runs), "eval catalog should include runs");
+  assert.ok(catalog.runs.length > 0, "eval catalog should include at least one run");
+
+  const latestHtmlRoute = `/examples/evals/${catalog.latest.html_report}`;
+  const latestJsonRoute = `/examples/evals/${catalog.latest.json_report}`;
+  const latestHtml = await fetchText(baseUrl, latestHtmlRoute);
+  assert.equal(getAnalyticsScriptSrc(latestHtml.text, latestHtmlRoute), analyticsScriptSrc);
+  assertIncludes(
+    latestHtml.text,
+    [
+      "JudgmentKit UI-Generation Eval",
+      "not a statistically powered benchmark",
+      "Claim level",
+      "MCP release",
+      "JSON report",
+    ],
+    "latest eval report",
+  );
+
+  const latestJson = JSON.parse((await fetchText(baseUrl, latestJsonRoute)).text);
+  assert.equal(latestJson.eval_id, "judgmentkit-ui-generation-paired-artifact-v1");
+  assert.equal(latestJson.run.html_report, catalog.latest.html_report);
+  assert.equal(latestJson.run.json_report, catalog.latest.json_report);
+
+  return {
+    index_route: "/examples/evals/",
+    catalog_route: "/examples/evals/index.json",
+    latest_html_route: latestHtmlRoute,
+    latest_json_route: latestJsonRoute,
+  };
+}
+
 async function verifyPublicRoutes(baseUrl, options = {}) {
   const home = await fetchText(baseUrl, "/");
   const analyticsScriptSrc = getAnalyticsScriptSrc(home.text, "homepage");
@@ -205,12 +254,14 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "/examples/comparison/music/version-a.html",
       "/examples/comparison/music/version-b.html",
       "/examples/comparison/music/facilitator-scorecard.md",
-      "/examples/evals/ui-generation-report.html",
-      "/examples/evals/ui-generation-report.json",
+      "/examples/evals/",
+      "/examples/evals/index.json",
     ],
     "examples",
   );
   assertExcludes(examples.text, ["raw_brief_baseline", "judgmentkit_handoff"], "examples");
+
+  const evalArchive = await verifyEvalArchive(baseUrl, analyticsScriptSrc);
 
   await fetchText(baseUrl, "/favicon.svg");
 
@@ -227,14 +278,12 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     "/examples/model-ui/refund-system-map/artifacts/gpt55-with-design-system.html",
     "/examples/comparison/music/version-a.html",
     "/examples/comparison/music/version-b.html",
-    "/examples/evals/ui-generation-report.html",
   ]) {
     const artifact = await fetchText(baseUrl, artifactRoute);
     assert.equal(getAnalyticsScriptSrc(artifact.text, artifactRoute), analyticsScriptSrc);
   }
 
   await fetchText(baseUrl, "/examples/comparison/music/facilitator-scorecard.md");
-  await fetchText(baseUrl, "/examples/evals/ui-generation-report.json");
   await fetchText(baseUrl, "/examples/model-ui/refund-system-map/manifest.json");
   await fetchText(baseUrl, "/examples/model-ui/refund-system-map/reviewed-handoff.fixture.json");
   await fetchText(baseUrl, "/examples/model-ui/refund-system-map/design-system-adapter.json");
@@ -277,9 +326,12 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "/examples/comparison/music/version-a.html",
       "/examples/comparison/music/version-b.html",
       "/examples/comparison/music/facilitator-scorecard.md",
-      "/examples/evals/ui-generation-report.html",
-      "/examples/evals/ui-generation-report.json",
+      evalArchive.index_route,
+      evalArchive.catalog_route,
+      evalArchive.latest_html_route,
+      evalArchive.latest_json_route,
     ],
+    eval_archive: evalArchive,
     analytics: options.skipAnalyticsScript
       ? "script_fetch_skipped"
       : await verifyAnalyticsScript(baseUrl, analyticsScriptSrc),

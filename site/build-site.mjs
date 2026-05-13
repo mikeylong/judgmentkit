@@ -1470,17 +1470,17 @@ const EXAMPLES = [
     title: "UI generation eval report",
     label: "Eval report",
     description:
-      "A deterministic paired-artifact score report comparing raw generated interfaces with JudgmentKit-guided handoff outputs.",
-    previewHref: "/examples/evals/ui-generation-report.html",
-    previewLabel: "UI generation eval report",
+      "Immutable paired-artifact score reports comparing raw generated interfaces with JudgmentKit-guided handoff outputs.",
+    previewHref: "/examples/evals/",
+    previewLabel: "UI generation eval runs",
     actions: [
       {
-        label: "Open report",
-        href: "/examples/evals/ui-generation-report.html",
+        label: "Open eval runs",
+        href: "/examples/evals/",
       },
       {
-        label: "JSON report",
-        href: "/examples/evals/ui-generation-report.json",
+        label: "Run catalog",
+        href: "/examples/evals/index.json",
       },
     ],
   },
@@ -1772,8 +1772,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await copyIfExists("examples/comparison/music/version-a.html", path.join(outDir, "examples", "comparison", "music", "version-a.html"));
   await copyIfExists("examples/comparison/music/version-b.html", path.join(outDir, "examples", "comparison", "music", "version-b.html"));
   await copyIfExists("examples/comparison/music/facilitator-scorecard.md", path.join(outDir, "examples", "comparison", "music", "facilitator-scorecard.md"));
-  await copyIfExists("evals/reports/ui-generation-report.html", path.join(outDir, "examples", "evals", "ui-generation-report.html"));
-  await copyIfExists("evals/reports/ui-generation-report.json", path.join(outDir, "examples", "evals", "ui-generation-report.json"));
+  await copyDirectoryIfExists("evals/reports", path.join(outDir, "examples", "evals"));
   await copyDirectoryIfExists("examples/model-ui", path.join(outDir, "examples", "model-ui"));
 
   return {
