@@ -331,6 +331,11 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     modelUiManifest.generation_policy.includes("Material UI"),
     "model UI manifest should describe the Material UI adapter",
   );
+  assert.equal(
+    modelUiManifest.comparison_groups?.length,
+    3,
+    "model UI manifest should expose three before/after comparison groups",
+  );
   const modelUiCaptureRoutes = [];
   const modelUiScreenshotRoutes = [];
 
@@ -338,12 +343,24 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     assert.ok(artifact.screenshot_path, `${artifact.id} should include a screenshot_path`);
     assert.ok(artifact.approach_title, `${artifact.id} should include an approach_title`);
     assert.ok(artifact.approach_caption, `${artifact.id} should include an approach_caption`);
+    assert.ok(artifact.candidate_role, `${artifact.id} should include a candidate_role`);
+    if (artifact.candidate_role === "raw_model_candidate") {
+      assert.equal(
+        artifact.visible_render_source,
+        "raw_model_candidate_html",
+        `${artifact.id} should expose raw model candidate render source`,
+      );
+      assert.ok(
+        artifact.approach_caption.toLowerCase().includes("raw candidate"),
+        `${artifact.id} should describe raw candidate variability`,
+      );
+    }
     if (artifact.design_system_mode === "with_design_system") {
       assert.equal(artifact.design_system_name, "Material UI");
       assert.equal(artifact.design_system_package, "@mui/material");
       assert.ok(
-        artifact.approach_title.includes("with Material UI adapter"),
-        `${artifact.id} should name Material UI in the approach title`,
+        artifact.approach_title.includes("reviewed Material UI render"),
+        `${artifact.id} should name the reviewed Material UI render in the approach title`,
       );
     }
 

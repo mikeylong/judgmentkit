@@ -90,6 +90,31 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 16px;
       }
+      .comparison-list {
+        display: grid;
+        gap: 18px;
+      }
+      .comparison-row {
+        display: grid;
+        gap: 14px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfaf6;
+      }
+      .comparison-heading {
+        display: grid;
+        gap: 4px;
+      }
+      .comparison-heading h2,
+      .comparison-heading p {
+        margin: 0;
+      }
+      .comparison-pair {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
       .gallery-card {
         display: grid;
         overflow: hidden;
@@ -287,6 +312,7 @@
           align-items: start;
         }
         .gallery,
+        .comparison-pair,
         .carousel-panel {
           grid-template-columns: 1fr;
         }
@@ -303,7 +329,7 @@
     <main>
       <p class="eyebrow">System-map example pack</p>
       <h1>Model UI generation matrix</h1>
-      <p>One refund-triage handoff moves through the system-map branches: deterministic generation, committed model transcripts, and the Material UI adapter. The visible artifacts are rendered from the reviewed handoff; the site build copies these static files and does not call a provider.</p>
+      <p>One refund-triage handoff moves through the system-map branches: raw deterministic/model candidates first, then reviewed Material UI renders after JudgmentKit. The raw model output is evidence, not the recommended product UI.</p>
       <div class="summary" aria-label="Matrix summary">
         <div><span>Source brief</span><strong>examples/demo/refund-ops-implementation-heavy.brief.txt</strong></div>
         <div><span>Reviewed handoff</span><strong>examples/model-ui/refund-system-map/reviewed-handoff.fixture.json</strong></div>
@@ -311,23 +337,31 @@
       </div>
       <div class="gallery-intro">
         <div>
-          <h2>Thumbnail gallery</h2>
-          <p>Each screenshot shows the first desktop viewport of a committed, adapter-rendered artifact. Select a thumbnail for a larger carousel view.</p>
+          <h2>Before / after gallery</h2>
+          <p>Each row pairs a raw candidate with the reviewed Material UI render. Select a thumbnail for a larger carousel view.</p>
         </div>
         <a href="artifacts/deterministic-without-design-system.html">Open first live artifact</a>
       </div>
-      <section class="gallery" aria-label="Model UI screenshot gallery">
+      <section class="comparison-list" aria-label="Model UI before and after screenshot gallery">
+
+      <article class="comparison-row">
+        <div class="comparison-heading">
+          <p class="eyebrow">Before / after pair</p>
+          <h2>Deterministic renderer</h2>
+          <p>A scripted candidate from the reviewed handoff next to the same handoff rendered through Material UI.</p>
+        </div>
+        <div class="comparison-pair">
 
         <article class="gallery-card">
-          <a class="thumbnail-link" href="artifacts/deterministic-without-design-system.html" data-carousel-open="0" aria-label="Open larger view for Deterministic renderer · without design system">
-            <img src="screenshots/deterministic-without-design-system.png" alt="Deterministic renderer · without design system screenshot" loading="eager">
+          <a class="thumbnail-link" href="artifacts/deterministic-without-design-system.html" data-carousel-open="0" aria-label="Open larger view for Deterministic renderer · simple candidate">
+            <img src="screenshots/deterministic-without-design-system.png" alt="Deterministic renderer · simple candidate screenshot" loading="eager">
           </a>
           <div class="gallery-card-copy">
-            <p class="eyebrow">Deterministic renderer</p>
-            <h2>Deterministic renderer · without design system</h2>
-            <p>The visible snapshot is rendered from the reviewed JudgmentKit handoff with simple HTML primitives and no provider or model call.</p>
+            <p class="eyebrow">Raw candidate</p>
+            <h2>Deterministic renderer · simple candidate</h2>
+            <p>Deterministic raw candidate from the reviewed handoff using simple HTML primitives and no provider or model call.</p>
             <dl>
-              <div><dt>Adapter</dt><dd>Without design system</dd></div>
+              <div><dt>Render</dt><dd>Deterministic simple candidate</dd></div>
               <div><dt>Provenance</dt><dd>captured</dd></div>
             </dl>
             <div class="card-actions">
@@ -336,16 +370,17 @@
             </div>
           </div>
         </article>
+
         <article class="gallery-card">
-          <a class="thumbnail-link" href="artifacts/deterministic-with-design-system.html" data-carousel-open="1" aria-label="Open larger view for Deterministic renderer · with Material UI adapter">
-            <img src="screenshots/deterministic-with-design-system.png" alt="Deterministic renderer · with Material UI adapter screenshot" loading="eager">
+          <a class="thumbnail-link" href="artifacts/deterministic-with-design-system.html" data-carousel-open="1" aria-label="Open larger view for Deterministic renderer · reviewed Material UI render">
+            <img src="screenshots/deterministic-with-design-system.png" alt="Deterministic renderer · reviewed Material UI render screenshot" loading="eager">
           </a>
           <div class="gallery-card-copy">
-            <p class="eyebrow">Deterministic renderer</p>
-            <h2>Deterministic renderer · with Material UI adapter</h2>
-            <p>The visible snapshot is rendered from the reviewed JudgmentKit handoff through a build-time Material UI adapter.</p>
+            <p class="eyebrow">Reviewed Material UI render</p>
+            <h2>Deterministic renderer · reviewed Material UI render</h2>
+            <p>Reviewed Material UI render from the JudgmentKit handoff. Its convergence with other reviewed renders is expected.</p>
             <dl>
-              <div><dt>Adapter</dt><dd>With Material UI adapter</dd></div>
+              <div><dt>Render</dt><dd>Reviewed Material UI render</dd></div>
               <div><dt>Provenance</dt><dd>captured</dd></div>
             </dl>
             <div class="card-actions">
@@ -354,16 +389,26 @@
             </div>
           </div>
         </article>
+        </div>
+      </article>
+      <article class="comparison-row">
+        <div class="comparison-heading">
+          <p class="eyebrow">Before / after pair</p>
+          <h2>Gemma 4 via LM Studio lms</h2>
+          <p>The raw local model candidate shows proposal variability; the reviewed render shows the accepted handoff.</p>
+        </div>
+        <div class="comparison-pair">
+
         <article class="gallery-card">
-          <a class="thumbnail-link" href="artifacts/gemma4-without-design-system.html" data-carousel-open="2" aria-label="Open larger view for Gemma 4 via LM Studio lms · without design system">
-            <img src="screenshots/gemma4-without-design-system.png" alt="Gemma 4 via LM Studio lms · without design system screenshot" loading="lazy">
+          <a class="thumbnail-link" href="artifacts/gemma4-without-design-system.html" data-carousel-open="2" aria-label="Open larger view for Gemma 4 via LM Studio lms · raw candidate">
+            <img src="screenshots/gemma4-without-design-system.png" alt="Gemma 4 via LM Studio lms · raw candidate screenshot" loading="lazy">
           </a>
           <div class="gallery-card-copy">
-            <p class="eyebrow">Gemma 4 (local LLM)</p>
-            <h2>Gemma 4 via LM Studio lms · without design system</h2>
-            <p>A local Gemma 4 transcript captured through LM Studio lms is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives.</p>
+            <p class="eyebrow">Raw candidate</p>
+            <h2>Gemma 4 via LM Studio lms · raw candidate</h2>
+            <p>Raw candidate HTML captured from Gemma 4 via LM Studio lms. This shows model variability and is evidence, not the recommended product UI.</p>
             <dl>
-              <div><dt>Adapter</dt><dd>Without design system</dd></div>
+              <div><dt>Render</dt><dd>Raw model candidate</dd></div>
               <div><dt>Provenance</dt><dd>captured</dd></div>
             </dl>
             <div class="card-actions">
@@ -372,16 +417,17 @@
             </div>
           </div>
         </article>
+
         <article class="gallery-card">
-          <a class="thumbnail-link" href="artifacts/gemma4-with-design-system.html" data-carousel-open="3" aria-label="Open larger view for Gemma 4 via LM Studio lms · with Material UI adapter">
-            <img src="screenshots/gemma4-with-design-system.png" alt="Gemma 4 via LM Studio lms · with Material UI adapter screenshot" loading="lazy">
+          <a class="thumbnail-link" href="artifacts/gemma4-with-design-system.html" data-carousel-open="3" aria-label="Open larger view for Gemma 4 via LM Studio lms · reviewed Material UI render">
+            <img src="screenshots/gemma4-with-design-system.png" alt="Gemma 4 via LM Studio lms · reviewed Material UI render screenshot" loading="lazy">
           </a>
           <div class="gallery-card-copy">
-            <p class="eyebrow">Gemma 4 (local LLM)</p>
-            <h2>Gemma 4 via LM Studio lms · with Material UI adapter</h2>
-            <p>A local Gemma 4 transcript captured through LM Studio lms with Material UI context is committed as provenance; the visible snapshot is rendered from the reviewed handoff through the Material UI adapter.</p>
+            <p class="eyebrow">Reviewed Material UI render</p>
+            <h2>Gemma 4 via LM Studio lms · reviewed Material UI render</h2>
+            <p>Reviewed Material UI render from the JudgmentKit handoff after the Gemma 4 candidate path; visual convergence is expected.</p>
             <dl>
-              <div><dt>Adapter</dt><dd>With Material UI adapter</dd></div>
+              <div><dt>Render</dt><dd>Reviewed Material UI render</dd></div>
               <div><dt>Provenance</dt><dd>captured</dd></div>
             </dl>
             <div class="card-actions">
@@ -390,16 +436,26 @@
             </div>
           </div>
         </article>
+        </div>
+      </article>
+      <article class="comparison-row">
+        <div class="comparison-heading">
+          <p class="eyebrow">Before / after pair</p>
+          <h2>GPT-5.5 via codex exec</h2>
+          <p>The raw GPT-5.5 candidate is committed as evidence; the Material UI render is the normalized handoff path.</p>
+        </div>
+        <div class="comparison-pair">
+
         <article class="gallery-card">
-          <a class="thumbnail-link" href="artifacts/gpt55-without-design-system.html" data-carousel-open="4" aria-label="Open larger view for GPT-5.5 via codex exec · without design system">
-            <img src="screenshots/gpt55-without-design-system.png" alt="GPT-5.5 via codex exec · without design system screenshot" loading="lazy">
+          <a class="thumbnail-link" href="artifacts/gpt55-without-design-system.html" data-carousel-open="4" aria-label="Open larger view for GPT-5.5 via codex exec · raw candidate">
+            <img src="screenshots/gpt55-without-design-system.png" alt="GPT-5.5 via codex exec · raw candidate screenshot" loading="lazy">
           </a>
           <div class="gallery-card-copy">
-            <p class="eyebrow">GPT-5.5</p>
-            <h2>GPT-5.5 via codex exec · without design system</h2>
-            <p>A GPT-5.5 transcript captured through codex exec is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives.</p>
+            <p class="eyebrow">Raw candidate</p>
+            <h2>GPT-5.5 via codex exec · raw candidate</h2>
+            <p>Raw candidate HTML captured from GPT-5.5 via codex exec. This shows model variability and is evidence, not the recommended product UI.</p>
             <dl>
-              <div><dt>Adapter</dt><dd>Without design system</dd></div>
+              <div><dt>Render</dt><dd>Raw model candidate</dd></div>
               <div><dt>Provenance</dt><dd>captured</dd></div>
             </dl>
             <div class="card-actions">
@@ -408,16 +464,17 @@
             </div>
           </div>
         </article>
+
         <article class="gallery-card">
-          <a class="thumbnail-link" href="artifacts/gpt55-with-design-system.html" data-carousel-open="5" aria-label="Open larger view for GPT-5.5 via codex exec · with Material UI adapter">
-            <img src="screenshots/gpt55-with-design-system.png" alt="GPT-5.5 via codex exec · with Material UI adapter screenshot" loading="lazy">
+          <a class="thumbnail-link" href="artifacts/gpt55-with-design-system.html" data-carousel-open="5" aria-label="Open larger view for GPT-5.5 via codex exec · reviewed Material UI render">
+            <img src="screenshots/gpt55-with-design-system.png" alt="GPT-5.5 via codex exec · reviewed Material UI render screenshot" loading="lazy">
           </a>
           <div class="gallery-card-copy">
-            <p class="eyebrow">GPT-5.5</p>
-            <h2>GPT-5.5 via codex exec · with Material UI adapter</h2>
-            <p>A GPT-5.5 transcript captured through codex exec with Material UI context is committed as provenance; the visible snapshot is rendered from the reviewed handoff through the Material UI adapter.</p>
+            <p class="eyebrow">Reviewed Material UI render</p>
+            <h2>GPT-5.5 via codex exec · reviewed Material UI render</h2>
+            <p>Reviewed Material UI render from the JudgmentKit handoff after the GPT-5.5 candidate path; visual convergence is expected.</p>
             <dl>
-              <div><dt>Adapter</dt><dd>With Material UI adapter</dd></div>
+              <div><dt>Render</dt><dd>Reviewed Material UI render</dd></div>
               <div><dt>Provenance</dt><dd>captured</dd></div>
             </dl>
             <div class="card-actions">
@@ -426,8 +483,10 @@
             </div>
           </div>
         </article>
+        </div>
+      </article>
       </section>
-      <p class="note">Model entries include committed capture transcripts. Material UI entries were captured with Material UI adapter context; visible artifacts are rendered from the reviewed handoff, and the site build does not call live providers.</p>
+      <p class="note">Raw candidates show deterministic/model variability. Reviewed Material UI renders show the accepted JudgmentKit handoff after review; the site build copies committed files and does not call live providers.</p>
       <details class="details">
         <summary>Provenance details</summary>
         <div class="details-grid">
@@ -435,7 +494,7 @@
         <article class="details-row">
           <div>
             <p class="eyebrow">Deterministic renderer</p>
-            <h3>Without design system</h3>
+            <h3>Deterministic simple candidate</h3>
           </div>
           <p>Rendered deterministically from the reviewed handoff.</p>
           <a href="artifacts/deterministic-without-design-system.html">Artifact</a>
@@ -443,7 +502,7 @@
         <article class="details-row">
           <div>
             <p class="eyebrow">Deterministic renderer</p>
-            <h3>With Material UI adapter</h3>
+            <h3>Reviewed Material UI render</h3>
           </div>
           <p>Rendered deterministically from the reviewed handoff.</p>
           <a href="artifacts/deterministic-with-design-system.html">Artifact</a>
@@ -451,7 +510,7 @@
         <article class="details-row">
           <div>
             <p class="eyebrow">Gemma 4 (local LLM)</p>
-            <h3>Without design system</h3>
+            <h3>Raw model candidate</h3>
           </div>
           <p>Transcript: captures/gemma4-without-design-system.json</p>
           <a href="artifacts/gemma4-without-design-system.html">Artifact</a>
@@ -459,7 +518,7 @@
         <article class="details-row">
           <div>
             <p class="eyebrow">Gemma 4 (local LLM)</p>
-            <h3>With Material UI adapter</h3>
+            <h3>Reviewed Material UI render</h3>
           </div>
           <p>Transcript: captures/gemma4-with-design-system.json</p>
           <a href="artifacts/gemma4-with-design-system.html">Artifact</a>
@@ -467,7 +526,7 @@
         <article class="details-row">
           <div>
             <p class="eyebrow">GPT-5.5</p>
-            <h3>Without design system</h3>
+            <h3>Raw model candidate</h3>
           </div>
           <p>Transcript: captures/gpt55-without-design-system.json</p>
           <a href="artifacts/gpt55-without-design-system.html">Artifact</a>
@@ -475,7 +534,7 @@
         <article class="details-row">
           <div>
             <p class="eyebrow">GPT-5.5</p>
-            <h3>With Material UI adapter</h3>
+            <h3>Reviewed Material UI render</h3>
           </div>
           <p>Transcript: captures/gpt55-with-design-system.json</p>
           <a href="artifacts/gpt55-with-design-system.html">Artifact</a>
@@ -495,7 +554,7 @@
               <h2 id="carousel-title" data-carousel-title></h2>
               <p data-carousel-caption></p>
               <dl>
-                <div><dt>Adapter</dt><dd data-carousel-adapter></dd></div>
+                <div><dt>Render</dt><dd data-carousel-adapter></dd></div>
                 <div><dt>Provenance</dt><dd data-carousel-provenance></dd></div>
               </dl>
               <div class="carousel-actions">
@@ -517,21 +576,25 @@
     <script type="application/json" id="model-ui-gallery-data">[
   {
     "id": "deterministic-without-design-system",
-    "title": "Deterministic renderer · without design system",
-    "caption": "The visible snapshot is rendered from the reviewed JudgmentKit handoff with simple HTML primitives and no provider or model call.",
+    "title": "Deterministic renderer · simple candidate",
+    "caption": "Deterministic raw candidate from the reviewed handoff using simple HTML primitives and no provider or model call.",
     "model_label": "Deterministic renderer",
-    "adapter_label": "Without design system",
+    "adapter_label": "Deterministic simple candidate",
+    "candidate_role": "deterministic_simple_candidate",
+    "candidate_role_label": "Deterministic simple candidate",
     "provenance": "captured",
-    "rendering_policy": "The visible UI is rendered directly from the reviewed JudgmentKit handoff with simple UI primitives; no provider or model call is used.",
+    "rendering_policy": "The visible UI is a deterministic simple candidate rendered from the reviewed JudgmentKit handoff with no provider or model call.",
     "image": "screenshots/deterministic-without-design-system.png",
     "artifact": "artifacts/deterministic-without-design-system.html"
   },
   {
     "id": "deterministic-with-design-system",
-    "title": "Deterministic renderer · with Material UI adapter",
-    "caption": "The visible snapshot is rendered from the reviewed JudgmentKit handoff through a build-time Material UI adapter.",
+    "title": "Deterministic renderer · reviewed Material UI render",
+    "caption": "Reviewed Material UI render from the JudgmentKit handoff. Its convergence with other reviewed renders is expected.",
     "model_label": "Deterministic renderer",
-    "adapter_label": "With Material UI adapter",
+    "adapter_label": "Reviewed Material UI render",
+    "candidate_role": "reviewed_material_ui_render",
+    "candidate_role_label": "Reviewed Material UI render",
     "provenance": "captured",
     "rendering_policy": "The visible UI is rendered directly from the reviewed JudgmentKit handoff through the Material UI adapter; no provider or model call is used.",
     "image": "screenshots/deterministic-with-design-system.png",
@@ -539,45 +602,53 @@
   },
   {
     "id": "gemma4-without-design-system",
-    "title": "Gemma 4 via LM Studio lms · without design system",
-    "caption": "A local Gemma 4 transcript captured through LM Studio lms is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives.",
+    "title": "Gemma 4 via LM Studio lms · raw candidate",
+    "caption": "Raw candidate HTML captured from Gemma 4 via LM Studio lms. This shows model variability and is evidence, not the recommended product UI.",
     "model_label": "Gemma 4 (local LLM)",
-    "adapter_label": "Without design system",
+    "adapter_label": "Raw model candidate",
+    "candidate_role": "raw_model_candidate",
+    "candidate_role_label": "Raw model candidate",
     "provenance": "captured",
-    "rendering_policy": "The raw model transcript is committed as provenance; the visible UI is rendered from the reviewed JudgmentKit handoff with simple UI primitives.",
+    "rendering_policy": "The raw model transcript is committed as provenance and rendered as a raw candidate surface to show model variability; it is evidence, not the recommended product UI.",
     "image": "screenshots/gemma4-without-design-system.png",
     "artifact": "artifacts/gemma4-without-design-system.html"
   },
   {
     "id": "gemma4-with-design-system",
-    "title": "Gemma 4 via LM Studio lms · with Material UI adapter",
-    "caption": "A local Gemma 4 transcript captured through LM Studio lms with Material UI context is committed as provenance; the visible snapshot is rendered from the reviewed handoff through the Material UI adapter.",
+    "title": "Gemma 4 via LM Studio lms · reviewed Material UI render",
+    "caption": "Reviewed Material UI render from the JudgmentKit handoff after the Gemma 4 candidate path; visual convergence is expected.",
     "model_label": "Gemma 4 (local LLM)",
-    "adapter_label": "With Material UI adapter",
+    "adapter_label": "Reviewed Material UI render",
+    "candidate_role": "reviewed_material_ui_render",
+    "candidate_role_label": "Reviewed Material UI render",
     "provenance": "captured",
-    "rendering_policy": "The raw model transcript is committed as provenance after capture with Material UI adapter context; the visible UI is rendered from the reviewed JudgmentKit handoff through the Material UI adapter.",
+    "rendering_policy": "The raw model transcript is committed as provenance after capture with Material UI adapter context; the visible UI is a reviewed Material UI render from the JudgmentKit handoff.",
     "image": "screenshots/gemma4-with-design-system.png",
     "artifact": "artifacts/gemma4-with-design-system.html"
   },
   {
     "id": "gpt55-without-design-system",
-    "title": "GPT-5.5 via codex exec · without design system",
-    "caption": "A GPT-5.5 transcript captured through codex exec is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives.",
+    "title": "GPT-5.5 via codex exec · raw candidate",
+    "caption": "Raw candidate HTML captured from GPT-5.5 via codex exec. This shows model variability and is evidence, not the recommended product UI.",
     "model_label": "GPT-5.5",
-    "adapter_label": "Without design system",
+    "adapter_label": "Raw model candidate",
+    "candidate_role": "raw_model_candidate",
+    "candidate_role_label": "Raw model candidate",
     "provenance": "captured",
-    "rendering_policy": "The raw model transcript is committed as provenance; the visible UI is rendered from the reviewed JudgmentKit handoff with simple UI primitives.",
+    "rendering_policy": "The raw model transcript is committed as provenance and rendered as a raw candidate surface to show model variability; it is evidence, not the recommended product UI.",
     "image": "screenshots/gpt55-without-design-system.png",
     "artifact": "artifacts/gpt55-without-design-system.html"
   },
   {
     "id": "gpt55-with-design-system",
-    "title": "GPT-5.5 via codex exec · with Material UI adapter",
-    "caption": "A GPT-5.5 transcript captured through codex exec with Material UI context is committed as provenance; the visible snapshot is rendered from the reviewed handoff through the Material UI adapter.",
+    "title": "GPT-5.5 via codex exec · reviewed Material UI render",
+    "caption": "Reviewed Material UI render from the JudgmentKit handoff after the GPT-5.5 candidate path; visual convergence is expected.",
     "model_label": "GPT-5.5",
-    "adapter_label": "With Material UI adapter",
+    "adapter_label": "Reviewed Material UI render",
+    "candidate_role": "reviewed_material_ui_render",
+    "candidate_role_label": "Reviewed Material UI render",
     "provenance": "captured",
-    "rendering_policy": "The raw model transcript is committed as provenance after capture with Material UI adapter context; the visible UI is rendered from the reviewed JudgmentKit handoff through the Material UI adapter.",
+    "rendering_policy": "The raw model transcript is committed as provenance after capture with Material UI adapter context; the visible UI is a reviewed Material UI render from the JudgmentKit handoff.",
     "image": "screenshots/gpt55-with-design-system.png",
     "artifact": "artifacts/gpt55-with-design-system.html"
   }
@@ -591,7 +662,6 @@
   "design_system_name": "Material UI",
   "design_system_package": "@mui/material",
   "design_system_render_mode": "static-ssr",
-  "generation_policy": "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model. Model transcripts are provenance; Material UI entries are captured with Material UI adapter context, and visible artifacts are rendered from the reviewed handoff through the selected renderer.",
   "system_map_branches": [
     "JudgmentKit reviewed handoff",
     "LLM / agent UI pass",
@@ -602,6 +672,80 @@
     "Deterministic renderer",
     "Gemma 4 (local LLM)",
     "GPT-5.5"
+  ],
+  "comparison_groups": [
+    {
+      "id": "deterministic",
+      "title": "Deterministic renderer",
+      "summary": "A scripted candidate from the reviewed handoff next to the same handoff rendered through Material UI.",
+      "candidate_artifact_id": "deterministic-without-design-system",
+      "reviewed_artifact_id": "deterministic-with-design-system",
+      "candidate_role": "before_after_pair",
+      "candidate_artifact": {
+        "id": "deterministic-without-design-system",
+        "title": "Deterministic renderer · simple candidate",
+        "caption": "Deterministic raw candidate from the reviewed handoff using simple HTML primitives and no provider or model call.",
+        "artifact_path": "artifacts/deterministic-without-design-system.html",
+        "screenshot_path": "screenshots/deterministic-without-design-system.png",
+        "visible_render_source": "deterministic_simple_candidate"
+      },
+      "reviewed_artifact": {
+        "id": "deterministic-with-design-system",
+        "title": "Deterministic renderer · reviewed Material UI render",
+        "caption": "Reviewed Material UI render from the JudgmentKit handoff. Its convergence with other reviewed renders is expected.",
+        "artifact_path": "artifacts/deterministic-with-design-system.html",
+        "screenshot_path": "screenshots/deterministic-with-design-system.png",
+        "visible_render_source": "reviewed_handoff_material_ui_render"
+      }
+    },
+    {
+      "id": "gemma4",
+      "title": "Gemma 4 via LM Studio lms",
+      "summary": "The raw local model candidate shows proposal variability; the reviewed render shows the accepted handoff.",
+      "candidate_artifact_id": "gemma4-without-design-system",
+      "reviewed_artifact_id": "gemma4-with-design-system",
+      "candidate_role": "before_after_pair",
+      "candidate_artifact": {
+        "id": "gemma4-without-design-system",
+        "title": "Gemma 4 via LM Studio lms · raw candidate",
+        "caption": "Raw candidate HTML captured from Gemma 4 via LM Studio lms. This shows model variability and is evidence, not the recommended product UI.",
+        "artifact_path": "artifacts/gemma4-without-design-system.html",
+        "screenshot_path": "screenshots/gemma4-without-design-system.png",
+        "visible_render_source": "raw_model_candidate_html"
+      },
+      "reviewed_artifact": {
+        "id": "gemma4-with-design-system",
+        "title": "Gemma 4 via LM Studio lms · reviewed Material UI render",
+        "caption": "Reviewed Material UI render from the JudgmentKit handoff after the Gemma 4 candidate path; visual convergence is expected.",
+        "artifact_path": "artifacts/gemma4-with-design-system.html",
+        "screenshot_path": "screenshots/gemma4-with-design-system.png",
+        "visible_render_source": "reviewed_handoff_material_ui_render"
+      }
+    },
+    {
+      "id": "gpt55",
+      "title": "GPT-5.5 via codex exec",
+      "summary": "The raw GPT-5.5 candidate is committed as evidence; the Material UI render is the normalized handoff path.",
+      "candidate_artifact_id": "gpt55-without-design-system",
+      "reviewed_artifact_id": "gpt55-with-design-system",
+      "candidate_role": "before_after_pair",
+      "candidate_artifact": {
+        "id": "gpt55-without-design-system",
+        "title": "GPT-5.5 via codex exec · raw candidate",
+        "caption": "Raw candidate HTML captured from GPT-5.5 via codex exec. This shows model variability and is evidence, not the recommended product UI.",
+        "artifact_path": "artifacts/gpt55-without-design-system.html",
+        "screenshot_path": "screenshots/gpt55-without-design-system.png",
+        "visible_render_source": "raw_model_candidate_html"
+      },
+      "reviewed_artifact": {
+        "id": "gpt55-with-design-system",
+        "title": "GPT-5.5 via codex exec · reviewed Material UI render",
+        "caption": "Reviewed Material UI render from the JudgmentKit handoff after the GPT-5.5 candidate path; visual convergence is expected.",
+        "artifact_path": "artifacts/gpt55-with-design-system.html",
+        "screenshot_path": "screenshots/gpt55-with-design-system.png",
+        "visible_render_source": "reviewed_handoff_material_ui_render"
+      }
+    }
   ],
   "artifacts": [
     {
@@ -627,12 +771,13 @@
       "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
       "prompt_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
       "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+      "candidate_role": "deterministic_simple_candidate",
       "artifact_path": "artifacts/deterministic-without-design-system.html",
       "screenshot_path": "screenshots/deterministic-without-design-system.png",
-      "visible_render_source": "reviewed_handoff_simple_renderer",
-      "rendering_policy": "The visible UI is rendered directly from the reviewed JudgmentKit handoff with simple UI primitives; no provider or model call is used.",
-      "approach_title": "Deterministic renderer · without design system",
-      "approach_caption": "The visible snapshot is rendered from the reviewed JudgmentKit handoff with simple HTML primitives and no provider or model call."
+      "visible_render_source": "deterministic_simple_candidate",
+      "rendering_policy": "The visible UI is a deterministic simple candidate rendered from the reviewed JudgmentKit handoff with no provider or model call.",
+      "approach_title": "Deterministic renderer · simple candidate",
+      "approach_caption": "Deterministic raw candidate from the reviewed handoff using simple HTML primitives and no provider or model call."
     },
     {
       "id": "deterministic-with-design-system",
@@ -657,12 +802,13 @@
       "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
       "prompt_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
       "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+      "candidate_role": "reviewed_material_ui_render",
       "artifact_path": "artifacts/deterministic-with-design-system.html",
       "screenshot_path": "screenshots/deterministic-with-design-system.png",
-      "visible_render_source": "reviewed_handoff_material_ui_adapter",
+      "visible_render_source": "reviewed_handoff_material_ui_render",
       "rendering_policy": "The visible UI is rendered directly from the reviewed JudgmentKit handoff through the Material UI adapter; no provider or model call is used.",
-      "approach_title": "Deterministic renderer · with Material UI adapter",
-      "approach_caption": "The visible snapshot is rendered from the reviewed JudgmentKit handoff through a build-time Material UI adapter."
+      "approach_title": "Deterministic renderer · reviewed Material UI render",
+      "approach_caption": "Reviewed Material UI render from the JudgmentKit handoff. Its convergence with other reviewed renders is expected."
     },
     {
       "id": "gemma4-without-design-system",
@@ -696,12 +842,13 @@
       "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
       "prompt_sha256": "22bb09a32f59bde807ccd672742dda52df6bc28e83413f98523d49034759c4b2",
       "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+      "candidate_role": "raw_model_candidate",
       "artifact_path": "artifacts/gemma4-without-design-system.html",
       "screenshot_path": "screenshots/gemma4-without-design-system.png",
-      "visible_render_source": "reviewed_handoff_simple_renderer",
-      "rendering_policy": "The raw model transcript is committed as provenance; the visible UI is rendered from the reviewed JudgmentKit handoff with simple UI primitives.",
-      "approach_title": "Gemma 4 via LM Studio lms · without design system",
-      "approach_caption": "A local Gemma 4 transcript captured through LM Studio lms is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives."
+      "visible_render_source": "raw_model_candidate_html",
+      "rendering_policy": "The raw model transcript is committed as provenance and rendered as a raw candidate surface to show model variability; it is evidence, not the recommended product UI.",
+      "approach_title": "Gemma 4 via LM Studio lms · raw candidate",
+      "approach_caption": "Raw candidate HTML captured from Gemma 4 via LM Studio lms. This shows model variability and is evidence, not the recommended product UI."
     },
     {
       "id": "gemma4-with-design-system",
@@ -735,12 +882,13 @@
       "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
       "prompt_sha256": "435f8a42d8aaa3d4b02b2f0908872592e43091b0f75114b0b87099bd6372de45",
       "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+      "candidate_role": "reviewed_material_ui_render",
       "artifact_path": "artifacts/gemma4-with-design-system.html",
       "screenshot_path": "screenshots/gemma4-with-design-system.png",
-      "visible_render_source": "reviewed_handoff_material_ui_adapter",
-      "rendering_policy": "The raw model transcript is committed as provenance after capture with Material UI adapter context; the visible UI is rendered from the reviewed JudgmentKit handoff through the Material UI adapter.",
-      "approach_title": "Gemma 4 via LM Studio lms · with Material UI adapter",
-      "approach_caption": "A local Gemma 4 transcript captured through LM Studio lms with Material UI context is committed as provenance; the visible snapshot is rendered from the reviewed handoff through the Material UI adapter."
+      "visible_render_source": "reviewed_handoff_material_ui_render",
+      "rendering_policy": "The raw model transcript is committed as provenance after capture with Material UI adapter context; the visible UI is a reviewed Material UI render from the JudgmentKit handoff.",
+      "approach_title": "Gemma 4 via LM Studio lms · reviewed Material UI render",
+      "approach_caption": "Reviewed Material UI render from the JudgmentKit handoff after the Gemma 4 candidate path; visual convergence is expected."
     },
     {
       "id": "gpt55-without-design-system",
@@ -774,12 +922,13 @@
       "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
       "prompt_sha256": "bbce67f615fa90446e99e9517821bdcfc3965771930cafddd409d96b32d35fc7",
       "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+      "candidate_role": "raw_model_candidate",
       "artifact_path": "artifacts/gpt55-without-design-system.html",
       "screenshot_path": "screenshots/gpt55-without-design-system.png",
-      "visible_render_source": "reviewed_handoff_simple_renderer",
-      "rendering_policy": "The raw model transcript is committed as provenance; the visible UI is rendered from the reviewed JudgmentKit handoff with simple UI primitives.",
-      "approach_title": "GPT-5.5 via codex exec · without design system",
-      "approach_caption": "A GPT-5.5 transcript captured through codex exec is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives."
+      "visible_render_source": "raw_model_candidate_html",
+      "rendering_policy": "The raw model transcript is committed as provenance and rendered as a raw candidate surface to show model variability; it is evidence, not the recommended product UI.",
+      "approach_title": "GPT-5.5 via codex exec · raw candidate",
+      "approach_caption": "Raw candidate HTML captured from GPT-5.5 via codex exec. This shows model variability and is evidence, not the recommended product UI."
     },
     {
       "id": "gpt55-with-design-system",
@@ -813,14 +962,16 @@
       "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
       "prompt_sha256": "7f0d365a92ed95e585df39c488b60870d7df2ad15caa1f412dbbeec621dbc48f",
       "source_context_sha256": "0ed18f9a7f3efd08241f7abed1d8469675bd2fe5962684373571f47517e35200",
+      "candidate_role": "reviewed_material_ui_render",
       "artifact_path": "artifacts/gpt55-with-design-system.html",
       "screenshot_path": "screenshots/gpt55-with-design-system.png",
-      "visible_render_source": "reviewed_handoff_material_ui_adapter",
-      "rendering_policy": "The raw model transcript is committed as provenance after capture with Material UI adapter context; the visible UI is rendered from the reviewed JudgmentKit handoff through the Material UI adapter.",
-      "approach_title": "GPT-5.5 via codex exec · with Material UI adapter",
-      "approach_caption": "A GPT-5.5 transcript captured through codex exec with Material UI context is committed as provenance; the visible snapshot is rendered from the reviewed handoff through the Material UI adapter."
+      "visible_render_source": "reviewed_handoff_material_ui_render",
+      "rendering_policy": "The raw model transcript is committed as provenance after capture with Material UI adapter context; the visible UI is a reviewed Material UI render from the JudgmentKit handoff.",
+      "approach_title": "GPT-5.5 via codex exec · reviewed Material UI render",
+      "approach_caption": "Reviewed Material UI render from the JudgmentKit handoff after the GPT-5.5 candidate path; visual convergence is expected."
     }
-  ]
+  ],
+  "generation_policy": "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model. Raw candidate artifacts show deterministic/model variability; reviewed Material UI render artifacts show the accepted JudgmentKit handoff after review. Model transcripts are provenance and raw model output is evidence, not the recommended product UI."
 }</script>
     <script>
       (() => {

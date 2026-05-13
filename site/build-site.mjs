@@ -939,6 +939,32 @@ pre {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
+.example-comparison-list {
+  display: grid;
+  gap: 18px;
+}
+.example-comparison-row {
+  display: grid;
+  gap: 14px;
+  padding: clamp(14px, 2vw, 18px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfaf6;
+}
+.example-comparison-heading {
+  display: grid;
+  gap: 4px;
+  max-width: 760px;
+}
+.example-comparison-heading h3,
+.example-comparison-heading p {
+  margin: 0;
+}
+.example-comparison-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
 .example-gallery-card {
   overflow: hidden;
 }
@@ -1241,6 +1267,7 @@ pre {
     justify-content: flex-start;
   }
   .example-gallery-grid,
+  .example-comparison-pair,
   .example-gallery-modal-panel {
     grid-template-columns: 1fr;
   }
@@ -1564,6 +1591,16 @@ function galleryProvenanceLabel(artifact) {
   return "deterministic renderer, no provider call";
 }
 
+function galleryRenderLabel(artifact) {
+  if (artifact.candidate_role === "reviewed_material_ui_render") {
+    return "reviewed Material UI render";
+  }
+  if (artifact.candidate_role === "raw_model_candidate") {
+    return "raw model candidate";
+  }
+  return "deterministic simple candidate";
+}
+
 function buildModelUiGalleryItems(manifest) {
   return (manifest?.artifacts ?? []).map((artifact) => ({
     id: artifact.id,
@@ -1571,11 +1608,25 @@ function buildModelUiGalleryItems(manifest) {
     caption: artifact.approach_caption ?? "",
     modelLabel: artifact.model_label ?? artifact.title,
     adapterLabel: designSystemModeLabel(artifact.design_system_mode),
+    renderLabel: galleryRenderLabel(artifact),
+    candidateRole: artifact.candidate_role ?? "",
     provenance: galleryProvenanceLabel(artifact),
     artifactHref: modelUiExampleHref(artifact.artifact_path),
     imageHref: modelUiExampleHref(artifact.screenshot_path),
     captureHref: artifact.capture_file ? modelUiExampleHref(artifact.capture_file) : "",
   }));
+}
+
+function buildModelUiComparisonGroups(manifest, galleryItems) {
+  const itemsById = new Map(galleryItems.map((item) => [item.id, item]));
+
+  return (manifest?.comparison_groups ?? []).map((group) => ({
+    id: group.id,
+    title: group.title,
+    summary: group.summary,
+    candidate: itemsById.get(group.candidate_artifact_id),
+    reviewed: itemsById.get(group.reviewed_artifact_id),
+  })).filter((group) => group.candidate && group.reviewed);
 }
 
 function renderExampleStaticPreview(example) {
@@ -1595,11 +1646,12 @@ function renderExampleGalleryCard(item, index) {
         <img src="${escapeHtml(item.imageHref)}" alt="${escapeHtml(item.title)} screenshot" loading="${index < 2 ? "eager" : "lazy"}">
       </a>
       <div class="example-gallery-card-copy">
+        <p class="eyebrow">${escapeHtml(item.renderLabel)}</p>
         <h3>${escapeHtml(item.title)}</h3>
         <p class="note">${escapeHtml(item.caption)}</p>
         <dl class="example-gallery-meta">
           <div><dt>Approach</dt><dd>${escapeHtml(item.modelLabel)}</dd></div>
-          <div><dt>Adapter</dt><dd>${escapeHtml(item.adapterLabel)}</dd></div>
+          <div><dt>Render</dt><dd>${escapeHtml(item.renderLabel)}</dd></div>
         </dl>
         <div class="example-gallery-card-actions">
           <a class="pill-link" href="${escapeHtml(item.artifactHref)}" target="_blank" rel="noreferrer">Open artifact</a>
@@ -1609,19 +1661,35 @@ function renderExampleGalleryCard(item, index) {
     </article>`;
 }
 
+function renderExampleComparisonGroup(group) {
+  return `
+        <article class="example-comparison-row">
+          <div class="example-comparison-heading">
+            <p class="eyebrow">Before / after pair</p>
+            <h3>${escapeHtml(group.title)}</h3>
+            <p>${escapeHtml(group.summary)}</p>
+          </div>
+          <div class="example-comparison-pair">
+            ${renderExampleGalleryCard(group.candidate, group.candidate.index)}
+            ${renderExampleGalleryCard(group.reviewed, group.reviewed.index)}
+          </div>
+        </article>`;
+}
+
 function renderModelUiGalleryPreview(example) {
   const galleryItems = example.galleryItems ?? [];
-  const cards = galleryItems.map(renderExampleGalleryCard).join("");
+  const groups = example.comparisonGroups ?? [];
+  const rows = groups.map(renderExampleComparisonGroup).join("");
 
   return `
     <section class="example-gallery" aria-label="Model UI screenshot gallery">
       <div class="example-gallery-intro">
         <p class="eyebrow">Committed screenshots</p>
-        <h3>Six generation paths from the same reviewed handoff</h3>
-        <p>Each thumbnail is a committed desktop PNG from a static artifact. Select a thumbnail for a full-page gallery view, or open the artifact directly outside the JudgmentKit page UI.</p>
+        <h3>Raw candidates and reviewed Material UI renders</h3>
+        <p>Each row pairs a raw candidate with the reviewed Material UI render. Raw model output is evidence, not the recommended product UI.</p>
       </div>
-      <div class="example-gallery-grid">
-        ${cards}
+      <div class="example-comparison-list">
+        ${rows}
       </div>
     </section>`;
 }
@@ -1635,7 +1703,14 @@ function renderExamplePreview(example) {
 }
 
 function buildExamples(modelUiManifest) {
-  const modelUiGalleryItems = buildModelUiGalleryItems(modelUiManifest);
+  const modelUiGalleryItems = buildModelUiGalleryItems(modelUiManifest).map((item, index) => ({
+    ...item,
+    index,
+  }));
+  const modelUiComparisonGroups = buildModelUiComparisonGroups(
+    modelUiManifest,
+    modelUiGalleryItems,
+  );
 
   return EXAMPLES.map((example) => {
     const previewExample =
@@ -1644,6 +1719,7 @@ function buildExamples(modelUiManifest) {
             ...example,
             previewKind: "gallery",
             galleryItems: modelUiGalleryItems,
+            comparisonGroups: modelUiComparisonGroups,
           }
         : {
             ...example,
@@ -1748,7 +1824,7 @@ function examplesBrowserScript() {
           modalKicker.textContent = item.modelLabel;
           modalTitle.textContent = item.title;
           modalCaption.textContent = item.caption;
-          modalAdapter.textContent = item.adapterLabel;
+          modalAdapter.textContent = item.renderLabel;
           modalProvenance.textContent = item.provenance;
           modalArtifactLink.href = item.artifactHref;
           modalImageLink.href = item.imageHref;
@@ -1860,7 +1936,7 @@ function renderExampleGalleryModal() {
             <h2 id="example-gallery-modal-title" data-gallery-modal-title></h2>
             <p data-gallery-modal-caption></p>
             <dl class="example-gallery-modal-meta">
-              <div><dt>Adapter</dt><dd data-gallery-modal-adapter></dd></div>
+              <div><dt>Render</dt><dd data-gallery-modal-adapter></dd></div>
               <div><dt>Provenance</dt><dd data-gallery-modal-provenance></dd></div>
             </dl>
             <div class="example-gallery-modal-actions">

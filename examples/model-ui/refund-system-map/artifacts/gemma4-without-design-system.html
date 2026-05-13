@@ -28,6 +28,46 @@
       min-height: 100vh;
       padding: 24px;
     }
+    .raw-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--canvas);
+    }
+    .raw-candidate > section,
+    .raw-candidate .card,
+    .raw-candidate .Evidence,
+    .raw-candidate .Policy,
+    .raw-candidate .DecisionPath,
+    .raw-candidate .Handoff {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .raw-candidate ul,
+    .raw-candidate .list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .raw-candidate li {
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+    }
+    .raw-candidate .workspace {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .raw-candidate .evidence-list {
+      display: block;
+    }
+    .raw-candidate .evidence-list li {
+      display: block;
+    }
     .app-header,
     .case-header,
     .handoff {
@@ -229,113 +269,15 @@
   </style>
 
   </head>
-  <body data-artifact-id="gemma4-without-design-system" data-design-system-mode="without_design_system">
-    
-    <main class="app-shell" data-primary-surface>
-      <header class="app-header">
-        <div>
-          <p class="eyebrow">Gemma 4 (local LLM)</p>
-          <h1>Refund Review Workspace</h1>
-        </div>
-        <span class="status">Transcript-backed</span>
-      </header>
-      <section class="workspace">
-        <aside class="queue" aria-label="Refund queue">
-          <div class="section-heading">
-            <p class="eyebrow">Queue</p>
-            <h2>Refund escalations</h2>
-          </div>
-          
-      <button class="queue-item is-selected" type="button">
-        <span>R-1842</span>
-        <strong>Nora Diaz</strong>
-        <small>Needs receipt · $184.20</small>
-      </button>
-      <button class="queue-item" type="button">
-        <span>R-1843</span>
-        <strong>Jun Park</strong>
-        <small>Policy question · $89.00</small>
-      </button>
-      <button class="queue-item" type="button">
-        <span>R-1844</span>
-        <strong>Amara Blake</strong>
-        <small>Manager review · $312.75</small>
-      </button>
-        </aside>
-        <section class="detail">
-          <div class="case-header">
-            <div>
-              <p class="eyebrow">Selected request</p>
-              <h2>R-1842 · Nora Diaz</h2>
-              <p>Subscription renewal disputed after agent escalation.</p>
-            </div>
-            <strong>$184.20</strong>
-          </div>
-          <div class="info-grid">
-            <div>
-              <span>Plan</span>
-              <strong>Pro annual</strong>
-            </div>
-            <div>
-              <span>Review state</span>
-              <strong>Evidence incomplete</strong>
-            </div>
-          </div>
-          <section>
-            <div class="section-heading">
-              <p class="eyebrow">Evidence</p>
-              <h3>Checklist</h3>
-            </div>
-            <ul class="evidence-list">
-        <li>
-          <span class="check">OK</span>
-          <span>Renewal date confirmed in purchase history.</span>
-        </li>
-        <li>
-          <span class="check">OK</span>
-          <span>Support note captures the customer&#39;s refund reason.</span>
-        </li>
-        <li>
-          <span class="check">!</span>
-          <span>Receipt photo is missing before manager approval.</span>
-        </li></ul>
-          </section>
-          <section class="policy">
-            <div class="section-heading">
-              <p class="eyebrow">Policy context</p>
-              <h3>Exception window</h3>
-            </div>
-            <p>Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p>
-          </section>
-          <section>
-            <div class="section-heading">
-              <p class="eyebrow">Decision path</p>
-              <h3>Choose next action</h3>
-            </div>
-            <div class="actions">
-              <button type="button">Approve refund</button>
-              <button type="button">Send to policy review</button>
-              <button type="button" class="primary">Return for evidence</button>
-            </div>
-          </section>
-          <section class="handoff">
-            <div>
-              <p class="eyebrow">Handoff</p>
-              <h3>Support agent</h3>
-              <p>Receipt photo is missing. Ask the customer to attach proof before approval.</p>
-            </div>
-            <button type="button" class="primary">Send handoff</button>
-          </section>
-        </section>
-      </section>
-    </main>
+  <body data-artifact-id="gemma4-without-design-system" data-design-system-mode="without_design_system" data-candidate-role="raw_model_candidate">
+    <main class="app-shell raw-candidate" data-primary-surface><h1 class="app-header">Refund Review Workspace</h1><section class="workspace"><div class="queue"><h2>Refund queue</h2><div class="queue-item is-selected" id="R-1842"><h3>Case R-1842</h3><p>Customer: Nora Diaz | Amount: $184.20 | Status: Evidence incomplete</p></div><div class="queue-item"><h3>Case R-1843</h3><p>Customer: Jun Park | Amount: $89.00 | Status: Policy question</p></div><div class="queue-item"><h3>Case R-1844</h3><p>Customer: Amara Blake | Amount: $312.75 | Status: Manager review</p></div></div><section class="detail" id="R-1842"><h2 class="case-header">Selected request</h2><p><strong>Request:</strong> Subscription renewal disputed after agent escalation.</p><p><strong>Policy:</strong> Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p></section><section class="evidence-list"><h2>Evidence</h2><ul><li>Renewal date confirmed in purchase history.</li><li>Support note captures the customer's refund reason.</li><li>Receipt photo is missing before manager approval.</li></ul></section><section class="decision-path"><h2>Decision path</h2><div class="actions"><button class="primary">Approve refund</button><button>Send to policy review</button><button>Return for evidence</button></div></section><section class="handoff"><h2 class="handoff">Handoff</h2><p><strong>Next owner:</strong> Support agent</p><p><strong>Reason:</strong> Receipt photo is missing. Ask the customer to attach proof before approval.</p><p><strong>Next action:</strong> Return the request to the support agent with the missing evidence request</p></section></main>
     <aside class="provenance" aria-label="Artifact provenance">
       <strong>Provenance:</strong>
       <span>captured</span>
       <span> · captured_model_output</span>
       <span> · without_design_system</span>
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies this file and does not call a model.</p>
-      <p>The raw model transcript is committed as provenance; the visible UI is rendered from the reviewed JudgmentKit handoff with simple UI primitives.</p>
+      <p>The raw model transcript is committed as provenance and rendered as a raw candidate surface to show model variability; it is evidence, not the recommended product UI.</p>
       <p>Manifest entry: <code>artifacts/gemma4-without-design-system.html</code></p>
     </aside>
     <script type="application/json" id="model-ui-provenance">{
@@ -343,8 +285,9 @@
   "artifact_id": "gemma4-without-design-system",
   "model_label": "Gemma 4 (local LLM)",
   "generation_source": "captured_model_output",
-  "visible_render_source": "reviewed_handoff_simple_renderer",
-  "rendering_policy": "The raw model transcript is committed as provenance; the visible UI is rendered from the reviewed JudgmentKit handoff with simple UI primitives.",
+  "visible_render_source": "raw_model_candidate_html",
+  "candidate_role": "raw_model_candidate",
+  "rendering_policy": "The raw model transcript is committed as provenance and rendered as a raw candidate surface to show model variability; it is evidence, not the recommended product UI.",
   "design_system_mode": "without_design_system",
   "design_system_name": null,
   "design_system_package": null,
@@ -372,8 +315,8 @@
   },
   "artifact_path": "artifacts/gemma4-without-design-system.html",
   "screenshot_path": "screenshots/gemma4-without-design-system.png",
-  "approach_title": "Gemma 4 via LM Studio lms · without design system",
-  "approach_caption": "A local Gemma 4 transcript captured through LM Studio lms is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives."
+  "approach_title": "Gemma 4 via LM Studio lms · raw candidate",
+  "approach_caption": "Raw candidate HTML captured from Gemma 4 via LM Studio lms. This shows model variability and is evidence, not the recommended product UI."
 }</script>
   </body>
 </html>

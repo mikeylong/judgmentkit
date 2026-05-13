@@ -15,12 +15,12 @@ const indexPath = path.join(outputDir, "index.html");
 const pngSignature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 const EXPECTED_MATRIX = [
-  ["deterministic-without-design-system", "Deterministic renderer", "without_design_system"],
-  ["deterministic-with-design-system", "Deterministic renderer", "with_design_system"],
-  ["gemma4-without-design-system", "Gemma 4 (local LLM)", "without_design_system"],
-  ["gemma4-with-design-system", "Gemma 4 (local LLM)", "with_design_system"],
-  ["gpt55-without-design-system", "GPT-5.5", "without_design_system"],
-  ["gpt55-with-design-system", "GPT-5.5", "with_design_system"],
+  ["deterministic-without-design-system", "Deterministic renderer", "without_design_system", "deterministic_simple_candidate", "deterministic_simple_candidate"],
+  ["deterministic-with-design-system", "Deterministic renderer", "with_design_system", "reviewed_material_ui_render", "reviewed_handoff_material_ui_render"],
+  ["gemma4-without-design-system", "Gemma 4 (local LLM)", "without_design_system", "raw_model_candidate", "raw_model_candidate_html"],
+  ["gemma4-with-design-system", "Gemma 4 (local LLM)", "with_design_system", "reviewed_material_ui_render", "reviewed_handoff_material_ui_render"],
+  ["gpt55-without-design-system", "GPT-5.5", "without_design_system", "raw_model_candidate", "raw_model_candidate_html"],
+  ["gpt55-with-design-system", "GPT-5.5", "with_design_system", "reviewed_material_ui_render", "reviewed_handoff_material_ui_render"],
 ];
 
 const IMPLEMENTATION_TERMS = [
@@ -49,6 +49,10 @@ function sectionBetween(text, startMarker, endMarker) {
 
 function visibleText(html) {
   return html.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ");
+}
+
+function compactText(value) {
+  return String(value).replace(/\s+/g, " ").trim();
 }
 
 function readProvenance(html) {
@@ -113,38 +117,52 @@ assert.equal(
   true,
 );
 assert.ok(manifest.generation_policy.includes("Model transcripts are provenance"));
-assert.ok(manifest.generation_policy.includes("visible artifacts are rendered"));
+assert.ok(manifest.generation_policy.includes("Raw candidate artifacts show"));
+assert.ok(manifest.generation_policy.includes("reviewed Material UI render"));
 assert.equal(manifest.design_system_name, "Material UI");
 assert.equal(manifest.design_system_package, "@mui/material");
 assert.equal(manifest.design_system_render_mode, "static-ssr");
+assert.equal(manifest.comparison_groups.length, 3);
+assert.deepEqual(
+  manifest.comparison_groups.map((group) => [
+    group.candidate_artifact_id,
+    group.reviewed_artifact_id,
+  ]),
+  [
+    ["deterministic-without-design-system", "deterministic-with-design-system"],
+    ["gemma4-without-design-system", "gemma4-with-design-system"],
+    ["gpt55-without-design-system", "gpt55-with-design-system"],
+  ],
+);
 assert.ok(indexHtml.includes("Model UI generation matrix"));
 assert.ok(indexHtml.includes("Gemma 4 (local LLM)"));
 assert.ok(indexHtml.includes("GPT-5.5"));
-assert.ok(indexHtml.includes("committed capture transcripts"));
 assert.ok(indexHtml.includes("Material UI adapter"));
-assert.ok(indexHtml.includes("visible artifacts are rendered from the reviewed handoff"));
+assert.ok(indexHtml.includes("Before / after gallery"));
+assert.ok(indexHtml.includes("raw candidate"));
+assert.ok(indexHtml.includes("reviewed Material UI render"));
+assert.ok(indexHtml.includes("raw model output is evidence"));
 assert.equal(indexHtml.includes("capture-required"), false);
-assert.ok(indexHtml.includes("Thumbnail gallery"));
-assert.ok(indexHtml.includes('class="gallery"'));
+assert.ok(indexHtml.includes('class="comparison-row"'));
+assert.ok(indexHtml.includes('class="comparison-pair"'));
 assert.ok(indexHtml.includes('data-carousel'));
 assert.ok(indexHtml.includes('data-carousel-open="0"'));
 assert.ok(indexHtml.includes("Open live artifact"));
 assert.ok(indexHtml.includes("Open image"));
 assert.ok(indexHtml.includes("Gemma 4 via LM Studio lms"));
 assert.ok(indexHtml.includes("GPT-5.5 via codex exec"));
-assert.ok(indexHtml.includes("Deterministic renderer · without design system"));
-assert.ok(indexHtml.includes("with Material UI adapter"));
+assert.ok(indexHtml.includes("Deterministic renderer · simple candidate"));
 assert.equal(indexHtml.includes("with design-system adapter"), false);
 
-for (const [id, modelLabel, designSystemMode] of EXPECTED_MATRIX) {
+for (const [id, modelLabel, designSystemMode, expectedCandidateRole, expectedVisibleRenderSource] of EXPECTED_MATRIX) {
   const entry = manifest.artifacts.find((artifact) => artifact.id === id);
   const withMaterialUi = designSystemMode === "with_design_system";
-  const expectedVisibleRenderSource = withMaterialUi
-    ? "reviewed_handoff_material_ui_adapter"
-    : "reviewed_handoff_simple_renderer";
+  const rawModelCandidate = expectedCandidateRole === "raw_model_candidate";
+  const normalizedSurface = !rawModelCandidate;
   assert.ok(entry, `missing manifest artifact ${id}`);
   assert.equal(entry.model_label, modelLabel);
   assert.equal(entry.design_system_mode, designSystemMode);
+  assert.equal(entry.candidate_role, expectedCandidateRole);
   assert.equal(
     entry.source_brief_file,
     "examples/demo/refund-ops-implementation-heavy.brief.txt",
@@ -158,10 +176,17 @@ for (const [id, modelLabel, designSystemMode] of EXPECTED_MATRIX) {
   assert.ok(entry.capture_provenance.status);
   assert.equal(entry.screenshot_path, `screenshots/${id}.png`);
   assert.equal(entry.visible_render_source, expectedVisibleRenderSource);
-  assert.ok(entry.rendering_policy.includes("visible UI is rendered"));
+  assert.ok(
+    entry.rendering_policy.includes("visible UI") ||
+      entry.rendering_policy.includes("raw candidate surface"),
+  );
   assert.ok(entry.approach_title);
   assert.ok(entry.approach_caption);
-  assert.ok(entry.approach_caption.includes("visible snapshot") || entry.approach_caption.includes("visible UI"));
+  const captionLower = entry.approach_caption.toLowerCase();
+  assert.ok(
+    captionLower.includes("raw candidate") ||
+      captionLower.includes("reviewed material ui render"),
+  );
   assert.ok(indexHtml.includes(entry.screenshot_path));
   assert.ok(indexHtml.includes(entry.approach_title));
 
@@ -181,8 +206,8 @@ for (const [id, modelLabel, designSystemMode] of EXPECTED_MATRIX) {
     );
     assert.equal(entry.design_system_name, "Material UI");
     assert.equal(entry.design_system_package, "@mui/material");
-    assert.ok(entry.approach_title.includes("with Material UI adapter"));
-    assert.ok(entry.rendering_policy.includes("Material UI adapter"));
+    assert.ok(entry.approach_title.includes("reviewed Material UI render"));
+    assert.ok(entry.rendering_policy.includes("Material UI"));
   } else {
     assert.equal(entry.design_system_adapter_file, null);
     assert.equal(entry.design_system_name, null);
@@ -240,6 +265,7 @@ for (const [id, modelLabel, designSystemMode] of EXPECTED_MATRIX) {
   assert.equal(provenance.design_system_name, entry.design_system_name);
   assert.equal(provenance.design_system_package, entry.design_system_package);
   assert.equal(provenance.visible_render_source, entry.visible_render_source);
+  assert.equal(provenance.candidate_role, entry.candidate_role);
   assert.equal(provenance.rendering_policy, entry.rendering_policy);
   assert.equal(provenance.artifact_path, entry.artifact_path);
   assert.equal(provenance.screenshot_path, entry.screenshot_path);
@@ -249,17 +275,28 @@ for (const [id, modelLabel, designSystemMode] of EXPECTED_MATRIX) {
   assert.ok(artifactHtml.includes('id="model-ui-provenance"'));
   assert.equal(artifactHtml.includes('<p class="capture-warning">'), false);
   assert.equal(artifactHtml.includes("Capture required"), false);
-  assert.ok(artifactHtml.includes('class="app-header"'));
-  assert.ok(artifactHtml.includes('class="workspace"'));
-  assert.ok(artifactHtml.includes('class="queue"'));
-  assert.ok(artifactHtml.includes('class="detail"'));
-  assert.ok(artifactHtml.includes('class="info-grid"'));
-  assert.ok(artifactHtml.includes('class="evidence-list"'));
-  assert.ok(artifactHtml.includes('class="policy"'));
-  assert.ok(artifactHtml.includes('class="actions"'));
-  assert.ok(artifactHtml.includes('class="handoff"'));
   assert.equal(artifactHtml.includes('<li class="check"'), false);
-  assert.equal((artifactHtml.match(/<span class="check">/g) ?? []).length, 3);
+  if (normalizedSurface) {
+    assert.ok(artifactHtml.includes('class="app-header"'));
+    assert.ok(artifactHtml.includes('class="workspace"'));
+    assert.ok(artifactHtml.includes('class="queue"'));
+    assert.ok(artifactHtml.includes('class="detail"'));
+    assert.ok(artifactHtml.includes('class="info-grid"'));
+    assert.ok(artifactHtml.includes('class="evidence-list"'));
+    assert.ok(artifactHtml.includes('class="policy"'));
+    assert.ok(artifactHtml.includes('class="actions"'));
+    assert.ok(artifactHtml.includes('class="handoff"'));
+    assert.equal((artifactHtml.match(/<span class="check">/g) ?? []).length, 3);
+  } else {
+    assert.ok(artifactHtml.includes('class="app-shell raw-candidate"'));
+    assert.ok(entry.rendering_policy.includes("evidence, not the recommended product UI"));
+    const capture = readJson(path.join(outputDir, entry.capture_file));
+    const expectedCandidateText = compactText(visibleText(capture.parsed.html)).slice(0, 120);
+    assert.ok(
+      compactText(primarySurface).includes(expectedCandidateText),
+      `${id} should render the captured raw candidate HTML`,
+    );
+  }
   if (withMaterialUi) {
     assert.ok(artifactHtml.includes('data-emotion="mui'));
     assert.ok(artifactHtml.includes("MuiButton-root"));

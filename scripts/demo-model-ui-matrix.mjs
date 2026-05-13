@@ -177,6 +177,33 @@ const OUTPUTS = [
   },
 ];
 
+const COMPARISON_GROUPS = [
+  {
+    id: "deterministic",
+    title: "Deterministic renderer",
+    summary:
+      "A scripted candidate from the reviewed handoff next to the same handoff rendered through Material UI.",
+    candidate_artifact_id: "deterministic-without-design-system",
+    reviewed_artifact_id: "deterministic-with-design-system",
+  },
+  {
+    id: "gemma4",
+    title: "Gemma 4 via LM Studio lms",
+    summary:
+      "The raw local model candidate shows proposal variability; the reviewed render shows the accepted handoff.",
+    candidate_artifact_id: "gemma4-without-design-system",
+    reviewed_artifact_id: "gemma4-with-design-system",
+  },
+  {
+    id: "gpt55",
+    title: "GPT-5.5 via codex exec",
+    summary:
+      "The raw GPT-5.5 candidate is committed as evidence; the Material UI render is the normalized handoff path.",
+    candidate_artifact_id: "gpt55-without-design-system",
+    reviewed_artifact_id: "gpt55-with-design-system",
+  },
+];
+
 const DESIGN_SYSTEM_ADAPTER = {
   id: "material-ui-refund-ops-adapter",
   name: "Material UI Refund Ops Review Adapter",
@@ -254,60 +281,82 @@ function adapterLabel(output) {
     : "Without design system";
 }
 
+function candidateRole(output) {
+  if (output.design_system_mode === "with_design_system") {
+    return "reviewed_material_ui_render";
+  }
+  if (output.generation_source === "captured_model_output") {
+    return "raw_model_candidate";
+  }
+  return "deterministic_simple_candidate";
+}
+
+function candidateRoleLabel(output) {
+  const role = output.candidate_role ?? candidateRole(output);
+  if (role === "reviewed_material_ui_render") return "Reviewed Material UI render";
+  if (role === "raw_model_candidate") return "Raw model candidate";
+  return "Deterministic simple candidate";
+}
+
 function approachTitle(output) {
-  const suffix = output.design_system_mode === "with_design_system"
-    ? "with Material UI adapter"
-    : "without design system";
+  const role = candidateRole(output);
 
   if (output.generation_source === "deterministic") {
-    return `Deterministic renderer · ${suffix}`;
+    return role === "reviewed_material_ui_render"
+      ? "Deterministic renderer · reviewed Material UI render"
+      : "Deterministic renderer · simple candidate";
   }
 
   if (output.model_label === "Gemma 4 (local LLM)") {
-    return `Gemma 4 via LM Studio lms · ${suffix}`;
+    return role === "reviewed_material_ui_render"
+      ? "Gemma 4 via LM Studio lms · reviewed Material UI render"
+      : "Gemma 4 via LM Studio lms · raw candidate";
   }
 
-  return `GPT-5.5 via codex exec · ${suffix}`;
+  return role === "reviewed_material_ui_render"
+    ? "GPT-5.5 via codex exec · reviewed Material UI render"
+    : "GPT-5.5 via codex exec · raw candidate";
 }
 
 function approachCaption(output) {
-  const withDesignSystem = output.design_system_mode === "with_design_system";
+  const role = candidateRole(output);
 
   if (output.generation_source === "deterministic") {
-    return withDesignSystem
-      ? "The visible snapshot is rendered from the reviewed JudgmentKit handoff through a build-time Material UI adapter."
-      : "The visible snapshot is rendered from the reviewed JudgmentKit handoff with simple HTML primitives and no provider or model call.";
+    return role === "reviewed_material_ui_render"
+      ? "Reviewed Material UI render from the JudgmentKit handoff. Its convergence with other reviewed renders is expected."
+      : "Deterministic raw candidate from the reviewed handoff using simple HTML primitives and no provider or model call.";
   }
 
   if (output.model_label === "Gemma 4 (local LLM)") {
-    return withDesignSystem
-      ? "A local Gemma 4 transcript captured through LM Studio lms with Material UI context is committed as provenance; the visible snapshot is rendered from the reviewed handoff through the Material UI adapter."
-      : "A local Gemma 4 transcript captured through LM Studio lms is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives.";
+    return role === "reviewed_material_ui_render"
+      ? "Reviewed Material UI render from the JudgmentKit handoff after the Gemma 4 candidate path; visual convergence is expected."
+      : "Raw candidate HTML captured from Gemma 4 via LM Studio lms. This shows model variability and is evidence, not the recommended product UI.";
   }
 
-  return withDesignSystem
-    ? "A GPT-5.5 transcript captured through codex exec with Material UI context is committed as provenance; the visible snapshot is rendered from the reviewed handoff through the Material UI adapter."
-    : "A GPT-5.5 transcript captured through codex exec is committed as provenance; the visible snapshot is rendered from the reviewed handoff with simple UI primitives.";
+  return role === "reviewed_material_ui_render"
+    ? "Reviewed Material UI render from the JudgmentKit handoff after the GPT-5.5 candidate path; visual convergence is expected."
+    : "Raw candidate HTML captured from GPT-5.5 via codex exec. This shows model variability and is evidence, not the recommended product UI.";
 }
 
 function visibleRenderSource(output) {
-  return output.design_system_mode === "with_design_system"
-    ? "reviewed_handoff_material_ui_adapter"
-    : "reviewed_handoff_simple_renderer";
+  const role = candidateRole(output);
+  if (role === "reviewed_material_ui_render") return "reviewed_handoff_material_ui_render";
+  if (role === "raw_model_candidate") return "raw_model_candidate_html";
+  return "deterministic_simple_candidate";
 }
 
 function renderingPolicy(output) {
-  const withDesignSystem = output.design_system_mode === "with_design_system";
+  const role = candidateRole(output);
 
   if (output.generation_source === "captured_model_output") {
-    return withDesignSystem
-      ? "The raw model transcript is committed as provenance after capture with Material UI adapter context; the visible UI is rendered from the reviewed JudgmentKit handoff through the Material UI adapter."
-      : "The raw model transcript is committed as provenance; the visible UI is rendered from the reviewed JudgmentKit handoff with simple UI primitives.";
+    return role === "reviewed_material_ui_render"
+      ? "The raw model transcript is committed as provenance after capture with Material UI adapter context; the visible UI is a reviewed Material UI render from the JudgmentKit handoff."
+      : "The raw model transcript is committed as provenance and rendered as a raw candidate surface to show model variability; it is evidence, not the recommended product UI.";
   }
 
-  return withDesignSystem
+  return role === "reviewed_material_ui_render"
     ? "The visible UI is rendered directly from the reviewed JudgmentKit handoff through the Material UI adapter; no provider or model call is used."
-    : "The visible UI is rendered directly from the reviewed JudgmentKit handoff with simple UI primitives; no provider or model call is used.";
+    : "The visible UI is a deterministic simple candidate rendered from the reviewed JudgmentKit handoff with no provider or model call.";
 }
 
 function designSystemName(output) {
@@ -327,6 +376,20 @@ function stripUnsafeModelHtml(html) {
     .replace(/<script[\s\S]*?<\/script>/gi, "")
     .replace(/\son[a-z]+\s*=\s*"[^"]*"/gi, "")
     .replace(/\son[a-z]+\s*=\s*'[^']*'/gi, "");
+}
+
+function addClassToPrimaryRoot(html, className) {
+  const value = String(html);
+  if (/^<main\b/i.test(value)) {
+    if (/\bclass="/i.test(value.slice(0, value.indexOf(">") + 1))) {
+      return value.replace(/\bclass="([^"]*)"/i, (_match, classes) =>
+        `class="${escapeHtml(`${classes} ${className}`.trim())}"`,
+      );
+    }
+    return value.replace(/^<main\b/i, `<main class="${escapeHtml(className)}"`);
+  }
+
+  return `<main class="app-shell ${escapeHtml(className)}" data-primary-surface>${value}</main>`;
 }
 
 async function readCapture(output) {
@@ -657,6 +720,14 @@ function renderSimplePrimarySurface(output) {
     </main>`;
 }
 
+function renderRawModelCandidateSurface(output) {
+  if (!output.capture?.parsed?.html) {
+    return renderSimplePrimarySurface(output);
+  }
+
+  return addClassToPrimaryRoot(output.capture.parsed.html, "raw-candidate");
+}
+
 function renderLabelFor(output) {
   if (output.generation_source === "captured_model_output") return "Transcript-backed";
   if (output.design_system_mode === "with_design_system") return "Material UI adapter";
@@ -864,6 +935,12 @@ function renderArtifactSurface(output) {
   if (output.design_system_mode === "with_design_system") {
     return renderMaterialUiPrimarySurface(output);
   }
+  if (output.generation_source === "captured_model_output") {
+    return {
+      html: renderRawModelCandidateSurface(output),
+      styleTags: "",
+    };
+  }
 
   return {
     html: renderSimplePrimarySurface(output),
@@ -895,6 +972,46 @@ function artifactCss() {
     .app-shell {
       min-height: 100vh;
       padding: 24px;
+    }
+    .raw-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--canvas);
+    }
+    .raw-candidate > section,
+    .raw-candidate .card,
+    .raw-candidate .Evidence,
+    .raw-candidate .Policy,
+    .raw-candidate .DecisionPath,
+    .raw-candidate .Handoff {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .raw-candidate ul,
+    .raw-candidate .list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .raw-candidate li {
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+    }
+    .raw-candidate .workspace {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .raw-candidate .evidence-list {
+      display: block;
+    }
+    .raw-candidate .evidence-list li {
+      display: block;
     }
     .app-header,
     .case-header,
@@ -1107,6 +1224,7 @@ function renderArtifact(output, manifestEntry) {
     model_label: output.model_label,
     generation_source: output.generation_source,
     visible_render_source: manifestEntry.visible_render_source,
+    candidate_role: manifestEntry.candidate_role,
     rendering_policy: renderingPolicy,
     design_system_mode: output.design_system_mode,
     design_system_name: manifestEntry.design_system_name,
@@ -1133,7 +1251,7 @@ function renderArtifact(output, manifestEntry) {
     <style>${artifactCss()}</style>
 ${styleTags}
   </head>
-  <body data-artifact-id="${escapeHtml(output.id)}" data-design-system-mode="${escapeHtml(output.design_system_mode)}">
+  <body data-artifact-id="${escapeHtml(output.id)}" data-design-system-mode="${escapeHtml(output.design_system_mode)}" data-candidate-role="${escapeHtml(manifestEntry.candidate_role)}">
     ${surface.html}
     <aside class="provenance" aria-label="Artifact provenance">
       <strong>Provenance:</strong>
@@ -1150,18 +1268,18 @@ ${styleTags}
 `;
 }
 
-function renderGalleryCard(artifact, index) {
+function renderGalleryCard(artifact, index, phaseLabel = candidateRoleLabel(artifact)) {
   return `
         <article class="gallery-card">
           <a class="thumbnail-link" href="${escapeHtml(artifact.artifact_path)}" data-carousel-open="${index}" aria-label="Open larger view for ${escapeHtml(artifact.approach_title)}">
             <img src="${escapeHtml(artifact.screenshot_path)}" alt="${escapeHtml(artifact.approach_title)} screenshot" loading="${index < 2 ? "eager" : "lazy"}">
           </a>
           <div class="gallery-card-copy">
-            <p class="eyebrow">${escapeHtml(artifact.model_label)}</p>
+            <p class="eyebrow">${escapeHtml(phaseLabel)}</p>
             <h2>${escapeHtml(artifact.approach_title)}</h2>
             <p>${escapeHtml(artifact.approach_caption)}</p>
             <dl>
-              <div><dt>Adapter</dt><dd>${escapeHtml(adapterLabel(artifact))}</dd></div>
+              <div><dt>Render</dt><dd>${escapeHtml(candidateRoleLabel(artifact))}</dd></div>
               <div><dt>Provenance</dt><dd>${escapeHtml(artifact.capture_provenance.status)}</dd></div>
             </dl>
             <div class="card-actions">
@@ -1170,6 +1288,26 @@ function renderGalleryCard(artifact, index) {
             </div>
           </div>
         </article>`;
+}
+
+function renderComparisonGroup(group, artifactsById) {
+  const candidate = artifactsById.get(group.candidate_artifact_id);
+  const reviewed = artifactsById.get(group.reviewed_artifact_id);
+  const cards = [
+    renderGalleryCard(candidate, candidate.gallery_index, "Raw candidate"),
+    renderGalleryCard(reviewed, reviewed.gallery_index, "Reviewed Material UI render"),
+  ].join("\n");
+  return `
+      <article class="comparison-row">
+        <div class="comparison-heading">
+          <p class="eyebrow">Before / after pair</p>
+          <h2>${escapeHtml(group.title)}</h2>
+          <p>${escapeHtml(group.summary)}</p>
+        </div>
+        <div class="comparison-pair">
+${cards}
+        </div>
+      </article>`;
 }
 
 function renderDetailsRow(artifact) {
@@ -1181,11 +1319,44 @@ function renderDetailsRow(artifact) {
         <article class="details-row">
           <div>
             <p class="eyebrow">${escapeHtml(artifact.model_label)}</p>
-            <h3>${escapeHtml(adapterLabel(artifact))}</h3>
+            <h3>${escapeHtml(candidateRoleLabel(artifact))}</h3>
           </div>
           <p>${escapeHtml(captureLabel)}</p>
           <a href="${escapeHtml(artifact.artifact_path)}">Artifact</a>
         </article>`;
+}
+
+function buildComparisonGroups(artifacts) {
+  const artifactsById = new Map(artifacts.map((artifact) => [artifact.id, artifact]));
+
+  return COMPARISON_GROUPS.map((group) => {
+    const candidate = artifactsById.get(group.candidate_artifact_id);
+    const reviewed = artifactsById.get(group.reviewed_artifact_id);
+    if (!candidate || !reviewed) {
+      throw new Error(`Missing comparison artifacts for ${group.id}`);
+    }
+
+    return {
+      ...group,
+      candidate_role: "before_after_pair",
+      candidate_artifact: {
+        id: candidate.id,
+        title: candidate.approach_title,
+        caption: candidate.approach_caption,
+        artifact_path: candidate.artifact_path,
+        screenshot_path: candidate.screenshot_path,
+        visible_render_source: candidate.visible_render_source,
+      },
+      reviewed_artifact: {
+        id: reviewed.id,
+        title: reviewed.approach_title,
+        caption: reviewed.approach_caption,
+        artifact_path: reviewed.artifact_path,
+        screenshot_path: reviewed.screenshot_path,
+        visible_render_source: reviewed.visible_render_source,
+      },
+    };
+  });
 }
 
 function renderMatrixIndex(manifest) {
@@ -1194,19 +1365,28 @@ function renderMatrixIndex(manifest) {
   ).length;
   const captureNote = captureRequiredCount
     ? `Entries marked <strong>capture-required</strong> are wired as truthful provenance slots until real Gemma 4 and GPT-5.5 run transcripts are captured and committed.`
-    : `Model entries include committed capture transcripts. Material UI entries were captured with Material UI adapter context; visible artifacts are rendered from the reviewed handoff, and the site build does not call live providers.`;
-  const galleryItems = manifest.artifacts.map((artifact) => ({
+    : `Raw candidates show deterministic/model variability. Reviewed Material UI renders show the accepted JudgmentKit handoff after review; the site build copies committed files and does not call live providers.`;
+  const artifactsWithIndex = manifest.artifacts.map((artifact, index) => ({
+    ...artifact,
+    gallery_index: index,
+  }));
+  const artifactsById = new Map(artifactsWithIndex.map((artifact) => [artifact.id, artifact]));
+  const galleryItems = artifactsWithIndex.map((artifact) => ({
     id: artifact.id,
     title: artifact.approach_title,
     caption: artifact.approach_caption,
     model_label: artifact.model_label,
-    adapter_label: adapterLabel(artifact),
+    adapter_label: candidateRoleLabel(artifact),
+    candidate_role: artifact.candidate_role,
+    candidate_role_label: candidateRoleLabel(artifact),
     provenance: artifact.capture_provenance.status,
     rendering_policy: artifact.rendering_policy,
     image: artifact.screenshot_path,
     artifact: artifact.artifact_path,
   }));
-  const galleryCards = manifest.artifacts.map(renderGalleryCard).join("");
+  const comparisonRows = manifest.comparison_groups
+    .map((group) => renderComparisonGroup(group, artifactsById))
+    .join("");
   const detailsRows = manifest.artifacts.map(renderDetailsRow).join("");
 
   return `<!doctype html>
@@ -1300,6 +1480,31 @@ function renderMatrixIndex(manifest) {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 16px;
+      }
+      .comparison-list {
+        display: grid;
+        gap: 18px;
+      }
+      .comparison-row {
+        display: grid;
+        gap: 14px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfaf6;
+      }
+      .comparison-heading {
+        display: grid;
+        gap: 4px;
+      }
+      .comparison-heading h2,
+      .comparison-heading p {
+        margin: 0;
+      }
+      .comparison-pair {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
       }
       .gallery-card {
         display: grid;
@@ -1498,6 +1703,7 @@ function renderMatrixIndex(manifest) {
           align-items: start;
         }
         .gallery,
+        .comparison-pair,
         .carousel-panel {
           grid-template-columns: 1fr;
         }
@@ -1514,7 +1720,7 @@ function renderMatrixIndex(manifest) {
     <main>
       <p class="eyebrow">System-map example pack</p>
       <h1>Model UI generation matrix</h1>
-      <p>One refund-triage handoff moves through the system-map branches: deterministic generation, committed model transcripts, and the Material UI adapter. The visible artifacts are rendered from the reviewed handoff; the site build copies these static files and does not call a provider.</p>
+      <p>One refund-triage handoff moves through the system-map branches: raw deterministic/model candidates first, then reviewed Material UI renders after JudgmentKit. The raw model output is evidence, not the recommended product UI.</p>
       <div class="summary" aria-label="Matrix summary">
         <div><span>Source brief</span><strong>${escapeHtml(manifest.source_brief_file)}</strong></div>
         <div><span>Reviewed handoff</span><strong>${escapeHtml(manifest.reviewed_handoff_file)}</strong></div>
@@ -1522,13 +1728,13 @@ function renderMatrixIndex(manifest) {
       </div>
       <div class="gallery-intro">
         <div>
-          <h2>Thumbnail gallery</h2>
-          <p>Each screenshot shows the first desktop viewport of a committed, adapter-rendered artifact. Select a thumbnail for a larger carousel view.</p>
+          <h2>Before / after gallery</h2>
+          <p>Each row pairs a raw candidate with the reviewed Material UI render. Select a thumbnail for a larger carousel view.</p>
         </div>
         <a href="${escapeHtml(manifest.artifacts[0].artifact_path)}">Open first live artifact</a>
       </div>
-      <section class="gallery" aria-label="Model UI screenshot gallery">
-${galleryCards}
+      <section class="comparison-list" aria-label="Model UI before and after screenshot gallery">
+${comparisonRows}
       </section>
       <p class="note">${captureNote}</p>
       <details class="details">
@@ -1550,7 +1756,7 @@ ${detailsRows}
               <h2 id="carousel-title" data-carousel-title></h2>
               <p data-carousel-caption></p>
               <dl>
-                <div><dt>Adapter</dt><dd data-carousel-adapter></dd></div>
+                <div><dt>Render</dt><dd data-carousel-adapter></dd></div>
                 <div><dt>Provenance</dt><dd data-carousel-provenance></dd></div>
               </dl>
               <div class="carousel-actions">
@@ -1679,6 +1885,7 @@ async function main() {
         handoff_source: HANDOFF_FILE,
         prompt_sha256: currentCapture?.prompt_sha256 ?? sourceContextHash,
         source_context_sha256: sourceContextHash,
+        candidate_role: candidateRole(output),
         artifact_path: artifactPath(output),
         screenshot_path: screenshotPath(output),
         visible_render_source: visibleRenderSource(output),
@@ -1690,6 +1897,7 @@ async function main() {
   );
 
   const manifestArtifacts = artifacts.map(({ capture, ...artifact }) => artifact);
+  const comparisonGroups = buildComparisonGroups(manifestArtifacts);
 
   const manifest = {
     matrix_id: MATRIX_ID,
@@ -1700,8 +1908,6 @@ async function main() {
     design_system_name: DESIGN_SYSTEM_ADAPTER.design_system_name,
     design_system_package: DESIGN_SYSTEM_ADAPTER.design_system_package,
     design_system_render_mode: DESIGN_SYSTEM_ADAPTER.render_mode,
-    generation_policy:
-      "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model. Model transcripts are provenance; Material UI entries are captured with Material UI adapter context, and visible artifacts are rendered from the reviewed handoff through the selected renderer.",
     system_map_branches: [
       "JudgmentKit reviewed handoff",
       "LLM / agent UI pass",
@@ -1709,7 +1915,10 @@ async function main() {
       "without design system",
     ],
     model_labels: ["Deterministic renderer", "Gemma 4 (local LLM)", "GPT-5.5"],
+    comparison_groups: comparisonGroups,
     artifacts: manifestArtifacts,
+    generation_policy:
+      "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model. Raw candidate artifacts show deterministic/model variability; reviewed Material UI render artifacts show the accepted JudgmentKit handoff after review. Model transcripts are provenance and raw model output is evidence, not the recommended product UI.",
   };
 
   await fs.writeFile(

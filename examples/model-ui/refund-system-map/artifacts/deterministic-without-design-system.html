@@ -28,6 +28,46 @@
       min-height: 100vh;
       padding: 24px;
     }
+    .raw-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--canvas);
+    }
+    .raw-candidate > section,
+    .raw-candidate .card,
+    .raw-candidate .Evidence,
+    .raw-candidate .Policy,
+    .raw-candidate .DecisionPath,
+    .raw-candidate .Handoff {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .raw-candidate ul,
+    .raw-candidate .list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .raw-candidate li {
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+    }
+    .raw-candidate .workspace {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .raw-candidate .evidence-list {
+      display: block;
+    }
+    .raw-candidate .evidence-list li {
+      display: block;
+    }
     .app-header,
     .case-header,
     .handoff {
@@ -229,7 +269,7 @@
   </style>
 
   </head>
-  <body data-artifact-id="deterministic-without-design-system" data-design-system-mode="without_design_system">
+  <body data-artifact-id="deterministic-without-design-system" data-design-system-mode="without_design_system" data-candidate-role="deterministic_simple_candidate">
     
     <main class="app-shell" data-primary-surface>
       <header class="app-header">
@@ -335,7 +375,7 @@
       <span> · deterministic</span>
       <span> · without_design_system</span>
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies this file and does not call a model.</p>
-      <p>The visible UI is rendered directly from the reviewed JudgmentKit handoff with simple UI primitives; no provider or model call is used.</p>
+      <p>The visible UI is a deterministic simple candidate rendered from the reviewed JudgmentKit handoff with no provider or model call.</p>
       <p>Manifest entry: <code>artifacts/deterministic-without-design-system.html</code></p>
     </aside>
     <script type="application/json" id="model-ui-provenance">{
@@ -343,8 +383,9 @@
   "artifact_id": "deterministic-without-design-system",
   "model_label": "Deterministic renderer",
   "generation_source": "deterministic",
-  "visible_render_source": "reviewed_handoff_simple_renderer",
-  "rendering_policy": "The visible UI is rendered directly from the reviewed JudgmentKit handoff with simple UI primitives; no provider or model call is used.",
+  "visible_render_source": "deterministic_simple_candidate",
+  "candidate_role": "deterministic_simple_candidate",
+  "rendering_policy": "The visible UI is a deterministic simple candidate rendered from the reviewed JudgmentKit handoff with no provider or model call.",
   "design_system_mode": "without_design_system",
   "design_system_name": null,
   "design_system_package": null,
@@ -364,8 +405,8 @@
   },
   "artifact_path": "artifacts/deterministic-without-design-system.html",
   "screenshot_path": "screenshots/deterministic-without-design-system.png",
-  "approach_title": "Deterministic renderer · without design system",
-  "approach_caption": "The visible snapshot is rendered from the reviewed JudgmentKit handoff with simple HTML primitives and no provider or model call."
+  "approach_title": "Deterministic renderer · simple candidate",
+  "approach_caption": "Deterministic raw candidate from the reviewed handoff using simple HTML primitives and no provider or model call."
 }</script>
   </body>
 </html>
