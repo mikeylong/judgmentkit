@@ -1,0 +1,528 @@
+{
+  "eval_id": "judgmentkit-ui-generation-paired-artifact-v1",
+  "evaluation_type": "deterministic_static_artifact_scoring",
+  "generation_policy": "Scores committed standalone artifacts only. Does not call providers or generate apps.",
+  "visual_evidence": {
+    "capture_engine": "chrome_devtools_protocol",
+    "capture_policy": "Initial viewport screenshots captured from committed static artifacts. Visual evidence is not used for scoring.",
+    "viewports": [
+      {
+        "id": "desktop",
+        "label": "Desktop",
+        "width": 1365,
+        "height": 900,
+        "device_scale_factor": 1,
+        "mobile": false
+      },
+      {
+        "id": "mobile",
+        "label": "Mobile",
+        "width": 390,
+        "height": 844,
+        "device_scale_factor": 1,
+        "mobile": true
+      }
+    ]
+  },
+  "benchmark_policy": "Qualitative paired-artifact evidence only; not a statistically powered benchmark.",
+  "claim_level": "repeated_pair_signal",
+  "run": {
+    "date": "2026-05-12",
+    "mcp_release": "0.1.0",
+    "mcp_release_segment": "mcp-0.1.0",
+    "run_id": "run-004",
+    "run_path": "2026-05-12/mcp-0.1.0/run-004",
+    "html_report": "2026-05-12/mcp-0.1.0/run-004/ui-generation-report.html",
+    "json_report": "2026-05-12/mcp-0.1.0/run-004/ui-generation-report.json"
+  },
+  "summary": {
+    "cases": 2,
+    "passed": 2,
+    "failed": 0,
+    "guided_wins": 2,
+    "baseline_wins": 0,
+    "ties": 0
+  },
+  "metric_scale": {
+    "metric_score": "0-5",
+    "total_score": "0-100 weighted"
+  },
+  "results": [
+    {
+      "id": "refund-triage-standalone-v1",
+      "title": "Refund triage handoff",
+      "task_prompt": "Review the selected refund request and prepare the next handoff.",
+      "claim_level": "single_pair_signal",
+      "expected_outcomes": [
+        "The reviewer can identify the selected case.",
+        "The reviewer can choose approve, policy review, or return for evidence.",
+        "The reviewer can complete a handoff with a reason and next owner."
+      ],
+      "winner": "judgmentkit_handoff",
+      "expected_winner": "judgmentkit_handoff",
+      "score_delta": 96,
+      "minimum_score_delta": 20,
+      "passed": true,
+      "variants": [
+        {
+          "id": "baseline",
+          "label": "Version A",
+          "treatment": "raw_brief_baseline",
+          "artifact": "examples/comparison/version-a.html",
+          "public_artifact": "/examples/comparison/refund/version-a.html",
+          "metadata_treatment": "raw_brief_baseline",
+          "metadata_comparison_id": "refund-triage-standalone-v1",
+          "score": 4,
+          "metric_results": {
+            "activity_fit": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "Daily triage",
+                "Refund escalation queue",
+                "Customer refund escalation",
+                "Evidence checklist",
+                "Policy review context"
+              ]
+            },
+            "decision_support": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "Choose a path",
+                "Approve refund",
+                "Send to policy review",
+                "Return for evidence"
+              ]
+            },
+            "disclosure_discipline": {
+              "score": 0,
+              "implementation_leakage": [
+                "database table",
+                "JSON schema",
+                "prompt template",
+                "tool call",
+                "resource id",
+                "API endpoint",
+                "CRUD",
+                "field"
+              ],
+              "review_packet_leakage": [],
+              "leakage_count": 8
+            },
+            "handoff_completeness": {
+              "score": 1,
+              "present": [
+                "Handoff"
+              ],
+              "missing": [
+                "Next owner",
+                "Support agent",
+                "Policy reviewer",
+                "Handoff reason"
+              ]
+            },
+            "task_success_support": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "Review selected case",
+                "Check evidence",
+                "Choose refund path",
+                "Prepare handoff",
+                "Receipt photo is missing"
+              ]
+            },
+            "confidence_rework_signals": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "Policy review context",
+                "Evidence checklist",
+                "missing receipt photo"
+              ]
+            }
+          },
+          "screenshots": [
+            {
+              "id": "baseline-desktop",
+              "label": "Version A Desktop",
+              "viewport": {
+                "id": "desktop",
+                "label": "Desktop",
+                "width": 1365,
+                "height": 900,
+                "device_scale_factor": 1,
+                "mobile": false
+              },
+              "path": "2026-05-12/mcp-0.1.0/run-004/screenshots/refund-triage-standalone-v1/baseline-desktop.png",
+              "artifact": "/examples/comparison/refund/version-a.html"
+            },
+            {
+              "id": "baseline-mobile",
+              "label": "Version A Mobile",
+              "viewport": {
+                "id": "mobile",
+                "label": "Mobile",
+                "width": 390,
+                "height": 844,
+                "device_scale_factor": 1,
+                "mobile": true
+              },
+              "path": "2026-05-12/mcp-0.1.0/run-004/screenshots/refund-triage-standalone-v1/baseline-mobile.png",
+              "artifact": "/examples/comparison/refund/version-a.html"
+            }
+          ]
+        },
+        {
+          "id": "guided",
+          "label": "Version B",
+          "treatment": "judgmentkit_handoff",
+          "artifact": "examples/comparison/version-b.html",
+          "public_artifact": "/examples/comparison/refund/version-b.html",
+          "metadata_treatment": "judgmentkit_handoff",
+          "metadata_comparison_id": "refund-triage-standalone-v1",
+          "score": 100,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "Daily triage",
+                "Refund escalation queue",
+                "Customer refund escalation",
+                "Evidence checklist",
+                "Policy review context"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 5,
+              "present": [
+                "Choose a path",
+                "Approve refund",
+                "Send to policy review",
+                "Return for evidence"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "implementation_leakage": [],
+              "review_packet_leakage": [],
+              "leakage_count": 0
+            },
+            "handoff_completeness": {
+              "score": 5,
+              "present": [
+                "Handoff",
+                "Next owner",
+                "Support agent",
+                "Policy reviewer",
+                "Handoff reason"
+              ],
+              "missing": []
+            },
+            "task_success_support": {
+              "score": 5,
+              "present": [
+                "Review selected case",
+                "Check evidence",
+                "Choose refund path",
+                "Prepare handoff",
+                "Receipt photo is missing"
+              ],
+              "missing": []
+            },
+            "confidence_rework_signals": {
+              "score": 5,
+              "present": [
+                "Policy review context",
+                "Evidence checklist",
+                "missing receipt photo"
+              ],
+              "missing": []
+            }
+          },
+          "screenshots": [
+            {
+              "id": "guided-desktop",
+              "label": "Version B Desktop",
+              "viewport": {
+                "id": "desktop",
+                "label": "Desktop",
+                "width": 1365,
+                "height": 900,
+                "device_scale_factor": 1,
+                "mobile": false
+              },
+              "path": "2026-05-12/mcp-0.1.0/run-004/screenshots/refund-triage-standalone-v1/guided-desktop.png",
+              "artifact": "/examples/comparison/refund/version-b.html"
+            },
+            {
+              "id": "guided-mobile",
+              "label": "Version B Mobile",
+              "viewport": {
+                "id": "mobile",
+                "label": "Mobile",
+                "width": 390,
+                "height": 844,
+                "device_scale_factor": 1,
+                "mobile": true
+              },
+              "path": "2026-05-12/mcp-0.1.0/run-004/screenshots/refund-triage-standalone-v1/guided-mobile.png",
+              "artifact": "/examples/comparison/refund/version-b.html"
+            }
+          ]
+        }
+      ],
+      "rationale": [
+        "JudgmentKit-guided artifact scored 96 points above baseline.",
+        "Implementation leakage changed from 8 baseline terms to 0 guided terms.",
+        "Activity-fit evidence changed from 0 matched terms to 5 matched terms."
+      ]
+    },
+    {
+      "id": "dinner-playlist-standalone-v1",
+      "title": "Dinner playlist builder",
+      "task_prompt": "Build a 10-song dinner playlist that starts mellow, lifts in the middle, avoids disliked artists and explicit tracks, and leaves a sequence note.",
+      "claim_level": "single_pair_signal",
+      "expected_outcomes": [
+        "The host can assemble a 10-song playlist.",
+        "The host can catch explicit and disliked-artist conflicts.",
+        "The host can explain the sequence from mellow start through lifted middle to soft close."
+      ],
+      "winner": "judgmentkit_handoff",
+      "expected_winner": "judgmentkit_handoff",
+      "score_delta": 88.82,
+      "minimum_score_delta": 20,
+      "passed": true,
+      "variants": [
+        {
+          "id": "baseline",
+          "label": "Version A",
+          "treatment": "raw_brief_baseline",
+          "artifact": "examples/comparison/music/version-a.html",
+          "public_artifact": "/examples/comparison/music/version-a.html",
+          "metadata_treatment": "raw_brief_baseline",
+          "metadata_comparison_id": "dinner-playlist-standalone-v1",
+          "score": 11.18,
+          "metric_results": {
+            "activity_fit": {
+              "score": 0.83,
+              "present": [
+                "Sequence note"
+              ],
+              "missing": [
+                "Dinner brief",
+                "Guest preferences",
+                "Suggested tracks",
+                "Playlist sequence",
+                "Conflict checks"
+              ]
+            },
+            "decision_support": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "Add to playlist",
+                "Move earlier",
+                "Move later",
+                "Remove track",
+                "Mark as conflict"
+              ]
+            },
+            "disclosure_discipline": {
+              "score": 0,
+              "implementation_leakage": [
+                "data model",
+                "track table field",
+                "JSON schema",
+                "prompt template",
+                "tool call",
+                "resource id",
+                "API endpoint",
+                "CRUD",
+                "field",
+                "model"
+              ],
+              "review_packet_leakage": [],
+              "leakage_count": 10
+            },
+            "handoff_completeness": {
+              "score": 1.25,
+              "present": [
+                "Sequence note"
+              ],
+              "missing": [
+                "Save playlist",
+                "Share playlist",
+                "10 tracks ready to play"
+              ]
+            },
+            "task_success_support": {
+              "score": 1.43,
+              "present": [
+                "explicit track",
+                "disliked artist"
+              ],
+              "missing": [
+                "genre balance",
+                "energy flow",
+                "mellow opener",
+                "warm middle",
+                "closing track"
+              ]
+            },
+            "confidence_rework_signals": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "Fits brief",
+                "Conflict checks",
+                "ready to play"
+              ]
+            }
+          },
+          "screenshots": [
+            {
+              "id": "baseline-desktop",
+              "label": "Version A Desktop",
+              "viewport": {
+                "id": "desktop",
+                "label": "Desktop",
+                "width": 1365,
+                "height": 900,
+                "device_scale_factor": 1,
+                "mobile": false
+              },
+              "path": "2026-05-12/mcp-0.1.0/run-004/screenshots/dinner-playlist-standalone-v1/baseline-desktop.png",
+              "artifact": "/examples/comparison/music/version-a.html"
+            },
+            {
+              "id": "baseline-mobile",
+              "label": "Version A Mobile",
+              "viewport": {
+                "id": "mobile",
+                "label": "Mobile",
+                "width": 390,
+                "height": 844,
+                "device_scale_factor": 1,
+                "mobile": true
+              },
+              "path": "2026-05-12/mcp-0.1.0/run-004/screenshots/dinner-playlist-standalone-v1/baseline-mobile.png",
+              "artifact": "/examples/comparison/music/version-a.html"
+            }
+          ]
+        },
+        {
+          "id": "guided",
+          "label": "Version B",
+          "treatment": "judgmentkit_handoff",
+          "artifact": "examples/comparison/music/version-b.html",
+          "public_artifact": "/examples/comparison/music/version-b.html",
+          "metadata_treatment": "judgmentkit_handoff",
+          "metadata_comparison_id": "dinner-playlist-standalone-v1",
+          "score": 100,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "Dinner brief",
+                "Guest preferences",
+                "Suggested tracks",
+                "Playlist sequence",
+                "Conflict checks",
+                "Sequence note"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 5,
+              "present": [
+                "Add to playlist",
+                "Move earlier",
+                "Move later",
+                "Remove track",
+                "Mark as conflict"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "implementation_leakage": [],
+              "review_packet_leakage": [],
+              "leakage_count": 0
+            },
+            "handoff_completeness": {
+              "score": 5,
+              "present": [
+                "Save playlist",
+                "Share playlist",
+                "Sequence note",
+                "10 tracks ready to play"
+              ],
+              "missing": []
+            },
+            "task_success_support": {
+              "score": 5,
+              "present": [
+                "explicit track",
+                "disliked artist",
+                "genre balance",
+                "energy flow",
+                "mellow opener",
+                "warm middle",
+                "closing track"
+              ],
+              "missing": []
+            },
+            "confidence_rework_signals": {
+              "score": 5,
+              "present": [
+                "Fits brief",
+                "Conflict checks",
+                "ready to play"
+              ],
+              "missing": []
+            }
+          },
+          "screenshots": [
+            {
+              "id": "guided-desktop",
+              "label": "Version B Desktop",
+              "viewport": {
+                "id": "desktop",
+                "label": "Desktop",
+                "width": 1365,
+                "height": 900,
+                "device_scale_factor": 1,
+                "mobile": false
+              },
+              "path": "2026-05-12/mcp-0.1.0/run-004/screenshots/dinner-playlist-standalone-v1/guided-desktop.png",
+              "artifact": "/examples/comparison/music/version-b.html"
+            },
+            {
+              "id": "guided-mobile",
+              "label": "Version B Mobile",
+              "viewport": {
+                "id": "mobile",
+                "label": "Mobile",
+                "width": 390,
+                "height": 844,
+                "device_scale_factor": 1,
+                "mobile": true
+              },
+              "path": "2026-05-12/mcp-0.1.0/run-004/screenshots/dinner-playlist-standalone-v1/guided-mobile.png",
+              "artifact": "/examples/comparison/music/version-b.html"
+            }
+          ]
+        }
+      ],
+      "rationale": [
+        "JudgmentKit-guided artifact scored 88.82 points above baseline.",
+        "Implementation leakage changed from 10 baseline terms to 0 guided terms.",
+        "Activity-fit evidence changed from 1 matched terms to 6 matched terms."
+      ]
+    }
+  ]
+}

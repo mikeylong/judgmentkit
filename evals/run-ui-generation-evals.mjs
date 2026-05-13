@@ -1,6 +1,9 @@
 import fs from "node:fs";
+import net from "node:net";
+import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
+import { spawn } from "node:child_process";
 
 import { getMcpMetadata } from "../src/mcp.mjs";
 
@@ -31,6 +34,28 @@ const CLAIM_LEVELS = [
   "repeated_pair_signal",
   "benchmark_supported",
 ];
+const SCREENSHOT_VIEWPORTS = [
+  {
+    id: "desktop",
+    label: "Desktop",
+    width: 1365,
+    height: 900,
+    device_scale_factor: 1,
+    mobile: false,
+  },
+  {
+    id: "mobile",
+    label: "Mobile",
+    width: 390,
+    height: 844,
+    device_scale_factor: 1,
+    mobile: true,
+  },
+];
+const SCREENSHOT_ENGINE = "chrome_devtools_protocol";
+const SCREENSHOT_POLICY =
+  "Initial viewport screenshots captured from committed static artifacts. Visual evidence is not used for scoring.";
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
@@ -47,6 +72,229 @@ function repoRelativeOrAbsolute(filePath) {
 
 function resolveRepoPath(repoPath) {
   return path.join(ROOT_DIR, repoPath);
+}
+
+function delay(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function isExecutable(filePath) {
+  try {
+    fs.accessSync(filePath, fs.constants.X_OK);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function resolveCommandFromPath(command) {
+  if (!command) {
+    return null;
+  }
+  if (command.includes("/") || command.includes("\\")) {
+    return isExecutable(command) ? command : null;
+  }
+
+  for (const dir of (process.env.PATH ?? "").split(path.delimiter)) {
+    if (!dir) {
+      continue;
+    }
+    const candidate = path.join(dir, command);
+    if (isExecutable(candidate)) {
+      return candidate;
+    }
+  }
+
+  return null;
+}
+
+function configuredChromePath(envName) {
+  const value = process.env[envName];
+  if (!value) {
+    return null;
+  }
+
+  const resolved = resolveCommandFromPath(value);
+  if (!resolved) {
+    throw new Error(
+      `${envName} is set to ${value}, but that Chrome executable could not be found or run.`,
+    );
+  }
+
+  return resolved;
+}
+
+function resolveChromeExecutable() {
+  const configured =
+    configuredChromePath("JUDGMENTKIT_UI_EVAL_CHROME_PATH") ??
+    configuredChromePath("CHROME_BIN");
+  if (configured) {
+    return configured;
+  }
+
+  for (const command of [
+    "google-chrome-stable",
+    "google-chrome",
+    "chromium",
+    "chromium-browser",
+    "chrome",
+  ]) {
+    const resolved = resolveCommandFromPath(command);
+    if (resolved) {
+      return resolved;
+    }
+  }
+
+  for (const candidate of [
+    "/usr/bin/google-chrome-stable",
+    "/usr/bin/google-chrome",
+    "/usr/bin/chromium",
+    "/usr/bin/chromium-browser",
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+  ]) {
+    if (isExecutable(candidate)) {
+      return candidate;
+    }
+  }
+
+  throw new Error(
+    "Chrome is required to capture UI eval screenshots. Install Chrome/Chromium or set JUDGMENTKIT_UI_EVAL_CHROME_PATH to an executable Chrome path.",
+  );
+}
+
+function createChromeUserDataDir() {
+  return fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-ui-eval-chrome-"));
+}
+
+function findAvailablePort() {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", () => {
+      const address = server.address();
+      const port = typeof address === "object" && address ? address.port : null;
+      server.close(() => {
+        if (port) {
+          resolve(port);
+        } else {
+          reject(new Error("Unable to allocate a Chrome debugging port."));
+        }
+      });
+    });
+  });
+}
+
+async function waitForChromeVersion(port, getStderr) {
+  const endpoint = `http://127.0.0.1:${port}/json/version`;
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    try {
+      const response = await fetch(endpoint);
+      if (response.ok) {
+        return response.json();
+      }
+    } catch {
+      // Chrome is still starting.
+    }
+    await delay(100);
+  }
+
+  throw new Error(`Chrome DevTools endpoint did not start. ${getStderr().trim()}`);
+}
+
+function connectCdp(webSocketDebuggerUrl) {
+  return new Promise((resolve, reject) => {
+    const socket = new WebSocket(webSocketDebuggerUrl);
+    let nextId = 1;
+    const pending = new Map();
+    const listeners = new Map();
+
+    const client = {
+      send(method, params = {}, sessionId = undefined) {
+        if (socket.readyState !== WebSocket.OPEN) {
+          return Promise.reject(new Error("Chrome DevTools socket is closed."));
+        }
+
+        const id = nextId;
+        nextId += 1;
+        socket.send(JSON.stringify({
+          id,
+          method,
+          params,
+          ...(sessionId ? { sessionId } : {}),
+        }));
+
+        return new Promise((res, rej) => {
+          pending.set(id, { res, rej });
+        });
+      },
+      waitFor(method, sessionId = undefined, timeoutMs = 10_000) {
+        return new Promise((res, rej) => {
+          const key = `${sessionId ?? ""}:${method}`;
+          const callback = {
+            res(params) {
+              clearTimeout(timer);
+              res(params);
+            },
+          };
+          const timer = setTimeout(() => {
+            const callbacks = listeners.get(key) ?? [];
+            listeners.set(
+              key,
+              callbacks.filter((entry) => entry !== callback),
+            );
+            rej(new Error(`Timed out waiting for Chrome event ${method}.`));
+          }, timeoutMs);
+          const callbacks = listeners.get(key) ?? [];
+          callbacks.push(callback);
+          listeners.set(key, callbacks);
+        });
+      },
+      close() {
+        socket.close();
+      },
+    };
+
+    socket.addEventListener("open", () => {
+      resolve(client);
+    });
+    socket.addEventListener("message", (event) => {
+      const message = JSON.parse(event.data);
+      if (message.id && pending.has(message.id)) {
+        const { res, rej } = pending.get(message.id);
+        pending.delete(message.id);
+        if (message.error) {
+          rej(new Error(message.error.message));
+        } else {
+          res(message.result);
+        }
+        return;
+      }
+
+      if (message.method) {
+        const key = `${message.sessionId ?? ""}:${message.method}`;
+        const callbacks = listeners.get(key);
+        if (callbacks?.length) {
+          const callback = callbacks.shift();
+          callback.res(message.params);
+        }
+      }
+    });
+    socket.addEventListener("error", reject);
+    socket.addEventListener("close", () => {
+      for (const { rej } of pending.values()) {
+        rej(new Error("Chrome DevTools socket closed."));
+      }
+      pending.clear();
+    });
+  });
+}
+
+function assertPng(buffer, filePath) {
+  if (buffer.length < 4096 || !buffer.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE)) {
+    throw new Error(`Screenshot capture failed or produced an invalid PNG: ${filePath}`);
+  }
 }
 
 function stripScripts(html) {
@@ -424,6 +672,128 @@ function runRelativePath(baseReportsDir, filePath) {
   return path.relative(baseReportsDir, filePath).split(path.sep).join("/");
 }
 
+function screenshotViewportMetadata(viewport) {
+  return {
+    id: viewport.id,
+    label: viewport.label,
+    width: viewport.width,
+    height: viewport.height,
+    device_scale_factor: viewport.device_scale_factor,
+    mobile: viewport.mobile,
+  };
+}
+
+async function captureArtifactScreenshot(client, variant, viewport, screenshotPath) {
+  const artifactPath = resolveRepoPath(variant.artifact);
+  const target = await client.send("Target.createTarget", { url: "about:blank" });
+  const attached = await client.send("Target.attachToTarget", {
+    targetId: target.targetId,
+    flatten: true,
+  });
+  const sessionId = attached.sessionId;
+
+  try {
+    await client.send("Page.enable", {}, sessionId);
+    await client.send("Runtime.enable", {}, sessionId);
+    await client.send("Emulation.setDeviceMetricsOverride", {
+      width: viewport.width,
+      height: viewport.height,
+      deviceScaleFactor: viewport.device_scale_factor,
+      mobile: viewport.mobile,
+    }, sessionId);
+
+    const loadEvent = client.waitFor("Page.loadEventFired", sessionId);
+    await client.send("Page.navigate", {
+      url: pathToFileURL(artifactPath).href,
+    }, sessionId);
+    await loadEvent;
+    await client.send("Runtime.evaluate", {
+      expression:
+        "document.fonts && document.fonts.ready ? document.fonts.ready.then(() => true) : true",
+      awaitPromise: true,
+      returnByValue: true,
+    }, sessionId);
+    await delay(150);
+
+    const capture = await client.send("Page.captureScreenshot", {
+      format: "png",
+      fromSurface: true,
+      captureBeyondViewport: false,
+    }, sessionId);
+    const png = Buffer.from(capture.data, "base64");
+    assertPng(png, screenshotPath);
+    fs.writeFileSync(screenshotPath, png);
+  } finally {
+    await client.send("Target.closeTarget", { targetId: target.targetId }).catch(() => {});
+  }
+}
+
+async function withChromeClient(callback) {
+  const chromeExecutable = resolveChromeExecutable();
+  const port = await findAvailablePort();
+  const userDataDir = createChromeUserDataDir();
+  let stderr = "";
+  const chrome = spawn(chromeExecutable, [
+    "--headless=new",
+    "--disable-gpu",
+    "--disable-dev-shm-usage",
+    "--no-first-run",
+    "--no-default-browser-check",
+    "--force-color-profile=srgb",
+    `--remote-debugging-port=${port}`,
+    `--user-data-dir=${userDataDir}`,
+    "about:blank",
+  ], {
+    stdio: ["ignore", "ignore", "pipe"],
+  });
+
+  chrome.stderr.on("data", (chunk) => {
+    stderr += chunk.toString();
+  });
+
+  let client;
+  try {
+    const version = await waitForChromeVersion(port, () => stderr);
+    client = await connectCdp(version.webSocketDebuggerUrl);
+    return await callback(client);
+  } finally {
+    if (client) {
+      client.close();
+    }
+    chrome.kill("SIGTERM");
+    await delay(150);
+    fs.rmSync(userDataDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+  }
+}
+
+async function attachVisualEvidence(results, runInfo) {
+  await withChromeClient(async (client) => {
+    for (const result of results) {
+      const screenshotDir = path.join(runInfo.runDir, "screenshots", result.id);
+      fs.mkdirSync(screenshotDir, { recursive: true });
+
+      for (const variant of result.variants) {
+        const screenshots = [];
+
+        for (const viewport of SCREENSHOT_VIEWPORTS) {
+          const filename = `${variant.id}-${viewport.id}.png`;
+          const screenshotPath = path.join(screenshotDir, filename);
+          await captureArtifactScreenshot(client, variant, viewport, screenshotPath);
+          screenshots.push({
+            id: `${variant.id}-${viewport.id}`,
+            label: `${variant.label} ${viewport.label}`,
+            viewport: screenshotViewportMetadata(viewport),
+            path: runRelativePath(runInfo.baseReportsDir, screenshotPath),
+            artifact: variant.public_artifact ?? variant.artifact,
+          });
+        }
+
+        variant.screenshots = screenshots;
+      }
+    }
+  });
+}
+
 function buildReport(results, runInfo) {
   const guidedWins = results.filter((result) => result.winner === "judgmentkit_handoff").length;
   const baselineWins = results.filter((result) => result.winner === "raw_brief_baseline").length;
@@ -436,6 +806,11 @@ function buildReport(results, runInfo) {
     evaluation_type: "deterministic_static_artifact_scoring",
     generation_policy:
       "Scores committed standalone artifacts only. Does not call providers or generate apps.",
+    visual_evidence: {
+      capture_engine: SCREENSHOT_ENGINE,
+      capture_policy: SCREENSHOT_POLICY,
+      viewports: SCREENSHOT_VIEWPORTS.map(screenshotViewportMetadata),
+    },
     benchmark_policy:
       "Qualitative paired-artifact evidence only; not a statistically powered benchmark.",
     claim_level: summarizeClaimLevel(results),
@@ -541,6 +916,72 @@ function htmlVariantScore(variant, reportDir) {
   `;
 }
 
+function screenshotForViewport(variant, viewportId) {
+  return variant.screenshots?.find((screenshot) => screenshot.viewport.id === viewportId);
+}
+
+function screenshotHref(screenshot, runInfo) {
+  return path
+    .relative(runInfo.runDir, path.join(runInfo.baseReportsDir, screenshot.path))
+    .split(path.sep)
+    .join("/");
+}
+
+function htmlScreenshotCard(result, variant, screenshot, runInfo) {
+  const href = screenshotHref(screenshot, runInfo);
+  const alt = `${result.title} ${treatmentLabel(variant.treatment)} ${screenshot.viewport.label} screenshot`;
+
+  return `
+    <article class="screenshot-card ${variant.treatment === "judgmentkit_handoff" ? "guided" : "baseline"}">
+      <div class="screenshot-card-header">
+        <div>
+          <p class="eyebrow">${escapeHtml(treatmentLabel(variant.treatment))}</p>
+          <h4>${escapeHtml(screenshot.label)}</h4>
+        </div>
+        <span>${escapeHtml(screenshot.viewport.width)}x${escapeHtml(screenshot.viewport.height)}</span>
+      </div>
+      <a class="screenshot-frame" href="${escapeHtml(href)}" aria-label="Open ${escapeHtml(alt)}">
+        <img src="${escapeHtml(href)}" alt="${escapeHtml(alt)}" loading="eager">
+      </a>
+      <div class="screenshot-actions">
+        <a href="${escapeHtml(href)}">Open screenshot</a>
+        <a href="${escapeHtml(variantHref(variant, runInfo.runDir))}">Open artifact</a>
+      </div>
+    </article>
+  `;
+}
+
+function htmlVisualEvidence(result, runInfo) {
+  const baseline = variantByTreatment(result, "raw_brief_baseline");
+  const guided = variantByTreatment(result, "judgmentkit_handoff");
+  const desktopScreenshots = [baseline, guided].map((variant) => ({
+    variant,
+    screenshot: screenshotForViewport(variant, "desktop"),
+  }));
+  const mobileScreenshots = [baseline, guided].map((variant) => ({
+    variant,
+    screenshot: screenshotForViewport(variant, "mobile"),
+  }));
+
+  return `
+    <section class="visual-evidence" aria-label="${escapeHtml(result.title)} visual evidence">
+      <div class="section-heading">
+        <h3>Visual evidence</h3>
+        <p>Screenshots show the initial viewport of each committed artifact. They are archived with this run and are not scoring inputs.</p>
+      </div>
+      <div class="screenshot-grid desktop-screenshots">
+        ${desktopScreenshots.map(({ variant, screenshot }) => htmlScreenshotCard(result, variant, screenshot, runInfo)).join("")}
+      </div>
+      <details class="mobile-screenshots">
+        <summary>Mobile screenshots</summary>
+        <div class="screenshot-grid">
+          ${mobileScreenshots.map(({ variant, screenshot }) => htmlScreenshotCard(result, variant, screenshot, runInfo)).join("")}
+        </div>
+      </details>
+    </section>
+  `;
+}
+
 function htmlMetricComparison(result) {
   const baseline = variantByTreatment(result, "raw_brief_baseline");
   const guided = variantByTreatment(result, "judgmentkit_handoff");
@@ -641,7 +1082,7 @@ function htmlEvidenceSummary(result) {
   `;
 }
 
-function htmlCase(result, reportDir) {
+function htmlCase(result, runInfo) {
   const baseline = variantByTreatment(result, "raw_brief_baseline");
   const guided = variantByTreatment(result, "judgmentkit_handoff");
   const caseId = htmlId(result.id);
@@ -663,13 +1104,14 @@ function htmlCase(result, reportDir) {
         <div><dt>Threshold</dt><dd>${escapeHtml(result.minimum_score_delta)}</dd></div>
       </dl>
       <div class="score-strip" aria-label="${escapeHtml(result.title)} score comparison">
-        ${htmlVariantScore(baseline, reportDir)}
+        ${htmlVariantScore(baseline, runInfo.runDir)}
         <div class="score-delta">
           <span>${escapeHtml(signedNumber(result.score_delta))}</span>
           <small>guided delta</small>
         </div>
-        ${htmlVariantScore(guided, reportDir)}
+        ${htmlVariantScore(guided, runInfo.runDir)}
       </div>
+      ${htmlVisualEvidence(result, runInfo)}
       ${htmlMetricComparison(result)}
       ${htmlEvidenceSummary(result)}
       <details class="case-notes">
@@ -724,10 +1166,11 @@ function buildHtmlReport(report, runInfo) {
       margin: 0 auto;
       padding: 30px 24px 56px;
     }
-    h1, h2, h3, p { margin-top: 0; }
+    h1, h2, h3, h4, p { margin-top: 0; }
     h1 { max-width: 760px; margin-bottom: 10px; font-size: 2rem; line-height: 1.08; }
     h2 { margin-bottom: 8px; font-size: 1.3rem; line-height: 1.2; }
     h3 { margin-bottom: 6px; font-size: 1rem; line-height: 1.25; }
+    h4 { margin-bottom: 0; font-size: 0.95rem; line-height: 1.25; }
     a { color: #174d7a; }
     a:hover { color: #0e385b; }
     dl { margin: 0; }
@@ -883,6 +1326,63 @@ function buildHtmlReport(report, runInfo) {
     }
     .score-delta span { font-size: 1.25rem; font-weight: 800; }
     .score-delta small { color: var(--muted); font-weight: 700; }
+    .visual-evidence {
+      display: grid;
+      gap: 12px;
+    }
+    .screenshot-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .screenshot-card {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .screenshot-card.guided { border-color: #a8d5c8; background: #fbfffd; }
+    .screenshot-card-header {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .screenshot-card-header > div { min-width: 0; }
+    .screenshot-card-header span {
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 760;
+      white-space: nowrap;
+    }
+    .screenshot-frame {
+      display: block;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+    }
+    .screenshot-frame img {
+      display: block;
+      width: 100%;
+      max-height: 420px;
+      object-fit: contain;
+      background: #ffffff;
+    }
+    .screenshot-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+    .mobile-screenshots {
+      padding-top: 4px;
+    }
+    .mobile-screenshots .screenshot-grid {
+      margin-top: 12px;
+    }
     .section-heading {
       display: flex;
       gap: 14px;
@@ -970,6 +1470,7 @@ function buildHtmlReport(report, runInfo) {
       h1 { font-size: 1.72rem; }
       .outcome-band,
       .score-strip,
+      .screenshot-grid,
       .evidence-grid {
         grid-template-columns: 1fr;
       }
@@ -1061,7 +1562,7 @@ function buildHtmlReport(report, runInfo) {
       </section>
       <p class="notice">${escapeHtml(report.benchmark_policy)}</p>
     </header>
-    ${report.results.map((result) => htmlCase(result, runInfo.runDir)).join("")}
+    ${report.results.map((result) => htmlCase(result, runInfo)).join("")}
   </main>
 </body>
 </html>
@@ -1258,28 +1759,42 @@ function writeReport(report, runInfo) {
   return writeCatalog(runInfo.baseReportsDir);
 }
 
-const cases = readJson(CASES_PATH);
-const results = cases.map(evaluateCase);
-const baseReportsDir = reportsDir();
-const runInfo = createRunPaths({
-  baseReportsDir,
-  date: runDate(),
-  mcpVersion: mcpReleaseVersion(),
-});
-const report = buildReport(results, runInfo);
+async function main() {
+  const cases = readJson(CASES_PATH);
+  const results = cases.map(evaluateCase);
+  const baseReportsDir = reportsDir();
+  const runInfo = createRunPaths({
+    baseReportsDir,
+    date: runDate(),
+    mcpVersion: mcpReleaseVersion(),
+  });
 
-const catalog = writeReport(report, runInfo);
+  try {
+    await attachVisualEvidence(results, runInfo);
+    const report = buildReport(results, runInfo);
+    const catalog = writeReport(report, runInfo);
 
-console.log("# JudgmentKit UI-Generation Eval");
-console.log(`Report: ${repoRelativeOrAbsolute(runInfo.jsonReportPath)}`);
-console.log(`HTML: ${repoRelativeOrAbsolute(runInfo.htmlReportPath)}`);
-console.log(`Catalog: ${repoRelativeOrAbsolute(path.join(baseReportsDir, CATALOG_JSON_FILENAME))}`);
-console.log(`Catalog HTML: ${repoRelativeOrAbsolute(path.join(baseReportsDir, CATALOG_HTML_FILENAME))}`);
-console.log(
-  `Summary: ${report.summary.guided_wins}/${report.summary.cases} JudgmentKit-guided wins, ${report.summary.failed} failed thresholds, claim level ${report.claim_level}, ${runInfo.date}/${runInfo.releaseSegment}/${runInfo.runId}`,
-);
-console.log(`Latest: ${catalog.latest?.html_report ?? "none"}`);
+    console.log("# JudgmentKit UI-Generation Eval");
+    console.log(`Report: ${repoRelativeOrAbsolute(runInfo.jsonReportPath)}`);
+    console.log(`HTML: ${repoRelativeOrAbsolute(runInfo.htmlReportPath)}`);
+    console.log(`Catalog: ${repoRelativeOrAbsolute(path.join(baseReportsDir, CATALOG_JSON_FILENAME))}`);
+    console.log(`Catalog HTML: ${repoRelativeOrAbsolute(path.join(baseReportsDir, CATALOG_HTML_FILENAME))}`);
+    console.log(`Screenshots: ${repoRelativeOrAbsolute(path.join(runInfo.runDir, "screenshots"))}`);
+    console.log(
+      `Summary: ${report.summary.guided_wins}/${report.summary.cases} JudgmentKit-guided wins, ${report.summary.failed} failed thresholds, claim level ${report.claim_level}, ${runInfo.date}/${runInfo.releaseSegment}/${runInfo.runId}`,
+    );
+    console.log(`Latest: ${catalog.latest?.html_report ?? "none"}`);
 
-if (report.summary.failed > 0) {
-  process.exitCode = 1;
+    if (report.summary.failed > 0) {
+      process.exitCode = 1;
+    }
+  } catch (error) {
+    fs.rmSync(runInfo.runDir, { recursive: true, force: true });
+    throw error;
+  }
 }
+
+main().catch((error) => {
+  console.error(`UI eval report generation failed: ${error.message}`);
+  process.exitCode = 1;
+});

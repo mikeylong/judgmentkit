@@ -121,7 +121,8 @@ To score the committed comparison artifacts as a deterministic paired UI-generat
 npm run eval:ui
 ```
 
-That command writes immutable JSON and HTML reports under `evals/reports/<date>/mcp-<version>/run-NNN/` and updates the catalog at `evals/reports/index.html`. It is qualitative paired-artifact evidence, not a statistically powered benchmark.
+That command writes immutable JSON and HTML reports plus archived screenshots under `evals/reports/<date>/mcp-<version>/run-NNN/` and updates the catalog at `evals/reports/index.html`. It is qualitative paired-artifact evidence, not a statistically powered benchmark.
+Screenshot capture requires local Chrome or Chromium; set `JUDGMENTKIT_UI_EVAL_CHROME_PATH` if the executable is not on the default path.
 
 For the system-map model UI matrix:
 

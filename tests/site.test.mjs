@@ -250,6 +250,16 @@ assert.equal(
   true,
   "expected latest eval JSON report to be copied",
 );
+const latestEvalReport = JSON.parse(
+  fs.readFileSync(path.join(tempDir, "evals", evalCatalog.latest.json_report), "utf8"),
+);
+const latestScreenshotPath = latestEvalReport.results[0].variants[0].screenshots[0].path;
+assert.ok(latestScreenshotPath.endsWith(".png"));
+assert.equal(
+  fs.existsSync(path.join(tempDir, "evals", latestScreenshotPath)),
+  true,
+  "expected latest eval screenshot to be copied",
+);
 assert.equal(
   fs.existsSync(path.join(tempDir, "examples", "evals", "index.html")),
   true,
@@ -259,6 +269,11 @@ assert.equal(
   fs.existsSync(path.join(tempDir, "examples", "evals", evalCatalog.latest.html_report)),
   true,
   "expected legacy examples eval report compatibility path",
+);
+assert.equal(
+  fs.existsSync(path.join(tempDir, "examples", "evals", latestScreenshotPath)),
+  true,
+  "expected legacy examples eval screenshot compatibility path",
 );
 
 for (const copiedExamplePath of [
@@ -282,10 +297,12 @@ for (const copiedExamplePath of [
   ["evals", "index.json"],
   ["evals", ...evalCatalog.latest.html_report.split("/")],
   ["evals", ...evalCatalog.latest.json_report.split("/")],
+  ["evals", ...latestScreenshotPath.split("/")],
   ["examples", "evals", "index.html"],
   ["examples", "evals", "index.json"],
   ["examples", "evals", ...evalCatalog.latest.html_report.split("/")],
   ["examples", "evals", ...evalCatalog.latest.json_report.split("/")],
+  ["examples", "evals", ...latestScreenshotPath.split("/")],
 ]) {
   const artifactPath = path.join(tempDir, ...copiedExamplePath);
 

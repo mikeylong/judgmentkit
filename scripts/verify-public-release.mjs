@@ -186,6 +186,7 @@ async function verifyEvalArchive(baseUrl, analyticsScriptSrc) {
       "not a statistically powered benchmark",
       "Claim level",
       "MCP release",
+      "Visual evidence",
       "JSON report",
     ],
     "latest eval report",
@@ -195,17 +196,24 @@ async function verifyEvalArchive(baseUrl, analyticsScriptSrc) {
   assert.equal(latestJson.eval_id, "judgmentkit-ui-generation-paired-artifact-v1");
   assert.equal(latestJson.run.html_report, catalog.latest.html_report);
   assert.equal(latestJson.run.json_report, catalog.latest.json_report);
+  assert.equal(latestJson.visual_evidence.capture_engine, "chrome_devtools_protocol");
+  const latestScreenshotPath = latestJson.results[0].variants[0].screenshots[0].path;
+  assert.ok(latestScreenshotPath.endsWith(".png"), "latest eval JSON should include screenshot paths");
+  const latestScreenshotRoute = `/evals/${latestScreenshotPath}`;
+  await fetchText(baseUrl, latestScreenshotRoute);
 
   await fetchText(baseUrl, "/examples/evals/");
   await fetchText(baseUrl, "/examples/evals/index.json");
   await fetchText(baseUrl, `/examples/evals/${catalog.latest.html_report}`);
   await fetchText(baseUrl, `/examples/evals/${catalog.latest.json_report}`);
+  await fetchText(baseUrl, `/examples/evals/${latestScreenshotPath}`);
 
   return {
     index_route: "/evals/",
     catalog_route: "/evals/index.json",
     latest_html_route: latestHtmlRoute,
     latest_json_route: latestJsonRoute,
+    latest_screenshot_route: latestScreenshotRoute,
     compatibility_index_route: "/examples/evals/",
   };
 }
@@ -339,6 +347,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       evalArchive.catalog_route,
       evalArchive.latest_html_route,
       evalArchive.latest_json_route,
+      evalArchive.latest_screenshot_route,
     ],
     eval_archive: evalArchive,
     analytics: options.skipAnalyticsScript

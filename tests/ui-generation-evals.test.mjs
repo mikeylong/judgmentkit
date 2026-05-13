@@ -19,6 +19,7 @@ const catalogHtmlPath = path.join(reportsDir, "index.html");
 const FIXED_DATE = "2026-05-13";
 const FIXED_MCP_VERSION = "0.1.0";
 const FIXED_RELEASE_SEGMENT = "mcp-0.1.0";
+const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 const METRIC_IDS = [
   "activity_fit",
   "decision_support",
@@ -46,6 +47,48 @@ function readJson(filePath) {
 
 function runPath(runId, filename) {
   return path.join(reportsDir, FIXED_DATE, FIXED_RELEASE_SEGMENT, runId, filename);
+}
+
+function assertPngScreenshot(filePath) {
+  const buffer = fs.readFileSync(filePath);
+  assert.ok(buffer.length > 4096, `${filePath} should be a non-trivial PNG`);
+  assert.equal(buffer.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE), true);
+}
+
+function assertScreenshotMetadata(report, runId) {
+  assert.equal(report.visual_evidence.capture_engine, "chrome_devtools_protocol");
+  assert.equal(
+    report.visual_evidence.capture_policy,
+    "Initial viewport screenshots captured from committed static artifacts. Visual evidence is not used for scoring.",
+  );
+  assert.deepEqual(
+    report.visual_evidence.viewports.map((viewport) => viewport.id),
+    ["desktop", "mobile"],
+  );
+
+  for (const caseResult of report.results) {
+    for (const variant of caseResult.variants) {
+      assert.equal(variant.screenshots.length, 2);
+      assert.deepEqual(
+        variant.screenshots.map((screenshot) => screenshot.viewport.id),
+        ["desktop", "mobile"],
+      );
+
+      for (const screenshot of variant.screenshots) {
+        assert.ok(screenshot.id.startsWith(`${variant.id}-`));
+        assert.ok(screenshot.label.includes(variant.label));
+        assert.equal(path.isAbsolute(screenshot.path), false);
+        assert.equal(screenshot.path.includes(".."), false);
+        assert.ok(
+          screenshot.path.startsWith(`${FIXED_DATE}/${FIXED_RELEASE_SEGMENT}/${runId}/screenshots/${caseResult.id}/`),
+          `${screenshot.path} should be archived under ${runId}`,
+        );
+        assert.ok(screenshot.path.endsWith(".png"));
+        assert.equal(screenshot.artifact, variant.public_artifact);
+        assertPngScreenshot(path.join(reportsDir, screenshot.path));
+      }
+    }
+  }
 }
 
 let result = runEval();
@@ -80,6 +123,7 @@ assert.equal(fs.existsSync(staleMarkdownReportPath), false);
 const cases = readJson(casesPath);
 const report = JSON.parse(firstJsonReport);
 const htmlReport = firstHtmlReport;
+const secondReport = readJson(runPath("run-002", "ui-generation-report.json"));
 const catalog = readJson(catalogJsonPath);
 const catalogHtml = fs.readFileSync(catalogHtmlPath, "utf8");
 
@@ -100,6 +144,12 @@ assert.equal(report.summary.passed, 2);
 assert.equal(report.summary.failed, 0);
 assert.equal(report.summary.guided_wins, 2);
 assert.equal(report.summary.baseline_wins, 0);
+assertScreenshotMetadata(report, "run-001");
+assertScreenshotMetadata(secondReport, "run-002");
+assert.notEqual(
+  report.results[0].variants[0].screenshots[0].path,
+  secondReport.results[0].variants[0].screenshots[0].path,
+);
 
 assert.equal(catalog.catalog_id, "judgmentkit-ui-generation-eval-runs");
 assert.equal(catalog.latest.date, FIXED_DATE);
@@ -139,6 +189,14 @@ assert.ok(htmlReport.includes("Score delta"));
 assert.ok(htmlReport.includes("Threshold"));
 assert.ok(htmlReport.includes("guided delta"));
 assert.ok(htmlReport.includes('class="score-strip"'));
+assert.ok(htmlReport.includes("Visual evidence"));
+assert.ok(htmlReport.includes('class="visual-evidence"'));
+assert.ok(htmlReport.includes('class="screenshot-grid desktop-screenshots"'));
+assert.ok(htmlReport.includes("Mobile screenshots"));
+assert.ok(htmlReport.includes("Open screenshot"));
+assert.ok(htmlReport.includes("screenshots/refund-triage-standalone-v1/baseline-desktop.png"));
+assert.ok(htmlReport.includes("screenshots/refund-triage-standalone-v1/guided-mobile.png"));
+assert.ok(htmlReport.includes('alt="Refund triage handoff Raw baseline Desktop screenshot"'));
 assert.ok(htmlReport.includes("Metric comparison"));
 assert.ok(htmlReport.includes('data-metric-row="activity_fit"'));
 assert.ok(htmlReport.includes("Activity-fit evidence"));

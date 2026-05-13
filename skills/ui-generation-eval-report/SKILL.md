@@ -13,6 +13,7 @@ Use this project skill when refreshing the deterministic UI-generation eval repo
 - Do not regenerate comparison demos unless the user explicitly asks.
 - Treat each immutable `evals/reports/<date>/mcp-<version>/run-NNN/ui-generation-report.json` file as the structured source of truth.
 - Treat each colocated `ui-generation-report.html` file as the human review artifact.
+- Treat colocated `screenshots/` PNGs as visual evidence only; they do not affect scoring.
 - Treat `evals/reports/index.json` and `evals/reports/index.html` as catalogs; they may update when new runs are added.
 - Keep production release checks out of routine refreshes unless the user asks to publish or deploy.
 
@@ -37,7 +38,7 @@ Use this project skill when refreshing the deterministic UI-generation eval repo
    npm run site:dev -- --host 127.0.0.1 --port 4173
    ```
 
-   Open `http://127.0.0.1:4173/examples/evals/`, then open the latest archived report and confirm the pages show:
+   Open `http://127.0.0.1:4173/evals/`, then open the latest archived report and confirm the pages show:
 
    - the `JudgmentKit UI Eval Runs` index
    - the latest run link
@@ -47,10 +48,13 @@ Use this project skill when refreshing the deterministic UI-generation eval repo
    - run date, MCP release, and run id
    - each case title and pass/fail status
    - score delta and threshold
+   - visual evidence screenshots for baseline and guided variants
+   - screenshot links that open PNG files from the run archive
    - per-variant score tables
    - activity-fit evidence
    - implementation leakage findings and counts
    - links to the compared HTML artifacts and JSON report
+   - no horizontal overflow at desktop or mobile widths
 
 4. Stop the local server when QA is complete.
 
@@ -68,4 +72,4 @@ If JudgmentKit MCP tools are unavailable, continue the deterministic eval workfl
 
 ## Handoff
 
-Report the generated archive path, catalog paths, commands run, local browser QA result, whether JudgmentKit MCP was used or skipped, and any remaining risk or open question.
+Report the generated archive path, screenshot archive path, catalog paths, commands run, local browser QA result, whether JudgmentKit MCP was used or skipped, and any remaining risk or open question.
