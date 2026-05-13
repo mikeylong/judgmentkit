@@ -4,10 +4,10 @@
     "date": "2026-05-12",
     "mcp_release": "0.1.0",
     "mcp_release_segment": "mcp-0.1.0",
-    "run_id": "run-002",
-    "run_path": "2026-05-12/mcp-0.1.0/run-002",
-    "html_report": "2026-05-12/mcp-0.1.0/run-002/ui-generation-report.html",
-    "json_report": "2026-05-12/mcp-0.1.0/run-002/ui-generation-report.json",
+    "run_id": "run-003",
+    "run_path": "2026-05-12/mcp-0.1.0/run-003",
+    "html_report": "2026-05-12/mcp-0.1.0/run-003/ui-generation-report.html",
+    "json_report": "2026-05-12/mcp-0.1.0/run-003/ui-generation-report.json",
     "eval_id": "judgmentkit-ui-generation-paired-artifact-v1",
     "claim_level": "repeated_pair_signal",
     "summary": {
@@ -20,6 +20,25 @@
     }
   },
   "runs": [
+    {
+      "date": "2026-05-12",
+      "mcp_release": "0.1.0",
+      "mcp_release_segment": "mcp-0.1.0",
+      "run_id": "run-003",
+      "run_path": "2026-05-12/mcp-0.1.0/run-003",
+      "html_report": "2026-05-12/mcp-0.1.0/run-003/ui-generation-report.html",
+      "json_report": "2026-05-12/mcp-0.1.0/run-003/ui-generation-report.json",
+      "eval_id": "judgmentkit-ui-generation-paired-artifact-v1",
+      "claim_level": "repeated_pair_signal",
+      "summary": {
+        "cases": 2,
+        "passed": 2,
+        "failed": 0,
+        "guided_wins": 2,
+        "baseline_wins": 0,
+        "ties": 0
+      }
+    },
     {
       "date": "2026-05-12",
       "mcp_release": "0.1.0",

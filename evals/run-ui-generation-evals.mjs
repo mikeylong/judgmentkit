@@ -472,87 +472,217 @@ function htmlList(values) {
   return `<ul>${values.map((value) => `<li>${escapeHtml(value)}</li>`).join("")}</ul>`;
 }
 
-function htmlMetricEvidence(metric) {
+function htmlId(value) {
+  return String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function titleCase(value) {
+  return String(value)
+    .split("_")
+    .map((part) => `${part.slice(0, 1).toUpperCase()}${part.slice(1)}`)
+    .join(" ");
+}
+
+function treatmentLabel(treatment) {
+  if (treatment === "raw_brief_baseline") {
+    return "Raw baseline";
+  }
+  if (treatment === "judgmentkit_handoff") {
+    return "JudgmentKit guided";
+  }
+  if (treatment === "tie") {
+    return "Tie";
+  }
+  return titleCase(treatment);
+}
+
+function signedNumber(value) {
+  const rounded = round(value);
+  return rounded > 0 ? `+${rounded}` : String(rounded);
+}
+
+function metricEvidenceSummary(metric) {
   if ("present" in metric) {
-    return `
-      <div><strong>Present:</strong> ${htmlList(metric.present)}</div>
-      <div><strong>Missing:</strong> ${htmlList(metric.missing)}</div>
-    `;
+    return `${metric.present.length} present, ${metric.missing.length} missing`;
   }
 
+  return `${metric.leakage_count} leaks`;
+}
+
+function scoreCell(metric) {
   return `
-    <div><strong>Implementation leakage:</strong> ${htmlList(metric.implementation_leakage)}</div>
-    <div><strong>Review-packet leakage:</strong> ${htmlList(metric.review_packet_leakage)}</div>
+    <div class="score-cell">
+      <span class="metric-score">${escapeHtml(metric.score)}/5</span>
+      <span>${escapeHtml(metricEvidenceSummary(metric))}</span>
+    </div>
   `;
 }
 
-function htmlMetricTable(variant, reportDir) {
+function variantByTreatment(result, treatment) {
+  return result.variants.find((variant) => variant.treatment === treatment);
+}
+
+function htmlVariantScore(variant, reportDir) {
+  const isGuided = variant.treatment === "judgmentkit_handoff";
+  const roleClass = isGuided ? "guided" : "baseline";
+
+  return `
+    <article class="variant-score ${roleClass}" data-treatment="${escapeHtml(variant.treatment)}">
+      <div>
+        <p class="eyebrow">${escapeHtml(treatmentLabel(variant.treatment))}</p>
+        <h3>${escapeHtml(variant.label)}</h3>
+      </div>
+      <strong>${escapeHtml(variant.score)}<span>/100</span></strong>
+      <a href="${escapeHtml(variantHref(variant, reportDir))}">Open artifact</a>
+    </article>
+  `;
+}
+
+function htmlMetricComparison(result) {
+  const baseline = variantByTreatment(result, "raw_brief_baseline");
+  const guided = variantByTreatment(result, "judgmentkit_handoff");
   const rows = METRIC_IDS.map((metricId) => {
-    const metric = variant.metric_results[metricId];
-    const evidenceSummary =
-      "present" in metric ? `${metric.present.length} present` : `${metric.leakage_count} leaks`;
+    const baselineMetric = baseline.metric_results[metricId];
+    const guidedMetric = guided.metric_results[metricId];
+    const delta = guidedMetric.score - baselineMetric.score;
+
     return `
-      <tr>
-        <th scope="row">${escapeHtml(metricId)}</th>
-        <td>${escapeHtml(metric.score)}</td>
-        <td>${escapeHtml(evidenceSummary)}</td>
-        <td>${htmlMetricEvidence(metric)}</td>
+      <tr data-metric-row="${escapeHtml(metricId)}">
+        <th scope="row">${escapeHtml(titleCase(metricId))}</th>
+        <td data-label="Baseline">${scoreCell(baselineMetric)}</td>
+        <td data-label="Guided">${scoreCell(guidedMetric)}</td>
+        <td data-label="Delta"><span class="delta ${delta >= 0 ? "positive" : "negative"}">${escapeHtml(signedNumber(delta))}</span></td>
       </tr>
     `;
   }).join("");
 
   return `
-    <section class="variant">
-      <div class="variant-heading">
-        <div>
-          <h3>${escapeHtml(variant.label)}</h3>
-          <p>${escapeHtml(variant.treatment)}</p>
-        </div>
-        <strong>${escapeHtml(variant.score)}/100</strong>
+    <section class="metric-comparison" aria-label="${escapeHtml(result.title)} metric comparison">
+      <div class="section-heading">
+        <h3>Metric comparison</h3>
+        <p>Baseline and guided scores use the 0-5 metric scale; totals remain 0-100 weighted.</p>
       </div>
-      <p><a href="${escapeHtml(variantHref(variant, reportDir))}">${escapeHtml(variant.artifact)}</a></p>
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">Metric</th>
-            <th scope="col">Score</th>
-            <th scope="col">Summary</th>
-            <th scope="col">Evidence</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Metric</th>
+              <th scope="col">Baseline</th>
+              <th scope="col">Guided</th>
+              <th scope="col">Delta</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>
+    </section>
+  `;
+}
+
+function htmlEvidenceDetails(title, values) {
+  return `
+    <details>
+      <summary>${escapeHtml(title)}</summary>
+      ${htmlList(values)}
+    </details>
+  `;
+}
+
+function htmlEvidenceSummary(result) {
+  const baseline = variantByTreatment(result, "raw_brief_baseline");
+  const guided = variantByTreatment(result, "judgmentkit_handoff");
+  const baselineActivity = baseline.metric_results.activity_fit;
+  const guidedActivity = guided.metric_results.activity_fit;
+  const baselineDisclosure = baseline.metric_results.disclosure_discipline;
+  const guidedDisclosure = guided.metric_results.disclosure_discipline;
+
+  return `
+    <section class="evidence-grid" aria-label="${escapeHtml(result.title)} evidence">
+      <article class="evidence-panel">
+        <p class="eyebrow">Activity-fit evidence</p>
+        <h3>${escapeHtml(baselineActivity.present.length)} to ${escapeHtml(guidedActivity.present.length)} matched terms</h3>
+        <p>Guided output surfaced more of the task vocabulary reviewers need to judge activity fit.</p>
+        ${htmlEvidenceDetails(
+          `Baseline matched (${baselineActivity.present.length})`,
+          baselineActivity.present,
+        )}
+        ${htmlEvidenceDetails(
+          `Guided matched (${guidedActivity.present.length})`,
+          guidedActivity.present,
+        )}
+        ${htmlEvidenceDetails(
+          `Guided missing (${guidedActivity.missing.length})`,
+          guidedActivity.missing,
+        )}
+      </article>
+      <article class="evidence-panel">
+        <p class="eyebrow">Implementation leakage</p>
+        <h3>${escapeHtml(baselineDisclosure.leakage_count)} leaks to ${escapeHtml(guidedDisclosure.leakage_count)} leaks</h3>
+        <p>Leakage findings count terms that make implementation mechanics visible in the primary artifact.</p>
+        ${htmlEvidenceDetails(
+          `Baseline leakage (${baselineDisclosure.leakage_count} leaks)`,
+          [
+            ...baselineDisclosure.implementation_leakage,
+            ...baselineDisclosure.review_packet_leakage,
+          ],
+        )}
+        ${htmlEvidenceDetails(
+          `Guided leakage (${guidedDisclosure.leakage_count} leaks)`,
+          [
+            ...guidedDisclosure.implementation_leakage,
+            ...guidedDisclosure.review_packet_leakage,
+          ],
+        )}
+      </article>
     </section>
   `;
 }
 
 function htmlCase(result, reportDir) {
+  const baseline = variantByTreatment(result, "raw_brief_baseline");
+  const guided = variantByTreatment(result, "judgmentkit_handoff");
+  const caseId = htmlId(result.id);
+
   return `
-    <section class="case">
+    <section class="case-review" id="${escapeHtml(caseId)}" aria-labelledby="${escapeHtml(caseId)}-title">
       <div class="case-heading">
         <div>
-          <h2>${escapeHtml(result.title)}</h2>
+          <p class="eyebrow">Case review</p>
+          <h2 id="${escapeHtml(caseId)}-title">${escapeHtml(result.title)}</h2>
           <p>${escapeHtml(result.task_prompt)}</p>
         </div>
         <span class="status ${result.passed ? "passed" : "failed"}">${result.passed ? "Passed" : "Failed"}</span>
       </div>
-      <dl class="summary-grid">
-        <div><dt>Winner</dt><dd>${escapeHtml(result.winner)}</dd></div>
-        <div><dt>Expected winner</dt><dd>${escapeHtml(result.expected_winner)}</dd></div>
-        <div><dt>Score delta</dt><dd>${escapeHtml(result.score_delta)}</dd></div>
-        <div><dt>Minimum delta</dt><dd>${escapeHtml(result.minimum_score_delta)}</dd></div>
+      <dl class="case-outcome">
+        <div><dt>Winner</dt><dd>${escapeHtml(treatmentLabel(result.winner))}</dd></div>
+        <div><dt>Expected winner</dt><dd>${escapeHtml(treatmentLabel(result.expected_winner))}</dd></div>
+        <div><dt>Score delta</dt><dd>${escapeHtml(signedNumber(result.score_delta))}</dd></div>
+        <div><dt>Threshold</dt><dd>${escapeHtml(result.minimum_score_delta)}</dd></div>
       </dl>
-      <div class="rationale">
-        <h3>Rationale</h3>
-        ${htmlList(result.rationale)}
+      <div class="score-strip" aria-label="${escapeHtml(result.title)} score comparison">
+        ${htmlVariantScore(baseline, reportDir)}
+        <div class="score-delta">
+          <span>${escapeHtml(signedNumber(result.score_delta))}</span>
+          <small>guided delta</small>
+        </div>
+        ${htmlVariantScore(guided, reportDir)}
       </div>
-      <div class="expected">
-        <h3>Expected Outcomes</h3>
-        ${htmlList(result.expected_outcomes)}
-      </div>
-      <div class="variants">
-        ${result.variants.map((variant) => htmlMetricTable(variant, reportDir)).join("")}
-      </div>
+      ${htmlMetricComparison(result)}
+      ${htmlEvidenceSummary(result)}
+      <details class="case-notes">
+        <summary>Expected outcomes and rationale</summary>
+        <div>
+          <h3>Expected outcomes</h3>
+          ${htmlList(result.expected_outcomes)}
+        </div>
+        <div>
+          <h3>Rationale</h3>
+          ${htmlList(result.rationale)}
+        </div>
+      </details>
     </section>
   `;
 }
@@ -567,61 +697,124 @@ function buildHtmlReport(report, runInfo) {
   <style>
     :root {
       color-scheme: light;
-      --ink: #17212b;
-      --muted: #5c6875;
-      --line: #d6dde5;
+      --ink: #18202a;
+      --muted: #5d6876;
+      --line: #d7dee7;
       --panel: #ffffff;
-      --surface: #f6f8fa;
-      --accent: #236458;
+      --surface: #f7f8fa;
+      --accent: #1f635b;
+      --accent-soft: #e5f2ee;
       --danger: #8a2f24;
+      --danger-soft: #f8e3df;
+      --warn: #8a621d;
+      --warn-soft: #f6edda;
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
     * { box-sizing: border-box; }
+    html { background: var(--surface); }
     body {
       margin: 0;
       color: var(--ink);
       background: var(--surface);
       line-height: 1.45;
+      overflow-x: hidden;
     }
     main {
-      max-width: 1180px;
+      max-width: 1120px;
       margin: 0 auto;
-      padding: 32px 24px 48px;
+      padding: 30px 24px 56px;
     }
     h1, h2, h3, p { margin-top: 0; }
-    h1 { margin-bottom: 10px; font-size: 2rem; line-height: 1.1; }
-    h2 { margin-bottom: 8px; font-size: 1.35rem; }
-    h3 { margin-bottom: 8px; font-size: 1rem; }
+    h1 { max-width: 760px; margin-bottom: 10px; font-size: 2rem; line-height: 1.08; }
+    h2 { margin-bottom: 8px; font-size: 1.3rem; line-height: 1.2; }
+    h3 { margin-bottom: 6px; font-size: 1rem; line-height: 1.25; }
     a { color: #174d7a; }
-    .lede { color: var(--muted); max-width: 760px; }
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-      gap: 12px;
-      margin: 20px 0;
+    a:hover { color: #0e385b; }
+    dl { margin: 0; }
+    dt {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 760;
+      letter-spacing: 0;
+      text-transform: uppercase;
     }
-    .summary-grid div, .case, .variant, .notice {
+    dd { margin: 4px 0 0; font-weight: 760; overflow-wrap: anywhere; }
+    ul { margin: 6px 0 0; padding-left: 18px; }
+    summary { cursor: pointer; font-weight: 760; }
+    .muted { color: var(--muted); }
+    .report-dashboard {
+      display: grid;
+      gap: 28px;
+    }
+    .report-header {
+      display: grid;
+      gap: 18px;
+    }
+    .report-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      margin: 0;
+    }
+    .lede {
+      max-width: 780px;
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 780;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .outcome-band {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.4fr);
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--panel);
+      overflow: hidden;
     }
-    .summary-grid div { padding: 14px; }
-    dt {
-      color: var(--muted);
-      font-size: 0.75rem;
-      font-weight: 750;
-      text-transform: uppercase;
-    }
-    dd { margin: 4px 0 0; font-weight: 700; }
-    .notice {
-      padding: 14px 16px;
-      color: var(--muted);
-    }
-    .case {
-      margin-top: 24px;
+    .outcome-primary {
       padding: 20px;
+      border-right: 1px solid var(--line);
     }
-    .case-heading, .variant-heading {
+    .outcome-primary strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 2rem;
+      line-height: 1;
+    }
+    .outcome-primary p:last-child { margin-bottom: 0; color: var(--muted); }
+    .run-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .run-meta div {
+      min-width: 0;
+      padding: 16px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .run-meta div:nth-child(3n) { border-right: 0; }
+    .run-meta div:nth-last-child(-n + 3) { border-bottom: 0; }
+    .notice {
+      margin: 0;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      color: var(--muted);
+    }
+    .case-review {
+      display: grid;
+      gap: 18px;
+      padding: 30px 0 4px;
+      border-top: 1px solid var(--line);
+    }
+    .case-heading {
       display: flex;
       justify-content: space-between;
       gap: 20px;
@@ -631,56 +824,243 @@ function buildHtmlReport(report, runInfo) {
       border-radius: 999px;
       padding: 5px 10px;
       font-size: 0.8rem;
-      font-weight: 750;
+      font-weight: 760;
+      white-space: nowrap;
     }
     .passed { background: #dff3e8; color: var(--accent); }
-    .failed { background: #f8ded9; color: var(--danger); }
-    .rationale, .expected { margin-top: 16px; }
-    .variants {
+    .failed { background: var(--danger-soft); color: var(--danger); }
+    .case-outcome {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 16px;
-      margin-top: 18px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      overflow: hidden;
     }
-    .variant { padding: 16px; overflow-x: auto; }
-    .variant-heading p { margin-bottom: 0; color: var(--muted); }
-    .variant-heading strong { font-size: 1.3rem; }
+    .case-outcome div {
+      min-width: 0;
+      padding: 14px 16px;
+      border-right: 1px solid var(--line);
+    }
+    .case-outcome div:last-child { border-right: 0; }
+    .score-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+    .variant-score {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px 16px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .variant-score.guided { border-color: #a8d5c8; background: #fbfffd; }
+    .variant-score h3 { margin-bottom: 0; }
+    .variant-score strong {
+      align-self: start;
+      font-size: 1.75rem;
+      line-height: 1;
+      text-align: right;
+    }
+    .variant-score strong span {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .variant-score a { grid-column: 1 / -1; width: fit-content; }
+    .score-delta {
+      display: grid;
+      min-width: 94px;
+      place-content: center;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      text-align: center;
+    }
+    .score-delta span { font-size: 1.25rem; font-weight: 800; }
+    .score-delta small { color: var(--muted); font-weight: 700; }
+    .section-heading {
+      display: flex;
+      gap: 14px;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .section-heading p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      max-width: 100%;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 12px;
+      min-width: 720px;
       font-size: 0.9rem;
     }
     th, td {
       border-top: 1px solid var(--line);
-      padding: 9px 8px;
+      padding: 11px 12px;
       text-align: left;
       vertical-align: top;
+      overflow-wrap: anywhere;
     }
+    thead th { border-top: 0; }
     thead th { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; }
-    tbody th { font-weight: 700; }
-    ul { margin: 6px 0 0; padding-left: 18px; }
-    .report-links { margin: 0 0 20px; }
-    .muted { color: var(--muted); }
+    tbody th { width: 22%; font-weight: 760; }
+    .score-cell {
+      display: grid;
+      gap: 2px;
+      color: var(--muted);
+    }
+    .metric-score {
+      color: var(--ink);
+      font-weight: 800;
+    }
+    .delta {
+      display: inline-flex;
+      min-width: 46px;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-weight: 800;
+    }
+    .delta.positive { background: var(--accent-soft); color: var(--accent); }
+    .delta.negative { background: var(--danger-soft); color: var(--danger); }
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .evidence-panel {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .evidence-panel h3 { margin-bottom: 6px; }
+    .evidence-panel p:not(.eyebrow) { color: var(--muted); }
+    .evidence-panel details {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+    .case-notes {
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+    }
+    .case-notes > div {
+      display: grid;
+      gap: 4px;
+      margin-top: 12px;
+    }
+    @media (max-width: 760px) {
+      main { padding: 22px 16px 40px; }
+      h1 { font-size: 1.72rem; }
+      .outcome-band,
+      .score-strip,
+      .evidence-grid {
+        grid-template-columns: 1fr;
+      }
+      .outcome-primary { border-right: 0; border-bottom: 1px solid var(--line); }
+      .run-meta { grid-template-columns: 1fr 1fr; }
+      .run-meta div:nth-child(3n) { border-right: 1px solid var(--line); }
+      .run-meta div:nth-child(2n) { border-right: 0; }
+      .run-meta div:nth-last-child(-n + 3) { border-bottom: 1px solid var(--line); }
+      .run-meta div:nth-last-child(-n + 2) { border-bottom: 0; }
+      .case-heading,
+      .section-heading {
+        display: grid;
+      }
+      .case-outcome { grid-template-columns: 1fr 1fr; }
+      .case-outcome div:nth-child(2n) { border-right: 0; }
+      .case-outcome div:nth-child(-n + 2) { border-bottom: 1px solid var(--line); }
+      .score-delta {
+        min-width: 0;
+        min-height: 68px;
+      }
+      .variant-score strong { font-size: 1.45rem; }
+      .table-wrap { overflow-x: visible; }
+      table,
+      thead,
+      tbody,
+      tr,
+      th,
+      td {
+        display: block;
+        width: 100%;
+        min-width: 0;
+      }
+      table { min-width: 0; }
+      thead { display: none; }
+      tbody tr {
+        padding: 12px;
+        border-top: 1px solid var(--line);
+      }
+      tbody tr:first-child { border-top: 0; }
+      th,
+      td {
+        border-top: 0;
+        padding: 4px 0;
+      }
+      tbody th {
+        width: auto;
+        margin-bottom: 6px;
+      }
+      td::before {
+        display: block;
+        margin-bottom: 2px;
+        color: var(--muted);
+        content: attr(data-label);
+        font-size: 0.72rem;
+        font-weight: 760;
+        text-transform: uppercase;
+      }
+      .delta { min-width: 0; }
+    }
   </style>
 </head>
 <body>
-  <main>
-    <h1>JudgmentKit UI-Generation Eval</h1>
-    <p class="lede">Deterministic paired-artifact scoring for existing standalone comparison apps.</p>
-    <p class="report-links"><a href="../../..">All eval runs</a> · <a href="${JSON_REPORT_FILENAME}">JSON report</a></p>
-    <dl class="summary-grid">
-      <div><dt>Eval id</dt><dd>${escapeHtml(report.eval_id)}</dd></div>
-      <div><dt>Claim level</dt><dd>${escapeHtml(report.claim_level)}</dd></div>
-      <div><dt>Run date</dt><dd>${escapeHtml(report.run.date)}</dd></div>
-      <div><dt>MCP release</dt><dd>${escapeHtml(report.run.mcp_release)}</dd></div>
-      <div><dt>Run</dt><dd>${escapeHtml(report.run.run_id)}</dd></div>
-      <div><dt>Cases</dt><dd>${escapeHtml(report.summary.cases)}</dd></div>
-      <div><dt>Passed</dt><dd>${escapeHtml(report.summary.passed)}</dd></div>
-      <div><dt>Guided wins</dt><dd>${escapeHtml(report.summary.guided_wins)}</dd></div>
-      <div><dt>Baseline wins</dt><dd>${escapeHtml(report.summary.baseline_wins)}</dd></div>
-    </dl>
-    <p class="notice">${escapeHtml(report.benchmark_policy)}</p>
+  <main class="report-dashboard">
+    <header class="report-header">
+      <nav class="report-links" aria-label="Report links">
+        <a href="../../..">All eval runs</a>
+        <a href="../../../${CATALOG_JSON_FILENAME}">Catalog JSON</a>
+        <a href="${JSON_REPORT_FILENAME}">JSON report</a>
+      </nav>
+      <div>
+        <p class="eyebrow">UI generation eval report</p>
+        <h1>JudgmentKit UI-Generation Eval</h1>
+        <p class="lede">Deterministic paired-artifact scoring for existing standalone comparison apps. Use this report to review winner, delta, leakage, and activity-fit evidence by case.</p>
+      </div>
+      <section class="outcome-band" aria-label="Run outcome summary">
+        <div class="outcome-primary">
+          <p class="eyebrow">Latest run outcome</p>
+          <strong>${escapeHtml(report.summary.passed)}/${escapeHtml(report.summary.cases)} cases passed</strong>
+          <p>${escapeHtml(report.summary.guided_wins)} guided wins, ${escapeHtml(report.summary.baseline_wins)} baseline wins, ${escapeHtml(report.summary.ties)} ties.</p>
+        </div>
+        <dl class="run-meta">
+          <div><dt>Claim level</dt><dd>${escapeHtml(report.claim_level)}</dd></div>
+          <div><dt>Run date</dt><dd>${escapeHtml(report.run.date)}</dd></div>
+          <div><dt>MCP release</dt><dd>${escapeHtml(report.run.mcp_release)}</dd></div>
+          <div><dt>Run</dt><dd>${escapeHtml(report.run.run_id)}</dd></div>
+          <div><dt>Eval id</dt><dd>${escapeHtml(report.eval_id)}</dd></div>
+          <div><dt>Metric scale</dt><dd>${escapeHtml(report.metric_scale.metric_score)}</dd></div>
+        </dl>
+      </section>
+      <p class="notice">${escapeHtml(report.benchmark_policy)}</p>
+    </header>
     ${report.results.map((result) => htmlCase(result, runInfo.runDir)).join("")}
   </main>
 </body>
