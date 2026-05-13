@@ -46,9 +46,9 @@
       margin: 0;
       padding-left: 20px;
     }
-    .app-header,
-    .case-header,
-    .handoff {
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
       display: flex;
       gap: 18px;
       align-items: start;
@@ -67,7 +67,7 @@
       letter-spacing: 0;
       text-transform: uppercase;
     }
-    .status,
+    .app-shell .status,
     .capture-warning {
       display: inline-flex;
       align-items: center;
@@ -86,30 +86,30 @@
       background: #fff7e8;
       color: var(--warning);
     }
-    .workspace {
+    .app-shell .workspace {
       display: grid;
       grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
       gap: 18px;
       margin-top: 24px;
     }
-    .queue,
-    .detail,
-    .detail > section,
-    .handoff {
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
       border: 1px solid var(--line);
       border-radius: 8px;
       background: var(--panel);
     }
-    .queue,
-    .detail {
+    .app-shell .queue,
+    .app-shell .detail {
       padding: 16px;
     }
-    .queue {
+    .app-shell .queue {
       display: grid;
       gap: 10px;
       align-content: start;
     }
-    .queue-item {
+    .app-shell .queue-item {
       display: grid;
       gap: 3px;
       width: 100%;
@@ -120,51 +120,51 @@
       color: var(--ink);
       text-align: left;
     }
-    .queue-item small {
+    .app-shell .queue-item small {
       color: var(--muted);
     }
-    .queue-item.is-selected {
+    .app-shell .queue-item.is-selected {
       border-color: var(--accent);
       background: #edf6f7;
     }
-    .detail {
+    .app-shell .detail {
       display: grid;
       gap: 14px;
     }
-    .info-grid {
+    .app-shell .info-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 10px;
     }
-    .info-grid > div,
-    .detail > section {
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
       padding: 14px;
     }
-    .info-grid > div {
+    .app-shell .info-grid > div {
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #faf9f5;
     }
-    .info-grid span {
+    .app-shell .info-grid span {
       display: block;
       margin-bottom: 4px;
       color: var(--muted);
       font-size: 13px;
     }
-    .evidence-list {
+    .app-shell .evidence-list {
       display: grid;
       gap: 8px;
       margin: 0;
       padding: 0;
       list-style: none;
     }
-    .evidence-list li {
+    .app-shell .evidence-list li {
       display: grid;
       grid-template-columns: 34px minmax(0, 1fr);
       gap: 8px;
       align-items: start;
     }
-    .check {
+    .app-shell .check {
       display: inline-grid;
       place-items: center;
       width: 26px;
@@ -175,13 +175,13 @@
       font-size: 11px;
       font-weight: 900;
     }
-    .actions {
+    .app-shell .actions {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
     }
-    .actions button,
-    .handoff button {
+    .app-shell .actions button,
+    .app-shell .handoff button {
       min-height: 40px;
       padding: 8px 12px;
       border: 1px solid var(--line);
@@ -191,12 +191,12 @@
       cursor: pointer;
       font-weight: 800;
     }
-    button.primary {
+    .app-shell button.primary {
       border-color: var(--accent);
       background: var(--accent);
       color: #ffffff;
     }
-    .handoff {
+    .app-shell .handoff {
       padding: 14px;
       background: #f3f8f8;
     }
@@ -232,13 +232,13 @@
     }
     @media (max-width: 760px) {
       .app-shell { padding: 16px; }
-      .app-header,
-      .case-header,
-      .handoff {
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
         display: grid;
       }
-      .workspace,
-      .info-grid {
+      .app-shell .workspace,
+      .app-shell .info-grid {
         grid-template-columns: 1fr;
       }
     }

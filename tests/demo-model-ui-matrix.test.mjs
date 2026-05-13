@@ -300,6 +300,15 @@ for (const [rowId, modelLabel, generationSource, reasoningEffort] of ROWS) {
     assert.equal(provenance.screenshot_path, entry.screenshot_path);
     assert.ok(artifactHtml.includes('id="model-ui-provenance"'));
     assert.equal(artifactHtml.includes("Capture required"), false);
+    assert.equal(
+      /^\s*\.evidence-list\s+li\s*\{/m.test(artifactHtml),
+      false,
+      `${id} should not apply shell evidence-list grid styles globally to raw model HTML`,
+    );
+    assert.ok(
+      artifactHtml.includes(".app-shell .evidence-list li"),
+      `${id} should scope evidence-list grid styles to the deterministic shell`,
+    );
 
     if (includesMaterialUi) {
       assert.ok(artifactHtml.includes('data-emotion="mui'));
