@@ -16,7 +16,7 @@
   "design_system_render_mode": "static-ssr",
   "render_mode": "material_ui",
   "runner": "scripts/capture-model-ui-matrix.mjs",
-  "captured_at": "2026-05-13T22:33:38.196Z",
+  "captured_at": "2026-05-14T01:55:39.311Z",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
@@ -25,14 +25,14 @@
   },
   "source_context_sha256": "faf2f418442096d00104d248434e4683f090b35facec53e49d8ad2c657a7c7a1",
   "prompt_sha256": "602ed8d9987b97d23afb1e6f7e9799c67ff0cc5bfdcf933e363c3c3daaa7ebb4",
-  "raw_response_sha256": "e94179c8080bc2d47d5c305ca5193f077f7c9c736f4f943c79121b9359cf44ed",
+  "raw_response_sha256": "f11bc6a40ce247f940c8c3d7ca938295e058b2d9101775d739c477ca6153aaf3",
   "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",
   "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix.",
   "parsed": {
-    "summary": "A support operations manager is returning refund escalation R-1842 to the support agent because required receipt evidence is missing.",
+    "summary": "Structured surface data for a refund escalation review that focuses the manager on evidence, policy fit, decision path, and handoff.",
     "surface": {
       "eyebrow": "Refund escalation review",
-      "heading": "Nora Diaz refund escalation",
+      "heading": "Nora Diaz refund request",
       "status": "Evidence incomplete",
       "queue_title": "Refund queue",
       "queue": [
@@ -73,8 +73,12 @@
           "value": "Support agent"
         },
         {
-          "label": "Evidence gap",
-          "value": "Receipt photo missing"
+          "label": "Current path",
+          "value": "Return for evidence"
+        },
+        {
+          "label": "Outcome",
+          "value": "Handoff with the next action and reason"
         }
       ],
       "evidence": [
@@ -88,21 +92,22 @@
       "actions": [
         "Approve refund",
         "Send to policy review",
-        "Return for evidence"
+        "Return for evidence",
+        "Send handoff"
       ],
       "primary_action": "Return for evidence",
       "handoff": {
         "owner": "Support agent",
-        "title": "Missing receipt proof",
-        "reason": "Receipt photo is missing. Ask the customer to attach proof before approval",
-        "action": "Return the request to the support agent with the missing evidence request"
+        "title": "Return for missing receipt",
+        "reason": "Receipt photo is missing. Ask the customer to attach proof before approval.",
+        "action": "Return the request to the support agent with the missing evidence request."
       }
     }
   },
-  "raw_response": "{\"summary\":\"A support operations manager is returning refund escalation R-1842 to the support agent because required receipt evidence is missing.\",\"surface\":{\"eyebrow\":\"Refund escalation review\",\"heading\":\"Nora Diaz refund escalation\",\"status\":\"Evidence incomplete\",\"queue_title\":\"Refund queue\",\"queue\":[{\"id\":\"R-1842\",\"customer\":\"Nora Diaz\",\"state\":\"Needs receipt\",\"amount\":\"$184.20\"},{\"id\":\"R-1843\",\"customer\":\"Jun Park\",\"state\":\"Policy question\",\"amount\":\"$89.00\"},{\"id\":\"R-1844\",\"customer\":\"Amara Blake\",\"state\":\"Manager review\",\"amount\":\"$312.75\"}],\"selected\":{\"id\":\"R-1842\",\"customer\":\"Nora Diaz\",\"amount\":\"$184.20\",\"plan\":\"Pro annual\",\"request\":\"Subscription renewal disputed after agent escalation.\",\"status\":\"Evidence incomplete\"},\"info\":[{\"label\":\"Decision needed\",\"value\":\"Approve refund, send to policy review, or return for missing evidence\"},{\"label\":\"Next owner\",\"value\":\"Support agent\"},{\"label\":\"Evidence gap\",\"value\":\"Receipt photo missing\"}],\"evidence\":[\"Renewal date confirmed in purchase history.\",\"Support note captures the customer's refund reason.\",\"Receipt photo is missing before manager approval.\"],\"policy_title\":\"Policy context\",\"policy\":\"Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.\",\"decision_title\":\"Decision path\",\"actions\":[\"Approve refund\",\"Send to policy review\",\"Return for evidence\"],\"primary_action\":\"Return for evidence\",\"handoff\":{\"owner\":\"Support agent\",\"title\":\"Missing receipt proof\",\"reason\":\"Receipt photo is missing. Ask the customer to attach proof before approval\",\"action\":\"Return the request to the support agent with the missing evidence request\"}}}",
+  "raw_response": "{\"summary\":\"Structured surface data for a refund escalation review that focuses the manager on evidence, policy fit, decision path, and handoff.\",\"surface\":{\"eyebrow\":\"Refund escalation review\",\"heading\":\"Nora Diaz refund request\",\"status\":\"Evidence incomplete\",\"queue_title\":\"Refund queue\",\"queue\":[{\"id\":\"R-1842\",\"customer\":\"Nora Diaz\",\"state\":\"Needs receipt\",\"amount\":\"$184.20\"},{\"id\":\"R-1843\",\"customer\":\"Jun Park\",\"state\":\"Policy question\",\"amount\":\"$89.00\"},{\"id\":\"R-1844\",\"customer\":\"Amara Blake\",\"state\":\"Manager review\",\"amount\":\"$312.75\"}],\"selected\":{\"id\":\"R-1842\",\"customer\":\"Nora Diaz\",\"amount\":\"$184.20\",\"plan\":\"Pro annual\",\"request\":\"Subscription renewal disputed after agent escalation.\",\"status\":\"Evidence incomplete\"},\"info\":[{\"label\":\"Decision needed\",\"value\":\"Approve refund, send to policy review, or return for missing evidence\"},{\"label\":\"Next owner\",\"value\":\"Support agent\"},{\"label\":\"Current path\",\"value\":\"Return for evidence\"},{\"label\":\"Outcome\",\"value\":\"Handoff with the next action and reason\"}],\"evidence\":[\"Renewal date confirmed in purchase history.\",\"Support note captures the customer's refund reason.\",\"Receipt photo is missing before manager approval.\"],\"policy_title\":\"Policy context\",\"policy\":\"Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.\",\"decision_title\":\"Decision path\",\"actions\":[\"Approve refund\",\"Send to policy review\",\"Return for evidence\",\"Send handoff\"],\"primary_action\":\"Return for evidence\",\"handoff\":{\"owner\":\"Support agent\",\"title\":\"Return for missing receipt\",\"reason\":\"Receipt photo is missing. Ask the customer to attach proof before approval.\",\"action\":\"Return the request to the support agent with the missing evidence request.\"}}}",
   "execution": {
     "status": 0,
-    "stdout_sha256": "e009b2ae52a06dcd1105abe7e4f7346ee24f384977e2e66e12fb271a84e2d6fe",
-    "stderr_sha256": "350df961654332d8eab5ad4f7889534fcfe82a8579f13ebad9d49a3c102ac52d"
+    "stdout_sha256": "e5852d973af22d15a12f033cfca1b3b04d30af90f62b4feed4ec9426a19b9469",
+    "stderr_sha256": "2864863bd22ae6780be0028b14039f1920cc4a4df0a0cd004dad5728bce17b8e"
   }
 }

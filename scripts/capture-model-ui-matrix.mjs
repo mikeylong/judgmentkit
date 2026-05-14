@@ -13,6 +13,10 @@ const CAPTURES_DIR = path.join(OUTPUT_DIR, "captures");
 const SOURCE_BRIEF_FILE = path.join(ROOT_DIR, "examples/demo/refund-ops-implementation-heavy.brief.txt");
 const HANDOFF_FILE = path.join(OUTPUT_DIR, "reviewed-handoff.fixture.json");
 const DESIGN_SYSTEM_FILE = path.join(OUTPUT_DIR, "design-system-adapter.json");
+const MODEL_CAPTURE_TIMEOUT_MS = Number.parseInt(
+  process.env.MODEL_UI_CAPTURE_TIMEOUT_MS ?? "900000",
+  10,
+);
 
 const SELECTED_CASE = {
   id: "R-1842",
@@ -553,7 +557,7 @@ async function captureWithCodex(target, prompt) {
     outputFile,
     "-",
   ];
-  const execution = run("codex", args, { input: prompt, timeout: 900_000 });
+  const execution = run("codex", args, { input: prompt, timeout: MODEL_CAPTURE_TIMEOUT_MS });
   const rawResponse = await fs.readFile(outputFile, "utf8");
 
   return {
@@ -573,6 +577,34 @@ function buildCompactRetryPrompt(target, contextPayload) {
     : "Return HTML and optional CSS.";
 
   if (target.render_mode === "material_ui") {
+    const compactSurface = {
+      summary: "one sentence",
+      surface: {
+        eyebrow: "Refund review",
+        heading: "Refund Review Workspace",
+        status: "Evidence incomplete",
+        queue_title: "Escalation queue",
+        queue: QUEUE,
+        selected: SELECTED_CASE,
+        info: [
+          { label: "Case", value: SELECTED_CASE.id },
+          { label: "Amount", value: SELECTED_CASE.amount },
+          { label: "Plan", value: SELECTED_CASE.plan },
+        ],
+        evidence: SELECTED_CASE.evidence,
+        policy_title: "Policy context",
+        policy: SELECTED_CASE.policy,
+        decision_title: "Decision path",
+        actions: ["Approve refund", "Send to policy review", "Return for missing evidence"],
+        primary_action: "Return for missing evidence",
+        handoff: {
+          owner: "Support agent",
+          title: "Missing evidence handoff",
+          reason: "Receipt photo is missing before manager approval.",
+          action: "Ask the agent to collect the receipt photo before approval.",
+        },
+      },
+    };
     return [
       SYSTEM_PROMPT,
       "",
@@ -581,7 +613,7 @@ function buildCompactRetryPrompt(target, contextPayload) {
       designBoundary,
       `Case: ${caseSummary}`,
       "Return one compact JSON object only:",
-      '{"summary":"one sentence","surface":{"heading":"Refund Review Workspace","status":"Ready","evidence":["Renewal date confirmed","Support note captured","Receipt photo missing"],"actions":["Approve refund","Send to policy review","Return for evidence"],"handoff":{"owner":"Support agent","reason":"Receipt photo is missing.","action":"Send handoff"}}}',
+      JSON.stringify(compactSurface),
     ].join("\n");
   }
 
@@ -661,7 +693,31 @@ async function main() {
     }
     let promptForCapture = prompt;
     let promptSha = hash(promptForCapture);
-    let capture = await captureTarget(target, promptForCapture);
+    let capture;
+    try {
+      capture = await captureTarget(target, promptForCapture);
+    } catch (error) {
+      if (target.cli !== "codex" || error.code !== "ETIMEDOUT") {
+        throw error;
+      }
+      const failureFile = path.join(CAPTURES_DIR, `${target.output_file}.failed.txt`);
+      await fs.writeFile(
+        failureFile,
+        [
+          `${target.artifact_id} full prompt capture timed out.`,
+          `Error: ${error.message}`,
+          "Retrying with compact prompt.",
+          "",
+          promptForCapture,
+        ].join("\n"),
+      );
+      process.stdout.write(
+        `${target.artifact_id} full prompt timed out; retrying with compact JSON prompt.\n`,
+      );
+      promptForCapture = buildCompactRetryPrompt(target, contextPayload);
+      promptSha = hash(promptForCapture);
+      capture = await captureTarget(target, promptForCapture);
+    }
     let rawResponse = sanitizeModelResponse(capture.raw_response);
     let parsed;
 
@@ -747,6 +803,7 @@ async function main() {
       path.join(CAPTURES_DIR, target.output_file),
       `${JSON.stringify(transcript, null, 2)}\n`,
     );
+    await fs.rm(path.join(CAPTURES_DIR, `${target.output_file}.failed.txt`), { force: true });
     process.stdout.write(`Captured ${target.artifact_id} -> ${target.output_file}\n`);
   }
 

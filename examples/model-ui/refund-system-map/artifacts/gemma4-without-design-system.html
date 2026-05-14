@@ -243,57 +243,11 @@
       }
     }
   </style>
+    <style data-model-css>main{font-family:system-ui;padding:24px}.panel{border:1px solid #ddd;padding:12px}</style>
 
   </head>
   <body data-artifact-id="gemma4-lms-with-judgmentkit" data-row-id="gemma4-lms" data-column-id="with-judgmentkit" data-judgmentkit-mode="with_judgmentkit" data-design-system-mode="none">
-    <main class="raw-model-candidate" data-primary-surface>
-  <div class="container">
-    <div class="header">
-      <div class="case-summary">
-        <h1>Refund Escalation Review</h1>
-        <p>Reviewing case ID: R-1842</p>
-      </div>
-      <div>
-        <span class="amount">Amount: $184.20</span>
-      </div>
-    </div>
-
-    <section class="case-details">
-      <h2>Customer & Request</h2>
-      <p><strong>Customer:</strong> Nora Diaz</p>
-      <p><strong>Plan:</strong> Pro annual</p>
-      <p><strong>Request:</strong> Subscription renewal disputed after agent escalation.</p>
-      <p><strong>Current Status:</strong> Evidence incomplete</p>
-    </section>
-
-    <section class="evidence-checklist">
-      <h2>Evidence Checklist</h2>
-      <ul class="evidence-list">
-        <li>Renewal date confirmed in purchase history.</li>
-        <li>Support note captures the customer's refund reason.</li>
-        <li style="color: #f44336; font-weight: bold;">Receipt photo is missing before manager approval.</li>
-      </ul>
-    </section>
-
-    <section class="policy-context">
-      <h2>Policy Context</h2>
-      <div class="policy-note">
-        <p><strong>Guidance:</strong> Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p>
-      </div>
-    </section>
-
-    <section class="decision-path">
-      <h2>Decision Path</h2>
-      <p>Determine the next action for this escalation:</p>
-      <div class="action-buttons">
-        <button class="approve">Approve refund</button>
-        <button class="policy">Send to policy review</button>
-        <button class="return">Return for evidence</button>
-      </div>
-    </section>
-
-  </div>
-</main>
+    <main class="raw-model-candidate" data-primary-surface><h1>Refund Review Workspace</h1><section class="panel"><h2>Evidence Status</h2><p>The required receipt photo is missing.</p></section><section class="panel"><h2>Decision Path</h2><button>Submit Missing Receipt Photo</button><button>Leave Handoff</button></section><section class="panel"><h2>Handoff</h2><p>Send the case to a support agent for manual review.</p></section></main>
     <aside class="provenance" aria-label="Artifact provenance">
       <strong>Provenance:</strong>
       <span>captured</span>
@@ -327,18 +281,18 @@
   "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
   "design_system_adapter_file": null,
   "capture_file": "captures/gemma4-lms-with-judgmentkit.json",
-  "model_response_summary": "A support operations manager reviews a customer refund escalation case, assesses the evidence, and decides the next action: approve the refund, send it to policy review, or return it to the support agent for missing evidence.",
+  "model_response_summary": "The workspace informs the user that evidence is missing and offers options to submit additional files or proceed to a handoff.",
   "capture_provenance": {
     "status": "captured",
     "capture_type": "model-output-transcript",
-    "captured_at": "2026-05-13T22:20:25.925Z",
+    "captured_at": "2026-05-14T01:00:49.194Z",
     "runner": "scripts/capture-model-ui-matrix.mjs",
     "provider": "lmstudio",
     "model": "google/gemma-4-e2b",
     "cli": "lms",
     "transcript_file": "captures/gemma4-lms-with-judgmentkit.json",
-    "prompt_sha256": "c6392a1fc8fbf735b4c1413b3f9c8867f8804a707785f8e6ecc75b8740896845",
-    "raw_response_sha256": "af61ba969974e896ee7edc99cbcc5ee78c7cec6a542abd1c4ab7dbee24d7e318",
+    "prompt_sha256": "76f4129a375ea730fe42a56c10d21cc50cbb098c71ac9b5b5869152439a714f5",
+    "raw_response_sha256": "f65e502371c0d848cc5f4678dc58ee5fed097cf33044f182355a6e3cdf03e432",
     "source_context_sha256": "be784981a20606115ae83201c3575398355fce25a92be25d2654871cd5374459",
     "reasoning_effort": null,
     "context_included": {

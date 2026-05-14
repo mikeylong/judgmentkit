@@ -16,7 +16,7 @@
   "design_system_render_mode": "static-ssr",
   "render_mode": "material_ui",
   "runner": "scripts/capture-model-ui-matrix.mjs",
-  "captured_at": "2026-05-13T22:23:00.264Z",
+  "captured_at": "2026-05-14T01:01:40.219Z",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
@@ -25,23 +25,22 @@
   },
   "source_context_sha256": "e47c8236e48866103141dfc43e156fcf0a78cc2a8e169cacb06185aef94227f0",
   "prompt_sha256": "f4d731b7e6a1bea45ce808e3e0b63e843bef9c3c6f3bd18a2618be86212a333d",
-  "raw_response_sha256": "52ff05998fbdcf7062b82dde35be5a87a8eff1583d637b1605aabb4205478a1b",
+  "raw_response_sha256": "eca5c5821b0c7ccd5cc96a5997776e077afc450d0025e5b2e10127997ccdf7d9",
   "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
   "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix. Compatibility alias for the previous six-artifact matrix URL.",
   "parsed": {
-    "summary": "The refund review is incomplete because the necessary receipt photograph has not been provided.",
+    "summary": "The refund review is stalled because the necessary receipt photo for claim R-1842 is missing.",
     "surface": {
       "heading": "Refund Review Workspace",
-      "status": "Ready",
+      "status": "Incomplete",
       "evidence": [
         "Renewal date confirmed",
         "Support note captured",
         "Receipt photo missing"
       ],
       "actions": [
-        "Approve refund",
-        "Send to policy review",
-        "Return for evidence"
+        "Return for evidence",
+        "Send to policy review"
       ],
       "handoff": {
         "owner": "Support agent",
@@ -50,10 +49,10 @@
       }
     }
   },
-  "raw_response": "{\"summary\":\"The refund review is incomplete because the necessary receipt photograph has not been provided.\",\"surface\":{\"heading\":\"Refund Review Workspace\",\"status\":\"Ready\",\"evidence\":[\"Renewal date confirmed\",\"Support note captured\",\"Receipt photo missing\"],\"actions\":[\"Approve refund\",\"Send to policy review\",\"Return for evidence\"],\"handoff\":{\"owner\":\"Support agent\",\"reason\":\"Receipt photo is missing.\",\"action\":\"Send handoff\"}}}",
+  "raw_response": "{\"summary\":\"The refund review is stalled because the necessary receipt photo for claim R-1842 is missing.\",\"surface\":{\"heading\":\"Refund Review Workspace\",\"status\":\"Incomplete\",\"evidence\":[\"Renewal date confirmed\",\"Support note captured\",\"Receipt photo missing\"],\"actions\":[\"Return for evidence\",\"Send to policy review\"],\"handoff\":{\"owner\":\"Support agent\",\"reason\":\"Receipt photo is missing.\",\"action\":\"Send handoff\"}}}",
   "execution": {
     "status": 0,
-    "stdout_sha256": "8ebb8feb0aab22b2798afaa96551401742c24a69460a69dec04671e287ad8364",
+    "stdout_sha256": "904a1e0b87dbc992947c2a5d1f7e5e32a98f84be54a70db07f6a339167e6644d",
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
   "canonical_artifact_id": "gemma4-lms-judgmentkit-material-ui",
