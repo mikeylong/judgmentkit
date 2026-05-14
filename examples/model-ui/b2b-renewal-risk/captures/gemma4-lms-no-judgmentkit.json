@@ -1,0 +1,45 @@
+{
+  "artifact_id": "gemma4-lms-no-judgmentkit",
+  "use_case_id": "b2b-renewal-risk",
+  "use_case_label": "B2B renewal risk review",
+  "activity_summary": "A customer success manager reviews renewal risk and decides save plan, executive escalation, or wait for usage evidence.",
+  "row_id": "gemma4-lms",
+  "row_label": "Gemma 4 via LM Studio lms",
+  "column_id": "no-judgmentkit",
+  "column_label": "Raw brief",
+  "model_label": "Gemma 4 (local LLM)",
+  "provider": "lmstudio",
+  "cli": "lms",
+  "model": "google/gemma-4-e2b",
+  "reasoning_effort": null,
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "none",
+  "design_system_name": null,
+  "design_system_package": null,
+  "design_system_render_mode": null,
+  "render_mode": "html",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-05-14T03:29:00.677Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": false
+  },
+  "source_context_sha256": "40d013cb3f86af446b4db115f1f480f79761782631465228500a340390faad5e",
+  "prompt_sha256": "5b9cc185fa84f7cdbeaf193185070c131006afe77c636ffccf38851f08bd0844",
+  "raw_response_sha256": "6eb05b076f3ddeca2fb6e57e73276d1aa3452281843a0fa82b6ed201b8336132",
+  "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
+  "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
+  "parsed": {
+    "summary": "A Customer Success Manager reviews an at-risk B2B renewal, analyzing account health factors to decide between initiating a save plan, escalating to executive sponsors, or waiting for further usage evidence.",
+    "css": "body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa; color: #333; margin: 0; padding: 20px; } .main-surface { background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); padding: 30px; max-width: 1200px; margin: auto; } h1 { color: #1a237e; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; margin-top: 0; } .account-card { background-color: #f9f9f9; border: 1px solid #eee; border-left: 5px solid #ffb300; padding: 15px; border-radius: 4px; margin-bottom: 20px; } .risk-metric { background-color: #fff3e0; padding: 10px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; } .risk-metric strong { color: #e65100; } .decision-panel h2 { color: #3949ab; margin-top: 0; } .action-button { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background-color 0.2s; margin-right: 15px; } .btn-save { background-color: #4caf50; color: white; } .btn-escalate { background-color: #ff9800; color: white; } .btn-wait { background-color: #2196f3; color: white; } .action-button:hover { opacity: 0.9; }",
+    "html": "<main data-primary-surface><h1>Renewal Risk Review: Northstar Labs</h1><div class=\"account-card\"><h2>Account Snapshot</h2><p><strong>Plan:</strong> Enterprise annual | <strong>ARR:</strong> $84K | <strong>Status:</strong> Champion change</p><p><strong>Risk Summary:</strong> High risk due to usage drop (28%) and missing procurement timeline.</p></div><section class=\"decision-panel\"><h2>Decision Pathway</h2><p>Based on the account facts, consider the following strategic actions:</p><div class=\"risk-metric\"><span>Usage Trend</span><strong>-28% Drop</strong></div><div class=\"risk-metric\"><span>Champion Change</span><strong>Primary champion left</strong></div><div class=\"risk-metric\"><span>Procurement Timeline</span><strong>Missing dates</strong></div><div style=\"margin-top: 30px;\"><h3>Recommended Actions</h3><button class=\"action-button btn-save\">Start Save Plan</button><button class=\"action-button btn-escalate\">Executive Escalation</button><button class=\"action-button btn-wait\">Wait for Usage Evidence</button></div></section></main>"
+  },
+  "raw_response": "Loading google/gemma-4-e2b ⠙\rLoading google/gemma-4-e2b ⠹\rLoading google/gemma-4-e2b ⠸\rLoading google/gemma-4-e2b ⠼\rLoading google/gemma-4-e2b ⠴\rLoading google/gemma-4-e2b ⠦\rLoading google/gemma-4-e2b ⠧\rLoading google/gemma-4-e2b ⠇\rLoading google/gemma-4-e2b ⠏\rLoading google/gemma-4-e2b ⠋\rLoading google/gemma-4-e2b ⠙\rLoading google/gemma-4-e2b ⠹\rLoading google/gemma-4-e2b ⠸\rLoading google/gemma-4-e2b ⠼\rLoading google/gemma-4-e2b ⠴\rLoading google/gemma-4-e2b ⠦\rLoading google/gemma-4-e2b ⠧\rLoading google/gemma-4-e2b ⠇\rLoading google/gemma-4-e2b ⠏\rLoading google/gemma-4-e2b ⠋\rLoading google/gemma-4-e2b ⠙\rLoading google/gemma-4-e2b ⠹\rLoading google/gemma-4-e2b ⠸\rLoading google/gemma-4-e2b ⠼\rLoading google/gemma-4-e2b ⠴\rLoading google/gemma-4-e2b ⠦\rLoading google/gemma-4-e2b ⠧\rLoading google/gemma-4-e2b ⠇\rLoading google/gemma-4-e2b ⠏\rLoading google/gemma-4-e2b ⠋\rLoading google/gemma-4-e2b ⠙\rLoading google/gemma-4-e2b ⠹\rLoading google/gemma-4-e2b ⠸\rLoading google/gemma-4-e2b ⠼\rLoading google/gemma-4-e2b ⠴\rLoading google/gemma-4-e2b ⠦\rLoading google/gemma-4-e2b ⠧\rLoading google/gemma-4-e2b ⠇\r\n{\n  \"summary\": \"A Customer Success Manager reviews an at-risk B2B renewal, analyzing account health factors to decide between initiating a save plan, escalating to executive sponsors, or waiting for further usage evidence.\",\n  \"css\": \"body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa; color: #333; margin: 0; padding: 20px; } .main-surface { background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); padding: 30px; max-width: 1200px; margin: auto; } h1 { color: #1a237e; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; margin-top: 0; } .account-card { background-color: #f9f9f9; border: 1px solid #eee; border-left: 5px solid #ffb300; padding: 15px; border-radius: 4px; margin-bottom: 20px; } .risk-metric { background-color: #fff3e0; padding: 10px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; } .risk-metric strong { color: #e65100; } .decision-panel h2 { color: #3949ab; margin-top: 0; } .action-button { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background-color 0.2s; margin-right: 15px; } .btn-save { background-color: #4caf50; color: white; } .btn-escalate { background-color: #ff9800; color: white; } .btn-wait { background-color: #2196f3; color: white; } .action-button:hover { opacity: 0.9; }\",\n  \"html\": \"<main data-primary-surface><h1>Renewal Risk Review: Northstar Labs</h1><div class=\\\"account-card\\\"><h2>Account Snapshot</h2><p><strong>Plan:</strong> Enterprise annual | <strong>ARR:</strong> $84K | <strong>Status:</strong> Champion change</p><p><strong>Risk Summary:</strong> High risk due to usage drop (28%) and missing procurement timeline.</p></div><section class=\\\"decision-panel\\\"><h2>Decision Pathway</h2><p>Based on the account facts, consider the following strategic actions:</p><div class=\\\"risk-metric\\\"><span>Usage Trend</span><strong>-28% Drop</strong></div><div class=\\\"risk-metric\\\"><span>Champion Change</span><strong>Primary champion left</strong></div><div class=\\\"risk-metric\\\"><span>Procurement Timeline</span><strong>Missing dates</strong></div><div style=\\\"margin-top: 30px;\\\"><h3>Recommended Actions</h3><button class=\\\"action-button btn-save\\\">Start Save Plan</button><button class=\\\"action-button btn-escalate\\\">Executive Escalation</button><button class=\\\"action-button btn-wait\\\">Wait for Usage Evidence</button></div></section></main>\"\n}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "74000aec528b4ad571c5fee2328ae17d22a8941705492325a2d96df87c96ef42",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "default_use_case_id": "refund-system-map",
+  "use_cases": [
+    {
+      "id": "refund-system-map",
+      "label": "Support refund triage",
+      "short_label": "Refund triage",
+      "activity_summary": "A support operations manager reviews refund escalation cases and decides approve, policy review, or missing evidence.",
+      "index_path": "examples/model-ui/refund-system-map/index.html",
+      "manifest_path": "examples/model-ui/refund-system-map/manifest.json"
+    },
+    {
+      "id": "field-service-dispatch",
+      "label": "Field service dispatch",
+      "short_label": "Field dispatch",
+      "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
+      "index_path": "examples/model-ui/field-service-dispatch/index.html",
+      "manifest_path": "examples/model-ui/field-service-dispatch/manifest.json"
+    },
+    {
+      "id": "clinical-intake-review",
+      "label": "Clinical intake review",
+      "short_label": "Intake review",
+      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+      "index_path": "examples/model-ui/clinical-intake-review/index.html",
+      "manifest_path": "examples/model-ui/clinical-intake-review/manifest.json"
+    },
+    {
+      "id": "b2b-renewal-risk",
+      "label": "B2B renewal risk review",
+      "short_label": "Renewal risk",
+      "activity_summary": "A customer success manager reviews renewal risk and decides save plan, executive escalation, or wait for usage evidence.",
+      "index_path": "examples/model-ui/b2b-renewal-risk/index.html",
+      "manifest_path": "examples/model-ui/b2b-renewal-risk/manifest.json"
+    }
+  ]
+}

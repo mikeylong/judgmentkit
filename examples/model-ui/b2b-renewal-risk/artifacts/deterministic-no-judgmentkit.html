@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>B2B renewal risk review - Deterministic - Raw brief</title>
+    <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f5f3ed;
+      --panel: #ffffff;
+      --ink: #17231f;
+      --muted: #65726d;
+      --line: #d9d3c7;
+      --accent: #245f73;
+      --accent-strong: #174352;
+      --warning: #8a5a16;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .raw-model-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--canvas);
+    }
+    .raw-model-candidate > section,
+    .raw-model-candidate .card,
+    .raw-model-candidate .panel {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .raw-model-candidate ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .app-shell .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #eef6f7;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: #fff7e8;
+      color: var(--warning);
+    }
+    .app-shell .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .app-shell .queue,
+    .app-shell .detail {
+      padding: 16px;
+    }
+    .app-shell .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .app-shell .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      text-align: left;
+    }
+    .app-shell .queue-item small {
+      color: var(--muted);
+    }
+    .app-shell .queue-item.is-selected {
+      border-color: var(--accent);
+      background: #edf6f7;
+    }
+    .app-shell .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .app-shell .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
+      padding: 14px;
+    }
+    .app-shell .info-grid > div {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #faf9f5;
+    }
+    .app-shell .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .app-shell .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .app-shell .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .app-shell .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--accent-strong);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .app-shell .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-shell .actions button,
+    .app-shell .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .app-shell button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .app-shell .handoff {
+      padding: 14px;
+      background: #f3f8f8;
+    }
+    .raw-brief-candidate .app-header {
+      background: #fff8ea;
+      border: 1px solid #e5c98f;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .reviewed-candidate .app-header {
+      background: #eef6f7;
+      border: 1px solid #b8d2d7;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--ink);
+    }
+    .design-system {
+      --canvas: #f7f4ee;
+      --panel: #ffffff;
+      --ink: #182521;
+      --muted: #64716b;
+      --line: #d9d3c5;
+      --accent: #0f766e;
+      --accent-strong: #0f4f49;
+      --warning: #9a5b16;
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
+        display: grid;
+      }
+      .app-shell .workspace,
+      .app-shell .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
+  </head>
+  <body data-artifact-id="deterministic-no-judgmentkit" data-row-id="deterministic" data-column-id="no-judgmentkit" data-judgmentkit-mode="no_judgmentkit" data-design-system-mode="none">
+
+    <main class="app-shell raw-brief-candidate" data-primary-surface>
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Raw source brief</p>
+          <h1>account_health CRM Console</h1>
+        </div>
+        <span class="status">Implementation-first</span>
+      </header>
+      <section class="workspace">
+        <aside class="queue" aria-label="CRM records">
+          <div class="section-heading">
+            <p class="eyebrow">Queue</p>
+            <h2>CRM records</h2>
+          </div>
+
+      <button class="queue-item is-selected" type="button">
+        <span>AC-903</span>
+        <strong>Northstar Labs</strong>
+        <small>Champion change - CRUD row - $84K ARR</small>
+      </button>
+      <button class="queue-item" type="button">
+        <span>AC-904</span>
+        <strong>Bright Arc</strong>
+        <small>Usage drop - CRUD row - $42K ARR</small>
+      </button>
+      <button class="queue-item" type="button">
+        <span>AC-905</span>
+        <strong>Harbor Grid</strong>
+        <small>Procurement risk - CRUD row - $120K ARR</small>
+      </button>
+        </aside>
+        <section class="detail">
+          <div class="case-header">
+            <div>
+              <p class="eyebrow">Selected request</p>
+              <h2>AC-903 - Northstar Labs</h2>
+              <p>Renewal risk review before the account planning meeting.</p>
+            </div>
+            <strong>$84K ARR</strong>
+          </div>
+          <div class="info-grid">
+
+            <div>
+              <span>Data model</span>
+              <strong>account_health + usage_event</strong>
+            </div>
+            <div>
+              <span>Schema</span>
+              <strong>JSON schema + CRM fields</strong>
+            </div>
+          </div>
+          <section>
+            <div class="section-heading">
+              <p class="eyebrow">Evidence</p>
+              <h3>Review inputs</h3>
+            </div>
+            <ul class="evidence-list">
+        <li>
+          <span class="check">OK</span>
+          <span>CRM fields and usage_event rows exposed as editable controls</span>
+        </li>
+        <li>
+          <span class="check">OK</span>
+          <span>prompt output copied into the renewal notes area</span>
+        </li>
+        <li>
+          <span class="check">!</span>
+          <span>tool call results and resource id displayed beside billing endpoint status</span>
+        </li></ul>
+          </section>
+          <section class="policy">
+            <div class="section-heading">
+              <p class="eyebrow">Context</p>
+              <h3>Implementation context</h3>
+            </div>
+            <p>Show account_health fields, usage event JSON schema, prompt output, tool call results, resource id, billing API endpoint status, and CRUD.</p>
+          </section>
+          <section>
+            <div class="section-heading">
+              <p class="eyebrow">Decision path</p>
+              <h3>CRUD actions</h3>
+            </div>
+            <div class="actions">
+              <button type="button" class="">Update CRM field</button><button type="button" class="">Run usage tool</button><button type="button" class="primary">Save account</button>
+            </div>
+          </section>
+          <section class="handoff">
+            <div>
+              <p class="eyebrow">Handoff</p>
+              <h3>billing API endpoint</h3>
+              <p>Resource id and account_health fields are ready for the next CRM update.</p>
+            </div>
+            <button type="button" class="primary">Send to endpoint</button>
+          </section>
+        </section>
+      </section>
+    </main>
+    <aside class="provenance" aria-label="Artifact provenance">
+      <strong>Provenance:</strong>
+      <span>captured</span>
+      <span> - deterministic</span>
+      <span> - Raw brief</span>
+      <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
+      <p>Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.</p>
+      <p>Manifest entry: <code>artifacts/deterministic-no-judgmentkit.html</code></p>
+    </aside>
+    <script type="application/json" id="model-ui-provenance">{
+  "matrix_id": "b2b-renewal-risk-model-ui-v1",
+  "use_case_id": "b2b-renewal-risk",
+  "use_case_label": "B2B renewal risk review",
+  "activity_summary": "A customer success manager reviews renewal risk and decides save plan, executive escalation, or wait for usage evidence.",
+  "artifact_id": "deterministic-no-judgmentkit",
+  "row_id": "deterministic",
+  "column_id": "no-judgmentkit",
+  "model_label": "Deterministic renderer",
+  "generation_source": "deterministic",
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "none",
+  "render_source": "deterministic_raw_brief_html",
+  "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+  "reasoning_effort": null,
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": false
+  },
+  "design_system_name": null,
+  "design_system_package": null,
+  "source_brief_file": "examples/model-ui/b2b-renewal-risk/source-brief.txt",
+  "handoff_source": null,
+  "design_system_adapter_file": null,
+  "capture_file": null,
+  "model_response_summary": null,
+  "capture_provenance": {
+    "status": "captured",
+    "capture_type": "deterministic-renderer",
+    "captured_at": "2026-05-13",
+    "runner": "scripts/demo-model-ui-matrix.mjs",
+    "provider": "none",
+    "model": "none",
+    "cli": null,
+    "reasoning_effort": null,
+    "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+  },
+  "artifact_path": "artifacts/deterministic-no-judgmentkit.html",
+  "screenshot_path": "screenshots/deterministic-no-judgmentkit.png",
+  "approach_title": "Deterministic - Raw brief",
+  "approach_caption": "Deterministic receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+}</script>
+  </body>
+</html>

@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Field service dispatch - Deterministic - Material UI only</title>
+    <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f5f3ed;
+      --panel: #ffffff;
+      --ink: #17231f;
+      --muted: #65726d;
+      --line: #d9d3c7;
+      --accent: #245f73;
+      --accent-strong: #174352;
+      --warning: #8a5a16;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .raw-model-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--canvas);
+    }
+    .raw-model-candidate > section,
+    .raw-model-candidate .card,
+    .raw-model-candidate .panel {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .raw-model-candidate ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .app-shell .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #eef6f7;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: #fff7e8;
+      color: var(--warning);
+    }
+    .app-shell .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .app-shell .queue,
+    .app-shell .detail {
+      padding: 16px;
+    }
+    .app-shell .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .app-shell .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      text-align: left;
+    }
+    .app-shell .queue-item small {
+      color: var(--muted);
+    }
+    .app-shell .queue-item.is-selected {
+      border-color: var(--accent);
+      background: #edf6f7;
+    }
+    .app-shell .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .app-shell .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
+      padding: 14px;
+    }
+    .app-shell .info-grid > div {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #faf9f5;
+    }
+    .app-shell .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .app-shell .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .app-shell .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .app-shell .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--accent-strong);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .app-shell .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-shell .actions button,
+    .app-shell .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .app-shell button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .app-shell .handoff {
+      padding: 14px;
+      background: #f3f8f8;
+    }
+    .raw-brief-candidate .app-header {
+      background: #fff8ea;
+      border: 1px solid #e5c98f;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .reviewed-candidate .app-header {
+      background: #eef6f7;
+      border: 1px solid #b8d2d7;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--ink);
+    }
+    .design-system {
+      --canvas: #f7f4ee;
+      --panel: #ffffff;
+      --ink: #182521;
+      --muted: #64716b;
+      --line: #d9d3c5;
+      --accent: #0f766e;
+      --accent-strong: #0f4f49;
+      --warning: #9a5b16;
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
+        display: grid;
+      }
+      .app-shell .workspace,
+      .app-shell .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+    <style data-emotion="mui-global 0"></style><style data-emotion="mui-global 1t388k7">html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;box-sizing:border-box;-webkit-text-size-adjust:100%;}*,*::before,*::after{box-sizing:inherit;}strong,b{font-weight:700;}body{margin:0;color:#17231f;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-weight:400;font-size:1rem;line-height:1.5;background-color:#f5f3ed;}@media print{body{background-color:#fff;}}body::backdrop{background-color:#f5f3ed;}</style><style data-emotion="mui 6sjz1t-MuiPaper-root-MuiAppBar-root zzbj9e-MuiToolbar-root tcdgdn-MuiTypography-root yxstnd-MuiTypography-root 11gldcg-MuiChip-root 16cgrcw-MuiChip-label rwgtns-MuiPaper-root f4rg1h-MuiTypography-root 11xd72r-MuiList-root 6rae1a-MuiButtonBase-root-MuiListItemButton-root 14ln1j6-MuiListItemText-root l8y6pl-MuiTypography-root 1mkpint-MuiTypography-root ulsrtr-MuiButtonBase-root-MuiListItemButton-root 1sazv7p-MuiStack-root ddc76m-MuiTypography-root 1fi8f46-MuiTypography-root joqhpn-MuiPaper-root-MuiCard-root 1lt5qva-MuiCardContent-root 1hlzpqb-MuiTypography-root 1d9vumh-MuiTypography-root cfq8qh-MuiListItemText-root eshffi-MuiDivider-root 1l59mlb-MuiButtonBase-root-MuiButton-root vp1olb-MuiButtonBase-root-MuiButton-root">.mui-6sjz1t-MuiPaper-root-MuiAppBar-root{background-color:#ffffff;color:#17231f;-webkit-transition:box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;box-shadow:var(--Paper-shadow);background-image:var(--Paper-overlay);display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;width:100%;box-sizing:border-box;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;position:static;--AppBar-background:transparent;--AppBar-color:inherit;background-color:var(--AppBar-background);color:var(--AppBar-color);border:1px solid;border-color:#d9d3c7;border-radius:16px;overflow:hidden;}.mui-zzbj9e-MuiToolbar-root{position:relative;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;padding-left:16px;padding-right:16px;min-height:56px;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;gap:16px;padding-top:8px;padding-bottom:8px;}@media (min-width:600px){.mui-zzbj9e-MuiToolbar-root{padding-left:24px;padding-right:24px;}}@media (min-width:0px){@media (orientation: landscape){.mui-zzbj9e-MuiToolbar-root{min-height:48px;}}}@media (min-width:600px){.mui-zzbj9e-MuiToolbar-root{min-height:64px;}}.mui-tcdgdn-MuiTypography-root{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-weight:400;font-size:0.75rem;line-height:1.66;}.mui-yxstnd-MuiTypography-root{margin:0;font-weight:850;letter-spacing:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:3rem;line-height:1.167;}.mui-11gldcg-MuiChip-root{max-width:100%;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:0.8125rem;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;height:32px;line-height:1.5;color:#17231f;background-color:rgba(0, 0, 0, 0.08);border-radius:16px;white-space:nowrap;-webkit-transition:background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:background-color 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;cursor:unset;outline:0;-webkit-text-decoration:none;text-decoration:none;border:0;padding:0;vertical-align:middle;box-sizing:border-box;background-color:#245f73;color:#fff;background-color:transparent;border:1px solid #bdbdbd;color:#245f73;border:1px solid rgba(36, 95, 115, 0.7);font-weight:800;}.mui-11gldcg-MuiChip-root.Mui-disabled{opacity:0.38;pointer-events:none;}.mui-11gldcg-MuiChip-root .MuiChip-avatar{margin-left:5px;margin-right:-6px;width:24px;height:24px;color:#616161;font-size:0.75rem;}.mui-11gldcg-MuiChip-root .MuiChip-icon{margin-left:5px;margin-right:-6px;}.mui-11gldcg-MuiChip-root .MuiChip-deleteIcon{-webkit-tap-highlight-color:transparent;color:rgba(23, 35, 31, 0.26);font-size:22px;cursor:pointer;margin:0 5px 0 -6px;}.mui-11gldcg-MuiChip-root .MuiChip-deleteIcon:hover{color:rgba(23, 35, 31, 0.4);}.mui-11gldcg-MuiChip-root .MuiChip-avatar{color:#fff;background-color:#174352;}.mui-11gldcg-MuiChip-root .MuiChip-deleteIcon{color:rgba(255, 255, 255, 0.7);}.mui-11gldcg-MuiChip-root .MuiChip-deleteIcon:hover,.mui-11gldcg-MuiChip-root .MuiChip-deleteIcon:active{color:#fff;}.mui-11gldcg-MuiChip-root .MuiChip-icon{color:#616161;}.mui-11gldcg-MuiChip-root .MuiChip-icon{color:inherit;}.mui-11gldcg-MuiChip-root.MuiChip-clickable:hover{background-color:rgba(0, 0, 0, 0.04);}.mui-11gldcg-MuiChip-root.Mui-focusVisible{background-color:rgba(0, 0, 0, 0.12);}.mui-11gldcg-MuiChip-root .MuiChip-avatar{margin-left:4px;}.mui-11gldcg-MuiChip-root .MuiChip-icon{margin-left:4px;}.mui-11gldcg-MuiChip-root .MuiChip-deleteIcon{margin-right:5px;}.mui-11gldcg-MuiChip-root.MuiChip-clickable:hover{background-color:rgba(36, 95, 115, 0.04);}.mui-11gldcg-MuiChip-root.Mui-focusVisible{background-color:rgba(36, 95, 115, 0.12);}.mui-11gldcg-MuiChip-root .MuiChip-deleteIcon{color:rgba(36, 95, 115, 0.7);}.mui-11gldcg-MuiChip-root .MuiChip-deleteIcon:hover,.mui-11gldcg-MuiChip-root .MuiChip-deleteIcon:active{color:#245f73;}.mui-16cgrcw-MuiChip-label{overflow:hidden;text-overflow:ellipsis;padding-left:12px;padding-right:12px;white-space:nowrap;padding-left:11px;padding-right:11px;}.mui-rwgtns-MuiPaper-root{background-color:#ffffff;color:#17231f;-webkit-transition:box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;border-radius:8px;border:1px solid #d9d3c7;padding:16px;}.mui-f4rg1h-MuiTypography-root{margin:0;font-weight:820;letter-spacing:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:1.25rem;line-height:1.6;}.mui-11xd72r-MuiList-root{list-style:none;margin:0;padding:0;position:relative;display:grid;gap:8px;}.mui-6rae1a-MuiButtonBase-root-MuiListItemButton-root{display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;position:relative;box-sizing:border-box;-webkit-tap-highlight-color:transparent;background-color:transparent;outline:0;border:0;margin:0;border-radius:0;padding:0;cursor:pointer;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;vertical-align:middle;-moz-appearance:none;-webkit-appearance:none;-webkit-text-decoration:none;text-decoration:none;color:inherit;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-flex:1;-webkit-flex-grow:1;-ms-flex-positive:1;flex-grow:1;-webkit-box-pack:start;-ms-flex-pack:start;-webkit-justify-content:flex-start;justify-content:flex-start;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;position:relative;-webkit-text-decoration:none;text-decoration:none;min-width:0;box-sizing:border-box;text-align:left;padding-top:8px;padding-bottom:8px;-webkit-transition:background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;padding-left:16px;padding-right:16px;-webkit-align-items:flex-start;-webkit-box-align:flex-start;-ms-flex-align:flex-start;align-items:flex-start;border:1px solid;border-color:#245f73;border-radius:8px;display:grid;gap:2px;text-align:left;}.mui-6rae1a-MuiButtonBase-root-MuiListItemButton-root::-moz-focus-inner{border-style:none;}.mui-6rae1a-MuiButtonBase-root-MuiListItemButton-root.Mui-disabled{pointer-events:none;cursor:default;}@media print{.mui-6rae1a-MuiButtonBase-root-MuiListItemButton-root{-webkit-print-color-adjust:exact;color-adjust:exact;}}.mui-6rae1a-MuiButtonBase-root-MuiListItemButton-root:hover{-webkit-text-decoration:none;text-decoration:none;background-color:rgba(0, 0, 0, 0.04);}@media (hover: none){.mui-6rae1a-MuiButtonBase-root-MuiListItemButton-root:hover{background-color:transparent;}}.mui-6rae1a-MuiButtonBase-root-MuiListItemButton-root.Mui-selected{background-color:rgba(36, 95, 115, 0.08);}.mui-6rae1a-MuiButtonBase-root-MuiListItemButton-root.Mui-selected.Mui-focusVisible{background-color:rgba(36, 95, 115, 0.2);}.mui-6rae1a-MuiButtonBase-root-MuiListItemButton-root.Mui-selected:hover{background-color:rgba(36, 95, 115, 0.12);}@media (hover: none){.mui-6rae1a-MuiButtonBase-root-MuiListItemButton-root.Mui-selected:hover{background-color:rgba(36, 95, 115, 0.08);}}.mui-6rae1a-MuiButtonBase-root-MuiListItemButton-root.Mui-focusVisible{background-color:rgba(0, 0, 0, 0.12);}.mui-6rae1a-MuiButtonBase-root-MuiListItemButton-root.Mui-disabled{opacity:0.38;}.mui-14ln1j6-MuiListItemText-root{-webkit-flex:1 1 auto;-ms-flex:1 1 auto;flex:1 1 auto;min-width:0;margin-top:4px;margin-bottom:4px;margin-top:6px;margin-bottom:6px;}.MuiTypography-root:where(.mui-14ln1j6-MuiListItemText-root .MuiListItemText-primary){display:block;}.MuiTypography-root:where(.mui-14ln1j6-MuiListItemText-root .MuiListItemText-secondary){display:block;}.mui-l8y6pl-MuiTypography-root{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-weight:400;font-size:1rem;line-height:1.5;font-weight:850;}.mui-1mkpint-MuiTypography-root{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-weight:400;font-size:0.875rem;line-height:1.43;color:#65726d;}.mui-ulsrtr-MuiButtonBase-root-MuiListItemButton-root{display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;position:relative;box-sizing:border-box;-webkit-tap-highlight-color:transparent;background-color:transparent;outline:0;border:0;margin:0;border-radius:0;padding:0;cursor:pointer;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;vertical-align:middle;-moz-appearance:none;-webkit-appearance:none;-webkit-text-decoration:none;text-decoration:none;color:inherit;display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-box-flex:1;-webkit-flex-grow:1;-ms-flex-positive:1;flex-grow:1;-webkit-box-pack:start;-ms-flex-pack:start;-webkit-justify-content:flex-start;justify-content:flex-start;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;position:relative;-webkit-text-decoration:none;text-decoration:none;min-width:0;box-sizing:border-box;text-align:left;padding-top:8px;padding-bottom:8px;-webkit-transition:background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:background-color 150ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;padding-left:16px;padding-right:16px;-webkit-align-items:flex-start;-webkit-box-align:flex-start;-ms-flex-align:flex-start;align-items:flex-start;border:1px solid;border-color:#d9d3c7;border-radius:8px;display:grid;gap:2px;text-align:left;}.mui-ulsrtr-MuiButtonBase-root-MuiListItemButton-root::-moz-focus-inner{border-style:none;}.mui-ulsrtr-MuiButtonBase-root-MuiListItemButton-root.Mui-disabled{pointer-events:none;cursor:default;}@media print{.mui-ulsrtr-MuiButtonBase-root-MuiListItemButton-root{-webkit-print-color-adjust:exact;color-adjust:exact;}}.mui-ulsrtr-MuiButtonBase-root-MuiListItemButton-root:hover{-webkit-text-decoration:none;text-decoration:none;background-color:rgba(0, 0, 0, 0.04);}@media (hover: none){.mui-ulsrtr-MuiButtonBase-root-MuiListItemButton-root:hover{background-color:transparent;}}.mui-ulsrtr-MuiButtonBase-root-MuiListItemButton-root.Mui-selected{background-color:rgba(36, 95, 115, 0.08);}.mui-ulsrtr-MuiButtonBase-root-MuiListItemButton-root.Mui-selected.Mui-focusVisible{background-color:rgba(36, 95, 115, 0.2);}.mui-ulsrtr-MuiButtonBase-root-MuiListItemButton-root.Mui-selected:hover{background-color:rgba(36, 95, 115, 0.12);}@media (hover: none){.mui-ulsrtr-MuiButtonBase-root-MuiListItemButton-root.Mui-selected:hover{background-color:rgba(36, 95, 115, 0.08);}}.mui-ulsrtr-MuiButtonBase-root-MuiListItemButton-root.Mui-focusVisible{background-color:rgba(0, 0, 0, 0.12);}.mui-ulsrtr-MuiButtonBase-root-MuiListItemButton-root.Mui-disabled{opacity:0.38;}.mui-1sazv7p-MuiStack-root{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;-webkit-flex-direction:column;-ms-flex-direction:column;flex-direction:column;}.mui-1sazv7p-MuiStack-root>:not(style):not(style){margin:0;}.mui-1sazv7p-MuiStack-root>:not(style)~:not(style){margin-top:16px;}.mui-ddc76m-MuiTypography-root{margin:0;font-weight:820;letter-spacing:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:1.5rem;line-height:1.334;}.mui-1fi8f46-MuiTypography-root{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-weight:400;font-size:1rem;line-height:1.5;}.mui-joqhpn-MuiPaper-root-MuiCard-root{background-color:#ffffff;color:#17231f;-webkit-transition:box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;border-radius:8px;border:1px solid #d9d3c7;overflow:hidden;}.mui-1lt5qva-MuiCardContent-root{padding:16px;}.mui-1lt5qva-MuiCardContent-root:last-child{padding-bottom:24px;}.mui-1hlzpqb-MuiTypography-root{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-weight:400;font-size:0.875rem;line-height:1.43;}.mui-1d9vumh-MuiTypography-root{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-weight:400;font-size:1rem;line-height:1.75;}.mui-cfq8qh-MuiListItemText-root{-webkit-flex:1 1 auto;-ms-flex:1 1 auto;flex:1 1 auto;min-width:0;margin-top:4px;margin-bottom:4px;}.MuiTypography-root:where(.mui-cfq8qh-MuiListItemText-root .MuiListItemText-primary){display:block;}.MuiTypography-root:where(.mui-cfq8qh-MuiListItemText-root .MuiListItemText-secondary){display:block;}.mui-eshffi-MuiDivider-root{margin:0;-webkit-flex-shrink:0;-ms-flex-negative:0;flex-shrink:0;border-width:0;border-style:solid;border-color:#d9d3c7;border-bottom-width:thin;}.mui-1l59mlb-MuiButtonBase-root-MuiButton-root{display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;position:relative;box-sizing:border-box;-webkit-tap-highlight-color:transparent;background-color:transparent;outline:0;border:0;margin:0;border-radius:0;padding:0;cursor:pointer;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;vertical-align:middle;-moz-appearance:none;-webkit-appearance:none;-webkit-text-decoration:none;text-decoration:none;color:inherit;font-weight:820;letter-spacing:0;text-transform:none;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:0.875rem;line-height:1.75;min-width:64px;padding:6px 16px;border:0;border-radius:8px;-webkit-transition:background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;padding:5px 15px;border:1px solid currentColor;border-color:var(--variant-outlinedBorder, currentColor);background-color:var(--variant-outlinedBg);color:var(--variant-outlinedColor);color:inherit;border-color:currentColor;--variant-containedBg:#e0e0e0;box-shadow:none;-webkit-transition:background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;border-radius:6px;}.mui-1l59mlb-MuiButtonBase-root-MuiButton-root::-moz-focus-inner{border-style:none;}.mui-1l59mlb-MuiButtonBase-root-MuiButton-root.Mui-disabled{pointer-events:none;cursor:default;}@media print{.mui-1l59mlb-MuiButtonBase-root-MuiButton-root{-webkit-print-color-adjust:exact;color-adjust:exact;}}.mui-1l59mlb-MuiButtonBase-root-MuiButton-root:hover{-webkit-text-decoration:none;text-decoration:none;}.mui-1l59mlb-MuiButtonBase-root-MuiButton-root.Mui-disabled{color:rgba(0, 0, 0, 0.26);}.mui-1l59mlb-MuiButtonBase-root-MuiButton-root.Mui-disabled{border:1px solid rgba(0, 0, 0, 0.12);}@media (hover: hover){.mui-1l59mlb-MuiButtonBase-root-MuiButton-root:hover{--variant-containedBg:#f5f5f5;--variant-textBg:rgba(23, 35, 31, 0.04);--variant-outlinedBg:rgba(23, 35, 31, 0.04);}}.mui-1l59mlb-MuiButtonBase-root-MuiButton-root:hover{box-shadow:none;}.mui-1l59mlb-MuiButtonBase-root-MuiButton-root.Mui-focusVisible{box-shadow:none;}.mui-1l59mlb-MuiButtonBase-root-MuiButton-root:active{box-shadow:none;}.mui-1l59mlb-MuiButtonBase-root-MuiButton-root.Mui-disabled{box-shadow:none;}.mui-1l59mlb-MuiButtonBase-root-MuiButton-root.MuiButton-loading{color:transparent;}.mui-vp1olb-MuiButtonBase-root-MuiButton-root{display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-align-items:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center;-webkit-box-pack:center;-ms-flex-pack:center;-webkit-justify-content:center;justify-content:center;position:relative;box-sizing:border-box;-webkit-tap-highlight-color:transparent;background-color:transparent;outline:0;border:0;margin:0;border-radius:0;padding:0;cursor:pointer;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;vertical-align:middle;-moz-appearance:none;-webkit-appearance:none;-webkit-text-decoration:none;text-decoration:none;color:inherit;font-weight:820;letter-spacing:0;text-transform:none;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:0.875rem;line-height:1.75;min-width:64px;padding:6px 16px;border:0;border-radius:8px;-webkit-transition:background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;color:var(--variant-containedColor);background-color:var(--variant-containedBg);box-shadow:0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12);--variant-textColor:#245f73;--variant-outlinedColor:#245f73;--variant-outlinedBorder:rgba(36, 95, 115, 0.5);--variant-containedColor:#fff;--variant-containedBg:#245f73;box-shadow:none;-webkit-transition:background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;transition:background-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,box-shadow 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms,border-color 250ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;border-radius:6px;}.mui-vp1olb-MuiButtonBase-root-MuiButton-root::-moz-focus-inner{border-style:none;}.mui-vp1olb-MuiButtonBase-root-MuiButton-root.Mui-disabled{pointer-events:none;cursor:default;}@media print{.mui-vp1olb-MuiButtonBase-root-MuiButton-root{-webkit-print-color-adjust:exact;color-adjust:exact;}}.mui-vp1olb-MuiButtonBase-root-MuiButton-root:hover{-webkit-text-decoration:none;text-decoration:none;}.mui-vp1olb-MuiButtonBase-root-MuiButton-root.Mui-disabled{color:rgba(0, 0, 0, 0.26);}.mui-vp1olb-MuiButtonBase-root-MuiButton-root:hover{box-shadow:0px 2px 4px -1px rgba(0,0,0,0.2),0px 4px 5px 0px rgba(0,0,0,0.14),0px 1px 10px 0px rgba(0,0,0,0.12);}@media (hover: none){.mui-vp1olb-MuiButtonBase-root-MuiButton-root:hover{box-shadow:0px 3px 1px -2px rgba(0,0,0,0.2),0px 2px 2px 0px rgba(0,0,0,0.14),0px 1px 5px 0px rgba(0,0,0,0.12);}}.mui-vp1olb-MuiButtonBase-root-MuiButton-root:active{box-shadow:0px 5px 5px -3px rgba(0,0,0,0.2),0px 8px 10px 1px rgba(0,0,0,0.14),0px 3px 14px 2px rgba(0,0,0,0.12);}.mui-vp1olb-MuiButtonBase-root-MuiButton-root.Mui-focusVisible{box-shadow:0px 3px 5px -1px rgba(0,0,0,0.2),0px 6px 10px 0px rgba(0,0,0,0.14),0px 1px 18px 0px rgba(0,0,0,0.12);}.mui-vp1olb-MuiButtonBase-root-MuiButton-root.Mui-disabled{color:rgba(0, 0, 0, 0.26);box-shadow:none;background-color:rgba(0, 0, 0, 0.12);}@media (hover: hover){.mui-vp1olb-MuiButtonBase-root-MuiButton-root:hover{--variant-containedBg:#174352;--variant-textBg:rgba(36, 95, 115, 0.04);--variant-outlinedBorder:#245f73;--variant-outlinedBg:rgba(36, 95, 115, 0.04);}}.mui-vp1olb-MuiButtonBase-root-MuiButton-root:hover{box-shadow:none;}.mui-vp1olb-MuiButtonBase-root-MuiButton-root.Mui-focusVisible{box-shadow:none;}.mui-vp1olb-MuiButtonBase-root-MuiButton-root:active{box-shadow:none;}.mui-vp1olb-MuiButtonBase-root-MuiButton-root.Mui-disabled{box-shadow:none;}.mui-vp1olb-MuiButtonBase-root-MuiButton-root.MuiButton-loading{color:transparent;}</style>
+
+  </head>
+  <body data-artifact-id="deterministic-material-ui-only" data-row-id="deterministic" data-column-id="material-ui-only" data-judgmentkit-mode="no_judgmentkit" data-design-system-mode="material_ui">
+    <main class="app-shell design-system" data-primary-surface=""><header class="app-header"><header class="MuiPaper-root MuiPaper-elevation MuiPaper-elevation0 MuiAppBar-root MuiAppBar-colorTransparent MuiAppBar-positionStatic mui-6sjz1t-MuiPaper-root-MuiAppBar-root" style="--Paper-shadow:none"><div class="MuiToolbar-root MuiToolbar-gutters MuiToolbar-regular mui-zzbj9e-MuiToolbar-root"><div class="MuiBox-root mui-0"><p class="MuiTypography-root MuiTypography-caption eyebrow mui-tcdgdn-MuiTypography-root">Raw source brief</p><h1 class="MuiTypography-root MuiTypography-h3 mui-yxstnd-MuiTypography-root">repair_visit Dispatch Console</h1></div><div class="MuiChip-root MuiChip-outlined MuiChip-sizeMedium MuiChip-colorPrimary status mui-11gldcg-MuiChip-root"><span class="MuiChip-label mui-16cgrcw-MuiChip-label">Implementation-first</span></div></div></header></header><section class="workspace"><aside class="queue" aria-label="Route matrix rows"><div class="MuiPaper-root MuiPaper-outlined MuiPaper-rounded mui-rwgtns-MuiPaper-root"><div class="section-heading"><p class="MuiTypography-root MuiTypography-caption eyebrow mui-tcdgdn-MuiTypography-root">Queue</p><h2 class="MuiTypography-root MuiTypography-h6 mui-f4rg1h-MuiTypography-root">Route matrix rows</h2></div><div class="MuiList-root mui-11xd72r-MuiList-root"><button class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters Mui-selected queue-item is-selected mui-6rae1a-MuiButtonBase-root-MuiListItemButton-root" tabindex="0" type="button"><div class="MuiListItemText-root MuiListItemText-multiline mui-14ln1j6-MuiListItemText-root"><span class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary mui-l8y6pl-MuiTypography-root">V-2187 - Mallory Chen</span><p class="MuiTypography-root MuiTypography-body2 MuiListItemText-secondary mui-1mkpint-MuiTypography-root">Needs gate code - CRUD row - SLA 4h</p></div></button><button class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters queue-item mui-ulsrtr-MuiButtonBase-root-MuiListItemButton-root" tabindex="0" type="button"><div class="MuiListItemText-root MuiListItemText-multiline mui-14ln1j6-MuiListItemText-root"><span class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary mui-l8y6pl-MuiTypography-root">V-2188 - Owen Patel</span><p class="MuiTypography-root MuiTypography-body2 MuiListItemText-secondary mui-1mkpint-MuiTypography-root">Parts shortage - CRUD row - Tomorrow</p></div></button><button class="MuiButtonBase-root MuiListItemButton-root MuiListItemButton-gutters queue-item mui-ulsrtr-MuiButtonBase-root-MuiListItemButton-root" tabindex="0" type="button"><div class="MuiListItemText-root MuiListItemText-multiline mui-14ln1j6-MuiListItemText-root"><span class="MuiTypography-root MuiTypography-body1 MuiListItemText-primary mui-l8y6pl-MuiTypography-root">V-2189 - Rae Wilson</span><p class="MuiTypography-root MuiTypography-body2 MuiListItemText-secondary mui-1mkpint-MuiTypography-root">Route conflict - CRUD row - SLA 2h</p></div></button></div></div></aside><section class="detail"><div class="MuiPaper-root MuiPaper-outlined MuiPaper-rounded mui-rwgtns-MuiPaper-root"><div class="MuiStack-root mui-1sazv7p-MuiStack-root"><div class="case-header"><div class="MuiBox-root mui-0"><p class="MuiTypography-root MuiTypography-caption eyebrow mui-tcdgdn-MuiTypography-root">Selected request</p><h2 class="MuiTypography-root MuiTypography-h5 mui-ddc76m-MuiTypography-root">V-2187 - Mallory Chen</h2><p class="MuiTypography-root MuiTypography-body1 mui-1fi8f46-MuiTypography-root">Kitchen freezer repair needs dispatch before the service window closes.</p></div><div class="MuiChip-root MuiChip-outlined MuiChip-sizeMedium MuiChip-colorPrimary mui-11gldcg-MuiChip-root"><span class="MuiChip-label mui-16cgrcw-MuiChip-label">SLA 4h</span></div></div><div class="info-grid"><div class="MuiPaper-root MuiPaper-outlined MuiPaper-rounded MuiCard-root mui-joqhpn-MuiPaper-root-MuiCard-root"><div class="MuiCardContent-root mui-1lt5qva-MuiCardContent-root"><p class="MuiTypography-root MuiTypography-body2 mui-1hlzpqb-MuiTypography-root">Data model</p><p class="MuiTypography-root MuiTypography-body1 mui-l8y6pl-MuiTypography-root">repair_visit + technician_calendar</p></div></div><div class="MuiPaper-root MuiPaper-outlined MuiPaper-rounded MuiCard-root mui-joqhpn-MuiPaper-root-MuiCard-root"><div class="MuiCardContent-root mui-1lt5qva-MuiCardContent-root"><p class="MuiTypography-root MuiTypography-body2 mui-1hlzpqb-MuiTypography-root">Schema</p><p class="MuiTypography-root MuiTypography-body1 mui-l8y6pl-MuiTypography-root">JSON schema + route fields</p></div></div></div><section><div class="section-heading"><p class="MuiTypography-root MuiTypography-caption eyebrow mui-tcdgdn-MuiTypography-root">Evidence</p><h3 class="MuiTypography-root MuiTypography-subtitle1 mui-1d9vumh-MuiTypography-root">Review inputs</h3></div><ul class="evidence-list"><li><span class="check">OK</span><div class="MuiListItemText-root mui-cfq8qh-MuiListItemText-root"><p class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary mui-1hlzpqb-MuiTypography-root">resource id mapped to route matrix and editable technician_calendar fields</p></div></li><li><span class="check">OK</span><div class="MuiListItemText-root mui-cfq8qh-MuiListItemText-root"><p class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary mui-1hlzpqb-MuiTypography-root">inventory_service tool call result copied into the visit row</p></div></li><li><span class="check">!</span><div class="MuiListItemText-root mui-cfq8qh-MuiListItemText-root"><p class="MuiTypography-root MuiTypography-body2 MuiListItemText-primary mui-1hlzpqb-MuiTypography-root">prompt template output exposes SLA diagnostic fields</p></div></li></ul></section><hr class="MuiDivider-root MuiDivider-fullWidth mui-eshffi-MuiDivider-root"/><section class="policy"><div class="section-heading"><p class="MuiTypography-root MuiTypography-caption eyebrow mui-tcdgdn-MuiTypography-root">Context</p><h3 class="MuiTypography-root MuiTypography-subtitle1 mui-1d9vumh-MuiTypography-root">Implementation context</h3></div><p class="MuiTypography-root MuiTypography-body1 mui-1fi8f46-MuiTypography-root">Show repair_visit fields, route matrix, inventory_service API status, JSON schema, prompt template output, resource id, and CRUD.</p></section><section><div class="section-heading"><p class="MuiTypography-root MuiTypography-caption eyebrow mui-tcdgdn-MuiTypography-root">Decision path</p><h3 class="MuiTypography-root MuiTypography-subtitle1 mui-1d9vumh-MuiTypography-root">CRUD actions</h3></div><div class="actions"><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-sizeMedium MuiButton-colorInherit MuiButton-disableElevation mui-1l59mlb-MuiButtonBase-root-MuiButton-root" tabindex="0" type="button">Patch route</button><button class="MuiButtonBase-root MuiButton-root MuiButton-outlined MuiButton-sizeMedium MuiButton-colorInherit MuiButton-disableElevation mui-1l59mlb-MuiButtonBase-root-MuiButton-root" tabindex="0" type="button">Run parts tool</button><button class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation primary mui-vp1olb-MuiButtonBase-root-MuiButton-root" tabindex="0" type="button">Save visit</button></div></section><section class="handoff"><div class="MuiBox-root mui-0"><p class="MuiTypography-root MuiTypography-caption eyebrow mui-tcdgdn-MuiTypography-root">Handoff</p><h3 class="MuiTypography-root MuiTypography-h6 mui-f4rg1h-MuiTypography-root">inventory_service endpoint</h3><p class="MuiTypography-root MuiTypography-body1 mui-1fi8f46-MuiTypography-root">Route and resource id fields are ready for the next patch operation.</p></div><button class="MuiButtonBase-root MuiButton-root MuiButton-contained MuiButton-sizeMedium MuiButton-colorPrimary MuiButton-disableElevation primary mui-vp1olb-MuiButtonBase-root-MuiButton-root" tabindex="0" type="button">Send to endpoint</button></section></div></div></section></section></main>
+    <aside class="provenance" aria-label="Artifact provenance">
+      <strong>Provenance:</strong>
+      <span>captured</span>
+      <span> - deterministic</span>
+      <span> - Material UI only</span>
+      <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
+      <p>Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.</p>
+      <p>Manifest entry: <code>artifacts/deterministic-material-ui-only.html</code></p>
+    </aside>
+    <script type="application/json" id="model-ui-provenance">{
+  "matrix_id": "field-service-dispatch-model-ui-v1",
+  "use_case_id": "field-service-dispatch",
+  "use_case_label": "Field service dispatch",
+  "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
+  "artifact_id": "deterministic-material-ui-only",
+  "row_id": "deterministic",
+  "column_id": "material-ui-only",
+  "model_label": "Deterministic renderer",
+  "generation_source": "deterministic",
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "material_ui",
+  "render_source": "deterministic_material_ui_ssr",
+  "rendering_policy": "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.",
+  "reasoning_effort": null,
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": true
+  },
+  "design_system_name": "Material UI",
+  "design_system_package": "@mui/material",
+  "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
+  "handoff_source": null,
+  "design_system_adapter_file": "examples/model-ui/field-service-dispatch/design-system-adapter.json",
+  "capture_file": null,
+  "model_response_summary": null,
+  "capture_provenance": {
+    "status": "captured",
+    "capture_type": "deterministic-renderer",
+    "captured_at": "2026-05-13",
+    "runner": "scripts/demo-model-ui-matrix.mjs",
+    "provider": "none",
+    "model": "none",
+    "cli": null,
+    "reasoning_effort": null,
+    "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+  },
+  "artifact_path": "artifacts/deterministic-material-ui-only.html",
+  "screenshot_path": "screenshots/deterministic-material-ui-only.png",
+  "approach_title": "Deterministic - Material UI only",
+  "approach_caption": "Deterministic is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit."
+}</script>
+  </body>
+</html>

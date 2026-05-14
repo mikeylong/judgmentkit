@@ -1,0 +1,107 @@
+{
+  "artifact_id": "gemma4-lms-material-ui-only",
+  "use_case_id": "clinical-intake-review",
+  "use_case_label": "Clinical intake review",
+  "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+  "row_id": "gemma4-lms",
+  "row_label": "Gemma 4 via LM Studio lms",
+  "column_id": "material-ui-only",
+  "column_label": "Material UI only",
+  "model_label": "Gemma 4 (local LLM)",
+  "provider": "lmstudio",
+  "cli": "lms",
+  "model": "google/gemma-4-e2b",
+  "reasoning_effort": null,
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "material_ui",
+  "design_system_name": "Material UI",
+  "design_system_package": "@mui/material",
+  "design_system_render_mode": "static-ssr",
+  "render_mode": "material_ui",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-05-14T03:12:12.199Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": true
+  },
+  "source_context_sha256": "6e98c3fc0a8ec9f46f8afbfab39b845f3dc1a37c9d354dcee4df1bfac5fd142e",
+  "prompt_sha256": "658b4ba075288e55b7d29252e4553097e3103fa404494c80cc8f66e5cd48642e",
+  "raw_response_sha256": "bf5220f177ca1d79533a5e3d0bac5cb17898df5333625b8ea43ae917192bd30a",
+  "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
+  "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
+  "parsed": {
+    "summary": "This interface allows an intake coordinator to review administrative readiness for a patient appointment, determine required documentation or verification steps, and decide on scheduling or escalation.",
+    "surface": {
+      "eyebrow": "Clinical Intake Review",
+      "heading": "Appointment Readiness Review (Case I-4471)",
+      "status": "Administrative Review Required: Consent Missing",
+      "queue_title": "Pending Appointment Requests",
+      "queue": [
+        {
+          "id": "I-4471",
+          "customer": "Avery Morgan",
+          "state": "Consent missing",
+          "amount": "10:30 AM"
+        },
+        {
+          "id": "I-4472",
+          "customer": "Sam Rivera",
+          "state": "Verify insurance",
+          "amount": "1:00 PM"
+        },
+        {
+          "id": "I-4473",
+          "customer": "Jules Kim",
+          "state": "Ready to schedule",
+          "amount": "3:15 PM"
+        }
+      ],
+      "selected": {
+        "id": "I-4471",
+        "customer": "Avery Morgan",
+        "amount": "10:30 AM",
+        "plan": "New patient consult",
+        "request": "Appointment packet is pending administrative readiness review.",
+        "status": "Consent missing"
+      },
+      "info": [
+        {
+          "label": "Patient Request",
+          "value": "Review administrative readiness for appointment."
+        },
+        {
+          "label": "Current Status",
+          "value": "Requires signed consent form."
+        }
+      ],
+      "evidence": [
+        "Referral document is uploaded.",
+        "Insurance card image is present.",
+        "Signed consent form is missing before scheduling."
+      ],
+      "policy_title": "Scheduling Protocol",
+      "policy": "Schedule only when required administrative forms are complete; insurance uncertainty goes to verification staff. Do not diagnose, triage, or recommend treatment.",
+      "decision_title": "Action Required: Return Missing Consent Form",
+      "actions": [
+        "Return Packet for Consent",
+        "Escalate Insurance Verification",
+        "Schedule Appointment"
+      ],
+      "primary_action": "Return Packet for Consent",
+      "handoff": {
+        "owner": "Intake Coordinator",
+        "title": "Document Return",
+        "reason": "Missing signed consent form is required to proceed with scheduling.",
+        "action": "Send follow-up request to patient."
+      }
+    }
+  },
+  "raw_response": "{\n  \"summary\": \"This interface allows an intake coordinator to review administrative readiness for a patient appointment, determine required documentation or verification steps, and decide on scheduling or escalation.\",\n  \"surface\": {\n    \"eyebrow\": \"Clinical Intake Review\",\n    \"heading\": \"Appointment Readiness Review (Case I-4471)\",\n    \"status\": \"Administrative Review Required: Consent Missing\",\n    \"queue_title\": \"Pending Appointment Requests\",\n    \"queue\": [\n      {\n        \"id\": \"I-4471\",\n        \"customer\": \"Avery Morgan\",\n        \"state\": \"Consent missing\",\n        \"amount\": \"10:30 AM\"\n      },\n      {\n        \"id\": \"I-4472\",\n        \"customer\": \"Sam Rivera\",\n        \"state\": \"Verify insurance\",\n        \"amount\": \"1:00 PM\"\n      },\n      {\n        \"id\": \"I-4473\",\n        \"customer\": \"Jules Kim\",\n        \"state\": \"Ready to schedule\",\n        \"amount\": \"3:15 PM\"\n      }\n    ],\n    \"selected\": {\n      \"id\": \"I-4471\",\n      \"customer\": \"Avery Morgan\",\n      \"amount\": \"10:30 AM\",\n      \"plan\": \"New patient consult\",\n      \"request\": \"Appointment packet is pending administrative readiness review.\",\n      \"status\": \"Consent missing\"\n    },\n    \"info\": [\n      {\n        \"label\": \"Patient Request\",\n        \"value\": \"Review administrative readiness for appointment.\"\n      },\n      {\n        \"label\": \"Current Status\",\n        \"value\": \"Requires signed consent form.\"\n      }\n    ],\n    \"evidence\": [\n      \"Referral document is uploaded.\",\n      \"Insurance card image is present.\",\n      \"Signed consent form is missing before scheduling.\"\n    ],\n    \"policy_title\": \"Scheduling Protocol\",\n    \"policy\": \"Schedule only when required administrative forms are complete; insurance uncertainty goes to verification staff. Do not diagnose, triage, or recommend treatment.\",\n    \"decision_title\": \"Action Required: Return Missing Consent Form\",\n    \"actions\": [\n      \"Return Packet for Consent\",\n      \"Escalate Insurance Verification\",\n      \"Schedule Appointment\"\n    ],\n    \"primary_action\": \"Return Packet for Consent\",\n    \"handoff\": {\n      \"owner\": \"Intake Coordinator\",\n      \"title\": \"Document Return\",\n      \"reason\": \"Missing signed consent form is required to proceed with scheduling.\",\n      \"action\": \"Send follow-up request to patient.\"\n    }\n  }\n}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "519bc4c5cdff47a82bace3fd72e1537c611c94304ba6fbc32c943aba28f8fb26",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

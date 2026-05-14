@@ -52,12 +52,20 @@ function getAnalyticsConfig() {
     analyticsConfig = {};
   }
 
+  function normalizeRoute(value) {
+    if (value === undefined) return undefined;
+    if (/^(?:[a-z]+:)?\/\//i.test(value) || value.startsWith("/") || value.startsWith("data:")) {
+      return value;
+    }
+    return `/${value.replace(/^\.?\//, "")}`;
+  }
+
   return {
-    scriptSrc: analyticsConfig.scriptSrc ?? "/_vercel/insights/script.js",
-    eventEndpoint: analyticsConfig.eventEndpoint,
-    viewEndpoint: analyticsConfig.viewEndpoint,
-    sessionEndpoint: analyticsConfig.sessionEndpoint,
-    endpoint: analyticsConfig.endpoint,
+    scriptSrc: normalizeRoute(analyticsConfig.scriptSrc ?? "/_vercel/insights/script.js"),
+    eventEndpoint: normalizeRoute(analyticsConfig.eventEndpoint),
+    viewEndpoint: normalizeRoute(analyticsConfig.viewEndpoint),
+    sessionEndpoint: normalizeRoute(analyticsConfig.sessionEndpoint),
+    endpoint: normalizeRoute(analyticsConfig.endpoint),
     dsn: analyticsConfig.dsn,
   };
 }
@@ -934,6 +942,34 @@ pre {
 .example-gallery-intro {
   max-width: 760px;
 }
+.model-ui-use-case-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.model-ui-use-case-tab {
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+}
+.model-ui-use-case-tab[aria-pressed="true"] {
+  border-color: var(--accent);
+  background: #edf5f6;
+  color: var(--accent-strong);
+}
+.model-ui-use-case-panel {
+  display: grid;
+  gap: 16px;
+}
+.model-ui-use-case-panel[hidden] {
+  display: none;
+}
 .example-gallery-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1673,19 +1709,19 @@ const EXAMPLES = [
   {
     id: "model-ui-system-map",
     title: "Model UI generation matrix",
-    label: "System map",
+    label: "4 use cases",
     description:
-      "A 3x4 comparison across deterministic, Gemma 4 (local LLM), and GPT-5.5 xhigh paths, separating raw brief, JudgmentKit handoff, Material UI only, and JudgmentKit plus Material UI.",
+      "Four 3x4 comparisons across deterministic, Gemma 4 (local LLM), and GPT-5.5 xhigh paths, separating raw brief, JudgmentKit handoff, Material UI only, and JudgmentKit plus Material UI.",
     previewHref: "/examples/model-ui/refund-system-map/index.html",
     previewLabel: "Model UI generation matrix",
     actions: [
       {
-        label: "Open matrix",
+        label: "Open default matrix",
         href: "/examples/model-ui/refund-system-map/index.html",
       },
       {
-        label: "Manifest",
-        href: "/examples/model-ui/refund-system-map/manifest.json",
+        label: "Use-case index",
+        href: "/examples/model-ui/index.json",
       },
     ],
   },
@@ -1711,10 +1747,13 @@ const EXAMPLES = [
   },
 ];
 
-const MODEL_UI_EXAMPLE_BASE_HREF = "/examples/model-ui/refund-system-map";
+function modelUiBaseHref(manifest) {
+  const indexPath = manifest?.use_case_index_path ?? "examples/model-ui/refund-system-map/index.html";
+  return `/${indexPath.replace(/\/index\.html$/, "")}`;
+}
 
-function modelUiExampleHref(relativePath) {
-  return `${MODEL_UI_EXAMPLE_BASE_HREF}/${relativePath}`;
+function modelUiExampleHref(manifest, relativePath) {
+  return `${modelUiBaseHref(manifest)}/${relativePath}`;
 }
 
 function galleryProvenanceLabel(artifact) {
@@ -1739,20 +1778,23 @@ function galleryRenderLabel(artifact) {
 }
 
 function buildModelUiGalleryItems(manifest) {
+  const useCaseLabel = manifest?.use_case_label ?? "Support refund triage";
   return (manifest?.artifacts ?? []).map((artifact) => ({
     id: artifact.id,
+    useCaseId: manifest?.use_case_id ?? "refund-system-map",
+    useCaseLabel,
     title: artifact.approach_title ?? artifact.title,
     caption: artifact.approach_caption ?? "",
     modelLabel: artifact.row_label ?? artifact.model_label ?? artifact.title,
-    rowLabel: artifact.row_label ?? artifact.model_label ?? artifact.title,
+    rowLabel: `${useCaseLabel} / ${artifact.row_label ?? artifact.model_label ?? artifact.title}`,
     columnLabel: artifact.column_label ?? "",
     renderLabel: galleryRenderLabel(artifact),
     renderSource: artifact.render_source ?? artifact.visible_render_source ?? "",
     promptContext: artifact.context_summary ?? "",
     provenance: galleryProvenanceLabel(artifact),
-    artifactHref: modelUiExampleHref(artifact.artifact_path),
-    imageHref: modelUiExampleHref(artifact.screenshot_path),
-    captureHref: artifact.capture_file ? modelUiExampleHref(artifact.capture_file) : "",
+    artifactHref: modelUiExampleHref(manifest, artifact.artifact_path),
+    imageHref: modelUiExampleHref(manifest, artifact.screenshot_path),
+    captureHref: artifact.capture_file ? modelUiExampleHref(manifest, artifact.capture_file) : "",
   }));
 }
 
@@ -1765,6 +1807,28 @@ function buildModelUiComparisonRows(manifest, galleryItems) {
     summary: row.summary,
     items: (row.artifact_ids ?? []).map((id) => itemsById.get(id)).filter(Boolean),
   })).filter((row) => row.items.length);
+}
+
+function buildModelUiUseCases(modelUiIndex, manifests) {
+  const manifestById = new Map(
+    manifests.filter(Boolean).map((manifest) => [manifest.use_case_id, manifest]),
+  );
+
+  return (modelUiIndex?.use_cases ?? [])
+    .map((useCase) => {
+      const manifest = manifestById.get(useCase.id);
+      if (!manifest) return null;
+      const galleryItems = buildModelUiGalleryItems(manifest);
+      return {
+        ...useCase,
+        manifestHref: `/${useCase.manifest_path}`,
+        indexHref: `/${useCase.index_path}`,
+        activitySummary: manifest.activity_summary ?? useCase.activity_summary,
+        galleryItems,
+        comparisonRows: buildModelUiComparisonRows(manifest, galleryItems),
+      };
+    })
+    .filter(Boolean);
 }
 
 function renderExampleStaticPreview(example) {
@@ -1863,17 +1927,41 @@ function renderExampleComparisonGroup(group) {
 }
 
 function renderModelUiGalleryPreview(example) {
-  const matrixRows = example.comparisonRows ?? [];
-  const matrix = renderExampleMatrixTable(matrixRows);
+  const useCases = example.useCases ?? [];
+  const tabs = useCases
+    .map(
+      (useCase, index) =>
+        `<button class="model-ui-use-case-tab" type="button" data-use-case-id="${escapeHtml(useCase.id)}" aria-pressed="${index === 0 ? "true" : "false"}">${escapeHtml(useCase.short_label ?? useCase.label)}</button>`,
+    )
+    .join("");
+  const panels = useCases
+    .map((useCase, index) => {
+      const matrix = renderExampleMatrixTable(useCase.comparisonRows ?? []);
+      return `
+        <section class="model-ui-use-case-panel" data-use-case-panel="${escapeHtml(useCase.id)}" ${index === 0 ? "" : "hidden"}>
+          <div class="example-gallery-intro">
+            <p class="eyebrow">Committed screenshots</p>
+            <h3>${escapeHtml(useCase.label)} 3x4 matrix</h3>
+            <p>${escapeHtml(useCase.activitySummary)} Columns separate Raw brief, JudgmentKit handoff, Material UI only, and JudgmentKit + Material UI.</p>
+            <div class="link-row">
+              <a class="pill-link" href="${escapeHtml(useCase.indexHref)}" target="_blank" rel="noreferrer">Open matrix</a>
+              <a class="pill-link" href="${escapeHtml(useCase.manifestHref)}" target="_blank" rel="noreferrer">Manifest</a>
+            </div>
+          </div>
+          ${matrix}
+        </section>`;
+    })
+    .join("");
 
   return `
     <section class="example-gallery" aria-label="Model UI screenshot gallery">
       <div class="example-gallery-intro">
         <p class="eyebrow">Committed screenshots</p>
-        <h3>3x4 JudgmentKit and Material UI comparison</h3>
-        <p>Columns separate Raw brief, JudgmentKit handoff, Material UI only, and JudgmentKit + Material UI. Material UI improves visual consistency; JudgmentKit improves activity fit, workflow fit, and disclosure discipline.</p>
+        <h3>3x4 JudgmentKit and Material UI comparison across four use cases</h3>
+        <p>Material UI improves visual consistency; JudgmentKit improves activity fit, workflow fit, and disclosure discipline. Use the tabs to switch activities without changing the row or column definitions.</p>
       </div>
-      ${matrix}
+      <div class="model-ui-use-case-tabs" role="tablist" aria-label="Model UI use cases">${tabs}</div>
+      ${panels}
     </section>`;
 }
 
@@ -1885,15 +1973,20 @@ function renderExamplePreview(example) {
   return renderExampleStaticPreview(example);
 }
 
-function buildExamples(modelUiManifest) {
-  const modelUiGalleryItems = buildModelUiGalleryItems(modelUiManifest).map((item, index) => ({
-    ...item,
-    index,
-  }));
-  const modelUiComparisonRows = buildModelUiComparisonRows(
-    modelUiManifest,
-    modelUiGalleryItems,
-  );
+function buildExamples(modelUiIndex, modelUiManifests) {
+  const modelUiUseCases = buildModelUiUseCases(modelUiIndex, modelUiManifests);
+  let galleryIndex = 0;
+  for (const useCase of modelUiUseCases) {
+    useCase.galleryItems = useCase.galleryItems.map((item) => ({
+      ...item,
+      index: galleryIndex++,
+    }));
+    useCase.comparisonRows = buildModelUiComparisonRows(
+      modelUiManifests.find((manifest) => manifest?.use_case_id === useCase.id),
+      useCase.galleryItems,
+    );
+  }
+  const modelUiGalleryItems = modelUiUseCases.flatMap((useCase) => useCase.galleryItems);
 
   return EXAMPLES.map((example) => {
     const previewExample =
@@ -1902,7 +1995,7 @@ function buildExamples(modelUiManifest) {
             ...example,
             previewKind: "gallery",
             galleryItems: modelUiGalleryItems,
-            comparisonRows: modelUiComparisonRows,
+            useCases: modelUiUseCases,
           }
         : {
             ...example,
@@ -1976,6 +2069,7 @@ function examplesBrowserScript() {
         const modalTitle = modal?.querySelector("[data-gallery-modal-title]");
         const modalCaption = modal?.querySelector("[data-gallery-modal-caption]");
         const modalContext = modal?.querySelector("[data-gallery-modal-context]");
+        const modalUseCase = modal?.querySelector("[data-gallery-modal-use-case]");
         const modalRender = modal?.querySelector("[data-gallery-modal-render]");
         const modalPrompt = modal?.querySelector("[data-gallery-modal-prompt]");
         const modalProvenance = modal?.querySelector("[data-gallery-modal-provenance]");
@@ -2009,6 +2103,7 @@ function examplesBrowserScript() {
           modalKicker.textContent = item.rowLabel;
           modalTitle.textContent = item.title;
           modalCaption.textContent = item.caption;
+          modalUseCase.textContent = item.useCaseLabel || "";
           modalContext.textContent = item.columnLabel;
           modalRender.textContent = item.renderSource;
           modalPrompt.textContent = item.promptContext;
@@ -2049,19 +2144,56 @@ function examplesBrowserScript() {
           });
         }
 
+        function selectUseCase(example, useCaseId, options = {}) {
+          const useCases = example.useCases ?? [];
+          if (!useCases.length) return;
+          const activeUseCase = useCases.find((useCase) => useCase.id === useCaseId) ?? useCases[0];
+          previewNode.querySelectorAll("[data-use-case-panel]").forEach((panel) => {
+            panel.hidden = panel.getAttribute("data-use-case-panel") !== activeUseCase.id;
+          });
+          previewNode.querySelectorAll("[data-use-case-id]").forEach((button) => {
+            button.setAttribute("aria-pressed", String(button.getAttribute("data-use-case-id") === activeUseCase.id));
+          });
+          if (options.updateHash !== false) {
+            history.replaceState(
+              null,
+              "",
+              "#" + [example.id, activeUseCase.id].map(encodeURIComponent).join("/"),
+            );
+          }
+        }
+
+        function bindUseCaseTabs(example, useCaseId, options = {}) {
+          if (!previewNode) return;
+          previewNode.querySelectorAll("[data-use-case-id]").forEach((button) => {
+            button.addEventListener("click", () => {
+              selectUseCase(example, button.getAttribute("data-use-case-id"));
+            });
+          });
+          selectUseCase(example, useCaseId, options);
+        }
+
+        function parseHash() {
+          const raw = window.location.hash.slice(1);
+          if (!raw) return { exampleId: examples[0].id, useCaseId: "" };
+          const [exampleId = "", useCaseId = ""] = raw.split("/").map(decodeURIComponent);
+          return { exampleId, useCaseId };
+        }
+
         function selectExample(id, options = {}) {
           const example = examplesById.get(id) ?? examples[0];
           titleNode.textContent = example.title;
           descriptionNode.textContent = example.description;
           previewNode.innerHTML = example.previewHtml ?? "";
           bindGalleryLinks(example);
+          bindUseCaseTabs(example, options.useCaseId, { updateHash: options.updateHash });
           renderActions(example.actions);
 
           for (const selector of selectors) {
             selector.setAttribute("aria-current", String(selector.dataset.exampleId === example.id));
           }
 
-          if (options.updateHash !== false) {
+          if (options.updateHash !== false && !(example.useCases ?? []).length) {
             history.replaceState(null, "", "#" + encodeURIComponent(example.id));
           }
 
@@ -2095,15 +2227,15 @@ function examplesBrowserScript() {
         }
 
         window.addEventListener("hashchange", () => {
-          selectExample(decodeURIComponent(window.location.hash.slice(1)), {
+          const parsed = parseHash();
+          selectExample(parsed.exampleId, {
+            useCaseId: parsed.useCaseId,
             updateHash: false,
           });
         });
 
-        const initialId = window.location.hash
-          ? decodeURIComponent(window.location.hash.slice(1))
-          : examples[0].id;
-        selectExample(initialId, { updateHash: false });
+        const initial = parseHash();
+        selectExample(initial.exampleId, { useCaseId: initial.useCaseId, updateHash: false });
       })();
     </script>`;
 }
@@ -2123,6 +2255,7 @@ function renderExampleGalleryModal() {
             <h2 id="example-gallery-modal-title" data-gallery-modal-title></h2>
             <p data-gallery-modal-caption></p>
             <dl class="example-gallery-modal-meta">
+              <div><dt>Use case</dt><dd data-gallery-modal-use-case></dd></div>
               <div><dt>Context</dt><dd data-gallery-modal-context></dd></div>
               <div><dt>Render</dt><dd data-gallery-modal-render></dd></div>
               <div><dt>Prompt</dt><dd data-gallery-modal-prompt></dd></div>
@@ -2146,8 +2279,24 @@ function renderExampleGalleryModal() {
 }
 
 async function examplesPage() {
-  const modelUiManifest = await readJsonIfExists("examples/model-ui/refund-system-map/manifest.json");
-  const examples = buildExamples(modelUiManifest);
+  const modelUiIndex =
+    (await readJsonIfExists("examples/model-ui/index.json")) ?? {
+      use_cases: [
+        {
+          id: "refund-system-map",
+          label: "Support refund triage",
+          short_label: "Refund triage",
+          activity_summary:
+            "A support operations manager reviews refund escalation cases and decides approve, policy review, or missing evidence.",
+          index_path: "examples/model-ui/refund-system-map/index.html",
+          manifest_path: "examples/model-ui/refund-system-map/manifest.json",
+        },
+      ],
+    };
+  const modelUiManifests = await Promise.all(
+    (modelUiIndex.use_cases ?? []).map((useCase) => readJsonIfExists(useCase.manifest_path)),
+  );
+  const examples = buildExamples(modelUiIndex, modelUiManifests);
   const firstExample = examples[0];
   const selectors = examples.map((example, index) => renderExampleSelector(example, index === 0)).join("");
 

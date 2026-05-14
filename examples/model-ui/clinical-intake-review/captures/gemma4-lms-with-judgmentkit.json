@@ -1,0 +1,45 @@
+{
+  "artifact_id": "gemma4-lms-with-judgmentkit",
+  "use_case_id": "clinical-intake-review",
+  "use_case_label": "Clinical intake review",
+  "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+  "row_id": "gemma4-lms",
+  "row_label": "Gemma 4 via LM Studio lms",
+  "column_id": "with-judgmentkit",
+  "column_label": "JudgmentKit handoff",
+  "model_label": "Gemma 4 (local LLM)",
+  "provider": "lmstudio",
+  "cli": "lms",
+  "model": "google/gemma-4-e2b",
+  "reasoning_effort": null,
+  "judgmentkit_mode": "with_judgmentkit",
+  "design_system_mode": "none",
+  "design_system_name": null,
+  "design_system_package": null,
+  "design_system_render_mode": null,
+  "render_mode": "html",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-05-14T03:10:46.694Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": true,
+    "material_ui_adapter": false
+  },
+  "source_context_sha256": "cbee00d3307912ee47880bfcaf31adfc7bb9eb9234b739359568125cd1e05390",
+  "prompt_sha256": "a9f2b9d42c2f0c51e9c0c25e2db61784089cdc209af10a598f3ef03778ba6d14",
+  "raw_response_sha256": "1fe6231c22338fd7b2279fd969dfe39bd5886eb8d36fce5fe6daf94b12ce5aa9",
+  "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
+  "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
+  "parsed": {
+    "summary": "The intake process is blocked because a signed consent form is missing, preventing any clinical recommendation.",
+    "css": "main{font-family:system-ui;padding:24px}.panel{border:1px solid #ddd;padding:12px;margin:12px 0}.actions{display:flex;gap:8px;flex-wrap:wrap}button{padding:8px 12px}",
+    "html": "<main data-primary-surface><h1>Intake Readiness Review</h1><p>I-4471 - Avery Morgan</p><section class=\"panel\"><h2>Evidence Review</h2><p>Missing required document: Signed consent form.</p></section><section class=\"panel\"><h2>Policy Check</h2><p>Signed consent is mandatory before any clinical recommendation can be made or scheduling can proceed.</p></section><section class=\"panel\"><h2>Next Actions</h2><ul><li>Return for signed consent.</li><li>Escalate to documentation staff.</li></ul><div class=\"actions\"><button>Return for Consent</button><button>Escalate Documentation</button></div></section></main>"
+  },
+  "raw_response": "{\"summary\":\"The intake process is blocked because a signed consent form is missing, preventing any clinical recommendation.\",\"css\":\"main{font-family:system-ui;padding:24px}.panel{border:1px solid #ddd;padding:12px;margin:12px 0}.actions{display:flex;gap:8px;flex-wrap:wrap}button{padding:8px 12px}\",\"html\":\"<main data-primary-surface><h1>Intake Readiness Review</h1><p>I-4471 - Avery Morgan</p><section class=\\\"panel\\\"><h2>Evidence Review</h2><p>Missing required document: Signed consent form.</p></section><section class=\\\"panel\\\"><h2>Policy Check</h2><p>Signed consent is mandatory before any clinical recommendation can be made or scheduling can proceed.</p></section><section class=\\\"panel\\\"><h2>Next Actions</h2><ul><li>Return for signed consent.</li><li>Escalate to documentation staff.</li></ul><div class=\\\"actions\\\"><button>Return for Consent</button><button>Escalate Documentation</button></div></section></main>\"}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "7e2b4d21080fee02602ca1eafd7f693044718397dc868d8d4827f0ef8b1f4e17",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

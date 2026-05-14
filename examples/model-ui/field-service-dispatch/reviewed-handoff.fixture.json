@@ -1,0 +1,180 @@
+{
+  "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
+  "activity_review_status": "ready_for_review",
+  "workflow_review_status": "ready_for_review",
+  "handoff_status": "ready_for_generation",
+  "activity_model": {
+    "activity": "Deciding whether the visit should be assigned to the nearest qualified technician, rescheduled for parts, or escalated for SLA risk",
+    "participants": [],
+    "objective": "Whether the visit should be assigned to the nearest qualified technician, rescheduled for parts, or escalated for SLA risk",
+    "outcomes": [
+      "A dispatch handoff with the technician, next action, timing constraint, and reason"
+    ],
+    "domain_vocabulary": [
+      "same-day repair visits before dispatch",
+      "day repair visits",
+      "nearest qualified technician",
+      "dispatch handoff",
+      "technician",
+      "next action"
+    ]
+  },
+  "interaction_contract": {
+    "primary_decision": "Whether the visit should be assigned to the nearest qualified technician, rescheduled for parts, or escalated for SLA risk",
+    "next_actions": [
+      "The outcome is a dispatch handoff with the technician, next action, timing constraint, and reason",
+      "Use domain terms: repair visit, technician, parts readiness, site access, SLA risk, dispatch handoff"
+    ],
+    "completion": "A dispatch handoff with the technician, next action, timing constraint, and reason",
+    "make_easy": [
+      "Confirm the activity model before screen structure",
+      "Review the primary decision and outcome in domain language",
+      "Adjust vocabulary before implementation detail reaches the primary UI"
+    ]
+  },
+  "workflow": {
+    "surface_name": "Repair visit dispatch review",
+    "steps": [
+      "Choose the active repair visit",
+      "Review route, certification, parts, and access readiness",
+      "Choose assignment, reschedule, or escalation",
+      "Send a dispatch handoff"
+    ],
+    "primary_actions": [
+      "Assign technician",
+      "Reschedule for parts",
+      "Escalate SLA risk",
+      "Request access detail"
+    ],
+    "decision_points": [
+      "Decide whether the visit can be assigned now, needs rescheduling for parts, or should be escalated for SLA risk"
+    ],
+    "completion_state": "The dispatch team receives the next owner, timing constraint, and reason"
+  },
+  "primary_surface": {
+    "sections": [
+      "Visit queue",
+      "Selected visit",
+      "Readiness checklist",
+      "Dispatch policy",
+      "Decision path",
+      "Dispatch handoff"
+    ],
+    "controls": [
+      "Select visit",
+      "Assign technician",
+      "Reschedule for parts",
+      "Escalate SLA risk",
+      "Request gate code"
+    ],
+    "user_facing_terms": [
+      "repair visit",
+      "technician",
+      "parts readiness",
+      "site access",
+      "SLA risk",
+      "dispatch handoff",
+      "same-day repair visits before dispatch",
+      "day repair visits",
+      "nearest qualified technician",
+      "next action"
+    ]
+  },
+  "handoff": {
+    "next_owner": "Dispatch support",
+    "reason": "Gate code is missing before the qualified technician can be assigned",
+    "next_action": "Request the gate code, then assign Reyes within the SLA window"
+  },
+  "disclosure_reminders": {
+    "diagnostic_terms": [
+      "CRUD",
+      "data model",
+      "field",
+      "JSON schema",
+      "prompt",
+      "prompt template",
+      "resource",
+      "resource id",
+      "schema",
+      "tool call",
+      "trace"
+    ],
+    "diagnostic_contexts": [
+      "setup",
+      "debugging",
+      "auditing",
+      "integration"
+    ],
+    "translation_candidates": [
+      {
+        "detected_term": "CRUD",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "data model",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "field",
+        "count": 2,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "JSON schema",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "prompt",
+        "count": 2,
+        "prefer": "instruction"
+      },
+      {
+        "detected_term": "prompt template",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "resource",
+        "count": 2,
+        "prefer": "guidance"
+      },
+      {
+        "detected_term": "resource id",
+        "count": 2,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "schema",
+        "count": 1,
+        "prefer": "contract"
+      },
+      {
+        "detected_term": "tool call",
+        "count": 1,
+        "prefer": "system action"
+      },
+      {
+        "detected_term": "trace",
+        "count": 1,
+        "prefer": "domain language"
+      }
+    ],
+    "terms_to_keep_out_of_primary_ui": [
+      "CRUD",
+      "data model",
+      "field",
+      "JSON schema",
+      "prompt",
+      "prompt template",
+      "resource",
+      "resource id",
+      "schema",
+      "tool call",
+      "trace"
+    ],
+    "primary_ui_rule": "Keep implementation details and JudgmentKit review-packet terms out of product UI."
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "artifact_id": "gemma4-lms-judgmentkit-material-ui",
+  "use_case_id": "b2b-renewal-risk",
+  "use_case_label": "B2B renewal risk review",
+  "activity_summary": "A customer success manager reviews renewal risk and decides save plan, executive escalation, or wait for usage evidence.",
+  "row_id": "gemma4-lms",
+  "row_label": "Gemma 4 via LM Studio lms",
+  "column_id": "judgmentkit-material-ui",
+  "column_label": "JudgmentKit + Material UI",
+  "model_label": "Gemma 4 (local LLM)",
+  "provider": "lmstudio",
+  "cli": "lms",
+  "model": "google/gemma-4-e2b",
+  "reasoning_effort": null,
+  "judgmentkit_mode": "with_judgmentkit",
+  "design_system_mode": "material_ui",
+  "design_system_name": "Material UI",
+  "design_system_package": "@mui/material",
+  "design_system_render_mode": "static-ssr",
+  "render_mode": "material_ui",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-05-14T03:36:31.039Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": true,
+    "material_ui_adapter": true
+  },
+  "source_context_sha256": "242ac6369745345b7826fb4f1728562d2ba23684ab3d9193d92fd10905e8ccee",
+  "prompt_sha256": "ac55b4a346922f75f0e23535cacfd3bb346bc8a41bd4c2de4218eeec3abe8612",
+  "raw_response_sha256": "fd57d21853e52a62c3fc1af2c5fa35aa6d4f63a25813045f7628b5312daad153",
+  "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
+  "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
+  "parsed": {
+    "summary": "Review renewal risk for Northstar Labs due to a champion change and usage drop, requiring procurement timing clarification.",
+    "surface": {
+      "eyebrow": "JudgmentKit handoff",
+      "heading": "Renewal Risk Review",
+      "status": "Champion change",
+      "queue_title": "Renewal accounts",
+      "queue": [
+        {
+          "id": "AC-903",
+          "customer": "Northstar Labs",
+          "state": "Champion change",
+          "amount": "$84K ARR"
+        },
+        {
+          "id": "AC-904",
+          "customer": "Bright Arc",
+          "state": "Usage drop",
+          "amount": "$42K ARR"
+        },
+        {
+          "id": "AC-905",
+          "customer": "Harbor Grid",
+          "state": "Procurement risk",
+          "amount": "$120K ARR"
+        }
+      ],
+      "selected": {
+        "id": "AC-903",
+        "customer": "Northstar Labs",
+        "plan": "Enterprise annual",
+        "amount": "$84K ARR",
+        "request": "Renewal risk review before the account planning meeting.",
+        "status": "Champion change",
+        "evidence": [
+          "Usage dropped 28 percent over the last two reporting periods.",
+          "Primary champion left the account last month.",
+          "Procurement timeline is missing before escalation."
+        ],
+        "policy": "Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan."
+      },
+      "info": [
+        {
+          "label": "Plan",
+          "value": "Enterprise annual"
+        },
+        {
+          "label": "Renewal value",
+          "value": "$84K ARR"
+        }
+      ],
+      "evidence": [
+        "Usage dropped 28 percent over the last two reporting periods.",
+        "Primary champion left the account last month.",
+        "Procurement timeline is missing before escalation."
+      ],
+      "policy_title": "Escalation rule",
+      "policy": "Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.",
+      "decision_title": "Choose renewal path",
+      "actions": [
+        "Start save plan",
+        "Escalate executive sponsor",
+        "Request procurement date"
+      ],
+      "primary_action": "Request procurement date",
+      "handoff": {
+        "owner": "Customer success manager",
+        "title": "Renewal handoff",
+        "reason": "Champion changed and usage dropped, but procurement timing is missing.",
+        "action": "Send handoff"
+      }
+    }
+  },
+  "raw_response": "{\"summary\":\"Review renewal risk for Northstar Labs due to a champion change and usage drop, requiring procurement timing clarification.\",\"surface\":{\"eyebrow\":\"JudgmentKit handoff\",\"heading\":\"Renewal Risk Review\",\"status\":\"Champion change\",\"queue_title\":\"Renewal accounts\",\"queue\":[{\"id\":\"AC-903\",\"customer\":\"Northstar Labs\",\"state\":\"Champion change\",\"amount\":\"$84K ARR\"},{\"id\":\"AC-904\",\"customer\":\"Bright Arc\",\"state\":\"Usage drop\",\"amount\":\"$42K ARR\"},{\"id\":\"AC-905\",\"customer\":\"Harbor Grid\",\"state\":\"Procurement risk\",\"amount\":\"$120K ARR\"}],\"selected\":{\"id\":\"AC-903\",\"customer\":\"Northstar Labs\",\"plan\":\"Enterprise annual\",\"amount\":\"$84K ARR\",\"request\":\"Renewal risk review before the account planning meeting.\",\"status\":\"Champion change\",\"evidence\":[\"Usage dropped 28 percent over the last two reporting periods.\",\"Primary champion left the account last month.\",\"Procurement timeline is missing before escalation.\"],\"policy\":\"Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.\"},\"info\":[{\"label\":\"Plan\",\"value\":\"Enterprise annual\"},{\"label\":\"Renewal value\",\"value\":\"$84K ARR\"}],\"evidence\":[\"Usage dropped 28 percent over the last two reporting periods.\",\"Primary champion left the account last month.\",\"Procurement timeline is missing before escalation.\"],\"policy_title\":\"Escalation rule\",\"policy\":\"Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.\",\"decision_title\":\"Choose renewal path\",\"actions\":[\"Start save plan\",\"Escalate executive sponsor\",\"Request procurement date\"],\"primary_action\":\"Request procurement date\",\"handoff\":{\"owner\":\"Customer success manager\",\"title\":\"Renewal handoff\",\"reason\":\"Champion changed and usage dropped, but procurement timing is missing.\",\"action\":\"Send handoff\"}}}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "9c11038985533c1d4f3eaf9400aef941af0655f0f109a5219d8c3fbd70dabd50",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

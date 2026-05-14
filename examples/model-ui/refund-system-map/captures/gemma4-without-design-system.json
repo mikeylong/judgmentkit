@@ -1,5 +1,8 @@
 {
   "artifact_id": "gemma4-without-design-system",
+  "use_case_id": "refund-system-map",
+  "use_case_label": "Support refund triage",
+  "activity_summary": "A support operations manager reviews refund escalation cases and decides approve, policy review, or missing evidence.",
   "row_id": "gemma4-lms",
   "row_label": "Gemma 4 via LM Studio lms",
   "column_id": "with-judgmentkit",
@@ -16,27 +19,26 @@
   "design_system_render_mode": null,
   "render_mode": "html",
   "runner": "scripts/capture-model-ui-matrix.mjs",
-  "captured_at": "2026-05-14T01:00:49.194Z",
+  "captured_at": "2026-05-14T02:39:38.384Z",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": true,
     "material_ui_adapter": false
   },
-  "source_context_sha256": "be784981a20606115ae83201c3575398355fce25a92be25d2654871cd5374459",
-  "prompt_sha256": "76f4129a375ea730fe42a56c10d21cc50cbb098c71ac9b5b5869152439a714f5",
-  "raw_response_sha256": "f65e502371c0d848cc5f4678dc58ee5fed097cf33044f182355a6e3cdf03e432",
+  "source_context_sha256": "86f0ee89187abe9b45958bbbd12719e1e29cf6b61ccd882c8603eecbf5765c83",
+  "prompt_sha256": "1cdd846c4a471d5f54fc9ffa8962453fa53c23f811e01c89400ac24597aa433f",
+  "raw_response_sha256": "f6b49c1f0505c8ddbd031ce61c8852d96ff9597b4ea8e657be5f9187cdbdb3bb",
   "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
   "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix. Compatibility alias for the previous six-artifact matrix URL.",
   "parsed": {
-    "summary": "The workspace informs the user that evidence is missing and offers options to submit additional files or proceed to a handoff.",
-    "css": "main{font-family:system-ui;padding:24px}.panel{border:1px solid #ddd;padding:12px}",
-    "html": "<main data-primary-surface><h1>Refund Review Workspace</h1><section class=\"panel\"><h2>Evidence Status</h2><p>The required receipt photo is missing.</p></section><section class=\"panel\"><h2>Decision Path</h2><button>Submit Missing Receipt Photo</button><button>Leave Handoff</button></section><section class=\"panel\"><h2>Handoff</h2><p>Send the case to a support agent for manual review.</p></section></main>"
+    "summary": "A support operations manager reviews a refund escalation case, assesses the evidence, and decides whether to approve the refund, send it for policy review, or return it for missing evidence.",
+    "html": "<main data-primary-surface>\n  <div class=\"container\">\n    <header class=\"header\">\n      <h1>Refund Escalation Review</h1>\n      <p>Support Operations Manager Dashboard</p>\n    </header>\n\n    <!-- Selected Request Card -->\n    <section class=\"case-card\">\n      <h2>Selected Case: R-1842</h2>\n      <p><strong>Customer:</strong> Nora Diaz</p>\n      <p><strong>Amount:</strong> $184.20</p>\n      <p><strong>Request Summary:</strong> Subscription renewal disputed after agent escalation.</p>\n      <p><strong>Current Status:</strong> Evidence incomplete</p>\n    </section>\n\n    <!-- Evidence Checklist -->\n    <section class=\"case-card\">\n      <h3>Evidence Checklist</h3>\n      <ul class=\"evidence-list\">\n        <li>Renewal date confirmed in purchase history.</li>\n        <li>Support note captures the customer's refund reason.</li>\n        <li>Receipt photo is missing before manager approval.</li>\n      </ul>\n    </section>\n\n    <!-- Policy Context -->\n    <section class=\"case-card\">\n      <h3>Policy Context</h3>\n      <p><strong>Policy Rule:</strong> Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p>\n    </section>\n\n    <!-- Decision Path -->\n    <section class=\"decision-panel\">\n      <h3>Decision Path</h3>\n      <p>Decide the next step for this escalation:</p>\n      <div style=\"margin-top: 20px;\">\n        <button class=\"decision-button approve\">Approve Refund</button>\n        <button class=\"decision-button policy\">Send to Policy Review</button>\n        <button class=\\"
   },
-  "raw_response": "{\"summary\":\"The workspace informs the user that evidence is missing and offers options to submit additional files or proceed to a handoff.\",\"css\":\"main{font-family:system-ui;padding:24px}.panel{border:1px solid #ddd;padding:12px}\",\"html\":\"<main data-primary-surface><h1>Refund Review Workspace</h1><section class=\\\"panel\\\"><h2>Evidence Status</h2><p>The required receipt photo is missing.</p></section><section class=\\\"panel\\\"><h2>Decision Path</h2><button>Submit Missing Receipt Photo</button><button>Leave Handoff</button></section><section class=\\\"panel\\\"><h2>Handoff</h2><p>Send the case to a support agent for manual review.</p></section></main>\"}",
+  "raw_response": "{\n  \"summary\": \"A support operations manager reviews a refund escalation case, assesses the evidence, and decides whether to approve the refund, send it for policy review, or return it for missing evidence.\",\n  \"css\": \"body { font-family: -apple-system, BlinkMacSystemFont, \\\"Segoe UI\\\", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f6f8; color: #333; padding: 20px; } .container { max-width: 1365px; margin: auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); padding: 30px; } .header { border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; } .case-card { background-color: #f9f9f9; border: 1px solid #e0e0e0; padding: 20px; border-radius: 6px; margin-bottom: 20px; } .evidence-list li { list-style-type: disc; margin-left: 20px; color: #555; } .decision-panel { margin-top: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 6px; background-color: #fff; } .decision-button { padding: 12px 20px; margin-right: 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background-color 0.2s; } .approve { background-color: #4CAF50; color: white; } .policy { background-color: #FF9800; color: white; } .evidence { background-color: #F44336; color: white; }\",\n  \"html\": \"<main data-primary-surface>\\n  <div class=\\\"container\\\">\\n    <header class=\\\"header\\\">\\n      <h1>Refund Escalation Review</h1>\\n      <p>Support Operations Manager Dashboard</p>\\n    </header>\\n\\n    <!-- Selected Request Card -->\\n    <section class=\\\"case-card\\\">\\n      <h2>Selected Case: R-1842</h2>\\n      <p><strong>Customer:</strong> Nora Diaz</p>\\n      <p><strong>Amount:</strong> $184.20</p>\\n      <p><strong>Request Summary:</strong> Subscription renewal disputed after agent escalation.</p>\\n      <p><strong>Current Status:</strong> Evidence incomplete</p>\\n    </section>\\n\\n    <!-- Evidence Checklist -->\\n    <section class=\\\"case-card\\\">\\n      <h3>Evidence Checklist</h3>\\n      <ul class=\\\"evidence-list\\\">\\n        <li>Renewal date confirmed in purchase history.</li>\\n        <li>Support note captures the customer's refund reason.</li>\\n        <li>Receipt photo is missing before manager approval.</li>\\n      </ul>\\n    </section>\\n\\n    <!-- Policy Context -->\\n    <section class=\\\"case-card\\\">\\n      <h3>Policy Context</h3>\\n      <p><strong>Policy Rule:</strong> Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p>\\n    </section>\\n\\n    <!-- Decision Path -->\\n    <section class=\\\"decision-panel\\\">\\n      <h3>Decision Path</h3>\\n      <p>Decide the next step for this escalation:</p>\\n      <div style=\\\"margin-top: 20px;\\\">\\n        <button class=\\\"decision-button approve\\\">Approve Refund</button>\\n        <button class=\\\"decision-button policy\\\">Send to Policy Review</button>\\n        <button class=\\\"",
   "execution": {
     "status": 0,
-    "stdout_sha256": "12de141965ffb5289c3485f0276b254662350dcb7a1c64aa71b6bbfb90efaf6d",
+    "stdout_sha256": "7b9044b23b483d51247232076fdc54d3bc3d6edb93e1a2608a866e7e601d74bd",
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
   "canonical_artifact_id": "gemma4-lms-with-judgmentkit",

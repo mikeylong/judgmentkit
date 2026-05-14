@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Field service dispatch - Gemma 4 via LM Studio lms - Raw brief</title>
+    <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f5f3ed;
+      --panel: #ffffff;
+      --ink: #17231f;
+      --muted: #65726d;
+      --line: #d9d3c7;
+      --accent: #245f73;
+      --accent-strong: #174352;
+      --warning: #8a5a16;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .raw-model-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--canvas);
+    }
+    .raw-model-candidate > section,
+    .raw-model-candidate .card,
+    .raw-model-candidate .panel {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .raw-model-candidate ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .app-shell .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #eef6f7;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: #fff7e8;
+      color: var(--warning);
+    }
+    .app-shell .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .app-shell .queue,
+    .app-shell .detail {
+      padding: 16px;
+    }
+    .app-shell .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .app-shell .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      text-align: left;
+    }
+    .app-shell .queue-item small {
+      color: var(--muted);
+    }
+    .app-shell .queue-item.is-selected {
+      border-color: var(--accent);
+      background: #edf6f7;
+    }
+    .app-shell .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .app-shell .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
+      padding: 14px;
+    }
+    .app-shell .info-grid > div {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #faf9f5;
+    }
+    .app-shell .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .app-shell .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .app-shell .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .app-shell .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--accent-strong);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .app-shell .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-shell .actions button,
+    .app-shell .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .app-shell button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .app-shell .handoff {
+      padding: 14px;
+      background: #f3f8f8;
+    }
+    .raw-brief-candidate .app-header {
+      background: #fff8ea;
+      border: 1px solid #e5c98f;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .reviewed-candidate .app-header {
+      background: #eef6f7;
+      border: 1px solid #b8d2d7;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--ink);
+    }
+    .design-system {
+      --canvas: #f7f4ee;
+      --panel: #ffffff;
+      --ink: #182521;
+      --muted: #64716b;
+      --line: #d9d3c5;
+      --accent: #0f766e;
+      --accent-strong: #0f4f49;
+      --warning: #9a5b16;
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
+        display: grid;
+      }
+      .app-shell .workspace,
+      .app-shell .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+    <style data-model-css>body { font-family: Arial, sans-serif; background-color: #f4f7f9; padding: 20px; } .main-container { max-width: 1400px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); } h1 { color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; } .visit-card { background-color: #fff; border: 1px solid #e0e0e0; border-left: 5px solid; padding: 15px; margin-bottom: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; } .card-status-high { border-left-color: #d9534f; background-color: #fdf7f7; } .card-status-medium { border-left-color: #f0ad4e; background-color: #fffaf0; } .card-status-low { border-left-color: #5cb85c; background-color: #f7fff7; } .visit-details h3 { margin-top: 0; color: #0056b3; } .action-buttons button { padding: 8px 15px; margin-left: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; } .btn-assign { background-color: #5cb85c; color: white; } .btn-reschedule { background-color: #f0ad4e; color: white; } .btn-escalate { background-color: #d9534f; color: white; }</style>
+
+  </head>
+  <body data-artifact-id="gemma4-lms-no-judgmentkit" data-row-id="gemma4-lms" data-column-id="no-judgmentkit" data-judgmentkit-mode="no_judgmentkit" data-design-system-mode="none">
+    <main class="raw-model-candidate" data-primary-surface>
+  <h1>Field Service Dispatch Review</h1>
+  <p>Review pending repair visits based on route proximity, parts readiness, and SLA risk.</p>
+
+  <div class="visit-card card-status-high">
+    <div class="visit-details">
+      <h3>Repair Visit V-2187 (Mallory Chen)</h3>
+      <p><strong>SLA Constraint:</strong> Same-day SLA 4h. Status: Needs site access confirmation.</p>
+      <ul>
+        <li>Technician Reyes is 18 mins away (Route OK).</li>
+        <li>Parts check needed (Fan motor available at West Depot).
+        <li>Site Access missing (Customer gate code pending).</li>
+      </ul>
+    </div>
+    <div class="action-buttons">
+      <button class="btn-assign">Assign to Reyes</button>
+      <button class="btn-reschedule">Reschedule for Parts</button>
+      <button class="btn-escalate">Escalate SLA Risk</button>
+    </div>
+  </div>
+
+  <div class="visit-card card-status-medium">
+    <div class="visit-details">
+      <h3>Repair Visit V-2188 (Owen Patel)</h3>
+      <p><strong>SLA Constraint:</strong> Scheduled for Tomorrow. Status: Parts shortage.</p>
+      <ul>
+        <li>Technician Smith is available tomorrow.</li>
+        <li>Replacement fan motor is currently out of stock at all depots.
+      </ul>
+    </div>
+    <div class="action-buttons">
+      <button class="btn-assign" disabled>Assign (Parts Unavailable)</button>
+      <button class="btn-reschedule">Reschedule for Parts</button>
+      <button class="btn-escalate">Escalate SLA Risk</button>
+    </div>
+  </div>
+
+  <div class="visit-card card-status-low">
+    <div class="visit-details">
+      <h3>Repair Visit V-2189 (Rae Wilson)</h3>
+      <p><strong>SLA Constraint:</strong> SLA 2h. Status: Route conflict detected.</p>
+      <ul>
+        <li>Technician Jones is nearby but currently booked on conflicting job.
+        <li>Route matrix suggests an optimal technician 30 mins away.</li>
+      </ul>
+    </div>
+    <div class="action-buttons">
+      <button class="btn-assign">Assign (Re-route)</button>
+      <button class="btn-reschedule">Reschedule for Parts</button>
+      <button class="btn-escalate">Escalate SLA Risk</button>
+    </div>
+  </div>
+</main>
+    <aside class="provenance" aria-label="Artifact provenance">
+      <strong>Provenance:</strong>
+      <span>captured</span>
+      <span> - captured_model_output</span>
+      <span> - Raw brief</span>
+      <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
+      <p>Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.</p>
+      <p>Manifest entry: <code>artifacts/gemma4-lms-no-judgmentkit.html</code></p>
+    </aside>
+    <script type="application/json" id="model-ui-provenance">{
+  "matrix_id": "field-service-dispatch-model-ui-v1",
+  "use_case_id": "field-service-dispatch",
+  "use_case_label": "Field service dispatch",
+  "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
+  "artifact_id": "gemma4-lms-no-judgmentkit",
+  "row_id": "gemma4-lms",
+  "column_id": "no-judgmentkit",
+  "model_label": "Gemma 4 (local LLM)",
+  "generation_source": "captured_model_output",
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "none",
+  "render_source": "model_static_html_css",
+  "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+  "reasoning_effort": null,
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": false
+  },
+  "design_system_name": null,
+  "design_system_package": null,
+  "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
+  "handoff_source": null,
+  "design_system_adapter_file": null,
+  "capture_file": "captures/gemma4-lms-no-judgmentkit.json",
+  "model_response_summary": "A field operations manager reviews pending repair visits, using route, parts availability, and SLA constraints to decide whether to assign, reschedule for parts, or escalate a service.",
+  "capture_provenance": {
+    "status": "captured",
+    "capture_type": "model-output-transcript",
+    "captured_at": "2026-05-14T02:52:58.298Z",
+    "runner": "scripts/capture-model-ui-matrix.mjs",
+    "provider": "lmstudio",
+    "model": "google/gemma-4-e2b",
+    "cli": "lms",
+    "transcript_file": "captures/gemma4-lms-no-judgmentkit.json",
+    "prompt_sha256": "abe827ec93646ae41e6c0cf4d3a1c4c84acc5a6839371fed3c1b286b367ce465",
+    "raw_response_sha256": "ac6379e8fdf3b3935cd474ded84f96168d12b26c17592e59ae5f20b53b1f9244",
+    "source_context_sha256": "95c08188dc61a4aa6eed4fbdcbe02102dba9bf32b99fd961d9163f30695f868f",
+    "reasoning_effort": null,
+    "context_included": {
+      "source_brief": true,
+      "sample_case": true,
+      "reviewed_handoff": false,
+      "material_ui_adapter": false
+    },
+    "design_system_name": null,
+    "design_system_package": null,
+    "design_system_render_mode": null,
+    "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
+  },
+  "artifact_path": "artifacts/gemma4-lms-no-judgmentkit.html",
+  "screenshot_path": "screenshots/gemma4-lms-no-judgmentkit.png",
+  "approach_title": "Gemma 4 via LM Studio lms - Raw brief",
+  "approach_caption": "Gemma 4 via LM Studio lms receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+}</script>
+  </body>
+</html>

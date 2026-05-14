@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>B2B renewal risk review - GPT-5.5 xhigh via codex exec - Raw brief</title>
+    <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f5f3ed;
+      --panel: #ffffff;
+      --ink: #17231f;
+      --muted: #65726d;
+      --line: #d9d3c7;
+      --accent: #245f73;
+      --accent-strong: #174352;
+      --warning: #8a5a16;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .raw-model-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--canvas);
+    }
+    .raw-model-candidate > section,
+    .raw-model-candidate .card,
+    .raw-model-candidate .panel {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .raw-model-candidate ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .app-shell .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #eef6f7;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: #fff7e8;
+      color: var(--warning);
+    }
+    .app-shell .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .app-shell .queue,
+    .app-shell .detail {
+      padding: 16px;
+    }
+    .app-shell .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .app-shell .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      text-align: left;
+    }
+    .app-shell .queue-item small {
+      color: var(--muted);
+    }
+    .app-shell .queue-item.is-selected {
+      border-color: var(--accent);
+      background: #edf6f7;
+    }
+    .app-shell .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .app-shell .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
+      padding: 14px;
+    }
+    .app-shell .info-grid > div {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #faf9f5;
+    }
+    .app-shell .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .app-shell .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .app-shell .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .app-shell .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--accent-strong);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .app-shell .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-shell .actions button,
+    .app-shell .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .app-shell button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .app-shell .handoff {
+      padding: 14px;
+      background: #f3f8f8;
+    }
+    .raw-brief-candidate .app-header {
+      background: #fff8ea;
+      border: 1px solid #e5c98f;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .reviewed-candidate .app-header {
+      background: #eef6f7;
+      border: 1px solid #b8d2d7;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--ink);
+    }
+    .design-system {
+      --canvas: #f7f4ee;
+      --panel: #ffffff;
+      --ink: #182521;
+      --muted: #64716b;
+      --line: #d9d3c5;
+      --accent: #0f766e;
+      --accent-strong: #0f4f49;
+      --warning: #9a5b16;
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
+        display: grid;
+      }
+      .app-shell .workspace,
+      .app-shell .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+    <style data-model-css>.renewal-risk { box-sizing: border-box; min-height: 900px; padding: 24px; background: #f6f7f9; color: #17202a; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
+.renewal-risk * { box-sizing: border-box; }
+.risk-shell { display: grid; grid-template-columns: 280px minmax(0, 1fr) 360px; gap: 18px; max-width: 1320px; margin: 0 auto; }
+.risk-header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding-bottom: 6px; }
+.eyebrow { margin: 0 0 6px; color: #5b6776; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+h1, h2, h3, p { margin-top: 0; }
+h1 { margin-bottom: 6px; font-size: 30px; line-height: 1.1; letter-spacing: 0; }
+.header-note { margin: 0; color: #596575; font-size: 14px; }
+.meeting-chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #cfd6df; border-radius: 999px; padding: 8px 12px; background: #ffffff; color: #344255; font-size: 13px; font-weight: 700; white-space: nowrap; }
+.panel { background: #ffffff; border: 1px solid #d9dee6; border-radius: 8px; box-shadow: 0 1px 2px rgba(23, 32, 42, .05); }
+.queue { padding: 16px; }
+.queue h2, .panel-title { margin-bottom: 12px; font-size: 15px; line-height: 1.25; }
+.queue-list { display: grid; gap: 10px; }
+.account-row { display: grid; gap: 4px; padding: 12px; border: 1px solid #e0e5ec; border-radius: 8px; background: #fbfcfd; }
+.account-row.active { border-color: #285e61; background: #eef7f6; }
+.row-top { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 800; }
+.row-state { color: #596575; font-size: 13px; }
+.row-amount { color: #1f4f46; font-size: 13px; font-weight: 800; }
+.main-stack { display: grid; gap: 18px; min-width: 0; }
+.account-summary { padding: 18px; }
+.summary-top { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; }
+.customer-name { margin-bottom: 8px; font-size: 24px; line-height: 1.15; }
+.meta-line { margin: 0; color: #546173; font-size: 14px; }
+.status-badge { border-radius: 999px; padding: 8px 12px; background: #fff2d7; color: #7a4a00; font-size: 13px; font-weight: 800; white-space: nowrap; }
+.metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
+.metric { border: 1px solid #e0e5ec; border-radius: 8px; padding: 12px; background: #fbfcfd; }
+.metric-label { margin-bottom: 6px; color: #657184; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+.metric-value { color: #17202a; font-size: 18px; font-weight: 850; }
+.evidence { padding: 18px; }
+.evidence-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.evidence-card { min-height: 138px; border: 1px solid #e0e5ec; border-radius: 8px; padding: 14px; background: #ffffff; }
+.evidence-card.warning { border-top: 4px solid #b35c00; }
+.evidence-card.critical { border-top: 4px solid #a93434; }
+.evidence-card.gap { border-top: 4px solid #4f6f9f; }
+.evidence-card h3 { margin-bottom: 8px; font-size: 14px; }
+.evidence-card p { margin-bottom: 0; color: #3e4a59; font-size: 14px; line-height: 1.45; }
+.policy-note { margin-top: 14px; border-left: 4px solid #285e61; padding: 12px 14px; background: #f0f7f5; color: #27413f; font-size: 14px; line-height: 1.45; }
+.decision-panel { padding: 18px; align-self: start; }
+.recommendation { margin-bottom: 16px; border: 1px solid #b9d6d1; border-radius: 8px; padding: 14px; background: #edf7f5; }
+.recommendation h2 { margin-bottom: 8px; font-size: 16px; color: #163f3d; }
+.recommendation p { margin-bottom: 0; color: #27413f; font-size: 14px; line-height: 1.45; }
+.option-list { display: grid; gap: 10px; margin-bottom: 16px; }
+.option { width: 100%; border: 1px solid #d8dee6; border-radius: 8px; padding: 12px; background: #ffffff; text-align: left; }
+.option strong { display: block; margin-bottom: 4px; color: #17202a; font-size: 14px; }
+.option span { display: block; color: #5b6776; font-size: 13px; line-height: 1.35; }
+.option.primary { border-color: #285e61; background: #f2faf8; }
+.option.blocked { background: #fafafa; color: #697586; }
+.handoff { border-top: 1px solid #e2e6ec; padding-top: 16px; }
+.handoff-row { display: grid; grid-template-columns: 112px 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px solid #eef1f5; font-size: 14px; }
+.handoff-row dt { color: #657184; font-weight: 700; }
+.handoff-row dd { margin: 0; color: #17202a; }
+.actions { display: flex; gap: 10px; margin-top: 16px; }
+.button { border: 1px solid #285e61; border-radius: 8px; padding: 10px 12px; background: #285e61; color: #ffffff; font-size: 14px; font-weight: 800; }
+.button.secondary { background: #ffffff; color: #285e61; }
+@media (max-width: 980px) { .renewal-risk { min-height: auto; padding: 16px; } .risk-shell { grid-template-columns: 1fr; } .risk-header, .summary-top { flex-direction: column; } .evidence-grid, .metric-grid { grid-template-columns: 1fr; } }</style>
+
+  </head>
+  <body data-artifact-id="gpt55-xhigh-codex-no-judgmentkit" data-row-id="gpt55-xhigh-codex" data-column-id="no-judgmentkit" data-judgmentkit-mode="no_judgmentkit" data-design-system-mode="none">
+    <main class="raw-model-candidate" class='renewal-risk' data-primary-surface><section class='risk-shell'><header class='risk-header'><div><p class='eyebrow'>B2B renewal risk review</p><h1>Choose the next renewal move</h1><p class='header-note'>Review account facts, risk evidence, and the handoff needed before the weekly account meeting.</p></div><div class='meeting-chip'>Weekly account meeting queue</div></header><aside class='panel queue' aria-label='At-risk renewal queue'><h2>At-risk renewals</h2><div class='queue-list'><article class='account-row active'><div class='row-top'><span>AC-903</span><span>Northstar Labs</span></div><div class='row-state'>Champion change</div><div class='row-amount'>$84K ARR</div></article><article class='account-row'><div class='row-top'><span>AC-904</span><span>Bright Arc</span></div><div class='row-state'>Usage drop</div><div class='row-amount'>$42K ARR</div></article><article class='account-row'><div class='row-top'><span>AC-905</span><span>Harbor Grid</span></div><div class='row-state'>Procurement risk</div><div class='row-amount'>$120K ARR</div></article></div></aside><section class='main-stack' aria-label='Selected renewal evidence'><article class='panel account-summary'><div class='summary-top'><div><p class='eyebrow'>Selected account</p><h2 class='customer-name'>Northstar Labs</h2><p class='meta-line'>Enterprise annual plan · $84K ARR · Renewal risk review before account planning</p></div><span class='status-badge'>Champion change</span></div><div class='metric-grid'><div class='metric'><div class='metric-label'>Usage trend</div><div class='metric-value'>-28%</div></div><div class='metric'><div class='metric-label'>Sponsor signal</div><div class='metric-value'>Champion left</div></div><div class='metric'><div class='metric-label'>Timeline</div><div class='metric-value'>Missing</div></div></div></article><article class='panel evidence'><h2 class='panel-title'>Evidence review</h2><div class='evidence-grid'><section class='evidence-card warning'><h3>Usage trend</h3><p>Usage dropped 28 percent across the last two reporting periods, so the account has enough usage signal to treat the risk as real.</p></section><section class='evidence-card critical'><h3>Champion change</h3><p>The primary champion left the account last month. Sponsor coverage needs to be rebuilt before the renewal conversation advances.</p></section><section class='evidence-card gap'><h3>Procurement timeline</h3><p>The renewal timing is not confirmed. This is the evidence gap blocking a committed save plan or executive escalation.</p></section></div><div class='policy-note'>Policy readout: executive escalation fits when sponsor risk and renewal timing are clear. Missing procurement dates should be resolved before committing a save plan.</div></article></section><aside class='panel decision-panel' aria-label='Renewal decision and handoff'><div class='recommendation'><p class='eyebrow'>Recommended path</p><h2>Resolve procurement timing before committing the save plan</h2><p>Northstar Labs has real renewal risk from usage drop and champion change, but the handoff should first close the procurement timeline gap.</p></div><div class='option-list'><button class='option blocked' type='button'><strong>Start save plan</strong><span>Blocked until procurement timing is confirmed.</span></button><button class='option blocked' type='button'><strong>Executive escalation</strong><span>Prepare sponsor path, but wait for renewal timing clarity.</span></button><button class='option primary' type='button'><strong>Wait for evidence</strong><span>Use this as a short hold for procurement evidence, not for usage proof.</span></button></div><section class='handoff'><h2 class='panel-title'>Renewal handoff</h2><dl><div class='handoff-row'><dt>Next owner</dt><dd>Customer success manager</dd></div><div class='handoff-row'><dt>Action</dt><dd>Confirm procurement timeline and identify the new sponsor path.</dd></div><div class='handoff-row'><dt>Risk reason</dt><dd>Champion change with a 28 percent usage decline.</dd></div><div class='handoff-row'><dt>Evidence gap</dt><dd>Procurement dates before save plan or executive escalation.</dd></div></dl><div class='actions'><button class='button' type='button'>Record handoff</button><button class='button secondary' type='button'>Send to meeting</button></div></section></aside></section></main>
+    <aside class="provenance" aria-label="Artifact provenance">
+      <strong>Provenance:</strong>
+      <span>captured</span>
+      <span> - captured_model_output</span>
+      <span> - Raw brief</span>
+      <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
+      <p>Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.</p>
+      <p>Manifest entry: <code>artifacts/gpt55-xhigh-codex-no-judgmentkit.html</code></p>
+    </aside>
+    <script type="application/json" id="model-ui-provenance">{
+  "matrix_id": "b2b-renewal-risk-model-ui-v1",
+  "use_case_id": "b2b-renewal-risk",
+  "use_case_label": "B2B renewal risk review",
+  "activity_summary": "A customer success manager reviews renewal risk and decides save plan, executive escalation, or wait for usage evidence.",
+  "artifact_id": "gpt55-xhigh-codex-no-judgmentkit",
+  "row_id": "gpt55-xhigh-codex",
+  "column_id": "no-judgmentkit",
+  "model_label": "GPT-5.5",
+  "generation_source": "captured_model_output",
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "none",
+  "render_source": "model_static_html_css",
+  "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+  "reasoning_effort": "xhigh",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": false
+  },
+  "design_system_name": null,
+  "design_system_package": null,
+  "source_brief_file": "examples/model-ui/b2b-renewal-risk/source-brief.txt",
+  "handoff_source": null,
+  "design_system_adapter_file": null,
+  "capture_file": "captures/gpt55-xhigh-codex-no-judgmentkit.json",
+  "model_response_summary": "Static renewal risk review UI for AC-903 that helps a CSM compare evidence, choose a renewal action, and leave a handoff with owner, risk reason, and evidence gap.",
+  "capture_provenance": {
+    "status": "captured",
+    "capture_type": "model-output-transcript",
+    "captured_at": "2026-05-14T03:38:59.031Z",
+    "runner": "scripts/capture-model-ui-matrix.mjs",
+    "provider": "codex-cli",
+    "model": "gpt-5.5",
+    "cli": "codex",
+    "transcript_file": "captures/gpt55-xhigh-codex-no-judgmentkit.json",
+    "prompt_sha256": "c817f90af42e826051592e19dbd512dc1d1d42d38b79eab49ef2d53e5be903bf",
+    "raw_response_sha256": "2b5313781c026a001a6202c88a1c080fdb410e0184ffdab342b3dcff867d2439",
+    "source_context_sha256": "8457bd4092d379d63aaea4a159872c1ce1d31658ebe2befe52bfefa807483145",
+    "reasoning_effort": "xhigh",
+    "context_included": {
+      "source_brief": true,
+      "sample_case": true,
+      "reviewed_handoff": false,
+      "material_ui_adapter": false
+    },
+    "design_system_name": null,
+    "design_system_package": null,
+    "design_system_render_mode": null,
+    "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
+  },
+  "artifact_path": "artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
+  "screenshot_path": "screenshots/gpt55-xhigh-codex-no-judgmentkit.png",
+  "approach_title": "GPT-5.5 xhigh via codex exec - Raw brief",
+  "approach_caption": "GPT-5.5 xhigh via codex exec receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+}</script>
+  </body>
+</html>

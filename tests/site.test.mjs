@@ -4,6 +4,12 @@ import os from "node:os";
 import path from "node:path";
 
 import { buildSite } from "../site/build-site.mjs";
+import {
+  COMPARISON_COLUMNS,
+  COMPARISON_ROWS,
+  MODEL_UI_INDEX_FILE,
+  MODEL_UI_USE_CASES,
+} from "../scripts/model-ui-use-cases.mjs";
 import { getHostedMcpMetadata } from "../src/mcp-http.mjs";
 
 const EXPECTED_TOOL_NAMES = [
@@ -279,6 +285,80 @@ assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gp
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gpt55-xhigh-codex-with-judgmentkit.png"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gpt55-xhigh-codex-material-ui-only.png"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png"));
+assert.ok(examples.includes("4 use cases"));
+assert.ok(examples.includes("model-ui-use-case-tabs"));
+assert.ok(examples.includes('data-gallery-modal-use-case'));
+assert.ok(examples.includes("/examples/model-ui/index.json"));
+assert.ok(examples.includes("model-ui-system-map"));
+assert.ok(examples.includes("useCaseId"));
+assert.ok(examples.includes("Support refund triage"));
+assert.ok(examples.includes("Field service dispatch"));
+assert.ok(examples.includes("Clinical intake review"));
+assert.ok(examples.includes("B2B renewal risk review"));
+assert.ok(examples.includes("field operations manager assigns"));
+assert.ok(examples.includes("administrative appointment readiness"));
+assert.ok(examples.includes("save plan, executive escalation"));
+assert.ok(examples.includes("data-use-case-id"));
+assert.ok(examples.includes("data-use-case-panel"));
+assert.ok(examples.includes("refund-system-map"));
+assert.ok(examples.includes("field-service-dispatch"));
+assert.ok(examples.includes("clinical-intake-review"));
+assert.ok(examples.includes("b2b-renewal-risk"));
+
+const modelUiIndex = JSON.parse(
+  fs.readFileSync(path.join(tempDir, ...MODEL_UI_INDEX_FILE.split("/")), "utf8"),
+);
+assert.equal(modelUiIndex.use_cases.length, 4);
+assert.equal(modelUiIndex.default_use_case_id, "refund-system-map");
+
+for (const useCase of MODEL_UI_USE_CASES) {
+  const useCaseRoute = `/${useCase.index_path}`;
+  const manifestRoute = `/${useCase.manifest_path}`;
+  assert.ok(examples.includes(useCase.label), `${useCase.id} label should appear in examples`);
+  assert.ok(examples.includes(useCase.activity_summary), `${useCase.id} summary should appear in examples`);
+  assert.ok(examples.includes(useCaseRoute), `${useCase.id} matrix route should appear`);
+  assert.ok(examples.includes(manifestRoute), `${useCase.id} manifest route should appear`);
+
+  const manifest = JSON.parse(
+    fs.readFileSync(path.join(tempDir, ...useCase.manifest_path.split("/")), "utf8"),
+  );
+  assert.equal(manifest.use_case_id, useCase.id);
+  assert.equal(manifest.use_case_label, useCase.label);
+  assert.equal(manifest.comparison_rows.length, 3);
+  assert.equal(manifest.comparison_columns.length, 4);
+  assert.equal(manifest.artifacts.length, 12);
+  assert.equal(
+    manifest.artifacts.length,
+    COMPARISON_ROWS.length * COMPARISON_COLUMNS.length,
+    `${useCase.id} should include every matrix cell`,
+  );
+
+  for (const artifact of manifest.artifacts) {
+    const artifactRoute = `/examples/model-ui/${useCase.id}/${artifact.artifact_path}`;
+    const screenshotRoute = `/examples/model-ui/${useCase.id}/${artifact.screenshot_path}`;
+    assert.ok(examples.includes(artifactRoute), `${artifact.id} artifact route should appear`);
+    assert.ok(examples.includes(screenshotRoute), `${artifact.id} screenshot route should appear`);
+    assert.equal(
+      fs.existsSync(path.join(tempDir, "examples", "model-ui", useCase.id, artifact.artifact_path)),
+      true,
+      `expected copied artifact ${artifactRoute}`,
+    );
+    assert.equal(
+      fs.existsSync(path.join(tempDir, "examples", "model-ui", useCase.id, artifact.screenshot_path)),
+      true,
+      `expected copied screenshot ${screenshotRoute}`,
+    );
+    if (artifact.capture_file) {
+      const captureRoute = `/examples/model-ui/${useCase.id}/${artifact.capture_file}`;
+      assert.ok(examples.includes(captureRoute), `${artifact.id} capture route should appear`);
+      assert.equal(
+        fs.existsSync(path.join(tempDir, "examples", "model-ui", useCase.id, artifact.capture_file)),
+        true,
+        `expected copied capture ${captureRoute}`,
+      );
+    }
+  }
+}
 assert.ok(examples.includes("/examples/comparison/music/version-a.html"));
 assert.ok(examples.includes("/examples/comparison/music/version-b.html"));
 assert.ok(examples.includes("/examples/comparison/music/facilitator-scorecard.md"));
@@ -506,6 +586,35 @@ for (const oldToolName of [
     assert.ok(configuredHomepage.includes('data-event-endpoint="/custom/insights/event"'));
     assert.ok(configuredHomepage.includes('data-view-endpoint="/custom/insights/view"'));
     assert.ok(configuredHomepage.includes('data-session-endpoint="/custom/insights/session"'));
+  } finally {
+    if (originalAnalyticsConfig === undefined) {
+      delete process.env.VERCEL_OBSERVABILITY_CLIENT_CONFIG;
+    } else {
+      process.env.VERCEL_OBSERVABILITY_CLIENT_CONFIG = originalAnalyticsConfig;
+    }
+  }
+}
+
+{
+  const originalAnalyticsConfig = process.env.VERCEL_OBSERVABILITY_CLIENT_CONFIG;
+  const configuredTempDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-site-analytics-relative-"));
+
+  process.env.VERCEL_OBSERVABILITY_CLIENT_CONFIG = JSON.stringify({
+    analytics: {
+      scriptSrc: "0011b2377a8b835f/script.js",
+      eventEndpoint: "0011b2377a8b835f/event",
+    },
+  });
+
+  try {
+    await buildSite(configuredTempDir);
+    const configuredExamples = fs.readFileSync(
+      path.join(configuredTempDir, "examples", "index.html"),
+      "utf8",
+    );
+
+    assert.ok(configuredExamples.includes('src="/0011b2377a8b835f/script.js"'));
+    assert.ok(configuredExamples.includes('data-event-endpoint="/0011b2377a8b835f/event"'));
   } finally {
     if (originalAnalyticsConfig === undefined) {
       delete process.env.VERCEL_OBSERVABILITY_CLIENT_CONFIG;

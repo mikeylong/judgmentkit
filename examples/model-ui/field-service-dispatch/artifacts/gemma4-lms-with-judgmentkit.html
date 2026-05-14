@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Field service dispatch - Gemma 4 via LM Studio lms - JudgmentKit handoff</title>
+    <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f5f3ed;
+      --panel: #ffffff;
+      --ink: #17231f;
+      --muted: #65726d;
+      --line: #d9d3c7;
+      --accent: #245f73;
+      --accent-strong: #174352;
+      --warning: #8a5a16;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .raw-model-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--canvas);
+    }
+    .raw-model-candidate > section,
+    .raw-model-candidate .card,
+    .raw-model-candidate .panel {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .raw-model-candidate ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .app-shell .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #eef6f7;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: #fff7e8;
+      color: var(--warning);
+    }
+    .app-shell .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .app-shell .queue,
+    .app-shell .detail {
+      padding: 16px;
+    }
+    .app-shell .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .app-shell .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      text-align: left;
+    }
+    .app-shell .queue-item small {
+      color: var(--muted);
+    }
+    .app-shell .queue-item.is-selected {
+      border-color: var(--accent);
+      background: #edf6f7;
+    }
+    .app-shell .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .app-shell .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
+      padding: 14px;
+    }
+    .app-shell .info-grid > div {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #faf9f5;
+    }
+    .app-shell .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .app-shell .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .app-shell .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .app-shell .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--accent-strong);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .app-shell .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-shell .actions button,
+    .app-shell .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .app-shell button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .app-shell .handoff {
+      padding: 14px;
+      background: #f3f8f8;
+    }
+    .raw-brief-candidate .app-header {
+      background: #fff8ea;
+      border: 1px solid #e5c98f;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .reviewed-candidate .app-header {
+      background: #eef6f7;
+      border: 1px solid #b8d2d7;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--ink);
+    }
+    .design-system {
+      --canvas: #f7f4ee;
+      --panel: #ffffff;
+      --ink: #182521;
+      --muted: #64716b;
+      --line: #d9d3c5;
+      --accent: #0f766e;
+      --accent-strong: #0f4f49;
+      --warning: #9a5b16;
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
+        display: grid;
+      }
+      .app-shell .workspace,
+      .app-shell .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+    <style data-model-css>body { font-family: Arial, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 20px; } main { max-width: 1365px; margin: auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); } h1 { color: #0056b3; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; } .visit-card { border: 1px solid #ddd; padding: 20px; margin-bottom: 25px; border-radius: 6px; background-color: #fafafa; } .status-indicator { font-weight: bold; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 10px; } .status-ready { background-color: #d4edda; color: #155724; } .status-risk { background-color: #f8d7da; color: #721c24; } .action-panel button { padding: 10px 15px; margin-right: 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background-color 0.3s; } .btn-assign { background-color: #28a745; color: white; } .btn-reschedule { background-color: #ffc107; color: #333; } .btn-escalate { background-color: #dc3545; color: white; } .btn-request { background-color: #007bff; color: white; }</style>
+
+  </head>
+  <body data-artifact-id="gemma4-lms-with-judgmentkit" data-row-id="gemma4-lms" data-column-id="with-judgmentkit" data-judgmentkit-mode="with_judgmentkit" data-design-system-mode="none">
+    <main class="raw-model-candidate" data-primary-surface>
+  <h1>Repair Visit Dispatch Review</h1>
+  <p>Review and decide the next action for the selected repair visit before dispatch handoff.</p>
+
+  <div class="visit-card">
+    <h2>Selected Repair Visit: V-2187</h2>
+    <p><strong>Customer:</strong> Mallory Chen</p>
+    <p><strong>Plan:</strong> Priority repair (SLA 4h)</p>
+    <p><strong>Current State:</strong> Parts check needed</p>
+    <div class="status-indicator status-risk">SLA Risk Detected</div>
+  </div>
+
+  <h2>Readiness Checklist</h2>
+  <ul>
+    <li>Technician Qualification: ✔️ Reyes is qualified.</li>
+    <li>Parts Readiness: ⚠️ Replacement fan motor needed (West Depot).</li>
+    <li>Site Access: ❌ Customer gate code missing.</li>
+    <li>Route Conflict Check: ✅ Route clear for immediate dispatch.</li>
+  </ul>
+
+  <h2>Decision Path</h2>
+  <p>Based on readiness, choose the appropriate action:</p>
+  <div class="action-panel">
+    <button class="btn-assign">Assign Nearest Technician</button>
+    <button class="btn-reschedule">Reschedule for Parts</button>
+    <button class="btn-escalate">Escalate SLA Risk</button>
+    <button class="btn-request">Request Site Access Detail</button>
+  </div>
+
+  <h2>Dispatch Handoff Summary</h2>
+  <p><strong>Next Owner:</strong> Dispatch Support</p>
+  <p><strong>Reason for Handoff:</strong> Gate code is missing before the qualified technician can be assigned.</p>
+  <p><strong>Recommended Next Action:</strong> Request the gate code, then assign Reyes within the SLA window.</p>
+
+</main>
+    <aside class="provenance" aria-label="Artifact provenance">
+      <strong>Provenance:</strong>
+      <span>captured</span>
+      <span> - captured_model_output</span>
+      <span> - JudgmentKit handoff</span>
+      <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
+      <p>Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.</p>
+      <p>Manifest entry: <code>artifacts/gemma4-lms-with-judgmentkit.html</code></p>
+    </aside>
+    <script type="application/json" id="model-ui-provenance">{
+  "matrix_id": "field-service-dispatch-model-ui-v1",
+  "use_case_id": "field-service-dispatch",
+  "use_case_label": "Field service dispatch",
+  "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
+  "artifact_id": "gemma4-lms-with-judgmentkit",
+  "row_id": "gemma4-lms",
+  "column_id": "with-judgmentkit",
+  "model_label": "Gemma 4 (local LLM)",
+  "generation_source": "captured_model_output",
+  "judgmentkit_mode": "with_judgmentkit",
+  "design_system_mode": "none",
+  "render_source": "model_static_html_css",
+  "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
+  "reasoning_effort": null,
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": true,
+    "material_ui_adapter": false
+  },
+  "design_system_name": null,
+  "design_system_package": null,
+  "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
+  "handoff_source": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
+  "design_system_adapter_file": null,
+  "capture_file": "captures/gemma4-lms-with-judgmentkit.json",
+  "model_response_summary": "A dashboard allowing a manager to review a repair visit's readiness against route, parts, and SLA constraints and decide whether to assign, reschedule, or escalate.",
+  "capture_provenance": {
+    "status": "captured",
+    "capture_type": "model-output-transcript",
+    "captured_at": "2026-05-14T02:53:18.090Z",
+    "runner": "scripts/capture-model-ui-matrix.mjs",
+    "provider": "lmstudio",
+    "model": "google/gemma-4-e2b",
+    "cli": "lms",
+    "transcript_file": "captures/gemma4-lms-with-judgmentkit.json",
+    "prompt_sha256": "2d344ae1afdd0ee773e760e6c4a1ab00a6b2b6a7a96647754966ce2f4ad34d55",
+    "raw_response_sha256": "3cd1e8f60f042879080adcdbda4a3c021d2e83a022462a2f54aad48e9eb16274",
+    "source_context_sha256": "1b869087f751e72a0611d791779866bf2d71642d5859713d9234765e56eb7c07",
+    "reasoning_effort": null,
+    "context_included": {
+      "source_brief": true,
+      "sample_case": true,
+      "reviewed_handoff": true,
+      "material_ui_adapter": false
+    },
+    "design_system_name": null,
+    "design_system_package": null,
+    "design_system_render_mode": null,
+    "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
+  },
+  "artifact_path": "artifacts/gemma4-lms-with-judgmentkit.html",
+  "screenshot_path": "screenshots/gemma4-lms-with-judgmentkit.png",
+  "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit handoff",
+  "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+}</script>
+  </body>
+</html>

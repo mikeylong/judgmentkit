@@ -5,115 +5,58 @@ import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import {
+  COMPARISON_COLUMNS as COLUMNS,
+  COMPARISON_ROWS,
+  MODEL_UI_USE_CASES,
+  modelUiUseCasesForArgs,
+} from "./model-ui-use-cases.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, "..");
-const OUTPUT_DIR = path.join(ROOT_DIR, "examples/model-ui/refund-system-map");
-const CAPTURES_DIR = path.join(OUTPUT_DIR, "captures");
-const SOURCE_BRIEF_FILE = path.join(ROOT_DIR, "examples/demo/refund-ops-implementation-heavy.brief.txt");
-const HANDOFF_FILE = path.join(OUTPUT_DIR, "reviewed-handoff.fixture.json");
-const DESIGN_SYSTEM_FILE = path.join(OUTPUT_DIR, "design-system-adapter.json");
 const MODEL_CAPTURE_TIMEOUT_MS = Number.parseInt(
   process.env.MODEL_UI_CAPTURE_TIMEOUT_MS ?? "900000",
   10,
 );
+const MODEL_COMPACT_RETRY_TIMEOUT_MS = Number.parseInt(
+  process.env.MODEL_UI_COMPACT_RETRY_TIMEOUT_MS ??
+    String(Math.max(MODEL_CAPTURE_TIMEOUT_MS, 600_000)),
+  10,
+);
+const FRESH_CAPTURE = process.argv.includes("--fresh");
 
-const SELECTED_CASE = {
-  id: "R-1842",
-  customer: "Nora Diaz",
-  plan: "Pro annual",
-  amount: "$184.20",
-  request: "Subscription renewal disputed after agent escalation.",
-  status: "Evidence incomplete",
-  evidence: [
-    "Renewal date confirmed in purchase history.",
-    "Support note captures the customer's refund reason.",
-    "Receipt photo is missing before manager approval.",
-  ],
-  policy:
-    "Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.",
-};
+let activeUseCase;
+let OUTPUT_DIR;
+let CAPTURES_DIR;
+let SOURCE_BRIEF_FILE;
+let HANDOFF_FILE;
+let DESIGN_SYSTEM_FILE;
+let SELECTED_CASE;
+let QUEUE;
 
-const QUEUE = [
-  { id: "R-1842", customer: "Nora Diaz", state: "Needs receipt", amount: "$184.20" },
-  { id: "R-1843", customer: "Jun Park", state: "Policy question", amount: "$89.00" },
-  { id: "R-1844", customer: "Amara Blake", state: "Manager review", amount: "$312.75" },
-];
-
-const ROWS = [
-  {
-    id: "gemma4-lms",
-    label: "Gemma 4 via LM Studio lms",
-    model_label: "Gemma 4 (local LLM)",
-    provider: "lmstudio",
-    cli: "lms",
-    model: "google/gemma-4-e2b",
-    reasoning_effort: null,
-  },
-  {
-    id: "gpt55-xhigh-codex",
-    label: "GPT-5.5 xhigh via codex exec",
-    model_label: "GPT-5.5",
-    provider: "codex-cli",
-    cli: "codex",
-    model: "gpt-5.5",
-    reasoning_effort: "xhigh",
-  },
-];
-
-const COLUMNS = [
-  {
-    id: "no-judgmentkit",
-    label: "Raw brief",
-    judgmentkit_mode: "no_judgmentkit",
-    design_system_mode: "none",
-    render_mode: "html",
-  },
-  {
-    id: "with-judgmentkit",
-    label: "JudgmentKit handoff",
-    judgmentkit_mode: "with_judgmentkit",
-    design_system_mode: "none",
-    render_mode: "html",
-  },
-  {
-    id: "material-ui-only",
-    label: "Material UI only",
-    judgmentkit_mode: "no_judgmentkit",
-    design_system_mode: "material_ui",
-    render_mode: "material_ui",
-  },
-  {
-    id: "judgmentkit-material-ui",
-    label: "JudgmentKit + Material UI",
-    judgmentkit_mode: "with_judgmentkit",
-    design_system_mode: "material_ui",
-    render_mode: "material_ui",
-  },
-];
+const ROWS = COMPARISON_ROWS.filter((row) => row.generation_source === "captured_model_output");
 
 const LEGACY_CAPTURE_ALIASES = [
-  {
-    legacy_file: "gemma4-without-design-system.json",
-    canonical_file: "gemma4-lms-with-judgmentkit.json",
-    legacy_artifact_id: "gemma4-without-design-system",
-  },
-  {
-    legacy_file: "gemma4-with-design-system.json",
-    canonical_file: "gemma4-lms-judgmentkit-material-ui.json",
-    legacy_artifact_id: "gemma4-with-design-system",
-  },
-  {
-    legacy_file: "gpt55-without-design-system.json",
-    canonical_file: "gpt55-xhigh-codex-with-judgmentkit.json",
-    legacy_artifact_id: "gpt55-without-design-system",
-  },
-  {
-    legacy_file: "gpt55-with-design-system.json",
-    canonical_file: "gpt55-xhigh-codex-judgmentkit-material-ui.json",
-    legacy_artifact_id: "gpt55-with-design-system",
-  },
-];
+  ["gemma4-without-design-system.json", "gemma4-lms-with-judgmentkit.json", "gemma4-without-design-system"],
+  ["gemma4-with-design-system.json", "gemma4-lms-judgmentkit-material-ui.json", "gemma4-with-design-system"],
+  ["gpt55-without-design-system.json", "gpt55-xhigh-codex-with-judgmentkit.json", "gpt55-without-design-system"],
+  ["gpt55-with-design-system.json", "gpt55-xhigh-codex-judgmentkit-material-ui.json", "gpt55-with-design-system"],
+].map(([legacy_file, canonical_file, legacy_artifact_id]) => ({
+  legacy_file,
+  canonical_file,
+  legacy_artifact_id,
+}));
+
+function setActiveUseCase(useCase) {
+  activeUseCase = useCase;
+  OUTPUT_DIR = path.join(ROOT_DIR, useCase.output_dir);
+  CAPTURES_DIR = path.join(OUTPUT_DIR, "captures");
+  SOURCE_BRIEF_FILE = path.join(ROOT_DIR, useCase.source_brief_file);
+  HANDOFF_FILE = path.join(OUTPUT_DIR, "reviewed-handoff.fixture.json");
+  DESIGN_SYSTEM_FILE = path.join(OUTPUT_DIR, "design-system-adapter.json");
+  SELECTED_CASE = useCase.selected_case;
+  QUEUE = useCase.queue;
+}
 
 const SYSTEM_PROMPT = [
   "You generate one static product UI candidate for a JudgmentKit comparison fixture.",
@@ -297,7 +240,10 @@ function contextIncluded(target) {
 function buildContextPayload({ target, sourceBrief, reviewedHandoff, designSystemAdapter }) {
   const included = contextIncluded(target);
   return {
-    matrix_id: "refund-system-map-model-ui-v2",
+    matrix_id: activeUseCase.matrix_id,
+    use_case_id: activeUseCase.id,
+    use_case_label: activeUseCase.label,
+    activity_summary: activeUseCase.activity_summary,
     artifact_id: target.artifact_id,
     row_id: target.row_id,
     column_id: target.column_id,
@@ -344,7 +290,7 @@ function buildHtmlPrompt({ target, contextPayload }) {
     `Generation path: ${target.row_label}`,
     `Column: ${target.column_label}`,
     "",
-    "Task: Generate one static browser-renderable product UI candidate for the refund escalation case.",
+    `Task: Generate one static browser-renderable product UI candidate for this use case: ${activeUseCase.activity_summary}`,
     boundary,
     disclosure,
     "Return JSON only with this shape:",
@@ -532,7 +478,7 @@ function schemaForTarget(target) {
   };
 }
 
-async function captureWithCodex(target, prompt) {
+async function captureWithCodex(target, prompt, options = {}) {
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "judgmentkit-codex-capture-"));
   const outputFile = path.join(tempDir, `${target.artifact_id}.json`);
   const schemaFile = path.join(tempDir, "schema.json");
@@ -557,7 +503,10 @@ async function captureWithCodex(target, prompt) {
     outputFile,
     "-",
   ];
-  const execution = run("codex", args, { input: prompt, timeout: MODEL_CAPTURE_TIMEOUT_MS });
+  const execution = run("codex", args, {
+    input: prompt,
+    timeout: options.timeout ?? MODEL_CAPTURE_TIMEOUT_MS,
+  });
   const rawResponse = await fs.readFile(outputFile, "utf8");
 
   return {
@@ -568,10 +517,22 @@ async function captureWithCodex(target, prompt) {
 }
 
 function buildCompactRetryPrompt(target, contextPayload) {
-  const caseSummary = `${SELECTED_CASE.id} ${SELECTED_CASE.customer} ${SELECTED_CASE.amount}: ${SELECTED_CASE.status}. Missing receipt photo.`;
+  const surface =
+    contextPayload.context_included.reviewed_handoff
+      ? activeUseCase.reviewed_surface
+      : activeUseCase.raw_surface;
+  const selectedStatus = surface.selected_status ?? SELECTED_CASE.status;
+  const evidence = surface.evidence ?? SELECTED_CASE.evidence;
+  const handoff = surface.handoff ?? {
+    owner: "Next owner",
+    title: "Handoff",
+    reason: SELECTED_CASE.status,
+    action: "Send handoff",
+  };
+  const caseSummary = `${SELECTED_CASE.id} ${SELECTED_CASE.customer} ${SELECTED_CASE.amount}: ${selectedStatus}. ${handoff.reason}`;
   const contextBoundary = contextPayload.context_included.reviewed_handoff
     ? "Use JudgmentKit handoff language: review evidence, choose next action, leave handoff."
-    : "Use raw brief language if useful: refund_case, schema, API status, CRUD.";
+    : `Use raw brief language if useful: ${activeUseCase.implementation_terms.slice(0, 5).join(", ")}.`;
   const designBoundary = contextPayload.context_included.material_ui_adapter
     ? "Return surface data for Material UI SSR, not HTML."
     : "Return HTML and optional CSS.";
@@ -580,29 +541,27 @@ function buildCompactRetryPrompt(target, contextPayload) {
     const compactSurface = {
       summary: "one sentence",
       surface: {
-        eyebrow: "Refund review",
-        heading: "Refund Review Workspace",
-        status: "Evidence incomplete",
-        queue_title: "Escalation queue",
+        eyebrow: surface.eyebrow,
+        heading: surface.heading,
+        status: selectedStatus,
+        queue_title: surface.queue_title,
         queue: QUEUE,
-        selected: SELECTED_CASE,
-        info: [
+        selected: {
+          ...SELECTED_CASE,
+          status: selectedStatus,
+        },
+        info: surface.info ?? [
           { label: "Case", value: SELECTED_CASE.id },
           { label: "Amount", value: SELECTED_CASE.amount },
           { label: "Plan", value: SELECTED_CASE.plan },
         ],
-        evidence: SELECTED_CASE.evidence,
-        policy_title: "Policy context",
-        policy: SELECTED_CASE.policy,
-        decision_title: "Decision path",
-        actions: ["Approve refund", "Send to policy review", "Return for missing evidence"],
-        primary_action: "Return for missing evidence",
-        handoff: {
-          owner: "Support agent",
-          title: "Missing evidence handoff",
-          reason: "Receipt photo is missing before manager approval.",
-          action: "Ask the agent to collect the receipt photo before approval.",
-        },
+        evidence,
+        policy_title: surface.policy_title,
+        policy: surface.policy ?? SELECTED_CASE.policy,
+        decision_title: surface.decision_title,
+        actions: surface.actions,
+        primary_action: surface.primary_action,
+        handoff,
       },
     };
     return [
@@ -625,17 +584,22 @@ function buildCompactRetryPrompt(target, contextPayload) {
     designBoundary,
     `Case: ${caseSummary}`,
     "Return one compact JSON object only:",
-    '{"summary":"one sentence","css":"main{font-family:system-ui;padding:24px}.panel{border:1px solid #ddd;padding:12px}","html":"<main data-primary-surface><h1>Refund Review Workspace</h1><section class=\\"panel\\"><h2>Evidence</h2><p>Receipt photo missing.</p></section><section class=\\"panel\\"><h2>Decision path</h2><button>Return for evidence</button></section><section class=\\"panel\\"><h2>Handoff</h2><p>Send to support agent.</p></section></main>"}',
+    JSON.stringify({
+      summary: "one sentence",
+      css: "main{font-family:system-ui;padding:24px}.panel{border:1px solid #ddd;padding:12px;margin:12px 0}.actions{display:flex;gap:8px;flex-wrap:wrap}button{padding:8px 12px}",
+      html: `<main data-primary-surface><h1>${surface.heading}</h1><p>${selectedStatus}</p><section class="panel"><h2>${surface.queue_title}</h2><p>${SELECTED_CASE.id} - ${SELECTED_CASE.customer}</p></section><section class="panel"><h2>${surface.policy_title}</h2><p>${surface.policy ?? SELECTED_CASE.policy}</p></section><section class="panel"><h2>${surface.decision_title}</h2><ul>${evidence.map((item) => `<li>${item}</li>`).join("")}</ul><div class="actions">${surface.actions.map((item) => `<button>${item}</button>`).join("")}</div></section><section class="panel"><h2>${handoff.title}</h2><p>${handoff.reason}</p><p>${handoff.action}</p></section></main>`,
+    }),
   ].join("\n");
 }
 
-async function captureTarget(target, prompt) {
+async function captureTarget(target, prompt, options = {}) {
   return target.cli === "lms"
     ? captureWithLms(target, prompt)
-    : captureWithCodex(target, prompt);
+    : captureWithCodex(target, prompt, options);
 }
 
 async function readReusableCapture(target, sourceContextHash) {
+  if (FRESH_CAPTURE) return null;
   try {
     const filePath = path.join(CAPTURES_DIR, target.output_file);
     const capture = JSON.parse(await fs.readFile(filePath, "utf8"));
@@ -649,6 +613,7 @@ async function readReusableCapture(target, sourceContextHash) {
 }
 
 async function writeLegacyCaptureAliases() {
+  if (activeUseCase.id !== "refund-system-map") return;
   for (const alias of LEGACY_CAPTURE_ALIASES) {
     const canonicalPath = path.join(CAPTURES_DIR, alias.canonical_file);
     const legacyPath = path.join(CAPTURES_DIR, alias.legacy_file);
@@ -665,7 +630,20 @@ async function writeLegacyCaptureAliases() {
 }
 
 async function main() {
+  const requestedUseCases = modelUiUseCasesForArgs(process.argv.slice(2));
   await ensureBaseFiles();
+  for (const useCase of requestedUseCases) {
+    await captureUseCase(useCase);
+  }
+  await ensureBaseFiles();
+  run(process.execPath, [path.join(ROOT_DIR, "scripts/capture-model-ui-screenshots.mjs")], {
+    timeout: 600_000,
+  });
+  process.stdout.write(`Captured model UI use cases: ${requestedUseCases.length}/${MODEL_UI_USE_CASES.length}\n`);
+}
+
+async function captureUseCase(useCase) {
+  setActiveUseCase(useCase);
   await fs.mkdir(CAPTURES_DIR, { recursive: true });
 
   const [sourceBrief, reviewedHandoff, designSystemAdapter] = await Promise.all([
@@ -716,7 +694,9 @@ async function main() {
       );
       promptForCapture = buildCompactRetryPrompt(target, contextPayload);
       promptSha = hash(promptForCapture);
-      capture = await captureTarget(target, promptForCapture);
+      capture = await captureTarget(target, promptForCapture, {
+        timeout: MODEL_COMPACT_RETRY_TIMEOUT_MS,
+      });
     }
     let rawResponse = sanitizeModelResponse(capture.raw_response);
     let parsed;
@@ -731,7 +711,9 @@ async function main() {
         );
         promptForCapture = buildCompactRetryPrompt(target, contextPayload);
         promptSha = hash(promptForCapture);
-        capture = await captureTarget(target, promptForCapture);
+        capture = await captureTarget(target, promptForCapture, {
+          timeout: MODEL_COMPACT_RETRY_TIMEOUT_MS,
+        });
         rawResponse = sanitizeModelResponse(capture.raw_response);
         try {
           parsed = parseJsonPayload(rawResponse);
@@ -754,6 +736,9 @@ async function main() {
 
     const transcript = {
       artifact_id: target.artifact_id,
+      use_case_id: activeUseCase.id,
+      use_case_label: activeUseCase.label,
+      activity_summary: activeUseCase.activity_summary,
       row_id: target.row_id,
       row_label: target.row_label,
       column_id: target.column_id,
@@ -808,10 +793,6 @@ async function main() {
   }
 
   await writeLegacyCaptureAliases();
-  await ensureBaseFiles();
-  run(process.execPath, [path.join(ROOT_DIR, "scripts/capture-model-ui-screenshots.mjs")], {
-    timeout: 180_000,
-  });
 }
 
 await main();

@@ -1,0 +1,172 @@
+{
+  "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+  "activity_review_status": "ready_for_review",
+  "workflow_review_status": "ready_for_review",
+  "handoff_status": "ready_for_generation",
+  "activity_model": {
+    "activity": "Deciding whether the packet is ready to schedule, should be returned for missing consent, or needs insurance verification escalation",
+    "participants": [],
+    "objective": "Whether the packet is ready to schedule, should be returned for missing consent, or needs insurance verification escalation",
+    "outcomes": [
+      "An intake handoff with the next administrative action and reason"
+    ],
+    "domain_vocabulary": [
+      "administrative readiness for a new appointment request",
+      "intake handoff",
+      "next administrative action",
+      "administrative handoff",
+      "use case"
+    ]
+  },
+  "interaction_contract": {
+    "primary_decision": "Whether the packet is ready to schedule, should be returned for missing consent, or needs insurance verification escalation",
+    "next_actions": [
+      "The outcome is an intake handoff with the next administrative action and reason",
+      "Use domain terms: intake packet, referral, insurance verification, signed consent, appointment slot, administrative handoff"
+    ],
+    "completion": "An intake handoff with the next administrative action and reason",
+    "make_easy": [
+      "Confirm the activity model before screen structure",
+      "Review the primary decision and outcome in domain language",
+      "Adjust vocabulary before implementation detail reaches the primary UI"
+    ]
+  },
+  "workflow": {
+    "surface_name": "Administrative intake readiness review",
+    "steps": [
+      "Choose the active intake packet",
+      "Review referral, insurance, and required forms",
+      "Choose schedule, return for forms, or insurance verification",
+      "Send an administrative handoff"
+    ],
+    "primary_actions": [
+      "Ready to schedule",
+      "Return for consent",
+      "Escalate insurance verification",
+      "Send handoff"
+    ],
+    "decision_points": [
+      "Decide whether the packet is administratively ready, missing required consent, or needs insurance verification"
+    ],
+    "completion_state": "The intake team receives the next administrative action and reason"
+  },
+  "primary_surface": {
+    "sections": [
+      "Intake queue",
+      "Selected packet",
+      "Readiness checklist",
+      "Administrative policy",
+      "Decision path",
+      "Intake handoff"
+    ],
+    "controls": [
+      "Select packet",
+      "Ready to schedule",
+      "Return for consent",
+      "Escalate insurance verification",
+      "Send handoff"
+    ],
+    "user_facing_terms": [
+      "intake packet",
+      "referral",
+      "insurance verification",
+      "signed consent",
+      "schedule readiness",
+      "administrative handoff",
+      "administrative readiness for a new appointment request",
+      "intake handoff",
+      "next administrative action",
+      "use case"
+    ]
+  },
+  "handoff": {
+    "next_owner": "Intake coordinator",
+    "reason": "Signed consent is missing before the appointment can be scheduled",
+    "next_action": "Return the packet for consent and keep the request in administrative review"
+  },
+  "disclosure_reminders": {
+    "diagnostic_terms": [
+      "CRUD",
+      "data model",
+      "field",
+      "JSON schema",
+      "prompt",
+      "prompt template",
+      "resource",
+      "resource id",
+      "schema",
+      "tool call"
+    ],
+    "diagnostic_contexts": [
+      "setup",
+      "debugging",
+      "auditing",
+      "integration"
+    ],
+    "translation_candidates": [
+      {
+        "detected_term": "CRUD",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "data model",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "field",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "JSON schema",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "prompt",
+        "count": 1,
+        "prefer": "instruction"
+      },
+      {
+        "detected_term": "prompt template",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "resource",
+        "count": 1,
+        "prefer": "guidance"
+      },
+      {
+        "detected_term": "resource id",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "schema",
+        "count": 1,
+        "prefer": "contract"
+      },
+      {
+        "detected_term": "tool call",
+        "count": 1,
+        "prefer": "system action"
+      }
+    ],
+    "terms_to_keep_out_of_primary_ui": [
+      "CRUD",
+      "data model",
+      "field",
+      "JSON schema",
+      "prompt",
+      "prompt template",
+      "resource",
+      "resource id",
+      "schema",
+      "tool call"
+    ],
+    "primary_ui_rule": "Keep implementation details and JudgmentKit review-packet terms out of product UI."
+  }
+}

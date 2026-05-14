@@ -1,0 +1,107 @@
+{
+  "artifact_id": "gemma4-lms-material-ui-only",
+  "use_case_id": "b2b-renewal-risk",
+  "use_case_label": "B2B renewal risk review",
+  "activity_summary": "A customer success manager reviews renewal risk and decides save plan, executive escalation, or wait for usage evidence.",
+  "row_id": "gemma4-lms",
+  "row_label": "Gemma 4 via LM Studio lms",
+  "column_id": "material-ui-only",
+  "column_label": "Material UI only",
+  "model_label": "Gemma 4 (local LLM)",
+  "provider": "lmstudio",
+  "cli": "lms",
+  "model": "google/gemma-4-e2b",
+  "reasoning_effort": null,
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "material_ui",
+  "design_system_name": "Material UI",
+  "design_system_package": "@mui/material",
+  "design_system_render_mode": "static-ssr",
+  "render_mode": "material_ui",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-05-14T03:31:14.031Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": true
+  },
+  "source_context_sha256": "df3949105d2b8a379ac8da5cd2b90a4058edbf8de7ab1b835f38469d7f9582f3",
+  "prompt_sha256": "d204597c3c7348c1cae55cca8c265583e14e9e6f7fbc6ce2b440d91f43b3accc",
+  "raw_response_sha256": "76a9c291accf7f0ee9a28f8fe801c55a72ab2170c89e8cd9668ece0e74122548",
+  "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
+  "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
+  "parsed": {
+    "summary": "A customer success manager is reviewing an at-risk B2B renewal by assessing account health and usage trends to decide on a save plan, executive escalation, or waiting for further evidence.",
+    "surface": {
+      "eyebrow": "B2B Renewal Risk Review: Northstar Labs",
+      "heading": "Renewal Risk Assessment (AC-903)",
+      "status": "Reviewing",
+      "queue_title": "Renewal Risk Queue",
+      "queue": [
+        {
+          "id": "AC-903",
+          "customer": "Northstar Labs",
+          "state": "Champion change",
+          "amount": "$84K ARR"
+        },
+        {
+          "id": "AC-904",
+          "customer": "Bright Arc",
+          "state": "Usage drop",
+          "amount": "$42K ARR"
+        },
+        {
+          "id": "AC-905",
+          "customer": "Harbor Grid",
+          "state": "Procurement risk",
+          "amount": "$120K ARR"
+        }
+      ],
+      "selected": {
+        "id": "AC-903",
+        "customer": "Northstar Labs",
+        "amount": "$84K ARR",
+        "plan": "Enterprise annual",
+        "request": "Renewal risk review before the account planning meeting.",
+        "status": "Champion change"
+      },
+      "info": [
+        {
+          "label": "Account Health Metric",
+          "value": "Usage dropped 28% over last two periods."
+        },
+        {
+          "label": "Key Risk Factor",
+          "value": "Primary champion left the account."
+        }
+      ],
+      "evidence": [
+        "Usage dropped 28 percent over the last two reporting periods.",
+        "Primary champion left the account last month.",
+        "Procurement timeline is missing before escalation."
+      ],
+      "policy_title": "Renewal Decision Policy",
+      "policy": "Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.",
+      "decision_title": "Decision Pending",
+      "actions": [
+        "Start Save Plan",
+        "Escalate to Executive Sponsor",
+        "Wait for Usage Evidence"
+      ],
+      "primary_action": "Evaluate evidence gap and decide on next step (Save Plan, Escalate, or Wait)",
+      "handoff": {
+        "owner": "Next Account Manager",
+        "title": "Renewal Outcome Handoff",
+        "reason": "Decision made on renewal risk.",
+        "action": "Update account status and initiate follow-up plan."
+      }
+    }
+  },
+  "raw_response": "{\n  \"summary\": \"A customer success manager is reviewing an at-risk B2B renewal by assessing account health and usage trends to decide on a save plan, executive escalation, or waiting for further evidence.\",\n  \"surface\": {\n    \"eyebrow\": \"B2B Renewal Risk Review: Northstar Labs\",\n    \"heading\": \"Renewal Risk Assessment (AC-903)\",\n    \"status\": \"Reviewing\",\n    \"queue_title\": \"Renewal Risk Queue\",\n    \"queue\": [\n      {\n        \"id\": \"AC-903\",\n        \"customer\": \"Northstar Labs\",\n        \"state\": \"Champion change\",\n        \"amount\": \"$84K ARR\"\n      },\n      {\n        \"id\": \"AC-904\",\n        \"customer\": \"Bright Arc\",\n        \"state\": \"Usage drop\",\n        \"amount\": \"$42K ARR\"\n      },\n      {\n        \"id\": \"AC-905\",\n        \"customer\": \"Harbor Grid\",\n        \"state\": \"Procurement risk\",\n        \"amount\": \"$120K ARR\"\n      }\n    ],\n    \"selected\": {\n      \"id\": \"AC-903\",\n      \"customer\": \"Northstar Labs\",\n      \"amount\": \"$84K ARR\",\n      \"plan\": \"Enterprise annual\",\n      \"request\": \"Renewal risk review before the account planning meeting.\",\n      \"status\": \"Champion change\"\n    },\n    \"info\": [\n      {\n        \"label\": \"Account Health Metric\",\n        \"value\": \"Usage dropped 28% over last two periods.\"\n      },\n      {\n        \"label\": \"Key Risk Factor\",\n        \"value\": \"Primary champion left the account.\"\n      }\n    ],\n    \"evidence\": [\n      \"Usage dropped 28 percent over the last two reporting periods.\",\n      \"Primary champion left the account last month.\",\n      \"Procurement timeline is missing before escalation.\"\n    ],\n    \"policy_title\": \"Renewal Decision Policy\",\n    \"policy\": \"Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.\",\n    \"decision_title\": \"Decision Pending\",\n    \"actions\": [\n      \"Start Save Plan\",\n      \"Escalate to Executive Sponsor\",\n      \"Wait for Usage Evidence\"\n    ],\n    \"primary_action\": \"Evaluate evidence gap and decide on next step (Save Plan, Escalate, or Wait)\",\n    \"handoff\": {\n      \"owner\": \"Next Account Manager\",\n      \"title\": \"Renewal Outcome Handoff\",\n      \"reason\": \"Decision made on renewal risk.\",\n      \"action\": \"Update account status and initiate follow-up plan.\"\n    }\n  }\n}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "df7d8694d28f4cd0ed6912bcdfc5dc3fdb14fa8d8590412d40621718b740369c",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

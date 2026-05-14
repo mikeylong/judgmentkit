@@ -1,0 +1,181 @@
+{
+  "source_brief_file": "examples/model-ui/b2b-renewal-risk/source-brief.txt",
+  "activity_review_status": "ready_for_review",
+  "workflow_review_status": "ready_for_review",
+  "handoff_status": "ready_for_generation",
+  "activity_model": {
+    "activity": "Customer success manager reviews renewal handoff",
+    "participants": [
+      "customer success manager"
+    ],
+    "objective": "Whether to start a save plan, escalate to an executive sponsor, or wait for stronger usage evidence",
+    "outcomes": [
+      "A renewal handoff with the next owner, action, risk reason, and evidence gap"
+    ],
+    "domain_vocabulary": [
+      "customer success manager",
+      "at-risk b2b renewals before the weekly account meeting",
+      "wait for stronger usage evidence",
+      "renewal handoff",
+      "evidence"
+    ]
+  },
+  "interaction_contract": {
+    "primary_decision": "Whether to start a save plan, escalate to an executive sponsor, or wait for stronger usage evidence",
+    "next_actions": [
+      "The outcome is a renewal handoff with the next owner, action, risk reason, and evidence gap"
+    ],
+    "completion": "A renewal handoff with the next owner, action, risk reason, and evidence gap",
+    "make_easy": [
+      "Confirm the activity model before screen structure",
+      "Review the primary decision and outcome in domain language",
+      "Adjust vocabulary before implementation detail reaches the primary UI"
+    ]
+  },
+  "workflow": {
+    "surface_name": "Renewal risk review",
+    "steps": [
+      "Choose the active renewal account",
+      "Review usage, sponsor, procurement, and renewal timing",
+      "Choose save plan, executive escalation, or evidence follow-up",
+      "Send a renewal handoff"
+    ],
+    "primary_actions": [
+      "Start save plan",
+      "Escalate executive sponsor",
+      "Request procurement date",
+      "Send handoff"
+    ],
+    "decision_points": [
+      "Decide whether the account needs a save plan, executive escalation, or more usage/procurement evidence"
+    ],
+    "completion_state": "The customer success team receives the next owner, action, risk reason, and evidence gap"
+  },
+  "primary_surface": {
+    "sections": [
+      "Renewal queue",
+      "Selected account",
+      "Risk evidence",
+      "Renewal policy",
+      "Decision path",
+      "Renewal handoff"
+    ],
+    "controls": [
+      "Select account",
+      "Start save plan",
+      "Escalate executive sponsor",
+      "Request procurement date",
+      "Send handoff"
+    ],
+    "user_facing_terms": [
+      "renewal risk",
+      "account",
+      "usage trend",
+      "champion change",
+      "procurement timeline",
+      "save plan",
+      "customer success manager",
+      "at-risk b2b renewals before the weekly account meeting",
+      "wait for stronger usage evidence",
+      "renewal handoff",
+      "evidence"
+    ]
+  },
+  "handoff": {
+    "next_owner": "Customer success manager",
+    "reason": "Champion changed and usage dropped, but procurement timing is missing",
+    "next_action": "Request the procurement date before committing the save plan"
+  },
+  "disclosure_reminders": {
+    "diagnostic_terms": [
+      "API endpoint",
+      "CRUD",
+      "data model",
+      "field",
+      "JSON schema",
+      "prompt",
+      "resource",
+      "resource id",
+      "schema",
+      "tool call",
+      "trace"
+    ],
+    "diagnostic_contexts": [
+      "setup",
+      "debugging",
+      "auditing",
+      "integration"
+    ],
+    "translation_candidates": [
+      {
+        "detected_term": "API endpoint",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "CRUD",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "data model",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "field",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "JSON schema",
+        "count": 1,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "prompt",
+        "count": 2,
+        "prefer": "instruction"
+      },
+      {
+        "detected_term": "resource",
+        "count": 2,
+        "prefer": "guidance"
+      },
+      {
+        "detected_term": "resource id",
+        "count": 2,
+        "prefer": "domain language"
+      },
+      {
+        "detected_term": "schema",
+        "count": 2,
+        "prefer": "contract"
+      },
+      {
+        "detected_term": "tool call",
+        "count": 1,
+        "prefer": "system action"
+      },
+      {
+        "detected_term": "trace",
+        "count": 1,
+        "prefer": "domain language"
+      }
+    ],
+    "terms_to_keep_out_of_primary_ui": [
+      "API endpoint",
+      "CRUD",
+      "data model",
+      "field",
+      "JSON schema",
+      "prompt",
+      "resource",
+      "resource id",
+      "schema",
+      "tool call",
+      "trace"
+    ],
+    "primary_ui_rule": "Keep implementation details and JudgmentKit review-packet terms out of product UI."
+  }
+}

@@ -1,0 +1,45 @@
+{
+  "artifact_id": "gemma4-lms-with-judgmentkit",
+  "use_case_id": "field-service-dispatch",
+  "use_case_label": "Field service dispatch",
+  "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
+  "row_id": "gemma4-lms",
+  "row_label": "Gemma 4 via LM Studio lms",
+  "column_id": "with-judgmentkit",
+  "column_label": "JudgmentKit handoff",
+  "model_label": "Gemma 4 (local LLM)",
+  "provider": "lmstudio",
+  "cli": "lms",
+  "model": "google/gemma-4-e2b",
+  "reasoning_effort": null,
+  "judgmentkit_mode": "with_judgmentkit",
+  "design_system_mode": "none",
+  "design_system_name": null,
+  "design_system_package": null,
+  "design_system_render_mode": null,
+  "render_mode": "html",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-05-14T02:53:18.090Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": true,
+    "material_ui_adapter": false
+  },
+  "source_context_sha256": "1b869087f751e72a0611d791779866bf2d71642d5859713d9234765e56eb7c07",
+  "prompt_sha256": "2d344ae1afdd0ee773e760e6c4a1ab00a6b2b6a7a96647754966ce2f4ad34d55",
+  "raw_response_sha256": "3cd1e8f60f042879080adcdbda4a3c021d2e83a022462a2f54aad48e9eb16274",
+  "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
+  "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
+  "parsed": {
+    "summary": "A dashboard allowing a manager to review a repair visit's readiness against route, parts, and SLA constraints and decide whether to assign, reschedule, or escalate.",
+    "css": "body { font-family: Arial, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 20px; } main { max-width: 1365px; margin: auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); } h1 { color: #0056b3; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; } .visit-card { border: 1px solid #ddd; padding: 20px; margin-bottom: 25px; border-radius: 6px; background-color: #fafafa; } .status-indicator { font-weight: bold; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 10px; } .status-ready { background-color: #d4edda; color: #155724; } .status-risk { background-color: #f8d7da; color: #721c24; } .action-panel button { padding: 10px 15px; margin-right: 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background-color 0.3s; } .btn-assign { background-color: #28a745; color: white; } .btn-reschedule { background-color: #ffc107; color: #333; } .btn-escalate { background-color: #dc3545; color: white; } .btn-request { background-color: #007bff; color: white; }",
+    "html": "<main data-primary-surface>\n  <h1>Repair Visit Dispatch Review</h1>\n  <p>Review and decide the next action for the selected repair visit before dispatch handoff.</p>\n\n  <div class=\"visit-card\">\n    <h2>Selected Repair Visit: V-2187</h2>\n    <p><strong>Customer:</strong> Mallory Chen</p>\n    <p><strong>Plan:</strong> Priority repair (SLA 4h)</p>\n    <p><strong>Current State:</strong> Parts check needed</p>\n    <div class=\"status-indicator status-risk\">SLA Risk Detected</div>\n  </div>\n\n  <h2>Readiness Checklist</h2>\n  <ul>\n    <li>Technician Qualification: ✔️ Reyes is qualified.</li>\n    <li>Parts Readiness: ⚠️ Replacement fan motor needed (West Depot).</li>\n    <li>Site Access: ❌ Customer gate code missing.</li>\n    <li>Route Conflict Check: ✅ Route clear for immediate dispatch.</li>\n  </ul>\n\n  <h2>Decision Path</h2>\n  <p>Based on readiness, choose the appropriate action:</p>\n  <div class=\"action-panel\">\n    <button class=\"btn-assign\">Assign Nearest Technician</button>\n    <button class=\"btn-reschedule\">Reschedule for Parts</button>\n    <button class=\"btn-escalate\">Escalate SLA Risk</button>\n    <button class=\"btn-request\">Request Site Access Detail</button>\n  </div>\n\n  <h2>Dispatch Handoff Summary</h2>\n  <p><strong>Next Owner:</strong> Dispatch Support</p>\n  <p><strong>Reason for Handoff:</strong> Gate code is missing before the qualified technician can be assigned.</p>\n  <p><strong>Recommended Next Action:</strong> Request the gate code, then assign Reyes within the SLA window.</p>\n\n</main>"
+  },
+  "raw_response": "{\n  \"summary\": \"A dashboard allowing a manager to review a repair visit's readiness against route, parts, and SLA constraints and decide whether to assign, reschedule, or escalate.\",\n  \"css\": \"body { font-family: Arial, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 20px; } main { max-width: 1365px; margin: auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); } h1 { color: #0056b3; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; } .visit-card { border: 1px solid #ddd; padding: 20px; margin-bottom: 25px; border-radius: 6px; background-color: #fafafa; } .status-indicator { font-weight: bold; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 10px; } .status-ready { background-color: #d4edda; color: #155724; } .status-risk { background-color: #f8d7da; color: #721c24; } .action-panel button { padding: 10px 15px; margin-right: 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background-color 0.3s; } .btn-assign { background-color: #28a745; color: white; } .btn-reschedule { background-color: #ffc107; color: #333; } .btn-escalate { background-color: #dc3545; color: white; } .btn-request { background-color: #007bff; color: white; }\",\n  \"html\": \"<main data-primary-surface>\\n  <h1>Repair Visit Dispatch Review</h1>\\n  <p>Review and decide the next action for the selected repair visit before dispatch handoff.</p>\\n\\n  <div class=\\\"visit-card\\\">\\n    <h2>Selected Repair Visit: V-2187</h2>\\n    <p><strong>Customer:</strong> Mallory Chen</p>\\n    <p><strong>Plan:</strong> Priority repair (SLA 4h)</p>\\n    <p><strong>Current State:</strong> Parts check needed</p>\\n    <div class=\\\"status-indicator status-risk\\\">SLA Risk Detected</div>\\n  </div>\\n\\n  <h2>Readiness Checklist</h2>\\n  <ul>\\n    <li>Technician Qualification: ✔️ Reyes is qualified.</li>\\n    <li>Parts Readiness: ⚠️ Replacement fan motor needed (West Depot).</li>\\n    <li>Site Access: ❌ Customer gate code missing.</li>\\n    <li>Route Conflict Check: ✅ Route clear for immediate dispatch.</li>\\n  </ul>\\n\\n  <h2>Decision Path</h2>\\n  <p>Based on readiness, choose the appropriate action:</p>\\n  <div class=\\\"action-panel\\\">\\n    <button class=\\\"btn-assign\\\">Assign Nearest Technician</button>\\n    <button class=\\\"btn-reschedule\\\">Reschedule for Parts</button>\\n    <button class=\\\"btn-escalate\\\">Escalate SLA Risk</button>\\n    <button class=\\\"btn-request\\\">Request Site Access Detail</button>\\n  </div>\\n\\n  <h2>Dispatch Handoff Summary</h2>\\n  <p><strong>Next Owner:</strong> Dispatch Support</p>\\n  <p><strong>Reason for Handoff:</strong> Gate code is missing before the qualified technician can be assigned.</p>\\n  <p><strong>Recommended Next Action:</strong> Request the gate code, then assign Reyes within the SLA window.</p>\\n\\n</main>\"\n}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "ae21a05de6ee1128c4aae7e9a6e45a78451e5c474cf98a7de1610fb61f01094a",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

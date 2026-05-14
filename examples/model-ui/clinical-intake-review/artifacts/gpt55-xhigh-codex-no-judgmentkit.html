@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clinical intake review - GPT-5.5 xhigh via codex exec - Raw brief</title>
+    <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f5f3ed;
+      --panel: #ffffff;
+      --ink: #17231f;
+      --muted: #65726d;
+      --line: #d9d3c7;
+      --accent: #245f73;
+      --accent-strong: #174352;
+      --warning: #8a5a16;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .raw-model-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--canvas);
+    }
+    .raw-model-candidate > section,
+    .raw-model-candidate .card,
+    .raw-model-candidate .panel {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .raw-model-candidate ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .app-shell .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #eef6f7;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: #fff7e8;
+      color: var(--warning);
+    }
+    .app-shell .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .app-shell .queue,
+    .app-shell .detail {
+      padding: 16px;
+    }
+    .app-shell .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .app-shell .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      text-align: left;
+    }
+    .app-shell .queue-item small {
+      color: var(--muted);
+    }
+    .app-shell .queue-item.is-selected {
+      border-color: var(--accent);
+      background: #edf6f7;
+    }
+    .app-shell .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .app-shell .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
+      padding: 14px;
+    }
+    .app-shell .info-grid > div {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #faf9f5;
+    }
+    .app-shell .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .app-shell .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .app-shell .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .app-shell .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--accent-strong);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .app-shell .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-shell .actions button,
+    .app-shell .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .app-shell button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .app-shell .handoff {
+      padding: 14px;
+      background: #f3f8f8;
+    }
+    .raw-brief-candidate .app-header {
+      background: #fff8ea;
+      border: 1px solid #e5c98f;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .reviewed-candidate .app-header {
+      background: #eef6f7;
+      border: 1px solid #b8d2d7;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--ink);
+    }
+    .design-system {
+      --canvas: #f7f4ee;
+      --panel: #ffffff;
+      --ink: #182521;
+      --muted: #64716b;
+      --line: #d9d3c5;
+      --accent: #0f766e;
+      --accent-strong: #0f4f49;
+      --warning: #9a5b16;
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
+        display: grid;
+      }
+      .app-shell .workspace,
+      .app-shell .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+    <style data-model-css>main{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#1f2933;background:#f7f8fa;padding:24px;max-width:980px;margin:0 auto}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;border-bottom:1px solid #d8dee6;padding-bottom:16px}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#5f6b7a;margin:0 0 6px}h1{font-size:24px;margin:0;color:#111827}p{margin:6px 0;line-height:1.4}.badge{display:inline-flex;align-items:center;border:1px solid #b45309;background:#fff7ed;color:#8a3a00;border-radius:999px;padding:6px 10px;font-weight:700;font-size:13px;white-space:nowrap}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;margin-top:16px}.panel{background:#fff;border:1px solid #d8dee6;border-radius:8px;padding:14px}.panel h2{font-size:15px;margin:0 0 10px;color:#243040}.row{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #edf0f3;padding:9px 0}.row:first-of-type{border-top:0}.label{color:#64748b;font-size:13px}.value{font-weight:650;color:#111827;text-align:right}.queue{border-left:4px solid #b45309}.schema{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;background:#f1f5f9;border:1px solid #d8dee6;border-radius:6px;padding:10px;white-space:normal}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}button{border:1px solid #9aa6b2;background:#fff;border-radius:6px;padding:8px 11px;font-weight:650}button.primary{background:#1f5f8b;color:#fff;border-color:#1f5f8b}@media(max-width:720px){main{padding:16px}.top,.grid{display:block}.badge{margin-top:12px}.panel{margin-top:12px}.row{display:block}.value{text-align:left;display:block;margin-top:3px}}</style>
+
+  </head>
+  <body data-artifact-id="gpt55-xhigh-codex-no-judgmentkit" data-row-id="gpt55-xhigh-codex" data-column-id="no-judgmentkit" data-judgmentkit-mode="no_judgmentkit" data-design-system-mode="none">
+    <main class="raw-model-candidate" data-primary-surface><header class="top"><div><p class="eyebrow">intake_packet admin console</p><h1>I-4471 Avery Morgan</h1><p>10:30 AM scheduling endpoint review for the next document CRUD update.</p></div><span class="badge">scheduling endpoint status: blocked</span></header><section class="grid"><div class="panel queue"><h2>Case queue</h2><div class="row"><span class="label">Case</span><span class="value">I-4471</span></div><div class="row"><span class="label">Client</span><span class="value">Avery Morgan</span></div><div class="row"><span class="label">Appointment hold</span><span class="value">10:30 AM</span></div><div class="row"><span class="label">Eligibility API</span><span class="value">ready to verify</span></div><div class="row"><span class="label">Resource id</span><span class="value">ready</span></div></div><div class="panel"><h2>Document fields</h2><div class="row"><span class="label">intake_packet</span><span class="value">open</span></div><div class="row"><span class="label">Required fields</span><span class="value">ready</span></div><div class="row"><span class="label">JSON schema</span><span class="value">matched</span></div><div class="row"><span class="label">Next CRUD update</span><span class="value">waiting on schedule block</span></div></div></section><section class="panel"><h2>Blocked update context</h2><p class="schema">{ status: blocked, endpoint: scheduling endpoint, case: I-4471, document_fields: ready, resource_id: ready }</p><div class="actions"><button class="primary">Update document fields</button><button>Check eligibility API</button><button>Retry scheduling endpoint</button><button>Save CRUD draft</button></div></section></main>
+    <aside class="provenance" aria-label="Artifact provenance">
+      <strong>Provenance:</strong>
+      <span>captured</span>
+      <span> - captured_model_output</span>
+      <span> - Raw brief</span>
+      <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
+      <p>Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.</p>
+      <p>Manifest entry: <code>artifacts/gpt55-xhigh-codex-no-judgmentkit.html</code></p>
+    </aside>
+    <script type="application/json" id="model-ui-provenance">{
+  "matrix_id": "clinical-intake-review-model-ui-v1",
+  "use_case_id": "clinical-intake-review",
+  "use_case_label": "Clinical intake review",
+  "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+  "artifact_id": "gpt55-xhigh-codex-no-judgmentkit",
+  "row_id": "gpt55-xhigh-codex",
+  "column_id": "no-judgmentkit",
+  "model_label": "GPT-5.5",
+  "generation_source": "captured_model_output",
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "none",
+  "render_source": "model_static_html_css",
+  "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+  "reasoning_effort": "xhigh",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": false
+  },
+  "design_system_name": null,
+  "design_system_package": null,
+  "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+  "handoff_source": null,
+  "design_system_adapter_file": null,
+  "capture_file": "captures/gpt55-xhigh-codex-no-judgmentkit.json",
+  "model_response_summary": "Static intake_packet admin console candidate showing Avery Morgan's blocked 10:30 AM scheduling endpoint and the next CRUD update context.",
+  "capture_provenance": {
+    "status": "captured",
+    "capture_type": "model-output-transcript",
+    "captured_at": "2026-05-14T03:17:36.709Z",
+    "runner": "scripts/capture-model-ui-matrix.mjs",
+    "provider": "codex-cli",
+    "model": "gpt-5.5",
+    "cli": "codex",
+    "transcript_file": "captures/gpt55-xhigh-codex-no-judgmentkit.json",
+    "prompt_sha256": "30f18bf3e1c09ca8880ba7fed38b8f676cbca45789269f0b773864c582bde197",
+    "raw_response_sha256": "fe3125faeab4aff2a769be6897cd16cd09fef8bf7f93b4ba01d55953beade827",
+    "source_context_sha256": "9d90fa5709a43efabbdf651ddd6c82803fcd5d924bc620623432c76ad3efc67b",
+    "reasoning_effort": "xhigh",
+    "context_included": {
+      "source_brief": true,
+      "sample_case": true,
+      "reviewed_handoff": false,
+      "material_ui_adapter": false
+    },
+    "design_system_name": null,
+    "design_system_package": null,
+    "design_system_render_mode": null,
+    "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
+  },
+  "artifact_path": "artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
+  "screenshot_path": "screenshots/gpt55-xhigh-codex-no-judgmentkit.png",
+  "approach_title": "GPT-5.5 xhigh via codex exec - Raw brief",
+  "approach_caption": "GPT-5.5 xhigh via codex exec receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+}</script>
+  </body>
+</html>

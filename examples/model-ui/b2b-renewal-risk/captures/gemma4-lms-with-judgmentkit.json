@@ -1,0 +1,45 @@
+{
+  "artifact_id": "gemma4-lms-with-judgmentkit",
+  "use_case_id": "b2b-renewal-risk",
+  "use_case_label": "B2B renewal risk review",
+  "activity_summary": "A customer success manager reviews renewal risk and decides save plan, executive escalation, or wait for usage evidence.",
+  "row_id": "gemma4-lms",
+  "row_label": "Gemma 4 via LM Studio lms",
+  "column_id": "with-judgmentkit",
+  "column_label": "JudgmentKit handoff",
+  "model_label": "Gemma 4 (local LLM)",
+  "provider": "lmstudio",
+  "cli": "lms",
+  "model": "google/gemma-4-e2b",
+  "reasoning_effort": null,
+  "judgmentkit_mode": "with_judgmentkit",
+  "design_system_mode": "none",
+  "design_system_name": null,
+  "design_system_package": null,
+  "design_system_render_mode": null,
+  "render_mode": "html",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-05-14T03:30:57.926Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": true,
+    "material_ui_adapter": false
+  },
+  "source_context_sha256": "46663d0fa4691d6fc2037d0ab83abca67af76b5b7b588143b4e74c5a1c9fec94",
+  "prompt_sha256": "a4387bc1b930cd2b6929dc95128349df2badeca784c25bc5489eb33b8efc0b69",
+  "raw_response_sha256": "ddd18d6ed27e55e7d1a1d860720e317fefb0d10506b05e008d000d53e69a0ce6",
+  "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
+  "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
+  "parsed": {
+    "summary": "The champion has changed and usage has dropped, but crucial procurement timing data is missing, requiring a decision on whether to escalate or seek more information before committing to a save plan.",
+    "css": "main{font-family:system-ui;padding:24px}.panel{border:1px solid #ddd;padding:12px;margin:12px 0}.actions{display:flex;gap:8px;flex-wrap:wrap}button{padding:8px 12px}",
+    "html": "<main data-primary-surface><h1>Renewal Risk Review</h1><p>Case AC-903 - Northstar Labs</p><section class=\"panel\"><h2>Key Observations</h2><p>Champion change observed.</p><p>Usage dropped 28 percent over the last two reporting periods.</p><p>Procurement timeline is missing.</p></section><section class=\"panel\"><h2>Decision Context</h2><p>Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.</p></section><section class=\"panel\"><h2>Evidence Summary</h2><ul><li>Champion changed and usage dropped.</li><li>Procurement timeline is missing before escalation.</li></ul></section><section class=\"panel\"><h2>Next Steps</h2><div class=\"actions\"><button>Start save plan (Requires Procurement Date)</button><button>Escalate executive sponsor</button><button>Request procurement date</button></div></section><section class=\"panel\"><h2>Handoff</h2><p>Champion changed and usage dropped, but procurement timing is missing. Review evidence and choose next action.</p><p>Send handoff</p></section></main>"
+  },
+  "raw_response": "{\"summary\":\"The champion has changed and usage has dropped, but crucial procurement timing data is missing, requiring a decision on whether to escalate or seek more information before committing to a save plan.\",\"css\":\"main{font-family:system-ui;padding:24px}.panel{border:1px solid #ddd;padding:12px;margin:12px 0}.actions{display:flex;gap:8px;flex-wrap:wrap}button{padding:8px 12px}\",\"html\":\"<main data-primary-surface><h1>Renewal Risk Review</h1><p>Case AC-903 - Northstar Labs</p><section class=\\\"panel\\\"><h2>Key Observations</h2><p>Champion change observed.</p><p>Usage dropped 28 percent over the last two reporting periods.</p><p>Procurement timeline is missing.</p></section><section class=\\\"panel\\\"><h2>Decision Context</h2><p>Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.</p></section><section class=\\\"panel\\\"><h2>Evidence Summary</h2><ul><li>Champion changed and usage dropped.</li><li>Procurement timeline is missing before escalation.</li></ul></section><section class=\\\"panel\\\"><h2>Next Steps</h2><div class=\\\"actions\\\"><button>Start save plan (Requires Procurement Date)</button><button>Escalate executive sponsor</button><button>Request procurement date</button></div></section><section class=\\\"panel\\\"><h2>Handoff</h2><p>Champion changed and usage dropped, but procurement timing is missing. Review evidence and choose next action.</p><p>Send handoff</p></section></main>\"}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "9e049c5268e93020b11bab19c1f04182fe12f7dff0a0a3c9d08321d83c83b3a2",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

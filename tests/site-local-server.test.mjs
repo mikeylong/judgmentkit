@@ -107,6 +107,18 @@ try {
     );
   }
 
+  {
+    const response = await fetchRoute(url, "/_vercel/insights/script.js");
+    const body = await response.text();
+
+    assert.equal(response.status, 200, "local analytics shim should return 200");
+    assert.ok(
+      response.headers.get("content-type")?.startsWith("application/javascript"),
+      "local analytics shim should return JavaScript",
+    );
+    assert.ok(body.includes("window.va"), "local analytics shim should initialize Vercel queue");
+  }
+
   for (const route of ["/mcp", "/mcp/", "/api/mcp"]) {
     const response = await fetchRoute(url, route, {
       headers: {

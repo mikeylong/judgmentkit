@@ -1,0 +1,2659 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clinical intake review model UI generation matrix</title>
+    <style>
+      :root {
+        --canvas: #f8f7f2;
+        --panel: #ffffff;
+        --ink: #17231f;
+        --muted: #64716b;
+        --line: #d9d3c5;
+        --accent: #245f73;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+        font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      main {
+        max-width: 1320px;
+        margin: 0 auto;
+        padding: clamp(24px, 5vw, 52px);
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: clamp(32px, 5vw, 56px);
+        letter-spacing: 0;
+      }
+      p {
+        max-width: 780px;
+        color: var(--muted);
+      }
+      .eyebrow {
+        margin-bottom: 8px;
+        color: var(--accent);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin: 28px 0;
+      }
+      .summary div,
+      .gallery-card,
+      .details-row {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+      .summary div {
+        padding: 14px;
+      }
+      .summary strong,
+      .summary span {
+        display: block;
+      }
+      .summary span {
+        color: var(--muted);
+        font-size: 13px;
+      }
+      a {
+        color: var(--accent);
+        font-weight: 800;
+      }
+      .column-guide {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
+        margin: 26px 0;
+      }
+      .column-guide div {
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfaf6;
+      }
+      .column-guide strong,
+      .column-guide span {
+        display: block;
+      }
+      .column-guide span {
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .gallery-intro {
+        display: flex;
+        gap: 16px;
+        align-items: end;
+        justify-content: space-between;
+        margin: 34px 0 14px;
+      }
+      .gallery-intro h2 {
+        margin: 0 0 6px;
+        font-size: 24px;
+        letter-spacing: 0;
+      }
+      .gallery-intro p {
+        margin: 0;
+      }
+      .matrix-list {
+        display: grid;
+        gap: 18px;
+      }
+      .matrix-row {
+        display: grid;
+        gap: 14px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfaf6;
+      }
+      .matrix-heading {
+        display: grid;
+        gap: 4px;
+      }
+      .matrix-heading h2,
+      .matrix-heading p {
+        margin: 0;
+      }
+      .matrix-cells {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+      }
+      .gallery-card {
+        display: grid;
+        overflow: hidden;
+      }
+      .thumbnail-link {
+        display: block;
+        position: relative;
+        aspect-ratio: 16 / 10;
+        overflow: hidden;
+        border-bottom: 1px solid var(--line);
+        background: #edf3f4;
+      }
+      .thumbnail-link img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: top left;
+        display: block;
+      }
+      .thumbnail-link:focus-visible {
+        outline: 3px solid var(--accent);
+        outline-offset: -3px;
+      }
+      .gallery-card-copy {
+        display: grid;
+        gap: 10px;
+        padding: 14px;
+      }
+      .gallery-card-copy h2 {
+        margin: 0;
+        font-size: 17px;
+        letter-spacing: 0;
+      }
+      .gallery-card-copy p {
+        margin: 0;
+      }
+      dl {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        margin: 0;
+      }
+      dl div {
+        padding: 9px 10px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #faf9f5;
+      }
+      dt {
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+      dd {
+        margin: 2px 0 0;
+        font-weight: 800;
+        overflow-wrap: anywhere;
+      }
+      .card-actions,
+      .carousel-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .note {
+        margin-top: 18px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff8ea;
+      }
+      .details {
+        margin-top: 20px;
+      }
+      .details summary {
+        cursor: pointer;
+        font-weight: 900;
+      }
+      .details-grid {
+        display: grid;
+        gap: 10px;
+        margin-top: 12px;
+      }
+      .details-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr) auto;
+        gap: 12px;
+        align-items: center;
+        padding: 12px;
+      }
+      .details-row h3,
+      .details-row p {
+        margin: 0;
+      }
+      .carousel {
+        position: fixed;
+        inset: 0;
+        z-index: 20;
+        display: grid;
+        place-items: center;
+        padding: 18px;
+      }
+      .carousel[hidden] {
+        display: none;
+      }
+      .carousel-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(23, 35, 31, 0.72);
+      }
+      .carousel-panel {
+        position: relative;
+        display: grid;
+        grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.7fr);
+        width: min(1240px, 100%);
+        max-height: min(860px, calc(100vh - 36px));
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+      .carousel-image {
+        min-height: 0;
+        overflow: auto;
+        background: #edf3f4;
+      }
+      .carousel-image img {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+      .carousel-copy {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: 16px;
+        min-height: 0;
+        padding: 18px;
+      }
+      .carousel-copy h2 {
+        margin: 0 0 8px;
+        font-size: 24px;
+        letter-spacing: 0;
+      }
+      .carousel-copy p {
+        margin: 0;
+      }
+      .carousel-meta {
+        display: grid;
+        gap: 8px;
+      }
+      .carousel-controls {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .carousel-buttons {
+        display: flex;
+        gap: 8px;
+      }
+      .carousel button {
+        min-height: 38px;
+        padding: 8px 11px;
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        background: #ffffff;
+        color: var(--ink);
+        cursor: pointer;
+        font: inherit;
+        font-weight: 900;
+      }
+      .carousel .carousel-backdrop {
+        min-height: 0;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: rgba(23, 35, 31, 0.72);
+      }
+      .carousel-close {
+        justify-self: end;
+      }
+      html.carousel-open,
+      html.carousel-open body {
+        overflow: hidden;
+      }
+      @media (max-width: 1020px) {
+        .summary,
+        .column-guide,
+        .matrix-cells {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+      @media (max-width: 760px) {
+        main {
+          padding: 20px;
+        }
+        .summary,
+        .column-guide,
+        .gallery-intro,
+        .matrix-cells,
+        .carousel-panel {
+          display: grid;
+          grid-template-columns: 1fr;
+        }
+        .carousel-panel {
+          max-height: calc(100vh - 24px);
+        }
+        .details-row {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p class="eyebrow">System-map example pack</p>
+      <h1>Clinical intake review model UI generation matrix</h1>
+      <p>An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification. Three generation paths are shown across four context boundaries. Material UI improves visual/component consistency; JudgmentKit improves activity fit, workflow fit, and disclosure discipline.</p>
+      <div class="summary" aria-label="Matrix summary">
+        <div><span>Source brief</span><strong>examples/model-ui/clinical-intake-review/source-brief.txt</strong></div>
+        <div><span>Rows</span><strong>3 generation paths</strong></div>
+        <div><span>Columns</span><strong>4 context modes</strong></div>
+        <div><span>Artifacts</span><strong>12 canonical snapshots</strong></div>
+      </div>
+      <section class="column-guide" aria-label="Matrix column definitions">
+
+          <div>
+            <strong>Raw brief</strong>
+            <span>Raw source brief and sample case only. No reviewed handoff and no Material UI.</span>
+          </div>
+          <div>
+            <strong>JudgmentKit handoff</strong>
+            <span>Reviewed JudgmentKit handoff and sample case. No Material UI adapter.</span>
+          </div>
+          <div>
+            <strong>Material UI only</strong>
+            <span>Raw source brief plus Material UI adapter. No reviewed JudgmentKit handoff.</span>
+          </div>
+          <div>
+            <strong>JudgmentKit + Material UI</strong>
+            <span>Reviewed JudgmentKit handoff rendered through the Material UI adapter.</span>
+          </div>
+      </section>
+      <div class="gallery-intro">
+        <div>
+          <h2>3 x 4 comparison gallery</h2>
+          <p>Each row uses the same generation path. Each column changes only JudgmentKit and Material UI context.</p>
+        </div>
+        <a href="artifacts/deterministic-no-judgmentkit.html">Open first live artifact</a>
+      </div>
+      <section class="matrix-list" aria-label="Model UI 3 by 4 screenshot gallery">
+
+      <article class="matrix-row">
+        <div class="matrix-heading">
+          <p class="eyebrow">Generation path</p>
+          <h2>Deterministic</h2>
+          <p>Scripted renderer paths show the controlled baseline for each context combination.</p>
+        </div>
+        <div class="matrix-cells">
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/deterministic-no-judgmentkit.html" data-carousel-open="0" aria-label="Open larger view for Deterministic - Raw brief">
+            <img src="screenshots/deterministic-no-judgmentkit.png" alt="Deterministic - Raw brief screenshot" loading="eager">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">Raw brief</p>
+            <h2>Deterministic - Raw brief</h2>
+            <p>Deterministic receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI.</p>
+            <dl>
+              <div><dt>Context</dt><dd>Raw brief</dd></div>
+              <div><dt>Render</dt><dd>deterministic_raw_brief_html</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/deterministic-no-judgmentkit.html">Open live artifact</a>
+              <a href="screenshots/deterministic-no-judgmentkit.png">Open image</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/deterministic-with-judgmentkit.html" data-carousel-open="1" aria-label="Open larger view for Deterministic - JudgmentKit handoff">
+            <img src="screenshots/deterministic-with-judgmentkit.png" alt="Deterministic - JudgmentKit handoff screenshot" loading="eager">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">JudgmentKit handoff</p>
+            <h2>Deterministic - JudgmentKit handoff</h2>
+            <p>Deterministic receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance.</p>
+            <dl>
+              <div><dt>Context</dt><dd>JudgmentKit handoff</dd></div>
+              <div><dt>Render</dt><dd>deterministic_judgmentkit_html</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/deterministic-with-judgmentkit.html">Open live artifact</a>
+              <a href="screenshots/deterministic-with-judgmentkit.png">Open image</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/deterministic-material-ui-only.html" data-carousel-open="2" aria-label="Open larger view for Deterministic - Material UI only">
+            <img src="screenshots/deterministic-material-ui-only.png" alt="Deterministic - Material UI only screenshot" loading="eager">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">Material UI only</p>
+            <h2>Deterministic - Material UI only</h2>
+            <p>Deterministic is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit.</p>
+            <dl>
+              <div><dt>Context</dt><dd>Material UI only</dd></div>
+              <div><dt>Render</dt><dd>deterministic_material_ui_ssr</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/deterministic-material-ui-only.html">Open live artifact</a>
+              <a href="screenshots/deterministic-material-ui-only.png">Open image</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/deterministic-judgmentkit-material-ui.html" data-carousel-open="3" aria-label="Open larger view for Deterministic - JudgmentKit + Material UI">
+            <img src="screenshots/deterministic-judgmentkit-material-ui.png" alt="Deterministic - JudgmentKit + Material UI screenshot" loading="eager">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">JudgmentKit + Material UI</p>
+            <h2>Deterministic - JudgmentKit + Material UI</h2>
+            <p>Deterministic receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path.</p>
+            <dl>
+              <div><dt>Context</dt><dd>JudgmentKit + Material UI</dd></div>
+              <div><dt>Render</dt><dd>deterministic_material_ui_ssr</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/deterministic-judgmentkit-material-ui.html">Open live artifact</a>
+              <a href="screenshots/deterministic-judgmentkit-material-ui.png">Open image</a>
+            </div>
+          </div>
+        </article>
+        </div>
+      </article>
+      <article class="matrix-row">
+        <div class="matrix-heading">
+          <p class="eyebrow">Generation path</p>
+          <h2>Gemma 4 via LM Studio lms</h2>
+          <p>Local Gemma 4 captures show how a smaller local model responds to the same four context boundaries.</p>
+        </div>
+        <div class="matrix-cells">
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gemma4-lms-no-judgmentkit.html" data-carousel-open="4" aria-label="Open larger view for Gemma 4 via LM Studio lms - Raw brief">
+            <img src="screenshots/gemma4-lms-no-judgmentkit.png" alt="Gemma 4 via LM Studio lms - Raw brief screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">Raw brief</p>
+            <h2>Gemma 4 via LM Studio lms - Raw brief</h2>
+            <p>Gemma 4 via LM Studio lms receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI.</p>
+            <dl>
+              <div><dt>Context</dt><dd>Raw brief</dd></div>
+              <div><dt>Render</dt><dd>model_static_html_css</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gemma4-lms-no-judgmentkit.html">Open live artifact</a>
+              <a href="screenshots/gemma4-lms-no-judgmentkit.png">Open image</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gemma4-lms-with-judgmentkit.html" data-carousel-open="5" aria-label="Open larger view for Gemma 4 via LM Studio lms - JudgmentKit handoff">
+            <img src="screenshots/gemma4-lms-with-judgmentkit.png" alt="Gemma 4 via LM Studio lms - JudgmentKit handoff screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">JudgmentKit handoff</p>
+            <h2>Gemma 4 via LM Studio lms - JudgmentKit handoff</h2>
+            <p>Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance.</p>
+            <dl>
+              <div><dt>Context</dt><dd>JudgmentKit handoff</dd></div>
+              <div><dt>Render</dt><dd>model_static_html_css</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gemma4-lms-with-judgmentkit.html">Open live artifact</a>
+              <a href="screenshots/gemma4-lms-with-judgmentkit.png">Open image</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gemma4-lms-material-ui-only.html" data-carousel-open="6" aria-label="Open larger view for Gemma 4 via LM Studio lms - Material UI only">
+            <img src="screenshots/gemma4-lms-material-ui-only.png" alt="Gemma 4 via LM Studio lms - Material UI only screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">Material UI only</p>
+            <h2>Gemma 4 via LM Studio lms - Material UI only</h2>
+            <p>Gemma 4 via LM Studio lms is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit.</p>
+            <dl>
+              <div><dt>Context</dt><dd>Material UI only</dd></div>
+              <div><dt>Render</dt><dd>model_structured_data_material_ui_ssr</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gemma4-lms-material-ui-only.html">Open live artifact</a>
+              <a href="screenshots/gemma4-lms-material-ui-only.png">Open image</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gemma4-lms-judgmentkit-material-ui.html" data-carousel-open="7" aria-label="Open larger view for Gemma 4 via LM Studio lms - JudgmentKit + Material UI">
+            <img src="screenshots/gemma4-lms-judgmentkit-material-ui.png" alt="Gemma 4 via LM Studio lms - JudgmentKit + Material UI screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">JudgmentKit + Material UI</p>
+            <h2>Gemma 4 via LM Studio lms - JudgmentKit + Material UI</h2>
+            <p>Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path.</p>
+            <dl>
+              <div><dt>Context</dt><dd>JudgmentKit + Material UI</dd></div>
+              <div><dt>Render</dt><dd>model_structured_data_material_ui_ssr</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gemma4-lms-judgmentkit-material-ui.html">Open live artifact</a>
+              <a href="screenshots/gemma4-lms-judgmentkit-material-ui.png">Open image</a>
+            </div>
+          </div>
+        </article>
+        </div>
+      </article>
+      <article class="matrix-row">
+        <div class="matrix-heading">
+          <p class="eyebrow">Generation path</p>
+          <h2>GPT-5.5 xhigh via codex exec</h2>
+          <p>GPT-5.5 captures use extra-high reasoning to show the same matrix with a stronger model path.</p>
+        </div>
+        <div class="matrix-cells">
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gpt55-xhigh-codex-no-judgmentkit.html" data-carousel-open="8" aria-label="Open larger view for GPT-5.5 xhigh via codex exec - Raw brief">
+            <img src="screenshots/gpt55-xhigh-codex-no-judgmentkit.png" alt="GPT-5.5 xhigh via codex exec - Raw brief screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">Raw brief</p>
+            <h2>GPT-5.5 xhigh via codex exec - Raw brief</h2>
+            <p>GPT-5.5 xhigh via codex exec receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI.</p>
+            <dl>
+              <div><dt>Context</dt><dd>Raw brief</dd></div>
+              <div><dt>Render</dt><dd>model_static_html_css</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gpt55-xhigh-codex-no-judgmentkit.html">Open live artifact</a>
+              <a href="screenshots/gpt55-xhigh-codex-no-judgmentkit.png">Open image</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gpt55-xhigh-codex-with-judgmentkit.html" data-carousel-open="9" aria-label="Open larger view for GPT-5.5 xhigh via codex exec - JudgmentKit handoff">
+            <img src="screenshots/gpt55-xhigh-codex-with-judgmentkit.png" alt="GPT-5.5 xhigh via codex exec - JudgmentKit handoff screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">JudgmentKit handoff</p>
+            <h2>GPT-5.5 xhigh via codex exec - JudgmentKit handoff</h2>
+            <p>GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance.</p>
+            <dl>
+              <div><dt>Context</dt><dd>JudgmentKit handoff</dd></div>
+              <div><dt>Render</dt><dd>model_static_html_css</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gpt55-xhigh-codex-with-judgmentkit.html">Open live artifact</a>
+              <a href="screenshots/gpt55-xhigh-codex-with-judgmentkit.png">Open image</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gpt55-xhigh-codex-material-ui-only.html" data-carousel-open="10" aria-label="Open larger view for GPT-5.5 xhigh via codex exec - Material UI only">
+            <img src="screenshots/gpt55-xhigh-codex-material-ui-only.png" alt="GPT-5.5 xhigh via codex exec - Material UI only screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">Material UI only</p>
+            <h2>GPT-5.5 xhigh via codex exec - Material UI only</h2>
+            <p>GPT-5.5 xhigh via codex exec is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit.</p>
+            <dl>
+              <div><dt>Context</dt><dd>Material UI only</dd></div>
+              <div><dt>Render</dt><dd>model_structured_data_material_ui_ssr</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gpt55-xhigh-codex-material-ui-only.html">Open live artifact</a>
+              <a href="screenshots/gpt55-xhigh-codex-material-ui-only.png">Open image</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html" data-carousel-open="11" aria-label="Open larger view for GPT-5.5 xhigh via codex exec - JudgmentKit + Material UI">
+            <img src="screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png" alt="GPT-5.5 xhigh via codex exec - JudgmentKit + Material UI screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">JudgmentKit + Material UI</p>
+            <h2>GPT-5.5 xhigh via codex exec - JudgmentKit + Material UI</h2>
+            <p>GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path.</p>
+            <dl>
+              <div><dt>Context</dt><dd>JudgmentKit + Material UI</dd></div>
+              <div><dt>Render</dt><dd>model_structured_data_material_ui_ssr</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html">Open live artifact</a>
+              <a href="screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png">Open image</a>
+            </div>
+          </div>
+        </article>
+        </div>
+      </article>
+      </section>
+      <p class="note">All model cells are committed captures. Material UI improves visual/component consistency; JudgmentKit improves activity fit, workflow fit, and disclosure discipline.</p>
+      <details class="details">
+        <summary>Provenance details</summary>
+        <div class="details-grid">
+
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">Deterministic</p>
+            <h3>Raw brief</h3>
+          </div>
+          <p>Rendered deterministically; no provider call.</p>
+          <a href="artifacts/deterministic-no-judgmentkit.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">Deterministic</p>
+            <h3>JudgmentKit handoff</h3>
+          </div>
+          <p>Rendered deterministically; no provider call.</p>
+          <a href="artifacts/deterministic-with-judgmentkit.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">Deterministic</p>
+            <h3>Material UI only</h3>
+          </div>
+          <p>Rendered deterministically; no provider call.</p>
+          <a href="artifacts/deterministic-material-ui-only.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">Deterministic</p>
+            <h3>JudgmentKit + Material UI</h3>
+          </div>
+          <p>Rendered deterministically; no provider call.</p>
+          <a href="artifacts/deterministic-judgmentkit-material-ui.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">Gemma 4 via LM Studio lms</p>
+            <h3>Raw brief</h3>
+          </div>
+          <p>Transcript: captures/gemma4-lms-no-judgmentkit.json</p>
+          <a href="artifacts/gemma4-lms-no-judgmentkit.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">Gemma 4 via LM Studio lms</p>
+            <h3>JudgmentKit handoff</h3>
+          </div>
+          <p>Transcript: captures/gemma4-lms-with-judgmentkit.json</p>
+          <a href="artifacts/gemma4-lms-with-judgmentkit.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">Gemma 4 via LM Studio lms</p>
+            <h3>Material UI only</h3>
+          </div>
+          <p>Transcript: captures/gemma4-lms-material-ui-only.json</p>
+          <a href="artifacts/gemma4-lms-material-ui-only.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">Gemma 4 via LM Studio lms</p>
+            <h3>JudgmentKit + Material UI</h3>
+          </div>
+          <p>Transcript: captures/gemma4-lms-judgmentkit-material-ui.json</p>
+          <a href="artifacts/gemma4-lms-judgmentkit-material-ui.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">GPT-5.5 xhigh via codex exec</p>
+            <h3>Raw brief</h3>
+          </div>
+          <p>Transcript: captures/gpt55-xhigh-codex-no-judgmentkit.json</p>
+          <a href="artifacts/gpt55-xhigh-codex-no-judgmentkit.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">GPT-5.5 xhigh via codex exec</p>
+            <h3>JudgmentKit handoff</h3>
+          </div>
+          <p>Transcript: captures/gpt55-xhigh-codex-with-judgmentkit.json</p>
+          <a href="artifacts/gpt55-xhigh-codex-with-judgmentkit.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">GPT-5.5 xhigh via codex exec</p>
+            <h3>Material UI only</h3>
+          </div>
+          <p>Transcript: captures/gpt55-xhigh-codex-material-ui-only.json</p>
+          <a href="artifacts/gpt55-xhigh-codex-material-ui-only.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">GPT-5.5 xhigh via codex exec</p>
+            <h3>JudgmentKit + Material UI</h3>
+          </div>
+          <p>Transcript: captures/gpt55-xhigh-codex-judgmentkit-material-ui.json</p>
+          <a href="artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html">Artifact</a>
+        </article>
+        </div>
+      </details>
+      <section class="carousel" data-carousel hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="carousel-title">
+        <button class="carousel-backdrop" type="button" data-carousel-close aria-label="Close larger screenshot view"></button>
+        <div class="carousel-panel">
+          <div class="carousel-image">
+            <img data-carousel-image src="" alt="">
+          </div>
+          <aside class="carousel-copy">
+            <button class="carousel-close" type="button" data-carousel-close>Close</button>
+            <div class="carousel-meta">
+              <p class="eyebrow" data-carousel-kicker></p>
+              <h2 id="carousel-title" data-carousel-title></h2>
+              <p data-carousel-caption></p>
+              <dl>
+                <div><dt>Context</dt><dd data-carousel-context></dd></div>
+                <div><dt>Render</dt><dd data-carousel-render></dd></div>
+                <div><dt>Prompt context</dt><dd data-carousel-prompt></dd></div>
+                <div><dt>Provenance</dt><dd data-carousel-provenance></dd></div>
+              </dl>
+              <div class="carousel-actions">
+                <a data-carousel-artifact href="">Open live artifact</a>
+                <a data-carousel-source href="">Open image</a>
+              </div>
+            </div>
+            <div class="carousel-controls">
+              <span data-carousel-count></span>
+              <div class="carousel-buttons">
+                <button type="button" data-carousel-prev>Previous</button>
+                <button type="button" data-carousel-next>Next</button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+    <script type="application/json" id="model-ui-gallery-data">[
+  {
+    "id": "deterministic-no-judgmentkit",
+    "title": "Deterministic - Raw brief",
+    "caption": "Deterministic receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI.",
+    "model_label": "Deterministic",
+    "column_label": "Raw brief",
+    "render_source": "deterministic_raw_brief_html",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+    "prompt_context": "source brief + sample case",
+    "image": "screenshots/deterministic-no-judgmentkit.png",
+    "artifact": "artifacts/deterministic-no-judgmentkit.html"
+  },
+  {
+    "id": "deterministic-with-judgmentkit",
+    "title": "Deterministic - JudgmentKit handoff",
+    "caption": "Deterministic receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance.",
+    "model_label": "Deterministic",
+    "column_label": "JudgmentKit handoff",
+    "render_source": "deterministic_judgmentkit_html",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
+    "prompt_context": "source brief + sample case + reviewed handoff",
+    "image": "screenshots/deterministic-with-judgmentkit.png",
+    "artifact": "artifacts/deterministic-with-judgmentkit.html"
+  },
+  {
+    "id": "deterministic-material-ui-only",
+    "title": "Deterministic - Material UI only",
+    "caption": "Deterministic is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit.",
+    "model_label": "Deterministic",
+    "column_label": "Material UI only",
+    "render_source": "deterministic_material_ui_ssr",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.",
+    "prompt_context": "source brief + sample case + Material UI adapter",
+    "image": "screenshots/deterministic-material-ui-only.png",
+    "artifact": "artifacts/deterministic-material-ui-only.html"
+  },
+  {
+    "id": "deterministic-judgmentkit-material-ui",
+    "title": "Deterministic - JudgmentKit + Material UI",
+    "caption": "Deterministic receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path.",
+    "model_label": "Deterministic",
+    "column_label": "JudgmentKit + Material UI",
+    "render_source": "deterministic_material_ui_ssr",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
+    "prompt_context": "source brief + sample case + reviewed handoff + Material UI adapter",
+    "image": "screenshots/deterministic-judgmentkit-material-ui.png",
+    "artifact": "artifacts/deterministic-judgmentkit-material-ui.html"
+  },
+  {
+    "id": "gemma4-lms-no-judgmentkit",
+    "title": "Gemma 4 via LM Studio lms - Raw brief",
+    "caption": "Gemma 4 via LM Studio lms receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI.",
+    "model_label": "Gemma 4 via LM Studio lms",
+    "column_label": "Raw brief",
+    "render_source": "model_static_html_css",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+    "prompt_context": "source brief + sample case",
+    "image": "screenshots/gemma4-lms-no-judgmentkit.png",
+    "artifact": "artifacts/gemma4-lms-no-judgmentkit.html"
+  },
+  {
+    "id": "gemma4-lms-with-judgmentkit",
+    "title": "Gemma 4 via LM Studio lms - JudgmentKit handoff",
+    "caption": "Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance.",
+    "model_label": "Gemma 4 via LM Studio lms",
+    "column_label": "JudgmentKit handoff",
+    "render_source": "model_static_html_css",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
+    "prompt_context": "source brief + sample case + reviewed handoff",
+    "image": "screenshots/gemma4-lms-with-judgmentkit.png",
+    "artifact": "artifacts/gemma4-lms-with-judgmentkit.html"
+  },
+  {
+    "id": "gemma4-lms-material-ui-only",
+    "title": "Gemma 4 via LM Studio lms - Material UI only",
+    "caption": "Gemma 4 via LM Studio lms is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit.",
+    "model_label": "Gemma 4 via LM Studio lms",
+    "column_label": "Material UI only",
+    "render_source": "model_structured_data_material_ui_ssr",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.",
+    "prompt_context": "source brief + sample case + Material UI adapter",
+    "image": "screenshots/gemma4-lms-material-ui-only.png",
+    "artifact": "artifacts/gemma4-lms-material-ui-only.html"
+  },
+  {
+    "id": "gemma4-lms-judgmentkit-material-ui",
+    "title": "Gemma 4 via LM Studio lms - JudgmentKit + Material UI",
+    "caption": "Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path.",
+    "model_label": "Gemma 4 via LM Studio lms",
+    "column_label": "JudgmentKit + Material UI",
+    "render_source": "model_structured_data_material_ui_ssr",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
+    "prompt_context": "source brief + sample case + reviewed handoff + Material UI adapter",
+    "image": "screenshots/gemma4-lms-judgmentkit-material-ui.png",
+    "artifact": "artifacts/gemma4-lms-judgmentkit-material-ui.html"
+  },
+  {
+    "id": "gpt55-xhigh-codex-no-judgmentkit",
+    "title": "GPT-5.5 xhigh via codex exec - Raw brief",
+    "caption": "GPT-5.5 xhigh via codex exec receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI.",
+    "model_label": "GPT-5.5 xhigh via codex exec",
+    "column_label": "Raw brief",
+    "render_source": "model_static_html_css",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+    "prompt_context": "source brief + sample case",
+    "image": "screenshots/gpt55-xhigh-codex-no-judgmentkit.png",
+    "artifact": "artifacts/gpt55-xhigh-codex-no-judgmentkit.html"
+  },
+  {
+    "id": "gpt55-xhigh-codex-with-judgmentkit",
+    "title": "GPT-5.5 xhigh via codex exec - JudgmentKit handoff",
+    "caption": "GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance.",
+    "model_label": "GPT-5.5 xhigh via codex exec",
+    "column_label": "JudgmentKit handoff",
+    "render_source": "model_static_html_css",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
+    "prompt_context": "source brief + sample case + reviewed handoff",
+    "image": "screenshots/gpt55-xhigh-codex-with-judgmentkit.png",
+    "artifact": "artifacts/gpt55-xhigh-codex-with-judgmentkit.html"
+  },
+  {
+    "id": "gpt55-xhigh-codex-material-ui-only",
+    "title": "GPT-5.5 xhigh via codex exec - Material UI only",
+    "caption": "GPT-5.5 xhigh via codex exec is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit.",
+    "model_label": "GPT-5.5 xhigh via codex exec",
+    "column_label": "Material UI only",
+    "render_source": "model_structured_data_material_ui_ssr",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.",
+    "prompt_context": "source brief + sample case + Material UI adapter",
+    "image": "screenshots/gpt55-xhigh-codex-material-ui-only.png",
+    "artifact": "artifacts/gpt55-xhigh-codex-material-ui-only.html"
+  },
+  {
+    "id": "gpt55-xhigh-codex-judgmentkit-material-ui",
+    "title": "GPT-5.5 xhigh via codex exec - JudgmentKit + Material UI",
+    "caption": "GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path.",
+    "model_label": "GPT-5.5 xhigh via codex exec",
+    "column_label": "JudgmentKit + Material UI",
+    "render_source": "model_structured_data_material_ui_ssr",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
+    "prompt_context": "source brief + sample case + reviewed handoff + Material UI adapter",
+    "image": "screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png",
+    "artifact": "artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html"
+  }
+]</script>
+    <script type="application/json" id="model-ui-manifest">{
+  "matrix_id": "clinical-intake-review-model-ui-v1",
+  "use_case_id": "clinical-intake-review",
+  "use_case_label": "Clinical intake review",
+  "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+  "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+  "title": "Model UI 3x4 comparison matrix",
+  "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+  "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+  "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
+  "design_system_name": "Material UI",
+  "design_system_package": "@mui/material",
+  "design_system_render_mode": "static-ssr",
+  "comparison_rows": [
+    {
+      "id": "deterministic",
+      "label": "Deterministic",
+      "model_label": "Deterministic renderer",
+      "generation_source": "deterministic",
+      "provider": "none",
+      "model": "none",
+      "reasoning_effort": null,
+      "summary": "Scripted renderer paths show the controlled baseline for each context combination.",
+      "artifact_ids": [
+        "deterministic-no-judgmentkit",
+        "deterministic-with-judgmentkit",
+        "deterministic-material-ui-only",
+        "deterministic-judgmentkit-material-ui"
+      ],
+      "artifacts": [
+        {
+          "id": "deterministic-no-judgmentkit",
+          "use_case_id": "clinical-intake-review",
+          "use_case_label": "Clinical intake review",
+          "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+          "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+          "row_id": "deterministic",
+          "row_label": "Deterministic",
+          "column_id": "no-judgmentkit",
+          "column_label": "Raw brief",
+          "title": "Deterministic - Raw brief",
+          "model_label": "Deterministic renderer",
+          "generation_source": "deterministic",
+          "provider": "none",
+          "model": "none",
+          "cli": null,
+          "reasoning_effort": null,
+          "judgmentkit_mode": "no_judgmentkit",
+          "design_system_mode": "none",
+          "context_included": {
+            "source_brief": true,
+            "sample_case": true,
+            "reviewed_handoff": false,
+            "material_ui_adapter": false
+          },
+          "context_summary": "source brief + sample case",
+          "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+          "reviewed_handoff_file": null,
+          "design_system_adapter_file": null,
+          "design_system_name": null,
+          "design_system_package": null,
+          "design_system_render_mode": null,
+          "capture_file": null,
+          "capture_provenance": {
+            "status": "captured",
+            "capture_type": "deterministic-renderer",
+            "captured_at": "2026-05-13",
+            "runner": "scripts/demo-model-ui-matrix.mjs",
+            "provider": "none",
+            "model": "none",
+            "cli": null,
+            "reasoning_effort": null,
+            "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+          },
+          "prompt_sha256": null,
+          "source_context_sha256": "bf05d1a2f7cea1a213914942c28d59e28fd365fc4061f17fd493cec08682f35f",
+          "raw_response_sha256": null,
+          "artifact_path": "artifacts/deterministic-no-judgmentkit.html",
+          "screenshot_path": "screenshots/deterministic-no-judgmentkit.png",
+          "render_source": "deterministic_raw_brief_html",
+          "visible_render_source": "deterministic_raw_brief_html",
+          "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+          "approach_title": "Deterministic - Raw brief",
+          "approach_caption": "Deterministic receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+        },
+        {
+          "id": "deterministic-with-judgmentkit",
+          "use_case_id": "clinical-intake-review",
+          "use_case_label": "Clinical intake review",
+          "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+          "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+          "row_id": "deterministic",
+          "row_label": "Deterministic",
+          "column_id": "with-judgmentkit",
+          "column_label": "JudgmentKit handoff",
+          "title": "Deterministic - JudgmentKit handoff",
+          "model_label": "Deterministic renderer",
+          "generation_source": "deterministic",
+          "provider": "none",
+          "model": "none",
+          "cli": null,
+          "reasoning_effort": null,
+          "judgmentkit_mode": "with_judgmentkit",
+          "design_system_mode": "none",
+          "context_included": {
+            "source_brief": true,
+            "sample_case": true,
+            "reviewed_handoff": true,
+            "material_ui_adapter": false
+          },
+          "context_summary": "source brief + sample case + reviewed handoff",
+          "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+          "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+          "design_system_adapter_file": null,
+          "design_system_name": null,
+          "design_system_package": null,
+          "design_system_render_mode": null,
+          "capture_file": null,
+          "capture_provenance": {
+            "status": "captured",
+            "capture_type": "deterministic-renderer",
+            "captured_at": "2026-05-13",
+            "runner": "scripts/demo-model-ui-matrix.mjs",
+            "provider": "none",
+            "model": "none",
+            "cli": null,
+            "reasoning_effort": null,
+            "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+          },
+          "prompt_sha256": null,
+          "source_context_sha256": "0956248f2da51a319b0b9fae6d0e9ac59401900010104533eb63efe0be89deaf",
+          "raw_response_sha256": null,
+          "artifact_path": "artifacts/deterministic-with-judgmentkit.html",
+          "screenshot_path": "screenshots/deterministic-with-judgmentkit.png",
+          "render_source": "deterministic_judgmentkit_html",
+          "visible_render_source": "deterministic_judgmentkit_html",
+          "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
+          "approach_title": "Deterministic - JudgmentKit handoff",
+          "approach_caption": "Deterministic receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+        },
+        {
+          "id": "deterministic-material-ui-only",
+          "use_case_id": "clinical-intake-review",
+          "use_case_label": "Clinical intake review",
+          "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+          "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+          "row_id": "deterministic",
+          "row_label": "Deterministic",
+          "column_id": "material-ui-only",
+          "column_label": "Material UI only",
+          "title": "Deterministic - Material UI only",
+          "model_label": "Deterministic renderer",
+          "generation_source": "deterministic",
+          "provider": "none",
+          "model": "none",
+          "cli": null,
+          "reasoning_effort": null,
+          "judgmentkit_mode": "no_judgmentkit",
+          "design_system_mode": "material_ui",
+          "context_included": {
+            "source_brief": true,
+            "sample_case": true,
+            "reviewed_handoff": false,
+            "material_ui_adapter": true
+          },
+          "context_summary": "source brief + sample case + Material UI adapter",
+          "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+          "reviewed_handoff_file": null,
+          "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
+          "design_system_name": "Material UI",
+          "design_system_package": "@mui/material",
+          "design_system_render_mode": "static-ssr",
+          "capture_file": null,
+          "capture_provenance": {
+            "status": "captured",
+            "capture_type": "deterministic-renderer",
+            "captured_at": "2026-05-13",
+            "runner": "scripts/demo-model-ui-matrix.mjs",
+            "provider": "none",
+            "model": "none",
+            "cli": null,
+            "reasoning_effort": null,
+            "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+          },
+          "prompt_sha256": null,
+          "source_context_sha256": "f633d03a56a64981eae42969846865915a4564cd83cc6b9d364a25c5f35f22bb",
+          "raw_response_sha256": null,
+          "artifact_path": "artifacts/deterministic-material-ui-only.html",
+          "screenshot_path": "screenshots/deterministic-material-ui-only.png",
+          "render_source": "deterministic_material_ui_ssr",
+          "visible_render_source": "deterministic_material_ui_ssr",
+          "rendering_policy": "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.",
+          "approach_title": "Deterministic - Material UI only",
+          "approach_caption": "Deterministic is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit."
+        },
+        {
+          "id": "deterministic-judgmentkit-material-ui",
+          "use_case_id": "clinical-intake-review",
+          "use_case_label": "Clinical intake review",
+          "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+          "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+          "row_id": "deterministic",
+          "row_label": "Deterministic",
+          "column_id": "judgmentkit-material-ui",
+          "column_label": "JudgmentKit + Material UI",
+          "title": "Deterministic - JudgmentKit + Material UI",
+          "model_label": "Deterministic renderer",
+          "generation_source": "deterministic",
+          "provider": "none",
+          "model": "none",
+          "cli": null,
+          "reasoning_effort": null,
+          "judgmentkit_mode": "with_judgmentkit",
+          "design_system_mode": "material_ui",
+          "context_included": {
+            "source_brief": true,
+            "sample_case": true,
+            "reviewed_handoff": true,
+            "material_ui_adapter": true
+          },
+          "context_summary": "source brief + sample case + reviewed handoff + Material UI adapter",
+          "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+          "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+          "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
+          "design_system_name": "Material UI",
+          "design_system_package": "@mui/material",
+          "design_system_render_mode": "static-ssr",
+          "capture_file": null,
+          "capture_provenance": {
+            "status": "captured",
+            "capture_type": "deterministic-renderer",
+            "captured_at": "2026-05-13",
+            "runner": "scripts/demo-model-ui-matrix.mjs",
+            "provider": "none",
+            "model": "none",
+            "cli": null,
+            "reasoning_effort": null,
+            "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+          },
+          "prompt_sha256": null,
+          "source_context_sha256": "a2528a6fa6417d84e9d2a9ee47ab815692b741898e7431165f8921c63f037ff8",
+          "raw_response_sha256": null,
+          "artifact_path": "artifacts/deterministic-judgmentkit-material-ui.html",
+          "screenshot_path": "screenshots/deterministic-judgmentkit-material-ui.png",
+          "render_source": "deterministic_material_ui_ssr",
+          "visible_render_source": "deterministic_material_ui_ssr",
+          "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
+          "approach_title": "Deterministic - JudgmentKit + Material UI",
+          "approach_caption": "Deterministic receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path."
+        }
+      ]
+    },
+    {
+      "id": "gemma4-lms",
+      "label": "Gemma 4 via LM Studio lms",
+      "model_label": "Gemma 4 (local LLM)",
+      "generation_source": "captured_model_output",
+      "provider": "lmstudio",
+      "model": "google/gemma-4-e2b",
+      "reasoning_effort": null,
+      "summary": "Local Gemma 4 captures show how a smaller local model responds to the same four context boundaries.",
+      "artifact_ids": [
+        "gemma4-lms-no-judgmentkit",
+        "gemma4-lms-with-judgmentkit",
+        "gemma4-lms-material-ui-only",
+        "gemma4-lms-judgmentkit-material-ui"
+      ],
+      "artifacts": [
+        {
+          "id": "gemma4-lms-no-judgmentkit",
+          "use_case_id": "clinical-intake-review",
+          "use_case_label": "Clinical intake review",
+          "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+          "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+          "row_id": "gemma4-lms",
+          "row_label": "Gemma 4 via LM Studio lms",
+          "column_id": "no-judgmentkit",
+          "column_label": "Raw brief",
+          "title": "Gemma 4 via LM Studio lms - Raw brief",
+          "model_label": "Gemma 4 (local LLM)",
+          "generation_source": "captured_model_output",
+          "provider": "lmstudio",
+          "model": "google/gemma-4-e2b",
+          "cli": "lms",
+          "reasoning_effort": null,
+          "judgmentkit_mode": "no_judgmentkit",
+          "design_system_mode": "none",
+          "context_included": {
+            "source_brief": true,
+            "sample_case": true,
+            "reviewed_handoff": false,
+            "material_ui_adapter": false
+          },
+          "context_summary": "source brief + sample case",
+          "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+          "reviewed_handoff_file": null,
+          "design_system_adapter_file": null,
+          "design_system_name": null,
+          "design_system_package": null,
+          "design_system_render_mode": null,
+          "capture_file": "captures/gemma4-lms-no-judgmentkit.json",
+          "capture_provenance": {
+            "status": "captured",
+            "capture_type": "model-output-transcript",
+            "captured_at": "2026-05-14T03:08:27.696Z",
+            "runner": "scripts/capture-model-ui-matrix.mjs",
+            "provider": "lmstudio",
+            "model": "google/gemma-4-e2b",
+            "cli": "lms",
+            "transcript_file": "captures/gemma4-lms-no-judgmentkit.json",
+            "prompt_sha256": "7e6159df04bb33a8cf075a771a2b9223765425bcd97f638f9995e22bc83310bf",
+            "raw_response_sha256": "7b2634b4d106043dfcf45e8677638e7bc54bbdbc06ee4aa2eb3914946136710a",
+            "source_context_sha256": "713aa5c011e90b100d8235d55b64ffc2f0522ff13c94bc534b22e9aa8fc082a0",
+            "reasoning_effort": null,
+            "context_included": {
+              "source_brief": true,
+              "sample_case": true,
+              "reviewed_handoff": false,
+              "material_ui_adapter": false
+            },
+            "design_system_name": null,
+            "design_system_package": null,
+            "design_system_render_mode": null,
+            "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
+          },
+          "prompt_sha256": "7e6159df04bb33a8cf075a771a2b9223765425bcd97f638f9995e22bc83310bf",
+          "source_context_sha256": "713aa5c011e90b100d8235d55b64ffc2f0522ff13c94bc534b22e9aa8fc082a0",
+          "raw_response_sha256": "7b2634b4d106043dfcf45e8677638e7bc54bbdbc06ee4aa2eb3914946136710a",
+          "artifact_path": "artifacts/gemma4-lms-no-judgmentkit.html",
+          "screenshot_path": "screenshots/gemma4-lms-no-judgmentkit.png",
+          "render_source": "model_static_html_css",
+          "visible_render_source": "model_static_html_css",
+          "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+          "approach_title": "Gemma 4 via LM Studio lms - Raw brief",
+          "approach_caption": "Gemma 4 via LM Studio lms receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+        },
+        {
+          "id": "gemma4-lms-with-judgmentkit",
+          "use_case_id": "clinical-intake-review",
+          "use_case_label": "Clinical intake review",
+          "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+          "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+          "row_id": "gemma4-lms",
+          "row_label": "Gemma 4 via LM Studio lms",
+          "column_id": "with-judgmentkit",
+          "column_label": "JudgmentKit handoff",
+          "title": "Gemma 4 via LM Studio lms - JudgmentKit handoff",
+          "model_label": "Gemma 4 (local LLM)",
+          "generation_source": "captured_model_output",
+          "provider": "lmstudio",
+          "model": "google/gemma-4-e2b",
+          "cli": "lms",
+          "reasoning_effort": null,
+          "judgmentkit_mode": "with_judgmentkit",
+          "design_system_mode": "none",
+          "context_included": {
+            "source_brief": true,
+            "sample_case": true,
+            "reviewed_handoff": true,
+            "material_ui_adapter": false
+          },
+          "context_summary": "source brief + sample case + reviewed handoff",
+          "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+          "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+          "design_system_adapter_file": null,
+          "design_system_name": null,
+          "design_system_package": null,
+          "design_system_render_mode": null,
+          "capture_file": "captures/gemma4-lms-with-judgmentkit.json",
+          "capture_provenance": {
+            "status": "captured",
+            "capture_type": "model-output-transcript",
+            "captured_at": "2026-05-14T03:10:46.694Z",
+            "runner": "scripts/capture-model-ui-matrix.mjs",
+            "provider": "lmstudio",
+            "model": "google/gemma-4-e2b",
+            "cli": "lms",
+            "transcript_file": "captures/gemma4-lms-with-judgmentkit.json",
+            "prompt_sha256": "a9f2b9d42c2f0c51e9c0c25e2db61784089cdc209af10a598f3ef03778ba6d14",
+            "raw_response_sha256": "1fe6231c22338fd7b2279fd969dfe39bd5886eb8d36fce5fe6daf94b12ce5aa9",
+            "source_context_sha256": "cbee00d3307912ee47880bfcaf31adfc7bb9eb9234b739359568125cd1e05390",
+            "reasoning_effort": null,
+            "context_included": {
+              "source_brief": true,
+              "sample_case": true,
+              "reviewed_handoff": true,
+              "material_ui_adapter": false
+            },
+            "design_system_name": null,
+            "design_system_package": null,
+            "design_system_render_mode": null,
+            "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
+          },
+          "prompt_sha256": "a9f2b9d42c2f0c51e9c0c25e2db61784089cdc209af10a598f3ef03778ba6d14",
+          "source_context_sha256": "cbee00d3307912ee47880bfcaf31adfc7bb9eb9234b739359568125cd1e05390",
+          "raw_response_sha256": "1fe6231c22338fd7b2279fd969dfe39bd5886eb8d36fce5fe6daf94b12ce5aa9",
+          "artifact_path": "artifacts/gemma4-lms-with-judgmentkit.html",
+          "screenshot_path": "screenshots/gemma4-lms-with-judgmentkit.png",
+          "render_source": "model_static_html_css",
+          "visible_render_source": "model_static_html_css",
+          "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
+          "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit handoff",
+          "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+        },
+        {
+          "id": "gemma4-lms-material-ui-only",
+          "use_case_id": "clinical-intake-review",
+          "use_case_label": "Clinical intake review",
+          "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+          "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+          "row_id": "gemma4-lms",
+          "row_label": "Gemma 4 via LM Studio lms",
+          "column_id": "material-ui-only",
+          "column_label": "Material UI only",
+          "title": "Gemma 4 via LM Studio lms - Material UI only",
+          "model_label": "Gemma 4 (local LLM)",
+          "generation_source": "captured_model_output",
+          "provider": "lmstudio",
+          "model": "google/gemma-4-e2b",
+          "cli": "lms",
+          "reasoning_effort": null,
+          "judgmentkit_mode": "no_judgmentkit",
+          "design_system_mode": "material_ui",
+          "context_included": {
+            "source_brief": true,
+            "sample_case": true,
+            "reviewed_handoff": false,
+            "material_ui_adapter": true
+          },
+          "context_summary": "source brief + sample case + Material UI adapter",
+          "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+          "reviewed_handoff_file": null,
+          "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
+          "design_system_name": "Material UI",
+          "design_system_package": "@mui/material",
+          "design_system_render_mode": "static-ssr",
+          "capture_file": "captures/gemma4-lms-material-ui-only.json",
+          "capture_provenance": {
+            "status": "captured",
+            "capture_type": "model-output-transcript",
+            "captured_at": "2026-05-14T03:12:12.199Z",
+            "runner": "scripts/capture-model-ui-matrix.mjs",
+            "provider": "lmstudio",
+            "model": "google/gemma-4-e2b",
+            "cli": "lms",
+            "transcript_file": "captures/gemma4-lms-material-ui-only.json",
+            "prompt_sha256": "658b4ba075288e55b7d29252e4553097e3103fa404494c80cc8f66e5cd48642e",
+            "raw_response_sha256": "bf5220f177ca1d79533a5e3d0bac5cb17898df5333625b8ea43ae917192bd30a",
+            "source_context_sha256": "6e98c3fc0a8ec9f46f8afbfab39b845f3dc1a37c9d354dcee4df1bfac5fd142e",
+            "reasoning_effort": null,
+            "context_included": {
+              "source_brief": true,
+              "sample_case": true,
+              "reviewed_handoff": false,
+              "material_ui_adapter": true
+            },
+            "design_system_name": "Material UI",
+            "design_system_package": "@mui/material",
+            "design_system_render_mode": "static-ssr",
+            "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
+          },
+          "prompt_sha256": "658b4ba075288e55b7d29252e4553097e3103fa404494c80cc8f66e5cd48642e",
+          "source_context_sha256": "6e98c3fc0a8ec9f46f8afbfab39b845f3dc1a37c9d354dcee4df1bfac5fd142e",
+          "raw_response_sha256": "bf5220f177ca1d79533a5e3d0bac5cb17898df5333625b8ea43ae917192bd30a",
+          "artifact_path": "artifacts/gemma4-lms-material-ui-only.html",
+          "screenshot_path": "screenshots/gemma4-lms-material-ui-only.png",
+          "render_source": "model_structured_data_material_ui_ssr",
+          "visible_render_source": "model_structured_data_material_ui_ssr",
+          "rendering_policy": "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.",
+          "approach_title": "Gemma 4 via LM Studio lms - Material UI only",
+          "approach_caption": "Gemma 4 via LM Studio lms is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit."
+        },
+        {
+          "id": "gemma4-lms-judgmentkit-material-ui",
+          "use_case_id": "clinical-intake-review",
+          "use_case_label": "Clinical intake review",
+          "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+          "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+          "row_id": "gemma4-lms",
+          "row_label": "Gemma 4 via LM Studio lms",
+          "column_id": "judgmentkit-material-ui",
+          "column_label": "JudgmentKit + Material UI",
+          "title": "Gemma 4 via LM Studio lms - JudgmentKit + Material UI",
+          "model_label": "Gemma 4 (local LLM)",
+          "generation_source": "captured_model_output",
+          "provider": "lmstudio",
+          "model": "google/gemma-4-e2b",
+          "cli": "lms",
+          "reasoning_effort": null,
+          "judgmentkit_mode": "with_judgmentkit",
+          "design_system_mode": "material_ui",
+          "context_included": {
+            "source_brief": true,
+            "sample_case": true,
+            "reviewed_handoff": true,
+            "material_ui_adapter": true
+          },
+          "context_summary": "source brief + sample case + reviewed handoff + Material UI adapter",
+          "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+          "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+          "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
+          "design_system_name": "Material UI",
+          "design_system_package": "@mui/material",
+          "design_system_render_mode": "static-ssr",
+          "capture_file": "captures/gemma4-lms-judgmentkit-material-ui.json",
+          "capture_provenance": {
+            "status": "captured",
+            "capture_type": "model-output-transcript",
+            "captured_at": "2026-05-14T03:13:07.536Z",
+            "runner": "scripts/capture-model-ui-matrix.mjs",
+            "provider": "lmstudio",
+            "model": "google/gemma-4-e2b",
+            "cli": "lms",
+            "transcript_file": "captures/gemma4-lms-judgmentkit-material-ui.json",
+            "prompt_sha256": "4c806964688b924d69e6582248f35f9169687934d32ca45acd75c08e286d30a1",
+            "raw_response_sha256": "8c66db260d3a06a424f87e398ea7cfae277bbf856133fd79a1b35b00b3977e8f",
+            "source_context_sha256": "bcdee637f93c6caf64ea266ccb94869a445531dfacd36cddc09d0cfe51371e75",
+            "reasoning_effort": null,
+            "context_included": {
+              "source_brief": true,
+              "sample_case": true,
+              "reviewed_handoff": true,
+              "material_ui_adapter": true
+            },
+            "design_system_name": "Material UI",
+            "design_system_package": "@mui/material",
+            "design_system_render_mode": "static-ssr",
+            "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
+          },
+          "prompt_sha256": "4c806964688b924d69e6582248f35f9169687934d32ca45acd75c08e286d30a1",
+          "source_context_sha256": "bcdee637f93c6caf64ea266ccb94869a445531dfacd36cddc09d0cfe51371e75",
+          "raw_response_sha256": "8c66db260d3a06a424f87e398ea7cfae277bbf856133fd79a1b35b00b3977e8f",
+          "artifact_path": "artifacts/gemma4-lms-judgmentkit-material-ui.html",
+          "screenshot_path": "screenshots/gemma4-lms-judgmentkit-material-ui.png",
+          "render_source": "model_structured_data_material_ui_ssr",
+          "visible_render_source": "model_structured_data_material_ui_ssr",
+          "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
+          "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit + Material UI",
+          "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path."
+        }
+      ]
+    },
+    {
+      "id": "gpt55-xhigh-codex",
+      "label": "GPT-5.5 xhigh via codex exec",
+      "model_label": "GPT-5.5",
+      "generation_source": "captured_model_output",
+      "provider": "codex-cli",
+      "model": "gpt-5.5",
+      "reasoning_effort": "xhigh",
+      "summary": "GPT-5.5 captures use extra-high reasoning to show the same matrix with a stronger model path.",
+      "artifact_ids": [
+        "gpt55-xhigh-codex-no-judgmentkit",
+        "gpt55-xhigh-codex-with-judgmentkit",
+        "gpt55-xhigh-codex-material-ui-only",
+        "gpt55-xhigh-codex-judgmentkit-material-ui"
+      ],
+      "artifacts": [
+        {
+          "id": "gpt55-xhigh-codex-no-judgmentkit",
+          "use_case_id": "clinical-intake-review",
+          "use_case_label": "Clinical intake review",
+          "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+          "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+          "row_id": "gpt55-xhigh-codex",
+          "row_label": "GPT-5.5 xhigh via codex exec",
+          "column_id": "no-judgmentkit",
+          "column_label": "Raw brief",
+          "title": "GPT-5.5 xhigh via codex exec - Raw brief",
+          "model_label": "GPT-5.5",
+          "generation_source": "captured_model_output",
+          "provider": "codex-cli",
+          "model": "gpt-5.5",
+          "cli": "codex",
+          "reasoning_effort": "xhigh",
+          "judgmentkit_mode": "no_judgmentkit",
+          "design_system_mode": "none",
+          "context_included": {
+            "source_brief": true,
+            "sample_case": true,
+            "reviewed_handoff": false,
+            "material_ui_adapter": false
+          },
+          "context_summary": "source brief + sample case",
+          "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+          "reviewed_handoff_file": null,
+          "design_system_adapter_file": null,
+          "design_system_name": null,
+          "design_system_package": null,
+          "design_system_render_mode": null,
+          "capture_file": "captures/gpt55-xhigh-codex-no-judgmentkit.json",
+          "capture_provenance": {
+            "status": "captured",
+            "capture_type": "model-output-transcript",
+            "captured_at": "2026-05-14T03:17:36.709Z",
+            "runner": "scripts/capture-model-ui-matrix.mjs",
+            "provider": "codex-cli",
+            "model": "gpt-5.5",
+            "cli": "codex",
+            "transcript_file": "captures/gpt55-xhigh-codex-no-judgmentkit.json",
+            "prompt_sha256": "30f18bf3e1c09ca8880ba7fed38b8f676cbca45789269f0b773864c582bde197",
+            "raw_response_sha256": "fe3125faeab4aff2a769be6897cd16cd09fef8bf7f93b4ba01d55953beade827",
+            "source_context_sha256": "9d90fa5709a43efabbdf651ddd6c82803fcd5d924bc620623432c76ad3efc67b",
+            "reasoning_effort": "xhigh",
+            "context_included": {
+              "source_brief": true,
+              "sample_case": true,
+              "reviewed_handoff": false,
+              "material_ui_adapter": false
+            },
+            "design_system_name": null,
+            "design_system_package": null,
+            "design_system_render_mode": null,
+            "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
+          },
+          "prompt_sha256": "30f18bf3e1c09ca8880ba7fed38b8f676cbca45789269f0b773864c582bde197",
+          "source_context_sha256": "9d90fa5709a43efabbdf651ddd6c82803fcd5d924bc620623432c76ad3efc67b",
+          "raw_response_sha256": "fe3125faeab4aff2a769be6897cd16cd09fef8bf7f93b4ba01d55953beade827",
+          "artifact_path": "artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
+          "screenshot_path": "screenshots/gpt55-xhigh-codex-no-judgmentkit.png",
+          "render_source": "model_static_html_css",
+          "visible_render_source": "model_static_html_css",
+          "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+          "approach_title": "GPT-5.5 xhigh via codex exec - Raw brief",
+          "approach_caption": "GPT-5.5 xhigh via codex exec receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+        },
+        {
+          "id": "gpt55-xhigh-codex-with-judgmentkit",
+          "use_case_id": "clinical-intake-review",
+          "use_case_label": "Clinical intake review",
+          "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+          "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+          "row_id": "gpt55-xhigh-codex",
+          "row_label": "GPT-5.5 xhigh via codex exec",
+          "column_id": "with-judgmentkit",
+          "column_label": "JudgmentKit handoff",
+          "title": "GPT-5.5 xhigh via codex exec - JudgmentKit handoff",
+          "model_label": "GPT-5.5",
+          "generation_source": "captured_model_output",
+          "provider": "codex-cli",
+          "model": "gpt-5.5",
+          "cli": "codex",
+          "reasoning_effort": "xhigh",
+          "judgmentkit_mode": "with_judgmentkit",
+          "design_system_mode": "none",
+          "context_included": {
+            "source_brief": true,
+            "sample_case": true,
+            "reviewed_handoff": true,
+            "material_ui_adapter": false
+          },
+          "context_summary": "source brief + sample case + reviewed handoff",
+          "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+          "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+          "design_system_adapter_file": null,
+          "design_system_name": null,
+          "design_system_package": null,
+          "design_system_render_mode": null,
+          "capture_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
+          "capture_provenance": {
+            "status": "captured",
+            "capture_type": "model-output-transcript",
+            "captured_at": "2026-05-14T03:20:07.353Z",
+            "runner": "scripts/capture-model-ui-matrix.mjs",
+            "provider": "codex-cli",
+            "model": "gpt-5.5",
+            "cli": "codex",
+            "transcript_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
+            "prompt_sha256": "8a54fcb6da4e4bbcdafd9780f5e5cb398f5d5734441c0e1b857fd596c9875e0a",
+            "raw_response_sha256": "ed1d7a06dd47e4d5c7e0173c6266af933c60b8ae4ed22043b4a1c0912dafca75",
+            "source_context_sha256": "23d57075c1d202a86c9abf5d8af3a278052479483ce2648a98d32efe75778f87",
+            "reasoning_effort": "xhigh",
+            "context_included": {
+              "source_brief": true,
+              "sample_case": true,
+              "reviewed_handoff": true,
+              "material_ui_adapter": false
+            },
+            "design_system_name": null,
+            "design_system_package": null,
+            "design_system_render_mode": null,
+            "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
+          },
+          "prompt_sha256": "8a54fcb6da4e4bbcdafd9780f5e5cb398f5d5734441c0e1b857fd596c9875e0a",
+          "source_context_sha256": "23d57075c1d202a86c9abf5d8af3a278052479483ce2648a98d32efe75778f87",
+          "raw_response_sha256": "ed1d7a06dd47e4d5c7e0173c6266af933c60b8ae4ed22043b4a1c0912dafca75",
+          "artifact_path": "artifacts/gpt55-xhigh-codex-with-judgmentkit.html",
+          "screenshot_path": "screenshots/gpt55-xhigh-codex-with-judgmentkit.png",
+          "render_source": "model_static_html_css",
+          "visible_render_source": "model_static_html_css",
+          "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
+          "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit handoff",
+          "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+        },
+        {
+          "id": "gpt55-xhigh-codex-material-ui-only",
+          "use_case_id": "clinical-intake-review",
+          "use_case_label": "Clinical intake review",
+          "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+          "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+          "row_id": "gpt55-xhigh-codex",
+          "row_label": "GPT-5.5 xhigh via codex exec",
+          "column_id": "material-ui-only",
+          "column_label": "Material UI only",
+          "title": "GPT-5.5 xhigh via codex exec - Material UI only",
+          "model_label": "GPT-5.5",
+          "generation_source": "captured_model_output",
+          "provider": "codex-cli",
+          "model": "gpt-5.5",
+          "cli": "codex",
+          "reasoning_effort": "xhigh",
+          "judgmentkit_mode": "no_judgmentkit",
+          "design_system_mode": "material_ui",
+          "context_included": {
+            "source_brief": true,
+            "sample_case": true,
+            "reviewed_handoff": false,
+            "material_ui_adapter": true
+          },
+          "context_summary": "source brief + sample case + Material UI adapter",
+          "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+          "reviewed_handoff_file": null,
+          "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
+          "design_system_name": "Material UI",
+          "design_system_package": "@mui/material",
+          "design_system_render_mode": "static-ssr",
+          "capture_file": "captures/gpt55-xhigh-codex-material-ui-only.json",
+          "capture_provenance": {
+            "status": "captured",
+            "capture_type": "model-output-transcript",
+            "captured_at": "2026-05-14T03:21:07.257Z",
+            "runner": "scripts/capture-model-ui-matrix.mjs",
+            "provider": "codex-cli",
+            "model": "gpt-5.5",
+            "cli": "codex",
+            "transcript_file": "captures/gpt55-xhigh-codex-material-ui-only.json",
+            "prompt_sha256": "ebd150fdbf6a7f056bcfd8a973ae3e2cb4cae555e450c617579b6e45ccf4548b",
+            "raw_response_sha256": "a4c7eb8e1df58bdd8fb4ba4f25679598ef387cf6e035d2b123c871a50d9ef803",
+            "source_context_sha256": "48babcf5c324d77fb4280aedbe9930e199f8a25c9ee8769f5492add4175cfa15",
+            "reasoning_effort": "xhigh",
+            "context_included": {
+              "source_brief": true,
+              "sample_case": true,
+              "reviewed_handoff": false,
+              "material_ui_adapter": true
+            },
+            "design_system_name": "Material UI",
+            "design_system_package": "@mui/material",
+            "design_system_render_mode": "static-ssr",
+            "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
+          },
+          "prompt_sha256": "ebd150fdbf6a7f056bcfd8a973ae3e2cb4cae555e450c617579b6e45ccf4548b",
+          "source_context_sha256": "48babcf5c324d77fb4280aedbe9930e199f8a25c9ee8769f5492add4175cfa15",
+          "raw_response_sha256": "a4c7eb8e1df58bdd8fb4ba4f25679598ef387cf6e035d2b123c871a50d9ef803",
+          "artifact_path": "artifacts/gpt55-xhigh-codex-material-ui-only.html",
+          "screenshot_path": "screenshots/gpt55-xhigh-codex-material-ui-only.png",
+          "render_source": "model_structured_data_material_ui_ssr",
+          "visible_render_source": "model_structured_data_material_ui_ssr",
+          "rendering_policy": "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.",
+          "approach_title": "GPT-5.5 xhigh via codex exec - Material UI only",
+          "approach_caption": "GPT-5.5 xhigh via codex exec is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit."
+        },
+        {
+          "id": "gpt55-xhigh-codex-judgmentkit-material-ui",
+          "use_case_id": "clinical-intake-review",
+          "use_case_label": "Clinical intake review",
+          "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+          "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+          "row_id": "gpt55-xhigh-codex",
+          "row_label": "GPT-5.5 xhigh via codex exec",
+          "column_id": "judgmentkit-material-ui",
+          "column_label": "JudgmentKit + Material UI",
+          "title": "GPT-5.5 xhigh via codex exec - JudgmentKit + Material UI",
+          "model_label": "GPT-5.5",
+          "generation_source": "captured_model_output",
+          "provider": "codex-cli",
+          "model": "gpt-5.5",
+          "cli": "codex",
+          "reasoning_effort": "xhigh",
+          "judgmentkit_mode": "with_judgmentkit",
+          "design_system_mode": "material_ui",
+          "context_included": {
+            "source_brief": true,
+            "sample_case": true,
+            "reviewed_handoff": true,
+            "material_ui_adapter": true
+          },
+          "context_summary": "source brief + sample case + reviewed handoff + Material UI adapter",
+          "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+          "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+          "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
+          "design_system_name": "Material UI",
+          "design_system_package": "@mui/material",
+          "design_system_render_mode": "static-ssr",
+          "capture_file": "captures/gpt55-xhigh-codex-judgmentkit-material-ui.json",
+          "capture_provenance": {
+            "status": "captured",
+            "capture_type": "model-output-transcript",
+            "captured_at": "2026-05-14T03:26:21.324Z",
+            "runner": "scripts/capture-model-ui-matrix.mjs",
+            "provider": "codex-cli",
+            "model": "gpt-5.5",
+            "cli": "codex",
+            "transcript_file": "captures/gpt55-xhigh-codex-judgmentkit-material-ui.json",
+            "prompt_sha256": "1f1ba85b3932e24257f9311596ed3f65719a01b4a907342ee9dd1400695a403d",
+            "raw_response_sha256": "da4eff832c47279ac52cc9c13c88f830788ac123f2160e672d7eeceb00d482dd",
+            "source_context_sha256": "396ff0727119e8fa58d5fa32eff97ed92fce6a163318e32108379afc6b8ac808",
+            "reasoning_effort": "xhigh",
+            "context_included": {
+              "source_brief": true,
+              "sample_case": true,
+              "reviewed_handoff": true,
+              "material_ui_adapter": true
+            },
+            "design_system_name": "Material UI",
+            "design_system_package": "@mui/material",
+            "design_system_render_mode": "static-ssr",
+            "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
+          },
+          "prompt_sha256": "1f1ba85b3932e24257f9311596ed3f65719a01b4a907342ee9dd1400695a403d",
+          "source_context_sha256": "396ff0727119e8fa58d5fa32eff97ed92fce6a163318e32108379afc6b8ac808",
+          "raw_response_sha256": "da4eff832c47279ac52cc9c13c88f830788ac123f2160e672d7eeceb00d482dd",
+          "artifact_path": "artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
+          "screenshot_path": "screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png",
+          "render_source": "model_structured_data_material_ui_ssr",
+          "visible_render_source": "model_structured_data_material_ui_ssr",
+          "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
+          "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit + Material UI",
+          "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path."
+        }
+      ]
+    }
+  ],
+  "comparison_columns": [
+    {
+      "id": "no-judgmentkit",
+      "label": "Raw brief",
+      "short_label": "No JudgmentKit",
+      "judgmentkit_mode": "no_judgmentkit",
+      "design_system_mode": "none",
+      "render_mode": "html",
+      "summary": "Raw source brief and sample case only. No reviewed handoff and no Material UI."
+    },
+    {
+      "id": "with-judgmentkit",
+      "label": "JudgmentKit handoff",
+      "short_label": "With JudgmentKit",
+      "judgmentkit_mode": "with_judgmentkit",
+      "design_system_mode": "none",
+      "render_mode": "html",
+      "summary": "Reviewed JudgmentKit handoff and sample case. No Material UI adapter."
+    },
+    {
+      "id": "material-ui-only",
+      "label": "Material UI only",
+      "short_label": "Design system",
+      "judgmentkit_mode": "no_judgmentkit",
+      "design_system_mode": "material_ui",
+      "render_mode": "material_ui",
+      "summary": "Raw source brief plus Material UI adapter. No reviewed JudgmentKit handoff."
+    },
+    {
+      "id": "judgmentkit-material-ui",
+      "label": "JudgmentKit + Material UI",
+      "short_label": "JudgmentKit + design system",
+      "judgmentkit_mode": "with_judgmentkit",
+      "design_system_mode": "material_ui",
+      "render_mode": "material_ui",
+      "summary": "Reviewed JudgmentKit handoff rendered through the Material UI adapter."
+    }
+  ],
+  "legacy_aliases": [],
+  "model_labels": [
+    "Deterministic renderer",
+    "Gemma 4 (local LLM)",
+    "GPT-5.5"
+  ],
+  "artifacts": [
+    {
+      "id": "deterministic-no-judgmentkit",
+      "use_case_id": "clinical-intake-review",
+      "use_case_label": "Clinical intake review",
+      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+      "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+      "row_id": "deterministic",
+      "row_label": "Deterministic",
+      "column_id": "no-judgmentkit",
+      "column_label": "Raw brief",
+      "title": "Deterministic - Raw brief",
+      "model_label": "Deterministic renderer",
+      "generation_source": "deterministic",
+      "provider": "none",
+      "model": "none",
+      "cli": null,
+      "reasoning_effort": null,
+      "judgmentkit_mode": "no_judgmentkit",
+      "design_system_mode": "none",
+      "context_included": {
+        "source_brief": true,
+        "sample_case": true,
+        "reviewed_handoff": false,
+        "material_ui_adapter": false
+      },
+      "context_summary": "source brief + sample case",
+      "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+      "reviewed_handoff_file": null,
+      "design_system_adapter_file": null,
+      "design_system_name": null,
+      "design_system_package": null,
+      "design_system_render_mode": null,
+      "capture_file": null,
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "deterministic-renderer",
+        "captured_at": "2026-05-13",
+        "runner": "scripts/demo-model-ui-matrix.mjs",
+        "provider": "none",
+        "model": "none",
+        "cli": null,
+        "reasoning_effort": null,
+        "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+      },
+      "prompt_sha256": null,
+      "source_context_sha256": "bf05d1a2f7cea1a213914942c28d59e28fd365fc4061f17fd493cec08682f35f",
+      "raw_response_sha256": null,
+      "artifact_path": "artifacts/deterministic-no-judgmentkit.html",
+      "screenshot_path": "screenshots/deterministic-no-judgmentkit.png",
+      "render_source": "deterministic_raw_brief_html",
+      "visible_render_source": "deterministic_raw_brief_html",
+      "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+      "approach_title": "Deterministic - Raw brief",
+      "approach_caption": "Deterministic receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+    },
+    {
+      "id": "deterministic-with-judgmentkit",
+      "use_case_id": "clinical-intake-review",
+      "use_case_label": "Clinical intake review",
+      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+      "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+      "row_id": "deterministic",
+      "row_label": "Deterministic",
+      "column_id": "with-judgmentkit",
+      "column_label": "JudgmentKit handoff",
+      "title": "Deterministic - JudgmentKit handoff",
+      "model_label": "Deterministic renderer",
+      "generation_source": "deterministic",
+      "provider": "none",
+      "model": "none",
+      "cli": null,
+      "reasoning_effort": null,
+      "judgmentkit_mode": "with_judgmentkit",
+      "design_system_mode": "none",
+      "context_included": {
+        "source_brief": true,
+        "sample_case": true,
+        "reviewed_handoff": true,
+        "material_ui_adapter": false
+      },
+      "context_summary": "source brief + sample case + reviewed handoff",
+      "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": null,
+      "design_system_name": null,
+      "design_system_package": null,
+      "design_system_render_mode": null,
+      "capture_file": null,
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "deterministic-renderer",
+        "captured_at": "2026-05-13",
+        "runner": "scripts/demo-model-ui-matrix.mjs",
+        "provider": "none",
+        "model": "none",
+        "cli": null,
+        "reasoning_effort": null,
+        "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+      },
+      "prompt_sha256": null,
+      "source_context_sha256": "0956248f2da51a319b0b9fae6d0e9ac59401900010104533eb63efe0be89deaf",
+      "raw_response_sha256": null,
+      "artifact_path": "artifacts/deterministic-with-judgmentkit.html",
+      "screenshot_path": "screenshots/deterministic-with-judgmentkit.png",
+      "render_source": "deterministic_judgmentkit_html",
+      "visible_render_source": "deterministic_judgmentkit_html",
+      "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
+      "approach_title": "Deterministic - JudgmentKit handoff",
+      "approach_caption": "Deterministic receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+    },
+    {
+      "id": "deterministic-material-ui-only",
+      "use_case_id": "clinical-intake-review",
+      "use_case_label": "Clinical intake review",
+      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+      "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+      "row_id": "deterministic",
+      "row_label": "Deterministic",
+      "column_id": "material-ui-only",
+      "column_label": "Material UI only",
+      "title": "Deterministic - Material UI only",
+      "model_label": "Deterministic renderer",
+      "generation_source": "deterministic",
+      "provider": "none",
+      "model": "none",
+      "cli": null,
+      "reasoning_effort": null,
+      "judgmentkit_mode": "no_judgmentkit",
+      "design_system_mode": "material_ui",
+      "context_included": {
+        "source_brief": true,
+        "sample_case": true,
+        "reviewed_handoff": false,
+        "material_ui_adapter": true
+      },
+      "context_summary": "source brief + sample case + Material UI adapter",
+      "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+      "reviewed_handoff_file": null,
+      "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
+      "design_system_name": "Material UI",
+      "design_system_package": "@mui/material",
+      "design_system_render_mode": "static-ssr",
+      "capture_file": null,
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "deterministic-renderer",
+        "captured_at": "2026-05-13",
+        "runner": "scripts/demo-model-ui-matrix.mjs",
+        "provider": "none",
+        "model": "none",
+        "cli": null,
+        "reasoning_effort": null,
+        "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+      },
+      "prompt_sha256": null,
+      "source_context_sha256": "f633d03a56a64981eae42969846865915a4564cd83cc6b9d364a25c5f35f22bb",
+      "raw_response_sha256": null,
+      "artifact_path": "artifacts/deterministic-material-ui-only.html",
+      "screenshot_path": "screenshots/deterministic-material-ui-only.png",
+      "render_source": "deterministic_material_ui_ssr",
+      "visible_render_source": "deterministic_material_ui_ssr",
+      "rendering_policy": "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.",
+      "approach_title": "Deterministic - Material UI only",
+      "approach_caption": "Deterministic is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit."
+    },
+    {
+      "id": "deterministic-judgmentkit-material-ui",
+      "use_case_id": "clinical-intake-review",
+      "use_case_label": "Clinical intake review",
+      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+      "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+      "row_id": "deterministic",
+      "row_label": "Deterministic",
+      "column_id": "judgmentkit-material-ui",
+      "column_label": "JudgmentKit + Material UI",
+      "title": "Deterministic - JudgmentKit + Material UI",
+      "model_label": "Deterministic renderer",
+      "generation_source": "deterministic",
+      "provider": "none",
+      "model": "none",
+      "cli": null,
+      "reasoning_effort": null,
+      "judgmentkit_mode": "with_judgmentkit",
+      "design_system_mode": "material_ui",
+      "context_included": {
+        "source_brief": true,
+        "sample_case": true,
+        "reviewed_handoff": true,
+        "material_ui_adapter": true
+      },
+      "context_summary": "source brief + sample case + reviewed handoff + Material UI adapter",
+      "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
+      "design_system_name": "Material UI",
+      "design_system_package": "@mui/material",
+      "design_system_render_mode": "static-ssr",
+      "capture_file": null,
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "deterministic-renderer",
+        "captured_at": "2026-05-13",
+        "runner": "scripts/demo-model-ui-matrix.mjs",
+        "provider": "none",
+        "model": "none",
+        "cli": null,
+        "reasoning_effort": null,
+        "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+      },
+      "prompt_sha256": null,
+      "source_context_sha256": "a2528a6fa6417d84e9d2a9ee47ab815692b741898e7431165f8921c63f037ff8",
+      "raw_response_sha256": null,
+      "artifact_path": "artifacts/deterministic-judgmentkit-material-ui.html",
+      "screenshot_path": "screenshots/deterministic-judgmentkit-material-ui.png",
+      "render_source": "deterministic_material_ui_ssr",
+      "visible_render_source": "deterministic_material_ui_ssr",
+      "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
+      "approach_title": "Deterministic - JudgmentKit + Material UI",
+      "approach_caption": "Deterministic receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path."
+    },
+    {
+      "id": "gemma4-lms-no-judgmentkit",
+      "use_case_id": "clinical-intake-review",
+      "use_case_label": "Clinical intake review",
+      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+      "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+      "row_id": "gemma4-lms",
+      "row_label": "Gemma 4 via LM Studio lms",
+      "column_id": "no-judgmentkit",
+      "column_label": "Raw brief",
+      "title": "Gemma 4 via LM Studio lms - Raw brief",
+      "model_label": "Gemma 4 (local LLM)",
+      "generation_source": "captured_model_output",
+      "provider": "lmstudio",
+      "model": "google/gemma-4-e2b",
+      "cli": "lms",
+      "reasoning_effort": null,
+      "judgmentkit_mode": "no_judgmentkit",
+      "design_system_mode": "none",
+      "context_included": {
+        "source_brief": true,
+        "sample_case": true,
+        "reviewed_handoff": false,
+        "material_ui_adapter": false
+      },
+      "context_summary": "source brief + sample case",
+      "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+      "reviewed_handoff_file": null,
+      "design_system_adapter_file": null,
+      "design_system_name": null,
+      "design_system_package": null,
+      "design_system_render_mode": null,
+      "capture_file": "captures/gemma4-lms-no-judgmentkit.json",
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "model-output-transcript",
+        "captured_at": "2026-05-14T03:08:27.696Z",
+        "runner": "scripts/capture-model-ui-matrix.mjs",
+        "provider": "lmstudio",
+        "model": "google/gemma-4-e2b",
+        "cli": "lms",
+        "transcript_file": "captures/gemma4-lms-no-judgmentkit.json",
+        "prompt_sha256": "7e6159df04bb33a8cf075a771a2b9223765425bcd97f638f9995e22bc83310bf",
+        "raw_response_sha256": "7b2634b4d106043dfcf45e8677638e7bc54bbdbc06ee4aa2eb3914946136710a",
+        "source_context_sha256": "713aa5c011e90b100d8235d55b64ffc2f0522ff13c94bc534b22e9aa8fc082a0",
+        "reasoning_effort": null,
+        "context_included": {
+          "source_brief": true,
+          "sample_case": true,
+          "reviewed_handoff": false,
+          "material_ui_adapter": false
+        },
+        "design_system_name": null,
+        "design_system_package": null,
+        "design_system_render_mode": null,
+        "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
+      },
+      "prompt_sha256": "7e6159df04bb33a8cf075a771a2b9223765425bcd97f638f9995e22bc83310bf",
+      "source_context_sha256": "713aa5c011e90b100d8235d55b64ffc2f0522ff13c94bc534b22e9aa8fc082a0",
+      "raw_response_sha256": "7b2634b4d106043dfcf45e8677638e7bc54bbdbc06ee4aa2eb3914946136710a",
+      "artifact_path": "artifacts/gemma4-lms-no-judgmentkit.html",
+      "screenshot_path": "screenshots/gemma4-lms-no-judgmentkit.png",
+      "render_source": "model_static_html_css",
+      "visible_render_source": "model_static_html_css",
+      "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+      "approach_title": "Gemma 4 via LM Studio lms - Raw brief",
+      "approach_caption": "Gemma 4 via LM Studio lms receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+    },
+    {
+      "id": "gemma4-lms-with-judgmentkit",
+      "use_case_id": "clinical-intake-review",
+      "use_case_label": "Clinical intake review",
+      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+      "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+      "row_id": "gemma4-lms",
+      "row_label": "Gemma 4 via LM Studio lms",
+      "column_id": "with-judgmentkit",
+      "column_label": "JudgmentKit handoff",
+      "title": "Gemma 4 via LM Studio lms - JudgmentKit handoff",
+      "model_label": "Gemma 4 (local LLM)",
+      "generation_source": "captured_model_output",
+      "provider": "lmstudio",
+      "model": "google/gemma-4-e2b",
+      "cli": "lms",
+      "reasoning_effort": null,
+      "judgmentkit_mode": "with_judgmentkit",
+      "design_system_mode": "none",
+      "context_included": {
+        "source_brief": true,
+        "sample_case": true,
+        "reviewed_handoff": true,
+        "material_ui_adapter": false
+      },
+      "context_summary": "source brief + sample case + reviewed handoff",
+      "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": null,
+      "design_system_name": null,
+      "design_system_package": null,
+      "design_system_render_mode": null,
+      "capture_file": "captures/gemma4-lms-with-judgmentkit.json",
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "model-output-transcript",
+        "captured_at": "2026-05-14T03:10:46.694Z",
+        "runner": "scripts/capture-model-ui-matrix.mjs",
+        "provider": "lmstudio",
+        "model": "google/gemma-4-e2b",
+        "cli": "lms",
+        "transcript_file": "captures/gemma4-lms-with-judgmentkit.json",
+        "prompt_sha256": "a9f2b9d42c2f0c51e9c0c25e2db61784089cdc209af10a598f3ef03778ba6d14",
+        "raw_response_sha256": "1fe6231c22338fd7b2279fd969dfe39bd5886eb8d36fce5fe6daf94b12ce5aa9",
+        "source_context_sha256": "cbee00d3307912ee47880bfcaf31adfc7bb9eb9234b739359568125cd1e05390",
+        "reasoning_effort": null,
+        "context_included": {
+          "source_brief": true,
+          "sample_case": true,
+          "reviewed_handoff": true,
+          "material_ui_adapter": false
+        },
+        "design_system_name": null,
+        "design_system_package": null,
+        "design_system_render_mode": null,
+        "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
+      },
+      "prompt_sha256": "a9f2b9d42c2f0c51e9c0c25e2db61784089cdc209af10a598f3ef03778ba6d14",
+      "source_context_sha256": "cbee00d3307912ee47880bfcaf31adfc7bb9eb9234b739359568125cd1e05390",
+      "raw_response_sha256": "1fe6231c22338fd7b2279fd969dfe39bd5886eb8d36fce5fe6daf94b12ce5aa9",
+      "artifact_path": "artifacts/gemma4-lms-with-judgmentkit.html",
+      "screenshot_path": "screenshots/gemma4-lms-with-judgmentkit.png",
+      "render_source": "model_static_html_css",
+      "visible_render_source": "model_static_html_css",
+      "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
+      "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit handoff",
+      "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+    },
+    {
+      "id": "gemma4-lms-material-ui-only",
+      "use_case_id": "clinical-intake-review",
+      "use_case_label": "Clinical intake review",
+      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+      "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+      "row_id": "gemma4-lms",
+      "row_label": "Gemma 4 via LM Studio lms",
+      "column_id": "material-ui-only",
+      "column_label": "Material UI only",
+      "title": "Gemma 4 via LM Studio lms - Material UI only",
+      "model_label": "Gemma 4 (local LLM)",
+      "generation_source": "captured_model_output",
+      "provider": "lmstudio",
+      "model": "google/gemma-4-e2b",
+      "cli": "lms",
+      "reasoning_effort": null,
+      "judgmentkit_mode": "no_judgmentkit",
+      "design_system_mode": "material_ui",
+      "context_included": {
+        "source_brief": true,
+        "sample_case": true,
+        "reviewed_handoff": false,
+        "material_ui_adapter": true
+      },
+      "context_summary": "source brief + sample case + Material UI adapter",
+      "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+      "reviewed_handoff_file": null,
+      "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
+      "design_system_name": "Material UI",
+      "design_system_package": "@mui/material",
+      "design_system_render_mode": "static-ssr",
+      "capture_file": "captures/gemma4-lms-material-ui-only.json",
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "model-output-transcript",
+        "captured_at": "2026-05-14T03:12:12.199Z",
+        "runner": "scripts/capture-model-ui-matrix.mjs",
+        "provider": "lmstudio",
+        "model": "google/gemma-4-e2b",
+        "cli": "lms",
+        "transcript_file": "captures/gemma4-lms-material-ui-only.json",
+        "prompt_sha256": "658b4ba075288e55b7d29252e4553097e3103fa404494c80cc8f66e5cd48642e",
+        "raw_response_sha256": "bf5220f177ca1d79533a5e3d0bac5cb17898df5333625b8ea43ae917192bd30a",
+        "source_context_sha256": "6e98c3fc0a8ec9f46f8afbfab39b845f3dc1a37c9d354dcee4df1bfac5fd142e",
+        "reasoning_effort": null,
+        "context_included": {
+          "source_brief": true,
+          "sample_case": true,
+          "reviewed_handoff": false,
+          "material_ui_adapter": true
+        },
+        "design_system_name": "Material UI",
+        "design_system_package": "@mui/material",
+        "design_system_render_mode": "static-ssr",
+        "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
+      },
+      "prompt_sha256": "658b4ba075288e55b7d29252e4553097e3103fa404494c80cc8f66e5cd48642e",
+      "source_context_sha256": "6e98c3fc0a8ec9f46f8afbfab39b845f3dc1a37c9d354dcee4df1bfac5fd142e",
+      "raw_response_sha256": "bf5220f177ca1d79533a5e3d0bac5cb17898df5333625b8ea43ae917192bd30a",
+      "artifact_path": "artifacts/gemma4-lms-material-ui-only.html",
+      "screenshot_path": "screenshots/gemma4-lms-material-ui-only.png",
+      "render_source": "model_structured_data_material_ui_ssr",
+      "visible_render_source": "model_structured_data_material_ui_ssr",
+      "rendering_policy": "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.",
+      "approach_title": "Gemma 4 via LM Studio lms - Material UI only",
+      "approach_caption": "Gemma 4 via LM Studio lms is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit."
+    },
+    {
+      "id": "gemma4-lms-judgmentkit-material-ui",
+      "use_case_id": "clinical-intake-review",
+      "use_case_label": "Clinical intake review",
+      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+      "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+      "row_id": "gemma4-lms",
+      "row_label": "Gemma 4 via LM Studio lms",
+      "column_id": "judgmentkit-material-ui",
+      "column_label": "JudgmentKit + Material UI",
+      "title": "Gemma 4 via LM Studio lms - JudgmentKit + Material UI",
+      "model_label": "Gemma 4 (local LLM)",
+      "generation_source": "captured_model_output",
+      "provider": "lmstudio",
+      "model": "google/gemma-4-e2b",
+      "cli": "lms",
+      "reasoning_effort": null,
+      "judgmentkit_mode": "with_judgmentkit",
+      "design_system_mode": "material_ui",
+      "context_included": {
+        "source_brief": true,
+        "sample_case": true,
+        "reviewed_handoff": true,
+        "material_ui_adapter": true
+      },
+      "context_summary": "source brief + sample case + reviewed handoff + Material UI adapter",
+      "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
+      "design_system_name": "Material UI",
+      "design_system_package": "@mui/material",
+      "design_system_render_mode": "static-ssr",
+      "capture_file": "captures/gemma4-lms-judgmentkit-material-ui.json",
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "model-output-transcript",
+        "captured_at": "2026-05-14T03:13:07.536Z",
+        "runner": "scripts/capture-model-ui-matrix.mjs",
+        "provider": "lmstudio",
+        "model": "google/gemma-4-e2b",
+        "cli": "lms",
+        "transcript_file": "captures/gemma4-lms-judgmentkit-material-ui.json",
+        "prompt_sha256": "4c806964688b924d69e6582248f35f9169687934d32ca45acd75c08e286d30a1",
+        "raw_response_sha256": "8c66db260d3a06a424f87e398ea7cfae277bbf856133fd79a1b35b00b3977e8f",
+        "source_context_sha256": "bcdee637f93c6caf64ea266ccb94869a445531dfacd36cddc09d0cfe51371e75",
+        "reasoning_effort": null,
+        "context_included": {
+          "source_brief": true,
+          "sample_case": true,
+          "reviewed_handoff": true,
+          "material_ui_adapter": true
+        },
+        "design_system_name": "Material UI",
+        "design_system_package": "@mui/material",
+        "design_system_render_mode": "static-ssr",
+        "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
+      },
+      "prompt_sha256": "4c806964688b924d69e6582248f35f9169687934d32ca45acd75c08e286d30a1",
+      "source_context_sha256": "bcdee637f93c6caf64ea266ccb94869a445531dfacd36cddc09d0cfe51371e75",
+      "raw_response_sha256": "8c66db260d3a06a424f87e398ea7cfae277bbf856133fd79a1b35b00b3977e8f",
+      "artifact_path": "artifacts/gemma4-lms-judgmentkit-material-ui.html",
+      "screenshot_path": "screenshots/gemma4-lms-judgmentkit-material-ui.png",
+      "render_source": "model_structured_data_material_ui_ssr",
+      "visible_render_source": "model_structured_data_material_ui_ssr",
+      "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
+      "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit + Material UI",
+      "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path."
+    },
+    {
+      "id": "gpt55-xhigh-codex-no-judgmentkit",
+      "use_case_id": "clinical-intake-review",
+      "use_case_label": "Clinical intake review",
+      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+      "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+      "row_id": "gpt55-xhigh-codex",
+      "row_label": "GPT-5.5 xhigh via codex exec",
+      "column_id": "no-judgmentkit",
+      "column_label": "Raw brief",
+      "title": "GPT-5.5 xhigh via codex exec - Raw brief",
+      "model_label": "GPT-5.5",
+      "generation_source": "captured_model_output",
+      "provider": "codex-cli",
+      "model": "gpt-5.5",
+      "cli": "codex",
+      "reasoning_effort": "xhigh",
+      "judgmentkit_mode": "no_judgmentkit",
+      "design_system_mode": "none",
+      "context_included": {
+        "source_brief": true,
+        "sample_case": true,
+        "reviewed_handoff": false,
+        "material_ui_adapter": false
+      },
+      "context_summary": "source brief + sample case",
+      "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+      "reviewed_handoff_file": null,
+      "design_system_adapter_file": null,
+      "design_system_name": null,
+      "design_system_package": null,
+      "design_system_render_mode": null,
+      "capture_file": "captures/gpt55-xhigh-codex-no-judgmentkit.json",
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "model-output-transcript",
+        "captured_at": "2026-05-14T03:17:36.709Z",
+        "runner": "scripts/capture-model-ui-matrix.mjs",
+        "provider": "codex-cli",
+        "model": "gpt-5.5",
+        "cli": "codex",
+        "transcript_file": "captures/gpt55-xhigh-codex-no-judgmentkit.json",
+        "prompt_sha256": "30f18bf3e1c09ca8880ba7fed38b8f676cbca45789269f0b773864c582bde197",
+        "raw_response_sha256": "fe3125faeab4aff2a769be6897cd16cd09fef8bf7f93b4ba01d55953beade827",
+        "source_context_sha256": "9d90fa5709a43efabbdf651ddd6c82803fcd5d924bc620623432c76ad3efc67b",
+        "reasoning_effort": "xhigh",
+        "context_included": {
+          "source_brief": true,
+          "sample_case": true,
+          "reviewed_handoff": false,
+          "material_ui_adapter": false
+        },
+        "design_system_name": null,
+        "design_system_package": null,
+        "design_system_render_mode": null,
+        "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
+      },
+      "prompt_sha256": "30f18bf3e1c09ca8880ba7fed38b8f676cbca45789269f0b773864c582bde197",
+      "source_context_sha256": "9d90fa5709a43efabbdf651ddd6c82803fcd5d924bc620623432c76ad3efc67b",
+      "raw_response_sha256": "fe3125faeab4aff2a769be6897cd16cd09fef8bf7f93b4ba01d55953beade827",
+      "artifact_path": "artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
+      "screenshot_path": "screenshots/gpt55-xhigh-codex-no-judgmentkit.png",
+      "render_source": "model_static_html_css",
+      "visible_render_source": "model_static_html_css",
+      "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+      "approach_title": "GPT-5.5 xhigh via codex exec - Raw brief",
+      "approach_caption": "GPT-5.5 xhigh via codex exec receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+    },
+    {
+      "id": "gpt55-xhigh-codex-with-judgmentkit",
+      "use_case_id": "clinical-intake-review",
+      "use_case_label": "Clinical intake review",
+      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+      "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+      "row_id": "gpt55-xhigh-codex",
+      "row_label": "GPT-5.5 xhigh via codex exec",
+      "column_id": "with-judgmentkit",
+      "column_label": "JudgmentKit handoff",
+      "title": "GPT-5.5 xhigh via codex exec - JudgmentKit handoff",
+      "model_label": "GPT-5.5",
+      "generation_source": "captured_model_output",
+      "provider": "codex-cli",
+      "model": "gpt-5.5",
+      "cli": "codex",
+      "reasoning_effort": "xhigh",
+      "judgmentkit_mode": "with_judgmentkit",
+      "design_system_mode": "none",
+      "context_included": {
+        "source_brief": true,
+        "sample_case": true,
+        "reviewed_handoff": true,
+        "material_ui_adapter": false
+      },
+      "context_summary": "source brief + sample case + reviewed handoff",
+      "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": null,
+      "design_system_name": null,
+      "design_system_package": null,
+      "design_system_render_mode": null,
+      "capture_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "model-output-transcript",
+        "captured_at": "2026-05-14T03:20:07.353Z",
+        "runner": "scripts/capture-model-ui-matrix.mjs",
+        "provider": "codex-cli",
+        "model": "gpt-5.5",
+        "cli": "codex",
+        "transcript_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
+        "prompt_sha256": "8a54fcb6da4e4bbcdafd9780f5e5cb398f5d5734441c0e1b857fd596c9875e0a",
+        "raw_response_sha256": "ed1d7a06dd47e4d5c7e0173c6266af933c60b8ae4ed22043b4a1c0912dafca75",
+        "source_context_sha256": "23d57075c1d202a86c9abf5d8af3a278052479483ce2648a98d32efe75778f87",
+        "reasoning_effort": "xhigh",
+        "context_included": {
+          "source_brief": true,
+          "sample_case": true,
+          "reviewed_handoff": true,
+          "material_ui_adapter": false
+        },
+        "design_system_name": null,
+        "design_system_package": null,
+        "design_system_render_mode": null,
+        "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
+      },
+      "prompt_sha256": "8a54fcb6da4e4bbcdafd9780f5e5cb398f5d5734441c0e1b857fd596c9875e0a",
+      "source_context_sha256": "23d57075c1d202a86c9abf5d8af3a278052479483ce2648a98d32efe75778f87",
+      "raw_response_sha256": "ed1d7a06dd47e4d5c7e0173c6266af933c60b8ae4ed22043b4a1c0912dafca75",
+      "artifact_path": "artifacts/gpt55-xhigh-codex-with-judgmentkit.html",
+      "screenshot_path": "screenshots/gpt55-xhigh-codex-with-judgmentkit.png",
+      "render_source": "model_static_html_css",
+      "visible_render_source": "model_static_html_css",
+      "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
+      "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit handoff",
+      "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+    },
+    {
+      "id": "gpt55-xhigh-codex-material-ui-only",
+      "use_case_id": "clinical-intake-review",
+      "use_case_label": "Clinical intake review",
+      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+      "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+      "row_id": "gpt55-xhigh-codex",
+      "row_label": "GPT-5.5 xhigh via codex exec",
+      "column_id": "material-ui-only",
+      "column_label": "Material UI only",
+      "title": "GPT-5.5 xhigh via codex exec - Material UI only",
+      "model_label": "GPT-5.5",
+      "generation_source": "captured_model_output",
+      "provider": "codex-cli",
+      "model": "gpt-5.5",
+      "cli": "codex",
+      "reasoning_effort": "xhigh",
+      "judgmentkit_mode": "no_judgmentkit",
+      "design_system_mode": "material_ui",
+      "context_included": {
+        "source_brief": true,
+        "sample_case": true,
+        "reviewed_handoff": false,
+        "material_ui_adapter": true
+      },
+      "context_summary": "source brief + sample case + Material UI adapter",
+      "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+      "reviewed_handoff_file": null,
+      "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
+      "design_system_name": "Material UI",
+      "design_system_package": "@mui/material",
+      "design_system_render_mode": "static-ssr",
+      "capture_file": "captures/gpt55-xhigh-codex-material-ui-only.json",
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "model-output-transcript",
+        "captured_at": "2026-05-14T03:21:07.257Z",
+        "runner": "scripts/capture-model-ui-matrix.mjs",
+        "provider": "codex-cli",
+        "model": "gpt-5.5",
+        "cli": "codex",
+        "transcript_file": "captures/gpt55-xhigh-codex-material-ui-only.json",
+        "prompt_sha256": "ebd150fdbf6a7f056bcfd8a973ae3e2cb4cae555e450c617579b6e45ccf4548b",
+        "raw_response_sha256": "a4c7eb8e1df58bdd8fb4ba4f25679598ef387cf6e035d2b123c871a50d9ef803",
+        "source_context_sha256": "48babcf5c324d77fb4280aedbe9930e199f8a25c9ee8769f5492add4175cfa15",
+        "reasoning_effort": "xhigh",
+        "context_included": {
+          "source_brief": true,
+          "sample_case": true,
+          "reviewed_handoff": false,
+          "material_ui_adapter": true
+        },
+        "design_system_name": "Material UI",
+        "design_system_package": "@mui/material",
+        "design_system_render_mode": "static-ssr",
+        "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
+      },
+      "prompt_sha256": "ebd150fdbf6a7f056bcfd8a973ae3e2cb4cae555e450c617579b6e45ccf4548b",
+      "source_context_sha256": "48babcf5c324d77fb4280aedbe9930e199f8a25c9ee8769f5492add4175cfa15",
+      "raw_response_sha256": "a4c7eb8e1df58bdd8fb4ba4f25679598ef387cf6e035d2b123c871a50d9ef803",
+      "artifact_path": "artifacts/gpt55-xhigh-codex-material-ui-only.html",
+      "screenshot_path": "screenshots/gpt55-xhigh-codex-material-ui-only.png",
+      "render_source": "model_structured_data_material_ui_ssr",
+      "visible_render_source": "model_structured_data_material_ui_ssr",
+      "rendering_policy": "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.",
+      "approach_title": "GPT-5.5 xhigh via codex exec - Material UI only",
+      "approach_caption": "GPT-5.5 xhigh via codex exec is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit."
+    },
+    {
+      "id": "gpt55-xhigh-codex-judgmentkit-material-ui",
+      "use_case_id": "clinical-intake-review",
+      "use_case_label": "Clinical intake review",
+      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+      "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+      "row_id": "gpt55-xhigh-codex",
+      "row_label": "GPT-5.5 xhigh via codex exec",
+      "column_id": "judgmentkit-material-ui",
+      "column_label": "JudgmentKit + Material UI",
+      "title": "GPT-5.5 xhigh via codex exec - JudgmentKit + Material UI",
+      "model_label": "GPT-5.5",
+      "generation_source": "captured_model_output",
+      "provider": "codex-cli",
+      "model": "gpt-5.5",
+      "cli": "codex",
+      "reasoning_effort": "xhigh",
+      "judgmentkit_mode": "with_judgmentkit",
+      "design_system_mode": "material_ui",
+      "context_included": {
+        "source_brief": true,
+        "sample_case": true,
+        "reviewed_handoff": true,
+        "material_ui_adapter": true
+      },
+      "context_summary": "source brief + sample case + reviewed handoff + Material UI adapter",
+      "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
+      "design_system_name": "Material UI",
+      "design_system_package": "@mui/material",
+      "design_system_render_mode": "static-ssr",
+      "capture_file": "captures/gpt55-xhigh-codex-judgmentkit-material-ui.json",
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "model-output-transcript",
+        "captured_at": "2026-05-14T03:26:21.324Z",
+        "runner": "scripts/capture-model-ui-matrix.mjs",
+        "provider": "codex-cli",
+        "model": "gpt-5.5",
+        "cli": "codex",
+        "transcript_file": "captures/gpt55-xhigh-codex-judgmentkit-material-ui.json",
+        "prompt_sha256": "1f1ba85b3932e24257f9311596ed3f65719a01b4a907342ee9dd1400695a403d",
+        "raw_response_sha256": "da4eff832c47279ac52cc9c13c88f830788ac123f2160e672d7eeceb00d482dd",
+        "source_context_sha256": "396ff0727119e8fa58d5fa32eff97ed92fce6a163318e32108379afc6b8ac808",
+        "reasoning_effort": "xhigh",
+        "context_included": {
+          "source_brief": true,
+          "sample_case": true,
+          "reviewed_handoff": true,
+          "material_ui_adapter": true
+        },
+        "design_system_name": "Material UI",
+        "design_system_package": "@mui/material",
+        "design_system_render_mode": "static-ssr",
+        "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
+      },
+      "prompt_sha256": "1f1ba85b3932e24257f9311596ed3f65719a01b4a907342ee9dd1400695a403d",
+      "source_context_sha256": "396ff0727119e8fa58d5fa32eff97ed92fce6a163318e32108379afc6b8ac808",
+      "raw_response_sha256": "da4eff832c47279ac52cc9c13c88f830788ac123f2160e672d7eeceb00d482dd",
+      "artifact_path": "artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
+      "screenshot_path": "screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png",
+      "render_source": "model_structured_data_material_ui_ssr",
+      "visible_render_source": "model_structured_data_material_ui_ssr",
+      "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
+      "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit + Material UI",
+      "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path."
+    }
+  ],
+  "generation_policy": "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model. The 3x4 matrix separates raw brief context, JudgmentKit handoff context, Material UI rendering, and the combined JudgmentKit plus Material UI path."
+}</script>
+    <script>
+      (() => {
+        const data = document.getElementById("model-ui-gallery-data");
+        const carousel = document.querySelector("[data-carousel]");
+        if (!data || !carousel) return;
+
+        const items = JSON.parse(data.textContent);
+        const image = carousel.querySelector("[data-carousel-image]");
+        const kicker = carousel.querySelector("[data-carousel-kicker]");
+        const title = carousel.querySelector("[data-carousel-title]");
+        const caption = carousel.querySelector("[data-carousel-caption]");
+        const context = carousel.querySelector("[data-carousel-context]");
+        const render = carousel.querySelector("[data-carousel-render]");
+        const prompt = carousel.querySelector("[data-carousel-prompt]");
+        const provenance = carousel.querySelector("[data-carousel-provenance]");
+        const artifact = carousel.querySelector("[data-carousel-artifact]");
+        const source = carousel.querySelector("[data-carousel-source]");
+        const count = carousel.querySelector("[data-carousel-count]");
+        const closeButton = carousel.querySelector("[data-carousel-close]:not(.carousel-backdrop)");
+        let activeIndex = 0;
+        let lastFocus = null;
+
+        function renderItem(index) {
+          activeIndex = (index + items.length) % items.length;
+          const item = items[activeIndex];
+          image.src = item.image;
+          image.alt = item.title + " screenshot";
+          kicker.textContent = item.model_label;
+          title.textContent = item.title;
+          caption.textContent = item.caption;
+          context.textContent = item.column_label;
+          render.textContent = item.render_source;
+          prompt.textContent = item.prompt_context;
+          provenance.textContent = item.provenance;
+          artifact.href = item.artifact;
+          source.href = item.image;
+          count.textContent = String(activeIndex + 1) + " / " + String(items.length);
+        }
+
+        function open(index) {
+          lastFocus = document.activeElement;
+          renderItem(index);
+          carousel.hidden = false;
+          carousel.setAttribute("aria-hidden", "false");
+          document.documentElement.classList.add("carousel-open");
+          closeButton.focus();
+        }
+
+        function close() {
+          carousel.hidden = true;
+          carousel.setAttribute("aria-hidden", "true");
+          document.documentElement.classList.remove("carousel-open");
+          if (lastFocus && typeof lastFocus.focus === "function") lastFocus.focus();
+        }
+
+        document.querySelectorAll("[data-carousel-open]").forEach((link) => {
+          link.addEventListener("click", (event) => {
+            event.preventDefault();
+            open(Number(link.getAttribute("data-carousel-open") || "0"));
+          });
+        });
+
+        carousel.querySelectorAll("[data-carousel-close]").forEach((button) => {
+          button.addEventListener("click", close);
+        });
+        carousel.querySelector("[data-carousel-prev]").addEventListener("click", () => renderItem(activeIndex - 1));
+        carousel.querySelector("[data-carousel-next]").addEventListener("click", () => renderItem(activeIndex + 1));
+        document.addEventListener("keydown", (event) => {
+          if (carousel.hidden) return;
+          if (event.key === "Escape") close();
+          if (event.key === "ArrowLeft") renderItem(activeIndex - 1);
+          if (event.key === "ArrowRight") renderItem(activeIndex + 1);
+        });
+      })();
+    </script>
+  </body>
+</html>

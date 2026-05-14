@@ -5,11 +5,10 @@ import os from "node:os";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { modelUiUseCasesForArgs } from "./model-ui-use-cases.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, "..");
-const OUTPUT_DIR = path.join(ROOT_DIR, "examples/model-ui/refund-system-map");
-const MANIFEST_PATH = path.join(OUTPUT_DIR, "manifest.json");
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 const VIEWPORT = {
   width: 1365,
@@ -217,9 +216,9 @@ function assertPng(buffer, filePath) {
   }
 }
 
-async function captureArtifactScreenshot(client, artifact) {
-  const artifactPath = path.join(OUTPUT_DIR, artifact.artifact_path);
-  const screenshotPath = path.join(OUTPUT_DIR, artifact.screenshot_path);
+async function captureArtifactScreenshot(client, outputDir, artifact) {
+  const artifactPath = path.join(outputDir, artifact.artifact_path);
+  const screenshotPath = path.join(outputDir, artifact.screenshot_path);
   fs.mkdirSync(path.dirname(screenshotPath), { recursive: true });
 
   const target = await client.send("Target.createTarget", { url: "about:blank" });
@@ -303,15 +302,24 @@ async function withChromeClient(callback) {
 }
 
 async function main() {
-  const manifest = readJson(MANIFEST_PATH);
+  const requestedUseCases = modelUiUseCasesForArgs(process.argv.slice(2));
   await withChromeClient(async (client) => {
-    for (const artifact of manifest.artifacts) {
-      if (!artifact.screenshot_path) {
-        throw new Error(`Manifest artifact ${artifact.id} is missing screenshot_path.`);
-      }
-      await captureArtifactScreenshot(client, artifact);
+    for (const useCase of requestedUseCases) {
+      await captureUseCaseScreenshots(client, useCase);
     }
   });
+}
+
+async function captureUseCaseScreenshots(client, useCase) {
+  const outputDir = path.join(ROOT_DIR, useCase.output_dir);
+  const manifest = readJson(path.join(outputDir, "manifest.json"));
+
+  for (const artifact of manifest.artifacts) {
+    if (!artifact.screenshot_path) {
+      throw new Error(`Manifest artifact ${artifact.id} is missing screenshot_path.`);
+    }
+    await captureArtifactScreenshot(client, outputDir, artifact);
+  }
 
   for (const alias of manifest.legacy_aliases ?? []) {
     if (!alias.screenshot_path) continue;
@@ -319,8 +327,8 @@ async function main() {
     if (!canonical) {
       throw new Error(`Missing canonical screenshot for legacy alias ${alias.id}.`);
     }
-    const sourcePath = path.join(OUTPUT_DIR, canonical.screenshot_path);
-    const aliasPath = path.join(OUTPUT_DIR, alias.screenshot_path);
+    const sourcePath = path.join(outputDir, canonical.screenshot_path);
+    const aliasPath = path.join(outputDir, alias.screenshot_path);
     fs.mkdirSync(path.dirname(aliasPath), { recursive: true });
     fs.copyFileSync(sourcePath, aliasPath);
     process.stdout.write(`Copied ${canonical.screenshot_path} -> ${alias.screenshot_path}\n`);

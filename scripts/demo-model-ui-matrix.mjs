@@ -34,216 +34,46 @@ import {
   createUiGenerationHandoff,
   reviewUiWorkflowCandidate,
 } from "../src/index.mjs";
+import {
+  COMPARISON_COLUMNS,
+  COMPARISON_ROWS,
+  LEGACY_ALIASES,
+  MODEL_UI_INDEX_FILE,
+  MODEL_UI_USE_CASES,
+  modelUiUseCaseIndex,
+  modelUiUseCasesForArgs,
+} from "./model-ui-use-cases.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, "..");
-const OUTPUT_DIR = path.join(ROOT_DIR, "examples/model-ui/refund-system-map");
-const ARTIFACTS_DIR = path.join(OUTPUT_DIR, "artifacts");
-const SCREENSHOTS_DIR = path.join(OUTPUT_DIR, "screenshots");
-const SOURCE_BRIEF_FILE = "examples/demo/refund-ops-implementation-heavy.brief.txt";
-const HANDOFF_FILE = "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json";
-const DESIGN_SYSTEM_FILE = "examples/model-ui/refund-system-map/design-system-adapter.json";
-const MATRIX_ID = "refund-system-map-model-ui-v2";
 
-const SELECTED_CASE = {
-  id: "R-1842",
-  customer: "Nora Diaz",
-  plan: "Pro annual",
-  amount: "$184.20",
-  request: "Subscription renewal disputed after agent escalation.",
-  status: "Evidence incomplete",
-  evidence: [
-    "Renewal date confirmed in purchase history.",
-    "Support note captures the customer's refund reason.",
-    "Receipt photo is missing before manager approval.",
-  ],
-  policy:
-    "Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.",
-};
+let activeUseCase;
+let OUTPUT_DIR;
+let ARTIFACTS_DIR;
+let SCREENSHOTS_DIR;
+let SOURCE_BRIEF_FILE;
+let HANDOFF_FILE;
+let DESIGN_SYSTEM_FILE;
+let MATRIX_ID;
+let SELECTED_CASE;
+let QUEUE;
+let DESIGN_SYSTEM_ADAPTER;
+let IMPLEMENTATION_TERMS;
 
-const QUEUE = [
-  { id: "R-1842", customer: "Nora Diaz", state: "Needs receipt", amount: "$184.20" },
-  { id: "R-1843", customer: "Jun Park", state: "Policy question", amount: "$89.00" },
-  { id: "R-1844", customer: "Amara Blake", state: "Manager review", amount: "$312.75" },
-];
-
-const COMPARISON_ROWS = [
-  {
-    id: "deterministic",
-    label: "Deterministic",
-    model_label: "Deterministic renderer",
-    generation_source: "deterministic",
-    provider: "none",
-    model: "none",
-    cli: null,
-    reasoning_effort: null,
-    summary:
-      "Scripted renderer paths show the controlled baseline for each context combination.",
-  },
-  {
-    id: "gemma4-lms",
-    label: "Gemma 4 via LM Studio lms",
-    model_label: "Gemma 4 (local LLM)",
-    generation_source: "captured_model_output",
-    provider: "lmstudio",
-    model: "google/gemma-4-e2b",
-    cli: "lms",
-    reasoning_effort: null,
-    summary:
-      "Local Gemma 4 captures show how a smaller local model responds to the same four context boundaries.",
-  },
-  {
-    id: "gpt55-xhigh-codex",
-    label: "GPT-5.5 xhigh via codex exec",
-    model_label: "GPT-5.5",
-    generation_source: "captured_model_output",
-    provider: "codex-cli",
-    model: "gpt-5.5",
-    cli: "codex",
-    reasoning_effort: "xhigh",
-    summary:
-      "GPT-5.5 captures use extra-high reasoning to show the same matrix with a stronger model path.",
-  },
-];
-
-const COMPARISON_COLUMNS = [
-  {
-    id: "no-judgmentkit",
-    label: "Raw brief",
-    short_label: "No JudgmentKit",
-    judgmentkit_mode: "no_judgmentkit",
-    design_system_mode: "none",
-    render_mode: "html",
-    summary:
-      "Raw source brief and sample case only. No reviewed handoff and no Material UI.",
-  },
-  {
-    id: "with-judgmentkit",
-    label: "JudgmentKit handoff",
-    short_label: "With JudgmentKit",
-    judgmentkit_mode: "with_judgmentkit",
-    design_system_mode: "none",
-    render_mode: "html",
-    summary:
-      "Reviewed JudgmentKit handoff and sample case. No Material UI adapter.",
-  },
-  {
-    id: "material-ui-only",
-    label: "Material UI only",
-    short_label: "Design system",
-    judgmentkit_mode: "no_judgmentkit",
-    design_system_mode: "material_ui",
-    render_mode: "material_ui",
-    summary:
-      "Raw source brief plus Material UI adapter. No reviewed JudgmentKit handoff.",
-  },
-  {
-    id: "judgmentkit-material-ui",
-    label: "JudgmentKit + Material UI",
-    short_label: "JudgmentKit + design system",
-    judgmentkit_mode: "with_judgmentkit",
-    design_system_mode: "material_ui",
-    render_mode: "material_ui",
-    summary:
-      "Reviewed JudgmentKit handoff rendered through the Material UI adapter.",
-  },
-];
-
-const LEGACY_ALIASES = [
-  {
-    id: "deterministic-without-design-system",
-    canonical_id: "deterministic-with-judgmentkit",
-    artifact_path: "artifacts/deterministic-without-design-system.html",
-    screenshot_path: "screenshots/deterministic-without-design-system.png",
-  },
-  {
-    id: "deterministic-with-design-system",
-    canonical_id: "deterministic-judgmentkit-material-ui",
-    artifact_path: "artifacts/deterministic-with-design-system.html",
-    screenshot_path: "screenshots/deterministic-with-design-system.png",
-  },
-  {
-    id: "gemma4-without-design-system",
-    canonical_id: "gemma4-lms-with-judgmentkit",
-    artifact_path: "artifacts/gemma4-without-design-system.html",
-    screenshot_path: "screenshots/gemma4-without-design-system.png",
-    capture_file: "captures/gemma4-without-design-system.json",
-  },
-  {
-    id: "gemma4-with-design-system",
-    canonical_id: "gemma4-lms-judgmentkit-material-ui",
-    artifact_path: "artifacts/gemma4-with-design-system.html",
-    screenshot_path: "screenshots/gemma4-with-design-system.png",
-    capture_file: "captures/gemma4-with-design-system.json",
-  },
-  {
-    id: "gpt55-without-design-system",
-    canonical_id: "gpt55-xhigh-codex-with-judgmentkit",
-    artifact_path: "artifacts/gpt55-without-design-system.html",
-    screenshot_path: "screenshots/gpt55-without-design-system.png",
-    capture_file: "captures/gpt55-without-design-system.json",
-  },
-  {
-    id: "gpt55-with-design-system",
-    canonical_id: "gpt55-xhigh-codex-judgmentkit-material-ui",
-    artifact_path: "artifacts/gpt55-with-design-system.html",
-    screenshot_path: "screenshots/gpt55-with-design-system.png",
-    capture_file: "captures/gpt55-with-design-system.json",
-  },
-];
-
-const DESIGN_SYSTEM_ADAPTER = {
-  id: "material-ui-refund-ops-adapter",
-  name: "Material UI Refund Ops Review Adapter",
-  scope: "example-only",
-  role: "visual renderer after context selection",
-  design_system_name: "Material UI",
-  design_system_package: "@mui/material",
-  render_mode: "static-ssr",
-  renderer: "React server rendering with Emotion critical CSS inlined into each artifact.",
-  theme: {
-    palette: {
-      primary: "#245f73",
-      success: "#2e6b48",
-      warning: "#8a5a16",
-      background: "#f5f3ed",
-    },
-    density: "operational",
-    shape: {
-      border_radius: 8,
-    },
-  },
-  components: [
-    "ThemeProvider",
-    "CssBaseline",
-    "AppBar",
-    "Toolbar",
-    "Paper",
-    "Stack",
-    "List",
-    "ListItemButton",
-    "ListItemText",
-    "Chip",
-    "Button",
-    "Card",
-    "CardContent",
-    "Typography",
-    "Alert",
-  ],
-  constraint:
-    "Material UI changes the visual/component layer only; it does not supply activity fit, workflow fit, or disclosure discipline.",
-};
-
-const IMPLEMENTATION_TERMS = [
-  "database table",
-  "JSON schema",
-  "prompt template",
-  "tool call",
-  "resource id",
-  "API endpoint",
-  "CRUD",
-  "refund_case",
-];
+function setActiveUseCase(useCase) {
+  activeUseCase = useCase;
+  OUTPUT_DIR = path.join(ROOT_DIR, useCase.output_dir);
+  ARTIFACTS_DIR = path.join(OUTPUT_DIR, "artifacts");
+  SCREENSHOTS_DIR = path.join(OUTPUT_DIR, "screenshots");
+  SOURCE_BRIEF_FILE = useCase.source_brief_file;
+  HANDOFF_FILE = `${useCase.output_dir}/reviewed-handoff.fixture.json`;
+  DESIGN_SYSTEM_FILE = `${useCase.output_dir}/design-system-adapter.json`;
+  MATRIX_ID = useCase.matrix_id;
+  SELECTED_CASE = useCase.selected_case;
+  QUEUE = useCase.queue;
+  DESIGN_SYSTEM_ADAPTER = useCase.design_system_adapter;
+  IMPLEMENTATION_TERMS = useCase.implementation_terms;
+}
 
 const MATERIAL_UI_THEME = createTheme({
   palette: {
@@ -341,6 +171,17 @@ function kebab(value) {
   return String(value).replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase();
 }
 
+async function ensureSourceBriefFile() {
+  if (!activeUseCase?.source_brief_text) return;
+  const filePath = path.join(ROOT_DIR, activeUseCase.source_brief_file);
+  await fs.mkdir(path.dirname(filePath), { recursive: true });
+  await fs.writeFile(filePath, `${activeUseCase.source_brief_text}\n`);
+}
+
+function cloneJson(value) {
+  return JSON.parse(JSON.stringify(value));
+}
+
 function readSourceBrief() {
   return fs.readFile(path.join(ROOT_DIR, SOURCE_BRIEF_FILE), "utf8");
 }
@@ -396,6 +237,9 @@ function buildContextPayload({ output, brief, reviewedHandoff }) {
   const included = contextIncluded(output);
   return {
     matrix_id: MATRIX_ID,
+    use_case_id: activeUseCase.id,
+    use_case_label: activeUseCase.label,
+    activity_summary: activeUseCase.activity_summary,
     artifact_id: output.id,
     row_id: output.row_id,
     column_id: output.column_id,
@@ -412,59 +256,7 @@ function buildContextPayload({ output, brief, reviewedHandoff }) {
 
 function buildUiWorkflowCandidate() {
   return {
-    workflow: {
-      surface_name: "Refund escalation review",
-      steps: [
-        "Choose the active refund request",
-        "Review customer context and evidence",
-        "Choose the next refund path",
-        "Send a clear handoff",
-      ],
-      primary_actions: [
-        "Approve refund",
-        "Send to policy review",
-        "Return for evidence",
-        "Send handoff",
-      ],
-      decision_points: [
-        "Decide whether the refund can be approved, needs policy review, or must return to the support agent for missing evidence.",
-      ],
-      completion_state:
-        "The next owner receives a handoff with the chosen path and the reason.",
-    },
-    primary_ui: {
-      sections: [
-        "Refund queue",
-        "Selected request",
-        "Evidence checklist",
-        "Policy context",
-        "Decision path",
-        "Handoff reason",
-      ],
-      controls: [
-        "Select request",
-        "Approve refund",
-        "Send to policy review",
-        "Return for evidence",
-        "Choose next owner",
-        "Send handoff",
-      ],
-      user_facing_terms: [
-        "refund escalation",
-        "selected request",
-        "evidence checklist",
-        "policy review",
-        "handoff reason",
-        "support agent",
-      ],
-    },
-    handoff: {
-      next_owner: "Support agent",
-      reason:
-        "Receipt photo is missing. Ask the customer to attach proof before approval.",
-      next_action:
-        "Return the request to the support agent with the missing evidence request.",
-    },
+    ...cloneJson(activeUseCase.workflow_candidate),
     diagnostics: {
       implementation_terms: IMPLEMENTATION_TERMS,
       reveal_contexts: ["setup", "debugging", "auditing", "integration"],
@@ -492,11 +284,12 @@ function buildReviewedHandoff(brief) {
 }
 
 function rawBriefSurfaceData() {
+  const raw = cloneJson(activeUseCase.raw_surface);
   return {
-    eyebrow: "Raw source brief",
-    heading: "refund_case Admin Console",
-    status: "Implementation-first",
-    queue_title: "Database records",
+    eyebrow: raw.eyebrow,
+    heading: raw.heading,
+    status: raw.status,
+    queue_title: raw.queue_title,
     queue: QUEUE.map((item) => ({
       ...item,
       state: `${item.state} - CRUD row`,
@@ -507,38 +300,26 @@ function rawBriefSurfaceData() {
       amount: SELECTED_CASE.amount,
       plan: SELECTED_CASE.plan,
       request: SELECTED_CASE.request,
-      status: "API endpoint status: pending evidence",
+      status: raw.selected_status,
     },
-    info: [
-      { label: "Data model", value: "refund_case" },
-      { label: "Schema", value: "JSON schema + database fields" },
-    ],
-    evidence: [
-      "database table fields mapped to editable controls",
-      "prompt template output copied into reviewer notes",
-      "tool call results and resource id visible for debugging",
-    ],
-    policy_title: "Implementation context",
-    policy:
-      "Show refund_case data model, database fields, JSON schema, prompt template, tool call results, resource id, API endpoint status, and CRUD.",
-    decision_title: "CRUD actions",
-    actions: ["Update field", "Run tool call", "Save JSON"],
-    primary_action: "Save JSON",
-    handoff: {
-      owner: "API endpoint",
-      title: "Implementation handoff",
-      reason: "Resource id and prompt template state are ready for the next CRUD operation.",
-      action: "Send to endpoint",
-    },
+    info: raw.info,
+    evidence: raw.evidence,
+    policy_title: raw.policy_title,
+    policy: raw.policy,
+    decision_title: raw.decision_title,
+    actions: raw.actions,
+    primary_action: raw.primary_action,
+    handoff: raw.handoff,
   };
 }
 
 function reviewedSurfaceData() {
+  const reviewed = cloneJson(activeUseCase.reviewed_surface);
   return {
-    eyebrow: "JudgmentKit handoff",
-    heading: "Refund Review Workspace",
-    status: "Activity-fit",
-    queue_title: "Refund escalations",
+    eyebrow: reviewed.eyebrow,
+    heading: reviewed.heading,
+    status: reviewed.status,
+    queue_title: reviewed.queue_title,
     queue: QUEUE,
     selected: {
       id: SELECTED_CASE.id,
@@ -548,22 +329,14 @@ function reviewedSurfaceData() {
       request: SELECTED_CASE.request,
       status: SELECTED_CASE.status,
     },
-    info: [
-      { label: "Plan", value: SELECTED_CASE.plan },
-      { label: "Review state", value: SELECTED_CASE.status },
-    ],
+    info: reviewed.info,
     evidence: SELECTED_CASE.evidence,
-    policy_title: "Exception window",
+    policy_title: reviewed.policy_title,
     policy: SELECTED_CASE.policy,
-    decision_title: "Choose next action",
-    actions: ["Approve refund", "Send to policy review", "Return for evidence"],
-    primary_action: "Return for evidence",
-    handoff: {
-      owner: "Support agent",
-      title: "Handoff",
-      reason: "Receipt photo is missing. Ask the customer to attach proof before approval.",
-      action: "Send handoff",
-    },
+    decision_title: reviewed.decision_title,
+    actions: reviewed.actions,
+    primary_action: reviewed.primary_action,
+    handoff: reviewed.handoff,
   };
 }
 
@@ -1403,6 +1176,9 @@ function renderArtifact(output, manifestEntry) {
     : "";
   const provenance = {
     matrix_id: MATRIX_ID,
+    use_case_id: activeUseCase.id,
+    use_case_label: activeUseCase.label,
+    activity_summary: activeUseCase.activity_summary,
     artifact_id: output.id,
     row_id: output.row_id,
     column_id: output.column_id,
@@ -1435,7 +1211,7 @@ function renderArtifact(output, manifestEntry) {
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>${escapeHtml(output.title)}</title>
+    <title>${escapeHtml(activeUseCase.label)} - ${escapeHtml(output.title)}</title>
     <style>${artifactCss()}</style>
 ${modelCss}${styleTags}
   </head>
@@ -1558,7 +1334,7 @@ function renderMatrixIndex(manifest) {
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Model UI generation matrix</title>
+    <title>${escapeHtml(manifest.use_case_label)} model UI generation matrix</title>
     <style>
       :root {
         --canvas: #f8f7f2;
@@ -1903,8 +1679,8 @@ function renderMatrixIndex(manifest) {
   <body>
     <main>
       <p class="eyebrow">System-map example pack</p>
-      <h1>Model UI generation matrix</h1>
-      <p>Three generation paths are shown across four context boundaries. Material UI improves visual/component consistency; JudgmentKit improves activity fit, workflow fit, and disclosure discipline.</p>
+      <h1>${escapeHtml(manifest.use_case_label)} model UI generation matrix</h1>
+      <p>${escapeHtml(manifest.activity_summary)} Three generation paths are shown across four context boundaries. Material UI improves visual/component consistency; JudgmentKit improves activity fit, workflow fit, and disclosure discipline.</p>
       <div class="summary" aria-label="Matrix summary">
         <div><span>Source brief</span><strong>${escapeHtml(manifest.source_brief_file)}</strong></div>
         <div><span>Rows</span><strong>${manifest.comparison_rows.length} generation paths</strong></div>
@@ -2059,6 +1835,10 @@ function buildManifestArtifact(output, capture, contextHash) {
   const designSystem = output.design_system_mode === "material_ui";
   return {
     id: output.id,
+    use_case_id: activeUseCase.id,
+    use_case_label: activeUseCase.label,
+    activity_summary: activeUseCase.activity_summary,
+    use_case_index_path: activeUseCase.index_path,
     row_id: output.row_id,
     row_label: output.row_label,
     column_id: output.column_id,
@@ -2112,6 +1892,7 @@ function buildComparisonRows(artifacts) {
 }
 
 async function copyLegacyAliases(manifestArtifacts) {
+  if (activeUseCase.id !== "refund-system-map") return;
   const byId = new Map(manifestArtifacts.map((artifact) => [artifact.id, artifact]));
   for (const alias of LEGACY_ALIASES) {
     const canonical = byId.get(alias.canonical_id);
@@ -2122,6 +1903,25 @@ async function copyLegacyAliases(manifestArtifacts) {
 }
 
 async function main() {
+  const requestedUseCases = modelUiUseCasesForArgs(process.argv.slice(2));
+  for (const useCase of requestedUseCases) {
+    await generateUseCase(useCase);
+  }
+
+  const index = modelUiUseCaseIndex();
+  await fs.mkdir(path.dirname(path.join(ROOT_DIR, MODEL_UI_INDEX_FILE)), { recursive: true });
+  await fs.writeFile(
+    path.join(ROOT_DIR, MODEL_UI_INDEX_FILE),
+    `${JSON.stringify(index, null, 2)}\n`,
+  );
+  process.stdout.write(`# JudgmentKit Model UI Matrices\n\n`);
+  process.stdout.write(`Use cases: ${requestedUseCases.length}/${MODEL_UI_USE_CASES.length}\n`);
+  process.stdout.write(`Index: ${MODEL_UI_INDEX_FILE}\n`);
+}
+
+async function generateUseCase(useCase) {
+  setActiveUseCase(useCase);
+  await ensureSourceBriefFile();
   const brief = await readSourceBrief();
   const reviewedHandoff = buildReviewedHandoff(brief);
   const outputs = buildOutputs();
@@ -2150,6 +1950,10 @@ async function main() {
 
   const manifest = {
     matrix_id: MATRIX_ID,
+    use_case_id: activeUseCase.id,
+    use_case_label: activeUseCase.label,
+    activity_summary: activeUseCase.activity_summary,
+    use_case_index_path: activeUseCase.index_path,
     title: "Model UI 3x4 comparison matrix",
     source_brief_file: SOURCE_BRIEF_FILE,
     reviewed_handoff_file: HANDOFF_FILE,
@@ -2159,7 +1963,7 @@ async function main() {
     design_system_render_mode: DESIGN_SYSTEM_ADAPTER.render_mode,
     comparison_rows: buildComparisonRows(manifestArtifacts),
     comparison_columns: COMPARISON_COLUMNS,
-    legacy_aliases: LEGACY_ALIASES,
+    legacy_aliases: activeUseCase.id === "refund-system-map" ? LEGACY_ALIASES : [],
     model_labels: COMPARISON_ROWS.map((row) => row.model_label),
     artifacts: manifestArtifacts,
     generation_policy:
@@ -2188,10 +1992,10 @@ async function main() {
   await copyLegacyAliases(manifestArtifacts);
   await fs.writeFile(path.join(OUTPUT_DIR, "index.html"), renderMatrixIndex(manifest));
 
-  process.stdout.write("# JudgmentKit Model UI Matrix\n\n");
+  process.stdout.write(`\n# ${activeUseCase.label} Model UI Matrix\n\n`);
   process.stdout.write(`Source brief: ${SOURCE_BRIEF_FILE}\n`);
-  process.stdout.write(`Matrix: examples/model-ui/refund-system-map/index.html\n`);
-  process.stdout.write(`Manifest: examples/model-ui/refund-system-map/manifest.json\n`);
+  process.stdout.write(`Matrix: ${activeUseCase.index_path}\n`);
+  process.stdout.write(`Manifest: ${activeUseCase.manifest_path}\n`);
   process.stdout.write(`Artifacts: ${artifacts.length}\n`);
 }
 

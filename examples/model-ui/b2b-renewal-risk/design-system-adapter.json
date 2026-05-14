@@ -1,0 +1,40 @@
+{
+  "id": "material-ui-b2b-renewal-risk-adapter",
+  "name": "Material UI B2B Renewal Risk Adapter",
+  "scope": "example-only",
+  "role": "visual renderer after context selection",
+  "design_system_name": "Material UI",
+  "design_system_package": "@mui/material",
+  "render_mode": "static-ssr",
+  "renderer": "React server rendering with Emotion critical CSS inlined into each artifact.",
+  "theme": {
+    "palette": {
+      "primary": "#245f73",
+      "success": "#2e6b48",
+      "warning": "#8a5a16",
+      "background": "#f5f3ed"
+    },
+    "density": "operational",
+    "shape": {
+      "border_radius": 8
+    }
+  },
+  "components": [
+    "ThemeProvider",
+    "CssBaseline",
+    "AppBar",
+    "Toolbar",
+    "Paper",
+    "Stack",
+    "List",
+    "ListItemButton",
+    "ListItemText",
+    "Chip",
+    "Button",
+    "Card",
+    "CardContent",
+    "Typography",
+    "Alert"
+  ],
+  "constraint": "Material UI changes the visual/component layer only; it does not supply activity fit, workflow fit, or disclosure discipline."
+}

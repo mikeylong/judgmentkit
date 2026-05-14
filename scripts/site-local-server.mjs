@@ -93,6 +93,34 @@ function isMcpPath(pathname) {
   return pathname === "/mcp" || pathname === "/mcp/" || pathname === "/api/mcp";
 }
 
+function isLocalAnalyticsScriptPath(pathname) {
+  return pathname === "/_vercel/insights/script.js";
+}
+
+function serveLocalAnalyticsScript(req, res) {
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    sendMethodNotAllowed(res, ["GET", "HEAD"]);
+    return;
+  }
+
+  const body = [
+    "window.va=window.va||function(){",
+    "(window.vaq=window.vaq||[]).push(arguments);",
+    "};",
+    "",
+  ].join("");
+  res.statusCode = 200;
+  res.setHeader("Content-Type", "application/javascript; charset=utf-8");
+  res.setHeader("Content-Length", Buffer.byteLength(body));
+
+  if (req.method === "HEAD") {
+    res.end();
+    return;
+  }
+
+  res.end(body);
+}
+
 function decodePathname(pathname) {
   try {
     return decodeURIComponent(pathname);
@@ -248,6 +276,11 @@ export function createSiteLocalServer(options = {}) {
           { "Content-Type": "application/json; charset=utf-8" },
         );
       });
+      return;
+    }
+
+    if (isLocalAnalyticsScriptPath(requestUrl.pathname)) {
+      serveLocalAnalyticsScript(req, res);
       return;
     }
 

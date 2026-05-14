@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Field service dispatch - GPT-5.5 xhigh via codex exec - Raw brief</title>
+    <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f5f3ed;
+      --panel: #ffffff;
+      --ink: #17231f;
+      --muted: #65726d;
+      --line: #d9d3c7;
+      --accent: #245f73;
+      --accent-strong: #174352;
+      --warning: #8a5a16;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .raw-model-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--canvas);
+    }
+    .raw-model-candidate > section,
+    .raw-model-candidate .card,
+    .raw-model-candidate .panel {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .raw-model-candidate ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .app-shell .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #eef6f7;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: #fff7e8;
+      color: var(--warning);
+    }
+    .app-shell .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .app-shell .queue,
+    .app-shell .detail {
+      padding: 16px;
+    }
+    .app-shell .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .app-shell .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      text-align: left;
+    }
+    .app-shell .queue-item small {
+      color: var(--muted);
+    }
+    .app-shell .queue-item.is-selected {
+      border-color: var(--accent);
+      background: #edf6f7;
+    }
+    .app-shell .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .app-shell .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
+      padding: 14px;
+    }
+    .app-shell .info-grid > div {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #faf9f5;
+    }
+    .app-shell .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .app-shell .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .app-shell .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .app-shell .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--accent-strong);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .app-shell .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-shell .actions button,
+    .app-shell .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .app-shell button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .app-shell .handoff {
+      padding: 14px;
+      background: #f3f8f8;
+    }
+    .raw-brief-candidate .app-header {
+      background: #fff8ea;
+      border: 1px solid #e5c98f;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .reviewed-candidate .app-header {
+      background: #eef6f7;
+      border: 1px solid #b8d2d7;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--ink);
+    }
+    .design-system {
+      --canvas: #f7f4ee;
+      --panel: #ffffff;
+      --ink: #182521;
+      --muted: #64716b;
+      --line: #d9d3c5;
+      --accent: #0f766e;
+      --accent-strong: #0f4f49;
+      --warning: #9a5b16;
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
+        display: grid;
+      }
+      .app-shell .workspace,
+      .app-shell .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+    <style data-model-css>:root{font-family:Inter,Arial,sans-serif;color:#18212f;background:#f4f6f8}*{box-sizing:border-box}body{margin:0}.dispatch-shell{min-height:900px;background:#f4f6f8;padding:22px;display:grid;grid-template-columns:300px 1fr 360px;gap:18px}.panel{background:#fff;border:1px solid #d8dee7;border-radius:8px}.queue{padding:16px}.queue h1,.work h2,.handoff h2{margin:0;color:#111827}.queue h1{font-size:20px}.queue-list{display:grid;gap:10px;margin-top:18px}.visit-row{border:1px solid #d8dee7;border-radius:7px;padding:12px;background:#fbfcfe}.visit-row.active{border-color:#2563eb;background:#eff6ff}.row-top{display:flex;justify-content:space-between;gap:12px;font-weight:700}.muted{color:#607087;font-size:13px}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:700;background:#eef2f7;color:#35445a}.badge.red{background:#fee2e2;color:#991b1b}.badge.amber{background:#fef3c7;color:#92400e}.badge.green{background:#dcfce7;color:#166534}.work{padding:18px;display:flex;flex-direction:column;gap:16px}.case-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;border-bottom:1px solid #e5eaf1;padding-bottom:16px}.case-title{font-size:26px;line-height:1.15;margin:4px 0 6px}.case-meta{display:flex;gap:8px;flex-wrap:wrap}.request{font-size:15px;line-height:1.5;color:#374151;max-width:760px}.constraint-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.constraint{border:1px solid #d8dee7;border-radius:8px;padding:14px;min-height:148px;background:#fcfdff}.constraint h3{font-size:13px;text-transform:uppercase;letter-spacing:.04em;margin:0 0 10px;color:#536176}.constraint strong{display:block;font-size:17px;margin-bottom:8px;color:#111827}.constraint p{margin:0;color:#46566d;font-size:13px;line-height:1.4}.evidence{display:grid;grid-template-columns:1fr 1fr;gap:14px}.evidence-block{border:1px solid #e5eaf1;border-radius:8px;padding:14px;background:#fff}.evidence-block h3{margin:0 0 10px;font-size:15px}.evidence-block ul{margin:0;padding-left:18px;color:#374151;line-height:1.55;font-size:14px}.timeline{display:flex;gap:10px;align-items:center;border-top:1px solid #e5eaf1;padding-top:14px}.step{flex:1;border:1px solid #d8dee7;border-radius:7px;padding:10px;background:#fbfcfe}.step b{display:block;font-size:13px}.step span{display:block;margin-top:3px;color:#607087;font-size:12px}.handoff{padding:16px;display:flex;flex-direction:column;gap:14px}.decision{border:1px solid #d8dee7;border-radius:8px;padding:14px;background:#fff}.decision.selected{border-color:#0f766e;background:#f0fdfa}.decision h3{margin:0 0 8px;font-size:16px}.decision p{margin:0;color:#46566d;font-size:13px;line-height:1.45}.actions{display:grid;gap:10px}.actions button{height:42px;border-radius:7px;border:1px solid #cbd5e1;background:#fff;color:#172033;font-weight:700;text-align:left;padding:0 12px}.actions button.primary{background:#0f766e;border-color:#0f766e;color:#fff}.handoff-card{border:1px solid #cbd5e1;border-radius:8px;background:#f8fafc;padding:14px}.handoff-card dl{display:grid;grid-template-columns:110px 1fr;gap:8px;margin:0;font-size:13px}.handoff-card dt{color:#607087}.handoff-card dd{margin:0;color:#111827;font-weight:700}.footer-actions{display:flex;gap:10px;margin-top:auto}.footer-actions button{flex:1;height:42px;border-radius:7px;border:1px solid #1f2937;background:#1f2937;color:#fff;font-weight:700}.footer-actions button.secondary{background:#fff;color:#1f2937}</style>
+
+  </head>
+  <body data-artifact-id="gpt55-xhigh-codex-no-judgmentkit" data-row-id="gpt55-xhigh-codex" data-column-id="no-judgmentkit" data-judgmentkit-mode="no_judgmentkit" data-design-system-mode="none">
+    <main class="raw-model-candidate" data-primary-surface class='dispatch-shell'><aside class='panel queue' aria-label='Repair visit queue'><h1>Same-day repair visits</h1><p class='muted'>Review route, parts readiness, site access, and SLA risk before dispatch.</p><div class='queue-list'><article class='visit-row active'><div class='row-top'><span>V-2187</span><span class='badge red'>SLA 4h</span></div><p><strong>Mallory Chen</strong></p><p class='muted'>Needs gate code</p></article><article class='visit-row'><div class='row-top'><span>V-2188</span><span class='badge'>Tomorrow</span></div><p><strong>Owen Patel</strong></p><p class='muted'>Parts shortage</p></article><article class='visit-row'><div class='row-top'><span>V-2189</span><span class='badge red'>SLA 2h</span></div><p><strong>Rae Wilson</strong></p><p class='muted'>Route conflict</p></article></div></aside><section class='panel work' aria-label='Selected repair visit'><header class='case-head'><div><span class='badge amber'>Parts check needed</span><h2 class='case-title'>Repair visit V-2187</h2><div class='case-meta'><span class='badge'>Mallory Chen</span><span class='badge'>Priority repair</span><span class='badge red'>SLA 4h</span></div></div><p class='request'>Kitchen freezer repair needs dispatch before the service window closes. Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support.</p></header><div class='constraint-grid'><article class='constraint'><h3>Route</h3><strong>Reyes is 18 min away</strong><p>Nearest qualified technician identified for the freezer unit.</p></article><article class='constraint'><h3>Parts readiness</h3><strong>Fan motor available</strong><p>Replacement part is ready at the west depot before dispatch.</p></article><article class='constraint'><h3>Site access</h3><strong>Gate code missing</strong><p>Access detail must be confirmed before the technician is sent.</p></article><article class='constraint'><h3>SLA risk</h3><strong>Service window closing</strong><p>Delay needs an explicit handoff reason and timing constraint.</p></article></div><div class='evidence'><section class='evidence-block'><h3>Dispatch facts</h3><ul><li>Technician Reyes is certified for the freezer unit.</li><li>Parts are available but pickup timing still matters.</li><li>Customer access is the only blocking condition.</li></ul></section><section class='evidence-block'><h3>Decision rule</h3><ul><li>Assign when parts and site access are confirmed.</li><li>Return missing access details to dispatch support.</li><li>Escalate if the SLA window cannot be protected.</li></ul></section></div><div class='timeline' aria-label='Dispatch timing'><div class='step'><b>Now</b><span>Request gate code</span></div><div class='step'><b>Before release</b><span>Confirm access and part pickup</span></div><div class='step'><b>Dispatch</b><span>Send Reyes with SLA reason</span></div></div></section><aside class='panel handoff' aria-label='Dispatch handoff'><div><h2>Next action</h2><p class='muted'>Choose the handoff the dispatcher can act on now.</p></div><article class='decision selected'><h3>Request gate code before assignment</h3><p>Site access is missing, so hold the technician assignment until dispatch support confirms the customer gate code.</p></article><article class='decision'><h3>Assign Reyes after access confirmed</h3><p>Use when the gate code is received and the fan motor pickup remains on time.</p></article><article class='decision'><h3>Escalate SLA risk</h3><p>Use if access cannot be confirmed soon enough to protect the 4h SLA.</p></article><div class='actions'><button class='primary'>Send to dispatch support</button><button>Assign technician Reyes</button><button>Reschedule for parts</button><button>Escalate SLA risk</button></div><section class='handoff-card'><h3>Draft dispatch handoff</h3><dl><dt>Technician</dt><dd>Reyes, pending access</dd><dt>Next action</dt><dd>Get customer gate code</dd><dt>Constraint</dt><dd>Before SLA 4h closes</dd><dt>Reason</dt><dd>Parts ready; site access missing</dd></dl></section><div class='footer-actions'><button class='secondary'>Save draft</button><button>Release handoff</button></div></aside></main>
+    <aside class="provenance" aria-label="Artifact provenance">
+      <strong>Provenance:</strong>
+      <span>captured</span>
+      <span> - captured_model_output</span>
+      <span> - Raw brief</span>
+      <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
+      <p>Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.</p>
+      <p>Manifest entry: <code>artifacts/gpt55-xhigh-codex-no-judgmentkit.html</code></p>
+    </aside>
+    <script type="application/json" id="model-ui-provenance">{
+  "matrix_id": "field-service-dispatch-model-ui-v1",
+  "use_case_id": "field-service-dispatch",
+  "use_case_label": "Field service dispatch",
+  "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
+  "artifact_id": "gpt55-xhigh-codex-no-judgmentkit",
+  "row_id": "gpt55-xhigh-codex",
+  "column_id": "no-judgmentkit",
+  "model_label": "GPT-5.5",
+  "generation_source": "captured_model_output",
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "none",
+  "render_source": "model_static_html_css",
+  "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+  "reasoning_effort": "xhigh",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": false
+  },
+  "design_system_name": null,
+  "design_system_package": null,
+  "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
+  "handoff_source": null,
+  "design_system_adapter_file": null,
+  "capture_file": "captures/gpt55-xhigh-codex-no-judgmentkit.json",
+  "model_response_summary": "A dispatch workbench for choosing the next action on a same-day repair visit with route, parts, site access, and SLA constraints visible.",
+  "capture_provenance": {
+    "status": "captured",
+    "capture_type": "model-output-transcript",
+    "captured_at": "2026-05-14T02:56:23.043Z",
+    "runner": "scripts/capture-model-ui-matrix.mjs",
+    "provider": "codex-cli",
+    "model": "gpt-5.5",
+    "cli": "codex",
+    "transcript_file": "captures/gpt55-xhigh-codex-no-judgmentkit.json",
+    "prompt_sha256": "4ffe45d00d6d5d904d1483ce3a07884f41901400a250bce5b1543ba7305f985e",
+    "raw_response_sha256": "b0ff58aa57c918afa0d9333966401776b0c6a449a96e837294b1478b58d90dab",
+    "source_context_sha256": "794acdacdac5891302222d67e52ecd4ff7e567808c682acd94e44e4cd9d549ee",
+    "reasoning_effort": "xhigh",
+    "context_included": {
+      "source_brief": true,
+      "sample_case": true,
+      "reviewed_handoff": false,
+      "material_ui_adapter": false
+    },
+    "design_system_name": null,
+    "design_system_package": null,
+    "design_system_render_mode": null,
+    "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
+  },
+  "artifact_path": "artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
+  "screenshot_path": "screenshots/gpt55-xhigh-codex-no-judgmentkit.png",
+  "approach_title": "GPT-5.5 xhigh via codex exec - Raw brief",
+  "approach_caption": "GPT-5.5 xhigh via codex exec receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+}</script>
+  </body>
+</html>

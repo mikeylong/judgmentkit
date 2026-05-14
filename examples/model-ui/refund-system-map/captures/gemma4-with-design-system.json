@@ -1,5 +1,8 @@
 {
   "artifact_id": "gemma4-with-design-system",
+  "use_case_id": "refund-system-map",
+  "use_case_label": "Support refund triage",
+  "activity_summary": "A support operations manager reviews refund escalation cases and decides approve, policy review, or missing evidence.",
   "row_id": "gemma4-lms",
   "row_label": "Gemma 4 via LM Studio lms",
   "column_id": "judgmentkit-material-ui",
@@ -16,43 +19,95 @@
   "design_system_render_mode": "static-ssr",
   "render_mode": "material_ui",
   "runner": "scripts/capture-model-ui-matrix.mjs",
-  "captured_at": "2026-05-14T01:01:40.219Z",
+  "captured_at": "2026-05-14T02:40:35.719Z",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": true,
     "material_ui_adapter": true
   },
-  "source_context_sha256": "e47c8236e48866103141dfc43e156fcf0a78cc2a8e169cacb06185aef94227f0",
-  "prompt_sha256": "f4d731b7e6a1bea45ce808e3e0b63e843bef9c3c6f3bd18a2618be86212a333d",
-  "raw_response_sha256": "eca5c5821b0c7ccd5cc96a5997776e077afc450d0025e5b2e10127997ccdf7d9",
+  "source_context_sha256": "5794cd030a52f664a474d78bf63158a5913a94e2cfb0bdd20adce0563a4487f6",
+  "prompt_sha256": "86dba5d37fe8977ea05cc62013c161efdf1e5989fce78d9e2cbe7ab818f2b4fa",
+  "raw_response_sha256": "2d96e12aa11b23f8164b14f1bc785ed13567b6874ea55aa4713b6e404e4fc23d",
   "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
   "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix. Compatibility alias for the previous six-artifact matrix URL.",
   "parsed": {
-    "summary": "The refund review is stalled because the necessary receipt photo for claim R-1842 is missing.",
+    "summary": "The refund request for Nora Diaz is paused because the required receipt photo is missing, requiring further action from the customer.",
     "surface": {
+      "eyebrow": "JudgmentKit handoff",
       "heading": "Refund Review Workspace",
-      "status": "Incomplete",
+      "status": "Evidence incomplete",
+      "queue_title": "Refund escalations",
+      "queue": [
+        {
+          "id": "R-1842",
+          "customer": "Nora Diaz",
+          "state": "Needs receipt",
+          "amount": "$184.20"
+        },
+        {
+          "id": "R-1843",
+          "customer": "Jun Park",
+          "state": "Policy question",
+          "amount": "$89.00"
+        },
+        {
+          "id": "R-1844",
+          "customer": "Amara Blake",
+          "state": "Manager review",
+          "amount": "$312.75"
+        }
+      ],
+      "selected": {
+        "id": "R-1842",
+        "customer": "Nora Diaz",
+        "plan": "Pro annual",
+        "amount": "$184.20",
+        "request": "Subscription renewal disputed after agent escalation.",
+        "status": "Evidence incomplete",
+        "evidence": [
+          "Renewal date confirmed in purchase history.",
+          "Support note captures the customer's refund reason.",
+          "Receipt photo is missing before manager approval."
+        ],
+        "policy": "Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review."
+      },
+      "info": [
+        {
+          "label": "Plan",
+          "value": "Pro annual"
+        },
+        {
+          "label": "Review state",
+          "value": "Evidence incomplete"
+        }
+      ],
       "evidence": [
-        "Renewal date confirmed",
-        "Support note captured",
-        "Receipt photo missing"
+        "Renewal date confirmed in purchase history.",
+        "Support note captures the customer's refund reason.",
+        "Receipt photo is missing before manager approval."
       ],
+      "policy_title": "Exception window",
+      "policy": "Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.",
+      "decision_title": "Choose next action",
       "actions": [
-        "Return for evidence",
-        "Send to policy review"
+        "Approve refund",
+        "Send to policy review",
+        "Return for evidence"
       ],
+      "primary_action": "Return for evidence",
       "handoff": {
         "owner": "Support agent",
-        "reason": "Receipt photo is missing.",
+        "title": "Handoff",
+        "reason": "Receipt photo is missing. Ask the customer to attach proof before approval.",
         "action": "Send handoff"
       }
     }
   },
-  "raw_response": "{\"summary\":\"The refund review is stalled because the necessary receipt photo for claim R-1842 is missing.\",\"surface\":{\"heading\":\"Refund Review Workspace\",\"status\":\"Incomplete\",\"evidence\":[\"Renewal date confirmed\",\"Support note captured\",\"Receipt photo missing\"],\"actions\":[\"Return for evidence\",\"Send to policy review\"],\"handoff\":{\"owner\":\"Support agent\",\"reason\":\"Receipt photo is missing.\",\"action\":\"Send handoff\"}}}",
+  "raw_response": "{\"summary\":\"The refund request for Nora Diaz is paused because the required receipt photo is missing, requiring further action from the customer.\",\"surface\":{\"eyebrow\":\"JudgmentKit handoff\",\"heading\":\"Refund Review Workspace\",\"status\":\"Evidence incomplete\",\"queue_title\":\"Refund escalations\",\"queue\":[{\"id\":\"R-1842\",\"customer\":\"Nora Diaz\",\"state\":\"Needs receipt\",\"amount\":\"$184.20\"},{\"id\":\"R-1843\",\"customer\":\"Jun Park\",\"state\":\"Policy question\",\"amount\":\"$89.00\"},{\"id\":\"R-1844\",\"customer\":\"Amara Blake\",\"state\":\"Manager review\",\"amount\":\"$312.75\"}],\"selected\":{\"id\":\"R-1842\",\"customer\":\"Nora Diaz\",\"plan\":\"Pro annual\",\"amount\":\"$184.20\",\"request\":\"Subscription renewal disputed after agent escalation.\",\"status\":\"Evidence incomplete\",\"evidence\":[\"Renewal date confirmed in purchase history.\",\"Support note captures the customer's refund reason.\",\"Receipt photo is missing before manager approval.\"],\"policy\":\"Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.\"},\"info\":[{\"label\":\"Plan\",\"value\":\"Pro annual\"},{\"label\":\"Review state\",\"value\":\"Evidence incomplete\"}],\"evidence\":[\"Renewal date confirmed in purchase history.\",\"Support note captures the customer's refund reason.\",\"Receipt photo is missing before manager approval.\"],\"policy_title\":\"Exception window\",\"policy\":\"Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.\",\"decision_title\":\"Choose next action\",\"actions\":[\"Approve refund\",\"Send to policy review\",\"Return for evidence\"],\"primary_action\":\"Return for evidence\",\"handoff\":{\"owner\":\"Support agent\",\"title\":\"Handoff\",\"reason\":\"Receipt photo is missing. Ask the customer to attach proof before approval.\",\"action\":\"Send handoff\"}}}",
   "execution": {
     "status": 0,
-    "stdout_sha256": "904a1e0b87dbc992947c2a5d1f7e5e32a98f84be54a70db07f6a339167e6644d",
+    "stdout_sha256": "7f1ccfccf64bb926a1e5bf8b3047fd7dda7791980aac1dc5053d7e91160f3c32",
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
   "canonical_artifact_id": "gemma4-lms-judgmentkit-material-ui",

@@ -10,6 +10,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
 import { JUDGMENTKIT_MCP_TOOL_NAMES } from "./install-mcp.mjs";
+import { COMPARISON_COLUMNS, COMPARISON_ROWS } from "./model-ui-use-cases.mjs";
 
 const DEFAULT_BASE_URL = "https://judgmentkit.ai";
 const REDIRECT_HOSTS = [
@@ -157,6 +158,10 @@ function getAnalyticsScriptSrc(text, label) {
 }
 
 async function verifyAnalyticsScript(baseUrl, scriptSrc) {
+  assert.ok(
+    scriptSrc.startsWith("/") || /^(?:[a-z]+:)?\/\//i.test(scriptSrc),
+    `Vercel Analytics script src should be root-relative or absolute, got ${scriptSrc}`,
+  );
   const response = await fetch(new URL(scriptSrc, baseUrl));
 
   assert.equal(
@@ -236,6 +241,193 @@ async function verifyEvalArchive(baseUrl, analyticsScriptSrc) {
   };
 }
 
+async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
+  const indexRoute = "/examples/model-ui/index.json";
+  const index = JSON.parse((await fetchText(baseUrl, indexRoute)).text);
+  assert.equal(index.default_use_case_id, "refund-system-map");
+  assert.equal(index.use_cases?.length, 4, "model UI index should expose four use cases");
+
+  const checked = [indexRoute];
+  const captureRoutes = [];
+  const screenshotRoutes = [];
+
+  for (const useCase of index.use_cases) {
+    assert.ok(useCase.id, "model UI use case should include id");
+    assert.ok(useCase.label, `${useCase.id} should include label`);
+    assert.ok(useCase.activity_summary, `${useCase.id} should include activity_summary`);
+    assert.ok(useCase.index_path, `${useCase.id} should include index_path`);
+    assert.ok(useCase.manifest_path, `${useCase.id} should include manifest_path`);
+
+    const useCaseRoute = `/${useCase.index_path}`;
+    const manifestRoute = `/${useCase.manifest_path}`;
+    const useCasePage = await fetchText(baseUrl, useCaseRoute);
+    assert.equal(getAnalyticsScriptSrc(useCasePage.text, useCaseRoute), analyticsScriptSrc);
+    assertIncludes(
+      useCasePage.text,
+      [
+        useCase.label,
+        "model UI generation matrix",
+        "Raw brief",
+        "JudgmentKit handoff",
+        "Material UI only",
+        "JudgmentKit + Material UI",
+      ],
+      useCaseRoute,
+    );
+    checked.push(useCaseRoute);
+
+    const manifest = JSON.parse((await fetchText(baseUrl, manifestRoute)).text);
+    checked.push(manifestRoute);
+    assert.equal(manifest.use_case_id, useCase.id);
+    assert.equal(manifest.use_case_label, useCase.label);
+    assert.equal(manifest.design_system_name, "Material UI");
+    assert.equal(manifest.design_system_package, "@mui/material");
+    assert.equal(manifest.design_system_render_mode, "static-ssr");
+    assert.ok(
+      manifest.generation_policy.includes("Material UI"),
+      `${useCase.id} manifest should describe the Material UI adapter`,
+    );
+    assert.equal(
+      manifest.comparison_rows?.length,
+      COMPARISON_ROWS.length,
+      `${useCase.id} manifest should expose three comparison rows`,
+    );
+    assert.equal(
+      manifest.comparison_columns?.length,
+      COMPARISON_COLUMNS.length,
+      `${useCase.id} manifest should expose four comparison columns`,
+    );
+    assert.equal(
+      manifest.artifacts?.length,
+      COMPARISON_ROWS.length * COMPARISON_COLUMNS.length,
+      `${useCase.id} manifest should expose twelve canonical artifacts`,
+    );
+
+    const useCaseBaseRoute = manifestRoute.replace(/manifest\.json$/, "");
+
+    for (const artifact of manifest.artifacts) {
+      assert.ok(artifact.screenshot_path, `${artifact.id} should include a screenshot_path`);
+      assert.ok(artifact.approach_title, `${artifact.id} should include an approach_title`);
+      assert.ok(artifact.approach_caption, `${artifact.id} should include an approach_caption`);
+      assert.ok(artifact.row_id, `${artifact.id} should include row_id`);
+      assert.ok(artifact.column_id, `${artifact.id} should include column_id`);
+      assert.ok(artifact.context_included, `${artifact.id} should include context_included`);
+      assert.ok(artifact.render_source, `${artifact.id} should include render_source`);
+      assert.equal(artifact.use_case_id, useCase.id, `${artifact.id} should record use_case_id`);
+      if (artifact.judgmentkit_mode === "no_judgmentkit") {
+        assert.equal(
+          artifact.context_included.reviewed_handoff,
+          false,
+          `${artifact.id} should not include reviewed handoff context`,
+        );
+      }
+      if (artifact.design_system_mode === "material_ui") {
+        assert.equal(artifact.design_system_name, "Material UI");
+        assert.equal(artifact.design_system_package, "@mui/material");
+        assert.equal(
+          artifact.context_included.material_ui_adapter,
+          true,
+          `${artifact.id} should include Material UI context`,
+        );
+      }
+      if (artifact.row_id === "gpt55-xhigh-codex") {
+        assert.equal(artifact.reasoning_effort, "xhigh", `${artifact.id} should record xhigh`);
+      }
+
+      const artifactRoute = `${useCaseBaseRoute}${artifact.artifact_path}`;
+      const artifactPage = await fetchText(baseUrl, artifactRoute);
+      assert.equal(getAnalyticsScriptSrc(artifactPage.text, artifactRoute), analyticsScriptSrc);
+      checked.push(artifactRoute);
+
+      const screenshotRoute = `${useCaseBaseRoute}${artifact.screenshot_path}`;
+      const screenshotResponse = await fetchBytes(baseUrl, screenshotRoute);
+      assert.equal(
+        screenshotResponse.bytes.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE),
+        true,
+        `${artifact.id} screenshot should be a PNG`,
+      );
+      screenshotRoutes.push(screenshotRoute);
+
+      if (artifact.generation_source !== "captured_model_output") {
+        continue;
+      }
+
+      assert.equal(
+        artifact.capture_provenance.status,
+        "captured",
+        `${artifact.id} should be backed by a committed model capture transcript`,
+      );
+      assert.ok(artifact.capture_file, `${artifact.id} should include a capture_file`);
+      const captureRoute = `${useCaseBaseRoute}${artifact.capture_file}`;
+      const capture = JSON.parse((await fetchText(baseUrl, captureRoute)).text);
+
+      assert.equal(capture.artifact_id, artifact.id);
+      assert.equal(capture.use_case_id, useCase.id);
+      assert.equal(capture.model_label, artifact.model_label);
+      assert.equal(capture.row_id, artifact.row_id);
+      assert.equal(capture.column_id, artifact.column_id);
+      assert.equal(capture.judgmentkit_mode, artifact.judgmentkit_mode);
+      assert.equal(capture.design_system_mode, artifact.design_system_mode);
+      assert.deepEqual(capture.context_included, artifact.context_included);
+      assert.equal(capture.source_context_sha256, artifact.capture_provenance.source_context_sha256);
+      assert.ok(capture.prompt_sha256, `${artifact.id} capture should include prompt_sha256`);
+      assert.ok(capture.raw_response_sha256, `${artifact.id} capture should include raw_response_sha256`);
+      if (artifact.row_id === "gpt55-xhigh-codex") {
+        assert.equal(capture.reasoning_effort, "xhigh", `${artifact.id} capture should record xhigh`);
+      }
+      if (artifact.design_system_mode === "material_ui") {
+        assert.equal(capture.design_system_name, "Material UI");
+        assert.equal(capture.design_system_package, "@mui/material");
+        assert.equal(capture.design_system_render_mode, "static-ssr");
+        assert.equal(capture.render_mode, "material_ui");
+        assert.ok(capture.parsed?.surface, `${artifact.id} capture should include surface data`);
+      } else {
+        assert.equal(capture.render_mode, "html");
+        assert.ok(
+          capture.parsed?.html?.includes("data-primary-surface"),
+          `${artifact.id} capture should include parsed primary surface HTML`,
+        );
+      }
+      assert.ok(capture.raw_response, `${artifact.id} capture should include raw_response`);
+      captureRoutes.push(captureRoute);
+    }
+
+    for (const alias of manifest.legacy_aliases ?? []) {
+      const artifactRoute = `${useCaseBaseRoute}${alias.artifact_path}`;
+      const screenshotRoute = `${useCaseBaseRoute}${alias.screenshot_path}`;
+      await fetchText(baseUrl, artifactRoute);
+      const screenshotResponse = await fetchBytes(baseUrl, screenshotRoute);
+      assert.equal(
+        screenshotResponse.bytes.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE),
+        true,
+        `${alias.id} legacy screenshot should be a PNG`,
+      );
+      checked.push(artifactRoute);
+      screenshotRoutes.push(screenshotRoute);
+      if (alias.capture_file) {
+        const captureRoute = `${useCaseBaseRoute}${alias.capture_file}`;
+        await fetchText(baseUrl, captureRoute);
+        captureRoutes.push(captureRoute);
+      }
+    }
+
+    await fetchText(baseUrl, `${useCaseBaseRoute}reviewed-handoff.fixture.json`);
+    await fetchText(baseUrl, `${useCaseBaseRoute}design-system-adapter.json`);
+    checked.push(
+      `${useCaseBaseRoute}reviewed-handoff.fixture.json`,
+      `${useCaseBaseRoute}design-system-adapter.json`,
+    );
+  }
+
+  return {
+    index_route: indexRoute,
+    use_cases: index.use_cases.map((useCase) => useCase.id),
+    checked,
+    capture_routes: captureRoutes,
+    screenshot_routes: screenshotRoutes,
+  };
+}
+
 async function verifyPublicRoutes(baseUrl, options = {}) {
   const home = await fetchText(baseUrl, "/");
   const analyticsScriptSrc = getAnalyticsScriptSrc(home.text, "homepage");
@@ -281,8 +473,17 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     [
       "Refund triage comparison",
       "Model UI generation matrix",
+      "4 use cases",
       "Gemma 4 (local LLM)",
       "GPT-5.5",
+      "Support refund triage",
+      "Field service dispatch",
+      "Clinical intake review",
+      "B2B renewal risk review",
+      "model-ui-use-case-tabs",
+      "useCaseId",
+      "field-service-dispatch",
+      "/examples/model-ui/index.json",
       "Dinner playlist comparison",
       "/examples/comparison/refund/version-a.html",
       "/examples/comparison/refund/version-b.html",
@@ -301,6 +502,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   );
 
   const evalArchive = await verifyEvalArchive(baseUrl, analyticsScriptSrc);
+  const modelUiArchive = await verifyModelUiUseCases(baseUrl, analyticsScriptSrc);
 
   await fetchText(baseUrl, "/favicon.svg");
 
@@ -512,6 +714,9 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "/examples/model-ui/refund-system-map/artifacts/gpt55-with-design-system.html",
       ...modelUiCaptureRoutes,
       ...modelUiScreenshotRoutes,
+      ...modelUiArchive.checked,
+      ...modelUiArchive.capture_routes,
+      ...modelUiArchive.screenshot_routes,
       "/examples/comparison/music/version-a.html",
       "/examples/comparison/music/version-b.html",
       "/examples/comparison/music/facilitator-scorecard.md",
@@ -522,6 +727,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       evalArchive.latest_screenshot_route,
     ],
     eval_archive: evalArchive,
+    model_ui_archive: modelUiArchive,
     analytics: options.skipAnalyticsScript
       ? "script_fetch_skipped"
       : await verifyAnalyticsScript(baseUrl, analyticsScriptSrc),

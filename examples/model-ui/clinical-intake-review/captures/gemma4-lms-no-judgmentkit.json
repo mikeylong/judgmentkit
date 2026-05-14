@@ -1,0 +1,45 @@
+{
+  "artifact_id": "gemma4-lms-no-judgmentkit",
+  "use_case_id": "clinical-intake-review",
+  "use_case_label": "Clinical intake review",
+  "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+  "row_id": "gemma4-lms",
+  "row_label": "Gemma 4 via LM Studio lms",
+  "column_id": "no-judgmentkit",
+  "column_label": "Raw brief",
+  "model_label": "Gemma 4 (local LLM)",
+  "provider": "lmstudio",
+  "cli": "lms",
+  "model": "google/gemma-4-e2b",
+  "reasoning_effort": null,
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "none",
+  "design_system_name": null,
+  "design_system_package": null,
+  "design_system_render_mode": null,
+  "render_mode": "html",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-05-14T03:08:27.696Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": false
+  },
+  "source_context_sha256": "713aa5c011e90b100d8235d55b64ffc2f0522ff13c94bc534b22e9aa8fc082a0",
+  "prompt_sha256": "7e6159df04bb33a8cf075a771a2b9223765425bcd97f638f9995e22bc83310bf",
+  "raw_response_sha256": "7b2634b4d106043dfcf45e8677638e7bc54bbdbc06ee4aa2eb3914946136710a",
+  "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
+  "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
+  "parsed": {
+    "summary": "This interface allows an intake coordinator to review the administrative readiness of an appointment request and determine the next action: scheduling, returning missing forms, or escalating insurance verification.",
+    "css": "body { font-family: Arial, sans-serif; background-color: #f4f7fa; margin: 0; padding: 20px; } .container { max-width: 1200px; margin: auto; background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); } h1 { color: #0056b3; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; margin-bottom: 20px; } .card { background: #f9f9f9; border: 1px solid #eee; padding: 15px; margin-bottom: 20px; border-radius: 6px; } .detail-item strong { display: block; color: #333; font-size: 14px; margin-bottom: 5px; } .status-box { padding: 15px; border-radius: 6px; margin-top: 20px; text-align: center; font-weight: bold; } .status-ready { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; } .status-pending { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; } .action-buttons button { padding: 10px 20px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background-color 0.3s; } .btn-schedule { background-color: #28a745; color: white; } .btn-return { background-color: #ffc107; color: #333; } .btn-escalate { background-color: #dc3545; color: white; } .btn-schedule:hover { background-color: #218838; } .btn-return:hover { background-color: #e0a800; } .btn-escalate:hover { background-color: #c82333; }",
+    "html": "<main data-primary-surface>\n  <div class=\"container\">\n    <h1>Clinical Intake Review</h1>\n\n    <div class=\"card\">\n      <h2>Appointment Details</h2>\n      <div class=\"detail-item\"><strong>Patient Name:</strong> Avery Morgan</div>\n      <div class=\"detail-item\"><strong>Request Type:</strong> New patient consult</div>\n      <div class=\"detail-item\"><strong>Requested Slot:</strong> 10:30 AM</div>\n      <div class=\"detail-item\"><strong>Current Status:</strong> Consent missing</div>\n    </div>\n\n    <div class=\"card\">\n      <h2>Administrative Readiness Checklist</h2>\n      <p>Reviewing required intake packet components:</p>\n      <ul>\n        <li>Referral document: Complete</li>\n        <li>Insurance card image: Present</li>\n        <li>Signed consent form: Missing (Requires action)</li>\n      </ul>\n    </div>\n\n    <div class=\"status-box status-pending\">\n      Decision Required: Administrative readiness is incomplete.\n    </div>\n\n    <div class=\"action-buttons\">\n      <button class=\"btn-return\">Return Missing Forms</button>\n      <button class=\"btn-escalate\">Escalate Insurance Verification</button>\n      <!-- Schedule button is disabled until all requirements are met -->\n      <button class=\"btn-schedule\" disabled>Schedule Appointment Slot</button>\n    </div>\n  </div>\n</main>"
+  },
+  "raw_response": "Loading google/gemma-4-e2b ⠙\rLoading google/gemma-4-e2b ⠹\rLoading google/gemma-4-e2b ⠸\rLoading google/gemma-4-e2b ⠼\rLoading google/gemma-4-e2b ⠴\rLoading google/gemma-4-e2b ⠦\rLoading google/gemma-4-e2b ⠧\rLoading google/gemma-4-e2b ⠇\rLoading google/gemma-4-e2b ⠏\rLoading google/gemma-4-e2b ⠋\rLoading google/gemma-4-e2b ⠙\rLoading google/gemma-4-e2b ⠹\rLoading google/gemma-4-e2b ⠸\rLoading google/gemma-4-e2b ⠼\rLoading google/gemma-4-e2b ⠴\rLoading google/gemma-4-e2b ⠦\rLoading google/gemma-4-e2b ⠧\rLoading google/gemma-4-e2b ⠇\rLoading google/gemma-4-e2b ⠏\r\n{\n  \"summary\": \"This interface allows an intake coordinator to review the administrative readiness of an appointment request and determine the next action: scheduling, returning missing forms, or escalating insurance verification.\",\n  \"css\": \"body { font-family: Arial, sans-serif; background-color: #f4f7fa; margin: 0; padding: 20px; } .container { max-width: 1200px; margin: auto; background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); } h1 { color: #0056b3; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; margin-bottom: 20px; } .card { background: #f9f9f9; border: 1px solid #eee; padding: 15px; margin-bottom: 20px; border-radius: 6px; } .detail-item strong { display: block; color: #333; font-size: 14px; margin-bottom: 5px; } .status-box { padding: 15px; border-radius: 6px; margin-top: 20px; text-align: center; font-weight: bold; } .status-ready { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; } .status-pending { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; } .action-buttons button { padding: 10px 20px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background-color 0.3s; } .btn-schedule { background-color: #28a745; color: white; } .btn-return { background-color: #ffc107; color: #333; } .btn-escalate { background-color: #dc3545; color: white; } .btn-schedule:hover { background-color: #218838; } .btn-return:hover { background-color: #e0a800; } .btn-escalate:hover { background-color: #c82333; }\",\n  \"html\": \"<main data-primary-surface>\\n  <div class=\\\"container\\\">\\n    <h1>Clinical Intake Review</h1>\\n\\n    <div class=\\\"card\\\">\\n      <h2>Appointment Details</h2>\\n      <div class=\\\"detail-item\\\"><strong>Patient Name:</strong> Avery Morgan</div>\\n      <div class=\\\"detail-item\\\"><strong>Request Type:</strong> New patient consult</div>\\n      <div class=\\\"detail-item\\\"><strong>Requested Slot:</strong> 10:30 AM</div>\\n      <div class=\\\"detail-item\\\"><strong>Current Status:</strong> Consent missing</div>\\n    </div>\\n\\n    <div class=\\\"card\\\">\\n      <h2>Administrative Readiness Checklist</h2>\\n      <p>Reviewing required intake packet components:</p>\\n      <ul>\\n        <li>Referral document: Complete</li>\\n        <li>Insurance card image: Present</li>\\n        <li>Signed consent form: Missing (Requires action)</li>\\n      </ul>\\n    </div>\\n\\n    <div class=\\\"status-box status-pending\\\">\\n      Decision Required: Administrative readiness is incomplete.\\n    </div>\\n\\n    <div class=\\\"action-buttons\\\">\\n      <button class=\\\"btn-return\\\">Return Missing Forms</button>\\n      <button class=\\\"btn-escalate\\\">Escalate Insurance Verification</button>\\n      <!-- Schedule button is disabled until all requirements are met -->\\n      <button class=\\\"btn-schedule\\\" disabled>Schedule Appointment Slot</button>\\n    </div>\\n  </div>\\n</main>\"\n}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "2da00c36266ee26868e0be8d8c6a67a75b43ca8e83d635746692471569c4a6ba",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+}

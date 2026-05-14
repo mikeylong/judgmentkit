@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Gemma 4 via LM Studio lms - JudgmentKit handoff</title>
+    <title>Support refund triage - Gemma 4 via LM Studio lms - JudgmentKit handoff</title>
     <style>
     :root {
       color-scheme: light;
@@ -243,11 +243,49 @@
       }
     }
   </style>
-    <style data-model-css>main{font-family:system-ui;padding:24px}.panel{border:1px solid #ddd;padding:12px}</style>
 
   </head>
   <body data-artifact-id="gemma4-lms-with-judgmentkit" data-row-id="gemma4-lms" data-column-id="with-judgmentkit" data-judgmentkit-mode="with_judgmentkit" data-design-system-mode="none">
-    <main class="raw-model-candidate" data-primary-surface><h1>Refund Review Workspace</h1><section class="panel"><h2>Evidence Status</h2><p>The required receipt photo is missing.</p></section><section class="panel"><h2>Decision Path</h2><button>Submit Missing Receipt Photo</button><button>Leave Handoff</button></section><section class="panel"><h2>Handoff</h2><p>Send the case to a support agent for manual review.</p></section></main>
+    <main class="raw-model-candidate" data-primary-surface>
+  <div class="container">
+    <header class="header">
+      <h1>Refund Escalation Review</h1>
+      <p>Support Operations Manager Dashboard</p>
+    </header>
+
+    <!-- Selected Request Card -->
+    <section class="case-card">
+      <h2>Selected Case: R-1842</h2>
+      <p><strong>Customer:</strong> Nora Diaz</p>
+      <p><strong>Amount:</strong> $184.20</p>
+      <p><strong>Request Summary:</strong> Subscription renewal disputed after agent escalation.</p>
+      <p><strong>Current Status:</strong> Evidence incomplete</p>
+    </section>
+
+    <!-- Evidence Checklist -->
+    <section class="case-card">
+      <h3>Evidence Checklist</h3>
+      <ul class="evidence-list">
+        <li>Renewal date confirmed in purchase history.</li>
+        <li>Support note captures the customer's refund reason.</li>
+        <li>Receipt photo is missing before manager approval.</li>
+      </ul>
+    </section>
+
+    <!-- Policy Context -->
+    <section class="case-card">
+      <h3>Policy Context</h3>
+      <p><strong>Policy Rule:</strong> Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p>
+    </section>
+
+    <!-- Decision Path -->
+    <section class="decision-panel">
+      <h3>Decision Path</h3>
+      <p>Decide the next step for this escalation:</p>
+      <div style="margin-top: 20px;">
+        <button class="decision-button approve">Approve Refund</button>
+        <button class="decision-button policy">Send to Policy Review</button>
+        <button class=\
     <aside class="provenance" aria-label="Artifact provenance">
       <strong>Provenance:</strong>
       <span>captured</span>
@@ -259,6 +297,9 @@
     </aside>
     <script type="application/json" id="model-ui-provenance">{
   "matrix_id": "refund-system-map-model-ui-v2",
+  "use_case_id": "refund-system-map",
+  "use_case_label": "Support refund triage",
+  "activity_summary": "A support operations manager reviews refund escalation cases and decides approve, policy review, or missing evidence.",
   "artifact_id": "gemma4-lms-with-judgmentkit",
   "row_id": "gemma4-lms",
   "column_id": "with-judgmentkit",
@@ -281,19 +322,19 @@
   "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
   "design_system_adapter_file": null,
   "capture_file": "captures/gemma4-lms-with-judgmentkit.json",
-  "model_response_summary": "The workspace informs the user that evidence is missing and offers options to submit additional files or proceed to a handoff.",
+  "model_response_summary": "A support operations manager reviews a refund escalation case, assesses the evidence, and decides whether to approve the refund, send it for policy review, or return it for missing evidence.",
   "capture_provenance": {
     "status": "captured",
     "capture_type": "model-output-transcript",
-    "captured_at": "2026-05-14T01:00:49.194Z",
+    "captured_at": "2026-05-14T02:39:38.384Z",
     "runner": "scripts/capture-model-ui-matrix.mjs",
     "provider": "lmstudio",
     "model": "google/gemma-4-e2b",
     "cli": "lms",
     "transcript_file": "captures/gemma4-lms-with-judgmentkit.json",
-    "prompt_sha256": "76f4129a375ea730fe42a56c10d21cc50cbb098c71ac9b5b5869152439a714f5",
-    "raw_response_sha256": "f65e502371c0d848cc5f4678dc58ee5fed097cf33044f182355a6e3cdf03e432",
-    "source_context_sha256": "be784981a20606115ae83201c3575398355fce25a92be25d2654871cd5374459",
+    "prompt_sha256": "1cdd846c4a471d5f54fc9ffa8962453fa53c23f811e01c89400ac24597aa433f",
+    "raw_response_sha256": "f6b49c1f0505c8ddbd031ce61c8852d96ff9597b4ea8e657be5f9187cdbdb3bb",
+    "source_context_sha256": "86f0ee89187abe9b45958bbbd12719e1e29cf6b61ccd882c8603eecbf5765c83",
     "reasoning_effort": null,
     "context_included": {
       "source_brief": true,

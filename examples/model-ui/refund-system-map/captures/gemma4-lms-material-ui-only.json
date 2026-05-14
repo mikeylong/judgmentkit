@@ -1,5 +1,8 @@
 {
   "artifact_id": "gemma4-lms-material-ui-only",
+  "use_case_id": "refund-system-map",
+  "use_case_label": "Support refund triage",
+  "activity_summary": "A support operations manager reviews refund escalation cases and decides approve, policy review, or missing evidence.",
   "row_id": "gemma4-lms",
   "row_label": "Gemma 4 via LM Studio lms",
   "column_id": "material-ui-only",
@@ -16,25 +19,25 @@
   "design_system_render_mode": "static-ssr",
   "render_mode": "material_ui",
   "runner": "scripts/capture-model-ui-matrix.mjs",
-  "captured_at": "2026-05-14T01:01:08.960Z",
+  "captured_at": "2026-05-14T02:39:59.712Z",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": false,
     "material_ui_adapter": true
   },
-  "source_context_sha256": "cbb427e46537b3507df20ead78987988c1996fee18a2a9460f0c461a560b5d4a",
-  "prompt_sha256": "1e4cd28398fe5bb3548dc0ebb9157399d19482d7667a0408c39a1c8d92575f0b",
-  "raw_response_sha256": "6466597cf230376a1c1cecb7d1a6df93d1b077436903310c93e356f3a547e454",
+  "source_context_sha256": "a486de6507d39d6e65f46db39da43c52a908e6967ca484669d2f07257dff66b8",
+  "prompt_sha256": "877bbe2f838975d7b4dbfcc1847930b613a5527bc01638e2876b898d9b006660",
+  "raw_response_sha256": "8d38bad0ab6bcd2a67ea4a1e3fa8989dcf47d86eb71aaa41bd28197d7d146f50",
   "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
   "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
   "parsed": {
-    "summary": "This view allows a support operations manager to review refund escalation cases, assess evidence completeness, and determine the appropriate action for case progression.",
+    "summary": "A support operations manager reviews refund escalation cases to decide on approval, policy review, or requesting missing evidence.",
     "surface": {
-      "eyebrow": "Refund Escalation Review",
-      "heading": "Escalation Case Dashboard",
-      "status": "In Review",
-      "queue_title": "Pending Manager Decision Queue",
+      "eyebrow": "Refund Triage Dashboard",
+      "heading": "Review Escalation Case R-1842: Evidence Incomplete",
+      "status": "Active Review",
+      "queue_title": "Pending Refund Cases (3)",
       "queue": [
         {
           "id": "R-1842",
@@ -69,12 +72,12 @@
           "value": "R-1842"
         },
         {
-          "label": "Policy Applied",
-          "value": "Inside exception window."
+          "label": "Amount",
+          "value": "$184.20"
         },
         {
-          "label": "Evidence Status",
-          "value": "Missing Receipt Photo"
+          "label": "Current State",
+          "value": "Needs receipt"
         }
       ],
       "evidence": [
@@ -82,27 +85,27 @@
         "Support note captures the customer's refund reason.",
         "Receipt photo is missing before manager approval."
       ],
-      "policy_title": "Refund Escalation Policy",
-      "policy": "Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.",
-      "decision_title": "Action Required: Request Missing Evidence",
+      "policy_title": "Inside Exception Window Policy",
+      "policy": "Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.",
+      "decision_title": "Determine Next Action for Evidence Incomplete Case",
       "actions": [
         "Approve Refund",
         "Send to Policy Review",
-        "Return to Support Agent for Evidence"
+        "Return to Agent for Missing Evidence"
       ],
-      "primary_action": "Return to Support Agent for Evidence",
+      "primary_action": "Return to Agent for Missing Evidence",
       "handoff": {
         "owner": "Support Agent",
-        "title": "Request Missing Receipt Photo",
-        "reason": "Evidence is incomplete (missing receipt photo) and requires agent action.",
-        "action": "Agent must capture the missing receipt before re-escalating."
+        "title": "Request missing receipt photo.",
+        "reason": "Evidence incomplete (Missing receipt photo).",
+        "action": "Upload required documentation."
       }
     }
   },
-  "raw_response": "{\n  \"summary\": \"This view allows a support operations manager to review refund escalation cases, assess evidence completeness, and determine the appropriate action for case progression.\",\n  \"surface\": {\n    \"eyebrow\": \"Refund Escalation Review\",\n    \"heading\": \"Escalation Case Dashboard\",\n    \"status\": \"In Review\",\n    \"queue_title\": \"Pending Manager Decision Queue\",\n    \"queue\": [\n      {\n        \"id\": \"R-1842\",\n        \"customer\": \"Nora Diaz\",\n        \"state\": \"Needs receipt\",\n        \"amount\": \"$184.20\"\n      },\n      {\n        \"id\": \"R-1843\",\n        \"customer\": \"Jun Park\",\n        \"state\": \"Policy question\",\n        \"amount\": \"$89.00\"\n      },\n      {\n        \"id\": \"R-1844\",\n        \"customer\": \"Amara Blake\",\n        \"state\": \"Manager review\",\n        \"amount\": \"$312.75\"\n      }\n    ],\n    \"selected\": {\n      \"id\": \"R-1842\",\n      \"customer\": \"Nora Diaz\",\n      \"amount\": \"$184.20\",\n      \"plan\": \"Pro annual\",\n      \"request\": \"Subscription renewal disputed after agent escalation.\",\n      \"status\": \"Evidence incomplete\"\n    },\n    \"info\": [\n      {\n        \"label\": \"Case ID\",\n        \"value\": \"R-1842\"\n      },\n      {\n        \"label\": \"Policy Applied\",\n        \"value\": \"Inside exception window.\"\n      },\n      {\n        \"label\": \"Evidence Status\",\n        \"value\": \"Missing Receipt Photo\"\n      }\n    ],\n    \"evidence\": [\n      \"Renewal date confirmed in purchase history.\",\n      \"Support note captures the customer's refund reason.\",\n      \"Receipt photo is missing before manager approval.\"\n    ],\n    \"policy_title\": \"Refund Escalation Policy\",\n    \"policy\": \"Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.\",\n    \"decision_title\": \"Action Required: Request Missing Evidence\",\n    \"actions\": [\n      \"Approve Refund\",\n      \"Send to Policy Review\",\n      \"Return to Support Agent for Evidence\"\n    ],\n    \"primary_action\": \"Return to Support Agent for Evidence\",\n    \"handoff\": {\n      \"owner\": \"Support Agent\",\n      \"title\": \"Request Missing Receipt Photo\",\n      \"reason\": \"Evidence is incomplete (missing receipt photo) and requires agent action.\",\n      \"action\": \"Agent must capture the missing receipt before re-escalating.\"\n    }\n  }\n}",
+  "raw_response": "{\n  \"summary\": \"A support operations manager reviews refund escalation cases to decide on approval, policy review, or requesting missing evidence.\",\n  \"surface\": {\n    \"eyebrow\": \"Refund Triage Dashboard\",\n    \"heading\": \"Review Escalation Case R-1842: Evidence Incomplete\",\n    \"status\": \"Active Review\",\n    \"queue_title\": \"Pending Refund Cases (3)\",\n    \"queue\": [\n      {\n        \"id\": \"R-1842\",\n        \"customer\": \"Nora Diaz\",\n        \"state\": \"Needs receipt\",\n        \"amount\": \"$184.20\"\n      },\n      {\n        \"id\": \"R-1843\",\n        \"customer\": \"Jun Park\",\n        \"state\": \"Policy question\",\n        \"amount\": \"$89.00\"\n      },\n      {\n        \"id\": \"R-1844\",\n        \"customer\": \"Amara Blake\",\n        \"state\": \"Manager review\",\n        \"amount\": \"$312.75\"\n      }\n    ],\n    \"selected\": {\n      \"id\": \"R-1842\",\n      \"customer\": \"Nora Diaz\",\n      \"amount\": \"$184.20\",\n      \"plan\": \"Pro annual\",\n      \"request\": \"Subscription renewal disputed after agent escalation.\",\n      \"status\": \"Evidence incomplete\"\n    },\n    \"info\": [\n      {\n        \"label\": \"Case ID\",\n        \"value\": \"R-1842\"\n      },\n      {\n        \"label\": \"Amount\",\n        \"value\": \"$184.20\"\n      },\n      {\n        \"label\": \"Current State\",\n        \"value\": \"Needs receipt\"\n      }\n    ],\n    \"evidence\": [\n      \"Renewal date confirmed in purchase history.\",\n      \"Support note captures the customer's refund reason.\",\n      \"Receipt photo is missing before manager approval.\"\n    ],\n    \"policy_title\": \"Inside Exception Window Policy\",\n    \"policy\": \"Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.\",\n    \"decision_title\": \"Determine Next Action for Evidence Incomplete Case\",\n    \"actions\": [\n      \"Approve Refund\",\n      \"Send to Policy Review\",\n      \"Return to Agent for Missing Evidence\"\n    ],\n    \"primary_action\": \"Return to Agent for Missing Evidence\",\n    \"handoff\": {\n      \"owner\": \"Support Agent\",\n      \"title\": \"Request missing receipt photo.\",\n      \"reason\": \"Evidence incomplete (Missing receipt photo).\",\n      \"action\": \"Upload required documentation.\"\n    }\n  }\n}",
   "execution": {
     "status": 0,
-    "stdout_sha256": "c3628a9d36f3dd39810e1129986173cbab0ff8f6182fbfb8e30775f790c89bdc",
+    "stdout_sha256": "60fbd8d7aefb4616819ab4548d69833f75d43dddf3d6a60e7854099806a43d76",
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   }
 }
