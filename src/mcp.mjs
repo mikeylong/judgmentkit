@@ -5,9 +5,13 @@ import {
   JudgmentKitInputError,
   analyzeImplementationBrief,
   createActivityModelReview,
+  createFrontendGenerationContext,
+  createUiImplementationContract,
   createUiGenerationHandoff,
+  recommendSurfaceTypes,
   recommendUiWorkflowProfiles,
   reviewActivityModelCandidate,
+  reviewUiImplementationCandidate,
   reviewUiWorkflowCandidate,
 } from "./index.mjs";
 
@@ -46,6 +50,30 @@ const ACTIVITY_MODEL_REVIEW_TOOL = {
         minLength: 1,
         description:
           "UI brief or implementation-heavy request to turn into a reviewable activity model candidate.",
+      },
+    },
+    additionalProperties: false,
+  },
+};
+
+const RECOMMEND_SURFACE_TYPES_TOOL = {
+  name: "recommend_surface_types",
+  description:
+    "Recommend a purpose-based UI surface type from activity evidence before workflow review or frontend implementation.",
+  inputSchema: {
+    type: "object",
+    required: ["brief"],
+    properties: {
+      brief: {
+        type: "string",
+        minLength: 1,
+        description:
+          "Source UI brief to classify by activity and purpose.",
+      },
+      activity_review: {
+        type: "object",
+        description:
+          "Optional activity review packet returned by create_activity_model_review.",
       },
     },
     additionalProperties: false,
@@ -117,6 +145,16 @@ const REVIEW_UI_WORKFLOW_CANDIDATE_TOOL = {
         description:
           "Optional guidance profile id, such as operator-review-ui.",
       },
+      surface_review: {
+        type: "object",
+        description:
+          "Optional surface recommendation packet returned by recommend_surface_types.",
+      },
+      surface_type: {
+        type: "string",
+        description:
+          "Optional selected surface type, such as workbench, marketing, setup_debug_tool, or operator_review.",
+      },
     },
     additionalProperties: false,
   },
@@ -125,15 +163,129 @@ const REVIEW_UI_WORKFLOW_CANDIDATE_TOOL = {
 const UI_GENERATION_HANDOFF_TOOL = {
   name: "create_ui_generation_handoff",
   description:
-    "Create a UI generation handoff from a ready UI workflow review packet, blocking non-ready reviews.",
+    "Create a UI generation handoff from a ready UI workflow review packet and a UI implementation contract, blocking non-ready reviews.",
   inputSchema: {
     type: "object",
-    required: ["workflow_review"],
+    required: ["workflow_review", "implementation_contract"],
     properties: {
       workflow_review: {
         type: "object",
         description:
           "UI workflow review packet returned by review_ui_workflow_candidate or equivalent library API.",
+      },
+      implementation_contract: {
+        type: "object",
+        description:
+          "UI implementation contract returned by create_ui_implementation_contract or an equivalent repo-local contract packet.",
+      },
+    },
+    additionalProperties: false,
+  },
+};
+
+const UI_IMPLEMENTATION_CONTRACT_TOOL = {
+  name: "create_ui_implementation_contract",
+  description:
+    "Create an implementation contract for generated UI, using repo evidence, external UI system evidence, or JudgmentKit portable defaults.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      repo_name: {
+        type: "string",
+        description: "Optional repository or product name for traceability.",
+      },
+      target_stack: {
+        type: "string",
+        description: "Optional frontend stack, such as vanilla JS, React, or server-rendered HTML.",
+      },
+      external_authority: {
+        type: "string",
+        description:
+          "Optional named UI authority when a repo already has a product UI system or primitive catalog.",
+      },
+      repo_evidence: {
+        type: "array",
+        items: { type: "string" },
+        description:
+          "Optional source evidence such as helper names, contract files, or local checks.",
+      },
+      approved_primitives: {
+        type: "array",
+        items: { type: "string" },
+        description:
+          "Optional allowed primitives. Defaults to the portable no-system primitive set.",
+      },
+      static_rules: {
+        type: "array",
+        items: { type: "string" },
+        description:
+          "Optional static enforcement rules or local commands.",
+      },
+      browser_qa_checks: {
+        type: "array",
+        items: { type: "string" },
+        description:
+          "Optional browser QA checks required before final handoff.",
+      },
+    },
+    additionalProperties: false,
+  },
+};
+
+const REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL = {
+  name: "review_ui_implementation_candidate",
+  description:
+    "Review generated UI or code evidence against an active UI implementation contract.",
+  inputSchema: {
+    type: "object",
+    required: ["candidate", "implementation_contract"],
+    properties: {
+      candidate: {
+        description:
+          "Generated UI candidate as code text or structured evidence containing primitives_used, states_covered, static_checks, and browser_qa.",
+      },
+      implementation_contract: {
+        type: "object",
+        description:
+          "Implementation contract returned by create_ui_implementation_contract or equivalent repo-local packet.",
+      },
+    },
+    additionalProperties: false,
+  },
+};
+
+const FRONTEND_GENERATION_CONTEXT_TOOL = {
+  name: "create_frontend_generation_context",
+  description:
+    "Create adapter-layer frontend implementation context from a ready UI generation handoff and selected surface type.",
+  inputSchema: {
+    type: "object",
+    required: ["ui_generation_handoff"],
+    properties: {
+      ui_generation_handoff: {
+        type: "object",
+        description:
+          "Ready UI generation handoff returned by create_ui_generation_handoff.",
+      },
+      surface_review: {
+        type: "object",
+        description:
+          "Optional surface recommendation packet returned by recommend_surface_types.",
+      },
+      surface_type: {
+        type: "string",
+        description:
+          "Optional selected surface type, such as marketing, workbench, setup_debug_tool, or operator_review.",
+      },
+      frontend_context: {
+        type: "object",
+        description:
+          "Optional project frontend context such as runtime, UI library, project rules, approved component families, and entrypoints.",
+      },
+      verification: {
+        type: "object",
+        description:
+          "Optional verification expectations such as commands, browser checks, and states to verify.",
       },
     },
     additionalProperties: false,
@@ -157,6 +309,10 @@ function createError(code, message, details) {
 
 function compactText(value) {
   return typeof value === "string" ? value.replace(/\s+/g, " ").trim() : "";
+}
+
+function isRecord(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
 function toDisplayList(values, limit = 4) {
@@ -227,6 +383,28 @@ function bulletList(values) {
 }
 
 function planningStatus(result) {
+  if (result.implementation_review_status === "passed") {
+    return "Implementation gate passed";
+  }
+
+  if (result.implementation_review_status === "failed") {
+    return "Implementation gate failed";
+  }
+
+  if (result.implementation_contract_status === "ready") {
+    return "Implementation contract ready";
+  }
+
+  if (result.frontend_context_status === "ready_for_frontend_implementation") {
+    return "Ready for frontend implementation";
+  }
+
+  if (result.recommended_surface_type) {
+    return result.status === "needs_source_context"
+      ? "Needs source context"
+      : "Ready for surface guidance";
+  }
+
   if (result.handoff_status === "ready_for_generation") {
     return "Ready for UI generation";
   }
@@ -394,6 +572,108 @@ function formatAnalysisCard(result) {
   return lines.join("\n");
 }
 
+function formatSurfaceRecommendationCard(result) {
+  const lines = [
+    "## JudgmentKit Surface Recommendation",
+    `**Status:** ${planningStatus(result)}`,
+    `**Next step:** Use surface_type "${compactText(result.recommended_surface_type)}" as purpose guidance before workflow review and frontend implementation.`,
+  ];
+
+  addSection(lines, "Plan from this", [
+    firstLine("Surface type", result.recommended_surface_type),
+    firstLine("Confidence", result.confidence),
+    listLine("Blocked surface types", result.blocked_surface_types),
+    firstLine(
+      "Primary structure",
+      result.interaction_implications?.primary_structure,
+    ),
+    firstLine("Density", result.frontend_posture?.density),
+    firstLine("Navigation", result.frontend_posture?.navigation_shape),
+  ]);
+  addSection(lines, "Diagnostics", [
+    listLine(
+      "Implementation terms",
+      termList(result.evidence?.implementation_terms_detected),
+    ),
+  ]);
+
+  return lines.join("\n");
+}
+
+function formatImplementationContractCard(result) {
+  const implementationContract = result.implementation_contract ?? {};
+  const lines = [
+    "## JudgmentKit Implementation Contract",
+    `**Status:** ${planningStatus(result)}`,
+    "**Next step:** Generate UI only through these approved primitives, then run static checks and browser QA before final handoff.",
+  ];
+
+  addSection(lines, "Implementation gate", [
+    firstLine("Contract", implementationContract.id),
+    listLine("Approved primitives", implementationContract.approved_primitives),
+    listLine(
+      "Required states",
+      implementationContract.state_coverage?.required_states,
+    ),
+    listLine("Browser QA", implementationContract.browser_qa?.checks),
+  ]);
+  addSection(lines, "Failure signals", bulletList(implementationContract.failure_signals));
+
+  return lines.join("\n");
+}
+
+function formatImplementationReviewCard(result) {
+  const lines = [
+    "## JudgmentKit Implementation Review",
+    `**Status:** ${planningStatus(result)}`,
+    result.implementation_review_status === "passed"
+      ? "**Next step:** The candidate passed the implementation gate; use the evidence in the final handoff."
+      : "**Next step:** Fix the implementation findings before final UI handoff.",
+  ];
+
+  addSection(lines, "Checks", [
+    firstLine("Raw controls", result.checks?.raw_controls?.status),
+    firstLine("Approved primitives", result.checks?.approved_primitives?.status),
+    firstLine("State coverage", result.checks?.state_coverage?.status),
+    firstLine("Static enforcement", result.checks?.static_enforcement?.status),
+    firstLine("Browser QA", result.checks?.browser_qa?.status),
+  ]);
+  addSection(
+    lines,
+    "Findings",
+    toDisplayList(result.findings?.map((finding) => finding.message), 4).map(
+      (finding) => `- ${finding}`,
+    ),
+  );
+
+  return lines.join("\n");
+}
+
+function formatFrontendContextCard(result) {
+  const lines = [
+    "## JudgmentKit Frontend Context",
+    `**Status:** ${planningStatus(result)}`,
+    "**Next step:** Implement or review the UI from this adapter-layer context, preserving activity and disclosure guardrails.",
+  ];
+
+  addSection(lines, "Plan from this", [
+    firstLine("Surface type", result.surface_type),
+    firstLine("Activity", result.activity_model?.activity),
+    firstLine("Workflow", result.workflow?.surface_name),
+    listLine("Required sections", result.implementation_guidance?.required_sections),
+    listLine("Required controls", result.implementation_guidance?.required_controls),
+    firstLine(
+      "Responsive expectation",
+      result.implementation_guidance?.frontend_posture?.responsive_expectations,
+    ),
+  ]);
+  addSection(lines, "Diagnostics", [
+    listLine("Terms to keep out", result.guardrails?.terms_to_keep_out_of_primary_ui),
+  ]);
+
+  return lines.join("\n");
+}
+
 function formatProfileRecommendationCard(result) {
   const recommended = toDisplayList(result.recommended_profile_ids);
   const blocked = toDisplayList(result.blocked_profile_ids);
@@ -447,6 +727,22 @@ function formatPlanningCard(result) {
     return formatErrorCard(result);
   }
 
+  if (result?.frontend_context_status) {
+    return formatFrontendContextCard(result);
+  }
+
+  if (result?.implementation_review_status) {
+    return formatImplementationReviewCard(result);
+  }
+
+  if (result?.implementation_contract_status) {
+    return formatImplementationContractCard(result);
+  }
+
+  if (result?.recommended_surface_type) {
+    return formatSurfaceRecommendationCard(result);
+  }
+
   if (result?.handoff_status) {
     return formatHandoffCard(result);
   }
@@ -478,10 +774,14 @@ export function listTools() {
   return [
     ANALYZE_TOOL,
     ACTIVITY_MODEL_REVIEW_TOOL,
+    RECOMMEND_SURFACE_TYPES_TOOL,
     RECOMMEND_UI_WORKFLOW_PROFILES_TOOL,
     REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL,
     REVIEW_UI_WORKFLOW_CANDIDATE_TOOL,
+    UI_IMPLEMENTATION_CONTRACT_TOOL,
+    REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL,
     UI_GENERATION_HANDOFF_TOOL,
+    FRONTEND_GENERATION_CONTEXT_TOOL,
   ];
 }
 
@@ -502,26 +802,70 @@ export async function handleToolCall(name, args = {}) {
     ![
       ANALYZE_TOOL.name,
       ACTIVITY_MODEL_REVIEW_TOOL.name,
+      RECOMMEND_SURFACE_TYPES_TOOL.name,
       RECOMMEND_UI_WORKFLOW_PROFILES_TOOL.name,
       REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL.name,
       REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name,
+      UI_IMPLEMENTATION_CONTRACT_TOOL.name,
+      REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL.name,
       UI_GENERATION_HANDOFF_TOOL.name,
+      FRONTEND_GENERATION_CONTEXT_TOOL.name,
     ].includes(name)
   ) {
     return createError(
       "invalid_request",
-      `Tool ${name} is not supported. Use ${ANALYZE_TOOL.name}, ${ACTIVITY_MODEL_REVIEW_TOOL.name}, ${RECOMMEND_UI_WORKFLOW_PROFILES_TOOL.name}, ${REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL.name}, ${REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name}, or ${UI_GENERATION_HANDOFF_TOOL.name}.`,
+      `Tool ${name} is not supported. Use ${listTools().map((tool) => tool.name).join(", ")}.`,
     );
   }
 
   try {
+    if (name === FRONTEND_GENERATION_CONTEXT_TOOL.name) {
+      return createFrontendGenerationContext({
+        ui_generation_handoff: args.ui_generation_handoff,
+        surface_review: args.surface_review,
+        surface_type: args.surface_type,
+        frontend_context: args.frontend_context,
+        verification: args.verification,
+      });
+    }
+
     if (name === UI_GENERATION_HANDOFF_TOOL.name) {
-      return createUiGenerationHandoff(args.workflow_review);
+      if (!isRecord(args.implementation_contract)) {
+        throw new JudgmentKitInputError(
+          "create_ui_generation_handoff requires implementation_contract.",
+        );
+      }
+
+      return createUiGenerationHandoff(args.workflow_review, {
+        implementation_contract:
+          args.implementation_contract?.implementation_contract ??
+          args.implementation_contract,
+      });
+    }
+
+    if (name === REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL.name) {
+      if (!isRecord(args.implementation_contract)) {
+        throw new JudgmentKitInputError(
+          "review_ui_implementation_candidate requires implementation_contract.",
+        );
+      }
+
+      return reviewUiImplementationCandidate(args.candidate, {
+        implementation_contract:
+          args.implementation_contract?.implementation_contract ??
+          args.implementation_contract,
+      });
+    }
+
+    if (name === UI_IMPLEMENTATION_CONTRACT_TOOL.name) {
+      return createUiImplementationContract(args);
     }
 
     if (name === REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name) {
       return reviewUiWorkflowCandidate(args.brief, args.candidate, {
         profile_id: args.profile_id,
+        surface_review: args.surface_review,
+        surface_type: args.surface_type,
       });
     }
 
@@ -531,6 +875,12 @@ export async function handleToolCall(name, args = {}) {
 
     if (name === RECOMMEND_UI_WORKFLOW_PROFILES_TOOL.name) {
       return recommendUiWorkflowProfiles(args.brief);
+    }
+
+    if (name === RECOMMEND_SURFACE_TYPES_TOOL.name) {
+      return recommendSurfaceTypes(args.brief, {
+        activity_review: args.activity_review,
+      });
     }
 
     if (name === ACTIVITY_MODEL_REVIEW_TOOL.name) {
@@ -592,6 +942,19 @@ export function createJudgmentKitMcpServer() {
   );
 
   server.registerTool(
+    RECOMMEND_SURFACE_TYPES_TOOL.name,
+    {
+      description: RECOMMEND_SURFACE_TYPES_TOOL.description,
+      inputSchema: {
+        brief: z.string(),
+        activity_review: z.record(z.any()).optional(),
+      },
+    },
+    async (args) =>
+      createToolResult(await handleToolCall(RECOMMEND_SURFACE_TYPES_TOOL.name, args)),
+  );
+
+  server.registerTool(
     RECOMMEND_UI_WORKFLOW_PROFILES_TOOL.name,
     {
       description: RECOMMEND_UI_WORKFLOW_PROFILES_TOOL.description,
@@ -624,10 +987,45 @@ export function createJudgmentKitMcpServer() {
         brief: z.string(),
         candidate: z.record(z.any()),
         profile_id: z.string().optional(),
+        surface_review: z.record(z.any()).optional(),
+        surface_type: z.string().optional(),
       },
     },
     async (args) =>
       createToolResult(await handleToolCall(REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name, args)),
+  );
+
+  server.registerTool(
+    UI_IMPLEMENTATION_CONTRACT_TOOL.name,
+    {
+      description: UI_IMPLEMENTATION_CONTRACT_TOOL.description,
+      inputSchema: {
+        repo_name: z.string().optional(),
+        target_stack: z.string().optional(),
+        external_authority: z.string().optional(),
+        repo_evidence: z.array(z.string()).optional(),
+        approved_primitives: z.array(z.string()).optional(),
+        static_rules: z.array(z.string()).optional(),
+        browser_qa_checks: z.array(z.string()).optional(),
+      },
+    },
+    async (args) =>
+      createToolResult(await handleToolCall(UI_IMPLEMENTATION_CONTRACT_TOOL.name, args)),
+  );
+
+  server.registerTool(
+    REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL.name,
+    {
+      description: REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL.description,
+      inputSchema: {
+        candidate: z.union([z.string(), z.record(z.any())]),
+        implementation_contract: z.record(z.any()),
+      },
+    },
+    async (args) =>
+      createToolResult(
+        await handleToolCall(REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL.name, args),
+      ),
   );
 
   server.registerTool(
@@ -636,10 +1034,27 @@ export function createJudgmentKitMcpServer() {
       description: UI_GENERATION_HANDOFF_TOOL.description,
       inputSchema: {
         workflow_review: z.record(z.any()),
+        implementation_contract: z.record(z.any()),
       },
     },
     async (args) =>
       createToolResult(await handleToolCall(UI_GENERATION_HANDOFF_TOOL.name, args)),
+  );
+
+  server.registerTool(
+    FRONTEND_GENERATION_CONTEXT_TOOL.name,
+    {
+      description: FRONTEND_GENERATION_CONTEXT_TOOL.description,
+      inputSchema: {
+        ui_generation_handoff: z.record(z.any()),
+        surface_review: z.record(z.any()).optional(),
+        surface_type: z.string().optional(),
+        frontend_context: z.record(z.any()).optional(),
+        verification: z.record(z.any()).optional(),
+      },
+    },
+    async (args) =>
+      createToolResult(await handleToolCall(FRONTEND_GENERATION_CONTEXT_TOOL.name, args)),
   );
 
   return server;

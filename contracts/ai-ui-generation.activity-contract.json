@@ -92,6 +92,120 @@
       ]
     }
   },
+  "surface_types": {
+    "marketing": {
+      "label": "Marketing surface",
+      "purpose": "Persuade, orient, convert, or explain an offer.",
+      "applies_when_most_true": [
+        "The audience is a visitor, prospect, buyer, or public reader.",
+        "The work is to explain an offer, value, proof, or conversion path.",
+        "Completion is a clear next step such as signup, demo, purchase, or inquiry."
+      ],
+      "do_not_use_when": [
+        "The user is repeatedly inspecting work items and making operational decisions.",
+        "The task is setup, debugging, auditing, or integration work.",
+        "The surface is primarily a private tool for doing work."
+      ]
+    },
+    "workbench": {
+      "label": "Workbench",
+      "purpose": "Help a user repeatedly inspect, compare, decide, and act.",
+      "applies_when_most_true": [
+        "A domain user handles repeated work items, cases, candidates, or requests.",
+        "The user compares evidence or context before taking action.",
+        "Completion advances the selected work item or produces a handoff."
+      ],
+      "do_not_use_when": [
+        "The surface is primarily public persuasion or orientation.",
+        "The surface is passive monitoring with no bounded action.",
+        "The primary activity is open-ended conversation."
+      ]
+    },
+    "operator_review": {
+      "label": "Operator review",
+      "purpose": "Review AI- or system-produced work, evidence, risk, and handoff.",
+      "applies_when_most_true": [
+        "A human reviews AI- or system-produced work before it advances.",
+        "The user compares evidence, understands risk, and makes a bounded decision.",
+        "The next step may be approved, blocked, returned, deferred, or handed off."
+      ],
+      "do_not_use_when": [
+        "The surface is a simple single-action form.",
+        "The surface is a passive dashboard with no decision.",
+        "Raw system mechanics are the primary task rather than diagnostic context."
+      ]
+    },
+    "form_flow": {
+      "label": "Form flow",
+      "purpose": "Collect or change structured information with validation.",
+      "applies_when_most_true": [
+        "The user enters, edits, submits, or confirms structured information.",
+        "Validation and required information shape success.",
+        "Completion is a saved change, submitted request, or confirmation."
+      ],
+      "do_not_use_when": [
+        "The primary work is comparing evidence across items.",
+        "The surface is mainly marketing even if it contains a lead capture form.",
+        "The user is monitoring status rather than changing information."
+      ]
+    },
+    "dashboard_monitor": {
+      "label": "Dashboard monitor",
+      "purpose": "Track status, exceptions, trends, or operational health.",
+      "applies_when_most_true": [
+        "The user needs status, metrics, trends, alerts, or exceptions.",
+        "The surface is used for periodic or passive monitoring.",
+        "Completion is knowing current state and whether follow-up is needed."
+      ],
+      "do_not_use_when": [
+        "The user must make a bounded approval, return, or handoff decision.",
+        "The task is persuasion or public offer explanation.",
+        "The surface is a data-entry flow with validation."
+      ]
+    },
+    "content_report": {
+      "label": "Content or report",
+      "purpose": "Read, understand, cite, or share information.",
+      "applies_when_most_true": [
+        "The primary activity is reading, learning, citing, or sharing.",
+        "The information is explanatory, narrative, or reference-oriented.",
+        "Completion is understanding, citing, exporting, or sharing the material."
+      ],
+      "do_not_use_when": [
+        "The user must operate a work queue or make bounded decisions.",
+        "The surface is primarily conversion-oriented marketing.",
+        "The task is configuration or debugging."
+      ]
+    },
+    "setup_debug_tool": {
+      "label": "Setup or debugging tool",
+      "purpose": "Configure, inspect, test, or troubleshoot machinery.",
+      "applies_when_most_true": [
+        "The user is setting up, configuring, testing, auditing, or troubleshooting.",
+        "Implementation details are task material rather than incidental source mechanics.",
+        "Completion is a valid setup, a failed check with cause, or a next fix."
+      ],
+      "do_not_use_when": [
+        "Raw mechanics are explicitly diagnostic only.",
+        "The primary surface is public marketing.",
+        "The task is open-ended conversation."
+      ]
+    },
+    "conversation": {
+      "label": "Conversation",
+      "purpose": "Support open-ended exchange where the thread is the primary surface.",
+      "applies_when_most_true": [
+        "The main object is a message thread or live chat.",
+        "The activity is open-ended exchange rather than a bounded workflow.",
+        "Completion is continuing, recovering, or closing the exchange with context intact."
+      ],
+      "do_not_use_when": [
+        "The user must complete a structured form or bounded handoff.",
+        "The work is mainly monitoring status.",
+        "The surface is primarily public persuasion or offer explanation."
+      ]
+    }
+  },
   "activity_model": {
     "activity_supported": "Guiding or reviewing an AI-generated interface pass so the result supports a real user activity instead of exposing data structures or implementation machinery.",
     "participants": [
@@ -285,6 +399,100 @@
         "avoid": "component inventory",
         "prefer": "available interface patterns"
       }
+    ]
+  },
+  "implementation_contract": {
+    "id": "judgmentkit.ui-implementation-contract.portable",
+    "purpose": "Give agents an enforceable implementation gate after activity/workflow judgment, so generated UI uses approved project primitives instead of ad hoc controls.",
+    "authority_order": [
+      "repo-local interface contract and helper primitives",
+      "external product UI system evidence when explicitly provided",
+      "JudgmentKit portable no-system constraint pack"
+    ],
+    "approved_primitives": [
+      "FormField",
+      "TextField",
+      "TextArea",
+      "SelectField",
+      "CheckboxGroup",
+      "CheckboxOption",
+      "FieldGrid",
+      "ModalActions"
+    ],
+    "primitive_rules": [
+      {
+        "primitive": "FormField",
+        "required": [
+          "programmatic label",
+          "help or error text slot",
+          "disabled and invalid affordances"
+        ]
+      },
+      {
+        "primitive": "CheckboxGroup",
+        "required": [
+          "fieldset and legend semantics",
+          "16px checkbox control",
+          "8px label gap",
+          "top-aligned long labels",
+          "responsive wrapping without oversized gutters"
+        ]
+      },
+      {
+        "primitive": "SelectField",
+        "required": [
+          "native or approved select affordance",
+          "clear unassigned or empty option when optional",
+          "visible focus and disabled states"
+        ]
+      }
+    ],
+    "state_coverage": {
+      "required_states": [
+        "empty",
+        "ready",
+        "loading",
+        "error",
+        "disabled",
+        "focus-visible"
+      ],
+      "required_evidence": [
+        "long labels wrap without overlap",
+        "controls preserve target size and spacing",
+        "keyboard focus reveals equivalent information",
+        "validation and disabled reasons are readable"
+      ]
+    },
+    "static_enforcement": {
+      "default_rules": [
+        "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+        "new primitives or variants require updating the repo-local contract first",
+        "generated UI must include a local check command or equivalent static inspection"
+      ]
+    },
+    "browser_qa": {
+      "required": true,
+      "checks": [
+        "desktop viewport screenshot",
+        "mobile viewport screenshot",
+        "keyboard focus check for interactive controls",
+        "overflow check for long labels, descriptions, and values",
+        "disabled, empty, error, and ready state review"
+      ]
+    },
+    "repo_scaffold_outputs": [
+      "project contract doc",
+      "primitive/helper requirements",
+      "static check template",
+      "browser QA checklist",
+      "final response evidence requirements"
+    ],
+    "failure_signals": [
+      "raw form controls appear in feature render code",
+      "checkboxes or labels rely on browser defaults without approved spacing",
+      "a new variant is invented without contract evidence",
+      "focus, disabled, or error states are missing",
+      "browser QA is skipped after UI generation"
     ]
   },
   "evaluation": {

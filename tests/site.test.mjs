@@ -9,10 +9,14 @@ import { getHostedMcpMetadata } from "../src/mcp-http.mjs";
 const EXPECTED_TOOL_NAMES = [
   "analyze_implementation_brief",
   "create_activity_model_review",
+  "recommend_surface_types",
   "recommend_ui_workflow_profiles",
   "review_activity_model_candidate",
   "review_ui_workflow_candidate",
+  "create_ui_implementation_contract",
+  "review_ui_implementation_candidate",
   "create_ui_generation_handoff",
+  "create_frontend_generation_context",
 ];
 
 const OLD_FRAMING = [
@@ -116,12 +120,16 @@ assert.ok(homepage.includes("JudgmentKit system design map"));
 assert.ok(homepage.includes("MCP boundary"));
 assert.ok(homepage.includes("JudgmentKit kernel"));
 assert.ok(homepage.includes("LLM / provider seam"));
-assert.ok(homepage.includes("Design-system adapter"));
+assert.ok(homepage.includes("Surface type"));
+assert.ok(homepage.includes("Frontend adapter"));
+assert.ok(homepage.includes("recommend_surface_types"));
+assert.ok(homepage.includes("create_ui_implementation_contract"));
+assert.ok(homepage.includes("review_ui_implementation_candidate"));
+assert.ok(homepage.includes("create_frontend_generation_context"));
 assert.ok(homepage.includes("Source brief + product context"));
 assert.ok(homepage.includes("Material UI adapter"));
-assert.ok(homepage.includes("renderer choice after reviewed handoff"));
-assert.ok(homepage.includes("JudgmentKit does not enforce"));
-assert.ok(homepage.includes("design-system compliance is not a substitute for activity fit"));
+assert.ok(homepage.includes("selected surface type"));
+assert.ok(homepage.includes("Design-system compliance is not a substitute for activity fit"));
 assert.ok(homepage.includes("without design system"));
 assert.ok(homepage.includes("updated context"));
 assert.ok(homepage.includes("source/activity review"));
@@ -186,18 +194,22 @@ assert.equal(docs.includes('data-system-map-reset'), false);
 assert.ok(docs.includes("JudgmentKit system design map"));
 assert.ok(docs.includes("Use JudgmentKit before generation and across iterations"));
 assert.ok(docs.includes("create_activity_model_review"));
+assert.ok(docs.includes("recommend_surface_types"));
 assert.ok(docs.includes("review_ui_workflow_candidate"));
 assert.ok(docs.includes("create_ui_generation_handoff"));
+assert.ok(docs.includes("create_ui_implementation_contract"));
+assert.ok(docs.includes("review_ui_implementation_candidate"));
+assert.ok(docs.includes("create_frontend_generation_context"));
 assert.ok(docs.includes("MCP boundary"));
 assert.ok(docs.includes("MCP is access and transport, not the LLM"));
 assert.ok(docs.includes("LLM / provider seam"));
 assert.ok(docs.includes("JudgmentKit kernel"));
-assert.ok(docs.includes("Design-system adapter"));
+assert.ok(docs.includes("Surface type"));
+assert.ok(docs.includes("Frontend adapter"));
 assert.ok(docs.includes("Source brief + product context"));
 assert.ok(docs.includes("Material UI adapter"));
-assert.ok(docs.includes("renderer choice after reviewed handoff"));
-assert.ok(docs.includes("JudgmentKit does not enforce"));
-assert.ok(docs.includes("design-system compliance is not a substitute for activity fit"));
+assert.ok(docs.includes("selected surface type"));
+assert.ok(docs.includes("Design-system compliance is not a substitute for activity fit"));
 assert.ok(docs.includes("without design system"));
 assert.ok(docs.includes("updated context"));
 assert.ok(docs.includes("re-enters source/activity review rather than becoming only a longer prompt"));

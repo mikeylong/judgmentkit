@@ -18,10 +18,14 @@ import {
 const EXPECTED_TOOL_NAMES = [
   "analyze_implementation_brief",
   "create_activity_model_review",
+  "recommend_surface_types",
   "recommend_ui_workflow_profiles",
   "review_activity_model_candidate",
   "review_ui_workflow_candidate",
+  "create_ui_implementation_contract",
+  "review_ui_implementation_candidate",
   "create_ui_generation_handoff",
+  "create_frontend_generation_context",
 ];
 
 const OLD_TOOL_NAMES = [

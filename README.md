@@ -13,8 +13,9 @@ JudgmentKit gives the agent a better order of operations:
 1. Understand the activity.
 2. Translate the activity into interaction responsibilities.
 3. Decide what implementation detail should stay hidden, be translated, or appear only as diagnostics.
-4. Generate or critique the UI.
-5. Apply visual system choices only after the activity and interaction model are sound.
+4. Bind generation to approved implementation primitives and verification checks.
+5. Generate or critique the UI.
+6. Apply visual system choices only after the activity and interaction model are sound.
 
 Aesthetics are adapter-layer work. They should refine a relevant UI, not rescue a broken one.
 
@@ -33,9 +34,12 @@ JudgmentKit keeps the core deterministic and lets model assistance enter through
 2. Deterministic review packet: turns that evidence into a reviewable activity model candidate with guardrails.
 3. Model-assisted candidate review seam: accepts a model-proposed candidate through dependency injection or MCP and runs the same guardrails.
 4. Provider-neutral proposer adapter: builds a serializable activity-model request for an injected model caller and returns the proposed candidate to the review seam.
-5. UI workflow candidate review seam: accepts a model- or agent-proposed workflow candidate and checks grounding, action support, handoff clarity, and disclosure containment before UI implementation.
-6. UI generation handoff gate: turns only ready workflow reviews into compact handoffs for the next UI generation pass.
-7. Optional provider adapters: provider configuration and network calls stay outside the kernel and feed proposed candidates back through the same review contract.
+5. Surface-type recommendation: classifies activity purpose as marketing, workbench, operator review, form flow, dashboard monitor, content/report, setup/debug tool, or conversation before workflow or frontend implementation guidance.
+6. UI workflow candidate review seam: accepts a model- or agent-proposed workflow candidate and checks grounding, action support, handoff clarity, and disclosure containment before UI implementation.
+7. UI implementation contract gate: creates or accepts the repo authority for approved primitives, control semantics, required states, static checks, and browser QA.
+8. UI generation handoff gate: turns only ready workflow reviews plus an implementation contract into compact handoffs for the next UI generation pass.
+9. Frontend generation context adapter: combines a ready handoff, selected surface type, frontend context, and verification expectations without making styling or component inventory part of the kernel contract.
+10. Optional provider adapters: provider configuration and network calls stay outside the kernel and feed proposed candidates back through the same review contract.
 
 ## Structure
 

@@ -1496,8 +1496,10 @@ function homepage() {
         <p><strong>MCP boundary:</strong> agents call JudgmentKit tools through MCP; MCP is access and transport, not the LLM.</p>
         <p><strong>JudgmentKit kernel:</strong> deterministic review, candidate review, disclosure rules, targeted questions, and the handoff gate decide whether UI generation is ready.</p>
         <p><strong>LLM / provider seam:</strong> a model may propose activity or workflow candidates, but JudgmentKit reviews those candidates before trusting them.</p>
-        <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
-        <p><strong>Design-system adapter:</strong> the renderer choice after reviewed handoff can use a Material UI adapter or simple primitives without design system support. JudgmentKit does not enforce the visual system, and design-system compliance is not a substitute for activity fit.</p>
+              <p><strong>Surface type:</strong> <code>recommend_surface_types</code> classifies activity purpose before workflow or frontend implementation guidance.</p>
+              <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
+              <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies approved primitives, required states, static checks, and browser QA expectations before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract.</p>
+              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. Design-system compliance is not a substitute for activity fit.</p>
         <p><strong>Iteration:</strong> draft review produces updated context that re-enters source/activity review rather than becoming only a longer prompt.</p>
       </div>
       <p class="system-branch"><strong>Blocked path:</strong> if activity, workflow, or handoff is not ready, resolve targeted questions or leakage details before generating UI.</p>
@@ -1581,8 +1583,10 @@ curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></p
               <p><strong>MCP boundary:</strong> agents call JudgmentKit tools through MCP; MCP is access and transport, not the LLM.</p>
               <p><strong>JudgmentKit kernel:</strong> deterministic review, candidate review, disclosure rules, targeted questions, and the handoff gate decide whether UI generation is ready.</p>
               <p><strong>LLM / provider seam:</strong> a model may propose activity or workflow candidates, but JudgmentKit reviews those candidates before trusting them.</p>
+              <p><strong>Surface type:</strong> <code>recommend_surface_types</code> classifies activity purpose as marketing, workbench, operator review, form flow, dashboard monitor, content/report, setup/debug tool, or conversation before frontend implementation guidance.</p>
               <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
-              <p><strong>Design-system adapter:</strong> the renderer choice after reviewed handoff can use a Material UI adapter or simple primitives without design system support. JudgmentKit does not enforce the visual system, and design-system compliance is not a substitute for activity fit.</p>
+              <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies approved primitives, required states, static checks, and browser QA expectations before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract.</p>
+              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. Design-system compliance is not a substitute for activity fit.</p>
               <p><strong>Iteration:</strong> draft review produces updated context that re-enters source/activity review rather than becoming only a longer prompt.</p>
             </div>
             <p class="system-branch"><strong>Blocked path:</strong> if activity, workflow, or handoff is not ready, resolve targeted questions or leakage details before generating UI.</p>
@@ -1595,9 +1599,21 @@ curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></p
             <h2>Workflow Review</h2>
             <p>Call <code>review_ui_workflow_candidate</code> before accepting an agent-proposed workflow. It checks source grounding, action support, completion or handoff clarity, and leakage containment.</p>
           </section>
+          <section class="doc-section" id="surface-type">
+            <h2>Surface Type</h2>
+            <p>Call <code>recommend_surface_types</code> after activity review and before workflow or frontend implementation guidance. Surface type is activity-purpose guidance, not a visual theme.</p>
+          </section>
           <section class="doc-section" id="handoff">
             <h2>Handoff</h2>
             <p>Call <code>create_ui_generation_handoff</code> only on a ready workflow review. If the gate blocks, resolve the targeted questions or leakage details first.</p>
+          </section>
+          <section class="doc-section" id="implementation-contract">
+            <h2>Implementation Contract</h2>
+            <p>Call <code>create_ui_implementation_contract</code> before final handoff so generated UI has approved primitives, state coverage, static checks, and browser QA expectations. Call <code>review_ui_implementation_candidate</code> before accepting generated UI code or evidence.</p>
+          </section>
+          <section class="doc-section" id="frontend-context">
+            <h2>Frontend Context</h2>
+            <p>Call <code>create_frontend_generation_context</code> after the handoff gate when an agent needs frontend implementation guidance with selected surface type, project context, and verification expectations.</p>
           </section>
           <section class="doc-section" id="profiles">
             <h2>Guidance Profiles</h2>

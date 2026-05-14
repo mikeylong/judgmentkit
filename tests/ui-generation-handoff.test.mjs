@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 
 import {
   JudgmentKitInputError,
+  createUiImplementationContract,
   createUiGenerationHandoff,
+  reviewUiImplementationCandidate,
   reviewUiWorkflowCandidate,
 } from "../src/index.mjs";
 
@@ -33,6 +35,12 @@ const DIAGNOSTIC_AUDIT_BRIEF = `
   The activity is deciding whether a JSON schema change and prompt template update are safe to ship,
   then producing a handoff with the next action for the platform team.
 `;
+
+const implementationContractPacket = createUiImplementationContract({
+  repo_name: "Refund Ops",
+  target_stack: "vanilla JS",
+});
+const implementationContract = implementationContractPacket.implementation_contract;
 
 function refundWorkflowCandidate() {
   return {
@@ -154,7 +162,9 @@ function primaryHandoffText(handoff) {
     REFUND_TRIAGE_BRIEF,
     refundWorkflowCandidate(),
   );
-  const handoff = createUiGenerationHandoff(workflowReview);
+  const handoff = createUiGenerationHandoff(workflowReview, {
+    implementation_contract: implementationContract,
+  });
 
   assert.equal(handoff.handoff_status, "ready_for_generation");
   assert.equal(handoff.contract_id, workflowReview.contract_id);
@@ -167,7 +177,50 @@ function primaryHandoffText(handoff) {
   assert.ok(handoff.primary_surface.sections.includes("Evidence checklist"));
   assert.equal(handoff.handoff.next_owner, "support agent");
   assert.equal(handoff.disclosure_reminders.primary_ui_rule.includes("implementation"), true);
+  assert.deepEqual(
+    handoff.generation_gates.map((gate) => gate.id),
+    ["activity_gate", "implementation_gate"],
+  );
+  assert.ok(handoff.implementation_contract.approved_primitives.includes("CheckboxGroup"));
   assertNoForbiddenHandoffKeys(handoff);
+}
+
+{
+  const rawControlReview = reviewUiImplementationCandidate(
+    {
+      code: '<fieldset><input type="checkbox"> Approve</fieldset>',
+      primitives_used: ["CheckboxGroup"],
+      states_covered: implementationContract.state_coverage.required_states,
+      static_checks: ["npm run check"],
+      browser_qa: {
+        desktop: "desktop screenshot checked",
+        mobile: "mobile screenshot checked",
+      },
+    },
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(rawControlReview.implementation_review_status, "failed");
+  assert.equal(rawControlReview.checks.raw_controls.status, "fail");
+  assert.ok(rawControlReview.checks.raw_controls.detected.includes("checkbox"));
+
+  const approvedReview = reviewUiImplementationCandidate(
+    {
+      code: "renderCheckboxGroup({ options, legend: 'Lane responsibility' })",
+      primitives_used: ["FormField", "CheckboxGroup", "CheckboxOption"],
+      states_covered: implementationContract.state_coverage.required_states,
+      static_checks: ["npm run check", "node scripts/check-ui-contract.mjs"],
+      browser_qa: {
+        desktop: "desktop viewport screenshot checked",
+        mobile: "mobile viewport screenshot checked",
+      },
+    },
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(approvedReview.implementation_review_status, "passed");
+  assert.equal(approvedReview.checks.approved_primitives.status, "pass");
+  assert.deepEqual(approvedReview.findings, []);
 }
 
 {

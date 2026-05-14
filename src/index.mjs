@@ -9,6 +9,16 @@ const DEFAULT_CONTRACT_PATH = path.resolve(
 );
 const DEFAULT_WORKFLOW_ID = "workflow.ai-ui-generation";
 const OPERATOR_REVIEW_PROFILE_ID = "operator-review-ui";
+const SURFACE_TYPE_IDS = [
+  "marketing",
+  "workbench",
+  "operator_review",
+  "form_flow",
+  "dashboard_monitor",
+  "content_report",
+  "setup_debug_tool",
+  "conversation",
+];
 
 export class JudgmentKitInputError extends Error {
   constructor(message, options = {}) {
@@ -31,6 +41,53 @@ function getContractWorkflowId(contract) {
 
 function getUiWorkflowProfiles(contract) {
   return isPlainObject(contract.profiles) ? contract.profiles : {};
+}
+
+function getSurfaceTypes(contract) {
+  if (isPlainObject(contract.surface_types)) {
+    return contract.surface_types;
+  }
+
+  return {};
+}
+
+function normalizeOptionalSurfaceType(surfaceType) {
+  if (surfaceType === undefined || surfaceType === null) {
+    return null;
+  }
+
+  if (typeof surfaceType !== "string" || surfaceType.trim().length === 0) {
+    throw new JudgmentKitInputError(
+      "surface_type must be a non-empty string when provided.",
+    );
+  }
+
+  return surfaceType.trim();
+}
+
+function resolveSurfaceType(contract, surfaceType) {
+  const resolvedSurfaceType = normalizeOptionalSurfaceType(surfaceType);
+
+  if (!resolvedSurfaceType) {
+    return null;
+  }
+
+  const surfaceTypes = getSurfaceTypes(contract);
+
+  if (!surfaceTypes[resolvedSurfaceType]) {
+    throw new JudgmentKitInputError(`Unknown surface_type: ${resolvedSurfaceType}.`, {
+      details: {
+        surface_type: resolvedSurfaceType,
+        available_surface_types: Object.keys(surfaceTypes),
+      },
+    });
+  }
+
+  return {
+    surface_type: resolvedSurfaceType,
+    workflow_id: getContractWorkflowId(contract),
+    ...surfaceTypes[resolvedSurfaceType],
+  };
 }
 
 function normalizeOptionalProfileId(profileId) {
@@ -190,6 +247,10 @@ function hasAny(text, patterns) {
   return patterns.some((pattern) => normalized.includes(pattern));
 }
 
+function hasPattern(text, patterns) {
+  return patterns.some((pattern) => pattern.test(text));
+}
+
 function matchedEvidence(id, label, matched, reason) {
   return {
     id,
@@ -204,7 +265,7 @@ function buildOperatorReviewTriggerEvidence(input, contract) {
   const implementationTermsDetected = detectImplementationTerms(input, contract);
   const hasReviewActor = /\b(?:human|operator|reviewer|lead|manager|approver)\b/.test(normalized) ||
     /\b(?:review|reviews|reviewing|approve|approval|authorize|authorization)\b/.test(normalized);
-  const hasProducedWork = /\b(?:ai|system|agent|model|generated|output|workstream|candidate|finding)\b/.test(normalized);
+  const hasProducedWork = /\b(?:ai|system|model|generated|output|workstream|candidate|finding|agent finding|agent output|ai agent)\b/.test(normalized);
   const hasDecision = /\b(?:decision|decide|deciding|approve|block|defer|tighten|handoff|authorize|return|escalate)\b/.test(normalized);
   const hasEvidenceOrRisk = /\b(?:evidence|risk|compare|comparing|confidence|finding|reason|policy|source)\b/.test(normalized);
   const hasAdvancementAction = /\b(?:approve(?:d)?|block(?:ed)?|defer(?:red)?|tighten(?:ed)?|handoff|handed off|return(?:ed)?|escalate(?:d)?|authorize(?:d)?)\b/.test(normalized);
@@ -354,6 +415,648 @@ export function recommendUiWorkflowProfiles(input, options = {}) {
       },
     },
   };
+}
+
+function surfaceEvidence(id, label, matched, reason) {
+  return matchedEvidence(id, label, matched, reason);
+}
+
+function buildSurfaceTypeInputs(input, activityReview, contract) {
+  const reviewCandidate = activityReview?.candidate ?? {};
+  const activityModel = reviewCandidate.activity_model ?? {};
+  const interactionContract = reviewCandidate.interaction_contract ?? {};
+  const disclosurePolicy = reviewCandidate.disclosure_policy ?? {};
+  const sourceText = [
+    input,
+    activityModel.activity,
+    activityModel.objective,
+    ...(toStringArray(activityModel.participants)),
+    ...(toStringArray(activityModel.outcomes)),
+    ...(toStringArray(activityModel.domain_vocabulary)),
+    interactionContract.primary_decision,
+    ...(toStringArray(interactionContract.next_actions)),
+    interactionContract.completion,
+    ...(toStringArray(disclosurePolicy.terms_to_use)),
+  ].filter(Boolean).join(" ");
+  const implementationTermsDetected = detectImplementationTerms(sourceText, contract);
+
+  return {
+    source_text: sourceText,
+    normalized: normalizeText(sourceText),
+    implementation_terms_detected: implementationTermsDetected,
+  };
+}
+
+function makeSurfaceScore(surfaceType, triggers, exclusions, definition) {
+  const matchedTriggers = triggers.filter((entry) => entry.matched);
+  const matchedExclusions = exclusions.filter((entry) => entry.matched);
+  const score = Math.max(0, matchedTriggers.length - matchedExclusions.length * 2);
+
+  return {
+    surface_type: surfaceType,
+    label: definition?.label ?? surfaceType,
+    purpose: definition?.purpose ?? "",
+    score,
+    trigger_match_count: matchedTriggers.length,
+    exclusion_match_count: matchedExclusions.length,
+    matched_triggers: matchedTriggers.map((entry) => entry.id),
+    matched_exclusions: matchedExclusions.map((entry) => entry.id),
+    triggers,
+    exclusions,
+  };
+}
+
+function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
+  const text = inputContext.normalized;
+  const implementationTermsDetected = inputContext.implementation_terms_detected;
+  const hasReviewDecision =
+    /\b(?:review|reviewing|compare|comparing|decide|deciding|approve|approval|block|handoff|triage|prioritize)\b/.test(text);
+  const hasDecision =
+    /\b(?:decision|decide|deciding|choose|compare|approve|block|return|handoff|prioritize|resolve)\b/.test(text);
+  const hasMarketing =
+    /\b(?:marketing|landing page|homepage|home page|campaign|pricing|signup|sign up|trial|demo|conversion|convert|lead|prospect|visitor|buyer|offer|value prop|value proposition|positioning|launch)\b/.test(text);
+  const hasSetupDebug =
+    /\b(?:setup|configure|configuration|debug|debugging|diagnostic|troubleshoot|test connection|integration setup|audit integration|safe to ship|schema change|prompt template|api endpoint|tool call trace|raw system mechanics)\b/.test(text) ||
+    implementationTermsDetected.length > 0;
+  const hasConversation =
+    /\b(?:chat|conversation|thread|message composer|assistant exchange|live chat|open-ended|open ended)\b/.test(text);
+  const definitions = getSurfaceTypes(contract);
+  const definition = definitions[surfaceType] ?? {};
+
+  if (surfaceType === "marketing") {
+    const triggers = [
+      surfaceEvidence(
+        "persuade_or_convert",
+        "The surface persuades, orients, converts, or explains an offer.",
+        hasMarketing,
+        "Looked for marketing, landing page, offer, conversion, pricing, signup, or audience language.",
+      ),
+      surfaceEvidence(
+        "public_audience",
+        "The audience is a visitor, prospect, buyer, or public reader.",
+        /\b(?:visitor|prospect|buyer|public audience|new customer|lead)\b/.test(text),
+        "Looked for external audience language.",
+      ),
+      surfaceEvidence(
+        "offer_proof_action",
+        "The work needs message, proof, and a primary call to action.",
+        /\b(?:benefit|proof|testimonial|case study|cta|call to action|signup|sign up|book a demo|get started)\b/.test(text),
+        "Looked for offer, proof, and call-to-action language.",
+      ),
+    ];
+    const exclusions = [
+      surfaceEvidence(
+        "bounded_work_decision",
+        "Workbench decision work should not be treated as marketing.",
+        /\b(?:review|reviewing|compare|comparing|approve|approval|block|handoff|triage|queue|workbench|workspace)\b/.test(text),
+        "Review, comparison, approval, triage, queue, or handoff language implies work support.",
+      ),
+      surfaceEvidence(
+        "setup_or_debugging",
+        "Setup and debugging tools should not be treated as marketing.",
+        hasSetupDebug && !hasMarketing,
+        "Setup, debugging, integration, or implementation mechanics are primary.",
+      ),
+    ];
+
+    return makeSurfaceScore(surfaceType, triggers, exclusions, definition);
+  }
+
+  if (surfaceType === "workbench") {
+    const triggers = [
+      surfaceEvidence(
+        "inspect_compare_decide_act",
+        "The user inspects, compares, decides, and acts.",
+        hasReviewDecision,
+        "Looked for review, compare, decision, approval, prioritization, triage, or handoff language.",
+      ),
+      surfaceEvidence(
+        "repeated_work_items",
+        "The surface supports repeated work across items.",
+        /\b(?:queue|list|multiple|several|cases|items|records|requests|findings|workstreams|candidates|workspace|workbench)\b/.test(text),
+        "Looked for queues, lists, cases, requests, findings, workstreams, or workbench language.",
+      ),
+      surfaceEvidence(
+        "domain_operator",
+        "A domain operator, analyst, manager, lead, or team uses the surface.",
+        /\b(?:operator|analyst|manager|lead|reviewer|team|support|operations|planner)\b/.test(text),
+        "Looked for operational participant language.",
+      ),
+    ];
+    const exclusions = [
+      surfaceEvidence(
+        "marketing_primary",
+        "Marketing persuasion should not become a workbench.",
+        hasMarketing && !hasReviewDecision,
+        "Marketing or conversion language is present without work decisions.",
+      ),
+      surfaceEvidence(
+        "conversation_primary",
+        "Open-ended conversation should not become a workbench.",
+        hasConversation && !hasReviewDecision,
+        "Conversation or chat is the primary activity.",
+      ),
+      surfaceEvidence(
+        "passive_monitoring",
+        "Passive monitoring should stay a dashboard monitor.",
+        /\b(?:passive dashboard|monitor|monitoring|status overview|trend dashboard|health dashboard)\b/.test(text) && !hasReviewDecision,
+        "Monitoring or dashboard language appears without decision work.",
+      ),
+    ];
+
+    return makeSurfaceScore(surfaceType, triggers, exclusions, definition);
+  }
+
+  if (surfaceType === "operator_review") {
+    const profileRecommendation = recommendUiWorkflowProfiles(inputContext.source_text, {
+      contract,
+    });
+    const profile = profileRecommendation.recommendations[0] ?? {};
+    const evidence = profileRecommendation.evidence[OPERATOR_REVIEW_PROFILE_ID] ?? {};
+    const triggers = (evidence.triggers ?? []).map((entry) =>
+      surfaceEvidence(entry.id, entry.label, entry.matched, entry.reason),
+    );
+    const exclusions = (evidence.exclusions ?? []).map((entry) =>
+      surfaceEvidence(entry.id, entry.label, entry.matched, entry.reason),
+    );
+    const score = makeSurfaceScore(surfaceType, triggers, exclusions, definition);
+
+    return {
+      ...score,
+      score:
+        profile.status === "recommended"
+          ? Math.max(score.score, 4)
+          : profile.status === "blocked"
+            ? 0
+            : Math.min(score.score, 1),
+      profile_id: OPERATOR_REVIEW_PROFILE_ID,
+      profile_status: profile.status,
+    };
+  }
+
+  if (surfaceType === "form_flow") {
+    const triggers = [
+      surfaceEvidence(
+        "collect_or_change_structured_information",
+        "The surface collects or changes structured information.",
+        /\b(?:form|submit|intake|application|onboarding|settings|profile|checkout|edit|update|create|enter|collect|structured information)\b/.test(text),
+        "Looked for form, submit, intake, onboarding, settings, profile, edit, update, or collect language.",
+      ),
+      surfaceEvidence(
+        "validation_or_required_inputs",
+        "Completion depends on validation or required inputs.",
+        /\b(?:validation|required|invalid|input|field|error state|save changes|confirm)\b/.test(text),
+        "Looked for validation, required inputs, save, confirm, or input language.",
+      ),
+    ];
+    const exclusions = [
+      surfaceEvidence(
+        "multi_item_review",
+        "Multi-item review belongs in a workbench or operator review surface.",
+        /\b(?:queue|multiple|several|compare|review findings|triage)\b/.test(text),
+        "Reviewing multiple items is not primarily a form flow.",
+      ),
+      surfaceEvidence(
+        "marketing_primary",
+        "Marketing pages may contain forms but are not primarily form flows.",
+        hasMarketing && !/\b(?:settings|profile|application|intake)\b/.test(text),
+        "Marketing conversion language is dominant.",
+      ),
+    ];
+
+    return makeSurfaceScore(surfaceType, triggers, exclusions, definition);
+  }
+
+  if (surfaceType === "dashboard_monitor") {
+    const triggers = [
+      surfaceEvidence(
+        "monitor_status_or_trends",
+        "The surface tracks status, exceptions, trends, or operational health.",
+        /\b(?:dashboard|monitor|monitoring|metrics|status|trend|trends|health|kpi|alert|alerts|overview|analytics)\b/.test(text),
+        "Looked for dashboard, monitor, metrics, status, trends, health, alerts, overview, or analytics language.",
+      ),
+      surfaceEvidence(
+        "passive_or_periodic_read",
+        "The surface is used for passive or periodic status reading.",
+        /\b(?:passive|overview|at a glance|track|tracking|watch|weekly|daily status|no decision)\b/.test(text),
+        "Looked for passive, overview, tracking, watching, or no-decision language.",
+      ),
+    ];
+    const exclusions = [
+      surfaceEvidence(
+        "bounded_decision_work",
+        "Bounded review decisions should not be reduced to a dashboard.",
+        /\b(?:approve|block|return|handoff|decide whether|triage)\b/.test(text),
+        "Approval, blocking, return, handoff, or triage language implies work support.",
+      ),
+      surfaceEvidence(
+        "marketing_primary",
+        "Marketing analytics pages should not become dashboards unless monitoring is primary.",
+        hasMarketing && !/\b(?:monitor|metrics|dashboard|analytics)\b/.test(text),
+        "Marketing language is present without monitoring language.",
+      ),
+    ];
+
+    return makeSurfaceScore(surfaceType, triggers, exclusions, definition);
+  }
+
+  if (surfaceType === "content_report") {
+    const triggers = [
+      surfaceEvidence(
+        "read_understand_or_share",
+        "The surface is for reading, understanding, citing, or sharing information.",
+        /\b(?:content page|report|article|doc|docs|documentation|guide|read|learn|cite|share|publish|reference|case study)\b/.test(text),
+        "Looked for report, article, docs, guide, reading, citing, sharing, publishing, reference, or case-study language.",
+      ),
+      surfaceEvidence(
+        "linear_narrative",
+        "The information is primarily narrative or explanatory.",
+        /\b(?:narrative|summary|briefing|analysis report|explain|explanation|writeup)\b/.test(text),
+        "Looked for narrative, summary, briefing, report, explanation, or writeup language.",
+      ),
+    ];
+    const exclusions = [
+      surfaceEvidence(
+        "active_decision_work",
+        "Active decisions should not become reading-only content.",
+        hasDecision && !/\b(?:report decision|share decision)\b/.test(text),
+        "Decision, comparison, approval, or handoff language is present.",
+      ),
+      surfaceEvidence(
+        "marketing_primary",
+        "Marketing persuasion should use marketing guidance rather than a generic report.",
+        hasMarketing,
+        "Marketing or conversion language is present.",
+      ),
+    ];
+
+    return makeSurfaceScore(surfaceType, triggers, exclusions, definition);
+  }
+
+  if (surfaceType === "setup_debug_tool") {
+    const rawMechanicsPrimary =
+      /\b(?:setup|configure|configuration|debug|debugging|diagnostic|troubleshoot|test connection|integration setup|audit integration|safe to ship|release risk|schema change|prompt template|api endpoint|tool call|trace|mcp server)\b/.test(text);
+    const triggers = [
+      surfaceEvidence(
+        "configure_inspect_test_or_troubleshoot",
+        "The surface configures, inspects, tests, or troubleshoots machinery.",
+        rawMechanicsPrimary,
+        "Looked for setup, configuration, debugging, diagnostics, troubleshooting, integration, or test language.",
+      ),
+      surfaceEvidence(
+        "implementation_terms_are_task_material",
+        "Implementation details are part of the task material.",
+        implementationTermsDetected.length > 0,
+        implementationTermsDetected.length > 0
+          ? "Implementation terms were detected in the source."
+          : "No implementation terms were detected.",
+      ),
+    ];
+    const exclusions = [
+      surfaceEvidence(
+        "raw_mechanics_are_diagnostic_only",
+        "If raw mechanics are diagnostic only, do not make them the primary setup surface.",
+        /\b(?:stay diagnostic|diagnostic only|remain diagnostic|should not drive the primary ui)\b/.test(text) &&
+          !/\b(?:setup|configure|debug|troubleshoot|test connection|safe to ship)\b/.test(text),
+        "The brief says raw mechanics should stay diagnostic.",
+      ),
+      surfaceEvidence(
+        "marketing_primary",
+        "Marketing pages should not become setup tools.",
+        hasMarketing && !rawMechanicsPrimary,
+        "Marketing language is present without setup or debugging language.",
+      ),
+    ];
+
+    return makeSurfaceScore(surfaceType, triggers, exclusions, definition);
+  }
+
+  if (surfaceType === "conversation") {
+    const triggers = [
+      surfaceEvidence(
+        "thread_is_primary_surface",
+        "The thread or message exchange is the primary surface.",
+        hasConversation,
+        "Looked for chat, conversation, thread, message composer, live chat, or open-ended exchange language.",
+      ),
+      surfaceEvidence(
+        "open_ended_exchange",
+        "The activity is open-ended exchange rather than a bounded handoff.",
+        /\b(?:open-ended|open ended|back and forth|ask questions|respond|reply)\b/.test(text),
+        "Looked for open-ended exchange language.",
+      ),
+    ];
+    const exclusions = [
+      surfaceEvidence(
+        "bounded_completion",
+        "Bounded decision and handoff work should not become conversation-first.",
+        /\b(?:approve|block|handoff|submit|complete|completion state|decide whether)\b/.test(text),
+        "Bounded decision, completion, or handoff language is present.",
+      ),
+      surfaceEvidence(
+        "marketing_primary",
+        "Marketing pages should not become conversation-first unless chat is the main offer.",
+        hasMarketing && !/\b(?:chat|conversation|assistant)\b/.test(text),
+        "Marketing language is present without conversation language.",
+      ),
+    ];
+
+    return makeSurfaceScore(surfaceType, triggers, exclusions, definition);
+  }
+
+  return makeSurfaceScore(surfaceType, [], [], definition);
+}
+
+function chooseSurfaceType(scores) {
+  const priority = [
+    "setup_debug_tool",
+    "operator_review",
+    "workbench",
+    "form_flow",
+    "dashboard_monitor",
+    "marketing",
+    "content_report",
+    "conversation",
+  ];
+
+  return [...scores].sort((left, right) => {
+    if (right.score !== left.score) {
+      return right.score - left.score;
+    }
+
+    return priority.indexOf(left.surface_type) - priority.indexOf(right.surface_type);
+  })[0];
+}
+
+function surfaceConfidence(activityReview, bestScore) {
+  if (activityReview?.review_status && activityReview.review_status !== "ready_for_review") {
+    return "low";
+  }
+
+  if (bestScore >= 3) {
+    return "high";
+  }
+
+  if (bestScore >= 1) {
+    return "medium";
+  }
+
+  return "low";
+}
+
+function buildSurfaceImplications(surfaceType) {
+  const implications = {
+    marketing: {
+      interaction_implications: {
+        primary_structure: "Audience need, offer, proof, and primary action.",
+        make_easy: ["Understand the offer", "Trust the proof", "Take the next step"],
+        make_harder: ["Expose implementation mechanics", "Force operational review behavior"],
+        completion_focus: "The visitor knows the offer and has a clear next action.",
+      },
+      disclosure_implications: {
+        primary_ui_rule: "Keep implementation details out of the public-facing message.",
+        reveal_implementation_terms: false,
+        diagnostic_contexts: ["setup", "auditing"],
+      },
+      frontend_posture: {
+        density: "editorial",
+        navigation_shape: "section sequence with clear primary action",
+        state_coverage: ["responsive header", "primary action states", "lead capture validation when present"],
+        responsive_expectations: "Mobile must preserve the offer, proof, and action without hiding the next step.",
+        component_families: ["hero", "proof points", "testimonial or evidence band", "call-to-action"],
+      },
+    },
+    workbench: {
+      interaction_implications: {
+        primary_structure: "Item selection, detail evidence, decision controls, and completion state.",
+        make_easy: ["Scan work", "Compare evidence", "Make a bounded decision", "Complete the next action"],
+        make_harder: ["Turn work into passive metrics", "Separate actions from evidence"],
+        completion_focus: "The user advances the selected work with a clear result.",
+      },
+      disclosure_implications: {
+        primary_ui_rule: "Primary UI uses domain terms; diagnostics stay secondary.",
+        reveal_implementation_terms: false,
+        diagnostic_contexts: ["debugging", "auditing", "explicit source inspection"],
+      },
+      frontend_posture: {
+        density: "operational",
+        navigation_shape: "master-detail, split workspace, or queue-detail flow",
+        state_coverage: ["loading", "empty queue", "selected item", "decision pending", "completed handoff", "error"],
+        responsive_expectations: "Small screens need an explicit path between list, detail, decision, and completion.",
+        component_families: ["queue", "detail panel", "evidence list", "decision controls", "handoff receipt"],
+      },
+    },
+    operator_review: {
+      interaction_implications: {
+        primary_structure: "Produced work, evidence, risk, bounded decision, and audit or handoff.",
+        make_easy: ["Identify current item", "Compare evidence", "Understand risk", "Choose approve/block/return/handoff"],
+        make_harder: ["Let raw system mechanics dominate", "Approve without evidence adjacency"],
+        completion_focus: "The review leaves a receipt or handoff with the chosen path and reason.",
+      },
+      disclosure_implications: {
+        primary_ui_rule: "System mechanics are diagnostic unless the activity is explicitly auditing them.",
+        reveal_implementation_terms: false,
+        diagnostic_contexts: ["auditing", "debugging", "explicit source inspection"],
+      },
+      frontend_posture: {
+        density: "dense but bounded",
+        navigation_shape: "review queue with evidence-adjacent actions",
+        state_coverage: ["queued", "selected", "needs evidence", "approved", "blocked", "returned", "handoff sent"],
+        responsive_expectations: "Mobile must keep evidence and action context together before a decision is submitted.",
+        component_families: ["review queue", "evidence panel", "risk indicators", "decision bar", "receipt"],
+      },
+    },
+    form_flow: {
+      interaction_implications: {
+        primary_structure: "Input groups, validation, review, submit, and confirmation.",
+        make_easy: ["Enter required information", "Resolve validation", "Submit confidently"],
+        make_harder: ["Hide errors", "Mix unrelated decisions into the form"],
+        completion_focus: "The user knows the submission or change succeeded.",
+      },
+      disclosure_implications: {
+        primary_ui_rule: "Fields are named in user/domain language, not storage or schema language.",
+        reveal_implementation_terms: false,
+        diagnostic_contexts: ["debugging", "integration"],
+      },
+      frontend_posture: {
+        density: "guided",
+        navigation_shape: "single form or stepped flow",
+        state_coverage: ["initial", "dirty", "validating", "invalid", "submitting", "submitted", "failed"],
+        responsive_expectations: "Mobile input order must follow the task and keep validation messages adjacent.",
+        component_families: ["input group", "validation message", "stepper", "summary", "confirmation"],
+      },
+    },
+    dashboard_monitor: {
+      interaction_implications: {
+        primary_structure: "Status summary, trends, exceptions, filters, and escalation paths.",
+        make_easy: ["See current status", "Notice exceptions", "Track changes over time"],
+        make_harder: ["Imply a decision when the task is only monitoring", "Hide stale data"],
+        completion_focus: "The user knows status, exceptions, and whether follow-up is needed.",
+      },
+      disclosure_implications: {
+        primary_ui_rule: "Metrics and statuses use domain language; source mechanics remain diagnostic.",
+        reveal_implementation_terms: false,
+        diagnostic_contexts: ["auditing", "debugging"],
+      },
+      frontend_posture: {
+        density: "scannable",
+        navigation_shape: "overview with drill-in filters",
+        state_coverage: ["loading", "empty data", "stale data", "healthy", "warning", "critical", "drill-in"],
+        responsive_expectations: "Mobile must preserve status priority and exception access before secondary charts.",
+        component_families: ["status summary", "trend chart", "exception list", "filter controls", "drill-in panel"],
+      },
+    },
+    content_report: {
+      interaction_implications: {
+        primary_structure: "Title, summary, sections, evidence, references, and share or export action.",
+        make_easy: ["Read the argument", "Find evidence", "Share or cite the result"],
+        make_harder: ["Turn reading into unnecessary operational controls"],
+        completion_focus: "The reader understands the information and can cite or share it.",
+      },
+      disclosure_implications: {
+        primary_ui_rule: "Expose source/provenance only when it helps trust, citation, or audit.",
+        reveal_implementation_terms: false,
+        diagnostic_contexts: ["auditing", "explicit source inspection"],
+      },
+      frontend_posture: {
+        density: "readable",
+        navigation_shape: "document outline or report sections",
+        state_coverage: ["loading", "empty", "section anchor", "citation copy", "share/export failed"],
+        responsive_expectations: "Mobile must keep reading order, anchors, and citations usable.",
+        component_families: ["summary", "section", "evidence callout", "reference list", "share action"],
+      },
+    },
+    setup_debug_tool: {
+      interaction_implications: {
+        primary_structure: "Configuration, test result, diagnostic evidence, remediation, and handoff.",
+        make_easy: ["Inspect configuration", "Run or review checks", "Identify failure cause", "Apply next fix"],
+        make_harder: ["Hide details needed for debugging", "Present diagnostics as product copy"],
+        completion_focus: "The user knows whether setup is valid or what to fix next.",
+      },
+      disclosure_implications: {
+        primary_ui_rule: "Implementation details may be primary when the task is explicitly setup, debugging, auditing, or integration.",
+        reveal_implementation_terms: true,
+        diagnostic_contexts: ["setup", "debugging", "auditing", "integration", "explicit source inspection"],
+      },
+      frontend_posture: {
+        density: "diagnostic",
+        navigation_shape: "configuration and results with expandable evidence",
+        state_coverage: ["unchecked", "running", "passed", "warning", "failed", "retrying", "details expanded"],
+        responsive_expectations: "Mobile must keep the current check, result, and remediation visible before raw logs.",
+        component_families: ["configuration panel", "checklist", "test result", "log detail", "remediation action"],
+      },
+    },
+    conversation: {
+      interaction_implications: {
+        primary_structure: "Thread, composer, context, response states, and handoff when needed.",
+        make_easy: ["Read the exchange", "Respond", "Recover from failed sends", "Preserve context"],
+        make_harder: ["Force a rigid workflow when conversation is the work"],
+        completion_focus: "The participant can continue or close the exchange with context intact.",
+      },
+      disclosure_implications: {
+        primary_ui_rule: "System instructions and tool traces stay hidden unless the conversation is explicitly diagnostic.",
+        reveal_implementation_terms: false,
+        diagnostic_contexts: ["debugging", "auditing", "explicit source inspection"],
+      },
+      frontend_posture: {
+        density: "threaded",
+        navigation_shape: "conversation thread with persistent composer",
+        state_coverage: ["empty thread", "sending", "streaming", "sent", "failed", "retry", "handoff"],
+        responsive_expectations: "Mobile must keep the latest message and composer usable together.",
+        component_families: ["message thread", "composer", "attachment affordance", "status indicator", "handoff action"],
+      },
+    },
+  };
+
+  return implications[surfaceType] ?? implications.workbench;
+}
+
+export function recommendSurfaceTypes(input, options = {}) {
+  if (typeof input !== "string" || input.trim().length === 0) {
+    throw new JudgmentKitInputError(
+      "recommendSurfaceTypes requires non-empty text input.",
+    );
+  }
+
+  const contract = options.contract ?? loadActivityContract(options.contractPath);
+  const activityReview = isPlainObject(options.activity_review)
+    ? options.activity_review
+    : isPlainObject(options.activityReview)
+      ? options.activityReview
+      : createActivityModelReview(input, options);
+  const inputContext = buildSurfaceTypeInputs(input.trim(), activityReview, contract);
+  const scores = SURFACE_TYPE_IDS.map((surfaceType) =>
+    buildSurfaceTypeScore(surfaceType, inputContext, contract),
+  );
+  const recommended = chooseSurfaceType(scores);
+  const confidence = surfaceConfidence(activityReview, recommended.score);
+  const blockedSurfaceTypes = scores
+    .filter((entry) => entry.surface_type !== recommended.surface_type)
+    .filter((entry) => entry.exclusion_match_count > 0 || entry.profile_status === "blocked")
+    .map((entry) => entry.surface_type);
+  const implications = buildSurfaceImplications(recommended.surface_type);
+  const packet = {
+    version: contract.version,
+    contract_id: contract.id,
+    workflow_id: getContractWorkflowId(contract),
+    status: activityReview.review_status === "ready_for_review" ? "ready" : "needs_source_context",
+    recommended_surface_type: recommended.surface_type,
+    blocked_surface_types: unique(blockedSurfaceTypes),
+    confidence,
+    evidence: {
+      activity_review_status: activityReview.review_status,
+      input_excerpt: input.trim().slice(0, 240),
+      implementation_terms_detected: inputContext.implementation_terms_detected,
+      surface_type_scores: scores.map((entry) => ({
+        surface_type: entry.surface_type,
+        label: entry.label,
+        purpose: entry.purpose,
+        score: entry.score,
+        trigger_match_count: entry.trigger_match_count,
+        exclusion_match_count: entry.exclusion_match_count,
+        matched_triggers: entry.matched_triggers,
+        matched_exclusions: entry.matched_exclusions,
+        ...(entry.profile_id
+          ? {
+              profile_id: entry.profile_id,
+              profile_status: entry.profile_status,
+            }
+          : {}),
+      })),
+      selected_definition: resolveSurfaceType(contract, recommended.surface_type),
+    },
+    interaction_implications: implications.interaction_implications,
+    disclosure_implications: implications.disclosure_implications,
+    frontend_posture: implications.frontend_posture,
+  };
+
+  return packet;
+}
+
+function summarizeSurfaceReview(surfaceReview, { includeFrontendPosture = false } = {}) {
+  if (!isPlainObject(surfaceReview)) {
+    return null;
+  }
+
+  const summary = {
+    recommended_surface_type: optionalString(surfaceReview.recommended_surface_type),
+    blocked_surface_types: toStringArray(surfaceReview.blocked_surface_types),
+    confidence: optionalString(surfaceReview.confidence),
+    interaction_implications: isPlainObject(surfaceReview.interaction_implications)
+      ? surfaceReview.interaction_implications
+      : {},
+    disclosure_implications: isPlainObject(surfaceReview.disclosure_implications)
+      ? surfaceReview.disclosure_implications
+      : {},
+  };
+
+  if (includeFrontendPosture) {
+    summary.frontend_posture = isPlainObject(surfaceReview.frontend_posture)
+      ? surfaceReview.frontend_posture
+      : {};
+  }
+
+  return summary;
 }
 
 function inferActivityEvidence(input) {
@@ -1788,7 +2491,12 @@ function buildUiWorkflowQuestions(activityReview, candidateGuardrails) {
   return selectTargetedQuestionsFromCandidates(questions);
 }
 
-function buildUiWorkflowReviewAssumptions(activityReview, source, guidanceProfile) {
+function buildUiWorkflowReviewAssumptions(
+  activityReview,
+  source,
+  guidanceProfile,
+  surfaceGuidance,
+) {
   const assumptions = [
     "Treat this as a reviewable UI workflow candidate, not final product approval.",
     "Activity review remains the source of truth for grounding and disclosure.",
@@ -1809,6 +2517,12 @@ function buildUiWorkflowReviewAssumptions(activityReview, source, guidanceProfil
   if (guidanceProfile) {
     assumptions.push(
       "Selected guidance profiles shape review expectations but remain outside product UI copy.",
+    );
+  }
+
+  if (surfaceGuidance) {
+    assumptions.push(
+      "Selected surface guidance shapes interaction purpose before frontend implementation.",
     );
   }
 
@@ -1838,6 +2552,7 @@ function buildUiWorkflowReviewPacket(
   source,
   contract,
   guidanceProfile = null,
+  surfaceReview = null,
 ) {
   const sourceReady = activityReview.review_status === "ready_for_review";
   const candidateGuardrails = buildUiWorkflowCandidateGuardrails(candidate, contract);
@@ -1854,6 +2569,7 @@ function buildUiWorkflowReviewPacket(
     activityReview.guardrails?.source_missing_evidence ??
     activityReview.guardrails?.missing_evidence ??
     {};
+  const surfaceGuidance = summarizeSurfaceReview(surfaceReview);
   const packet = {
     version: activityReview.version,
     contract_id: activityReview.contract_id,
@@ -1866,6 +2582,12 @@ function buildUiWorkflowReviewPacket(
       input_excerpt: activityReview.source?.input_excerpt,
     },
     ...(guidanceProfile ? { guidance_profile: guidanceProfile } : {}),
+    ...(surfaceGuidance
+      ? {
+          surface_type: surfaceGuidance.recommended_surface_type,
+          surface_guidance: surfaceGuidance,
+        }
+      : {}),
     activity_review: activityReview,
     candidate: normalizedCandidate,
     review: {
@@ -1883,7 +2605,12 @@ function buildUiWorkflowReviewPacket(
         candidate_primary_meta_terms_detected:
           candidateGuardrails.candidate_primary_meta_terms_detected,
       },
-      assumptions: buildUiWorkflowReviewAssumptions(activityReview, source, guidanceProfile),
+      assumptions: buildUiWorkflowReviewAssumptions(
+        activityReview,
+        source,
+        guidanceProfile,
+        surfaceGuidance,
+      ),
       confidence: buildUiWorkflowConfidence(activityReview, candidateGuardrails),
       targeted_questions: buildUiWorkflowQuestions(activityReview, candidateGuardrails),
     },
@@ -1900,6 +2627,9 @@ function buildUiWorkflowReviewPacket(
       disclosure_translation_candidates:
         activityReview.guardrails?.disclosure_translation_candidates ?? [],
       ...(guidanceProfile ? { guidance_profile_id: guidanceProfile.profile_id } : {}),
+      ...(surfaceGuidance
+        ? { recommended_surface_type: surfaceGuidance.recommended_surface_type }
+        : {}),
     },
   };
 
@@ -1958,6 +2688,7 @@ export function buildUiWorkflowCandidateRequest({
   brief,
   activity_review: activityReview,
   profile_id: profileId,
+  surface_review: surfaceReview,
   contract,
   contractPath,
 } = {}) {
@@ -1984,9 +2715,14 @@ export function buildUiWorkflowCandidateRequest({
     activity_review: buildUiWorkflowReviewContext(activityReview),
     candidate_shape: buildUiWorkflowCandidateShapeGuide(),
   };
+  const surfaceGuidance = summarizeSurfaceReview(surfaceReview);
 
   if (guidanceProfile) {
     userPayload.guidance_profile = guidanceProfile;
+  }
+
+  if (surfaceGuidance) {
+    userPayload.surface_guidance = surfaceGuidance;
   }
 
   return {
@@ -2001,6 +2737,9 @@ export function buildUiWorkflowCandidateRequest({
           "Implementation terms may appear only in diagnostics when they are diagnostic.",
           guidanceProfile
             ? "Apply the selected guidance_profile as activity guidance; do not copy guardrail ids or internal mechanics into product UI copy."
+            : "",
+          surfaceGuidance
+            ? "Apply the selected surface_guidance as interaction-purpose guidance; do not treat it as styling or a component inventory."
             : "",
           "Do not propose styling, components, design tokens, framework code, provider configuration, or network behavior.",
         ].filter(Boolean).join(" "),
@@ -2032,6 +2771,11 @@ export function buildUiWorkflowCandidateRequest({
             guidance_profile: guidanceProfile,
           }
         : {}),
+      ...(surfaceGuidance
+        ? {
+            recommended_surface_type: surfaceGuidance.recommended_surface_type,
+          }
+        : {}),
     },
   };
 }
@@ -2052,11 +2796,13 @@ export function createUiWorkflowProposer({
     brief,
     activity_review: activityReview,
     profile_id: requestProfileId,
+    surface_review: surfaceReview,
   } = {}) {
     const request = buildUiWorkflowCandidateRequest({
       brief,
       activity_review: activityReview,
       profile_id: requestProfileId ?? defaultProfileId,
+      surface_review: surfaceReview,
       contract,
       contractPath,
     });
@@ -2073,6 +2819,8 @@ export function reviewUiWorkflowCandidate(input, candidate, options = {}) {
     proposer = "external_candidate",
     activity_review: providedActivityReview,
     profile_id: profileId,
+    surface_review: providedSurfaceReview,
+    surface_type: providedSurfaceType,
     ...analysisOptions
   } = options;
 
@@ -2082,6 +2830,19 @@ export function reviewUiWorkflowCandidate(input, candidate, options = {}) {
     providedActivityReview ?? createActivityModelReview(input, analysisOptions);
   const contract = analysisOptions.contract ?? loadActivityContract(analysisOptions.contractPath);
   const guidanceProfile = resolveUiWorkflowGuidanceProfile(contract, profileId);
+  const resolvedSurfaceType = providedSurfaceType
+    ? resolveSurfaceType(contract, providedSurfaceType).surface_type
+    : null;
+  const surfaceReview = isPlainObject(providedSurfaceReview)
+    ? providedSurfaceReview
+    : resolvedSurfaceType
+      ? {
+          recommended_surface_type: resolvedSurfaceType,
+          confidence: "user_selected",
+          blocked_surface_types: [],
+          ...buildSurfaceImplications(resolvedSurfaceType),
+        }
+      : null;
 
   return buildUiWorkflowReviewPacket(
     activityReview,
@@ -2089,11 +2850,12 @@ export function reviewUiWorkflowCandidate(input, candidate, options = {}) {
     { mode: "model_assisted", proposer },
     contract,
     guidanceProfile,
+    surfaceReview,
   );
 }
 
 export async function createModelAssistedUiWorkflowReview(input, options = {}) {
-  const { propose, profile_id: profileId, ...analysisOptions } = options;
+  const { propose, profile_id: profileId, surface_review: surfaceReview, ...analysisOptions } = options;
 
   if (typeof propose !== "function") {
     throw new JudgmentKitInputError(
@@ -2106,12 +2868,14 @@ export async function createModelAssistedUiWorkflowReview(input, options = {}) {
     brief: input,
     activity_review: activityReview,
     profile_id: profileId,
+    surface_review: surfaceReview,
   });
 
   return reviewUiWorkflowCandidate(input, candidate, {
     ...analysisOptions,
     activity_review: activityReview,
     profile_id: profileId,
+    surface_review: surfaceReview,
     proposer: "injected",
   });
 }
@@ -2191,7 +2955,393 @@ function buildTermsToKeepOutOfPrimaryUi(workflowReview) {
   ]);
 }
 
-export function createUiGenerationHandoff(workflowReview) {
+function getContractUiImplementationContract(contract) {
+  return isPlainObject(contract.implementation_contract)
+    ? contract.implementation_contract
+    : {};
+}
+
+function normalizePrimitiveList(values, fallback = []) {
+  const entries = toStringArray(values);
+  return entries.length > 0 ? unique(entries) : unique(fallback);
+}
+
+function normalizeUiImplementationContract(input = {}, options = {}) {
+  const contract = options.contract ?? loadActivityContract(options.contractPath);
+  const base = getContractUiImplementationContract(contract);
+  const source = isPlainObject(input) ? input : {};
+  const approvedPrimitives = normalizePrimitiveList(
+    source.approved_primitives,
+    base.approved_primitives,
+  );
+  const requiredStates = normalizePrimitiveList(
+    source.state_coverage?.required_states ?? source.required_states,
+    base.state_coverage?.required_states,
+  );
+  const requiredStateEvidence = normalizePrimitiveList(
+    source.state_coverage?.required_evidence ?? source.required_state_evidence,
+    base.state_coverage?.required_evidence,
+  );
+  const browserQaChecks = normalizePrimitiveList(
+    source.browser_qa?.checks ?? source.browser_qa_checks,
+    base.browser_qa?.checks,
+  );
+  const staticRules = normalizePrimitiveList(
+    source.static_enforcement?.default_rules ?? source.static_rules,
+    base.static_enforcement?.default_rules,
+  );
+  const primitiveRules = Array.isArray(source.primitive_rules)
+    ? source.primitive_rules
+    : Array.isArray(base.primitive_rules)
+      ? base.primitive_rules
+      : [];
+
+  return {
+    id: optionalString(source.id) || optionalString(base.id) || "judgmentkit.ui-implementation-contract.portable",
+    purpose:
+      optionalString(source.purpose) ||
+      optionalString(base.purpose) ||
+      "Enforce approved UI primitives after activity and workflow judgment.",
+    authority_order: normalizePrimitiveList(
+      source.authority_order,
+      base.authority_order,
+    ),
+    approved_primitives: approvedPrimitives,
+    primitive_rules: primitiveRules
+      .filter(isPlainObject)
+      .map((rule) => ({
+        primitive: optionalString(rule.primitive),
+        required: toStringArray(rule.required),
+      }))
+      .filter((rule) => rule.primitive),
+    state_coverage: {
+      required_states: requiredStates,
+      required_evidence: requiredStateEvidence,
+    },
+    static_enforcement: {
+      default_rules: staticRules,
+    },
+    browser_qa: {
+      required:
+        typeof source.browser_qa?.required === "boolean"
+          ? source.browser_qa.required
+          : typeof base.browser_qa?.required === "boolean"
+            ? base.browser_qa.required
+            : true,
+      checks: browserQaChecks,
+    },
+    repo_scaffold_outputs: normalizePrimitiveList(
+      source.repo_scaffold_outputs,
+      base.repo_scaffold_outputs,
+    ),
+    failure_signals: normalizePrimitiveList(
+      source.failure_signals,
+      base.failure_signals,
+    ),
+  };
+}
+
+function implementationContractSource(input = {}) {
+  if (isPlainObject(input) && toStringArray(input.repo_evidence).length > 0) {
+    return "repo_evidence";
+  }
+
+  if (
+    isPlainObject(input) &&
+    (typeof input.external_authority === "string" ||
+      typeof input.external_system_name === "string")
+  ) {
+    return "external_authority";
+  }
+
+  return "portable_defaults";
+}
+
+export function createUiImplementationContract(input = {}, options = {}) {
+  if (input !== undefined && input !== null && !isPlainObject(input)) {
+    throw new JudgmentKitInputError(
+      "createUiImplementationContract requires an object when input is provided.",
+    );
+  }
+
+  const contract = options.contract ?? loadActivityContract(options.contractPath);
+  const normalized = normalizeUiImplementationContract(input ?? {}, { contract });
+  const packet = {
+    version: contract.version,
+    contract_id: contract.id,
+    workflow_id: getContractWorkflowId(contract),
+    implementation_contract_status: "ready",
+    source: {
+      mode: implementationContractSource(input ?? {}),
+      repo_name: optionalString(input?.repo_name),
+      target_stack: optionalString(input?.target_stack),
+      external_authority: optionalString(
+        input?.external_authority ?? input?.external_system_name,
+      ),
+    },
+    implementation_contract: normalized,
+    generation_gates: [
+      {
+        id: "activity_gate",
+        status: "required_before_implementation",
+        checks: [
+          "activity model",
+          "workflow review",
+          "disclosure boundary",
+        ],
+      },
+      {
+        id: "implementation_gate",
+        status: "ready_for_candidate_review",
+        checks: [
+          "approved primitives",
+          "state coverage",
+          "static enforcement",
+          "browser QA",
+        ],
+      },
+    ],
+  };
+
+  assertNoStyleFields(packet);
+
+  return packet;
+}
+
+function candidateText(value) {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (!isPlainObject(value)) {
+    return "";
+  }
+
+  return [
+    value.code,
+    value.markup,
+    value.patch,
+    value.diff,
+    value.rendered_markup,
+    value.description,
+    JSON.stringify(value),
+  ]
+    .filter((entry) => typeof entry === "string")
+    .join("\n");
+}
+
+function normalizeCandidateList(candidate, keys) {
+  if (!isPlainObject(candidate)) {
+    return [];
+  }
+
+  for (const key of keys) {
+    const values = toStringArray(candidate[key]);
+    if (values.length > 0) {
+      return unique(values);
+    }
+  }
+
+  return [];
+}
+
+function detectRawControls(text) {
+  const matches = [];
+  const pattern = /<\s*(input|select|textarea)\b/gi;
+  let match;
+
+  while ((match = pattern.exec(text)) !== null) {
+    matches.push(match[1].toLowerCase());
+  }
+
+  if (/<\s*input\b[^>]*type=["']?checkbox/gi.test(text)) {
+    matches.push("checkbox");
+  }
+
+  return unique(matches);
+}
+
+function buildImplementationCandidateChecks(candidate, implementationContract) {
+  const text = candidateText(candidate);
+  const rawControls = detectRawControls(text);
+  const primitivesUsed = normalizeCandidateList(candidate, [
+    "primitives_used",
+    "approved_primitives_used",
+    "interface_primitives_used",
+  ]);
+  const approvedPrimitives = new Set(implementationContract.approved_primitives);
+  const inventedPrimitives = primitivesUsed.filter(
+    (primitive) => !approvedPrimitives.has(primitive),
+  );
+  const statesCovered = normalizeCandidateList(candidate, [
+    "states_covered",
+    "states_verified",
+    "state_coverage",
+  ]);
+  const requiredStates = implementationContract.state_coverage.required_states;
+  const missingStates = requiredStates.filter((state) => !statesCovered.includes(state));
+  const staticChecks = normalizeCandidateList(candidate, [
+    "static_checks",
+    "static_check_commands",
+    "checks_run",
+  ]);
+  const browserQa = isPlainObject(candidate)
+    ? candidate.browser_qa ?? candidate.browser_qa_evidence
+    : null;
+  const browserQaText = isPlainObject(browserQa)
+    ? JSON.stringify(browserQa).toLowerCase()
+    : "";
+  const hasDesktopQa = /desktop|wide|1024|1280|1440/.test(browserQaText);
+  const hasMobileQa = /mobile|narrow|375|390|414/.test(browserQaText);
+  const browserQaRequired = implementationContract.browser_qa.required;
+  const missingBrowserQa = browserQaRequired && (!browserQaText || !hasDesktopQa || !hasMobileQa);
+  const findings = [];
+
+  if (rawControls.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "raw_controls",
+      message:
+        "Feature UI emits raw form controls instead of approved primitives.",
+      evidence: rawControls,
+    });
+  }
+
+  if (inventedPrimitives.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "approved_primitives",
+      message: "Candidate uses primitives that are not in the implementation contract.",
+      evidence: inventedPrimitives,
+    });
+  }
+
+  if (missingStates.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "state_coverage",
+      message: "Candidate is missing required UI states.",
+      evidence: missingStates,
+    });
+  }
+
+  if (staticChecks.length === 0) {
+    findings.push({
+      severity: "fail",
+      check: "static_enforcement",
+      message: "Candidate does not provide local static enforcement evidence.",
+      evidence: implementationContract.static_enforcement.default_rules,
+    });
+  }
+
+  if (missingBrowserQa) {
+    findings.push({
+      severity: "fail",
+      check: "browser_qa",
+      message:
+        "Candidate does not provide desktop and mobile browser QA evidence.",
+      evidence: implementationContract.browser_qa.checks,
+    });
+  }
+
+  return {
+    raw_controls: {
+      status: rawControls.length === 0 ? "pass" : "fail",
+      detected: rawControls,
+    },
+    approved_primitives: {
+      status: inventedPrimitives.length === 0 ? "pass" : "fail",
+      used: primitivesUsed,
+      invented: inventedPrimitives,
+    },
+    state_coverage: {
+      status: missingStates.length === 0 ? "pass" : "fail",
+      required: requiredStates,
+      covered: statesCovered,
+      missing: missingStates,
+    },
+    static_enforcement: {
+      status: staticChecks.length > 0 ? "pass" : "fail",
+      evidence: staticChecks,
+    },
+    browser_qa: {
+      status: missingBrowserQa ? "fail" : "pass",
+      desktop: hasDesktopQa,
+      mobile: hasMobileQa,
+    },
+    findings,
+  };
+}
+
+export function reviewUiImplementationCandidate(candidate, options = {}) {
+  if (
+    (typeof candidate !== "string" || candidate.trim().length === 0) &&
+    !isPlainObject(candidate)
+  ) {
+    throw new JudgmentKitInputError(
+      "reviewUiImplementationCandidate requires candidate text or an object.",
+    );
+  }
+
+  const contract = options.contract ?? loadActivityContract(options.contractPath);
+  const implementationContract = normalizeUiImplementationContract(
+    options.implementation_contract ??
+      options.ui_implementation_contract ??
+      contract.implementation_contract,
+    { contract },
+  );
+  const checks = buildImplementationCandidateChecks(candidate, implementationContract);
+  const failed = checks.findings.some((finding) => finding.severity === "fail");
+  const packet = {
+    version: contract.version,
+    contract_id: contract.id,
+    workflow_id: getContractWorkflowId(contract),
+    implementation_review_status: failed ? "failed" : "passed",
+    implementation_contract_id: implementationContract.id,
+    generation_gates: [
+      {
+        id: "activity_gate",
+        status: "not_evaluated_by_this_tool",
+        requirement:
+          "Use activity and workflow review tools before implementation review.",
+      },
+      {
+        id: "implementation_gate",
+        status: failed ? "failed" : "passed",
+        requirement:
+          "Generated UI must use approved primitives and provide static plus browser QA evidence.",
+      },
+    ],
+    checks: {
+      raw_controls: checks.raw_controls,
+      approved_primitives: checks.approved_primitives,
+      state_coverage: checks.state_coverage,
+      static_enforcement: checks.static_enforcement,
+      browser_qa: checks.browser_qa,
+    },
+    findings: checks.findings,
+    implementation_contract: implementationContract,
+  };
+
+  assertNoStyleFields(packet);
+
+  return packet;
+}
+
+function compactImplementationContractForHandoff(implementationContract) {
+  return {
+    id: implementationContract.id,
+    purpose: implementationContract.purpose,
+    authority_order: implementationContract.authority_order,
+    approved_primitives: implementationContract.approved_primitives,
+    state_coverage: implementationContract.state_coverage,
+    static_enforcement: implementationContract.static_enforcement,
+    browser_qa: implementationContract.browser_qa,
+    failure_signals: implementationContract.failure_signals,
+  };
+}
+
+export function createUiGenerationHandoff(workflowReview, options = {}) {
   if (!isPlainObject(workflowReview)) {
     throw new JudgmentKitInputError(
       "createUiGenerationHandoff requires a workflow_review object.",
@@ -2218,6 +3368,13 @@ export function createUiGenerationHandoff(workflowReview) {
 
   const activityCandidate = workflowReview.activity_review.candidate;
   const workflowCandidate = workflowReview.candidate;
+  const contract = options.contract ?? loadActivityContract(options.contractPath);
+  const implementationContract = normalizeUiImplementationContract(
+    options.implementation_contract ??
+      options.ui_implementation_contract ??
+      contract.implementation_contract,
+    { contract },
+  );
   const handoff = {
     version: workflowReview.version,
     contract_id: workflowReview.contract_id,
@@ -2230,6 +3387,7 @@ export function createUiGenerationHandoff(workflowReview) {
     ...(workflowReview.guidance_profile
       ? { guidance_profile: workflowReview.guidance_profile }
       : {}),
+    ...(workflowReview.surface_type ? { surface_type: workflowReview.surface_type } : {}),
     activity_model: {
       activity: optionalString(activityCandidate.activity_model?.activity),
       participants: toStringArray(activityCandidate.activity_model?.participants),
@@ -2275,9 +3433,185 @@ export function createUiGenerationHandoff(workflowReview) {
       primary_ui_rule:
         "Keep implementation details and JudgmentKit review-packet terms out of product UI.",
     },
+    generation_gates: [
+      {
+        id: "activity_gate",
+        status: "passed",
+        evidence: [
+          "activity model reviewed",
+          "workflow candidate ready",
+          "disclosure boundary checked",
+        ],
+      },
+      {
+        id: "implementation_gate",
+        status: "required_before_final_handoff",
+        evidence: [
+          "use approved primitives",
+          "run static enforcement",
+          "complete desktop and mobile browser QA",
+        ],
+      },
+    ],
+    implementation_contract:
+      compactImplementationContractForHandoff(implementationContract),
   };
 
   assertNoStyleFields(handoff);
 
   return handoff;
+}
+
+function textFromHandoff(handoff) {
+  return [
+    handoff.activity_model?.activity,
+    handoff.activity_model?.objective,
+    ...(toStringArray(handoff.activity_model?.participants)),
+    ...(toStringArray(handoff.activity_model?.outcomes)),
+    ...(toStringArray(handoff.activity_model?.domain_vocabulary)),
+    handoff.interaction_contract?.primary_decision,
+    ...(toStringArray(handoff.interaction_contract?.next_actions)),
+    handoff.interaction_contract?.completion,
+    handoff.workflow?.surface_name,
+    ...(toStringArray(handoff.workflow?.steps)),
+    ...(toStringArray(handoff.workflow?.primary_actions)),
+    ...(toStringArray(handoff.workflow?.decision_points)),
+    handoff.workflow?.completion_state,
+    ...(toStringArray(handoff.primary_surface?.sections)),
+    ...(toStringArray(handoff.primary_surface?.controls)),
+    ...(toStringArray(handoff.primary_surface?.user_facing_terms)),
+    handoff.handoff?.next_owner,
+    handoff.handoff?.reason,
+    handoff.handoff?.next_action,
+  ].filter(Boolean).join(" ");
+}
+
+function normalizeFrontendContext(value) {
+  return isPlainObject(value) ? value : {};
+}
+
+function normalizeVerificationContext(value) {
+  return isPlainObject(value) ? value : {};
+}
+
+export function createFrontendGenerationContext({
+  ui_generation_handoff: uiGenerationHandoff,
+  surface_review: surfaceReview,
+  surface_type: surfaceType,
+  frontend_context: frontendContext,
+  verification,
+  contract,
+  contractPath,
+} = {}) {
+  if (!isPlainObject(uiGenerationHandoff)) {
+    throw new JudgmentKitInputError(
+      "createFrontendGenerationContext requires ui_generation_handoff.",
+    );
+  }
+
+  if (uiGenerationHandoff.handoff_status !== "ready_for_generation") {
+    throw new JudgmentKitInputError(
+      "Frontend generation context requires a ready UI generation handoff.",
+      {
+        code: "frontend_context_blocked",
+        details: {
+          handoff_status: uiGenerationHandoff.handoff_status,
+          review_status: uiGenerationHandoff.review_status,
+        },
+      },
+    );
+  }
+
+  const resolvedContract = contract ?? loadActivityContract(contractPath);
+  const selectedSurfaceType = normalizeOptionalSurfaceType(
+    surfaceType ?? uiGenerationHandoff.surface_type ?? surfaceReview?.recommended_surface_type,
+  );
+  const inferredSurfaceReview = isPlainObject(surfaceReview)
+    ? surfaceReview
+    : selectedSurfaceType
+      ? {
+          recommended_surface_type: resolveSurfaceType(
+            resolvedContract,
+            selectedSurfaceType,
+          ).surface_type,
+          confidence: "provided",
+          blocked_surface_types: [],
+          ...buildSurfaceImplications(selectedSurfaceType),
+        }
+      : recommendSurfaceTypes(textFromHandoff(uiGenerationHandoff), {
+          contract: resolvedContract,
+          activity_review: {
+            review_status: "ready_for_review",
+            candidate: {
+              activity_model: uiGenerationHandoff.activity_model,
+              interaction_contract: uiGenerationHandoff.interaction_contract,
+              disclosure_policy: {
+                terms_to_use: uiGenerationHandoff.primary_surface?.user_facing_terms ?? [],
+              },
+            },
+          },
+        });
+  const surfaceGuidance = summarizeSurfaceReview(inferredSurfaceReview, {
+    includeFrontendPosture: true,
+  });
+  const normalizedFrontendContext = normalizeFrontendContext(frontendContext);
+  const normalizedVerification = normalizeVerificationContext(verification);
+
+  return {
+    version: uiGenerationHandoff.version,
+    contract_id: uiGenerationHandoff.contract_id,
+    workflow_id: getContractWorkflowId(resolvedContract),
+    frontend_context_status: "ready_for_frontend_implementation",
+    source: {
+      handoff_status: uiGenerationHandoff.handoff_status,
+      surface_type_source: isPlainObject(surfaceReview)
+        ? "surface_review"
+        : selectedSurfaceType
+          ? "provided_surface_type"
+          : "inferred_from_handoff",
+    },
+    surface_type: surfaceGuidance.recommended_surface_type,
+    surface_guidance: surfaceGuidance,
+    activity_model: uiGenerationHandoff.activity_model,
+    interaction_contract: uiGenerationHandoff.interaction_contract,
+    workflow: uiGenerationHandoff.workflow,
+    primary_surface: uiGenerationHandoff.primary_surface,
+    handoff: uiGenerationHandoff.handoff,
+    implementation_contract: uiGenerationHandoff.implementation_contract,
+    disclosure_reminders: uiGenerationHandoff.disclosure_reminders,
+    frontend_context: {
+      target_runtime: optionalString(normalizedFrontendContext.target_runtime),
+      ui_library: optionalString(normalizedFrontendContext.ui_library),
+      project_rules: toStringArray(normalizedFrontendContext.project_rules),
+      approved_component_families: toStringArray(
+        normalizedFrontendContext.approved_component_families,
+      ),
+      files_or_entrypoints: toStringArray(normalizedFrontendContext.files_or_entrypoints),
+    },
+    implementation_guidance: {
+      surface_type: surfaceGuidance.recommended_surface_type,
+      interaction_implications: surfaceGuidance.interaction_implications,
+      disclosure_implications: surfaceGuidance.disclosure_implications,
+      frontend_posture: surfaceGuidance.frontend_posture,
+      implementation_contract: uiGenerationHandoff.implementation_contract,
+      required_sections: toStringArray(uiGenerationHandoff.primary_surface?.sections),
+      required_controls: toStringArray(uiGenerationHandoff.primary_surface?.controls),
+      verification_expectations: {
+        commands: toStringArray(normalizedVerification.commands),
+        browser_checks: toStringArray(normalizedVerification.browser_checks),
+        states_to_verify: toStringArray(normalizedVerification.states_to_verify),
+      },
+    },
+    guardrails: {
+      adapter_layer: true,
+      requires_ready_handoff: true,
+      activity_first: true,
+      terms_to_keep_out_of_primary_ui:
+        uiGenerationHandoff.disclosure_reminders?.terms_to_keep_out_of_primary_ui ?? [],
+      diagnostic_contexts:
+        uiGenerationHandoff.disclosure_reminders?.diagnostic_contexts ?? [],
+      approved_primitives:
+        uiGenerationHandoff.implementation_contract?.approved_primitives ?? [],
+    },
+  };
 }

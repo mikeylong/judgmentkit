@@ -56,10 +56,14 @@ try {
     [
       "analyze_implementation_brief",
       "create_activity_model_review",
+      "recommend_surface_types",
       "recommend_ui_workflow_profiles",
       "review_activity_model_candidate",
       "review_ui_workflow_candidate",
+      "create_ui_implementation_contract",
+      "review_ui_implementation_candidate",
       "create_ui_generation_handoff",
+      "create_frontend_generation_context",
     ],
   );
 
@@ -140,6 +144,27 @@ try {
       "case should be approved",
     ),
   );
+
+  const surfaceResponse = await withTimeout(
+    client.callTool({
+      name: "recommend_surface_types",
+      arguments: {
+        brief:
+          "A product analyst is reviewing product analytics cohorts during weekly planning. The activity is comparing funnel evidence, deciding which experiment to prioritize, and handing the next action to the growth team. The outcome is a chosen experiment and handoff reason.",
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(surfaceResponse.isError, undefined);
+  assert.ok(
+    assertPlanningCard(
+      surfaceResponse,
+      "## JudgmentKit Surface Recommendation",
+      "Ready for surface guidance",
+    ).includes('surface_type "workbench"'),
+  );
+  assert.equal(surfaceResponse.structuredContent.recommended_surface_type, "workbench");
 
   const recommendationResponse = await withTimeout(
     client.callTool({
@@ -258,6 +283,7 @@ try {
           },
         },
         profile_id: "operator-review-ui",
+        surface_type: "workbench",
       },
     }),
     5_000,
@@ -282,6 +308,7 @@ try {
     workflowReviewResponse.structuredContent.guidance_profile.profile_id,
     "operator-review-ui",
   );
+  assert.equal(workflowReviewResponse.structuredContent.surface_type, "workbench");
   assert.ok(
     workflowReviewResponse.structuredContent.candidate.workflow.primary_actions.includes(
       "Approve refund",
@@ -320,11 +347,38 @@ try {
   assert.ok(blockedWorkflowText.includes("primary-field leaks: JSON schema"));
   assert.equal(blockedWorkflowResponse.structuredContent.review_status, "needs_source_context");
 
+  const implementationContractResponse = await withTimeout(
+    client.callTool({
+      name: "create_ui_implementation_contract",
+      arguments: {
+        target_stack: "React",
+        approved_primitives: ["queue", "detail panel", "decision controls", "handoff receipt"],
+        static_rules: ["npm test"],
+        browser_qa_checks: ["desktop review", "mobile review"],
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(implementationContractResponse.isError, undefined);
+  assert.ok(
+    assertPlanningCard(
+      implementationContractResponse,
+      "## JudgmentKit Implementation Contract",
+      "Implementation contract ready",
+    ).includes("Approved primitives"),
+  );
+  assert.equal(
+    implementationContractResponse.structuredContent.implementation_contract_status,
+    "ready",
+  );
+
   const handoffResponse = await withTimeout(
     client.callTool({
       name: "create_ui_generation_handoff",
       arguments: {
         workflow_review: workflowReviewResponse.structuredContent,
+        implementation_contract: implementationContractResponse.structuredContent,
       },
     }),
     5_000,
@@ -344,15 +398,50 @@ try {
     handoffResponse.structuredContent.guidance_profile.profile_id,
     "operator-review-ui",
   );
+  assert.equal(handoffResponse.structuredContent.surface_type, "workbench");
   assert.ok(
     handoffResponse.structuredContent.workflow.primary_actions.includes("Approve refund"),
   );
+
+  const frontendContextResponse = await withTimeout(
+    client.callTool({
+      name: "create_frontend_generation_context",
+      arguments: {
+        ui_generation_handoff: handoffResponse.structuredContent,
+        frontend_context: {
+          target_runtime: "React",
+          ui_library: "Material UI",
+          approved_component_families: ["queue", "detail panel", "decision controls"],
+        },
+        verification: {
+          commands: ["npm test"],
+          states_to_verify: ["selected item", "handoff sent"],
+        },
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(frontendContextResponse.isError, undefined);
+  assert.ok(
+    assertPlanningCard(
+      frontendContextResponse,
+      "## JudgmentKit Frontend Context",
+      "Ready for frontend implementation",
+    ).includes("Evidence checklist"),
+  );
+  assert.equal(
+    frontendContextResponse.structuredContent.frontend_context_status,
+    "ready_for_frontend_implementation",
+  );
+  assert.equal(frontendContextResponse.structuredContent.surface_type, "workbench");
 
   const blockedHandoffResponse = await withTimeout(
     client.callTool({
       name: "create_ui_generation_handoff",
       arguments: {
         workflow_review: blockedWorkflowResponse.structuredContent,
+        implementation_contract: implementationContractResponse.structuredContent,
       },
     }),
     5_000,

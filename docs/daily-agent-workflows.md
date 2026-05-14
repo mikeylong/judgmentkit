@@ -153,6 +153,31 @@ judgmentkit review-candidate \
 
 From an unlinked checkout, use `node bin/judgmentkit.mjs` with the same arguments.
 
+## Before Choosing Surface Shape
+
+Call `recommend_surface_types` after activity review and before workflow or frontend implementation guidance.
+
+Use this to distinguish interaction purpose before any component or styling advice:
+
+- `marketing`: persuade, orient, convert, or explain an offer
+- `workbench`: inspect, compare, decide, and act across work items
+- `operator_review`: review AI- or system-produced work, evidence, risk, and handoff
+- `form_flow`: collect or change structured information with validation
+- `dashboard_monitor`: track status, exceptions, trends, or operational health
+- `content_report`: read, understand, cite, or share information
+- `setup_debug_tool`: configure, inspect, test, or troubleshoot machinery
+- `conversation`: support open-ended exchange where the thread is primary
+
+Surface type is activity-purpose guidance, not a visual theme. Use `frontend_posture` only after the recommended surface type is grounded in activity, decision, outcome, and disclosure evidence.
+
+MCP call:
+
+```text
+recommend_surface_types({ brief, activity_review })
+```
+
+Use the returned `recommended_surface_type` as `surface_type` or pass the full `surface_review` when reviewing a workflow candidate or creating frontend context.
+
 ## Before Choosing Optional Workflow Guidance
 
 Call `recommend_ui_workflow_profiles` when the brief sounds like a specialized review activity and you need to know whether an optional profile should guide the UI workflow candidate.
@@ -187,9 +212,15 @@ When `profile_id: "operator-review-ui"` is selected, JudgmentKit adds guidance t
 
 There is no CLI command for this slice. Use MCP or the library API.
 
+## Before Creating The UI Handoff
+
+Call `create_ui_implementation_contract` with repo evidence, external UI authority evidence, or JudgmentKit portable defaults. The implementation contract names approved primitives, required states, static checks, and browser QA expectations.
+
+MCP handoff calls should pass this packet as `implementation_contract`.
+
 ## Before Generating UI From A Workflow
 
-Call `create_ui_generation_handoff` with the ready workflow review packet.
+Call `create_ui_generation_handoff` with the ready workflow review packet and implementation contract.
 
 Use the returned handoff as the immediate input to UI generation. It contains the activity model, interaction contract, workflow, primary surface responsibilities, handoff action, and disclosure reminders in one compact artifact.
 
@@ -199,10 +230,45 @@ Library equivalent:
 
 ```js
 const workflowReview = reviewUiWorkflowCandidate(brief, workflowCandidate);
-const handoff = createUiGenerationHandoff(workflowReview);
+const implementationContract = createUiImplementationContract();
+const handoff = createUiGenerationHandoff(workflowReview, {
+  implementation_contract: implementationContract.implementation_contract,
+});
 ```
 
 There is no CLI command for this gate. Use MCP or the library API.
+
+## Before Accepting Generated UI Implementation
+
+Call `review_ui_implementation_candidate` with the generated code or evidence and the active implementation contract.
+
+The candidate should provide the primitives used, states covered, static checks run, and browser QA evidence. JudgmentKit fails candidates that emit raw form controls outside approved helpers, invent unsupported primitives, omit required states, skip static enforcement, or lack desktop and mobile browser QA evidence.
+
+```text
+review_ui_implementation_candidate({
+  candidate,
+  implementation_contract
+})
+```
+
+Use this as the cleanup-prevention gate: fix the implementation before final handoff instead of relying on visual cleanup after the fact.
+
+## Before Frontend Implementation
+
+Call `create_frontend_generation_context` after `create_ui_generation_handoff` when an agent needs implementation guidance.
+
+The frontend context requires a ready handoff. It may include the selected surface type, project runtime, UI library, approved component families, entrypoints, verification commands, browser checks, and states to verify. This is adapter-layer guidance; it does not change the activity-first kernel contract.
+
+```text
+create_frontend_generation_context({
+  ui_generation_handoff,
+  surface_review,
+  frontend_context,
+  verification
+})
+```
+
+Use `skills/frontend-ui-implementation/SKILL.md` after this context exists.
 
 ## Optional OpenAI Workflow Provider
 

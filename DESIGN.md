@@ -19,6 +19,10 @@ The activity model describes the world the UI enters: participants, objective, o
 
 The interaction contract translates that activity into a surface: what the user is trying to do, what decisions need support, what should be easy or hard, what states matter, and what done means.
 
+### Surface Type
+
+The surface type classifies activity purpose before frontend implementation: marketing, workbench, operator review, form flow, dashboard monitor, content/report, setup/debug tool, or conversation. It is interaction guidance, not a visual theme.
+
 ### Disclosure Policy
 
 The disclosure policy controls vocabulary and visibility. It decides what becomes user-facing, what gets translated into domain language, and what remains diagnostic.
@@ -27,6 +31,7 @@ The disclosure policy controls vocabulary and visibility. It decides what become
 
 - Is the activity named before the screen is named?
 - Does the UI support the activity instead of exposing the source model?
+- Does the surface type follow from the activity and purpose?
 - Are domain terms preferred over implementation terms?
 - Are prompts, schemas, resource ids, tools, servers, and traces hidden unless the user is doing setup, debugging, auditing, or integration work?
 - Is the proposed UI succinct enough for the activity?

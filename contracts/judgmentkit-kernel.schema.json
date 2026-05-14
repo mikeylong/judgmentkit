@@ -8,9 +8,11 @@
     "version",
     "source_model",
     "quality_order",
+    "surface_types",
     "activity_model",
     "interaction_contract",
     "disclosure_policy",
+    "implementation_contract",
     "evaluation"
   ],
   "properties": {
@@ -86,6 +88,30 @@
             "test_scenarios": { "type": "array", "items": { "type": "string" } }
           }
         }
+      }
+    },
+    "surface_types": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "marketing",
+        "workbench",
+        "operator_review",
+        "form_flow",
+        "dashboard_monitor",
+        "content_report",
+        "setup_debug_tool",
+        "conversation"
+      ],
+      "properties": {
+        "marketing": { "$ref": "#/$defs/surfaceType" },
+        "workbench": { "$ref": "#/$defs/surfaceType" },
+        "operator_review": { "$ref": "#/$defs/surfaceType" },
+        "form_flow": { "$ref": "#/$defs/surfaceType" },
+        "dashboard_monitor": { "$ref": "#/$defs/surfaceType" },
+        "content_report": { "$ref": "#/$defs/surfaceType" },
+        "setup_debug_tool": { "$ref": "#/$defs/surfaceType" },
+        "conversation": { "$ref": "#/$defs/surfaceType" }
       }
     },
     "activity_model": {
@@ -189,12 +215,95 @@
         }
       }
     },
+    "implementation_contract": {
+      "$ref": "#/$defs/implementationContract"
+    },
     "evaluation": {
       "type": "object",
       "additionalProperties": false,
       "required": ["must_pass", "failure_signals"],
       "properties": {
         "must_pass": { "type": "array", "items": { "type": "string" } },
+        "failure_signals": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  },
+  "$defs": {
+    "surfaceType": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "label",
+        "purpose",
+        "applies_when_most_true",
+        "do_not_use_when"
+      ],
+      "properties": {
+        "label": { "type": "string" },
+        "purpose": { "type": "string" },
+        "applies_when_most_true": { "type": "array", "items": { "type": "string" } },
+        "do_not_use_when": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "implementationContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "purpose",
+        "authority_order",
+        "approved_primitives",
+        "primitive_rules",
+        "state_coverage",
+        "static_enforcement",
+        "browser_qa",
+        "repo_scaffold_outputs",
+        "failure_signals"
+      ],
+      "properties": {
+        "id": { "type": "string" },
+        "purpose": { "type": "string" },
+        "authority_order": { "type": "array", "items": { "type": "string" } },
+        "approved_primitives": { "type": "array", "items": { "type": "string" } },
+        "primitive_rules": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["primitive", "required"],
+            "properties": {
+              "primitive": { "type": "string" },
+              "required": { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "state_coverage": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required_states", "required_evidence"],
+          "properties": {
+            "required_states": { "type": "array", "items": { "type": "string" } },
+            "required_evidence": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "static_enforcement": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["default_rules"],
+          "properties": {
+            "default_rules": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "browser_qa": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["required", "checks"],
+          "properties": {
+            "required": { "type": "boolean" },
+            "checks": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "repo_scaffold_outputs": { "type": "array", "items": { "type": "string" } },
         "failure_signals": { "type": "array", "items": { "type": "string" } }
       }
     }

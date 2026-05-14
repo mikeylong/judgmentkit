@@ -26,9 +26,11 @@ assert.deepEqual(contract.quality_order.slice(0, 4), [
 assert.equal(contract.quality_order.at(-1), "aesthetic fit");
 
 for (const section of [
+  "surface_types",
   "activity_model",
   "interaction_contract",
   "disclosure_policy",
+  "implementation_contract",
   "evaluation",
 ]) {
   assert.ok(contract[section], `Missing ${section}`);
@@ -61,7 +63,46 @@ assert.ok(
   "The kernel must fail aesthetic-first fixes.",
 );
 
+assert.ok(
+  contract.implementation_contract.approved_primitives.includes("CheckboxGroup"),
+  "The implementation contract must provide portable primitive coverage for checkbox groups.",
+);
+assert.ok(
+  contract.implementation_contract.static_enforcement.default_rules.some((rule) =>
+    rule.includes("raw input"),
+  ),
+  "The implementation contract must block raw controls outside approved helpers.",
+);
+assert.ok(
+  contract.implementation_contract.browser_qa.required,
+  "The implementation contract must require browser QA for UI generation.",
+);
+
 assert.equal(contract.workflow.id, "workflow.ai-ui-generation");
+assert.deepEqual(Object.keys(contract.surface_types), [
+  "marketing",
+  "workbench",
+  "operator_review",
+  "form_flow",
+  "dashboard_monitor",
+  "content_report",
+  "setup_debug_tool",
+  "conversation",
+]);
+assert.ok(
+  contract.surface_types.marketing.purpose.includes("offer"),
+  "marketing surface must classify persuasion and offer explanation by purpose.",
+);
+assert.ok(
+  contract.surface_types.workbench.purpose.includes("inspect"),
+  "workbench surface must classify repeated inspect/compare/decide/act work.",
+);
+assert.ok(
+  contract.surface_types.setup_debug_tool.applies_when_most_true.some((entry) =>
+    entry.includes("Implementation details"),
+  ),
+  "setup/debug surface must allow implementation details when they are task material.",
+);
 
 const operatorReviewProfile = contract.profiles["operator-review-ui"];
 assert.equal(operatorReviewProfile.pattern_id, "operator-review");

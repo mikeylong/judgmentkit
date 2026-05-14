@@ -29,7 +29,7 @@
     "site:dev": "npm run site:build && node scripts/site-local-server.mjs",
     "site:serve": "node scripts/site-local-server.mjs",
     "smoke:openai-ui-workflow": "node scripts/smoke-openai-ui-workflow.mjs",
-    "test": "node tests/kernel-contract.test.mjs && node tests/analyze-implementation-brief.test.mjs && node tests/activity-model-review.test.mjs && node tests/ui-generation-handoff.test.mjs && node tests/openai-responses-provider.test.mjs && node tests/cli.test.mjs && node tests/demo-one-shot.test.mjs && node tests/demo-comparison.test.mjs && node tests/demo-music-comparison.test.mjs && node tests/demo-model-ui-matrix.test.mjs && node tests/ui-generation-evals.test.mjs && node tests/mcp.test.mjs && node tests/mcp-stdio.test.mjs && node tests/mcp-http.test.mjs && node tests/install-mcp.test.mjs && node tests/site.test.mjs && node tests/site-local-server.test.mjs && node tests/skills.test.mjs && node evals/run-evals.mjs"
+    "test": "node tests/kernel-contract.test.mjs && node tests/analyze-implementation-brief.test.mjs && node tests/activity-model-review.test.mjs && node tests/surface-types.test.mjs && node tests/ui-generation-handoff.test.mjs && node tests/openai-responses-provider.test.mjs && node tests/cli.test.mjs && node tests/demo-one-shot.test.mjs && node tests/demo-comparison.test.mjs && node tests/demo-music-comparison.test.mjs && node tests/demo-model-ui-matrix.test.mjs && node tests/ui-generation-evals.test.mjs && node tests/mcp.test.mjs && node tests/mcp-stdio.test.mjs && node tests/mcp-http.test.mjs && node tests/install-mcp.test.mjs && node tests/site.test.mjs && node tests/site-local-server.test.mjs && node tests/skills.test.mjs && node evals/run-evals.mjs"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",
