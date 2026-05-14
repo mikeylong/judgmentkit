@@ -1,0 +1,1048 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JudgmentKit UI-Generation Eval</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #18202a;
+      --muted: #5d6876;
+      --line: #d7dee7;
+      --panel: #ffffff;
+      --surface: #f7f8fa;
+      --accent: #1f635b;
+      --accent-soft: #e5f2ee;
+      --danger: #8a2f24;
+      --danger-soft: #f8e3df;
+      --warn: #8a621d;
+      --warn-soft: #f6edda;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; }
+    html { background: var(--surface); }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--surface);
+      line-height: 1.45;
+      overflow-x: hidden;
+    }
+    main {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 30px 24px 56px;
+    }
+    h1, h2, h3, h4, p { margin-top: 0; }
+    h1 { max-width: 760px; margin-bottom: 10px; font-size: 2rem; line-height: 1.08; }
+    h2 { margin-bottom: 8px; font-size: 1.3rem; line-height: 1.2; }
+    h3 { margin-bottom: 6px; font-size: 1rem; line-height: 1.25; }
+    h4 { margin-bottom: 0; font-size: 0.95rem; line-height: 1.25; }
+    a { color: #174d7a; }
+    a:hover { color: #0e385b; }
+    dl { margin: 0; }
+    dt {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 760;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    dd { margin: 4px 0 0; font-weight: 760; overflow-wrap: anywhere; }
+    ul { margin: 6px 0 0; padding-left: 18px; }
+    summary { cursor: pointer; font-weight: 760; }
+    .muted { color: var(--muted); }
+    .report-dashboard {
+      display: grid;
+      gap: 28px;
+    }
+    .report-header {
+      display: grid;
+      gap: 18px;
+    }
+    .report-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      margin: 0;
+    }
+    .lede {
+      max-width: 780px;
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--muted);
+      font-size: 0.74rem;
+      font-weight: 780;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .outcome-band {
+      display: grid;
+      grid-template-columns: minmax(260px, 0.9fr) minmax(0, 1.4fr);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+    .outcome-primary {
+      padding: 20px;
+      border-right: 1px solid var(--line);
+    }
+    .outcome-primary strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 2rem;
+      line-height: 1;
+    }
+    .outcome-primary p:last-child { margin-bottom: 0; color: var(--muted); }
+    .run-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .run-meta div {
+      min-width: 0;
+      padding: 16px;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    .run-meta div:nth-child(3n) { border-right: 0; }
+    .run-meta div:nth-last-child(-n + 3) { border-bottom: 0; }
+    .notice {
+      margin: 0;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fbfcfd;
+      color: var(--muted);
+    }
+    .case-review {
+      display: grid;
+      gap: 18px;
+      padding: 30px 0 4px;
+      border-top: 1px solid var(--line);
+    }
+    .case-heading {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: flex-start;
+    }
+    .status {
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.8rem;
+      font-weight: 760;
+      white-space: nowrap;
+    }
+    .passed { background: #dff3e8; color: var(--accent); }
+    .failed { background: var(--danger-soft); color: var(--danger); }
+    .case-outcome {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+      overflow: hidden;
+    }
+    .case-outcome div {
+      min-width: 0;
+      padding: 14px 16px;
+      border-right: 1px solid var(--line);
+    }
+    .case-outcome div:last-child { border-right: 0; }
+    .score-strip {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+    .variant-score {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px 16px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .variant-score.guided { border-color: #a8d5c8; background: #fbfffd; }
+    .variant-score h3 { margin-bottom: 0; }
+    .variant-score strong {
+      align-self: start;
+      font-size: 1.75rem;
+      line-height: 1;
+      text-align: right;
+    }
+    .variant-score strong span {
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+    .variant-score a { grid-column: 1 / -1; width: fit-content; }
+    .score-delta {
+      display: grid;
+      min-width: 94px;
+      place-content: center;
+      padding: 12px;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      text-align: center;
+    }
+    .score-delta span { font-size: 1.25rem; font-weight: 800; }
+    .score-delta small { color: var(--muted); font-weight: 700; }
+    .visual-evidence {
+      display: grid;
+      gap: 12px;
+    }
+    .screenshot-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .screenshot-card {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .screenshot-card.guided { border-color: #a8d5c8; background: #fbfffd; }
+    .screenshot-card-header {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .screenshot-card-header > div { min-width: 0; }
+    .screenshot-card-header span {
+      color: var(--muted);
+      font-size: 0.8rem;
+      font-weight: 760;
+      white-space: nowrap;
+    }
+    .screenshot-frame {
+      display: block;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+    }
+    .screenshot-frame img {
+      display: block;
+      width: 100%;
+      max-height: 420px;
+      object-fit: contain;
+      background: #ffffff;
+    }
+    .screenshot-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+      margin-top: 10px;
+      font-size: 0.9rem;
+    }
+    .mobile-screenshots {
+      padding-top: 4px;
+    }
+    .mobile-screenshots .screenshot-grid {
+      margin-top: 12px;
+    }
+    .section-heading {
+      display: flex;
+      gap: 14px;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .section-heading p {
+      margin-bottom: 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      max-width: 100%;
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 720px;
+      font-size: 0.9rem;
+    }
+    th, td {
+      border-top: 1px solid var(--line);
+      padding: 11px 12px;
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+    }
+    thead th { border-top: 0; }
+    thead th { color: var(--muted); font-size: 0.78rem; text-transform: uppercase; }
+    tbody th { width: 22%; font-weight: 760; }
+    .score-cell {
+      display: grid;
+      gap: 2px;
+      color: var(--muted);
+    }
+    .metric-score {
+      color: var(--ink);
+      font-weight: 800;
+    }
+    .delta {
+      display: inline-flex;
+      min-width: 46px;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-weight: 800;
+    }
+    .delta.positive { background: var(--accent-soft); color: var(--accent); }
+    .delta.negative { background: var(--danger-soft); color: var(--danger); }
+    .evidence-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .evidence-panel {
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .evidence-panel h3 { margin-bottom: 6px; }
+    .evidence-panel p:not(.eyebrow) { color: var(--muted); }
+    .evidence-panel details {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+    .case-notes {
+      border-top: 1px solid var(--line);
+      padding-top: 12px;
+    }
+    .case-notes > div {
+      display: grid;
+      gap: 4px;
+      margin-top: 12px;
+    }
+    @media (max-width: 760px) {
+      main { padding: 22px 16px 40px; }
+      h1 { font-size: 1.72rem; }
+      .outcome-band,
+      .score-strip,
+      .screenshot-grid,
+      .evidence-grid {
+        grid-template-columns: 1fr;
+      }
+      .outcome-primary { border-right: 0; border-bottom: 1px solid var(--line); }
+      .run-meta { grid-template-columns: 1fr 1fr; }
+      .run-meta div:nth-child(3n) { border-right: 1px solid var(--line); }
+      .run-meta div:nth-child(2n) { border-right: 0; }
+      .run-meta div:nth-last-child(-n + 3) { border-bottom: 1px solid var(--line); }
+      .run-meta div:nth-last-child(-n + 2) { border-bottom: 0; }
+      .case-heading,
+      .section-heading {
+        display: grid;
+      }
+      .case-outcome { grid-template-columns: 1fr 1fr; }
+      .case-outcome div:nth-child(2n) { border-right: 0; }
+      .case-outcome div:nth-child(-n + 2) { border-bottom: 1px solid var(--line); }
+      .score-delta {
+        min-width: 0;
+        min-height: 68px;
+      }
+      .variant-score strong { font-size: 1.45rem; }
+      .table-wrap { overflow-x: visible; }
+      table,
+      thead,
+      tbody,
+      tr,
+      th,
+      td {
+        display: block;
+        width: 100%;
+        min-width: 0;
+      }
+      table { min-width: 0; }
+      thead { display: none; }
+      tbody tr {
+        padding: 12px;
+        border-top: 1px solid var(--line);
+      }
+      tbody tr:first-child { border-top: 0; }
+      th,
+      td {
+        border-top: 0;
+        padding: 4px 0;
+      }
+      tbody th {
+        width: auto;
+        margin-bottom: 6px;
+      }
+      td::before {
+        display: block;
+        margin-bottom: 2px;
+        color: var(--muted);
+        content: attr(data-label);
+        font-size: 0.72rem;
+        font-weight: 760;
+        text-transform: uppercase;
+      }
+      .delta { min-width: 0; }
+    }
+  </style>
+</head>
+<body>
+  <main class="report-dashboard">
+    <header class="report-header">
+      <nav class="report-links" aria-label="Report links">
+        <a href="../../..">All eval runs</a>
+        <a href="../../../index.json">Catalog JSON</a>
+        <a href="ui-generation-report.json">JSON report</a>
+      </nav>
+      <div>
+        <p class="eyebrow">UI generation eval report</p>
+        <h1>JudgmentKit UI-Generation Eval</h1>
+        <p class="lede">Deterministic paired-artifact scoring for existing standalone comparison apps. Use this report to review winner, delta, leakage, and activity-fit evidence by case.</p>
+      </div>
+      <section class="outcome-band" aria-label="Run outcome summary">
+        <div class="outcome-primary">
+          <p class="eyebrow">Latest run outcome</p>
+          <strong>2/2 cases passed</strong>
+          <p>2 guided wins, 0 baseline wins, 0 ties.</p>
+        </div>
+        <dl class="run-meta">
+          <div><dt>Claim level</dt><dd>repeated_pair_signal</dd></div>
+          <div><dt>Run date</dt><dd>2026-05-13</dd></div>
+          <div><dt>MCP release</dt><dd>0.1.0</dd></div>
+          <div><dt>Run</dt><dd>run-001</dd></div>
+          <div><dt>Eval id</dt><dd>judgmentkit-ui-generation-paired-artifact-v1</dd></div>
+          <div><dt>Metric scale</dt><dd>0-5</dd></div>
+        </dl>
+      </section>
+      <p class="notice">Qualitative paired-artifact evidence only; not a statistically powered benchmark.</p>
+    </header>
+
+    <section class="case-review" id="refund-triage-standalone-v1" aria-labelledby="refund-triage-standalone-v1-title">
+      <div class="case-heading">
+        <div>
+          <p class="eyebrow">Case review</p>
+          <h2 id="refund-triage-standalone-v1-title">Refund triage handoff</h2>
+          <p>Review the selected refund request and prepare the next handoff.</p>
+        </div>
+        <span class="status passed">Passed</span>
+      </div>
+      <dl class="case-outcome">
+        <div><dt>Winner</dt><dd>JudgmentKit guided</dd></div>
+        <div><dt>Expected winner</dt><dd>JudgmentKit guided</dd></div>
+        <div><dt>Score delta</dt><dd>+96</dd></div>
+        <div><dt>Threshold</dt><dd>20</dd></div>
+      </dl>
+      <div class="score-strip" aria-label="Refund triage handoff score comparison">
+
+    <article class="variant-score baseline" data-treatment="raw_brief_baseline">
+      <div>
+        <p class="eyebrow">Raw baseline</p>
+        <h3>Version A</h3>
+      </div>
+      <strong>4<span>/100</span></strong>
+      <a href="/examples/comparison/refund/version-a.html">Open artifact</a>
+    </article>
+
+        <div class="score-delta">
+          <span>+96</span>
+          <small>guided delta</small>
+        </div>
+
+    <article class="variant-score guided" data-treatment="judgmentkit_handoff">
+      <div>
+        <p class="eyebrow">JudgmentKit guided</p>
+        <h3>Version B</h3>
+      </div>
+      <strong>100<span>/100</span></strong>
+      <a href="/examples/comparison/refund/version-b.html">Open artifact</a>
+    </article>
+
+      </div>
+
+    <section class="visual-evidence" aria-label="Refund triage handoff visual evidence">
+      <div class="section-heading">
+        <h3>Visual evidence</h3>
+        <p>Screenshots show the initial viewport of each committed artifact. They are archived with this run and are not scoring inputs.</p>
+      </div>
+      <div class="screenshot-grid desktop-screenshots">
+
+    <article class="screenshot-card baseline">
+      <div class="screenshot-card-header">
+        <div>
+          <p class="eyebrow">Raw baseline</p>
+          <h4>Version A Desktop</h4>
+        </div>
+        <span>1365x900</span>
+      </div>
+      <a class="screenshot-frame" href="screenshots/refund-triage-standalone-v1/baseline-desktop.png" aria-label="Open Refund triage handoff Raw baseline Desktop screenshot">
+        <img src="screenshots/refund-triage-standalone-v1/baseline-desktop.png" alt="Refund triage handoff Raw baseline Desktop screenshot" loading="eager">
+      </a>
+      <div class="screenshot-actions">
+        <a href="screenshots/refund-triage-standalone-v1/baseline-desktop.png">Open screenshot</a>
+        <a href="/examples/comparison/refund/version-a.html">Open artifact</a>
+      </div>
+    </article>
+
+    <article class="screenshot-card guided">
+      <div class="screenshot-card-header">
+        <div>
+          <p class="eyebrow">JudgmentKit guided</p>
+          <h4>Version B Desktop</h4>
+        </div>
+        <span>1365x900</span>
+      </div>
+      <a class="screenshot-frame" href="screenshots/refund-triage-standalone-v1/guided-desktop.png" aria-label="Open Refund triage handoff JudgmentKit guided Desktop screenshot">
+        <img src="screenshots/refund-triage-standalone-v1/guided-desktop.png" alt="Refund triage handoff JudgmentKit guided Desktop screenshot" loading="eager">
+      </a>
+      <div class="screenshot-actions">
+        <a href="screenshots/refund-triage-standalone-v1/guided-desktop.png">Open screenshot</a>
+        <a href="/examples/comparison/refund/version-b.html">Open artifact</a>
+      </div>
+    </article>
+
+      </div>
+      <details class="mobile-screenshots">
+        <summary>Mobile screenshots</summary>
+        <div class="screenshot-grid">
+
+    <article class="screenshot-card baseline">
+      <div class="screenshot-card-header">
+        <div>
+          <p class="eyebrow">Raw baseline</p>
+          <h4>Version A Mobile</h4>
+        </div>
+        <span>390x844</span>
+      </div>
+      <a class="screenshot-frame" href="screenshots/refund-triage-standalone-v1/baseline-mobile.png" aria-label="Open Refund triage handoff Raw baseline Mobile screenshot">
+        <img src="screenshots/refund-triage-standalone-v1/baseline-mobile.png" alt="Refund triage handoff Raw baseline Mobile screenshot" loading="eager">
+      </a>
+      <div class="screenshot-actions">
+        <a href="screenshots/refund-triage-standalone-v1/baseline-mobile.png">Open screenshot</a>
+        <a href="/examples/comparison/refund/version-a.html">Open artifact</a>
+      </div>
+    </article>
+
+    <article class="screenshot-card guided">
+      <div class="screenshot-card-header">
+        <div>
+          <p class="eyebrow">JudgmentKit guided</p>
+          <h4>Version B Mobile</h4>
+        </div>
+        <span>390x844</span>
+      </div>
+      <a class="screenshot-frame" href="screenshots/refund-triage-standalone-v1/guided-mobile.png" aria-label="Open Refund triage handoff JudgmentKit guided Mobile screenshot">
+        <img src="screenshots/refund-triage-standalone-v1/guided-mobile.png" alt="Refund triage handoff JudgmentKit guided Mobile screenshot" loading="eager">
+      </a>
+      <div class="screenshot-actions">
+        <a href="screenshots/refund-triage-standalone-v1/guided-mobile.png">Open screenshot</a>
+        <a href="/examples/comparison/refund/version-b.html">Open artifact</a>
+      </div>
+    </article>
+
+        </div>
+      </details>
+    </section>
+
+
+    <section class="metric-comparison" aria-label="Refund triage handoff metric comparison">
+      <div class="section-heading">
+        <h3>Metric comparison</h3>
+        <p>Baseline and guided scores use the 0-5 metric scale; totals remain 0-100 weighted.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Metric</th>
+              <th scope="col">Baseline</th>
+              <th scope="col">Guided</th>
+              <th scope="col">Delta</th>
+            </tr>
+          </thead>
+          <tbody>
+      <tr data-metric-row="activity_fit">
+        <th scope="row">Activity Fit</th>
+        <td data-label="Baseline">
+    <div class="score-cell">
+      <span class="metric-score">0/5</span>
+      <span>0 present, 5 missing</span>
+    </div>
+  </td>
+        <td data-label="Guided">
+    <div class="score-cell">
+      <span class="metric-score">5/5</span>
+      <span>5 present, 0 missing</span>
+    </div>
+  </td>
+        <td data-label="Delta"><span class="delta positive">+5</span></td>
+      </tr>
+
+      <tr data-metric-row="decision_support">
+        <th scope="row">Decision Support</th>
+        <td data-label="Baseline">
+    <div class="score-cell">
+      <span class="metric-score">0/5</span>
+      <span>0 present, 4 missing</span>
+    </div>
+  </td>
+        <td data-label="Guided">
+    <div class="score-cell">
+      <span class="metric-score">5/5</span>
+      <span>4 present, 0 missing</span>
+    </div>
+  </td>
+        <td data-label="Delta"><span class="delta positive">+5</span></td>
+      </tr>
+
+      <tr data-metric-row="disclosure_discipline">
+        <th scope="row">Disclosure Discipline</th>
+        <td data-label="Baseline">
+    <div class="score-cell">
+      <span class="metric-score">0/5</span>
+      <span>8 leaks</span>
+    </div>
+  </td>
+        <td data-label="Guided">
+    <div class="score-cell">
+      <span class="metric-score">5/5</span>
+      <span>0 leaks</span>
+    </div>
+  </td>
+        <td data-label="Delta"><span class="delta positive">+5</span></td>
+      </tr>
+
+      <tr data-metric-row="handoff_completeness">
+        <th scope="row">Handoff Completeness</th>
+        <td data-label="Baseline">
+    <div class="score-cell">
+      <span class="metric-score">1/5</span>
+      <span>1 present, 4 missing</span>
+    </div>
+  </td>
+        <td data-label="Guided">
+    <div class="score-cell">
+      <span class="metric-score">5/5</span>
+      <span>5 present, 0 missing</span>
+    </div>
+  </td>
+        <td data-label="Delta"><span class="delta positive">+4</span></td>
+      </tr>
+
+      <tr data-metric-row="task_success_support">
+        <th scope="row">Task Success Support</th>
+        <td data-label="Baseline">
+    <div class="score-cell">
+      <span class="metric-score">0/5</span>
+      <span>0 present, 5 missing</span>
+    </div>
+  </td>
+        <td data-label="Guided">
+    <div class="score-cell">
+      <span class="metric-score">5/5</span>
+      <span>5 present, 0 missing</span>
+    </div>
+  </td>
+        <td data-label="Delta"><span class="delta positive">+5</span></td>
+      </tr>
+
+      <tr data-metric-row="confidence_rework_signals">
+        <th scope="row">Confidence Rework Signals</th>
+        <td data-label="Baseline">
+    <div class="score-cell">
+      <span class="metric-score">0/5</span>
+      <span>0 present, 3 missing</span>
+    </div>
+  </td>
+        <td data-label="Guided">
+    <div class="score-cell">
+      <span class="metric-score">5/5</span>
+      <span>3 present, 0 missing</span>
+    </div>
+  </td>
+        <td data-label="Delta"><span class="delta positive">+5</span></td>
+      </tr>
+    </tbody>
+        </table>
+      </div>
+    </section>
+
+
+    <section class="evidence-grid" aria-label="Refund triage handoff evidence">
+      <article class="evidence-panel">
+        <p class="eyebrow">Activity-fit evidence</p>
+        <h3>0 to 5 matched terms</h3>
+        <p>Guided output surfaced more of the task vocabulary reviewers need to judge activity fit.</p>
+
+    <details>
+      <summary>Baseline matched (0)</summary>
+      <span class="muted">None</span>
+    </details>
+
+
+    <details>
+      <summary>Guided matched (5)</summary>
+      <ul><li>Daily triage</li><li>Refund escalation queue</li><li>Customer refund escalation</li><li>Evidence checklist</li><li>Policy review context</li></ul>
+    </details>
+
+
+    <details>
+      <summary>Guided missing (0)</summary>
+      <span class="muted">None</span>
+    </details>
+
+      </article>
+      <article class="evidence-panel">
+        <p class="eyebrow">Implementation leakage</p>
+        <h3>8 leaks to 0 leaks</h3>
+        <p>Leakage findings count terms that make implementation mechanics visible in the primary artifact.</p>
+
+    <details>
+      <summary>Baseline leakage (8 leaks)</summary>
+      <ul><li>database table</li><li>JSON schema</li><li>prompt template</li><li>tool call</li><li>resource id</li><li>API endpoint</li><li>CRUD</li><li>field</li></ul>
+    </details>
+
+
+    <details>
+      <summary>Guided leakage (0 leaks)</summary>
+      <span class="muted">None</span>
+    </details>
+
+      </article>
+    </section>
+
+      <details class="case-notes">
+        <summary>Expected outcomes and rationale</summary>
+        <div>
+          <h3>Expected outcomes</h3>
+          <ul><li>The reviewer can identify the selected case.</li><li>The reviewer can choose approve, policy review, or return for evidence.</li><li>The reviewer can complete a handoff with a reason and next owner.</li></ul>
+        </div>
+        <div>
+          <h3>Rationale</h3>
+          <ul><li>JudgmentKit-guided artifact scored 96 points above baseline.</li><li>Implementation leakage changed from 8 baseline terms to 0 guided terms.</li><li>Activity-fit evidence changed from 0 matched terms to 5 matched terms.</li></ul>
+        </div>
+      </details>
+    </section>
+
+    <section class="case-review" id="dinner-playlist-standalone-v1" aria-labelledby="dinner-playlist-standalone-v1-title">
+      <div class="case-heading">
+        <div>
+          <p class="eyebrow">Case review</p>
+          <h2 id="dinner-playlist-standalone-v1-title">Dinner playlist builder</h2>
+          <p>Build a 10-song dinner playlist that starts mellow, lifts in the middle, avoids disliked artists and explicit tracks, and leaves a sequence note.</p>
+        </div>
+        <span class="status passed">Passed</span>
+      </div>
+      <dl class="case-outcome">
+        <div><dt>Winner</dt><dd>JudgmentKit guided</dd></div>
+        <div><dt>Expected winner</dt><dd>JudgmentKit guided</dd></div>
+        <div><dt>Score delta</dt><dd>+88.82</dd></div>
+        <div><dt>Threshold</dt><dd>20</dd></div>
+      </dl>
+      <div class="score-strip" aria-label="Dinner playlist builder score comparison">
+
+    <article class="variant-score baseline" data-treatment="raw_brief_baseline">
+      <div>
+        <p class="eyebrow">Raw baseline</p>
+        <h3>Version A</h3>
+      </div>
+      <strong>11.18<span>/100</span></strong>
+      <a href="/examples/comparison/music/version-a.html">Open artifact</a>
+    </article>
+
+        <div class="score-delta">
+          <span>+88.82</span>
+          <small>guided delta</small>
+        </div>
+
+    <article class="variant-score guided" data-treatment="judgmentkit_handoff">
+      <div>
+        <p class="eyebrow">JudgmentKit guided</p>
+        <h3>Version B</h3>
+      </div>
+      <strong>100<span>/100</span></strong>
+      <a href="/examples/comparison/music/version-b.html">Open artifact</a>
+    </article>
+
+      </div>
+
+    <section class="visual-evidence" aria-label="Dinner playlist builder visual evidence">
+      <div class="section-heading">
+        <h3>Visual evidence</h3>
+        <p>Screenshots show the initial viewport of each committed artifact. They are archived with this run and are not scoring inputs.</p>
+      </div>
+      <div class="screenshot-grid desktop-screenshots">
+
+    <article class="screenshot-card baseline">
+      <div class="screenshot-card-header">
+        <div>
+          <p class="eyebrow">Raw baseline</p>
+          <h4>Version A Desktop</h4>
+        </div>
+        <span>1365x900</span>
+      </div>
+      <a class="screenshot-frame" href="screenshots/dinner-playlist-standalone-v1/baseline-desktop.png" aria-label="Open Dinner playlist builder Raw baseline Desktop screenshot">
+        <img src="screenshots/dinner-playlist-standalone-v1/baseline-desktop.png" alt="Dinner playlist builder Raw baseline Desktop screenshot" loading="eager">
+      </a>
+      <div class="screenshot-actions">
+        <a href="screenshots/dinner-playlist-standalone-v1/baseline-desktop.png">Open screenshot</a>
+        <a href="/examples/comparison/music/version-a.html">Open artifact</a>
+      </div>
+    </article>
+
+    <article class="screenshot-card guided">
+      <div class="screenshot-card-header">
+        <div>
+          <p class="eyebrow">JudgmentKit guided</p>
+          <h4>Version B Desktop</h4>
+        </div>
+        <span>1365x900</span>
+      </div>
+      <a class="screenshot-frame" href="screenshots/dinner-playlist-standalone-v1/guided-desktop.png" aria-label="Open Dinner playlist builder JudgmentKit guided Desktop screenshot">
+        <img src="screenshots/dinner-playlist-standalone-v1/guided-desktop.png" alt="Dinner playlist builder JudgmentKit guided Desktop screenshot" loading="eager">
+      </a>
+      <div class="screenshot-actions">
+        <a href="screenshots/dinner-playlist-standalone-v1/guided-desktop.png">Open screenshot</a>
+        <a href="/examples/comparison/music/version-b.html">Open artifact</a>
+      </div>
+    </article>
+
+      </div>
+      <details class="mobile-screenshots">
+        <summary>Mobile screenshots</summary>
+        <div class="screenshot-grid">
+
+    <article class="screenshot-card baseline">
+      <div class="screenshot-card-header">
+        <div>
+          <p class="eyebrow">Raw baseline</p>
+          <h4>Version A Mobile</h4>
+        </div>
+        <span>390x844</span>
+      </div>
+      <a class="screenshot-frame" href="screenshots/dinner-playlist-standalone-v1/baseline-mobile.png" aria-label="Open Dinner playlist builder Raw baseline Mobile screenshot">
+        <img src="screenshots/dinner-playlist-standalone-v1/baseline-mobile.png" alt="Dinner playlist builder Raw baseline Mobile screenshot" loading="eager">
+      </a>
+      <div class="screenshot-actions">
+        <a href="screenshots/dinner-playlist-standalone-v1/baseline-mobile.png">Open screenshot</a>
+        <a href="/examples/comparison/music/version-a.html">Open artifact</a>
+      </div>
+    </article>
+
+    <article class="screenshot-card guided">
+      <div class="screenshot-card-header">
+        <div>
+          <p class="eyebrow">JudgmentKit guided</p>
+          <h4>Version B Mobile</h4>
+        </div>
+        <span>390x844</span>
+      </div>
+      <a class="screenshot-frame" href="screenshots/dinner-playlist-standalone-v1/guided-mobile.png" aria-label="Open Dinner playlist builder JudgmentKit guided Mobile screenshot">
+        <img src="screenshots/dinner-playlist-standalone-v1/guided-mobile.png" alt="Dinner playlist builder JudgmentKit guided Mobile screenshot" loading="eager">
+      </a>
+      <div class="screenshot-actions">
+        <a href="screenshots/dinner-playlist-standalone-v1/guided-mobile.png">Open screenshot</a>
+        <a href="/examples/comparison/music/version-b.html">Open artifact</a>
+      </div>
+    </article>
+
+        </div>
+      </details>
+    </section>
+
+
+    <section class="metric-comparison" aria-label="Dinner playlist builder metric comparison">
+      <div class="section-heading">
+        <h3>Metric comparison</h3>
+        <p>Baseline and guided scores use the 0-5 metric scale; totals remain 0-100 weighted.</p>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Metric</th>
+              <th scope="col">Baseline</th>
+              <th scope="col">Guided</th>
+              <th scope="col">Delta</th>
+            </tr>
+          </thead>
+          <tbody>
+      <tr data-metric-row="activity_fit">
+        <th scope="row">Activity Fit</th>
+        <td data-label="Baseline">
+    <div class="score-cell">
+      <span class="metric-score">0.83/5</span>
+      <span>1 present, 5 missing</span>
+    </div>
+  </td>
+        <td data-label="Guided">
+    <div class="score-cell">
+      <span class="metric-score">5/5</span>
+      <span>6 present, 0 missing</span>
+    </div>
+  </td>
+        <td data-label="Delta"><span class="delta positive">+4.17</span></td>
+      </tr>
+
+      <tr data-metric-row="decision_support">
+        <th scope="row">Decision Support</th>
+        <td data-label="Baseline">
+    <div class="score-cell">
+      <span class="metric-score">0/5</span>
+      <span>0 present, 5 missing</span>
+    </div>
+  </td>
+        <td data-label="Guided">
+    <div class="score-cell">
+      <span class="metric-score">5/5</span>
+      <span>5 present, 0 missing</span>
+    </div>
+  </td>
+        <td data-label="Delta"><span class="delta positive">+5</span></td>
+      </tr>
+
+      <tr data-metric-row="disclosure_discipline">
+        <th scope="row">Disclosure Discipline</th>
+        <td data-label="Baseline">
+    <div class="score-cell">
+      <span class="metric-score">0/5</span>
+      <span>10 leaks</span>
+    </div>
+  </td>
+        <td data-label="Guided">
+    <div class="score-cell">
+      <span class="metric-score">5/5</span>
+      <span>0 leaks</span>
+    </div>
+  </td>
+        <td data-label="Delta"><span class="delta positive">+5</span></td>
+      </tr>
+
+      <tr data-metric-row="handoff_completeness">
+        <th scope="row">Handoff Completeness</th>
+        <td data-label="Baseline">
+    <div class="score-cell">
+      <span class="metric-score">1.25/5</span>
+      <span>1 present, 3 missing</span>
+    </div>
+  </td>
+        <td data-label="Guided">
+    <div class="score-cell">
+      <span class="metric-score">5/5</span>
+      <span>4 present, 0 missing</span>
+    </div>
+  </td>
+        <td data-label="Delta"><span class="delta positive">+3.75</span></td>
+      </tr>
+
+      <tr data-metric-row="task_success_support">
+        <th scope="row">Task Success Support</th>
+        <td data-label="Baseline">
+    <div class="score-cell">
+      <span class="metric-score">1.43/5</span>
+      <span>2 present, 5 missing</span>
+    </div>
+  </td>
+        <td data-label="Guided">
+    <div class="score-cell">
+      <span class="metric-score">5/5</span>
+      <span>7 present, 0 missing</span>
+    </div>
+  </td>
+        <td data-label="Delta"><span class="delta positive">+3.57</span></td>
+      </tr>
+
+      <tr data-metric-row="confidence_rework_signals">
+        <th scope="row">Confidence Rework Signals</th>
+        <td data-label="Baseline">
+    <div class="score-cell">
+      <span class="metric-score">0/5</span>
+      <span>0 present, 3 missing</span>
+    </div>
+  </td>
+        <td data-label="Guided">
+    <div class="score-cell">
+      <span class="metric-score">5/5</span>
+      <span>3 present, 0 missing</span>
+    </div>
+  </td>
+        <td data-label="Delta"><span class="delta positive">+5</span></td>
+      </tr>
+    </tbody>
+        </table>
+      </div>
+    </section>
+
+
+    <section class="evidence-grid" aria-label="Dinner playlist builder evidence">
+      <article class="evidence-panel">
+        <p class="eyebrow">Activity-fit evidence</p>
+        <h3>1 to 6 matched terms</h3>
+        <p>Guided output surfaced more of the task vocabulary reviewers need to judge activity fit.</p>
+
+    <details>
+      <summary>Baseline matched (1)</summary>
+      <ul><li>Sequence note</li></ul>
+    </details>
+
+
+    <details>
+      <summary>Guided matched (6)</summary>
+      <ul><li>Dinner brief</li><li>Guest preferences</li><li>Suggested tracks</li><li>Playlist sequence</li><li>Conflict checks</li><li>Sequence note</li></ul>
+    </details>
+
+
+    <details>
+      <summary>Guided missing (0)</summary>
+      <span class="muted">None</span>
+    </details>
+
+      </article>
+      <article class="evidence-panel">
+        <p class="eyebrow">Implementation leakage</p>
+        <h3>10 leaks to 0 leaks</h3>
+        <p>Leakage findings count terms that make implementation mechanics visible in the primary artifact.</p>
+
+    <details>
+      <summary>Baseline leakage (10 leaks)</summary>
+      <ul><li>data model</li><li>track table field</li><li>JSON schema</li><li>prompt template</li><li>tool call</li><li>resource id</li><li>API endpoint</li><li>CRUD</li><li>field</li><li>model</li></ul>
+    </details>
+
+
+    <details>
+      <summary>Guided leakage (0 leaks)</summary>
+      <span class="muted">None</span>
+    </details>
+
+      </article>
+    </section>
+
+      <details class="case-notes">
+        <summary>Expected outcomes and rationale</summary>
+        <div>
+          <h3>Expected outcomes</h3>
+          <ul><li>The host can assemble a 10-song playlist.</li><li>The host can catch explicit and disliked-artist conflicts.</li><li>The host can explain the sequence from mellow start through lifted middle to soft close.</li></ul>
+        </div>
+        <div>
+          <h3>Rationale</h3>
+          <ul><li>JudgmentKit-guided artifact scored 88.82 points above baseline.</li><li>Implementation leakage changed from 10 baseline terms to 0 guided terms.</li><li>Activity-fit evidence changed from 1 matched terms to 6 matched terms.</li></ul>
+        </div>
+      </details>
+    </section>
+
+  </main>
+</body>
+</html>
