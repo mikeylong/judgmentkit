@@ -614,7 +614,7 @@ const netflixExperiment = fs.readFileSync(
   "utf8",
 );
 assert.ok(netflixExperiment.includes("Unlisted one-shot experiment"));
-assert.ok(netflixExperiment.includes("Netflix library one-shot comparison"));
+assert.ok(netflixExperiment.includes("Netflix library zero-shot, single-pass comparison"));
 assert.ok(netflixExperiment.includes("Prompt used"));
 assert.ok(netflixExperiment.includes("do a zero-shot, single-pass generation of a Netflix video library"));
 assert.ok(netflixExperiment.includes('href="./judgmentkit/" target="_blank" rel="noreferrer"'));
