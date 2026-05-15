@@ -63,6 +63,33 @@
         line-height: 1.55;
       }
 
+      .prompt-card {
+        max-width: 720px;
+        margin-top: 28px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      .prompt-card p {
+        margin: 0 0 10px;
+        color: var(--muted);
+        font-size: 0.84rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .prompt-card code {
+        display: block;
+        color: var(--text);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 1rem;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+      }
+
       .variant-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -125,11 +152,15 @@
   </head>
   <body>
     <main>
-      <p class="eyebrow">Unlisted experiment</p>
-      <h1>Netflix library prototype comparison</h1>
+      <p class="eyebrow">Unlisted one-shot experiment</p>
+      <h1>Netflix library one-shot comparison</h1>
       <p class="lede">
-        Two independently generated static prototypes for comparing how activity-first guidance changes a streaming-library user experience.
+        Two static prototypes generated from the same one-shot request, comparing how activity-first guidance changes a streaming-library user experience.
       </p>
+      <section class="prompt-card" aria-label="Prompt used">
+        <p>Prompt used</p>
+        <code>do a one-shot generation of a Netflix video library</code>
+      </section>
       <section class="variant-grid" aria-label="Prototype variants">
         <a class="variant-card" href="./judgmentkit/">
           <div>

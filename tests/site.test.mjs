@@ -609,6 +609,15 @@ for (const [label, htmlPath] of [
   assertAnalyticsBootstrap(html, label);
 }
 
+const netflixExperiment = fs.readFileSync(
+  path.join(tempDir, "experiments", "netflix-library", "index.html"),
+  "utf8",
+);
+assert.ok(netflixExperiment.includes("Unlisted one-shot experiment"));
+assert.ok(netflixExperiment.includes("Netflix library one-shot comparison"));
+assert.ok(netflixExperiment.includes("Prompt used"));
+assert.ok(netflixExperiment.includes("do a one-shot generation of a Netflix video library"));
+
 const mcp = getHostedMcpMetadata();
 assert.equal(mcp.name, "JudgmentKit");
 assert.equal(mcp.transport, "streamable-http");
