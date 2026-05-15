@@ -810,11 +810,54 @@ pre {
 .examples-page {
   padding-top: clamp(36px, 5vw, 62px);
 }
+.examples-hero,
+.examples-layout {
+  max-width: 1220px;
+  margin: 0 auto;
+}
+.examples-hero {
+  margin-bottom: clamp(24px, 4vw, 38px);
+}
+.examples-hero h1 {
+  margin-bottom: 12px;
+}
+.examples-hero .lede {
+  max-width: 820px;
+}
+.examples-layout {
+  min-width: 0;
+}
+.examples-main {
+  min-width: 0;
+}
+.examples-controls {
+  display: flex;
+  align-items: end;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.model-ui-use-case-select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: min(100%, 260px);
+  min-height: 42px;
+  padding: 8px 38px 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background-color: var(--panel);
+  background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M3.5 5.25L7 8.75L10.5 5.25' fill='none' stroke='%230f3f51' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-position: right 14px center;
+  background-repeat: no-repeat;
+  background-size: 14px 14px;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  line-height: 1.2;
+}
 .example-preview-focus {
   display: grid;
   gap: 24px;
-  max-width: 1220px;
-  margin: 0 auto;
 }
 .example-preview-header {
   display: grid;
@@ -868,27 +911,6 @@ pre {
 }
 .example-gallery-intro {
   max-width: 760px;
-}
-.model-ui-use-case-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.model-ui-use-case-tab {
-  min-height: 38px;
-  padding: 8px 12px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--panel);
-  color: var(--ink);
-  cursor: pointer;
-  font: inherit;
-  font-weight: 800;
-}
-.model-ui-use-case-tab[aria-pressed="true"] {
-  border-color: var(--accent);
-  background: #edf5f6;
-  color: var(--accent-strong);
 }
 .model-ui-use-case-panel {
   display: grid;
@@ -1175,16 +1197,38 @@ pre {
 }
 .example-gallery-modal-copy {
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: 1fr auto;
   gap: 18px;
   min-width: 0;
   min-height: 0;
-  padding: clamp(18px, 2.4vw, 28px);
+  padding: clamp(56px, 5vw, 68px) clamp(18px, 2.4vw, 28px) clamp(18px, 2.4vw, 28px);
   overflow-y: auto;
   border-left: 1px solid var(--line);
 }
 .example-gallery-modal-close {
-  justify-self: start;
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 2;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 26px;
+  line-height: 1;
+}
+.example-gallery-modal-close:hover,
+.example-gallery-modal-close:focus-visible {
+  color: var(--accent-strong);
+}
+.example-gallery-modal-close:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
 }
 .example-gallery-modal-detail {
   min-width: 0;
@@ -1362,7 +1406,8 @@ pre {
     padding: 10px;
   }
   .example-gallery-modal-copy {
-    grid-template-rows: auto auto auto;
+    grid-template-rows: 1fr auto;
+    padding: clamp(18px, 2.4vw, 28px);
     border-top: 1px solid var(--line);
     border-left: 0;
   }
@@ -1600,16 +1645,7 @@ const MODEL_UI_EXAMPLE = {
   title: "Model UI generation matrix",
   description:
     "Four 3x4 comparisons across deterministic, Gemma 4 (local LLM), and GPT-5.5 xhigh paths, separating raw brief, JudgmentKit handoff, Material UI only, and JudgmentKit plus Material UI.",
-  actions: [
-    {
-      label: "Open default matrix",
-      href: "/examples/model-ui/refund-system-map/index.html",
-    },
-    {
-      label: "Use-case index",
-      href: "/examples/model-ui/index.json",
-    },
-  ],
+  actions: [],
 };
 
 function modelUiBaseHref(manifest) {
@@ -1791,27 +1827,31 @@ function renderExampleComparisonGroup(group) {
         </article>`;
 }
 
-function renderModelUiGalleryPreview(example) {
-  const useCases = example.useCases ?? [];
-  const tabs = useCases
+function renderModelUiUseCaseSelect(useCases) {
+  const options = useCases
     .map(
       (useCase, index) =>
-        `<button class="model-ui-use-case-tab" type="button" data-use-case-id="${escapeHtml(useCase.id)}" aria-pressed="${index === 0 ? "true" : "false"}">${escapeHtml(useCase.short_label ?? useCase.label)}</button>`,
+        `<option value="${escapeHtml(useCase.id)}" ${index === 0 ? "selected" : ""}>${escapeHtml(useCase.short_label ?? useCase.label)}</option>`,
     )
     .join("");
+  return `
+      <div class="examples-controls">
+        <select class="model-ui-use-case-select" data-use-case-select aria-label="Use case">
+          ${options}
+        </select>
+      </div>`;
+}
+
+function renderModelUiGalleryPreview(example) {
+  const useCases = example.useCases ?? [];
   const panels = useCases
     .map((useCase, index) => {
       const matrix = renderExampleMatrixTable(useCase.comparisonRows ?? []);
       return `
         <section class="model-ui-use-case-panel" data-use-case-panel="${escapeHtml(useCase.id)}" ${index === 0 ? "" : "hidden"}>
           <div class="example-gallery-intro">
-            <p class="eyebrow">Committed screenshots</p>
             <h3>${escapeHtml(useCase.label)} 3x4 matrix</h3>
             <p>${escapeHtml(useCase.activitySummary)} Columns separate Raw brief, JudgmentKit handoff, Material UI only, and JudgmentKit + Material UI.</p>
-            <div class="link-row">
-              <a class="pill-link" href="${escapeHtml(useCase.indexHref)}" target="_blank" rel="noreferrer">Open matrix</a>
-              <a class="pill-link" href="${escapeHtml(useCase.manifestHref)}" target="_blank" rel="noreferrer">Manifest</a>
-            </div>
           </div>
           ${matrix}
         </section>`;
@@ -1820,12 +1860,6 @@ function renderModelUiGalleryPreview(example) {
 
   return `
     <section class="example-gallery" aria-label="Model UI screenshot gallery">
-      <div class="example-gallery-intro">
-        <p class="eyebrow">Committed screenshots</p>
-        <h3>3x4 JudgmentKit and Material UI comparison across four use cases</h3>
-        <p>Material UI improves visual consistency; JudgmentKit improves activity fit, workflow fit, and disclosure discipline. Use the tabs to switch activities without changing the row or column definitions.</p>
-      </div>
-      <div class="model-ui-use-case-tabs" role="tablist" aria-label="Model UI use cases">${tabs}</div>
       ${panels}
     </section>`;
 }
@@ -1971,13 +2005,13 @@ function modelUiExamplesScript() {
 
         function selectUseCase(example, useCaseId, options = {}) {
           const useCases = example.useCases ?? [];
-          if (!useCases.length) return;
+          if (!useCases.length || !previewNode) return;
           const activeUseCase = useCases.find((useCase) => useCase.id === useCaseId) ?? useCases[0];
           previewNode.querySelectorAll("[data-use-case-panel]").forEach((panel) => {
             panel.hidden = panel.getAttribute("data-use-case-panel") !== activeUseCase.id;
           });
-          previewNode.querySelectorAll("[data-use-case-id]").forEach((button) => {
-            button.setAttribute("aria-pressed", String(button.getAttribute("data-use-case-id") === activeUseCase.id));
+          root.querySelectorAll("[data-use-case-select]").forEach((select) => {
+            select.value = activeUseCase.id;
           });
           if (options.updateHash !== false) {
             history.replaceState(
@@ -1988,11 +2022,10 @@ function modelUiExamplesScript() {
           }
         }
 
-        function bindUseCaseTabs(example, useCaseId, options = {}) {
-          if (!previewNode) return;
-          previewNode.querySelectorAll("[data-use-case-id]").forEach((button) => {
-            button.addEventListener("click", () => {
-              selectUseCase(example, button.getAttribute("data-use-case-id"));
+        function bindUseCaseControls(example, useCaseId, options = {}) {
+          root.querySelectorAll("[data-use-case-select]").forEach((select) => {
+            select.addEventListener("change", () => {
+              selectUseCase(example, select.value);
             });
           });
           selectUseCase(example, useCaseId, options);
@@ -2025,7 +2058,7 @@ function modelUiExamplesScript() {
         }
 
         bindGalleryLinks(example);
-        bindUseCaseTabs(example, parseUseCaseHash(), { updateHash: false });
+        bindUseCaseControls(example, parseUseCaseHash(), { updateHash: false });
 
         window.addEventListener("hashchange", () => {
           selectUseCase(example, parseUseCaseHash(), {
@@ -2044,8 +2077,8 @@ function renderExampleGalleryModal() {
         <div class="example-gallery-modal-image">
           <img data-gallery-modal-image src="" alt="">
         </div>
+        <button class="example-gallery-modal-close" type="button" data-gallery-close aria-label="Close gallery">&times;</button>
         <aside class="example-gallery-modal-copy">
-          <button class="pill-link example-gallery-modal-close" type="button" data-gallery-close>Close</button>
           <div class="example-gallery-modal-detail">
             <p class="eyebrow" data-gallery-modal-kicker></p>
             <h2 id="example-gallery-modal-title" data-gallery-modal-title></h2>
@@ -2098,22 +2131,20 @@ async function examplesPage() {
     "JudgmentKit Examples",
     `
     <section class="section examples-page" data-model-ui-examples>
-      <section id="model-ui-system-map" class="example-preview example-preview-focus" aria-label="Model UI generation matrix">
-        <div class="example-preview-header">
-          <div class="example-preview-title-row">
-            <div>
-              <h1>${escapeHtml(modelUiExample.title)}</h1>
-              <p class="lede">${escapeHtml(modelUiExample.description)}</p>
+      <div class="examples-hero">
+        <h1>Examples</h1>
+        <p class="lede">Model UI generation matrix examples compare how the same activity changes across raw brief, JudgmentKit handoff, Material UI only, and JudgmentKit plus Material UI paths.</p>
+      </div>
+      <div class="examples-layout">
+        <div class="examples-main">
+          ${renderModelUiUseCaseSelect(modelUiExample.useCases ?? [])}
+          <section id="model-ui-system-map" class="example-preview example-preview-focus" aria-label="Model UI generation matrix">
+            <div class="example-preview-body" data-model-ui-preview>
+              ${modelUiExample.previewHtml}
             </div>
-            <div class="example-actions">
-              ${renderExampleActions(modelUiExample.actions)}
-            </div>
-          </div>
+          </section>
         </div>
-        <div class="example-preview-body" data-model-ui-preview>
-          ${modelUiExample.previewHtml}
-        </div>
-      </section>
+      </div>
       <noscript>
         <div class="example-noscript-links">
           <p class="note">JavaScript is disabled. Direct model matrix links remain available here.</p>
