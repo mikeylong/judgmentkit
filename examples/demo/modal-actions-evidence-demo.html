@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JudgmentKit Modal Action Evidence Demo</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17222d;
+      --muted: #64717e;
+      --line: #cfd8e3;
+      --surface: #f6f8fb;
+      --panel: #ffffff;
+      --pass: #1f6b46;
+      --fail: #9b2f28;
+      --skip: #735c12;
+      --accent: #245f73;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--surface);
+    }
+
+    main {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    header {
+      display: grid;
+      gap: 12px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1,
+    h2,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      margin-bottom: 0;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1;
+    }
+
+    h2 {
+      margin-bottom: 8px;
+      font-size: 1.05rem;
+    }
+
+    p {
+      line-height: 1.55;
+    }
+
+    code {
+      padding: 2px 5px;
+      border-radius: 4px;
+      background: #e9eef4;
+      font-size: 0.92em;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 24px;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+    }
+
+    th,
+    td {
+      padding: 14px 12px;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    th small {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    .note {
+      max-width: 760px;
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+
+    .caveat {
+      border-left: 4px solid var(--accent);
+      padding: 12px 14px;
+      background: #eaf3f6;
+      color: var(--ink);
+    }
+
+    .status {
+      display: inline-block;
+      min-width: 92px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      font-weight: 760;
+      text-align: center;
+      text-transform: uppercase;
+    }
+
+    .status-passed,
+    .status-pass {
+      background: #e4f3eb;
+      color: var(--pass);
+    }
+
+    .status-failed,
+    .status-fail {
+      background: #f8e8e6;
+      color: var(--fail);
+    }
+
+    .status-not-applicable {
+      background: #f6efd0;
+      color: var(--skip);
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .scenario-details {
+      display: grid;
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .scenario-detail {
+      display: grid;
+      grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+      gap: 24px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+
+    .eyebrow,
+    dt {
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 0.75rem;
+      font-weight: 760;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+
+    dl {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+    }
+
+    dd {
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 780px) {
+      table {
+        display: block;
+        overflow-x: auto;
+      }
+
+      .scenario-detail {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <p class="eyebrow">JudgmentKit scripted fixture</p>
+      <h1>Modal Action Evidence Demo</h1>
+      <p class="note">This local report shows how <code>reviewUiImplementationCandidate</code> evaluates structured <code>modal_actions</code> evidence for the <code>ModalActions</code> primitive.</p>
+      <p class="caveat">pass with reviewed: 0 means no modal-action evidence was inspected, not proof that the UI has no dialogs.</p>
+    </header>
+
+    <section aria-label="Scenario summary">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Scenario</th>
+            <th scope="col">Implementation</th>
+            <th scope="col">modal_actions.status</th>
+            <th scope="col">reviewed</th>
+            <th scope="col">Findings / problems</th>
+          </tr>
+        </thead>
+        <tbody>
+          
+        <tr data-scenario-id="omittedEvidence">
+          <th scope="row">
+            <span>omittedEvidence</span>
+            <small>Omitted modal evidence</small>
+          </th>
+          <td><span class="status status-passed">passed</span></td>
+          <td><span class="status status-pass">pass</span></td>
+          <td>0</td>
+          <td><span class="muted">none</span></td>
+        </tr>
+        <tr data-scenario-id="validEvidence">
+          <th scope="row">
+            <span>validEvidence</span>
+            <small>Valid LTR completion order</small>
+          </th>
+          <td><span class="status status-passed">passed</span></td>
+          <td><span class="status status-pass">pass</span></td>
+          <td>1</td>
+          <td><span class="muted">none</span></td>
+        </tr>
+        <tr data-scenario-id="invalidOrder">
+          <th scope="row">
+            <span>invalidOrder</span>
+            <small>Primary before cancel</small>
+          </th>
+          <td><span class="status status-failed">failed</span></td>
+          <td><span class="status status-fail">fail</span></td>
+          <td>1</td>
+          <td><ul><li>Secondary action &quot;Cancel&quot; must precede primary action &quot;Create card&quot;.</li><li>Primary completion action must be visually final in LTR dialogs.</li></ul></td>
+        </tr>
+        <tr data-scenario-id="primaryNotFinal">
+          <th scope="row">
+            <span>primaryNotFinal</span>
+            <small>Primary not visually final</small>
+          </th>
+          <td><span class="status status-failed">failed</span></td>
+          <td><span class="status status-fail">fail</span></td>
+          <td>1</td>
+          <td><ul><li>Primary completion action must be visually final in LTR dialogs.</li></ul></td>
+        </tr>
+        <tr data-scenario-id="wrongSubmit">
+          <th scope="row">
+            <span>wrongSubmit</span>
+            <small>Wrong form submit action</small>
+          </th>
+          <td><span class="status status-failed">failed</span></td>
+          <td><span class="status status-fail">fail</span></td>
+          <td>1</td>
+          <td><ul><li>Form submit/default Enter action must match the primary completion action.</li></ul></td>
+        </tr>
+        <tr data-scenario-id="destructive">
+          <th scope="row">
+            <span>destructive</span>
+            <small>Destructive dialog</small>
+          </th>
+          <td><span class="status status-passed">passed</span></td>
+          <td><span class="status status-not-applicable">not_applicable</span></td>
+          <td>1</td>
+          <td><ul><li>Destructive dialogs require separate destructive-action review.</li></ul></td>
+        </tr>
+        <tr data-scenario-id="rtl">
+          <th scope="row">
+            <span>rtl</span>
+            <small>RTL dialog</small>
+          </th>
+          <td><span class="status status-passed">passed</span></td>
+          <td><span class="status status-not-applicable">not_applicable</span></td>
+          <td>1</td>
+          <td><ul><li>RTL dialogs invert final visual position and need direction-specific review.</li></ul></td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="scenario-details" aria-label="Scenario details">
+      
+      <article class="scenario-detail" id="omittedEvidence-detail">
+        <div>
+          <p class="eyebrow">omittedEvidence</p>
+          <h2>Omitted modal evidence</h2>
+          <p>Candidate uses ModalActions but does not provide modal_actions evidence.</p>
+        </div>
+        <dl>
+          <div>
+            <dt>Visual order</dt>
+            <dd>none supplied</dd>
+          </div>
+          <div>
+            <dt>Primary action</dt>
+            <dd>none supplied</dd>
+          </div>
+          <div>
+            <dt>Form submit action</dt>
+            <dd>none supplied</dd>
+          </div>
+          <div>
+            <dt>Findings and problems</dt>
+            <dd><span class="muted">none</span></dd>
+          </div>
+        </dl>
+      </article>
+      <article class="scenario-detail" id="validEvidence-detail">
+        <div>
+          <p class="eyebrow">validEvidence</p>
+          <h2>Valid LTR completion order</h2>
+          <p>Cancel precedes the primary completion action, and Enter submits that primary action.</p>
+        </div>
+        <dl>
+          <div>
+            <dt>Visual order</dt>
+            <dd>Cancel -&gt; Create card</dd>
+          </div>
+          <div>
+            <dt>Primary action</dt>
+            <dd>Create card</dd>
+          </div>
+          <div>
+            <dt>Form submit action</dt>
+            <dd>Create card</dd>
+          </div>
+          <div>
+            <dt>Findings and problems</dt>
+            <dd><span class="muted">none</span></dd>
+          </div>
+        </dl>
+      </article>
+      <article class="scenario-detail" id="invalidOrder-detail">
+        <div>
+          <p class="eyebrow">invalidOrder</p>
+          <h2>Primary before cancel</h2>
+          <p>The primary completion action appears before the cancel action in an LTR dialog.</p>
+        </div>
+        <dl>
+          <div>
+            <dt>Visual order</dt>
+            <dd>Create card -&gt; Cancel</dd>
+          </div>
+          <div>
+            <dt>Primary action</dt>
+            <dd>Create card</dd>
+          </div>
+          <div>
+            <dt>Form submit action</dt>
+            <dd>Create card</dd>
+          </div>
+          <div>
+            <dt>Findings and problems</dt>
+            <dd><ul><li>Secondary action &quot;Cancel&quot; must precede primary action &quot;Create card&quot;.</li><li>Primary completion action must be visually final in LTR dialogs.</li><li>Non-destructive modal actions must put cancel/dismiss before the primary completion action, with the primary action visually final.</li></ul></dd>
+          </div>
+        </dl>
+      </article>
+      <article class="scenario-detail" id="primaryNotFinal-detail">
+        <div>
+          <p class="eyebrow">primaryNotFinal</p>
+          <h2>Primary not visually final</h2>
+          <p>The cancel action is before the primary action, but another action appears after the primary action.</p>
+        </div>
+        <dl>
+          <div>
+            <dt>Visual order</dt>
+            <dd>Cancel -&gt; Send invite -&gt; Close</dd>
+          </div>
+          <div>
+            <dt>Primary action</dt>
+            <dd>Send invite</dd>
+          </div>
+          <div>
+            <dt>Form submit action</dt>
+            <dd>Send invite</dd>
+          </div>
+          <div>
+            <dt>Findings and problems</dt>
+            <dd><ul><li>Primary completion action must be visually final in LTR dialogs.</li><li>Non-destructive modal actions must put cancel/dismiss before the primary completion action, with the primary action visually final.</li></ul></dd>
+          </div>
+        </dl>
+      </article>
+      <article class="scenario-detail" id="wrongSubmit-detail">
+        <div>
+          <p class="eyebrow">wrongSubmit</p>
+          <h2>Wrong form submit action</h2>
+          <p>The visible order is valid, but the form submit/default Enter action points at Cancel.</p>
+        </div>
+        <dl>
+          <div>
+            <dt>Visual order</dt>
+            <dd>Cancel -&gt; Create card</dd>
+          </div>
+          <div>
+            <dt>Primary action</dt>
+            <dd>Create card</dd>
+          </div>
+          <div>
+            <dt>Form submit action</dt>
+            <dd>Cancel</dd>
+          </div>
+          <div>
+            <dt>Findings and problems</dt>
+            <dd><ul><li>Form submit/default Enter action must match the primary completion action.</li><li>Non-destructive modal actions must put cancel/dismiss before the primary completion action, with the primary action visually final.</li></ul></dd>
+          </div>
+        </dl>
+      </article>
+      <article class="scenario-detail" id="destructive-detail">
+        <div>
+          <p class="eyebrow">destructive</p>
+          <h2>Destructive dialog</h2>
+          <p>Destructive dialogs are outside this non-destructive ordering rule and need separate review.</p>
+        </div>
+        <dl>
+          <div>
+            <dt>Visual order</dt>
+            <dd>none supplied</dd>
+          </div>
+          <div>
+            <dt>Primary action</dt>
+            <dd>none supplied</dd>
+          </div>
+          <div>
+            <dt>Form submit action</dt>
+            <dd>none supplied</dd>
+          </div>
+          <div>
+            <dt>Findings and problems</dt>
+            <dd><ul><li>Destructive dialogs require separate destructive-action review.</li></ul></dd>
+          </div>
+        </dl>
+      </article>
+      <article class="scenario-detail" id="rtl-detail">
+        <div>
+          <p class="eyebrow">rtl</p>
+          <h2>RTL dialog</h2>
+          <p>RTL dialogs are outside this LTR visual-final rule and need direction-specific review.</p>
+        </div>
+        <dl>
+          <div>
+            <dt>Visual order</dt>
+            <dd>none supplied</dd>
+          </div>
+          <div>
+            <dt>Primary action</dt>
+            <dd>none supplied</dd>
+          </div>
+          <div>
+            <dt>Form submit action</dt>
+            <dd>none supplied</dd>
+          </div>
+          <div>
+            <dt>Findings and problems</dt>
+            <dd><ul><li>RTL dialogs invert final visual position and need direction-specific review.</li></ul></dd>
+          </div>
+        </dl>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

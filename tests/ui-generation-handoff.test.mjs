@@ -157,6 +157,20 @@ function primaryHandoffText(handoff) {
   }).toLowerCase();
 }
 
+function modalImplementationCandidate(modalAction) {
+  return {
+    code: "renderModalActions({ primaryAction, secondaryActions })",
+    primitives_used: ["FormField", "ModalActions"],
+    states_covered: implementationContract.state_coverage.required_states,
+    static_checks: ["npm run check"],
+    browser_qa: {
+      desktop: "desktop viewport modal footer order checked",
+      mobile: "mobile viewport modal footer order checked",
+    },
+    modal_actions: [modalAction],
+  };
+}
+
 {
   const workflowReview = reviewUiWorkflowCandidate(
     REFUND_TRIAGE_BRIEF,
@@ -221,6 +235,126 @@ function primaryHandoffText(handoff) {
   assert.equal(approvedReview.implementation_review_status, "passed");
   assert.equal(approvedReview.checks.approved_primitives.status, "pass");
   assert.deepEqual(approvedReview.findings, []);
+}
+
+{
+  const orderedReview = reviewUiImplementationCandidate(
+    modalImplementationCandidate({
+      context: "New card modal",
+      direction: "ltr",
+      destructive: false,
+      visual_order: ["Cancel", "Create card"],
+      primary_action: "Create card",
+      secondary_actions: ["Cancel"],
+      form_submit_action: "Create card",
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(orderedReview.implementation_review_status, "passed");
+  assert.equal(orderedReview.checks.modal_actions.status, "pass");
+  assert.equal(orderedReview.checks.modal_actions.reviewed, 1);
+  assert.deepEqual(orderedReview.findings, []);
+
+  const primaryFirstReview = reviewUiImplementationCandidate(
+    modalImplementationCandidate({
+      context: "New card modal",
+      direction: "ltr",
+      destructive: false,
+      visual_order: ["Create card", "Cancel"],
+      primary_action: "Create card",
+      secondary_actions: ["Cancel"],
+      form_submit_action: "Create card",
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(primaryFirstReview.implementation_review_status, "failed");
+  assert.equal(primaryFirstReview.checks.modal_actions.status, "fail");
+  assert.ok(
+    primaryFirstReview.findings.some((finding) => finding.check === "modal_actions"),
+  );
+  assert.ok(
+    primaryFirstReview.checks.modal_actions.entries[0].problems.some((problem) =>
+      problem.includes("must precede primary action"),
+    ),
+  );
+
+  const rightmostCancelReview = reviewUiImplementationCandidate(
+    modalImplementationCandidate({
+      context: "New card modal",
+      direction: "ltr",
+      destructive: false,
+      visual_order: ["Back", "Create card", "Cancel"],
+      primary_action: "Create card",
+      secondary_actions: ["Back"],
+      form_submit_action: "Create card",
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(rightmostCancelReview.implementation_review_status, "failed");
+  assert.equal(rightmostCancelReview.checks.modal_actions.status, "fail");
+  assert.ok(
+    rightmostCancelReview.checks.modal_actions.entries[0].problems.some((problem) =>
+      problem.includes("visually final"),
+    ),
+  );
+
+  const wrongSubmitReview = reviewUiImplementationCandidate(
+    modalImplementationCandidate({
+      context: "New card modal",
+      direction: "ltr",
+      destructive: false,
+      visual_order: ["Cancel", "Create card"],
+      primary_action: "Create card",
+      secondary_actions: ["Cancel"],
+      form_submit_action: "Cancel",
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(wrongSubmitReview.implementation_review_status, "failed");
+  assert.equal(wrongSubmitReview.checks.modal_actions.status, "fail");
+  assert.ok(
+    wrongSubmitReview.checks.modal_actions.entries[0].problems.some((problem) =>
+      problem.includes("submit/default Enter"),
+    ),
+  );
+
+  const destructiveReview = reviewUiImplementationCandidate(
+    modalImplementationCandidate({
+      context: "Delete board modal",
+      direction: "ltr",
+      destructive: true,
+      visual_order: ["Delete board", "Cancel"],
+      primary_action: "Delete board",
+      secondary_actions: ["Cancel"],
+      form_submit_action: "Delete board",
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(destructiveReview.implementation_review_status, "passed");
+  assert.equal(destructiveReview.checks.modal_actions.status, "not_applicable");
+  assert.equal(destructiveReview.checks.modal_actions.entries[0].status, "not_applicable");
+
+  const rtlReview = reviewUiImplementationCandidate(
+    modalImplementationCandidate({
+      context: "RTL create modal",
+      direction: "rtl",
+      destructive: false,
+      visual_order: ["Create card", "Cancel"],
+      primary_action: "Create card",
+      secondary_actions: ["Cancel"],
+      form_submit_action: "Create card",
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(rtlReview.implementation_review_status, "passed");
+  assert.equal(rtlReview.checks.modal_actions.status, "not_applicable");
+  assert.equal(rtlReview.checks.modal_actions.entries[0].status, "not_applicable");
 }
 
 {

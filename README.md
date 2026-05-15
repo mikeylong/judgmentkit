@@ -103,6 +103,14 @@ npm run demo:one-shot
 
 That command also writes `examples/demo/one-shot-demo.html` for visual review.
 
+For the modal action evidence demo:
+
+```bash
+npm run demo:modal-actions
+```
+
+That command prints deterministic `reviewUiImplementationCandidate` modal-action outcomes and writes `examples/demo/modal-actions-evidence-demo.html`, including the current evidence-driven `reviewed: 0` caveat.
+
 For an early standalone comparison harness:
 
 ```bash

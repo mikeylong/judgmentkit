@@ -68,6 +68,26 @@ assert.ok(
   "The implementation contract must provide portable primitive coverage for checkbox groups.",
 );
 assert.ok(
+  contract.implementation_contract.approved_primitives.includes("ModalActions"),
+  "The implementation contract must provide portable primitive coverage for modal action groups.",
+);
+const modalActionsRule = contract.implementation_contract.primitive_rules.find(
+  (rule) => rule.primitive === "ModalActions",
+);
+assert.ok(modalActionsRule, "The implementation contract must include ModalActions rules.");
+assert.ok(
+  modalActionsRule.required.some((rule) => rule.includes("secondary cancel or dismiss")),
+  "ModalActions must require cancel/dismiss actions before primary completion actions.",
+);
+assert.ok(
+  modalActionsRule.required.some((rule) => rule.includes("visually final")),
+  "ModalActions must require the primary completion action to be visually final.",
+);
+assert.ok(
+  modalActionsRule.required.some((rule) => rule.includes("submit or default Enter")),
+  "ModalActions must require form-backed primary actions to submit by default.",
+);
+assert.ok(
   contract.implementation_contract.static_enforcement.default_rules.some((rule) =>
     rule.includes("raw input"),
   ),
@@ -76,6 +96,18 @@ assert.ok(
 assert.ok(
   contract.implementation_contract.browser_qa.required,
   "The implementation contract must require browser QA for UI generation.",
+);
+assert.ok(
+  contract.implementation_contract.browser_qa.checks.some((check) =>
+    check.includes("modal or dialog footer order"),
+  ),
+  "The implementation contract must require modal footer order QA when dialogs are present.",
+);
+assert.ok(
+  contract.implementation_contract.failure_signals.some((signal) =>
+    signal.includes("modal or dialog actions"),
+  ),
+  "The implementation contract must fail incorrect non-destructive modal action order.",
 );
 
 assert.equal(contract.workflow.id, "workflow.ai-ui-generation");

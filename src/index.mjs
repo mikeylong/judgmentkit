@@ -3161,6 +3161,185 @@ function detectRawControls(text) {
   return unique(matches);
 }
 
+function normalizeModalActionEvidence(candidate) {
+  if (!isPlainObject(candidate)) {
+    return [];
+  }
+
+  const evidence =
+    candidate.modal_actions ??
+    candidate.modalActions ??
+    candidate.dialog_actions ??
+    candidate.dialogActions;
+
+  if (Array.isArray(evidence)) {
+    return evidence.filter(isPlainObject);
+  }
+
+  return isPlainObject(evidence) ? [evidence] : [];
+}
+
+function normalizedActionLabel(value) {
+  return optionalString(value).toLowerCase();
+}
+
+function modalActionOrder(entry) {
+  return toStringArray(
+    entry.visual_order ??
+      entry.visualOrder ??
+      entry.order ??
+      entry.actions,
+  );
+}
+
+function modalSecondaryActions(entry, order) {
+  const explicit = toStringArray(
+    entry.secondary_actions ??
+      entry.secondaryActions ??
+      entry.dismiss_actions ??
+      entry.dismissActions,
+  );
+
+  if (explicit.length > 0) {
+    return explicit;
+  }
+
+  return order.filter((label) => /\b(?:cancel|dismiss|close)\b/i.test(label));
+}
+
+function modalActionIndex(order, label) {
+  const normalized = normalizedActionLabel(label);
+  return order.findIndex((candidate) => normalizedActionLabel(candidate) === normalized);
+}
+
+function isModalActionSkipped(entry) {
+  const direction = optionalString(entry.direction).toLowerCase();
+
+  if (direction === "rtl") {
+    return "RTL dialogs invert final visual position and need direction-specific review.";
+  }
+
+  if (entry.destructive === true || optionalString(entry.destructive).toLowerCase() === "true") {
+    return "Destructive dialogs require separate destructive-action review.";
+  }
+
+  return "";
+}
+
+function reviewModalActionEntry(entry, index) {
+  const skippedReason = isModalActionSkipped(entry);
+  const context = optionalString(entry.context) || `modal action set ${index + 1}`;
+
+  if (skippedReason) {
+    return {
+      context,
+      status: "not_applicable",
+      reason: skippedReason,
+    };
+  }
+
+  const order = modalActionOrder(entry);
+  const primaryAction = optionalString(
+    entry.primary_action ??
+      entry.primaryAction ??
+      entry.completion_action ??
+      entry.completionAction,
+  );
+  const secondaryActions = modalSecondaryActions(entry, order);
+  const formSubmitAction = optionalString(
+    entry.form_submit_action ??
+      entry.formSubmitAction ??
+      entry.default_action ??
+      entry.defaultAction,
+  );
+  const formBacked = entry.form_backed === true ||
+    entry.formBacked === true ||
+    entry.form === true ||
+    Boolean(formSubmitAction);
+  const problems = [];
+
+  if (order.length === 0) {
+    problems.push("Modal action evidence must include visual_order.");
+  }
+
+  if (!primaryAction) {
+    problems.push("Modal action evidence must name primary_action.");
+  }
+
+  if (secondaryActions.length === 0) {
+    problems.push("Modal action evidence must name cancel or dismiss secondary_actions.");
+  }
+
+  const primaryIndex = primaryAction ? modalActionIndex(order, primaryAction) : -1;
+  if (primaryAction && order.length > 0 && primaryIndex === -1) {
+    problems.push("Primary completion action must appear in visual_order.");
+  }
+
+  for (const secondaryAction of secondaryActions) {
+    const secondaryIndex = modalActionIndex(order, secondaryAction);
+
+    if (secondaryIndex === -1) {
+      problems.push(`Secondary action "${secondaryAction}" must appear in visual_order.`);
+      continue;
+    }
+
+    if (primaryIndex !== -1 && secondaryIndex > primaryIndex) {
+      problems.push(
+        `Secondary action "${secondaryAction}" must precede primary action "${primaryAction}".`,
+      );
+    }
+  }
+
+  if (
+    primaryIndex !== -1 &&
+    order.length > 0 &&
+    normalizedActionLabel(order.at(-1)) !== normalizedActionLabel(primaryAction)
+  ) {
+    problems.push("Primary completion action must be visually final in LTR dialogs.");
+  }
+
+  if (formBacked && !formSubmitAction) {
+    problems.push("Form dialogs must name form_submit_action.");
+  }
+
+  if (
+    formSubmitAction &&
+    primaryAction &&
+    normalizedActionLabel(formSubmitAction) !== normalizedActionLabel(primaryAction)
+  ) {
+    problems.push("Form submit/default Enter action must match the primary completion action.");
+  }
+
+  return {
+    context,
+    status: problems.length > 0 ? "fail" : "pass",
+    order,
+    primary_action: primaryAction,
+    secondary_actions: secondaryActions,
+    form_submit_action: formSubmitAction,
+    problems,
+  };
+}
+
+function reviewModalActions(candidate) {
+  const entries = normalizeModalActionEvidence(candidate);
+  const reviewed = entries.map(reviewModalActionEntry);
+  const failures = reviewed.filter((entry) => entry.status === "fail");
+  const applicable = reviewed.filter((entry) => entry.status !== "not_applicable");
+
+  return {
+    status:
+      failures.length > 0
+        ? "fail"
+        : entries.length > 0 && applicable.length === 0
+          ? "not_applicable"
+          : "pass",
+    reviewed: reviewed.length,
+    entries: reviewed,
+    failures,
+  };
+}
+
 function buildImplementationCandidateChecks(candidate, implementationContract) {
   const text = candidateText(candidate);
   const rawControls = detectRawControls(text);
@@ -3195,6 +3374,7 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
   const hasMobileQa = /mobile|narrow|375|390|414/.test(browserQaText);
   const browserQaRequired = implementationContract.browser_qa.required;
   const missingBrowserQa = browserQaRequired && (!browserQaText || !hasDesktopQa || !hasMobileQa);
+  const modalActions = reviewModalActions(candidate);
   const findings = [];
 
   if (rawControls.length > 0) {
@@ -3244,6 +3424,18 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
     });
   }
 
+  for (const failure of modalActions.failures) {
+    findings.push({
+      severity: "fail",
+      check: "modal_actions",
+      message: "Non-destructive modal actions must put cancel/dismiss before the primary completion action, with the primary action visually final.",
+      evidence: {
+        context: failure.context,
+        problems: failure.problems,
+      },
+    });
+  }
+
   return {
     raw_controls: {
       status: rawControls.length === 0 ? "pass" : "fail",
@@ -3268,6 +3460,11 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
       status: missingBrowserQa ? "fail" : "pass",
       desktop: hasDesktopQa,
       mobile: hasMobileQa,
+    },
+    modal_actions: {
+      status: modalActions.status,
+      reviewed: modalActions.reviewed,
+      entries: modalActions.entries,
     },
     findings,
   };
@@ -3318,6 +3515,7 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
       state_coverage: checks.state_coverage,
       static_enforcement: checks.static_enforcement,
       browser_qa: checks.browser_qa,
+      modal_actions: checks.modal_actions,
     },
     findings: checks.findings,
     implementation_contract: implementationContract,

@@ -445,6 +445,15 @@
           "clear unassigned or empty option when optional",
           "visible focus and disabled states"
         ]
+      },
+      {
+        "primitive": "ModalActions",
+        "required": [
+          "secondary cancel or dismiss actions precede the primary completion action in non-destructive LTR dialogs",
+          "primary completion action is visually final in non-destructive LTR dialogs",
+          "form dialogs use the primary completion action as the submit or default Enter action",
+          "destructive dialogs are excluded from this ordering rule and require separate destructive-action review"
+        ]
       }
     ],
     "state_coverage": {
@@ -477,6 +486,7 @@
         "mobile viewport screenshot",
         "keyboard focus check for interactive controls",
         "overflow check for long labels, descriptions, and values",
+        "modal or dialog footer order check when dialogs are present",
         "disabled, empty, error, and ready state review"
       ]
     },
@@ -491,6 +501,7 @@
       "raw form controls appear in feature render code",
       "checkboxes or labels rely on browser defaults without approved spacing",
       "a new variant is invented without contract evidence",
+      "non-destructive modal or dialog actions put cancel/dismiss after the primary completion action",
       "focus, disabled, or error states are missing",
       "browser QA is skipped after UI generation"
     ]
