@@ -1509,7 +1509,7 @@ function homepage() {
       <code class="command">curl -fsSL https://judgmentkit.ai/install | bash</code>
       <code class="command">curl -fsSL https://judgmentkit.ai/install | bash -s -- --client claude</code>
       <code class="command">curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code>
-      <p class="note">Codex is the default when no client is provided. Hosted installs do not clone the repo or require npm.</p>
+      <p class="note">Codex is the default when no client is provided. Hosted installs do not clone <a href="https://github.com/mikeylong/judgmentkit">the repo</a> or require npm.</p>
     </section>
   `,
     {
