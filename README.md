@@ -39,7 +39,8 @@ JudgmentKit keeps the core deterministic and lets model assistance enter through
 7. UI implementation contract gate: creates or accepts the repo authority for approved primitives, control semantics, required states, static checks, and browser QA.
 8. UI generation handoff gate: turns only ready workflow reviews plus an implementation contract into compact handoffs for the next UI generation pass.
 9. Frontend generation context adapter: combines a ready handoff, selected surface type, frontend context, and verification expectations without making styling or component inventory part of the kernel contract.
-10. Optional provider adapters: provider configuration and network calls stay outside the kernel and feed proposed candidates back through the same review contract.
+10. Frontend implementation skill context: compiles repo-local frontend skill guidance into a gated MCP packet for agents that cannot read local skills directly.
+11. Optional provider adapters: provider configuration and network calls stay outside the kernel and feed proposed candidates back through the same review contract.
 
 ## Structure
 
@@ -142,7 +143,7 @@ For the system-map model UI matrix:
 npm run demo:model-ui
 ```
 
-That command writes static 3x4 model UI matrices under `examples/model-ui/` for support refund triage, field service dispatch, clinical intake review, and B2B renewal risk review. Each use case includes deterministic, Gemma 4 local LLM, and GPT-5.5 xhigh paths across raw brief, JudgmentKit handoff, Material UI only, and JudgmentKit plus Material UI columns. The refund route at `examples/model-ui/refund-system-map/` remains the stable compatibility path. The website build copies those committed artifacts, records provenance in each manifest, and does not call live providers.
+That command writes static 3x4 model UI matrices under `examples/model-ui/` for support refund triage, field service dispatch, clinical intake review, and B2B renewal risk review. Each use case includes deterministic, Gemma 4 local LLM, and GPT-5.5 xhigh paths across raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill plus Material UI columns. The refund route at `examples/model-ui/refund-system-map/` remains the stable compatibility path. The website build copies those committed artifacts, records provenance in each manifest, and does not call live providers.
 
 To refresh the committed Gemma 4 and GPT-5.5 transcripts for that matrix:
 
@@ -151,6 +152,7 @@ npm run capture:model-ui
 ```
 
 That command uses LM Studio's `lms` CLI for Gemma 4 and the `codex` CLI for GPT-5.5, writes capture transcripts under each `examples/model-ui/<use-case>/captures/` directory, and regenerates the static matrices from those committed files. Add `-- --fresh` to force recapturing every model cell instead of reusing matching transcripts.
+Gemma captures explicitly load the local model with a minimum 16k LM Studio context window before `lms chat`; override with `MODEL_UI_LMS_CONTEXT_LENGTH` only to request a larger window.
 
 To refresh only the committed gallery screenshots after regenerating the matrix:
 

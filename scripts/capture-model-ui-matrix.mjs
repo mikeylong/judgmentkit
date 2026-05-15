@@ -11,6 +11,10 @@ import {
   MODEL_UI_USE_CASES,
   modelUiUseCasesForArgs,
 } from "./model-ui-use-cases.mjs";
+import {
+  createFrontendGenerationContext,
+  createFrontendImplementationSkillContext,
+} from "../src/index.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, "..");
@@ -23,6 +27,16 @@ const MODEL_COMPACT_RETRY_TIMEOUT_MS = Number.parseInt(
     String(Math.max(MODEL_CAPTURE_TIMEOUT_MS, 600_000)),
   10,
 );
+const LMS_MIN_CONTEXT_LENGTH = 16_384;
+const LMS_CONTEXT_LENGTH = Math.max(
+  Number.parseInt(
+    process.env.MODEL_UI_LMS_CONTEXT_LENGTH ??
+      process.env.JUDGMENTKIT_LMS_CONTEXT_LENGTH ??
+      String(LMS_MIN_CONTEXT_LENGTH),
+    10,
+  ) || LMS_MIN_CONTEXT_LENGTH,
+  LMS_MIN_CONTEXT_LENGTH,
+);
 const FRESH_CAPTURE = process.argv.includes("--fresh");
 
 let activeUseCase;
@@ -33,6 +47,7 @@ let HANDOFF_FILE;
 let DESIGN_SYSTEM_FILE;
 let SELECTED_CASE;
 let QUEUE;
+const loadedLmsModels = new Map();
 
 const ROWS = COMPARISON_ROWS.filter((row) => row.generation_source === "captured_model_output");
 
@@ -112,6 +127,66 @@ function run(command, args, options = {}) {
   };
 }
 
+function findLoadedLmsModel(model) {
+  const result = run("lms", ["ps", "--json"], { timeout: 30_000 });
+  const loaded = JSON.parse(result.stdout || "[]");
+  return loaded.find((entry) =>
+    [entry.identifier, entry.modelKey, entry.path, entry.indexedModelIdentifier]
+      .filter(Boolean)
+      .includes(model),
+  );
+}
+
+function ensureLmsModelContext(target) {
+  const existing = findLoadedLmsModel(target.model);
+  const existingContextLength = Number(existing?.contextLength ?? 0);
+  if (existing && existingContextLength >= LMS_CONTEXT_LENGTH) {
+    loadedLmsModels.set(target.model, {
+      model: target.model,
+      status: "already_loaded",
+      requested_context_length: LMS_CONTEXT_LENGTH,
+      actual_context_length: existingContextLength,
+      identifier: existing.identifier ?? target.model,
+    });
+    return loadedLmsModels.get(target.model);
+  }
+
+  if (existing?.identifier) {
+    run("lms", ["unload", existing.identifier], { timeout: 120_000 });
+  }
+
+  const loadArgs = [
+    "load",
+    target.model,
+    "--context-length",
+    String(LMS_CONTEXT_LENGTH),
+    "--ttl",
+    "300",
+    "--identifier",
+    target.model,
+    "--yes",
+  ];
+  run("lms", loadArgs, { timeout: 300_000 });
+  const loaded = findLoadedLmsModel(target.model);
+  const actualContextLength = Number(loaded?.contextLength ?? 0);
+  if (actualContextLength < LMS_CONTEXT_LENGTH) {
+    throw new Error(
+      `LM Studio loaded ${target.model} with context length ${actualContextLength}, below required minimum ${LMS_CONTEXT_LENGTH}.`,
+    );
+  }
+
+  const context = {
+    model: target.model,
+    status: existing ? "reloaded" : "loaded",
+    requested_context_length: LMS_CONTEXT_LENGTH,
+    actual_context_length: actualContextLength,
+    identifier: loaded?.identifier ?? target.model,
+    load_command_display: `lms ${loadArgs.join(" ")}`,
+  };
+  loadedLmsModels.set(target.model, context);
+  return context;
+}
+
 function parseJsonPayload(raw) {
   const trimmed = String(raw).trim();
   const withoutFence = trimmed
@@ -166,6 +241,18 @@ function parseJsonPayload(raw) {
     }
 
     const summaryMatch = withoutFence.match(/"summary"\s*:\s*"((?:\\.|[^"\\])*)"/s);
+    const cssMatch = withoutFence.match(/"css"\s*:\s*"((?:\\.|[^"\\])*)"/s);
+    const malformedHtmlMatch = withoutFence.match(
+      /"html"\s*(?::|>)\s*"?(<main[\s\S]*<\/main>)/i,
+    );
+    if (summaryMatch && malformedHtmlMatch) {
+      return {
+        summary: decodeLooseJsonString(summaryMatch[1]),
+        css: cssMatch ? decodeLooseJsonString(cssMatch[1]) : "",
+        html: decodeLooseJsonString(malformedHtmlMatch[1].replace(/"\s*$/s, "")),
+      };
+    }
+
     const htmlKeyIndex = withoutFence.indexOf('"html"');
     if (summaryMatch && htmlKeyIndex !== -1) {
       const colonIndex = withoutFence.indexOf(":", htmlKeyIndex);
@@ -179,6 +266,7 @@ function parseJsonPayload(raw) {
       if (withoutFence[endIndex] === '"' && firstQuoteIndex !== -1 && firstQuoteIndex < endIndex) {
         return {
           summary: decodeLooseJsonString(summaryMatch[1]),
+          css: cssMatch ? decodeLooseJsonString(cssMatch[1]) : "",
           html: decodeLooseJsonString(withoutFence.slice(firstQuoteIndex + 1, endIndex)),
         };
       }
@@ -193,6 +281,7 @@ function sanitizeCss(css) {
     .replace(/@import[^;]+;/gi, "")
     .replace(/url\([^)]*\)/gi, "none")
     .replace(/<\/?style[^>]*>/gi, "")
+    .replace(/<\/?[a-z][^>]*>/gi, "")
     .trim();
 }
 
@@ -226,6 +315,105 @@ function validateParsed(parsed, target) {
   if (typeof parsed.html !== "string" || !parsed.html.includes("data-primary-surface")) {
     throw new Error(`${target.artifact_id} did not return html with data-primary-surface.`);
   }
+  if (typeof parsed.css !== "string" || !sanitizeCss(parsed.css)) {
+    throw new Error(`${target.artifact_id} did not return nonempty static CSS.`);
+  }
+
+  const quality = analyzeStaticCaptureQuality(parsed, target);
+  if (quality.status !== "passed") {
+    const error = new Error(
+      `${target.artifact_id} failed static capture quality: ${quality.failures.join("; ")}`,
+    );
+    error.capture_quality = quality;
+    throw error;
+  }
+}
+
+function isStrictStaticJudgmentKitTarget(target) {
+  return target.render_mode === "html" && target.judgmentkit_mode === "with_judgmentkit";
+}
+
+function countMatches(value, pattern) {
+  return (String(value).match(pattern) ?? []).length;
+}
+
+function hasCompactTemplateSignature(css) {
+  const compact = String(css).replace(/\s+/g, "").toLowerCase();
+  return (
+    compact.includes("main{font-family:system-ui;padding:24px}") &&
+    compact.includes(".panel{border:1pxsolid#ddd;padding:12px;margin:12px0}")
+  ) || (
+    compact.length < 700 &&
+    compact.includes(".panel{") &&
+    compact.includes(".actions{") &&
+    compact.includes("button{padding:")
+  );
+}
+
+function analyzeStaticCaptureQuality(parsed, target) {
+  const css = sanitizeCss(parsed?.css);
+  const html = sanitizeHtml(parsed?.html);
+  const strict = isStrictStaticJudgmentKitTarget(target);
+  const quality = {
+    profile: strict ? "judgmentkit_static_html_css" : "basic_static_html_css",
+    css_characters: css.length,
+    html_characters: html.length,
+    css_rule_count: countMatches(css, /[^{}]+\{[^{}]*\}/g),
+    class_selector_count: countMatches(css, /\.[a-z0-9_-]+/gi),
+    semantic_section_count: countMatches(html, /<(section|article|aside|header|nav|footer)\b/gi),
+    structural_block_count: countMatches(html, /<(section|article|aside|header|nav|footer|div)\b/gi),
+    button_count: countMatches(html, /<button\b/gi),
+    has_responsive_css: /@media\b/i.test(css),
+    has_layout_css: /\bdisplay\s*:\s*(grid|flex)\b|grid-template|flex-wrap|\bgap\s*:/i.test(css),
+    has_panel_css: /\bborder\s*:|\bbackground\s*:|box-shadow\s*:/i.test(css),
+    has_control_css: /button|\.actions|\.action|cursor\s*:|:hover|:focus/i.test(css),
+    has_evidence_content: /evidence|risk|reason|signal|trend|usage|procurement|champion|issue|case|missing|blocked|check|review|permit|technician|intake|receipt|refund|renewal|account|patient|customer|site/i.test(html),
+    has_handoff_content: /handoff|owner|send|next owner|meeting note|procurement date|assign|escalate|request|schedule|follow/i.test(html),
+    compact_template_signature: hasCompactTemplateSignature(css),
+    failures: [],
+  };
+
+  if (strict) {
+    if (quality.css_characters < 650) {
+      quality.failures.push("CSS is too small for a styled JudgmentKit static capture");
+    }
+    if (quality.html_characters < 1050) {
+      quality.failures.push("HTML is too small for a real JudgmentKit work surface");
+    }
+    if (quality.css_rule_count < 8 || quality.class_selector_count < 6) {
+      quality.failures.push("CSS lacks enough component/layout rules");
+    }
+    if (!quality.has_responsive_css) {
+      quality.failures.push("CSS lacks responsive rules");
+    }
+    if (!quality.has_layout_css) {
+      quality.failures.push("CSS lacks grid/flex layout rules");
+    }
+    if (!quality.has_panel_css) {
+      quality.failures.push("CSS lacks panel/background/border styling");
+    }
+    if (!quality.has_control_css) {
+      quality.failures.push("CSS lacks control/action styling");
+    }
+    if (quality.semantic_section_count < 3 && quality.structural_block_count < 8) {
+      quality.failures.push("HTML lacks enough structured work-surface regions");
+    }
+    if (quality.button_count < 3) {
+      quality.failures.push("HTML lacks enough decision controls");
+    }
+    if (!quality.has_evidence_content) {
+      quality.failures.push("HTML lacks evidence or risk content");
+    }
+    if (!quality.has_handoff_content) {
+      quality.failures.push("HTML lacks handoff content");
+    }
+    if (quality.compact_template_signature) {
+      quality.failures.push("CSS matches the rejected compact template signature");
+    }
+  }
+
+  quality.status = quality.failures.length ? "failed" : "passed";
+  return quality;
 }
 
 function contextIncluded(target) {
@@ -234,11 +422,161 @@ function contextIncluded(target) {
     sample_case: true,
     reviewed_handoff: target.judgmentkit_mode === "with_judgmentkit",
     material_ui_adapter: target.design_system_mode === "material_ui",
+    frontend_skill_context: target.judgmentkit_mode === "with_judgmentkit",
+  };
+}
+
+function artifactPath(target) {
+  return `artifacts/${target.artifact_id}.html`;
+}
+
+function buildFrontendProjectContext(target, designSystemAdapter) {
+  const usesMaterialUi = target.design_system_mode === "material_ui";
+  return {
+    target_runtime: usesMaterialUi ? "React static SSR" : "Static browser HTML/CSS",
+    ui_library: usesMaterialUi ? designSystemAdapter.design_system_name : "None",
+    project_rules: [
+      "Implement from the reviewed activity, workflow, and handoff before renderer choices.",
+      "Keep JudgmentKit review-packet terms and implementation machinery out of primary UI.",
+      "Use compact operational layout, stable responsive dimensions, and visible state.",
+    ],
+    approved_component_families: usesMaterialUi
+      ? designSystemAdapter.components
+      : [
+          "work queue",
+          "selected item detail",
+          "evidence list",
+          "decision controls",
+          "handoff panel",
+        ],
+    files_or_entrypoints: [artifactPath(target)],
+  };
+}
+
+function buildFrontendVerificationContext(target) {
+  return {
+    commands: ["npm test", "npm run capture:model-ui:screenshots"],
+    browser_checks: [
+      `${target.artifact_id} desktop screenshot has a styled primary work surface`,
+      `${target.artifact_id} mobile screenshot keeps the decision and handoff visible`,
+    ],
+    states_to_verify: [
+      "selected work item is visible",
+      "decision evidence is scannable",
+      "primary action and handoff reason are clear",
+    ],
+  };
+}
+
+function buildFrontendSkillContexts({ target, reviewedHandoff, designSystemAdapter }) {
+  if (target.judgmentkit_mode !== "with_judgmentkit") {
+    return {
+      frontend_generation_context: null,
+      frontend_skill_context: null,
+    };
+  }
+
+  const usesMaterialUi = target.design_system_mode === "material_ui";
+  const frontendGenerationContext = createFrontendGenerationContext({
+    ui_generation_handoff: reviewedHandoff,
+    surface_type: reviewedHandoff.surface_type,
+    frontend_context: buildFrontendProjectContext(target, designSystemAdapter),
+    verification: buildFrontendVerificationContext(target),
+  });
+  const frontendSkillContext = createFrontendImplementationSkillContext({
+    frontend_generation_context: frontendGenerationContext,
+    design_system_adapter: usesMaterialUi ? designSystemAdapter : undefined,
+    target_client: target.cli ?? target.generation_source,
+    instruction_format: "structured_markdown",
+  });
+
+  return {
+    frontend_generation_context: frontendGenerationContext,
+    frontend_skill_context: frontendSkillContext,
+  };
+}
+
+function compactReviewedHandoff(reviewedHandoff) {
+  if (!reviewedHandoff) return null;
+  return {
+    version: reviewedHandoff.version,
+    contract_id: reviewedHandoff.contract_id,
+    handoff_status: reviewedHandoff.handoff_status,
+    surface_type: reviewedHandoff.surface_type,
+    activity_model: reviewedHandoff.activity_model,
+    interaction_contract: reviewedHandoff.interaction_contract,
+    workflow: reviewedHandoff.workflow,
+    primary_surface: reviewedHandoff.primary_surface,
+    handoff: reviewedHandoff.handoff,
+    disclosure_reminders: {
+      terms_to_keep_out_of_primary_ui:
+        reviewedHandoff.disclosure_reminders?.terms_to_keep_out_of_primary_ui ?? [],
+      diagnostic_contexts:
+        reviewedHandoff.disclosure_reminders?.diagnostic_contexts ?? [],
+      primary_ui_rule: reviewedHandoff.disclosure_reminders?.primary_ui_rule,
+    },
+    implementation_contract: {
+      approved_primitives:
+        reviewedHandoff.implementation_contract?.approved_primitives ?? [],
+      state_coverage: reviewedHandoff.implementation_contract?.state_coverage,
+      static_enforcement:
+        reviewedHandoff.implementation_contract?.static_enforcement,
+      browser_qa: reviewedHandoff.implementation_contract?.browser_qa,
+    },
+  };
+}
+
+function compactFrontendGenerationContext(frontendGenerationContext) {
+  if (!frontendGenerationContext) return null;
+  return {
+    version: frontendGenerationContext.version,
+    contract_id: frontendGenerationContext.contract_id,
+    workflow_id: frontendGenerationContext.workflow_id,
+    frontend_context_status: frontendGenerationContext.frontend_context_status,
+    surface_type: frontendGenerationContext.surface_type,
+    frontend_context: frontendGenerationContext.frontend_context,
+    implementation_guidance: {
+      required_sections:
+        frontendGenerationContext.implementation_guidance?.required_sections ?? [],
+      required_controls:
+        frontendGenerationContext.implementation_guidance?.required_controls ?? [],
+      frontend_posture:
+        frontendGenerationContext.implementation_guidance?.frontend_posture ?? {},
+      verification_expectations:
+        frontendGenerationContext.implementation_guidance?.verification_expectations ?? {},
+    },
+    guardrails: frontendGenerationContext.guardrails,
+  };
+}
+
+function compactFrontendSkillContext(frontendSkillContext) {
+  if (!frontendSkillContext) return null;
+  return {
+    version: frontendSkillContext.version,
+    contract_id: frontendSkillContext.contract_id,
+    workflow_id: frontendSkillContext.workflow_id,
+    skill_context_status: frontendSkillContext.skill_context_status,
+    source_skill: frontendSkillContext.source_skill,
+    source: frontendSkillContext.source,
+    instruction_markdown: frontendSkillContext.instruction_markdown,
+    implementation_sequence: frontendSkillContext.implementation_sequence,
+    approved_primitives: frontendSkillContext.approved_primitives,
+    approved_component_families: frontendSkillContext.approved_component_families,
+    files_or_entrypoints: frontendSkillContext.files_or_entrypoints,
+    design_system_policy: frontendSkillContext.design_system_policy,
+    verification_checklist: frontendSkillContext.verification_checklist,
+    guardrails: frontendSkillContext.guardrails,
+    next_recommended_tool: frontendSkillContext.next_recommended_tool,
   };
 }
 
 function buildContextPayload({ target, sourceBrief, reviewedHandoff, designSystemAdapter }) {
   const included = contextIncluded(target);
+  const frontendContexts = buildFrontendSkillContexts({
+    target,
+    reviewedHandoff,
+    designSystemAdapter,
+  });
   return {
     matrix_id: activeUseCase.matrix_id,
     use_case_id: activeUseCase.id,
@@ -253,8 +591,14 @@ function buildContextPayload({ target, sourceBrief, reviewedHandoff, designSyste
       selected_case: SELECTED_CASE,
       queue: QUEUE,
     },
-    reviewed_handoff: included.reviewed_handoff ? reviewedHandoff : null,
+    reviewed_handoff: included.reviewed_handoff ? compactReviewedHandoff(reviewedHandoff) : null,
     material_ui_adapter: included.material_ui_adapter ? designSystemAdapter : null,
+    frontend_generation_context: compactFrontendGenerationContext(
+      frontendContexts.frontend_generation_context,
+    ),
+    frontend_skill_context: compactFrontendSkillContext(
+      frontendContexts.frontend_skill_context,
+    ),
   };
 }
 
@@ -276,10 +620,53 @@ function buildTargets() {
   return ROWS.flatMap((row) => COLUMNS.map((column) => buildTarget(row, column)));
 }
 
+function buildPromptContextPayload(contextPayload) {
+  const reviewedHandoff = contextPayload.reviewed_handoff;
+  const frontendSkillContext = contextPayload.frontend_skill_context;
+  return {
+    matrix_id: contextPayload.matrix_id,
+    use_case_id: contextPayload.use_case_id,
+    use_case_label: contextPayload.use_case_label,
+    activity_summary: contextPayload.activity_summary,
+    artifact_id: contextPayload.artifact_id,
+    row_id: contextPayload.row_id,
+    column_id: contextPayload.column_id,
+    context_included: contextPayload.context_included,
+    source_brief: contextPayload.source_brief,
+    sample_case: contextPayload.sample_case,
+    reviewed_handoff: reviewedHandoff
+      ? {
+          activity_model: reviewedHandoff.activity_model,
+          interaction_contract: reviewedHandoff.interaction_contract,
+          workflow: reviewedHandoff.workflow,
+          primary_surface: reviewedHandoff.primary_surface,
+          handoff: reviewedHandoff.handoff,
+          disclosure_reminders: reviewedHandoff.disclosure_reminders,
+          implementation_contract: reviewedHandoff.implementation_contract,
+        }
+      : null,
+    material_ui_adapter: contextPayload.material_ui_adapter,
+    frontend_skill_context: frontendSkillContext
+      ? {
+          skill_context_status: frontendSkillContext.skill_context_status,
+          source_skill: frontendSkillContext.source_skill,
+          instruction_markdown: frontendSkillContext.instruction_markdown,
+          implementation_sequence: frontendSkillContext.implementation_sequence,
+          approved_primitives: frontendSkillContext.approved_primitives,
+          approved_component_families: frontendSkillContext.approved_component_families,
+          design_system_policy: frontendSkillContext.design_system_policy,
+          verification_checklist: frontendSkillContext.verification_checklist,
+          guardrails: frontendSkillContext.guardrails,
+          next_recommended_tool: frontendSkillContext.next_recommended_tool,
+        }
+      : null,
+  };
+}
+
 function buildHtmlPrompt({ target, contextPayload }) {
   const usingJudgmentKit = target.judgmentkit_mode === "with_judgmentkit";
   const boundary = usingJudgmentKit
-    ? "You receive a reviewed JudgmentKit handoff. Use it as the source of truth for activity, workflow, domain vocabulary, and disclosure boundaries."
+    ? "You receive a reviewed JudgmentKit handoff and compiled frontend implementation skill context. Use them as the source of truth for activity, workflow, domain vocabulary, implementation sequence, and disclosure boundaries."
     : "You receive only the raw source brief and sample case. Do not assume a reviewed JudgmentKit handoff exists.";
   const disclosure = usingJudgmentKit
     ? "Keep implementation details out of the visible UI unless the activity explicitly needs diagnostics."
@@ -294,24 +681,26 @@ function buildHtmlPrompt({ target, contextPayload }) {
     boundary,
     disclosure,
     "Return JSON only with this shape:",
-    '{ "summary": "one sentence", "css": "optional static CSS", "html": "<main data-primary-surface>...</main>" }',
+    '{ "summary": "one sentence", "css": "nonempty static CSS", "html": "<main data-primary-surface>...</main>" }',
     "",
     "Hard constraints:",
     "- The html field must include exactly one primary <main ... data-primary-surface> root.",
-    "- Static CSS is allowed in the css field. Do not include <style> inside html.",
+    "- The css field is required and must contain enough static CSS to style layout, spacing, typography, states, and controls.",
+    "- Do not include <style> inside html.",
     "- Do not include <script>, external assets, remote fonts, image URLs, or network references.",
     "- Use visible UI copy, buttons, and sections that reflect the provided context boundary.",
+    "- For JudgmentKit columns, follow frontend_skill_context.instruction_markdown, implementation_sequence, guardrails, approved primitives, and verification checklist.",
     "- Keep it readable at a 1365x900 desktop viewport.",
     "",
     "Context JSON:",
-    JSON.stringify(contextPayload, null, 2),
+    JSON.stringify(buildPromptContextPayload(contextPayload), null, 2),
   ].join("\n");
 }
 
 function buildMaterialUiPrompt({ target, contextPayload }) {
   const usingJudgmentKit = target.judgmentkit_mode === "with_judgmentkit";
   const boundary = usingJudgmentKit
-    ? "You receive a reviewed JudgmentKit handoff. Use it as the source of truth for the surface data."
+    ? "You receive a reviewed JudgmentKit handoff and compiled frontend implementation skill context. Use them as the source of truth for the surface data, implementation sequence, and disclosure boundaries."
     : "You receive only raw source brief context plus a Material UI adapter. Do not assume JudgmentKit reviewed the activity.";
   const disclosure = usingJudgmentKit
     ? "Keep implementation details out of user-facing labels unless the handoff allows diagnostics."
@@ -325,19 +714,44 @@ function buildMaterialUiPrompt({ target, contextPayload }) {
     "Task: Produce structured surface data for a static Material UI SSR renderer.",
     boundary,
     disclosure,
+    usingJudgmentKit
+      ? "Follow frontend_skill_context.instruction_markdown, implementation_sequence, guardrails, approved primitives, and verification checklist."
+      : "Do not invent JudgmentKit review or frontend skill context.",
     "Do not return HTML or CSS for this column.",
     "Return JSON only with this shape:",
     '{ "summary": "one sentence", "surface": { "eyebrow": "...", "heading": "...", "status": "...", "queue_title": "...", "queue": [{ "id": "...", "customer": "...", "state": "...", "amount": "..." }], "selected": { "id": "...", "customer": "...", "amount": "...", "plan": "...", "request": "...", "status": "..." }, "info": [{ "label": "...", "value": "..." }], "evidence": ["..."], "policy_title": "...", "policy": "...", "decision_title": "...", "actions": ["..."], "primary_action": "...", "handoff": { "owner": "...", "title": "...", "reason": "...", "action": "..." } } }',
     "",
     "Context JSON:",
-    JSON.stringify(contextPayload, null, 2),
+    JSON.stringify(buildPromptContextPayload(contextPayload), null, 2),
   ].join("\n");
 }
 
 function buildPrompt(args) {
+  if (
+    args.target.cli === "lms" &&
+    isStrictStaticJudgmentKitTarget(args.target)
+  ) {
+    return buildLmsJudgmentKitStaticPrompt(args.target, args.contextPayload);
+  }
+  if (args.target.cli === "lms" && args.target.judgmentkit_mode === "with_judgmentkit") {
+    return buildCompactRetryPrompt(args.target, args.contextPayload);
+  }
   return args.target.render_mode === "material_ui"
     ? buildMaterialUiPrompt(args)
     : buildHtmlPrompt(args);
+}
+
+function summarizeFrontendSkillContext(skillContext) {
+  if (!skillContext) return null;
+  return {
+    source_skill: skillContext.source_skill?.name ?? null,
+    raw_skill_exposed: skillContext.source_skill?.raw_skill_exposed ?? null,
+    surface_type: skillContext.surface_type_guidance?.surface_type ?? null,
+    design_system_mode: skillContext.design_system_policy?.mode ?? null,
+    design_system_name: skillContext.design_system_policy?.name ?? null,
+    next_recommended_tool: skillContext.next_recommended_tool ?? null,
+    verification_checklist: skillContext.verification_checklist ?? [],
+  };
 }
 
 async function ensureBaseFiles() {
@@ -347,6 +761,7 @@ async function ensureBaseFiles() {
 }
 
 async function captureWithLms(target, prompt) {
+  const lms_context = ensureLmsModelContext(target);
   const args = [
     "chat",
     target.model,
@@ -363,6 +778,7 @@ async function captureWithLms(target, prompt) {
     command_display: `lms ${args.map((arg) => (arg === prompt ? "<prompt>" : arg)).join(" ")}`,
     raw_response: execution.stdout,
     execution,
+    lms_context,
   };
 }
 
@@ -531,11 +947,25 @@ function buildCompactRetryPrompt(target, contextPayload) {
   };
   const caseSummary = `${SELECTED_CASE.id} ${SELECTED_CASE.customer} ${SELECTED_CASE.amount}: ${selectedStatus}. ${handoff.reason}`;
   const contextBoundary = contextPayload.context_included.reviewed_handoff
-    ? "Use JudgmentKit handoff language: review evidence, choose next action, leave handoff."
+    ? "Use the reviewed handoff and compiled frontend skill context: review evidence, choose next action, leave handoff, and keep implementation machinery out of primary UI."
     : `Use raw brief language if useful: ${activeUseCase.implementation_terms.slice(0, 5).join(", ")}.`;
   const designBoundary = contextPayload.context_included.material_ui_adapter
     ? "Return surface data for Material UI SSR, not HTML."
-    : "Return HTML and optional CSS.";
+    : "Return HTML and nonempty CSS.";
+  const skill = contextPayload.frontend_skill_context;
+  const reviewedHandoff = contextPayload.reviewed_handoff;
+  const skillLines = skill
+    ? [
+        `Frontend skill context: ${skill.skill_context_status}; source skill ${skill.source_skill?.name}; raw skill exposed ${String(skill.source_skill?.raw_skill_exposed)}.`,
+        `Required sections: ${(reviewedHandoff?.primary_surface?.sections ?? []).join(", ")}.`,
+        `Required controls: ${(reviewedHandoff?.primary_surface?.controls ?? []).join(", ")}.`,
+        `Implementation sequence: ${(skill.implementation_sequence ?? []).slice(0, 4).join(" | ")}.`,
+        `Guardrail: ${skill.guardrails?.primary_ui_rule}`,
+        `Keep out of primary UI: ${(skill.guardrails?.terms_to_keep_out_of_primary_ui ?? []).join(", ")}.`,
+        `Design policy: ${skill.design_system_policy?.mode}; ${skill.design_system_policy?.constraint}`,
+        `Verify: ${(skill.verification_checklist ?? []).slice(0, 6).join(" | ")}.`,
+      ]
+    : [];
 
   if (target.render_mode === "material_ui") {
     const compactSurface = {
@@ -571,6 +1001,7 @@ function buildCompactRetryPrompt(target, contextPayload) {
       contextBoundary,
       designBoundary,
       `Case: ${caseSummary}`,
+      ...skillLines,
       "Return one compact JSON object only:",
       JSON.stringify(compactSurface),
     ].join("\n");
@@ -583,6 +1014,7 @@ function buildCompactRetryPrompt(target, contextPayload) {
     contextBoundary,
     designBoundary,
     `Case: ${caseSummary}`,
+    ...skillLines,
     "Return one compact JSON object only:",
     JSON.stringify({
       summary: "one sentence",
@@ -592,19 +1024,116 @@ function buildCompactRetryPrompt(target, contextPayload) {
   ].join("\n");
 }
 
+function compactCaseForPrompt() {
+  return {
+    selected_case: SELECTED_CASE,
+    queue: QUEUE.map(({ id, customer, state, amount }) => ({
+      id,
+      customer,
+      state,
+      amount,
+    })),
+  };
+}
+
+function buildLmsJudgmentKitStaticPrompt(target, contextPayload, validationFailure = "") {
+  const reviewedHandoff = contextPayload.reviewed_handoff;
+  const skill = contextPayload.frontend_skill_context;
+  const surface = activeUseCase.reviewed_surface;
+  const handoff = surface.handoff ?? reviewedHandoff?.handoff ?? {
+    owner: "Next owner",
+    title: "Handoff",
+    reason: SELECTED_CASE.status,
+    action: "Send handoff",
+  };
+  const promptContext = {
+    use_case: activeUseCase.label,
+    activity: activeUseCase.activity_summary,
+    selected_case: compactCaseForPrompt().selected_case,
+    queue: compactCaseForPrompt().queue,
+    reviewed_surface: {
+      eyebrow: surface.eyebrow,
+      heading: surface.heading,
+      status: surface.selected_status ?? SELECTED_CASE.status,
+      queue_title: surface.queue_title,
+      info: surface.info ?? [],
+      evidence: surface.evidence ?? SELECTED_CASE.evidence,
+      policy_title: surface.policy_title,
+      policy: surface.policy ?? SELECTED_CASE.policy,
+      decision_title: surface.decision_title,
+      actions: surface.actions,
+      primary_action: surface.primary_action,
+      handoff,
+    },
+    frontend_skill_context: {
+      status: skill?.skill_context_status,
+      source_skill: skill?.source_skill,
+      implementation_sequence: (skill?.implementation_sequence ?? []).slice(0, 5),
+      approved_primitives: skill?.approved_primitives ?? [],
+      approved_component_families: skill?.approved_component_families ?? [],
+      design_system_policy: skill?.design_system_policy,
+      guardrails: skill?.guardrails,
+      verification_checklist: (skill?.verification_checklist ?? []).slice(0, 8),
+    },
+  };
+  const retryLines = validationFailure
+    ? [
+        "Previous response failed validation. Return a complete replacement, not a patch.",
+        `Validation failures: ${validationFailure}`,
+        "Do not reuse the compact .panel/.actions template. Expand the HTML and CSS until the quality gate is satisfied.",
+        "",
+      ]
+    : [];
+
+  return [
+    SYSTEM_PROMPT,
+    "",
+    `Artifact id: ${target.artifact_id}`,
+    "Task: Generate a complete static browser-renderable product UI for the reviewed JudgmentKit handoff plus compiled frontend skill context.",
+    "Return one compact valid JSON object only with string fields: summary, css, html. Keep the whole response under 3000 characters.",
+    "The html field must contain exactly one product-facing <main data-primary-surface ...> root. The css field must contain only CSS.",
+    "",
+    "Quality gate for this raw Gemma capture:",
+    "- CSS must be substantial but bounded: 650-850 minified characters, at least 8 rules, 6 class selectors, grid/flex layout, responsive @media rules, panel/background/border styling, and action/button styling.",
+    "- HTML must be substantial but bounded: 1050-1300 minified characters with a queue or account selector, selected account detail, evidence/risk section, decision controls, and handoff section.",
+    "- Include at least 3 visible decision buttons and enough domain copy to support the domain decision.",
+    "- At a 1365x900 desktop viewport, the queue/context, evidence, decision controls, and handoff should all be visible or clearly started without looking sparse.",
+    "- Keep JudgmentKit terms, prompt/schema/tool names, and implementation machinery out of visible product UI.",
+    "- Minify CSS and HTML strings: no comments, no indentation, no explanatory prose. Do not copy a tiny generic .panel/.actions sample; incomplete CSS or low-density HTML will be rejected.",
+    "",
+    ...retryLines,
+    "Context JSON:",
+    JSON.stringify(promptContext, null, 2),
+  ].join("\n");
+}
+
+function buildValidationRetryPrompt(target, contextPayload, error) {
+  if (target.cli === "lms" && isStrictStaticJudgmentKitTarget(target)) {
+    return buildLmsJudgmentKitStaticPrompt(target, contextPayload, error.message);
+  }
+  return buildCompactRetryPrompt(target, contextPayload);
+}
+
 async function captureTarget(target, prompt, options = {}) {
   return target.cli === "lms"
     ? captureWithLms(target, prompt)
     : captureWithCodex(target, prompt, options);
 }
 
-async function readReusableCapture(target, sourceContextHash) {
+async function readReusableCapture(target, sourceContextHash, promptHash) {
   if (FRESH_CAPTURE) return null;
   try {
     const filePath = path.join(CAPTURES_DIR, target.output_file);
     const capture = JSON.parse(await fs.readFile(filePath, "utf8"));
     if (capture.artifact_id !== target.artifact_id) return null;
     if (capture.source_context_sha256 !== sourceContextHash) return null;
+    if (capture.prompt_sha256 !== promptHash) return null;
+    if (
+      target.cli === "lms" &&
+      Number(capture.lms_context?.actual_context_length ?? 0) < LMS_CONTEXT_LENGTH
+    ) {
+      return null;
+    }
     validateParsed(capture.parsed, target);
     return capture;
   } catch {
@@ -664,13 +1193,14 @@ async function captureUseCase(useCase) {
       target,
       contextPayload,
     });
-    const reusable = await readReusableCapture(target, sourceContextHash);
+    const initialPromptSha = hash(prompt);
+    const reusable = await readReusableCapture(target, sourceContextHash, initialPromptSha);
     if (reusable) {
       process.stdout.write(`Reused ${target.artifact_id} -> ${target.output_file}\n`);
       continue;
     }
     let promptForCapture = prompt;
-    let promptSha = hash(promptForCapture);
+    let promptSha = initialPromptSha;
     let capture;
     try {
       capture = await captureTarget(target, promptForCapture);
@@ -707,9 +1237,9 @@ async function captureUseCase(useCase) {
     } catch (error) {
       if (target.cli === "lms") {
         process.stdout.write(
-          `${target.artifact_id} initial capture failed validation; retrying with compact JSON prompt.\n`,
+          `${target.artifact_id} initial capture failed validation; retrying with quality feedback.\n`,
         );
-        promptForCapture = buildCompactRetryPrompt(target, contextPayload);
+        promptForCapture = buildValidationRetryPrompt(target, contextPayload, error);
         promptSha = hash(promptForCapture);
         capture = await captureTarget(target, promptForCapture, {
           timeout: MODEL_COMPACT_RETRY_TIMEOUT_MS,
@@ -733,6 +1263,16 @@ async function captureUseCase(useCase) {
         );
       }
     }
+
+    const sanitizedParsed = {
+      ...parsed,
+      html: parsed.html ? sanitizeHtml(parsed.html) : undefined,
+      css: parsed.css ? sanitizeCss(parsed.css) : undefined,
+    };
+    const captureQuality =
+      target.render_mode === "html"
+        ? analyzeStaticCaptureQuality(sanitizedParsed, target)
+        : null;
 
     const transcript = {
       artifact_id: target.artifact_id,
@@ -766,16 +1306,21 @@ async function captureUseCase(useCase) {
       runner: "scripts/capture-model-ui-matrix.mjs",
       captured_at: new Date().toISOString(),
       context_included: contextPayload.context_included,
+      frontend_context_status:
+        contextPayload.frontend_generation_context?.frontend_context_status ?? null,
+      frontend_skill_context_status:
+        contextPayload.frontend_skill_context?.skill_context_status ?? null,
+      frontend_skill_context: summarizeFrontendSkillContext(
+        contextPayload.frontend_skill_context,
+      ),
       source_context_sha256: sourceContextHash,
       prompt_sha256: promptSha,
       raw_response_sha256: hash(rawResponse),
       command_display: capture.command_display,
       notes: `${target.model_label} output captured through ${target.cli} for the JudgmentKit 3x4 model UI matrix.`,
-      parsed: {
-        ...parsed,
-        html: parsed.html ? sanitizeHtml(parsed.html) : undefined,
-        css: parsed.css ? sanitizeCss(parsed.css) : undefined,
-      },
+      lms_context: capture.lms_context ?? null,
+      capture_quality: captureQuality,
+      parsed: sanitizedParsed,
       raw_response: rawResponse,
       execution: {
         status: capture.execution.status,

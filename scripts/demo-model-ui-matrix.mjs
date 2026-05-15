@@ -31,6 +31,8 @@ import { renderToString } from "react-dom/server";
 
 import {
   createActivityModelReview,
+  createFrontendGenerationContext,
+  createFrontendImplementationSkillContext,
   createUiGenerationHandoff,
   reviewUiWorkflowCandidate,
 } from "../src/index.mjs";
@@ -230,11 +232,153 @@ function contextIncluded(output) {
     sample_case: true,
     reviewed_handoff: output.judgmentkit_mode === "with_judgmentkit",
     material_ui_adapter: output.design_system_mode === "material_ui",
+    frontend_skill_context: output.judgmentkit_mode === "with_judgmentkit",
+  };
+}
+
+function buildFrontendProjectContext(output) {
+  const usesMaterialUi = output.design_system_mode === "material_ui";
+  return {
+    target_runtime: usesMaterialUi ? "React static SSR" : "Static browser HTML/CSS",
+    ui_library: usesMaterialUi ? DESIGN_SYSTEM_ADAPTER.design_system_name : "None",
+    project_rules: [
+      "Implement from the reviewed activity, workflow, and handoff before renderer choices.",
+      "Keep JudgmentKit review-packet terms and implementation machinery out of primary UI.",
+      "Use compact operational layout, stable responsive dimensions, and visible state.",
+    ],
+    approved_component_families: usesMaterialUi
+      ? DESIGN_SYSTEM_ADAPTER.components
+      : [
+          "work queue",
+          "selected item detail",
+          "evidence list",
+          "decision controls",
+          "handoff panel",
+        ],
+    files_or_entrypoints: [artifactPath(output.id)],
+  };
+}
+
+function buildFrontendVerificationContext(output) {
+  return {
+    commands: ["npm test", "npm run capture:model-ui:screenshots"],
+    browser_checks: [
+      `${output.id} desktop screenshot has a styled primary work surface`,
+      `${output.id} mobile screenshot keeps the decision and handoff visible`,
+    ],
+    states_to_verify: [
+      "selected work item is visible",
+      "decision evidence is scannable",
+      "primary action and handoff reason are clear",
+    ],
+  };
+}
+
+function buildFrontendSkillContexts({ output, reviewedHandoff }) {
+  if (output.judgmentkit_mode !== "with_judgmentkit") {
+    return {
+      frontend_generation_context: null,
+      frontend_skill_context: null,
+    };
+  }
+
+  const usesMaterialUi = output.design_system_mode === "material_ui";
+  const frontendGenerationContext = createFrontendGenerationContext({
+    ui_generation_handoff: reviewedHandoff,
+    surface_type: reviewedHandoff.surface_type,
+    frontend_context: buildFrontendProjectContext(output),
+    verification: buildFrontendVerificationContext(output),
+  });
+  const frontendSkillContext = createFrontendImplementationSkillContext({
+    frontend_generation_context: frontendGenerationContext,
+    design_system_adapter: usesMaterialUi ? DESIGN_SYSTEM_ADAPTER : undefined,
+    target_client: output.cli ?? output.generation_source,
+    instruction_format: "structured_markdown",
+  });
+
+  return {
+    frontend_generation_context: frontendGenerationContext,
+    frontend_skill_context: frontendSkillContext,
+  };
+}
+
+function compactReviewedHandoff(reviewedHandoff) {
+  if (!reviewedHandoff) return null;
+  return {
+    version: reviewedHandoff.version,
+    contract_id: reviewedHandoff.contract_id,
+    handoff_status: reviewedHandoff.handoff_status,
+    surface_type: reviewedHandoff.surface_type,
+    activity_model: reviewedHandoff.activity_model,
+    interaction_contract: reviewedHandoff.interaction_contract,
+    workflow: reviewedHandoff.workflow,
+    primary_surface: reviewedHandoff.primary_surface,
+    handoff: reviewedHandoff.handoff,
+    disclosure_reminders: {
+      terms_to_keep_out_of_primary_ui:
+        reviewedHandoff.disclosure_reminders?.terms_to_keep_out_of_primary_ui ?? [],
+      diagnostic_contexts:
+        reviewedHandoff.disclosure_reminders?.diagnostic_contexts ?? [],
+      primary_ui_rule: reviewedHandoff.disclosure_reminders?.primary_ui_rule,
+    },
+    implementation_contract: {
+      approved_primitives:
+        reviewedHandoff.implementation_contract?.approved_primitives ?? [],
+      state_coverage: reviewedHandoff.implementation_contract?.state_coverage,
+      static_enforcement:
+        reviewedHandoff.implementation_contract?.static_enforcement,
+      browser_qa: reviewedHandoff.implementation_contract?.browser_qa,
+    },
+  };
+}
+
+function compactFrontendGenerationContext(frontendGenerationContext) {
+  if (!frontendGenerationContext) return null;
+  return {
+    version: frontendGenerationContext.version,
+    contract_id: frontendGenerationContext.contract_id,
+    workflow_id: frontendGenerationContext.workflow_id,
+    frontend_context_status: frontendGenerationContext.frontend_context_status,
+    surface_type: frontendGenerationContext.surface_type,
+    frontend_context: frontendGenerationContext.frontend_context,
+    implementation_guidance: {
+      required_sections:
+        frontendGenerationContext.implementation_guidance?.required_sections ?? [],
+      required_controls:
+        frontendGenerationContext.implementation_guidance?.required_controls ?? [],
+      frontend_posture:
+        frontendGenerationContext.implementation_guidance?.frontend_posture ?? {},
+      verification_expectations:
+        frontendGenerationContext.implementation_guidance?.verification_expectations ?? {},
+    },
+    guardrails: frontendGenerationContext.guardrails,
+  };
+}
+
+function compactFrontendSkillContext(frontendSkillContext) {
+  if (!frontendSkillContext) return null;
+  return {
+    version: frontendSkillContext.version,
+    contract_id: frontendSkillContext.contract_id,
+    workflow_id: frontendSkillContext.workflow_id,
+    skill_context_status: frontendSkillContext.skill_context_status,
+    source_skill: frontendSkillContext.source_skill,
+    source: frontendSkillContext.source,
+    instruction_markdown: frontendSkillContext.instruction_markdown,
+    implementation_sequence: frontendSkillContext.implementation_sequence,
+    approved_primitives: frontendSkillContext.approved_primitives,
+    approved_component_families: frontendSkillContext.approved_component_families,
+    files_or_entrypoints: frontendSkillContext.files_or_entrypoints,
+    design_system_policy: frontendSkillContext.design_system_policy,
+    verification_checklist: frontendSkillContext.verification_checklist,
+    guardrails: frontendSkillContext.guardrails,
+    next_recommended_tool: frontendSkillContext.next_recommended_tool,
   };
 }
 
 function buildContextPayload({ output, brief, reviewedHandoff }) {
   const included = contextIncluded(output);
+  const frontendContexts = buildFrontendSkillContexts({ output, reviewedHandoff });
   return {
     matrix_id: MATRIX_ID,
     use_case_id: activeUseCase.id,
@@ -249,8 +393,14 @@ function buildContextPayload({ output, brief, reviewedHandoff }) {
       selected_case: SELECTED_CASE,
       queue: QUEUE,
     },
-    reviewed_handoff: included.reviewed_handoff ? reviewedHandoff : null,
+    reviewed_handoff: included.reviewed_handoff ? compactReviewedHandoff(reviewedHandoff) : null,
     material_ui_adapter: included.material_ui_adapter ? DESIGN_SYSTEM_ADAPTER : null,
+    frontend_generation_context: compactFrontendGenerationContext(
+      frontendContexts.frontend_generation_context,
+    ),
+    frontend_skill_context: compactFrontendSkillContext(
+      frontendContexts.frontend_skill_context,
+    ),
   };
 }
 
@@ -270,16 +420,10 @@ function buildReviewedHandoff(brief) {
   const handoff = createUiGenerationHandoff(workflowReview);
 
   return {
+    ...handoff,
     source_brief_file: SOURCE_BRIEF_FILE,
     activity_review_status: activityReview.review_status,
     workflow_review_status: workflowReview.review_status,
-    handoff_status: handoff.handoff_status,
-    activity_model: handoff.activity_model,
-    interaction_contract: handoff.interaction_contract,
-    workflow: handoff.workflow,
-    primary_surface: handoff.primary_surface,
-    handoff: handoff.handoff,
-    disclosure_reminders: handoff.disclosure_reminders,
   };
 }
 
@@ -482,6 +626,15 @@ async function readCapture(output, contextHash) {
 }
 
 function captureProvenance(output, capture) {
+  const frontendContextStatus =
+    output.frontend_generation_context?.frontend_context_status ??
+    capture?.frontend_context_status ??
+    null;
+  const frontendSkillContextStatus =
+    output.frontend_skill_context?.skill_context_status ??
+    capture?.frontend_skill_context_status ??
+    null;
+
   if (output.generation_source !== "captured_model_output") {
     return {
       status: "captured",
@@ -492,6 +645,9 @@ function captureProvenance(output, capture) {
       model: "none",
       cli: null,
       reasoning_effort: null,
+      frontend_context_status: frontendContextStatus,
+      frontend_skill_context_status: frontendSkillContextStatus,
+      capture_quality: null,
       notes:
         "Rendered deterministically from the matrix context. No provider or model call is used.",
     };
@@ -507,6 +663,9 @@ function captureProvenance(output, capture) {
       model: output.model,
       cli: output.cli,
       reasoning_effort: output.reasoning_effort,
+      frontend_context_status: frontendContextStatus,
+      frontend_skill_context_status: frontendSkillContextStatus,
+      capture_quality: null,
       notes:
         "Capture transcript is missing or stale for this matrix cell. Run npm run capture:model-ui.",
     };
@@ -526,29 +685,36 @@ function captureProvenance(output, capture) {
     source_context_sha256: capture.source_context_sha256,
     reasoning_effort: capture.reasoning_effort ?? null,
     context_included: capture.context_included,
-    design_system_name: capture.design_system_name ?? null,
-    design_system_package: capture.design_system_package ?? null,
-    design_system_render_mode: capture.design_system_render_mode ?? null,
-    notes: capture.notes,
+    frontend_context_status: frontendContextStatus,
+    frontend_skill_context_status: frontendSkillContextStatus,
+      design_system_name: capture.design_system_name ?? null,
+      design_system_package: capture.design_system_package ?? null,
+      design_system_render_mode: capture.design_system_render_mode ?? null,
+      lms_context: capture.lms_context ?? null,
+      capture_quality: capture.capture_quality ?? null,
+      notes: capture.notes,
   };
 }
 
 function columnRenderLabel(output) {
   if (output.judgmentkit_mode === "with_judgmentkit" && output.design_system_mode === "material_ui") {
-    return "JudgmentKit + Material UI";
+    return "JudgmentKit skill + Material UI";
   }
-  if (output.judgmentkit_mode === "with_judgmentkit") return "JudgmentKit handoff";
+  if (output.judgmentkit_mode === "with_judgmentkit") return "JudgmentKit skill context";
   if (output.design_system_mode === "material_ui") return "Material UI only";
   return "Raw brief";
 }
 
 function renderSource(output) {
   if (output.generation_source === "deterministic") {
+    if (output.judgmentkit_mode === "with_judgmentkit" && output.design_system_mode === "material_ui") return "deterministic_frontend_skill_material_ui_ssr";
     if (output.design_system_mode === "material_ui") return "deterministic_material_ui_ssr";
-    if (output.judgmentkit_mode === "with_judgmentkit") return "deterministic_judgmentkit_html";
+    if (output.judgmentkit_mode === "with_judgmentkit") return "deterministic_frontend_skill_html";
     return "deterministic_raw_brief_html";
   }
+  if (output.judgmentkit_mode === "with_judgmentkit" && output.design_system_mode === "material_ui") return "model_frontend_skill_material_ui_ssr";
   if (output.design_system_mode === "material_ui") return "model_structured_data_material_ui_ssr";
+  if (output.judgmentkit_mode === "with_judgmentkit") return "model_frontend_skill_static_html_css";
   return "model_static_html_css";
 }
 
@@ -562,12 +728,12 @@ function approachCaption(output) {
     return `${row} receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI.`;
   }
   if (output.judgmentkit_mode === "with_judgmentkit" && output.design_system_mode === "none") {
-    return `${row} receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance.`;
+    return `${row} receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.`;
   }
   if (output.judgmentkit_mode === "no_judgmentkit" && output.design_system_mode === "material_ui") {
     return `${row} is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit.`;
   }
-  return `${row} receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path.`;
+  return `${row} receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path.`;
 }
 
 function renderingPolicy(output) {
@@ -575,12 +741,12 @@ function renderingPolicy(output) {
     return "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.";
   }
   if (output.judgmentkit_mode === "with_judgmentkit" && output.design_system_mode === "none") {
-    return "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.";
+    return "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.";
   }
   if (output.judgmentkit_mode === "no_judgmentkit" && output.design_system_mode === "material_ui") {
     return "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.";
   }
-  return "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.";
+  return "Visible artifact is rendered through Material UI from the reviewed handoff plus compiled frontend skill context.";
 }
 
 function renderQueue(surface) {
@@ -1199,6 +1365,9 @@ function renderArtifact(output, manifestEntry) {
       : null,
     capture_file: output.capture_file ?? null,
     model_response_summary: output.capture?.parsed?.summary ?? null,
+    frontend_context_status: manifestEntry.frontend_context_status,
+    frontend_skill_context_status: manifestEntry.frontend_skill_context_status,
+    frontend_skill_context: manifestEntry.frontend_skill_context,
     capture_provenance: output.capture_provenance,
     artifact_path: manifestEntry.artifact_path,
     screenshot_path: manifestEntry.screenshot_path,
@@ -1222,6 +1391,11 @@ ${modelCss}${styleTags}
       <span>${escapeHtml(output.capture_provenance.status)}</span>
       <span> - ${escapeHtml(output.generation_source)}</span>
       <span> - ${escapeHtml(columnRenderLabel(output))}</span>
+      ${
+        manifestEntry.frontend_skill_context_status
+          ? `<span> - frontend skill context ${escapeHtml(manifestEntry.frontend_skill_context_status)}</span>`
+          : ""
+      }
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
       <p>${escapeHtml(manifestEntry.rendering_policy)}</p>
       <p>Manifest entry: <code>${escapeHtml(manifestEntry.artifact_path)}</code></p>
@@ -1300,7 +1474,7 @@ function renderMatrixIndex(manifest) {
   ).length;
   const captureNote = captureRequiredCount
     ? `Entries marked <strong>capture-required</strong> need fresh model transcripts. Run <code>npm run capture:model-ui</code>.`
-    : `All model cells are committed captures. Material UI improves visual/component consistency; JudgmentKit improves activity fit, workflow fit, and disclosure discipline.`;
+    : `All model cells are committed captures. JudgmentKit skill context improves activity fit, workflow fit, disclosure discipline, and implementation guidance; Material UI improves visual/component consistency.`;
   const artifactsWithIndex = manifest.artifacts.map((artifact, index) => ({
     ...artifact,
     gallery_index: index,
@@ -1680,7 +1854,7 @@ function renderMatrixIndex(manifest) {
     <main>
       <p class="eyebrow">System-map example pack</p>
       <h1>${escapeHtml(manifest.use_case_label)} model UI generation matrix</h1>
-      <p>${escapeHtml(manifest.activity_summary)} Three generation paths are shown across four context boundaries. Material UI improves visual/component consistency; JudgmentKit improves activity fit, workflow fit, and disclosure discipline.</p>
+      <p>${escapeHtml(manifest.activity_summary)} Three generation paths are shown across four context boundaries. JudgmentKit skill context improves activity fit, workflow fit, disclosure discipline, and implementation guidance; Material UI improves visual/component consistency.</p>
       <div class="summary" aria-label="Matrix summary">
         <div><span>Source brief</span><strong>${escapeHtml(manifest.source_brief_file)}</strong></div>
         <div><span>Rows</span><strong>${manifest.comparison_rows.length} generation paths</strong></div>
@@ -1826,13 +2000,29 @@ ${detailsRows}
 function contextSummary(output) {
   const parts = ["source brief", "sample case"];
   if (output.judgmentkit_mode === "with_judgmentkit") parts.push("reviewed handoff");
+  if (output.judgmentkit_mode === "with_judgmentkit") parts.push("frontend skill context");
   if (output.design_system_mode === "material_ui") parts.push("Material UI adapter");
   return parts.join(" + ");
+}
+
+function summarizeFrontendSkillContext(skillContext) {
+  if (!skillContext) return null;
+  return {
+    source_skill: skillContext.source_skill?.name ?? null,
+    raw_skill_exposed: skillContext.source_skill?.raw_skill_exposed ?? null,
+    surface_type: skillContext.surface_type_guidance?.surface_type ?? null,
+    design_system_mode: skillContext.design_system_policy?.mode ?? null,
+    design_system_name: skillContext.design_system_policy?.name ?? null,
+    next_recommended_tool: skillContext.next_recommended_tool ?? null,
+    verification_checklist: skillContext.verification_checklist ?? [],
+  };
 }
 
 function buildManifestArtifact(output, capture, contextHash) {
   const context = contextIncluded(output);
   const designSystem = output.design_system_mode === "material_ui";
+  const frontendSkillContext =
+    output.frontend_skill_context ?? capture?.frontend_skill_context ?? null;
   return {
     id: output.id,
     use_case_id: activeUseCase.id,
@@ -1862,9 +2052,20 @@ function buildManifestArtifact(output, capture, contextHash) {
     design_system_render_mode: designSystem ? DESIGN_SYSTEM_ADAPTER.render_mode : null,
     capture_file: output.capture_file,
     capture_provenance: captureProvenance(output, capture),
+    lms_context: capture?.lms_context ?? null,
+    capture_quality: capture?.capture_quality ?? null,
     prompt_sha256: capture?.prompt_sha256 ?? null,
     source_context_sha256: contextHash,
     raw_response_sha256: capture?.raw_response_sha256 ?? null,
+    frontend_context_status:
+      output.frontend_generation_context?.frontend_context_status ??
+      capture?.frontend_context_status ??
+      null,
+    frontend_skill_context_status:
+      output.frontend_skill_context?.skill_context_status ??
+      capture?.frontend_skill_context_status ??
+      null,
+    frontend_skill_context: summarizeFrontendSkillContext(frontendSkillContext),
     artifact_path: artifactPath(output.id),
     screenshot_path: screenshotPath(output.id),
     render_source: renderSource(output),
@@ -1935,10 +2136,15 @@ async function generateUseCase(useCase) {
       const contextPayload = buildContextPayload({ output, brief, reviewedHandoff });
       const contextHash = hash(JSON.stringify(contextPayload, null, 2));
       const capture = await readCapture(output, contextHash);
-      return {
+      const outputWithContext = {
         ...output,
+        frontend_generation_context: contextPayload.frontend_generation_context,
+        frontend_skill_context: contextPayload.frontend_skill_context,
+      };
+      return {
+        ...outputWithContext,
         capture,
-        capture_provenance: captureProvenance(output, capture),
+        capture_provenance: captureProvenance(outputWithContext, capture),
         source_context_sha256: contextHash,
       };
     }),
@@ -1967,7 +2173,7 @@ async function generateUseCase(useCase) {
     model_labels: COMPARISON_ROWS.map((row) => row.model_label),
     artifacts: manifestArtifacts,
     generation_policy:
-      "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model. The 3x4 matrix separates raw brief context, JudgmentKit handoff context, Material UI rendering, and the combined JudgmentKit plus Material UI path.",
+      "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model. The 3x4 matrix separates raw brief context, JudgmentKit reviewed handoff plus compiled frontend skill context, Material UI rendering, and the combined JudgmentKit skill plus Material UI path.",
   };
 
   await fs.writeFile(

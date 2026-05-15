@@ -53,13 +53,13 @@ export const COMPARISON_COLUMNS = [
   },
   {
     id: "with-judgmentkit",
-    label: "JudgmentKit handoff",
-    short_label: "With JudgmentKit",
+    label: "JudgmentKit skill context",
+    short_label: "JudgmentKit skill",
     judgmentkit_mode: "with_judgmentkit",
     design_system_mode: "none",
     render_mode: "html",
     summary:
-      "Reviewed JudgmentKit handoff and sample case. No Material UI adapter.",
+      "Reviewed handoff plus compiled frontend implementation skill context. No Material UI.",
   },
   {
     id: "material-ui-only",
@@ -73,13 +73,13 @@ export const COMPARISON_COLUMNS = [
   },
   {
     id: "judgmentkit-material-ui",
-    label: "JudgmentKit + Material UI",
-    short_label: "JudgmentKit + design system",
+    label: "JudgmentKit skill + Material UI",
+    short_label: "Skill + design system",
     judgmentkit_mode: "with_judgmentkit",
     design_system_mode: "material_ui",
     render_mode: "material_ui",
     summary:
-      "Reviewed JudgmentKit handoff rendered through the Material UI adapter.",
+      "Reviewed handoff plus compiled frontend skill context rendered through Material UI.",
   },
 ];
 
@@ -322,9 +322,9 @@ export const MODEL_UI_USE_CASES = [
       },
     },
     reviewed_surface: {
-      eyebrow: "JudgmentKit handoff",
+      eyebrow: "Refund escalation",
       heading: "Refund Review Workspace",
-      status: "Activity-fit",
+      status: "Evidence incomplete",
       queue_title: "Refund escalations",
       info: [
         { label: "Plan", value: "Pro annual" },
@@ -484,7 +484,7 @@ export const MODEL_UI_USE_CASES = [
       },
     },
     reviewed_surface: {
-      eyebrow: "JudgmentKit handoff",
+      eyebrow: "Dispatch review",
       heading: "Repair Dispatch Review",
       status: "Access detail needed",
       queue_title: "Repair visits",
@@ -646,7 +646,7 @@ export const MODEL_UI_USE_CASES = [
       },
     },
     reviewed_surface: {
-      eyebrow: "JudgmentKit handoff",
+      eyebrow: "Intake readiness",
       heading: "Intake Readiness Review",
       status: "Consent missing",
       queue_title: "Intake packets",
@@ -808,7 +808,7 @@ export const MODEL_UI_USE_CASES = [
       },
     },
     reviewed_surface: {
-      eyebrow: "JudgmentKit handoff",
+      eyebrow: "Renewal review",
       heading: "Renewal Risk Review",
       status: "Procurement date missing",
       queue_title: "Renewal accounts",

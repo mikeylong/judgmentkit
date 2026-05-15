@@ -3692,6 +3692,48 @@ function normalizeVerificationContext(value) {
   return isPlainObject(value) ? value : {};
 }
 
+function normalizeDesignSystemAdapter(value) {
+  return isPlainObject(value) ? value : {};
+}
+
+function normalizeInstructionFormat(value) {
+  const format = optionalString(value);
+
+  if (!format) {
+    return "structured_markdown";
+  }
+
+  if (!["structured_markdown", "markdown"].includes(format)) {
+    throw new JudgmentKitInputError(
+      "instruction_format must be structured_markdown or markdown when provided.",
+    );
+  }
+
+  return format;
+}
+
+function optionalDesignSystemName(...values) {
+  for (const value of values) {
+    const name = optionalString(value);
+
+    if (!name) {
+      continue;
+    }
+
+    if (
+      ["none", "no external ui library", "no external library"].includes(
+        name.toLowerCase(),
+      )
+    ) {
+      continue;
+    }
+
+    return name;
+  }
+
+  return "";
+}
+
 export function createFrontendGenerationContext({
   ui_generation_handoff: uiGenerationHandoff,
   surface_review: surfaceReview,
@@ -3812,4 +3854,193 @@ export function createFrontendGenerationContext({
         uiGenerationHandoff.implementation_contract?.approved_primitives ?? [],
     },
   };
+}
+
+function buildFrontendImplementationInstructionMarkdown({
+  frontendGenerationContext,
+  designSystemPolicy,
+  targetClient,
+}) {
+  const implementationGuidance = frontendGenerationContext.implementation_guidance ?? {};
+  const verification = implementationGuidance.verification_expectations ?? {};
+  const frontendContext = frontendGenerationContext.frontend_context ?? {};
+  const lines = [
+    "# Frontend Implementation Skill Context",
+    "",
+    "Use this only after a ready JudgmentKit frontend context. Implement from the activity, workflow, required sections, controls, and implementation contract before applying renderer choices.",
+    "",
+    "## Source",
+    `- Target client: ${targetClient || "agent"}`,
+    `- Surface type: ${frontendGenerationContext.surface_type || "unspecified"}`,
+    `- Runtime: ${frontendContext.target_runtime || "unspecified"}`,
+    `- UI library: ${frontendContext.ui_library || "unspecified"}`,
+    "",
+    "## Implementation Sequence",
+    "- Confirm the activity, primary decision, workflow, and handoff are represented in the surface.",
+    "- Shape the interface around the selected surface type and required sections.",
+    "- Use approved primitives and approved component families before introducing new UI helpers.",
+    "- Apply any design system only as the renderer after the activity and workflow are clear.",
+    "- Verify required states, static checks, browser checks, and disclosure boundaries.",
+    "- Review generated code or evidence with review_ui_implementation_candidate before final handoff.",
+    "",
+    "## Required Surface",
+    `- Sections: ${toStringArray(implementationGuidance.required_sections).join("; ") || "none supplied"}`,
+    `- Controls: ${toStringArray(implementationGuidance.required_controls).join("; ") || "none supplied"}`,
+    "",
+    "## Design System Policy",
+    `- Mode: ${designSystemPolicy.mode}`,
+    `- Authority: ${designSystemPolicy.authority}`,
+    `- Constraint: ${designSystemPolicy.constraint}`,
+    "",
+    "## Verification",
+    `- Commands: ${toStringArray(verification.commands).join("; ") || "none supplied"}`,
+    `- Browser checks: ${toStringArray(verification.browser_checks).join("; ") || "none supplied"}`,
+    `- States: ${toStringArray(verification.states_to_verify).join("; ") || "none supplied"}`,
+  ];
+
+  return lines.join("\n");
+}
+
+export function createFrontendImplementationSkillContext({
+  frontend_generation_context: frontendGenerationContext,
+  design_system_adapter: designSystemAdapter,
+  target_client: targetClient,
+  instruction_format: instructionFormat,
+} = {}) {
+  if (!isPlainObject(frontendGenerationContext)) {
+    throw new JudgmentKitInputError(
+      "createFrontendImplementationSkillContext requires frontend_generation_context.",
+    );
+  }
+
+  if (
+    frontendGenerationContext.frontend_context_status !==
+    "ready_for_frontend_implementation"
+  ) {
+    throw new JudgmentKitInputError(
+      "Frontend implementation skill context requires a ready frontend generation context.",
+      {
+        code: "frontend_skill_context_blocked",
+        details: {
+          frontend_context_status: frontendGenerationContext.frontend_context_status,
+          handoff_status: frontendGenerationContext.source?.handoff_status,
+        },
+      },
+    );
+  }
+
+  const normalizedDesignSystemAdapter = normalizeDesignSystemAdapter(designSystemAdapter);
+  const normalizedTargetClient = optionalString(targetClient);
+  const normalizedInstructionFormat = normalizeInstructionFormat(instructionFormat);
+  const frontendContext = frontendGenerationContext.frontend_context ?? {};
+  const implementationGuidance =
+    frontendGenerationContext.implementation_guidance ?? {};
+  const implementationContract =
+    frontendGenerationContext.implementation_contract ?? {};
+  const verificationExpectations =
+    implementationGuidance.verification_expectations ?? {};
+  const designSystemName = optionalDesignSystemName(
+    normalizedDesignSystemAdapter.design_system_name ??
+      normalizedDesignSystemAdapter.name ??
+      frontendContext.ui_library,
+  );
+  const designSystemPackage = optionalString(
+    normalizedDesignSystemAdapter.design_system_package ??
+      normalizedDesignSystemAdapter.package,
+  );
+  const designSystemComponents = toStringArray(
+    normalizedDesignSystemAdapter.components ??
+      normalizedDesignSystemAdapter.approved_component_families,
+  );
+  const designSystemPolicy = {
+    mode: designSystemName
+      ? "adapter_after_judgment"
+      : "no_design_system_adapter_provided",
+    name: designSystemName,
+    package: designSystemPackage,
+    role:
+      optionalString(normalizedDesignSystemAdapter.role) ||
+      "renderer after activity and workflow judgment",
+    authority:
+      "The ready handoff and implementation contract remain authoritative; renderer choices cannot replace activity fit.",
+    renderer_components: designSystemComponents,
+    constraint:
+      optionalString(normalizedDesignSystemAdapter.constraint) ||
+      "Design-system compliance refines the rendered UI only after activity, workflow, disclosure, and implementation gates are ready.",
+  };
+  const verificationChecklist = unique([
+    ...toStringArray(verificationExpectations.commands).map(
+      (command) => `Run ${command}`,
+    ),
+    ...toStringArray(implementationContract.static_enforcement?.default_rules),
+    ...toStringArray(verificationExpectations.browser_checks),
+    ...toStringArray(implementationContract.browser_qa?.checks),
+    ...toStringArray(verificationExpectations.states_to_verify).map(
+      (state) => `Verify state: ${state}`,
+    ),
+    ...toStringArray(implementationContract.state_coverage?.required_states).map(
+      (state) => `Verify required state: ${state}`,
+    ),
+  ]);
+  const packet = {
+    version: frontendGenerationContext.version,
+    contract_id: frontendGenerationContext.contract_id,
+    workflow_id: frontendGenerationContext.workflow_id,
+    skill_context_status: "ready",
+    source_skill: {
+      name: "frontend-ui-implementation",
+      version: "compiled-from-project-skill",
+      raw_skill_exposed: false,
+    },
+    source: {
+      frontend_context_status: frontendGenerationContext.frontend_context_status,
+      surface_type: frontendGenerationContext.surface_type,
+      target_client: normalizedTargetClient,
+      instruction_format: normalizedInstructionFormat,
+    },
+    instruction_markdown: buildFrontendImplementationInstructionMarkdown({
+      frontendGenerationContext,
+      designSystemPolicy,
+      targetClient: normalizedTargetClient,
+    }),
+    implementation_sequence: [
+      "Confirm the activity, primary decision, workflow, and handoff from the ready frontend context.",
+      "Map the selected surface type to the required sections, controls, density, navigation, and responsive expectations.",
+      "Use approved primitives and approved component families before introducing new UI helpers.",
+      "Apply the design system only as a renderer adapter after the activity and workflow are represented.",
+      "Verify required states, static checks, browser checks, and disclosure boundaries.",
+      "Call review_ui_implementation_candidate with generated code or evidence before final handoff.",
+    ],
+    surface_type_guidance: {
+      surface_type: frontendGenerationContext.surface_type,
+      interaction_implications:
+        implementationGuidance.interaction_implications ?? {},
+      disclosure_implications:
+        implementationGuidance.disclosure_implications ?? {},
+      frontend_posture: implementationGuidance.frontend_posture ?? {},
+    },
+    approved_primitives: toStringArray(implementationContract.approved_primitives),
+    approved_component_families: toStringArray(
+      frontendContext.approved_component_families,
+    ),
+    files_or_entrypoints: toStringArray(frontendContext.files_or_entrypoints),
+    design_system_policy: designSystemPolicy,
+    verification_checklist: verificationChecklist,
+    guardrails: {
+      adapter_layer: true,
+      requires_ready_frontend_context: true,
+      activity_first: true,
+      raw_skill_dump: false,
+      design_system_is_adapter: true,
+      primary_ui_rule:
+        "Do not copy JudgmentKit review-packet terms or implementation machinery into the product UI.",
+      terms_to_keep_out_of_primary_ui:
+        frontendGenerationContext.guardrails?.terms_to_keep_out_of_primary_ui ?? [],
+      diagnostic_contexts:
+        frontendGenerationContext.guardrails?.diagnostic_contexts ?? [],
+    },
+    next_recommended_tool: "review_ui_implementation_candidate",
+  };
+
+  return packet;
 }

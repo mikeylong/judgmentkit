@@ -79,6 +79,7 @@ assert.ok(
   result.stdout.includes("Scorecard: examples/comparison/music/facilitator-scorecard.md"),
 );
 assert.ok(result.stdout.includes("Guided handoff status: ready_for_generation"));
+assert.ok(result.stdout.includes("Guided skill context status: ready"));
 
 assert.equal(fs.existsSync(briefPath), true);
 assert.equal(fs.existsSync(versionAPath), true);
@@ -180,6 +181,26 @@ assert.equal(versionAMetadata.treatment, "raw_brief_baseline");
 assert.equal(versionBMetadata.treatment, "judgmentkit_handoff");
 assert.equal(versionBMetadata.generation_source.handoff_status, "ready_for_generation");
 assert.equal(versionBMetadata.generation_source.workflow_review_status, "ready_for_review");
+assert.equal(
+  versionBMetadata.generation_source.frontend_context_status,
+  "ready_for_frontend_implementation",
+);
+assert.equal(versionBMetadata.generation_source.frontend_skill_context_status, "ready");
+assert.equal(versionBMetadata.frontend_skill_context.source_skill, "frontend-ui-implementation");
+assert.equal(versionBMetadata.frontend_skill_context.raw_skill_exposed, false);
+assert.equal(
+  versionBMetadata.frontend_skill_context.design_system_mode,
+  "no_design_system_adapter_provided",
+);
+assert.equal(
+  versionBMetadata.frontend_skill_context.next_recommended_tool,
+  "review_ui_implementation_candidate",
+);
+assert.ok(
+  versionBMetadata.frontend_skill_context.verification_checklist.includes(
+    "Run npm run eval:ui",
+  ),
+);
 assert.equal(versionBMetadata.selected_playlist_id, "DINNER-10");
 
 for (const term of IMPLEMENTATION_TERMS) {

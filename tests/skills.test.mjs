@@ -87,6 +87,7 @@ for (const requiredText of [
   "create_ui_generation_handoff",
   "review_ui_implementation_candidate",
   "create_frontend_generation_context",
+  "create_frontend_implementation_skill_context",
   "ready_for_generation",
   "surface_type",
   "marketing",
@@ -102,6 +103,7 @@ for (const requiredText of [
   "raw controls",
   "static checks",
   "verification commands",
+  "compiled frontend implementation skill context",
 ]) {
   assert.ok(frontendSkill.includes(requiredText), `frontend skill should reference ${requiredText}`);
 }

@@ -268,9 +268,9 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
         useCase.label,
         "model UI generation matrix",
         "Raw brief",
-        "JudgmentKit handoff",
+        "JudgmentKit skill context",
         "Material UI only",
-        "JudgmentKit + Material UI",
+        "JudgmentKit skill + Material UI",
       ],
       useCaseRoute,
     );
@@ -320,6 +320,16 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
           false,
           `${artifact.id} should not include reviewed handoff context`,
         );
+        assert.equal(
+          artifact.context_included.frontend_skill_context,
+          false,
+          `${artifact.id} should not include frontend skill context`,
+        );
+      } else {
+        assert.equal(artifact.frontend_context_status, "ready_for_frontend_implementation");
+        assert.equal(artifact.frontend_skill_context_status, "ready");
+        assert.equal(artifact.frontend_skill_context?.source_skill, "frontend-ui-implementation");
+        assert.equal(artifact.frontend_skill_context?.raw_skill_exposed, false);
       }
       if (artifact.design_system_mode === "material_ui") {
         assert.equal(artifact.design_system_name, "Material UI");
@@ -369,6 +379,9 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
       assert.equal(capture.judgmentkit_mode, artifact.judgmentkit_mode);
       assert.equal(capture.design_system_mode, artifact.design_system_mode);
       assert.deepEqual(capture.context_included, artifact.context_included);
+      assert.equal(capture.frontend_context_status, artifact.frontend_context_status);
+      assert.equal(capture.frontend_skill_context_status, artifact.frontend_skill_context_status);
+      assert.deepEqual(capture.frontend_skill_context, artifact.frontend_skill_context);
       assert.equal(capture.source_context_sha256, artifact.capture_provenance.source_context_sha256);
       assert.ok(capture.prompt_sha256, `${artifact.id} capture should include prompt_sha256`);
       assert.ok(capture.raw_response_sha256, `${artifact.id} capture should include raw_response_sha256`);
@@ -387,6 +400,7 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
           capture.parsed?.html?.includes("data-primary-surface"),
           `${artifact.id} capture should include parsed primary surface HTML`,
         );
+        assert.ok(capture.parsed?.css?.trim(), `${artifact.id} capture should include parsed CSS`);
       }
       assert.ok(capture.raw_response, `${artifact.id} capture should include raw_response`);
       captureRoutes.push(captureRoute);
@@ -461,6 +475,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "create_ui_implementation_contract",
       "review_ui_implementation_candidate",
       "create_frontend_generation_context",
+      "create_frontend_implementation_skill_context",
       "operator-review-ui",
     ],
     "docs",
@@ -607,6 +622,16 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
         false,
         `${artifact.id} should not include reviewed handoff context`,
       );
+      assert.equal(
+        artifact.context_included.frontend_skill_context,
+        false,
+        `${artifact.id} should not include frontend skill context`,
+      );
+    } else {
+      assert.equal(artifact.frontend_context_status, "ready_for_frontend_implementation");
+      assert.equal(artifact.frontend_skill_context_status, "ready");
+      assert.equal(artifact.frontend_skill_context?.source_skill, "frontend-ui-implementation");
+      assert.equal(artifact.frontend_skill_context?.raw_skill_exposed, false);
     }
     if (artifact.design_system_mode === "material_ui") {
       assert.equal(artifact.design_system_name, "Material UI");
@@ -651,6 +676,9 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     assert.equal(capture.judgmentkit_mode, artifact.judgmentkit_mode);
     assert.equal(capture.design_system_mode, artifact.design_system_mode);
     assert.deepEqual(capture.context_included, artifact.context_included);
+    assert.equal(capture.frontend_context_status, artifact.frontend_context_status);
+    assert.equal(capture.frontend_skill_context_status, artifact.frontend_skill_context_status);
+    assert.deepEqual(capture.frontend_skill_context, artifact.frontend_skill_context);
     assert.equal(capture.source_context_sha256, artifact.capture_provenance.source_context_sha256);
     assert.ok(capture.prompt_sha256, `${artifact.id} capture should include prompt_sha256`);
     assert.ok(capture.raw_response_sha256, `${artifact.id} capture should include raw_response_sha256`);
@@ -669,6 +697,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
         capture.parsed?.html?.includes("data-primary-surface"),
         `${artifact.id} capture should include parsed primary surface HTML`,
       );
+      assert.ok(capture.parsed?.css?.trim(), `${artifact.id} capture should include parsed CSS`);
     }
     assert.ok(capture.raw_response, `${artifact.id} capture should include raw_response`);
 

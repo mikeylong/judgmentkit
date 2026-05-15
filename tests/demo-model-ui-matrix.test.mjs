@@ -42,6 +42,26 @@ function compactText(value) {
   return String(value).replace(/\s+/g, " ").trim();
 }
 
+function assertJudgmentKitStaticCaptureQuality(capture, label) {
+  assert.equal(capture.frontend_skill_context_status, "ready", `${label} should have ready frontend skill context`);
+  assert.equal(capture.frontend_skill_context.raw_skill_exposed, false, `${label} should not expose raw skill text`);
+  assert.equal(capture.capture_quality?.status, "passed", `${label} should pass static capture quality`);
+  assert.equal(capture.capture_quality?.profile, "judgmentkit_static_html_css", `${label} should use JudgmentKit static quality profile`);
+  assert.ok(capture.capture_quality.css_characters >= 650, `${label} CSS should be substantial`);
+  assert.ok(capture.capture_quality.html_characters >= 1050, `${label} HTML should be substantial`);
+  assert.ok(capture.capture_quality.css_rule_count >= 8, `${label} should include enough CSS rules`);
+  assert.ok(capture.capture_quality.class_selector_count >= 6, `${label} should include enough class selectors`);
+  assert.ok(capture.capture_quality.semantic_section_count >= 3 || capture.capture_quality.structural_block_count >= 8, `${label} should include enough work-surface regions`);
+  assert.ok(capture.capture_quality.button_count >= 3, `${label} should include decision controls`);
+  assert.equal(capture.capture_quality.has_responsive_css, true, `${label} should include responsive CSS`);
+  assert.equal(capture.capture_quality.has_layout_css, true, `${label} should include grid/flex layout CSS`);
+  assert.equal(capture.capture_quality.has_panel_css, true, `${label} should include panel/background/border CSS`);
+  assert.equal(capture.capture_quality.has_control_css, true, `${label} should include action/control CSS`);
+  assert.equal(capture.capture_quality.has_evidence_content, true, `${label} should include evidence content`);
+  assert.equal(capture.capture_quality.has_handoff_content, true, `${label} should include handoff content`);
+  assert.equal(capture.capture_quality.compact_template_signature, false, `${label} should not match the rejected compact template`);
+}
+
 function readProvenance(html) {
   const match = html.match(
     /<script type="application\/json" id="model-ui-provenance">([\s\S]*?)<\/script>/,
@@ -128,7 +148,7 @@ for (const useCase of MODEL_UI_USE_CASES) {
   assert.ok(designSystem.constraint.includes("does not supply activity fit"));
   assert.ok(manifest.generation_policy.includes("3x4 matrix"));
   assert.ok(manifest.generation_policy.includes("raw brief context"));
-  assert.ok(manifest.generation_policy.includes("JudgmentKit handoff context"));
+  assert.ok(manifest.generation_policy.includes("compiled frontend skill context"));
   assert.ok(manifest.generation_policy.includes("Material UI rendering"));
 
   assert.deepEqual(
@@ -143,13 +163,13 @@ for (const useCase of MODEL_UI_USE_CASES) {
   assert.ok(indexHtml.includes(`${useCase.label} model UI generation matrix`));
   assert.ok(indexHtml.includes("3 x 4 comparison gallery"));
   assert.ok(indexHtml.includes("Raw brief"));
-  assert.ok(indexHtml.includes("JudgmentKit handoff"));
+  assert.ok(indexHtml.includes("JudgmentKit skill context"));
   assert.ok(indexHtml.includes("Material UI only"));
-  assert.ok(indexHtml.includes("JudgmentKit + Material UI"));
+  assert.ok(indexHtml.includes("JudgmentKit skill + Material UI"));
   assert.ok(indexHtml.includes("Gemma 4 via LM Studio lms"));
   assert.ok(indexHtml.includes("GPT-5.5 xhigh via codex exec"));
   assert.ok(indexHtml.includes("Material UI improves visual/component consistency"));
-  assert.ok(indexHtml.includes("JudgmentKit improves activity fit"));
+  assert.ok(indexHtml.includes("JudgmentKit skill context improves activity fit"));
   assert.equal(indexHtml.includes("capture-required"), false);
 
   for (const row of COMPARISON_ROWS) {
@@ -181,6 +201,10 @@ for (const useCase of MODEL_UI_USE_CASES) {
         entry.context_included.material_ui_adapter,
         column.design_system_mode === "material_ui",
       );
+      assert.equal(
+        entry.context_included.frontend_skill_context,
+        column.judgmentkit_mode === "with_judgmentkit",
+      );
       assert.equal(entry.context_included.source_brief, true);
       assert.equal(entry.context_included.sample_case, true);
       assert.ok(entry.source_context_sha256);
@@ -209,9 +233,26 @@ for (const useCase of MODEL_UI_USE_CASES) {
       if (column.judgmentkit_mode === "with_judgmentkit") {
         assert.equal(entry.reviewed_handoff_file, `${useCase.output_dir}/reviewed-handoff.fixture.json`);
         assert.ok(entry.context_summary.includes("reviewed handoff"));
+        assert.ok(entry.context_summary.includes("frontend skill context"));
+        assert.equal(entry.frontend_context_status, "ready_for_frontend_implementation");
+        assert.equal(entry.frontend_skill_context_status, "ready");
+        assert.equal(entry.frontend_skill_context.source_skill, "frontend-ui-implementation");
+        assert.equal(entry.frontend_skill_context.raw_skill_exposed, false);
+        assert.equal(entry.frontend_skill_context.next_recommended_tool, "review_ui_implementation_candidate");
+        if (column.design_system_mode === "material_ui") {
+          assert.equal(entry.frontend_skill_context.design_system_mode, "adapter_after_judgment");
+          assert.equal(entry.frontend_skill_context.design_system_name, "Material UI");
+        } else {
+          assert.equal(entry.frontend_skill_context.design_system_mode, "no_design_system_adapter_provided");
+          assert.equal(entry.frontend_skill_context.design_system_name, "");
+        }
       } else {
         assert.equal(entry.reviewed_handoff_file, null);
         assert.equal(entry.context_summary.includes("reviewed handoff"), false);
+        assert.equal(entry.context_summary.includes("frontend skill context"), false);
+        assert.equal(entry.frontend_context_status, null);
+        assert.equal(entry.frontend_skill_context_status, null);
+        assert.equal(entry.frontend_skill_context, null);
       }
 
       if (row.generation_source === "captured_model_output") {
@@ -237,6 +278,13 @@ for (const useCase of MODEL_UI_USE_CASES) {
         assert.equal(capture.design_system_mode, column.design_system_mode);
         assert.equal(capture.reasoning_effort, row.reasoning_effort);
         assert.deepEqual(capture.context_included, entry.context_included);
+        assert.equal(capture.frontend_context_status, entry.frontend_context_status);
+        assert.equal(capture.frontend_skill_context_status, entry.frontend_skill_context_status);
+        assert.deepEqual(capture.frontend_skill_context, entry.frontend_skill_context);
+        assert.deepEqual(capture.lms_context ?? null, entry.lms_context);
+        assert.deepEqual(capture.capture_quality ?? null, entry.capture_quality);
+        assert.deepEqual(entry.capture_provenance.lms_context ?? null, entry.lms_context);
+        assert.deepEqual(entry.capture_provenance.capture_quality, entry.capture_quality);
         assert.equal(capture.source_context_sha256, entry.source_context_sha256);
         assert.equal(capture.prompt_sha256, entry.prompt_sha256);
         assert.equal(capture.raw_response_sha256, entry.raw_response_sha256);
@@ -244,6 +292,17 @@ for (const useCase of MODEL_UI_USE_CASES) {
         assert.equal(capture.raw_response.includes("<script"), false);
         assert.equal(capture.raw_response.includes("http://"), false);
         assert.equal(capture.raw_response.includes("https://"), false);
+        if (row.cli === "lms") {
+          assert.ok(capture.lms_context, `${useCase.id}/${id} should record LM Studio context`);
+          assert.ok(
+            capture.lms_context.actual_context_length >= 16000,
+            `${useCase.id}/${id} should use at least a 16k LM Studio context window`,
+          );
+          assert.ok(
+            capture.command_display.includes("lms chat"),
+            `${useCase.id}/${id} should capture through lms chat`,
+          );
+        }
         if (column.design_system_mode === "material_ui") {
           assert.equal(capture.design_system_name, "Material UI");
           assert.equal(capture.design_system_package, "@mui/material");
@@ -255,10 +314,14 @@ for (const useCase of MODEL_UI_USE_CASES) {
           assert.equal(capture.design_system_package, null);
           assert.equal(capture.render_mode, "html");
           assert.ok(capture.parsed.html.includes("data-primary-surface"));
+          assert.ok(capture.parsed.css.trim().length > 0);
           assert.equal(capture.parsed.html.includes("<script"), false);
           assert.equal(capture.parsed.html.includes("<link"), false);
           assert.equal(capture.parsed.html.includes("http://"), false);
           assert.equal(capture.parsed.html.includes("https://"), false);
+          if (column.judgmentkit_mode === "with_judgmentkit") {
+            assertJudgmentKitStaticCaptureQuality(capture, `${useCase.id}/${id}`);
+          }
         }
       } else {
         assert.equal(entry.capture_file, null);
@@ -288,6 +351,9 @@ for (const useCase of MODEL_UI_USE_CASES) {
       assert.equal(provenance.reasoning_effort, row.reasoning_effort);
       assert.deepEqual(provenance.context_included, entry.context_included);
       assert.deepEqual(provenance.capture_provenance, entry.capture_provenance);
+      assert.equal(provenance.frontend_context_status, entry.frontend_context_status);
+      assert.equal(provenance.frontend_skill_context_status, entry.frontend_skill_context_status);
+      assert.deepEqual(provenance.frontend_skill_context, entry.frontend_skill_context);
       assert.equal(provenance.artifact_path, entry.artifact_path);
       assert.equal(provenance.screenshot_path, entry.screenshot_path);
       assert.equal(artifactHtml.includes("Capture required"), false);
@@ -308,6 +374,10 @@ for (const useCase of MODEL_UI_USE_CASES) {
       if (row.generation_source === "captured_model_output" && column.design_system_mode !== "material_ui") {
         const capture = readJson(path.join(outputDir, entry.capture_file));
         const expectedCandidateText = compactText(visibleText(capture.parsed.html)).slice(0, 80);
+        assert.ok(
+          artifactHtml.includes("<style data-model-css>"),
+          `${useCase.id}/${id} should render captured model CSS`,
+        );
         assert.ok(
           compactText(primarySurface).includes(expectedCandidateText),
           `${useCase.id}/${id} should render captured model HTML`,

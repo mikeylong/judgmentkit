@@ -6,6 +6,7 @@ import {
   analyzeImplementationBrief,
   createActivityModelReview,
   createFrontendGenerationContext,
+  createFrontendImplementationSkillContext,
   createUiImplementationContract,
   createUiGenerationHandoff,
   recommendSurfaceTypes,
@@ -292,6 +293,39 @@ const FRONTEND_GENERATION_CONTEXT_TOOL = {
   },
 };
 
+const FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL = {
+  name: "create_frontend_implementation_skill_context",
+  description:
+    "Create gated frontend implementation skill context from a ready frontend generation context, optional design-system adapter, and verification expectations.",
+  inputSchema: {
+    type: "object",
+    required: ["frontend_generation_context"],
+    properties: {
+      frontend_generation_context: {
+        type: "object",
+        description:
+          "Ready frontend generation context returned by create_frontend_generation_context.",
+      },
+      design_system_adapter: {
+        type: "object",
+        description:
+          "Optional renderer adapter evidence such as UI library name, package, components, role, and constraints.",
+      },
+      target_client: {
+        type: "string",
+        description:
+          "Optional MCP client or agent surface this instruction context is intended for.",
+      },
+      instruction_format: {
+        type: "string",
+        description:
+          "Optional instruction format. Supported values: structured_markdown or markdown.",
+      },
+    },
+    additionalProperties: false,
+  },
+};
+
 function createError(code, message, details) {
   const error = {
     error: {
@@ -397,6 +431,10 @@ function planningStatus(result) {
 
   if (result.frontend_context_status === "ready_for_frontend_implementation") {
     return "Ready for frontend implementation";
+  }
+
+  if (result.skill_context_status === "ready") {
+    return "Frontend skill context ready";
   }
 
   if (result.recommended_surface_type) {
@@ -674,6 +712,32 @@ function formatFrontendContextCard(result) {
   return lines.join("\n");
 }
 
+function formatFrontendSkillContextCard(result) {
+  const lines = [
+    "## JudgmentKit Frontend Skill Context",
+    `**Status:** ${planningStatus(result)}`,
+    "**Next step:** Implement from the compiled skill context, then review generated code or evidence with review_ui_implementation_candidate.",
+  ];
+
+  addSection(lines, "Plan from this", [
+    firstLine("Surface type", result.surface_type_guidance?.surface_type),
+    listLine("Approved primitives", result.approved_primitives),
+    listLine("Approved component families", result.approved_component_families),
+    firstLine("Design system mode", result.design_system_policy?.mode),
+    listLine("Verification", result.verification_checklist),
+  ]);
+  addSection(lines, "Guardrails", [
+    firstLine("Raw skill exposed", String(result.source_skill?.raw_skill_exposed)),
+    firstLine("Next recommended tool", result.next_recommended_tool),
+    listLine(
+      "Terms to keep out",
+      result.guardrails?.terms_to_keep_out_of_primary_ui,
+    ),
+  ]);
+
+  return lines.join("\n");
+}
+
 function formatProfileRecommendationCard(result) {
   const recommended = toDisplayList(result.recommended_profile_ids);
   const blocked = toDisplayList(result.blocked_profile_ids);
@@ -725,6 +789,10 @@ function formatErrorCard(result) {
 function formatPlanningCard(result) {
   if (result?.error) {
     return formatErrorCard(result);
+  }
+
+  if (result?.skill_context_status) {
+    return formatFrontendSkillContextCard(result);
   }
 
   if (result?.frontend_context_status) {
@@ -782,6 +850,7 @@ export function listTools() {
     REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL,
     UI_GENERATION_HANDOFF_TOOL,
     FRONTEND_GENERATION_CONTEXT_TOOL,
+    FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL,
   ];
 }
 
@@ -810,6 +879,7 @@ export async function handleToolCall(name, args = {}) {
       REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL.name,
       UI_GENERATION_HANDOFF_TOOL.name,
       FRONTEND_GENERATION_CONTEXT_TOOL.name,
+      FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL.name,
     ].includes(name)
   ) {
     return createError(
@@ -819,6 +889,15 @@ export async function handleToolCall(name, args = {}) {
   }
 
   try {
+    if (name === FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL.name) {
+      return createFrontendImplementationSkillContext({
+        frontend_generation_context: args.frontend_generation_context,
+        design_system_adapter: args.design_system_adapter,
+        target_client: args.target_client,
+        instruction_format: args.instruction_format,
+      });
+    }
+
     if (name === FRONTEND_GENERATION_CONTEXT_TOOL.name) {
       return createFrontendGenerationContext({
         ui_generation_handoff: args.ui_generation_handoff,
@@ -1055,6 +1134,23 @@ export function createJudgmentKitMcpServer() {
     },
     async (args) =>
       createToolResult(await handleToolCall(FRONTEND_GENERATION_CONTEXT_TOOL.name, args)),
+  );
+
+  server.registerTool(
+    FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL.name,
+    {
+      description: FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL.description,
+      inputSchema: {
+        frontend_generation_context: z.record(z.any()),
+        design_system_adapter: z.record(z.any()).optional(),
+        target_client: z.string().optional(),
+        instruction_format: z.string().optional(),
+      },
+    },
+    async (args) =>
+      createToolResult(
+        await handleToolCall(FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL.name, args),
+      ),
   );
 
   return server;

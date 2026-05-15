@@ -64,6 +64,7 @@ try {
       "review_ui_implementation_candidate",
       "create_ui_generation_handoff",
       "create_frontend_generation_context",
+      "create_frontend_implementation_skill_context",
     ],
   );
 
@@ -435,6 +436,42 @@ try {
     "ready_for_frontend_implementation",
   );
   assert.equal(frontendContextResponse.structuredContent.surface_type, "workbench");
+
+  const frontendSkillContextResponse = await withTimeout(
+    client.callTool({
+      name: "create_frontend_implementation_skill_context",
+      arguments: {
+        frontend_generation_context: frontendContextResponse.structuredContent,
+        target_client: "codex",
+        design_system_adapter: {
+          design_system_name: "Material UI",
+          design_system_package: "@mui/material",
+          role: "visual renderer after context selection",
+          components: ["Stack", "Button"],
+          constraint:
+            "Material UI changes the renderer layer only; it does not supply activity fit.",
+        },
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(frontendSkillContextResponse.isError, undefined);
+  assert.ok(
+    assertPlanningCard(
+      frontendSkillContextResponse,
+      "## JudgmentKit Frontend Skill Context",
+      "Frontend skill context ready",
+    ).includes("review_ui_implementation_candidate"),
+  );
+  assert.equal(
+    frontendSkillContextResponse.structuredContent.skill_context_status,
+    "ready",
+  );
+  assert.equal(
+    frontendSkillContextResponse.structuredContent.source_skill.raw_skill_exposed,
+    false,
+  );
 
   const blockedHandoffResponse = await withTimeout(
     client.callTool({

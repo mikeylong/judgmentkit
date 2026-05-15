@@ -30,6 +30,7 @@ assert.deepEqual(
     "review_ui_implementation_candidate",
     "create_ui_generation_handoff",
     "create_frontend_generation_context",
+    "create_frontend_implementation_skill_context",
   ],
 );
 assert.equal(metadata.name, "JudgmentKit");
@@ -59,6 +60,7 @@ assert.equal(tools[7].inputSchema.required.includes("implementation_contract"), 
 assert.equal(tools[8].inputSchema.required.includes("workflow_review"), true);
 assert.equal(tools[8].inputSchema.required.includes("implementation_contract"), true);
 assert.equal(tools[9].inputSchema.required.includes("ui_generation_handoff"), true);
+assert.equal(tools[10].inputSchema.required.includes("frontend_generation_context"), true);
 
 const refundTriageCandidate = {
   activity_model: {
@@ -317,6 +319,28 @@ function createUiImplementationContractFixture() {
   assert.equal(frontendContext.surface_type, "workbench");
   assert.ok(frontendContext.implementation_guidance.required_sections.includes("Evidence checklist"));
   assert.ok(frontendContext.implementation_guidance.verification_expectations.commands.includes("npm test"));
+
+  const skillContext = await handleToolCall("create_frontend_implementation_skill_context", {
+    frontend_generation_context: frontendContext,
+    target_client: "codex",
+    design_system_adapter: {
+      design_system_name: "Material UI",
+      design_system_package: "@mui/material",
+      role: "visual renderer after context selection",
+      components: ["Stack", "Button"],
+      constraint:
+        "Material UI changes the renderer layer only; it does not supply activity fit.",
+    },
+  });
+
+  assert.equal("error" in skillContext, false);
+  assert.equal(skillContext.skill_context_status, "ready");
+  assert.equal(skillContext.source_skill.name, "frontend-ui-implementation");
+  assert.equal(skillContext.source_skill.raw_skill_exposed, false);
+  assert.equal(skillContext.design_system_policy.mode, "adapter_after_judgment");
+  assert.ok(skillContext.design_system_policy.renderer_components.includes("Button"));
+  assert.ok(skillContext.instruction_markdown.includes("Frontend Implementation Skill Context"));
+  assert.equal(skillContext.next_recommended_tool, "review_ui_implementation_candidate");
 }
 
 {

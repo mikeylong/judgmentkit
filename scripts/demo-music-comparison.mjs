@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 
 import {
   createActivityModelReview,
+  createFrontendGenerationContext,
+  createFrontendImplementationSkillContext,
   createUiGenerationHandoff,
   reviewUiWorkflowCandidate,
 } from "../src/index.mjs";
@@ -334,11 +336,36 @@ function buildHandoff(brief) {
   const activityReview = createActivityModelReview(brief);
   const workflowReview = reviewUiWorkflowCandidate(brief, buildUiWorkflowCandidate());
   const handoff = createUiGenerationHandoff(workflowReview);
+  const frontendContext = createFrontendGenerationContext({
+    ui_generation_handoff: handoff,
+    frontend_context: {
+      target_runtime: "standalone HTML/CSS",
+      ui_library: "none",
+      approved_component_families: [
+        "playlist queue",
+        "track detail",
+        "conflict checks",
+        "save/share controls",
+      ],
+      files_or_entrypoints: ["examples/comparison/music/version-b.html"],
+    },
+    verification: {
+      commands: ["npm run demo:comparison:music", "npm run eval:ui"],
+      browser_checks: ["desktop screenshot", "mobile screenshot"],
+      states_to_verify: ["playlist sequence ready", "conflicts checked"],
+    },
+  });
+  const frontendSkillContext = createFrontendImplementationSkillContext({
+    frontend_generation_context: frontendContext,
+    target_client: "deterministic-eval-harness",
+  });
 
   return {
     activityReview,
     workflowReview,
     handoff,
+    frontendContext,
+    frontendSkillContext,
   };
 }
 
@@ -1093,7 +1120,8 @@ function main() {
   writeText(BRIEF_PATH, `${SOURCE_BRIEF}\n`);
 
   const brief = readBrief();
-  const { activityReview, workflowReview, handoff } = buildHandoff(brief);
+  const { activityReview, workflowReview, handoff, frontendContext, frontendSkillContext } =
+    buildHandoff(brief);
 
   const baselineMetadata = {
     comparison_id: COMPARISON_ID,
@@ -1116,6 +1144,16 @@ function main() {
       activity_review_status: activityReview.review_status,
       workflow_review_status: workflowReview.review_status,
       surface_name: handoff.workflow.surface_name,
+      frontend_context_status: frontendContext.frontend_context_status,
+      frontend_skill_context_status: frontendSkillContext.skill_context_status,
+    },
+    frontend_skill_context: {
+      source_skill: frontendSkillContext.source_skill.name,
+      raw_skill_exposed: frontendSkillContext.source_skill.raw_skill_exposed,
+      surface_type: frontendSkillContext.surface_type_guidance.surface_type,
+      design_system_mode: frontendSkillContext.design_system_policy.mode,
+      next_recommended_tool: frontendSkillContext.next_recommended_tool,
+      verification_checklist: frontendSkillContext.verification_checklist,
     },
     terms_kept_out_of_primary_ui: [
       ...handoff.disclosure_reminders.terms_to_keep_out_of_primary_ui,
@@ -1176,6 +1214,7 @@ function main() {
       `Scorecard: ${path.relative(ROOT_DIR, SCORECARD_PATH)}`,
       "",
       `Guided handoff status: ${handoff.handoff_status}`,
+      `Guided skill context status: ${frontendSkillContext.skill_context_status}`,
       `Workflow review status: ${workflowReview.review_status}`,
       "",
     ].join("\n"),

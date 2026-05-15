@@ -5,6 +5,7 @@ import {
   buildUiWorkflowCandidateRequest,
   createActivityModelReview,
   createFrontendGenerationContext,
+  createFrontendImplementationSkillContext,
   createUiGenerationHandoff,
   recommendSurfaceTypes,
   reviewUiWorkflowCandidate,
@@ -179,6 +180,36 @@ function refundWorkflowCandidate() {
   assert.equal(frontendContext.frontend_context.ui_library, "Material UI");
   assert.ok(frontendContext.implementation_guidance.required_sections.includes("Evidence checklist"));
   assert.ok(frontendContext.implementation_guidance.verification_expectations.commands.includes("npm test"));
+
+  const skillContext = createFrontendImplementationSkillContext({
+    frontend_generation_context: frontendContext,
+    target_client: "codex",
+    design_system_adapter: {
+      design_system_name: "Material UI",
+      design_system_package: "@mui/material",
+      role: "visual renderer after context selection",
+      components: ["Stack", "Button", "Alert"],
+      constraint:
+        "Material UI changes the visual/component layer only; it does not supply activity fit.",
+    },
+  });
+
+  assert.equal(skillContext.skill_context_status, "ready");
+  assert.equal(skillContext.source_skill.name, "frontend-ui-implementation");
+  assert.equal(skillContext.source_skill.raw_skill_exposed, false);
+  assert.equal(skillContext.source.target_client, "codex");
+  assert.equal(skillContext.design_system_policy.mode, "adapter_after_judgment");
+  assert.equal(skillContext.design_system_policy.name, "Material UI");
+  assert.ok(skillContext.design_system_policy.renderer_components.includes("Button"));
+  assert.ok(skillContext.approved_component_families.includes("queue"));
+  assert.ok(skillContext.verification_checklist.includes("Run npm test"));
+  assert.ok(
+    skillContext.implementation_sequence.includes(
+      "Call review_ui_implementation_candidate with generated code or evidence before final handoff.",
+    ),
+  );
+  assert.ok(skillContext.instruction_markdown.includes("Frontend Implementation Skill Context"));
+  assert.ok(skillContext.instruction_markdown.includes("Material UI"));
 }
 
 {
@@ -190,6 +221,18 @@ function refundWorkflowCandidate() {
     (error) =>
       error instanceof JudgmentKitInputError &&
       error.code === "frontend_context_blocked",
+  );
+}
+
+{
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        frontend_generation_context: { frontend_context_status: "blocked" },
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "frontend_skill_context_blocked",
   );
 }
 

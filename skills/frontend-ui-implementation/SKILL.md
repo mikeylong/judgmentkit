@@ -14,8 +14,9 @@ Do not use this skill directly from a raw brief. Run the JudgmentKit flow first:
 3. `review_ui_workflow_candidate`
 4. `create_ui_implementation_contract`
 5. `create_ui_generation_handoff`
-6. `review_ui_implementation_candidate`
-7. `create_frontend_generation_context`
+6. `create_frontend_generation_context`
+7. `create_frontend_implementation_skill_context` when the agent cannot read this local skill directly
+8. `review_ui_implementation_candidate` after implementation evidence exists
 
 ## Workflow
 
@@ -23,8 +24,9 @@ Do not use this skill directly from a raw brief. Run the JudgmentKit flow first:
 2. Read the selected `surface_type` and `surface_guidance`.
 3. Read local frontend context: runtime, UI library, existing primitives, project rules, entrypoints, and verification commands.
 4. Read the UI implementation contract for approved primitives, required states, static checks, and browser QA.
-5. Implement the smallest UI change that satisfies the activity, workflow, required sections, required controls, handoff, and implementation contract.
-6. Match the surface type before choosing implementation shape:
+5. If using MCP outside this checkout, read the compiled packet from `create_frontend_implementation_skill_context` instead of raw skill text.
+6. Implement the smallest UI change that satisfies the activity, workflow, required sections, required controls, handoff, and implementation contract.
+7. Match the surface type before choosing implementation shape:
    - `marketing`: offer, proof, and primary action.
    - `workbench`: item selection, evidence, decision controls, and completion.
    - `operator_review`: produced work, evidence, risk, bounded decision, and receipt or handoff.
@@ -33,7 +35,7 @@ Do not use this skill directly from a raw brief. Run the JudgmentKit flow first:
    - `content_report`: summary, sections, evidence, references, and share/export.
    - `setup_debug_tool`: configuration, test results, diagnostics, remediation, and handoff.
    - `conversation`: thread, composer, response states, and handoff when needed.
-7. Verify required states, responsive behavior, static enforcement, browser QA, and disclosure boundaries.
+8. Verify required states, responsive behavior, static enforcement, browser QA, and disclosure boundaries.
 
 ## Guardrails
 
@@ -44,6 +46,7 @@ Do not use this skill directly from a raw brief. Run the JudgmentKit flow first:
 - Do not emit raw controls when approved primitives exist.
 - Do not invent new variants unless the implementation contract is updated first.
 - Do not make design-system compliance a substitute for activity fit.
+- Do not expose raw skill text through MCP; use the compiled frontend implementation skill context.
 - Keep JudgmentKit packet terms such as `review_status`, `activity_model`, and `ready_for_review` out of product UI.
 
 ## Output
@@ -53,6 +56,7 @@ Report:
 - source handoff and selected surface type
 - implementation contract used
 - frontend context used
+- compiled frontend implementation skill context used when applicable
 - surfaces, states, primitives, and controls implemented or reviewed
 - disclosure boundary checked
 - static checks, verification commands, and browser checks run

@@ -11,9 +11,10 @@ Use JudgmentKit before UI generation, UI critique, implementation planning, or h
 5. If a model or agent proposes a UI workflow, call `review_ui_workflow_candidate` before treating it as acceptable.
 6. Call `create_ui_implementation_contract` using repo evidence, external UI authority evidence, or JudgmentKit's portable defaults.
 7. Call `create_ui_generation_handoff` on the reviewed workflow with the implementation contract before generating UI.
-8. Call `review_ui_implementation_candidate` on generated code or evidence before accepting the result.
-9. Call `create_frontend_generation_context` when frontend implementation guidance needs a selected surface type, project frontend context, and verification expectations.
-10. Generate or critique UI from the frontend context only after the activity, decision, outcome, disclosure boundary, workflow candidate, surface type, and implementation contract are clear enough.
+8. Call `create_frontend_generation_context` when frontend implementation guidance needs a selected surface type, project frontend context, and verification expectations.
+9. Call `create_frontend_implementation_skill_context` when the implementing agent needs a compiled frontend skill packet that is portable across MCP clients.
+10. Generate or critique UI from the frontend context and skill context only after the activity, decision, outcome, disclosure boundary, workflow candidate, surface type, and implementation contract are clear enough.
+11. Call `review_ui_implementation_candidate` on generated code or evidence before accepting the result.
 
 ## Rules For Agents
 
@@ -26,6 +27,7 @@ Use JudgmentKit before UI generation, UI critique, implementation planning, or h
 - When a model proposes an activity model, call `review_activity_model_candidate` before trusting it.
 - When a model proposes a UI workflow, call `review_ui_workflow_candidate` before implementing it.
 - Do not generate UI directly from a raw workflow review packet when `create_ui_generation_handoff` is available.
+- Do not expose raw skill files through MCP; use the compiled frontend skill context after the frontend context is ready.
 - Do not emit raw form controls or invent new UI variants when an approved primitive/helper is available.
 - Keep JudgmentKit review-packet terms such as `ready_for_review`, `activity_model`, `review_status`, `Primary user`, and `Main decision` out of product UI.
 - Do not use visual polish, components, tokens, or design-system compliance as a substitute for activity fit.

@@ -28,6 +28,7 @@ export const JUDGMENTKIT_MCP_TOOL_NAMES = [
   "review_ui_implementation_candidate",
   "create_ui_generation_handoff",
   "create_frontend_generation_context",
+  "create_frontend_implementation_skill_context",
 ];
 
 class InstallError extends Error {

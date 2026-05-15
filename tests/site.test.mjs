@@ -23,6 +23,7 @@ const EXPECTED_TOOL_NAMES = [
   "review_ui_implementation_candidate",
   "create_ui_generation_handoff",
   "create_frontend_generation_context",
+  "create_frontend_implementation_skill_context",
 ];
 
 const OLD_FRAMING = [
@@ -133,6 +134,7 @@ assert.ok(homepage.includes("recommend_surface_types"));
 assert.ok(homepage.includes("create_ui_implementation_contract"));
 assert.ok(homepage.includes("review_ui_implementation_candidate"));
 assert.ok(homepage.includes("create_frontend_generation_context"));
+assert.ok(homepage.includes("create_frontend_implementation_skill_context"));
 assert.ok(homepage.includes("Source brief + product context"));
 assert.ok(homepage.includes("Material UI adapter"));
 assert.ok(homepage.includes("selected surface type"));
@@ -207,6 +209,7 @@ assert.ok(docs.includes("create_ui_generation_handoff"));
 assert.ok(docs.includes("create_ui_implementation_contract"));
 assert.ok(docs.includes("review_ui_implementation_candidate"));
 assert.ok(docs.includes("create_frontend_generation_context"));
+assert.ok(docs.includes("create_frontend_implementation_skill_context"));
 assert.ok(docs.includes("MCP boundary"));
 assert.ok(docs.includes("MCP is access and transport, not the LLM"));
 assert.ok(docs.includes("LLM / provider seam"));
@@ -277,9 +280,9 @@ assert.ok(examples.includes('class=\\"example-matrix-thumb\\"'));
 assert.equal(examples.includes('class=\\"example-gallery-meta\\"'), false);
 assert.equal(examples.includes("3x4 JudgmentKit and Material UI comparison across four use cases"), false);
 assert.ok(examples.includes("Raw brief"));
-assert.ok(examples.includes("JudgmentKit handoff"));
+assert.ok(examples.includes("JudgmentKit skill context"));
 assert.ok(examples.includes("Material UI only"));
-assert.ok(examples.includes("JudgmentKit + Material UI"));
+assert.ok(examples.includes("JudgmentKit skill + Material UI"));
 assert.equal(examples.includes("Material UI improves visual consistency"), false);
 assert.equal(examples.includes("JudgmentKit improves activity fit"), false);
 assert.equal(examples.includes("Committed screenshots"), false);

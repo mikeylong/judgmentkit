@@ -238,21 +238,6 @@ const handoff = createUiGenerationHandoff(workflowReview, {
 
 There is no CLI command for this gate. Use MCP or the library API.
 
-## Before Accepting Generated UI Implementation
-
-Call `review_ui_implementation_candidate` with the generated code or evidence and the active implementation contract.
-
-The candidate should provide the primitives used, states covered, static checks run, and browser QA evidence. JudgmentKit fails candidates that emit raw form controls outside approved helpers, invent unsupported primitives, omit required states, skip static enforcement, or lack desktop and mobile browser QA evidence.
-
-```text
-review_ui_implementation_candidate({
-  candidate,
-  implementation_contract
-})
-```
-
-Use this as the cleanup-prevention gate: fix the implementation before final handoff instead of relying on visual cleanup after the fact.
-
 ## Before Frontend Implementation
 
 Call `create_frontend_generation_context` after `create_ui_generation_handoff` when an agent needs implementation guidance.
@@ -268,7 +253,34 @@ create_frontend_generation_context({
 })
 ```
 
-Use `skills/frontend-ui-implementation/SKILL.md` after this context exists.
+Then call `create_frontend_implementation_skill_context` when the implementing agent needs a portable MCP skill packet instead of a repo-local Codex skill file.
+
+```text
+create_frontend_implementation_skill_context({
+  frontend_generation_context,
+  design_system_adapter,
+  target_client
+})
+```
+
+The skill context compiles the local frontend implementation workflow into structured instructions, approved primitives, approved component families, adapter-layer design-system policy, verification checklist, and disclosure guardrails. It requires a ready frontend context and does not expose raw `SKILL.md` contents.
+
+Use `skills/frontend-ui-implementation/SKILL.md` directly only when the agent is working in this checkout and can read local skills.
+
+## Before Accepting Generated UI Implementation
+
+Call `review_ui_implementation_candidate` with the generated code or evidence and the active implementation contract.
+
+The candidate should provide the primitives used, states covered, static checks run, and browser QA evidence. JudgmentKit fails candidates that emit raw form controls outside approved helpers, invent unsupported primitives, omit required states, skip static enforcement, or lack desktop and mobile browser QA evidence.
+
+```text
+review_ui_implementation_candidate({
+  candidate,
+  implementation_contract
+})
+```
+
+Use this as the cleanup-prevention gate: fix the implementation before final handoff instead of relying on visual cleanup after the fact.
 
 ## Optional OpenAI Workflow Provider
 
