@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Netflix Video Library</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar" aria-label="Primary">
+        <a class="brand" href="#" aria-label="Netflix video library home">NETFLIX</a>
+        <nav class="nav-links" aria-label="Browse">
+          <button class="nav-link active" data-filter="All">Home</button>
+          <button class="nav-link" data-filter="Series">Series</button>
+          <button class="nav-link" data-filter="Movies">Films</button>
+          <button class="nav-link" data-filter="New">New</button>
+          <button class="nav-link" data-filter="My List">My List</button>
+        </nav>
+        <div class="top-actions">
+          <label class="search" for="searchInput">
+            <span aria-hidden="true">&#128269;</span>
+            <input id="searchInput" type="search" placeholder="Titles, people, genres" autocomplete="off" />
+          </label>
+          <button class="icon-button" type="button" aria-label="Notifications">
+            <span aria-hidden="true">!</span>
+          </button>
+          <button class="profile-button" type="button" aria-label="Profile menu">
+            <span aria-hidden="true">M</span>
+          </button>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero" id="hero" aria-label="Featured title">
+          <div class="hero-backdrop" id="heroBackdrop"></div>
+          <div class="hero-shade"></div>
+          <div class="hero-content">
+            <p class="eyebrow">No. 1 in fictional dramas today</p>
+            <h1 id="heroTitle">Midnight Protocol</h1>
+            <div class="meta-line" id="heroMeta"></div>
+            <p class="hero-copy" id="heroCopy"></p>
+            <div class="hero-actions">
+              <button class="primary-button" type="button" id="heroPlay">
+                <span aria-hidden="true">&#9654;</span>
+                Play
+              </button>
+              <button class="secondary-button" type="button" id="heroMore">
+                <span aria-hidden="true">i</span>
+                More Info
+              </button>
+            </div>
+          </div>
+          <div class="hero-rating" id="heroRating">TV-14</div>
+        </section>
+
+        <section class="browse-panel" aria-label="Video library controls">
+          <div class="browse-header">
+            <div>
+              <h2>Browse</h2>
+              <p id="resultSummary">Handpicked rows for tonight.</p>
+            </div>
+            <div class="sort-control">
+              <label for="sortSelect">Sort</label>
+              <select id="sortSelect">
+                <option value="featured">Featured</option>
+                <option value="match">Match</option>
+                <option value="newest">Newest</option>
+                <option value="az">A-Z</option>
+              </select>
+            </div>
+          </div>
+          <div class="genre-pills" aria-label="Genre filters" id="genrePills"></div>
+        </section>
+
+        <section class="rails" id="rails" aria-live="polite" aria-busy="true"></section>
+      </main>
+    </div>
+
+    <div class="preview-scrim" id="previewScrim" hidden></div>
+    <aside class="preview-drawer" id="previewDrawer" aria-label="Title preview" aria-modal="true" role="dialog" hidden>
+      <button class="close-button" id="closePreview" type="button" aria-label="Close preview">x</button>
+      <div class="preview-media" id="previewMedia"></div>
+      <div class="preview-body">
+        <div class="preview-label" id="previewLabel">Preview</div>
+        <h2 id="previewTitle"></h2>
+        <div class="meta-line" id="previewMeta"></div>
+        <p id="previewDescription"></p>
+        <div class="preview-actions">
+          <button class="primary-button" type="button">
+            <span aria-hidden="true">&#9654;</span>
+            Play
+          </button>
+          <button class="round-button" type="button" id="myListButton" aria-label="Add to my list">+</button>
+          <button class="round-button" type="button" aria-label="Rate this title">^</button>
+        </div>
+        <dl class="fact-grid">
+          <div>
+            <dt>Cast</dt>
+            <dd id="previewCast"></dd>
+          </div>
+          <div>
+            <dt>Genres</dt>
+            <dd id="previewGenres"></dd>
+          </div>
+          <div>
+            <dt>Runtime</dt>
+            <dd id="previewRuntime"></dd>
+          </div>
+        </dl>
+      </div>
+    </aside>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

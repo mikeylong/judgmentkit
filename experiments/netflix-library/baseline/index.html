@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Netflix Video Library</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar" aria-label="Primary">
+        <a class="brand" href="#home" aria-label="Netflix Video Library home">NETFLIX</a>
+        <nav class="primary-nav" aria-label="Browse">
+          <button class="nav-link is-active" type="button" data-nav-filter="All">Home</button>
+          <button class="nav-link" type="button" data-nav-filter="Series">Series</button>
+          <button class="nav-link" type="button" data-nav-filter="Film">Films</button>
+          <button class="nav-link" type="button" data-nav-filter="New">New</button>
+          <button class="nav-link" type="button" data-nav-filter="My List">My List</button>
+        </nav>
+        <div class="topbar-actions">
+          <label class="search-box" aria-label="Search library">
+            <span class="search-icon" aria-hidden="true"></span>
+            <input id="searchInput" type="search" placeholder="Titles, people, genres">
+          </label>
+          <button class="icon-button" id="notificationsButton" type="button" aria-label="Notifications">
+            <span class="bell-icon" aria-hidden="true"></span>
+          </button>
+          <button class="profile-button" type="button" aria-label="Profile">M</button>
+        </div>
+      </header>
+
+      <main id="home">
+        <section class="hero" aria-label="Featured title">
+          <div class="hero-art" aria-hidden="true">
+            <div class="signal-lines"></div>
+            <div class="hero-orbit hero-orbit-a"></div>
+            <div class="hero-orbit hero-orbit-b"></div>
+          </div>
+          <div class="hero-content">
+            <p class="series-label">Limited Series</p>
+            <h1>The Silent Signal</h1>
+            <div class="title-meta" aria-label="Title metadata">
+              <span>98% Match</span>
+              <span>2026</span>
+              <span>TV-14</span>
+              <span>6 Episodes</span>
+              <span>Spatial Audio</span>
+            </div>
+            <p class="hero-copy">
+              A vanished satellite begins broadcasting impossible memories, pulling a systems analyst into a conspiracy hidden inside a global streaming network.
+            </p>
+            <div class="hero-actions">
+              <button class="primary-button" id="heroPlayButton" type="button">
+                <span class="play-glyph" aria-hidden="true"></span>
+                Play
+              </button>
+              <button class="secondary-button" id="heroInfoButton" type="button">More Info</button>
+            </div>
+          </div>
+          <aside class="hero-panel" aria-label="Library snapshot">
+            <div>
+              <span class="panel-value" id="totalTitles">0</span>
+              <span class="panel-label">Titles</span>
+            </div>
+            <div>
+              <span class="panel-value" id="newTitles">0</span>
+              <span class="panel-label">New this week</span>
+            </div>
+            <div>
+              <span class="panel-value" id="listCount">0</span>
+              <span class="panel-label">In My List</span>
+            </div>
+          </aside>
+        </section>
+
+        <section class="control-strip" aria-label="Library controls">
+          <div class="filter-group" id="genreFilters" aria-label="Genres"></div>
+          <label class="select-wrap">
+            <span>Sort</span>
+            <select id="sortSelect">
+              <option value="match">Best match</option>
+              <option value="newest">Newest</option>
+              <option value="title">Title</option>
+              <option value="runtime">Runtime</option>
+            </select>
+          </label>
+        </section>
+
+        <section class="rail-section" aria-labelledby="continueHeading">
+          <div class="section-heading">
+            <h2 id="continueHeading">Continue Watching</h2>
+          </div>
+          <div class="rail" id="continueRail" aria-live="polite"></div>
+        </section>
+
+        <section class="rail-section" aria-labelledby="topHeading">
+          <div class="section-heading">
+            <h2 id="topHeading">Top 10 Today</h2>
+          </div>
+          <div class="rail" id="topRail"></div>
+        </section>
+
+        <section class="library-section" aria-labelledby="libraryHeading">
+          <div class="section-heading library-heading">
+            <div>
+              <h2 id="libraryHeading">Full Library</h2>
+              <p id="resultSummary">Showing all titles</p>
+            </div>
+            <div class="view-toggle" aria-label="View mode">
+              <button class="icon-button is-active" id="gridViewButton" type="button" aria-label="Grid view">
+                <span class="grid-icon" aria-hidden="true"></span>
+              </button>
+              <button class="icon-button" id="denseViewButton" type="button" aria-label="Dense view">
+                <span class="dense-icon" aria-hidden="true"></span>
+              </button>
+            </div>
+          </div>
+          <div class="library-grid" id="libraryGrid" aria-live="polite"></div>
+          <div class="empty-state" id="emptyState" hidden>
+            <h3>No titles found</h3>
+            <p>Try another search, genre, or nav filter.</p>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="title-dialog" id="titleDialog" aria-labelledby="dialogTitle">
+      <div class="dialog-frame">
+        <button class="close-button" id="closeDialogButton" type="button" aria-label="Close">x</button>
+        <div class="dialog-visual" id="dialogVisual" aria-hidden="true">
+          <div class="video-scan"></div>
+          <span class="video-status">Preview</span>
+        </div>
+        <div class="dialog-body">
+          <div class="dialog-copy">
+            <p class="series-label" id="dialogType">Series</p>
+            <h2 id="dialogTitle">Title</h2>
+            <div class="title-meta" id="dialogMeta"></div>
+            <p id="dialogSynopsis"></p>
+            <p class="cast-line" id="dialogCast"></p>
+          </div>
+          <div class="dialog-actions">
+            <button class="primary-button" id="dialogPlayButton" type="button">
+              <span class="play-glyph" aria-hidden="true"></span>
+              Play
+            </button>
+            <button class="round-action" id="dialogListButton" type="button" aria-label="Add to My List">+</button>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <script src="app.js"></script>
+  </body>
+</html>

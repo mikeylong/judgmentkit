@@ -2407,6 +2407,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await copyDirectoryIfExists("evals/reports", path.join(outDir, "examples", "evals"));
   await fs.writeFile(path.join(outDir, "evals", "index.html"), await evalsPage());
   await copyDirectoryIfExists("examples/model-ui", path.join(outDir, "examples", "model-ui"));
+  await copyDirectoryIfExists("experiments", path.join(outDir, "experiments"));
 
   return {
     out_dir: outDir,

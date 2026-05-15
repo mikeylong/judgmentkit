@@ -50,6 +50,7 @@ function assertAnalyticsBootstrap(html, label) {
 }
 
 const homepage = fs.readFileSync(path.join(tempDir, "index.html"), "utf8");
+const llms = fs.readFileSync(path.join(tempDir, "llms.txt"), "utf8");
 const siteCss = fs.readFileSync(path.join(tempDir, "assets", "site.css"), "utf8");
 const systemMapFlowJs = fs.readFileSync(path.join(tempDir, "assets", "system-map-flow.js"), "utf8");
 const systemMapFlowCss = fs.readFileSync(path.join(tempDir, "assets", "system-map-flow.css"), "utf8");
@@ -226,7 +227,20 @@ assert.ok(docs.includes("operator-review-ui"));
 assert.equal(docs.includes("judgmentkit2"), false);
 
 const examples = fs.readFileSync(path.join(tempDir, "examples", "index.html"), "utf8");
+const experimentRoute = "/experiments/netflix-library";
 assertAnalyticsBootstrap(examples, "examples");
+for (const publicIndex of [
+  ["homepage", homepage],
+  ["docs", docs],
+  ["examples", examples],
+  ["llms", llms],
+]) {
+  assert.equal(
+    publicIndex[1].includes(experimentRoute),
+    false,
+    `${publicIndex[0]} must not link to the unlisted Netflix experiment`,
+  );
+}
 assert.equal(examples.includes('<div class="examples-intro">'), false);
 assert.equal(examples.includes("Static artifacts"), false);
 assert.equal(examples.includes("captured-fixture model UI paths"), false);
@@ -568,6 +582,32 @@ assert.equal(install.includes("git clone"), false);
 assert.equal(install.includes("npm install"), false);
 assert.equal(install.includes("mcp:stdio"), false);
 assert.equal(fs.existsSync(path.join(tempDir, "favicon.svg")), true);
+
+for (const experimentPath of [
+  ["experiments", "netflix-library", "index.html"],
+  ["experiments", "netflix-library", "judgmentkit", "index.html"],
+  ["experiments", "netflix-library", "judgmentkit", "app.js"],
+  ["experiments", "netflix-library", "judgmentkit", "styles.css"],
+  ["experiments", "netflix-library", "baseline", "index.html"],
+  ["experiments", "netflix-library", "baseline", "app.js"],
+  ["experiments", "netflix-library", "baseline", "styles.css"],
+]) {
+  assert.equal(
+    fs.existsSync(path.join(tempDir, ...experimentPath)),
+    true,
+    `expected unlisted experiment artifact ${experimentPath.join("/")}`,
+  );
+}
+
+for (const [label, htmlPath] of [
+  ["experiment root", ["experiments", "netflix-library", "index.html"]],
+  ["JudgmentKit variant", ["experiments", "netflix-library", "judgmentkit", "index.html"]],
+  ["baseline variant", ["experiments", "netflix-library", "baseline", "index.html"]],
+]) {
+  const html = fs.readFileSync(path.join(tempDir, ...htmlPath), "utf8");
+  assert.ok(html.includes('name="robots" content="noindex, nofollow"'), `${label} should be noindex`);
+  assertAnalyticsBootstrap(html, label);
+}
 
 const mcp = getHostedMcpMetadata();
 assert.equal(mcp.name, "JudgmentKit");
