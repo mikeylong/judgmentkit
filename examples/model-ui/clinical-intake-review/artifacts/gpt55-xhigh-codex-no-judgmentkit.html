@@ -243,16 +243,17 @@
       }
     }
   </style>
-    <style data-model-css>main{font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#1f2933;background:#f7f8fa;padding:24px;max-width:980px;margin:0 auto}.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;border-bottom:1px solid #d8dee6;padding-bottom:16px}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#5f6b7a;margin:0 0 6px}h1{font-size:24px;margin:0;color:#111827}p{margin:6px 0;line-height:1.4}.badge{display:inline-flex;align-items:center;border:1px solid #b45309;background:#fff7ed;color:#8a3a00;border-radius:999px;padding:6px 10px;font-weight:700;font-size:13px;white-space:nowrap}.grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;margin-top:16px}.panel{background:#fff;border:1px solid #d8dee6;border-radius:8px;padding:14px}.panel h2{font-size:15px;margin:0 0 10px;color:#243040}.row{display:flex;justify-content:space-between;gap:12px;border-top:1px solid #edf0f3;padding:9px 0}.row:first-of-type{border-top:0}.label{color:#64748b;font-size:13px}.value{font-weight:650;color:#111827;text-align:right}.queue{border-left:4px solid #b45309}.schema{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;background:#f1f5f9;border:1px solid #d8dee6;border-radius:6px;padding:10px;white-space:normal}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}button{border:1px solid #9aa6b2;background:#fff;border-radius:6px;padding:8px 11px;font-weight:650}button.primary{background:#1f5f8b;color:#fff;border-color:#1f5f8b}@media(max-width:720px){main{padding:16px}.top,.grid{display:block}.badge{margin-top:12px}.panel{margin-top:12px}.row{display:block}.value{text-align:left;display:block;margin-top:3px}}</style>
+    <style data-model-css>*{box-sizing:border-box}body{margin:0;background:#f3f6f8;color:#18232d;font-family:Arial,Helvetica,sans-serif}button,input,textarea{font:inherit}.intake-app{min-height:100vh;padding:24px;display:grid;grid-template-columns:280px minmax(0,1fr) 340px;gap:18px;background:linear-gradient(180deg,#f8fafb 0%,#eef3f6 100%)}.panel{background:#fff;border:1px solid #d8e0e7;border-radius:8px;box-shadow:0 1px 3px rgba(24,35,45,.06)}.queue-panel,.action-panel{padding:16px}.review-panel{padding:0;overflow:hidden}.eyebrow{margin:0 0 6px;color:#607080;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}.panel-title{margin:0;color:#101820;font-size:20px;line-height:1.2}.small{font-size:13px;color:#647383}.muted{color:#6b7886}.queue-list{display:grid;gap:10px;margin-top:16px}.queue-item{width:100%;text-align:left;background:#f8fafb;border:1px solid #dbe3ea;border-radius:8px;padding:12px;cursor:default}.queue-item.active{background:#eef7fb;border-color:#4f9bb9;box-shadow:inset 3px 0 0 #19789c}.queue-top{display:flex;justify-content:space-between;gap:8px;align-items:center}.queue-id{font-weight:700;color:#24313c}.queue-name{margin-top:4px;font-weight:700}.slot{color:#526170;font-size:13px}.status{display:inline-flex;align-items:center;min-height:24px;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700}.status.missing{background:#fff0df;color:#9a4b00}.status.verify{background:#e9f0ff;color:#3355a3}.status.ready{background:#e7f6ed;color:#237044}.review-header{padding:20px 22px;border-bottom:1px solid #e1e7ed;display:flex;justify-content:space-between;gap:18px;align-items:flex-start}.case-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.pill{display:inline-flex;align-items:center;border:1px solid #d7e0e8;border-radius:999px;background:#f7fafc;padding:5px 10px;font-size:13px;color:#344454}.content-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;padding:20px 22px}.section{margin-bottom:18px}.section h2{margin:0 0 10px;font-size:16px;color:#18232d}.notice{border:1px solid #f0c98f;background:#fff8ed;border-radius:8px;padding:12px 14px}.notice strong{display:block;margin-bottom:4px;color:#8a4a0a}.checklist{display:grid;gap:10px}.check{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:start;border:1px solid #dfe7ee;border-radius:8px;padding:12px;background:#fff}.mark{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:800}.done .mark{background:#e4f5eb;color:#1f7846}.blocked .mark{background:#fff0df;color:#9a4b00}.review .mark{background:#e9f0ff;color:#3355a3}.check-title{font-weight:700}.check-note{margin-top:3px;font-size:13px;color:#647383}.source-grid{display:grid;gap:8px}.source-row{display:flex;justify-content:space-between;gap:12px;border:1px solid #e2e9ef;border-radius:7px;padding:9px 10px;background:#fafcfd;font-size:13px}.source-row span:first-child{color:#5f6e7c}.source-row span:last-child{font-weight:700;text-align:right}.policy{background:#f4f7f9;border-left:4px solid #607d8b;border-radius:6px;padding:12px 14px;color:#344454;font-size:14px;line-height:1.45}.action-panel{display:flex;flex-direction:column;gap:14px}.decision-card{border:1px solid #dde5ec;border-radius:8px;padding:12px;background:#fff}.decision-card.selected{border-color:#19789c;background:#eef8fb}.radio-line{display:flex;gap:9px;align-items:flex-start;font-weight:700}.radio-line input{margin-top:2px}.reason-box{width:100%;min-height:112px;resize:none;border:1px solid #cfd9e2;border-radius:8px;padding:10px 11px;color:#24313c;background:#fbfdfe;line-height:1.4}.button-row{display:grid;gap:10px}.btn{border:1px solid transparent;border-radius:7px;padding:11px 12px;font-weight:800;text-align:center;background:#fff;color:#1f2d38}.btn.primary{background:#176b87;color:#fff}.btn.secondary{border-color:#b8c6d1;background:#fff}.btn.disabled{background:#edf1f4;color:#909aa4;border-color:#d5dde4}.handoff{border:1px solid #dce5ec;border-radius:8px;background:#fbfcfd;padding:12px}.handoff-row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid #e5ebf0}.handoff-row:last-child{border-bottom:0}.handoff-label{color:#607080;font-size:13px}.handoff-value{font-weight:700;text-align:right}.footer-note{font-size:12px;color:#6d7a86;line-height:1.4}@media (max-width:1100px){.intake-app{grid-template-columns:1fr}.content-grid{grid-template-columns:1fr}}</style>
 
   </head>
   <body data-artifact-id="gpt55-xhigh-codex-no-judgmentkit" data-row-id="gpt55-xhigh-codex" data-column-id="no-judgmentkit" data-judgmentkit-mode="no_judgmentkit" data-design-system-mode="none">
-    <main class="raw-model-candidate" data-primary-surface><header class="top"><div><p class="eyebrow">intake_packet admin console</p><h1>I-4471 Avery Morgan</h1><p>10:30 AM scheduling endpoint review for the next document CRUD update.</p></div><span class="badge">scheduling endpoint status: blocked</span></header><section class="grid"><div class="panel queue"><h2>Case queue</h2><div class="row"><span class="label">Case</span><span class="value">I-4471</span></div><div class="row"><span class="label">Client</span><span class="value">Avery Morgan</span></div><div class="row"><span class="label">Appointment hold</span><span class="value">10:30 AM</span></div><div class="row"><span class="label">Eligibility API</span><span class="value">ready to verify</span></div><div class="row"><span class="label">Resource id</span><span class="value">ready</span></div></div><div class="panel"><h2>Document fields</h2><div class="row"><span class="label">intake_packet</span><span class="value">open</span></div><div class="row"><span class="label">Required fields</span><span class="value">ready</span></div><div class="row"><span class="label">JSON schema</span><span class="value">matched</span></div><div class="row"><span class="label">Next CRUD update</span><span class="value">waiting on schedule block</span></div></div></section><section class="panel"><h2>Blocked update context</h2><p class="schema">{ status: blocked, endpoint: scheduling endpoint, case: I-4471, document_fields: ready, resource_id: ready }</p><div class="actions"><button class="primary">Update document fields</button><button>Check eligibility API</button><button>Retry scheduling endpoint</button><button>Save CRUD draft</button></div></section></main>
+    <main class="raw-model-candidate" data-primary-surface class='intake-app'><aside class='panel queue-panel' aria-label='Intake queue'><p class='eyebrow'>Clinical intake review</p><h1 class='panel-title'>Administrative readiness</h1><p class='small'>Review packets and choose the next administrative action.</p><div class='queue-list'><button class='queue-item active' type='button'><span class='queue-top'><span class='queue-id'>I-4471</span><span class='status missing'>Consent missing</span></span><span class='queue-name'>Avery Morgan</span><span class='slot'>10:30 AM appointment slot</span></button><button class='queue-item' type='button'><span class='queue-top'><span class='queue-id'>I-4472</span><span class='status verify'>Verify insurance</span></span><span class='queue-name'>Sam Rivera</span><span class='slot'>1:00 PM appointment slot</span></button><button class='queue-item' type='button'><span class='queue-top'><span class='queue-id'>I-4473</span><span class='status ready'>Ready to schedule</span></span><span class='queue-name'>Jules Kim</span><span class='slot'>3:15 PM appointment slot</span></button></div></aside><section class='panel review-panel' aria-label='Selected intake packet'><div class='review-header'><div><p class='eyebrow'>Intake packet I-4471</p><h2 class='panel-title'>Avery Morgan</h2><div class='case-meta'><span class='pill'>New patient consult</span><span class='pill'>10:30 AM slot</span><span class='pill'>Pending readiness review</span></div></div><span class='status missing'>Consent missing</span></div><div class='content-grid'><div><section class='section'><div class='notice'><strong>Scheduling hold</strong><span>Signed consent is missing. Schedule only when required administrative forms are complete.</span></div></section><section class='section'><h2>Administrative evidence</h2><div class='checklist'><div class='check done'><span class='mark'>✓</span><div><div class='check-title'>Referral document</div><div class='check-note'>Referral document is uploaded and available for the intake packet.</div></div><span class='status ready'>Uploaded</span></div><div class='check review'><span class='mark'>i</span><div><div class='check-title'>Insurance card</div><div class='check-note'>Insurance card image is present. Escalate only if eligibility remains uncertain.</div></div><span class='status verify'>Present</span></div><div class='check blocked'><span class='mark'>!</span><div><div class='check-title'>Signed consent</div><div class='check-note'>Required signed consent form is missing before scheduling.</div></div><span class='status missing'>Missing</span></div></div></section><section class='section'><h2>Policy boundary</h2><div class='policy'>Scheduling and intake administration only. Do not diagnose, triage, or recommend treatment.</div></section></div><aside><section class='section'><h2>Packet inputs</h2><div class='source-grid'><div class='source-row'><span>intake_packet</span><span>I-4471</span></div><div class='source-row'><span>document fields</span><span>Consent missing</span></div><div class='source-row'><span>eligibility status</span><span>Card image present</span></div><div class='source-row'><span>scheduling endpoint</span><span>Not submitted</span></div></div></section><section class='section'><h2>Readiness result</h2><div class='handoff'><div class='handoff-row'><span class='handoff-label'>Next action</span><span class='handoff-value'>Return missing forms</span></div><div class='handoff-row'><span class='handoff-label'>Reason</span><span class='handoff-value'>Signed consent required</span></div><div class='handoff-row'><span class='handoff-label'>Schedule</span><span class='handoff-value'>Blocked</span></div></div></section></aside></div></section><aside class='panel action-panel' aria-label='Administrative handoff action'><div><p class='eyebrow'>Administrative handoff</p><h2 class='panel-title'>Choose next action</h2><p class='small'>Current evidence supports returning the packet for signed consent.</p></div><label class='decision-card'><span class='radio-line'><input type='radio' name='next-action' disabled><span>Schedule appointment slot</span></span><p class='small'>Unavailable until required administrative forms are complete.</p></label><label class='decision-card selected'><span class='radio-line'><input type='radio' name='next-action' checked><span>Return missing forms</span></span><p class='small'>Ask for signed consent before scheduling.</p></label><label class='decision-card'><span class='radio-line'><input type='radio' name='next-action'><span>Escalate insurance verification</span></span><p class='small'>Use when eligibility is uncertain after insurance review.</p></label><div><p class='eyebrow'>Handoff reason</p><textarea class='reason-box'>Signed consent form is missing before scheduling. Return the intake packet for consent completion, then recheck readiness for the 10:30 AM appointment slot.</textarea></div><div class='button-row'><button class='btn primary' type='button'>Complete handoff</button><button class='btn secondary' type='button'>Escalate insurance verification</button><button class='btn disabled' type='button' disabled>Schedule slot</button></div><p class='footer-note'>Administrative handoff records the action and reason only; clinical diagnosis, triage, and treatment recommendations are outside this review.</p></aside></main>
     <aside class="provenance" aria-label="Artifact provenance">
       <strong>Provenance:</strong>
       <span>captured</span>
       <span> - captured_model_output</span>
       <span> - Raw brief</span>
+
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
       <p>Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.</p>
       <p>Manifest entry: <code>artifacts/gpt55-xhigh-codex-no-judgmentkit.html</code></p>
@@ -276,7 +277,8 @@
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": false,
-    "material_ui_adapter": false
+    "material_ui_adapter": false,
+    "frontend_skill_context": false
   },
   "design_system_name": null,
   "design_system_package": null,
@@ -284,29 +286,55 @@
   "handoff_source": null,
   "design_system_adapter_file": null,
   "capture_file": "captures/gpt55-xhigh-codex-no-judgmentkit.json",
-  "model_response_summary": "Static intake_packet admin console candidate showing Avery Morgan's blocked 10:30 AM scheduling endpoint and the next CRUD update context.",
+  "model_response_summary": "Static intake readiness workspace for reviewing Avery Morgan's appointment packet, selecting the administrative action, and recording the handoff reason.",
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
   "capture_provenance": {
     "status": "captured",
     "capture_type": "model-output-transcript",
-    "captured_at": "2026-05-14T03:17:36.709Z",
+    "captured_at": "2026-05-15T21:40:30.762Z",
     "runner": "scripts/capture-model-ui-matrix.mjs",
     "provider": "codex-cli",
     "model": "gpt-5.5",
     "cli": "codex",
     "transcript_file": "captures/gpt55-xhigh-codex-no-judgmentkit.json",
-    "prompt_sha256": "30f18bf3e1c09ca8880ba7fed38b8f676cbca45789269f0b773864c582bde197",
-    "raw_response_sha256": "fe3125faeab4aff2a769be6897cd16cd09fef8bf7f93b4ba01d55953beade827",
-    "source_context_sha256": "9d90fa5709a43efabbdf651ddd6c82803fcd5d924bc620623432c76ad3efc67b",
+    "prompt_sha256": "fa0a03a9c23dcd822ec072e0391ec5e9ea4e41aeef49156e7bc1b2c2fec34654",
+    "raw_response_sha256": "79d895bc6c8ee849dab6df24b58748a0cd4909c34a61e4da066d9a91d59588bb",
+    "source_context_sha256": "8d447b35269eb74b1b2c025ddc823571dc5ddef50a38a354f2befcbbd052afe1",
     "reasoning_effort": "xhigh",
     "context_included": {
       "source_brief": true,
       "sample_case": true,
       "reviewed_handoff": false,
-      "material_ui_adapter": false
+      "material_ui_adapter": false,
+      "frontend_skill_context": false
     },
+    "frontend_context_status": null,
+    "frontend_skill_context_status": null,
     "design_system_name": null,
     "design_system_package": null,
     "design_system_render_mode": null,
+    "lms_context": null,
+    "capture_quality": {
+      "profile": "basic_static_html_css",
+      "css_characters": 4404,
+      "html_characters": 5355,
+      "css_rule_count": 62,
+      "class_selector_count": 79,
+      "semantic_section_count": 9,
+      "structural_block_count": 42,
+      "button_count": 6,
+      "has_responsive_css": true,
+      "has_layout_css": true,
+      "has_panel_css": true,
+      "has_control_css": true,
+      "has_evidence_content": true,
+      "has_handoff_content": true,
+      "compact_template_signature": false,
+      "failures": [],
+      "status": "passed"
+    },
     "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
   },
   "artifact_path": "artifacts/gpt55-xhigh-codex-no-judgmentkit.html",

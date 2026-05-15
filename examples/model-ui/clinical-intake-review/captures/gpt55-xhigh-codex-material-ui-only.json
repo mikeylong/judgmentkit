@@ -19,25 +19,31 @@
   "design_system_render_mode": "static-ssr",
   "render_mode": "material_ui",
   "runner": "scripts/capture-model-ui-matrix.mjs",
-  "captured_at": "2026-05-14T03:21:07.257Z",
+  "captured_at": "2026-05-15T21:46:38.921Z",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": false,
-    "material_ui_adapter": true
+    "material_ui_adapter": true,
+    "frontend_skill_context": false
   },
-  "source_context_sha256": "48babcf5c324d77fb4280aedbe9930e199f8a25c9ee8769f5492add4175cfa15",
-  "prompt_sha256": "ebd150fdbf6a7f056bcfd8a973ae3e2cb4cae555e450c617579b6e45ccf4548b",
-  "raw_response_sha256": "a4c7eb8e1df58bdd8fb4ba4f25679598ef387cf6e035d2b123c871a50d9ef803",
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
+  "source_context_sha256": "46130760f0413226f73c1e6e0d1060d38edc030203fe704fe8b226db1b22ff4a",
+  "prompt_sha256": "00becad9cff2b148697d8673c7cce5cb3ef0a36eccb6bdf953afbbe49b8f20bd",
+  "raw_response_sha256": "e0cbddd52b7f5f5dd11ba2ced24a9d62c6d7bb5ff013ae3791f21d4feb3a97a6",
   "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",
   "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix.",
+  "lms_context": null,
+  "capture_quality": null,
   "parsed": {
-    "summary": "Material UI-only structured data for an administrative intake review surface; no reviewed activity handoff is assumed.",
+    "summary": "A Material UI-only intake readiness surface organizes Avery Morgan's administrative packet review and leaves the decision at missing signed consent.",
     "surface": {
       "eyebrow": "Clinical intake review",
-      "heading": "Administrative readiness",
+      "heading": "Administrative readiness for I-4471",
       "status": "Consent missing",
-      "queue_title": "Intake packets",
+      "queue_title": "Intake queue",
       "queue": [
         {
           "id": "I-4471",
@@ -68,20 +74,20 @@
       },
       "info": [
         {
+          "label": "Activity",
+          "value": "Administrative appointment readiness review"
+        },
+        {
           "label": "Appointment slot",
           "value": "10:30 AM"
         },
         {
-          "label": "Plan",
-          "value": "New patient consult"
+          "label": "Referral",
+          "value": "Uploaded"
         },
         {
-          "label": "Readiness check",
-          "value": "Signed consent required before scheduling"
-        },
-        {
-          "label": "Administrative path",
-          "value": "Return missing forms"
+          "label": "Insurance verification",
+          "value": "Insurance card image present"
         }
       ],
       "evidence": [
@@ -89,27 +95,27 @@
         "Insurance card image is present.",
         "Signed consent form is missing before scheduling."
       ],
-      "policy_title": "Scheduling policy",
-      "policy": "Schedule only when required administrative forms are complete. Send insurance uncertainty to verification staff. Do not diagnose, triage, or recommend treatment.",
-      "decision_title": "Next administrative action",
+      "policy_title": "Administrative scheduling rule",
+      "policy": "Schedule only when required administrative forms are complete; insurance uncertainty goes to verification staff. Do not diagnose, triage, or recommend treatment.",
+      "decision_title": "Readiness decision",
       "actions": [
         "Return packet for signed consent",
-        "Escalate insurance verification if coverage is unclear",
-        "Schedule appointment only after required forms are complete"
+        "Escalate insurance verification",
+        "Schedule appointment slot"
       ],
-      "primary_action": "Return missing forms",
+      "primary_action": "Return packet for signed consent",
       "handoff": {
         "owner": "Intake coordinator",
-        "title": "Administrative handoff",
-        "reason": "Signed consent form is missing before scheduling.",
-        "action": "Return the intake packet for signed consent before assigning the appointment slot."
+        "title": "Missing signed consent",
+        "reason": "Referral and insurance card are present, but signed consent is required before scheduling.",
+        "action": "Return the intake packet for signed consent before holding the 10:30 AM appointment slot."
       }
     }
   },
-  "raw_response": "{\"summary\":\"Material UI-only structured data for an administrative intake review surface; no reviewed activity handoff is assumed.\",\"surface\":{\"eyebrow\":\"Clinical intake review\",\"heading\":\"Administrative readiness\",\"status\":\"Consent missing\",\"queue_title\":\"Intake packets\",\"queue\":[{\"id\":\"I-4471\",\"customer\":\"Avery Morgan\",\"state\":\"Consent missing\",\"amount\":\"10:30 AM\"},{\"id\":\"I-4472\",\"customer\":\"Sam Rivera\",\"state\":\"Verify insurance\",\"amount\":\"1:00 PM\"},{\"id\":\"I-4473\",\"customer\":\"Jules Kim\",\"state\":\"Ready to schedule\",\"amount\":\"3:15 PM\"}],\"selected\":{\"id\":\"I-4471\",\"customer\":\"Avery Morgan\",\"amount\":\"10:30 AM\",\"plan\":\"New patient consult\",\"request\":\"Appointment packet is pending administrative readiness review.\",\"status\":\"Consent missing\"},\"info\":[{\"label\":\"Appointment slot\",\"value\":\"10:30 AM\"},{\"label\":\"Plan\",\"value\":\"New patient consult\"},{\"label\":\"Readiness check\",\"value\":\"Signed consent required before scheduling\"},{\"label\":\"Administrative path\",\"value\":\"Return missing forms\"}],\"evidence\":[\"Referral document is uploaded.\",\"Insurance card image is present.\",\"Signed consent form is missing before scheduling.\"],\"policy_title\":\"Scheduling policy\",\"policy\":\"Schedule only when required administrative forms are complete. Send insurance uncertainty to verification staff. Do not diagnose, triage, or recommend treatment.\",\"decision_title\":\"Next administrative action\",\"actions\":[\"Return packet for signed consent\",\"Escalate insurance verification if coverage is unclear\",\"Schedule appointment only after required forms are complete\"],\"primary_action\":\"Return missing forms\",\"handoff\":{\"owner\":\"Intake coordinator\",\"title\":\"Administrative handoff\",\"reason\":\"Signed consent form is missing before scheduling.\",\"action\":\"Return the intake packet for signed consent before assigning the appointment slot.\"}}}",
+  "raw_response": "{\"summary\":\"A Material UI-only intake readiness surface organizes Avery Morgan's administrative packet review and leaves the decision at missing signed consent.\",\"surface\":{\"eyebrow\":\"Clinical intake review\",\"heading\":\"Administrative readiness for I-4471\",\"status\":\"Consent missing\",\"queue_title\":\"Intake queue\",\"queue\":[{\"id\":\"I-4471\",\"customer\":\"Avery Morgan\",\"state\":\"Consent missing\",\"amount\":\"10:30 AM\"},{\"id\":\"I-4472\",\"customer\":\"Sam Rivera\",\"state\":\"Verify insurance\",\"amount\":\"1:00 PM\"},{\"id\":\"I-4473\",\"customer\":\"Jules Kim\",\"state\":\"Ready to schedule\",\"amount\":\"3:15 PM\"}],\"selected\":{\"id\":\"I-4471\",\"customer\":\"Avery Morgan\",\"amount\":\"10:30 AM\",\"plan\":\"New patient consult\",\"request\":\"Appointment packet is pending administrative readiness review.\",\"status\":\"Consent missing\"},\"info\":[{\"label\":\"Activity\",\"value\":\"Administrative appointment readiness review\"},{\"label\":\"Appointment slot\",\"value\":\"10:30 AM\"},{\"label\":\"Referral\",\"value\":\"Uploaded\"},{\"label\":\"Insurance verification\",\"value\":\"Insurance card image present\"}],\"evidence\":[\"Referral document is uploaded.\",\"Insurance card image is present.\",\"Signed consent form is missing before scheduling.\"],\"policy_title\":\"Administrative scheduling rule\",\"policy\":\"Schedule only when required administrative forms are complete; insurance uncertainty goes to verification staff. Do not diagnose, triage, or recommend treatment.\",\"decision_title\":\"Readiness decision\",\"actions\":[\"Return packet for signed consent\",\"Escalate insurance verification\",\"Schedule appointment slot\"],\"primary_action\":\"Return packet for signed consent\",\"handoff\":{\"owner\":\"Intake coordinator\",\"title\":\"Missing signed consent\",\"reason\":\"Referral and insurance card are present, but signed consent is required before scheduling.\",\"action\":\"Return the intake packet for signed consent before holding the 10:30 AM appointment slot.\"}}}",
   "execution": {
     "status": 0,
-    "stdout_sha256": "8476cdfae1543a07ef67bbe35b88ced32f2a200062d1f72c592f6b6a0fee15ca",
-    "stderr_sha256": "c21eae4cd6aa295f5abef35219ce56cb26c803ee67ab731c94da493e5056ff69"
+    "stdout_sha256": "e0c8434e86f1e37b81a3e3f4ae023d67dee5e913254dadd5eefa82f3c9eb5788",
+    "stderr_sha256": "f1764a267f382987ece8cc9213f251df0c30d49646b35e79ea7aad24373f2c0b"
   }
 }

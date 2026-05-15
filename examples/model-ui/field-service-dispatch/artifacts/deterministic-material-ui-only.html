@@ -253,6 +253,7 @@
       <span>captured</span>
       <span> - deterministic</span>
       <span> - Material UI only</span>
+
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
       <p>Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.</p>
       <p>Manifest entry: <code>artifacts/deterministic-material-ui-only.html</code></p>
@@ -276,7 +277,8 @@
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": false,
-    "material_ui_adapter": true
+    "material_ui_adapter": true,
+    "frontend_skill_context": false
   },
   "design_system_name": "Material UI",
   "design_system_package": "@mui/material",
@@ -285,6 +287,9 @@
   "design_system_adapter_file": "examples/model-ui/field-service-dispatch/design-system-adapter.json",
   "capture_file": null,
   "model_response_summary": null,
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
   "capture_provenance": {
     "status": "captured",
     "capture_type": "deterministic-renderer",
@@ -294,6 +299,9 @@
     "model": "none",
     "cli": null,
     "reasoning_effort": null,
+    "frontend_context_status": null,
+    "frontend_skill_context_status": null,
+    "capture_quality": null,
     "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
   },
   "artifact_path": "artifacts/deterministic-material-ui-only.html",

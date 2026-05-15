@@ -243,70 +243,17 @@
       }
     }
   </style>
-    <style data-model-css>.renewal-risk { box-sizing: border-box; min-height: 900px; padding: 24px; background: #f6f7f9; color: #17202a; font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; }
-.renewal-risk * { box-sizing: border-box; }
-.risk-shell { display: grid; grid-template-columns: 280px minmax(0, 1fr) 360px; gap: 18px; max-width: 1320px; margin: 0 auto; }
-.risk-header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding-bottom: 6px; }
-.eyebrow { margin: 0 0 6px; color: #5b6776; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-h1, h2, h3, p { margin-top: 0; }
-h1 { margin-bottom: 6px; font-size: 30px; line-height: 1.1; letter-spacing: 0; }
-.header-note { margin: 0; color: #596575; font-size: 14px; }
-.meeting-chip { display: inline-flex; align-items: center; gap: 8px; border: 1px solid #cfd6df; border-radius: 999px; padding: 8px 12px; background: #ffffff; color: #344255; font-size: 13px; font-weight: 700; white-space: nowrap; }
-.panel { background: #ffffff; border: 1px solid #d9dee6; border-radius: 8px; box-shadow: 0 1px 2px rgba(23, 32, 42, .05); }
-.queue { padding: 16px; }
-.queue h2, .panel-title { margin-bottom: 12px; font-size: 15px; line-height: 1.25; }
-.queue-list { display: grid; gap: 10px; }
-.account-row { display: grid; gap: 4px; padding: 12px; border: 1px solid #e0e5ec; border-radius: 8px; background: #fbfcfd; }
-.account-row.active { border-color: #285e61; background: #eef7f6; }
-.row-top { display: flex; justify-content: space-between; gap: 12px; font-size: 13px; font-weight: 800; }
-.row-state { color: #596575; font-size: 13px; }
-.row-amount { color: #1f4f46; font-size: 13px; font-weight: 800; }
-.main-stack { display: grid; gap: 18px; min-width: 0; }
-.account-summary { padding: 18px; }
-.summary-top { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; }
-.customer-name { margin-bottom: 8px; font-size: 24px; line-height: 1.15; }
-.meta-line { margin: 0; color: #546173; font-size: 14px; }
-.status-badge { border-radius: 999px; padding: 8px 12px; background: #fff2d7; color: #7a4a00; font-size: 13px; font-weight: 800; white-space: nowrap; }
-.metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 18px; }
-.metric { border: 1px solid #e0e5ec; border-radius: 8px; padding: 12px; background: #fbfcfd; }
-.metric-label { margin-bottom: 6px; color: #657184; font-size: 12px; font-weight: 700; text-transform: uppercase; }
-.metric-value { color: #17202a; font-size: 18px; font-weight: 850; }
-.evidence { padding: 18px; }
-.evidence-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-.evidence-card { min-height: 138px; border: 1px solid #e0e5ec; border-radius: 8px; padding: 14px; background: #ffffff; }
-.evidence-card.warning { border-top: 4px solid #b35c00; }
-.evidence-card.critical { border-top: 4px solid #a93434; }
-.evidence-card.gap { border-top: 4px solid #4f6f9f; }
-.evidence-card h3 { margin-bottom: 8px; font-size: 14px; }
-.evidence-card p { margin-bottom: 0; color: #3e4a59; font-size: 14px; line-height: 1.45; }
-.policy-note { margin-top: 14px; border-left: 4px solid #285e61; padding: 12px 14px; background: #f0f7f5; color: #27413f; font-size: 14px; line-height: 1.45; }
-.decision-panel { padding: 18px; align-self: start; }
-.recommendation { margin-bottom: 16px; border: 1px solid #b9d6d1; border-radius: 8px; padding: 14px; background: #edf7f5; }
-.recommendation h2 { margin-bottom: 8px; font-size: 16px; color: #163f3d; }
-.recommendation p { margin-bottom: 0; color: #27413f; font-size: 14px; line-height: 1.45; }
-.option-list { display: grid; gap: 10px; margin-bottom: 16px; }
-.option { width: 100%; border: 1px solid #d8dee6; border-radius: 8px; padding: 12px; background: #ffffff; text-align: left; }
-.option strong { display: block; margin-bottom: 4px; color: #17202a; font-size: 14px; }
-.option span { display: block; color: #5b6776; font-size: 13px; line-height: 1.35; }
-.option.primary { border-color: #285e61; background: #f2faf8; }
-.option.blocked { background: #fafafa; color: #697586; }
-.handoff { border-top: 1px solid #e2e6ec; padding-top: 16px; }
-.handoff-row { display: grid; grid-template-columns: 112px 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px solid #eef1f5; font-size: 14px; }
-.handoff-row dt { color: #657184; font-weight: 700; }
-.handoff-row dd { margin: 0; color: #17202a; }
-.actions { display: flex; gap: 10px; margin-top: 16px; }
-.button { border: 1px solid #285e61; border-radius: 8px; padding: 10px 12px; background: #285e61; color: #ffffff; font-size: 14px; font-weight: 800; }
-.button.secondary { background: #ffffff; color: #285e61; }
-@media (max-width: 980px) { .renewal-risk { min-height: auto; padding: 16px; } .risk-shell { grid-template-columns: 1fr; } .risk-header, .summary-top { flex-direction: column; } .evidence-grid, .metric-grid { grid-template-columns: 1fr; } }</style>
+    <style data-model-css>*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#17212b;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.renewal-workbench{min-height:100vh;padding:28px;display:grid;grid-template-columns:280px minmax(0,1fr)340px;grid-template-rows:auto 1fr;gap:18px}.topbar{grid-column:1/-1;display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1px solid #d9e0e7;padding-bottom:16px}.eyebrow{margin:0 0 5px;color:#607080;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}.topbar h1{margin:0;font-size:26px;line-height:1.15}.meeting-note{margin:6px 0 0;color:#5a6876;font-size:14px}.queue,.case,.decision{background:#fff;border:1px solid #dde4ea;border-radius:8px;box-shadow:0 1px 2px rgba(20,35,50,.05)}.queue{padding:16px}.section-title{margin:0 0 12px;font-size:15px;font-weight:800}.queue-card{border:1px solid #e0e6ec;border-radius:7px;padding:12px;margin-bottom:10px;background:#fff}.queue-card.active{border-color:#2f6f9f;background:#eef7fb}.queue-id{font-size:12px;color:#647381;font-weight:700}.queue-name{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:5px;font-weight:800}.queue-meta{display:flex;justify-content:space-between;gap:8px;margin-top:8px;color:#5f6f7f;font-size:13px}.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800;border:1px solid transparent;white-space:nowrap}.pill.red{background:#fff1f0;color:#a43728;border-color:#f2c4bd}.pill.amber{background:#fff7e6;color:#8f5a00;border-color:#f1d49b}.pill.blue{background:#eaf5fb;color:#23627f;border-color:#bfddea}.case{padding:20px;display:grid;grid-template-rows:auto auto 1fr;gap:16px}.case-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.account h2{margin:0;font-size:24px}.account dl{display:flex;gap:16px;flex-wrap:wrap;margin:10px 0 0}.account div{min-width:120px}.account dt{font-size:11px;color:#6a7784;text-transform:uppercase;font-weight:800}.account dd{margin:3px 0 0;font-size:14px;font-weight:700}.risk-score{text-align:right}.risk-score strong{display:block;font-size:30px;line-height:1;color:#a43728}.risk-score span{color:#687888;font-size:12px;font-weight:700}.signal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.signal{border:1px solid #e2e8ee;border-radius:7px;padding:14px;background:#fbfcfd}.signal h3{margin:0 0 7px;font-size:14px}.signal p{margin:0;color:#4f5e6b;font-size:13px;line-height:1.4}.evidence-panel{border-top:1px solid #e4e9ee;padding-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:16px}.evidence-panel h3{margin:0 0 10px;font-size:15px}.evidence-list{margin:0;padding:0;list-style:none;display:grid;gap:10px}.evidence-list li{padding-left:18px;position:relative;color:#324352;font-size:14px;line-height:1.45}.evidence-list li:before{content:"";position:absolute;left:0;top:.55em;width:7px;height:7px;border-radius:50%;background:#2f6f9f}.guidance{border-left:4px solid #e3b24d;background:#fffaf0;border-radius:6px;padding:13px}.guidance p{margin:0;color:#3d4650;font-size:14px;line-height:1.45}.decision{padding:18px;display:flex;flex-direction:column;gap:14px}.decision-group{display:grid;gap:9px}.choice{width:100%;border:1px solid #d5dde5;background:#fff;border-radius:7px;padding:12px;text-align:left;color:#1d2b38}.choice strong{display:block;font-size:14px}.choice span{display:block;margin-top:4px;color:#5f6f7d;font-size:12px;line-height:1.35}.choice.selected{border-color:#2f6f9f;background:#edf7fb;box-shadow:inset 0 0 0 1px #2f6f9f}.choice.caution{border-color:#e7c780;background:#fffaf0}.handoff{border-top:1px solid #e1e7ed;padding-top:14px}.handoff-row{display:grid;grid-template-columns:100px 1fr;gap:8px;margin-bottom:10px;font-size:13px}.handoff-row span:first-child{color:#657585;font-weight:800}.handoff-row span:last-child{color:#1f2f3d}.primary-action{border:0;background:#235f7f;color:#fff;border-radius:7px;padding:12px 14px;font-weight:800;font-size:14px}.secondary-action{border:1px solid #cdd7df;background:#fff;color:#263746;border-radius:7px;padding:11px 14px;font-weight:800;font-size:14px}.source-readiness{border-top:1px solid #e1e7ed;padding-top:13px}.readiness-list{display:grid;gap:8px;margin:0;padding:0;list-style:none}.readiness-list li{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:#5c6d7c}.status-ok{color:#28724f;font-weight:800}.status-gap{color:#a05f00;font-weight:800}@media(max-width:1000px){.renewal-workbench{grid-template-columns:1fr;padding:18px}.topbar{align-items:flex-start;flex-direction:column}.signal-grid,.evidence-panel{grid-template-columns:1fr}}</style>
 
   </head>
   <body data-artifact-id="gpt55-xhigh-codex-no-judgmentkit" data-row-id="gpt55-xhigh-codex" data-column-id="no-judgmentkit" data-judgmentkit-mode="no_judgmentkit" data-design-system-mode="none">
-    <main class="raw-model-candidate" class='renewal-risk' data-primary-surface><section class='risk-shell'><header class='risk-header'><div><p class='eyebrow'>B2B renewal risk review</p><h1>Choose the next renewal move</h1><p class='header-note'>Review account facts, risk evidence, and the handoff needed before the weekly account meeting.</p></div><div class='meeting-chip'>Weekly account meeting queue</div></header><aside class='panel queue' aria-label='At-risk renewal queue'><h2>At-risk renewals</h2><div class='queue-list'><article class='account-row active'><div class='row-top'><span>AC-903</span><span>Northstar Labs</span></div><div class='row-state'>Champion change</div><div class='row-amount'>$84K ARR</div></article><article class='account-row'><div class='row-top'><span>AC-904</span><span>Bright Arc</span></div><div class='row-state'>Usage drop</div><div class='row-amount'>$42K ARR</div></article><article class='account-row'><div class='row-top'><span>AC-905</span><span>Harbor Grid</span></div><div class='row-state'>Procurement risk</div><div class='row-amount'>$120K ARR</div></article></div></aside><section class='main-stack' aria-label='Selected renewal evidence'><article class='panel account-summary'><div class='summary-top'><div><p class='eyebrow'>Selected account</p><h2 class='customer-name'>Northstar Labs</h2><p class='meta-line'>Enterprise annual plan · $84K ARR · Renewal risk review before account planning</p></div><span class='status-badge'>Champion change</span></div><div class='metric-grid'><div class='metric'><div class='metric-label'>Usage trend</div><div class='metric-value'>-28%</div></div><div class='metric'><div class='metric-label'>Sponsor signal</div><div class='metric-value'>Champion left</div></div><div class='metric'><div class='metric-label'>Timeline</div><div class='metric-value'>Missing</div></div></div></article><article class='panel evidence'><h2 class='panel-title'>Evidence review</h2><div class='evidence-grid'><section class='evidence-card warning'><h3>Usage trend</h3><p>Usage dropped 28 percent across the last two reporting periods, so the account has enough usage signal to treat the risk as real.</p></section><section class='evidence-card critical'><h3>Champion change</h3><p>The primary champion left the account last month. Sponsor coverage needs to be rebuilt before the renewal conversation advances.</p></section><section class='evidence-card gap'><h3>Procurement timeline</h3><p>The renewal timing is not confirmed. This is the evidence gap blocking a committed save plan or executive escalation.</p></section></div><div class='policy-note'>Policy readout: executive escalation fits when sponsor risk and renewal timing are clear. Missing procurement dates should be resolved before committing a save plan.</div></article></section><aside class='panel decision-panel' aria-label='Renewal decision and handoff'><div class='recommendation'><p class='eyebrow'>Recommended path</p><h2>Resolve procurement timing before committing the save plan</h2><p>Northstar Labs has real renewal risk from usage drop and champion change, but the handoff should first close the procurement timeline gap.</p></div><div class='option-list'><button class='option blocked' type='button'><strong>Start save plan</strong><span>Blocked until procurement timing is confirmed.</span></button><button class='option blocked' type='button'><strong>Executive escalation</strong><span>Prepare sponsor path, but wait for renewal timing clarity.</span></button><button class='option primary' type='button'><strong>Wait for evidence</strong><span>Use this as a short hold for procurement evidence, not for usage proof.</span></button></div><section class='handoff'><h2 class='panel-title'>Renewal handoff</h2><dl><div class='handoff-row'><dt>Next owner</dt><dd>Customer success manager</dd></div><div class='handoff-row'><dt>Action</dt><dd>Confirm procurement timeline and identify the new sponsor path.</dd></div><div class='handoff-row'><dt>Risk reason</dt><dd>Champion change with a 28 percent usage decline.</dd></div><div class='handoff-row'><dt>Evidence gap</dt><dd>Procurement dates before save plan or executive escalation.</dd></div></dl><div class='actions'><button class='button' type='button'>Record handoff</button><button class='button secondary' type='button'>Send to meeting</button></div></section></aside></section></main>
+    <main data-primary-surface class="renewal-workbench raw-model-candidate"><header class="topbar"><div><p class="eyebrow">Renewal risk review</p><h1>Northstar Labs handoff decision</h1><p class="meeting-note">Review before the weekly account meeting and leave with owner, action, reason, and evidence gap.</p></div><span class="pill red">Champion change</span></header><aside class="queue" aria-label="At-risk renewal queue"><h2 class="section-title">Review queue</h2><article class="queue-card active"><div class="queue-id">AC-903</div><div class="queue-name"><span>Northstar Labs</span><span>$84K ARR</span></div><div class="queue-meta"><span>Champion change</span><span>Enterprise annual</span></div></article><article class="queue-card"><div class="queue-id">AC-904</div><div class="queue-name"><span>Bright Arc</span><span>$42K ARR</span></div><div class="queue-meta"><span>Usage drop</span><span>Review next</span></div></article><article class="queue-card"><div class="queue-id">AC-905</div><div class="queue-name"><span>Harbor Grid</span><span>$120K ARR</span></div><div class="queue-meta"><span>Procurement risk</span><span>Needs timing</span></div></article></aside><section class="case" aria-label="Selected account evidence"><div class="case-header"><div class="account"><h2>Northstar Labs</h2><dl><div><dt>Plan</dt><dd>Enterprise annual</dd></div><div><dt>Renewal value</dt><dd>$84K ARR</dd></div><div><dt>Request</dt><dd>Account planning review</dd></div></dl></div><div class="risk-score"><strong>High</strong><span>renewal risk</span></div></div><div class="signal-grid"><article class="signal"><span class="pill red">Usage trend</span><h3>Down 28%</h3><p>Usage dropped across the last two reporting periods, with no recovery signal yet.</p></article><article class="signal"><span class="pill amber">Champion change</span><h3>Primary sponsor left</h3><p>The main champion departed last month, so decision coverage is uncertain.</p></article><article class="signal"><span class="pill blue">Procurement timeline</span><h3>Missing date</h3><p>No confirmed procurement owner or renewal timing is available for escalation planning.</p></article></div><div class="evidence-panel"><section><h3>Account evidence</h3><ul class="evidence-list"><li>Usage dropped 28 percent over the last two reporting periods.</li><li>Primary champion left the account last month.</li><li>Procurement timeline is missing before escalation.</li></ul></section><section class="guidance"><h3>Policy guidance</h3><p>Executive escalation is appropriate when sponsor risk and renewal timing are clear. Missing procurement dates should be resolved before committing a save plan.</p></section></div></section><aside class="decision" aria-label="Decision and handoff"><h2 class="section-title">Decision</h2><div class="decision-group"><button class="choice caution" type="button"><strong>Start save plan</strong><span>Hold until procurement timing is known.</span></button><button class="choice caution" type="button"><strong>Escalate executive sponsor</strong><span>Needs a sponsor map and renewal timing first.</span></button><button class="choice selected" type="button"><strong>Wait for stronger evidence</strong><span>Collect procurement timeline and confirm usage direction.</span></button></div><section class="handoff"><h3 class="section-title">Renewal handoff</h3><div class="handoff-row"><span>Next owner</span><span>Customer Success Manager</span></div><div class="handoff-row"><span>Action</span><span>Confirm procurement timeline, identify replacement champion, recheck usage trend.</span></div><div class="handoff-row"><span>Risk reason</span><span>Champion change plus 28 percent usage decline.</span></div><div class="handoff-row"><span>Evidence gap</span><span>Procurement owner and renewal date are missing.</span></div><button class="primary-action" type="button">Save handoff decision</button><button class="secondary-action" type="button">Mark evidence request</button></section><section class="source-readiness"><h3 class="section-title">Source readiness</h3><ul class="readiness-list"><li><span>Account facts</span><span class="status-ok">Ready</span></li><li><span>Usage trend</span><span class="status-ok">Ready</span></li><li><span>Procurement timeline</span><span class="status-gap">Gap</span></li><li><span>Billing context</span><span class="status-ok">Clear</span></li></ul></section></aside></main>
     <aside class="provenance" aria-label="Artifact provenance">
       <strong>Provenance:</strong>
       <span>captured</span>
       <span> - captured_model_output</span>
       <span> - Raw brief</span>
+
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
       <p>Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.</p>
       <p>Manifest entry: <code>artifacts/gpt55-xhigh-codex-no-judgmentkit.html</code></p>
@@ -330,7 +277,8 @@ h1 { margin-bottom: 6px; font-size: 30px; line-height: 1.1; letter-spacing: 0; }
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": false,
-    "material_ui_adapter": false
+    "material_ui_adapter": false,
+    "frontend_skill_context": false
   },
   "design_system_name": null,
   "design_system_package": null,
@@ -338,29 +286,55 @@ h1 { margin-bottom: 6px; font-size: 30px; line-height: 1.1; letter-spacing: 0; }
   "handoff_source": null,
   "design_system_adapter_file": null,
   "capture_file": "captures/gpt55-xhigh-codex-no-judgmentkit.json",
-  "model_response_summary": "Static renewal risk review UI for AC-903 that helps a CSM compare evidence, choose a renewal action, and leave a handoff with owner, risk reason, and evidence gap.",
+  "model_response_summary": "A renewal-risk review workbench for a CSM deciding whether Northstar Labs needs a save plan, executive escalation, or more evidence before handoff.",
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
   "capture_provenance": {
     "status": "captured",
     "capture_type": "model-output-transcript",
-    "captured_at": "2026-05-14T03:38:59.031Z",
+    "captured_at": "2026-05-15T21:04:35.063Z",
     "runner": "scripts/capture-model-ui-matrix.mjs",
     "provider": "codex-cli",
     "model": "gpt-5.5",
     "cli": "codex",
     "transcript_file": "captures/gpt55-xhigh-codex-no-judgmentkit.json",
-    "prompt_sha256": "c817f90af42e826051592e19dbd512dc1d1d42d38b79eab49ef2d53e5be903bf",
-    "raw_response_sha256": "2b5313781c026a001a6202c88a1c080fdb410e0184ffdab342b3dcff867d2439",
-    "source_context_sha256": "8457bd4092d379d63aaea4a159872c1ce1d31658ebe2befe52bfefa807483145",
+    "prompt_sha256": "d68a2259c4ad4a778070ec0869b037ce6090236dab5c6cce3d4ea45a67b3b541",
+    "raw_response_sha256": "d9ad0b3a0a5e5481a5d6b1083580baae5b387bb478ebb9cabe01cd50e1fddd48",
+    "source_context_sha256": "2a9c11bbe27096d4431853bfdf3a896b0b078b731402a0f984cd1b22d1623af9",
     "reasoning_effort": "xhigh",
     "context_included": {
       "source_brief": true,
       "sample_case": true,
       "reviewed_handoff": false,
-      "material_ui_adapter": false
+      "material_ui_adapter": false,
+      "frontend_skill_context": false
     },
+    "frontend_context_status": null,
+    "frontend_skill_context_status": null,
     "design_system_name": null,
     "design_system_package": null,
     "design_system_render_mode": null,
+    "lms_context": null,
+    "capture_quality": {
+      "profile": "basic_static_html_css",
+      "css_characters": 4700,
+      "html_characters": 4386,
+      "css_rule_count": 61,
+      "class_selector_count": 76,
+      "semantic_section_count": 14,
+      "structural_block_count": 37,
+      "button_count": 5,
+      "has_responsive_css": true,
+      "has_layout_css": true,
+      "has_panel_css": true,
+      "has_control_css": false,
+      "has_evidence_content": true,
+      "has_handoff_content": true,
+      "compact_template_signature": false,
+      "failures": [],
+      "status": "passed"
+    },
     "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
   },
   "artifact_path": "artifacts/gpt55-xhigh-codex-no-judgmentkit.html",

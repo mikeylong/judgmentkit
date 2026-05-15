@@ -243,41 +243,43 @@
       }
     }
   </style>
-    <style data-model-css>body { font-family: Arial, sans-serif; background-color: #f4f7fa; margin: 0; padding: 20px; } .container { max-width: 1200px; margin: auto; background: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); } h1 { color: #0056b3; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; margin-bottom: 20px; } .card { background: #f9f9f9; border: 1px solid #eee; padding: 15px; margin-bottom: 20px; border-radius: 6px; } .detail-item strong { display: block; color: #333; font-size: 14px; margin-bottom: 5px; } .status-box { padding: 15px; border-radius: 6px; margin-top: 20px; text-align: center; font-weight: bold; } .status-ready { background-color: #d4edda; color: #155724; border: 1px solid #c3e6cb; } .status-pending { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; } .action-buttons button { padding: 10px 20px; margin: 5px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background-color 0.3s; } .btn-schedule { background-color: #28a745; color: white; } .btn-return { background-color: #ffc107; color: #333; } .btn-escalate { background-color: #dc3545; color: white; } .btn-schedule:hover { background-color: #218838; } .btn-return:hover { background-color: #e0a800; } .btn-escalate:hover { background-color: #c82333; }</style>
+    <style data-model-css>body { font-family: Arial, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 20px; } main { max-width: 1400px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); padding: 30px; } h1 { color: #0056b3; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; } .queue-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; } .intake-card { background-color: #ffffff; border: 1px solid #e0e0e0; border-left: 5px solid; padding: 20px; border-radius: 6px; transition: box-shadow 0.3s ease; } .intake-card:hover { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); } .status-ready { border-left-color: #28a745; background-color: #e9f7ee; } .status-missing { border-left-color: #ffc107; background-color: #fffbe6; } .status-verify { border-left-color: #dc3545; background-color: #fdeaea; } .card-title { font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #333; } .card-details p { margin: 5px 0; font-size: 0.95em; } .status-badge { display: inline-block; padding: 5px 10px; border-radius: 4px; font-weight: bold; color: white; margin-top: 10px; } .status-ready .status-badge { background-color: #28a745; } .status-missing .status-badge { background-color: #ffc107; color: #333; } .status-verify .status-badge { background-color: #dc3545; } .action-button { display: block; width: 100%; padding: 10px; margin-top: 15px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: background-color 0.2s; } .btn-schedule { background-color: #007bff; color: white; } .btn-schedule:hover { background-color: #0056b3; } .btn-return { background-color: #ffc107; color: #333; } .btn-return:hover { background-color: #e0a800; } .btn-escalate { background-color: #dc3545; color: white; } .btn-escalate:hover { background-color: #c82333; }</style>
 
   </head>
   <body data-artifact-id="gemma4-lms-no-judgmentkit" data-row-id="gemma4-lms" data-column-id="no-judgmentkit" data-judgmentkit-mode="no_judgmentkit" data-design-system-mode="none">
     <main class="raw-model-candidate" data-primary-surface>
-  <div class="container">
-    <h1>Clinical Intake Review</h1>
-
-    <div class="card">
-      <h2>Appointment Details</h2>
-      <div class="detail-item"><strong>Patient Name:</strong> Avery Morgan</div>
-      <div class="detail-item"><strong>Request Type:</strong> New patient consult</div>
-      <div class="detail-item"><strong>Requested Slot:</strong> 10:30 AM</div>
-      <div class="detail-item"><strong>Current Status:</strong> Consent missing</div>
+  <h1>Intake Packet Administrative Review</h1>
+  <p>Review pending administrative readiness requests and determine scheduling action, form return, or insurance escalation.</p>
+  <div class="queue-container">
+    <!-- Card 1: Consent Missing -->
+    <div class="intake-card status-missing">
+      <div class="card-title">Avery Morgan - New patient consult</div>
+      <div class="card-details">
+        <p><strong>Request:</strong> Appointment packet is pending administrative readiness review.</p>
+        <p><strong>Evidence:</strong> Signed consent form is missing before scheduling.</p>
+      </div>
+      <span class="status-badge">Consent missing</span>
+      <button class="action-button btn-return">Return Missing Forms</button>
     </div>
-
-    <div class="card">
-      <h2>Administrative Readiness Checklist</h2>
-      <p>Reviewing required intake packet components:</p>
-      <ul>
-        <li>Referral document: Complete</li>
-        <li>Insurance card image: Present</li>
-        <li>Signed consent form: Missing (Requires action)</li>
-      </ul>
+    <!-- Card 2: Verify Insurance -->
+    <div class="intake-card status-verify">
+      <div class="card-title">Sam Rivera - Appointment at 1:00 PM</div>
+      <div class="card-details">
+        <p><strong>Request:</strong> Administrative readiness review.</p>
+        <p><strong>Evidence:</strong> Insurance verification required for eligibility.</p>
+      </div>
+      <span class="status-badge">Verify insurance</span>
+      <button class="action-button btn-escalate">Escalate Insurance Verification</button>
     </div>
-
-    <div class="status-box status-pending">
-      Decision Required: Administrative readiness is incomplete.
-    </div>
-
-    <div class="action-buttons">
-      <button class="btn-return">Return Missing Forms</button>
-      <button class="btn-escalate">Escalate Insurance Verification</button>
-      <!-- Schedule button is disabled until all requirements are met -->
-      <button class="btn-schedule" disabled>Schedule Appointment Slot</button>
+    <!-- Card 3: Ready to Schedule -->
+    <div class="intake-card status-ready">
+      <div class="card-title">Jules Kim - Appointment at 3:15 PM</div>
+      <div class="card-details">
+        <p><strong>Request:</strong> Administrative readiness review.</p>
+        <p><strong>Evidence:</strong> All required forms and eligibility checks passed.</p>
+      </div>
+      <span class="status-badge">Ready to schedule</span>
+      <button class="action-button btn-schedule">Schedule Appointment</button>
     </div>
   </div>
 </main>
@@ -286,6 +288,7 @@
       <span>captured</span>
       <span> - captured_model_output</span>
       <span> - Raw brief</span>
+
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
       <p>Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.</p>
       <p>Manifest entry: <code>artifacts/gemma4-lms-no-judgmentkit.html</code></p>
@@ -309,7 +312,8 @@
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": false,
-    "material_ui_adapter": false
+    "material_ui_adapter": false,
+    "frontend_skill_context": false
   },
   "design_system_name": null,
   "design_system_package": null,
@@ -317,29 +321,62 @@
   "handoff_source": null,
   "design_system_adapter_file": null,
   "capture_file": "captures/gemma4-lms-no-judgmentkit.json",
-  "model_response_summary": "This interface allows an intake coordinator to review the administrative readiness of an appointment request and determine the next action: scheduling, returning missing forms, or escalating insurance verification.",
+  "model_response_summary": "This interface allows an intake coordinator to review a queue of administrative appointment readiness requests and determine the next action: scheduling the appointment, requesting missing forms, or escalating insurance verification.",
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
   "capture_provenance": {
     "status": "captured",
     "capture_type": "model-output-transcript",
-    "captured_at": "2026-05-14T03:08:27.696Z",
+    "captured_at": "2026-05-15T21:37:10.676Z",
     "runner": "scripts/capture-model-ui-matrix.mjs",
     "provider": "lmstudio",
     "model": "google/gemma-4-e2b",
     "cli": "lms",
     "transcript_file": "captures/gemma4-lms-no-judgmentkit.json",
-    "prompt_sha256": "7e6159df04bb33a8cf075a771a2b9223765425bcd97f638f9995e22bc83310bf",
-    "raw_response_sha256": "7b2634b4d106043dfcf45e8677638e7bc54bbdbc06ee4aa2eb3914946136710a",
-    "source_context_sha256": "713aa5c011e90b100d8235d55b64ffc2f0522ff13c94bc534b22e9aa8fc082a0",
+    "prompt_sha256": "a7a1608cc2d40d15ea3f4222b74a58e2a09fe2f037ac7895da5240d923d18689",
+    "raw_response_sha256": "ef1b865a0392cb78b5f027bcc5c289f35f9e0d93b64f1f9353a97db83078873e",
+    "source_context_sha256": "3aff13859a31f2cab319967653096070db9de407b7e778e0f48ba4f85618d3ea",
     "reasoning_effort": null,
     "context_included": {
       "source_brief": true,
       "sample_case": true,
       "reviewed_handoff": false,
-      "material_ui_adapter": false
+      "material_ui_adapter": false,
+      "frontend_skill_context": false
     },
+    "frontend_context_status": null,
+    "frontend_skill_context_status": null,
     "design_system_name": null,
     "design_system_package": null,
     "design_system_render_mode": null,
+    "lms_context": {
+      "model": "google/gemma-4-e2b",
+      "status": "loaded",
+      "requested_context_length": 16384,
+      "actual_context_length": 16384,
+      "identifier": "google/gemma-4-e2b",
+      "load_command_display": "lms load google/gemma-4-e2b --context-length 16384 --ttl 300 --identifier google/gemma-4-e2b --yes"
+    },
+    "capture_quality": {
+      "profile": "basic_static_html_css",
+      "css_characters": 1889,
+      "html_characters": 1827,
+      "css_rule_count": 22,
+      "class_selector_count": 28,
+      "semantic_section_count": 0,
+      "structural_block_count": 10,
+      "button_count": 3,
+      "has_responsive_css": false,
+      "has_layout_css": true,
+      "has_panel_css": true,
+      "has_control_css": true,
+      "has_evidence_content": true,
+      "has_handoff_content": true,
+      "compact_template_signature": false,
+      "failures": [],
+      "status": "passed"
+    },
     "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
   },
   "artifact_path": "artifacts/gemma4-lms-no-judgmentkit.html",

@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Support refund triage - GPT-5.5 xhigh via codex exec - JudgmentKit handoff</title>
+    <title>Support refund triage - GPT-5.5 xhigh via codex exec - JudgmentKit skill context</title>
     <style>
     :root {
       color-scheme: light;
@@ -243,18 +243,126 @@
       }
     }
   </style>
-    <style data-model-css>main{font-family:system-ui;padding:24px;color:#1f2933;max-width:860px}.panel{border:1px solid #ddd;padding:12px;margin:12px 0;border-radius:6px}.meta{display:flex;gap:12px;flex-wrap:wrap}.tag{background:#f2f4f7;padding:4px 8px;border-radius:999px}.missing{color:#8a3b12;font-weight:600}.actions{display:flex;gap:8px;flex-wrap:wrap}button{padding:8px 12px;border:1px solid #bbb;background:white;border-radius:4px}button.primary{background:#1f6feb;color:white;border-color:#1f6feb}button[disabled]{color:#777;background:#f5f5f5}</style>
+    <style data-model-css>*{box-sizing:border-box}body{margin:0;background:#f6f7f8;color:#17212b;font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.45}.refund-review{min-height:100vh;padding:24px;display:grid;grid-template-rows:auto 1fr;gap:18px}.surface-header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:18px 20px;background:#fff;border:1px solid #d9dee5;border-radius:8px;box-shadow:0 1px 2px rgba(23,33,43,.05)}.eyebrow{margin:0 0 4px;color:#5b6673;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em}.surface-header h1{margin:0;font-size:26px;line-height:1.2;letter-spacing:0}.surface-subtitle{margin:6px 0 0;color:#4b5563;max-width:720px}.header-metrics{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}.metric{min-width:104px;padding:10px 12px;border:1px solid #d9dee5;border-radius:8px;background:#fbfcfd}.metric strong{display:block;font-size:20px}.metric span{display:block;color:#5b6673;font-size:12px}.review-grid{display:grid;grid-template-columns:minmax(260px,320px) minmax(0,1fr) minmax(308px,380px);gap:16px;align-items:start}.panel{background:#fff;border:1px solid #d9dee5;border-radius:8px;box-shadow:0 1px 2px rgba(23,33,43,.04)}.panel-header{padding:16px 16px 12px;border-bottom:1px solid #e7eaee}.panel-header h2,.section h2{margin:0;font-size:16px;line-height:1.25}.hint{margin:4px 0 0;color:#66717e;font-size:13px}.queue-list{list-style:none;margin:0;padding:8px}.queue-item{width:100%;text-align:left;border:1px solid transparent;background:transparent;border-radius:8px;padding:12px;display:grid;gap:7px;color:inherit;cursor:pointer;min-height:76px}.queue-item:hover{background:#f3f7f5}.queue-item.is-selected{background:#eef8f1;border-color:#69a97a;box-shadow:inset 3px 0 0 #278442}.queue-top,.queue-bottom,.detail-row{display:flex;align-items:center;justify-content:space-between;gap:10px}.case-id{font-weight:800;color:#25313d}.amount{font-weight:800}.customer{font-weight:700}.state{font-size:12px;border-radius:999px;padding:3px 8px;background:#eef1f4;color:#3e4853;white-space:nowrap}.state.need{background:#fff2dd;color:#8b4b00}.state.policy{background:#eaf0ff;color:#2c57a5}.state.ready{background:#e8f6ee;color:#22683b}.queue-empty{margin:6px 12px 14px;padding:12px;border:1px dashed #cfd6de;border-radius:8px;color:#606b77;background:#fbfcfd;font-size:13px}.workspace{display:grid;gap:16px}.section{padding:18px}.summary-card{display:grid;gap:14px}.status-row{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:800;white-space:nowrap}.badge.warning{background:#fff2dd;color:#8b4b00}.badge.success{background:#e8f6ee;color:#22683b}.badge.info{background:#eaf0ff;color:#2c57a5}.badge.neutral{background:#eef1f4;color:#44505c}.request-copy{margin:0;color:#25313d;font-size:15px}.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.detail-box{border:1px solid #e1e5ea;border-radius:8px;padding:10px 12px;background:#fbfcfd}.detail-box span{display:block;color:#66717e;font-size:12px}.detail-box strong{display:block;margin-top:2px;font-size:14px;overflow-wrap:anywhere}.evidence-list{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:10px}.evidence-item{display:grid;grid-template-columns:auto 1fr;gap:10px;padding:12px;border:1px solid #e1e5ea;border-radius:8px;background:#fbfcfd}.evidence-mark{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:900;background:#e8f6ee;color:#22683b;flex:none}.evidence-item.missing{border-color:#f1be73;background:#fffaf2}.evidence-item.missing .evidence-mark{background:#fff2dd;color:#8b4b00}.evidence-item strong{display:block;margin-bottom:2px}.evidence-item p{margin:0;color:#52606d;font-size:14px}.empty-note{margin-top:8px;color:#8b4b00;font-weight:700}.policy-box{display:grid;gap:12px}.policy-box p{margin:0;color:#34404c}.callout{border-left:4px solid #2f6fbd;background:#f1f6ff;border-radius:6px;padding:12px;color:#26394f}.decision-panel{position:sticky;top:24px;display:grid;gap:14px;padding:16px}.decision-group,.owner-group{display:grid;gap:8px}.decision-button,.owner-button,.primary-action,.secondary-action{min-height:42px;border-radius:8px;border:1px solid #cbd3dc;background:#fff;color:#18232e;font-weight:800;padding:10px 12px;text-align:left;cursor:pointer}.decision-button:hover,.owner-button:hover,.secondary-action:hover{background:#f3f7f5}.decision-button.is-selected,.owner-button.is-selected{border-color:#278442;background:#eef8f1;color:#18572d;box-shadow:inset 3px 0 0 #278442}.decision-button:disabled{background:#eef1f4;color:#7b8490;border-color:#d5dbe2;cursor:not-allowed}.reason-message{margin:2px 0 8px;font-size:13px;color:#5d6874}.reason-message.is-error{color:#a74400;font-weight:700}.owner-group{grid-template-columns:1fr}.handoff-card{border:1px solid #d9dee5;border-radius:8px;background:#fbfcfd;padding:14px;display:grid;gap:10px}.handoff-line{margin:0}.handoff-line span{display:block;color:#66717e;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.04em}.handoff-line strong{display:block;margin-top:2px;color:#202b36}.handoff-reason{margin:0;color:#34404c;background:#fff;border:1px solid #e1e5ea;border-radius:8px;padding:12px;overflow-wrap:anywhere}.action-row{display:flex;gap:10px;align-items:center}.primary-action{background:#278442;color:#fff;border-color:#278442;text-align:center}.primary-action:hover{background:#1f7338}.secondary-action{text-align:center;color:#34404c}.status-stack{display:grid;gap:8px;margin-top:2px}.state-line{border-radius:8px;padding:9px 10px;font-size:13px;background:#fbfcfd;border:1px solid #e1e5ea;color:#52606d}.state-line.is-ready{border-color:#b8dfc4;background:#f0fbf4;color:#236b3d}.state-line.is-loading{border-color:#c8d8f4;background:#f5f8ff;color:#315f9f}.state-line.is-error{border-color:#f0c58c;background:#fff8ef;color:#8b4b00}.panel button:focus-visible,.primary-action:focus-visible,.secondary-action:focus-visible{outline:3px solid #8cc2ff;outline-offset:2px}@media (max-width:1050px){.review-grid{grid-template-columns:280px minmax(0,1fr)}.decision-panel{position:static;grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}.decision-panel .section-title{grid-column:1/-1}.action-row{grid-column:1/-1}}@media (max-width:760px){.refund-review{padding:14px}.surface-header{display:grid}.header-metrics{justify-content:start}.review-grid{grid-template-columns:1fr}.review-grid>.panel[aria-label="Refund queue"]{order:1}.decision-panel{order:2;grid-template-columns:1fr}.workspace{order:3}.detail-grid{grid-template-columns:1fr}.status-row,.queue-top,.queue-bottom{align-items:flex-start;flex-direction:column}.action-row{flex-direction:column}.primary-action,.secondary-action{width:100%;text-align:center}.surface-header h1{font-size:22px}}</style>
 
   </head>
   <body data-artifact-id="gpt55-xhigh-codex-with-judgmentkit" data-row-id="gpt55-xhigh-codex" data-column-id="with-judgmentkit" data-judgmentkit-mode="with_judgmentkit" data-design-system-mode="none">
-    <main class="raw-model-candidate" data-primary-surface><h1>Refund Review Workspace</h1><p class="missing">Evidence incomplete: receipt photo is missing.</p><section class="panel"><h2>Review evidence</h2><p><strong>R-1842</strong> - Nora Diaz - $184.20</p><div class="meta"><span class="tag">Renewal date confirmed</span><span class="tag">Refund reason noted</span><span class="tag missing">Receipt photo missing</span></div></section><section class="panel"><h2>Choose next action</h2><p>Manager approval can wait until proof is attached. Return the request to the customer for the missing receipt photo.</p><div class="actions"><button disabled>Approve refund</button><button>Send to policy review</button><button class="primary">Return for evidence</button></div></section><section class="panel"><h2>Leave handoff</h2><p>Receipt photo is missing. Ask Nora Diaz to attach proof before approval.</p><button class="primary">Send handoff</button></section></main>
+    <main class="refund-review raw-model-candidate" data-primary-surface>
+  <header class="surface-header">
+    <div>
+      <p class="eyebrow">Support operations</p>
+      <h1>Refund escalation review</h1>
+      <p class="surface-subtitle">Review the selected refund request, confirm the evidence, choose the next path, and send the handoff with a clear reason.</p>
+    </div>
+    <div class="header-metrics" aria-label="Queue summary">
+      <div class="metric"><strong>3</strong><span>open cases</span></div>
+      <div class="metric"><strong>1</strong><span>needs evidence</span></div>
+      <div class="metric"><strong>$585.95</strong><span>under review</span></div>
+    </div>
+  </header>
+
+  <div class="review-grid">
+    <aside class="panel" aria-label="Refund queue">
+      <div class="panel-header">
+        <h2>Refund queue</h2>
+        <p class="hint">Select request</p>
+      </div>
+      <ul class="queue-list">
+        <li><button class="queue-item is-selected" type="button" aria-pressed="true"><span class="queue-top"><span class="case-id">R-1842</span><span class="state need">Needs receipt</span></span><span class="queue-bottom"><span class="customer">Nora Diaz</span><span class="amount">$184.20</span></span></button></li>
+        <li><button class="queue-item" type="button"><span class="queue-top"><span class="case-id">R-1843</span><span class="state policy">Policy question</span></span><span class="queue-bottom"><span class="customer">Jun Park</span><span class="amount">$89.00</span></span></button></li>
+        <li><button class="queue-item" type="button"><span class="queue-top"><span class="case-id">R-1844</span><span class="state ready">Manager review</span></span><span class="queue-bottom"><span class="customer">Amara Blake</span><span class="amount">$312.75</span></span></button></li>
+      </ul>
+      <p class="queue-empty">No older refund escalations are waiting in this view.</p>
+    </aside>
+
+    <div class="workspace">
+      <section class="panel section summary-card" aria-labelledby="selected-request-title">
+        <div class="status-row">
+          <div>
+            <h2 id="selected-request-title">Selected request</h2>
+            <p class="hint">Nora Diaz · Pro annual · R-1842</p>
+          </div>
+          <span class="badge warning">Evidence incomplete</span>
+        </div>
+        <p class="request-copy">Subscription renewal disputed after agent escalation.</p>
+        <div class="detail-grid" aria-label="Request details">
+          <div class="detail-box"><span>Refund amount</span><strong>$184.20</strong></div>
+          <div class="detail-box"><span>Plan</span><strong>Pro annual</strong></div>
+          <div class="detail-box"><span>Current owner</span><strong>Support operations manager</strong></div>
+          <div class="detail-box"><span>Recommended next owner</span><strong>Support agent</strong></div>
+        </div>
+        <div class="status-stack" aria-label="Work state review">
+          <div class="state-line is-ready">Ready: selected request is available for manager review.</div>
+          <div class="state-line is-loading">Checking new attachments before the handoff is sent.</div>
+        </div>
+      </section>
+
+      <section class="panel section" aria-labelledby="evidence-title">
+        <h2 id="evidence-title">Evidence checklist</h2>
+        <p class="hint">Confirm what supports the decision and what blocks approval.</p>
+        <ul class="evidence-list">
+          <li class="evidence-item"><span class="evidence-mark">OK</span><div><strong>Renewal date confirmed</strong><p>Purchase history shows the renewal date inside the exception window.</p></div></li>
+          <li class="evidence-item"><span class="evidence-mark">OK</span><div><strong>Customer reason captured</strong><p>Support note records the disputed renewal and refund reason.</p></div></li>
+          <li class="evidence-item missing"><span class="evidence-mark">!</span><div><strong>Receipt photo missing</strong><p>Manager approval needs proof attached to the request.</p><p class="empty-note">No receipt attached.</p></div></li>
+        </ul>
+      </section>
+
+      <section class="panel section" aria-labelledby="policy-title">
+        <h2 id="policy-title">Policy context</h2>
+        <div class="policy-box">
+          <p>Inside exception window. Manager approval is allowed when evidence is complete.</p>
+          <p>Unclear duplicate-charge cases should go to policy review.</p>
+          <div class="callout"><strong>Current fit:</strong> Return for evidence because the receipt photo is missing before approval.</div>
+        </div>
+      </section>
+    </div>
+
+    <aside class="panel decision-panel" aria-label="Decision and handoff">
+      <div class="section-title">
+        <h2>Decision path</h2>
+        <p class="hint">Choose the path that matches the evidence.</p>
+      </div>
+      <div class="decision-group" role="group" aria-label="Decision path choices">
+        <button class="decision-button" type="button" disabled aria-describedby="approve-block">Approve refund</button>
+        <p class="reason-message is-error" id="approve-block">Receipt photo is missing, so approval is not available yet.</p>
+        <button class="decision-button" type="button">Send to policy review</button>
+        <button class="decision-button is-selected" type="button" aria-pressed="true">Return for evidence</button>
+      </div>
+
+      <div>
+        <h2>Choose next owner</h2>
+        <p class="hint">Route the handoff to the person who can unblock the case.</p>
+        <div class="owner-group" role="group" aria-label="Next owner choices">
+          <button class="owner-button is-selected" type="button" aria-pressed="true">Support agent</button>
+          <button class="owner-button" type="button">Policy specialist</button>
+          <button class="owner-button" type="button">Refund desk</button>
+        </div>
+      </div>
+
+      <div>
+        <h2>Handoff reason</h2>
+        <div class="handoff-card">
+          <p class="handoff-line"><span>Next action</span><strong>Return the request to the support agent</strong></p>
+          <p class="handoff-reason">Receipt photo is missing. Ask the customer to attach proof before approval.</p>
+          <p class="handoff-line"><span>Next owner</span><strong>Support agent</strong></p>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <button class="primary-action" type="button">Send handoff</button>
+        <button class="secondary-action" type="button">Review later</button>
+      </div>
+    </aside>
+  </div>
+</main>
     <aside class="provenance" aria-label="Artifact provenance">
       <strong>Provenance:</strong>
       <span>captured</span>
       <span> - captured_model_output</span>
-      <span> - JudgmentKit handoff</span>
+      <span> - JudgmentKit skill context</span>
+      <span> - frontend skill context ready</span>
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
-      <p>Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.</p>
+      <p>Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.</p>
       <p>Manifest entry: <code>artifacts/gpt55-xhigh-codex-with-judgmentkit.html</code></p>
     </aside>
     <script type="application/json" id="model-ui-provenance">{
@@ -269,14 +377,15 @@
   "generation_source": "captured_model_output",
   "judgmentkit_mode": "with_judgmentkit",
   "design_system_mode": "none",
-  "render_source": "model_static_html_css",
-  "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
+  "render_source": "model_frontend_skill_static_html_css",
+  "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
   "reasoning_effort": "xhigh",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": true,
-    "material_ui_adapter": false
+    "material_ui_adapter": false,
+    "frontend_skill_context": true
   },
   "design_system_name": null,
   "design_system_package": null,
@@ -284,35 +393,92 @@
   "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
   "design_system_adapter_file": null,
   "capture_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
-  "model_response_summary": "Static refund review UI directs the reviewer to return R-1842 for a receipt photo before approval.",
+  "model_response_summary": "Static operator-review UI for choosing a refund escalation path and sending a clear handoff.",
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": null,
+    "design_system_mode": "no_design_system_adapter_provided",
+    "design_system_name": "",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "gpt55-xhigh-codex-with-judgmentkit desktop screenshot has a styled primary work surface",
+      "gpt55-xhigh-codex-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
   "capture_provenance": {
     "status": "captured",
     "capture_type": "model-output-transcript",
-    "captured_at": "2026-05-14T02:47:19.018Z",
+    "captured_at": "2026-05-15T21:23:40.228Z",
     "runner": "scripts/capture-model-ui-matrix.mjs",
     "provider": "codex-cli",
     "model": "gpt-5.5",
     "cli": "codex",
     "transcript_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
-    "prompt_sha256": "11bceded7b4f1339729b81a918a5b67480466e93f3c67f63c08ca58e3ecd4af6",
-    "raw_response_sha256": "36881415064b83005cab1f07c7ad7511927f326d82190af1fcd58342b94b6a5e",
-    "source_context_sha256": "0201fbd93252a1f03611085ae704a2f9ec16befa377e42ae27e3a5225bc01fd1",
+    "prompt_sha256": "901d8b134e28c00954a971e4fd6b5902e454ace1391c198764c639702407ebb0",
+    "raw_response_sha256": "9cf25babe75d7ae4ad1d7d31afb268eac51b4c68d6ddbb024146183e84bb14df",
+    "source_context_sha256": "2b0cee90315bc5e13da9140a71d11682b601773589b8b0b53a37e275a83dfd90",
     "reasoning_effort": "xhigh",
     "context_included": {
       "source_brief": true,
       "sample_case": true,
       "reviewed_handoff": true,
-      "material_ui_adapter": false
+      "material_ui_adapter": false,
+      "frontend_skill_context": true
     },
+    "frontend_context_status": "ready_for_frontend_implementation",
+    "frontend_skill_context_status": "ready",
     "design_system_name": null,
     "design_system_package": null,
     "design_system_render_mode": null,
+    "lms_context": null,
+    "capture_quality": {
+      "profile": "judgmentkit_static_html_css",
+      "css_characters": 6978,
+      "html_characters": 6543,
+      "css_rule_count": 94,
+      "class_selector_count": 133,
+      "semantic_section_count": 6,
+      "structural_block_count": 36,
+      "button_count": 11,
+      "has_responsive_css": true,
+      "has_layout_css": true,
+      "has_panel_css": true,
+      "has_control_css": true,
+      "has_evidence_content": true,
+      "has_handoff_content": true,
+      "compact_template_signature": false,
+      "failures": [],
+      "status": "passed"
+    },
     "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
   },
   "artifact_path": "artifacts/gpt55-xhigh-codex-with-judgmentkit.html",
   "screenshot_path": "screenshots/gpt55-xhigh-codex-with-judgmentkit.png",
-  "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit handoff",
-  "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+  "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill context",
+  "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
 }</script>
   </body>
 </html>

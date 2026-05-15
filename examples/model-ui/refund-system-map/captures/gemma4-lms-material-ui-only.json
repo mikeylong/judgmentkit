@@ -19,25 +19,37 @@
   "design_system_render_mode": "static-ssr",
   "render_mode": "material_ui",
   "runner": "scripts/capture-model-ui-matrix.mjs",
-  "captured_at": "2026-05-14T02:39:59.712Z",
+  "captured_at": "2026-05-15T21:16:17.168Z",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": false,
-    "material_ui_adapter": true
+    "material_ui_adapter": true,
+    "frontend_skill_context": false
   },
-  "source_context_sha256": "a486de6507d39d6e65f46db39da43c52a908e6967ca484669d2f07257dff66b8",
-  "prompt_sha256": "877bbe2f838975d7b4dbfcc1847930b613a5527bc01638e2876b898d9b006660",
-  "raw_response_sha256": "8d38bad0ab6bcd2a67ea4a1e3fa8989dcf47d86eb71aaa41bd28197d7d146f50",
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
+  "source_context_sha256": "78e87df6a0fb729cf41eb4923d63eadc6efa1432bf5b56d37ed25a686e057ce1",
+  "prompt_sha256": "a58812b84c3bf3423bfb36ec5036436d27a8a829320606ff49cbfb804d869808",
+  "raw_response_sha256": "0666ad062c2243fbfe8b465c305f92b0f687e227c37716f880bdf1e8e0b3f697",
   "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
   "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
+  "lms_context": {
+    "model": "google/gemma-4-e2b",
+    "status": "already_loaded",
+    "requested_context_length": 16384,
+    "actual_context_length": 16384,
+    "identifier": "google/gemma-4-e2b"
+  },
+  "capture_quality": null,
   "parsed": {
-    "summary": "A support operations manager reviews refund escalation cases to decide on approval, policy review, or requesting missing evidence.",
+    "summary": "A support operations manager reviews an escalation case to decide if it should be approved, sent for policy review, or returned due to missing evidence.",
     "surface": {
-      "eyebrow": "Refund Triage Dashboard",
-      "heading": "Review Escalation Case R-1842: Evidence Incomplete",
-      "status": "Active Review",
-      "queue_title": "Pending Refund Cases (3)",
+      "eyebrow": "Refund Escalation Review",
+      "heading": "Case R-1842: Subscription Renewal Dispute",
+      "status": "Manager Review - Evidence Incomplete",
+      "queue_title": "Pending Cases for Triage",
       "queue": [
         {
           "id": "R-1842",
@@ -64,20 +76,26 @@
         "amount": "$184.20",
         "plan": "Pro annual",
         "request": "Subscription renewal disputed after agent escalation.",
-        "status": "Evidence incomplete"
+        "status": "Evidence incomplete",
+        "evidence": [
+          "Renewal date confirmed in purchase history.",
+          "Support note captures the customer's refund reason.",
+          "Receipt photo is missing before manager approval."
+        ],
+        "policy": "Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review."
       },
       "info": [
         {
-          "label": "Case ID",
-          "value": "R-1842"
+          "label": "Customer",
+          "value": "Nora Diaz"
         },
         {
           "label": "Amount",
           "value": "$184.20"
         },
         {
-          "label": "Current State",
-          "value": "Needs receipt"
+          "label": "Case Status",
+          "value": "Evidence incomplete"
         }
       ],
       "evidence": [
@@ -87,25 +105,25 @@
       ],
       "policy_title": "Inside Exception Window Policy",
       "policy": "Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.",
-      "decision_title": "Determine Next Action for Evidence Incomplete Case",
+      "decision_title": "Requesting Missing Evidence",
       "actions": [
-        "Approve Refund",
+        "Approve (if evidence sufficient)",
         "Send to Policy Review",
-        "Return to Agent for Missing Evidence"
+        "Return to Agent for Evidence"
       ],
-      "primary_action": "Return to Agent for Missing Evidence",
+      "primary_action": "Handoff to Support Agent",
       "handoff": {
         "owner": "Support Agent",
         "title": "Request missing receipt photo.",
-        "reason": "Evidence incomplete (Missing receipt photo).",
-        "action": "Upload required documentation."
+        "reason": "Evidence incomplete for Manager Approval.",
+        "action": "Reassign case for evidence collection."
       }
     }
   },
-  "raw_response": "{\n  \"summary\": \"A support operations manager reviews refund escalation cases to decide on approval, policy review, or requesting missing evidence.\",\n  \"surface\": {\n    \"eyebrow\": \"Refund Triage Dashboard\",\n    \"heading\": \"Review Escalation Case R-1842: Evidence Incomplete\",\n    \"status\": \"Active Review\",\n    \"queue_title\": \"Pending Refund Cases (3)\",\n    \"queue\": [\n      {\n        \"id\": \"R-1842\",\n        \"customer\": \"Nora Diaz\",\n        \"state\": \"Needs receipt\",\n        \"amount\": \"$184.20\"\n      },\n      {\n        \"id\": \"R-1843\",\n        \"customer\": \"Jun Park\",\n        \"state\": \"Policy question\",\n        \"amount\": \"$89.00\"\n      },\n      {\n        \"id\": \"R-1844\",\n        \"customer\": \"Amara Blake\",\n        \"state\": \"Manager review\",\n        \"amount\": \"$312.75\"\n      }\n    ],\n    \"selected\": {\n      \"id\": \"R-1842\",\n      \"customer\": \"Nora Diaz\",\n      \"amount\": \"$184.20\",\n      \"plan\": \"Pro annual\",\n      \"request\": \"Subscription renewal disputed after agent escalation.\",\n      \"status\": \"Evidence incomplete\"\n    },\n    \"info\": [\n      {\n        \"label\": \"Case ID\",\n        \"value\": \"R-1842\"\n      },\n      {\n        \"label\": \"Amount\",\n        \"value\": \"$184.20\"\n      },\n      {\n        \"label\": \"Current State\",\n        \"value\": \"Needs receipt\"\n      }\n    ],\n    \"evidence\": [\n      \"Renewal date confirmed in purchase history.\",\n      \"Support note captures the customer's refund reason.\",\n      \"Receipt photo is missing before manager approval.\"\n    ],\n    \"policy_title\": \"Inside Exception Window Policy\",\n    \"policy\": \"Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.\",\n    \"decision_title\": \"Determine Next Action for Evidence Incomplete Case\",\n    \"actions\": [\n      \"Approve Refund\",\n      \"Send to Policy Review\",\n      \"Return to Agent for Missing Evidence\"\n    ],\n    \"primary_action\": \"Return to Agent for Missing Evidence\",\n    \"handoff\": {\n      \"owner\": \"Support Agent\",\n      \"title\": \"Request missing receipt photo.\",\n      \"reason\": \"Evidence incomplete (Missing receipt photo).\",\n      \"action\": \"Upload required documentation.\"\n    }\n  }\n}",
+  "raw_response": "{\n  \"summary\": \"A support operations manager reviews an escalation case to decide if it should be approved, sent for policy review, or returned due to missing evidence.\",\n  \"surface\": {\n    \"eyebrow\": \"Refund Escalation Review\",\n    \"heading\": \"Case R-1842: Subscription Renewal Dispute\",\n    \"status\": \"Manager Review - Evidence Incomplete\",\n    \"queue_title\": \"Pending Cases for Triage\",\n    \"queue\": [\n      {\n        \"id\": \"R-1842\",\n        \"customer\": \"Nora Diaz\",\n        \"state\": \"Needs receipt\",\n        \"amount\": \"$184.20\"\n      },\n      {\n        \"id\": \"R-1843\",\n        \"customer\": \"Jun Park\",\n        \"state\": \"Policy question\",\n        \"amount\": \"$89.00\"\n      },\n      {\n        \"id\": \"R-1844\",\n        \"customer\": \"Amara Blake\",\n        \"state\": \"Manager review\",\n        \"amount\": \"$312.75\"\n      }\n    ],\n    \"selected\": {\n      \"id\": \"R-1842\",\n      \"customer\": \"Nora Diaz\",\n      \"amount\": \"$184.20\",\n      \"plan\": \"Pro annual\",\n      \"request\": \"Subscription renewal disputed after agent escalation.\",\n      \"status\": \"Evidence incomplete\",\n      \"evidence\": [\n        \"Renewal date confirmed in purchase history.\",\n        \"Support note captures the customer's refund reason.\",\n        \"Receipt photo is missing before manager approval.\"\n      ],\n      \"policy\": \"Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.\"\n    },\n    \"info\": [\n      {\n        \"label\": \"Customer\",\n        \"value\": \"Nora Diaz\"\n      },\n      {\n        \"label\": \"Amount\",\n        \"value\": \"$184.20\"\n      },\n      {\n        \"label\": \"Case Status\",\n        \"value\": \"Evidence incomplete\"\n      }\n    ],\n    \"evidence\": [\n      \"Renewal date confirmed in purchase history.\",\n      \"Support note captures the customer's refund reason.\",\n      \"Receipt photo is missing before manager approval.\"\n    ],\n    \"policy_title\": \"Inside Exception Window Policy\",\n    \"policy\": \"Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.\",\n    \"decision_title\": \"Requesting Missing Evidence\",\n    \"actions\": [\n      \"Approve (if evidence sufficient)\",\n      \"Send to Policy Review\",\n      \"Return to Agent for Evidence\"\n    ],\n    \"primary_action\": \"Handoff to Support Agent\",\n    \"handoff\": {\n      \"owner\": \"Support Agent\",\n      \"title\": \"Request missing receipt photo.\",\n      \"reason\": \"Evidence incomplete for Manager Approval.\",\n      \"action\": \"Reassign case for evidence collection.\"\n    }\n  }\n}",
   "execution": {
     "status": 0,
-    "stdout_sha256": "60fbd8d7aefb4616819ab4548d69833f75d43dddf3d6a60e7854099806a43d76",
+    "stdout_sha256": "4317121a5f4c712c73d104907c4081bd80ca28427b695d0d2b4fa86349be3e7b",
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   }
 }

@@ -6,7 +6,7 @@
   "row_id": "gpt55-xhigh-codex",
   "row_label": "GPT-5.5 xhigh via codex exec",
   "column_id": "judgmentkit-material-ui",
-  "column_label": "JudgmentKit + Material UI",
+  "column_label": "JudgmentKit skill + Material UI",
   "model_label": "GPT-5.5",
   "provider": "codex-cli",
   "cli": "codex",
@@ -19,25 +19,62 @@
   "design_system_render_mode": "static-ssr",
   "render_mode": "material_ui",
   "runner": "scripts/capture-model-ui-matrix.mjs",
-  "captured_at": "2026-05-14T03:42:37.234Z",
+  "captured_at": "2026-05-15T21:11:27.595Z",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": true,
-    "material_ui_adapter": true
+    "material_ui_adapter": true,
+    "frontend_skill_context": true
   },
-  "source_context_sha256": "89f93d6e1cf58ecff32cb9b7a8d6da0c042ad02c9155aa2ce0b2bff54ba45f37",
-  "prompt_sha256": "962db799e3ae42555cf4a4ccdb87cbb80600a9f4c8cd84a49780d34b0e3fbcdf",
-  "raw_response_sha256": "b23fcd828576cd72fe311352d285cdc26094555098b3b4f681365ea97ca06910",
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": null,
+    "design_system_mode": "adapter_after_judgment",
+    "design_system_name": "Material UI",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "gpt55-xhigh-codex-judgmentkit-material-ui desktop screenshot has a styled primary work surface",
+      "gpt55-xhigh-codex-judgmentkit-material-ui mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
+  "source_context_sha256": "3d993909500cc785a741819d4cf7058d5444a2773bbb5bd7249c80683e1b74ec",
+  "prompt_sha256": "28a6f8a440d7192bdcbf3eaa16b527e11bbf2a5d878df9d1e574ff6a385d947a",
+  "raw_response_sha256": "4c82bc627f1955c309c73762cb2b8a3dad6d625d6075ad5af3fc2d2e14d322e1",
   "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",
   "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix.",
+  "lms_context": null,
+  "capture_quality": null,
   "parsed": {
-    "summary": "Northstar Labs renewal review should request the procurement date before committing a save plan.",
+    "summary": "Surface data represents the renewal risk review and handoff for Northstar Labs without exposing implementation details.",
     "surface": {
-      "eyebrow": "B2B renewal risk",
-      "heading": "Renewal risk review",
-      "status": "Procurement timeline missing",
-      "queue_title": "Renewal queue",
+      "eyebrow": "Renewal risk review",
+      "heading": "Northstar Labs renewal handoff",
+      "status": "Champion change with usage drop",
+      "queue_title": "At-risk renewals",
       "queue": [
         {
           "id": "AC-903",
@@ -68,16 +105,8 @@
       },
       "info": [
         {
-          "label": "Plan",
-          "value": "Enterprise annual"
-        },
-        {
-          "label": "Renewal amount",
-          "value": "$84K ARR"
-        },
-        {
           "label": "Usage trend",
-          "value": "Down 28 percent over two reporting periods"
+          "value": "Down 28 percent over the last two reporting periods"
         },
         {
           "label": "Champion change",
@@ -85,7 +114,11 @@
         },
         {
           "label": "Procurement timeline",
-          "value": "Date needed before save plan"
+          "value": "Missing before escalation"
+        },
+        {
+          "label": "Primary decision",
+          "value": "Request procurement date before committing a save plan"
         }
       ],
       "evidence": [
@@ -111,10 +144,10 @@
       }
     }
   },
-  "raw_response": "{\"summary\":\"Northstar Labs renewal review should request the procurement date before committing a save plan.\",\"surface\":{\"eyebrow\":\"B2B renewal risk\",\"heading\":\"Renewal risk review\",\"status\":\"Procurement timeline missing\",\"queue_title\":\"Renewal queue\",\"queue\":[{\"id\":\"AC-903\",\"customer\":\"Northstar Labs\",\"state\":\"Champion change\",\"amount\":\"$84K ARR\"},{\"id\":\"AC-904\",\"customer\":\"Bright Arc\",\"state\":\"Usage drop\",\"amount\":\"$42K ARR\"},{\"id\":\"AC-905\",\"customer\":\"Harbor Grid\",\"state\":\"Procurement risk\",\"amount\":\"$120K ARR\"}],\"selected\":{\"id\":\"AC-903\",\"customer\":\"Northstar Labs\",\"amount\":\"$84K ARR\",\"plan\":\"Enterprise annual\",\"request\":\"Renewal risk review before the account planning meeting.\",\"status\":\"Champion change\"},\"info\":[{\"label\":\"Plan\",\"value\":\"Enterprise annual\"},{\"label\":\"Renewal amount\",\"value\":\"$84K ARR\"},{\"label\":\"Usage trend\",\"value\":\"Down 28 percent over two reporting periods\"},{\"label\":\"Champion change\",\"value\":\"Primary champion left last month\"},{\"label\":\"Procurement timeline\",\"value\":\"Date needed before save plan\"}],\"evidence\":[\"Usage dropped 28 percent over the last two reporting periods.\",\"Primary champion left the account last month.\",\"Procurement timeline is missing before escalation.\"],\"policy_title\":\"Renewal policy\",\"policy\":\"Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.\",\"decision_title\":\"Decision path\",\"actions\":[\"Start save plan\",\"Escalate executive sponsor\",\"Request procurement date\",\"Send handoff\"],\"primary_action\":\"Request procurement date\",\"handoff\":{\"owner\":\"Customer success manager\",\"title\":\"Renewal handoff\",\"reason\":\"Champion changed and usage dropped, but procurement timing is missing\",\"action\":\"Request the procurement date before committing the save plan\"}}}",
+  "raw_response": "{\"summary\":\"Surface data represents the renewal risk review and handoff for Northstar Labs without exposing implementation details.\",\"surface\":{\"eyebrow\":\"Renewal risk review\",\"heading\":\"Northstar Labs renewal handoff\",\"status\":\"Champion change with usage drop\",\"queue_title\":\"At-risk renewals\",\"queue\":[{\"id\":\"AC-903\",\"customer\":\"Northstar Labs\",\"state\":\"Champion change\",\"amount\":\"$84K ARR\"},{\"id\":\"AC-904\",\"customer\":\"Bright Arc\",\"state\":\"Usage drop\",\"amount\":\"$42K ARR\"},{\"id\":\"AC-905\",\"customer\":\"Harbor Grid\",\"state\":\"Procurement risk\",\"amount\":\"$120K ARR\"}],\"selected\":{\"id\":\"AC-903\",\"customer\":\"Northstar Labs\",\"amount\":\"$84K ARR\",\"plan\":\"Enterprise annual\",\"request\":\"Renewal risk review before the account planning meeting.\",\"status\":\"Champion change\"},\"info\":[{\"label\":\"Usage trend\",\"value\":\"Down 28 percent over the last two reporting periods\"},{\"label\":\"Champion change\",\"value\":\"Primary champion left last month\"},{\"label\":\"Procurement timeline\",\"value\":\"Missing before escalation\"},{\"label\":\"Primary decision\",\"value\":\"Request procurement date before committing a save plan\"}],\"evidence\":[\"Usage dropped 28 percent over the last two reporting periods.\",\"Primary champion left the account last month.\",\"Procurement timeline is missing before escalation.\"],\"policy_title\":\"Renewal policy\",\"policy\":\"Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.\",\"decision_title\":\"Decision path\",\"actions\":[\"Start save plan\",\"Escalate executive sponsor\",\"Request procurement date\",\"Send handoff\"],\"primary_action\":\"Request procurement date\",\"handoff\":{\"owner\":\"Customer success manager\",\"title\":\"Renewal handoff\",\"reason\":\"Champion changed and usage dropped, but procurement timing is missing\",\"action\":\"Request the procurement date before committing the save plan\"}}}",
   "execution": {
     "status": 0,
-    "stdout_sha256": "55c67e4baed6895991b0d827725b06535499474c0f7c33cbc6d6d8cea99e7c27",
-    "stderr_sha256": "aa37ecafb0efdd88fb4f5c4bc50d097a0bdf86e79ff68105bbbb89ea9afa2a75"
+    "stdout_sha256": "269dcae64f22f39b68b2e31a98ae322d84e16285d3337b5656756fd8b0ed8a05",
+    "stderr_sha256": "df2d285a3aa458b3bb044cdd0b792ce0f8dd3502d0e436c39e5a22ec95d9837f"
   }
 }

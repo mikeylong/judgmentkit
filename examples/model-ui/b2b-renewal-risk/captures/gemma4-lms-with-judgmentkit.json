@@ -6,7 +6,7 @@
   "row_id": "gemma4-lms",
   "row_label": "Gemma 4 via LM Studio lms",
   "column_id": "with-judgmentkit",
-  "column_label": "JudgmentKit handoff",
+  "column_label": "JudgmentKit skill context",
   "model_label": "Gemma 4 (local LLM)",
   "provider": "lmstudio",
   "cli": "lms",
@@ -19,27 +19,88 @@
   "design_system_render_mode": null,
   "render_mode": "html",
   "runner": "scripts/capture-model-ui-matrix.mjs",
-  "captured_at": "2026-05-14T03:30:57.926Z",
+  "captured_at": "2026-05-15T21:02:00.046Z",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": true,
-    "material_ui_adapter": false
+    "material_ui_adapter": false,
+    "frontend_skill_context": true
   },
-  "source_context_sha256": "46663d0fa4691d6fc2037d0ab83abca67af76b5b7b588143b4e74c5a1c9fec94",
-  "prompt_sha256": "a4387bc1b930cd2b6929dc95128349df2badeca784c25bc5489eb33b8efc0b69",
-  "raw_response_sha256": "ddd18d6ed27e55e7d1a1d860720e317fefb0d10506b05e008d000d53e69a0ce6",
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": null,
+    "design_system_mode": "no_design_system_adapter_provided",
+    "design_system_name": "",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "gemma4-lms-with-judgmentkit desktop screenshot has a styled primary work surface",
+      "gemma4-lms-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
+  "source_context_sha256": "5d1e5717fdc17d7e0422bb9f6eb641de1e03547c26ca8eeeb37561b7a183fd2b",
+  "prompt_sha256": "5913c0aefa4cb8e7f0a4b02123c475f9b97354499c431d2c1dab7f758b004fd9",
+  "raw_response_sha256": "845fcfe112be39405ea6c52a3562f61b1a4255239b1ed4051c7e53aa21b5b04e",
   "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
   "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
-  "parsed": {
-    "summary": "The champion has changed and usage has dropped, but crucial procurement timing data is missing, requiring a decision on whether to escalate or seek more information before committing to a save plan.",
-    "css": "main{font-family:system-ui;padding:24px}.panel{border:1px solid #ddd;padding:12px;margin:12px 0}.actions{display:flex;gap:8px;flex-wrap:wrap}button{padding:8px 12px}",
-    "html": "<main data-primary-surface><h1>Renewal Risk Review</h1><p>Case AC-903 - Northstar Labs</p><section class=\"panel\"><h2>Key Observations</h2><p>Champion change observed.</p><p>Usage dropped 28 percent over the last two reporting periods.</p><p>Procurement timeline is missing.</p></section><section class=\"panel\"><h2>Decision Context</h2><p>Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.</p></section><section class=\"panel\"><h2>Evidence Summary</h2><ul><li>Champion changed and usage dropped.</li><li>Procurement timeline is missing before escalation.</li></ul></section><section class=\"panel\"><h2>Next Steps</h2><div class=\"actions\"><button>Start save plan (Requires Procurement Date)</button><button>Escalate executive sponsor</button><button>Request procurement date</button></div></section><section class=\"panel\"><h2>Handoff</h2><p>Champion changed and usage dropped, but procurement timing is missing. Review evidence and choose next action.</p><p>Send handoff</p></section></main>"
+  "lms_context": {
+    "model": "google/gemma-4-e2b",
+    "status": "already_loaded",
+    "requested_context_length": 16384,
+    "actual_context_length": 16384,
+    "identifier": "google/gemma-4-e2b"
   },
-  "raw_response": "{\"summary\":\"The champion has changed and usage has dropped, but crucial procurement timing data is missing, requiring a decision on whether to escalate or seek more information before committing to a save plan.\",\"css\":\"main{font-family:system-ui;padding:24px}.panel{border:1px solid #ddd;padding:12px;margin:12px 0}.actions{display:flex;gap:8px;flex-wrap:wrap}button{padding:8px 12px}\",\"html\":\"<main data-primary-surface><h1>Renewal Risk Review</h1><p>Case AC-903 - Northstar Labs</p><section class=\\\"panel\\\"><h2>Key Observations</h2><p>Champion change observed.</p><p>Usage dropped 28 percent over the last two reporting periods.</p><p>Procurement timeline is missing.</p></section><section class=\\\"panel\\\"><h2>Decision Context</h2><p>Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.</p></section><section class=\\\"panel\\\"><h2>Evidence Summary</h2><ul><li>Champion changed and usage dropped.</li><li>Procurement timeline is missing before escalation.</li></ul></section><section class=\\\"panel\\\"><h2>Next Steps</h2><div class=\\\"actions\\\"><button>Start save plan (Requires Procurement Date)</button><button>Escalate executive sponsor</button><button>Request procurement date</button></div></section><section class=\\\"panel\\\"><h2>Handoff</h2><p>Champion changed and usage dropped, but procurement timing is missing. Review evidence and choose next action.</p><p>Send handoff</p></section></main>\"}",
+  "capture_quality": {
+    "profile": "judgmentkit_static_html_css",
+    "css_characters": 1024,
+    "html_characters": 1415,
+    "css_rule_count": 16,
+    "class_selector_count": 7,
+    "semantic_section_count": 1,
+    "structural_block_count": 8,
+    "button_count": 4,
+    "has_responsive_css": true,
+    "has_layout_css": true,
+    "has_panel_css": true,
+    "has_control_css": true,
+    "has_evidence_content": true,
+    "has_handoff_content": true,
+    "compact_template_signature": false,
+    "failures": [],
+    "status": "passed"
+  },
+  "parsed": {
+    "summary": "A renewal risk review dashboard for B2B accounts, displaying queue status, selected account details, supporting evidence, an escalation policy summary, and clear decision controls leading to a handoff process.",
+    "css": "body{font-family:sans-serif;background:#f4f7f9;color:#333;margin:0;padding:20px;}main{display:flex;gap:20px;max-width:1400px;margin:auto;}#queue-panel{flex:0 0 250px;background:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.08);padding:15px;height:fit-content;}#detail-view{flex:1;display:grid;gap:20px;}header{background:#fff;padding:25px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.08);}h1{margin-top:0;font-size:1.75rem;color:#1a237e;}h2{border-bottom:2px solid #eee;padding-bottom:10px;margin-top:20px;color:#3949ab;}ul{list-style-type:none;padding:0;}li{padding:8px 0;border-bottom:1px dotted #eee;}button{padding:10px 15px;border:none;border-radius:6px;cursor:pointer;font-weight:600;transition:background .2s;}button.primary{background:#3949ab;color:#fff;width:100%;margin-bottom:10px;}button.secondary{background:#e8eaf6;color:#3949ab;}button.danger{background:#f44336;color:#fff;}@media(max-width:1024px){main{flex-direction:column;}#queue-panel{flex:auto;}#detail-view{grid-template-columns:1fr;}",
+    "html": "<main data-primary-surface class=\"container\">#queue-panel><div class=\"queue-header\"><h2>Renewal accounts</h2></div><ul><li class=\"active\">AC-903 (Northstar Labs - $84K ARR) [Champion change]</li><li>AC-904 (Bright Arc - $42K ARR) [Usage drop]</li><li>AC-905 (Harbor Grid - $120K ARR) [Procurement risk]</li></ul><div id=\"detail-view\"><header><h1>Renewal Risk Review</h1><p>Status: Champion change</p><div class=\"info-grid\"><div><strong>Plan:</strong> Enterprise annual</div><div><strong>Renewal Value:</strong> $84K ARR</div></header><h2>Evidence</h2><ul><li>Usage dropped 28 percent over the last two reporting periods.</li><li>Primary champion left the account last month.</li><li>Procurement timeline is missing before escalation.</li></ul><h2>Escalation Rule</h2><p>Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.</p><h2>Choose renewal path</h2><div class=\"decision-controls\"><h3>Actions</h3><button class=\"primary\">Start save plan</button><button class=\"secondary\">Escalate executive sponsor</button><button class=\"danger\">Request procurement date</button></div></div><div id=\"handoff-panel\"><h3>Renewal Handoff</h3><p>Owner: Customer success manager. Reason: Champion changed and usage dropped, but procurement timing is missing.</p><button class=\"primary\">Send handoff</button></div></div></main>"
+  },
+  "raw_response": "{\"summary\":\"A renewal risk review dashboard for B2B accounts, displaying queue status, selected account details, supporting evidence, an escalation policy summary, and clear decision controls leading to a handoff process.\",\"css\":\"body{font-family:sans-serif;background:#f4f7f9;color:#333;margin:0;padding:20px;}main{display:flex;gap:20px;max-width:1400px;margin:auto;}#queue-panel{flex:0 0 250px;background:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.08);padding:15px;height:fit-content;}#detail-view{flex:1;display:grid;gap:20px;}header{background:#fff;padding:25px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.08);}h1{margin-top:0;font-size:1.75rem;color:#1a237e;}h2{border-bottom:2px solid #eee;padding-bottom:10px;margin-top:20px;color:#3949ab;}ul{list-style-type:none;padding:0;}li{padding:8px 0;border-bottom:1px dotted #eee;}button{padding:10px 15px;border:none;border-radius:6px;cursor:pointer;font-weight:600;transition:background .2s;}button.primary{background:#3949ab;color:#fff;width:100%;margin-bottom:10px;}button.secondary{background:#e8eaf6;color:#3949ab;}button.danger{background:#f44336;color:#fff;}@media(max-width:1024px){main{flex-direction:column;}#queue-panel{flex:auto;}#detail-view{grid-template-columns:1fr;}\",\"html\":\"<main data-primary-surface class=\\\"container\\\">#queue-panel><div class=\\\"queue-header\\\"><h2>Renewal accounts</h2></div><ul><li class=\\\"active\\\">AC-903 (Northstar Labs - $84K ARR) [Champion change]</li><li>AC-904 (Bright Arc - $42K ARR) [Usage drop]</li><li>AC-905 (Harbor Grid - $120K ARR) [Procurement risk]</li></ul><div id=\\\"detail-view\\\"><header><h1>Renewal Risk Review</h1><p>Status: Champion change</p><div class=\\\"info-grid\\\"><div><strong>Plan:</strong> Enterprise annual</div><div><strong>Renewal Value:</strong> $84K ARR</div></header><h2>Evidence</h2><ul><li>Usage dropped 28 percent over the last two reporting periods.</li><li>Primary champion left the account last month.</li><li>Procurement timeline is missing before escalation.</li></ul><h2>Escalation Rule</h2><p>Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.</p><h2>Choose renewal path</h2><div class=\\\"decision-controls\\\"><h3>Actions</h3><button class=\\\"primary\\\">Start save plan</button><button class=\\\"secondary\\\">Escalate executive sponsor</button><button class=\\\"danger\\\">Request procurement date</button></div></div><div id=\\\"handoff-panel\\\"><h3>Renewal Handoff</h3><p>Owner: Customer success manager. Reason: Champion changed and usage dropped, but procurement timing is missing.</p><button class=\\\"primary\\\">Send handoff</button></div></div></main>\"}}",
   "execution": {
     "status": 0,
-    "stdout_sha256": "9e049c5268e93020b11bab19c1f04182fe12f7dff0a0a3c9d08321d83c83b3a2",
+    "stdout_sha256": "a14bf8a8fbe65c39a378ee6433fa13dab0967663cf0126fddcf6e900c2d6bcdb",
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   }
 }

@@ -6,7 +6,7 @@
   "row_id": "gemma4-lms",
   "row_label": "Gemma 4 via LM Studio lms",
   "column_id": "judgmentkit-material-ui",
-  "column_label": "JudgmentKit + Material UI",
+  "column_label": "JudgmentKit skill + Material UI",
   "model_label": "Gemma 4 (local LLM)",
   "provider": "lmstudio",
   "cli": "lms",
@@ -19,22 +19,65 @@
   "design_system_render_mode": "static-ssr",
   "render_mode": "material_ui",
   "runner": "scripts/capture-model-ui-matrix.mjs",
-  "captured_at": "2026-05-14T03:36:31.039Z",
+  "captured_at": "2026-05-15T21:02:33.718Z",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": true,
-    "material_ui_adapter": true
+    "material_ui_adapter": true,
+    "frontend_skill_context": true
   },
-  "source_context_sha256": "242ac6369745345b7826fb4f1728562d2ba23684ab3d9193d92fd10905e8ccee",
-  "prompt_sha256": "ac55b4a346922f75f0e23535cacfd3bb346bc8a41bd4c2de4218eeec3abe8612",
-  "raw_response_sha256": "fd57d21853e52a62c3fc1af2c5fa35aa6d4f63a25813045f7628b5312daad153",
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": null,
+    "design_system_mode": "adapter_after_judgment",
+    "design_system_name": "Material UI",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "gemma4-lms-judgmentkit-material-ui desktop screenshot has a styled primary work surface",
+      "gemma4-lms-judgmentkit-material-ui mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
+  "source_context_sha256": "a483867d11be61bf08b4476245dee6142ebd2336536dd2df5d94f106ffc39d80",
+  "prompt_sha256": "676e6f2caaa558ccd0afc6bdd4c25882d31a36725c95340d98fd2ee864c11ed1",
+  "raw_response_sha256": "1e142506c7d8b197e3db46f85e1532e607e7d9d3e47742a508a091a411634833",
   "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
   "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
+  "lms_context": {
+    "model": "google/gemma-4-e2b",
+    "status": "already_loaded",
+    "requested_context_length": 16384,
+    "actual_context_length": 16384,
+    "identifier": "google/gemma-4-e2b"
+  },
+  "capture_quality": null,
   "parsed": {
-    "summary": "Review renewal risk for Northstar Labs due to a champion change and usage drop, requiring procurement timing clarification.",
+    "summary": "Reviewing renewal risk for Northstar Labs due to champion change and missing procurement timing.",
     "surface": {
-      "eyebrow": "JudgmentKit handoff",
+      "eyebrow": "Renewal review",
       "heading": "Renewal Risk Review",
       "status": "Champion change",
       "queue_title": "Renewal accounts",
@@ -104,10 +147,10 @@
       }
     }
   },
-  "raw_response": "{\"summary\":\"Review renewal risk for Northstar Labs due to a champion change and usage drop, requiring procurement timing clarification.\",\"surface\":{\"eyebrow\":\"JudgmentKit handoff\",\"heading\":\"Renewal Risk Review\",\"status\":\"Champion change\",\"queue_title\":\"Renewal accounts\",\"queue\":[{\"id\":\"AC-903\",\"customer\":\"Northstar Labs\",\"state\":\"Champion change\",\"amount\":\"$84K ARR\"},{\"id\":\"AC-904\",\"customer\":\"Bright Arc\",\"state\":\"Usage drop\",\"amount\":\"$42K ARR\"},{\"id\":\"AC-905\",\"customer\":\"Harbor Grid\",\"state\":\"Procurement risk\",\"amount\":\"$120K ARR\"}],\"selected\":{\"id\":\"AC-903\",\"customer\":\"Northstar Labs\",\"plan\":\"Enterprise annual\",\"amount\":\"$84K ARR\",\"request\":\"Renewal risk review before the account planning meeting.\",\"status\":\"Champion change\",\"evidence\":[\"Usage dropped 28 percent over the last two reporting periods.\",\"Primary champion left the account last month.\",\"Procurement timeline is missing before escalation.\"],\"policy\":\"Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.\"},\"info\":[{\"label\":\"Plan\",\"value\":\"Enterprise annual\"},{\"label\":\"Renewal value\",\"value\":\"$84K ARR\"}],\"evidence\":[\"Usage dropped 28 percent over the last two reporting periods.\",\"Primary champion left the account last month.\",\"Procurement timeline is missing before escalation.\"],\"policy_title\":\"Escalation rule\",\"policy\":\"Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.\",\"decision_title\":\"Choose renewal path\",\"actions\":[\"Start save plan\",\"Escalate executive sponsor\",\"Request procurement date\"],\"primary_action\":\"Request procurement date\",\"handoff\":{\"owner\":\"Customer success manager\",\"title\":\"Renewal handoff\",\"reason\":\"Champion changed and usage dropped, but procurement timing is missing.\",\"action\":\"Send handoff\"}}}",
+  "raw_response": "{\"summary\":\"Reviewing renewal risk for Northstar Labs due to champion change and missing procurement timing.\",\"surface\":{\"eyebrow\":\"Renewal review\",\"heading\":\"Renewal Risk Review\",\"status\":\"Champion change\",\"queue_title\":\"Renewal accounts\",\"queue\":[{\"id\":\"AC-903\",\"customer\":\"Northstar Labs\",\"state\":\"Champion change\",\"amount\":\"$84K ARR\"},{\"id\":\"AC-904\",\"customer\":\"Bright Arc\",\"state\":\"Usage drop\",\"amount\":\"$42K ARR\"},{\"id\":\"AC-905\",\"customer\":\"Harbor Grid\",\"state\":\"Procurement risk\",\"amount\":\"$120K ARR\"}],\"selected\":{\"id\":\"AC-903\",\"customer\":\"Northstar Labs\",\"plan\":\"Enterprise annual\",\"amount\":\"$84K ARR\",\"request\":\"Renewal risk review before the account planning meeting.\",\"status\":\"Champion change\",\"evidence\":[\"Usage dropped 28 percent over the last two reporting periods.\",\"Primary champion left the account last month.\",\"Procurement timeline is missing before escalation.\"],\"policy\":\"Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.\"},\"info\":[{\"label\":\"Plan\",\"value\":\"Enterprise annual\"},{\"label\":\"Renewal value\",\"value\":\"$84K ARR\"}],\"evidence\":[\"Usage dropped 28 percent over the last two reporting periods.\",\"Primary champion left the account last month.\",\"Procurement timeline is missing before escalation.\"],\"policy_title\":\"Escalation rule\",\"policy\":\"Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.\",\"decision_title\":\"Choose renewal path\",\"actions\":[\"Start save plan\",\"Escalate executive sponsor\",\"Request procurement date\"],\"primary_action\":\"Request procurement date\",\"handoff\":{\"owner\":\"Customer success manager\",\"title\":\"Renewal handoff\",\"reason\":\"Champion changed and usage dropped, but procurement timing is missing.\",\"action\":\"Send handoff\"}}}",
   "execution": {
     "status": 0,
-    "stdout_sha256": "9c11038985533c1d4f3eaf9400aef941af0655f0f109a5219d8c3fbd70dabd50",
+    "stdout_sha256": "3022783bcf0998ff74675149e0cd0a5bcb8e92f769c3d429ff1e453edab18ab7",
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   }
 }

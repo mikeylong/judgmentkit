@@ -243,61 +243,147 @@
       }
     }
   </style>
-    <style data-model-css>body { font-family: Arial, sans-serif; background-color: #f4f7f9; padding: 20px; } .main-container { max-width: 1400px; margin: auto; background-color: #ffffff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); } h1 { color: #333; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-bottom: 20px; } .visit-card { background-color: #fff; border: 1px solid #e0e0e0; border-left: 5px solid; padding: 15px; margin-bottom: 15px; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; } .card-status-high { border-left-color: #d9534f; background-color: #fdf7f7; } .card-status-medium { border-left-color: #f0ad4e; background-color: #fffaf0; } .card-status-low { border-left-color: #5cb85c; background-color: #f7fff7; } .visit-details h3 { margin-top: 0; color: #0056b3; } .action-buttons button { padding: 8px 15px; margin-left: 10px; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; } .btn-assign { background-color: #5cb85c; color: white; } .btn-reschedule { background-color: #f0ad4e; color: white; } .btn-escalate { background-color: #d9534f; color: white; }</style>
+    <style data-model-css>body {
+  font-family: sans-serif;
+  background-color: #f4f7f9;
+  color: #333;
+  margin: 0;
+  padding: 20px;
+}
+main {
+  max-width: 1365px;
+  margin: 0 auto;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+h1 {
+  color: #1e3a8a;
+  margin-bottom: 25px;
+  border-bottom: 2px solid #e0e7ff;
+  padding-bottom: 10px;
+}
+.visit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.visit-details p {
+  margin: 5px 0;
+  font-size: 16px;
+}
+.status-badge {
+  padding: 8px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  display: inline-block;
+  font-size: 14px;
+}
+.status-ready {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+.status-parts {
+  background-color: #fffbeb;
+  color: #d97706;
+}
+.status-sla-risk {
+  background-color: #fee2e2;
+  color: #ef4444;
+}
+.constraint-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  margin-bottom: 30px;
+}
+.constraint-card {
+  background: #f9fafb;
+  padding: 20px;
+  border-radius: 6px;
+  border-left: 4px solid;
+}
+.constraint-card h3 {
+  margin-top: 0;
+  color: #1e3a8a;
+}
+.parts-ready { border-left-color: #22c55e; }
+.route-ok { border-left-color: #3b82f6; }
+.sla-critical { border-left-color: #ef4444; }
+.action-panel {
+  display: flex;
+  justify-content: space-around;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+.action-btn {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 600;
+  transition: background-color 0.2s, transform 0.1s;
+}
+.btn-assign {
+  background-color: #3b82f6;
+  color: white;
+}
+.btn-reschedule {
+  background-color: #f59e0b;
+  color: white;
+}
+.btn-escalate {
+  background-color: #ef4444;
+  color: white;
+}
+.action-btn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}</style>
 
   </head>
   <body data-artifact-id="gemma4-lms-no-judgmentkit" data-row-id="gemma4-lms" data-column-id="no-judgmentkit" data-judgmentkit-mode="no_judgmentkit" data-design-system-mode="none">
     <main class="raw-model-candidate" data-primary-surface>
-  <h1>Field Service Dispatch Review</h1>
-  <p>Review pending repair visits based on route proximity, parts readiness, and SLA risk.</p>
-
-  <div class="visit-card card-status-high">
-    <div class="visit-details">
-      <h3>Repair Visit V-2187 (Mallory Chen)</h3>
-      <p><strong>SLA Constraint:</strong> Same-day SLA 4h. Status: Needs site access confirmation.</p>
-      <ul>
-        <li>Technician Reyes is 18 mins away (Route OK).</li>
-        <li>Parts check needed (Fan motor available at West Depot).
-        <li>Site Access missing (Customer gate code pending).</li>
-      </ul>
+  <h1>Review Repair Visit V-2187</h1>
+  <div class="visit-header">
+    <div>
+      <h2>Customer: Mallory Chen</h2>
+      <p>Plan: Priority repair | Requested SLA: SLA 4h</p>
     </div>
-    <div class="action-buttons">
-      <button class="btn-assign">Assign to Reyes</button>
-      <button class="btn-reschedule">Reschedule for Parts</button>
-      <button class="btn-escalate">Escalate SLA Risk</button>
-    </div>
+    <span class="status-badge status-parts">Parts check needed</span>
   </div>
 
-  <div class="visit-card card-status-medium">
-    <div class="visit-details">
-      <h3>Repair Visit V-2188 (Owen Patel)</h3>
-      <p><strong>SLA Constraint:</strong> Scheduled for Tomorrow. Status: Parts shortage.</p>
-      <ul>
-        <li>Technician Smith is available tomorrow.</li>
-        <li>Replacement fan motor is currently out of stock at all depots.
-      </ul>
+  <section class="constraint-grid">
+    <div class="constraint-card parts-ready">
+      <h3>Parts Readiness</h3>
+      <p>Status: Available.</p>
+      <p>Evidence: Replacement fan motor is available at the west depot.</p>
     </div>
-    <div class="action-buttons">
-      <button class="btn-assign" disabled>Assign (Parts Unavailable)</button>
-      <button class="btn-reschedule">Reschedule for Parts</button>
-      <button class="btn-escalate">Escalate SLA Risk</button>
+    <div class="constraint-card route-ok">
+      <h3>Route Feasibility</h3>
+      <p>Status: Optimized.</p>
+      <p>Evidence: Technician Reyes is 18 minutes from the site and certified for the freezer unit.</p>
     </div>
+    <div class="constraint-card sla-critical">
+      <h3>SLA Risk</h3>
+      <p>Status: High Risk.</p>
+      <p>Concern: Customer gate code is missing before dispatch, risking same-day SLA compliance.</p>
+    </div>
+  </section>
+
+  <div class="visit-details">
+    <h3>Visit Summary</h3>
+    <p>Request: Kitchen freezer repair needs dispatch before the service window closes.</p>
+    <p>Policy Note: Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support.</p>
   </div>
 
-  <div class="visit-card card-status-low">
-    <div class="visit-details">
-      <h3>Repair Visit V-2189 (Rae Wilson)</h3>
-      <p><strong>SLA Constraint:</strong> SLA 2h. Status: Route conflict detected.</p>
-      <ul>
-        <li>Technician Jones is nearby but currently booked on conflicting job.
-        <li>Route matrix suggests an optimal technician 30 mins away.</li>
-      </ul>
-    </div>
-    <div class="action-buttons">
-      <button class="btn-assign">Assign (Re-route)</button>
-      <button class="btn-reschedule">Reschedule for Parts</button>
-      <button class="btn-escalate">Escalate SLA Risk</button>
-    </div>
+  <div class="action-panel">
+    <button class="action-btn btn-assign">Assign to Technician</button>
+    <button class="action-btn btn-reschedule">Reschedule for Parts</button>
+    <button class="action-btn btn-escalate">Escalate for SLA Review</button>
   </div>
 </main>
     <aside class="provenance" aria-label="Artifact provenance">
@@ -305,6 +391,7 @@
       <span>captured</span>
       <span> - captured_model_output</span>
       <span> - Raw brief</span>
+
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
       <p>Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.</p>
       <p>Manifest entry: <code>artifacts/gemma4-lms-no-judgmentkit.html</code></p>
@@ -328,7 +415,8 @@
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": false,
-    "material_ui_adapter": false
+    "material_ui_adapter": false,
+    "frontend_skill_context": false
   },
   "design_system_name": null,
   "design_system_package": null,
@@ -336,29 +424,62 @@
   "handoff_source": null,
   "design_system_adapter_file": null,
   "capture_file": "captures/gemma4-lms-no-judgmentkit.json",
-  "model_response_summary": "A field operations manager reviews pending repair visits, using route, parts availability, and SLA constraints to decide whether to assign, reschedule for parts, or escalate a service.",
+  "model_response_summary": "A field operations manager reviews a specific repair visit and uses route, parts readiness, and SLA constraints to decide whether to assign the visit, reschedule it for parts, or escalate due to SLA risk.",
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
   "capture_provenance": {
     "status": "captured",
     "capture_type": "model-output-transcript",
-    "captured_at": "2026-05-14T02:52:58.298Z",
+    "captured_at": "2026-05-15T21:26:26.110Z",
     "runner": "scripts/capture-model-ui-matrix.mjs",
     "provider": "lmstudio",
     "model": "google/gemma-4-e2b",
     "cli": "lms",
     "transcript_file": "captures/gemma4-lms-no-judgmentkit.json",
-    "prompt_sha256": "abe827ec93646ae41e6c0cf4d3a1c4c84acc5a6839371fed3c1b286b367ce465",
-    "raw_response_sha256": "ac6379e8fdf3b3935cd474ded84f96168d12b26c17592e59ae5f20b53b1f9244",
-    "source_context_sha256": "95c08188dc61a4aa6eed4fbdcbe02102dba9bf32b99fd961d9163f30695f868f",
+    "prompt_sha256": "8a8ff3ca1ab133082778886b36fd2af26203d5838b6c5be770b2b7954d954524",
+    "raw_response_sha256": "cf95aa5b15e2452056bccc0ea6545ca6ec72e026a96a1b47230447fef87534a2",
+    "source_context_sha256": "0f2e2502a890a993549d13aff65d50f2eb0d7abe3c8eae44ab9f532961f8ed9a",
     "reasoning_effort": null,
     "context_included": {
       "source_brief": true,
       "sample_case": true,
       "reviewed_handoff": false,
-      "material_ui_adapter": false
+      "material_ui_adapter": false,
+      "frontend_skill_context": false
     },
+    "frontend_context_status": null,
+    "frontend_skill_context_status": null,
     "design_system_name": null,
     "design_system_package": null,
     "design_system_render_mode": null,
+    "lms_context": {
+      "model": "google/gemma-4-e2b",
+      "status": "loaded",
+      "requested_context_length": 16384,
+      "actual_context_length": 16384,
+      "identifier": "google/gemma-4-e2b",
+      "load_command_display": "lms load google/gemma-4-e2b --context-length 16384 --ttl 300 --identifier google/gemma-4-e2b --yes"
+    },
+    "capture_quality": {
+      "profile": "basic_static_html_css",
+      "css_characters": 1851,
+      "html_characters": 1561,
+      "css_rule_count": 21,
+      "class_selector_count": 22,
+      "semantic_section_count": 1,
+      "structural_block_count": 8,
+      "button_count": 3,
+      "has_responsive_css": false,
+      "has_layout_css": true,
+      "has_panel_css": true,
+      "has_control_css": true,
+      "has_evidence_content": true,
+      "has_handoff_content": true,
+      "compact_template_signature": false,
+      "failures": [],
+      "status": "passed"
+    },
     "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
   },
   "artifact_path": "artifacts/gemma4-lms-no-judgmentkit.html",

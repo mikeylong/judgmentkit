@@ -19,25 +19,37 @@
   "design_system_render_mode": "static-ssr",
   "render_mode": "material_ui",
   "runner": "scripts/capture-model-ui-matrix.mjs",
-  "captured_at": "2026-05-14T02:53:35.186Z",
+  "captured_at": "2026-05-15T21:27:25.260Z",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": false,
-    "material_ui_adapter": true
+    "material_ui_adapter": true,
+    "frontend_skill_context": false
   },
-  "source_context_sha256": "824933e2b7bad50754f2bd413a73751579005d0abc77c001b7c0f3dfc0d700ec",
-  "prompt_sha256": "cffc0e4a8ae89593ca25ff2a07dd60451d021362b8a32addf961f133e920cdb2",
-  "raw_response_sha256": "f926edf7b783ea10c1f264d2c1884f1db3b6dd858b61817059da9a7e4f87ef3b",
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
+  "source_context_sha256": "07aecb9daeacf942690a7bd907ef29902c51f5886543b4c10a731190e1c8a9b3",
+  "prompt_sha256": "59c13841bd50da773fd0e208dcaa7818ef9a83e45dca8d5c58c1f3cb534d37a3",
+  "raw_response_sha256": "4601001ad2b5955f58038328325247bfc931550de6e80b705dc8c22f348c4ddd",
   "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
   "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
+  "lms_context": {
+    "model": "google/gemma-4-e2b",
+    "status": "already_loaded",
+    "requested_context_length": 16384,
+    "actual_context_length": 16384,
+    "identifier": "google/gemma-4-e2b"
+  },
+  "capture_quality": null,
   "parsed": {
-    "summary": "A field operations manager reviews same-day repair visits to decide assignment, rescheduling due to parts, or escalation based on route and SLA constraints.",
+    "summary": "A Material UI interface for reviewing a same-day repair visit, assessing technician availability, parts readiness, and site access to determine the next dispatch action.",
     "surface": {
-      "eyebrow": "Repair Visit Review",
-      "heading": "Dispatch Review: V-2187",
-      "status": "Parts check needed",
-      "queue_title": "Pending Dispatch Review Queue",
+      "eyebrow": "Field Service Dispatch Review",
+      "heading": "Review Repair Visit V-2187 (Mallory Chen)",
+      "status": "Parts check needed / Decision Pending",
+      "queue_title": "Pending Dispatch Queue",
       "queue": [
         {
           "id": "V-2187",
@@ -64,16 +76,22 @@
         "amount": "SLA 4h",
         "plan": "Priority repair",
         "request": "Kitchen freezer repair needs dispatch before the service window closes.",
-        "status": "Parts check needed"
+        "status": "Parts check needed",
+        "evidence": [
+          "Technician Reyes is 18 minutes from the site and certified for the freezer unit.",
+          "Replacement fan motor is available at the west depot.",
+          "Customer gate code is missing before dispatch."
+        ],
+        "policy": "Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support."
       },
       "info": [
         {
-          "label": "Technician Proximity",
-          "value": "18 minutes away and certified for the unit."
+          "label": "SLA Commitment",
+          "value": "4 hours remaining"
         },
         {
-          "label": "Parts Readiness",
-          "value": "Replacement fan motor is available at the west depot."
+          "label": "Technician Proximity",
+          "value": "18 minutes away"
         }
       ],
       "evidence": [
@@ -81,27 +99,27 @@
         "Replacement fan motor is available at the west depot.",
         "Customer gate code is missing before dispatch."
       ],
-      "policy_title": "Same-day SLA Assignment Policy",
+      "policy_title": "Same-Day Dispatch Policy",
       "policy": "Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support.",
-      "decision_title": "Escalate for Site Access Verification",
+      "decision_title": "Review: Assign Technician Reyes pending gate code confirmation.",
       "actions": [
-        "Request gate code from customer/support",
-        "Reassign visit to next available technician",
-        "Reschedule based on parts availability"
+        "Assign to Technician (if gate code obtained)",
+        "Reschedule for Parts (if waiting on motor)",
+        "Escalate for SLA Risk (if time critical and access unavailable)"
       ],
-      "primary_action": "Request Gate Code",
+      "primary_action": "Assign to Technician",
       "handoff": {
-        "owner": "Dispatch Support",
-        "title": "Site Access Verification",
-        "reason": "Missing gate code prevents immediate dispatch for same-day SLA.",
-        "action": "Provide access details or confirm alternative site access plan."
+        "owner": "Technician Reyes",
+        "title": "Dispatch Confirmation",
+        "reason": "Visit V-2187 requires gate code before assignment.",
+        "action": "Awaiting customer access details."
       }
     }
   },
-  "raw_response": "{\n  \"summary\": \"A field operations manager reviews same-day repair visits to decide assignment, rescheduling due to parts, or escalation based on route and SLA constraints.\",\n  \"surface\": {\n    \"eyebrow\": \"Repair Visit Review\",\n    \"heading\": \"Dispatch Review: V-2187\",\n    \"status\": \"Parts check needed\",\n    \"queue_title\": \"Pending Dispatch Review Queue\",\n    \"queue\": [\n      {\n        \"id\": \"V-2187\",\n        \"customer\": \"Mallory Chen\",\n        \"state\": \"Needs gate code\",\n        \"amount\": \"SLA 4h\"\n      },\n      {\n        \"id\": \"V-2188\",\n        \"customer\": \"Owen Patel\",\n        \"state\": \"Parts shortage\",\n        \"amount\": \"Tomorrow\"\n      },\n      {\n        \"id\": \"V-2189\",\n        \"customer\": \"Rae Wilson\",\n        \"state\": \"Route conflict\",\n        \"amount\": \"SLA 2h\"\n      }\n    ],\n    \"selected\": {\n      \"id\": \"V-2187\",\n      \"customer\": \"Mallory Chen\",\n      \"amount\": \"SLA 4h\",\n      \"plan\": \"Priority repair\",\n      \"request\": \"Kitchen freezer repair needs dispatch before the service window closes.\",\n      \"status\": \"Parts check needed\"\n    },\n    \"info\": [\n      {\n        \"label\": \"Technician Proximity\",\n        \"value\": \"18 minutes away and certified for the unit.\"\n      },\n      {\n        \"label\": \"Parts Readiness\",\n        \"value\": \"Replacement fan motor is available at the west depot.\"\n      }\n    ],\n    \"evidence\": [\n      \"Technician Reyes is 18 minutes from the site and certified for the freezer unit.\",\n      \"Replacement fan motor is available at the west depot.\",\n      \"Customer gate code is missing before dispatch.\"\n    ],\n    \"policy_title\": \"Same-day SLA Assignment Policy\",\n    \"policy\": \"Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support.\",\n    \"decision_title\": \"Escalate for Site Access Verification\",\n    \"actions\": [\n      \"Request gate code from customer/support\",\n      \"Reassign visit to next available technician\",\n      \"Reschedule based on parts availability\"\n    ],\n    \"primary_action\": \"Request Gate Code\",\n    \"handoff\": {\n      \"owner\": \"Dispatch Support\",\n      \"title\": \"Site Access Verification\",\n      \"reason\": \"Missing gate code prevents immediate dispatch for same-day SLA.\",\n      \"action\": \"Provide access details or confirm alternative site access plan.\"\n    }\n  }\n}",
+  "raw_response": "{\n  \"summary\": \"A Material UI interface for reviewing a same-day repair visit, assessing technician availability, parts readiness, and site access to determine the next dispatch action.\",\n  \"surface\": {\n    \"eyebrow\": \"Field Service Dispatch Review\",\n    \"heading\": \"Review Repair Visit V-2187 (Mallory Chen)\",\n    \"status\": \"Parts check needed / Decision Pending\",\n    \"queue_title\": \"Pending Dispatch Queue\",\n    \"queue\": [\n      {\n        \"id\": \"V-2187\",\n        \"customer\": \"Mallory Chen\",\n        \"state\": \"Needs gate code\",\n        \"amount\": \"SLA 4h\"\n      },\n      {\n        \"id\": \"V-2188\",\n        \"customer\": \"Owen Patel\",\n        \"state\": \"Parts shortage\",\n        \"amount\": \"Tomorrow\"\n      },\n      {\n        \"id\": \"V-2189\",\n        \"customer\": \"Rae Wilson\",\n        \"state\": \"Route conflict\",\n        \"amount\": \"SLA 2h\"\n      }\n    ],\n    \"selected\": {\n      \"id\": \"V-2187\",\n      \"customer\": \"Mallory Chen\",\n      \"amount\": \"SLA 4h\",\n      \"plan\": \"Priority repair\",\n      \"request\": \"Kitchen freezer repair needs dispatch before the service window closes.\",\n      \"status\": \"Parts check needed\",\n      \"evidence\": [\n        \"Technician Reyes is 18 minutes from the site and certified for the freezer unit.\",\n        \"Replacement fan motor is available at the west depot.\",\n        \"Customer gate code is missing before dispatch.\"\n      ],\n      \"policy\": \"Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support.\"\n    },\n    \"info\": [\n      {\n        \"label\": \"SLA Commitment\",\n        \"value\": \"4 hours remaining\"\n      },\n      {\n        \"label\": \"Technician Proximity\",\n        \"value\": \"18 minutes away\"\n      }\n    ],\n    \"evidence\": [\n      \"Technician Reyes is 18 minutes from the site and certified for the freezer unit.\",\n      \"Replacement fan motor is available at the west depot.\",\n      \"Customer gate code is missing before dispatch.\"\n    ],\n    \"policy_title\": \"Same-Day Dispatch Policy\",\n    \"policy\": \"Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support.\",\n    \"decision_title\": \"Review: Assign Technician Reyes pending gate code confirmation.\",\n    \"actions\": [\n      \"Assign to Technician (if gate code obtained)\",\n      \"Reschedule for Parts (if waiting on motor)\",\n      \"Escalate for SLA Risk (if time critical and access unavailable)\"\n    ],\n    \"primary_action\": \"Assign to Technician\",\n    \"handoff\": {\n      \"owner\": \"Technician Reyes\",\n      \"title\": \"Dispatch Confirmation\",\n      \"reason\": \"Visit V-2187 requires gate code before assignment.\",\n      \"action\": \"Awaiting customer access details.\"\n    }\n  }\n}",
   "execution": {
     "status": 0,
-    "stdout_sha256": "6dd4a9107b65f3ed9008ac28e6ea7dcc9bab917587595af68a98572892bd52be",
+    "stdout_sha256": "51dbd3a9cea30aba3e5f4da5a0043eadda0030297b68107a464b3cafe8f781ac",
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   }
 }

@@ -452,7 +452,39 @@
     "handoff_status": "ready_for_generation",
     "activity_review_status": "ready_for_review",
     "workflow_review_status": "ready_for_review",
-    "surface_name": "Refund escalation queue"
+    "surface_name": "Refund escalation queue",
+    "frontend_context_status": "ready_for_frontend_implementation",
+    "frontend_skill_context_status": "ready"
+  },
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": "operator_review",
+    "design_system_mode": "no_design_system_adapter_provided",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm run demo:comparison",
+      "Run npm run eval:ui",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "desktop screenshot",
+      "mobile screenshot",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected refund case",
+      "Verify state: handoff ready",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
   },
   "terms_kept_out_of_primary_ui": [
     "API endpoint",

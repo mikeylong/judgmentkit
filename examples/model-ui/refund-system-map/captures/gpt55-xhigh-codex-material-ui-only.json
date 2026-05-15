@@ -19,25 +19,31 @@
   "design_system_render_mode": "static-ssr",
   "render_mode": "material_ui",
   "runner": "scripts/capture-model-ui-matrix.mjs",
-  "captured_at": "2026-05-14T02:48:56.376Z",
+  "captured_at": "2026-05-15T21:24:42.722Z",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": false,
-    "material_ui_adapter": true
+    "material_ui_adapter": true,
+    "frontend_skill_context": false
   },
-  "source_context_sha256": "a862627473bf1ea78c78e61f70dbd858ca85edc846c85529d90ea52d0a526162",
-  "prompt_sha256": "1d6c07793ff56bcfdf06051f1a1f6029ea26d46a9401ab8d9169e1844b9ad0e5",
-  "raw_response_sha256": "d47466cb37114f77a4a0232b8e04ad7311857f31090b5b6e20835fd874c66316",
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
+  "source_context_sha256": "7804d03c599c16df00bc188968fca04adc3513193e7f9d270da744942ddaf18b",
+  "prompt_sha256": "699ff50216ef46dacb2bb77f8b399554472093fe802686d033fd1440414b10c5",
+  "raw_response_sha256": "8c257ab4a74870107b733e22e7d23714b5805be219e37ff03e3e4a925e4e4e6a",
   "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",
   "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix.",
+  "lms_context": null,
+  "capture_quality": null,
   "parsed": {
-    "summary": "Material UI organizes the raw refund escalation brief into a triage surface while leaving the refund_case diagnostics and system details visible.",
+    "summary": "Material UI structures the refund escalation record, but the surface still mixes manager triage with raw system diagnostics from the source brief.",
     "surface": {
-      "eyebrow": "refund_case CRUD queue",
-      "heading": "Refund escalation system map",
-      "status": "Evidence incomplete | schema issue visible",
-      "queue_title": "refund_case rows",
+      "eyebrow": "Refund case data model",
+      "heading": "Refund escalation triage",
+      "status": "Evidence incomplete",
+      "queue_title": "Escalation queue",
       "queue": [
         {
           "id": "R-1842",
@@ -68,63 +74,62 @@
       },
       "info": [
         {
-          "label": "Database table",
+          "label": "Case table",
           "value": "refund_case"
-        },
-        {
-          "label": "Database fields",
-          "value": "id, customer, plan, amount, request, status, evidence, policy"
         },
         {
           "label": "Resource id",
           "value": "refund_case/R-1842"
         },
         {
-          "label": "API endpoint status",
-          "value": "GET /refund_case/R-1842 available"
+          "label": "API endpoint",
+          "value": "GET /api/refunds/R-1842 · 200 OK"
         },
         {
           "label": "Prompt template",
-          "value": "refund-triage-escalation v2"
+          "value": "refund_triage_v7"
         },
         {
-          "label": "JSON schema validation",
-          "value": "receipt_photo is required before manager approval"
+          "label": "Schema validation",
+          "value": "receipt_photo_url is required"
         },
         {
-          "label": "Tool call results",
-          "value": "Purchase history confirmed renewal; support note found refund reason"
+          "label": "Tool result",
+          "value": "purchase_history.lookup confirmed renewal date"
+        },
+        {
+          "label": "Mode",
+          "value": "CRUD enabled"
         }
       ],
       "evidence": [
         "Renewal date confirmed in purchase history.",
         "Support note captures the customer's refund reason.",
-        "Receipt photo is missing before manager approval.",
-        "JSON schema validation error remains visible for missing receipt_photo.",
-        "Tool call result confirms purchase history and support note lookup."
+        "Receipt photo is missing before manager approval."
       ],
-      "policy_title": "Policy and validation checks",
-      "policy": "Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review. The raw brief also asks the primary surface to expose table fields, schema errors, prompt version, tool results, resource id, endpoint status, and CRUD controls.",
-      "decision_title": "CRUD decision",
+      "policy_title": "Policy and validation",
+      "policy": "Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.",
+      "decision_title": "Manager decision",
       "actions": [
         "Approve refund",
         "Send to policy review",
-        "Return for missing evidence",
-        "Edit refund_case fields"
+        "Return to support agent for receipt",
+        "Edit refund_case fields",
+        "Re-run validation and tool calls"
       ],
-      "primary_action": "Return for missing evidence",
+      "primary_action": "Return to support agent for receipt",
       "handoff": {
         "owner": "Support agent",
-        "title": "Receipt photo required before approval",
-        "reason": "Renewal and refund reason are documented, but the receipt photo is missing and the validation issue remains unresolved.",
-        "action": "Request the receipt photo, attach it to R-1842, then reopen the case for manager review."
+        "title": "Missing receipt required",
+        "reason": "Manager approval is allowed only when evidence is complete; the receipt photo is missing.",
+        "action": "Collect the receipt photo and resubmit R-1842 for manager approval."
       }
     }
   },
-  "raw_response": "{\"summary\":\"Material UI organizes the raw refund escalation brief into a triage surface while leaving the refund_case diagnostics and system details visible.\",\"surface\":{\"eyebrow\":\"refund_case CRUD queue\",\"heading\":\"Refund escalation system map\",\"status\":\"Evidence incomplete | schema issue visible\",\"queue_title\":\"refund_case rows\",\"queue\":[{\"id\":\"R-1842\",\"customer\":\"Nora Diaz\",\"state\":\"Needs receipt\",\"amount\":\"$184.20\"},{\"id\":\"R-1843\",\"customer\":\"Jun Park\",\"state\":\"Policy question\",\"amount\":\"$89.00\"},{\"id\":\"R-1844\",\"customer\":\"Amara Blake\",\"state\":\"Manager review\",\"amount\":\"$312.75\"}],\"selected\":{\"id\":\"R-1842\",\"customer\":\"Nora Diaz\",\"amount\":\"$184.20\",\"plan\":\"Pro annual\",\"request\":\"Subscription renewal disputed after agent escalation.\",\"status\":\"Evidence incomplete\"},\"info\":[{\"label\":\"Database table\",\"value\":\"refund_case\"},{\"label\":\"Database fields\",\"value\":\"id, customer, plan, amount, request, status, evidence, policy\"},{\"label\":\"Resource id\",\"value\":\"refund_case/R-1842\"},{\"label\":\"API endpoint status\",\"value\":\"GET /refund_case/R-1842 available\"},{\"label\":\"Prompt template\",\"value\":\"refund-triage-escalation v2\"},{\"label\":\"JSON schema validation\",\"value\":\"receipt_photo is required before manager approval\"},{\"label\":\"Tool call results\",\"value\":\"Purchase history confirmed renewal; support note found refund reason\"}],\"evidence\":[\"Renewal date confirmed in purchase history.\",\"Support note captures the customer's refund reason.\",\"Receipt photo is missing before manager approval.\",\"JSON schema validation error remains visible for missing receipt_photo.\",\"Tool call result confirms purchase history and support note lookup.\"],\"policy_title\":\"Policy and validation checks\",\"policy\":\"Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review. The raw brief also asks the primary surface to expose table fields, schema errors, prompt version, tool results, resource id, endpoint status, and CRUD controls.\",\"decision_title\":\"CRUD decision\",\"actions\":[\"Approve refund\",\"Send to policy review\",\"Return for missing evidence\",\"Edit refund_case fields\"],\"primary_action\":\"Return for missing evidence\",\"handoff\":{\"owner\":\"Support agent\",\"title\":\"Receipt photo required before approval\",\"reason\":\"Renewal and refund reason are documented, but the receipt photo is missing and the validation issue remains unresolved.\",\"action\":\"Request the receipt photo, attach it to R-1842, then reopen the case for manager review.\"}}}",
+  "raw_response": "{\"summary\":\"Material UI structures the refund escalation record, but the surface still mixes manager triage with raw system diagnostics from the source brief.\",\"surface\":{\"eyebrow\":\"Refund case data model\",\"heading\":\"Refund escalation triage\",\"status\":\"Evidence incomplete\",\"queue_title\":\"Escalation queue\",\"queue\":[{\"id\":\"R-1842\",\"customer\":\"Nora Diaz\",\"state\":\"Needs receipt\",\"amount\":\"$184.20\"},{\"id\":\"R-1843\",\"customer\":\"Jun Park\",\"state\":\"Policy question\",\"amount\":\"$89.00\"},{\"id\":\"R-1844\",\"customer\":\"Amara Blake\",\"state\":\"Manager review\",\"amount\":\"$312.75\"}],\"selected\":{\"id\":\"R-1842\",\"customer\":\"Nora Diaz\",\"amount\":\"$184.20\",\"plan\":\"Pro annual\",\"request\":\"Subscription renewal disputed after agent escalation.\",\"status\":\"Evidence incomplete\"},\"info\":[{\"label\":\"Case table\",\"value\":\"refund_case\"},{\"label\":\"Resource id\",\"value\":\"refund_case/R-1842\"},{\"label\":\"API endpoint\",\"value\":\"GET /api/refunds/R-1842 · 200 OK\"},{\"label\":\"Prompt template\",\"value\":\"refund_triage_v7\"},{\"label\":\"Schema validation\",\"value\":\"receipt_photo_url is required\"},{\"label\":\"Tool result\",\"value\":\"purchase_history.lookup confirmed renewal date\"},{\"label\":\"Mode\",\"value\":\"CRUD enabled\"}],\"evidence\":[\"Renewal date confirmed in purchase history.\",\"Support note captures the customer's refund reason.\",\"Receipt photo is missing before manager approval.\"],\"policy_title\":\"Policy and validation\",\"policy\":\"Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.\",\"decision_title\":\"Manager decision\",\"actions\":[\"Approve refund\",\"Send to policy review\",\"Return to support agent for receipt\",\"Edit refund_case fields\",\"Re-run validation and tool calls\"],\"primary_action\":\"Return to support agent for receipt\",\"handoff\":{\"owner\":\"Support agent\",\"title\":\"Missing receipt required\",\"reason\":\"Manager approval is allowed only when evidence is complete; the receipt photo is missing.\",\"action\":\"Collect the receipt photo and resubmit R-1842 for manager approval.\"}}}",
   "execution": {
     "status": 0,
-    "stdout_sha256": "d6e026892669ca59837a842aef176296692a32798b6798f90aac21d883802306",
-    "stderr_sha256": "d181e82771e2e3d972b7eecc6713dbc0f4dccc56f20fe9d39577f31fff42f074"
+    "stdout_sha256": "8ec5a7acff86950684e5b2c4ac92172ad629bdc932d0ebf81fed7274f1e35e39",
+    "stderr_sha256": "9429962b6206ce0ff0d618acf4f801ef0a3dfb281da396782c2983428c82c5c4"
   }
 }

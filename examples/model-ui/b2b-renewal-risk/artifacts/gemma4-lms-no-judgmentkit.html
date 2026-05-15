@@ -243,16 +243,51 @@
       }
     }
   </style>
-    <style data-model-css>body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7fa; color: #333; margin: 0; padding: 20px; } .main-surface { background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); padding: 30px; max-width: 1200px; margin: auto; } h1 { color: #1a237e; border-bottom: 2px solid #e0e0e0; padding-bottom: 10px; margin-top: 0; } .account-card { background-color: #f9f9f9; border: 1px solid #eee; border-left: 5px solid #ffb300; padding: 15px; border-radius: 4px; margin-bottom: 20px; } .risk-metric { background-color: #fff3e0; padding: 10px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; } .risk-metric strong { color: #e65100; } .decision-panel h2 { color: #3949ab; margin-top: 0; } .action-button { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; transition: background-color 0.2s; margin-right: 15px; } .btn-save { background-color: #4caf50; color: white; } .btn-escalate { background-color: #ff9800; color: white; } .btn-wait { background-color: #2196f3; color: white; } .action-button:hover { opacity: 0.9; }</style>
+    <style data-model-css>body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 24px; } .container { max-width: 1365px; margin: 0 auto; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); padding: 30px; } .header { border-bottom: 1px solid #eee; padding-bottom: 20px; margin-bottom: 25px; } .account-header h1 { font-size: 28px; color: #1a237e; margin: 0 0 5px 0; } .account-header p { color: #666; margin: 0; font-size: 16px; } .risk-summary { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 15px; border-radius: 6px; background-color: #fff3e0; border: 1px solid #ffcc80; } .risk-summary h2 { font-size: 20px; margin: 0; color: #e65100; } .risk-metric { text-align: right; font-weight: 600; } .risk-metric span { display: block; font-size: 1.4em; color: #d32f2f; } .evidence-section { margin-bottom: 30px; padding: 20px; border: 1px solid #e0e0e0; border-radius: 6px; background-color: #fafafa; } .evidence-section h3 { font-size: 18px; color: #3949ab; margin-top: 0; border-bottom: 1px solid #eee; padding-bottom: 10px; } .evidence-list { list-style: none; padding: 0; margin: 0; } .evidence-list li { background: #ffffff; padding: 10px; border-left: 4px solid #2196f3; margin-bottom: 8px; border-radius: 4px; font-size: 15px; } .action-panel { display: flex; gap: 15px; justify-content: flex-start; padding-top: 20px; border-top: 1px solid #eee; } .action-button { padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; transition: background-color 0.2s; flex-grow: 1; min-width: 200px; } .btn-save { background-color: #4CAF50; color: white; } .btn-save:hover { background-color: #45a049; } .btn-escalate { background-color: #ff9800; color: white; } .btn-escalate:hover { background-color: #fb8c00; } .btn-wait { background-color: #9e9e9e; color: white; } .btn-wait:hover { background-color: #757575; }</style>
 
   </head>
   <body data-artifact-id="gemma4-lms-no-judgmentkit" data-row-id="gemma4-lms" data-column-id="no-judgmentkit" data-judgmentkit-mode="no_judgmentkit" data-design-system-mode="none">
-    <main class="raw-model-candidate" data-primary-surface><h1>Renewal Risk Review: Northstar Labs</h1><div class="account-card"><h2>Account Snapshot</h2><p><strong>Plan:</strong> Enterprise annual | <strong>ARR:</strong> $84K | <strong>Status:</strong> Champion change</p><p><strong>Risk Summary:</strong> High risk due to usage drop (28%) and missing procurement timeline.</p></div><section class="decision-panel"><h2>Decision Pathway</h2><p>Based on the account facts, consider the following strategic actions:</p><div class="risk-metric"><span>Usage Trend</span><strong>-28% Drop</strong></div><div class="risk-metric"><span>Champion Change</span><strong>Primary champion left</strong></div><div class="risk-metric"><span>Procurement Timeline</span><strong>Missing dates</strong></div><div style="margin-top: 30px;"><h3>Recommended Actions</h3><button class="action-button btn-save">Start Save Plan</button><button class="action-button btn-escalate">Executive Escalation</button><button class="action-button btn-wait">Wait for Usage Evidence</button></div></section></main>
+    <main class="raw-model-candidate" data-primary-surface>
+  <div class="container">
+    <header class="header">
+      <div class="account-header">
+        <h1>Renewal Risk Review: Northstar Labs</h1>
+        <p>Plan: Enterprise annual | ARR: $84K</p>
+      </div>
+    </header>
+
+    <section class="risk-summary">
+      <div>
+        <h2>Overall Renewal Risk: High</h2>
+        <p>Urgent review required before the weekly account meeting.</p>
+      </div>
+      <div class="risk-metric">
+        <span>Potential ARR at Risk: $84,000</span>
+      </div>
+    </section>
+
+    <section class="evidence-section">
+      <h3>Key Risk Drivers & Evidence Gaps</h3>
+      <ul class="evidence-list">
+        <li>Usage dropped 28 percent over the last two reporting periods. (Usage Trend)</li>
+        <li>Primary champion left the account last month. (Champion Change)</li>
+        <li>Procurement timeline is missing before escalation. (Procurement Timeline Risk)</li>
+      </ul>
+    </section>
+
+    <section class="action-panel">
+      <button class="action-button btn-save">Initiate Save Plan</button>
+      <button class="action-button btn-escalate">Escalate to Executive Sponsor</button>
+      <button class="action-button btn-wait">Wait for Stronger Usage Evidence</button>
+    </section>
+  </div>
+</main>
     <aside class="provenance" aria-label="Artifact provenance">
       <strong>Provenance:</strong>
       <span>captured</span>
       <span> - captured_model_output</span>
       <span> - Raw brief</span>
+
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
       <p>Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.</p>
       <p>Manifest entry: <code>artifacts/gemma4-lms-no-judgmentkit.html</code></p>
@@ -276,7 +311,8 @@
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": false,
-    "material_ui_adapter": false
+    "material_ui_adapter": false,
+    "frontend_skill_context": false
   },
   "design_system_name": null,
   "design_system_package": null,
@@ -284,29 +320,62 @@
   "handoff_source": null,
   "design_system_adapter_file": null,
   "capture_file": "captures/gemma4-lms-no-judgmentkit.json",
-  "model_response_summary": "A Customer Success Manager reviews an at-risk B2B renewal, analyzing account health factors to decide between initiating a save plan, escalating to executive sponsors, or waiting for further usage evidence.",
+  "model_response_summary": "A Customer Success Manager reviews an at-risk B2B renewal, analyzing account health and usage trends to decide between initiating a save plan, escalating to an executive, or waiting for further usage evidence.",
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
   "capture_provenance": {
     "status": "captured",
     "capture_type": "model-output-transcript",
-    "captured_at": "2026-05-14T03:29:00.677Z",
+    "captured_at": "2026-05-15T21:01:34.732Z",
     "runner": "scripts/capture-model-ui-matrix.mjs",
     "provider": "lmstudio",
     "model": "google/gemma-4-e2b",
     "cli": "lms",
     "transcript_file": "captures/gemma4-lms-no-judgmentkit.json",
-    "prompt_sha256": "5b9cc185fa84f7cdbeaf193185070c131006afe77c636ffccf38851f08bd0844",
-    "raw_response_sha256": "6eb05b076f3ddeca2fb6e57e73276d1aa3452281843a0fa82b6ed201b8336132",
-    "source_context_sha256": "40d013cb3f86af446b4db115f1f480f79761782631465228500a340390faad5e",
+    "prompt_sha256": "8e0ef28187a925db12382d8b6d3221088da6b7a622d17ef6673bd165314f5018",
+    "raw_response_sha256": "281daba99bc5e6c73cb2b64aa6a15641dfd5a363a2d814224da3f57dca8ebdd4",
+    "source_context_sha256": "0f45c8f79e347fd16a89a851b5b44b55a61594bfc6d02c814f88689164f82b41",
     "reasoning_effort": null,
     "context_included": {
       "source_brief": true,
       "sample_case": true,
       "reviewed_handoff": false,
-      "material_ui_adapter": false
+      "material_ui_adapter": false,
+      "frontend_skill_context": false
     },
+    "frontend_context_status": null,
+    "frontend_skill_context_status": null,
     "design_system_name": null,
     "design_system_package": null,
     "design_system_render_mode": null,
+    "lms_context": {
+      "model": "google/gemma-4-e2b",
+      "status": "loaded",
+      "requested_context_length": 16384,
+      "actual_context_length": 16384,
+      "identifier": "google/gemma-4-e2b",
+      "load_command_display": "lms load google/gemma-4-e2b --context-length 16384 --ttl 300 --identifier google/gemma-4-e2b --yes"
+    },
+    "capture_quality": {
+      "profile": "basic_static_html_css",
+      "css_characters": 2007,
+      "html_characters": 1271,
+      "css_rule_count": 21,
+      "class_selector_count": 23,
+      "semantic_section_count": 4,
+      "structural_block_count": 8,
+      "button_count": 3,
+      "has_responsive_css": false,
+      "has_layout_css": true,
+      "has_panel_css": true,
+      "has_control_css": true,
+      "has_evidence_content": true,
+      "has_handoff_content": true,
+      "compact_template_signature": false,
+      "failures": [],
+      "status": "passed"
+    },
     "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
   },
   "artifact_path": "artifacts/gemma4-lms-no-judgmentkit.html",

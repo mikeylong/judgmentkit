@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Field service dispatch - Deterministic - JudgmentKit handoff</title>
+    <title>Field service dispatch - Deterministic - JudgmentKit skill context</title>
     <style>
     :root {
       color-scheme: light;
@@ -250,7 +250,7 @@
     <main class="app-shell reviewed-candidate" data-primary-surface>
       <header class="app-header">
         <div>
-          <p class="eyebrow">JudgmentKit handoff</p>
+          <p class="eyebrow">Dispatch review</p>
           <h1>Repair Dispatch Review</h1>
         </div>
         <span class="status">Access detail needed</span>
@@ -348,9 +348,10 @@
       <strong>Provenance:</strong>
       <span>captured</span>
       <span> - deterministic</span>
-      <span> - JudgmentKit handoff</span>
+      <span> - JudgmentKit skill context</span>
+      <span> - frontend skill context ready</span>
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
-      <p>Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.</p>
+      <p>Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.</p>
       <p>Manifest entry: <code>artifacts/deterministic-with-judgmentkit.html</code></p>
     </aside>
     <script type="application/json" id="model-ui-provenance">{
@@ -365,14 +366,15 @@
   "generation_source": "deterministic",
   "judgmentkit_mode": "with_judgmentkit",
   "design_system_mode": "none",
-  "render_source": "deterministic_judgmentkit_html",
-  "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
+  "render_source": "deterministic_frontend_skill_html",
+  "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
   "reasoning_effort": null,
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": true,
-    "material_ui_adapter": false
+    "material_ui_adapter": false,
+    "frontend_skill_context": true
   },
   "design_system_name": null,
   "design_system_package": null,
@@ -381,6 +383,40 @@
   "design_system_adapter_file": null,
   "capture_file": null,
   "model_response_summary": null,
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": null,
+    "design_system_mode": "no_design_system_adapter_provided",
+    "design_system_name": "",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "deterministic-with-judgmentkit desktop screenshot has a styled primary work surface",
+      "deterministic-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
   "capture_provenance": {
     "status": "captured",
     "capture_type": "deterministic-renderer",
@@ -390,12 +426,15 @@
     "model": "none",
     "cli": null,
     "reasoning_effort": null,
+    "frontend_context_status": "ready_for_frontend_implementation",
+    "frontend_skill_context_status": "ready",
+    "capture_quality": null,
     "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
   },
   "artifact_path": "artifacts/deterministic-with-judgmentkit.html",
   "screenshot_path": "screenshots/deterministic-with-judgmentkit.png",
-  "approach_title": "Deterministic - JudgmentKit handoff",
-  "approach_caption": "Deterministic receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+  "approach_title": "Deterministic - JudgmentKit skill context",
+  "approach_caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
 }</script>
   </body>
 </html>

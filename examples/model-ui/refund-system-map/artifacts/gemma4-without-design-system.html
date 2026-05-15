@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Support refund triage - Gemma 4 via LM Studio lms - JudgmentKit handoff</title>
+    <title>Support refund triage - Gemma 4 via LM Studio lms - JudgmentKit skill context</title>
     <style>
     :root {
       color-scheme: light;
@@ -243,56 +243,19 @@
       }
     }
   </style>
+    <style data-model-css>body{font-family:sans-serif;background:#f4f7fa;margin:0;padding:20px}.main-layout{display:grid;grid-template-columns:1fr;gap:20px;max-width:1600px;margin:auto}.header{background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.05)}.case-detail{background:#fff;padding:20px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.1);}.evidence-list li{padding:8px 0;border-bottom:1px solid #eee}.policy-box{background:#eef4ff;border-left:4px solid #6c757d;padding:15px;margin:15px 0;border-radius:4px}.decision-group{display:flex;gap:10px;margin-top:20px}.btn{padding:10px 15px;border:none;border-radius:4px;cursor:pointer;font-weight:600}.btn-approve{background:#28a745;color:#fff}.btn-policy{background:#ffc107;color:#333}.btn-evidence{background:#007bff;color:#fff}.handoff{background:#fff3cd;border:1px solid #ffeeba;padding:15px;border-radius:6px;margin-top:25px}.handoff strong{display:block;margin-bottom:5px}.handoff p{margin:0}.responsive-layout{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}.@media(min-width:992px){.main-layout{grid-template-columns:2fr 1fr;}}.</style>
 
   </head>
   <body data-artifact-id="gemma4-lms-with-judgmentkit" data-row-id="gemma4-lms" data-column-id="with-judgmentkit" data-judgmentkit-mode="with_judgmentkit" data-design-system-mode="none">
-    <main class="raw-model-candidate" data-primary-surface>
-  <div class="container">
-    <header class="header">
-      <h1>Refund Escalation Review</h1>
-      <p>Support Operations Manager Dashboard</p>
-    </header>
-
-    <!-- Selected Request Card -->
-    <section class="case-card">
-      <h2>Selected Case: R-1842</h2>
-      <p><strong>Customer:</strong> Nora Diaz</p>
-      <p><strong>Amount:</strong> $184.20</p>
-      <p><strong>Request Summary:</strong> Subscription renewal disputed after agent escalation.</p>
-      <p><strong>Current Status:</strong> Evidence incomplete</p>
-    </section>
-
-    <!-- Evidence Checklist -->
-    <section class="case-card">
-      <h3>Evidence Checklist</h3>
-      <ul class="evidence-list">
-        <li>Renewal date confirmed in purchase history.</li>
-        <li>Support note captures the customer's refund reason.</li>
-        <li>Receipt photo is missing before manager approval.</li>
-      </ul>
-    </section>
-
-    <!-- Policy Context -->
-    <section class="case-card">
-      <h3>Policy Context</h3>
-      <p><strong>Policy Rule:</strong> Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p>
-    </section>
-
-    <!-- Decision Path -->
-    <section class="decision-panel">
-      <h3>Decision Path</h3>
-      <p>Decide the next step for this escalation:</p>
-      <div style="margin-top: 20px;">
-        <button class="decision-button approve">Approve Refund</button>
-        <button class="decision-button policy">Send to Policy Review</button>
-        <button class=\
+    <main data-primary-surface class="main-layout raw-model-candidate"><div class="header"><h1>Refund Review Workspace</h1><p>Status: Evidence incomplete</p><div class="info"><span>Plan: Pro annual</span><span>Review state: Evidence incomplete</span></div></div><section class="case-detail"><h2>Case R-1842</h2><p>Customer: Nora Diaz | Amount: $184.20</p><p>Request: Subscription renewal disputed after agent escalation.</p><div class="evidence-list"><h3>Evidence</h3><ul><li>Renewal date confirmed in purchase history.</li><li>Support note captures the customer's refund reason.</li><li>Receipt photo is missing before manager approval.</li></ul></div><div class="policy-box"><h4>Policy Context: Exception window</h4><p>Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p</div></section><section class="decision-controls"><h3>Choose next action</h3><div class="decision-group"><button class="btn btn-approve">Approve refund</button><button class="btn btn-policy">Send to policy review</button><button class="btn btn-evidence">Return for evidence</button></div></section><section class="handoff"><h3>Handoff</h3><strong>Reason:</strong> Receipt photo is missing. Ask the customer to attach proof before approval.<button style="background:#dc3545;color:#fff;padding:8px 12px;border:none;border-radius:4px;cursor:pointer;">Send handoff</button></section></main>
     <aside class="provenance" aria-label="Artifact provenance">
       <strong>Provenance:</strong>
       <span>captured</span>
       <span> - captured_model_output</span>
-      <span> - JudgmentKit handoff</span>
+      <span> - JudgmentKit skill context</span>
+      <span> - frontend skill context ready</span>
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
-      <p>Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.</p>
+      <p>Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.</p>
       <p>Manifest entry: <code>artifacts/gemma4-lms-with-judgmentkit.html</code></p>
     </aside>
     <script type="application/json" id="model-ui-provenance">{
@@ -307,14 +270,15 @@
   "generation_source": "captured_model_output",
   "judgmentkit_mode": "with_judgmentkit",
   "design_system_mode": "none",
-  "render_source": "model_static_html_css",
-  "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
+  "render_source": "model_frontend_skill_static_html_css",
+  "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
   "reasoning_effort": null,
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": true,
-    "material_ui_adapter": false
+    "material_ui_adapter": false,
+    "frontend_skill_context": true
   },
   "design_system_name": null,
   "design_system_package": null,
@@ -322,35 +286,98 @@
   "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
   "design_system_adapter_file": null,
   "capture_file": "captures/gemma4-lms-with-judgmentkit.json",
-  "model_response_summary": "A support operations manager reviews a refund escalation case, assesses the evidence, and decides whether to approve the refund, send it for policy review, or return it for missing evidence.",
+  "model_response_summary": "A support operations manager's workspace for reviewing refund escalation cases. Displays selected case details, evidence status, policy context, decision controls (Approve, Policy Review, Return for Evidence), and a final handoff section for missing data. Designed for desktop visibility and responsiveness.",
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": null,
+    "design_system_mode": "no_design_system_adapter_provided",
+    "design_system_name": "",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "gemma4-lms-with-judgmentkit desktop screenshot has a styled primary work surface",
+      "gemma4-lms-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
   "capture_provenance": {
     "status": "captured",
     "capture_type": "model-output-transcript",
-    "captured_at": "2026-05-14T02:39:38.384Z",
+    "captured_at": "2026-05-15T21:15:51.908Z",
     "runner": "scripts/capture-model-ui-matrix.mjs",
     "provider": "lmstudio",
     "model": "google/gemma-4-e2b",
     "cli": "lms",
     "transcript_file": "captures/gemma4-lms-with-judgmentkit.json",
-    "prompt_sha256": "1cdd846c4a471d5f54fc9ffa8962453fa53c23f811e01c89400ac24597aa433f",
-    "raw_response_sha256": "f6b49c1f0505c8ddbd031ce61c8852d96ff9597b4ea8e657be5f9187cdbdb3bb",
-    "source_context_sha256": "86f0ee89187abe9b45958bbbd12719e1e29cf6b61ccd882c8603eecbf5765c83",
+    "prompt_sha256": "db2f38c85a8cf938614b009923b19a2171153e782853b0545566e067be04812a",
+    "raw_response_sha256": "3246be9b9e22d0ee3f5c8bef547ed8bdad5837b135ed32138596ff94711fb577",
+    "source_context_sha256": "61230da7c0d2ff5655e04513a3565f2c1a070abe21b80568036ea1b702466385",
     "reasoning_effort": null,
     "context_included": {
       "source_brief": true,
       "sample_case": true,
       "reviewed_handoff": true,
-      "material_ui_adapter": false
+      "material_ui_adapter": false,
+      "frontend_skill_context": true
     },
+    "frontend_context_status": "ready_for_frontend_implementation",
+    "frontend_skill_context_status": "ready",
     "design_system_name": null,
     "design_system_package": null,
     "design_system_render_mode": null,
+    "lms_context": {
+      "model": "google/gemma-4-e2b",
+      "status": "already_loaded",
+      "requested_context_length": 16384,
+      "actual_context_length": 16384,
+      "identifier": "google/gemma-4-e2b"
+    },
+    "capture_quality": {
+      "profile": "judgmentkit_static_html_css",
+      "css_characters": 1121,
+      "html_characters": 1418,
+      "css_rule_count": 16,
+      "class_selector_count": 17,
+      "semantic_section_count": 3,
+      "structural_block_count": 8,
+      "button_count": 4,
+      "has_responsive_css": true,
+      "has_layout_css": true,
+      "has_panel_css": true,
+      "has_control_css": true,
+      "has_evidence_content": true,
+      "has_handoff_content": true,
+      "compact_template_signature": false,
+      "failures": [],
+      "status": "passed"
+    },
     "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
   },
   "artifact_path": "artifacts/gemma4-lms-with-judgmentkit.html",
   "screenshot_path": "screenshots/gemma4-lms-with-judgmentkit.png",
-  "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit handoff",
-  "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+  "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit skill context",
+  "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
 }</script>
   </body>
 </html>

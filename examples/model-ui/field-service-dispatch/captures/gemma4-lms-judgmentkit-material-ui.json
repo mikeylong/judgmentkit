@@ -6,7 +6,7 @@
   "row_id": "gemma4-lms",
   "row_label": "Gemma 4 via LM Studio lms",
   "column_id": "judgmentkit-material-ui",
-  "column_label": "JudgmentKit + Material UI",
+  "column_label": "JudgmentKit skill + Material UI",
   "model_label": "Gemma 4 (local LLM)",
   "provider": "lmstudio",
   "cli": "lms",
@@ -19,24 +19,67 @@
   "design_system_render_mode": "static-ssr",
   "render_mode": "material_ui",
   "runner": "scripts/capture-model-ui-matrix.mjs",
-  "captured_at": "2026-05-14T02:54:50.823Z",
+  "captured_at": "2026-05-15T21:27:44.096Z",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": true,
-    "material_ui_adapter": true
+    "material_ui_adapter": true,
+    "frontend_skill_context": true
   },
-  "source_context_sha256": "1844e58f833211a4238718c1e8ebb07a4841b8266c0c09746c7d24bd683afc8d",
-  "prompt_sha256": "a7e67536b4f8b606772652bfc7bdb2e95df2012a78a96296df138250a48a1d8e",
-  "raw_response_sha256": "15bd2e6c0e3ba66f185ef2b00cc84ff1197dcdaf547bbc51b7a3a3761afe6cbe",
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": null,
+    "design_system_mode": "adapter_after_judgment",
+    "design_system_name": "Material UI",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "gemma4-lms-judgmentkit-material-ui desktop screenshot has a styled primary work surface",
+      "gemma4-lms-judgmentkit-material-ui mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
+  "source_context_sha256": "f2b04bf482eece25137b6269bb85fda5e6731c84c86fd57cba30878e038a4437",
+  "prompt_sha256": "58ed27561801b0b4c6d4c8f2fc5d9c79f4700fa3d4f695ba684c95569f9ba215",
+  "raw_response_sha256": "64c67de16f37aa755c819761edabd4de112346242dc64bc8631ede6f3fe332d5",
   "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
   "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
+  "lms_context": {
+    "model": "google/gemma-4-e2b",
+    "status": "already_loaded",
+    "requested_context_length": 16384,
+    "actual_context_length": 16384,
+    "identifier": "google/gemma-4-e2b"
+  },
+  "capture_quality": null,
   "parsed": {
-    "summary": "Dispatch cannot be completed because the necessary gate code for Mallory Chen's repair is missing.",
+    "summary": "A parts check is required for visit V-2187 Mallory Chen because the necessary gate code is missing before assignment can be completed.",
     "surface": {
-      "eyebrow": "JudgmentKit handoff",
+      "eyebrow": "Dispatch review",
       "heading": "Repair Dispatch Review",
-      "status": "Gate code missing",
+      "status": "Parts check needed",
       "queue_title": "Repair visits",
       "queue": [
         {
@@ -44,6 +87,18 @@
           "customer": "Mallory Chen",
           "state": "Needs gate code",
           "amount": "SLA 4h"
+        },
+        {
+          "id": "V-2188",
+          "customer": "Owen Patel",
+          "state": "Parts shortage",
+          "amount": "Tomorrow"
+        },
+        {
+          "id": "V-2189",
+          "customer": "Rae Wilson",
+          "state": "Route conflict",
+          "amount": "SLA 2h"
         }
       ],
       "selected": {
@@ -52,9 +107,11 @@
         "plan": "Priority repair",
         "amount": "SLA 4h",
         "request": "Kitchen freezer repair needs dispatch before the service window closes.",
-        "status": "Gate code missing",
+        "status": "Parts check needed",
         "evidence": [
-          "Customer gate code is missing before assignment can be completed."
+          "Technician Reyes is 18 minutes from the site and certified for the freezer unit.",
+          "Replacement fan motor is available at the west depot.",
+          "Customer gate code is missing before dispatch."
         ],
         "policy": "Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support."
       },
@@ -62,18 +119,33 @@
         {
           "label": "Service window",
           "value": "SLA 4h"
+        },
+        {
+          "label": "Parts readiness",
+          "value": "Fan motor available"
         }
       ],
       "evidence": [
-        "Customer gate code is missing before assignment can be completed."
+        "Technician Reyes is 18 minutes from the site and certified for the freezer unit.",
+        "Replacement fan motor is available at the west depot.",
+        "Customer gate code is missing before dispatch."
       ],
       "policy_title": "Dispatch rule",
       "policy": "Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support.",
       "decision_title": "Choose dispatch path",
       "actions": [
-        "Assign technician",
-        "Reschedule for parts",
-        "Request gate code"
+        {
+          "label": "Assign technician",
+          "action": "Assign technician"
+        },
+        {
+          "label": "Reschedule for parts",
+          "action": "Reschedule for parts"
+        },
+        {
+          "label": "Request gate code",
+          "action": "Request gate code"
+        }
       ],
       "primary_action": "Request gate code",
       "handoff": {
@@ -84,10 +156,10 @@
       }
     }
   },
-  "raw_response": "{\"summary\":\"Dispatch cannot be completed because the necessary gate code for Mallory Chen's repair is missing.\",\"surface\":{\"eyebrow\":\"JudgmentKit handoff\",\"heading\":\"Repair Dispatch Review\",\"status\":\"Gate code missing\",\"queue_title\":\"Repair visits\",\"queue\":[{\"id\":\"V-2187\",\"customer\":\"Mallory Chen\",\"state\":\"Needs gate code\",\"amount\":\"SLA 4h\"}],\"selected\":{\"id\":\"V-2187\",\"customer\":\"Mallory Chen\",\"plan\":\"Priority repair\",\"amount\":\"SLA 4h\",\"request\":\"Kitchen freezer repair needs dispatch before the service window closes.\",\"status\":\"Gate code missing\",\"evidence\":[\"Customer gate code is missing before assignment can be completed.\"],\"policy\":\"Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support.\"},\"info\":[{\"label\":\"Service window\",\"value\":\"SLA 4h\"}],\"evidence\":[\"Customer gate code is missing before assignment can be completed.\"],\"policy_title\":\"Dispatch rule\",\"policy\":\"Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support.\",\"decision_title\":\"Choose dispatch path\",\"actions\":[\"Assign technician\",\"Reschedule for parts\",\"Request gate code\"],\"primary_action\":\"Request gate code\",\"handoff\":{\"owner\":\"Dispatch support\",\"title\":\"Dispatch handoff\",\"reason\":\"Gate code is missing before assignment can be completed.\",\"action\":\"Send handoff\"}}}",
+  "raw_response": "{\"summary\":\"A parts check is required for visit V-2187 Mallory Chen because the necessary gate code is missing before assignment can be completed.\",\"surface\":{\"eyebrow\":\"Dispatch review\",\"heading\":\"Repair Dispatch Review\",\"status\":\"Parts check needed\",\"queue_title\":\"Repair visits\",\"queue\":[{\"id\":\"V-2187\",\"customer\":\"Mallory Chen\",\"state\":\"Needs gate code\",\"amount\":\"SLA 4h\"},{\"id\":\"V-2188\",\"customer\":\"Owen Patel\",\"state\":\"Parts shortage\",\"amount\":\"Tomorrow\"},{\"id\":\"V-2189\",\"customer\":\"Rae Wilson\",\"state\":\"Route conflict\",\"amount\":\"SLA 2h\"}],\"selected\":{\"id\":\"V-2187\",\"customer\":\"Mallory Chen\",\"plan\":\"Priority repair\",\"amount\":\"SLA 4h\",\"request\":\"Kitchen freezer repair needs dispatch before the service window closes.\",\"status\":\"Parts check needed\",\"evidence\":[\"Technician Reyes is 18 minutes from the site and certified for the freezer unit.\",\"Replacement fan motor is available at the west depot.\",\"Customer gate code is missing before dispatch.\"],\"policy\":\"Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support.\"},\"info\":[{\"label\":\"Service window\",\"value\":\"SLA 4h\"},{\"label\":\"Parts readiness\",\"value\":\"Fan motor available\"}],\"evidence\":[\"Technician Reyes is 18 minutes from the site and certified for the freezer unit.\",\"Replacement fan motor is available at the west depot.\",\"Customer gate code is missing before dispatch.\"],\"policy_title\":\"Dispatch rule\",\"policy\":\"Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support.\",\"decision_title\":\"Choose dispatch path\",\"actions\":[{\"label\":\"Assign technician\",\"action\":\"Assign technician\"},{\"label\":\"Reschedule for parts\",\"action\":\"Reschedule for parts\"},{\"label\":\"Request gate code\",\"action\":\"Request gate code\"}],\"primary_action\":\"Request gate code\",\"handoff\":{\"owner\":\"Dispatch support\",\"title\":\"Dispatch handoff\",\"reason\":\"Gate code is missing before assignment can be completed.\",\"action\":\"Send handoff\"}}}}",
   "execution": {
     "status": 0,
-    "stdout_sha256": "dbdac9a90d9a4e575e4554b9ccfac755e9269af51c3805326daae264ac504f74",
+    "stdout_sha256": "5ae59cf03e46ab67d2e88189baac9303f9756874976d761e365a4ffffd29871b",
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   }
 }

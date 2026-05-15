@@ -6,7 +6,7 @@
   "row_id": "gemma4-lms",
   "row_label": "Gemma 4 via LM Studio lms",
   "column_id": "with-judgmentkit",
-  "column_label": "JudgmentKit handoff",
+  "column_label": "JudgmentKit skill context",
   "model_label": "Gemma 4 (local LLM)",
   "provider": "lmstudio",
   "cli": "lms",
@@ -19,27 +19,88 @@
   "design_system_render_mode": null,
   "render_mode": "html",
   "runner": "scripts/capture-model-ui-matrix.mjs",
-  "captured_at": "2026-05-14T03:10:46.694Z",
+  "captured_at": "2026-05-15T21:37:38.454Z",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": true,
-    "material_ui_adapter": false
+    "material_ui_adapter": false,
+    "frontend_skill_context": true
   },
-  "source_context_sha256": "cbee00d3307912ee47880bfcaf31adfc7bb9eb9234b739359568125cd1e05390",
-  "prompt_sha256": "a9f2b9d42c2f0c51e9c0c25e2db61784089cdc209af10a598f3ef03778ba6d14",
-  "raw_response_sha256": "1fe6231c22338fd7b2279fd969dfe39bd5886eb8d36fce5fe6daf94b12ce5aa9",
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": null,
+    "design_system_mode": "no_design_system_adapter_provided",
+    "design_system_name": "",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "gemma4-lms-with-judgmentkit desktop screenshot has a styled primary work surface",
+      "gemma4-lms-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
+  "source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
+  "prompt_sha256": "a91777caa6325dd33080cf00ad3fd21324463b48ee1885b46b5bd1c64c68c2cf",
+  "raw_response_sha256": "8cecff6cd10655fd28c0cd880795efa5739bed1158188cddf8e6c09a09919764",
   "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
   "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
-  "parsed": {
-    "summary": "The intake process is blocked because a signed consent form is missing, preventing any clinical recommendation.",
-    "css": "main{font-family:system-ui;padding:24px}.panel{border:1px solid #ddd;padding:12px;margin:12px 0}.actions{display:flex;gap:8px;flex-wrap:wrap}button{padding:8px 12px}",
-    "html": "<main data-primary-surface><h1>Intake Readiness Review</h1><p>I-4471 - Avery Morgan</p><section class=\"panel\"><h2>Evidence Review</h2><p>Missing required document: Signed consent form.</p></section><section class=\"panel\"><h2>Policy Check</h2><p>Signed consent is mandatory before any clinical recommendation can be made or scheduling can proceed.</p></section><section class=\"panel\"><h2>Next Actions</h2><ul><li>Return for signed consent.</li><li>Escalate to documentation staff.</li></ul><div class=\"actions\"><button>Return for Consent</button><button>Escalate Documentation</button></div></section></main>"
+  "lms_context": {
+    "model": "google/gemma-4-e2b",
+    "status": "already_loaded",
+    "requested_context_length": 16384,
+    "actual_context_length": 16384,
+    "identifier": "google/gemma-4-e2b"
   },
-  "raw_response": "{\"summary\":\"The intake process is blocked because a signed consent form is missing, preventing any clinical recommendation.\",\"css\":\"main{font-family:system-ui;padding:24px}.panel{border:1px solid #ddd;padding:12px;margin:12px 0}.actions{display:flex;gap:8px;flex-wrap:wrap}button{padding:8px 12px}\",\"html\":\"<main data-primary-surface><h1>Intake Readiness Review</h1><p>I-4471 - Avery Morgan</p><section class=\\\"panel\\\"><h2>Evidence Review</h2><p>Missing required document: Signed consent form.</p></section><section class=\\\"panel\\\"><h2>Policy Check</h2><p>Signed consent is mandatory before any clinical recommendation can be made or scheduling can proceed.</p></section><section class=\\\"panel\\\"><h2>Next Actions</h2><ul><li>Return for signed consent.</li><li>Escalate to documentation staff.</li></ul><div class=\\\"actions\\\"><button>Return for Consent</button><button>Escalate Documentation</button></div></section></main>\"}",
+  "capture_quality": {
+    "profile": "judgmentkit_static_html_css",
+    "css_characters": 1379,
+    "html_characters": 1484,
+    "css_rule_count": 18,
+    "class_selector_count": 14,
+    "semantic_section_count": 7,
+    "structural_block_count": 7,
+    "button_count": 4,
+    "has_responsive_css": true,
+    "has_layout_css": true,
+    "has_panel_css": true,
+    "has_control_css": true,
+    "has_evidence_content": true,
+    "has_handoff_content": true,
+    "compact_template_signature": false,
+    "failures": [],
+    "status": "passed"
+  },
+  "parsed": {
+    "summary": "A clinical intake review interface displaying a selected case, queue status, supporting evidence, policy context, and decision controls for an intake coordinator. The UI emphasizes clarity of missing information (consent form) and provides clear paths for resolution or escalation.",
+    "css": "body{font-family:Arial,sans-serif;background:#f4f7f9;color:#333;margin:0;padding:20px;}main[data-primary-surface]{max-width:1365px;margin:auto;background:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);padding:30px;display:grid;gap:25px;}header{border-bottom:2px solid#eee;padding-15px 0;margin-bottom:20px;}h1{font-size:1.8em;color:#1a237e;}h2{font-size:1.4em;color:#3949ab;border-left:4px solid#bbdefb;padding-left:10px;}ul{list-style-type:disc;padding-left:20px;}li{margin-bottom:8px;}blockquote{background:#fff3e0;border-left:5px solid#ff9800;padding:15px;margin:15px 0;border-radius:4px;font-style:italic;color:#e65100;}nav.queue-panel{grid-area:queue;background:#e8eaf6;padding:15px;border-radius:6px;}nav.case-details{grid-area:details;padding:20px;background:#f9f9f9;border:1px solid #eee;border-radius:6px;}section.evidence-panel{grid-area:evidence;background:#fff;padding:20px;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,.05);}section.decision-controls{grid-area:decisions;display:flex;gap:15px;}button{padding:12px 20px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;transition:background-color .2s;}button.primary{background:#3949ab;color:#fff;}button.secondary{background:#e0e0e0;color:#333;}button:hover{opacity:.9;}@media(max-width:1024px){main[data-primary-surface]{padding:15px;}nav.queue-panel,nav.case-details{grid-area:auto;}}",
+    "html": "<main data-primary-surface><header><h1>Intake Readiness Review</h1></header><nav class=\"queue-panel\"><h2>Intake packets</h2><ul><li>I-4471: Avery Morgan (Consent missing) @ 10:30 AM</li><li>I-4472: Sam Rivera (Verify insurance) @ 1:00 PM</li><li>I-4473: Jules Kim (Ready to schedule) @ 3:15 PM</li></ul></nav><nav class=\"case-details\"><h2>Case Details</h2><p><strong>Customer:</strong> Avery Morgan</p><p><strong>Plan:</strong> New patient consult</p><p><strong>Status:</strong> Consent missing</p></nav><section class=\"evidence-panel\"><h2>Evidence</h2><ul><li>Referral document is uploaded.</li><li>Insurance card image is present.</li><li>Signed consent form is missing before scheduling.</li></ul></section><section class=\"policy-context\"><h2>Administrative boundary</h2><blockquote>Schedule only when required administrative forms are complete; insurance uncertainty goes to verification staff. Do not diagnose, triage, or recommend treatment.</blockquote></section><section class=\"decision-controls\"><h2>Choose intake path</h2><button class=\"primary\">Return for consent</button><button class=\"secondary\">Escalate insurance</button><button class=\"secondary\">Proceed with schedule (If applicable)</button></section><section class=\"handoff-panel\"><h2>Administrative handoff</h2><p><strong>Owner:</strong> Intake coordinator</p><p><strong>Reason:</strong> Signed consent is missing; no clinical recommendation is made.</p><button class=\"primary\">Send handoff</button></section></main"
+  },
+  "raw_response": "{\"summary\":\"A clinical intake review interface displaying a selected case, queue status, supporting evidence, policy context, and decision controls for an intake coordinator. The UI emphasizes clarity of missing information (consent form) and provides clear paths for resolution or escalation.\",\"css\":\"body{font-family:Arial,sans-serif;background:#f4f7f9;color:#333;margin:0;padding:20px;}main[data-primary-surface]{max-width:1365px;margin:auto;background:#fff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);padding:30px;display:grid;gap:25px;}header{border-bottom:2px solid#eee;padding-15px 0;margin-bottom:20px;}h1{font-size:1.8em;color:#1a237e;}h2{font-size:1.4em;color:#3949ab;border-left:4px solid#bbdefb;padding-left:10px;}ul{list-style-type:disc;padding-left:20px;}li{margin-bottom:8px;}blockquote{background:#fff3e0;border-left:5px solid#ff9800;padding:15px;margin:15px 0;border-radius:4px;font-style:italic;color:#e65100;}nav.queue-panel{grid-area:queue;background:#e8eaf6;padding:15px;border-radius:6px;}nav.case-details{grid-area:details;padding:20px;background:#f9f9f9;border:1px solid #eee;border-radius:6px;}section.evidence-panel{grid-area:evidence;background:#fff;padding:20px;border-radius:6px;box-shadow:0 2px 4px rgba(0,0,0,.05);}section.decision-controls{grid-area:decisions;display:flex;gap:15px;}button{padding:12px 20px;border:none;border-radius:5px;cursor:pointer;font-weight:bold;transition:background-color .2s;}button.primary{background:#3949ab;color:#fff;}button.secondary{background:#e0e0e0;color:#333;}button:hover{opacity:.9;}@media(max-width:1024px){main[data-primary-surface]{padding:15px;}nav.queue-panel,nav.case-details{grid-area:auto;}}\",\"html\":\"<main data-primary-surface><header><h1>Intake Readiness Review</h1></header><nav class=\\\"queue-panel\\\"><h2>Intake packets</h2><ul><li>I-4471: Avery Morgan (Consent missing) @ 10:30 AM</li><li>I-4472: Sam Rivera (Verify insurance) @ 1:00 PM</li><li>I-4473: Jules Kim (Ready to schedule) @ 3:15 PM</li></ul></nav><nav class=\\\"case-details\\\"><h2>Case Details</h2><p><strong>Customer:</strong> Avery Morgan</p><p><strong>Plan:</strong> New patient consult</p><p><strong>Status:</strong> Consent missing</p></nav><section class=\\\"evidence-panel\\\"><h2>Evidence</h2><ul><li>Referral document is uploaded.</li><li>Insurance card image is present.</li><li>Signed consent form is missing before scheduling.</li></ul></section><section class=\\\"policy-context\\\"><h2>Administrative boundary</h2><blockquote>Schedule only when required administrative forms are complete; insurance uncertainty goes to verification staff. Do not diagnose, triage, or recommend treatment.</blockquote></section><section class=\\\"decision-controls\\\"><h2>Choose intake path</h2><button class=\\\"primary\\\">Return for consent</button><button class=\\\"secondary\\\">Escalate insurance</button><button class=\\\"secondary\\\">Proceed with schedule (If applicable)</button></section><section class=\\\"handoff-panel\\\"><h2>Administrative handoff</h2><p><strong>Owner:</strong> Intake coordinator</p><p><strong>Reason:</strong> Signed consent is missing; no clinical recommendation is made.</p><button class=\\\"primary\\\">Send handoff</button></section></main\"}",
   "execution": {
     "status": 0,
-    "stdout_sha256": "7e2b4d21080fee02602ca1eafd7f693044718397dc868d8d4827f0ef8b1f4e17",
+    "stdout_sha256": "0eac58286664eeb5aa10a57ce554ce495e12d0e40c20c7fd0def1fbd92afe084",
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   }
 }

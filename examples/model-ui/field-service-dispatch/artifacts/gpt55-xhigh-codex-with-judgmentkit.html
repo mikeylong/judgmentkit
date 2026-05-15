@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Field service dispatch - GPT-5.5 xhigh via codex exec - JudgmentKit handoff</title>
+    <title>Field service dispatch - GPT-5.5 xhigh via codex exec - JudgmentKit skill context</title>
     <style>
     :root {
       color-scheme: light;
@@ -243,18 +243,19 @@
       }
     }
   </style>
-    <style data-model-css>:root{font-family:Arial,sans-serif;color:#17202a;background:#f4f6f8}*{box-sizing:border-box}body{margin:0;background:#f4f6f8}.dispatch-shell{min-height:900px;padding:22px;display:grid;grid-template-columns:280px minmax(0,1fr) 360px;gap:18px}.panel{background:#fff;border:1px solid #d9e0e7;border-radius:8px;padding:16px}.queue{display:flex;flex-direction:column;gap:10px}.visit-row{border:1px solid #dbe3ea;border-radius:8px;padding:12px;background:#fff;text-align:left}.visit-row.active{border-color:#1f7a63;background:#edf8f4}.kicker{font-size:12px;text-transform:uppercase;color:#657384;font-weight:700}.h1{font-size:24px;margin:6px 0 4px}.muted{color:#5f6f7f}.badge{display:inline-flex;align-items:center;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:700;background:#eef2f6;color:#34495e;margin:8px 6px 0 0}.badge.warn{background:#fff3d6;color:#7b5600}.badge.good{background:#e7f6ef;color:#116445}.badge.risk{background:#fdeaea;color:#a12a2a}.stack{display:grid;gap:14px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.check{display:grid;grid-template-columns:28px 1fr;gap:10px;padding:12px;border:1px solid #dbe3ea;border-radius:8px}.mark{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:12px}.ok{background:#dff3e9;color:#116445}.hold{background:#fff0c2;color:#805b00}.choice{border:1px solid #dbe3ea;border-radius:8px;padding:12px;margin-bottom:10px}.choice.selected{border-color:#bf7a00;background:#fff8e8}.actions{display:grid;gap:10px}.btn{border:0;border-radius:6px;padding:11px 12px;font-weight:800;background:#1f6f5b;color:#fff}.btn.secondary{background:#eef2f6;color:#253241}.btn.warning{background:#bf6b00;color:#fff}.handoff{background:#102a43;color:#fff;border-color:#102a43}.handoff .muted{color:#c8d6e5}.line{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.16)}p{line-height:1.42}</style>
+    <style data-model-css>*{box-sizing:border-box}body{margin:0;background:#eef2ef;color:#1f2723;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.dispatch-surface{min-height:100vh;padding:24px;display:flex;flex-direction:column;gap:18px}.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;border-bottom:1px solid #cfd8d1;padding-bottom:16px}.eyebrow{margin:0 0 6px;color:#5f6f67;font-size:12px;font-weight:700;letter-spacing:0;text-transform:uppercase}.topbar h1{margin:0;font-size:28px;line-height:1.15;font-weight:760}.shift-status{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}.status-pill{min-height:32px;display:inline-flex;align-items:center;border:1px solid #cbd6d0;background:#fff;border-radius:999px;padding:6px 10px;font-size:13px;font-weight:700;color:#32413a}.status-pill:before,.state-line:before,.check-item:before{content:'';width:8px;height:8px;border-radius:50%;background:#6f7f77;margin-right:8px;flex:0 0 auto}.is-ready:before{background:#198754}.is-warning:before{background:#b7791f}.is-error:before,.is-blocked:before{background:#c2410c}.is-loading:before{background:#2f7f9b;animation:pulse 1.2s ease-in-out infinite}.is-empty:before{background:#8a9490}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}@media (prefers-reduced-motion:reduce){.is-loading:before{animation:none}}.surface-grid{display:grid;grid-template-columns:310px minmax(0,1fr);gap:18px;align-items:start}.queue-panel,.panel{background:#fff;border:1px solid #d4ddd7;border-radius:8px;box-shadow:0 1px 2px rgba(20,34,27,.06)}.queue-panel{padding:14px;position:sticky;top:18px}.panel{padding:18px}.section-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.section-heading h2{margin:0;font-size:17px;line-height:1.25}.section-heading p{margin:0;color:#607169;font-size:13px}.visit-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}.visit-row{width:100%;min-height:76px;border:1px solid #d7dfda;background:#f9fbfa;border-radius:8px;padding:10px;text-align:left;display:grid;gap:6px;cursor:pointer;color:#1f2723}.visit-row:hover{border-color:#8bb7a5;background:#f4faf7}.visit-row:focus-visible,.decision-button:focus-visible,.handoff-button:focus-visible{outline:3px solid #2f7f9b;outline-offset:2px}.visit-row.is-selected{border-color:#216e58;background:#edf7f3;box-shadow:inset 3px 0 0 #216e58}.visit-main,.visit-meta{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}.visit-id{font-weight:800}.visit-customer,.visit-meta span,.control-hint{overflow-wrap:anywhere}.visit-meta{color:#5b6b63;font-size:13px}.control-hint{font-size:12px;color:#216e58;font-weight:800}.queue-states{border-top:1px solid #e0e7e2;margin-top:14px;padding-top:12px;display:grid;gap:8px}.state-line{display:flex;align-items:flex-start;color:#56665e;font-size:13px;line-height:1.35}.content-stack{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(320px,.88fr);gap:18px}.column{display:flex;flex-direction:column;gap:18px}.request-copy{margin:0 0 16px;font-size:16px;line-height:1.45}.fact-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0}.fact-grid div{border-top:1px solid #e3e9e5;padding-top:10px;min-width:0}.fact-grid dt{font-size:12px;color:#66766e;font-weight:800;text-transform:uppercase;letter-spacing:0;margin:0 0 4px}.fact-grid dd{margin:0;font-weight:750;overflow-wrap:anywhere}.checklist{list-style:none;margin:0;padding:0;display:grid;gap:12px}.check-item{display:flex;align-items:flex-start;gap:0;border-bottom:1px solid #edf1ee;padding-bottom:12px}.check-item:last-child{border-bottom:0;padding-bottom:0}.check-item div{min-width:0}.check-item strong{display:block;margin-bottom:3px}.check-item p,.policy-copy,.decision-copy,.handoff-note p{margin:0;color:#52635b;line-height:1.45;overflow-wrap:anywhere}.policy-copy{background:#f7f6f0;border-left:4px solid #a26b25;padding:12px;border-radius:6px}.decision-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.decision-button{min-height:76px;border:1px solid #cad5cf;background:#f9fbfa;border-radius:8px;padding:12px;text-align:left;color:#1f2723;display:flex;flex-direction:column;gap:5px;justify-content:center;font-weight:800;cursor:pointer}.decision-button span{font-size:13px;line-height:1.35;color:#5a6a62;font-weight:600}.decision-button.primary{background:#216e58;color:#fff;border-color:#216e58}.decision-button.primary span{color:#e6f3ee}.decision-button[aria-disabled='true']{cursor:not-allowed;color:#6e7b75;background:#f2f5f3;border-style:dashed}.handoff-panel{border-color:#b9d0c4}.handoff-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:14px}.handoff-grid div{background:#f4faf7;border:1px solid #d5e6dd;border-radius:8px;padding:10px;min-width:0}.handoff-grid span{display:block;color:#64746c;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:0;margin-bottom:4px}.handoff-grid strong{display:block;overflow-wrap:anywhere}.handoff-note{border-top:1px solid #dde7e1;border-bottom:1px solid #dde7e1;padding:12px 0;margin-bottom:12px}.handoff-note .reason{margin-top:8px;color:#8a3c13;font-weight:700}.handoff-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}.handoff-button{min-height:42px;border:1px solid #216e58;background:#216e58;color:#fff;border-radius:8px;padding:10px 14px;font-weight:800;cursor:pointer}.handoff-button.secondary{background:#fff;color:#216e58}.sla-badge{background:#fff4d8;color:#714a00;border:1px solid #e0bc72;border-radius:999px;padding:5px 9px;font-size:12px;font-weight:800;white-space:nowrap}@media (max-width:900px){.dispatch-surface{padding:16px}.topbar{flex-direction:column}.shift-status{justify-content:flex-start}.surface-grid,.content-stack{grid-template-columns:1fr}.queue-panel{position:static}.decision-grid,.handoff-grid,.fact-grid{grid-template-columns:1fr}.topbar h1{font-size:24px}}</style>
 
   </head>
   <body data-artifact-id="gpt55-xhigh-codex-with-judgmentkit" data-row-id="gpt55-xhigh-codex" data-column-id="with-judgmentkit" data-judgmentkit-mode="with_judgmentkit" data-design-system-mode="none">
-    <main class="dispatch-shell raw-model-candidate" data-primary-surface><aside class="panel queue" aria-label="Visit queue"><div><div class="kicker">Visit queue</div><h1 class="h1">Same-day repair visits</h1><p class="muted">Choose a visit and confirm the next dispatch action.</p></div><button class="visit-row active"><strong>V-2187</strong><br><span>Mallory Chen</span><br><span class="badge warn">Needs gate code</span><span class="badge">SLA 4h</span></button><button class="visit-row"><strong>V-2188</strong><br><span>Owen Patel</span><br><span class="badge risk">Parts shortage</span><span class="badge">Tomorrow</span></button><button class="visit-row"><strong>V-2189</strong><br><span>Rae Wilson</span><br><span class="badge warn">Route conflict</span><span class="badge risk">SLA 2h</span></button></aside><section class="stack"><div class="panel"><div class="kicker">Selected repair visit</div><h2 class="h1">Kitchen freezer repair</h2><p class="muted">Mallory Chen has a priority repair that needs dispatch before the service window closes.</p><div class="grid2"><div><span class="kicker">Visit</span><p><strong>V-2187</strong></p></div><div><span class="kicker">Timing</span><p><strong>SLA 4h</strong></p></div><div><span class="kicker">Nearest qualified technician</span><p><strong>Reyes, 18 min away</strong></p></div><div><span class="kicker">Unit fit</span><p><strong>Freezer certification confirmed</strong></p></div></div></div><div class="panel"><div class="kicker">Readiness checklist</div><div class="grid2"><div class="check"><span class="mark ok">OK</span><div><strong>Route</strong><p class="muted">Reyes can reach the site in 18 minutes.</p></div></div><div class="check"><span class="mark ok">OK</span><div><strong>Parts readiness</strong><p class="muted">Replacement fan motor is available at the west depot.</p></div></div><div class="check"><span class="mark ok">OK</span><div><strong>Technician fit</strong><p class="muted">Reyes is certified for this freezer unit.</p></div></div><div class="check"><span class="mark hold">!</span><div><strong>Site access</strong><p class="muted">Customer gate code is missing before dispatch.</p></div></div></div></div><div class="panel"><div class="kicker">Dispatch policy</div><p>Same-day SLA repair visits can be assigned when parts readiness and site access are confirmed. Missing access details return to dispatch support before a technician is sent.</p></div></section><aside class="stack"><div class="panel"><div class="kicker">Decision path</div><div class="choice"><strong>Assign technician</strong><p class="muted">Ready after site access is confirmed.</p></div><div class="choice"><strong>Reschedule for parts</strong><p class="muted">Not needed. Fan motor is available.</p></div><div class="choice"><strong>Escalate SLA risk</strong><p class="muted">Watch the service window if access is delayed.</p></div><div class="choice selected"><strong>Request gate code</strong><p class="muted">Best next action because access is the only blocker.</p></div><div class="actions"><button class="btn warning">Request gate code</button><button class="btn secondary">Assign Reyes after access</button><button class="btn secondary">Escalate SLA risk</button></div></div><div class="panel handoff"><div class="kicker">Dispatch handoff</div><h2>Send to dispatch support</h2><div class="line"><span>Next owner</span><strong>Dispatch support</strong></div><div class="line"><span>Next action</span><strong>Request the gate code</strong></div><div class="line"><span>Timing constraint</span><strong>Assign Reyes within SLA window</strong></div><p class="muted">Reason: gate code is missing before the qualified technician can be assigned.</p></div></aside></main>
+    <main class="raw-model-candidate" data-primary-surface class='dispatch-surface' aria-labelledby='page-title'><header class='topbar'><div><p class='eyebrow'>Repair visit dispatch review</p><h1 id='page-title'>Same-day repair visits before dispatch</h1></div><div class='shift-status' aria-label='Dispatch board status'><span class='status-pill is-ready'>3 visits waiting</span><span class='status-pill is-warning'>1 SLA risk</span></div></header><div class='surface-grid'><aside class='queue-panel' aria-labelledby='queue-title'><div class='section-heading'><div><p>Visit queue</p><h2 id='queue-title'>Repair visits</h2></div><span class='sla-badge'>Today</span></div><ul class='visit-list'><li><button class='visit-row is-selected' type='button' aria-current='true'><span class='visit-main'><span class='visit-id'>V-2187</span><span class='visit-customer'>Mallory Chen</span></span><span class='visit-meta'><span>Needs gate code</span><strong>SLA 4h</strong></span><span class='control-hint'>Select visit</span></button></li><li><button class='visit-row' type='button'><span class='visit-main'><span class='visit-id'>V-2188</span><span class='visit-customer'>Owen Patel</span></span><span class='visit-meta'><span>Parts shortage</span><strong>Tomorrow</strong></span><span class='control-hint'>Select visit</span></button></li><li><button class='visit-row' type='button'><span class='visit-main'><span class='visit-id'>V-2189</span><span class='visit-customer'>Rae Wilson</span></span><span class='visit-meta'><span>Route conflict</span><strong>SLA 2h</strong></span><span class='control-hint'>Select visit</span></button></li></ul><div class='queue-states' aria-label='Queue updates'><span class='state-line is-ready'>Selected repair visit is ready for dispatch review.</span><span class='state-line is-loading'>Route times are refreshing for later visits.</span><span class='state-line is-error'>Parts readiness is delayed for V-2188.</span><span class='state-line is-empty'>No unsorted repair visits waiting.</span></div></aside><div class='content-stack'><div class='column'><section class='panel' aria-labelledby='selected-title'><div class='section-heading'><div><p>Selected visit</p><h2 id='selected-title'>V-2187 Mallory Chen</h2></div><span class='sla-badge'>SLA 4h</span></div><p class='request-copy'>Kitchen freezer repair needs dispatch before the service window closes.</p><dl class='fact-grid'><div><dt>Plan</dt><dd>Priority repair</dd></div><div><dt>Current state</dt><dd>Needs gate code</dd></div><div><dt>Best technician</dt><dd>Reyes, 18 minutes from site</dd></div><div><dt>Repair item</dt><dd>Kitchen freezer fan motor</dd></div></dl></section><section class='panel' aria-labelledby='readiness-title'><div class='section-heading'><div><p>Readiness checklist</p><h2 id='readiness-title'>Route, parts, access, and SLA</h2></div></div><ul class='checklist'><li class='check-item is-ready'><div><strong>Route and certification</strong><p>Reyes is 18 minutes from the site and certified for the freezer unit.</p></div></li><li class='check-item is-ready'><div><strong>Parts readiness</strong><p>Replacement fan motor is available at the west depot.</p></div></li><li class='check-item is-blocked'><div><strong>Site access</strong><p>Customer gate code is missing before dispatch.</p></div></li><li class='check-item is-warning'><div><strong>SLA risk</strong><p>Resolve access now so Reyes can still be assigned within the service window.</p></div></li></ul></section><section class='panel' aria-labelledby='policy-title'><div class='section-heading'><div><p>Dispatch policy</p><h2 id='policy-title'>Same-day assignment rule</h2></div></div><p class='policy-copy'>Same-day SLA visits can be assigned when parts and site access are confirmed. Missing access details return to dispatch support before technician assignment.</p></section></div><div class='column'><section class='panel' aria-labelledby='decision-title'><div class='section-heading'><div><p>Decision path</p><h2 id='decision-title'>Recommended next action</h2></div></div><p class='decision-copy'>Request the gate code, then assign Reyes after site access is confirmed.</p><div class='decision-grid' role='group' aria-label='Dispatch decision controls'><button class='decision-button primary' type='button'>Request gate code<span>Dispatch support owns the missing access detail.</span></button><button class='decision-button' type='button' aria-disabled='true'>Assign technician<span>Available after site access is confirmed.</span></button><button class='decision-button' type='button' aria-disabled='true'>Reschedule for parts<span>Not needed because the fan motor is ready.</span></button><button class='decision-button' type='button'>Escalate SLA risk<span>Use if access is not confirmed soon.</span></button></div></section><section class='panel handoff-panel' aria-labelledby='handoff-title'><div class='section-heading'><div><p>Dispatch handoff</p><h2 id='handoff-title'>Send to dispatch support</h2></div></div><div class='handoff-grid'><div><span>Next owner</span><strong>Dispatch support</strong></div><div><span>Timing constraint</span><strong>Before the SLA window narrows</strong></div><div><span>Technician to hold</span><strong>Reyes</strong></div></div><div class='handoff-note'><p>Request the gate code, then assign Reyes within the SLA window.</p><p class='reason'>Reason: Gate code is missing before the qualified technician can be assigned.</p></div><div class='handoff-actions'><button class='handoff-button secondary' type='button'>Hold for access reply</button><button class='handoff-button' type='button'>Send dispatch handoff</button></div></section></div></div></div></main>
     <aside class="provenance" aria-label="Artifact provenance">
       <strong>Provenance:</strong>
       <span>captured</span>
       <span> - captured_model_output</span>
-      <span> - JudgmentKit handoff</span>
+      <span> - JudgmentKit skill context</span>
+      <span> - frontend skill context ready</span>
       <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
-      <p>Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.</p>
+      <p>Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.</p>
       <p>Manifest entry: <code>artifacts/gpt55-xhigh-codex-with-judgmentkit.html</code></p>
     </aside>
     <script type="application/json" id="model-ui-provenance">{
@@ -269,14 +270,15 @@
   "generation_source": "captured_model_output",
   "judgmentkit_mode": "with_judgmentkit",
   "design_system_mode": "none",
-  "render_source": "model_static_html_css",
-  "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
+  "render_source": "model_frontend_skill_static_html_css",
+  "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
   "reasoning_effort": "xhigh",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": true,
-    "material_ui_adapter": false
+    "material_ui_adapter": false,
+    "frontend_skill_context": true
   },
   "design_system_name": null,
   "design_system_package": null,
@@ -284,35 +286,92 @@
   "handoff_source": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
   "design_system_adapter_file": null,
   "capture_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
-  "model_response_summary": "Static dispatch review surface for V-2187 focused on requesting site access before assigning Reyes inside the SLA window.",
+  "model_response_summary": "Static dispatch review UI focused on requesting missing site access before assigning the nearest qualified technician within the SLA window.",
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": null,
+    "design_system_mode": "no_design_system_adapter_provided",
+    "design_system_name": "",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "gpt55-xhigh-codex-with-judgmentkit desktop screenshot has a styled primary work surface",
+      "gpt55-xhigh-codex-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
   "capture_provenance": {
     "status": "captured",
     "capture_type": "model-output-transcript",
-    "captured_at": "2026-05-14T03:06:13.407Z",
+    "captured_at": "2026-05-15T21:33:58.598Z",
     "runner": "scripts/capture-model-ui-matrix.mjs",
     "provider": "codex-cli",
     "model": "gpt-5.5",
     "cli": "codex",
     "transcript_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
-    "prompt_sha256": "fb2885d5006e1979a7b4d734ec90698dd03e5b9af218b89846b598364d124a08",
-    "raw_response_sha256": "653dd9c17b20eeddbaab65c422e231efa6e47c56e6bd77ed3f29096a0fda1fdd",
-    "source_context_sha256": "c76e9c4eaf12ecc5f98485b0bfd9f3f870b0d5bd3ff0f9e7ae6ddcb24cf17fb4",
+    "prompt_sha256": "c0a082cd6b1c6ef8907c6793ac54c0f28f1e8f0c9ce7c26d7ba18bb8c21a7375",
+    "raw_response_sha256": "bb326d684e995426762aceebabc8389ee040e4a75adeb77c99645f83b5cd8ef1",
+    "source_context_sha256": "84d7adc5190f3796a3fc4e61f40b3987ead81206cb9dc750b4098c36873bbacd",
     "reasoning_effort": "xhigh",
     "context_included": {
       "source_brief": true,
       "sample_case": true,
       "reviewed_handoff": true,
-      "material_ui_adapter": false
+      "material_ui_adapter": false,
+      "frontend_skill_context": true
     },
+    "frontend_context_status": "ready_for_frontend_implementation",
+    "frontend_skill_context_status": "ready",
     "design_system_name": null,
     "design_system_package": null,
     "design_system_render_mode": null,
+    "lms_context": null,
+    "capture_quality": {
+      "profile": "judgmentkit_static_html_css",
+      "css_characters": 5998,
+      "html_characters": 5649,
+      "css_rule_count": 74,
+      "class_selector_count": 101,
+      "semantic_section_count": 7,
+      "structural_block_count": 41,
+      "button_count": 9,
+      "has_responsive_css": true,
+      "has_layout_css": true,
+      "has_panel_css": true,
+      "has_control_css": true,
+      "has_evidence_content": true,
+      "has_handoff_content": true,
+      "compact_template_signature": false,
+      "failures": [],
+      "status": "passed"
+    },
     "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
   },
   "artifact_path": "artifacts/gpt55-xhigh-codex-with-judgmentkit.html",
   "screenshot_path": "screenshots/gpt55-xhigh-codex-with-judgmentkit.png",
-  "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit handoff",
-  "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+  "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill context",
+  "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
 }</script>
   </body>
 </html>

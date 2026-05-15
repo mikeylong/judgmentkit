@@ -1,8 +1,12 @@
 {
-  "source_brief_file": "examples/model-ui/b2b-renewal-risk/source-brief.txt",
-  "activity_review_status": "ready_for_review",
-  "workflow_review_status": "ready_for_review",
+  "version": "0.1.0",
+  "contract_id": "judgmentkit.ai-ui-generation.activity-contract",
   "handoff_status": "ready_for_generation",
+  "source": {
+    "mode": "model_assisted",
+    "proposer": "external_candidate",
+    "input_excerpt": "A customer success manager is reviewing at-risk B2B renewals before the weekly account meeting. The request says to build from the account_health data model, CRM fields, usage event JSON schema, prompt output, tool call results, resource id"
+  },
   "activity_model": {
     "activity": "Customer success manager reviews renewal handoff",
     "participants": [
@@ -177,5 +181,89 @@
       "trace"
     ],
     "primary_ui_rule": "Keep implementation details and JudgmentKit review-packet terms out of product UI."
-  }
+  },
+  "generation_gates": [
+    {
+      "id": "activity_gate",
+      "status": "passed",
+      "evidence": [
+        "activity model reviewed",
+        "workflow candidate ready",
+        "disclosure boundary checked"
+      ]
+    },
+    {
+      "id": "implementation_gate",
+      "status": "required_before_final_handoff",
+      "evidence": [
+        "use approved primitives",
+        "run static enforcement",
+        "complete desktop and mobile browser QA"
+      ]
+    }
+  ],
+  "implementation_contract": {
+    "id": "judgmentkit.ui-implementation-contract.portable",
+    "purpose": "Give agents an enforceable implementation gate after activity/workflow judgment, so generated UI uses approved project primitives instead of ad hoc controls",
+    "authority_order": [
+      "repo-local interface contract and helper primitives",
+      "external product UI system evidence when explicitly provided",
+      "JudgmentKit portable no-system constraint pack"
+    ],
+    "approved_primitives": [
+      "FormField",
+      "TextField",
+      "TextArea",
+      "SelectField",
+      "CheckboxGroup",
+      "CheckboxOption",
+      "FieldGrid",
+      "ModalActions"
+    ],
+    "state_coverage": {
+      "required_states": [
+        "empty",
+        "ready",
+        "loading",
+        "error",
+        "disabled",
+        "focus-visible"
+      ],
+      "required_evidence": [
+        "long labels wrap without overlap",
+        "controls preserve target size and spacing",
+        "keyboard focus reveals equivalent information",
+        "validation and disabled reasons are readable"
+      ]
+    },
+    "static_enforcement": {
+      "default_rules": [
+        "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+        "new primitives or variants require updating the repo-local contract first",
+        "generated UI must include a local check command or equivalent static inspection"
+      ]
+    },
+    "browser_qa": {
+      "required": true,
+      "checks": [
+        "desktop viewport screenshot",
+        "mobile viewport screenshot",
+        "keyboard focus check for interactive controls",
+        "overflow check for long labels, descriptions, and values",
+        "modal or dialog footer order check when dialogs are present",
+        "disabled, empty, error, and ready state review"
+      ]
+    },
+    "failure_signals": [
+      "raw form controls appear in feature render code",
+      "checkboxes or labels rely on browser defaults without approved spacing",
+      "a new variant is invented without contract evidence",
+      "non-destructive modal or dialog actions put cancel/dismiss after the primary completion action",
+      "focus, disabled, or error states are missing",
+      "browser QA is skipped after UI generation"
+    ]
+  },
+  "source_brief_file": "examples/model-ui/b2b-renewal-risk/source-brief.txt",
+  "activity_review_status": "ready_for_review",
+  "workflow_review_status": "ready_for_review"
 }

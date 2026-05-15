@@ -6,7 +6,7 @@
   "row_id": "gemma4-lms",
   "row_label": "Gemma 4 via LM Studio lms",
   "column_id": "with-judgmentkit",
-  "column_label": "JudgmentKit handoff",
+  "column_label": "JudgmentKit skill context",
   "model_label": "Gemma 4 (local LLM)",
   "provider": "lmstudio",
   "cli": "lms",
@@ -19,27 +19,88 @@
   "design_system_render_mode": null,
   "render_mode": "html",
   "runner": "scripts/capture-model-ui-matrix.mjs",
-  "captured_at": "2026-05-14T02:53:18.090Z",
+  "captured_at": "2026-05-15T21:27:00.260Z",
   "context_included": {
     "source_brief": true,
     "sample_case": true,
     "reviewed_handoff": true,
-    "material_ui_adapter": false
+    "material_ui_adapter": false,
+    "frontend_skill_context": true
   },
-  "source_context_sha256": "1b869087f751e72a0611d791779866bf2d71642d5859713d9234765e56eb7c07",
-  "prompt_sha256": "2d344ae1afdd0ee773e760e6c4a1ab00a6b2b6a7a96647754966ce2f4ad34d55",
-  "raw_response_sha256": "3cd1e8f60f042879080adcdbda4a3c021d2e83a022462a2f54aad48e9eb16274",
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": null,
+    "design_system_mode": "no_design_system_adapter_provided",
+    "design_system_name": "",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "gemma4-lms-with-judgmentkit desktop screenshot has a styled primary work surface",
+      "gemma4-lms-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
+  "source_context_sha256": "5fb5bad62994a5ec45b69ce09b343eb3932725dd0be51369a850c027f8e4675b",
+  "prompt_sha256": "ee421af6cb25603e4fcb4ee668a2809df71763ae9fec25aff2b9132baf96716c",
+  "raw_response_sha256": "eecb6225a40ccac71aba03fe167b3595f164328f5544b3f011f679a00932a231",
   "command_display": "lms chat google/gemma-4-e2b --system-prompt You generate one static product UI candidate for a JudgmentKit comparison fixture. Return one valid JSON object only. Do not use Markdown fences. Do not include scripts, external assets, remote fonts, or external image URLs. Respect the context boundary described in the user prompt. --prompt <prompt> --ttl 300 --yes",
   "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix.",
-  "parsed": {
-    "summary": "A dashboard allowing a manager to review a repair visit's readiness against route, parts, and SLA constraints and decide whether to assign, reschedule, or escalate.",
-    "css": "body { font-family: Arial, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 20px; } main { max-width: 1365px; margin: auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); } h1 { color: #0056b3; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; } .visit-card { border: 1px solid #ddd; padding: 20px; margin-bottom: 25px; border-radius: 6px; background-color: #fafafa; } .status-indicator { font-weight: bold; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 10px; } .status-ready { background-color: #d4edda; color: #155724; } .status-risk { background-color: #f8d7da; color: #721c24; } .action-panel button { padding: 10px 15px; margin-right: 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background-color 0.3s; } .btn-assign { background-color: #28a745; color: white; } .btn-reschedule { background-color: #ffc107; color: #333; } .btn-escalate { background-color: #dc3545; color: white; } .btn-request { background-color: #007bff; color: white; }",
-    "html": "<main data-primary-surface>\n  <h1>Repair Visit Dispatch Review</h1>\n  <p>Review and decide the next action for the selected repair visit before dispatch handoff.</p>\n\n  <div class=\"visit-card\">\n    <h2>Selected Repair Visit: V-2187</h2>\n    <p><strong>Customer:</strong> Mallory Chen</p>\n    <p><strong>Plan:</strong> Priority repair (SLA 4h)</p>\n    <p><strong>Current State:</strong> Parts check needed</p>\n    <div class=\"status-indicator status-risk\">SLA Risk Detected</div>\n  </div>\n\n  <h2>Readiness Checklist</h2>\n  <ul>\n    <li>Technician Qualification: ✔️ Reyes is qualified.</li>\n    <li>Parts Readiness: ⚠️ Replacement fan motor needed (West Depot).</li>\n    <li>Site Access: ❌ Customer gate code missing.</li>\n    <li>Route Conflict Check: ✅ Route clear for immediate dispatch.</li>\n  </ul>\n\n  <h2>Decision Path</h2>\n  <p>Based on readiness, choose the appropriate action:</p>\n  <div class=\"action-panel\">\n    <button class=\"btn-assign\">Assign Nearest Technician</button>\n    <button class=\"btn-reschedule\">Reschedule for Parts</button>\n    <button class=\"btn-escalate\">Escalate SLA Risk</button>\n    <button class=\"btn-request\">Request Site Access Detail</button>\n  </div>\n\n  <h2>Dispatch Handoff Summary</h2>\n  <p><strong>Next Owner:</strong> Dispatch Support</p>\n  <p><strong>Reason for Handoff:</strong> Gate code is missing before the qualified technician can be assigned.</p>\n  <p><strong>Recommended Next Action:</strong> Request the gate code, then assign Reyes within the SLA window.</p>\n\n</main>"
+  "lms_context": {
+    "model": "google/gemma-4-e2b",
+    "status": "already_loaded",
+    "requested_context_length": 16384,
+    "actual_context_length": 16384,
+    "identifier": "google/gemma-4-e2b"
   },
-  "raw_response": "{\n  \"summary\": \"A dashboard allowing a manager to review a repair visit's readiness against route, parts, and SLA constraints and decide whether to assign, reschedule, or escalate.\",\n  \"css\": \"body { font-family: Arial, sans-serif; background-color: #f4f7f9; color: #333; margin: 0; padding: 20px; } main { max-width: 1365px; margin: auto; background-color: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); } h1 { color: #0056b3; border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; } .visit-card { border: 1px solid #ddd; padding: 20px; margin-bottom: 25px; border-radius: 6px; background-color: #fafafa; } .status-indicator { font-weight: bold; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 10px; } .status-ready { background-color: #d4edda; color: #155724; } .status-risk { background-color: #f8d7da; color: #721c24; } .action-panel button { padding: 10px 15px; margin-right: 10px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background-color 0.3s; } .btn-assign { background-color: #28a745; color: white; } .btn-reschedule { background-color: #ffc107; color: #333; } .btn-escalate { background-color: #dc3545; color: white; } .btn-request { background-color: #007bff; color: white; }\",\n  \"html\": \"<main data-primary-surface>\\n  <h1>Repair Visit Dispatch Review</h1>\\n  <p>Review and decide the next action for the selected repair visit before dispatch handoff.</p>\\n\\n  <div class=\\\"visit-card\\\">\\n    <h2>Selected Repair Visit: V-2187</h2>\\n    <p><strong>Customer:</strong> Mallory Chen</p>\\n    <p><strong>Plan:</strong> Priority repair (SLA 4h)</p>\\n    <p><strong>Current State:</strong> Parts check needed</p>\\n    <div class=\\\"status-indicator status-risk\\\">SLA Risk Detected</div>\\n  </div>\\n\\n  <h2>Readiness Checklist</h2>\\n  <ul>\\n    <li>Technician Qualification: ✔️ Reyes is qualified.</li>\\n    <li>Parts Readiness: ⚠️ Replacement fan motor needed (West Depot).</li>\\n    <li>Site Access: ❌ Customer gate code missing.</li>\\n    <li>Route Conflict Check: ✅ Route clear for immediate dispatch.</li>\\n  </ul>\\n\\n  <h2>Decision Path</h2>\\n  <p>Based on readiness, choose the appropriate action:</p>\\n  <div class=\\\"action-panel\\\">\\n    <button class=\\\"btn-assign\\\">Assign Nearest Technician</button>\\n    <button class=\\\"btn-reschedule\\\">Reschedule for Parts</button>\\n    <button class=\\\"btn-escalate\\\">Escalate SLA Risk</button>\\n    <button class=\\\"btn-request\\\">Request Site Access Detail</button>\\n  </div>\\n\\n  <h2>Dispatch Handoff Summary</h2>\\n  <p><strong>Next Owner:</strong> Dispatch Support</p>\\n  <p><strong>Reason for Handoff:</strong> Gate code is missing before the qualified technician can be assigned.</p>\\n  <p><strong>Recommended Next Action:</strong> Request the gate code, then assign Reyes within the SLA window.</p>\\n\\n</main>\"\n}",
+  "capture_quality": {
+    "profile": "judgmentkit_static_html_css",
+    "css_characters": 1270,
+    "html_characters": 1971,
+    "css_rule_count": 15,
+    "class_selector_count": 18,
+    "semantic_section_count": 6,
+    "structural_block_count": 16,
+    "button_count": 4,
+    "has_responsive_css": true,
+    "has_layout_css": true,
+    "has_panel_css": true,
+    "has_control_css": true,
+    "has_evidence_content": true,
+    "has_handoff_content": true,
+    "compact_template_signature": false,
+    "failures": [],
+    "status": "passed"
+  },
+  "parsed": {
+    "summary": "A dispatch review screen for a field service repair, highlighting missing site access information and presenting options to proceed or request further details.",
+    "css": ".container{display:flex;gap:20px;padding:20px;font-family:Arial,sans-serif;background:#f4f7fa;min-height:100vh;}.main-panel{flex:3;background:#ffffff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.05);padding:30px;}.sidebar{flex:1;display:flex;flex-direction:column;gap:20px;}.header{border-bottom:1px solid#eee;padding-bottom:15px;margin-bottom:20px;}.status-badge{background:#ffc107;color:#333;padding:4px 8px;border-radius:4px;font-weight:bold;}.queue-item{background:#f9f9f9;border:1px solid#eee;padding:15px;margin-bottom:10px;border-radius:6px;display:flex;justify-content:space-between;align-items:center}.detail-box{background:#e6f7ff;border-left:4px solid#2196f3;padding:15px;margin-bottom:20px;border-radius:4px}.evidence ul{list-style:disc;padding-left:20px}.decision-controls button{flex:1;padding:12px;margin:5px;border:none;border-radius:6px;cursor:pointer;font-weight:600;transition:background-color 0.2s;}.btn-primary{background:#2196f3;color:#fff;}.btn-secondary{background:#e0e0e0;color:#333;}.handoff-panel{background:#ffebee;border:1px solid#f44336;padding:15px;border-radius:6px;margin-top:20px;}.responsives-medium{@media(max-width:992px){.container{flex-direction:column}.main-panel{padding:20px}.sidebar{flex-direction:row;flex-wrap:wrap}}.",
+    "html": "<main data-primary-surface class=\"container\"><div class=\"main-panel\"><header><h1 class=\"heading\">Repair Dispatch Review</h1><span class=\"status-badge\">Parts check needed</span></header><section class=\"queue-section\"><h2>Repair visits</h2><div class=\"queue-item\"><div><p>V-2187: Mallory Chen | SLA 4h</p><small>State: Needs gate code</small></div></div><div class=\"queue-item\"><div><p>V-2188: Owen Patel | Tomorrow</p><small>State: Parts shortage</small></div></div><div class=\"queue-item\"><div><p>V-2189: Rae Wilson | SLA 2h</p><small>State: Route conflict</small></div></div></section><section class=\"detail-box\"><h3>Selected Case Detail</h3><p><strong>Customer:</strong> Mallory Chen<p><strong>Plan:</strong> Priority repair<p><strong>SLA:</strong> SLA 4h</p><p><strong>Status:</strong> Parts check needed</p><div class=\"info\"><h4>Service window:</h4><p>SLA 4h</p><h4>Parts readiness:</h4><p>Fan motor available</p></div><div class=\"evidence\"><h4>Evidence:</h4><ul><li>Technician Reyes is 18 minutes from the site and certified for the freezer unit.</li><li>Replacement fan motor is available at the west depot.</li><li>Customer gate code is missing before dispatch.</li></ul></div></section><section class=\"policy-section\"><h3>Dispatch rule</h3><p>Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support.</p></section><section class=\"decision-controls\"><h3>Choose dispatch path</h3><button class=\"btn-primary\">Assign technician</button><button class=\"btn-secondary\">Reschedule for parts</button><button class=\"btn-primary\">Request gate code</button></section><section class=\"handoff-panel\"><h3>Dispatch handoff</h3><p><strong>Owner:</strong> Dispatch support<p><strong>Reason:</strong> Gate code is missing before assignment can be completed.<p><button class=\"btn-primary\">Send handoff</button></section></div><div class=\"sidebar\"><h2>Queue Summary</h2><p>Total pending visits: 3</p></div></main>"
+  },
+  "raw_response": "{\"summary\":\"A dispatch review screen for a field service repair, highlighting missing site access information and presenting options to proceed or request further details.\",\"css\":\".container{display:flex;gap:20px;padding:20px;font-family:Arial,sans-serif;background:#f4f7fa;min-height:100vh;}.main-panel{flex:3;background:#ffffff;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.05);padding:30px;}.sidebar{flex:1;display:flex;flex-direction:column;gap:20px;}.header{border-bottom:1px solid#eee;padding-bottom:15px;margin-bottom:20px;}.status-badge{background:#ffc107;color:#333;padding:4px 8px;border-radius:4px;font-weight:bold;}.queue-item{background:#f9f9f9;border:1px solid#eee;padding:15px;margin-bottom:10px;border-radius:6px;display:flex;justify-content:space-between;align-items:center}.detail-box{background:#e6f7ff;border-left:4px solid#2196f3;padding:15px;margin-bottom:20px;border-radius:4px}.evidence ul{list-style:disc;padding-left:20px}.decision-controls button{flex:1;padding:12px;margin:5px;border:none;border-radius:6px;cursor:pointer;font-weight:600;transition:background-color 0.2s;}.btn-primary{background:#2196f3;color:#fff;}.btn-secondary{background:#e0e0e0;color:#333;}.handoff-panel{background:#ffebee;border:1px solid#f44336;padding:15px;border-radius:6px;margin-top:20px;}.responsives-medium{@media(max-width:992px){.container{flex-direction:column}.main-panel{padding:20px}.sidebar{flex-direction:row;flex-wrap:wrap}}.\",\"html\":\"<main data-primary-surface class=\\\"container\\\"><div class=\\\"main-panel\\\"><header><h1 class=\\\"heading\\\">Repair Dispatch Review</h1><span class=\\\"status-badge\\\">Parts check needed</span></header><section class=\\\"queue-section\\\"><h2>Repair visits</h2><div class=\\\"queue-item\\\"><div><p>V-2187: Mallory Chen | SLA 4h</p><small>State: Needs gate code</small></div></div><div class=\\\"queue-item\\\"><div><p>V-2188: Owen Patel | Tomorrow</p><small>State: Parts shortage</small></div></div><div class=\\\"queue-item\\\"><div><p>V-2189: Rae Wilson | SLA 2h</p><small>State: Route conflict</small></div></div></section><section class=\\\"detail-box\\\"><h3>Selected Case Detail</h3><p><strong>Customer:</strong> Mallory Chen<p><strong>Plan:</strong> Priority repair<p><strong>SLA:</strong> SLA 4h</p><p><strong>Status:</strong> Parts check needed</p><div class=\\\"info\\\"><h4>Service window:</h4><p>SLA 4h</p><h4>Parts readiness:</h4><p>Fan motor available</p></div><div class=\\\"evidence\\\"><h4>Evidence:</h4><ul><li>Technician Reyes is 18 minutes from the site and certified for the freezer unit.</li><li>Replacement fan motor is available at the west depot.</li><li>Customer gate code is missing before dispatch.</li></ul></div></section><section class=\\\"policy-section\\\"><h3>Dispatch rule</h3><p>Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support.</p></section><section class=\\\"decision-controls\\\"><h3>Choose dispatch path</h3><button class=\\\"btn-primary\\\">Assign technician</button><button class=\\\"btn-secondary\\\">Reschedule for parts</button><button class=\\\"btn-primary\\\">Request gate code</button></section><section class=\\\"handoff-panel\\\"><h3>Dispatch handoff</h3><p><strong>Owner:</strong> Dispatch support<p><strong>Reason:</strong> Gate code is missing before assignment can be completed.<p><button class=\\\"btn-primary\\\">Send handoff</button></section></div><div class=\\\"sidebar\\\"><h2>Queue Summary</h2><p>Total pending visits: 3</p></div></main>\"",
   "execution": {
     "status": 0,
-    "stdout_sha256": "ae21a05de6ee1128c4aae7e9a6e45a78451e5c474cf98a7de1610fb61f01094a",
+    "stdout_sha256": "5770edd4bc49f938065887eb0853a3293b410d7e43c48458a8f0ce96fd0a9988",
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   }
 }

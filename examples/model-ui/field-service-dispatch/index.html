@@ -349,7 +349,7 @@
     <main>
       <p class="eyebrow">System-map example pack</p>
       <h1>Field service dispatch model UI generation matrix</h1>
-      <p>A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints. Three generation paths are shown across four context boundaries. Material UI improves visual/component consistency; JudgmentKit improves activity fit, workflow fit, and disclosure discipline.</p>
+      <p>A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints. Three generation paths are shown across four context boundaries. JudgmentKit skill context improves activity fit, workflow fit, disclosure discipline, and implementation guidance; Material UI improves visual/component consistency.</p>
       <div class="summary" aria-label="Matrix summary">
         <div><span>Source brief</span><strong>examples/model-ui/field-service-dispatch/source-brief.txt</strong></div>
         <div><span>Rows</span><strong>3 generation paths</strong></div>
@@ -363,16 +363,16 @@
             <span>Raw source brief and sample case only. No reviewed handoff and no Material UI.</span>
           </div>
           <div>
-            <strong>JudgmentKit handoff</strong>
-            <span>Reviewed JudgmentKit handoff and sample case. No Material UI adapter.</span>
+            <strong>JudgmentKit skill context</strong>
+            <span>Reviewed handoff plus compiled frontend implementation skill context. No Material UI.</span>
           </div>
           <div>
             <strong>Material UI only</strong>
             <span>Raw source brief plus Material UI adapter. No reviewed JudgmentKit handoff.</span>
           </div>
           <div>
-            <strong>JudgmentKit + Material UI</strong>
-            <span>Reviewed JudgmentKit handoff rendered through the Material UI adapter.</span>
+            <strong>JudgmentKit skill + Material UI</strong>
+            <span>Reviewed handoff plus compiled frontend skill context rendered through Material UI.</span>
           </div>
       </section>
       <div class="gallery-intro">
@@ -412,16 +412,16 @@
         </article>
 
         <article class="gallery-card">
-          <a class="thumbnail-link" href="artifacts/deterministic-with-judgmentkit.html" data-carousel-open="1" aria-label="Open larger view for Deterministic - JudgmentKit handoff">
-            <img src="screenshots/deterministic-with-judgmentkit.png" alt="Deterministic - JudgmentKit handoff screenshot" loading="eager">
+          <a class="thumbnail-link" href="artifacts/deterministic-with-judgmentkit.html" data-carousel-open="1" aria-label="Open larger view for Deterministic - JudgmentKit skill context">
+            <img src="screenshots/deterministic-with-judgmentkit.png" alt="Deterministic - JudgmentKit skill context screenshot" loading="eager">
           </a>
           <div class="gallery-card-copy">
-            <p class="eyebrow">JudgmentKit handoff</p>
-            <h2>Deterministic - JudgmentKit handoff</h2>
-            <p>Deterministic receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance.</p>
+            <p class="eyebrow">JudgmentKit skill context</p>
+            <h2>Deterministic - JudgmentKit skill context</h2>
+            <p>Deterministic receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.</p>
             <dl>
-              <div><dt>Context</dt><dd>JudgmentKit handoff</dd></div>
-              <div><dt>Render</dt><dd>deterministic_judgmentkit_html</dd></div>
+              <div><dt>Context</dt><dd>JudgmentKit skill context</dd></div>
+              <div><dt>Render</dt><dd>deterministic_frontend_skill_html</dd></div>
             </dl>
             <div class="card-actions">
               <a href="artifacts/deterministic-with-judgmentkit.html">Open live artifact</a>
@@ -450,16 +450,16 @@
         </article>
 
         <article class="gallery-card">
-          <a class="thumbnail-link" href="artifacts/deterministic-judgmentkit-material-ui.html" data-carousel-open="3" aria-label="Open larger view for Deterministic - JudgmentKit + Material UI">
-            <img src="screenshots/deterministic-judgmentkit-material-ui.png" alt="Deterministic - JudgmentKit + Material UI screenshot" loading="eager">
+          <a class="thumbnail-link" href="artifacts/deterministic-judgmentkit-material-ui.html" data-carousel-open="3" aria-label="Open larger view for Deterministic - JudgmentKit skill + Material UI">
+            <img src="screenshots/deterministic-judgmentkit-material-ui.png" alt="Deterministic - JudgmentKit skill + Material UI screenshot" loading="eager">
           </a>
           <div class="gallery-card-copy">
-            <p class="eyebrow">JudgmentKit + Material UI</p>
-            <h2>Deterministic - JudgmentKit + Material UI</h2>
-            <p>Deterministic receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path.</p>
+            <p class="eyebrow">JudgmentKit skill + Material UI</p>
+            <h2>Deterministic - JudgmentKit skill + Material UI</h2>
+            <p>Deterministic receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path.</p>
             <dl>
-              <div><dt>Context</dt><dd>JudgmentKit + Material UI</dd></div>
-              <div><dt>Render</dt><dd>deterministic_material_ui_ssr</dd></div>
+              <div><dt>Context</dt><dd>JudgmentKit skill + Material UI</dd></div>
+              <div><dt>Render</dt><dd>deterministic_frontend_skill_material_ui_ssr</dd></div>
             </dl>
             <div class="card-actions">
               <a href="artifacts/deterministic-judgmentkit-material-ui.html">Open live artifact</a>
@@ -497,16 +497,16 @@
         </article>
 
         <article class="gallery-card">
-          <a class="thumbnail-link" href="artifacts/gemma4-lms-with-judgmentkit.html" data-carousel-open="5" aria-label="Open larger view for Gemma 4 via LM Studio lms - JudgmentKit handoff">
-            <img src="screenshots/gemma4-lms-with-judgmentkit.png" alt="Gemma 4 via LM Studio lms - JudgmentKit handoff screenshot" loading="lazy">
+          <a class="thumbnail-link" href="artifacts/gemma4-lms-with-judgmentkit.html" data-carousel-open="5" aria-label="Open larger view for Gemma 4 via LM Studio lms - JudgmentKit skill context">
+            <img src="screenshots/gemma4-lms-with-judgmentkit.png" alt="Gemma 4 via LM Studio lms - JudgmentKit skill context screenshot" loading="lazy">
           </a>
           <div class="gallery-card-copy">
-            <p class="eyebrow">JudgmentKit handoff</p>
-            <h2>Gemma 4 via LM Studio lms - JudgmentKit handoff</h2>
-            <p>Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance.</p>
+            <p class="eyebrow">JudgmentKit skill context</p>
+            <h2>Gemma 4 via LM Studio lms - JudgmentKit skill context</h2>
+            <p>Gemma 4 via LM Studio lms receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.</p>
             <dl>
-              <div><dt>Context</dt><dd>JudgmentKit handoff</dd></div>
-              <div><dt>Render</dt><dd>model_static_html_css</dd></div>
+              <div><dt>Context</dt><dd>JudgmentKit skill context</dd></div>
+              <div><dt>Render</dt><dd>model_frontend_skill_static_html_css</dd></div>
             </dl>
             <div class="card-actions">
               <a href="artifacts/gemma4-lms-with-judgmentkit.html">Open live artifact</a>
@@ -535,16 +535,16 @@
         </article>
 
         <article class="gallery-card">
-          <a class="thumbnail-link" href="artifacts/gemma4-lms-judgmentkit-material-ui.html" data-carousel-open="7" aria-label="Open larger view for Gemma 4 via LM Studio lms - JudgmentKit + Material UI">
-            <img src="screenshots/gemma4-lms-judgmentkit-material-ui.png" alt="Gemma 4 via LM Studio lms - JudgmentKit + Material UI screenshot" loading="lazy">
+          <a class="thumbnail-link" href="artifacts/gemma4-lms-judgmentkit-material-ui.html" data-carousel-open="7" aria-label="Open larger view for Gemma 4 via LM Studio lms - JudgmentKit skill + Material UI">
+            <img src="screenshots/gemma4-lms-judgmentkit-material-ui.png" alt="Gemma 4 via LM Studio lms - JudgmentKit skill + Material UI screenshot" loading="lazy">
           </a>
           <div class="gallery-card-copy">
-            <p class="eyebrow">JudgmentKit + Material UI</p>
-            <h2>Gemma 4 via LM Studio lms - JudgmentKit + Material UI</h2>
-            <p>Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path.</p>
+            <p class="eyebrow">JudgmentKit skill + Material UI</p>
+            <h2>Gemma 4 via LM Studio lms - JudgmentKit skill + Material UI</h2>
+            <p>Gemma 4 via LM Studio lms receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path.</p>
             <dl>
-              <div><dt>Context</dt><dd>JudgmentKit + Material UI</dd></div>
-              <div><dt>Render</dt><dd>model_structured_data_material_ui_ssr</dd></div>
+              <div><dt>Context</dt><dd>JudgmentKit skill + Material UI</dd></div>
+              <div><dt>Render</dt><dd>model_frontend_skill_material_ui_ssr</dd></div>
             </dl>
             <div class="card-actions">
               <a href="artifacts/gemma4-lms-judgmentkit-material-ui.html">Open live artifact</a>
@@ -582,16 +582,16 @@
         </article>
 
         <article class="gallery-card">
-          <a class="thumbnail-link" href="artifacts/gpt55-xhigh-codex-with-judgmentkit.html" data-carousel-open="9" aria-label="Open larger view for GPT-5.5 xhigh via codex exec - JudgmentKit handoff">
-            <img src="screenshots/gpt55-xhigh-codex-with-judgmentkit.png" alt="GPT-5.5 xhigh via codex exec - JudgmentKit handoff screenshot" loading="lazy">
+          <a class="thumbnail-link" href="artifacts/gpt55-xhigh-codex-with-judgmentkit.html" data-carousel-open="9" aria-label="Open larger view for GPT-5.5 xhigh via codex exec - JudgmentKit skill context">
+            <img src="screenshots/gpt55-xhigh-codex-with-judgmentkit.png" alt="GPT-5.5 xhigh via codex exec - JudgmentKit skill context screenshot" loading="lazy">
           </a>
           <div class="gallery-card-copy">
-            <p class="eyebrow">JudgmentKit handoff</p>
-            <h2>GPT-5.5 xhigh via codex exec - JudgmentKit handoff</h2>
-            <p>GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance.</p>
+            <p class="eyebrow">JudgmentKit skill context</p>
+            <h2>GPT-5.5 xhigh via codex exec - JudgmentKit skill context</h2>
+            <p>GPT-5.5 xhigh via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.</p>
             <dl>
-              <div><dt>Context</dt><dd>JudgmentKit handoff</dd></div>
-              <div><dt>Render</dt><dd>model_static_html_css</dd></div>
+              <div><dt>Context</dt><dd>JudgmentKit skill context</dd></div>
+              <div><dt>Render</dt><dd>model_frontend_skill_static_html_css</dd></div>
             </dl>
             <div class="card-actions">
               <a href="artifacts/gpt55-xhigh-codex-with-judgmentkit.html">Open live artifact</a>
@@ -620,16 +620,16 @@
         </article>
 
         <article class="gallery-card">
-          <a class="thumbnail-link" href="artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html" data-carousel-open="11" aria-label="Open larger view for GPT-5.5 xhigh via codex exec - JudgmentKit + Material UI">
-            <img src="screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png" alt="GPT-5.5 xhigh via codex exec - JudgmentKit + Material UI screenshot" loading="lazy">
+          <a class="thumbnail-link" href="artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html" data-carousel-open="11" aria-label="Open larger view for GPT-5.5 xhigh via codex exec - JudgmentKit skill + Material UI">
+            <img src="screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png" alt="GPT-5.5 xhigh via codex exec - JudgmentKit skill + Material UI screenshot" loading="lazy">
           </a>
           <div class="gallery-card-copy">
-            <p class="eyebrow">JudgmentKit + Material UI</p>
-            <h2>GPT-5.5 xhigh via codex exec - JudgmentKit + Material UI</h2>
-            <p>GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path.</p>
+            <p class="eyebrow">JudgmentKit skill + Material UI</p>
+            <h2>GPT-5.5 xhigh via codex exec - JudgmentKit skill + Material UI</h2>
+            <p>GPT-5.5 xhigh via codex exec receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path.</p>
             <dl>
-              <div><dt>Context</dt><dd>JudgmentKit + Material UI</dd></div>
-              <div><dt>Render</dt><dd>model_structured_data_material_ui_ssr</dd></div>
+              <div><dt>Context</dt><dd>JudgmentKit skill + Material UI</dd></div>
+              <div><dt>Render</dt><dd>model_frontend_skill_material_ui_ssr</dd></div>
             </dl>
             <div class="card-actions">
               <a href="artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html">Open live artifact</a>
@@ -640,7 +640,7 @@
         </div>
       </article>
       </section>
-      <p class="note">All model cells are committed captures. Material UI improves visual/component consistency; JudgmentKit improves activity fit, workflow fit, and disclosure discipline.</p>
+      <p class="note">All model cells are committed captures. JudgmentKit skill context improves activity fit, workflow fit, disclosure discipline, and implementation guidance; Material UI improves visual/component consistency.</p>
       <details class="details">
         <summary>Provenance details</summary>
         <div class="details-grid">
@@ -656,7 +656,7 @@
         <article class="details-row">
           <div>
             <p class="eyebrow">Deterministic</p>
-            <h3>JudgmentKit handoff</h3>
+            <h3>JudgmentKit skill context</h3>
           </div>
           <p>Rendered deterministically; no provider call.</p>
           <a href="artifacts/deterministic-with-judgmentkit.html">Artifact</a>
@@ -672,7 +672,7 @@
         <article class="details-row">
           <div>
             <p class="eyebrow">Deterministic</p>
-            <h3>JudgmentKit + Material UI</h3>
+            <h3>JudgmentKit skill + Material UI</h3>
           </div>
           <p>Rendered deterministically; no provider call.</p>
           <a href="artifacts/deterministic-judgmentkit-material-ui.html">Artifact</a>
@@ -688,7 +688,7 @@
         <article class="details-row">
           <div>
             <p class="eyebrow">Gemma 4 via LM Studio lms</p>
-            <h3>JudgmentKit handoff</h3>
+            <h3>JudgmentKit skill context</h3>
           </div>
           <p>Transcript: captures/gemma4-lms-with-judgmentkit.json</p>
           <a href="artifacts/gemma4-lms-with-judgmentkit.html">Artifact</a>
@@ -704,7 +704,7 @@
         <article class="details-row">
           <div>
             <p class="eyebrow">Gemma 4 via LM Studio lms</p>
-            <h3>JudgmentKit + Material UI</h3>
+            <h3>JudgmentKit skill + Material UI</h3>
           </div>
           <p>Transcript: captures/gemma4-lms-judgmentkit-material-ui.json</p>
           <a href="artifacts/gemma4-lms-judgmentkit-material-ui.html">Artifact</a>
@@ -720,7 +720,7 @@
         <article class="details-row">
           <div>
             <p class="eyebrow">GPT-5.5 xhigh via codex exec</p>
-            <h3>JudgmentKit handoff</h3>
+            <h3>JudgmentKit skill context</h3>
           </div>
           <p>Transcript: captures/gpt55-xhigh-codex-with-judgmentkit.json</p>
           <a href="artifacts/gpt55-xhigh-codex-with-judgmentkit.html">Artifact</a>
@@ -736,7 +736,7 @@
         <article class="details-row">
           <div>
             <p class="eyebrow">GPT-5.5 xhigh via codex exec</p>
-            <h3>JudgmentKit + Material UI</h3>
+            <h3>JudgmentKit skill + Material UI</h3>
           </div>
           <p>Transcript: captures/gpt55-xhigh-codex-judgmentkit-material-ui.json</p>
           <a href="artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html">Artifact</a>
@@ -793,14 +793,14 @@
   },
   {
     "id": "deterministic-with-judgmentkit",
-    "title": "Deterministic - JudgmentKit handoff",
-    "caption": "Deterministic receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance.",
+    "title": "Deterministic - JudgmentKit skill context",
+    "caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.",
     "model_label": "Deterministic",
-    "column_label": "JudgmentKit handoff",
-    "render_source": "deterministic_judgmentkit_html",
+    "column_label": "JudgmentKit skill context",
+    "render_source": "deterministic_frontend_skill_html",
     "provenance": "captured",
-    "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
-    "prompt_context": "source brief + sample case + reviewed handoff",
+    "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+    "prompt_context": "source brief + sample case + reviewed handoff + frontend skill context",
     "image": "screenshots/deterministic-with-judgmentkit.png",
     "artifact": "artifacts/deterministic-with-judgmentkit.html"
   },
@@ -819,14 +819,14 @@
   },
   {
     "id": "deterministic-judgmentkit-material-ui",
-    "title": "Deterministic - JudgmentKit + Material UI",
-    "caption": "Deterministic receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path.",
+    "title": "Deterministic - JudgmentKit skill + Material UI",
+    "caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path.",
     "model_label": "Deterministic",
-    "column_label": "JudgmentKit + Material UI",
-    "render_source": "deterministic_material_ui_ssr",
+    "column_label": "JudgmentKit skill + Material UI",
+    "render_source": "deterministic_frontend_skill_material_ui_ssr",
     "provenance": "captured",
-    "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
-    "prompt_context": "source brief + sample case + reviewed handoff + Material UI adapter",
+    "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed handoff plus compiled frontend skill context.",
+    "prompt_context": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
     "image": "screenshots/deterministic-judgmentkit-material-ui.png",
     "artifact": "artifacts/deterministic-judgmentkit-material-ui.html"
   },
@@ -845,14 +845,14 @@
   },
   {
     "id": "gemma4-lms-with-judgmentkit",
-    "title": "Gemma 4 via LM Studio lms - JudgmentKit handoff",
-    "caption": "Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance.",
+    "title": "Gemma 4 via LM Studio lms - JudgmentKit skill context",
+    "caption": "Gemma 4 via LM Studio lms receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.",
     "model_label": "Gemma 4 via LM Studio lms",
-    "column_label": "JudgmentKit handoff",
-    "render_source": "model_static_html_css",
+    "column_label": "JudgmentKit skill context",
+    "render_source": "model_frontend_skill_static_html_css",
     "provenance": "captured",
-    "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
-    "prompt_context": "source brief + sample case + reviewed handoff",
+    "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+    "prompt_context": "source brief + sample case + reviewed handoff + frontend skill context",
     "image": "screenshots/gemma4-lms-with-judgmentkit.png",
     "artifact": "artifacts/gemma4-lms-with-judgmentkit.html"
   },
@@ -871,14 +871,14 @@
   },
   {
     "id": "gemma4-lms-judgmentkit-material-ui",
-    "title": "Gemma 4 via LM Studio lms - JudgmentKit + Material UI",
-    "caption": "Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path.",
+    "title": "Gemma 4 via LM Studio lms - JudgmentKit skill + Material UI",
+    "caption": "Gemma 4 via LM Studio lms receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path.",
     "model_label": "Gemma 4 via LM Studio lms",
-    "column_label": "JudgmentKit + Material UI",
-    "render_source": "model_structured_data_material_ui_ssr",
+    "column_label": "JudgmentKit skill + Material UI",
+    "render_source": "model_frontend_skill_material_ui_ssr",
     "provenance": "captured",
-    "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
-    "prompt_context": "source brief + sample case + reviewed handoff + Material UI adapter",
+    "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed handoff plus compiled frontend skill context.",
+    "prompt_context": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
     "image": "screenshots/gemma4-lms-judgmentkit-material-ui.png",
     "artifact": "artifacts/gemma4-lms-judgmentkit-material-ui.html"
   },
@@ -897,14 +897,14 @@
   },
   {
     "id": "gpt55-xhigh-codex-with-judgmentkit",
-    "title": "GPT-5.5 xhigh via codex exec - JudgmentKit handoff",
-    "caption": "GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance.",
+    "title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill context",
+    "caption": "GPT-5.5 xhigh via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.",
     "model_label": "GPT-5.5 xhigh via codex exec",
-    "column_label": "JudgmentKit handoff",
-    "render_source": "model_static_html_css",
+    "column_label": "JudgmentKit skill context",
+    "render_source": "model_frontend_skill_static_html_css",
     "provenance": "captured",
-    "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
-    "prompt_context": "source brief + sample case + reviewed handoff",
+    "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+    "prompt_context": "source brief + sample case + reviewed handoff + frontend skill context",
     "image": "screenshots/gpt55-xhigh-codex-with-judgmentkit.png",
     "artifact": "artifacts/gpt55-xhigh-codex-with-judgmentkit.html"
   },
@@ -923,14 +923,14 @@
   },
   {
     "id": "gpt55-xhigh-codex-judgmentkit-material-ui",
-    "title": "GPT-5.5 xhigh via codex exec - JudgmentKit + Material UI",
-    "caption": "GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path.",
+    "title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill + Material UI",
+    "caption": "GPT-5.5 xhigh via codex exec receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path.",
     "model_label": "GPT-5.5 xhigh via codex exec",
-    "column_label": "JudgmentKit + Material UI",
-    "render_source": "model_structured_data_material_ui_ssr",
+    "column_label": "JudgmentKit skill + Material UI",
+    "render_source": "model_frontend_skill_material_ui_ssr",
     "provenance": "captured",
-    "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
-    "prompt_context": "source brief + sample case + reviewed handoff + Material UI adapter",
+    "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed handoff plus compiled frontend skill context.",
+    "prompt_context": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
     "image": "screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png",
     "artifact": "artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html"
   }
@@ -988,7 +988,8 @@
             "source_brief": true,
             "sample_case": true,
             "reviewed_handoff": false,
-            "material_ui_adapter": false
+            "material_ui_adapter": false,
+            "frontend_skill_context": false
           },
           "context_summary": "source brief + sample case",
           "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
@@ -1007,11 +1008,19 @@
             "model": "none",
             "cli": null,
             "reasoning_effort": null,
+            "frontend_context_status": null,
+            "frontend_skill_context_status": null,
+            "capture_quality": null,
             "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
           },
+          "lms_context": null,
+          "capture_quality": null,
           "prompt_sha256": null,
-          "source_context_sha256": "93646a75712eaa2885753898627c57ae06904837b7360d685f127c44ae7e7b2c",
+          "source_context_sha256": "05d605b2604c01265dfd78854fb1584cf6010738877e431300e4b3fadc715bd5",
           "raw_response_sha256": null,
+          "frontend_context_status": null,
+          "frontend_skill_context_status": null,
+          "frontend_skill_context": null,
           "artifact_path": "artifacts/deterministic-no-judgmentkit.html",
           "screenshot_path": "screenshots/deterministic-no-judgmentkit.png",
           "render_source": "deterministic_raw_brief_html",
@@ -1029,8 +1038,8 @@
           "row_id": "deterministic",
           "row_label": "Deterministic",
           "column_id": "with-judgmentkit",
-          "column_label": "JudgmentKit handoff",
-          "title": "Deterministic - JudgmentKit handoff",
+          "column_label": "JudgmentKit skill context",
+          "title": "Deterministic - JudgmentKit skill context",
           "model_label": "Deterministic renderer",
           "generation_source": "deterministic",
           "provider": "none",
@@ -1043,9 +1052,10 @@
             "source_brief": true,
             "sample_case": true,
             "reviewed_handoff": true,
-            "material_ui_adapter": false
+            "material_ui_adapter": false,
+            "frontend_skill_context": true
           },
-          "context_summary": "source brief + sample case + reviewed handoff",
+          "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
           "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
           "reviewed_handoff_file": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
           "design_system_adapter_file": null,
@@ -1062,18 +1072,57 @@
             "model": "none",
             "cli": null,
             "reasoning_effort": null,
+            "frontend_context_status": "ready_for_frontend_implementation",
+            "frontend_skill_context_status": "ready",
+            "capture_quality": null,
             "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
           },
+          "lms_context": null,
+          "capture_quality": null,
           "prompt_sha256": null,
-          "source_context_sha256": "58868217b9f3e9f19bd5a8617c868069e879adbafa9f2ef1a897cbbdd87ae907",
+          "source_context_sha256": "f234eeedc6c0554402d21e2a5e289c02472c98c547110c5e38736bd928d4b158",
           "raw_response_sha256": null,
+          "frontend_context_status": "ready_for_frontend_implementation",
+          "frontend_skill_context_status": "ready",
+          "frontend_skill_context": {
+            "source_skill": "frontend-ui-implementation",
+            "raw_skill_exposed": false,
+            "surface_type": null,
+            "design_system_mode": "no_design_system_adapter_provided",
+            "design_system_name": "",
+            "next_recommended_tool": "review_ui_implementation_candidate",
+            "verification_checklist": [
+              "Run npm test",
+              "Run npm run capture:model-ui:screenshots",
+              "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+              "new primitives or variants require updating the repo-local contract first",
+              "generated UI must include a local check command or equivalent static inspection",
+              "deterministic-with-judgmentkit desktop screenshot has a styled primary work surface",
+              "deterministic-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
+              "desktop viewport screenshot",
+              "mobile viewport screenshot",
+              "keyboard focus check for interactive controls",
+              "overflow check for long labels, descriptions, and values",
+              "modal or dialog footer order check when dialogs are present",
+              "disabled, empty, error, and ready state review",
+              "Verify state: selected work item is visible",
+              "Verify state: decision evidence is scannable",
+              "Verify state: primary action and handoff reason are clear",
+              "Verify required state: empty",
+              "Verify required state: ready",
+              "Verify required state: loading",
+              "Verify required state: error",
+              "Verify required state: disabled",
+              "Verify required state: focus-visible"
+            ]
+          },
           "artifact_path": "artifacts/deterministic-with-judgmentkit.html",
           "screenshot_path": "screenshots/deterministic-with-judgmentkit.png",
-          "render_source": "deterministic_judgmentkit_html",
-          "visible_render_source": "deterministic_judgmentkit_html",
-          "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
-          "approach_title": "Deterministic - JudgmentKit handoff",
-          "approach_caption": "Deterministic receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+          "render_source": "deterministic_frontend_skill_html",
+          "visible_render_source": "deterministic_frontend_skill_html",
+          "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+          "approach_title": "Deterministic - JudgmentKit skill context",
+          "approach_caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
         },
         {
           "id": "deterministic-material-ui-only",
@@ -1098,7 +1147,8 @@
             "source_brief": true,
             "sample_case": true,
             "reviewed_handoff": false,
-            "material_ui_adapter": true
+            "material_ui_adapter": true,
+            "frontend_skill_context": false
           },
           "context_summary": "source brief + sample case + Material UI adapter",
           "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
@@ -1117,11 +1167,19 @@
             "model": "none",
             "cli": null,
             "reasoning_effort": null,
+            "frontend_context_status": null,
+            "frontend_skill_context_status": null,
+            "capture_quality": null,
             "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
           },
+          "lms_context": null,
+          "capture_quality": null,
           "prompt_sha256": null,
-          "source_context_sha256": "2b0b618463f9d352aa818782a3094d44a98b16985abdf113a67326111c4bf398",
+          "source_context_sha256": "358678803a6e3ff866f396eb1677a48cea91ffb4774de5c422bfc88be7884ac1",
           "raw_response_sha256": null,
+          "frontend_context_status": null,
+          "frontend_skill_context_status": null,
+          "frontend_skill_context": null,
           "artifact_path": "artifacts/deterministic-material-ui-only.html",
           "screenshot_path": "screenshots/deterministic-material-ui-only.png",
           "render_source": "deterministic_material_ui_ssr",
@@ -1139,8 +1197,8 @@
           "row_id": "deterministic",
           "row_label": "Deterministic",
           "column_id": "judgmentkit-material-ui",
-          "column_label": "JudgmentKit + Material UI",
-          "title": "Deterministic - JudgmentKit + Material UI",
+          "column_label": "JudgmentKit skill + Material UI",
+          "title": "Deterministic - JudgmentKit skill + Material UI",
           "model_label": "Deterministic renderer",
           "generation_source": "deterministic",
           "provider": "none",
@@ -1153,9 +1211,10 @@
             "source_brief": true,
             "sample_case": true,
             "reviewed_handoff": true,
-            "material_ui_adapter": true
+            "material_ui_adapter": true,
+            "frontend_skill_context": true
           },
-          "context_summary": "source brief + sample case + reviewed handoff + Material UI adapter",
+          "context_summary": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
           "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
           "reviewed_handoff_file": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
           "design_system_adapter_file": "examples/model-ui/field-service-dispatch/design-system-adapter.json",
@@ -1172,18 +1231,57 @@
             "model": "none",
             "cli": null,
             "reasoning_effort": null,
+            "frontend_context_status": "ready_for_frontend_implementation",
+            "frontend_skill_context_status": "ready",
+            "capture_quality": null,
             "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
           },
+          "lms_context": null,
+          "capture_quality": null,
           "prompt_sha256": null,
-          "source_context_sha256": "3e9947daf1734113ef7909852ed5a5c088f4c96ae5c6c4755af058154acbac41",
+          "source_context_sha256": "2b2a98eabb611554bdfa133ea6b0b336c3c23a1a5a78954b0378240c45526ee6",
           "raw_response_sha256": null,
+          "frontend_context_status": "ready_for_frontend_implementation",
+          "frontend_skill_context_status": "ready",
+          "frontend_skill_context": {
+            "source_skill": "frontend-ui-implementation",
+            "raw_skill_exposed": false,
+            "surface_type": null,
+            "design_system_mode": "adapter_after_judgment",
+            "design_system_name": "Material UI",
+            "next_recommended_tool": "review_ui_implementation_candidate",
+            "verification_checklist": [
+              "Run npm test",
+              "Run npm run capture:model-ui:screenshots",
+              "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+              "new primitives or variants require updating the repo-local contract first",
+              "generated UI must include a local check command or equivalent static inspection",
+              "deterministic-judgmentkit-material-ui desktop screenshot has a styled primary work surface",
+              "deterministic-judgmentkit-material-ui mobile screenshot keeps the decision and handoff visible",
+              "desktop viewport screenshot",
+              "mobile viewport screenshot",
+              "keyboard focus check for interactive controls",
+              "overflow check for long labels, descriptions, and values",
+              "modal or dialog footer order check when dialogs are present",
+              "disabled, empty, error, and ready state review",
+              "Verify state: selected work item is visible",
+              "Verify state: decision evidence is scannable",
+              "Verify state: primary action and handoff reason are clear",
+              "Verify required state: empty",
+              "Verify required state: ready",
+              "Verify required state: loading",
+              "Verify required state: error",
+              "Verify required state: disabled",
+              "Verify required state: focus-visible"
+            ]
+          },
           "artifact_path": "artifacts/deterministic-judgmentkit-material-ui.html",
           "screenshot_path": "screenshots/deterministic-judgmentkit-material-ui.png",
-          "render_source": "deterministic_material_ui_ssr",
-          "visible_render_source": "deterministic_material_ui_ssr",
-          "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
-          "approach_title": "Deterministic - JudgmentKit + Material UI",
-          "approach_caption": "Deterministic receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path."
+          "render_source": "deterministic_frontend_skill_material_ui_ssr",
+          "visible_render_source": "deterministic_frontend_skill_material_ui_ssr",
+          "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed handoff plus compiled frontend skill context.",
+          "approach_title": "Deterministic - JudgmentKit skill + Material UI",
+          "approach_caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path."
         }
       ]
     },
@@ -1226,7 +1324,8 @@
             "source_brief": true,
             "sample_case": true,
             "reviewed_handoff": false,
-            "material_ui_adapter": false
+            "material_ui_adapter": false,
+            "frontend_skill_context": false
           },
           "context_summary": "source brief + sample case",
           "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
@@ -1239,30 +1338,90 @@
           "capture_provenance": {
             "status": "captured",
             "capture_type": "model-output-transcript",
-            "captured_at": "2026-05-14T02:52:58.298Z",
+            "captured_at": "2026-05-15T21:26:26.110Z",
             "runner": "scripts/capture-model-ui-matrix.mjs",
             "provider": "lmstudio",
             "model": "google/gemma-4-e2b",
             "cli": "lms",
             "transcript_file": "captures/gemma4-lms-no-judgmentkit.json",
-            "prompt_sha256": "abe827ec93646ae41e6c0cf4d3a1c4c84acc5a6839371fed3c1b286b367ce465",
-            "raw_response_sha256": "ac6379e8fdf3b3935cd474ded84f96168d12b26c17592e59ae5f20b53b1f9244",
-            "source_context_sha256": "95c08188dc61a4aa6eed4fbdcbe02102dba9bf32b99fd961d9163f30695f868f",
+            "prompt_sha256": "8a8ff3ca1ab133082778886b36fd2af26203d5838b6c5be770b2b7954d954524",
+            "raw_response_sha256": "cf95aa5b15e2452056bccc0ea6545ca6ec72e026a96a1b47230447fef87534a2",
+            "source_context_sha256": "0f2e2502a890a993549d13aff65d50f2eb0d7abe3c8eae44ab9f532961f8ed9a",
             "reasoning_effort": null,
             "context_included": {
               "source_brief": true,
               "sample_case": true,
               "reviewed_handoff": false,
-              "material_ui_adapter": false
+              "material_ui_adapter": false,
+              "frontend_skill_context": false
             },
+            "frontend_context_status": null,
+            "frontend_skill_context_status": null,
             "design_system_name": null,
             "design_system_package": null,
             "design_system_render_mode": null,
+            "lms_context": {
+              "model": "google/gemma-4-e2b",
+              "status": "loaded",
+              "requested_context_length": 16384,
+              "actual_context_length": 16384,
+              "identifier": "google/gemma-4-e2b",
+              "load_command_display": "lms load google/gemma-4-e2b --context-length 16384 --ttl 300 --identifier google/gemma-4-e2b --yes"
+            },
+            "capture_quality": {
+              "profile": "basic_static_html_css",
+              "css_characters": 1851,
+              "html_characters": 1561,
+              "css_rule_count": 21,
+              "class_selector_count": 22,
+              "semantic_section_count": 1,
+              "structural_block_count": 8,
+              "button_count": 3,
+              "has_responsive_css": false,
+              "has_layout_css": true,
+              "has_panel_css": true,
+              "has_control_css": true,
+              "has_evidence_content": true,
+              "has_handoff_content": true,
+              "compact_template_signature": false,
+              "failures": [],
+              "status": "passed"
+            },
             "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
           },
-          "prompt_sha256": "abe827ec93646ae41e6c0cf4d3a1c4c84acc5a6839371fed3c1b286b367ce465",
-          "source_context_sha256": "95c08188dc61a4aa6eed4fbdcbe02102dba9bf32b99fd961d9163f30695f868f",
-          "raw_response_sha256": "ac6379e8fdf3b3935cd474ded84f96168d12b26c17592e59ae5f20b53b1f9244",
+          "lms_context": {
+            "model": "google/gemma-4-e2b",
+            "status": "loaded",
+            "requested_context_length": 16384,
+            "actual_context_length": 16384,
+            "identifier": "google/gemma-4-e2b",
+            "load_command_display": "lms load google/gemma-4-e2b --context-length 16384 --ttl 300 --identifier google/gemma-4-e2b --yes"
+          },
+          "capture_quality": {
+            "profile": "basic_static_html_css",
+            "css_characters": 1851,
+            "html_characters": 1561,
+            "css_rule_count": 21,
+            "class_selector_count": 22,
+            "semantic_section_count": 1,
+            "structural_block_count": 8,
+            "button_count": 3,
+            "has_responsive_css": false,
+            "has_layout_css": true,
+            "has_panel_css": true,
+            "has_control_css": true,
+            "has_evidence_content": true,
+            "has_handoff_content": true,
+            "compact_template_signature": false,
+            "failures": [],
+            "status": "passed"
+          },
+          "prompt_sha256": "8a8ff3ca1ab133082778886b36fd2af26203d5838b6c5be770b2b7954d954524",
+          "source_context_sha256": "0f2e2502a890a993549d13aff65d50f2eb0d7abe3c8eae44ab9f532961f8ed9a",
+          "raw_response_sha256": "cf95aa5b15e2452056bccc0ea6545ca6ec72e026a96a1b47230447fef87534a2",
+          "frontend_context_status": null,
+          "frontend_skill_context_status": null,
+          "frontend_skill_context": null,
           "artifact_path": "artifacts/gemma4-lms-no-judgmentkit.html",
           "screenshot_path": "screenshots/gemma4-lms-no-judgmentkit.png",
           "render_source": "model_static_html_css",
@@ -1280,8 +1439,8 @@
           "row_id": "gemma4-lms",
           "row_label": "Gemma 4 via LM Studio lms",
           "column_id": "with-judgmentkit",
-          "column_label": "JudgmentKit handoff",
-          "title": "Gemma 4 via LM Studio lms - JudgmentKit handoff",
+          "column_label": "JudgmentKit skill context",
+          "title": "Gemma 4 via LM Studio lms - JudgmentKit skill context",
           "model_label": "Gemma 4 (local LLM)",
           "generation_source": "captured_model_output",
           "provider": "lmstudio",
@@ -1294,9 +1453,10 @@
             "source_brief": true,
             "sample_case": true,
             "reviewed_handoff": true,
-            "material_ui_adapter": false
+            "material_ui_adapter": false,
+            "frontend_skill_context": true
           },
-          "context_summary": "source brief + sample case + reviewed handoff",
+          "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
           "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
           "reviewed_handoff_file": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
           "design_system_adapter_file": null,
@@ -1307,37 +1467,126 @@
           "capture_provenance": {
             "status": "captured",
             "capture_type": "model-output-transcript",
-            "captured_at": "2026-05-14T02:53:18.090Z",
+            "captured_at": "2026-05-15T21:27:00.260Z",
             "runner": "scripts/capture-model-ui-matrix.mjs",
             "provider": "lmstudio",
             "model": "google/gemma-4-e2b",
             "cli": "lms",
             "transcript_file": "captures/gemma4-lms-with-judgmentkit.json",
-            "prompt_sha256": "2d344ae1afdd0ee773e760e6c4a1ab00a6b2b6a7a96647754966ce2f4ad34d55",
-            "raw_response_sha256": "3cd1e8f60f042879080adcdbda4a3c021d2e83a022462a2f54aad48e9eb16274",
-            "source_context_sha256": "1b869087f751e72a0611d791779866bf2d71642d5859713d9234765e56eb7c07",
+            "prompt_sha256": "ee421af6cb25603e4fcb4ee668a2809df71763ae9fec25aff2b9132baf96716c",
+            "raw_response_sha256": "eecb6225a40ccac71aba03fe167b3595f164328f5544b3f011f679a00932a231",
+            "source_context_sha256": "5fb5bad62994a5ec45b69ce09b343eb3932725dd0be51369a850c027f8e4675b",
             "reasoning_effort": null,
             "context_included": {
               "source_brief": true,
               "sample_case": true,
               "reviewed_handoff": true,
-              "material_ui_adapter": false
+              "material_ui_adapter": false,
+              "frontend_skill_context": true
             },
+            "frontend_context_status": "ready_for_frontend_implementation",
+            "frontend_skill_context_status": "ready",
             "design_system_name": null,
             "design_system_package": null,
             "design_system_render_mode": null,
+            "lms_context": {
+              "model": "google/gemma-4-e2b",
+              "status": "already_loaded",
+              "requested_context_length": 16384,
+              "actual_context_length": 16384,
+              "identifier": "google/gemma-4-e2b"
+            },
+            "capture_quality": {
+              "profile": "judgmentkit_static_html_css",
+              "css_characters": 1270,
+              "html_characters": 1971,
+              "css_rule_count": 15,
+              "class_selector_count": 18,
+              "semantic_section_count": 6,
+              "structural_block_count": 16,
+              "button_count": 4,
+              "has_responsive_css": true,
+              "has_layout_css": true,
+              "has_panel_css": true,
+              "has_control_css": true,
+              "has_evidence_content": true,
+              "has_handoff_content": true,
+              "compact_template_signature": false,
+              "failures": [],
+              "status": "passed"
+            },
             "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
           },
-          "prompt_sha256": "2d344ae1afdd0ee773e760e6c4a1ab00a6b2b6a7a96647754966ce2f4ad34d55",
-          "source_context_sha256": "1b869087f751e72a0611d791779866bf2d71642d5859713d9234765e56eb7c07",
-          "raw_response_sha256": "3cd1e8f60f042879080adcdbda4a3c021d2e83a022462a2f54aad48e9eb16274",
+          "lms_context": {
+            "model": "google/gemma-4-e2b",
+            "status": "already_loaded",
+            "requested_context_length": 16384,
+            "actual_context_length": 16384,
+            "identifier": "google/gemma-4-e2b"
+          },
+          "capture_quality": {
+            "profile": "judgmentkit_static_html_css",
+            "css_characters": 1270,
+            "html_characters": 1971,
+            "css_rule_count": 15,
+            "class_selector_count": 18,
+            "semantic_section_count": 6,
+            "structural_block_count": 16,
+            "button_count": 4,
+            "has_responsive_css": true,
+            "has_layout_css": true,
+            "has_panel_css": true,
+            "has_control_css": true,
+            "has_evidence_content": true,
+            "has_handoff_content": true,
+            "compact_template_signature": false,
+            "failures": [],
+            "status": "passed"
+          },
+          "prompt_sha256": "ee421af6cb25603e4fcb4ee668a2809df71763ae9fec25aff2b9132baf96716c",
+          "source_context_sha256": "5fb5bad62994a5ec45b69ce09b343eb3932725dd0be51369a850c027f8e4675b",
+          "raw_response_sha256": "eecb6225a40ccac71aba03fe167b3595f164328f5544b3f011f679a00932a231",
+          "frontend_context_status": "ready_for_frontend_implementation",
+          "frontend_skill_context_status": "ready",
+          "frontend_skill_context": {
+            "source_skill": "frontend-ui-implementation",
+            "raw_skill_exposed": false,
+            "surface_type": null,
+            "design_system_mode": "no_design_system_adapter_provided",
+            "design_system_name": "",
+            "next_recommended_tool": "review_ui_implementation_candidate",
+            "verification_checklist": [
+              "Run npm test",
+              "Run npm run capture:model-ui:screenshots",
+              "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+              "new primitives or variants require updating the repo-local contract first",
+              "generated UI must include a local check command or equivalent static inspection",
+              "gemma4-lms-with-judgmentkit desktop screenshot has a styled primary work surface",
+              "gemma4-lms-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
+              "desktop viewport screenshot",
+              "mobile viewport screenshot",
+              "keyboard focus check for interactive controls",
+              "overflow check for long labels, descriptions, and values",
+              "modal or dialog footer order check when dialogs are present",
+              "disabled, empty, error, and ready state review",
+              "Verify state: selected work item is visible",
+              "Verify state: decision evidence is scannable",
+              "Verify state: primary action and handoff reason are clear",
+              "Verify required state: empty",
+              "Verify required state: ready",
+              "Verify required state: loading",
+              "Verify required state: error",
+              "Verify required state: disabled",
+              "Verify required state: focus-visible"
+            ]
+          },
           "artifact_path": "artifacts/gemma4-lms-with-judgmentkit.html",
           "screenshot_path": "screenshots/gemma4-lms-with-judgmentkit.png",
-          "render_source": "model_static_html_css",
-          "visible_render_source": "model_static_html_css",
-          "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
-          "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit handoff",
-          "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+          "render_source": "model_frontend_skill_static_html_css",
+          "visible_render_source": "model_frontend_skill_static_html_css",
+          "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+          "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit skill context",
+          "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
         },
         {
           "id": "gemma4-lms-material-ui-only",
@@ -1362,7 +1611,8 @@
             "source_brief": true,
             "sample_case": true,
             "reviewed_handoff": false,
-            "material_ui_adapter": true
+            "material_ui_adapter": true,
+            "frontend_skill_context": false
           },
           "context_summary": "source brief + sample case + Material UI adapter",
           "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
@@ -1375,30 +1625,52 @@
           "capture_provenance": {
             "status": "captured",
             "capture_type": "model-output-transcript",
-            "captured_at": "2026-05-14T02:53:35.186Z",
+            "captured_at": "2026-05-15T21:27:25.260Z",
             "runner": "scripts/capture-model-ui-matrix.mjs",
             "provider": "lmstudio",
             "model": "google/gemma-4-e2b",
             "cli": "lms",
             "transcript_file": "captures/gemma4-lms-material-ui-only.json",
-            "prompt_sha256": "cffc0e4a8ae89593ca25ff2a07dd60451d021362b8a32addf961f133e920cdb2",
-            "raw_response_sha256": "f926edf7b783ea10c1f264d2c1884f1db3b6dd858b61817059da9a7e4f87ef3b",
-            "source_context_sha256": "824933e2b7bad50754f2bd413a73751579005d0abc77c001b7c0f3dfc0d700ec",
+            "prompt_sha256": "59c13841bd50da773fd0e208dcaa7818ef9a83e45dca8d5c58c1f3cb534d37a3",
+            "raw_response_sha256": "4601001ad2b5955f58038328325247bfc931550de6e80b705dc8c22f348c4ddd",
+            "source_context_sha256": "07aecb9daeacf942690a7bd907ef29902c51f5886543b4c10a731190e1c8a9b3",
             "reasoning_effort": null,
             "context_included": {
               "source_brief": true,
               "sample_case": true,
               "reviewed_handoff": false,
-              "material_ui_adapter": true
+              "material_ui_adapter": true,
+              "frontend_skill_context": false
             },
+            "frontend_context_status": null,
+            "frontend_skill_context_status": null,
             "design_system_name": "Material UI",
             "design_system_package": "@mui/material",
             "design_system_render_mode": "static-ssr",
+            "lms_context": {
+              "model": "google/gemma-4-e2b",
+              "status": "already_loaded",
+              "requested_context_length": 16384,
+              "actual_context_length": 16384,
+              "identifier": "google/gemma-4-e2b"
+            },
+            "capture_quality": null,
             "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
           },
-          "prompt_sha256": "cffc0e4a8ae89593ca25ff2a07dd60451d021362b8a32addf961f133e920cdb2",
-          "source_context_sha256": "824933e2b7bad50754f2bd413a73751579005d0abc77c001b7c0f3dfc0d700ec",
-          "raw_response_sha256": "f926edf7b783ea10c1f264d2c1884f1db3b6dd858b61817059da9a7e4f87ef3b",
+          "lms_context": {
+            "model": "google/gemma-4-e2b",
+            "status": "already_loaded",
+            "requested_context_length": 16384,
+            "actual_context_length": 16384,
+            "identifier": "google/gemma-4-e2b"
+          },
+          "capture_quality": null,
+          "prompt_sha256": "59c13841bd50da773fd0e208dcaa7818ef9a83e45dca8d5c58c1f3cb534d37a3",
+          "source_context_sha256": "07aecb9daeacf942690a7bd907ef29902c51f5886543b4c10a731190e1c8a9b3",
+          "raw_response_sha256": "4601001ad2b5955f58038328325247bfc931550de6e80b705dc8c22f348c4ddd",
+          "frontend_context_status": null,
+          "frontend_skill_context_status": null,
+          "frontend_skill_context": null,
           "artifact_path": "artifacts/gemma4-lms-material-ui-only.html",
           "screenshot_path": "screenshots/gemma4-lms-material-ui-only.png",
           "render_source": "model_structured_data_material_ui_ssr",
@@ -1416,8 +1688,8 @@
           "row_id": "gemma4-lms",
           "row_label": "Gemma 4 via LM Studio lms",
           "column_id": "judgmentkit-material-ui",
-          "column_label": "JudgmentKit + Material UI",
-          "title": "Gemma 4 via LM Studio lms - JudgmentKit + Material UI",
+          "column_label": "JudgmentKit skill + Material UI",
+          "title": "Gemma 4 via LM Studio lms - JudgmentKit skill + Material UI",
           "model_label": "Gemma 4 (local LLM)",
           "generation_source": "captured_model_output",
           "provider": "lmstudio",
@@ -1430,9 +1702,10 @@
             "source_brief": true,
             "sample_case": true,
             "reviewed_handoff": true,
-            "material_ui_adapter": true
+            "material_ui_adapter": true,
+            "frontend_skill_context": true
           },
-          "context_summary": "source brief + sample case + reviewed handoff + Material UI adapter",
+          "context_summary": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
           "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
           "reviewed_handoff_file": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
           "design_system_adapter_file": "examples/model-ui/field-service-dispatch/design-system-adapter.json",
@@ -1443,37 +1716,90 @@
           "capture_provenance": {
             "status": "captured",
             "capture_type": "model-output-transcript",
-            "captured_at": "2026-05-14T02:54:50.823Z",
+            "captured_at": "2026-05-15T21:27:44.096Z",
             "runner": "scripts/capture-model-ui-matrix.mjs",
             "provider": "lmstudio",
             "model": "google/gemma-4-e2b",
             "cli": "lms",
             "transcript_file": "captures/gemma4-lms-judgmentkit-material-ui.json",
-            "prompt_sha256": "a7e67536b4f8b606772652bfc7bdb2e95df2012a78a96296df138250a48a1d8e",
-            "raw_response_sha256": "15bd2e6c0e3ba66f185ef2b00cc84ff1197dcdaf547bbc51b7a3a3761afe6cbe",
-            "source_context_sha256": "1844e58f833211a4238718c1e8ebb07a4841b8266c0c09746c7d24bd683afc8d",
+            "prompt_sha256": "58ed27561801b0b4c6d4c8f2fc5d9c79f4700fa3d4f695ba684c95569f9ba215",
+            "raw_response_sha256": "64c67de16f37aa755c819761edabd4de112346242dc64bc8631ede6f3fe332d5",
+            "source_context_sha256": "f2b04bf482eece25137b6269bb85fda5e6731c84c86fd57cba30878e038a4437",
             "reasoning_effort": null,
             "context_included": {
               "source_brief": true,
               "sample_case": true,
               "reviewed_handoff": true,
-              "material_ui_adapter": true
+              "material_ui_adapter": true,
+              "frontend_skill_context": true
             },
+            "frontend_context_status": "ready_for_frontend_implementation",
+            "frontend_skill_context_status": "ready",
             "design_system_name": "Material UI",
             "design_system_package": "@mui/material",
             "design_system_render_mode": "static-ssr",
+            "lms_context": {
+              "model": "google/gemma-4-e2b",
+              "status": "already_loaded",
+              "requested_context_length": 16384,
+              "actual_context_length": 16384,
+              "identifier": "google/gemma-4-e2b"
+            },
+            "capture_quality": null,
             "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
           },
-          "prompt_sha256": "a7e67536b4f8b606772652bfc7bdb2e95df2012a78a96296df138250a48a1d8e",
-          "source_context_sha256": "1844e58f833211a4238718c1e8ebb07a4841b8266c0c09746c7d24bd683afc8d",
-          "raw_response_sha256": "15bd2e6c0e3ba66f185ef2b00cc84ff1197dcdaf547bbc51b7a3a3761afe6cbe",
+          "lms_context": {
+            "model": "google/gemma-4-e2b",
+            "status": "already_loaded",
+            "requested_context_length": 16384,
+            "actual_context_length": 16384,
+            "identifier": "google/gemma-4-e2b"
+          },
+          "capture_quality": null,
+          "prompt_sha256": "58ed27561801b0b4c6d4c8f2fc5d9c79f4700fa3d4f695ba684c95569f9ba215",
+          "source_context_sha256": "f2b04bf482eece25137b6269bb85fda5e6731c84c86fd57cba30878e038a4437",
+          "raw_response_sha256": "64c67de16f37aa755c819761edabd4de112346242dc64bc8631ede6f3fe332d5",
+          "frontend_context_status": "ready_for_frontend_implementation",
+          "frontend_skill_context_status": "ready",
+          "frontend_skill_context": {
+            "source_skill": "frontend-ui-implementation",
+            "raw_skill_exposed": false,
+            "surface_type": null,
+            "design_system_mode": "adapter_after_judgment",
+            "design_system_name": "Material UI",
+            "next_recommended_tool": "review_ui_implementation_candidate",
+            "verification_checklist": [
+              "Run npm test",
+              "Run npm run capture:model-ui:screenshots",
+              "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+              "new primitives or variants require updating the repo-local contract first",
+              "generated UI must include a local check command or equivalent static inspection",
+              "gemma4-lms-judgmentkit-material-ui desktop screenshot has a styled primary work surface",
+              "gemma4-lms-judgmentkit-material-ui mobile screenshot keeps the decision and handoff visible",
+              "desktop viewport screenshot",
+              "mobile viewport screenshot",
+              "keyboard focus check for interactive controls",
+              "overflow check for long labels, descriptions, and values",
+              "modal or dialog footer order check when dialogs are present",
+              "disabled, empty, error, and ready state review",
+              "Verify state: selected work item is visible",
+              "Verify state: decision evidence is scannable",
+              "Verify state: primary action and handoff reason are clear",
+              "Verify required state: empty",
+              "Verify required state: ready",
+              "Verify required state: loading",
+              "Verify required state: error",
+              "Verify required state: disabled",
+              "Verify required state: focus-visible"
+            ]
+          },
           "artifact_path": "artifacts/gemma4-lms-judgmentkit-material-ui.html",
           "screenshot_path": "screenshots/gemma4-lms-judgmentkit-material-ui.png",
-          "render_source": "model_structured_data_material_ui_ssr",
-          "visible_render_source": "model_structured_data_material_ui_ssr",
-          "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
-          "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit + Material UI",
-          "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path."
+          "render_source": "model_frontend_skill_material_ui_ssr",
+          "visible_render_source": "model_frontend_skill_material_ui_ssr",
+          "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed handoff plus compiled frontend skill context.",
+          "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit skill + Material UI",
+          "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path."
         }
       ]
     },
@@ -1516,7 +1842,8 @@
             "source_brief": true,
             "sample_case": true,
             "reviewed_handoff": false,
-            "material_ui_adapter": false
+            "material_ui_adapter": false,
+            "frontend_skill_context": false
           },
           "context_summary": "source brief + sample case",
           "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
@@ -1529,30 +1856,76 @@
           "capture_provenance": {
             "status": "captured",
             "capture_type": "model-output-transcript",
-            "captured_at": "2026-05-14T02:56:23.043Z",
+            "captured_at": "2026-05-15T21:29:44.565Z",
             "runner": "scripts/capture-model-ui-matrix.mjs",
             "provider": "codex-cli",
             "model": "gpt-5.5",
             "cli": "codex",
             "transcript_file": "captures/gpt55-xhigh-codex-no-judgmentkit.json",
-            "prompt_sha256": "4ffe45d00d6d5d904d1483ce3a07884f41901400a250bce5b1543ba7305f985e",
-            "raw_response_sha256": "b0ff58aa57c918afa0d9333966401776b0c6a449a96e837294b1478b58d90dab",
-            "source_context_sha256": "794acdacdac5891302222d67e52ecd4ff7e567808c682acd94e44e4cd9d549ee",
+            "prompt_sha256": "ebad289a1214fe94d8efea7af35a301a0724ee8e884dc71883eb318791b1f3c5",
+            "raw_response_sha256": "fbf23fcdc7316ac32194f1244f951a42f03efbdf45554545490ba55e878f76a4",
+            "source_context_sha256": "ee726206f8e71fb2432d8446bdec810714cd7fe2e45c857709a508cc2fb531ec",
             "reasoning_effort": "xhigh",
             "context_included": {
               "source_brief": true,
               "sample_case": true,
               "reviewed_handoff": false,
-              "material_ui_adapter": false
+              "material_ui_adapter": false,
+              "frontend_skill_context": false
             },
+            "frontend_context_status": null,
+            "frontend_skill_context_status": null,
             "design_system_name": null,
             "design_system_package": null,
             "design_system_render_mode": null,
+            "lms_context": null,
+            "capture_quality": {
+              "profile": "basic_static_html_css",
+              "css_characters": 4763,
+              "html_characters": 4660,
+              "css_rule_count": 58,
+              "class_selector_count": 74,
+              "semantic_section_count": 11,
+              "structural_block_count": 43,
+              "button_count": 10,
+              "has_responsive_css": true,
+              "has_layout_css": true,
+              "has_panel_css": true,
+              "has_control_css": true,
+              "has_evidence_content": true,
+              "has_handoff_content": true,
+              "compact_template_signature": false,
+              "failures": [],
+              "status": "passed"
+            },
             "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
           },
-          "prompt_sha256": "4ffe45d00d6d5d904d1483ce3a07884f41901400a250bce5b1543ba7305f985e",
-          "source_context_sha256": "794acdacdac5891302222d67e52ecd4ff7e567808c682acd94e44e4cd9d549ee",
-          "raw_response_sha256": "b0ff58aa57c918afa0d9333966401776b0c6a449a96e837294b1478b58d90dab",
+          "lms_context": null,
+          "capture_quality": {
+            "profile": "basic_static_html_css",
+            "css_characters": 4763,
+            "html_characters": 4660,
+            "css_rule_count": 58,
+            "class_selector_count": 74,
+            "semantic_section_count": 11,
+            "structural_block_count": 43,
+            "button_count": 10,
+            "has_responsive_css": true,
+            "has_layout_css": true,
+            "has_panel_css": true,
+            "has_control_css": true,
+            "has_evidence_content": true,
+            "has_handoff_content": true,
+            "compact_template_signature": false,
+            "failures": [],
+            "status": "passed"
+          },
+          "prompt_sha256": "ebad289a1214fe94d8efea7af35a301a0724ee8e884dc71883eb318791b1f3c5",
+          "source_context_sha256": "ee726206f8e71fb2432d8446bdec810714cd7fe2e45c857709a508cc2fb531ec",
+          "raw_response_sha256": "fbf23fcdc7316ac32194f1244f951a42f03efbdf45554545490ba55e878f76a4",
+          "frontend_context_status": null,
+          "frontend_skill_context_status": null,
+          "frontend_skill_context": null,
           "artifact_path": "artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
           "screenshot_path": "screenshots/gpt55-xhigh-codex-no-judgmentkit.png",
           "render_source": "model_static_html_css",
@@ -1570,8 +1943,8 @@
           "row_id": "gpt55-xhigh-codex",
           "row_label": "GPT-5.5 xhigh via codex exec",
           "column_id": "with-judgmentkit",
-          "column_label": "JudgmentKit handoff",
-          "title": "GPT-5.5 xhigh via codex exec - JudgmentKit handoff",
+          "column_label": "JudgmentKit skill context",
+          "title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill context",
           "model_label": "GPT-5.5",
           "generation_source": "captured_model_output",
           "provider": "codex-cli",
@@ -1584,9 +1957,10 @@
             "source_brief": true,
             "sample_case": true,
             "reviewed_handoff": true,
-            "material_ui_adapter": false
+            "material_ui_adapter": false,
+            "frontend_skill_context": true
           },
-          "context_summary": "source brief + sample case + reviewed handoff",
+          "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
           "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
           "reviewed_handoff_file": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
           "design_system_adapter_file": null,
@@ -1597,37 +1971,114 @@
           "capture_provenance": {
             "status": "captured",
             "capture_type": "model-output-transcript",
-            "captured_at": "2026-05-14T03:06:13.407Z",
+            "captured_at": "2026-05-15T21:33:58.598Z",
             "runner": "scripts/capture-model-ui-matrix.mjs",
             "provider": "codex-cli",
             "model": "gpt-5.5",
             "cli": "codex",
             "transcript_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
-            "prompt_sha256": "fb2885d5006e1979a7b4d734ec90698dd03e5b9af218b89846b598364d124a08",
-            "raw_response_sha256": "653dd9c17b20eeddbaab65c422e231efa6e47c56e6bd77ed3f29096a0fda1fdd",
-            "source_context_sha256": "c76e9c4eaf12ecc5f98485b0bfd9f3f870b0d5bd3ff0f9e7ae6ddcb24cf17fb4",
+            "prompt_sha256": "c0a082cd6b1c6ef8907c6793ac54c0f28f1e8f0c9ce7c26d7ba18bb8c21a7375",
+            "raw_response_sha256": "bb326d684e995426762aceebabc8389ee040e4a75adeb77c99645f83b5cd8ef1",
+            "source_context_sha256": "84d7adc5190f3796a3fc4e61f40b3987ead81206cb9dc750b4098c36873bbacd",
             "reasoning_effort": "xhigh",
             "context_included": {
               "source_brief": true,
               "sample_case": true,
               "reviewed_handoff": true,
-              "material_ui_adapter": false
+              "material_ui_adapter": false,
+              "frontend_skill_context": true
             },
+            "frontend_context_status": "ready_for_frontend_implementation",
+            "frontend_skill_context_status": "ready",
             "design_system_name": null,
             "design_system_package": null,
             "design_system_render_mode": null,
+            "lms_context": null,
+            "capture_quality": {
+              "profile": "judgmentkit_static_html_css",
+              "css_characters": 5998,
+              "html_characters": 5649,
+              "css_rule_count": 74,
+              "class_selector_count": 101,
+              "semantic_section_count": 7,
+              "structural_block_count": 41,
+              "button_count": 9,
+              "has_responsive_css": true,
+              "has_layout_css": true,
+              "has_panel_css": true,
+              "has_control_css": true,
+              "has_evidence_content": true,
+              "has_handoff_content": true,
+              "compact_template_signature": false,
+              "failures": [],
+              "status": "passed"
+            },
             "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
           },
-          "prompt_sha256": "fb2885d5006e1979a7b4d734ec90698dd03e5b9af218b89846b598364d124a08",
-          "source_context_sha256": "c76e9c4eaf12ecc5f98485b0bfd9f3f870b0d5bd3ff0f9e7ae6ddcb24cf17fb4",
-          "raw_response_sha256": "653dd9c17b20eeddbaab65c422e231efa6e47c56e6bd77ed3f29096a0fda1fdd",
+          "lms_context": null,
+          "capture_quality": {
+            "profile": "judgmentkit_static_html_css",
+            "css_characters": 5998,
+            "html_characters": 5649,
+            "css_rule_count": 74,
+            "class_selector_count": 101,
+            "semantic_section_count": 7,
+            "structural_block_count": 41,
+            "button_count": 9,
+            "has_responsive_css": true,
+            "has_layout_css": true,
+            "has_panel_css": true,
+            "has_control_css": true,
+            "has_evidence_content": true,
+            "has_handoff_content": true,
+            "compact_template_signature": false,
+            "failures": [],
+            "status": "passed"
+          },
+          "prompt_sha256": "c0a082cd6b1c6ef8907c6793ac54c0f28f1e8f0c9ce7c26d7ba18bb8c21a7375",
+          "source_context_sha256": "84d7adc5190f3796a3fc4e61f40b3987ead81206cb9dc750b4098c36873bbacd",
+          "raw_response_sha256": "bb326d684e995426762aceebabc8389ee040e4a75adeb77c99645f83b5cd8ef1",
+          "frontend_context_status": "ready_for_frontend_implementation",
+          "frontend_skill_context_status": "ready",
+          "frontend_skill_context": {
+            "source_skill": "frontend-ui-implementation",
+            "raw_skill_exposed": false,
+            "surface_type": null,
+            "design_system_mode": "no_design_system_adapter_provided",
+            "design_system_name": "",
+            "next_recommended_tool": "review_ui_implementation_candidate",
+            "verification_checklist": [
+              "Run npm test",
+              "Run npm run capture:model-ui:screenshots",
+              "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+              "new primitives or variants require updating the repo-local contract first",
+              "generated UI must include a local check command or equivalent static inspection",
+              "gpt55-xhigh-codex-with-judgmentkit desktop screenshot has a styled primary work surface",
+              "gpt55-xhigh-codex-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
+              "desktop viewport screenshot",
+              "mobile viewport screenshot",
+              "keyboard focus check for interactive controls",
+              "overflow check for long labels, descriptions, and values",
+              "modal or dialog footer order check when dialogs are present",
+              "disabled, empty, error, and ready state review",
+              "Verify state: selected work item is visible",
+              "Verify state: decision evidence is scannable",
+              "Verify state: primary action and handoff reason are clear",
+              "Verify required state: empty",
+              "Verify required state: ready",
+              "Verify required state: loading",
+              "Verify required state: error",
+              "Verify required state: disabled",
+              "Verify required state: focus-visible"
+            ]
+          },
           "artifact_path": "artifacts/gpt55-xhigh-codex-with-judgmentkit.html",
           "screenshot_path": "screenshots/gpt55-xhigh-codex-with-judgmentkit.png",
-          "render_source": "model_static_html_css",
-          "visible_render_source": "model_static_html_css",
-          "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
-          "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit handoff",
-          "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+          "render_source": "model_frontend_skill_static_html_css",
+          "visible_render_source": "model_frontend_skill_static_html_css",
+          "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+          "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill context",
+          "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
         },
         {
           "id": "gpt55-xhigh-codex-material-ui-only",
@@ -1652,7 +2103,8 @@
             "source_brief": true,
             "sample_case": true,
             "reviewed_handoff": false,
-            "material_ui_adapter": true
+            "material_ui_adapter": true,
+            "frontend_skill_context": false
           },
           "context_summary": "source brief + sample case + Material UI adapter",
           "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
@@ -1665,30 +2117,40 @@
           "capture_provenance": {
             "status": "captured",
             "capture_type": "model-output-transcript",
-            "captured_at": "2026-05-14T03:07:17.092Z",
+            "captured_at": "2026-05-15T21:35:09.542Z",
             "runner": "scripts/capture-model-ui-matrix.mjs",
             "provider": "codex-cli",
             "model": "gpt-5.5",
             "cli": "codex",
             "transcript_file": "captures/gpt55-xhigh-codex-material-ui-only.json",
-            "prompt_sha256": "4f39cfecc8e23e52f12b23b0165a8bf65d733583dd33ff900fc28a4448790274",
-            "raw_response_sha256": "556840893dffa471bbca6c490edadc0c9b608c77dc8118411f28c4233283ea6b",
-            "source_context_sha256": "ad8cabb0edcfc8e2f00ec348ebf33ece2b82b618309a72871d22e0cd9ce12fcc",
+            "prompt_sha256": "2bc3e48c44eceaf1a348070270564ce8dd53479c124c1534db5124fb279aaf9f",
+            "raw_response_sha256": "89a10305749c5b12527e80a0664d608b7e8e639284785ab69eeb4f2724a92b7d",
+            "source_context_sha256": "1942d3f0ac5abe53fc51c97f54d389fe9b927d1764007e14cd69e3ccbacd66cc",
             "reasoning_effort": "xhigh",
             "context_included": {
               "source_brief": true,
               "sample_case": true,
               "reviewed_handoff": false,
-              "material_ui_adapter": true
+              "material_ui_adapter": true,
+              "frontend_skill_context": false
             },
+            "frontend_context_status": null,
+            "frontend_skill_context_status": null,
             "design_system_name": "Material UI",
             "design_system_package": "@mui/material",
             "design_system_render_mode": "static-ssr",
+            "lms_context": null,
+            "capture_quality": null,
             "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
           },
-          "prompt_sha256": "4f39cfecc8e23e52f12b23b0165a8bf65d733583dd33ff900fc28a4448790274",
-          "source_context_sha256": "ad8cabb0edcfc8e2f00ec348ebf33ece2b82b618309a72871d22e0cd9ce12fcc",
-          "raw_response_sha256": "556840893dffa471bbca6c490edadc0c9b608c77dc8118411f28c4233283ea6b",
+          "lms_context": null,
+          "capture_quality": null,
+          "prompt_sha256": "2bc3e48c44eceaf1a348070270564ce8dd53479c124c1534db5124fb279aaf9f",
+          "source_context_sha256": "1942d3f0ac5abe53fc51c97f54d389fe9b927d1764007e14cd69e3ccbacd66cc",
+          "raw_response_sha256": "89a10305749c5b12527e80a0664d608b7e8e639284785ab69eeb4f2724a92b7d",
+          "frontend_context_status": null,
+          "frontend_skill_context_status": null,
+          "frontend_skill_context": null,
           "artifact_path": "artifacts/gpt55-xhigh-codex-material-ui-only.html",
           "screenshot_path": "screenshots/gpt55-xhigh-codex-material-ui-only.png",
           "render_source": "model_structured_data_material_ui_ssr",
@@ -1706,8 +2168,8 @@
           "row_id": "gpt55-xhigh-codex",
           "row_label": "GPT-5.5 xhigh via codex exec",
           "column_id": "judgmentkit-material-ui",
-          "column_label": "JudgmentKit + Material UI",
-          "title": "GPT-5.5 xhigh via codex exec - JudgmentKit + Material UI",
+          "column_label": "JudgmentKit skill + Material UI",
+          "title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill + Material UI",
           "model_label": "GPT-5.5",
           "generation_source": "captured_model_output",
           "provider": "codex-cli",
@@ -1720,9 +2182,10 @@
             "source_brief": true,
             "sample_case": true,
             "reviewed_handoff": true,
-            "material_ui_adapter": true
+            "material_ui_adapter": true,
+            "frontend_skill_context": true
           },
-          "context_summary": "source brief + sample case + reviewed handoff + Material UI adapter",
+          "context_summary": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
           "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
           "reviewed_handoff_file": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
           "design_system_adapter_file": "examples/model-ui/field-service-dispatch/design-system-adapter.json",
@@ -1733,37 +2196,78 @@
           "capture_provenance": {
             "status": "captured",
             "capture_type": "model-output-transcript",
-            "captured_at": "2026-05-14T03:08:05.339Z",
+            "captured_at": "2026-05-15T21:36:42.019Z",
             "runner": "scripts/capture-model-ui-matrix.mjs",
             "provider": "codex-cli",
             "model": "gpt-5.5",
             "cli": "codex",
             "transcript_file": "captures/gpt55-xhigh-codex-judgmentkit-material-ui.json",
-            "prompt_sha256": "aa4a97399cfc2890fbd14f5c72ec91b40d63562deb707d996ddcdfe352351c53",
-            "raw_response_sha256": "6c8e4d893b8ba842a4812b461c70aafb48d8631cbc7ace16386765576bddd4e8",
-            "source_context_sha256": "4ff7215bcd27bc83c1c472b8fc541bdbeceea158a3b18b99f4cca3d44c67c60b",
+            "prompt_sha256": "1272c5429f39ff4e9c1a98f12ff3367a06c848ff5d711d25136ad3e6e77a76db",
+            "raw_response_sha256": "f9b847c2bdfd7e2a095709a9cb7160a83e02ce414dcc1a87a7ad5982a8a6972f",
+            "source_context_sha256": "5916d8bcbdef11f6f948873f3cf4a6a316d031628a15a9cf3047412190639136",
             "reasoning_effort": "xhigh",
             "context_included": {
               "source_brief": true,
               "sample_case": true,
               "reviewed_handoff": true,
-              "material_ui_adapter": true
+              "material_ui_adapter": true,
+              "frontend_skill_context": true
             },
+            "frontend_context_status": "ready_for_frontend_implementation",
+            "frontend_skill_context_status": "ready",
             "design_system_name": "Material UI",
             "design_system_package": "@mui/material",
             "design_system_render_mode": "static-ssr",
+            "lms_context": null,
+            "capture_quality": null,
             "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
           },
-          "prompt_sha256": "aa4a97399cfc2890fbd14f5c72ec91b40d63562deb707d996ddcdfe352351c53",
-          "source_context_sha256": "4ff7215bcd27bc83c1c472b8fc541bdbeceea158a3b18b99f4cca3d44c67c60b",
-          "raw_response_sha256": "6c8e4d893b8ba842a4812b461c70aafb48d8631cbc7ace16386765576bddd4e8",
+          "lms_context": null,
+          "capture_quality": null,
+          "prompt_sha256": "1272c5429f39ff4e9c1a98f12ff3367a06c848ff5d711d25136ad3e6e77a76db",
+          "source_context_sha256": "5916d8bcbdef11f6f948873f3cf4a6a316d031628a15a9cf3047412190639136",
+          "raw_response_sha256": "f9b847c2bdfd7e2a095709a9cb7160a83e02ce414dcc1a87a7ad5982a8a6972f",
+          "frontend_context_status": "ready_for_frontend_implementation",
+          "frontend_skill_context_status": "ready",
+          "frontend_skill_context": {
+            "source_skill": "frontend-ui-implementation",
+            "raw_skill_exposed": false,
+            "surface_type": null,
+            "design_system_mode": "adapter_after_judgment",
+            "design_system_name": "Material UI",
+            "next_recommended_tool": "review_ui_implementation_candidate",
+            "verification_checklist": [
+              "Run npm test",
+              "Run npm run capture:model-ui:screenshots",
+              "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+              "new primitives or variants require updating the repo-local contract first",
+              "generated UI must include a local check command or equivalent static inspection",
+              "gpt55-xhigh-codex-judgmentkit-material-ui desktop screenshot has a styled primary work surface",
+              "gpt55-xhigh-codex-judgmentkit-material-ui mobile screenshot keeps the decision and handoff visible",
+              "desktop viewport screenshot",
+              "mobile viewport screenshot",
+              "keyboard focus check for interactive controls",
+              "overflow check for long labels, descriptions, and values",
+              "modal or dialog footer order check when dialogs are present",
+              "disabled, empty, error, and ready state review",
+              "Verify state: selected work item is visible",
+              "Verify state: decision evidence is scannable",
+              "Verify state: primary action and handoff reason are clear",
+              "Verify required state: empty",
+              "Verify required state: ready",
+              "Verify required state: loading",
+              "Verify required state: error",
+              "Verify required state: disabled",
+              "Verify required state: focus-visible"
+            ]
+          },
           "artifact_path": "artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
           "screenshot_path": "screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png",
-          "render_source": "model_structured_data_material_ui_ssr",
-          "visible_render_source": "model_structured_data_material_ui_ssr",
-          "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
-          "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit + Material UI",
-          "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path."
+          "render_source": "model_frontend_skill_material_ui_ssr",
+          "visible_render_source": "model_frontend_skill_material_ui_ssr",
+          "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed handoff plus compiled frontend skill context.",
+          "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill + Material UI",
+          "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path."
         }
       ]
     }
@@ -1780,12 +2284,12 @@
     },
     {
       "id": "with-judgmentkit",
-      "label": "JudgmentKit handoff",
-      "short_label": "With JudgmentKit",
+      "label": "JudgmentKit skill context",
+      "short_label": "JudgmentKit skill",
       "judgmentkit_mode": "with_judgmentkit",
       "design_system_mode": "none",
       "render_mode": "html",
-      "summary": "Reviewed JudgmentKit handoff and sample case. No Material UI adapter."
+      "summary": "Reviewed handoff plus compiled frontend implementation skill context. No Material UI."
     },
     {
       "id": "material-ui-only",
@@ -1798,12 +2302,12 @@
     },
     {
       "id": "judgmentkit-material-ui",
-      "label": "JudgmentKit + Material UI",
-      "short_label": "JudgmentKit + design system",
+      "label": "JudgmentKit skill + Material UI",
+      "short_label": "Skill + design system",
       "judgmentkit_mode": "with_judgmentkit",
       "design_system_mode": "material_ui",
       "render_mode": "material_ui",
-      "summary": "Reviewed JudgmentKit handoff rendered through the Material UI adapter."
+      "summary": "Reviewed handoff plus compiled frontend skill context rendered through Material UI."
     }
   ],
   "legacy_aliases": [],
@@ -1836,7 +2340,8 @@
         "source_brief": true,
         "sample_case": true,
         "reviewed_handoff": false,
-        "material_ui_adapter": false
+        "material_ui_adapter": false,
+        "frontend_skill_context": false
       },
       "context_summary": "source brief + sample case",
       "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
@@ -1855,11 +2360,19 @@
         "model": "none",
         "cli": null,
         "reasoning_effort": null,
+        "frontend_context_status": null,
+        "frontend_skill_context_status": null,
+        "capture_quality": null,
         "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
       },
+      "lms_context": null,
+      "capture_quality": null,
       "prompt_sha256": null,
-      "source_context_sha256": "93646a75712eaa2885753898627c57ae06904837b7360d685f127c44ae7e7b2c",
+      "source_context_sha256": "05d605b2604c01265dfd78854fb1584cf6010738877e431300e4b3fadc715bd5",
       "raw_response_sha256": null,
+      "frontend_context_status": null,
+      "frontend_skill_context_status": null,
+      "frontend_skill_context": null,
       "artifact_path": "artifacts/deterministic-no-judgmentkit.html",
       "screenshot_path": "screenshots/deterministic-no-judgmentkit.png",
       "render_source": "deterministic_raw_brief_html",
@@ -1877,8 +2390,8 @@
       "row_id": "deterministic",
       "row_label": "Deterministic",
       "column_id": "with-judgmentkit",
-      "column_label": "JudgmentKit handoff",
-      "title": "Deterministic - JudgmentKit handoff",
+      "column_label": "JudgmentKit skill context",
+      "title": "Deterministic - JudgmentKit skill context",
       "model_label": "Deterministic renderer",
       "generation_source": "deterministic",
       "provider": "none",
@@ -1891,9 +2404,10 @@
         "source_brief": true,
         "sample_case": true,
         "reviewed_handoff": true,
-        "material_ui_adapter": false
+        "material_ui_adapter": false,
+        "frontend_skill_context": true
       },
-      "context_summary": "source brief + sample case + reviewed handoff",
+      "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
       "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
       "reviewed_handoff_file": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
       "design_system_adapter_file": null,
@@ -1910,18 +2424,57 @@
         "model": "none",
         "cli": null,
         "reasoning_effort": null,
+        "frontend_context_status": "ready_for_frontend_implementation",
+        "frontend_skill_context_status": "ready",
+        "capture_quality": null,
         "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
       },
+      "lms_context": null,
+      "capture_quality": null,
       "prompt_sha256": null,
-      "source_context_sha256": "58868217b9f3e9f19bd5a8617c868069e879adbafa9f2ef1a897cbbdd87ae907",
+      "source_context_sha256": "f234eeedc6c0554402d21e2a5e289c02472c98c547110c5e38736bd928d4b158",
       "raw_response_sha256": null,
+      "frontend_context_status": "ready_for_frontend_implementation",
+      "frontend_skill_context_status": "ready",
+      "frontend_skill_context": {
+        "source_skill": "frontend-ui-implementation",
+        "raw_skill_exposed": false,
+        "surface_type": null,
+        "design_system_mode": "no_design_system_adapter_provided",
+        "design_system_name": "",
+        "next_recommended_tool": "review_ui_implementation_candidate",
+        "verification_checklist": [
+          "Run npm test",
+          "Run npm run capture:model-ui:screenshots",
+          "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+          "new primitives or variants require updating the repo-local contract first",
+          "generated UI must include a local check command or equivalent static inspection",
+          "deterministic-with-judgmentkit desktop screenshot has a styled primary work surface",
+          "deterministic-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
+          "desktop viewport screenshot",
+          "mobile viewport screenshot",
+          "keyboard focus check for interactive controls",
+          "overflow check for long labels, descriptions, and values",
+          "modal or dialog footer order check when dialogs are present",
+          "disabled, empty, error, and ready state review",
+          "Verify state: selected work item is visible",
+          "Verify state: decision evidence is scannable",
+          "Verify state: primary action and handoff reason are clear",
+          "Verify required state: empty",
+          "Verify required state: ready",
+          "Verify required state: loading",
+          "Verify required state: error",
+          "Verify required state: disabled",
+          "Verify required state: focus-visible"
+        ]
+      },
       "artifact_path": "artifacts/deterministic-with-judgmentkit.html",
       "screenshot_path": "screenshots/deterministic-with-judgmentkit.png",
-      "render_source": "deterministic_judgmentkit_html",
-      "visible_render_source": "deterministic_judgmentkit_html",
-      "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
-      "approach_title": "Deterministic - JudgmentKit handoff",
-      "approach_caption": "Deterministic receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+      "render_source": "deterministic_frontend_skill_html",
+      "visible_render_source": "deterministic_frontend_skill_html",
+      "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+      "approach_title": "Deterministic - JudgmentKit skill context",
+      "approach_caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
     },
     {
       "id": "deterministic-material-ui-only",
@@ -1946,7 +2499,8 @@
         "source_brief": true,
         "sample_case": true,
         "reviewed_handoff": false,
-        "material_ui_adapter": true
+        "material_ui_adapter": true,
+        "frontend_skill_context": false
       },
       "context_summary": "source brief + sample case + Material UI adapter",
       "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
@@ -1965,11 +2519,19 @@
         "model": "none",
         "cli": null,
         "reasoning_effort": null,
+        "frontend_context_status": null,
+        "frontend_skill_context_status": null,
+        "capture_quality": null,
         "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
       },
+      "lms_context": null,
+      "capture_quality": null,
       "prompt_sha256": null,
-      "source_context_sha256": "2b0b618463f9d352aa818782a3094d44a98b16985abdf113a67326111c4bf398",
+      "source_context_sha256": "358678803a6e3ff866f396eb1677a48cea91ffb4774de5c422bfc88be7884ac1",
       "raw_response_sha256": null,
+      "frontend_context_status": null,
+      "frontend_skill_context_status": null,
+      "frontend_skill_context": null,
       "artifact_path": "artifacts/deterministic-material-ui-only.html",
       "screenshot_path": "screenshots/deterministic-material-ui-only.png",
       "render_source": "deterministic_material_ui_ssr",
@@ -1987,8 +2549,8 @@
       "row_id": "deterministic",
       "row_label": "Deterministic",
       "column_id": "judgmentkit-material-ui",
-      "column_label": "JudgmentKit + Material UI",
-      "title": "Deterministic - JudgmentKit + Material UI",
+      "column_label": "JudgmentKit skill + Material UI",
+      "title": "Deterministic - JudgmentKit skill + Material UI",
       "model_label": "Deterministic renderer",
       "generation_source": "deterministic",
       "provider": "none",
@@ -2001,9 +2563,10 @@
         "source_brief": true,
         "sample_case": true,
         "reviewed_handoff": true,
-        "material_ui_adapter": true
+        "material_ui_adapter": true,
+        "frontend_skill_context": true
       },
-      "context_summary": "source brief + sample case + reviewed handoff + Material UI adapter",
+      "context_summary": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
       "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
       "reviewed_handoff_file": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
       "design_system_adapter_file": "examples/model-ui/field-service-dispatch/design-system-adapter.json",
@@ -2020,18 +2583,57 @@
         "model": "none",
         "cli": null,
         "reasoning_effort": null,
+        "frontend_context_status": "ready_for_frontend_implementation",
+        "frontend_skill_context_status": "ready",
+        "capture_quality": null,
         "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
       },
+      "lms_context": null,
+      "capture_quality": null,
       "prompt_sha256": null,
-      "source_context_sha256": "3e9947daf1734113ef7909852ed5a5c088f4c96ae5c6c4755af058154acbac41",
+      "source_context_sha256": "2b2a98eabb611554bdfa133ea6b0b336c3c23a1a5a78954b0378240c45526ee6",
       "raw_response_sha256": null,
+      "frontend_context_status": "ready_for_frontend_implementation",
+      "frontend_skill_context_status": "ready",
+      "frontend_skill_context": {
+        "source_skill": "frontend-ui-implementation",
+        "raw_skill_exposed": false,
+        "surface_type": null,
+        "design_system_mode": "adapter_after_judgment",
+        "design_system_name": "Material UI",
+        "next_recommended_tool": "review_ui_implementation_candidate",
+        "verification_checklist": [
+          "Run npm test",
+          "Run npm run capture:model-ui:screenshots",
+          "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+          "new primitives or variants require updating the repo-local contract first",
+          "generated UI must include a local check command or equivalent static inspection",
+          "deterministic-judgmentkit-material-ui desktop screenshot has a styled primary work surface",
+          "deterministic-judgmentkit-material-ui mobile screenshot keeps the decision and handoff visible",
+          "desktop viewport screenshot",
+          "mobile viewport screenshot",
+          "keyboard focus check for interactive controls",
+          "overflow check for long labels, descriptions, and values",
+          "modal or dialog footer order check when dialogs are present",
+          "disabled, empty, error, and ready state review",
+          "Verify state: selected work item is visible",
+          "Verify state: decision evidence is scannable",
+          "Verify state: primary action and handoff reason are clear",
+          "Verify required state: empty",
+          "Verify required state: ready",
+          "Verify required state: loading",
+          "Verify required state: error",
+          "Verify required state: disabled",
+          "Verify required state: focus-visible"
+        ]
+      },
       "artifact_path": "artifacts/deterministic-judgmentkit-material-ui.html",
       "screenshot_path": "screenshots/deterministic-judgmentkit-material-ui.png",
-      "render_source": "deterministic_material_ui_ssr",
-      "visible_render_source": "deterministic_material_ui_ssr",
-      "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
-      "approach_title": "Deterministic - JudgmentKit + Material UI",
-      "approach_caption": "Deterministic receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path."
+      "render_source": "deterministic_frontend_skill_material_ui_ssr",
+      "visible_render_source": "deterministic_frontend_skill_material_ui_ssr",
+      "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed handoff plus compiled frontend skill context.",
+      "approach_title": "Deterministic - JudgmentKit skill + Material UI",
+      "approach_caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path."
     },
     {
       "id": "gemma4-lms-no-judgmentkit",
@@ -2056,7 +2658,8 @@
         "source_brief": true,
         "sample_case": true,
         "reviewed_handoff": false,
-        "material_ui_adapter": false
+        "material_ui_adapter": false,
+        "frontend_skill_context": false
       },
       "context_summary": "source brief + sample case",
       "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
@@ -2069,30 +2672,90 @@
       "capture_provenance": {
         "status": "captured",
         "capture_type": "model-output-transcript",
-        "captured_at": "2026-05-14T02:52:58.298Z",
+        "captured_at": "2026-05-15T21:26:26.110Z",
         "runner": "scripts/capture-model-ui-matrix.mjs",
         "provider": "lmstudio",
         "model": "google/gemma-4-e2b",
         "cli": "lms",
         "transcript_file": "captures/gemma4-lms-no-judgmentkit.json",
-        "prompt_sha256": "abe827ec93646ae41e6c0cf4d3a1c4c84acc5a6839371fed3c1b286b367ce465",
-        "raw_response_sha256": "ac6379e8fdf3b3935cd474ded84f96168d12b26c17592e59ae5f20b53b1f9244",
-        "source_context_sha256": "95c08188dc61a4aa6eed4fbdcbe02102dba9bf32b99fd961d9163f30695f868f",
+        "prompt_sha256": "8a8ff3ca1ab133082778886b36fd2af26203d5838b6c5be770b2b7954d954524",
+        "raw_response_sha256": "cf95aa5b15e2452056bccc0ea6545ca6ec72e026a96a1b47230447fef87534a2",
+        "source_context_sha256": "0f2e2502a890a993549d13aff65d50f2eb0d7abe3c8eae44ab9f532961f8ed9a",
         "reasoning_effort": null,
         "context_included": {
           "source_brief": true,
           "sample_case": true,
           "reviewed_handoff": false,
-          "material_ui_adapter": false
+          "material_ui_adapter": false,
+          "frontend_skill_context": false
         },
+        "frontend_context_status": null,
+        "frontend_skill_context_status": null,
         "design_system_name": null,
         "design_system_package": null,
         "design_system_render_mode": null,
+        "lms_context": {
+          "model": "google/gemma-4-e2b",
+          "status": "loaded",
+          "requested_context_length": 16384,
+          "actual_context_length": 16384,
+          "identifier": "google/gemma-4-e2b",
+          "load_command_display": "lms load google/gemma-4-e2b --context-length 16384 --ttl 300 --identifier google/gemma-4-e2b --yes"
+        },
+        "capture_quality": {
+          "profile": "basic_static_html_css",
+          "css_characters": 1851,
+          "html_characters": 1561,
+          "css_rule_count": 21,
+          "class_selector_count": 22,
+          "semantic_section_count": 1,
+          "structural_block_count": 8,
+          "button_count": 3,
+          "has_responsive_css": false,
+          "has_layout_css": true,
+          "has_panel_css": true,
+          "has_control_css": true,
+          "has_evidence_content": true,
+          "has_handoff_content": true,
+          "compact_template_signature": false,
+          "failures": [],
+          "status": "passed"
+        },
         "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
       },
-      "prompt_sha256": "abe827ec93646ae41e6c0cf4d3a1c4c84acc5a6839371fed3c1b286b367ce465",
-      "source_context_sha256": "95c08188dc61a4aa6eed4fbdcbe02102dba9bf32b99fd961d9163f30695f868f",
-      "raw_response_sha256": "ac6379e8fdf3b3935cd474ded84f96168d12b26c17592e59ae5f20b53b1f9244",
+      "lms_context": {
+        "model": "google/gemma-4-e2b",
+        "status": "loaded",
+        "requested_context_length": 16384,
+        "actual_context_length": 16384,
+        "identifier": "google/gemma-4-e2b",
+        "load_command_display": "lms load google/gemma-4-e2b --context-length 16384 --ttl 300 --identifier google/gemma-4-e2b --yes"
+      },
+      "capture_quality": {
+        "profile": "basic_static_html_css",
+        "css_characters": 1851,
+        "html_characters": 1561,
+        "css_rule_count": 21,
+        "class_selector_count": 22,
+        "semantic_section_count": 1,
+        "structural_block_count": 8,
+        "button_count": 3,
+        "has_responsive_css": false,
+        "has_layout_css": true,
+        "has_panel_css": true,
+        "has_control_css": true,
+        "has_evidence_content": true,
+        "has_handoff_content": true,
+        "compact_template_signature": false,
+        "failures": [],
+        "status": "passed"
+      },
+      "prompt_sha256": "8a8ff3ca1ab133082778886b36fd2af26203d5838b6c5be770b2b7954d954524",
+      "source_context_sha256": "0f2e2502a890a993549d13aff65d50f2eb0d7abe3c8eae44ab9f532961f8ed9a",
+      "raw_response_sha256": "cf95aa5b15e2452056bccc0ea6545ca6ec72e026a96a1b47230447fef87534a2",
+      "frontend_context_status": null,
+      "frontend_skill_context_status": null,
+      "frontend_skill_context": null,
       "artifact_path": "artifacts/gemma4-lms-no-judgmentkit.html",
       "screenshot_path": "screenshots/gemma4-lms-no-judgmentkit.png",
       "render_source": "model_static_html_css",
@@ -2110,8 +2773,8 @@
       "row_id": "gemma4-lms",
       "row_label": "Gemma 4 via LM Studio lms",
       "column_id": "with-judgmentkit",
-      "column_label": "JudgmentKit handoff",
-      "title": "Gemma 4 via LM Studio lms - JudgmentKit handoff",
+      "column_label": "JudgmentKit skill context",
+      "title": "Gemma 4 via LM Studio lms - JudgmentKit skill context",
       "model_label": "Gemma 4 (local LLM)",
       "generation_source": "captured_model_output",
       "provider": "lmstudio",
@@ -2124,9 +2787,10 @@
         "source_brief": true,
         "sample_case": true,
         "reviewed_handoff": true,
-        "material_ui_adapter": false
+        "material_ui_adapter": false,
+        "frontend_skill_context": true
       },
-      "context_summary": "source brief + sample case + reviewed handoff",
+      "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
       "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
       "reviewed_handoff_file": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
       "design_system_adapter_file": null,
@@ -2137,37 +2801,126 @@
       "capture_provenance": {
         "status": "captured",
         "capture_type": "model-output-transcript",
-        "captured_at": "2026-05-14T02:53:18.090Z",
+        "captured_at": "2026-05-15T21:27:00.260Z",
         "runner": "scripts/capture-model-ui-matrix.mjs",
         "provider": "lmstudio",
         "model": "google/gemma-4-e2b",
         "cli": "lms",
         "transcript_file": "captures/gemma4-lms-with-judgmentkit.json",
-        "prompt_sha256": "2d344ae1afdd0ee773e760e6c4a1ab00a6b2b6a7a96647754966ce2f4ad34d55",
-        "raw_response_sha256": "3cd1e8f60f042879080adcdbda4a3c021d2e83a022462a2f54aad48e9eb16274",
-        "source_context_sha256": "1b869087f751e72a0611d791779866bf2d71642d5859713d9234765e56eb7c07",
+        "prompt_sha256": "ee421af6cb25603e4fcb4ee668a2809df71763ae9fec25aff2b9132baf96716c",
+        "raw_response_sha256": "eecb6225a40ccac71aba03fe167b3595f164328f5544b3f011f679a00932a231",
+        "source_context_sha256": "5fb5bad62994a5ec45b69ce09b343eb3932725dd0be51369a850c027f8e4675b",
         "reasoning_effort": null,
         "context_included": {
           "source_brief": true,
           "sample_case": true,
           "reviewed_handoff": true,
-          "material_ui_adapter": false
+          "material_ui_adapter": false,
+          "frontend_skill_context": true
         },
+        "frontend_context_status": "ready_for_frontend_implementation",
+        "frontend_skill_context_status": "ready",
         "design_system_name": null,
         "design_system_package": null,
         "design_system_render_mode": null,
+        "lms_context": {
+          "model": "google/gemma-4-e2b",
+          "status": "already_loaded",
+          "requested_context_length": 16384,
+          "actual_context_length": 16384,
+          "identifier": "google/gemma-4-e2b"
+        },
+        "capture_quality": {
+          "profile": "judgmentkit_static_html_css",
+          "css_characters": 1270,
+          "html_characters": 1971,
+          "css_rule_count": 15,
+          "class_selector_count": 18,
+          "semantic_section_count": 6,
+          "structural_block_count": 16,
+          "button_count": 4,
+          "has_responsive_css": true,
+          "has_layout_css": true,
+          "has_panel_css": true,
+          "has_control_css": true,
+          "has_evidence_content": true,
+          "has_handoff_content": true,
+          "compact_template_signature": false,
+          "failures": [],
+          "status": "passed"
+        },
         "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
       },
-      "prompt_sha256": "2d344ae1afdd0ee773e760e6c4a1ab00a6b2b6a7a96647754966ce2f4ad34d55",
-      "source_context_sha256": "1b869087f751e72a0611d791779866bf2d71642d5859713d9234765e56eb7c07",
-      "raw_response_sha256": "3cd1e8f60f042879080adcdbda4a3c021d2e83a022462a2f54aad48e9eb16274",
+      "lms_context": {
+        "model": "google/gemma-4-e2b",
+        "status": "already_loaded",
+        "requested_context_length": 16384,
+        "actual_context_length": 16384,
+        "identifier": "google/gemma-4-e2b"
+      },
+      "capture_quality": {
+        "profile": "judgmentkit_static_html_css",
+        "css_characters": 1270,
+        "html_characters": 1971,
+        "css_rule_count": 15,
+        "class_selector_count": 18,
+        "semantic_section_count": 6,
+        "structural_block_count": 16,
+        "button_count": 4,
+        "has_responsive_css": true,
+        "has_layout_css": true,
+        "has_panel_css": true,
+        "has_control_css": true,
+        "has_evidence_content": true,
+        "has_handoff_content": true,
+        "compact_template_signature": false,
+        "failures": [],
+        "status": "passed"
+      },
+      "prompt_sha256": "ee421af6cb25603e4fcb4ee668a2809df71763ae9fec25aff2b9132baf96716c",
+      "source_context_sha256": "5fb5bad62994a5ec45b69ce09b343eb3932725dd0be51369a850c027f8e4675b",
+      "raw_response_sha256": "eecb6225a40ccac71aba03fe167b3595f164328f5544b3f011f679a00932a231",
+      "frontend_context_status": "ready_for_frontend_implementation",
+      "frontend_skill_context_status": "ready",
+      "frontend_skill_context": {
+        "source_skill": "frontend-ui-implementation",
+        "raw_skill_exposed": false,
+        "surface_type": null,
+        "design_system_mode": "no_design_system_adapter_provided",
+        "design_system_name": "",
+        "next_recommended_tool": "review_ui_implementation_candidate",
+        "verification_checklist": [
+          "Run npm test",
+          "Run npm run capture:model-ui:screenshots",
+          "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+          "new primitives or variants require updating the repo-local contract first",
+          "generated UI must include a local check command or equivalent static inspection",
+          "gemma4-lms-with-judgmentkit desktop screenshot has a styled primary work surface",
+          "gemma4-lms-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
+          "desktop viewport screenshot",
+          "mobile viewport screenshot",
+          "keyboard focus check for interactive controls",
+          "overflow check for long labels, descriptions, and values",
+          "modal or dialog footer order check when dialogs are present",
+          "disabled, empty, error, and ready state review",
+          "Verify state: selected work item is visible",
+          "Verify state: decision evidence is scannable",
+          "Verify state: primary action and handoff reason are clear",
+          "Verify required state: empty",
+          "Verify required state: ready",
+          "Verify required state: loading",
+          "Verify required state: error",
+          "Verify required state: disabled",
+          "Verify required state: focus-visible"
+        ]
+      },
       "artifact_path": "artifacts/gemma4-lms-with-judgmentkit.html",
       "screenshot_path": "screenshots/gemma4-lms-with-judgmentkit.png",
-      "render_source": "model_static_html_css",
-      "visible_render_source": "model_static_html_css",
-      "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
-      "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit handoff",
-      "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+      "render_source": "model_frontend_skill_static_html_css",
+      "visible_render_source": "model_frontend_skill_static_html_css",
+      "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+      "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit skill context",
+      "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
     },
     {
       "id": "gemma4-lms-material-ui-only",
@@ -2192,7 +2945,8 @@
         "source_brief": true,
         "sample_case": true,
         "reviewed_handoff": false,
-        "material_ui_adapter": true
+        "material_ui_adapter": true,
+        "frontend_skill_context": false
       },
       "context_summary": "source brief + sample case + Material UI adapter",
       "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
@@ -2205,30 +2959,52 @@
       "capture_provenance": {
         "status": "captured",
         "capture_type": "model-output-transcript",
-        "captured_at": "2026-05-14T02:53:35.186Z",
+        "captured_at": "2026-05-15T21:27:25.260Z",
         "runner": "scripts/capture-model-ui-matrix.mjs",
         "provider": "lmstudio",
         "model": "google/gemma-4-e2b",
         "cli": "lms",
         "transcript_file": "captures/gemma4-lms-material-ui-only.json",
-        "prompt_sha256": "cffc0e4a8ae89593ca25ff2a07dd60451d021362b8a32addf961f133e920cdb2",
-        "raw_response_sha256": "f926edf7b783ea10c1f264d2c1884f1db3b6dd858b61817059da9a7e4f87ef3b",
-        "source_context_sha256": "824933e2b7bad50754f2bd413a73751579005d0abc77c001b7c0f3dfc0d700ec",
+        "prompt_sha256": "59c13841bd50da773fd0e208dcaa7818ef9a83e45dca8d5c58c1f3cb534d37a3",
+        "raw_response_sha256": "4601001ad2b5955f58038328325247bfc931550de6e80b705dc8c22f348c4ddd",
+        "source_context_sha256": "07aecb9daeacf942690a7bd907ef29902c51f5886543b4c10a731190e1c8a9b3",
         "reasoning_effort": null,
         "context_included": {
           "source_brief": true,
           "sample_case": true,
           "reviewed_handoff": false,
-          "material_ui_adapter": true
+          "material_ui_adapter": true,
+          "frontend_skill_context": false
         },
+        "frontend_context_status": null,
+        "frontend_skill_context_status": null,
         "design_system_name": "Material UI",
         "design_system_package": "@mui/material",
         "design_system_render_mode": "static-ssr",
+        "lms_context": {
+          "model": "google/gemma-4-e2b",
+          "status": "already_loaded",
+          "requested_context_length": 16384,
+          "actual_context_length": 16384,
+          "identifier": "google/gemma-4-e2b"
+        },
+        "capture_quality": null,
         "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
       },
-      "prompt_sha256": "cffc0e4a8ae89593ca25ff2a07dd60451d021362b8a32addf961f133e920cdb2",
-      "source_context_sha256": "824933e2b7bad50754f2bd413a73751579005d0abc77c001b7c0f3dfc0d700ec",
-      "raw_response_sha256": "f926edf7b783ea10c1f264d2c1884f1db3b6dd858b61817059da9a7e4f87ef3b",
+      "lms_context": {
+        "model": "google/gemma-4-e2b",
+        "status": "already_loaded",
+        "requested_context_length": 16384,
+        "actual_context_length": 16384,
+        "identifier": "google/gemma-4-e2b"
+      },
+      "capture_quality": null,
+      "prompt_sha256": "59c13841bd50da773fd0e208dcaa7818ef9a83e45dca8d5c58c1f3cb534d37a3",
+      "source_context_sha256": "07aecb9daeacf942690a7bd907ef29902c51f5886543b4c10a731190e1c8a9b3",
+      "raw_response_sha256": "4601001ad2b5955f58038328325247bfc931550de6e80b705dc8c22f348c4ddd",
+      "frontend_context_status": null,
+      "frontend_skill_context_status": null,
+      "frontend_skill_context": null,
       "artifact_path": "artifacts/gemma4-lms-material-ui-only.html",
       "screenshot_path": "screenshots/gemma4-lms-material-ui-only.png",
       "render_source": "model_structured_data_material_ui_ssr",
@@ -2246,8 +3022,8 @@
       "row_id": "gemma4-lms",
       "row_label": "Gemma 4 via LM Studio lms",
       "column_id": "judgmentkit-material-ui",
-      "column_label": "JudgmentKit + Material UI",
-      "title": "Gemma 4 via LM Studio lms - JudgmentKit + Material UI",
+      "column_label": "JudgmentKit skill + Material UI",
+      "title": "Gemma 4 via LM Studio lms - JudgmentKit skill + Material UI",
       "model_label": "Gemma 4 (local LLM)",
       "generation_source": "captured_model_output",
       "provider": "lmstudio",
@@ -2260,9 +3036,10 @@
         "source_brief": true,
         "sample_case": true,
         "reviewed_handoff": true,
-        "material_ui_adapter": true
+        "material_ui_adapter": true,
+        "frontend_skill_context": true
       },
-      "context_summary": "source brief + sample case + reviewed handoff + Material UI adapter",
+      "context_summary": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
       "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
       "reviewed_handoff_file": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
       "design_system_adapter_file": "examples/model-ui/field-service-dispatch/design-system-adapter.json",
@@ -2273,37 +3050,90 @@
       "capture_provenance": {
         "status": "captured",
         "capture_type": "model-output-transcript",
-        "captured_at": "2026-05-14T02:54:50.823Z",
+        "captured_at": "2026-05-15T21:27:44.096Z",
         "runner": "scripts/capture-model-ui-matrix.mjs",
         "provider": "lmstudio",
         "model": "google/gemma-4-e2b",
         "cli": "lms",
         "transcript_file": "captures/gemma4-lms-judgmentkit-material-ui.json",
-        "prompt_sha256": "a7e67536b4f8b606772652bfc7bdb2e95df2012a78a96296df138250a48a1d8e",
-        "raw_response_sha256": "15bd2e6c0e3ba66f185ef2b00cc84ff1197dcdaf547bbc51b7a3a3761afe6cbe",
-        "source_context_sha256": "1844e58f833211a4238718c1e8ebb07a4841b8266c0c09746c7d24bd683afc8d",
+        "prompt_sha256": "58ed27561801b0b4c6d4c8f2fc5d9c79f4700fa3d4f695ba684c95569f9ba215",
+        "raw_response_sha256": "64c67de16f37aa755c819761edabd4de112346242dc64bc8631ede6f3fe332d5",
+        "source_context_sha256": "f2b04bf482eece25137b6269bb85fda5e6731c84c86fd57cba30878e038a4437",
         "reasoning_effort": null,
         "context_included": {
           "source_brief": true,
           "sample_case": true,
           "reviewed_handoff": true,
-          "material_ui_adapter": true
+          "material_ui_adapter": true,
+          "frontend_skill_context": true
         },
+        "frontend_context_status": "ready_for_frontend_implementation",
+        "frontend_skill_context_status": "ready",
         "design_system_name": "Material UI",
         "design_system_package": "@mui/material",
         "design_system_render_mode": "static-ssr",
+        "lms_context": {
+          "model": "google/gemma-4-e2b",
+          "status": "already_loaded",
+          "requested_context_length": 16384,
+          "actual_context_length": 16384,
+          "identifier": "google/gemma-4-e2b"
+        },
+        "capture_quality": null,
         "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
       },
-      "prompt_sha256": "a7e67536b4f8b606772652bfc7bdb2e95df2012a78a96296df138250a48a1d8e",
-      "source_context_sha256": "1844e58f833211a4238718c1e8ebb07a4841b8266c0c09746c7d24bd683afc8d",
-      "raw_response_sha256": "15bd2e6c0e3ba66f185ef2b00cc84ff1197dcdaf547bbc51b7a3a3761afe6cbe",
+      "lms_context": {
+        "model": "google/gemma-4-e2b",
+        "status": "already_loaded",
+        "requested_context_length": 16384,
+        "actual_context_length": 16384,
+        "identifier": "google/gemma-4-e2b"
+      },
+      "capture_quality": null,
+      "prompt_sha256": "58ed27561801b0b4c6d4c8f2fc5d9c79f4700fa3d4f695ba684c95569f9ba215",
+      "source_context_sha256": "f2b04bf482eece25137b6269bb85fda5e6731c84c86fd57cba30878e038a4437",
+      "raw_response_sha256": "64c67de16f37aa755c819761edabd4de112346242dc64bc8631ede6f3fe332d5",
+      "frontend_context_status": "ready_for_frontend_implementation",
+      "frontend_skill_context_status": "ready",
+      "frontend_skill_context": {
+        "source_skill": "frontend-ui-implementation",
+        "raw_skill_exposed": false,
+        "surface_type": null,
+        "design_system_mode": "adapter_after_judgment",
+        "design_system_name": "Material UI",
+        "next_recommended_tool": "review_ui_implementation_candidate",
+        "verification_checklist": [
+          "Run npm test",
+          "Run npm run capture:model-ui:screenshots",
+          "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+          "new primitives or variants require updating the repo-local contract first",
+          "generated UI must include a local check command or equivalent static inspection",
+          "gemma4-lms-judgmentkit-material-ui desktop screenshot has a styled primary work surface",
+          "gemma4-lms-judgmentkit-material-ui mobile screenshot keeps the decision and handoff visible",
+          "desktop viewport screenshot",
+          "mobile viewport screenshot",
+          "keyboard focus check for interactive controls",
+          "overflow check for long labels, descriptions, and values",
+          "modal or dialog footer order check when dialogs are present",
+          "disabled, empty, error, and ready state review",
+          "Verify state: selected work item is visible",
+          "Verify state: decision evidence is scannable",
+          "Verify state: primary action and handoff reason are clear",
+          "Verify required state: empty",
+          "Verify required state: ready",
+          "Verify required state: loading",
+          "Verify required state: error",
+          "Verify required state: disabled",
+          "Verify required state: focus-visible"
+        ]
+      },
       "artifact_path": "artifacts/gemma4-lms-judgmentkit-material-ui.html",
       "screenshot_path": "screenshots/gemma4-lms-judgmentkit-material-ui.png",
-      "render_source": "model_structured_data_material_ui_ssr",
-      "visible_render_source": "model_structured_data_material_ui_ssr",
-      "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
-      "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit + Material UI",
-      "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path."
+      "render_source": "model_frontend_skill_material_ui_ssr",
+      "visible_render_source": "model_frontend_skill_material_ui_ssr",
+      "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed handoff plus compiled frontend skill context.",
+      "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit skill + Material UI",
+      "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path."
     },
     {
       "id": "gpt55-xhigh-codex-no-judgmentkit",
@@ -2328,7 +3158,8 @@
         "source_brief": true,
         "sample_case": true,
         "reviewed_handoff": false,
-        "material_ui_adapter": false
+        "material_ui_adapter": false,
+        "frontend_skill_context": false
       },
       "context_summary": "source brief + sample case",
       "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
@@ -2341,30 +3172,76 @@
       "capture_provenance": {
         "status": "captured",
         "capture_type": "model-output-transcript",
-        "captured_at": "2026-05-14T02:56:23.043Z",
+        "captured_at": "2026-05-15T21:29:44.565Z",
         "runner": "scripts/capture-model-ui-matrix.mjs",
         "provider": "codex-cli",
         "model": "gpt-5.5",
         "cli": "codex",
         "transcript_file": "captures/gpt55-xhigh-codex-no-judgmentkit.json",
-        "prompt_sha256": "4ffe45d00d6d5d904d1483ce3a07884f41901400a250bce5b1543ba7305f985e",
-        "raw_response_sha256": "b0ff58aa57c918afa0d9333966401776b0c6a449a96e837294b1478b58d90dab",
-        "source_context_sha256": "794acdacdac5891302222d67e52ecd4ff7e567808c682acd94e44e4cd9d549ee",
+        "prompt_sha256": "ebad289a1214fe94d8efea7af35a301a0724ee8e884dc71883eb318791b1f3c5",
+        "raw_response_sha256": "fbf23fcdc7316ac32194f1244f951a42f03efbdf45554545490ba55e878f76a4",
+        "source_context_sha256": "ee726206f8e71fb2432d8446bdec810714cd7fe2e45c857709a508cc2fb531ec",
         "reasoning_effort": "xhigh",
         "context_included": {
           "source_brief": true,
           "sample_case": true,
           "reviewed_handoff": false,
-          "material_ui_adapter": false
+          "material_ui_adapter": false,
+          "frontend_skill_context": false
         },
+        "frontend_context_status": null,
+        "frontend_skill_context_status": null,
         "design_system_name": null,
         "design_system_package": null,
         "design_system_render_mode": null,
+        "lms_context": null,
+        "capture_quality": {
+          "profile": "basic_static_html_css",
+          "css_characters": 4763,
+          "html_characters": 4660,
+          "css_rule_count": 58,
+          "class_selector_count": 74,
+          "semantic_section_count": 11,
+          "structural_block_count": 43,
+          "button_count": 10,
+          "has_responsive_css": true,
+          "has_layout_css": true,
+          "has_panel_css": true,
+          "has_control_css": true,
+          "has_evidence_content": true,
+          "has_handoff_content": true,
+          "compact_template_signature": false,
+          "failures": [],
+          "status": "passed"
+        },
         "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
       },
-      "prompt_sha256": "4ffe45d00d6d5d904d1483ce3a07884f41901400a250bce5b1543ba7305f985e",
-      "source_context_sha256": "794acdacdac5891302222d67e52ecd4ff7e567808c682acd94e44e4cd9d549ee",
-      "raw_response_sha256": "b0ff58aa57c918afa0d9333966401776b0c6a449a96e837294b1478b58d90dab",
+      "lms_context": null,
+      "capture_quality": {
+        "profile": "basic_static_html_css",
+        "css_characters": 4763,
+        "html_characters": 4660,
+        "css_rule_count": 58,
+        "class_selector_count": 74,
+        "semantic_section_count": 11,
+        "structural_block_count": 43,
+        "button_count": 10,
+        "has_responsive_css": true,
+        "has_layout_css": true,
+        "has_panel_css": true,
+        "has_control_css": true,
+        "has_evidence_content": true,
+        "has_handoff_content": true,
+        "compact_template_signature": false,
+        "failures": [],
+        "status": "passed"
+      },
+      "prompt_sha256": "ebad289a1214fe94d8efea7af35a301a0724ee8e884dc71883eb318791b1f3c5",
+      "source_context_sha256": "ee726206f8e71fb2432d8446bdec810714cd7fe2e45c857709a508cc2fb531ec",
+      "raw_response_sha256": "fbf23fcdc7316ac32194f1244f951a42f03efbdf45554545490ba55e878f76a4",
+      "frontend_context_status": null,
+      "frontend_skill_context_status": null,
+      "frontend_skill_context": null,
       "artifact_path": "artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
       "screenshot_path": "screenshots/gpt55-xhigh-codex-no-judgmentkit.png",
       "render_source": "model_static_html_css",
@@ -2382,8 +3259,8 @@
       "row_id": "gpt55-xhigh-codex",
       "row_label": "GPT-5.5 xhigh via codex exec",
       "column_id": "with-judgmentkit",
-      "column_label": "JudgmentKit handoff",
-      "title": "GPT-5.5 xhigh via codex exec - JudgmentKit handoff",
+      "column_label": "JudgmentKit skill context",
+      "title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill context",
       "model_label": "GPT-5.5",
       "generation_source": "captured_model_output",
       "provider": "codex-cli",
@@ -2396,9 +3273,10 @@
         "source_brief": true,
         "sample_case": true,
         "reviewed_handoff": true,
-        "material_ui_adapter": false
+        "material_ui_adapter": false,
+        "frontend_skill_context": true
       },
-      "context_summary": "source brief + sample case + reviewed handoff",
+      "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
       "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
       "reviewed_handoff_file": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
       "design_system_adapter_file": null,
@@ -2409,37 +3287,114 @@
       "capture_provenance": {
         "status": "captured",
         "capture_type": "model-output-transcript",
-        "captured_at": "2026-05-14T03:06:13.407Z",
+        "captured_at": "2026-05-15T21:33:58.598Z",
         "runner": "scripts/capture-model-ui-matrix.mjs",
         "provider": "codex-cli",
         "model": "gpt-5.5",
         "cli": "codex",
         "transcript_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
-        "prompt_sha256": "fb2885d5006e1979a7b4d734ec90698dd03e5b9af218b89846b598364d124a08",
-        "raw_response_sha256": "653dd9c17b20eeddbaab65c422e231efa6e47c56e6bd77ed3f29096a0fda1fdd",
-        "source_context_sha256": "c76e9c4eaf12ecc5f98485b0bfd9f3f870b0d5bd3ff0f9e7ae6ddcb24cf17fb4",
+        "prompt_sha256": "c0a082cd6b1c6ef8907c6793ac54c0f28f1e8f0c9ce7c26d7ba18bb8c21a7375",
+        "raw_response_sha256": "bb326d684e995426762aceebabc8389ee040e4a75adeb77c99645f83b5cd8ef1",
+        "source_context_sha256": "84d7adc5190f3796a3fc4e61f40b3987ead81206cb9dc750b4098c36873bbacd",
         "reasoning_effort": "xhigh",
         "context_included": {
           "source_brief": true,
           "sample_case": true,
           "reviewed_handoff": true,
-          "material_ui_adapter": false
+          "material_ui_adapter": false,
+          "frontend_skill_context": true
         },
+        "frontend_context_status": "ready_for_frontend_implementation",
+        "frontend_skill_context_status": "ready",
         "design_system_name": null,
         "design_system_package": null,
         "design_system_render_mode": null,
+        "lms_context": null,
+        "capture_quality": {
+          "profile": "judgmentkit_static_html_css",
+          "css_characters": 5998,
+          "html_characters": 5649,
+          "css_rule_count": 74,
+          "class_selector_count": 101,
+          "semantic_section_count": 7,
+          "structural_block_count": 41,
+          "button_count": 9,
+          "has_responsive_css": true,
+          "has_layout_css": true,
+          "has_panel_css": true,
+          "has_control_css": true,
+          "has_evidence_content": true,
+          "has_handoff_content": true,
+          "compact_template_signature": false,
+          "failures": [],
+          "status": "passed"
+        },
         "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
       },
-      "prompt_sha256": "fb2885d5006e1979a7b4d734ec90698dd03e5b9af218b89846b598364d124a08",
-      "source_context_sha256": "c76e9c4eaf12ecc5f98485b0bfd9f3f870b0d5bd3ff0f9e7ae6ddcb24cf17fb4",
-      "raw_response_sha256": "653dd9c17b20eeddbaab65c422e231efa6e47c56e6bd77ed3f29096a0fda1fdd",
+      "lms_context": null,
+      "capture_quality": {
+        "profile": "judgmentkit_static_html_css",
+        "css_characters": 5998,
+        "html_characters": 5649,
+        "css_rule_count": 74,
+        "class_selector_count": 101,
+        "semantic_section_count": 7,
+        "structural_block_count": 41,
+        "button_count": 9,
+        "has_responsive_css": true,
+        "has_layout_css": true,
+        "has_panel_css": true,
+        "has_control_css": true,
+        "has_evidence_content": true,
+        "has_handoff_content": true,
+        "compact_template_signature": false,
+        "failures": [],
+        "status": "passed"
+      },
+      "prompt_sha256": "c0a082cd6b1c6ef8907c6793ac54c0f28f1e8f0c9ce7c26d7ba18bb8c21a7375",
+      "source_context_sha256": "84d7adc5190f3796a3fc4e61f40b3987ead81206cb9dc750b4098c36873bbacd",
+      "raw_response_sha256": "bb326d684e995426762aceebabc8389ee040e4a75adeb77c99645f83b5cd8ef1",
+      "frontend_context_status": "ready_for_frontend_implementation",
+      "frontend_skill_context_status": "ready",
+      "frontend_skill_context": {
+        "source_skill": "frontend-ui-implementation",
+        "raw_skill_exposed": false,
+        "surface_type": null,
+        "design_system_mode": "no_design_system_adapter_provided",
+        "design_system_name": "",
+        "next_recommended_tool": "review_ui_implementation_candidate",
+        "verification_checklist": [
+          "Run npm test",
+          "Run npm run capture:model-ui:screenshots",
+          "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+          "new primitives or variants require updating the repo-local contract first",
+          "generated UI must include a local check command or equivalent static inspection",
+          "gpt55-xhigh-codex-with-judgmentkit desktop screenshot has a styled primary work surface",
+          "gpt55-xhigh-codex-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
+          "desktop viewport screenshot",
+          "mobile viewport screenshot",
+          "keyboard focus check for interactive controls",
+          "overflow check for long labels, descriptions, and values",
+          "modal or dialog footer order check when dialogs are present",
+          "disabled, empty, error, and ready state review",
+          "Verify state: selected work item is visible",
+          "Verify state: decision evidence is scannable",
+          "Verify state: primary action and handoff reason are clear",
+          "Verify required state: empty",
+          "Verify required state: ready",
+          "Verify required state: loading",
+          "Verify required state: error",
+          "Verify required state: disabled",
+          "Verify required state: focus-visible"
+        ]
+      },
       "artifact_path": "artifacts/gpt55-xhigh-codex-with-judgmentkit.html",
       "screenshot_path": "screenshots/gpt55-xhigh-codex-with-judgmentkit.png",
-      "render_source": "model_static_html_css",
-      "visible_render_source": "model_static_html_css",
-      "rendering_policy": "Visible artifact is generated from the reviewed JudgmentKit handoff with no Material UI adapter.",
-      "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit handoff",
-      "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff but no design-system adapter. This isolates activity, workflow, and disclosure guidance."
+      "render_source": "model_frontend_skill_static_html_css",
+      "visible_render_source": "model_frontend_skill_static_html_css",
+      "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+      "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill context",
+      "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
     },
     {
       "id": "gpt55-xhigh-codex-material-ui-only",
@@ -2464,7 +3419,8 @@
         "source_brief": true,
         "sample_case": true,
         "reviewed_handoff": false,
-        "material_ui_adapter": true
+        "material_ui_adapter": true,
+        "frontend_skill_context": false
       },
       "context_summary": "source brief + sample case + Material UI adapter",
       "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
@@ -2477,30 +3433,40 @@
       "capture_provenance": {
         "status": "captured",
         "capture_type": "model-output-transcript",
-        "captured_at": "2026-05-14T03:07:17.092Z",
+        "captured_at": "2026-05-15T21:35:09.542Z",
         "runner": "scripts/capture-model-ui-matrix.mjs",
         "provider": "codex-cli",
         "model": "gpt-5.5",
         "cli": "codex",
         "transcript_file": "captures/gpt55-xhigh-codex-material-ui-only.json",
-        "prompt_sha256": "4f39cfecc8e23e52f12b23b0165a8bf65d733583dd33ff900fc28a4448790274",
-        "raw_response_sha256": "556840893dffa471bbca6c490edadc0c9b608c77dc8118411f28c4233283ea6b",
-        "source_context_sha256": "ad8cabb0edcfc8e2f00ec348ebf33ece2b82b618309a72871d22e0cd9ce12fcc",
+        "prompt_sha256": "2bc3e48c44eceaf1a348070270564ce8dd53479c124c1534db5124fb279aaf9f",
+        "raw_response_sha256": "89a10305749c5b12527e80a0664d608b7e8e639284785ab69eeb4f2724a92b7d",
+        "source_context_sha256": "1942d3f0ac5abe53fc51c97f54d389fe9b927d1764007e14cd69e3ccbacd66cc",
         "reasoning_effort": "xhigh",
         "context_included": {
           "source_brief": true,
           "sample_case": true,
           "reviewed_handoff": false,
-          "material_ui_adapter": true
+          "material_ui_adapter": true,
+          "frontend_skill_context": false
         },
+        "frontend_context_status": null,
+        "frontend_skill_context_status": null,
         "design_system_name": "Material UI",
         "design_system_package": "@mui/material",
         "design_system_render_mode": "static-ssr",
+        "lms_context": null,
+        "capture_quality": null,
         "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
       },
-      "prompt_sha256": "4f39cfecc8e23e52f12b23b0165a8bf65d733583dd33ff900fc28a4448790274",
-      "source_context_sha256": "ad8cabb0edcfc8e2f00ec348ebf33ece2b82b618309a72871d22e0cd9ce12fcc",
-      "raw_response_sha256": "556840893dffa471bbca6c490edadc0c9b608c77dc8118411f28c4233283ea6b",
+      "lms_context": null,
+      "capture_quality": null,
+      "prompt_sha256": "2bc3e48c44eceaf1a348070270564ce8dd53479c124c1534db5124fb279aaf9f",
+      "source_context_sha256": "1942d3f0ac5abe53fc51c97f54d389fe9b927d1764007e14cd69e3ccbacd66cc",
+      "raw_response_sha256": "89a10305749c5b12527e80a0664d608b7e8e639284785ab69eeb4f2724a92b7d",
+      "frontend_context_status": null,
+      "frontend_skill_context_status": null,
+      "frontend_skill_context": null,
       "artifact_path": "artifacts/gpt55-xhigh-codex-material-ui-only.html",
       "screenshot_path": "screenshots/gpt55-xhigh-codex-material-ui-only.png",
       "render_source": "model_structured_data_material_ui_ssr",
@@ -2518,8 +3484,8 @@
       "row_id": "gpt55-xhigh-codex",
       "row_label": "GPT-5.5 xhigh via codex exec",
       "column_id": "judgmentkit-material-ui",
-      "column_label": "JudgmentKit + Material UI",
-      "title": "GPT-5.5 xhigh via codex exec - JudgmentKit + Material UI",
+      "column_label": "JudgmentKit skill + Material UI",
+      "title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill + Material UI",
       "model_label": "GPT-5.5",
       "generation_source": "captured_model_output",
       "provider": "codex-cli",
@@ -2532,9 +3498,10 @@
         "source_brief": true,
         "sample_case": true,
         "reviewed_handoff": true,
-        "material_ui_adapter": true
+        "material_ui_adapter": true,
+        "frontend_skill_context": true
       },
-      "context_summary": "source brief + sample case + reviewed handoff + Material UI adapter",
+      "context_summary": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
       "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
       "reviewed_handoff_file": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
       "design_system_adapter_file": "examples/model-ui/field-service-dispatch/design-system-adapter.json",
@@ -2545,40 +3512,81 @@
       "capture_provenance": {
         "status": "captured",
         "capture_type": "model-output-transcript",
-        "captured_at": "2026-05-14T03:08:05.339Z",
+        "captured_at": "2026-05-15T21:36:42.019Z",
         "runner": "scripts/capture-model-ui-matrix.mjs",
         "provider": "codex-cli",
         "model": "gpt-5.5",
         "cli": "codex",
         "transcript_file": "captures/gpt55-xhigh-codex-judgmentkit-material-ui.json",
-        "prompt_sha256": "aa4a97399cfc2890fbd14f5c72ec91b40d63562deb707d996ddcdfe352351c53",
-        "raw_response_sha256": "6c8e4d893b8ba842a4812b461c70aafb48d8631cbc7ace16386765576bddd4e8",
-        "source_context_sha256": "4ff7215bcd27bc83c1c472b8fc541bdbeceea158a3b18b99f4cca3d44c67c60b",
+        "prompt_sha256": "1272c5429f39ff4e9c1a98f12ff3367a06c848ff5d711d25136ad3e6e77a76db",
+        "raw_response_sha256": "f9b847c2bdfd7e2a095709a9cb7160a83e02ce414dcc1a87a7ad5982a8a6972f",
+        "source_context_sha256": "5916d8bcbdef11f6f948873f3cf4a6a316d031628a15a9cf3047412190639136",
         "reasoning_effort": "xhigh",
         "context_included": {
           "source_brief": true,
           "sample_case": true,
           "reviewed_handoff": true,
-          "material_ui_adapter": true
+          "material_ui_adapter": true,
+          "frontend_skill_context": true
         },
+        "frontend_context_status": "ready_for_frontend_implementation",
+        "frontend_skill_context_status": "ready",
         "design_system_name": "Material UI",
         "design_system_package": "@mui/material",
         "design_system_render_mode": "static-ssr",
+        "lms_context": null,
+        "capture_quality": null,
         "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
       },
-      "prompt_sha256": "aa4a97399cfc2890fbd14f5c72ec91b40d63562deb707d996ddcdfe352351c53",
-      "source_context_sha256": "4ff7215bcd27bc83c1c472b8fc541bdbeceea158a3b18b99f4cca3d44c67c60b",
-      "raw_response_sha256": "6c8e4d893b8ba842a4812b461c70aafb48d8631cbc7ace16386765576bddd4e8",
+      "lms_context": null,
+      "capture_quality": null,
+      "prompt_sha256": "1272c5429f39ff4e9c1a98f12ff3367a06c848ff5d711d25136ad3e6e77a76db",
+      "source_context_sha256": "5916d8bcbdef11f6f948873f3cf4a6a316d031628a15a9cf3047412190639136",
+      "raw_response_sha256": "f9b847c2bdfd7e2a095709a9cb7160a83e02ce414dcc1a87a7ad5982a8a6972f",
+      "frontend_context_status": "ready_for_frontend_implementation",
+      "frontend_skill_context_status": "ready",
+      "frontend_skill_context": {
+        "source_skill": "frontend-ui-implementation",
+        "raw_skill_exposed": false,
+        "surface_type": null,
+        "design_system_mode": "adapter_after_judgment",
+        "design_system_name": "Material UI",
+        "next_recommended_tool": "review_ui_implementation_candidate",
+        "verification_checklist": [
+          "Run npm test",
+          "Run npm run capture:model-ui:screenshots",
+          "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+          "new primitives or variants require updating the repo-local contract first",
+          "generated UI must include a local check command or equivalent static inspection",
+          "gpt55-xhigh-codex-judgmentkit-material-ui desktop screenshot has a styled primary work surface",
+          "gpt55-xhigh-codex-judgmentkit-material-ui mobile screenshot keeps the decision and handoff visible",
+          "desktop viewport screenshot",
+          "mobile viewport screenshot",
+          "keyboard focus check for interactive controls",
+          "overflow check for long labels, descriptions, and values",
+          "modal or dialog footer order check when dialogs are present",
+          "disabled, empty, error, and ready state review",
+          "Verify state: selected work item is visible",
+          "Verify state: decision evidence is scannable",
+          "Verify state: primary action and handoff reason are clear",
+          "Verify required state: empty",
+          "Verify required state: ready",
+          "Verify required state: loading",
+          "Verify required state: error",
+          "Verify required state: disabled",
+          "Verify required state: focus-visible"
+        ]
+      },
       "artifact_path": "artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
       "screenshot_path": "screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png",
-      "render_source": "model_structured_data_material_ui_ssr",
-      "visible_render_source": "model_structured_data_material_ui_ssr",
-      "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed JudgmentKit handoff.",
-      "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit + Material UI",
-      "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed JudgmentKit handoff and is rendered through the Material UI adapter. This is the full intended path."
+      "render_source": "model_frontend_skill_material_ui_ssr",
+      "visible_render_source": "model_frontend_skill_material_ui_ssr",
+      "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed handoff plus compiled frontend skill context.",
+      "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill + Material UI",
+      "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path."
     }
   ],
-  "generation_policy": "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model. The 3x4 matrix separates raw brief context, JudgmentKit handoff context, Material UI rendering, and the combined JudgmentKit plus Material UI path."
+  "generation_policy": "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model. The 3x4 matrix separates raw brief context, JudgmentKit reviewed handoff plus compiled frontend skill context, Material UI rendering, and the combined JudgmentKit skill plus Material UI path."
 }</script>
     <script>
       (() => {
