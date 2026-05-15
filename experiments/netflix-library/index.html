@@ -38,13 +38,24 @@
         padding: 72px 0;
       }
 
-      .eyebrow {
-        margin: 0 0 12px;
-        color: var(--accent);
-        font-size: 0.78rem;
+      .home-link {
+        display: inline-flex;
+        margin: 0 0 22px;
+        color: var(--muted);
+        font-size: 0.86rem;
         font-weight: 800;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
+        letter-spacing: 0;
+        text-decoration: none;
+      }
+
+      .home-link:hover {
+        color: var(--text);
+      }
+
+      .home-link:focus-visible {
+        border-radius: 4px;
+        outline: 3px solid var(--accent);
+        outline-offset: 4px;
       }
 
       h1 {
@@ -152,6 +163,7 @@
   </head>
   <body>
     <main>
+      <a class="home-link" href="https://judgmentkit.ai/">JudgmentKit.ai home</a>
       <h1>Netflix library zero-shot, single-pass comparison</h1>
       <p class="lede">
         Two static prototypes generated from the same prompt, comparing how activity-first guidance changes a streaming-library user experience.
