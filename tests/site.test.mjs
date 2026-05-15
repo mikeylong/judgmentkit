@@ -86,7 +86,7 @@ assert.ok(homepage.includes('href="/evals/"'));
 assert.ok(homepage.includes('class="hero-actions" aria-label="Primary proof paths"'));
 assert.ok(homepage.includes('class="hero-action hero-action-primary" data-hero-action="primary" href="/examples/"'));
 assert.ok(homepage.includes('class="hero-action hero-action-secondary" data-hero-action="secondary" href="/evals/"'));
-assert.ok(homepage.includes("Raw brief"));
+assert.ok(homepage.includes("Prompt"));
 assert.ok(homepage.includes('class="prompt-evidence" title="Participant"'));
 assert.ok(homepage.includes('class="prompt-evidence" title="Objective and activity"'));
 assert.ok(homepage.includes('class="prompt-evidence prompt-evidence-diagnostic" title="Diagnostic implementation detail"'));

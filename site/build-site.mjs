@@ -1444,7 +1444,7 @@ function homepage() {
       </div>
       <div class="proof-panel" aria-label="JudgmentKit proof path">
         <div class="proof-step">
-          <strong>Raw brief</strong>
+          <strong>Prompt</strong>
           <div class="prompt-evidence-block">
             <code>A <span class="prompt-evidence" title="Participant">support operations manager</span> is <span class="prompt-evidence" title="Objective and activity">reviewing refund escalation cases</span>. The request says to build from the <span class="prompt-evidence prompt-evidence-diagnostic" title="Diagnostic implementation detail">refund_case data model, database fields, JSON schema, prompt template, tool call results, resource id, API endpoint status, and CRUD</span>. The activity is deciding whether an escalation should be <span class="prompt-evidence" title="Decision">approved, sent to policy review, or returned for missing evidence</span>. The outcome is a <span class="prompt-evidence" title="Outcome">clear handoff with the next action and reason</span>.</code>
             <div class="prompt-evidence-key" aria-label="Prompt evidence color key">
