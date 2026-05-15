@@ -617,6 +617,8 @@ assert.ok(netflixExperiment.includes("Unlisted one-shot experiment"));
 assert.ok(netflixExperiment.includes("Netflix library one-shot comparison"));
 assert.ok(netflixExperiment.includes("Prompt used"));
 assert.ok(netflixExperiment.includes("do a one-shot generation of a Netflix video library"));
+assert.ok(netflixExperiment.includes('href="./judgmentkit/" target="_blank" rel="noreferrer"'));
+assert.ok(netflixExperiment.includes('href="./baseline/" target="_blank" rel="noreferrer"'));
 
 const mcp = getHostedMcpMetadata();
 assert.equal(mcp.name, "JudgmentKit");
