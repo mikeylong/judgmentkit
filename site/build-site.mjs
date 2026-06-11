@@ -16,7 +16,10 @@ const DEFAULT_OUT_DIR = path.join(__dirname, "dist");
 const require = createRequire(import.meta.url);
 const ANALYTICS_SDK_VERSION = require("@vercel/analytics/package.json").version;
 const SYSTEM_MAP_FLOW_ASSET_VERSION = "judgmentkit-flow-aligned";
-const SOCIAL_THUMBNAIL_PATH = "/assets/judgmentkit-social-thumbnail.png";
+const SITE_ORIGIN = "https://judgmentkit.ai";
+const SOCIAL_THUMBNAIL_SOURCE_FILENAME = "judgmentkit-social-thumbnail.png";
+const SOCIAL_THUMBNAIL_FILENAME = "judgmentkit-social-thumbnail-20260611.png";
+const SOCIAL_THUMBNAIL_PATH = `/assets/${SOCIAL_THUMBNAIL_FILENAME}`;
 const SOCIAL_THUMBNAIL_ALT = "JudgmentKit. Before the UI.";
 
 function parseArgs(argv) {
@@ -234,8 +237,8 @@ function page(title, body, options = {}) {
     options.description ??
     "JudgmentKit is an activity-first judgment layer for AI-generated product work.";
   const pathName = options.path ?? "/";
-  const canonicalUrl = `https://judgmentkit.ai${pathName}`;
-  const socialThumbnailUrl = `https://judgmentkit.ai${SOCIAL_THUMBNAIL_PATH}`;
+  const canonicalUrl = `${SITE_ORIGIN}${pathName}`;
+  const socialThumbnailUrl = `${SITE_ORIGIN}${SOCIAL_THUMBNAIL_PATH}`;
 
   return `<!doctype html>
 <html lang="en">
@@ -246,12 +249,15 @@ function page(title, body, options = {}) {
     <meta name="description" content="${escapeHtml(description)}">
     <link rel="canonical" href="${escapeHtml(canonicalUrl)}">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="image_src" href="${escapeHtml(socialThumbnailUrl)}">
     <meta property="og:site_name" content="JudgmentKit">
     <meta property="og:title" content="${escapeHtml(title)}">
     <meta property="og:description" content="${escapeHtml(description)}">
     <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
     <meta property="og:type" content="website">
     <meta property="og:image" content="${escapeHtml(socialThumbnailUrl)}">
+    <meta property="og:image:secure_url" content="${escapeHtml(socialThumbnailUrl)}">
+    <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:image:alt" content="${escapeHtml(SOCIAL_THUMBNAIL_ALT)}">
@@ -2622,9 +2628,14 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.mkdir(path.join(outDir, "examples"), { recursive: true });
 
   await fs.writeFile(path.join(outDir, "assets", "site.css"), stylesheet.trimStart());
+  const socialThumbnailSourcePath = path.join(__dirname, "assets", SOCIAL_THUMBNAIL_SOURCE_FILENAME);
   await fs.copyFile(
-    path.join(__dirname, "assets", "judgmentkit-social-thumbnail.png"),
-    path.join(outDir, "assets", "judgmentkit-social-thumbnail.png"),
+    socialThumbnailSourcePath,
+    path.join(outDir, "assets", SOCIAL_THUMBNAIL_FILENAME),
+  );
+  await fs.copyFile(
+    socialThumbnailSourcePath,
+    path.join(outDir, "assets", SOCIAL_THUMBNAIL_SOURCE_FILENAME),
   );
   await buildSystemMapFlowAssets(outDir);
   await fs.writeFile(
@@ -2632,6 +2643,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="12" fill="#133f4e"/><path d="M18 34.5 28 44l19-24" fill="none" stroke="#f8f7f2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></svg>\n`,
   );
   await fs.writeFile(path.join(outDir, "index.html"), homepage());
+  await fs.writeFile(path.join(outDir, "robots.txt"), "User-agent: *\nAllow: /\n");
   await fs.writeFile(path.join(outDir, "docs", "index.html"), docsPage());
   await fs.writeFile(path.join(outDir, "examples", "index.html"), await examplesPage());
   await fs.writeFile(path.join(outDir, "install"), await bootstrapScript(), { mode: 0o755 });
