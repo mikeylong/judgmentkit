@@ -16,6 +16,8 @@ const DEFAULT_OUT_DIR = path.join(__dirname, "dist");
 const require = createRequire(import.meta.url);
 const ANALYTICS_SDK_VERSION = require("@vercel/analytics/package.json").version;
 const SYSTEM_MAP_FLOW_ASSET_VERSION = "judgmentkit-flow-aligned";
+const SOCIAL_THUMBNAIL_PATH = "/assets/judgmentkit-social-thumbnail.png";
+const SOCIAL_THUMBNAIL_ALT = "JudgmentKit. Before the UI.";
 
 function parseArgs(argv) {
   const outIndex = argv.indexOf("--out");
@@ -117,6 +119,7 @@ function page(title, body, options = {}) {
     "JudgmentKit is an activity-first judgment layer for AI-generated product work.";
   const pathName = options.path ?? "/";
   const canonicalUrl = `https://judgmentkit.ai${pathName}`;
+  const socialThumbnailUrl = `https://judgmentkit.ai${SOCIAL_THUMBNAIL_PATH}`;
 
   return `<!doctype html>
 <html lang="en">
@@ -132,9 +135,15 @@ function page(title, body, options = {}) {
     <meta property="og:description" content="${escapeHtml(description)}">
     <meta property="og:url" content="${escapeHtml(canonicalUrl)}">
     <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary">
+    <meta property="og:image" content="${escapeHtml(socialThumbnailUrl)}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="${escapeHtml(SOCIAL_THUMBNAIL_ALT)}">
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${escapeHtml(title)}">
     <meta name="twitter:description" content="${escapeHtml(description)}">
+    <meta name="twitter:image" content="${escapeHtml(socialThumbnailUrl)}">
+    <meta name="twitter:image:alt" content="${escapeHtml(SOCIAL_THUMBNAIL_ALT)}">
     <link rel="stylesheet" href="/assets/site.css">
 ${options.headExtra ?? ""}
 ${analyticsBootstrap()}
@@ -2371,6 +2380,10 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.mkdir(path.join(outDir, "examples"), { recursive: true });
 
   await fs.writeFile(path.join(outDir, "assets", "site.css"), stylesheet.trimStart());
+  await fs.copyFile(
+    path.join(__dirname, "assets", "judgmentkit-social-thumbnail.png"),
+    path.join(outDir, "assets", "judgmentkit-social-thumbnail.png"),
+  );
   await buildSystemMapFlowAssets(outDir);
   await fs.writeFile(
     path.join(outDir, "favicon.svg"),
