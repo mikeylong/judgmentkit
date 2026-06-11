@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="JudgmentKit. Before the UI.">
+  <rect width="1200" height="630" fill="#f8f7f2"/>
+
+  <g transform="translate(68 74)">
+    <rect width="96" height="96" rx="18" fill="#133f4e"/>
+    <path d="M18 34.5 28 44l19-24"
+      transform="scale(1.5)"
+      fill="none"
+      stroke="#f8f7f2"
+      stroke-width="7"
+      stroke-linecap="round"
+      stroke-linejoin="round"/>
+  </g>
+
+  <text x="190" y="146"
+    fill="#171717"
+    font-family="Georgia, Times New Roman, serif"
+    font-size="94"
+    font-weight="400">JudgmentKit</text>
+
+  <text x="68" y="438"
+    fill="#171717"
+    font-family="Georgia, Times New Roman, serif"
+    font-size="138"
+    font-weight="400">Before the UI.</text>
+</svg>

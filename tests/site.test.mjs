@@ -174,6 +174,13 @@ assert.ok(homepage.includes("stays in the loop across iterations"));
 assert.ok(homepage.includes("not the final renderer"));
 assert.ok(homepage.includes('rel="canonical" href="https://judgmentkit.ai/"'));
 assert.ok(homepage.includes('rel="icon" href="/favicon.svg"'));
+assert.ok(homepage.includes('property="og:image" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail.png"'));
+assert.ok(homepage.includes('property="og:image:width" content="1200"'));
+assert.ok(homepage.includes('property="og:image:height" content="630"'));
+assert.ok(homepage.includes('property="og:image:alt" content="JudgmentKit. Before the UI."'));
+assert.ok(homepage.includes('name="twitter:card" content="summary_large_image"'));
+assert.ok(homepage.includes('name="twitter:image" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail.png"'));
+assert.ok(homepage.includes('name="twitter:image:alt" content="JudgmentKit. Before the UI."'));
 assertAnalyticsBootstrap(homepage, "homepage");
 
 for (const forbidden of OLD_FRAMING) {
@@ -610,6 +617,10 @@ assert.equal(install.includes("git clone"), false);
 assert.equal(install.includes("npm install"), false);
 assert.equal(install.includes("mcp:stdio"), false);
 assert.equal(fs.existsSync(path.join(tempDir, "favicon.svg")), true);
+const socialThumbnail = fs.readFileSync(path.join(tempDir, "assets", "judgmentkit-social-thumbnail.png"));
+assert.equal(socialThumbnail.subarray(1, 4).toString("ascii"), "PNG");
+assert.equal(socialThumbnail.readUInt32BE(16), 1200);
+assert.equal(socialThumbnail.readUInt32BE(20), 630);
 
 for (const experimentPath of [
   ["experiments", "netflix-library", "index.html"],
