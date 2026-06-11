@@ -111,6 +111,122 @@ function addAnalyticsToHtml(html) {
   return html;
 }
 
+const platformSites = [
+  {
+    id: "surfaces",
+    label: "surfaces.systems",
+    href: "https://surfaces.systems/",
+    description: "Canonical source of interface truth",
+  },
+  {
+    id: "surfaceops",
+    label: "surfaceops.ai",
+    href: "https://surfaceops.ai/",
+    description: "Operational enforcement and monitoring",
+  },
+  {
+    id: "interfacectl",
+    label: "interfacectl.com",
+    href: "https://interfacectl.com/",
+    description: "Executable interface control",
+  },
+  {
+    id: "surfaces-dev",
+    label: "surfaces.dev",
+    href: "https://surfaces.dev/",
+    description: "Developer documentation and reference",
+  },
+  {
+    id: "judgmentkit",
+    label: "judgmentkit.ai",
+    href: "https://judgmentkit.ai/",
+    description: "Embedded MCP judgment for live design decisions",
+  },
+];
+
+const primaryNavLinks = [
+  { label: "Docs", href: "/docs/" },
+  { label: "Examples", href: "/examples/" },
+  { label: "Evals", href: "/evals/" },
+  { label: "MCP", href: "/mcp" },
+];
+
+function renderPlatformHeader() {
+  return `    <nav class="surfaces-navigation" aria-label="Surfaces platform" data-surfaces-navigation>
+      <div class="surfaces-navigation-inner">
+        <div class="surfaces-navigation-left">
+          <a class="surfaces-navigation-identifier" href="/">JudgmentKit</a>
+          <div class="surfaces-navigation-sections" aria-label="Primary">
+            ${primaryNavLinks
+              .map((link) => `<a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>`)
+              .join("\n            ")}
+          </div>
+        </div>
+        <div class="surfaces-navigation-right">
+          <div class="surfaces-system-switch" data-surfaces-system-switch>
+            <button class="surfaces-system-switch-button" type="button" aria-expanded="false" aria-haspopup="menu" data-surfaces-system-menu-button>
+              <span>judgmentkit.ai</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"></path>
+              </svg>
+            </button>
+            <div class="surfaces-system-switch-backdrop" hidden data-surfaces-system-menu-backdrop></div>
+            <div class="surfaces-system-switch-menu" role="menu" hidden data-surfaces-system-menu>
+            ${platformSites
+              .map((site) => {
+                const isCurrent = site.id === "judgmentkit";
+                const nameClass =
+                  site.id === "interfacectl" || site.id === "surfaces-dev"
+                    ? "surfaces-system-switch-name surfaces-system-switch-name-mono"
+                    : "surfaces-system-switch-name";
+
+                return `<a href="${escapeHtml(site.href)}" role="menuitem"${isCurrent ? ' aria-current="page"' : ""}>
+              <span class="${nameClass}">${escapeHtml(site.label)}</span>
+              <span class="surfaces-system-switch-description">${escapeHtml(site.description)}</span>
+            </a>`;
+              })
+              .join("\n            ")}
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>`;
+}
+
+function platformNavigationScript() {
+  return `    <script>
+      (() => {
+        const navs = document.querySelectorAll("[data-surfaces-navigation]");
+
+        for (const nav of navs) {
+          const button = nav.querySelector("[data-surfaces-system-menu-button]");
+          const menu = nav.querySelector("[data-surfaces-system-menu]");
+          const backdrop = nav.querySelector("[data-surfaces-system-menu-backdrop]");
+
+          if (!button || !menu || !backdrop) continue;
+
+          const setOpen = (open) => {
+            button.setAttribute("aria-expanded", String(open));
+            menu.hidden = !open;
+            backdrop.hidden = !open;
+          };
+
+          button.addEventListener("click", () => {
+            setOpen(button.getAttribute("aria-expanded") !== "true");
+          });
+
+          backdrop.addEventListener("click", () => setOpen(false));
+          menu.addEventListener("click", (event) => {
+            if (event.target.closest("a")) setOpen(false);
+          });
+          document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") setOpen(false);
+          });
+        }
+      })();
+    </script>`;
+}
+
 function page(title, body, options = {}) {
   const description =
     options.description ??
@@ -140,16 +256,9 @@ ${options.headExtra ?? ""}
 ${analyticsBootstrap()}
   </head>
   <body>
-    <header class="site-header">
-      <a class="brand" href="/">JudgmentKit</a>
-      <nav aria-label="Primary">
-        <a href="/docs/">Docs</a>
-        <a href="/examples/">Examples</a>
-        <a href="/evals/">Evals</a>
-        <a href="/mcp">MCP</a>
-      </nav>
-    </header>
+${renderPlatformHeader()}
     <main>${body}</main>
+${platformNavigationScript()}
   </body>
 </html>`;
 }
@@ -323,10 +432,14 @@ const stylesheet = `
 * {
   box-sizing: border-box;
 }
+html {
+  overflow-x: hidden;
+}
 body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
+  overflow-x: hidden;
   font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 a {
@@ -335,31 +448,158 @@ a {
 [id] {
   scroll-margin-top: 126px;
 }
-.site-header {
+.surfaces-navigation {
+  height: 56px;
+  background-color: rgba(255, 255, 255, 0.98);
+  border-bottom: 1px solid #e5e5e5;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(8px);
+}
+.surfaces-navigation-inner {
+  max-width: 1120px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 24px;
-  padding: 18px clamp(18px, 4vw, 56px);
-  border-bottom: 1px solid var(--line);
-  background: rgba(248, 247, 242, 0.96);
-  position: sticky;
-  top: 0;
-  z-index: 2;
 }
-.brand {
-  color: var(--ink);
-  font-weight: 700;
-  text-decoration: none;
-}
-nav {
+.surfaces-navigation-left {
   display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 48px;
 }
-nav a {
-  color: var(--muted);
+.surfaces-navigation-identifier {
+  color: var(--ink);
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
   text-decoration: none;
+  white-space: nowrap;
+}
+.surfaces-navigation-sections {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+.surfaces-navigation-sections a {
+  color: #525252;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  text-decoration: none;
+  transition: color 0.12s linear;
+}
+.surfaces-navigation-sections a:hover,
+.surfaces-navigation-sections a:focus-visible {
+  color: #171717;
+}
+.surfaces-navigation-right {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+.surfaces-system-switch {
+  position: relative;
+}
+.surfaces-system-switch-button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 0;
+  background-color: transparent;
+  color: #525252;
+  cursor: pointer;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  transition: color 0.12s linear;
+}
+.surfaces-system-switch-button:hover,
+.surfaces-system-switch-button:focus-visible {
+  color: #171717;
+  outline: 0;
+}
+.surfaces-system-switch-button:focus-visible {
+  box-shadow: 0 0 0 2px rgba(23, 23, 23, 0.18);
+}
+.surfaces-system-switch-button svg {
+  display: block;
+  flex: 0 0 auto;
+}
+.surfaces-system-switch-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+.surfaces-system-switch-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 320px;
+  max-width: calc(100vw - 48px);
+  padding: 8px;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  background-color: #ffffff;
+  z-index: 50;
+  animation: surfaces-menu-enter 0.12s linear;
+}
+.surfaces-system-switch-backdrop[hidden],
+.surfaces-system-switch-menu[hidden] {
+  display: none;
+}
+.surfaces-system-switch-menu a {
+  display: block;
+  padding: 12px;
+  border-radius: 4px;
+  text-decoration: none;
+  transition: background-color 0.12s linear;
+}
+.surfaces-system-switch-menu a[aria-current="page"] {
+  background-color: #f5f5f5;
+}
+.surfaces-system-switch-menu a:hover,
+.surfaces-system-switch-menu a:focus-visible {
+  background-color: #fafafa;
+  outline: 0;
+}
+.surfaces-system-switch-menu a[aria-current="page"]:hover,
+.surfaces-system-switch-menu a[aria-current="page"]:focus-visible {
+  background-color: #f5f5f5;
+}
+.surfaces-system-switch-name {
+  display: block;
+  margin-bottom: 4px;
+  color: #171717;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+.surfaces-system-switch-name-mono {
+  font-family: "JetBrains Mono", monospace;
+}
+.surfaces-system-switch-description {
+  display: block;
+  color: #525252;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+}
+@keyframes surfaces-menu-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .hero,
 .section {
@@ -1344,16 +1584,13 @@ pre {
   }
 }
 @media (max-width: 820px) {
-  .site-header,
   .hero {
     align-items: start;
   }
-  .site-header,
   .hero,
   .doc-layout {
     display: block;
   }
-  nav,
   .proof-panel,
   .doc-nav {
     margin-top: 18px;
@@ -1424,6 +1661,11 @@ pre {
   }
   .evals-summary div:last-child {
     border-bottom: 0;
+  }
+}
+@media (max-width: 767px) {
+  .surfaces-navigation-sections {
+    display: none;
   }
 }
 `;

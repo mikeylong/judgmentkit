@@ -56,6 +56,9 @@ const siteCss = fs.readFileSync(path.join(tempDir, "assets", "site.css"), "utf8"
 const systemMapFlowJs = fs.readFileSync(path.join(tempDir, "assets", "system-map-flow.js"), "utf8");
 const systemMapFlowCss = fs.readFileSync(path.join(tempDir, "assets", "system-map-flow.css"), "utf8");
 const systemMapFlowSource = fs.readFileSync(new URL("../site/system-map-flow.jsx", import.meta.url), "utf8");
+const platformNavMarkup =
+  homepage.match(/<nav class="surfaces-navigation" aria-label="Surfaces platform" data-surfaces-navigation>[\s\S]*?<\/nav>/)
+    ?.[0] ?? "";
 assert.ok(systemMapFlowJs.includes("MCP boundary"));
 assert.ok(systemMapFlowJs.includes("JudgmentKit React Flow system design map"));
 assert.ok(systemMapFlowJs.includes("Source brief + product context"));
@@ -80,6 +83,28 @@ assert.match(
   /id: "zone-generation"[\s\S]*?style: \{ width: 500, height: 640 \}/,
 );
 assert.equal(systemMapFlowSource.includes('id: "with-design-system"'), false);
+assert.ok(platformNavMarkup.includes('<a class="surfaces-navigation-identifier" href="/">JudgmentKit</a>'));
+assert.ok(platformNavMarkup.includes('<div class="surfaces-navigation-sections" aria-label="Primary">'));
+assert.ok(platformNavMarkup.includes('href="/docs/"'));
+assert.ok(platformNavMarkup.includes('href="/examples/"'));
+assert.ok(platformNavMarkup.includes('href="/evals/"'));
+assert.ok(platformNavMarkup.includes('href="/mcp"'));
+assert.ok(platformNavMarkup.includes('class="surfaces-system-switch-button"'));
+assert.ok(platformNavMarkup.includes('aria-haspopup="menu"'));
+assert.ok(platformNavMarkup.includes('data-surfaces-system-menu-button'));
+assert.ok(platformNavMarkup.includes("<span>judgmentkit.ai</span>"));
+assert.ok(platformNavMarkup.includes('href="https://surfaces.systems/"'));
+assert.ok(platformNavMarkup.includes('href="https://surfaceops.ai/"'));
+assert.ok(platformNavMarkup.includes('href="https://interfacectl.com/"'));
+assert.ok(platformNavMarkup.includes('href="https://surfaces.dev/"'));
+assert.ok(
+  platformNavMarkup.includes('href="https://judgmentkit.ai/" role="menuitem" aria-current="page"'),
+);
+assert.ok(platformNavMarkup.includes("Embedded MCP judgment for live design decisions"));
+assert.equal(platformNavMarkup.includes("target="), false);
+assert.equal(platformNavMarkup.includes("rel="), false);
+assert.equal(platformNavMarkup.includes("pop-out"), false);
+assert.ok(homepage.includes("[data-surfaces-system-menu-button]"));
 assert.ok(homepage.includes("Judgment before generation."));
 assert.ok(homepage.includes("implementation mechanics from becoming UX"));
 assert.ok(homepage.includes("Use it before accepting AI-generated product work"));
