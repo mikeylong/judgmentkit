@@ -214,7 +214,7 @@ There is no CLI command for this slice. Use MCP or the library API.
 
 ## Before Creating The UI Handoff
 
-Call `create_ui_implementation_contract` with repo evidence, external UI authority evidence, or JudgmentKit portable defaults. The implementation contract names approved primitives, required states, static checks, and browser QA expectations.
+Call `create_ui_implementation_contract` with repo evidence, external UI authority evidence, or JudgmentKit portable defaults. The implementation contract names approved primitives, required states, static checks, browser QA expectations, visual asset policy, and accessibility policy.
 
 MCP handoff calls should pass this packet as `implementation_contract`.
 
@@ -242,7 +242,7 @@ There is no CLI command for this gate. Use MCP or the library API.
 
 Call `create_frontend_generation_context` after `create_ui_generation_handoff` when an agent needs implementation guidance.
 
-The frontend context requires a ready handoff. It may include the selected surface type, project runtime, UI library, approved component families, entrypoints, verification commands, browser checks, and states to verify. This is adapter-layer guidance; it does not change the activity-first kernel contract.
+The frontend context requires a ready handoff. It may include the selected surface type, project runtime, UI library, approved component families, entrypoints, visual requirements, approved visual asset sources, verification commands, browser checks, and states to verify. This is adapter-layer guidance; it does not change the activity-first kernel contract.
 
 ```text
 create_frontend_generation_context({
@@ -263,7 +263,13 @@ create_frontend_implementation_skill_context({
 })
 ```
 
-The skill context compiles the local frontend implementation workflow into structured instructions, approved primitives, approved component families, adapter-layer design-system policy, verification checklist, and disclosure guardrails. It requires a ready frontend context and does not expose raw `SKILL.md` contents.
+The skill context compiles the local frontend implementation workflow into structured instructions, approved primitives, approved component families, adapter-layer design-system policy, visual asset policy, accessibility policy, verification checklist, and disclosure guardrails. It requires a ready frontend context and does not expose raw `SKILL.md` contents.
+
+When a frontend spec calls for substantive visuals, the implementation path should use `imagegen`, premium Three.js/WebGL rendering, or D3-style data visualization. Deterministic CSS, SVG, and JavaScript remain appropriate for layout, exact text, UI chrome, icons, state indicators, simple diagrams, and accessible fallback structure.
+
+When text sits over images, canvas, WebGL, video, gradients, or generated visuals, agents must produce browser-rendered contrast/readability evidence against the accessibility policy. Screenshots alone are not enough; include computed or sampled contrast evidence plus the policy's core evidence for semantic content, landmarks/headings, name-role-value, keyboard navigation, focus order, focus-visible, responsive reflow/no-overflow, and automated checks.
+
+Add conditional accessibility evidence when the surface includes meaningful non-text graphics or indicators, custom widgets, forms, status messages, overlays, motion or auto-updating content, media, dense controls, or hover/focus-triggered content. Automated checks are useful supporting artifacts, but they do not replace browser walkthroughs, accessibility-tree/static inspection, and manual judgment for keyboard, focus, semantics, responsive behavior, and rendered-background readability.
 
 Use `skills/frontend-ui-implementation/SKILL.md` directly only when the agent is working in this checkout and can read local skills.
 
@@ -271,7 +277,7 @@ Use `skills/frontend-ui-implementation/SKILL.md` directly only when the agent is
 
 Call `review_ui_implementation_candidate` with the generated code or evidence and the active implementation contract.
 
-The candidate should provide the primitives used, states covered, static checks run, and browser QA evidence. JudgmentKit fails candidates that emit raw form controls outside approved helpers, invent unsupported primitives, omit required states, skip static enforcement, or lack desktop and mobile browser QA evidence.
+The candidate should provide the primitives used, states covered, static checks run, browser QA evidence, and core plus condition-specific accessibility evidence. JudgmentKit accepts `states_covered` or `covered_states`, `static_checks` or `static_evidence`, and `accessibility_evidence.reflow_zoom` as an alias for responsive reflow/no-overflow evidence. JudgmentKit fails candidates that emit raw form controls outside approved helpers, invent unsupported primitives, omit required states, skip static enforcement, lack desktop and mobile browser QA evidence, omit required accessibility evidence, provide `not_applicable` without rationale, or report accessibility failures.
 
 ```text
 review_ui_implementation_candidate({

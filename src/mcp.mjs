@@ -228,6 +228,11 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
         description:
           "Optional browser QA checks required before final handoff.",
       },
+      accessibility_policy: {
+        type: "object",
+        description:
+          "Optional accessibility policy override for WCAG baseline metadata, contrast targets, grouped accessibility contracts, evidence model, required evidence, conditional evidence, and failure signals.",
+      },
     },
     additionalProperties: false,
   },
@@ -243,7 +248,7 @@ const REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL = {
     properties: {
       candidate: {
         description:
-          "Generated UI candidate as code text or structured evidence containing primitives_used, states_covered, static_checks, and browser_qa.",
+          "Generated UI candidate as code text or structured evidence containing primitives_used, states_covered or covered_states, static_checks or static_evidence, browser_qa, and accessibility_evidence for core and condition-specific accessibility gates.",
       },
       implementation_contract: {
         type: "object",
@@ -281,7 +286,7 @@ const FRONTEND_GENERATION_CONTEXT_TOOL = {
       frontend_context: {
         type: "object",
         description:
-          "Optional project frontend context such as runtime, UI library, project rules, approved component families, and entrypoints.",
+          "Optional project frontend context such as runtime, UI library, project rules, approved component families, entrypoints, visual requirements, and approved visual asset sources.",
       },
       verification: {
         type: "object",
@@ -643,8 +648,11 @@ function formatImplementationContractCard(result) {
   const lines = [
     "## JudgmentKit Implementation Contract",
     `**Status:** ${planningStatus(result)}`,
-    "**Next step:** Generate UI only through these approved primitives, then run static checks and browser QA before final handoff.",
+    "**Next step:** Generate UI only through these approved primitives, then run static checks, browser QA, and required accessibility evidence before final handoff.",
   ];
+  const accessibilityPolicy = implementationContract.accessibility_policy ?? {};
+  const contrastTargets = accessibilityPolicy.contrast_targets ?? {};
+  const standardsProfile = accessibilityPolicy.standards_profile ?? {};
 
   addSection(lines, "Implementation gate", [
     firstLine("Contract", implementationContract.id),
@@ -654,6 +662,21 @@ function formatImplementationContractCard(result) {
       implementationContract.state_coverage?.required_states,
     ),
     listLine("Browser QA", implementationContract.browser_qa?.checks),
+    firstLine(
+      "Contrast targets",
+      contrastTargets.normal_text_min_ratio && contrastTargets.large_text_min_ratio
+        ? `normal ${contrastTargets.normal_text_min_ratio}:1; large ${contrastTargets.large_text_min_ratio}:1; non-text ${contrastTargets.non_text_min_ratio || 3}:1`
+        : "",
+    ),
+    firstLine("Accessibility baseline", standardsProfile.baseline),
+    listLine("Accessibility contracts", Object.keys(accessibilityPolicy.contracts ?? {})),
+    listLine("Accessibility evidence", accessibilityPolicy.required_evidence),
+    listLine(
+      "Conditional evidence",
+      Object.keys(accessibilityPolicy.conditional_evidence ?? {}).map(
+        (key) => `accessibility_evidence.${key}`,
+      ),
+    ),
   ]);
   addSection(lines, "Failure signals", bulletList(implementationContract.failure_signals));
 
@@ -675,6 +698,7 @@ function formatImplementationReviewCard(result) {
     firstLine("State coverage", result.checks?.state_coverage?.status),
     firstLine("Static enforcement", result.checks?.static_enforcement?.status),
     firstLine("Browser QA", result.checks?.browser_qa?.status),
+    firstLine("Accessibility evidence", result.checks?.accessibility_evidence?.status),
   ]);
   addSection(
     lines,
@@ -700,6 +724,21 @@ function formatFrontendContextCard(result) {
     firstLine("Workflow", result.workflow?.surface_name),
     listLine("Required sections", result.implementation_guidance?.required_sections),
     listLine("Required controls", result.implementation_guidance?.required_controls),
+    listLine("Visual requirements", result.frontend_context?.visual_requirements),
+    listLine(
+      "Visual asset paths",
+      result.implementation_guidance?.visual_asset_policy?.preferred_paths,
+    ),
+    listLine(
+      "Accessibility evidence",
+      result.implementation_guidance?.accessibility_policy?.required_evidence,
+    ),
+    listLine(
+      "Conditional accessibility evidence",
+      Object.keys(
+        result.implementation_guidance?.accessibility_policy?.conditional_evidence ?? {},
+      ).map((key) => `accessibility_evidence.${key}`),
+    ),
     firstLine(
       "Responsive expectation",
       result.implementation_guidance?.frontend_posture?.responsive_expectations,
@@ -723,6 +762,14 @@ function formatFrontendSkillContextCard(result) {
     firstLine("Surface type", result.surface_type_guidance?.surface_type),
     listLine("Approved primitives", result.approved_primitives),
     listLine("Approved component families", result.approved_component_families),
+    listLine("Visual asset paths", result.visual_asset_policy?.preferred_paths),
+    listLine("Accessibility evidence", result.accessibility_policy?.required_evidence),
+    listLine(
+      "Conditional accessibility evidence",
+      Object.keys(result.accessibility_policy?.conditional_evidence ?? {}).map(
+        (key) => `accessibility_evidence.${key}`,
+      ),
+    ),
     firstLine("Design system mode", result.design_system_policy?.mode),
     listLine("Verification", result.verification_checklist),
   ]);
@@ -1086,6 +1133,7 @@ export function createJudgmentKitMcpServer() {
         approved_primitives: z.array(z.string()).optional(),
         static_rules: z.array(z.string()).optional(),
         browser_qa_checks: z.array(z.string()).optional(),
+        accessibility_policy: z.record(z.any()).optional(),
       },
     },
     async (args) =>

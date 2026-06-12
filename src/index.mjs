@@ -2966,6 +2966,548 @@ function normalizePrimitiveList(values, fallback = []) {
   return entries.length > 0 ? unique(entries) : unique(fallback);
 }
 
+const DEFAULT_VISUAL_ASSET_POLICY = {
+  applies_when: [
+    "the UI or design spec calls for substantive visuals, imagery, media, domain scenes, product/place/object visuals, or spatial/data visualization where visual quality is part of the expected result",
+  ],
+  preferred_paths: [
+    "use imagegen for substantive bitmap imagery, scenes, product/place/object visuals, and media assets",
+    "use premium Three.js or WebGL rendering when the visual is an interactive or spatial 3D experience",
+    "use D3 or an equivalent high-quality visualization renderer when the visual is data-driven and clarity depends on the visualization",
+  ],
+  deterministic_safe_uses: [
+    "layout and responsive structure",
+    "text and exact typography",
+    "UI chrome, icons, controls, and state indicators",
+    "simple diagrams or charts where clarity is the goal",
+    "accessible fallback structure and alt text",
+  ],
+  failure_signals: [
+    "rudimentary CSS, SVG, canvas, or JavaScript geometry is used as a final substitute for substantive imagery",
+    "decorative procedural blocks stand in for a real product, place, object, domain scene, or media asset",
+    "image generation or premium rendering is skipped without rationale when the spec calls for substantive visuals",
+  ],
+};
+
+const DEFAULT_ACCESSIBILITY_POLICY = {
+  standards_profile: {
+    baseline: "WCAG 2.2 AA",
+    evidence_model_version: "judgmentkit-accessibility-evidence-v1",
+    sources: [
+      {
+        id: "wcag-1.4.3",
+        label: "Contrast (Minimum)",
+        level: "AA",
+        url: "https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html",
+      },
+      {
+        id: "wcag-1.4.10",
+        label: "Reflow",
+        level: "AA",
+        url: "https://www.w3.org/WAI/WCAG22/Understanding/reflow.html",
+      },
+      {
+        id: "wcag-1.4.11",
+        label: "Non-text Contrast",
+        level: "AA",
+        url: "https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html",
+      },
+      {
+        id: "wcag-2.1.1",
+        label: "Keyboard",
+        level: "A",
+        url: "https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html",
+      },
+      {
+        id: "wcag-2.1.2",
+        label: "No Keyboard Trap",
+        level: "A",
+        url: "https://www.w3.org/WAI/WCAG22/Understanding/no-keyboard-trap.html",
+      },
+      {
+        id: "wcag-2.4.3",
+        label: "Focus Order",
+        level: "A",
+        url: "https://www.w3.org/WAI/WCAG22/Understanding/focus-order.html",
+      },
+      {
+        id: "wcag-2.4.7",
+        label: "Focus Visible",
+        level: "AA",
+        url: "https://www.w3.org/WAI/WCAG22/Understanding/focus-visible.html",
+      },
+      {
+        id: "wcag-2.4.11",
+        label: "Focus Not Obscured (Minimum)",
+        level: "AA",
+        url: "https://www.w3.org/WAI/WCAG22/Understanding/focus-not-obscured-minimum.html",
+      },
+      {
+        id: "wcag-2.3.3",
+        label: "Animation from Interactions",
+        level: "AAA",
+        url: "https://www.w3.org/WAI/WCAG22/Understanding/animation-from-interactions.html",
+      },
+      {
+        id: "wcag-2.5.8",
+        label: "Target Size (Minimum)",
+        level: "AA",
+        url: "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html",
+      },
+      {
+        id: "wcag-3.3.1",
+        label: "Error Identification",
+        level: "A",
+        url: "https://www.w3.org/WAI/WCAG22/Understanding/error-identification.html",
+      },
+      {
+        id: "wcag-3.3.2",
+        label: "Labels or Instructions",
+        level: "A",
+        url: "https://www.w3.org/WAI/WCAG22/Understanding/labels-or-instructions.html",
+      },
+      {
+        id: "wcag-4.1.2",
+        label: "Name, Role, Value",
+        level: "A",
+        url: "https://www.w3.org/WAI/WCAG22/Understanding/name-role-value.html",
+      },
+      {
+        id: "wcag-4.1.3",
+        label: "Status Messages",
+        level: "AA",
+        url: "https://www.w3.org/WAI/WCAG22/Understanding/status-messages.html",
+      },
+      {
+        id: "wai-aria-apg-keyboard",
+        label: "WAI-ARIA APG Keyboard Interface",
+        level: "practice",
+        url: "https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/",
+      },
+    ],
+  },
+  contrast_targets: {
+    normal_text_min_ratio: 4.5,
+    large_text_min_ratio: 3,
+    non_text_min_ratio: 3,
+  },
+  rendered_background_readability: {
+    applies_to: [
+      "images",
+      "canvas",
+      "WebGL or Three.js",
+      "video",
+      "gradients",
+      "generated visuals",
+    ],
+    requirement:
+      "Text over rendered visual backgrounds must provide browser-rendered contrast/readability evidence, not screenshots alone.",
+  },
+  required_evidence: [
+    "accessibility_evidence.semantic_content",
+    "accessibility_evidence.landmarks_headings",
+    "accessibility_evidence.name_role_value",
+    "accessibility_evidence.keyboard_navigation",
+    "accessibility_evidence.focus_order",
+    "accessibility_evidence.focus_visible",
+    "accessibility_evidence.responsive_no_overflow",
+    "accessibility_evidence.automated_checks",
+  ],
+  conditional_evidence: {
+    visual_background_contrast: {
+      applies_when: [
+        "text appears over images, canvas, WebGL, video, gradients, generated visuals, or other rendered backgrounds",
+      ],
+      wcag_criteria: ["1.4.3", "1.4.11"],
+    },
+    non_text_contrast: {
+      applies_when: [
+        "icons, charts, state indicators, custom control boundaries, or graphical objects convey meaning",
+      ],
+      wcag_criteria: ["1.4.11"],
+    },
+    forced_colors: {
+      applies_when: [
+        "custom colors, gradients, overlays, or authored focus indicators are used",
+      ],
+      wcag_criteria: ["1.4.3", "1.4.11", "2.4.7"],
+    },
+    target_size: {
+      applies_when: [
+        "dense controls, icon-only controls, touch targets, toolbar actions, or pointer targets are present",
+      ],
+      wcag_criteria: ["2.5.8"],
+    },
+    focus_not_obscured: {
+      applies_when: [
+        "sticky layers, overlays, dialogs, modals, popovers, or persistent disclosed panels can cover focusable content",
+      ],
+      wcag_criteria: ["2.4.11"],
+    },
+    no_keyboard_trap: {
+      applies_when: [
+        "custom widgets, dialogs, modals, canvas/WebGL interactions, rich editors, or embedded experiences can receive focus",
+      ],
+      wcag_criteria: ["2.1.2"],
+    },
+    reduced_motion: {
+      applies_when: [
+        "animation, reveal transitions, parallax, WebGL motion, canvas motion, or generated visual motion is present",
+      ],
+      wcag_criteria: ["2.3.3"],
+    },
+    pause_stop_hide: {
+      applies_when: [
+        "moving, blinking, scrolling, auto-updating, or auto-advancing content starts without direct user control",
+      ],
+      wcag_criteria: ["2.2.2"],
+    },
+    content_on_hover_focus: {
+      applies_when: [
+        "tooltips, popovers, hover cards, or focus-triggered content appears",
+      ],
+      wcag_criteria: ["1.4.13"],
+    },
+    form_labels_instructions: {
+      applies_when: [
+        "forms, data-entry controls, required fields, or validation constraints are present",
+      ],
+      wcag_criteria: ["3.3.2", "4.1.2"],
+    },
+    form_errors: {
+      applies_when: [
+        "forms can reject input, show validation errors, or require correction",
+      ],
+      wcag_criteria: ["3.3.1", "3.3.3"],
+    },
+    status_messages: {
+      applies_when: [
+        "success, error, loading, progress, results, or async updates are shown without moving focus",
+      ],
+      wcag_criteria: ["4.1.3"],
+    },
+    media_alternatives: {
+      applies_when: [
+        "audio, video, generated media, animated media, or time-based media appears",
+      ],
+      wcag_criteria: ["1.1.1", "1.2.1", "1.2.2", "1.2.3"],
+    },
+    semantic_fallbacks: {
+      applies_when: [
+        "canvas, WebGL, Three.js, D3, generated imagery, charts, or custom-rendered visuals convey content or controls",
+      ],
+      wcag_criteria: ["1.1.1", "1.3.1", "4.1.2"],
+    },
+  },
+  contracts: {
+    readability_and_contrast: {
+      requirements: [
+        "normal text meets 4.5:1 and large text meets 3:1 contrast targets",
+        "meaningful non-text visual information meets 3:1 contrast against adjacent colors",
+        "text over rendered visual backgrounds uses browser-rendered or computed evidence",
+        "custom colors and authored focus styles remain usable in forced-colors or high-contrast modes",
+      ],
+      evidence: [
+        "accessibility_evidence.visual_background_contrast",
+        "accessibility_evidence.non_text_contrast",
+        "accessibility_evidence.forced_colors",
+      ],
+    },
+    keyboard_and_focus: {
+      requirements: [
+        "all functionality has a keyboard path",
+        "focus order preserves meaning and operation",
+        "focus indicators remain visible and are not obscured by authored content",
+        "custom widgets honor expected WAI-ARIA APG keyboard behavior",
+        "focus can leave focused regions by standard keyboard methods or documented equivalents",
+      ],
+      evidence: [
+        "accessibility_evidence.keyboard_navigation",
+        "accessibility_evidence.focus_order",
+        "accessibility_evidence.focus_visible",
+        "accessibility_evidence.focus_not_obscured",
+        "accessibility_evidence.no_keyboard_trap",
+      ],
+    },
+    semantics_and_structure: {
+      requirements: [
+        "content structure uses semantic HTML or equivalent accessible structure",
+        "landmarks and headings support orientation",
+        "interactive controls expose accessible names, roles, states, and values",
+        "non-text content has equivalent text alternatives or semantic fallbacks",
+      ],
+      evidence: [
+        "accessibility_evidence.semantic_content",
+        "accessibility_evidence.landmarks_headings",
+        "accessibility_evidence.name_role_value",
+        "accessibility_evidence.semantic_fallbacks",
+      ],
+    },
+    forms_status_and_errors: {
+      requirements: [
+        "inputs provide visible labels or instructions",
+        "detected input errors identify the field and describe the problem in text",
+        "known correction suggestions are provided unless they would undermine security or purpose",
+        "status messages are programmatically determinable without requiring focus",
+      ],
+      evidence: [
+        "accessibility_evidence.form_labels_instructions",
+        "accessibility_evidence.form_errors",
+        "accessibility_evidence.status_messages",
+      ],
+    },
+    motion_media_and_timing: {
+      requirements: [
+        "non-essential interaction-triggered animation can be disabled or follows reduced-motion preferences",
+        "auto-starting motion, blinking, scrolling, or updating content can be paused, stopped, hidden, or controlled",
+        "media includes captions, transcripts, audio descriptions, or equivalent alternatives when applicable",
+      ],
+      evidence: [
+        "accessibility_evidence.reduced_motion",
+        "accessibility_evidence.pause_stop_hide",
+        "accessibility_evidence.media_alternatives",
+      ],
+    },
+    responsive_and_input: {
+      requirements: [
+        "content reflows without two-dimensional scrolling at narrow widths unless two-dimensional layout is essential",
+        "zoom and responsive states preserve information, operation, and readable text",
+        "pointer targets meet minimum target size or valid spacing/equivalent-control exceptions",
+        "drag and complex pointer gestures have keyboard or simple pointer alternatives unless path-dependent input is essential",
+      ],
+      evidence: [
+        "accessibility_evidence.responsive_no_overflow",
+        "accessibility_evidence.reflow_zoom",
+        "accessibility_evidence.target_size",
+      ],
+    },
+  },
+  evidence_model: {
+    entry_shape: [
+      "status",
+      "method",
+      "tool",
+      "viewports",
+      "states",
+      "artifacts",
+      "failures",
+      "notes",
+    ],
+    accepted_statuses: ["pass", "passed", "verified", "not_applicable", "fail", "failed"],
+    not_applicable_requires_rationale: true,
+    automated_only_insufficient: true,
+    core_required: [
+      "automated_checks",
+      "semantic_content",
+      "landmarks_headings",
+      "name_role_value",
+      "keyboard_navigation",
+      "focus_order",
+      "focus_visible",
+      "responsive_no_overflow",
+    ],
+    conditional_required: [
+      "visual_background_contrast",
+      "non_text_contrast",
+      "forced_colors",
+      "target_size",
+      "focus_not_obscured",
+      "no_keyboard_trap",
+      "reduced_motion",
+      "pause_stop_hide",
+      "content_on_hover_focus",
+      "form_labels_instructions",
+      "form_errors",
+      "status_messages",
+      "media_alternatives",
+      "semantic_fallbacks",
+    ],
+  },
+  failure_signals: [
+    "text over images, canvas, WebGL, video, gradients, or generated visuals is illegible",
+    "opacity-based reveal transitions pass through low-contrast states",
+    "browser-rendered contrast/readability evidence is skipped for text over visual backgrounds",
+    "automated accessibility scans are provided without browser-rendered or manual evidence for keyboard, focus, semantics, responsive behavior, or rendered backgrounds",
+    "forms or status messages rely on visual-only error or success cues",
+    "custom widgets expose roles without matching keyboard behavior, focus management, or state/value semantics",
+  ],
+};
+
+function normalizeVisualAssetPolicy(sourcePolicy, fallbackPolicy) {
+  const source = isPlainObject(sourcePolicy) ? sourcePolicy : {};
+  const fallback = isPlainObject(fallbackPolicy)
+    ? fallbackPolicy
+    : DEFAULT_VISUAL_ASSET_POLICY;
+
+  return {
+    applies_when: normalizePrimitiveList(
+      source.applies_when ?? source.appliesWhen,
+      fallback.applies_when ?? DEFAULT_VISUAL_ASSET_POLICY.applies_when,
+    ),
+    preferred_paths: normalizePrimitiveList(
+      source.preferred_paths ?? source.preferredPaths,
+      fallback.preferred_paths ?? DEFAULT_VISUAL_ASSET_POLICY.preferred_paths,
+    ),
+    deterministic_safe_uses: normalizePrimitiveList(
+      source.deterministic_safe_uses ?? source.deterministicSafeUses,
+      fallback.deterministic_safe_uses ??
+        DEFAULT_VISUAL_ASSET_POLICY.deterministic_safe_uses,
+    ),
+    failure_signals: normalizePrimitiveList(
+      source.failure_signals ?? source.failureSignals,
+      fallback.failure_signals ?? DEFAULT_VISUAL_ASSET_POLICY.failure_signals,
+    ),
+  };
+}
+
+function numberOrFallback(value, fallback) {
+  return typeof value === "number" && Number.isFinite(value) ? value : fallback;
+}
+
+function clonePolicyValue(value) {
+  if (Array.isArray(value)) {
+    return value.map(clonePolicyValue);
+  }
+
+  if (isPlainObject(value)) {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, child]) => [key, clonePolicyValue(child)]),
+    );
+  }
+
+  return value;
+}
+
+function mergePolicyObject(sourceValue, fallbackValue) {
+  if (Array.isArray(fallbackValue)) {
+    return normalizePrimitiveList(sourceValue, fallbackValue);
+  }
+
+  if (typeof fallbackValue === "number") {
+    return numberOrFallback(sourceValue, fallbackValue);
+  }
+
+  if (typeof fallbackValue === "boolean") {
+    return typeof sourceValue === "boolean" ? sourceValue : fallbackValue;
+  }
+
+  if (typeof fallbackValue === "string") {
+    return optionalString(sourceValue) || fallbackValue;
+  }
+
+  if (isPlainObject(fallbackValue)) {
+    const source = isPlainObject(sourceValue) ? sourceValue : {};
+    const result = {};
+
+    for (const key of unique([
+      ...Object.keys(fallbackValue),
+      ...Object.keys(source),
+    ])) {
+      result[key] =
+        key in fallbackValue
+          ? mergePolicyObject(source[key], fallbackValue[key])
+          : clonePolicyValue(source[key]);
+    }
+
+    return result;
+  }
+
+  return sourceValue === undefined ? fallbackValue : sourceValue;
+}
+
+function normalizeAccessibilityPolicy(sourcePolicy, fallbackPolicy) {
+  const source = isPlainObject(sourcePolicy) ? sourcePolicy : {};
+  const fallback = isPlainObject(fallbackPolicy)
+    ? fallbackPolicy
+    : DEFAULT_ACCESSIBILITY_POLICY;
+  const fallbackStandardsProfile = isPlainObject(fallback.standards_profile)
+    ? fallback.standards_profile
+    : DEFAULT_ACCESSIBILITY_POLICY.standards_profile;
+  const sourceTargets = isPlainObject(source.contrast_targets ?? source.contrastTargets)
+    ? source.contrast_targets ?? source.contrastTargets
+    : {};
+  const fallbackTargets = isPlainObject(fallback.contrast_targets)
+    ? fallback.contrast_targets
+    : DEFAULT_ACCESSIBILITY_POLICY.contrast_targets;
+  const sourceReadability = isPlainObject(
+    source.rendered_background_readability ?? source.renderedBackgroundReadability,
+  )
+    ? source.rendered_background_readability ?? source.renderedBackgroundReadability
+    : {};
+  const fallbackReadability = isPlainObject(
+    fallback.rendered_background_readability,
+  )
+    ? fallback.rendered_background_readability
+    : DEFAULT_ACCESSIBILITY_POLICY.rendered_background_readability;
+  const fallbackConditionalEvidence = isPlainObject(fallback.conditional_evidence)
+    ? fallback.conditional_evidence
+    : DEFAULT_ACCESSIBILITY_POLICY.conditional_evidence;
+  const fallbackContracts = isPlainObject(fallback.contracts)
+    ? fallback.contracts
+    : DEFAULT_ACCESSIBILITY_POLICY.contracts;
+  const fallbackEvidenceModel = isPlainObject(fallback.evidence_model)
+    ? fallback.evidence_model
+    : DEFAULT_ACCESSIBILITY_POLICY.evidence_model;
+
+  return {
+    standards_profile: mergePolicyObject(
+      source.standards_profile ?? source.standardsProfile,
+      fallbackStandardsProfile,
+    ),
+    contrast_targets: {
+      normal_text_min_ratio: numberOrFallback(
+        sourceTargets.normal_text_min_ratio ?? sourceTargets.normalTextMinRatio,
+        numberOrFallback(
+          fallbackTargets.normal_text_min_ratio,
+          DEFAULT_ACCESSIBILITY_POLICY.contrast_targets.normal_text_min_ratio,
+        ),
+      ),
+      large_text_min_ratio: numberOrFallback(
+        sourceTargets.large_text_min_ratio ?? sourceTargets.largeTextMinRatio,
+        numberOrFallback(
+          fallbackTargets.large_text_min_ratio,
+          DEFAULT_ACCESSIBILITY_POLICY.contrast_targets.large_text_min_ratio,
+        ),
+      ),
+      non_text_min_ratio: numberOrFallback(
+        sourceTargets.non_text_min_ratio ?? sourceTargets.nonTextMinRatio,
+        numberOrFallback(
+          fallbackTargets.non_text_min_ratio,
+          DEFAULT_ACCESSIBILITY_POLICY.contrast_targets.non_text_min_ratio,
+        ),
+      ),
+    },
+    rendered_background_readability: {
+      applies_to: normalizePrimitiveList(
+        sourceReadability.applies_to ?? sourceReadability.appliesTo,
+        fallbackReadability.applies_to ??
+          DEFAULT_ACCESSIBILITY_POLICY.rendered_background_readability.applies_to,
+      ),
+      requirement:
+        optionalString(sourceReadability.requirement) ||
+        optionalString(fallbackReadability.requirement) ||
+        DEFAULT_ACCESSIBILITY_POLICY.rendered_background_readability.requirement,
+    },
+    required_evidence: normalizePrimitiveList(
+      source.required_evidence ?? source.requiredEvidence,
+      fallback.required_evidence ?? DEFAULT_ACCESSIBILITY_POLICY.required_evidence,
+    ),
+    conditional_evidence: mergePolicyObject(
+      source.conditional_evidence ?? source.conditionalEvidence,
+      fallbackConditionalEvidence,
+    ),
+    contracts: mergePolicyObject(source.contracts, fallbackContracts),
+    evidence_model: mergePolicyObject(
+      source.evidence_model ?? source.evidenceModel,
+      fallbackEvidenceModel,
+    ),
+    failure_signals: normalizePrimitiveList(
+      source.failure_signals ?? source.failureSignals,
+      fallback.failure_signals ?? DEFAULT_ACCESSIBILITY_POLICY.failure_signals,
+    ),
+  };
+}
+
 function normalizeUiImplementationContract(input = {}, options = {}) {
   const contract = options.contract ?? loadActivityContract(options.contractPath);
   const base = getContractUiImplementationContract(contract);
@@ -3030,6 +3572,14 @@ function normalizeUiImplementationContract(input = {}, options = {}) {
             : true,
       checks: browserQaChecks,
     },
+    visual_asset_policy: normalizeVisualAssetPolicy(
+      source.visual_asset_policy ?? source.visualAssetPolicy,
+      base.visual_asset_policy,
+    ),
+    accessibility_policy: normalizeAccessibilityPolicy(
+      source.accessibility_policy ?? source.accessibilityPolicy,
+      base.accessibility_policy,
+    ),
     repo_scaffold_outputs: normalizePrimitiveList(
       source.repo_scaffold_outputs,
       base.repo_scaffold_outputs,
@@ -3098,6 +3648,7 @@ export function createUiImplementationContract(input = {}, options = {}) {
           "state coverage",
           "static enforcement",
           "browser QA",
+          "accessibility evidence",
         ],
       },
     ],
@@ -3340,6 +3891,990 @@ function reviewModalActions(candidate) {
   };
 }
 
+function candidateAccessibilityEvidence(candidate) {
+  if (!isPlainObject(candidate)) {
+    return {};
+  }
+
+  const evidence =
+    candidate.accessibility_evidence ??
+    candidate.accessibilityEvidence ??
+    candidate.a11y_evidence ??
+    candidate.a11yEvidence;
+
+  const normalized = isPlainObject(evidence) ? { ...evidence } : {};
+  const hasAutomatedChecks =
+    normalized.automated_checks !== undefined || normalized.automatedChecks !== undefined;
+  const topLevelStaticEvidence =
+    candidate.static_checks ??
+    candidate.static_evidence ??
+    candidate.static_check_commands ??
+    candidate.checks_run;
+
+  if (!hasAutomatedChecks && toStringArray(topLevelStaticEvidence).length > 0) {
+    normalized.automated_checks = {
+      status: "pass",
+      method: "static enforcement",
+      artifacts: toStringArray(topLevelStaticEvidence),
+    };
+  }
+
+  return normalized;
+}
+
+function candidateHasVisualBackgroundSignal(candidate, text) {
+  if (!isPlainObject(candidate)) {
+    return false;
+  }
+
+  for (const key of [
+    "visual_heavy",
+    "visualHeavy",
+    "text_over_visuals",
+    "textOverVisuals",
+    "substantive_visuals",
+    "substantiveVisuals",
+  ]) {
+    if (candidate[key] === true || optionalString(candidate[key]).toLowerCase() === "true") {
+      return true;
+    }
+  }
+
+  for (const key of [
+    "visual_backgrounds",
+    "visualBackgrounds",
+    "visual_background_surfaces",
+    "visualBackgroundSurfaces",
+    "visual_assets",
+    "visualAssets",
+    "visual_assets_used",
+    "visualAssetsUsed",
+    "generated_visuals",
+    "generatedVisuals",
+    "visual_requirements",
+    "visualRequirements",
+    "visual_asset_evidence",
+    "visualAssetEvidence",
+  ]) {
+    if (toStringArray(candidate[key]).length > 0) {
+      return true;
+    }
+  }
+
+  return /(?:text[\s-]+over[\s-]+(?:image|visual|video|canvas|gradient)|background-image|linear-gradient|radial-gradient|<\s*canvas\b|webgl|three\.?js|d3(?:\.js)?|<\s*video\b|imagegen|generated visual|substantive visual)/i.test(
+    text,
+  );
+}
+
+function candidateHasTruthySignal(candidate, keys) {
+  if (!isPlainObject(candidate)) {
+    return false;
+  }
+
+  return keys.some((key) => {
+    const value = candidate[key];
+    return value === true || optionalString(value).toLowerCase() === "true";
+  });
+}
+
+function candidateHasListSignal(candidate, keys) {
+  if (!isPlainObject(candidate)) {
+    return false;
+  }
+
+  return keys.some((key) => toStringArray(candidate[key]).length > 0);
+}
+
+function candidateTextMatches(text, pattern) {
+  return pattern.test(text);
+}
+
+function candidateHasFormSignal(candidate, text) {
+  return candidateHasTruthySignal(candidate, [
+    "forms",
+    "has_forms",
+    "hasForms",
+    "form_flow",
+    "formFlow",
+    "validation",
+    "has_validation",
+    "hasValidation",
+  ]) ||
+    candidateHasListSignal(candidate, [
+      "form_fields",
+      "formFields",
+      "required_fields",
+      "requiredFields",
+      "validation_rules",
+      "validationRules",
+    ]) ||
+    candidateTextMatches(
+      text,
+      /(?:<\s*form\b|FormField|TextField|TextArea|SelectField|CheckboxGroup|radio|checkbox|validation|invalid|required field|aria-invalid|error message)/i,
+    );
+}
+
+function candidateHasCustomWidgetSignal(candidate, text) {
+  return candidateHasTruthySignal(candidate, [
+    "custom_widgets",
+    "customWidgets",
+    "custom_controls",
+    "customControls",
+    "custom_interactions",
+    "customInteractions",
+  ]) ||
+    candidateHasListSignal(candidate, [
+      "widgets",
+      "custom_widgets",
+      "customWidgets",
+      "widget_patterns",
+      "widgetPatterns",
+    ]) ||
+    candidateTextMatches(
+      text,
+      /(?:role=["']?(?:button|tab|tabpanel|menu|menuitem|listbox|option|tree|slider|switch|dialog|combobox)|tablist|accordion|carousel|custom widget|rich editor|contenteditable|canvas interaction|webgl interaction)/i,
+    );
+}
+
+function candidateHasOverlaySignal(candidate, text) {
+  return candidateHasTruthySignal(candidate, [
+    "overlay",
+    "overlays",
+    "modal",
+    "modals",
+    "dialog",
+    "dialogs",
+    "popover",
+    "popovers",
+    "sticky",
+    "has_overlay",
+    "hasOverlay",
+  ]) ||
+    candidateHasListSignal(candidate, [
+      "modal_actions",
+      "modalActions",
+      "dialog_actions",
+      "dialogActions",
+      "overlays",
+      "sticky_regions",
+      "stickyRegions",
+    ]) ||
+    candidateTextMatches(
+      text,
+      /(?:modal|dialog|popover|tooltip|sticky header|sticky footer|fixed-position|position:\s*fixed|ui overlay|screen overlay|overlay panel|overlay dialog|drawer|slide-out|lightbox)/i,
+    );
+}
+
+function candidateHasMotionSignal(candidate, text) {
+  return candidateHasTruthySignal(candidate, [
+    "motion",
+    "animated",
+    "animation",
+    "animations",
+    "has_motion",
+    "hasMotion",
+    "reveal_animation",
+    "revealAnimation",
+  ]) ||
+    candidateHasListSignal(candidate, [
+      "animations",
+      "motion_effects",
+      "motionEffects",
+      "transitions",
+    ]) ||
+    candidateTextMatches(
+      text,
+      /(?:animation|animated|transition|parallax|motion|auto-advance|autoplay|marquee|scrolling ticker|opacity-based reveal|reveal transition|requestAnimationFrame)/i,
+    );
+}
+
+function candidateHasAutoUpdatingSignal(candidate, text) {
+  return candidateHasTruthySignal(candidate, [
+    "auto_updating",
+    "autoUpdating",
+    "auto_advance",
+    "autoAdvance",
+    "autoplay",
+    "moving_content",
+    "movingContent",
+  ]) ||
+    candidateTextMatches(
+      text,
+      /(?:auto-updat|auto updat|auto-advanc|auto advanc|autoplay|ticker|marquee|live update|polling|progress bar|spinner|loading animation|carousel)/i,
+    );
+}
+
+function candidateHasMediaSignal(candidate, text) {
+  return candidateHasTruthySignal(candidate, [
+    "media",
+    "has_media",
+    "hasMedia",
+    "video",
+    "audio",
+  ]) ||
+    candidateHasListSignal(candidate, [
+      "media_assets",
+      "mediaAssets",
+      "videos",
+      "audio_tracks",
+      "audioTracks",
+    ]) ||
+    candidateTextMatches(text, /(?:<\s*(?:video|audio)\b|video|audio|captions?|transcript|media alternative|time-based media)/i);
+}
+
+function candidateHasDenseControlSignal(candidate, text) {
+  return candidateHasTruthySignal(candidate, [
+    "dense_controls",
+    "denseControls",
+    "touch_targets",
+    "touchTargets",
+    "icon_buttons",
+    "iconButtons",
+  ]) ||
+    candidateHasListSignal(candidate, [
+      "toolbar_actions",
+      "toolbarActions",
+      "icon_buttons",
+      "iconButtons",
+      "touch_targets",
+      "touchTargets",
+    ]) ||
+    candidateTextMatches(
+      text,
+      /(?:icon-only|icon button|toolbar|dense controls|target size|touch target|pointer target|drag(?:ging)?|small button)/i,
+    );
+}
+
+function candidateHasHoverFocusContentSignal(candidate, text) {
+  return candidateHasTruthySignal(candidate, [
+    "hover_content",
+    "hoverContent",
+    "focus_content",
+    "focusContent",
+    "tooltips",
+  ]) ||
+    candidateHasListSignal(candidate, [
+      "tooltips",
+      "hover_cards",
+      "hoverCards",
+      "popover_content",
+      "popoverContent",
+    ]) ||
+    candidateTextMatches(text, /(?:tooltip|hover card|content on hover|content on focus|popover)/i);
+}
+
+function candidateHasCustomColorSignal(candidate, text, visualBackgroundRequired) {
+  return visualBackgroundRequired ||
+    candidateHasTruthySignal(candidate, [
+      "custom_colors",
+      "customColors",
+      "authored_colors",
+      "authoredColors",
+      "forced_colors",
+      "forcedColors",
+      "high_contrast",
+      "highContrast",
+    ]) ||
+    candidateTextMatches(
+      text,
+      /(?:#[0-9a-f]{3,8}\b|rgb\(|hsl\(|background-color|color:|linear-gradient|radial-gradient|forced-colors|high contrast|custom color|overlay gradient|focus ring|outline:)/i,
+    );
+}
+
+function buildAccessibilityEvidenceContext(candidate, text) {
+  const visualBackgroundRequired = candidateHasVisualBackgroundSignal(candidate, text);
+  const formRequired = candidateHasFormSignal(candidate, text);
+  const customWidgetRequired = candidateHasCustomWidgetSignal(candidate, text);
+  const overlayRequired = candidateHasOverlaySignal(candidate, text);
+  const motionRequired = candidateHasMotionSignal(candidate, text);
+  const autoUpdatingRequired = candidateHasAutoUpdatingSignal(candidate, text);
+  const mediaRequired = candidateHasMediaSignal(candidate, text);
+  const denseControlRequired = candidateHasDenseControlSignal(candidate, text);
+  const hoverFocusContentRequired = candidateHasHoverFocusContentSignal(candidate, text);
+  const customColorRequired = candidateHasCustomColorSignal(
+    candidate,
+    text,
+    visualBackgroundRequired,
+  );
+
+  return {
+    visual_background: visualBackgroundRequired,
+    non_text_contrast:
+      visualBackgroundRequired ||
+      customWidgetRequired ||
+      denseControlRequired ||
+      candidateTextMatches(text, /(?:icon|chart|graph|svg|canvas|d3|state indicator|custom control|checkbox|radio|toggle|slider)/i),
+    forced_colors: customColorRequired,
+    target_size: denseControlRequired,
+    focus_not_obscured: overlayRequired,
+    no_keyboard_trap:
+      overlayRequired ||
+      customWidgetRequired ||
+      candidateTextMatches(text, /(?:canvas interaction|webgl interaction|three\.?js interaction|rich editor|contenteditable|iframe|embedded experience)/i),
+    reduced_motion: motionRequired,
+    pause_stop_hide: autoUpdatingRequired,
+    content_on_hover_focus: hoverFocusContentRequired,
+    forms: formRequired,
+    status_messages:
+      formRequired ||
+      autoUpdatingRequired ||
+      candidateTextMatches(text, /(?:status message|aria-live|role=["']?(?:status|alert|log)|toast|progress message|progress bar|success message|loading message|loading status|results returned|async status)/i),
+    media_alternatives: mediaRequired,
+    semantic_fallbacks:
+      visualBackgroundRequired ||
+      mediaRequired ||
+      candidateTextMatches(text, /(?:canvas|webgl|three\.?js|d3|generated image|generated visual|chart|graph|visualization)/i),
+  };
+}
+
+function evidenceValue(source, snakeKey, camelKey) {
+  if (!isPlainObject(source)) {
+    return undefined;
+  }
+
+  for (const key of [snakeKey, camelKey].flat().filter(Boolean)) {
+    if (source[key] !== undefined) {
+      return source[key];
+    }
+  }
+
+  return undefined;
+}
+
+function evidenceToText(value) {
+  if (value === undefined || value === null) {
+    return "";
+  }
+
+  if (typeof value === "string") {
+    return value;
+  }
+
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
+
+function evidenceHasExplicitFailure(value) {
+  if (value === false) {
+    return true;
+  }
+
+  if (Array.isArray(value)) {
+    return value.some(evidenceHasExplicitFailure);
+  }
+
+  if (isPlainObject(value)) {
+    const status = optionalString(value.status ?? value.result ?? value.outcome).toLowerCase();
+
+    if (["fail", "failed", "failing", "blocked", "missing", "skipped"].includes(status)) {
+      return true;
+    }
+
+    if (value.passed === false || value.pass === false || value.passes === false) {
+      return true;
+    }
+
+    return Object.values(value).some(evidenceHasExplicitFailure);
+  }
+
+  if (typeof value !== "string") {
+    return false;
+  }
+
+  const normalized = normalizeText(value);
+
+  if (
+    /\b(?:no|without)\s+(?:(?:[a-z]+|contrast)\s+){0,3}(?:failures?|low contrast|overflow)\b/.test(
+      normalized,
+    )
+  ) {
+    return false;
+  }
+
+  return /\b(?:fail(?:ed|ing)?|failure|low contrast|illegible|insufficient contrast|below aa|below target|skipped|not checked|missing|overflow)\b/.test(
+    normalized,
+  );
+}
+
+function evidenceHasPositiveSignal(value) {
+  if (value === true) {
+    return true;
+  }
+
+  if (Array.isArray(value)) {
+    return value.length > 0 && value.every(evidenceHasPositiveSignal);
+  }
+
+  if (isPlainObject(value)) {
+    const status = optionalString(value.status ?? value.result ?? value.outcome).toLowerCase();
+
+    if (["pass", "passed", "verified", "checked", "ok"].includes(status)) {
+      return true;
+    }
+
+    if (value.passed === true || value.pass === true || value.passes === true) {
+      return true;
+    }
+
+    return Object.values(value).some(evidenceHasPositiveSignal);
+  }
+
+  if (typeof value !== "string") {
+    return false;
+  }
+
+  return /\b(?:pass(?:ed)?|verified|checked|confirmed|meets|ratio|readable)\b/i.test(value);
+}
+
+function evidenceDeclaredStatus(value) {
+  if (value === true) {
+    return "pass";
+  }
+
+  if (value === false) {
+    return "fail";
+  }
+
+  if (!isPlainObject(value)) {
+    return "";
+  }
+
+  return optionalString(value.status ?? value.result ?? value.outcome).toLowerCase();
+}
+
+function evidenceIsNotApplicable(value) {
+  const status = evidenceDeclaredStatus(value);
+  return [
+    "not_applicable",
+    "not applicable",
+    "n/a",
+    "na",
+    "inapplicable",
+  ].includes(status);
+}
+
+function evidenceHasNotApplicableRationale(value) {
+  if (!isPlainObject(value)) {
+    return false;
+  }
+
+  return Boolean(
+    optionalString(
+      value.rationale ??
+        value.reason ??
+        value.justification ??
+        value.exception ??
+        value.not_applicable_reason ??
+        value.notApplicableReason,
+    ),
+  );
+}
+
+function evidenceHasVisualOnlyFailure(value) {
+  const normalized = normalizeText(evidenceToText(value));
+
+  if (/\b(?:no|not|without)\s+(?:visual-only|visual only|color-only|color only)\b/.test(normalized)) {
+    return false;
+  }
+
+  return /\b(?:visual-only|visual only|color-only|color only|red border only|icon only|visual cue only|no text error|without text|not programmatic|not announced|screen reader cannot|aria missing|missing label|missing alt|no fallback)\b/.test(
+    normalized,
+  );
+}
+
+function evidenceHasKeyboardFailure(value) {
+  const normalized = normalizeText(evidenceToText(value));
+
+  if (/\b(?:no|without)\s+(?:keyboard trap|blocked keyboard path)\b/.test(normalized)) {
+    return false;
+  }
+
+  return /\b(?:keyboard trap|focus trapped|tab stuck|mouse only|pointer only|not keyboard accessible|no keyboard path|blocked keyboard|cannot tab|focus lost)\b/.test(
+    normalized,
+  );
+}
+
+function evidenceHasFocusObscuredFailure(value) {
+  const normalized = normalizeText(evidenceToText(value));
+
+  if (/\b(?:not|never|no)\s+(?:obscured|hidden)\b/.test(normalized)) {
+    return false;
+  }
+
+  return /\b(?:focus hidden|focus obscured|obscured by|covered by|behind overlay|outline none|invisible focus|not visible focus|focus indicator hidden)\b/.test(
+    normalized,
+  );
+}
+
+function parseRatioNumber(value) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value !== "string") {
+    return null;
+  }
+
+  const match = value.match(/(\d+(?:\.\d+)?)(?:\s*:?\s*1)?/);
+  return match ? Number(match[1]) : null;
+}
+
+function ratioTargetForKey(key, entry, accessibilityPolicy) {
+  const keyText = optionalString(key).toLowerCase();
+  const entryText = evidenceToText({
+    text_size: entry?.text_size,
+    textSize: entry?.textSize,
+    size: entry?.size,
+    category: entry?.category,
+  }).toLowerCase();
+  const targets = accessibilityPolicy.contrast_targets;
+
+  return keyText.includes("large") || entryText.includes("large")
+    ? targets.large_text_min_ratio
+    : targets.normal_text_min_ratio;
+}
+
+function collectContrastRatioProblems(
+  value,
+  accessibilityPolicy,
+  path = "evidence",
+  targetOverride,
+) {
+  if (Array.isArray(value)) {
+    return value.flatMap((entry, index) =>
+      collectContrastRatioProblems(
+        entry,
+        accessibilityPolicy,
+        `${path}[${index}]`,
+        targetOverride,
+      ),
+    );
+  }
+
+  if (!isPlainObject(value)) {
+    return [];
+  }
+
+  const problems = [];
+
+  for (const [key, child] of Object.entries(value)) {
+    const normalizedKey = key.toLowerCase();
+
+    if (
+      [
+        "contrast_ratio",
+        "contrastratio",
+        "computed_contrast_ratio",
+        "computedcontrastratio",
+        "min_contrast_ratio",
+        "mincontrastratio",
+        "minimum_contrast_ratio",
+        "minimumcontrastratio",
+        "ratio",
+      ].includes(normalizedKey)
+    ) {
+      const ratio = parseRatioNumber(child);
+      const target = numberOrFallback(
+        targetOverride,
+        ratioTargetForKey(key, value, accessibilityPolicy),
+      );
+
+      if (ratio !== null && ratio < target) {
+        problems.push(`${path}.${key} ${ratio}:1 is below ${target}:1`);
+      }
+    }
+
+    problems.push(
+      ...collectContrastRatioProblems(
+        child,
+        accessibilityPolicy,
+        `${path}.${key}`,
+        targetOverride,
+      ),
+    );
+  }
+
+  return problems;
+}
+
+function hasBrowserRenderedContrastEvidence(value) {
+  if (value === undefined || value === null) {
+    return false;
+  }
+
+  if (Array.isArray(value)) {
+    return value.some(hasBrowserRenderedContrastEvidence);
+  }
+
+  if (isPlainObject(value)) {
+    if (
+      value.browser_rendered === true ||
+      value.browserRendered === true ||
+      value.rendered === true ||
+      value.computed === true
+    ) {
+      return true;
+    }
+
+    return Object.values(value).some(hasBrowserRenderedContrastEvidence);
+  }
+
+  const text = evidenceToText(value).toLowerCase();
+  return /browser[-\s]?rendered|rendered|computed|pixel|contrast ratio|sampled|playwright|chrome|canvas pixel/.test(
+    text,
+  );
+}
+
+function reviewAccessibilityEvidence(candidate, implementationContract, text) {
+  const accessibilityPolicy =
+    implementationContract.accessibility_policy ?? DEFAULT_ACCESSIBILITY_POLICY;
+  const evidence = candidateAccessibilityEvidence(candidate);
+  const context = buildAccessibilityEvidenceContext(candidate, text);
+  const policyRequiredEvidence = new Set(
+    [
+      ...toStringArray(accessibilityPolicy.required_evidence),
+      ...toStringArray(accessibilityPolicy.evidence_model?.core_required).map(
+        (key) => `accessibility_evidence.${key}`,
+      ),
+    ]
+      .map((entry) => optionalString(entry).replace(/^accessibility_evidence\./, ""))
+      .filter(Boolean),
+  );
+  const checks = {};
+  const findings = [];
+  const evidenceSpecs = [
+    {
+      key: "automated_checks",
+      camel: "automatedChecks",
+      label: "automated accessibility checks",
+      criteria: ["W3C evaluation tools guidance"],
+      required: policyRequiredEvidence.has("automated_checks"),
+    },
+    {
+      key: "semantic_content",
+      camel: "semanticContent",
+      label: "semantic content",
+      criteria: ["1.1.1", "1.3.1"],
+      required: policyRequiredEvidence.has("semantic_content"),
+      visualOnlyFails: true,
+    },
+    {
+      key: "landmarks_headings",
+      camel: "landmarksHeadings",
+      label: "landmarks and headings",
+      criteria: ["1.3.1", "2.4.6"],
+      required: policyRequiredEvidence.has("landmarks_headings"),
+      visualOnlyFails: true,
+    },
+    {
+      key: "name_role_value",
+      camel: "nameRoleValue",
+      label: "name, role, value",
+      criteria: ["4.1.2"],
+      required: policyRequiredEvidence.has("name_role_value"),
+      visualOnlyFails: true,
+    },
+    {
+      key: "keyboard_navigation",
+      camel: "keyboardNavigation",
+      label: "keyboard navigation",
+      criteria: ["2.1.1"],
+      required: policyRequiredEvidence.has("keyboard_navigation"),
+      keyboardFails: true,
+    },
+    {
+      key: "focus_order",
+      camel: "focusOrder",
+      label: "focus order",
+      criteria: ["2.4.3"],
+      required: policyRequiredEvidence.has("focus_order"),
+      keyboardFails: true,
+    },
+    {
+      key: "visual_background_contrast",
+      camel: "visualBackgroundContrast",
+      label: "visual background contrast",
+      criteria: ["1.4.3", "1.4.11"],
+      required:
+        policyRequiredEvidence.has("visual_background_contrast") ||
+        context.visual_background,
+      requireRendered: true,
+      contrast: "text",
+    },
+    {
+      key: "non_text_contrast",
+      camel: "nonTextContrast",
+      label: "non-text contrast",
+      criteria: ["1.4.11"],
+      required:
+        policyRequiredEvidence.has("non_text_contrast") ||
+        context.non_text_contrast,
+      contrast: "non_text",
+    },
+    {
+      key: "forced_colors",
+      camel: "forcedColors",
+      label: "forced-colors/high-contrast behavior",
+      criteria: ["1.4.3", "1.4.11", "2.4.7"],
+      required:
+        policyRequiredEvidence.has("forced_colors") ||
+        context.forced_colors,
+      visualOnlyFails: true,
+    },
+    {
+      key: "focus_visible",
+      camel: "focusVisible",
+      label: "focus-visible",
+      criteria: ["2.4.7", "1.4.11"],
+      required: policyRequiredEvidence.has("focus_visible"),
+      focusFails: true,
+    },
+    {
+      key: "focus_not_obscured",
+      camel: "focusNotObscured",
+      label: "focus not obscured",
+      criteria: ["2.4.11"],
+      required:
+        policyRequiredEvidence.has("focus_not_obscured") ||
+        context.focus_not_obscured,
+      focusFails: true,
+      focusObscuredFails: true,
+    },
+    {
+      key: "no_keyboard_trap",
+      camel: "noKeyboardTrap",
+      label: "no keyboard trap",
+      criteria: ["2.1.2"],
+      required:
+        policyRequiredEvidence.has("no_keyboard_trap") ||
+        context.no_keyboard_trap,
+      keyboardFails: true,
+    },
+    {
+      key: "reduced_motion",
+      camel: "reducedMotion",
+      label: "reduced motion",
+      criteria: ["2.3.3"],
+      required:
+        policyRequiredEvidence.has("reduced_motion") ||
+        context.reduced_motion,
+    },
+    {
+      key: "pause_stop_hide",
+      camel: "pauseStopHide",
+      label: "pause, stop, hide",
+      criteria: ["2.2.2"],
+      required:
+        policyRequiredEvidence.has("pause_stop_hide") ||
+        context.pause_stop_hide,
+    },
+    {
+      key: "content_on_hover_focus",
+      camel: "contentOnHoverFocus",
+      label: "content on hover or focus",
+      criteria: ["1.4.13"],
+      required:
+        policyRequiredEvidence.has("content_on_hover_focus") ||
+        context.content_on_hover_focus,
+      keyboardFails: true,
+    },
+    {
+      key: "form_labels_instructions",
+      camel: "formLabelsInstructions",
+      label: "form labels and instructions",
+      criteria: ["3.3.2", "4.1.2"],
+      required:
+        policyRequiredEvidence.has("form_labels_instructions") ||
+        context.forms,
+      visualOnlyFails: true,
+    },
+    {
+      key: "form_errors",
+      camel: "formErrors",
+      label: "form errors",
+      criteria: ["3.3.1", "3.3.3"],
+      required:
+        policyRequiredEvidence.has("form_errors") ||
+        context.forms,
+      visualOnlyFails: true,
+    },
+    {
+      key: "status_messages",
+      camel: "statusMessages",
+      label: "status messages",
+      criteria: ["4.1.3"],
+      required:
+        policyRequiredEvidence.has("status_messages") ||
+        context.status_messages,
+      visualOnlyFails: true,
+    },
+    {
+      key: "responsive_no_overflow",
+      camel: ["responsiveNoOverflow", "reflow_zoom", "reflowZoom"],
+      label: "responsive no-overflow and reflow",
+      criteria: ["1.4.10", "1.4.4"],
+      required: policyRequiredEvidence.has("responsive_no_overflow"),
+    },
+    {
+      key: "target_size",
+      camel: "targetSize",
+      label: "target size",
+      criteria: ["2.5.8"],
+      required:
+        policyRequiredEvidence.has("target_size") ||
+        context.target_size,
+    },
+    {
+      key: "media_alternatives",
+      camel: "mediaAlternatives",
+      label: "media alternatives",
+      criteria: ["1.1.1", "1.2.1", "1.2.2", "1.2.3"],
+      required:
+        policyRequiredEvidence.has("media_alternatives") ||
+        context.media_alternatives,
+      visualOnlyFails: true,
+    },
+    {
+      key: "semantic_fallbacks",
+      camel: "semanticFallbacks",
+      label: "semantic fallbacks",
+      criteria: ["1.1.1", "1.3.1", "4.1.2"],
+      required:
+        policyRequiredEvidence.has("semantic_fallbacks") ||
+        context.semantic_fallbacks,
+      visualOnlyFails: true,
+    },
+  ];
+
+  for (const spec of evidenceSpecs) {
+    const value = evidenceValue(evidence, spec.key, spec.camel);
+    const present = value !== undefined && value !== null && evidenceToText(value).length > 0;
+    const notApplicable = present && evidenceIsNotApplicable(value);
+    const failures = [];
+
+    if (spec.required && !present) {
+      failures.push(`Missing ${spec.label} evidence.`);
+    }
+
+    if (present && notApplicable && !evidenceHasNotApplicableRationale(value)) {
+      failures.push(`${spec.label} evidence marked not applicable without a rationale.`);
+    }
+
+    if (present && evidenceHasExplicitFailure(value)) {
+      failures.push(`${spec.label} evidence reports a failure.`);
+    }
+
+    if (
+      spec.required &&
+      present &&
+      !notApplicable &&
+      !evidenceHasExplicitFailure(value) &&
+      !evidenceHasPositiveSignal(value)
+    ) {
+      failures.push(
+        `${spec.label} evidence must report pass/verified status or a not_applicable status with rationale.`,
+      );
+    }
+
+    if (present && !notApplicable && spec.requireRendered) {
+      if (!hasBrowserRenderedContrastEvidence(value)) {
+        failures.push(
+          "Visual-background contrast evidence must be browser-rendered or computed from rendered output.",
+        );
+      }
+    }
+
+    if (present && !notApplicable && spec.contrast === "text") {
+      failures.push(...collectContrastRatioProblems(value, accessibilityPolicy));
+    }
+
+    if (present && !notApplicable && spec.contrast === "non_text") {
+      failures.push(
+        ...collectContrastRatioProblems(
+          value,
+          accessibilityPolicy,
+          "evidence",
+          accessibilityPolicy.contrast_targets?.non_text_min_ratio ??
+            DEFAULT_ACCESSIBILITY_POLICY.contrast_targets.non_text_min_ratio,
+        ),
+      );
+    }
+
+    if (present && !notApplicable && spec.visualOnlyFails && evidenceHasVisualOnlyFailure(value)) {
+      failures.push(`${spec.label} evidence cannot rely on visual-only cues.`);
+    }
+
+    if (present && !notApplicable && spec.keyboardFails && evidenceHasKeyboardFailure(value)) {
+      failures.push(`${spec.label} evidence reports a blocked keyboard path.`);
+    }
+
+    if (present && !notApplicable && spec.focusFails && evidenceHasFocusObscuredFailure(value)) {
+      failures.push(`${spec.label} evidence reports hidden or obscured focus.`);
+    }
+
+    if (
+      present &&
+      !notApplicable &&
+      spec.focusObscuredFails &&
+      evidenceHasFocusObscuredFailure(value)
+    ) {
+      failures.push(`${spec.label} evidence reports focus obscured by authored content.`);
+    }
+
+    const status = failures.length > 0
+      ? "fail"
+      : notApplicable
+        ? "not_applicable"
+        : present
+        ? evidenceHasPositiveSignal(value)
+          ? "pass"
+          : "provided"
+        : spec.required
+          ? "fail"
+          : "not_applicable";
+
+    checks[spec.key] = {
+      status,
+      required: spec.required,
+      provided: present,
+      criteria: spec.criteria,
+      evidence: value,
+      failures,
+    };
+
+    for (const failure of failures) {
+      findings.push({
+        severity: "fail",
+        check: `accessibility_evidence.${spec.key}`,
+        message:
+          spec.key === "visual_background_contrast" && !present
+            ? "Visual-heavy candidate does not provide browser-rendered visual background contrast evidence."
+            : failure,
+        evidence: {
+          criteria: spec.criteria,
+          required_evidence: accessibilityPolicy.required_evidence,
+          conditional_evidence: accessibilityPolicy.conditional_evidence,
+          value,
+        },
+      });
+    }
+  }
+
+  return {
+    status: findings.length > 0 ? "fail" : "pass",
+    visual_background_contrast_required: context.visual_background,
+    required_conditions: context,
+    contrast_targets: accessibilityPolicy.contrast_targets,
+    required_evidence: accessibilityPolicy.required_evidence,
+    conditional_evidence: accessibilityPolicy.conditional_evidence,
+    ...checks,
+    findings,
+  };
+}
+
 function buildImplementationCandidateChecks(candidate, implementationContract) {
   const text = candidateText(candidate);
   const rawControls = detectRawControls(text);
@@ -3354,6 +4889,7 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
   );
   const statesCovered = normalizeCandidateList(candidate, [
     "states_covered",
+    "covered_states",
     "states_verified",
     "state_coverage",
   ]);
@@ -3361,6 +4897,7 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
   const missingStates = requiredStates.filter((state) => !statesCovered.includes(state));
   const staticChecks = normalizeCandidateList(candidate, [
     "static_checks",
+    "static_evidence",
     "static_check_commands",
     "checks_run",
   ]);
@@ -3375,6 +4912,11 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
   const browserQaRequired = implementationContract.browser_qa.required;
   const missingBrowserQa = browserQaRequired && (!browserQaText || !hasDesktopQa || !hasMobileQa);
   const modalActions = reviewModalActions(candidate);
+  const accessibilityEvidence = reviewAccessibilityEvidence(
+    candidate,
+    implementationContract,
+    text,
+  );
   const findings = [];
 
   if (rawControls.length > 0) {
@@ -3436,6 +4978,8 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
     });
   }
 
+  findings.push(...accessibilityEvidence.findings);
+
   return {
     raw_controls: {
       status: rawControls.length === 0 ? "pass" : "fail",
@@ -3466,6 +5010,7 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
       reviewed: modalActions.reviewed,
       entries: modalActions.entries,
     },
+    accessibility_evidence: accessibilityEvidence,
     findings,
   };
 }
@@ -3516,6 +5061,7 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
       static_enforcement: checks.static_enforcement,
       browser_qa: checks.browser_qa,
       modal_actions: checks.modal_actions,
+      accessibility_evidence: checks.accessibility_evidence,
     },
     findings: checks.findings,
     implementation_contract: implementationContract,
@@ -3535,6 +5081,8 @@ function compactImplementationContractForHandoff(implementationContract) {
     state_coverage: implementationContract.state_coverage,
     static_enforcement: implementationContract.static_enforcement,
     browser_qa: implementationContract.browser_qa,
+    visual_asset_policy: implementationContract.visual_asset_policy,
+    accessibility_policy: implementationContract.accessibility_policy,
     failure_signals: implementationContract.failure_signals,
   };
 }
@@ -3827,6 +5375,14 @@ export function createFrontendGenerationContext({
         normalizedFrontendContext.approved_component_families,
       ),
       files_or_entrypoints: toStringArray(normalizedFrontendContext.files_or_entrypoints),
+      visual_requirements: toStringArray(
+        normalizedFrontendContext.visual_requirements ??
+          normalizedFrontendContext.visualRequirements,
+      ),
+      approved_visual_asset_sources: toStringArray(
+        normalizedFrontendContext.approved_visual_asset_sources ??
+          normalizedFrontendContext.approvedVisualAssetSources,
+      ),
     },
     implementation_guidance: {
       surface_type: surfaceGuidance.recommended_surface_type,
@@ -3834,6 +5390,12 @@ export function createFrontendGenerationContext({
       disclosure_implications: surfaceGuidance.disclosure_implications,
       frontend_posture: surfaceGuidance.frontend_posture,
       implementation_contract: uiGenerationHandoff.implementation_contract,
+      visual_asset_policy:
+        uiGenerationHandoff.implementation_contract?.visual_asset_policy ??
+        DEFAULT_VISUAL_ASSET_POLICY,
+      accessibility_policy:
+        uiGenerationHandoff.implementation_contract?.accessibility_policy ??
+        DEFAULT_ACCESSIBILITY_POLICY,
       required_sections: toStringArray(uiGenerationHandoff.primary_surface?.sections),
       required_controls: toStringArray(uiGenerationHandoff.primary_surface?.controls),
       verification_expectations: {
@@ -3864,6 +5426,22 @@ function buildFrontendImplementationInstructionMarkdown({
   const implementationGuidance = frontendGenerationContext.implementation_guidance ?? {};
   const verification = implementationGuidance.verification_expectations ?? {};
   const frontendContext = frontendGenerationContext.frontend_context ?? {};
+  const visualAssetPolicy =
+    implementationGuidance.visual_asset_policy ?? DEFAULT_VISUAL_ASSET_POLICY;
+  const accessibilityPolicy =
+    implementationGuidance.accessibility_policy ?? DEFAULT_ACCESSIBILITY_POLICY;
+  const contrastTargets =
+    accessibilityPolicy.contrast_targets ?? DEFAULT_ACCESSIBILITY_POLICY.contrast_targets;
+  const standardsProfile =
+    accessibilityPolicy.standards_profile ??
+    DEFAULT_ACCESSIBILITY_POLICY.standards_profile;
+  const accessibilityContractNames = Object.keys(
+    accessibilityPolicy.contracts ?? DEFAULT_ACCESSIBILITY_POLICY.contracts,
+  );
+  const conditionalEvidenceKeys = Object.keys(
+    accessibilityPolicy.conditional_evidence ??
+      DEFAULT_ACCESSIBILITY_POLICY.conditional_evidence,
+  ).map((key) => `accessibility_evidence.${key}`);
   const lines = [
     "# Frontend Implementation Skill Context",
     "",
@@ -3880,7 +5458,10 @@ function buildFrontendImplementationInstructionMarkdown({
     "- Shape the interface around the selected surface type and required sections.",
     "- Use approved primitives and approved component families before introducing new UI helpers.",
     "- Apply any design system only as the renderer after the activity and workflow are clear.",
-    "- Verify required states, static checks, browser checks, and disclosure boundaries.",
+    "- Verify core accessibility evidence for semantics, landmarks/headings, name/role/value, keyboard navigation, focus order, focus-visible, responsive reflow/no-overflow, and automated checks.",
+    "- Add conditional accessibility evidence for visuals, custom widgets, forms, status messages, overlays, motion, media, dense controls, and hover/focus content when those patterns appear.",
+    "- For text over substantive visuals or rendered backgrounds, verify WCAG AA contrast from browser-rendered output, not screenshots alone.",
+    "- Verify required states, static checks, browser checks, accessibility evidence, and disclosure boundaries.",
     "- Review generated code or evidence with review_ui_implementation_candidate before final handoff.",
     "",
     "## Required Surface",
@@ -3891,6 +5472,23 @@ function buildFrontendImplementationInstructionMarkdown({
     `- Mode: ${designSystemPolicy.mode}`,
     `- Authority: ${designSystemPolicy.authority}`,
     `- Constraint: ${designSystemPolicy.constraint}`,
+    "",
+    "## Visual Asset Policy",
+    `- Applies when: ${toStringArray(visualAssetPolicy.applies_when).join("; ") || "no substantive visual requirements supplied"}`,
+    `- Preferred paths: ${toStringArray(visualAssetPolicy.preferred_paths).join("; ") || "none supplied"}`,
+    `- Deterministic safe uses: ${toStringArray(visualAssetPolicy.deterministic_safe_uses).join("; ") || "none supplied"}`,
+    `- Failure signals: ${toStringArray(visualAssetPolicy.failure_signals).join("; ") || "none supplied"}`,
+    "",
+    "## Accessibility Policy",
+    `- Baseline: ${standardsProfile.baseline || "WCAG 2.2 AA"}`,
+    `- Contrast targets: normal text ${contrastTargets.normal_text_min_ratio}:1; large text ${contrastTargets.large_text_min_ratio}:1`,
+    `- Non-text contrast target: ${contrastTargets.non_text_min_ratio ?? DEFAULT_ACCESSIBILITY_POLICY.contrast_targets.non_text_min_ratio}:1`,
+    `- Contract groups: ${accessibilityContractNames.join("; ") || "none supplied"}`,
+    `- Rendered backgrounds: ${toStringArray(accessibilityPolicy.rendered_background_readability?.applies_to).join("; ") || "none supplied"}`,
+    `- Background readability: ${accessibilityPolicy.rendered_background_readability?.requirement || "none supplied"}`,
+    `- Core required evidence: ${toStringArray(accessibilityPolicy.required_evidence).join("; ") || "none supplied"}`,
+    `- Conditional evidence: ${conditionalEvidenceKeys.join("; ") || "none supplied"}`,
+    `- Failure signals: ${toStringArray(accessibilityPolicy.failure_signals).join("; ") || "none supplied"}`,
     "",
     "## Verification",
     `- Commands: ${toStringArray(verification.commands).join("; ") || "none supplied"}`,
@@ -3939,6 +5537,14 @@ export function createFrontendImplementationSkillContext({
     frontendGenerationContext.implementation_contract ?? {};
   const verificationExpectations =
     implementationGuidance.verification_expectations ?? {};
+  const visualAssetPolicy =
+    implementationGuidance.visual_asset_policy ??
+    implementationContract.visual_asset_policy ??
+    DEFAULT_VISUAL_ASSET_POLICY;
+  const accessibilityPolicy =
+    implementationGuidance.accessibility_policy ??
+    implementationContract.accessibility_policy ??
+    DEFAULT_ACCESSIBILITY_POLICY;
   const designSystemName = optionalDesignSystemName(
     normalizedDesignSystemAdapter.design_system_name ??
       normalizedDesignSystemAdapter.name ??
@@ -3973,6 +5579,19 @@ export function createFrontendImplementationSkillContext({
       (command) => `Run ${command}`,
     ),
     ...toStringArray(implementationContract.static_enforcement?.default_rules),
+    "Verify substantive visuals use imagegen or premium Three.js/WebGL/D3-style rendering when the spec calls for them.",
+    "Provide browser-rendered visual-background contrast evidence for text over images, canvas, WebGL, video, gradients, or generated visuals.",
+    "Verify non-text contrast for meaningful icons, charts, state indicators, custom controls, and authored focus indicators.",
+    "Verify forced-colors or high-contrast behavior when custom colors, gradients, overlays, or authored focus styles are used.",
+    "Verify focus-visible evidence for interactive controls.",
+    "Verify focus order, keyboard navigation, focus-not-obscured behavior, and no keyboard trap for custom widgets, overlays, dialogs, and embedded experiences.",
+    "Verify reduced-motion behavior for animation and rendered visuals.",
+    "Verify pause, stop, hide, or update-frequency control for auto-moving or auto-updating content.",
+    "Verify form labels, instructions, text errors, correction suggestions, and status/live-region messages when forms or async states are present.",
+    "Verify semantic content or accessible fallback for images, canvas, WebGL, video, generated visuals, and D3-style visualization.",
+    "Verify captions, transcripts, descriptions, or media alternatives when audio or video is present.",
+    "Verify target size or valid target spacing/equivalent-control exceptions for dense or touch-oriented controls.",
+    "Verify responsive no-overflow evidence at desktop and mobile sizes.",
     ...toStringArray(verificationExpectations.browser_checks),
     ...toStringArray(implementationContract.browser_qa?.checks),
     ...toStringArray(verificationExpectations.states_to_verify).map(
@@ -4008,7 +5627,11 @@ export function createFrontendImplementationSkillContext({
       "Map the selected surface type to the required sections, controls, density, navigation, and responsive expectations.",
       "Use approved primitives and approved component families before introducing new UI helpers.",
       "Apply the design system only as a renderer adapter after the activity and workflow are represented.",
-      "Verify required states, static checks, browser checks, and disclosure boundaries.",
+      "When the spec calls for substantive visuals, use imagegen or premium Three.js/WebGL/D3-style rendering instead of rudimentary deterministic geometry.",
+      "Verify core accessibility evidence: automated checks, semantic content, landmarks/headings, name-role-value, keyboard navigation, focus order, focus-visible, and responsive reflow/no-overflow.",
+      "Add conditional accessibility evidence for visuals, custom widgets, forms, status messages, overlays, motion, media, dense controls, and hover/focus content when those patterns appear.",
+      "Check text over substantive visuals against the accessibility policy with browser-rendered contrast evidence before accepting screenshots.",
+      "Verify required states, static checks, browser checks, accessibility evidence, and disclosure boundaries.",
       "Call review_ui_implementation_candidate with generated code or evidence before final handoff.",
     ],
     surface_type_guidance: {
@@ -4024,6 +5647,12 @@ export function createFrontendImplementationSkillContext({
       frontendContext.approved_component_families,
     ),
     files_or_entrypoints: toStringArray(frontendContext.files_or_entrypoints),
+    visual_requirements: toStringArray(frontendContext.visual_requirements),
+    approved_visual_asset_sources: toStringArray(
+      frontendContext.approved_visual_asset_sources,
+    ),
+    visual_asset_policy: visualAssetPolicy,
+    accessibility_policy: accessibilityPolicy,
     design_system_policy: designSystemPolicy,
     verification_checklist: verificationChecklist,
     guardrails: {
@@ -4032,6 +5661,8 @@ export function createFrontendImplementationSkillContext({
       activity_first: true,
       raw_skill_dump: false,
       design_system_is_adapter: true,
+      visual_asset_policy: visualAssetPolicy,
+      accessibility_policy: accessibilityPolicy,
       primary_ui_rule:
         "Do not copy JudgmentKit review-packet terms or implementation machinery into the product UI.",
       terms_to_keep_out_of_primary_ui:
