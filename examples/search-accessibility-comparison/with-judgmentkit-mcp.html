@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Search Demo</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #1f1f1f;
+        background: #fff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      a {
+        color: #1f1f1f;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      a:focus-visible,
+      button:focus-visible,
+      input:focus-visible {
+        outline: 3px solid #0b57d0;
+        outline-offset: 3px;
+      }
+
+      .skip-link {
+        position: absolute;
+        inset-block-start: 8px;
+        inset-inline-start: 8px;
+        transform: translateY(-160%);
+        border-radius: 4px;
+        padding: 10px 14px;
+        background: #0b57d0;
+        color: #fff;
+        z-index: 10;
+      }
+
+      .skip-link:focus {
+        transform: translateY(0);
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 14px 18px;
+        font-size: 14px;
+      }
+
+      .topbar a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        padding: 0 8px;
+      }
+
+      .search-area {
+        width: min(100%, 760px);
+        margin: auto;
+        padding: 42px 18px 84px;
+        text-align: center;
+      }
+
+      .wordmark {
+        margin: 0 0 26px;
+        font-size: clamp(3.4rem, 14vw, 5.8rem);
+        font-weight: 700;
+        letter-spacing: 0;
+        line-height: 1;
+      }
+
+      .wordmark span:nth-child(1) { color: #1a73e8; }
+      .wordmark span:nth-child(2) { color: #d93025; }
+      .wordmark span:nth-child(3) { color: #b06000; }
+      .wordmark span:nth-child(4) { color: #1a73e8; }
+      .wordmark span:nth-child(5) { color: #188038; }
+      .wordmark span:nth-child(6) { color: #d93025; }
+
+      .search-form {
+        display: grid;
+        gap: 18px;
+        justify-items: center;
+      }
+
+      .visually-hidden {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+        border: 0;
+        padding: 0;
+      }
+
+      .search-box {
+        width: min(100%, 584px);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-height: 50px;
+        border: 1px solid #747775;
+        border-radius: 25px;
+        padding: 0 16px;
+      }
+
+      .search-box:focus-within {
+        border-color: #0b57d0;
+        box-shadow: 0 0 0 3px rgba(11, 87, 208, 0.18);
+      }
+
+      .search-icon {
+        flex: 0 0 auto;
+        color: #5f6368;
+        font-size: 19px;
+        line-height: 1;
+      }
+
+      input {
+        flex: 1;
+        min-width: 0;
+        border: 0;
+        color: #1f1f1f;
+        font: inherit;
+        font-size: 16px;
+        line-height: 1.4;
+      }
+
+      input:focus {
+        outline: none;
+      }
+
+      input[aria-invalid="true"] {
+        color: #1f1f1f;
+      }
+
+      .actions {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        min-height: 44px;
+        min-width: 44px;
+        border: 1px solid #dadce0;
+        border-radius: 4px;
+        padding: 0 18px;
+        background: #f8fafd;
+        color: #1f1f1f;
+        font: inherit;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        border-color: #747775;
+        background: #f1f3f4;
+      }
+
+      button[disabled] {
+        cursor: wait;
+        color: #5f6368;
+        background: #f1f3f4;
+      }
+
+      .status {
+        min-height: 24px;
+        margin: 0;
+        color: #444746;
+        font-size: 14px;
+      }
+
+      .status[data-tone="error"] {
+        color: #b3261e;
+        font-weight: 700;
+      }
+
+      footer {
+        margin-top: auto;
+        background: #f2f2f2;
+        color: #444746;
+        font-size: 14px;
+      }
+
+      .footer-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 14px 24px;
+        border-top: 1px solid #c4c7c5;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .footer-links a {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        padding: 0 8px;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+        }
+      }
+
+      @media (forced-colors: active) {
+        .skip-link,
+        a,
+        button,
+        input,
+        .search-box {
+          forced-color-adjust: auto;
+        }
+
+        .search-box,
+        button {
+          border-color: CanvasText;
+        }
+
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible {
+          outline-color: Highlight;
+        }
+      }
+
+      @media (max-width: 520px) {
+        .topbar {
+          justify-content: center;
+          padding-inline: 10px;
+        }
+
+        .search-area {
+          padding-inline: 16px;
+        }
+
+        .footer-row {
+          align-items: center;
+          flex-direction: column;
+          gap: 8px;
+          padding-inline: 12px;
+        }
+
+        .footer-links {
+          justify-content: center;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a class="skip-link" href="#search">Skip to search</a>
+
+    <header>
+      <nav class="topbar" aria-label="Primary">
+        <a href="#">Mail</a>
+        <a href="#">Images</a>
+        <a href="#">Apps</a>
+        <a href="#">Sign in</a>
+      </nav>
+    </header>
+
+    <main class="search-area" id="main">
+      <h1 class="wordmark" aria-label="Findly">
+        <span>F</span><span>i</span><span>n</span><span>d</span><span>l</span><span>y</span>
+      </h1>
+
+      <form class="search-form" id="search-form" action="#" role="search" aria-describedby="search-help search-status">
+        <label class="visually-hidden" for="search">Search the web</label>
+        <div class="search-box">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input
+            id="search"
+            name="q"
+            type="search"
+            autocomplete="off"
+            inputmode="search"
+            aria-describedby="search-help search-status"
+            aria-invalid="false"
+          >
+        </div>
+        <p class="visually-hidden" id="search-help">Type a query, then choose Search or Lucky Search.</p>
+        <div class="actions">
+          <button type="submit" id="search-button">Search</button>
+          <button type="button" id="lucky-button">Lucky Search</button>
+        </div>
+        <p class="status" id="search-status" role="status" aria-live="polite"></p>
+      </form>
+    </main>
+
+    <footer>
+      <nav class="footer-row" aria-label="Footer">
+        <div class="footer-links">
+          <a href="#">About</a>
+          <a href="#">Advertising</a>
+          <a href="#">Business</a>
+        </div>
+        <div class="footer-links">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Settings</a>
+        </div>
+      </nav>
+    </footer>
+
+    <script>
+      const form = document.querySelector("#search-form");
+      const input = document.querySelector("#search");
+      const searchButton = document.querySelector("#search-button");
+      const luckyButton = document.querySelector("#lucky-button");
+      const status = document.querySelector("#search-status");
+
+      function setStatus(message, tone = "neutral") {
+        status.textContent = message;
+        status.dataset.tone = tone;
+      }
+
+      function setLoading(isLoading) {
+        searchButton.disabled = isLoading;
+        luckyButton.disabled = isLoading;
+        searchButton.setAttribute("aria-disabled", String(isLoading));
+        luckyButton.setAttribute("aria-disabled", String(isLoading));
+      }
+
+      function submitSearch(mode) {
+        const query = input.value.trim();
+
+        if (!query) {
+          input.setAttribute("aria-invalid", "true");
+          setStatus("Enter a search term before continuing.", "error");
+          input.focus();
+          return;
+        }
+
+        input.setAttribute("aria-invalid", "false");
+        setLoading(true);
+        setStatus(`${mode} started for "${query}".`);
+
+        window.setTimeout(() => {
+          setLoading(false);
+          setStatus(`Ready. ${mode} is prepared for "${query}".`);
+        }, 400);
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        submitSearch("Search");
+      });
+
+      luckyButton.addEventListener("click", () => submitSearch("Lucky Search"));
+    </script>
+  </body>
+</html>
