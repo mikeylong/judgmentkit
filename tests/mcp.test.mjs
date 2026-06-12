@@ -55,6 +55,7 @@ assert.equal(tools[5].inputSchema.required.includes("candidate"), true);
 assert.equal(tools[5].inputSchema.properties.profile_id.type, "string");
 assert.equal(tools[5].inputSchema.properties.surface_type.type, "string");
 assert.equal(tools[6].inputSchema.properties.approved_primitives.type, "array");
+assert.equal(tools[6].inputSchema.properties.accessibility_policy.type, "object");
 assert.equal(tools[7].inputSchema.required.includes("candidate"), true);
 assert.equal(tools[7].inputSchema.required.includes("implementation_contract"), true);
 assert.equal(tools[8].inputSchema.required.includes("workflow_review"), true);
@@ -118,6 +119,51 @@ function createUiImplementationContractFixture() {
     required_states: ["selected item", "handoff sent"],
     static_rules: ["npm test"],
     browser_qa_checks: ["desktop review", "mobile review"],
+  };
+}
+
+function coreAccessibilityEvidence() {
+  return {
+    automated_checks: {
+      status: "pass",
+      method: "static accessibility checks",
+      artifacts: ["npm test"],
+    },
+    semantic_content: {
+      status: "pass",
+      method: "DOM inspection",
+      notes: "Semantic content verified.",
+    },
+    landmarks_headings: {
+      status: "pass",
+      method: "accessibility tree inspection",
+      notes: "Landmarks and headings verified.",
+    },
+    name_role_value: {
+      status: "pass",
+      method: "accessibility tree inspection",
+      notes: "Names, roles, states, and values verified.",
+    },
+    keyboard_navigation: {
+      status: "pass",
+      method: "keyboard walkthrough",
+      notes: "All actions are keyboard operable.",
+    },
+    focus_order: {
+      status: "pass",
+      method: "keyboard walkthrough",
+      notes: "Focus order preserves meaning.",
+    },
+    focus_visible: {
+      status: "pass",
+      method: "browser review",
+      notes: "Focus indicators remain visible.",
+    },
+    responsive_no_overflow: {
+      status: "pass",
+      method: "desktop and mobile browser review",
+      notes: "No responsive overflow.",
+    },
   };
 }
 
@@ -275,6 +321,16 @@ function createUiImplementationContractFixture() {
 
   assert.equal("error" in implementationContract, false);
   assert.equal(implementationContract.implementation_contract_status, "ready");
+  assert.equal(
+    implementationContract.implementation_contract.accessibility_policy.contrast_targets.normal_text_min_ratio,
+    4.5,
+  );
+  assert.ok(
+    Boolean(
+      implementationContract.implementation_contract.accessibility_policy
+        .conditional_evidence.visual_background_contrast,
+    ),
+  );
 
   const implementationReview = await handleToolCall("review_ui_implementation_candidate", {
     implementation_contract: implementationContract,
@@ -283,6 +339,7 @@ function createUiImplementationContractFixture() {
       states_covered: implementationContract.implementation_contract.state_coverage.required_states,
       static_checks: ["npm test"],
       browser_qa: { desktop: "passed", mobile: "passed" },
+      accessibility_evidence: coreAccessibilityEvidence(),
     },
   });
 
@@ -307,6 +364,8 @@ function createUiImplementationContractFixture() {
       target_runtime: "React",
       ui_library: "Material UI",
       approved_component_families: ["queue", "detail panel", "decision controls"],
+      visual_requirements: ["substantive product image"],
+      approved_visual_asset_sources: ["imagegen", "D3"],
     },
     verification: {
       commands: ["npm test"],
@@ -319,6 +378,19 @@ function createUiImplementationContractFixture() {
   assert.equal(frontendContext.surface_type, "workbench");
   assert.ok(frontendContext.implementation_guidance.required_sections.includes("Evidence checklist"));
   assert.ok(frontendContext.implementation_guidance.verification_expectations.commands.includes("npm test"));
+  assert.ok(frontendContext.frontend_context.visual_requirements.includes("substantive product image"));
+  assert.ok(frontendContext.frontend_context.approved_visual_asset_sources.includes("D3"));
+  assert.ok(
+    frontendContext.implementation_guidance.visual_asset_policy.preferred_paths.some(
+      (rule) => rule.includes("imagegen"),
+    ),
+  );
+  assert.ok(
+    Boolean(
+      frontendContext.implementation_guidance.accessibility_policy.conditional_evidence
+        .visual_background_contrast,
+    ),
+  );
 
   const skillContext = await handleToolCall("create_frontend_implementation_skill_context", {
     frontend_generation_context: frontendContext,
@@ -339,6 +411,20 @@ function createUiImplementationContractFixture() {
   assert.equal(skillContext.source_skill.raw_skill_exposed, false);
   assert.equal(skillContext.design_system_policy.mode, "adapter_after_judgment");
   assert.ok(skillContext.design_system_policy.renderer_components.includes("Button"));
+  assert.ok(skillContext.visual_requirements.includes("substantive product image"));
+  assert.ok(
+    skillContext.visual_asset_policy.preferred_paths.some((rule) =>
+      rule.includes("D3"),
+    ),
+  );
+  assert.ok(
+    skillContext.accessibility_policy.evidence_model.conditional_required.includes(
+      "reduced_motion",
+    ),
+  );
+  assert.ok(skillContext.instruction_markdown.includes("Visual Asset Policy"));
+  assert.ok(skillContext.instruction_markdown.includes("Accessibility Policy"));
+  assert.ok(skillContext.instruction_markdown.includes("browser-rendered contrast"));
   assert.ok(skillContext.instruction_markdown.includes("Frontend Implementation Skill Context"));
   assert.equal(skillContext.next_recommended_tool, "review_ui_implementation_candidate");
 }

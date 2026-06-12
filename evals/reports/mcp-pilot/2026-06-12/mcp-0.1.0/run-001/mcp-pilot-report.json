@@ -1,0 +1,1132 @@
+{
+  "eval_id": "judgmentkit-mcp-private-pilot-v1",
+  "evaluation_type": "private_saved_capture_scoring",
+  "benchmark_policy": "Private repo-local pilot. Scores are deterministic checks against saved Codex captures; JudgmentKit is not used as the judge.",
+  "capture_policy": "Default mode scores existing captures only. Missing captures are reported as capture-required. Live capture is opt-in with --capture.",
+  "comparison": {
+    "baseline": "baseline_no_mcp",
+    "guided": "judgmentkit_mcp",
+    "model": "gpt-5.5",
+    "reasoning_effort": "xhigh"
+  },
+  "run": {
+    "date": "2026-06-12",
+    "mcp_release": "0.1.0",
+    "mcp_release_segment": "mcp-0.1.0",
+    "run_id": "run-001",
+    "run_path": "2026-06-12/mcp-0.1.0/run-001",
+    "html_report": "2026-06-12/mcp-0.1.0/run-001/mcp-pilot-report.html",
+    "json_report": "2026-06-12/mcp-0.1.0/run-001/mcp-pilot-report.json"
+  },
+  "summary": {
+    "cases": 20,
+    "evaluated_cases": 0,
+    "capture_required_cases": 20,
+    "passed": 0,
+    "failed": 0,
+    "guided_wins": 0,
+    "baseline_wins": 0,
+    "ties": 0,
+    "average_guided_delta": 0,
+    "guided_critical_disclosure_leaks": 0,
+    "pilot_passed": false,
+    "pilot_status": "capture-required"
+  },
+  "metric_scale": {
+    "metric_score": "0-5",
+    "total_score": "0-100 weighted"
+  },
+  "capture_dir": "evals/mcp-pilot-captures",
+  "results": [
+    {
+      "id": "refund-schema-admin-translation",
+      "title": "Refund schema admin translation",
+      "case_type": "activity_translation",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "translate the request into a refund triage handoff surface",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "create_activity_model_review",
+          "recommend_surface_types",
+          "recommend_ui_workflow_profiles"
+        ],
+        "tool_summaries": [
+          {
+            "name": "create_activity_model_review",
+            "args_sha256": "14aac0f8d2084573f4b56a0b2c1a4facc26f545e6647b459ca298898e89a1fd0",
+            "summary": {
+              "status": "needs_source_context",
+              "targeted_questions_count": 2
+            }
+          },
+          {
+            "name": "recommend_surface_types",
+            "args_sha256": "ca65c63c5b0f639b72c7ebd91e375e89f6c8102a0aae445774e79ae916dcc815",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "operator_review"
+            }
+          },
+          {
+            "name": "recommend_ui_workflow_profiles",
+            "args_sha256": "14aac0f8d2084573f4b56a0b2c1a4facc26f545e6647b459ca298898e89a1fd0",
+            "summary": {
+              "status": "ok"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "agent-trace-review-console",
+      "title": "Agent trace review console",
+      "case_type": "activity_translation",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "translate traces into an escalation review workflow",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "create_activity_model_review",
+          "recommend_surface_types",
+          "recommend_ui_workflow_profiles"
+        ],
+        "tool_summaries": [
+          {
+            "name": "create_activity_model_review",
+            "args_sha256": "6ee39723c75b72dba506dedf6520dc3b45c5a73b697ec5a12e3e1d0a070f0370",
+            "summary": {
+              "status": "needs_source_context",
+              "targeted_questions_count": 3
+            }
+          },
+          {
+            "name": "recommend_surface_types",
+            "args_sha256": "f74777994aab261a96ee33e33b72e44123e9c360cd430cdd93806d193105b495",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "operator_review"
+            }
+          },
+          {
+            "name": "recommend_ui_workflow_profiles",
+            "args_sha256": "6ee39723c75b72dba506dedf6520dc3b45c5a73b697ec5a12e3e1d0a070f0370",
+            "summary": {
+              "status": "ok"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "crm-json-import-translation",
+      "title": "CRM JSON import translation",
+      "case_type": "activity_translation",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "translate import mechanics into a record acceptance review",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "create_activity_model_review",
+          "recommend_surface_types",
+          "recommend_ui_workflow_profiles"
+        ],
+        "tool_summaries": [
+          {
+            "name": "create_activity_model_review",
+            "args_sha256": "f06b06e3b70ac642019710093993f79ee84c99cf0ebf0652d66451752c8375c7",
+            "summary": {
+              "status": "needs_source_context",
+              "targeted_questions_count": 3
+            }
+          },
+          {
+            "name": "recommend_surface_types",
+            "args_sha256": "010c37812966cad791f600488562a30d33faae5a548d7d58332ad49f9babad6b",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench"
+            }
+          },
+          {
+            "name": "recommend_ui_workflow_profiles",
+            "args_sha256": "f06b06e3b70ac642019710093993f79ee84c99cf0ebf0652d66451752c8375c7",
+            "summary": {
+              "status": "ok"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "billing-webhook-debug-boundary",
+      "title": "Billing webhook debug boundary",
+      "case_type": "activity_translation",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "translate webhook mechanics into billing incident triage",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "create_activity_model_review",
+          "recommend_surface_types",
+          "recommend_ui_workflow_profiles"
+        ],
+        "tool_summaries": [
+          {
+            "name": "create_activity_model_review",
+            "args_sha256": "8a917c2417ac42cf27d50d538307814b61b4a7856e2713986f8f5a13e0e3acd0",
+            "summary": {
+              "status": "needs_source_context",
+              "targeted_questions_count": 3
+            }
+          },
+          {
+            "name": "recommend_surface_types",
+            "args_sha256": "51ac24343e864a09c31d0c49f9999891d3264700767db8054260924a82b607be",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench"
+            }
+          },
+          {
+            "name": "recommend_ui_workflow_profiles",
+            "args_sha256": "8a917c2417ac42cf27d50d538307814b61b4a7856e2713986f8f5a13e0e3acd0",
+            "summary": {
+              "status": "ok"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "vague-system-dashboard",
+      "title": "Vague system dashboard restraint",
+      "case_type": "missing_context_restraint",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "ask targeted questions about activity decision and outcome",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "create_activity_model_review",
+          "recommend_surface_types",
+          "recommend_ui_workflow_profiles"
+        ],
+        "tool_summaries": [
+          {
+            "name": "create_activity_model_review",
+            "args_sha256": "5f7a4b7a5c4619e73ccd8a4dcfb5e5e5b09a8c55659d90a5bf2e84cd07014391",
+            "summary": {
+              "status": "needs_source_context",
+              "targeted_questions_count": 3
+            }
+          },
+          {
+            "name": "recommend_surface_types",
+            "args_sha256": "12f489deef114dcb4174a96ce062b9599da587b6f9bec2795f3777971cac6360",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "operator_review"
+            }
+          },
+          {
+            "name": "recommend_ui_workflow_profiles",
+            "args_sha256": "5f7a4b7a5c4619e73ccd8a4dcfb5e5e5b09a8c55659d90a5bf2e84cd07014391",
+            "summary": {
+              "status": "ok"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "review-queue-without-decision",
+      "title": "Review queue without decision",
+      "case_type": "missing_context_restraint",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "ask what decision the review queue supports",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "create_activity_model_review",
+          "recommend_surface_types",
+          "recommend_ui_workflow_profiles"
+        ],
+        "tool_summaries": [
+          {
+            "name": "create_activity_model_review",
+            "args_sha256": "3ce55c3b3690c331d009fd57d8a8b16736760eb5912caf28e74cfb9c749de9b1",
+            "summary": {
+              "status": "needs_source_context",
+              "targeted_questions_count": 2
+            }
+          },
+          {
+            "name": "recommend_surface_types",
+            "args_sha256": "a801915e6c7c00228dae00543fe4bdc6a194f37a9f11dc6d119e2a2af299ce82",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench"
+            }
+          },
+          {
+            "name": "recommend_ui_workflow_profiles",
+            "args_sha256": "3ce55c3b3690c331d009fd57d8a8b16736760eb5912caf28e74cfb9c749de9b1",
+            "summary": {
+              "status": "ok"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "api-list-workflow",
+      "title": "API list workflow restraint",
+      "case_type": "missing_context_restraint",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "ask what user activity the endpoints support",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "create_activity_model_review",
+          "recommend_surface_types",
+          "recommend_ui_workflow_profiles"
+        ],
+        "tool_summaries": [
+          {
+            "name": "create_activity_model_review",
+            "args_sha256": "a181d8955b4df99891f4443c667b18b03746d3a46e004c414cc2529bc2556dfb",
+            "summary": {
+              "status": "needs_source_context",
+              "targeted_questions_count": 2
+            }
+          },
+          {
+            "name": "recommend_surface_types",
+            "args_sha256": "f099a5b5ad541ab1e9aa37cc24ae3f09ab8395f48fcb13ec4df565b73c4e850a",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench"
+            }
+          },
+          {
+            "name": "recommend_ui_workflow_profiles",
+            "args_sha256": "a181d8955b4df99891f4443c667b18b03746d3a46e004c414cc2529bc2556dfb",
+            "summary": {
+              "status": "ok"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "unclear-compliance-report",
+      "title": "Unclear compliance report audience",
+      "case_type": "missing_context_restraint",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "ask who reviews the findings and what action they take",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "create_activity_model_review",
+          "recommend_surface_types",
+          "recommend_ui_workflow_profiles"
+        ],
+        "tool_summaries": [
+          {
+            "name": "create_activity_model_review",
+            "args_sha256": "33342d28f474955f75d56d1ba237e57b3023155e0cf82010ee45ed1095dbf486",
+            "summary": {
+              "status": "needs_source_context",
+              "targeted_questions_count": 3
+            }
+          },
+          {
+            "name": "recommend_surface_types",
+            "args_sha256": "711ede1c5e2b3be03f4d2a83a155f38845ac6292e491b66e1bd7dec5c093b420",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench"
+            }
+          },
+          {
+            "name": "recommend_ui_workflow_profiles",
+            "args_sha256": "33342d28f474955f75d56d1ba237e57b3023155e0cf82010ee45ed1095dbf486",
+            "summary": {
+              "status": "ok"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "clinical-intake-operator-review",
+      "title": "Clinical intake operator review",
+      "case_type": "operator_review_handoff",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "prepare a routing handoff",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "review_ui_workflow_candidate",
+          "create_ui_implementation_contract"
+        ],
+        "tool_summaries": [
+          {
+            "name": "review_ui_workflow_candidate",
+            "args_sha256": "d8d112adfa9ff34a44c7903c43b5585338f1749890b6ede5722d4a5ee062327a",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench",
+              "profile_id": "operator-review-ui",
+              "targeted_questions_count": 1
+            }
+          },
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "b2b-renewal-risk-review",
+      "title": "B2B renewal risk review",
+      "case_type": "operator_review_handoff",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "prepare a renewal handoff",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "review_ui_workflow_candidate",
+          "create_ui_implementation_contract"
+        ],
+        "tool_summaries": [
+          {
+            "name": "review_ui_workflow_candidate",
+            "args_sha256": "e939d6475143faaa1d349e32e1a86f495d54307e8906d83017ca4de748cd7536",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench",
+              "profile_id": "operator-review-ui",
+              "targeted_questions_count": 1
+            }
+          },
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "field-dispatch-review",
+      "title": "Field dispatch review",
+      "case_type": "operator_review_handoff",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "send an assignment handoff",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "review_ui_workflow_candidate",
+          "create_ui_implementation_contract"
+        ],
+        "tool_summaries": [
+          {
+            "name": "review_ui_workflow_candidate",
+            "args_sha256": "b32c410dff078f8da892e6d450f4bab750ac53295081a4c08ec38ce75df10c8d",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench",
+              "profile_id": "operator-review-ui",
+              "targeted_questions_count": 1
+            }
+          },
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "moderation-escalation-review",
+      "title": "Content moderation escalation review",
+      "case_type": "operator_review_handoff",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "prepare an escalation handoff",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "review_ui_workflow_candidate",
+          "create_ui_implementation_contract"
+        ],
+        "tool_summaries": [
+          {
+            "name": "review_ui_workflow_candidate",
+            "args_sha256": "deaf727abe1ff4b789563a74ee06b726301c5730aa0b1839ee02a917af7a4b70",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench",
+              "profile_id": "operator-review-ui",
+              "targeted_questions_count": 1
+            }
+          },
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "invented-activity-candidate",
+      "title": "Invented activity candidate",
+      "case_type": "candidate_validation",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "reject the ungrounded candidate",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "review_activity_model_candidate"
+        ],
+        "tool_summaries": [
+          {
+            "name": "review_activity_model_candidate",
+            "args_sha256": "7101f183905223bea41b0323a67f7a0f87275ee5c69173612cf8036bbda229e7",
+            "summary": {
+              "status": "needs_source_context",
+              "targeted_questions_count": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "schema-leaking-workflow",
+      "title": "Schema-leaking workflow candidate",
+      "case_type": "candidate_validation",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "reject the schema-leaking workflow",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "review_ui_workflow_candidate"
+        ],
+        "tool_summaries": [
+          {
+            "name": "review_ui_workflow_candidate",
+            "args_sha256": "ff3a246a6df22df59506025b1f61d5b1c067d8d667e011f2cf4c63be4c54a035",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench",
+              "profile_id": "operator-review-ui",
+              "targeted_questions_count": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "surface-type-mismatch",
+      "title": "Surface type mismatch",
+      "case_type": "candidate_validation",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "reject the operator workflow and return to landing page intent",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "review_ui_workflow_candidate"
+        ],
+        "tool_summaries": [
+          {
+            "name": "review_ui_workflow_candidate",
+            "args_sha256": "15d7bcee0cbfc90f4264bd375a9d26fa3471dfd28e6a6c426565b3c61c11ca2f",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench",
+              "profile_id": "operator-review-ui",
+              "targeted_questions_count": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "missing-handoff-workflow",
+      "title": "Missing handoff workflow candidate",
+      "case_type": "candidate_validation",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "block handoff creation until handoff fields are present",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "review_ui_workflow_candidate"
+        ],
+        "tool_summaries": [
+          {
+            "name": "review_ui_workflow_candidate",
+            "args_sha256": "42f0bb376bc08f0848bcd72e3ea96fb85bcbbdf6e319d5f70bca6af87d98437e",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench",
+              "profile_id": "operator-review-ui",
+              "targeted_questions_count": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "raw-form-controls-implementation",
+      "title": "Raw form controls implementation review",
+      "case_type": "implementation_review",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "reject raw controls and require approved primitives",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready"
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "030070d3d654a68ca733f8faf542c92a5c0804921d177d9a6eee05780bc39fd1",
+            "summary": {
+              "status": "failed"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "missing-accessibility-evidence",
+      "title": "Missing accessibility evidence review",
+      "case_type": "implementation_review",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "reject until accessibility evidence is supplied",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready"
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "fd65571024734478f47efd483fc36aefeced05a54586441a5ff9a8949619093f",
+            "summary": {
+              "status": "failed"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "modal-action-order-review",
+      "title": "Modal action order review",
+      "case_type": "implementation_review",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "reject until modal action order and focus evidence are verified",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "95367b6ed3f11dd905258c40e0a9e80a76e23c7af2adf393b78545e6d4617975",
+            "summary": {
+              "status": "ready"
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "476695b5022e77d3c285ac502b3610a45a69968957fd85542ca73645178e5ff9",
+            "summary": {
+              "status": "failed"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "implementation-term-leakage-review",
+      "title": "Implementation-term leakage review",
+      "case_type": "implementation_review",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "reject product-label leakage and require user-facing language",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready"
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "f1a10fd6c428a98e4434eee1bfce9d87d95328e1b1e0da6ab4900cda4595e7ec",
+            "summary": {
+              "status": "failed"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

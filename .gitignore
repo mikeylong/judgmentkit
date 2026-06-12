@@ -6,3 +6,5 @@ coverage/
 site/dist/
 .vercel
 .playwright-cli/
+.worktrees/
+output/

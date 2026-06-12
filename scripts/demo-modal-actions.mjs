@@ -172,6 +172,80 @@ function buildImplementationContract() {
   }).implementation_contract;
 }
 
+function buildAccessibilityEvidence() {
+  return {
+    automated_checks: {
+      status: "pass",
+      method: "static accessibility checks",
+      artifacts: ["npm run check"],
+    },
+    semantic_content: {
+      status: "pass",
+      method: "DOM inspection",
+      notes: "Modal action surface uses semantic structure and fallback text.",
+    },
+    landmarks_headings: {
+      status: "pass",
+      method: "accessibility tree inspection",
+      notes: "Dialog heading and surrounding landmarks are identifiable.",
+    },
+    name_role_value: {
+      status: "pass",
+      method: "accessibility tree inspection",
+      notes: "Buttons expose accessible names, roles, states, and values.",
+    },
+    keyboard_navigation: {
+      status: "pass",
+      method: "browser keyboard walkthrough",
+      notes: "Actions are reachable and operable by keyboard.",
+    },
+    focus_order: {
+      status: "pass",
+      method: "browser keyboard walkthrough",
+      notes: "Focus follows the dialog action order.",
+    },
+    focus_visible: {
+      status: "pass",
+      method: "browser keyboard walkthrough",
+      notes: "Focus indicators remain visible on dialog actions.",
+    },
+    responsive_no_overflow: {
+      status: "pass",
+      method: "desktop and mobile browser review",
+      notes: "Dialog actions wrap without overflow.",
+    },
+    non_text_contrast: {
+      status: "pass",
+      method: "computed contrast check",
+      samples: [{ target: "button boundary and focus indicator", contrast_ratio: 3.2 }],
+    },
+    form_labels_instructions: {
+      status: "pass",
+      method: "DOM inspection",
+      notes: "Form controls and actions have visible labels or instructions.",
+    },
+    form_errors: {
+      status: "not_applicable",
+      rationale: "The modal action ordering fixture does not include input validation.",
+    },
+    status_messages: {
+      status: "pass",
+      method: "live-region inspection",
+      notes: "Completion and error status messages are programmatically determinable in the fixture contract.",
+    },
+    focus_not_obscured: {
+      status: "pass",
+      method: "browser keyboard walkthrough",
+      notes: "Focused dialog actions are not hidden by authored content.",
+    },
+    no_keyboard_trap: {
+      status: "pass",
+      method: "browser keyboard walkthrough",
+      notes: "Focus can leave the dialog with Escape or the cancel action.",
+    },
+  };
+}
+
 function buildCandidate(scenario, implementationContract) {
   const candidate = {
     code: "renderModalActions({ primaryAction, secondaryActions })",
@@ -182,6 +256,7 @@ function buildCandidate(scenario, implementationContract) {
       desktop: "desktop viewport modal footer order checked",
       mobile: "mobile viewport modal footer order checked",
     },
+    accessibility_evidence: buildAccessibilityEvidence(),
   };
 
   if (scenario.modalAction) {

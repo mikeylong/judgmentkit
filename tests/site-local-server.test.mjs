@@ -108,6 +108,16 @@ try {
   }
 
   {
+    const response = await fetchRoute(
+      url,
+      "/examples/model-ui/refund-system-map/screenshots/deterministic-no-judgmentkit.png",
+    );
+
+    assert.equal(response.status, 200, "model UI screenshot should return 200");
+    assert.equal(response.headers.get("content-type"), "image/png");
+  }
+
+  {
     const response = await fetchRoute(url, "/_vercel/insights/script.js");
     const body = await response.text();
 

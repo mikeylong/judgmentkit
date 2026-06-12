@@ -164,6 +164,8 @@ function refundWorkflowCandidate() {
       ui_library: "Material UI",
       approved_component_families: ["queue", "detail panel", "decision controls"],
       files_or_entrypoints: ["src/App.jsx"],
+      visual_requirements: ["case evidence hero image"],
+      approved_visual_asset_sources: ["imagegen", "Three.js"],
     },
     verification: {
       commands: ["npm test"],
@@ -178,6 +180,31 @@ function refundWorkflowCandidate() {
   assert.equal(frontendContext.surface_type, "workbench");
   assert.ok(frontendContext.implementation_contract.approved_primitives.length > 0);
   assert.equal(frontendContext.frontend_context.ui_library, "Material UI");
+  assert.ok(
+    frontendContext.implementation_guidance.visual_asset_policy.preferred_paths.some(
+      (rule) => rule.includes("imagegen"),
+    ),
+  );
+  assert.equal(
+    frontendContext.implementation_guidance.accessibility_policy.contrast_targets.normal_text_min_ratio,
+    4.5,
+  );
+  assert.ok(
+    Boolean(
+      frontendContext.implementation_guidance.accessibility_policy.conditional_evidence
+        .visual_background_contrast,
+    ),
+  );
+  assert.ok(
+    frontendContext.frontend_context.visual_requirements.includes(
+      "case evidence hero image",
+    ),
+  );
+  assert.ok(
+    frontendContext.frontend_context.approved_visual_asset_sources.includes(
+      "Three.js",
+    ),
+  );
   assert.ok(frontendContext.implementation_guidance.required_sections.includes("Evidence checklist"));
   assert.ok(frontendContext.implementation_guidance.verification_expectations.commands.includes("npm test"));
 
@@ -202,6 +229,42 @@ function refundWorkflowCandidate() {
   assert.equal(skillContext.design_system_policy.name, "Material UI");
   assert.ok(skillContext.design_system_policy.renderer_components.includes("Button"));
   assert.ok(skillContext.approved_component_families.includes("queue"));
+  assert.ok(skillContext.visual_requirements.includes("case evidence hero image"));
+  assert.ok(skillContext.approved_visual_asset_sources.includes("imagegen"));
+  assert.ok(
+    skillContext.visual_asset_policy.preferred_paths.some((rule) =>
+      rule.includes("imagegen"),
+    ),
+  );
+  assert.ok(
+    skillContext.accessibility_policy.required_evidence.includes(
+      "accessibility_evidence.focus_visible",
+    ),
+  );
+  assert.ok(skillContext.instruction_markdown.includes("Accessibility Policy"));
+  assert.ok(skillContext.instruction_markdown.includes("normal text 4.5:1"));
+  assert.ok(skillContext.instruction_markdown.includes("reduced_motion"));
+  assert.ok(skillContext.instruction_markdown.includes("browser-rendered contrast"));
+  assert.ok(
+    skillContext.implementation_sequence.some((step) =>
+      step.includes("substantive visuals"),
+    ),
+  );
+  assert.ok(
+    skillContext.implementation_sequence.some((step) =>
+      step.includes("browser-rendered contrast evidence"),
+    ),
+  );
+  assert.ok(
+    skillContext.verification_checklist.some((item) =>
+      item.includes("substantive visuals"),
+    ),
+  );
+  assert.ok(
+    skillContext.verification_checklist.some((item) =>
+      item.includes("visual-background contrast evidence"),
+    ),
+  );
   assert.ok(skillContext.verification_checklist.includes("Run npm test"));
   assert.ok(
     skillContext.implementation_sequence.includes(
@@ -210,6 +273,8 @@ function refundWorkflowCandidate() {
   );
   assert.ok(skillContext.instruction_markdown.includes("Frontend Implementation Skill Context"));
   assert.ok(skillContext.instruction_markdown.includes("Material UI"));
+  assert.ok(skillContext.instruction_markdown.includes("Visual Asset Policy"));
+  assert.ok(skillContext.instruction_markdown.includes("premium Three.js"));
 }
 
 {

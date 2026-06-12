@@ -3,6 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { createUiImplementationContract } from "../src/index.mjs";
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
 
@@ -15,6 +17,7 @@ function readJson(relativePath) {
 }
 
 const contract = readJson("contracts/ai-ui-generation.activity-contract.json");
+const schema = readJson("contracts/judgmentkit-kernel.schema.json");
 
 assert.equal(contract.source_model, "fresh_start");
 assert.deepEqual(contract.quality_order.slice(0, 4), [
@@ -102,6 +105,158 @@ assert.ok(
     check.includes("modal or dialog footer order"),
   ),
   "The implementation contract must require modal footer order QA when dialogs are present.",
+);
+assert.ok(
+  contract.implementation_contract.visual_asset_policy.applies_when.some((rule) =>
+    rule.includes("substantive visuals"),
+  ),
+  "The implementation contract must define when the visual asset policy applies.",
+);
+assert.ok(
+  contract.implementation_contract.visual_asset_policy.preferred_paths.some((rule) =>
+    rule.includes("imagegen"),
+  ),
+  "The visual asset policy must prefer imagegen for substantive bitmap assets.",
+);
+assert.ok(
+  contract.implementation_contract.visual_asset_policy.preferred_paths.some((rule) =>
+    rule.includes("Three.js") || rule.includes("WebGL"),
+  ),
+  "The visual asset policy must allow premium JavaScript 3D rendering.",
+);
+assert.ok(
+  contract.implementation_contract.visual_asset_policy.preferred_paths.some((rule) =>
+    rule.includes("D3"),
+  ),
+  "The visual asset policy must allow high-quality data visualization rendering.",
+);
+assert.ok(
+  contract.implementation_contract.visual_asset_policy.deterministic_safe_uses.some(
+    (rule) => rule.includes("exact typography"),
+  ),
+  "The visual asset policy must preserve deterministic rendering for exact UI work.",
+);
+assert.ok(
+  contract.implementation_contract.visual_asset_policy.failure_signals.some((signal) =>
+    signal.includes("rudimentary CSS"),
+  ),
+  "The visual asset policy must fail rudimentary deterministic substitute geometry.",
+);
+assert.equal(
+  contract.implementation_contract.accessibility_policy.contrast_targets.normal_text_min_ratio,
+  4.5,
+  "The accessibility policy must default normal text contrast to WCAG AA 4.5:1.",
+);
+assert.equal(
+  contract.implementation_contract.accessibility_policy.contrast_targets.large_text_min_ratio,
+  3,
+  "The accessibility policy must default large text contrast to WCAG AA 3:1.",
+);
+assert.equal(
+  contract.implementation_contract.accessibility_policy.contrast_targets.non_text_min_ratio,
+  3,
+  "The accessibility policy must default non-text contrast to WCAG AA 3:1.",
+);
+assert.equal(
+  contract.implementation_contract.accessibility_policy.standards_profile.baseline,
+  "WCAG 2.2 AA",
+  "The accessibility policy must name the WCAG 2.2 AA baseline.",
+);
+assert.ok(
+  contract.implementation_contract.accessibility_policy.standards_profile.sources.some(
+    (source) => source.id === "wcag-4.1.2",
+  ),
+  "The accessibility policy must carry criterion source metadata.",
+);
+assert.ok(
+  contract.implementation_contract.accessibility_policy.rendered_background_readability.applies_to.some(
+    (target) => target.includes("WebGL"),
+  ),
+  "The accessibility policy must cover WebGL/Three.js rendered backgrounds.",
+);
+assert.ok(
+  contract.implementation_contract.accessibility_policy.required_evidence.includes(
+    "accessibility_evidence.keyboard_navigation",
+  ),
+  "The accessibility policy must require keyboard navigation as core evidence.",
+);
+assert.ok(
+  Boolean(
+    contract.implementation_contract.accessibility_policy.conditional_evidence
+      .visual_background_contrast,
+  ),
+  "The accessibility policy must define conditional visual-background contrast evidence.",
+);
+assert.ok(
+  contract.implementation_contract.accessibility_policy.evidence_model.conditional_required.includes(
+    "reduced_motion",
+  ),
+  "The accessibility policy must require reduced-motion evidence when motion is present.",
+);
+assert.ok(
+  Object.keys(contract.implementation_contract.accessibility_policy.contracts).includes(
+    "keyboard_and_focus",
+  ),
+  "The accessibility policy must expose grouped accessibility contracts.",
+);
+assert.ok(
+  contract.implementation_contract.accessibility_policy.failure_signals.some((signal) =>
+    signal.includes("opacity-based reveal"),
+  ),
+  "The accessibility policy must fail opacity reveals that pass through low contrast.",
+);
+assert.ok(
+  schema.$defs.implementationContract.required.includes("accessibility_policy"),
+  "The schema must require implementation_contract.accessibility_policy.",
+);
+assert.deepEqual(
+  schema.$defs.implementationContract.properties.accessibility_policy.required,
+  [
+    "standards_profile",
+    "contrast_targets",
+    "rendered_background_readability",
+    "required_evidence",
+    "conditional_evidence",
+    "contracts",
+    "evidence_model",
+    "failure_signals",
+  ],
+  "The schema must require the accessibility policy shape.",
+);
+const overriddenContract = createUiImplementationContract({
+  accessibility_policy: {
+    contrast_targets: {
+      normal_text_min_ratio: 7,
+      large_text_min_ratio: 4.5,
+      non_text_min_ratio: 4,
+    },
+    rendered_background_readability: {
+      applies_to: ["video"],
+      requirement: "Use computed browser evidence for text over video.",
+    },
+    required_evidence: ["accessibility_evidence.keyboard_navigation"],
+    conditional_evidence: {
+      visual_background_contrast: {
+        applies_when: ["text over video"],
+        wcag_criteria: ["1.4.3"],
+      },
+    },
+    failure_signals: ["computed contrast below target"],
+  },
+});
+assert.equal(
+  overriddenContract.implementation_contract.accessibility_policy.contrast_targets.normal_text_min_ratio,
+  7,
+  "createUiImplementationContract must round-trip accessibility policy overrides.",
+);
+assert.deepEqual(
+  overriddenContract.implementation_contract.accessibility_policy.rendered_background_readability.applies_to,
+  ["video"],
+);
+assert.deepEqual(
+  overriddenContract.implementation_contract.accessibility_policy.conditional_evidence
+    .visual_background_contrast.applies_when,
+  ["text over video"],
 );
 assert.ok(
   contract.implementation_contract.failure_signals.some((signal) =>

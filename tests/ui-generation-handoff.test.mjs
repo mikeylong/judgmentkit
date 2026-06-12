@@ -167,7 +167,160 @@ function modalImplementationCandidate(modalAction) {
       desktop: "desktop viewport modal footer order checked",
       mobile: "mobile viewport modal footer order checked",
     },
+    accessibility_evidence: modalAccessibilityEvidence(),
     modal_actions: [modalAction],
+  };
+}
+
+function coreAccessibilityEvidence(overrides = {}) {
+  return {
+    automated_checks: {
+      status: "pass",
+      method: "axe and static accessibility lint",
+      artifacts: ["npm run check"],
+    },
+    semantic_content: {
+      status: "pass",
+      method: "DOM inspection",
+      notes: "Semantic regions and fallback content verified.",
+    },
+    landmarks_headings: {
+      status: "pass",
+      method: "accessibility tree inspection",
+      notes: "Landmarks and heading order support orientation.",
+    },
+    name_role_value: {
+      status: "pass",
+      method: "accessibility tree inspection",
+      notes: "Interactive controls expose names, roles, states, and values.",
+    },
+    keyboard_navigation: {
+      status: "pass",
+      method: "browser keyboard walkthrough",
+      notes: "All actions are reachable and operable by keyboard.",
+    },
+    focus_order: {
+      status: "pass",
+      method: "browser keyboard walkthrough",
+      notes: "Tab order follows visual and DOM reading order.",
+    },
+    focus_visible: {
+      status: "pass",
+      method: "browser keyboard walkthrough",
+      notes: "Browser-rendered focus indicators are visible for interactive controls.",
+    },
+    responsive_no_overflow: {
+      status: "pass",
+      method: "desktop and mobile browser review",
+      notes: "Text reflows without overflow at desktop and mobile sizes.",
+    },
+    ...overrides,
+  };
+}
+
+function formAccessibilityEvidence(overrides = {}) {
+  return {
+    ...coreAccessibilityEvidence(),
+    non_text_contrast: {
+      status: "pass",
+      method: "computed style contrast check",
+      samples: [{ target: "checkbox boundary", contrast_ratio: 3.4 }],
+    },
+    form_labels_instructions: {
+      status: "pass",
+      method: "DOM inspection",
+      notes: "Inputs have visible labels and programmatic associations.",
+    },
+    form_errors: {
+      status: "pass",
+      method: "validation state review",
+      notes: "Invalid fields are identified with text and programmatic error state.",
+    },
+    status_messages: {
+      status: "pass",
+      method: "live region inspection",
+      notes: "Save, error, and progress messages are programmatically determinable.",
+    },
+    ...overrides,
+  };
+}
+
+function modalAccessibilityEvidence(overrides = {}) {
+  return {
+    ...formAccessibilityEvidence(),
+    focus_not_obscured: {
+      status: "pass",
+      method: "browser keyboard walkthrough",
+      notes: "Focused controls remain visible when the modal is open.",
+    },
+    no_keyboard_trap: {
+      status: "pass",
+      method: "browser keyboard walkthrough",
+      notes: "Focus cycles inside the modal and Escape or cancel exits.",
+    },
+    ...overrides,
+  };
+}
+
+function visualAccessibilityEvidence(overrides = {}) {
+  return {
+    ...coreAccessibilityEvidence(),
+    visual_background_contrast: {
+      status: "pass",
+      browser_rendered: true,
+      method: "Playwright pixel sampling",
+      samples: [
+        {
+          target: "Hero headline over generated visual",
+          text_size: "large",
+          contrast_ratio: 4.2,
+        },
+        {
+          target: "Hero supporting copy over gradient",
+          text_size: "normal",
+          contrast_ratio: 5.1,
+        },
+      ],
+    },
+    non_text_contrast: {
+      status: "pass",
+      method: "computed contrast check",
+      samples: [{ target: "visual indicator against gradient", contrast_ratio: 3.3 }],
+    },
+    forced_colors: {
+      status: "pass",
+      method: "forced-colors emulation",
+      notes: "Text, focus, and controls remain visible in forced-colors mode.",
+    },
+    semantic_fallbacks: {
+      status: "pass",
+      method: "DOM inspection",
+      notes: "Generated image has alt text and canvas fallback content.",
+    },
+    ...overrides,
+  };
+}
+
+function visualHeavyStaticCandidate(overrides = {}) {
+  const baseAccessibilityEvidence = visualAccessibilityEvidence();
+
+  return {
+    code: "renderLandingHero({ backgroundImage: imagegenAsset, overlayGradient, headline })",
+    visual_heavy: true,
+    visual_backgrounds: ["imagegen hero image", "gradient overlay"],
+    primitives_used: [],
+    states_covered: implementationContract.state_coverage.required_states,
+    static_checks: ["npm run check"],
+    browser_qa: {
+      desktop: "desktop viewport screenshot checked",
+      mobile: "mobile viewport screenshot checked",
+    },
+    accessibility_evidence: baseAccessibilityEvidence,
+    ...overrides,
+    accessibility_evidence: {
+      ...baseAccessibilityEvidence,
+      ...(overrides.accessibility_evidence ?? {}),
+    },
   };
 }
 
@@ -228,6 +381,7 @@ function modalImplementationCandidate(modalAction) {
         desktop: "desktop viewport screenshot checked",
         mobile: "mobile viewport screenshot checked",
       },
+      accessibility_evidence: formAccessibilityEvidence(),
     },
     { implementation_contract: implementationContract },
   );
@@ -235,6 +389,292 @@ function modalImplementationCandidate(modalAction) {
   assert.equal(approvedReview.implementation_review_status, "passed");
   assert.equal(approvedReview.checks.approved_primitives.status, "pass");
   assert.deepEqual(approvedReview.findings, []);
+
+  const coreEvidenceKeys = [
+    "automated_checks",
+    "semantic_content",
+    "landmarks_headings",
+    "name_role_value",
+    "keyboard_navigation",
+    "focus_order",
+    "focus_visible",
+    "responsive_no_overflow",
+  ];
+
+  for (const key of coreEvidenceKeys) {
+    const accessibilityEvidence = formAccessibilityEvidence();
+    accessibilityEvidence[key] = key === "automated_checks" ? null : undefined;
+    const missingCoreReview = reviewUiImplementationCandidate(
+      {
+        code: "renderCheckboxGroup({ options, legend: 'Lane responsibility' })",
+        primitives_used: ["FormField", "CheckboxGroup", "CheckboxOption"],
+        states_covered: implementationContract.state_coverage.required_states,
+        static_checks: ["npm run check"],
+        browser_qa: {
+          desktop: "desktop viewport screenshot checked",
+          mobile: "mobile viewport screenshot checked",
+        },
+        accessibility_evidence: accessibilityEvidence,
+      },
+      { implementation_contract: implementationContract },
+    );
+
+    assert.equal(
+      missingCoreReview.implementation_review_status,
+      "failed",
+      `${key} must be required core accessibility evidence.`,
+    );
+    assert.equal(missingCoreReview.checks.accessibility_evidence[key].status, "fail");
+  }
+
+  const notApplicableWithoutRationaleReview = reviewUiImplementationCandidate(
+    {
+      code: "renderCheckboxGroup({ options, legend: 'Lane responsibility' })",
+      primitives_used: ["FormField", "CheckboxGroup", "CheckboxOption"],
+      states_covered: implementationContract.state_coverage.required_states,
+      static_checks: ["npm run check"],
+      browser_qa: {
+        desktop: "desktop viewport screenshot checked",
+        mobile: "mobile viewport screenshot checked",
+      },
+      accessibility_evidence: formAccessibilityEvidence({
+        form_errors: { status: "not_applicable" },
+      }),
+    },
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(notApplicableWithoutRationaleReview.implementation_review_status, "failed");
+  assert.equal(
+    notApplicableWithoutRationaleReview.checks.accessibility_evidence.form_errors.status,
+    "fail",
+  );
+
+  const visualHeavyReview = reviewUiImplementationCandidate(
+    visualHeavyStaticCandidate({
+      states_covered: undefined,
+      static_checks: undefined,
+      covered_states: implementationContract.state_coverage.required_states,
+      static_evidence: ["npm run check"],
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(visualHeavyReview.implementation_review_status, "passed");
+  assert.equal(visualHeavyReview.checks.state_coverage.status, "pass");
+  assert.equal(visualHeavyReview.checks.static_enforcement.status, "pass");
+  assert.equal(visualHeavyReview.checks.accessibility_evidence.status, "pass");
+  assert.equal(
+    visualHeavyReview.checks.accessibility_evidence.visual_background_contrast.status,
+    "pass",
+  );
+
+  const missingContrastReview = reviewUiImplementationCandidate(
+    visualHeavyStaticCandidate({
+      accessibility_evidence: {
+        visual_background_contrast: undefined,
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(missingContrastReview.implementation_review_status, "failed");
+  assert.equal(
+    missingContrastReview.checks.accessibility_evidence.visual_background_contrast.status,
+    "fail",
+  );
+  assert.ok(
+    missingContrastReview.findings.some(
+      (finding) => finding.check === "accessibility_evidence.visual_background_contrast",
+    ),
+  );
+
+  const contrastFailureReview = reviewUiImplementationCandidate(
+    visualHeavyStaticCandidate({
+      accessibility_evidence: {
+        visual_background_contrast: {
+          status: "fail",
+          browser_rendered: true,
+          samples: [
+            {
+              target: "Hero body copy over video",
+              text_size: "normal",
+              contrast_ratio: 2.6,
+            },
+          ],
+        },
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(contrastFailureReview.implementation_review_status, "failed");
+  assert.equal(contrastFailureReview.checks.browser_qa.status, "pass");
+  assert.equal(
+    contrastFailureReview.checks.accessibility_evidence.visual_background_contrast.status,
+    "fail",
+  );
+  assert.ok(
+    contrastFailureReview.findings.some((finding) =>
+      String(finding.message).includes("visual background contrast") ||
+      String(finding.message).includes("below"),
+    ),
+  );
+
+  const responsiveAliasReview = reviewUiImplementationCandidate(
+    visualHeavyStaticCandidate({
+      accessibility_evidence: visualAccessibilityEvidence({
+        responsive_no_overflow: undefined,
+        reflow_zoom: {
+          status: "pass",
+          method: "320px reflow and zoom browser review",
+          notes: "No two-dimensional scrolling or content loss.",
+        },
+      }),
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(responsiveAliasReview.implementation_review_status, "passed");
+  assert.equal(
+    responsiveAliasReview.checks.accessibility_evidence.responsive_no_overflow.status,
+    "pass",
+  );
+
+  const customWidgetReview = reviewUiImplementationCandidate(
+    {
+      code: 'renderTabs({ role: "tablist", tabs })',
+      custom_widgets: true,
+      primitives_used: [],
+      states_covered: implementationContract.state_coverage.required_states,
+      static_checks: ["npm run check"],
+      browser_qa: {
+        desktop: "desktop viewport checked",
+        mobile: "mobile viewport checked",
+      },
+      accessibility_evidence: {
+        ...coreAccessibilityEvidence(),
+        non_text_contrast: {
+          status: "pass",
+          method: "computed contrast check",
+          samples: [{ target: "selected tab indicator", contrast_ratio: 3.2 }],
+        },
+      },
+    },
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(customWidgetReview.implementation_review_status, "failed");
+  assert.equal(
+    customWidgetReview.checks.accessibility_evidence.no_keyboard_trap.status,
+    "fail",
+  );
+
+  const formMissingLabelsReview = reviewUiImplementationCandidate(
+    {
+      code: "renderFormFlow({ fields, validation })",
+      forms: true,
+      primitives_used: ["FormField"],
+      states_covered: implementationContract.state_coverage.required_states,
+      static_checks: ["npm run check"],
+      browser_qa: {
+        desktop: "desktop viewport checked",
+        mobile: "mobile viewport checked",
+      },
+      accessibility_evidence: formAccessibilityEvidence({
+        form_labels_instructions: undefined,
+      }),
+    },
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(formMissingLabelsReview.implementation_review_status, "failed");
+  assert.equal(
+    formMissingLabelsReview.checks.accessibility_evidence.form_labels_instructions.status,
+    "fail",
+  );
+
+  const motionMissingEvidenceReview = reviewUiImplementationCandidate(
+    {
+      code: "renderAutoAdvancingCarousel({ animation: true, autoAdvance: true })",
+      motion: true,
+      auto_updating: true,
+      primitives_used: [],
+      states_covered: implementationContract.state_coverage.required_states,
+      static_checks: ["npm run check"],
+      browser_qa: {
+        desktop: "desktop viewport checked",
+        mobile: "mobile viewport checked",
+      },
+      accessibility_evidence: coreAccessibilityEvidence(),
+    },
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(motionMissingEvidenceReview.implementation_review_status, "failed");
+  assert.equal(
+    motionMissingEvidenceReview.checks.accessibility_evidence.reduced_motion.status,
+    "fail",
+  );
+  assert.equal(
+    motionMissingEvidenceReview.checks.accessibility_evidence.pause_stop_hide.status,
+    "fail",
+  );
+
+  const overlayMissingEvidenceReview = reviewUiImplementationCandidate(
+    {
+      code: "renderDialogOverlay({ stickyFooter: true })",
+      overlay: true,
+      primitives_used: ["ModalActions"],
+      states_covered: implementationContract.state_coverage.required_states,
+      static_checks: ["npm run check"],
+      browser_qa: {
+        desktop: "desktop viewport checked",
+        mobile: "mobile viewport checked",
+      },
+      accessibility_evidence: coreAccessibilityEvidence(),
+    },
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(overlayMissingEvidenceReview.implementation_review_status, "failed");
+  assert.equal(
+    overlayMissingEvidenceReview.checks.accessibility_evidence.focus_not_obscured.status,
+    "fail",
+  );
+  assert.equal(
+    overlayMissingEvidenceReview.checks.accessibility_evidence.no_keyboard_trap.status,
+    "fail",
+  );
+
+  const denseControlMissingTargetReview = reviewUiImplementationCandidate(
+    {
+      code: "renderToolbar({ iconButtons })",
+      dense_controls: true,
+      primitives_used: [],
+      states_covered: implementationContract.state_coverage.required_states,
+      static_checks: ["npm run check"],
+      browser_qa: {
+        desktop: "desktop viewport checked",
+        mobile: "mobile viewport checked",
+      },
+      accessibility_evidence: {
+        ...coreAccessibilityEvidence(),
+        non_text_contrast: {
+          status: "pass",
+          method: "computed contrast check",
+          samples: [{ target: "icon button glyph", contrast_ratio: 3.2 }],
+        },
+      },
+    },
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(denseControlMissingTargetReview.implementation_review_status, "failed");
+  assert.equal(
+    denseControlMissingTargetReview.checks.accessibility_evidence.target_size.status,
+    "fail",
+  );
 }
 
 {

@@ -267,6 +267,365 @@
         "disabled, empty, error, and ready state review"
       ]
     },
+    "visual_asset_policy": {
+      "applies_when": [
+        "the UI or design spec calls for substantive visuals, imagery, media, domain scenes, product/place/object visuals, or spatial/data visualization where visual quality is part of the expected result"
+      ],
+      "preferred_paths": [
+        "use imagegen for substantive bitmap imagery, scenes, product/place/object visuals, and media assets",
+        "use premium Three.js or WebGL rendering when the visual is an interactive or spatial 3D experience",
+        "use D3 or an equivalent high-quality visualization renderer when the visual is data-driven and clarity depends on the visualization"
+      ],
+      "deterministic_safe_uses": [
+        "layout and responsive structure",
+        "text and exact typography",
+        "UI chrome, icons, controls, and state indicators",
+        "simple diagrams or charts where clarity is the goal",
+        "accessible fallback structure and alt text"
+      ],
+      "failure_signals": [
+        "rudimentary CSS, SVG, canvas, or JavaScript geometry is used as a final substitute for substantive imagery",
+        "decorative procedural blocks stand in for a real product, place, object, domain scene, or media asset",
+        "image generation or premium rendering is skipped without rationale when the spec calls for substantive visuals"
+      ]
+    },
+    "accessibility_policy": {
+      "standards_profile": {
+        "baseline": "WCAG 2.2 AA",
+        "evidence_model_version": "judgmentkit-accessibility-evidence-v1",
+        "sources": [
+          {
+            "id": "wcag-1.4.3",
+            "label": "Contrast (Minimum)",
+            "level": "AA",
+            "url": "https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html"
+          },
+          {
+            "id": "wcag-1.4.10",
+            "label": "Reflow",
+            "level": "AA",
+            "url": "https://www.w3.org/WAI/WCAG22/Understanding/reflow.html"
+          },
+          {
+            "id": "wcag-1.4.11",
+            "label": "Non-text Contrast",
+            "level": "AA",
+            "url": "https://www.w3.org/WAI/WCAG22/Understanding/non-text-contrast.html"
+          },
+          {
+            "id": "wcag-2.1.1",
+            "label": "Keyboard",
+            "level": "A",
+            "url": "https://www.w3.org/WAI/WCAG22/Understanding/keyboard.html"
+          },
+          {
+            "id": "wcag-2.4.7",
+            "label": "Focus Visible",
+            "level": "AA",
+            "url": "https://www.w3.org/WAI/WCAG22/Understanding/focus-visible.html"
+          },
+          {
+            "id": "wcag-2.5.8",
+            "label": "Target Size (Minimum)",
+            "level": "AA",
+            "url": "https://www.w3.org/WAI/WCAG22/Understanding/target-size-minimum.html"
+          },
+          {
+            "id": "wcag-4.1.2",
+            "label": "Name, Role, Value",
+            "level": "A",
+            "url": "https://www.w3.org/WAI/WCAG22/Understanding/name-role-value.html"
+          },
+          {
+            "id": "wai-aria-apg-keyboard",
+            "label": "WAI-ARIA APG Keyboard Interface",
+            "level": "practice",
+            "url": "https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/"
+          }
+        ]
+      },
+      "contrast_targets": {
+        "normal_text_min_ratio": 4.5,
+        "large_text_min_ratio": 3,
+        "non_text_min_ratio": 3
+      },
+      "rendered_background_readability": {
+        "applies_to": [
+          "images",
+          "canvas",
+          "WebGL or Three.js",
+          "video",
+          "gradients",
+          "generated visuals"
+        ],
+        "requirement": "Text over rendered visual backgrounds must provide browser-rendered contrast/readability evidence, not screenshots alone"
+      },
+      "required_evidence": [
+        "accessibility_evidence.semantic_content",
+        "accessibility_evidence.landmarks_headings",
+        "accessibility_evidence.name_role_value",
+        "accessibility_evidence.keyboard_navigation",
+        "accessibility_evidence.focus_order",
+        "accessibility_evidence.focus_visible",
+        "accessibility_evidence.responsive_no_overflow",
+        "accessibility_evidence.automated_checks"
+      ],
+      "conditional_evidence": {
+        "visual_background_contrast": {
+          "applies_when": [
+            "text appears over images, canvas, WebGL, video, gradients, generated visuals, or other rendered backgrounds"
+          ],
+          "wcag_criteria": [
+            "1.4.3",
+            "1.4.11"
+          ]
+        },
+        "non_text_contrast": {
+          "applies_when": [
+            "icons, charts, state indicators, custom control boundaries, or graphical objects convey meaning"
+          ],
+          "wcag_criteria": [
+            "1.4.11"
+          ]
+        },
+        "forced_colors": {
+          "applies_when": [
+            "custom colors, gradients, overlays, or authored focus indicators are used"
+          ],
+          "wcag_criteria": [
+            "1.4.3",
+            "1.4.11",
+            "2.4.7"
+          ]
+        },
+        "target_size": {
+          "applies_when": [
+            "dense controls, icon-only controls, touch targets, toolbar actions, or pointer targets are present"
+          ],
+          "wcag_criteria": [
+            "2.5.8"
+          ]
+        },
+        "focus_not_obscured": {
+          "applies_when": [
+            "sticky layers, overlays, dialogs, modals, popovers, or persistent disclosed panels can cover focusable content"
+          ],
+          "wcag_criteria": [
+            "2.4.11"
+          ]
+        },
+        "no_keyboard_trap": {
+          "applies_when": [
+            "custom widgets, dialogs, modals, canvas/WebGL interactions, rich editors, or embedded experiences can receive focus"
+          ],
+          "wcag_criteria": [
+            "2.1.2"
+          ]
+        },
+        "reduced_motion": {
+          "applies_when": [
+            "animation, reveal transitions, parallax, WebGL motion, canvas motion, or generated visual motion is present"
+          ],
+          "wcag_criteria": [
+            "2.3.3"
+          ]
+        },
+        "pause_stop_hide": {
+          "applies_when": [
+            "moving, blinking, scrolling, auto-updating, or auto-advancing content starts without direct user control"
+          ],
+          "wcag_criteria": [
+            "2.2.2"
+          ]
+        },
+        "content_on_hover_focus": {
+          "applies_when": [
+            "tooltips, popovers, hover cards, or focus-triggered content appears"
+          ],
+          "wcag_criteria": [
+            "1.4.13"
+          ]
+        },
+        "form_labels_instructions": {
+          "applies_when": [
+            "forms, data-entry controls, required fields, or validation constraints are present"
+          ],
+          "wcag_criteria": [
+            "3.3.2",
+            "4.1.2"
+          ]
+        },
+        "form_errors": {
+          "applies_when": [
+            "forms can reject input, show validation errors, or require correction"
+          ],
+          "wcag_criteria": [
+            "3.3.1",
+            "3.3.3"
+          ]
+        },
+        "status_messages": {
+          "applies_when": [
+            "success, error, loading, progress, results, or async updates are shown without moving focus"
+          ],
+          "wcag_criteria": [
+            "4.1.3"
+          ]
+        },
+        "media_alternatives": {
+          "applies_when": [
+            "audio, video, generated media, animated media, or time-based media appears"
+          ],
+          "wcag_criteria": [
+            "1.1.1",
+            "1.2.1",
+            "1.2.2",
+            "1.2.3"
+          ]
+        },
+        "semantic_fallbacks": {
+          "applies_when": [
+            "canvas, WebGL, Three.js, D3, generated imagery, charts, or custom-rendered visuals convey content or controls"
+          ],
+          "wcag_criteria": [
+            "1.1.1",
+            "1.3.1",
+            "4.1.2"
+          ]
+        }
+      },
+      "contracts": {
+        "readability_and_contrast": {
+          "requirements": [
+            "normal text meets 4.5:1 and large text meets 3:1 contrast targets",
+            "meaningful non-text visual information meets 3:1 contrast against adjacent colors",
+            "text over rendered visual backgrounds uses browser-rendered or computed evidence"
+          ],
+          "evidence": [
+            "accessibility_evidence.visual_background_contrast",
+            "accessibility_evidence.non_text_contrast",
+            "accessibility_evidence.forced_colors"
+          ]
+        },
+        "keyboard_and_focus": {
+          "requirements": [
+            "all functionality has a keyboard path",
+            "focus order preserves meaning and operation",
+            "custom widgets honor expected WAI-ARIA APG keyboard behavior"
+          ],
+          "evidence": [
+            "accessibility_evidence.keyboard_navigation",
+            "accessibility_evidence.focus_order",
+            "accessibility_evidence.focus_visible",
+            "accessibility_evidence.focus_not_obscured",
+            "accessibility_evidence.no_keyboard_trap"
+          ]
+        },
+        "semantics_and_structure": {
+          "requirements": [
+            "content structure uses semantic HTML or equivalent accessible structure",
+            "interactive controls expose accessible names, roles, states, and values"
+          ],
+          "evidence": [
+            "accessibility_evidence.semantic_content",
+            "accessibility_evidence.landmarks_headings",
+            "accessibility_evidence.name_role_value",
+            "accessibility_evidence.semantic_fallbacks"
+          ]
+        },
+        "forms_status_and_errors": {
+          "requirements": [
+            "inputs provide visible labels or instructions",
+            "detected input errors identify the field and describe the problem in text",
+            "status messages are programmatically determinable without requiring focus"
+          ],
+          "evidence": [
+            "accessibility_evidence.form_labels_instructions",
+            "accessibility_evidence.form_errors",
+            "accessibility_evidence.status_messages"
+          ]
+        },
+        "motion_media_and_timing": {
+          "requirements": [
+            "non-essential interaction-triggered animation can be disabled or follows reduced-motion preferences",
+            "auto-starting motion, blinking, scrolling, or updating content can be paused, stopped, hidden, or controlled",
+            "media includes captions, transcripts, audio descriptions, or equivalent alternatives when applicable"
+          ],
+          "evidence": [
+            "accessibility_evidence.reduced_motion",
+            "accessibility_evidence.pause_stop_hide",
+            "accessibility_evidence.media_alternatives"
+          ]
+        },
+        "responsive_and_input": {
+          "requirements": [
+            "content reflows without two-dimensional scrolling at narrow widths unless two-dimensional layout is essential",
+            "pointer targets meet minimum target size or valid spacing/equivalent-control exceptions"
+          ],
+          "evidence": [
+            "accessibility_evidence.responsive_no_overflow",
+            "accessibility_evidence.reflow_zoom",
+            "accessibility_evidence.target_size"
+          ]
+        }
+      },
+      "evidence_model": {
+        "entry_shape": [
+          "status",
+          "method",
+          "tool",
+          "viewports",
+          "states",
+          "artifacts",
+          "failures",
+          "notes"
+        ],
+        "accepted_statuses": [
+          "pass",
+          "passed",
+          "verified",
+          "not_applicable",
+          "fail",
+          "failed"
+        ],
+        "not_applicable_requires_rationale": true,
+        "automated_only_insufficient": true,
+        "core_required": [
+          "automated_checks",
+          "semantic_content",
+          "landmarks_headings",
+          "name_role_value",
+          "keyboard_navigation",
+          "focus_order",
+          "focus_visible",
+          "responsive_no_overflow"
+        ],
+        "conditional_required": [
+          "visual_background_contrast",
+          "non_text_contrast",
+          "forced_colors",
+          "target_size",
+          "focus_not_obscured",
+          "no_keyboard_trap",
+          "reduced_motion",
+          "pause_stop_hide",
+          "content_on_hover_focus",
+          "form_labels_instructions",
+          "form_errors",
+          "status_messages",
+          "media_alternatives",
+          "semantic_fallbacks"
+        ]
+      },
+      "failure_signals": [
+        "text over images, canvas, WebGL, video, gradients, or generated visuals is illegible",
+        "opacity-based reveal transitions pass through low-contrast states",
+        "browser-rendered contrast/readability evidence is skipped for text over visual backgrounds",
+        "automated accessibility scans are provided without browser-rendered or manual evidence for keyboard, focus, semantics, responsive behavior, or rendered backgrounds",
+        "forms or status messages rely on visual-only error or success cues",
+        "custom widgets expose roles without matching keyboard behavior, focus management, or state/value semantics"
+      ]
+    },
     "failure_signals": [
       "raw form controls appear in feature render code",
       "checkboxes or labels rely on browser defaults without approved spacing",

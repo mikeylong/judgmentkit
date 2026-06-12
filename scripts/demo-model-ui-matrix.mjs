@@ -376,6 +376,105 @@ function compactFrontendSkillContext(frontendSkillContext) {
   };
 }
 
+function stripVisualAssetPolicyInstruction(markdown) {
+  return String(markdown ?? "")
+    .replace(
+      /\n## Visual Asset Policy\n[\s\S]*?\n## Verification\n/,
+      "\n## Verification\n",
+    )
+    .replace(
+      /\n- For text over substantive visuals or rendered backgrounds, verify WCAG AA contrast from browser-rendered output\./g,
+      "",
+    );
+}
+
+function isDefaultAdapterGuidanceLine(value) {
+  const text = String(value ?? "").toLowerCase();
+
+  return [
+    "substantive visuals",
+    "visual-background contrast",
+    "browser-rendered contrast",
+    "focus-visible evidence",
+    "reduced-motion",
+    "semantic content",
+    "responsive no-overflow",
+    "responsive reflow",
+    "core accessibility evidence",
+    "conditional accessibility evidence",
+    "accessibility evidence",
+    "non-text contrast",
+    "forced-colors",
+    "high-contrast",
+    "focus order",
+    "keyboard navigation",
+    "focus-not-obscured",
+    "no keyboard trap",
+    "pause, stop, hide",
+    "auto-moving",
+    "auto-updating",
+    "form labels",
+    "status/live-region",
+    "media alternatives",
+    "captions",
+    "transcripts",
+    "target size",
+  ].some((needle) => text.includes(needle));
+}
+
+function stripDefaultVisualAssetPolicyForLegacyCapture(contextPayload) {
+  const frontendContext =
+    contextPayload.frontend_generation_context?.frontend_context ?? {};
+  const hasSpecificVisualRequirements =
+    (frontendContext.visual_requirements ?? []).length > 0 ||
+    (frontendContext.approved_visual_asset_sources ?? []).length > 0;
+
+  if (hasSpecificVisualRequirements) {
+    return contextPayload;
+  }
+
+  const legacy = cloneJson(contextPayload);
+  const legacyFrontendContext =
+    legacy.frontend_generation_context?.frontend_context;
+
+  if (legacyFrontendContext) {
+    delete legacyFrontendContext.visual_requirements;
+    delete legacyFrontendContext.approved_visual_asset_sources;
+  }
+
+  const skillContext = legacy.frontend_skill_context;
+
+  if (skillContext) {
+    skillContext.instruction_markdown = stripVisualAssetPolicyInstruction(
+      skillContext.instruction_markdown,
+    );
+    skillContext.implementation_sequence = (
+      skillContext.implementation_sequence ?? []
+    )
+      .map((step) =>
+        step.replace(
+          "browser checks, accessibility evidence, and disclosure boundaries",
+          "browser checks, and disclosure boundaries",
+        ),
+      )
+      .filter((step) => !isDefaultAdapterGuidanceLine(step));
+    skillContext.verification_checklist = (
+      skillContext.verification_checklist ?? []
+    ).filter((item) => !isDefaultAdapterGuidanceLine(item));
+    delete skillContext.visual_requirements;
+    delete skillContext.approved_visual_asset_sources;
+    delete skillContext.visual_asset_policy;
+    delete skillContext.accessibility_policy;
+
+    if (skillContext.guardrails) {
+      delete skillContext.guardrails.visual_asset_policy;
+      delete skillContext.guardrails.accessibility_policy;
+    }
+  }
+
+  return legacy;
+}
+
 function buildContextPayload({ output, brief, reviewedHandoff }) {
   const included = contextIncluded(output);
   const frontendContexts = buildFrontendSkillContexts({ output, reviewedHandoff });
@@ -596,7 +695,7 @@ function addClassToPrimaryRoot(html, className) {
   return `<main class="app-shell ${escapeHtml(className)}" data-primary-surface>${value}</main>`;
 }
 
-async function readCapture(output, contextHash) {
+async function readCapture(output, contextHash, options = {}) {
   if (!output.capture_file) return null;
 
   try {
@@ -609,7 +708,7 @@ async function readCapture(output, contextHash) {
     if (capture.column_id !== output.column_id || capture.row_id !== output.row_id) {
       throw new Error(`Capture matrix coordinate mismatch for ${output.id}`);
     }
-    if (capture.source_context_sha256 !== contextHash) return null;
+    if (!options.ignoreContextHash && capture.source_context_sha256 !== contextHash) return null;
 
     return {
       ...capture,
@@ -623,6 +722,25 @@ async function readCapture(output, contextHash) {
     if (error.code === "ENOENT") return null;
     throw error;
   }
+}
+
+function captureMatchesFrontendSkillSummary(capture, contextPayload) {
+  function normalizeSummary(summary) {
+    if (!summary) return null;
+    return {
+      ...summary,
+      verification_checklist: (summary.verification_checklist ?? []).filter(
+        (item) => !isDefaultAdapterGuidanceLine(item),
+      ),
+    };
+  }
+
+  const captureSummary = normalizeSummary(capture?.frontend_skill_context);
+  const contextSummary = normalizeSummary(
+    summarizeFrontendSkillContext(contextPayload.frontend_skill_context),
+  );
+
+  return JSON.stringify(captureSummary) === JSON.stringify(contextSummary);
 }
 
 function captureProvenance(output, capture) {
@@ -2134,12 +2252,49 @@ async function generateUseCase(useCase) {
   const artifacts = await Promise.all(
     outputs.map(async (output) => {
       const contextPayload = buildContextPayload({ output, brief, reviewedHandoff });
-      const contextHash = hash(JSON.stringify(contextPayload, null, 2));
-      const capture = await readCapture(output, contextHash);
+      let contextHash = hash(JSON.stringify(contextPayload, null, 2));
+      let effectiveContextPayload = contextPayload;
+      let capture = await readCapture(output, contextHash);
+
+      if (!capture && output.generation_source === "captured_model_output") {
+        const legacyContextPayload =
+          stripDefaultVisualAssetPolicyForLegacyCapture(contextPayload);
+        const legacyContextHash = hash(
+          JSON.stringify(legacyContextPayload, null, 2),
+        );
+
+        if (legacyContextHash !== contextHash) {
+          const legacyCapture = await readCapture(output, legacyContextHash);
+
+          if (legacyCapture) {
+            effectiveContextPayload = legacyContextPayload;
+            contextHash = legacyContextHash;
+            capture = legacyCapture;
+          } else {
+            const compatibleLegacyCapture = await readCapture(output, legacyContextHash, {
+              ignoreContextHash: true,
+            });
+
+            if (
+              compatibleLegacyCapture &&
+              captureMatchesFrontendSkillSummary(
+                compatibleLegacyCapture,
+                legacyContextPayload,
+              )
+            ) {
+              effectiveContextPayload = legacyContextPayload;
+              contextHash = compatibleLegacyCapture.source_context_sha256;
+              capture = compatibleLegacyCapture;
+            }
+          }
+        }
+      }
+
       const outputWithContext = {
         ...output,
-        frontend_generation_context: contextPayload.frontend_generation_context,
-        frontend_skill_context: contextPayload.frontend_skill_context,
+        frontend_generation_context:
+          effectiveContextPayload.frontend_generation_context,
+        frontend_skill_context: effectiveContextPayload.frontend_skill_context,
       };
       return {
         ...outputWithContext,

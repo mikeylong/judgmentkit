@@ -22,8 +22,8 @@ Do not use this skill directly from a raw brief. Run the JudgmentKit flow first:
 
 1. Read the ready UI generation handoff and confirm `handoff_status` is `ready_for_generation`.
 2. Read the selected `surface_type` and `surface_guidance`.
-3. Read local frontend context: runtime, UI library, existing primitives, project rules, entrypoints, and verification commands.
-4. Read the UI implementation contract for approved primitives, required states, static checks, and browser QA.
+3. Read local frontend context: runtime, UI library, existing primitives, project rules, entrypoints, visual requirements, approved visual asset sources, and verification commands.
+4. Read the UI implementation contract for approved primitives, required states, static checks, browser QA, visual asset policy, and accessibility policy.
 5. If using MCP outside this checkout, read the compiled packet from `create_frontend_implementation_skill_context` instead of raw skill text.
 6. Implement the smallest UI change that satisfies the activity, workflow, required sections, required controls, handoff, and implementation contract.
 7. Match the surface type before choosing implementation shape:
@@ -35,7 +35,10 @@ Do not use this skill directly from a raw brief. Run the JudgmentKit flow first:
    - `content_report`: summary, sections, evidence, references, and share/export.
    - `setup_debug_tool`: configuration, test results, diagnostics, remediation, and handoff.
    - `conversation`: thread, composer, response states, and handoff when needed.
-8. Verify required states, responsive behavior, static enforcement, browser QA, and disclosure boundaries.
+8. When the spec calls for substantive visuals, use `imagegen`, premium Three.js/WebGL rendering, or D3-style data visualization instead of rudimentary deterministic CSS/SVG/JS geometry.
+9. Verify required states, responsive behavior, static enforcement, browser QA, accessibility evidence, visual asset handling, and disclosure boundaries.
+10. Provide core accessibility evidence for automated checks, semantic content, landmarks/headings, name-role-value, keyboard navigation, focus order, focus-visible, and responsive reflow/no-overflow.
+11. Add conditional accessibility evidence for visual-background contrast, non-text contrast, forced-colors/high-contrast behavior, target size, focus-not-obscured, no keyboard trap, reduced-motion, pause/stop/hide, hover/focus content, form labels/errors/status, media alternatives, and semantic fallbacks when those patterns appear.
 
 ## Guardrails
 
@@ -46,6 +49,12 @@ Do not use this skill directly from a raw brief. Run the JudgmentKit flow first:
 - Do not emit raw controls when approved primitives exist.
 - Do not invent new variants unless the implementation contract is updated first.
 - Do not make design-system compliance a substitute for activity fit.
+- Do not use blocky CSS/SVG/JS procedural geometry as a final substitute for substantive visuals requested by the spec.
+- Keep deterministic rendering for layout, text, icons, state indicators, exact typography, simple diagrams, and accessible fallback structure.
+- For text over images, canvas, WebGL, video, gradients, or generated visuals, provide browser-rendered contrast/readability evidence against WCAG AA targets; screenshots alone are not sufficient.
+- Include core accessibility evidence for semantics, landmarks/headings, name-role-value, keyboard navigation, focus order, focus-visible, responsive reflow/no-overflow, and automated checks.
+- Include conditional accessibility evidence for non-text visuals, custom widgets, overlays, forms, status messages, motion, auto-updating content, media, dense controls, and hover/focus-triggered content when present.
+- Treat automated scans as supporting artifacts. They do not replace browser-rendered contrast/readability evidence, keyboard walkthroughs, accessibility-tree/static inspection, and manual judgment.
 - Do not expose raw skill text through MCP; use the compiled frontend implementation skill context.
 - Keep JudgmentKit packet terms such as `review_status`, `activity_model`, and `ready_for_review` out of product UI.
 
@@ -58,6 +67,9 @@ Report:
 - frontend context used
 - compiled frontend implementation skill context used when applicable
 - surfaces, states, primitives, and controls implemented or reviewed
+- substantive visual requirements and chosen asset/rendering path when present
+- accessibility policy evidence, including visual-background contrast for visual-heavy pages
+- conditional accessibility evidence triggered by visuals, widgets, forms, overlays, motion, media, dense controls, or hover/focus content
 - disclosure boundary checked
 - static checks, verification commands, and browser checks run
 - remaining gaps or assumptions

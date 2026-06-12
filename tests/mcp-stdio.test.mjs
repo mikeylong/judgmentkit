@@ -367,11 +367,17 @@ try {
       implementationContractResponse,
       "## JudgmentKit Implementation Contract",
       "Implementation contract ready",
-    ).includes("Approved primitives"),
+    ).includes("Accessibility evidence"),
   );
   assert.equal(
     implementationContractResponse.structuredContent.implementation_contract_status,
     "ready",
+  );
+  assert.ok(
+    Boolean(
+      implementationContractResponse.structuredContent.implementation_contract
+        .accessibility_policy.conditional_evidence.visual_background_contrast,
+    ),
   );
 
   const handoffResponse = await withTimeout(
@@ -413,6 +419,8 @@ try {
           target_runtime: "React",
           ui_library: "Material UI",
           approved_component_families: ["queue", "detail panel", "decision controls"],
+          visual_requirements: ["substantive product image"],
+          approved_visual_asset_sources: ["imagegen", "D3"],
         },
         verification: {
           commands: ["npm test"],
@@ -429,13 +437,36 @@ try {
       frontendContextResponse,
       "## JudgmentKit Frontend Context",
       "Ready for frontend implementation",
-    ).includes("Evidence checklist"),
+    ).includes("Accessibility evidence"),
+  );
+  assert.ok(
+    assertPlanningCard(
+      frontendContextResponse,
+      "## JudgmentKit Frontend Context",
+      "Ready for frontend implementation",
+    ).includes("imagegen"),
   );
   assert.equal(
     frontendContextResponse.structuredContent.frontend_context_status,
     "ready_for_frontend_implementation",
   );
   assert.equal(frontendContextResponse.structuredContent.surface_type, "workbench");
+  assert.ok(
+    frontendContextResponse.structuredContent.frontend_context.visual_requirements.includes(
+      "substantive product image",
+    ),
+  );
+  assert.ok(
+    frontendContextResponse.structuredContent.implementation_guidance.visual_asset_policy.preferred_paths.some(
+      (rule) => rule.includes("imagegen"),
+    ),
+  );
+  assert.ok(
+    Boolean(
+      frontendContextResponse.structuredContent.implementation_guidance
+        .accessibility_policy.conditional_evidence.visual_background_contrast,
+    ),
+  );
 
   const frontendSkillContextResponse = await withTimeout(
     client.callTool({
@@ -471,6 +502,28 @@ try {
   assert.equal(
     frontendSkillContextResponse.structuredContent.source_skill.raw_skill_exposed,
     false,
+  );
+  assert.ok(
+    frontendSkillContextResponse.structuredContent.visual_asset_policy.preferred_paths.some(
+      (rule) => rule.includes("D3"),
+    ),
+  );
+  assert.ok(
+    frontendSkillContextResponse.structuredContent.accessibility_policy.required_evidence.includes(
+      "accessibility_evidence.focus_visible",
+    ),
+  );
+  assert.ok(
+    assertPlanningCard(
+      frontendSkillContextResponse,
+      "## JudgmentKit Frontend Skill Context",
+      "Frontend skill context ready",
+    ).includes("Accessibility evidence"),
+  );
+  assert.ok(
+    frontendSkillContextResponse.structuredContent.verification_checklist.some(
+      (item) => item.includes("substantive visuals"),
+    ),
   );
 
   const blockedHandoffResponse = await withTimeout(

@@ -443,6 +443,7 @@ const stylesheet = `
   --accent-strong: #133f4e;
   --ok: #2e6b48;
   --warn: #8a5a16;
+  --eval-serif: "Source Serif 4", "Iowan Old Style", Charter, "Palatino Linotype", "Book Antiqua", Georgia, serif;
 }
 * {
   box-sizing: border-box;
@@ -1521,6 +1522,9 @@ pre {
   grid-template-columns: minmax(0, 1fr);
   gap: 24px;
   min-width: 0;
+  font-family: var(--eval-serif);
+  font-size: 17px;
+  line-height: 1.58;
 }
 .evals-page > * {
   min-width: 0;
@@ -1591,6 +1595,491 @@ pre {
 }
 .evals-table td {
   overflow-wrap: anywhere;
+}
+.report-page {
+  padding-top: clamp(36px, 5vw, 62px);
+  font-family: var(--eval-serif);
+  font-size: 17px;
+  line-height: 1.58;
+}
+.report-heading,
+.report-shell {
+  max-width: 1180px;
+  margin: 0 auto;
+}
+.report-heading {
+  text-align: center;
+}
+.report-heading h1 {
+  max-width: 18ch;
+  margin-left: auto;
+  margin-right: auto;
+  font-size: clamp(38px, 5vw, 64px);
+}
+.report-heading .lede {
+  margin-left: auto;
+  margin-right: auto;
+}
+.report-shell {
+  display: grid;
+  grid-template-columns: minmax(180px, 230px) minmax(0, 1fr);
+  gap: clamp(24px, 4vw, 56px);
+  align-items: start;
+  margin-top: clamp(34px, 5vw, 64px);
+}
+.report-toc {
+  position: sticky;
+  top: 88px;
+  display: grid;
+  gap: 9px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+}
+.report-toc a {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 750;
+  text-decoration: none;
+}
+.report-toc a:hover,
+.report-toc a:focus-visible {
+  color: var(--accent-strong);
+}
+.report-article {
+  min-width: 0;
+}
+.report-article > section {
+  padding: clamp(28px, 5vw, 52px) 0;
+  border-top: 1px solid var(--line);
+}
+.report-article > section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.report-article p,
+.report-article ul,
+.report-article ol {
+  max-width: 760px;
+}
+.report-video {
+  position: relative;
+  width: min(100%, 1040px);
+  margin: clamp(24px, 4vw, 42px) auto;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  border: 1px solid rgba(19, 63, 78, 0.24);
+  border-radius: 8px;
+  background:
+    linear-gradient(135deg, rgba(36, 95, 115, 0.16), rgba(46, 107, 72, 0.10)),
+    #f3f1ea;
+}
+.report-video-hero {
+  box-shadow: 0 18px 46px rgba(23, 23, 23, 0.12);
+}
+.report-video-grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  opacity: 0.46;
+}
+.report-video-grid span {
+  border-right: 1px solid rgba(19, 63, 78, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0)),
+    repeating-linear-gradient(90deg, rgba(19, 63, 78, 0.12) 0 1px, transparent 1px 18px);
+}
+.report-video-poster {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  gap: 12px;
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+}
+.report-video-poster:disabled {
+  cursor: default;
+}
+.report-video-play {
+  display: grid;
+  width: clamp(48px, 6vw, 68px);
+  height: clamp(48px, 6vw, 68px);
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(19, 63, 78, 0.92);
+}
+.report-video-play::before {
+  content: "";
+  width: 0;
+  height: 0;
+  margin-left: 4px;
+  border-top: 11px solid transparent;
+  border-bottom: 11px solid transparent;
+  border-left: 17px solid #fff;
+}
+.report-video-copy {
+  display: grid;
+  gap: 4px;
+  max-width: min(560px, calc(100% - 40px));
+  padding: 12px 14px;
+  border: 1px solid rgba(19, 63, 78, 0.18);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.76);
+  text-align: center;
+}
+.report-video-copy strong {
+  font-size: clamp(17px, 2vw, 22px);
+}
+.report-video-copy small {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 750;
+}
+.report-capability-grid,
+.report-use-case-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+.report-use-case-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.report-capability-grid article,
+.report-use-case-grid article {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.report-capability-grid h3,
+.report-use-case-grid h3 {
+  margin-bottom: 7px;
+}
+.report-capability-grid p,
+.report-use-case-grid p {
+  margin-bottom: 0;
+}
+.report-system-figure,
+.report-chart,
+.report-small-multiples {
+  margin: 22px 0 0;
+  padding: clamp(16px, 3vw, 24px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.report-score-chart {
+  overflow: hidden;
+}
+.report-system-figure figcaption,
+.report-chart figcaption,
+.report-small-multiples figcaption {
+  margin-bottom: 14px;
+  color: var(--muted);
+  font-weight: 800;
+}
+.report-system-figure ol {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  max-width: none;
+  padding: 0;
+  list-style: none;
+}
+.report-system-figure li {
+  position: relative;
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfaf6;
+}
+.report-system-figure li::after {
+  content: "->";
+  position: absolute;
+  top: 14px;
+  right: -10px;
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--accent-strong);
+  font-size: 11px;
+  font-weight: 900;
+}
+.report-system-figure li:last-child::after {
+  content: "loop";
+  right: 10px;
+  width: auto;
+  padding: 0 6px;
+}
+.report-system-figure strong,
+.report-system-figure span {
+  display: block;
+}
+.report-system-figure span {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 14px;
+}
+.report-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin-top: 18px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.report-summary div {
+  min-width: 0;
+  padding: 14px;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.report-summary div:nth-child(4n) {
+  border-right: 0;
+}
+.report-summary div:nth-last-child(-n + 4) {
+  border-bottom: 0;
+}
+.report-summary dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.report-summary dd {
+  margin: 4px 0 0;
+  font-size: clamp(20px, 3vw, 28px);
+  font-weight: 900;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+.report-summary p {
+  margin: 5px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.report-chart svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.report-chart-grid line {
+  stroke: rgba(23, 23, 23, 0.10);
+}
+.report-chart-grid text,
+.report-score-label {
+  fill: var(--muted);
+  font-size: 13px;
+  font-weight: 750;
+}
+.report-chart-axis {
+  stroke: var(--ink);
+  stroke-width: 1.4;
+}
+.report-score-bar {
+  rx: 5;
+}
+.report-score-bar-baseline {
+  fill: #8a5a16;
+}
+.report-score-bar-guided {
+  fill: #245f73;
+}
+.report-score-delta {
+  fill: var(--accent-strong);
+  font-size: 14px;
+  font-weight: 900;
+}
+.report-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 800;
+}
+.report-chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.report-chart-legend i {
+  display: block;
+  width: 13px;
+  height: 13px;
+  border-radius: 3px;
+}
+.legend-baseline {
+  background: #8a5a16;
+}
+.legend-guided {
+  background: #245f73;
+}
+.report-small-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.report-small-grid article {
+  min-width: 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfaf6;
+}
+.report-small-grid h3 {
+  margin-bottom: 10px;
+}
+.report-micro-bars {
+  display: grid;
+  gap: 10px;
+}
+.report-micro-bars div {
+  display: grid;
+  gap: 4px;
+}
+.report-micro-bars span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.report-micro-bars strong {
+  font-size: 14px;
+}
+.report-micro-bars i {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  padding: 4px;
+  border-radius: 6px;
+  background: #eee9dc;
+}
+.report-micro-bars b {
+  display: block;
+  height: 8px;
+  border-radius: 999px;
+  background: #8a5a16;
+}
+.report-micro-bars b.guided {
+  background: #245f73;
+}
+.report-table-shell,
+.report-context-matrix-shell {
+  max-width: 100%;
+  margin-top: 20px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.report-benchmark-table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: collapse;
+}
+.report-benchmark-table th,
+.report-benchmark-table td {
+  padding: 11px 12px;
+  border-top: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+.report-benchmark-table thead th {
+  border-top: 0;
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.report-benchmark-table td,
+.report-benchmark-table th {
+  overflow-wrap: anywhere;
+}
+.report-context-matrix {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.75fr) repeat(4, minmax(170px, 1fr));
+  min-width: 940px;
+}
+.report-context-axis,
+.report-context-column,
+.report-context-row,
+.report-context-cell {
+  min-width: 0;
+  border-top: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+}
+.report-context-axis,
+.report-context-column {
+  padding: 10px 12px;
+  border-top: 0;
+  background: #f3f0e7;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.report-context-axis,
+.report-context-row {
+  border-left: 0;
+}
+.report-context-row {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  padding: 12px;
+  background: #fbfaf6;
+}
+.report-context-row span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.report-context-cell {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.report-context-cell:hover,
+.report-context-cell:focus-visible {
+  background: rgba(36, 95, 115, 0.05);
+}
+.report-context-cell img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: top left;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #fff;
+}
+.report-context-cell span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 750;
+}
+.report-run-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
 }
 @media (max-width: 1120px) and (min-width: 821px) {
   .doc-layout {
@@ -1677,6 +2166,36 @@ pre {
   .evals-summary div:last-child {
     border-bottom: 0;
   }
+  .report-shell {
+    grid-template-columns: 1fr;
+  }
+  .report-toc {
+    position: static;
+  }
+  .report-capability-grid,
+  .report-use-case-grid,
+  .report-system-figure ol,
+  .report-small-grid,
+  .report-summary {
+    grid-template-columns: 1fr;
+  }
+  .report-system-figure li::after {
+    top: auto;
+    right: 12px;
+    bottom: -10px;
+  }
+  .report-system-figure li:last-child::after {
+    bottom: 10px;
+  }
+  .report-summary div,
+  .report-summary div:nth-child(4n),
+  .report-summary div:nth-last-child(-n + 4) {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .report-summary div:last-child {
+    border-bottom: 0;
+  }
 }
 @media (max-width: 767px) {
   .surfaces-navigation-sections {
@@ -1754,7 +2273,7 @@ function homepage() {
         <p><strong>LLM / provider seam:</strong> a model may propose activity or workflow candidates, but JudgmentKit reviews those candidates before trusting them.</p>
               <p><strong>Surface type:</strong> <code>recommend_surface_types</code> classifies activity purpose before workflow or frontend implementation guidance.</p>
               <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
-              <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies approved primitives, required states, static checks, and browser QA expectations before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract.</p>
+              <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies approved primitives, required states, static checks, browser QA expectations, visual asset policy, and accessibility evidence expectations before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract.</p>
               <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
         <p><strong>Iteration:</strong> draft review produces updated context that re-enters source/activity review rather than becoming only a longer prompt.</p>
       </div>
@@ -1841,7 +2360,7 @@ curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></p
               <p><strong>LLM / provider seam:</strong> a model may propose activity or workflow candidates, but JudgmentKit reviews those candidates before trusting them.</p>
               <p><strong>Surface type:</strong> <code>recommend_surface_types</code> classifies activity purpose as marketing, workbench, operator review, form flow, dashboard monitor, content/report, setup/debug tool, or conversation before frontend implementation guidance.</p>
               <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
-              <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies approved primitives, required states, static checks, and browser QA expectations before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract.</p>
+              <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies approved primitives, required states, static checks, browser QA expectations, visual asset policy, and accessibility evidence expectations before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract.</p>
               <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
               <p><strong>Iteration:</strong> draft review produces updated context that re-enters source/activity review rather than becoming only a longer prompt.</p>
             </div>
@@ -1865,7 +2384,7 @@ curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></p
           </section>
           <section class="doc-section" id="implementation-contract">
             <h2>Implementation Contract</h2>
-            <p>Call <code>create_ui_implementation_contract</code> before final handoff so generated UI has approved primitives, state coverage, static checks, and browser QA expectations. Call <code>review_ui_implementation_candidate</code> before accepting generated UI code or evidence.</p>
+            <p>Call <code>create_ui_implementation_contract</code> before final handoff so generated UI has approved primitives, state coverage, static checks, browser QA expectations, visual asset policy, and accessibility policy. Call <code>review_ui_implementation_candidate</code> before accepting generated UI code or evidence. Visual-heavy pages need browser-rendered contrast/readability evidence for text over images, canvas, WebGL, video, gradients, or generated visuals.</p>
           </section>
           <section class="doc-section" id="frontend-context">
             <h2>Frontend Context</h2>
@@ -2429,6 +2948,460 @@ function evalReportPath(reportPath) {
   return `/evals/${reportPath}`;
 }
 
+function signedValue(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return "";
+  if (number > 0) return `+${number}`;
+  return String(number);
+}
+
+function variantByTreatment(result, treatment) {
+  return (result?.variants ?? []).find((variant) => variant.treatment === treatment) ?? null;
+}
+
+function metricPresentCount(variant, metricId) {
+  const metric = variant?.metric_results?.[metricId];
+  if (!metric || !Array.isArray(metric.present)) return 0;
+  return metric.present.length;
+}
+
+function disclosureLeakageCount(variant) {
+  const metric = variant?.metric_results?.disclosure_discipline;
+  if (!metric) return 0;
+  if (typeof metric.leakage_count === "number") return metric.leakage_count;
+  return [
+    ...(metric.implementation_leakage ?? []),
+    ...(metric.review_packet_leakage ?? []),
+  ].length;
+}
+
+function screenshotForViewport(variant, viewportId) {
+  return variant?.screenshots?.find((screenshot) => screenshot.viewport?.id === viewportId) ?? null;
+}
+
+function evalScreenshotHref(screenshot) {
+  if (!screenshot?.path) return "";
+  return `/evals/${screenshot.path}`;
+}
+
+function buildBenchmarkCases(report) {
+  return (report?.results ?? [])
+    .map((result) => {
+      const baseline = variantByTreatment(result, "raw_brief_baseline");
+      const guided = variantByTreatment(result, "judgmentkit_handoff");
+      if (!baseline || !guided) return null;
+
+      const baselineActivity = metricPresentCount(baseline, "activity_fit");
+      const guidedActivity = metricPresentCount(guided, "activity_fit");
+      const baselineLeakage = disclosureLeakageCount(baseline);
+      const guidedLeakage = disclosureLeakageCount(guided);
+      const baselineScreenshot = screenshotForViewport(baseline, "desktop");
+      const guidedScreenshot = screenshotForViewport(guided, "desktop");
+
+      return {
+        id: result.id,
+        title: result.title,
+        expectedOutcomes: result.expected_outcomes ?? [],
+        winner: result.winner,
+        passed: result.passed,
+        baseline,
+        guided,
+        baselineScore: baseline.score ?? 0,
+        guidedScore: guided.score ?? 0,
+        scoreDelta: result.score_delta ?? ((guided.score ?? 0) - (baseline.score ?? 0)),
+        baselineActivity,
+        guidedActivity,
+        activityDelta: guidedActivity - baselineActivity,
+        baselineLeakage,
+        guidedLeakage,
+        leakageDelta: guidedLeakage - baselineLeakage,
+        baselineScreenshotHref: evalScreenshotHref(baselineScreenshot),
+        guidedScreenshotHref: evalScreenshotHref(guidedScreenshot),
+        baselineArtifactHref: baseline.public_artifact ?? "",
+        guidedArtifactHref: guided.public_artifact ?? "",
+      };
+    })
+    .filter(Boolean);
+}
+
+function benchmarkWinnerLabel(winner) {
+  if (winner === "judgmentkit_handoff") return "JudgmentKit guided";
+  if (winner === "raw_brief_baseline") return "Raw baseline";
+  if (winner === "tie") return "Tie";
+  return winner ?? "";
+}
+
+function videoPlaceholder(label, detail, modifier = "") {
+  return `
+    <div class="report-video ${modifier}" role="img" aria-label="${escapeHtml(label)}">
+      <div class="report-video-grid" aria-hidden="true">
+        <span></span><span></span><span></span><span></span>
+      </div>
+      <button class="report-video-poster" type="button" disabled aria-label="${escapeHtml(label)}">
+        <span class="report-video-play" aria-hidden="true"></span>
+        <span class="report-video-copy">
+          <strong>${escapeHtml(label)}</strong>
+          <small>${escapeHtml(detail)}</small>
+        </span>
+      </button>
+    </div>`;
+}
+
+function renderMetricCard(label, value, detail = "") {
+  return `
+    <div>
+      <dt>${escapeHtml(label)}</dt>
+      <dd>${escapeHtml(value)}</dd>
+      ${detail ? `<p>${escapeHtml(detail)}</p>` : ""}
+    </div>`;
+}
+
+function renderReportScoreChart(cases) {
+  const width = 760;
+  const height = 330;
+  const plotTop = 52;
+  const plotLeft = 86;
+  const plotWidth = 610;
+  const plotHeight = 210;
+  const groupWidth = cases.length ? plotWidth / cases.length : plotWidth;
+  const barWidth = Math.min(44, groupWidth / 5);
+  const maxScore = 100;
+  const scoreY = (score) => plotTop + plotHeight - (Math.max(0, Math.min(maxScore, Number(score) || 0)) / maxScore) * plotHeight;
+  const ticks = [0, 25, 50, 75, 100];
+  const tickLines = ticks
+    .map((tick) => {
+      const y = scoreY(tick);
+      return `<line x1="${plotLeft}" y1="${y.toFixed(2)}" x2="${plotLeft + plotWidth}" y2="${y.toFixed(2)}"></line><text x="${plotLeft - 14}" y="${(y + 4).toFixed(2)}" text-anchor="end">${tick}</text>`;
+    })
+    .join("");
+  const bars = cases
+    .map((item, index) => {
+      const groupX = plotLeft + groupWidth * index + groupWidth / 2;
+      const baselineY = scoreY(item.baselineScore);
+      const guidedY = scoreY(item.guidedScore);
+      const baselineHeight = plotTop + plotHeight - baselineY;
+      const guidedHeight = plotTop + plotHeight - guidedY;
+      return `
+        <g>
+          <rect class="report-score-bar report-score-bar-baseline" x="${(groupX - barWidth - 4).toFixed(2)}" y="${baselineY.toFixed(2)}" width="${barWidth}" height="${baselineHeight.toFixed(2)}"></rect>
+          <rect class="report-score-bar report-score-bar-guided" x="${(groupX + 4).toFixed(2)}" y="${guidedY.toFixed(2)}" width="${barWidth}" height="${guidedHeight.toFixed(2)}"></rect>
+          <text class="report-score-label" x="${groupX.toFixed(2)}" y="${plotTop + plotHeight + 34}" text-anchor="middle">${escapeHtml(item.title)}</text>
+          <text class="report-score-delta" x="${groupX.toFixed(2)}" y="${Math.min(baselineY, guidedY) - 10}" text-anchor="middle">${escapeHtml(signedValue(item.scoreDelta))}</text>
+        </g>`;
+    })
+    .join("");
+
+  return `
+    <figure class="report-chart report-score-chart">
+      <figcaption>Score comparison: raw baseline versus JudgmentKit-guided output.</figcaption>
+      <svg viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="report-score-chart-title report-score-chart-desc">
+        <title id="report-score-chart-title">Paired score comparison</title>
+        <desc id="report-score-chart-desc">Bars compare raw baseline and JudgmentKit-guided scores for each committed paired eval case.</desc>
+        <g class="report-chart-grid">${tickLines}</g>
+        <line class="report-chart-axis" x1="${plotLeft}" y1="${plotTop + plotHeight}" x2="${plotLeft + plotWidth}" y2="${plotTop + plotHeight}"></line>
+        <line class="report-chart-axis" x1="${plotLeft}" y1="${plotTop}" x2="${plotLeft}" y2="${plotTop + plotHeight}"></line>
+        ${bars}
+      </svg>
+      <div class="report-chart-legend" aria-label="Score chart legend">
+        <span><i class="legend-baseline"></i>Raw baseline</span>
+        <span><i class="legend-guided"></i>JudgmentKit guided</span>
+      </div>
+    </figure>`;
+}
+
+function renderActivityDisclosureFigure(cases) {
+  return `
+    <figure class="report-small-multiples">
+      <figcaption>Activity-fit terms increase while implementation leakage falls.</figcaption>
+      <div class="report-small-grid">
+        ${cases
+          .map(
+            (item) => `
+          <article>
+            <h3>${escapeHtml(item.title)}</h3>
+            <div class="report-micro-bars" aria-label="${escapeHtml(item.title)} activity and disclosure comparison">
+              <div>
+                <span>Activity terms</span>
+                <strong>${escapeHtml(item.baselineActivity)} -> ${escapeHtml(item.guidedActivity)}</strong>
+                <i><b style="width:${Math.min(100, item.baselineActivity * 16)}%"></b><b class="guided" style="width:${Math.min(100, item.guidedActivity * 16)}%"></b></i>
+              </div>
+              <div>
+                <span>Implementation leaks</span>
+                <strong>${escapeHtml(item.baselineLeakage)} -> ${escapeHtml(item.guidedLeakage)}</strong>
+                <i><b style="width:${Math.min(100, item.baselineLeakage * 10)}%"></b><b class="guided" style="width:${Math.min(100, Math.max(2, item.guidedLeakage * 10))}%"></b></i>
+              </div>
+            </div>
+          </article>`,
+          )
+          .join("")}
+      </div>
+    </figure>`;
+}
+
+function renderBenchmarkTable(cases) {
+  return `
+    <div class="report-table-shell">
+      <table class="report-benchmark-table">
+        <thead>
+          <tr>
+            <th scope="col">Case</th>
+            <th scope="col">Raw score</th>
+            <th scope="col">Guided score</th>
+            <th scope="col">Delta</th>
+            <th scope="col">Winner</th>
+            <th scope="col">Activity fit</th>
+            <th scope="col">Leakage</th>
+            <th scope="col">Evidence</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${cases
+            .map(
+              (item) => `
+          <tr>
+            <th scope="row">${escapeHtml(item.title)}</th>
+            <td>${escapeHtml(item.baselineScore)}</td>
+            <td>${escapeHtml(item.guidedScore)}</td>
+            <td>${escapeHtml(signedValue(item.scoreDelta))}</td>
+            <td>${escapeHtml(benchmarkWinnerLabel(item.winner))}</td>
+            <td>${escapeHtml(item.baselineActivity)} -> ${escapeHtml(item.guidedActivity)}</td>
+            <td>${escapeHtml(item.baselineLeakage)} -> ${escapeHtml(item.guidedLeakage)}</td>
+            <td>
+              ${item.baselineScreenshotHref ? `<a href="${escapeHtml(item.baselineScreenshotHref)}">Raw screenshot</a>` : ""}
+              ${item.baselineScreenshotHref && item.guidedScreenshotHref ? " · " : ""}
+              ${item.guidedScreenshotHref ? `<a href="${escapeHtml(item.guidedScreenshotHref)}">Guided screenshot</a>` : ""}
+            </td>
+          </tr>`,
+            )
+            .join("")}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function modelMatrixArtifactByColumn(row, columnId) {
+  return (row?.artifacts ?? []).find((artifact) => artifact.column_id === columnId) ?? null;
+}
+
+function renderContextBoundaryMatrix(manifest) {
+  if (!manifest) {
+    return `<p class="note">Model matrix evidence is unavailable in this checkout.</p>`;
+  }
+
+  const columns = manifest.comparison_columns ?? [];
+  const rows = manifest.comparison_rows ?? [];
+  const baseHref = modelUiBaseHref(manifest);
+
+  return `
+    <div class="report-context-matrix-shell">
+      <div class="report-context-matrix" role="table" aria-label="Context boundary matrix for ${escapeHtml(manifest.use_case_label)}">
+        <div class="report-context-axis" role="columnheader">Generation path</div>
+        ${columns
+          .map((column) => `<div class="report-context-column" role="columnheader">${escapeHtml(column.label)}</div>`)
+          .join("")}
+        ${rows
+          .map(
+            (row) => `
+        <div class="report-context-row" role="rowheader">
+          <strong>${escapeHtml(row.label)}</strong>
+          <span>${escapeHtml(row.summary)}</span>
+        </div>
+        ${columns
+          .map((column) => {
+            const artifact = modelMatrixArtifactByColumn(row, column.id);
+            if (!artifact) return `<div class="report-context-cell" role="cell"></div>`;
+            const artifactHref = `${baseHref}/${artifact.artifact_path}`;
+            const screenshotHref = `${baseHref}/${artifact.screenshot_path}`;
+            return `
+        <a class="report-context-cell" role="cell" href="${escapeHtml(artifactHref)}">
+          <img src="${escapeHtml(screenshotHref)}" alt="${escapeHtml(artifact.title)} screenshot" loading="lazy">
+          <span>${escapeHtml(artifact.context_summary ?? artifact.column_label)}</span>
+        </a>`;
+          })
+          .join("")}`,
+          )
+          .join("")}
+      </div>
+    </div>`;
+}
+
+function renderUseCaseSummary(useCases) {
+  return `
+    <div class="report-use-case-grid">
+      ${useCases
+        .map(
+          (useCase) => `
+        <article>
+          <h3>${escapeHtml(useCase.label)}</h3>
+          <p>${escapeHtml(useCase.activity_summary)}</p>
+          <div class="link-row">
+            <a class="pill-link" href="/${escapeHtml(useCase.index_path)}">Open matrix</a>
+            <a class="pill-link" href="/${escapeHtml(useCase.manifest_path)}">Manifest JSON</a>
+          </div>
+        </article>`,
+        )
+        .join("")}
+    </div>`;
+}
+
+async function judgmentKitMcpReportPage() {
+  const catalog = await readJsonIfExists("evals/reports/index.json");
+  const latestReport = catalog?.latest
+    ? await readJsonIfExists(path.join("evals/reports", catalog.latest.json_report))
+    : null;
+  const modelUiIndex = await readJsonIfExists("examples/model-ui/index.json");
+  const modelUiManifests = await Promise.all(
+    (modelUiIndex?.use_cases ?? []).map((useCase) => readJsonIfExists(useCase.manifest_path)),
+  );
+  const defaultUseCaseId = modelUiIndex?.default_use_case_id ?? modelUiIndex?.use_cases?.[0]?.id;
+  const defaultManifest =
+    modelUiManifests.find((manifest) => manifest?.use_case_id === defaultUseCaseId) ??
+    modelUiManifests.find(Boolean);
+  const benchmarkCases = buildBenchmarkCases(latestReport);
+  const latest = catalog?.latest;
+  const summary = latestReport?.summary ?? latest?.summary ?? {};
+  const cases = summary.cases ?? benchmarkCases.length;
+  const passed = summary.passed ?? benchmarkCases.filter((item) => item.passed).length;
+  const passRate = cases ? `${Math.round((passed / cases) * 100)}%` : "n/a";
+  const benchmarkPolicy =
+    latestReport?.benchmark_policy ??
+    "Qualitative paired-artifact evidence only; not a statistically powered benchmark.";
+  const claimLevel = latestReport?.claim_level ?? latest?.claim_level ?? "pending";
+  const modelUseCases = modelUiIndex?.use_cases ?? [];
+
+  if (!latestReport || benchmarkCases.length === 0) {
+    return page(
+      "JudgmentKit MCP: Evidence for Activity-First UI Generation",
+      `
+      <section class="section report-page">
+        <div class="report-article">
+          <p class="eyebrow">JudgmentKit MCP evidence</p>
+          <h1>JudgmentKit MCP: Evidence for Activity-First UI Generation</h1>
+          ${videoPlaceholder("Report video placeholder", "Top-level overview video slot.")}
+          <p class="lede">No committed paired eval report is available in this checkout. The report route is ready, but benchmark figures require the latest UI-generation eval catalog.</p>
+          <p class="note">${escapeHtml(benchmarkPolicy)}</p>
+        </div>
+      </section>`,
+      {
+        description:
+          "JudgmentKit MCP qualitative evaluation report for activity-first UI generation.",
+        path: "/evals/judgmentkit-mcp/",
+      },
+    );
+  }
+
+  return page(
+    "JudgmentKit MCP: Evidence for Activity-First UI Generation",
+    `
+    <section class="section report-page">
+      <div class="report-heading">
+        <p class="eyebrow">JudgmentKit MCP evidence</p>
+        <h1>JudgmentKit MCP: Evidence for Activity-First UI Generation</h1>
+        <p class="lede">A cautious public report on whether activity-first MCP guidance improves generated UI artifacts. The evidence is qualitative paired-artifact scoring and committed model-matrix examples, not a statistically powered benchmark.</p>
+      </div>
+      ${videoPlaceholder("JudgmentKit MCP report overview", "Hero video placeholder for the benchmark report walkthrough.", "report-video-hero")}
+      <div class="report-shell">
+        <nav class="report-toc" aria-label="Report table of contents">
+          <a href="#ui-generation-bottleneck">The UI generation bottleneck</a>
+          <a href="#what-judgmentkit-changes">What JudgmentKit changes</a>
+          <a href="#how-the-evaluation-works">How the evaluation works</a>
+          <a href="#benchmarks">Benchmarks</a>
+          <a href="#example-evidence">Example evidence</a>
+          <a href="#limitations-and-future-work">Limitations and future work</a>
+          <a href="#run-data">Run data</a>
+        </nav>
+        <article class="report-article">
+          <section id="ui-generation-bottleneck">
+            <h2>The UI generation bottleneck</h2>
+            <p>Generated interfaces often inherit the shape of the implementation material that fed them. Tables become screens, schemas become forms, internal labels become product language, and the user is left translating the interface back into the work they meant to do.</p>
+            <p>JudgmentKit treats that as a judgment problem before it is a styling problem. The relevant question is whether the screen helps a person understand evidence, make a decision, and leave a useful handoff.</p>
+          </section>
+          <section id="what-judgmentkit-changes">
+            <h2>What JudgmentKit changes</h2>
+            <p>JudgmentKit adds an activity-first review layer before UI generation. It asks what work is being supported, who participates, what decision matters, what vocabulary belongs in the surface, and what diagnostic detail should stay out of the primary experience.</p>
+            <div class="report-capability-grid">
+              <article>
+                <h3>Activity fit</h3>
+                <p>Generated UI is judged against the work, not just against the input structure.</p>
+              </article>
+              <article>
+                <h3>Decision support</h3>
+                <p>The surface must make the next judgment or handoff easier to complete.</p>
+              </article>
+              <article>
+                <h3>Disclosure discipline</h3>
+                <p>Implementation detail remains diagnostic unless the activity is setup, debugging, or audit.</p>
+              </article>
+            </div>
+            ${videoPlaceholder("Raw-to-guided generation placeholder", "Inline video slot for showing the before and after generation path.")}
+            <figure class="report-system-figure">
+              <figcaption>Compact activity-first generation flow.</figcaption>
+              <ol>
+                <li><strong>Source brief</strong><span>Product context and implementation-heavy material enter together.</span></li>
+                <li><strong>Activity review</strong><span>Participant, objective, decision, outcome, and vocabulary are named.</span></li>
+                <li><strong>Handoff</strong><span>Only ready guidance advances to UI generation.</span></li>
+                <li><strong>Generated UI</strong><span>The draft is judged against the work, then loops back with findings.</span></li>
+              </ol>
+            </figure>
+          </section>
+          <section id="how-the-evaluation-works">
+            <h2>How the evaluation works</h2>
+            <p>The committed paired eval compares raw baseline artifacts with JudgmentKit-guided artifacts for the same UI tasks. Scores use a 0-100 weighted total with 0-5 metric scores underneath.</p>
+            <p>${escapeHtml(benchmarkPolicy)}</p>
+            <p>Desktop and mobile screenshots are captured as visual evidence for review. The screenshots support inspection, but the scoring source is the committed artifact text and deterministic rubric.</p>
+            <dl class="report-summary" aria-label="Latest JudgmentKit MCP report summary">
+              ${renderMetricCard("Latest run", latest ? evalRunTitle(latest) : "pending")}
+              ${renderMetricCard("MCP release", latest?.mcp_release ?? "pending")}
+              ${renderMetricCard("Cases", cases)}
+              ${renderMetricCard("Pass rate", passRate)}
+              ${renderMetricCard("Guided wins", summary.guided_wins ?? 0)}
+              ${renderMetricCard("Baseline wins", summary.baseline_wins ?? 0)}
+              ${renderMetricCard("Ties", summary.ties ?? 0)}
+              ${renderMetricCard("Claim level", claimLevel)}
+            </dl>
+          </section>
+          <section id="benchmarks">
+            <h2>Benchmarks</h2>
+            ${renderReportScoreChart(benchmarkCases)}
+            ${renderActivityDisclosureFigure(benchmarkCases)}
+            ${renderBenchmarkTable(benchmarkCases)}
+          </section>
+          <section id="example-evidence">
+            <h2>Example evidence</h2>
+            <p>The model UI matrices separate the source context from JudgmentKit guidance and Material UI rendering. The visible matrix below uses ${escapeHtml(defaultManifest?.use_case_label ?? "the default use case")} as a compact example; the full set covers every committed use case.</p>
+            ${videoPlaceholder("Disclosure cleanup placeholder", "Inline video slot for showing implementation detail moving into diagnostics.")}
+            ${renderContextBoundaryMatrix(defaultManifest)}
+            <h3>Committed use cases</h3>
+            ${renderUseCaseSummary(modelUseCases)}
+            ${videoPlaceholder("Model matrix walkthrough placeholder", "Inline video slot for narrating the 3 by 4 matrix evidence.")}
+          </section>
+          <section id="limitations-and-future-work">
+            <h2>Limitations and future work</h2>
+            <p>This report is intentionally narrow. It uses committed paired artifacts and committed model matrix captures. It does not claim broad model behavior, does not call live providers during site build, and does not treat visual polish as proof of activity fit.</p>
+            <p>Future versions can add broader MCP impact runs, more surface types, reviewer agreement, richer interaction probes, and completed walkthrough videos without changing this page structure.</p>
+          </section>
+          <section id="run-data">
+            <h2>Run data</h2>
+            <p>Implementation details are listed here for audit and reproduction rather than used as primary product language above.</p>
+            <div class="report-run-links">
+              <a class="pill-link" href="/evals/${escapeHtml(latest.html_report)}">Latest HTML report</a>
+              <a class="pill-link" href="/evals/${escapeHtml(latest.json_report)}">Latest JSON report</a>
+              <a class="pill-link" href="/evals/index.json">Eval catalog JSON</a>
+              <a class="pill-link" href="/examples/model-ui/index.json">Model matrix index JSON</a>
+            </div>
+          </section>
+        </article>
+      </div>
+    </section>
+  `,
+    {
+      description:
+        "JudgmentKit MCP qualitative evaluation report for activity-first UI generation.",
+      path: "/evals/judgmentkit-mcp/",
+    },
+  );
+}
+
 function renderEvalRunRows(runs) {
   return runs
     .map(
@@ -2491,6 +3464,7 @@ async function evalsPage() {
       </dl>
       <p class="note">${escapeHtml(benchmarkPolicy)}</p>
       <div class="evals-actions" aria-label="Eval report links">
+        <a class="pill-link" href="/evals/judgmentkit-mcp/">JudgmentKit MCP report</a>
         <a class="pill-link" href="${escapeHtml(evalReportPath(latest.html_report))}">Latest HTML report</a>
         <a class="pill-link" href="${escapeHtml(evalReportPath(latest.json_report))}">Latest JSON report</a>
         <a class="pill-link" href="/evals/index.json">Catalog JSON</a>
@@ -2625,6 +3599,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.mkdir(path.join(outDir, "assets"), { recursive: true });
   await fs.mkdir(path.join(outDir, "docs"), { recursive: true });
   await fs.mkdir(path.join(outDir, "evals"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "evals", "judgmentkit-mcp"), { recursive: true });
   await fs.mkdir(path.join(outDir, "examples"), { recursive: true });
 
   await fs.writeFile(path.join(outDir, "assets", "site.css"), stylesheet.trimStart());
@@ -2657,6 +3632,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
       "- /docs/",
       "- /examples/",
       "- /evals/",
+      "- /evals/judgmentkit-mcp/",
       "- /install",
       "- /mcp",
       "",
@@ -2673,12 +3649,16 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await copyDirectoryIfExists("evals/reports", path.join(outDir, "evals"));
   await copyDirectoryIfExists("evals/reports", path.join(outDir, "examples", "evals"));
   await fs.writeFile(path.join(outDir, "evals", "index.html"), await evalsPage());
+  await fs.writeFile(
+    path.join(outDir, "evals", "judgmentkit-mcp", "index.html"),
+    await judgmentKitMcpReportPage(),
+  );
   await copyDirectoryIfExists("examples/model-ui", path.join(outDir, "examples", "model-ui"));
   await copyDirectoryIfExists("experiments", path.join(outDir, "experiments"));
 
   return {
     out_dir: outDir,
-    routes: ["/", "/docs/", "/examples/", "/evals/", "/install", "/mcp"],
+    routes: ["/", "/docs/", "/examples/", "/evals/", "/evals/judgmentkit-mcp/", "/install", "/mcp"],
   };
 }
 

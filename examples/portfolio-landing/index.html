@@ -1,0 +1,1291 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Mara Voss - Interface Designer</title>
+    <meta
+      name="description"
+      content="A fictional UI/UX designer portfolio landing page for Mara Voss."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23151412'/%3E%3Cpath d='M14 44V18h8l10 14 10-14h8v26h-8V30L32 44 22 30v14z' fill='%23d9ff67'/%3E%3C/svg%3E"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+        --ink: #f7f2e8;
+        --paper: #151412;
+        --muted: #b8b0a2;
+        --line: rgba(247, 242, 232, 0.17);
+        --panel: rgba(247, 242, 232, 0.07);
+        --panel-strong: rgba(247, 242, 232, 0.12);
+        --lime: #d9ff67;
+        --cyan: #8de8ff;
+        --coral: #ff7a5c;
+        --rose: #ffb3c7;
+        --blue: #6da4ff;
+        --shadow: rgba(0, 0, 0, 0.38);
+        --copy-shadow: 0 2px 18px rgba(0, 0, 0, 0.72), 0 1px 2px rgba(0, 0, 0, 0.95);
+        font-family:
+          "Inter Tight",
+          "SF Pro Display",
+          "Avenir Next",
+          "Helvetica Neue",
+          Arial,
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+        background: var(--paper);
+      }
+
+      body {
+        margin: 0;
+        overflow-x: hidden;
+        background:
+          radial-gradient(circle at 8% 5%, rgba(217, 255, 103, 0.12), transparent 28rem),
+          radial-gradient(circle at 92% 40%, rgba(141, 232, 255, 0.11), transparent 24rem),
+          #151412;
+        color: var(--ink);
+      }
+
+      body::selection {
+        background: var(--lime);
+        color: #111;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      button,
+      a {
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .page-shell {
+        position: relative;
+        min-height: 100vh;
+        isolation: isolate;
+      }
+
+      .visual-stage {
+        position: fixed;
+        inset: 0;
+        z-index: -2;
+        overflow: hidden;
+        background: #151412;
+      }
+
+      #studio-canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+        opacity: 0.9;
+      }
+
+      .grain {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        opacity: 0.18;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+        background-size: 46px 46px;
+        mask-image: linear-gradient(to bottom, black 0%, transparent 78%);
+      }
+
+      .nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px clamp(18px, 5vw, 64px);
+        color: var(--ink);
+        backdrop-filter: blur(18px);
+        background: linear-gradient(to bottom, rgba(21, 20, 18, 0.7), rgba(21, 20, 18, 0.08));
+      }
+
+      .brand {
+        display: inline-grid;
+        gap: 2px;
+        text-decoration: none;
+      }
+
+      .brand strong,
+      .section-kicker,
+      .metric strong,
+      .case-index {
+        font-size: 0.72rem;
+        line-height: 1;
+        text-transform: uppercase;
+        letter-spacing: 0;
+        font-weight: 850;
+      }
+
+      .brand span {
+        color: var(--muted);
+        font-size: 0.78rem;
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 5px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: rgba(21, 20, 18, 0.5);
+      }
+
+      .nav-links a,
+      .nav-cta,
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 16px;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        color: var(--ink);
+        text-decoration: none;
+        font-size: 0.88rem;
+        font-weight: 760;
+        transition:
+          transform 180ms ease,
+          border-color 180ms ease,
+          background-color 180ms ease,
+          color 180ms ease;
+      }
+
+      .nav-links a {
+        color: var(--muted);
+      }
+
+      .nav-links a:hover,
+      .nav-links a:focus-visible {
+        color: var(--ink);
+        background: rgba(247, 242, 232, 0.09);
+      }
+
+      .nav-cta,
+      .button-primary {
+        background: var(--lime);
+        color: #111;
+      }
+
+      .nav-cta:hover,
+      .button-primary:hover {
+        transform: translateY(-2px);
+        background: #efffa9;
+      }
+
+      .button-secondary {
+        border-color: rgba(247, 242, 232, 0.3);
+        background: rgba(21, 20, 18, 0.82);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+        backdrop-filter: blur(12px);
+      }
+
+      .button-secondary:hover {
+        transform: translateY(-2px);
+        background: rgba(35, 34, 30, 0.92);
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--cyan);
+        outline-offset: 4px;
+      }
+
+      main {
+        position: relative;
+      }
+
+      .hero {
+        position: relative;
+        isolation: isolate;
+        min-height: 84svh;
+        display: grid;
+        align-items: end;
+        padding: 118px clamp(18px, 5vw, 64px) 34px;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(21, 20, 18, 0.96) 0%,
+            rgba(21, 20, 18, 0.86) 42%,
+            rgba(21, 20, 18, 0.36) 74%,
+            rgba(21, 20, 18, 0.14) 100%
+          ),
+          linear-gradient(
+            to top,
+            rgba(21, 20, 18, 0.97) 0%,
+            rgba(21, 20, 18, 0.7) 34%,
+            rgba(21, 20, 18, 0.26) 72%,
+            rgba(21, 20, 18, 0.72) 100%
+          );
+      }
+
+      .hero-grid {
+        position: relative;
+        z-index: 1;
+        width: min(100%, 1220px);
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 28px;
+      }
+
+      .availability {
+        display: inline-flex;
+        width: fit-content;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 12px;
+        border: 1px solid rgba(217, 255, 103, 0.28);
+        border-radius: 999px;
+        background: rgba(21, 20, 18, 0.86);
+        color: rgba(247, 242, 232, 0.9);
+        font-size: 0.86rem;
+        font-weight: 700;
+        backdrop-filter: blur(12px);
+      }
+
+      .availability::before {
+        content: "";
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--lime);
+        box-shadow: 0 0 18px var(--lime);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        max-width: 11ch;
+        font-family:
+          "Canela",
+          "Iowan Old Style",
+          "Times New Roman",
+          serif;
+        font-size: 7rem;
+        line-height: 0.84;
+        letter-spacing: 0;
+        text-wrap: balance;
+        text-shadow: var(--copy-shadow);
+      }
+
+      .hero-copy {
+        max-width: 720px;
+        color: rgba(247, 242, 232, 0.96);
+        font-size: 1.18rem;
+        line-height: 1.55;
+        text-shadow: var(--copy-shadow);
+      }
+
+      .hero-actions,
+      .contact-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .hero-meta {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        width: min(100%, 780px);
+        margin-top: 16px;
+      }
+
+      .metric {
+        min-height: 94px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(21, 20, 18, 0.84);
+        box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+        backdrop-filter: blur(16px);
+      }
+
+      .metric strong {
+        color: var(--lime);
+      }
+
+      .metric span {
+        display: block;
+        margin-top: 14px;
+        color: rgba(247, 242, 232, 0.82);
+        font-size: 0.94rem;
+        line-height: 1.35;
+      }
+
+      .section {
+        position: relative;
+        padding: 74px clamp(18px, 5vw, 64px);
+        background:
+          linear-gradient(to bottom, rgba(21, 20, 18, 0.95), rgba(21, 20, 18, 0.91)),
+          rgba(21, 20, 18, 0.94);
+        backdrop-filter: blur(4px);
+      }
+
+      .section-inner {
+        width: min(100%, 1220px);
+        margin: 0 auto;
+      }
+
+      .section-head {
+        display: grid;
+        grid-template-columns: minmax(0, 0.72fr) minmax(300px, 0.42fr);
+        align-items: end;
+        gap: 28px;
+        margin-bottom: 28px;
+      }
+
+      .section-kicker {
+        color: var(--coral);
+      }
+
+      h2 {
+        margin-top: 12px;
+        font-size: 3.7rem;
+        line-height: 0.96;
+        letter-spacing: 0;
+        text-wrap: balance;
+      }
+
+      .section-head p,
+      .split-copy p,
+      .contact p {
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.58;
+      }
+
+      .work-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        grid-auto-rows: minmax(300px, auto);
+        gap: 14px;
+      }
+
+      .case-card {
+        position: relative;
+        min-height: 360px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        color: var(--ink);
+        text-decoration: none;
+        box-shadow: 0 24px 70px var(--shadow);
+      }
+
+      .case-card::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
+        opacity: 0.92;
+        background:
+          radial-gradient(circle at 20% 18%, var(--accent-a), transparent 16rem),
+          radial-gradient(circle at 84% 24%, var(--accent-b), transparent 18rem),
+          linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.02) 34%, rgba(0, 0, 0, 0.38)),
+          var(--base);
+      }
+
+      .case-card::after {
+        content: "";
+        position: absolute;
+        inset: 18px;
+        z-index: 0;
+        pointer-events: none;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 8px;
+        background:
+          linear-gradient(90deg, rgba(255, 255, 255, 0.14) 1px, transparent 1px),
+          linear-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+        background-size: 52px 52px;
+        mask-image: radial-gradient(circle at 70% 40%, black, transparent 62%);
+      }
+
+      .case-card-large {
+        grid-row: span 2;
+        min-height: 620px;
+      }
+
+      .case-content {
+        position: absolute;
+        inset: auto 0 0 0;
+        z-index: 1;
+        display: grid;
+        gap: 16px;
+        padding: 24px;
+        background: linear-gradient(
+          to top,
+          rgba(10, 9, 8, 0.99) 0%,
+          rgba(18, 17, 15, 0.94) 54%,
+          rgba(18, 17, 15, 0.16) 100%
+        );
+      }
+
+      .case-top {
+        position: absolute;
+        top: 22px;
+        left: 22px;
+        right: 22px;
+        z-index: 2;
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        color: rgba(247, 242, 232, 0.9);
+        text-shadow: var(--copy-shadow);
+      }
+
+      .case-top > span,
+      .case-index {
+        position: relative;
+        z-index: 2;
+        display: inline-flex;
+        align-items: center;
+        width: fit-content;
+        min-height: 34px;
+        padding: 7px 10px;
+        border: 1px solid rgba(247, 242, 232, 0.2);
+        border-radius: 6px;
+        background: rgba(8, 7, 6, 0.92);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.34);
+        backdrop-filter: blur(10px);
+      }
+
+      .case-index {
+        color: var(--lime);
+      }
+
+      .case-card h3 {
+        max-width: 12ch;
+        font-size: 2.2rem;
+        line-height: 0.98;
+        letter-spacing: 0;
+      }
+
+      .case-card p {
+        max-width: 540px;
+        color: rgba(247, 242, 232, 0.88);
+        line-height: 1.48;
+      }
+
+      .case-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .case-tags span {
+        padding: 7px 10px;
+        border: 1px solid rgba(247, 242, 232, 0.18);
+        border-radius: 999px;
+        background: rgba(10, 9, 8, 0.66);
+        color: rgba(247, 242, 232, 0.9);
+        font-size: 0.78rem;
+        font-weight: 740;
+      }
+
+      .split {
+        background:
+          linear-gradient(to bottom, rgba(28, 27, 24, 0.96), rgba(22, 21, 19, 0.94)),
+          rgba(21, 20, 18, 0.94);
+      }
+
+      .split-layout {
+        display: grid;
+        grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+        gap: 48px;
+        align-items: start;
+      }
+
+      .split-copy {
+        position: sticky;
+        top: 110px;
+      }
+
+      .principles {
+        display: grid;
+        gap: 10px;
+      }
+
+      .principle {
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr);
+        gap: 18px;
+        padding: 18px 0 20px;
+        border-top: 1px solid var(--line);
+      }
+
+      .principle:last-child {
+        border-bottom: 1px solid var(--line);
+      }
+
+      .principle strong {
+        color: var(--cyan);
+        font-size: 0.8rem;
+      }
+
+      .principle h3 {
+        margin-bottom: 8px;
+        font-size: 1.45rem;
+        letter-spacing: 0;
+      }
+
+      .principle p {
+        color: var(--muted);
+        line-height: 1.52;
+      }
+
+      .proof {
+        border-top: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+      }
+
+      .proof-strip {
+        display: grid;
+        grid-template-columns: 1.3fr repeat(3, minmax(0, 0.7fr));
+        gap: 12px;
+        align-items: stretch;
+      }
+
+      .quote,
+      .proof-stat {
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: rgba(21, 20, 18, 0.78);
+        backdrop-filter: blur(10px);
+      }
+
+      .quote p {
+        max-width: 640px;
+        font-size: 1.35rem;
+        line-height: 1.32;
+      }
+
+      .quote cite {
+        display: block;
+        margin-top: 18px;
+        color: var(--muted);
+        font-style: normal;
+        font-weight: 740;
+      }
+
+      .proof-stat strong {
+        display: block;
+        margin-bottom: 22px;
+        color: var(--lime);
+        font-size: 2.4rem;
+        line-height: 1;
+        letter-spacing: 0;
+      }
+
+      .proof-stat span {
+        color: var(--muted);
+        line-height: 1.42;
+      }
+
+      .contact {
+        min-height: 80svh;
+        display: grid;
+        align-items: center;
+      }
+
+      .contact-panel {
+        position: relative;
+        overflow: hidden;
+        padding: 34px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background:
+          radial-gradient(circle at 85% 14%, rgba(217, 255, 103, 0.18), transparent 18rem),
+          rgba(21, 20, 18, 0.86);
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.28);
+        backdrop-filter: blur(14px);
+      }
+
+      .contact-panel h2 {
+        max-width: 12ch;
+      }
+
+      .contact-panel p {
+        max-width: 620px;
+        margin-top: 18px;
+      }
+
+      .contact-actions {
+        margin-top: 28px;
+      }
+
+      .footer {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 26px clamp(18px, 5vw, 64px);
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .reveal {
+        opacity: 1;
+        transform: translateY(18px);
+        transition: transform 560ms ease;
+      }
+
+      .reveal.in-view {
+        transform: translateY(0);
+      }
+
+      @media (max-width: 920px) {
+        .nav {
+          position: absolute;
+        }
+
+        .nav-links {
+          display: none;
+        }
+
+        .hero {
+          min-height: 82svh;
+          padding-top: 96px;
+        }
+
+        h1 {
+          font-size: 4.8rem;
+        }
+
+        .hero-copy {
+          font-size: 1.04rem;
+        }
+
+        .hero-meta,
+        .section-head,
+        .work-grid,
+        .split-layout,
+        .proof-strip {
+          grid-template-columns: 1fr;
+        }
+
+        .case-card,
+        .case-card-large {
+          min-height: 390px;
+          grid-row: auto;
+        }
+
+        .split-copy {
+          position: static;
+        }
+
+        h2 {
+          font-size: 3rem;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .nav {
+          padding: 14px 16px;
+        }
+
+        .nav-cta {
+          min-height: 38px;
+          padding: 0 12px;
+          font-size: 0.8rem;
+        }
+
+        .hero {
+          min-height: 72svh;
+          padding: 76px 16px 18px;
+        }
+
+        .hero-grid {
+          gap: 16px;
+        }
+
+        h1 {
+          font-size: 3.08rem;
+          line-height: 0.9;
+        }
+
+        .hero-copy {
+          font-size: 0.98rem;
+          line-height: 1.42;
+        }
+
+        .availability {
+          max-width: 100%;
+          padding: 8px 10px;
+          font-size: 0.78rem;
+        }
+
+        .hero-actions {
+          display: flex;
+          flex-wrap: nowrap;
+        }
+
+        .hero-actions .button {
+          flex: 1 1 0;
+          width: auto;
+          min-height: 42px;
+          padding: 0 10px;
+          font-size: 0.82rem;
+        }
+
+        .contact-actions {
+          display: grid;
+          grid-template-columns: 1fr;
+        }
+
+        .contact-actions .button {
+          width: 100%;
+        }
+
+        .hero-meta {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+          gap: 6px;
+          margin-top: 2px;
+        }
+
+        .metric {
+          min-height: 72px;
+          padding: 9px 8px;
+        }
+
+        .metric span {
+          margin-top: 8px;
+          font-size: 0.7rem;
+          line-height: 1.25;
+        }
+
+        .section {
+          padding: 56px 16px;
+        }
+
+        h2 {
+          font-size: 2.35rem;
+        }
+
+        .case-content,
+        .contact-panel {
+          padding: 20px;
+        }
+
+        .case-card h3 {
+          font-size: 1.75rem;
+        }
+
+        .principle {
+          grid-template-columns: 1fr;
+          gap: 8px;
+        }
+
+        .proof-stat strong {
+          font-size: 2rem;
+        }
+
+        .footer {
+          flex-direction: column;
+          padding: 22px 16px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.001ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.001ms !important;
+        }
+
+        #studio-canvas {
+          opacity: 0.72;
+        }
+
+        .reveal {
+          transform: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="visual-stage" aria-hidden="true">
+        <canvas id="studio-canvas"></canvas>
+      </div>
+      <div class="grain" aria-hidden="true"></div>
+
+      <header class="nav" aria-label="Primary navigation">
+        <a class="brand" href="#top" aria-label="Mara Voss home">
+          <strong>Mara Voss</strong>
+          <span>Interfaces for ambitious teams</span>
+        </a>
+        <nav class="nav-links" aria-label="Page sections">
+          <a href="#work">Work</a>
+          <a href="#process">Process</a>
+          <a href="#proof">Proof</a>
+        </nav>
+        <a class="nav-cta" href="#contact">Start a project</a>
+      </header>
+
+      <main id="top">
+        <section class="hero" aria-labelledby="hero-title">
+          <div class="hero-grid">
+            <span class="availability">Open for two product partnerships this autumn</span>
+            <h1 id="hero-title">Mara Voss</h1>
+            <p class="hero-copy">
+              Independent UI/UX designer shaping tactile product systems for AI,
+              climate, and culture teams that need a sharper first impression and a
+              calmer product experience.
+            </p>
+            <div class="hero-actions" aria-label="Primary actions">
+              <a class="button button-primary" href="#work">View selected work</a>
+              <a class="button button-secondary" href="#contact">Start a project</a>
+            </div>
+            <div class="hero-meta" aria-label="Portfolio summary">
+              <div class="metric">
+                <strong>01</strong>
+                <span>Product strategy, interface design, and prototypes.</span>
+              </div>
+              <div class="metric">
+                <strong>02</strong>
+                <span>Design systems that feel editorial, not templated.</span>
+              </div>
+              <div class="metric">
+                <strong>03</strong>
+                <span>Launch-ready work for teams from seed to Series C.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section" id="work" aria-labelledby="work-title">
+          <div class="section-inner">
+            <div class="section-head reveal">
+              <div>
+                <span class="section-kicker">Selected work</span>
+                <h2 id="work-title">Three launches with a point of view.</h2>
+              </div>
+              <p>
+                Mara pairs art-direction range with product discipline: each project
+                begins with the decision a visitor, operator, or creator needs to make.
+              </p>
+            </div>
+
+            <div class="work-grid">
+              <a
+                class="case-card case-card-large reveal"
+                style="--base: #1b2230; --accent-a: rgba(141, 232, 255, 0.75); --accent-b: rgba(255, 122, 92, 0.64)"
+                href="#contact"
+              >
+                <span class="case-top">
+                  <span class="case-index">Case 01</span>
+                  <span>AI research workspace</span>
+                </span>
+                <div class="case-content">
+                  <h3>Signal room for complex model reviews.</h3>
+                  <p>
+                    A high-trust workspace that turns dense evaluations into clear
+                    next moves for research leads.
+                  </p>
+                  <div class="case-tags">
+                    <span>Product strategy</span>
+                    <span>Interaction design</span>
+                    <span>Design system</span>
+                  </div>
+                </div>
+              </a>
+
+              <a
+                class="case-card reveal"
+                style="--base: #1c2519; --accent-a: rgba(217, 255, 103, 0.72); --accent-b: rgba(109, 164, 255, 0.55)"
+                href="#contact"
+              >
+                <span class="case-top">
+                  <span class="case-index">Case 02</span>
+                  <span>Climate finance</span>
+                </span>
+                <div class="case-content">
+                  <h3>Investor tools with editorial calm.</h3>
+                  <p>
+                    A portfolio experience for teams comparing impact, risk, and time
+                    horizon in one sitting.
+                  </p>
+                  <div class="case-tags">
+                    <span>Dashboard UX</span>
+                    <span>Brand system</span>
+                  </div>
+                </div>
+              </a>
+
+              <a
+                class="case-card reveal"
+                style="--base: #291a22; --accent-a: rgba(255, 179, 199, 0.76); --accent-b: rgba(141, 232, 255, 0.5)"
+                href="#contact"
+              >
+                <span class="case-top">
+                  <span class="case-index">Case 03</span>
+                  <span>Creator commerce</span>
+                </span>
+                <div class="case-content">
+                  <h3>Checkout that behaves like a gallery.</h3>
+                  <p>
+                    A conversion path that keeps scarcity, craft, and checkout intent
+                    in the same visual rhythm.
+                  </p>
+                  <div class="case-tags">
+                    <span>Commerce UX</span>
+                    <span>Motion</span>
+                  </div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <section class="section split" id="process" aria-labelledby="process-title">
+          <div class="section-inner split-layout">
+            <div class="split-copy reveal">
+              <span class="section-kicker">Process</span>
+              <h2 id="process-title">The work starts before the screen.</h2>
+              <p>
+                Every engagement begins by naming the decision, audience, and proof
+                the interface must carry. The visual system arrives after the product
+                story is sharp.
+              </p>
+            </div>
+            <div class="principles" aria-label="Design principles">
+              <article class="principle reveal">
+                <strong>01</strong>
+                <div>
+                  <h3>Find the moment of trust.</h3>
+                  <p>
+                    Identify the sentence, artifact, or interaction that makes a
+                    visitor believe the product can carry their work.
+                  </p>
+                </div>
+              </article>
+              <article class="principle reveal">
+                <strong>02</strong>
+                <div>
+                  <h3>Shape a system around the action.</h3>
+                  <p>
+                    Turn screens into a reusable language of evidence, comparison,
+                    response, and completion.
+                  </p>
+                </div>
+              </article>
+              <article class="principle reveal">
+                <strong>03</strong>
+                <div>
+                  <h3>Make the launch feel inevitable.</h3>
+                  <p>
+                    Deliver production-ready surfaces, responsive states, and a visual
+                    direction the team can keep extending.
+                  </p>
+                </div>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section class="section proof" id="proof" aria-labelledby="proof-title">
+          <div class="section-inner">
+            <div class="section-head reveal">
+              <div>
+                <span class="section-kicker">Proof</span>
+                <h2 id="proof-title">Quiet systems. Distinctive launches.</h2>
+              </div>
+              <p>
+                Fictional proof signals for the prototype: concise, scannable, and
+                focused on whether the designer can carry high-stakes product work.
+              </p>
+            </div>
+            <div class="proof-strip">
+              <blockquote class="quote reveal">
+                <p>
+                  “Mara gave the product a visual language our team could actually
+                  ship. The work felt cinematic, but every decision had a reason.”
+                </p>
+                <cite>Elio Park, founder at Northstar Labs</cite>
+              </blockquote>
+              <div class="proof-stat reveal">
+                <strong>18</strong>
+                <span>product launches shaped from strategy through interface.</span>
+              </div>
+              <div class="proof-stat reveal">
+                <strong>4.9</strong>
+                <span>average partner rating across positioning and design craft.</span>
+              </div>
+              <div class="proof-stat reveal">
+                <strong>6w</strong>
+                <span>typical sprint from first audit to launch-ready prototype.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="section contact" id="contact" aria-labelledby="contact-title">
+          <div class="section-inner">
+            <div class="contact-panel reveal">
+              <span class="section-kicker">Availability</span>
+              <h2 id="contact-title">Bring a difficult product story.</h2>
+              <p>
+                Mara is taking two focused partnerships for brand-aware product teams
+                that need interface direction, design systems, and prototypes ready
+                for real stakeholder pressure.
+              </p>
+              <div class="contact-actions">
+                <a class="button button-primary" href="mailto:hello@maravoss.studio">Email Mara</a>
+                <a class="button button-secondary" href="#work">Revisit work</a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer">
+        <span>Fictional portfolio prototype</span>
+        <span>Product design - Interface systems - Creative direction</span>
+      </footer>
+    </div>
+
+    <script>
+      const canvas = document.getElementById("studio-canvas");
+      const gl = canvas.getContext("webgl", {
+        antialias: true,
+        alpha: false,
+        preserveDrawingBuffer: true,
+        powerPreference: "high-performance",
+      });
+
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+      function createShader(type, source) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          throw new Error(gl.getShaderInfoLog(shader));
+        }
+        return shader;
+      }
+
+      function createProgram(vertexSource, fragmentSource) {
+        const program = gl.createProgram();
+        gl.attachShader(program, createShader(gl.VERTEX_SHADER, vertexSource));
+        gl.attachShader(program, createShader(gl.FRAGMENT_SHADER, fragmentSource));
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+          throw new Error(gl.getProgramInfoLog(program));
+        }
+        return program;
+      }
+
+      if (gl) {
+        const vertexSource = `
+          attribute vec2 position;
+          varying vec2 vUv;
+          void main() {
+            vUv = position * 0.5 + 0.5;
+            gl_Position = vec4(position, 0.0, 1.0);
+          }
+        `;
+
+        const fragmentSource = `
+          precision highp float;
+          varying vec2 vUv;
+          uniform vec2 resolution;
+          uniform float time;
+          uniform float scroll;
+          uniform vec2 pointer;
+
+          mat2 rotate2d(float angle) {
+            float s = sin(angle);
+            float c = cos(angle);
+            return mat2(c, -s, s, c);
+          }
+
+          float hash(vec2 p) {
+            return fract(sin(dot(p, vec2(41.21, 289.77))) * 43758.5453);
+          }
+
+          float noise(vec2 p) {
+            vec2 i = floor(p);
+            vec2 f = fract(p);
+            vec2 u = f * f * (3.0 - 2.0 * f);
+            return mix(
+              mix(hash(i), hash(i + vec2(1.0, 0.0)), u.x),
+              mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x),
+              u.y
+            );
+          }
+
+          float fbm(vec2 p) {
+            float value = 0.0;
+            float amplitude = 0.55;
+            for (int i = 0; i < 5; i++) {
+              value += amplitude * noise(p);
+              p = rotate2d(0.68) * p * 2.02 + 0.17;
+              amplitude *= 0.52;
+            }
+            return value;
+          }
+
+          float ribbon(vec2 p, float offset, float width) {
+            float wave = sin(p.x * 2.2 + time * 0.34 + offset) * 0.19;
+            wave += sin(p.x * 5.4 - time * 0.18 + offset) * 0.055;
+            return smoothstep(width, 0.0, abs(p.y - wave));
+          }
+
+          void main() {
+            vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
+            vec2 drift = (pointer - 0.5) * vec2(0.24, -0.18);
+            uv += drift;
+
+            float t = time * (0.65 + scroll * 0.35);
+            vec2 p = rotate2d(0.18 + sin(t * 0.08) * 0.12) * uv;
+            vec2 q = p;
+            q.x += fbm(p * 1.8 + vec2(t * 0.06, -t * 0.04)) * 0.46;
+            q.y += fbm(p * 2.0 + vec2(-t * 0.04, t * 0.05)) * 0.34;
+
+            float r1 = ribbon(q + vec2(0.08, 0.10), 0.0, 0.13);
+            float r2 = ribbon(q * rotate2d(-0.18) + vec2(-0.18, -0.22), 2.3, 0.09);
+            float r3 = ribbon(q * rotate2d(0.36) + vec2(0.12, 0.35), 4.8, 0.07);
+            float glow = pow(max(0.0, 1.0 - length(uv - vec2(0.34, 0.08))), 3.1);
+            float vignette = smoothstep(1.55, 0.18, length(uv));
+            float field = fbm(q * 3.3 + t * 0.04);
+
+            vec3 ink = vec3(0.082, 0.078, 0.069);
+            vec3 lime = vec3(0.82, 1.0, 0.25);
+            vec3 cyan = vec3(0.38, 0.85, 1.0);
+            vec3 coral = vec3(1.0, 0.38, 0.25);
+            vec3 rose = vec3(1.0, 0.62, 0.76);
+            vec3 blue = vec3(0.28, 0.45, 0.94);
+
+            vec3 color = ink;
+            color = mix(color, blue, 0.12 + field * 0.14);
+            color += lime * r1 * 0.48;
+            color += cyan * r2 * 0.42;
+            color += coral * r3 * 0.38;
+            color += rose * glow * 0.28;
+            color += vec3(1.0, 0.92, 0.78) * pow(r1 + r2 + r3, 3.0) * 0.26;
+            color *= 0.58 + vignette * 0.92;
+
+            float scan = sin((uv.y + time * 0.015) * 90.0) * 0.007;
+            color += scan;
+            color = pow(color, vec3(0.86));
+
+            gl_FragColor = vec4(color, 1.0);
+          }
+        `;
+
+        const program = createProgram(vertexSource, fragmentSource);
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(
+          gl.ARRAY_BUFFER,
+          new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
+          gl.STATIC_DRAW
+        );
+
+        const position = gl.getAttribLocation(program, "position");
+        const resolution = gl.getUniformLocation(program, "resolution");
+        const timeUniform = gl.getUniformLocation(program, "time");
+        const scrollUniform = gl.getUniformLocation(program, "scroll");
+        const pointerUniform = gl.getUniformLocation(program, "pointer");
+        let pointer = [0.54, 0.46];
+        let start = performance.now();
+
+        function resize() {
+          const ratio = Math.min(window.devicePixelRatio || 1, 2);
+          const width = Math.max(1, Math.floor(canvas.clientWidth * ratio));
+          const height = Math.max(1, Math.floor(canvas.clientHeight * ratio));
+          if (canvas.width !== width || canvas.height !== height) {
+            canvas.width = width;
+            canvas.height = height;
+            gl.viewport(0, 0, width, height);
+          }
+        }
+
+        function render(now) {
+          resize();
+          gl.useProgram(program);
+          gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+          gl.enableVertexAttribArray(position);
+          gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+          gl.uniform2f(resolution, canvas.width, canvas.height);
+          gl.uniform1f(timeUniform, reduceMotion.matches ? 3.5 : (now - start) * 0.001);
+          gl.uniform1f(
+            scrollUniform,
+            Math.min(1, window.scrollY / Math.max(1, window.innerHeight))
+          );
+          gl.uniform2f(pointerUniform, pointer[0], pointer[1]);
+          gl.drawArrays(gl.TRIANGLES, 0, 6);
+          requestAnimationFrame(render);
+        }
+
+        window.addEventListener("resize", resize);
+        window.addEventListener("pointermove", (event) => {
+          pointer = [
+            event.clientX / Math.max(1, window.innerWidth),
+            event.clientY / Math.max(1, window.innerHeight),
+          ];
+        });
+        requestAnimationFrame(render);
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("in-view");
+            }
+          });
+        },
+        { threshold: 0.18 }
+      );
+
+      document.querySelectorAll(".reveal").forEach((element) => observer.observe(element));
+    </script>
+  </body>
+</html>

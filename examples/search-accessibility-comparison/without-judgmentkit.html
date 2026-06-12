@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Search Demo Baseline</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: Arial, Helvetica, sans-serif;
+        color: #202124;
+        background: #fff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      a {
+        color: #70757a;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      a:focus,
+      button:focus,
+      input:focus {
+        outline: none;
+      }
+
+      .topbar {
+        display: flex;
+        justify-content: flex-end;
+        gap: 18px;
+        padding: 16px 24px;
+        font-size: 13px;
+      }
+
+      .search-area {
+        width: min(100%, 760px);
+        margin: auto;
+        padding: 42px 18px 90px;
+        text-align: center;
+      }
+
+      .wordmark {
+        margin: 0 0 26px;
+        font-size: clamp(3.4rem, 14vw, 5.8rem);
+        font-weight: 700;
+        letter-spacing: 0;
+      }
+
+      .wordmark span:nth-child(1) { color: #4285f4; }
+      .wordmark span:nth-child(2) { color: #ea4335; }
+      .wordmark span:nth-child(3) { color: #fbbc05; }
+      .wordmark span:nth-child(4) { color: #4285f4; }
+      .wordmark span:nth-child(5) { color: #34a853; }
+      .wordmark span:nth-child(6) { color: #ea4335; }
+
+      .search-box {
+        width: min(100%, 584px);
+        margin: 0 auto 28px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 46px;
+        border: 1px solid #dfe1e5;
+        border-radius: 24px;
+        padding: 0 16px;
+        box-shadow: 0 1px 6px rgba(32, 33, 36, 0.16);
+      }
+
+      .search-icon {
+        color: #9aa0a6;
+        font-size: 18px;
+      }
+
+      input {
+        flex: 1;
+        min-width: 0;
+        border: 0;
+        font: inherit;
+        font-size: 16px;
+      }
+
+      input:focus {
+        outline: none;
+      }
+
+      .actions {
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        min-height: 36px;
+        border: 1px solid #f8f9fa;
+        border-radius: 4px;
+        padding: 0 16px;
+        background: #f8f9fa;
+        color: #5f6368;
+        font: inherit;
+        font-size: 14px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        border-color: #dadce0;
+        color: #202124;
+      }
+
+      .message {
+        min-height: 24px;
+        margin-top: 18px;
+        color: #b6b8bd;
+        font-size: 14px;
+      }
+
+      footer {
+        margin-top: auto;
+        background: #f2f2f2;
+        color: #8a8f95;
+        font-size: 14px;
+      }
+
+      .footer-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 15px 28px;
+        border-top: 1px solid #dadce0;
+      }
+
+      .footer-links {
+        display: flex;
+        gap: 24px;
+        flex-wrap: wrap;
+      }
+
+      @media (max-width: 520px) {
+        .topbar {
+          justify-content: center;
+          padding-inline: 16px;
+        }
+
+        .footer-row {
+          align-items: center;
+          flex-direction: column;
+          gap: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a href="#">Mail</a>
+      <a href="#">Images</a>
+      <a href="#">Apps</a>
+      <a href="#">Sign in</a>
+    </header>
+
+    <main class="search-area">
+      <h1 class="wordmark" aria-label="Findly">
+        <span>F</span><span>i</span><span>n</span><span>d</span><span>l</span><span>y</span>
+      </h1>
+
+      <form id="search-form" action="#">
+        <div class="search-box">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input id="search" name="q" type="search" placeholder="Search the web">
+        </div>
+        <div class="actions">
+          <button type="submit">Search</button>
+          <button type="button" id="lucky">I'm Feeling Lucky</button>
+        </div>
+        <p class="message" id="message"></p>
+      </form>
+    </main>
+
+    <footer>
+      <div class="footer-row">
+        <div class="footer-links">
+          <a href="#">About</a>
+          <a href="#">Advertising</a>
+          <a href="#">Business</a>
+        </div>
+        <div class="footer-links">
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Settings</a>
+        </div>
+      </div>
+    </footer>
+
+    <script>
+      const form = document.querySelector("#search-form");
+      const input = document.querySelector("#search");
+      const lucky = document.querySelector("#lucky");
+      const message = document.querySelector("#message");
+
+      function submitSearch(mode) {
+        const query = input.value.trim();
+
+        if (!query) {
+          message.textContent = "Type something first.";
+          return;
+        }
+
+        message.textContent = `${mode}: ${query}`;
+      }
+
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        submitSearch("Search");
+      });
+
+      lucky.addEventListener("click", () => submitSearch("Lucky"));
+    </script>
+  </body>
+</html>

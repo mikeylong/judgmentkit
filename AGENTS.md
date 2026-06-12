@@ -6,6 +6,7 @@
 - Read `README.md`, `DESIGN.md`, relevant files in `specs/`, and relevant files in `contracts/` before making product or UI changes.
 - Start with activity fit, domain appropriateness, succinct interaction, and disclosure discipline.
 - Do not make aesthetics, design tokens, component novelty, or visual polish the primary contract.
+- When a design spec calls for substantive visuals, use image generation or premium rendering such as Three.js/WebGL/D3-style visualization; do not use rudimentary deterministic CSS/SVG/JS geometry as final visual assets.
 - Preserve user work. Do not overwrite existing files unless the user explicitly asks for replacement.
 - Keep changes scoped to the active spec and avoid unrelated refactors.
 - Add or update tests for behavior, contracts, and drift risks that change.
@@ -37,6 +38,10 @@ Then produce the interaction contract:
 ## Disclosure Rule
 
 Primary user-facing UI should not expose machinery such as prompts, schemas, resource ids, MCP servers, tool names, or implementation traces unless the activity is explicitly setup, debugging, auditing, or integration work.
+
+## Visual Asset Rule
+
+Use deterministic CSS, SVG, and JavaScript for layout, text, UI chrome, icons, state, exact typography, simple diagrams, and accessible fallback structure. When the approved spec calls for substantive visuals such as imagery, hero/media assets, product/place/object visuals, domain scenes, or spatial/data visualization, use the `imagegen` skill or a premium rendering path such as Three.js/WebGL/D3-style visualization.
 
 ## Local Skills
 
