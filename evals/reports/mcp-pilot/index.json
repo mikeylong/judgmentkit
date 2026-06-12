@@ -1,0 +1,53 @@
+{
+  "catalog_id": "judgmentkit-mcp-private-pilot-runs",
+  "latest": {
+    "date": "2026-06-12",
+    "mcp_release": "0.1.0",
+    "mcp_release_segment": "mcp-0.1.0",
+    "run_id": "run-001",
+    "run_path": "2026-06-12/mcp-0.1.0/run-001",
+    "html_report": "2026-06-12/mcp-0.1.0/run-001/mcp-pilot-report.html",
+    "json_report": "2026-06-12/mcp-0.1.0/run-001/mcp-pilot-report.json",
+    "eval_id": "judgmentkit-mcp-private-pilot-v1",
+    "summary": {
+      "cases": 20,
+      "evaluated_cases": 0,
+      "capture_required_cases": 20,
+      "passed": 0,
+      "failed": 0,
+      "guided_wins": 0,
+      "baseline_wins": 0,
+      "ties": 0,
+      "average_guided_delta": 0,
+      "guided_critical_disclosure_leaks": 0,
+      "pilot_passed": false,
+      "pilot_status": "capture-required"
+    }
+  },
+  "runs": [
+    {
+      "date": "2026-06-12",
+      "mcp_release": "0.1.0",
+      "mcp_release_segment": "mcp-0.1.0",
+      "run_id": "run-001",
+      "run_path": "2026-06-12/mcp-0.1.0/run-001",
+      "html_report": "2026-06-12/mcp-0.1.0/run-001/mcp-pilot-report.html",
+      "json_report": "2026-06-12/mcp-0.1.0/run-001/mcp-pilot-report.json",
+      "eval_id": "judgmentkit-mcp-private-pilot-v1",
+      "summary": {
+        "cases": 20,
+        "evaluated_cases": 0,
+        "capture_required_cases": 20,
+        "passed": 0,
+        "failed": 0,
+        "guided_wins": 0,
+        "baseline_wins": 0,
+        "ties": 0,
+        "average_guided_delta": 0,
+        "guided_critical_disclosure_leaks": 0,
+        "pilot_passed": false,
+        "pilot_status": "capture-required"
+      }
+    }
+  ]
+}
