@@ -97,7 +97,7 @@ function assertTextIncludes(value, expectedValue) {
     Make it CRUD so the agent can expose tools/list diagnostics.
   `);
 
-  assert.equal(packet.version, "0.1.0");
+  assert.equal(packet.version, "0.2.0");
   assert.equal(packet.contract_id, "judgmentkit.ai-ui-generation.activity-contract");
   assert.equal(packet.status, "needs_review");
   assert.ok(terms(packet).includes("JSON schema"));

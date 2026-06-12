@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 0.2.0 - 2026-06-12
+
+- Expanded the UI implementation contract with `implementation_contract.accessibility_policy`.
+- Defaulted accessibility policy metadata to a WCAG 2.2 AA profile with contrast targets for normal text, large text, and non-text UI.
+- Added machine-readable accessibility contract groups for readability and contrast, keyboard and focus, semantics and structure, forms/status/errors, motion/media/timing, and responsive/input behavior.
+- Added reviewer evidence gates for core accessibility evidence plus conditional visual-background contrast, non-text contrast, forced-colors, target size, motion, form/status, media alternative, and semantic fallback evidence.
+- Extended `review_ui_implementation_candidate` to accept structured accessibility evidence, preserve `covered_states` and `static_evidence` aliases, fail reported accessibility failures, and reject below-target visual-background contrast.
+- Carried accessibility policy expectations through frontend generation context, frontend implementation skill context, MCP structured content, planning cards, docs, and skill guidance.
+- Added a search-page accessibility comparison demo showing an unguided baseline beside a JudgmentKit MCP-guided implementation.
 - Relaunched public surfaces under the canonical JudgmentKit name, including CLI/bin names, MCP identity, contract IDs, installer path, and website build.
 - Added daily-agent workflow docs, examples, and a repo-local agent usage contract.
 - Added CLI parity for review packets and candidate review:
