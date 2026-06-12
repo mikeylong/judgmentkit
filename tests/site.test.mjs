@@ -41,7 +41,7 @@ const OLD_FRAMING = [
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-site-"));
 const result = await buildSite(tempDir);
 
-assert.deepEqual(result.routes, ["/", "/docs/", "/examples/", "/evals/", "/install", "/mcp"]);
+assert.deepEqual(result.routes, ["/", "/docs/", "/examples/", "/evals/", "/evals/judgmentkit-mcp/", "/install", "/mcp"]);
 
 function assertAnalyticsBootstrap(html, label) {
   assert.ok(html.includes("window.va = window.va || function"), `${label} should initialize Vercel Analytics queue`);
@@ -184,6 +184,7 @@ assert.ok(homepage.includes('property="og:image:alt" content="JudgmentKit. Befor
 assert.ok(homepage.includes('name="twitter:card" content="summary_large_image"'));
 assert.ok(homepage.includes('name="twitter:image" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20260611.png"'));
 assert.ok(homepage.includes('name="twitter:image:alt" content="JudgmentKit. Before the UI."'));
+assert.ok(llms.includes("- /evals/judgmentkit-mcp/"));
 assertAnalyticsBootstrap(homepage, "homepage");
 
 for (const forbidden of OLD_FRAMING) {
@@ -473,11 +474,14 @@ assert.ok(evals.includes("<h1>Evals</h1>"));
 assert.ok(evals.includes("Latest run"));
 assert.ok(evals.includes("Claim level"));
 assert.ok(evals.includes("statistically powered benchmark"));
+assert.ok(evals.includes("/evals/judgmentkit-mcp/"));
 assert.ok(evals.includes("/evals/index.json"));
 assert.ok(evals.includes(`/evals/${evalCatalog.latest.html_report}`));
 assert.ok(evals.includes(`/evals/${evalCatalog.latest.json_report}`));
 assert.equal(evals.includes("/examples/evals/"), false);
+assert.ok(siteCss.includes('--eval-serif: "Source Serif 4"'));
 assert.ok(siteCss.includes(".evals-page {\n  display: grid;\n  grid-template-columns: minmax(0, 1fr);"));
+assert.ok(siteCss.includes("font-family: var(--eval-serif);"));
 assert.ok(siteCss.includes(".evals-table-shell {\n  max-width: 100%;"));
 
 assert.equal(evalCatalog.catalog_id, "judgmentkit-ui-generation-eval-runs");
@@ -519,6 +523,56 @@ assert.equal(
   true,
   "expected legacy examples eval screenshot compatibility path",
 );
+
+const mcpReportPath = path.join(tempDir, "evals", "judgmentkit-mcp", "index.html");
+assert.equal(fs.existsSync(mcpReportPath), true, "expected public JudgmentKit MCP report route");
+const mcpReport = fs.readFileSync(mcpReportPath, "utf8");
+assertAnalyticsBootstrap(mcpReport, "judgmentkit mcp report");
+assert.ok(mcpReport.includes("JudgmentKit MCP: Evidence for Activity-First UI Generation"));
+assert.ok(mcpReport.includes('rel="canonical" href="https://judgmentkit.ai/evals/judgmentkit-mcp/"'));
+assert.ok(mcpReport.includes("qualitative paired-artifact scoring"));
+assert.ok(mcpReport.includes("not a statistically powered benchmark"));
+assert.ok(mcpReport.includes("JudgmentKit MCP report overview"));
+assert.ok(mcpReport.includes("Raw-to-guided generation placeholder"));
+assert.ok(mcpReport.includes("Disclosure cleanup placeholder"));
+assert.ok(mcpReport.includes("Model matrix walkthrough placeholder"));
+assert.ok(mcpReport.includes('class="report-toc" aria-label="Report table of contents"'));
+assert.ok(mcpReport.includes('href="#ui-generation-bottleneck"'));
+assert.ok(mcpReport.includes('href="#what-judgmentkit-changes"'));
+assert.ok(mcpReport.includes('href="#how-the-evaluation-works"'));
+assert.ok(mcpReport.includes('href="#benchmarks"'));
+assert.ok(mcpReport.includes('href="#example-evidence"'));
+assert.ok(mcpReport.includes('href="#limitations-and-future-work"'));
+assert.ok(mcpReport.includes('href="#run-data"'));
+assert.ok(mcpReport.includes("The UI generation bottleneck"));
+assert.ok(mcpReport.includes("What JudgmentKit changes"));
+assert.ok(mcpReport.includes("How the evaluation works"));
+assert.ok(mcpReport.includes("Benchmarks"));
+assert.ok(mcpReport.includes("Example evidence"));
+assert.ok(mcpReport.includes("Limitations and future work"));
+assert.ok(mcpReport.includes("Run data"));
+assert.ok(mcpReport.includes("Score comparison: raw baseline versus JudgmentKit-guided output."));
+assert.ok(mcpReport.includes("Activity-fit terms increase while implementation leakage falls."));
+assert.ok(mcpReport.includes('class="report-benchmark-table"'));
+assert.ok(mcpReport.includes("Raw screenshot"));
+assert.ok(mcpReport.includes("Guided screenshot"));
+assert.ok(mcpReport.includes("Context boundary matrix"));
+assert.ok(mcpReport.includes("/examples/model-ui/refund-system-map/artifacts/deterministic-no-judgmentkit.html"));
+assert.ok(mcpReport.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-no-judgmentkit.png"));
+assert.ok(mcpReport.includes("Support refund triage"));
+assert.ok(mcpReport.includes("Field service dispatch"));
+assert.ok(mcpReport.includes("Clinical intake review"));
+assert.ok(mcpReport.includes("B2B renewal risk review"));
+assert.ok(mcpReport.includes(`/evals/${evalCatalog.latest.html_report}`));
+assert.ok(mcpReport.includes(`/evals/${evalCatalog.latest.json_report}`));
+assert.ok(mcpReport.includes("/examples/model-ui/index.json"));
+assert.equal(mcpReport.includes("/evals/judgmentkit-impact/"), false);
+assert.equal(mcpReport.includes("/evals/surface-types/"), false);
+assert.ok(siteCss.includes(".report-page"));
+assert.ok(siteCss.includes(".report-page {\n  padding-top: clamp(36px, 5vw, 62px);\n  font-family: var(--eval-serif);"));
+assert.ok(siteCss.includes(".report-video"));
+assert.ok(siteCss.includes(".report-score-chart"));
+assert.ok(siteCss.includes(".report-context-matrix"));
 
 for (const copiedExamplePath of [
   ["examples", "one-shot-demo.html"],
@@ -580,6 +634,7 @@ for (const copiedExamplePath of [
   ["examples", "comparison", "music", "version-b.html"],
   ["examples", "comparison", "music", "facilitator-scorecard.md"],
   ["evals", "index.html"],
+  ["evals", "judgmentkit-mcp", "index.html"],
   ["evals", "index.json"],
   ["evals", ...evalCatalog.latest.html_report.split("/")],
   ["evals", ...evalCatalog.latest.json_report.split("/")],
