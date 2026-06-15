@@ -2637,10 +2637,6 @@ async function valuePage() {
         <p class="eyebrow">Shippable value</p>
         <h1>What JudgmentKit prevents</h1>
         <p class="lede">JudgmentKit catches when AI-generated UI turns implementation mechanics into UX, then gives the agent repair instructions before the work ships.</p>
-        <div class="hero-actions" aria-label="Value page actions">
-          <a class="hero-action hero-action-primary" href="/install">Install JudgmentKit</a>
-          <a class="hero-action hero-action-secondary" href="/examples/">Review examples</a>
-        </div>
       </div>
 
       <div class="value-case-grid">
