@@ -17,7 +17,7 @@ import {
 } from "./index.mjs";
 
 const MCP_SERVER_NAME = "JudgmentKit";
-const MCP_SERVER_VERSION = "0.2.0";
+const MCP_SERVER_VERSION = "0.3.0";
 
 const ANALYZE_TOOL = {
   name: "analyze_implementation_brief",

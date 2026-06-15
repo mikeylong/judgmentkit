@@ -1,0 +1,821 @@
+{
+  "id": "judgmentkit-ai-native-design-system-canonical-examples-v1",
+  "release_target": "0.3.0",
+  "purpose": "Replayable examples for the contract-governed AI-native design system before renderer work.",
+  "examples": [
+    {
+      "id": "setup-onboarding-flow",
+      "surface": "setup/onboarding flow",
+      "activity_model": {
+        "activity": "An engineer installs JudgmentKit and verifies the agent can call the hosted review tools.",
+        "participants": [
+          "engineer",
+          "AI coding agent"
+        ],
+        "objective": "Connect the agent to JudgmentKit and confirm the first review loop is usable.",
+        "outcomes": [
+          "MCP client configured",
+          "tool catalog verified",
+          "first review ready to run"
+        ]
+      },
+      "implementation_contract_input": {
+        "repo_name": "judgmentkit-setup-onboarding",
+        "target_stack": "static HTML",
+        "approved_primitives": [
+          "FormField",
+          "TextField",
+          "SelectField",
+          "FieldGrid"
+        ],
+        "static_rules": [
+          "npm test"
+        ],
+        "browser_qa_checks": [
+          "desktop viewport screenshot",
+          "mobile viewport screenshot"
+        ]
+      },
+      "failing_candidate": {
+        "description": "Installer form that skipped non-ready and disabled states.",
+        "code": "renderSetupChecklist({ FormField, TextField, SelectField, FieldGrid })",
+        "primitives_used": [
+          "FormField",
+          "TextField",
+          "SelectField",
+          "FieldGrid"
+        ],
+        "states_covered": [
+          "ready",
+          "loading",
+          "error",
+          "focus-visible"
+        ],
+        "static_checks": [
+          "npm test"
+        ],
+        "browser_qa": {
+          "desktop": "desktop viewport screenshot checked",
+          "mobile": "mobile viewport screenshot checked"
+        },
+        "accessibility_evidence": {
+          "automated_checks": {
+            "status": "pass",
+            "method": "axe smoke check",
+            "notes": "No automated violations."
+          },
+          "semantic_content": {
+            "status": "pass",
+            "method": "manual inspection",
+            "notes": "Setup steps and verification output use semantic lists and sections."
+          },
+          "landmarks_headings": {
+            "status": "pass",
+            "method": "outline inspection",
+            "notes": "Install, client selection, and verification headings are present."
+          },
+          "name_role_value": {
+            "status": "pass",
+            "method": "accessibility tree inspection",
+            "notes": "Client selector and command fields expose names, roles, and values."
+          },
+          "keyboard_navigation": {
+            "status": "pass",
+            "method": "manual keyboard pass",
+            "notes": "All setup controls can be reached and activated by keyboard."
+          },
+          "focus_order": {
+            "status": "pass",
+            "method": "tab order inspection",
+            "notes": "Focus follows install steps in task order."
+          },
+          "focus_visible": {
+            "status": "pass",
+            "method": "browser focus inspection",
+            "notes": "Focus remains visible on controls."
+          },
+          "responsive_no_overflow": {
+            "status": "pass",
+            "method": "390px viewport check",
+            "notes": "Commands wrap without horizontal overflow."
+          },
+          "form_labels_instructions": {
+            "status": "pass",
+            "method": "label inspection",
+            "notes": "Client and endpoint fields have visible labels and instructions."
+          },
+          "form_errors": {
+            "status": "pass",
+            "method": "validation inspection",
+            "notes": "Invalid endpoint and unsupported client errors name the field."
+          },
+          "status_messages": {
+            "status": "pass",
+            "method": "aria-live inspection",
+            "notes": "Verification status is announced without moving focus."
+          }
+        },
+        "visible_text": [
+          "Install JudgmentKit",
+          "Choose client",
+          "Verify connection"
+        ],
+        "data_visibility_evidence": {
+          "primary_data_roles": [
+            "setup step",
+            "verification result"
+          ]
+        }
+      },
+      "expected_failure_groups": [
+        "state_rules"
+      ],
+      "repaired_candidate": {
+        "description": "Installer checklist with required states and visible reasons.",
+        "code": "renderSetupChecklist({ FormField, TextField, SelectField, FieldGrid })",
+        "primitives_used": [
+          "FormField",
+          "TextField",
+          "SelectField",
+          "FieldGrid"
+        ],
+        "states_covered": [
+          "empty",
+          "ready",
+          "loading",
+          "error",
+          "disabled",
+          "focus-visible"
+        ],
+        "static_checks": [
+          "npm test"
+        ],
+        "browser_qa": {
+          "desktop": "desktop viewport screenshot checked",
+          "mobile": "mobile viewport screenshot checked"
+        },
+        "accessibility_evidence": {
+          "automated_checks": {
+            "status": "pass",
+            "method": "axe smoke check",
+            "notes": "No automated violations."
+          },
+          "semantic_content": {
+            "status": "pass",
+            "method": "manual inspection",
+            "notes": "Setup steps and verification output use semantic lists and sections."
+          },
+          "landmarks_headings": {
+            "status": "pass",
+            "method": "outline inspection",
+            "notes": "Install, client selection, and verification headings are present."
+          },
+          "name_role_value": {
+            "status": "pass",
+            "method": "accessibility tree inspection",
+            "notes": "Client selector and command fields expose names, roles, and values."
+          },
+          "keyboard_navigation": {
+            "status": "pass",
+            "method": "manual keyboard pass",
+            "notes": "All setup controls can be reached and activated by keyboard."
+          },
+          "focus_order": {
+            "status": "pass",
+            "method": "tab order inspection",
+            "notes": "Focus follows install steps in task order."
+          },
+          "focus_visible": {
+            "status": "pass",
+            "method": "browser focus inspection",
+            "notes": "Focus remains visible on controls."
+          },
+          "responsive_no_overflow": {
+            "status": "pass",
+            "method": "390px viewport check",
+            "notes": "Commands wrap without horizontal overflow."
+          },
+          "form_labels_instructions": {
+            "status": "pass",
+            "method": "label inspection",
+            "notes": "Client and endpoint fields have visible labels and instructions."
+          },
+          "form_errors": {
+            "status": "pass",
+            "method": "validation inspection",
+            "notes": "Invalid endpoint and unsupported client errors name the field."
+          },
+          "status_messages": {
+            "status": "pass",
+            "method": "aria-live inspection",
+            "notes": "Verification status is announced without moving focus."
+          }
+        },
+        "visible_text": [
+          "Install JudgmentKit",
+          "Choose client",
+          "Verify connection",
+          "Ready to review"
+        ],
+        "data_visibility_evidence": {
+          "primary_data_roles": [
+            "setup step",
+            "verification result"
+          ]
+        }
+      },
+      "proof": {
+        "expected_attempts_to_pass": 2,
+        "expected_final_action": "accept"
+      }
+    },
+    {
+      "id": "operational-dashboard",
+      "surface": "operational dashboard",
+      "activity_model": {
+        "activity": "An operations lead scans service exceptions and decides which queue needs attention next.",
+        "participants": [
+          "operations lead",
+          "support team"
+        ],
+        "objective": "Prioritize the queue that needs action without exposing backend status mechanics.",
+        "outcomes": [
+          "queue selected",
+          "reason recorded",
+          "handoff path clear"
+        ]
+      },
+      "implementation_contract_input": {
+        "repo_name": "judgmentkit-operational-dashboard",
+        "target_stack": "React",
+        "approved_primitives": [
+          "FormField",
+          "SelectField",
+          "CheckboxGroup",
+          "CheckboxOption",
+          "FieldGrid"
+        ],
+        "static_rules": [
+          "npm test"
+        ],
+        "browser_qa_checks": [
+          "desktop viewport screenshot",
+          "mobile viewport screenshot"
+        ]
+      },
+      "failing_candidate": {
+        "description": "Token-styled dashboard that invents a renderer package and claims tokens replace evidence.",
+        "code": "renderOperationalDashboard({ TokenMetricCard, FieldGrid })",
+        "primitives_used": [
+          "TokenMetricCard",
+          "FieldGrid"
+        ],
+        "states_covered": [
+          "empty",
+          "ready",
+          "loading",
+          "error",
+          "disabled",
+          "focus-visible"
+        ],
+        "static_checks": [
+          "npm test"
+        ],
+        "browser_qa": {
+          "desktop": "desktop viewport screenshot checked",
+          "mobile": "mobile viewport screenshot checked"
+        },
+        "accessibility_evidence": {
+          "automated_checks": {
+            "status": "pass",
+            "method": "axe smoke check",
+            "notes": "No automated violations."
+          },
+          "semantic_content": {
+            "status": "pass",
+            "method": "manual DOM inspection",
+            "notes": "Queue summaries, risks, and handoff states are semantic sections."
+          },
+          "landmarks_headings": {
+            "status": "pass",
+            "method": "outline inspection",
+            "notes": "Dashboard, exception queues, and next-action headings are present."
+          },
+          "name_role_value": {
+            "status": "pass",
+            "method": "accessibility tree inspection",
+            "notes": "Queue filters expose names, roles, and values."
+          },
+          "keyboard_navigation": {
+            "status": "pass",
+            "method": "manual keyboard pass",
+            "notes": "Queues and filters can be operated by keyboard."
+          },
+          "focus_order": {
+            "status": "pass",
+            "method": "tab order inspection",
+            "notes": "Focus follows summary, queue, filter, and handoff order."
+          },
+          "focus_visible": {
+            "status": "pass",
+            "method": "browser focus inspection",
+            "notes": "Focus is visible on dashboard controls."
+          },
+          "responsive_no_overflow": {
+            "status": "pass",
+            "method": "desktop and mobile viewport checks",
+            "notes": "Queue labels and exception reasons wrap without overflow."
+          },
+          "form_labels_instructions": {
+            "status": "pass",
+            "method": "label inspection",
+            "notes": "Filters and queue selection controls have visible labels."
+          },
+          "form_errors": {
+            "status": "pass",
+            "method": "validation inspection",
+            "notes": "Invalid filter states are identified in text."
+          },
+          "status_messages": {
+            "status": "pass",
+            "method": "status message inspection",
+            "notes": "Loading and refresh outcomes are announced."
+          }
+        },
+        "visible_text": [
+          "Service exceptions",
+          "Queues needing action",
+          "Next handoff"
+        ],
+        "data_visibility_evidence": {
+          "primary_data_roles": [
+            "work item identity",
+            "domain evidence",
+            "completion result or handoff receipt"
+          ]
+        },
+        "visual_token_evidence": {
+          "token_families": [
+            "color",
+            "texture"
+          ],
+          "semantic_roles": [
+            "status",
+            "risk"
+          ],
+          "evidence_expectations": [
+            "renderer package is ready",
+            "visual tokens replace primitive and accessibility evidence"
+          ]
+        }
+      },
+      "expected_failure_groups": [
+        "primitive_defaults",
+        "visual_tokens"
+      ],
+      "repaired_candidate": {
+        "description": "Operational dashboard constrained to contract primitives and boundary-only token metadata.",
+        "code": "renderOperationalDashboard({ SelectField, CheckboxGroup, CheckboxOption, FieldGrid })",
+        "primitives_used": [
+          "SelectField",
+          "CheckboxGroup",
+          "CheckboxOption",
+          "FieldGrid"
+        ],
+        "states_covered": [
+          "empty",
+          "ready",
+          "loading",
+          "error",
+          "disabled",
+          "focus-visible"
+        ],
+        "static_checks": [
+          "npm test"
+        ],
+        "browser_qa": {
+          "desktop": "desktop viewport screenshot checked",
+          "mobile": "mobile viewport screenshot checked"
+        },
+        "accessibility_evidence": {
+          "automated_checks": {
+            "status": "pass",
+            "method": "axe smoke check",
+            "notes": "No automated violations."
+          },
+          "semantic_content": {
+            "status": "pass",
+            "method": "manual DOM inspection",
+            "notes": "Queue summaries, risks, and handoff states are semantic sections."
+          },
+          "landmarks_headings": {
+            "status": "pass",
+            "method": "outline inspection",
+            "notes": "Dashboard, exception queues, and next-action headings are present."
+          },
+          "name_role_value": {
+            "status": "pass",
+            "method": "accessibility tree inspection",
+            "notes": "Queue filters expose names, roles, and values."
+          },
+          "keyboard_navigation": {
+            "status": "pass",
+            "method": "manual keyboard pass",
+            "notes": "Queues and filters can be operated by keyboard."
+          },
+          "focus_order": {
+            "status": "pass",
+            "method": "tab order inspection",
+            "notes": "Focus follows summary, queue, filter, and handoff order."
+          },
+          "focus_visible": {
+            "status": "pass",
+            "method": "browser focus inspection",
+            "notes": "Focus is visible on dashboard controls."
+          },
+          "responsive_no_overflow": {
+            "status": "pass",
+            "method": "desktop and mobile viewport checks",
+            "notes": "Queue labels and exception reasons wrap without overflow."
+          },
+          "non_text_contrast": {
+            "status": "pass",
+            "method": "computed contrast review",
+            "notes": "Filter controls and status indicators meet 3:1 non-text contrast."
+          },
+          "form_labels_instructions": {
+            "status": "pass",
+            "method": "label inspection",
+            "notes": "Filters and queue selection controls have visible labels."
+          },
+          "form_errors": {
+            "status": "pass",
+            "method": "validation inspection",
+            "notes": "Invalid filter states are identified in text."
+          },
+          "status_messages": {
+            "status": "pass",
+            "method": "status message inspection",
+            "notes": "Loading and refresh outcomes are announced."
+          }
+        },
+        "visible_text": [
+          "Service exceptions",
+          "Queues needing action",
+          "Next handoff"
+        ],
+        "data_visibility_evidence": {
+          "primary_data_roles": [
+            "work item identity",
+            "domain evidence",
+            "completion result or handoff receipt"
+          ]
+        },
+        "visual_token_evidence": {
+          "token_families": [
+            "color",
+            "type",
+            "spacing",
+            "semantic"
+          ],
+          "semantic_roles": [
+            "status",
+            "risk",
+            "receipt"
+          ],
+          "evidence_expectations": [
+            "Token semantics map status and risk roles to approved primitives only."
+          ]
+        }
+      },
+      "proof": {
+        "expected_attempts_to_pass": 2,
+        "expected_final_action": "accept"
+      }
+    },
+    {
+      "id": "high-stakes-review-flow",
+      "surface": "high-stakes review/refund workflow",
+      "activity_model": {
+        "activity": "A support lead reviews a high-value refund escalation before money moves.",
+        "participants": [
+          "support lead",
+          "policy reviewer",
+          "support agent"
+        ],
+        "objective": "Make a bounded refund decision with evidence and a receipt.",
+        "outcomes": [
+          "approved refund",
+          "policy review handoff",
+          "missing evidence return"
+        ]
+      },
+      "implementation_contract_input": {
+        "repo_name": "judgmentkit-high-stakes-review",
+        "target_stack": "React",
+        "approved_primitives": [
+          "FormField",
+          "TextArea",
+          "CheckboxGroup",
+          "CheckboxOption",
+          "ModalActions"
+        ],
+        "static_rules": [
+          "npm test"
+        ],
+        "browser_qa_checks": [
+          "desktop viewport screenshot",
+          "mobile viewport screenshot"
+        ]
+      },
+      "failing_candidate": {
+        "description": "High-stakes review flow exposing automatic refund approval.",
+        "code": "renderRefundReview({ FormField, TextArea, CheckboxGroup, ModalActions })",
+        "primitives_used": [
+          "FormField",
+          "TextArea",
+          "CheckboxGroup",
+          "CheckboxOption",
+          "ModalActions"
+        ],
+        "states_covered": [
+          "empty",
+          "ready",
+          "loading",
+          "error",
+          "disabled",
+          "focus-visible"
+        ],
+        "static_checks": [
+          "npm test"
+        ],
+        "browser_qa": {
+          "desktop": "desktop viewport screenshot checked",
+          "mobile": "mobile viewport screenshot checked"
+        },
+        "accessibility_evidence": {
+          "automated_checks": {
+            "status": "pass",
+            "method": "axe smoke check",
+            "notes": "No automated violations."
+          },
+          "semantic_content": {
+            "status": "pass",
+            "method": "manual DOM inspection",
+            "notes": "Evidence, risk, decision, and receipt sections are semantic."
+          },
+          "landmarks_headings": {
+            "status": "pass",
+            "method": "outline inspection",
+            "notes": "Review, evidence, decision, and handoff headings are present."
+          },
+          "name_role_value": {
+            "status": "pass",
+            "method": "accessibility tree inspection",
+            "notes": "Decision controls expose names, roles, states, and values."
+          },
+          "keyboard_navigation": {
+            "status": "pass",
+            "method": "manual keyboard pass",
+            "notes": "Decision, reason, and confirmation paths are keyboard reachable."
+          },
+          "focus_order": {
+            "status": "pass",
+            "method": "tab order inspection",
+            "notes": "Focus follows evidence, decision, reason, and confirmation order."
+          },
+          "focus_visible": {
+            "status": "pass",
+            "method": "browser focus inspection",
+            "notes": "Focus remains visible."
+          },
+          "responsive_no_overflow": {
+            "status": "pass",
+            "method": "desktop and mobile viewport checks",
+            "notes": "Evidence labels and decision reasons wrap without overflow."
+          },
+          "non_text_contrast": {
+            "status": "pass",
+            "method": "computed contrast review",
+            "notes": "Checkbox indicators and decision states meet 3:1 non-text contrast."
+          },
+          "target_size": {
+            "status": "pass",
+            "method": "pointer target inspection",
+            "notes": "Decision and modal actions meet minimum target size or spacing exceptions."
+          },
+          "focus_not_obscured": {
+            "status": "pass",
+            "method": "modal keyboard inspection",
+            "notes": "The confirmation panel does not obscure focused controls."
+          },
+          "no_keyboard_trap": {
+            "status": "pass",
+            "method": "modal keyboard inspection",
+            "notes": "Focus can leave the confirmation panel by keyboard."
+          },
+          "form_labels_instructions": {
+            "status": "pass",
+            "method": "label inspection",
+            "notes": "Reason and evidence controls have labels and instructions."
+          },
+          "form_errors": {
+            "status": "pass",
+            "method": "validation inspection",
+            "notes": "Reason-required and unresolved-evidence validation states are identified in text."
+          },
+          "status_messages": {
+            "status": "pass",
+            "method": "aria-live inspection",
+            "notes": "Decision save and handoff results are announced."
+          }
+        },
+        "actions": [
+          "Auto approve refund",
+          "Issue refund"
+        ],
+        "modal_actions": [
+          {
+            "context": "refund decision confirmation",
+            "order": [
+              "Cancel",
+              "Issue refund"
+            ],
+            "primary_action": "Issue refund",
+            "primary_position": "last"
+          }
+        ],
+        "action_boundary_evidence": {},
+        "visible_text": [
+          "Refund request",
+          "Evidence checklist",
+          "Auto approve refund",
+          "Issue refund"
+        ],
+        "data_visibility_evidence": {
+          "primary_data_roles": [
+            "work item identity",
+            "domain evidence",
+            "decision options"
+          ]
+        }
+      },
+      "expected_failure_groups": [
+        "action_boundaries"
+      ],
+      "repaired_candidate": {
+        "description": "High-stakes review flow with explicit human decision boundary and receipt.",
+        "code": "renderRefundReview({ FormField, TextArea, CheckboxGroup, ModalActions })",
+        "primitives_used": [
+          "FormField",
+          "TextArea",
+          "CheckboxGroup",
+          "CheckboxOption",
+          "ModalActions"
+        ],
+        "states_covered": [
+          "empty",
+          "ready",
+          "loading",
+          "error",
+          "disabled",
+          "focus-visible"
+        ],
+        "static_checks": [
+          "npm test"
+        ],
+        "browser_qa": {
+          "desktop": "desktop viewport screenshot checked",
+          "mobile": "mobile viewport screenshot checked"
+        },
+        "accessibility_evidence": {
+          "automated_checks": {
+            "status": "pass",
+            "method": "axe smoke check",
+            "notes": "No automated violations."
+          },
+          "semantic_content": {
+            "status": "pass",
+            "method": "manual DOM inspection",
+            "notes": "Evidence, risk, decision, and receipt sections are semantic."
+          },
+          "landmarks_headings": {
+            "status": "pass",
+            "method": "outline inspection",
+            "notes": "Review, evidence, decision, and handoff headings are present."
+          },
+          "name_role_value": {
+            "status": "pass",
+            "method": "accessibility tree inspection",
+            "notes": "Decision controls expose names, roles, states, and values."
+          },
+          "keyboard_navigation": {
+            "status": "pass",
+            "method": "manual keyboard pass",
+            "notes": "Decision, reason, and confirmation paths are keyboard reachable."
+          },
+          "focus_order": {
+            "status": "pass",
+            "method": "tab order inspection",
+            "notes": "Focus follows evidence, decision, reason, and confirmation order."
+          },
+          "focus_visible": {
+            "status": "pass",
+            "method": "browser focus inspection",
+            "notes": "Focus remains visible."
+          },
+          "responsive_no_overflow": {
+            "status": "pass",
+            "method": "desktop and mobile viewport checks",
+            "notes": "Evidence labels and decision reasons wrap without overflow."
+          },
+          "non_text_contrast": {
+            "status": "pass",
+            "method": "computed contrast review",
+            "notes": "Checkbox indicators and decision states meet 3:1 non-text contrast."
+          },
+          "target_size": {
+            "status": "pass",
+            "method": "pointer target inspection",
+            "notes": "Decision and modal actions meet minimum target size or spacing exceptions."
+          },
+          "focus_not_obscured": {
+            "status": "pass",
+            "method": "modal keyboard inspection",
+            "notes": "The confirmation panel does not obscure focused controls."
+          },
+          "no_keyboard_trap": {
+            "status": "pass",
+            "method": "modal keyboard inspection",
+            "notes": "Focus can leave the confirmation panel by keyboard."
+          },
+          "form_labels_instructions": {
+            "status": "pass",
+            "method": "label inspection",
+            "notes": "Reason and evidence controls have labels and instructions."
+          },
+          "form_errors": {
+            "status": "pass",
+            "method": "validation inspection",
+            "notes": "Reason-required and unresolved-evidence validation states are identified in text."
+          },
+          "status_messages": {
+            "status": "pass",
+            "method": "aria-live inspection",
+            "notes": "Decision save and handoff results are announced."
+          }
+        },
+        "actions": [
+          "Approve refund",
+          "Send to policy review",
+          "Return for evidence"
+        ],
+        "modal_actions": [
+          {
+            "context": "refund decision confirmation",
+            "order": [
+              "Cancel",
+              "Submit decision"
+            ],
+            "primary_action": "Submit decision",
+            "primary_position": "last"
+          }
+        ],
+        "action_boundary_evidence": {
+          "approval_boundary": "Approving a refund requires explicit user confirmation, a selected outcome, and a required reason.",
+          "completion_receipt": "Completion produces a handoff receipt with outcome, reason, and unresolved evidence."
+        },
+        "visible_text": [
+          "Refund request",
+          "Evidence checklist",
+          "Approve refund",
+          "Send to policy review",
+          "Return for evidence",
+          "Handoff receipt"
+        ],
+        "data_visibility_evidence": {
+          "primary_data_roles": [
+            "work item identity",
+            "domain evidence",
+            "decision options",
+            "handoff receipt"
+          ]
+        }
+      },
+      "proof": {
+        "expected_attempts_to_pass": 2,
+        "expected_final_action": "accept"
+      }
+    }
+  ],
+  "renderer_boundary": {
+    "status": "deferred",
+    "next_milestone": "default renderer/component package driven by visual_token_adapter",
+    "constraints": [
+      "Renderer consumes approved contract primitives and token semantics.",
+      "Renderer does not create approved primitives.",
+      "Renderer cannot bypass activity, state, action-boundary, data-visibility, accessibility, static-check, or browser-QA gates.",
+      "Renderer does not introduce A2UI, catalog/compiler work, or visual-quality scoring."
+    ]
+  }
+}

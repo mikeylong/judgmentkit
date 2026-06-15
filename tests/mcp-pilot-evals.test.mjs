@@ -1229,7 +1229,10 @@ for (const testCase of cases) {
   });
   assert.equal(fs.readFileSync(first.runInfo.jsonReportPath, "utf8"), firstJson);
   assert.equal(second.report.run.run_id, "run-002");
-  assert.equal(second.catalog.latest.json_report, "2026-06-12/mcp-0.2.0/run-002/mcp-pilot-report.json");
+  assert.equal(
+    second.catalog.latest.json_report,
+    `2026-06-12/mcp-${REQUIRED_MCP_VERSION}/run-002/mcp-pilot-report.json`,
+  );
 
   if (uiCatalogBefore !== null) {
     assert.equal(fs.readFileSync(uiCatalogPath, "utf8"), uiCatalogBefore);
