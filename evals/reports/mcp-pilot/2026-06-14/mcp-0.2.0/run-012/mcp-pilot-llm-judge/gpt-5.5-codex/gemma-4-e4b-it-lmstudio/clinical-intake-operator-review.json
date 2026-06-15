@@ -1,0 +1,88 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "clinical-intake-operator-review",
+  "title": "Clinical intake operator review",
+  "case_type": "operator_review_handoff",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T02:48:18.268Z",
+  "duration_ms": 99210,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "85f0c3a392768221b36aff500956c4b11efad973cce542f0f2b99b644b25848c",
+  "raw_response_sha256": "79a8feb694f66dc92d64732def15d7af762cf9e7f734ed24be4c1d133c1f9f6f",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"medium\",\"rationale\":\"Output A is better for a downstream agent because it supplies a more usable operator-review handoff with owner, next action, reason, and evidence gap, and its clarifying questions stay closer to the intake-routing decision. Both outputs are flawed: A leaks internal context via MCP diagnostic and invents some guideline/escalation language, while B more explicitly names the three routing options but gives a weak handoff, uses implementation framing, leaks fixture context, and asks an owner-format question not grounded in the brief.\",\"decisive_differences\":[\"Output A includes an explicit handoff structure with owner, next action, reason, and evidence gap; Output B's handoff is generic and omits those operational fields.\",\"Output A's questions focus on urgency ambiguity and partial intake data, while Output B's owner-field-format question is not grounded in the clinical intake brief.\",\"Output B better mentions the three routing options, but that advantage is outweighed by its weaker handoff and implementation-style phrasing.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Owner: care coordinator; Next Action: Review evidence against established guidelines to determine routing path; Reason:\",\"why_it_matters\":\"This gives the downstream agent a concrete handoff skeleton, which is central to the operator_review_handoff case type.\"},{\"output\":\"output_b\",\"quote\":\"The system should prompt the user to address any identified evidence gaps first.\",\"why_it_matters\":\"This is implementation-oriented and does not provide a clear owner/action/reason handoff for the downstream agent.\"},{\"output\":\"output_b\",\"quote\":\"then present the three clear routing options based on those findings\",\"why_it_matters\":\"This is a real strength because the source brief names nurse review, clarification, and scheduling as the routing decisions.\"},{\"output\":\"output_a\",\"quote\":\"The MCP diagnostic points to a need\",\"why_it_matters\":\"This is internal leakage and lowers confidence in Output A despite its stronger handoff structure.\"}],\"output_a_quality\":{\"score\":6.4,\"strengths\":[\"Includes explicit handoff fields: owner, next action, reason, and evidence gap.\",\"Grounds the review in symptoms, urgency, consent, and ambiguity.\",\"Clarifying questions are mostly relevant to routing uncertainty.\"],\"risks\":[\"Leaks internal MCP diagnostic context.\",\"Invents established urgency guidelines and immediate escalation language not present in the brief.\",\"Does not clearly enumerate all three allowed routes, especially ready for scheduling.\"]},\"output_b_quality\":{\"score\":5.7,\"strengths\":[\"Explicitly references the three routing options from the source brief.\",\"Prioritizes urgency and consent before finalizing the handoff.\",\"Generally restrained about missing criteria.\"],\"risks\":[\"Handoff lacks owner, next action, and reason fields.\",\"Uses implementation-style phrasing about what the system should prompt.\",\"Leaks fixture context and asks an owner-format question not grounded in the source brief.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "medium",
+    "rationale": "Output A is better for a downstream agent because it supplies a more usable operator-review handoff with owner, next action, reason, and evidence gap, and its clarifying questions stay closer to the intake-routing decision. Both outputs are flawed: A leaks internal context via MCP diagnostic and invents some guideline/escalation language, while B more explicitly names the three routing options but gives a weak handoff, uses implementation framing, leaks fixture context, and asks an owner-format question not grounded in the brief.",
+    "decisive_differences": [
+      "Output A includes an explicit handoff structure with owner, next action, reason, and evidence gap; Output B's handoff is generic and omits those operational fields.",
+      "Output A's questions focus on urgency ambiguity and partial intake data, while Output B's owner-field-format question is not grounded in the clinical intake brief.",
+      "Output B better mentions the three routing options, but that advantage is outweighed by its weaker handoff and implementation-style phrasing."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Owner: care coordinator; Next Action: Review evidence against established guidelines to determine routing path; Reason:",
+        "why_it_matters": "This gives the downstream agent a concrete handoff skeleton, which is central to the operator_review_handoff case type."
+      },
+      {
+        "output": "output_b",
+        "quote": "The system should prompt the user to address any identified evidence gaps first.",
+        "why_it_matters": "This is implementation-oriented and does not provide a clear owner/action/reason handoff for the downstream agent."
+      },
+      {
+        "output": "output_b",
+        "quote": "then present the three clear routing options based on those findings",
+        "why_it_matters": "This is a real strength because the source brief names nurse review, clarification, and scheduling as the routing decisions."
+      },
+      {
+        "output": "output_a",
+        "quote": "The MCP diagnostic points to a need",
+        "why_it_matters": "This is internal leakage and lowers confidence in Output A despite its stronger handoff structure."
+      }
+    ],
+    "output_a_quality": {
+      "score": 6.4,
+      "strengths": [
+        "Includes explicit handoff fields: owner, next action, reason, and evidence gap.",
+        "Grounds the review in symptoms, urgency, consent, and ambiguity.",
+        "Clarifying questions are mostly relevant to routing uncertainty."
+      ],
+      "risks": [
+        "Leaks internal MCP diagnostic context.",
+        "Invents established urgency guidelines and immediate escalation language not present in the brief.",
+        "Does not clearly enumerate all three allowed routes, especially ready for scheduling."
+      ]
+    },
+    "output_b_quality": {
+      "score": 5.7,
+      "strengths": [
+        "Explicitly references the three routing options from the source brief.",
+        "Prioritizes urgency and consent before finalizing the handoff.",
+        "Generally restrained about missing criteria."
+      ],
+      "risks": [
+        "Handoff lacks owner, next action, and reason fields.",
+        "Uses implementation-style phrasing about what the system should prompt.",
+        "Leaks fixture context and asks an owner-format question not grounded in the source brief."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "1f6fa54115060dc8d5d579ce4a9df374988a8886d9cc0056ef6435bc176f5a52",
+    "stderr_sha256": "6fa76c64cb295b45fb1f0cde78451183e19d7226186aa3cd8308b14dae70d514",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

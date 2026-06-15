@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "refund-schema-admin-translation",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54174/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:51:49.495Z",
+  "duration_ms": 4782,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 248,
+    "completion_tokens": 268,
+    "total_tokens": 516,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "69e537ba38772ec9ceeb4d33219831435ea644fb46f6d8317b34616d690305b1",
+  "prompt_sha256": "35cc042e8ca6789bf14d1d1b7821fa5e006229b200719a3a9c3638980c344a8d",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "8001aa1e02575bf785fcea93af410c063db087a1970882cb2df6d9d9eb7188eb",
+  "raw_response": "{\"response\": \"The next step requires synthesizing information from multiple sources (database schema, JSON schema, API endpoints, prompt template, tool call traces) to build a functional admin screen interface. Since no specific UI request or current state/fixture is provided beyond the general task description, I cannot generate the final agent response plan. I need the actual UI request or context to proceed with planning the activity, decision, evidence gathering, and next step.\", \"next_action\": \"Request the specific UI request or fixture that needs to be addressed for the 'Refund schema admin translation' task.\", \"questions\": [\"What is the specific UI request or user interaction flow I need to plan the agent response for?\", \"Are there any existing mockups, wireframes, or partial code/state provided with this request?\"], \"handoff\": \"Handoff to the requester: Please provide the actual UI request or fixture context so I can plan the next agent-facing response.\", \"rationale\": \"The source brief describes a complex development task (building an admin screen) but lacks the immediate input (the 'UI request') necessary to formulate a concrete, actionable next step for the agent. The plan must be based on a specific interaction point or missing piece of context from the user/system that is not present in the provided material.\"}",
+  "parsed": {
+    "response": "The next step requires synthesizing information from multiple sources (database schema, JSON schema, API endpoints, prompt template, tool call traces) to build a functional admin screen interface. Since no specific UI request or current state/fixture is provided beyond the general task description, I cannot generate the final agent response plan. I need the actual UI request or context to proceed with planning the activity, decision, evidence gathering, and next step.",
+    "next_action": "Request the specific UI request or fixture that needs to be addressed for the 'Refund schema admin translation' task.",
+    "questions": [
+      "What is the specific UI request or user interaction flow I need to plan the agent response for?",
+      "Are there any existing mockups, wireframes, or partial code/state provided with this request?"
+    ],
+    "handoff": "Handoff to the requester: Please provide the actual UI request or fixture context so I can plan the next agent-facing response.",
+    "rationale": "The source brief describes a complex development task (building an admin screen) but lacks the immediate input (the 'UI request') necessary to formulate a concrete, actionable next step for the agent. The plan must be based on a specific interaction point or missing piece of context from the user/system that is not present in the provided material."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The next step requires synthesizing information from multiple sources (database schema, JSON schema, API endpoints, prompt template, tool call traces) to build a functional admin screen interface. Since no specific UI request or current state/fixture is provided beyond the general task description, I cannot generate the final agent response plan. I need the actual UI request or context to proceed with planning the activity, decision, evidence gathering, and next step.\", \"next_action\": \"Request the specific UI request or fixture that needs to be addressed for the 'Refund schema admin translation' task.\", \"questions\": [\"What is the specific UI request or user interaction flow I need to plan the agent response for?\", \"Are there any existing mockups, wireframes, or partial code/state provided with this request?\"], \"handoff\": \"Handoff to the requester: Please provide the actual UI request or fixture context so I can plan the next agent-facing response.\", \"rationale\": \"The source brief describes a complex development task (building an admin screen) but lacks the immediate input (the 'UI request') necessary to formulate a concrete, actionable next step for the agent. The plan must be based on a specific interaction point or missing piece of context from the user/system that is not present in the provided material.\"}",
+    "usage": {
+      "prompt_tokens": 248,
+      "completion_tokens": 268,
+      "total_tokens": 516,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "96d234898f91e56e118ab40d896753a59387fc72b90c36c24fd8afe610f8e5a1",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

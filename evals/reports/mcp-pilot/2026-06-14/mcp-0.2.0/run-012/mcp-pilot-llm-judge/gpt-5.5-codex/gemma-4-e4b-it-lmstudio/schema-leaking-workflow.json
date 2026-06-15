@@ -1,0 +1,90 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "schema-leaking-workflow",
+  "title": "Schema-leaking workflow candidate",
+  "case_type": "candidate_validation",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T02:52:40.912Z",
+  "duration_ms": 58017,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "e148f9f8da1436efe6c0a619a7097eb543ade95878eba340899b53b1084b5315",
+  "raw_response_sha256": "a55d9a22ee9de1b76364f9d1f7855e678f47ef9563fab551b21092ef66475bec",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"high\",\"rationale\":\"Output A is the better judgment aid because it reaches the expected next move: reject and discard the schema-leaking workflow. Output B correctly notices the mismatch, but its next action asks for clarification instead of rejecting the candidate, which is weaker and risks keeping an invalid workflow alive. Both outputs are flawed by setting output_valid to true, but A is more decisive and operationally aligned with the benchmark expectation.\",\"decisive_differences\":[\"Output A explicitly says to discard the candidate; Output B asks for clarification despite the clear source mismatch.\",\"Output A grounds the mismatch in the refund triage decision outcomes from the brief.\",\"Output B has a stronger handoff format, but its action is less safe for a candidate-validation case where rejection is expected.\",\"Both outputs expose technical fixture language and mark output_valid true, but A's next_action better protects the downstream judgment.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Discard candidate; requires re-evaluation against the actual triage process.\",\"why_it_matters\":\"This matches the expected next action: reject the schema-leaking workflow.\"},{\"output\":\"output_a\",\"quote\":\"This does not align with the source request, which describes a support lead reviewing refund requests\",\"why_it_matters\":\"It ties the rejection to the source brief rather than treating the candidate as possibly salvageable.\"},{\"output\":\"output_b\",\"quote\":\"Request clarification on which specific parts of the submitted fixture map to the required support lead actions\",\"why_it_matters\":\"Clarification is too permissive when the correct move is to reject the schema-leaking candidate.\"},{\"output\":\"output_b\",\"quote\":\"Owner: Product Manager; Reason: The submitted fixture uses internal system terminology\",\"why_it_matters\":\"This is useful handoff structure, but it does not overcome the weaker next action.\"}],\"output_a_quality\":{\"score\":7.2,\"strengths\":[\"Correctly identifies the candidate as unrelated to refund triage.\",\"Provides a clear discard/re-evaluate next action.\",\"Uses the source decision outcomes as the basis for rejection.\"],\"risks\":[\"Sets output_valid to true, which conflicts with rejecting the candidate if that field denotes candidate validity.\",\"Mentions technical details like API endpoint and CRUD operations that may expose or over-specify implementation artifacts.\",\"Handoff lacks explicit owner/reason/fix structure.\"]},\"output_b_quality\":{\"score\":5.6,\"strengths\":[\"Recognizes the fixture is technical/internal rather than user-facing refund triage.\",\"Handoff includes owner, reason, and fix.\",\"Names the three refund outcomes from the source brief.\"],\"risks\":[\"Next action asks for clarification instead of rejecting the invalid candidate.\",\"Questions are generic and partially ask for information already present in the source brief.\",\"Sets output_valid to true despite describing a core mismatch.\",\"Refers to placeholders like '[internal detail]', which may be invented or unnecessarily leak internal framing.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "high",
+    "rationale": "Output A is the better judgment aid because it reaches the expected next move: reject and discard the schema-leaking workflow. Output B correctly notices the mismatch, but its next action asks for clarification instead of rejecting the candidate, which is weaker and risks keeping an invalid workflow alive. Both outputs are flawed by setting output_valid to true, but A is more decisive and operationally aligned with the benchmark expectation.",
+    "decisive_differences": [
+      "Output A explicitly says to discard the candidate; Output B asks for clarification despite the clear source mismatch.",
+      "Output A grounds the mismatch in the refund triage decision outcomes from the brief.",
+      "Output B has a stronger handoff format, but its action is less safe for a candidate-validation case where rejection is expected.",
+      "Both outputs expose technical fixture language and mark output_valid true, but A's next_action better protects the downstream judgment."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Discard candidate; requires re-evaluation against the actual triage process.",
+        "why_it_matters": "This matches the expected next action: reject the schema-leaking workflow."
+      },
+      {
+        "output": "output_a",
+        "quote": "This does not align with the source request, which describes a support lead reviewing refund requests",
+        "why_it_matters": "It ties the rejection to the source brief rather than treating the candidate as possibly salvageable."
+      },
+      {
+        "output": "output_b",
+        "quote": "Request clarification on which specific parts of the submitted fixture map to the required support lead actions",
+        "why_it_matters": "Clarification is too permissive when the correct move is to reject the schema-leaking candidate."
+      },
+      {
+        "output": "output_b",
+        "quote": "Owner: Product Manager; Reason: The submitted fixture uses internal system terminology",
+        "why_it_matters": "This is useful handoff structure, but it does not overcome the weaker next action."
+      }
+    ],
+    "output_a_quality": {
+      "score": 7.2,
+      "strengths": [
+        "Correctly identifies the candidate as unrelated to refund triage.",
+        "Provides a clear discard/re-evaluate next action.",
+        "Uses the source decision outcomes as the basis for rejection."
+      ],
+      "risks": [
+        "Sets output_valid to true, which conflicts with rejecting the candidate if that field denotes candidate validity.",
+        "Mentions technical details like API endpoint and CRUD operations that may expose or over-specify implementation artifacts.",
+        "Handoff lacks explicit owner/reason/fix structure."
+      ]
+    },
+    "output_b_quality": {
+      "score": 5.6,
+      "strengths": [
+        "Recognizes the fixture is technical/internal rather than user-facing refund triage.",
+        "Handoff includes owner, reason, and fix.",
+        "Names the three refund outcomes from the source brief."
+      ],
+      "risks": [
+        "Next action asks for clarification instead of rejecting the invalid candidate.",
+        "Questions are generic and partially ask for information already present in the source brief.",
+        "Sets output_valid to true despite describing a core mismatch.",
+        "Refers to placeholders like '[internal detail]', which may be invented or unnecessarily leak internal framing."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "d949d0756662bb715af827dca00ed83c462edca5c61f779ad3ff5434d4a58adc",
+    "stderr_sha256": "ff2eda705c5e7d3164e8d088e64411668b15b2f99e06f50ade432f9f9e9596dc",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

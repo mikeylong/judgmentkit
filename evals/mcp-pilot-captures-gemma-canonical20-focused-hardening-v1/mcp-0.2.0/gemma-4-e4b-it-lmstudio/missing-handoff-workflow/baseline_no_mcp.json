@@ -1,0 +1,61 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "missing-handoff-workflow",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54753/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:48:40.287Z",
+  "duration_ms": 3335,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 414,
+    "completion_tokens": 219,
+    "total_tokens": 633,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "0fdd94c4a0c73112dd70b4094867840d8e5dbca6204b642bd4b94e962e83e6b9",
+  "prompt_sha256": "f6e295fe14051a93ef8ae108e6a0daabe227061b0b65106447d595aa738f3fbd",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "85ba3e6e55cca898aec0a77653727a60df2b3fefffcc2cdeca3d2e33e9a79de4",
+  "raw_response": "{\"response\": \"The candidate fixture lacks a dedicated 'handoff' structure, which contradicts the core requirement of the source brief that mandates leaving a handoff with next owner, action, reason, and evidence gap.\", \"next_action\": \"Revise the candidate fixture to explicitly model the required handoff components (owner, action, reason, evidence gap) within the 'handoff' object or structure.\", \"questions\": [\"What is the expected format for specifying the 'next owner', 'action', 'reason', and 'evidence gap' in the final JSON output?\"], \"handoff\": \"Need to revise candidate fixture to include structured handoff details as per source brief requirements.\", \"rationale\": \"The source brief explicitly states that a policy reviewer must leave a handoff containing next owner, action, reason, and evidence gap. The provided candidate fixture has an empty 'handoff': {} object, failing to model this critical workflow step. Therefore, the candidate cannot be trusted as-is and requires modification to incorporate the necessary structured data points for the handoff mechanism.\"}",
+  "parsed": {
+    "response": "The candidate fixture lacks a dedicated 'handoff' structure, which contradicts the core requirement of the source brief that mandates leaving a handoff with next owner, action, reason, and evidence gap.",
+    "next_action": "Revise the candidate fixture to explicitly model the required handoff components (owner, action, reason, evidence gap) within the 'handoff' object or structure.",
+    "questions": [
+      "What is the expected format for specifying the 'next owner', 'action', 'reason', and 'evidence gap' in the final JSON output?"
+    ],
+    "handoff": "Need to revise candidate fixture to include structured handoff details as per source brief requirements.",
+    "rationale": "The source brief explicitly states that a policy reviewer must leave a handoff containing next owner, action, reason, and evidence gap. The provided candidate fixture has an empty 'handoff': {} object, failing to model this critical workflow step. Therefore, the candidate cannot be trusted as-is and requires modification to incorporate the necessary structured data points for the handoff mechanism."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The candidate fixture lacks a dedicated 'handoff' structure, which contradicts the core requirement of the source brief that mandates leaving a handoff with next owner, action, reason, and evidence gap.\", \"next_action\": \"Revise the candidate fixture to explicitly model the required handoff components (owner, action, reason, evidence gap) within the 'handoff' object or structure.\", \"questions\": [\"What is the expected format for specifying the 'next owner', 'action', 'reason', and 'evidence gap' in the final JSON output?\"], \"handoff\": \"Need to revise candidate fixture to include structured handoff details as per source brief requirements.\", \"rationale\": \"The source brief explicitly states that a policy reviewer must leave a handoff containing next owner, action, reason, and evidence gap. The provided candidate fixture has an empty 'handoff': {} object, failing to model this critical workflow step. Therefore, the candidate cannot be trusted as-is and requires modification to incorporate the necessary structured data points for the handoff mechanism.\"}",
+    "usage": {
+      "prompt_tokens": 414,
+      "completion_tokens": 219,
+      "total_tokens": 633,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "aefaf00fbdff1fdb78a40634cec07904999999a7c25c7ef2ebeeeffe00360657",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

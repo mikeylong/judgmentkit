@@ -1,0 +1,52 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "review-queue-without-decision",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "a6fc13d018a5153f38073f2a8cc06636c0b10e731b93809cba8473d8d3afc187",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T01:46:18.194Z",
+  "duration_ms": 36461,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "7a66ab2b360c95a7a1597c27810011af799ac7075d0d646ff507f762106d6c94",
+  "prompt_sha256": "7ac5c0a4e3bffd693723168154f71cb5d397408e564a5990cfc81aa9917ee8ac",
+  "mcp_context_sha256": "7025f72d195ed2a2a707c1c1575e5139027237f3b7fcb19085bb8ced117dd1f0",
+  "raw_response_sha256": "646a2f6df99886d5b5ea9b45e074c1776e2a00d1da0b993fb79db363f27e41bd",
+  "raw_response": "{\"response\":\"The next response should pause before designing the queue. Treat the request as a review workspace, but state that the brief does not yet define the decision the queue supports or the outcome of a completed review. Ask only for that missing context, then use the answers to define scan cues, priority rules, item states, and available actions.\",\"next_action\":\"Ask targeted questions, then proceed only once the review decision and expected outcome are clear.\",\"questions\":[\"What decision or next action should the review queue make easier for the user?\",\"What should the user leave the queue knowing or having done?\"],\"handoff\":\"Decision: request activity context before design; Owner: next agent; Reason: scanability depends on the review decision, completion outcome, and priority signals, which are not yet evidenced.\",\"rationale\":\"The brief gives a broad surface and a scanability goal, but not the activity contract. Without the decision and completion outcome, any proposed queue structure would invent priorities, labels, and actions.\"}",
+  "parsed": {
+    "response": "The next response should pause before designing the queue. Treat the request as a review workspace, but state that the brief does not yet define the decision the queue supports or the outcome of a completed review. Ask only for that missing context, then use the answers to define scan cues, priority rules, item states, and available actions.",
+    "next_action": "Ask targeted questions, then proceed only once the review decision and expected outcome are clear.",
+    "questions": [
+      "What decision or next action should the review queue make easier for the user?",
+      "What should the user leave the queue knowing or having done?"
+    ],
+    "handoff": "Decision: request activity context before design; Owner: next agent; Reason: scanability depends on the review decision, completion outcome, and priority signals, which are not yet evidenced.",
+    "rationale": "The brief gives a broad surface and a scanability goal, but not the activity contract. Without the decision and completion outcome, any proposed queue structure would invent priorities, labels, and actions."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "603946abb0ea44344a2fb48fa443e322aff16dbdec362625749634389bad55f4",
+    "stderr_sha256": "ac60c312a976aed839cb0e2d7d542ec166fe4bb977d817aa9f3c96a5dacf949a",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

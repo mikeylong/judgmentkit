@@ -1,0 +1,48 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "clinical-intake-operator-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract"
+  ],
+  "mcp_tool_transcript_sha256": "4edff8a19550f8eca10fd17743cadda5bb5b907fcb9521c51c5ba964d04a669d",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T01:50:45.834Z",
+  "duration_ms": 36484,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "6c38a9e21d1440aaafce401ca79d337661f21d2709c678fad7dfff2a229ad1a1",
+  "prompt_sha256": "850cead3053538831bef909ed3ea0d7023694b75ec9d138e11f17fbe6c7cccc1",
+  "mcp_context_sha256": "e7879b8c135f4fe8053f376558ff65fff774571a20820d7172dd007f162a51f8",
+  "raw_response_sha256": "4e0cbcd5d8f7ce8be5a93854d2be3b462416958507437f27b7b379cf0a8a8a41",
+  "raw_response": "{\"response\":\"Plan the next response around the care coordinator's review task: compare the drafted intake against symptoms, urgency signals, and consent status, then prepare a defensible routing handoff instead of describing the interface.\",\"next_action\":\"Prepare the routing handoff by selecting one route: nurse review for unresolved urgency, return for clarification when consent or intake details are missing, or ready for scheduling only when symptoms, urgency, and consent are clear.\",\"questions\":[],\"handoff\":\"Owner: care coordinator; Action: choose nurse review, clarification, or ready-for-scheduling route; Reason: urgency and consent must be clear before scheduling; Evidence gap: missing consent or ambiguous urgency signal; Verification: handoff states selected route, owner, reason, and unresolved evidence.\",\"rationale\":\"The available context already defines what the user should leave having done: a routing decision with a handoff receipt. No clarification is needed because the route options, decision criteria, owner, reason, and evidence gap are provided.\"}",
+  "parsed": {
+    "response": "Plan the next response around the care coordinator's review task: compare the drafted intake against symptoms, urgency signals, and consent status, then prepare a defensible routing handoff instead of describing the interface.",
+    "next_action": "Prepare the routing handoff by selecting one route: nurse review for unresolved urgency, return for clarification when consent or intake details are missing, or ready for scheduling only when symptoms, urgency, and consent are clear.",
+    "questions": [],
+    "handoff": "Owner: care coordinator; Action: choose nurse review, clarification, or ready-for-scheduling route; Reason: urgency and consent must be clear before scheduling; Evidence gap: missing consent or ambiguous urgency signal; Verification: handoff states selected route, owner, reason, and unresolved evidence.",
+    "rationale": "The available context already defines what the user should leave having done: a routing decision with a handoff receipt. No clarification is needed because the route options, decision criteria, owner, reason, and evidence gap are provided."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "d0643e680e2abceae89d051d3a9f7522ee3f12d2c036be6b7343e35b1d4af765",
+    "stderr_sha256": "bcf06e6b5ec959a882ad4b8ca6fe72ac6c203bff1ddc1831a989ad4f6a8f3cfc",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

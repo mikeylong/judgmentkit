@@ -1,0 +1,49 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "api-list-workflow",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T01:47:07.112Z",
+  "duration_ms": 48914,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "049c33a6708eaa891f3b98d28971177cc82335fecab0d4a5219e9cb17dd39d8b",
+  "prompt_sha256": "0890a1f50c9eee2984b0db129a1ca058de121fd049ef4b2d4c2a1aa223337a4c",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "41354160d71a629f0a33986b164826b45570a26e3a76eff1addb5040fb59ca09",
+  "raw_response": "{\"response\":\"Do not turn the endpoint list into a generic CRUD screen. The next response should acknowledge that the endpoints show available operations, but they do not define the user workflow, item meaning, decision points, or safe handling for edits and deletion. Ask for the missing activity context before planning the UI. If an interim direction is required, frame it as an item workbench with list, add, update, and remove capabilities held behind domain-specific labels and confirmation rules once the item lifecycle is known.\",\"next_action\":\"Ask targeted workflow questions, then map the four operations to user-facing tasks only after item purpose, users, fields, lifecycle, permissions, and deletion policy are known.\",\"questions\":[\"What are users trying to accomplish with these items, and what outcome should they leave with?\",\"What does an item represent, what fields matter in the list, and which states or statuses change over its lifecycle?\",\"Who can create, edit, and delete items, and should deletion be reversible, confirmed, or restricted?\"],\"handoff\":\"Product owner to provide item domain, lifecycle, permissions, and deletion rules because endpoint names alone are insufficient evidence for a workflow UI.\",\"rationale\":\"An API operation list describes implementation capability, not the work users are doing. Planning directly from GET, POST, PATCH, and DELETE would leak backend structure into the interface and risk a shallow admin table instead of a task-appropriate workflow.\"}",
+  "parsed": {
+    "response": "Do not turn the endpoint list into a generic CRUD screen. The next response should acknowledge that the endpoints show available operations, but they do not define the user workflow, item meaning, decision points, or safe handling for edits and deletion. Ask for the missing activity context before planning the UI. If an interim direction is required, frame it as an item workbench with list, add, update, and remove capabilities held behind domain-specific labels and confirmation rules once the item lifecycle is known.",
+    "next_action": "Ask targeted workflow questions, then map the four operations to user-facing tasks only after item purpose, users, fields, lifecycle, permissions, and deletion policy are known.",
+    "questions": [
+      "What are users trying to accomplish with these items, and what outcome should they leave with?",
+      "What does an item represent, what fields matter in the list, and which states or statuses change over its lifecycle?",
+      "Who can create, edit, and delete items, and should deletion be reversible, confirmed, or restricted?"
+    ],
+    "handoff": "Product owner to provide item domain, lifecycle, permissions, and deletion rules because endpoint names alone are insufficient evidence for a workflow UI.",
+    "rationale": "An API operation list describes implementation capability, not the work users are doing. Planning directly from GET, POST, PATCH, and DELETE would leak backend structure into the interface and risk a shallow admin table instead of a task-appropriate workflow."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "4c51424ce077faff517f2dd77a83bdbe26a4a775edbf7d8f70350a6237385238",
+    "stderr_sha256": "8326b78577f2be071da0bf7b112a98744310e1a65b36c48ff10f446220584c3a",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

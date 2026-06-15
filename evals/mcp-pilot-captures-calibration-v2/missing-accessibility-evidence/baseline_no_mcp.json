@@ -1,0 +1,29 @@
+{
+  "capture_type": "codex-output-transcript",
+  "case_id": "missing-accessibility-evidence",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-13T20:59:24.932Z",
+  "source_context_sha256": "d93e73ffe1584986737f470f2eab62971ac1adc912f579949f20e60482667e67",
+  "prompt_sha256": "5e79c72a0e397cbdd47483e6cada7600d77061b22811994f3929dc49398fad31",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "52a93d1b96eafa12bd23d07fdfb6b49f9e424e5cd355256c99f56adf00aa71a4",
+  "raw_response": "{\"response\":\"Do not accept. The candidate covers the named screen primitives, basic states, static test run, and desktop/mobile browser QA, but it provides no accessibility evidence for a dense operator review screen with custom controls.\",\"next_action\":\"Return the candidate for accessibility evidence and repeat acceptance review after the evidence is attached.\",\"questions\":[],\"handoff\":\"Implementation owner: add core accessibility evidence for keyboard operation, focus order, control names/roles/states, screen reader behavior, contrast, and usable target sizes because accessibility_evidence is empty.\",\"rationale\":\"The source brief makes core accessibility evidence a precondition for acceptance. An empty accessibility_evidence object leaves the highest-risk requirement unverified; npm test and viewport QA do not establish accessibility behavior for custom controls.\"}",
+  "parsed": {
+    "response": "Do not accept. The candidate covers the named screen primitives, basic states, static test run, and desktop/mobile browser QA, but it provides no accessibility evidence for a dense operator review screen with custom controls.",
+    "next_action": "Return the candidate for accessibility evidence and repeat acceptance review after the evidence is attached.",
+    "questions": [],
+    "handoff": "Implementation owner: add core accessibility evidence for keyboard operation, focus order, control names/roles/states, screen reader behavior, contrast, and usable target sizes because accessibility_evidence is empty.",
+    "rationale": "The source brief makes core accessibility evidence a precondition for acceptance. An empty accessibility_evidence object leaves the highest-risk requirement unverified; npm test and viewport QA do not establish accessibility behavior for custom controls."
+  },
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "9dbb211bc70ba8bba8755fe65f95edd4efec9e1cf25d45c5b24e69cb3bd0b5fe",
+    "stderr_sha256": "531afb4e1fa448010aad4cef5958347bc1cbf007215e315fd543c8a34536700c",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

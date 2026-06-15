@@ -1,0 +1,59 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "refund-schema-admin-translation",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51706/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:42:49.835Z",
+  "duration_ms": 7634,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 344,
+    "completion_tokens": 254,
+    "total_tokens": 598,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "69e537ba38772ec9ceeb4d33219831435ea644fb46f6d8317b34616d690305b1",
+  "prompt_sha256": "3f0acf90c4f16dd030737ff4c73413ec570b8ac8dca36069c2d4b59fca8f9611",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "1f39032b8cf128f2500a47f423032cdfe80c6e8b29755e7eb6496c8b0c5d8fb9",
+  "raw_response": "{\"response\": \"The next agent response plan involves synthesizing information from the `refund_request` database table structure, the provided JSON schema, relevant API endpoints, and the prompt template to construct a functional administrative interface for a support lead. This interface must guide the user through evaluating a refund case and making one of three decisions: Approve Refund, Send to Policy Review, or Return for Missing Evidence.\", \"next_action\": \"Develop the core logic flow for the admin screen based on the decision points (Approve/Review/Return) and map required data fields from the source context to these actions. Prioritize defining the necessary validation checks for 'Missing Evidence' returns.\", \"questions\": [], \"handoff\": \"Owner: Product Design; Action: Review workflow diagram; Reason: Need confirmation on the exact UI flow and mandatory fields for each of the three decision paths (Approve, Policy Review, Missing Evidence) to ensure all required data points are captured before proceeding with implementation.\", \"rationale\": \"The source brief outlines a complex administrative task requiring integration across multiple components (DB schema, JSON schema, API, Prompt). The immediate next step is defining the user journey and validation rules for the decision-making process itself, which requires design sign-off.\"}",
+  "parsed": {
+    "response": "The next agent response plan involves synthesizing information from the `refund_request` database table structure, the provided JSON schema, relevant API endpoints, and the prompt template to construct a functional administrative interface for a support lead. This interface must guide the user through evaluating a refund case and making one of three decisions: Approve Refund, Send to Policy Review, or Return for Missing Evidence.",
+    "next_action": "Develop the core logic flow for the admin screen based on the decision points (Approve/Review/Return) and map required data fields from the source context to these actions. Prioritize defining the necessary validation checks for 'Missing Evidence' returns.",
+    "questions": [],
+    "handoff": "Owner: Product Design; Action: Review workflow diagram; Reason: Need confirmation on the exact UI flow and mandatory fields for each of the three decision paths (Approve, Policy Review, Missing Evidence) to ensure all required data points are captured before proceeding with implementation.",
+    "rationale": "The source brief outlines a complex administrative task requiring integration across multiple components (DB schema, JSON schema, API, Prompt). The immediate next step is defining the user journey and validation rules for the decision-making process itself, which requires design sign-off."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The next agent response plan involves synthesizing information from the `refund_request` database table structure, the provided JSON schema, relevant API endpoints, and the prompt template to construct a functional administrative interface for a support lead. This interface must guide the user through evaluating a refund case and making one of three decisions: Approve Refund, Send to Policy Review, or Return for Missing Evidence.\", \"next_action\": \"Develop the core logic flow for the admin screen based on the decision points (Approve/Review/Return) and map required data fields from the source context to these actions. Prioritize defining the necessary validation checks for 'Missing Evidence' returns.\", \"questions\": [], \"handoff\": \"Owner: Product Design; Action: Review workflow diagram; Reason: Need confirmation on the exact UI flow and mandatory fields for each of the three decision paths (Approve, Policy Review, Missing Evidence) to ensure all required data points are captured before proceeding with implementation.\", \"rationale\": \"The source brief outlines a complex administrative task requiring integration across multiple components (DB schema, JSON schema, API, Prompt). The immediate next step is defining the user journey and validation rules for the decision-making process itself, which requires design sign-off.\"}",
+    "usage": {
+      "prompt_tokens": 344,
+      "completion_tokens": 254,
+      "total_tokens": 598,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "64655f4e9285748096e13058c952a568de5a3b80fb9853003c8f67719211e4f7",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

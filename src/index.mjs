@@ -3333,6 +3333,169 @@ const DEFAULT_ACCESSIBILITY_POLICY = {
   ],
 };
 
+const DEFAULT_AI_NATIVE_DESIGN_SYSTEM = {
+  id: "judgmentkit.ai-native-default.contract-v1",
+  mode: "contract_defaults",
+  purpose:
+    "Govern agent-generated UI at the contract layer before any adapter-layer renderer choices.",
+  primitive_defaults: [
+    "use only approved implementation primitives or documented repo-local equivalents",
+    "new primitives require contract evidence before use",
+    "raw controls stay behind approved helper primitives",
+  ],
+  surface_patterns: [
+    "activity-first structure before renderer choices",
+    "workbench surfaces keep selection, evidence, decision, and completion state adjacent",
+    "operator review surfaces keep produced work, evidence, risk, bounded decision, and receipt together",
+    "form flows keep labels, validation, review, submit, and confirmation in task order",
+    "setup and debug surfaces may expose implementation detail only when that is the activity",
+  ],
+  state_rules: [
+    "cover required states from implementation_contract.state_coverage.required_states",
+    "show disabled, error, loading, empty, ready, and focus-visible states with readable reasons",
+    "state names must describe user-visible work state instead of internal lifecycle mechanics",
+  ],
+  action_boundaries: {
+    required: [
+      "primary actions must come from the workflow, domain decision, or explicit handoff path",
+      "committing, destructive, financial, publishing, or external side-effect actions require an explicit approval boundary",
+      "diagnostic or setup actions stay secondary unless the activity is setup, debugging, auditing, or integration",
+      "completion actions leave a receipt, result, or handoff reason",
+    ],
+    risky_action_terms: [
+      "approve",
+      "auto approve",
+      "charge",
+      "delete",
+      "deploy",
+      "execute",
+      "issue refund",
+      "pay",
+      "publish",
+      "refund",
+      "release",
+      "submit order",
+    ],
+    failure_signals: [
+      "a risky action is exposed without explicit user approval or confirmation evidence",
+      "an unauthorized action is listed in the generated UI candidate",
+      "a diagnostic action is promoted as a primary work action outside setup, debugging, auditing, or integration",
+      "completion can occur without a receipt, result, or handoff reason",
+    ],
+  },
+  data_visibility: {
+    primary_data_roles: [
+      "work item identity",
+      "domain evidence",
+      "decision options",
+      "validation and disabled reasons",
+      "completion result or handoff receipt",
+    ],
+    diagnostic_only_terms: [
+      "MCP server",
+      "tool call",
+      "prompt template",
+      "JSON schema",
+      "resource id",
+      "trace",
+      "model configuration",
+    ],
+    allowed_diagnostic_contexts: [
+      "setup",
+      "debugging",
+      "auditing",
+      "integration",
+      "explicit source inspection",
+    ],
+    failure_signals: [
+      "primary UI text exposes diagnostic-only terms outside an allowed diagnostic context",
+      "source identifiers, prompts, schemas, traces, or tool mechanics appear as user-facing work vocabulary",
+      "data fields are listed because they exist rather than because they support the activity",
+    ],
+  },
+  accessibility: {
+    baseline: "WCAG 2.2 AA",
+    evidence_source: "implementation_contract.accessibility_policy",
+  },
+  evidence_gates: [
+    "activity gate before implementation",
+    "workflow review before implementation",
+    "approved primitive evidence",
+    "state coverage evidence",
+    "action boundary evidence when risky actions are present",
+    "data visibility evidence when primary text or fields are supplied",
+    "static enforcement evidence",
+    "desktop and mobile browser QA evidence",
+    "accessibility evidence",
+  ],
+  adapter_boundary: {
+    visual_token_adapter:
+      "boundary-only metadata lives at implementation_contract.visual_token_adapter; renderer use remains deferred",
+    renderer_package:
+      "deferred until a token adapter can drive rendered primitives without changing the activity contract",
+  },
+};
+
+const DEFAULT_VISUAL_TOKEN_ADAPTER = {
+  id: "judgmentkit.visual-token-adapter.boundary-v1",
+  mode: "boundary_only",
+  purpose:
+    "Define semantic visual token evidence after contract governance without selecting renderer components.",
+  token_families: [
+    "color",
+    "type",
+    "spacing",
+    "radius",
+    "density",
+    "elevation",
+    "motion",
+    "semantic",
+  ],
+  semantic_roles: [
+    "surface",
+    "text",
+    "border",
+    "focus",
+    "status",
+    "decision",
+    "risk",
+    "disabled",
+    "receipt",
+  ],
+  adapter_rules: [
+    "visual token evidence describes semantic roles and constraints; it does not create approved primitives",
+    "visual token evidence cannot satisfy missing activity, primitive, state, action-boundary, data-visibility, accessibility, static-check, or browser-QA gates",
+    "token names stay adapter metadata and must not become primary UI vocabulary",
+    "renderer and component packages remain deferred until the token adapter can drive rendered primitives without changing the activity contract",
+  ],
+  evidence_expectations: [
+    "name visual token families used by the candidate",
+    "map token semantics to approved primitives, states, and surface patterns",
+    "include accessibility-relevant token evidence when color, motion, density, focus, or status roles affect readability or input",
+  ],
+  deferred_renderer: {
+    renderer_package: "deferred",
+    component_package: "deferred",
+    catalog_compiler: "deferred",
+  },
+  failure_signals: [
+    "visual token evidence is used as a substitute for approved primitives or required states",
+    "visual token evidence claims to pass accessibility, action, data-visibility, static, or browser gates without the required evidence",
+    "unsupported token families are introduced without adapter evidence",
+    "renderer, component package, catalog, compiler, or A2UI work is introduced in the boundary-only slice",
+  ],
+};
+
+const DEFAULT_ITERATION_POLICY = {
+  owner: "agent",
+  default_max_attempts: 3,
+  loop: ["generate", "review", "repair", "resubmit"],
+  pass_status: "accept",
+  failure_statuses: ["repair_and_resubmit", "stop_for_human"],
+  judgmentkit_role:
+    "review generated UI evidence and return structured failures; do not mutate files or call a provider model",
+};
+
 function normalizeVisualAssetPolicy(sourcePolicy, fallbackPolicy) {
   const source = isPlainObject(sourcePolicy) ? sourcePolicy : {};
   const fallback = isPlainObject(fallbackPolicy)
@@ -3413,6 +3576,83 @@ function mergePolicyObject(sourceValue, fallbackValue) {
   }
 
   return sourceValue === undefined ? fallbackValue : sourceValue;
+}
+
+function normalizeDefaultAiNativeDesignSystem(sourcePolicy, fallbackPolicy) {
+  return mergePolicyObject(
+    sourcePolicy,
+    isPlainObject(fallbackPolicy)
+      ? fallbackPolicy
+      : DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
+  );
+}
+
+function normalizeVisualTokenAdapter(sourcePolicy, fallbackPolicy) {
+  const policy = mergePolicyObject(
+    sourcePolicy,
+    isPlainObject(fallbackPolicy) ? fallbackPolicy : DEFAULT_VISUAL_TOKEN_ADAPTER,
+  );
+
+  return {
+    ...policy,
+    id: optionalString(policy.id) || DEFAULT_VISUAL_TOKEN_ADAPTER.id,
+    mode: optionalString(policy.mode) || DEFAULT_VISUAL_TOKEN_ADAPTER.mode,
+    purpose:
+      optionalString(policy.purpose) || DEFAULT_VISUAL_TOKEN_ADAPTER.purpose,
+    token_families: normalizePrimitiveList(
+      policy.token_families ?? policy.tokenFamilies,
+      DEFAULT_VISUAL_TOKEN_ADAPTER.token_families,
+    ),
+    semantic_roles: normalizePrimitiveList(
+      policy.semantic_roles ?? policy.semanticRoles,
+      DEFAULT_VISUAL_TOKEN_ADAPTER.semantic_roles,
+    ),
+    adapter_rules: normalizePrimitiveList(
+      policy.adapter_rules ?? policy.adapterRules,
+      DEFAULT_VISUAL_TOKEN_ADAPTER.adapter_rules,
+    ),
+    evidence_expectations: normalizePrimitiveList(
+      policy.evidence_expectations ?? policy.evidenceExpectations,
+      DEFAULT_VISUAL_TOKEN_ADAPTER.evidence_expectations,
+    ),
+    deferred_renderer: mergePolicyObject(
+      policy.deferred_renderer ?? policy.deferredRenderer,
+      DEFAULT_VISUAL_TOKEN_ADAPTER.deferred_renderer,
+    ),
+    failure_signals: normalizePrimitiveList(
+      policy.failure_signals ?? policy.failureSignals,
+      DEFAULT_VISUAL_TOKEN_ADAPTER.failure_signals,
+    ),
+  };
+}
+
+function normalizeIterationPolicy(sourcePolicy, fallbackPolicy) {
+  const policy = mergePolicyObject(
+    sourcePolicy,
+    isPlainObject(fallbackPolicy) ? fallbackPolicy : DEFAULT_ITERATION_POLICY,
+  );
+
+  return {
+    ...policy,
+    default_max_attempts: Math.max(
+      1,
+      numberOrFallback(
+        policy.default_max_attempts ?? policy.max_attempts,
+        DEFAULT_ITERATION_POLICY.default_max_attempts,
+      ),
+    ),
+    owner: optionalString(policy.owner) || DEFAULT_ITERATION_POLICY.owner,
+    loop: normalizePrimitiveList(policy.loop, DEFAULT_ITERATION_POLICY.loop),
+    pass_status:
+      optionalString(policy.pass_status) || DEFAULT_ITERATION_POLICY.pass_status,
+    failure_statuses: normalizePrimitiveList(
+      policy.failure_statuses,
+      DEFAULT_ITERATION_POLICY.failure_statuses,
+    ),
+    judgmentkit_role:
+      optionalString(policy.judgmentkit_role) ||
+      DEFAULT_ITERATION_POLICY.judgmentkit_role,
+  };
 }
 
 function normalizeAccessibilityPolicy(sourcePolicy, fallbackPolicy) {
@@ -3572,6 +3812,19 @@ function normalizeUiImplementationContract(input = {}, options = {}) {
             : true,
       checks: browserQaChecks,
     },
+    default_ai_native_design_system: normalizeDefaultAiNativeDesignSystem(
+      source.default_ai_native_design_system ??
+        source.defaultAiNativeDesignSystem,
+      base.default_ai_native_design_system,
+    ),
+    iteration_policy: normalizeIterationPolicy(
+      source.iteration_policy ?? source.iterationPolicy,
+      base.iteration_policy,
+    ),
+    visual_token_adapter: normalizeVisualTokenAdapter(
+      source.visual_token_adapter ?? source.visualTokenAdapter,
+      base.visual_token_adapter,
+    ),
     visual_asset_policy: normalizeVisualAssetPolicy(
       source.visual_asset_policy ?? source.visualAssetPolicy,
       base.visual_asset_policy,
@@ -3646,6 +3899,8 @@ export function createUiImplementationContract(input = {}, options = {}) {
         checks: [
           "approved primitives",
           "state coverage",
+          "action boundaries",
+          "data visibility",
           "static enforcement",
           "browser QA",
           "accessibility evidence",
@@ -4875,6 +5130,332 @@ function reviewAccessibilityEvidence(candidate, implementationContract, text) {
   };
 }
 
+function collectStrings(value) {
+  if (typeof value === "string") {
+    return [value];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap(collectStrings);
+  }
+
+  if (isPlainObject(value)) {
+    return Object.values(value).flatMap(collectStrings);
+  }
+
+  return [];
+}
+
+function collectCandidateValuesByKey(candidate, keyNames) {
+  if (!isPlainObject(candidate)) {
+    return [];
+  }
+
+  const wanted = new Set(keyNames);
+  const values = [];
+
+  function visit(value) {
+    if (!isPlainObject(value)) {
+      return;
+    }
+
+    for (const [key, child] of Object.entries(value)) {
+      if (wanted.has(key)) {
+        values.push(...collectStrings(child));
+      }
+
+      if (isPlainObject(child)) {
+        visit(child);
+      }
+    }
+  }
+
+  visit(candidate);
+  return unique(values.map(cleanClause).filter(Boolean));
+}
+
+function reviewActionBoundaries(candidate, implementationContract) {
+  const system = implementationContract.default_ai_native_design_system ?? {};
+  const policy = isPlainObject(system.action_boundaries)
+    ? system.action_boundaries
+    : DEFAULT_AI_NATIVE_DESIGN_SYSTEM.action_boundaries;
+  const actionTexts = unique([
+    ...normalizeCandidateList(candidate, [
+      "actions",
+      "primary_actions",
+      "actions_exposed",
+      "user_actions",
+      "controls",
+      "primary_controls",
+    ]),
+    ...collectCandidateValuesByKey(candidate, [
+      "actions",
+      "primary_actions",
+      "actions_exposed",
+      "user_actions",
+      "controls",
+      "primary_controls",
+    ]),
+  ]);
+  const riskyTerms = normalizePrimitiveList(
+    policy.risky_action_terms,
+    DEFAULT_AI_NATIVE_DESIGN_SYSTEM.action_boundaries.risky_action_terms,
+  );
+  const riskyActions = actionTexts.filter((action) => {
+    const normalized = normalizeText(action);
+    return riskyTerms.some((term) => normalized.includes(normalizeText(term)));
+  });
+  const unauthorizedActions = unique([
+    ...normalizeCandidateList(candidate, [
+      "unauthorized_actions",
+      "unapproved_actions",
+    ]),
+    ...collectCandidateValuesByKey(candidate, [
+      "unauthorized_actions",
+      "unapproved_actions",
+    ]),
+  ]);
+  const boundaryEvidence = isPlainObject(candidate)
+    ? candidate.action_boundary_evidence ??
+      candidate.action_boundaries ??
+      candidate.actions_evidence ??
+      candidate.approval_boundary
+    : null;
+  const boundaryEvidenceText = evidenceToText(boundaryEvidence).toLowerCase();
+  const approvalBoundaryProvided =
+    /approval|approve before|confirm|confirmation|explicit user|review before|user submits|consent/.test(
+      boundaryEvidenceText,
+    );
+  const completionEvidenceProvided =
+    /receipt|handoff|result|completion|decision reason/.test(boundaryEvidenceText);
+  const findings = [];
+
+  if (unauthorizedActions.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "action_boundaries",
+      message: "Candidate exposes actions that are not authorized by the implementation contract.",
+      evidence: unauthorizedActions,
+    });
+  }
+
+  if (riskyActions.length > 0 && !approvalBoundaryProvided) {
+    findings.push({
+      severity: "fail",
+      check: "action_boundaries",
+      message:
+        "Risky or externally committing actions require explicit approval-boundary evidence.",
+      evidence: {
+        risky_actions: riskyActions,
+        required: policy.required,
+      },
+    });
+  }
+
+  return {
+    status: findings.length > 0 ? "fail" : "pass",
+    reviewed: actionTexts.length > 0 || Boolean(boundaryEvidence),
+    actions: actionTexts,
+    risky_actions: riskyActions,
+    unauthorized_actions: unauthorizedActions,
+    approval_boundary_provided: approvalBoundaryProvided,
+    completion_evidence_provided: completionEvidenceProvided,
+    required: policy.required,
+    findings,
+  };
+}
+
+function reviewDataVisibility(candidate, implementationContract) {
+  const system = implementationContract.default_ai_native_design_system ?? {};
+  const policy = isPlainObject(system.data_visibility)
+    ? system.data_visibility
+    : DEFAULT_AI_NATIVE_DESIGN_SYSTEM.data_visibility;
+  const visibleText = collectCandidateValuesByKey(candidate, [
+    "visible_text",
+    "primary_text",
+    "primary_ui_text",
+    "rendered_text",
+    "screen_text",
+    "user_facing_text",
+    "labels",
+    "headings",
+    "copy",
+    "fields",
+    "primary_fields",
+    "visible_fields",
+    "data_fields",
+  ]);
+  const visibleTextBlob = visibleText.join("\n").toLowerCase();
+  const diagnosticOnlyTerms = normalizePrimitiveList(
+    policy.diagnostic_only_terms,
+    DEFAULT_AI_NATIVE_DESIGN_SYSTEM.data_visibility.diagnostic_only_terms,
+  );
+  const leakedTerms = diagnosticOnlyTerms.filter((term) =>
+    visibleTextBlob.includes(normalizeText(term)),
+  );
+  const evidence = isPlainObject(candidate)
+    ? candidate.data_visibility_evidence ?? candidate.data_visibility
+    : null;
+  const evidenceText = evidenceToText(evidence).toLowerCase();
+  const diagnosticContextAllowed =
+    /setup|debugging|debug|audit|auditing|integration|source inspection/.test(
+      evidenceText,
+    );
+  const findings = [];
+
+  if (leakedTerms.length > 0 && !diagnosticContextAllowed) {
+    findings.push({
+      severity: "fail",
+      check: "data_visibility",
+      message:
+        "Primary UI text exposes diagnostic-only implementation terms without an allowed diagnostic context.",
+      evidence: {
+        diagnostic_only_terms: leakedTerms,
+        allowed_contexts: policy.allowed_diagnostic_contexts,
+      },
+    });
+  }
+
+  return {
+    status: findings.length > 0 ? "fail" : "pass",
+    reviewed: visibleText.length > 0 || Boolean(evidence),
+    visible_text: visibleText,
+    diagnostic_only_terms_detected: leakedTerms,
+    diagnostic_context_allowed: diagnosticContextAllowed,
+    primary_data_roles: policy.primary_data_roles,
+    findings,
+  };
+}
+
+function candidateVisualTokenEvidence(candidate) {
+  if (!isPlainObject(candidate)) {
+    return null;
+  }
+
+  return (
+    candidate.visual_token_evidence ??
+    candidate.visualTokenEvidence ??
+    candidate.visual_token_adapter_evidence ??
+    candidate.visualTokenAdapterEvidence ??
+    candidate.token_adapter_evidence ??
+    candidate.tokenAdapterEvidence ??
+    null
+  );
+}
+
+function evidenceHasAnyValue(value) {
+  if (Array.isArray(value)) {
+    return value.some(evidenceHasAnyValue);
+  }
+
+  if (isPlainObject(value)) {
+    return Object.values(value).some(evidenceHasAnyValue);
+  }
+
+  return optionalString(value).length > 0;
+}
+
+function reviewVisualTokenEvidence(candidate, implementationContract) {
+  const adapter =
+    implementationContract.visual_token_adapter ?? DEFAULT_VISUAL_TOKEN_ADAPTER;
+  const evidence = candidateVisualTokenEvidence(candidate);
+  const evidenceText = evidenceToText(evidence).toLowerCase();
+  const allowedFamilies = normalizePrimitiveList(
+    adapter.token_families,
+    DEFAULT_VISUAL_TOKEN_ADAPTER.token_families,
+  );
+  const allowedFamilySet = new Set(allowedFamilies.map((family) => normalizeText(family)));
+  const families = unique([
+    ...normalizeCandidateList(evidence, [
+      "token_families",
+      "tokenFamilies",
+      "families",
+      "categories",
+      "visual_token_families",
+      "visualTokenFamilies",
+    ]),
+    ...collectCandidateValuesByKey(evidence, [
+      "token_families",
+      "tokenFamilies",
+      "families",
+      "categories",
+      "visual_token_families",
+      "visualTokenFamilies",
+    ]),
+  ]);
+  const unsupportedFamilies = families.filter(
+    (family) => !allowedFamilySet.has(normalizeText(family)),
+  );
+  const deferredRendererTerms = [
+    "renderer package",
+    "component package",
+    "component library",
+    "catalog compiler",
+    "protocol compiler",
+    "a2ui",
+  ];
+  const deferredRendererClaims = deferredRendererTerms.filter((term) =>
+    evidenceText.includes(term),
+  );
+  const substitutesGateEvidence =
+    /(token|visual token).{0,60}(satisf|pass|replace|substitute|instead).{0,80}(approved primitive|primitive|state|accessibility|action boundary|data visibility|static|browser qa|implementation gate)/i.test(
+      evidenceText,
+    ) ||
+    /(skip|without|no need for).{0,80}(approved primitive|state|accessibility|browser qa|static check|action boundary|data visibility)/i.test(
+      evidenceText,
+    );
+  const findings = [];
+
+  if (unsupportedFamilies.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "visual_tokens",
+      message:
+        "Candidate visual token evidence uses token families outside the boundary adapter.",
+      evidence: {
+        unsupported_families: unsupportedFamilies,
+        allowed_families: allowedFamilies,
+      },
+    });
+  }
+
+  if (deferredRendererClaims.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "visual_tokens",
+      message:
+        "Candidate visual token evidence introduces renderer, component, catalog, compiler, or A2UI work that is deferred.",
+      evidence: {
+        deferred_terms: deferredRendererClaims,
+        deferred_renderer: adapter.deferred_renderer,
+      },
+    });
+  }
+
+  if (substitutesGateEvidence) {
+    findings.push({
+      severity: "fail",
+      check: "visual_tokens",
+      message:
+        "Candidate visual token evidence is being used as a substitute for required implementation gate evidence.",
+      evidence: {
+        adapter_rules: adapter.adapter_rules,
+      },
+    });
+  }
+
+  return {
+    status: findings.length > 0 ? "fail" : "pass",
+    reviewed: evidenceHasAnyValue(evidence),
+    mode: adapter.mode,
+    allowed_families: allowedFamilies,
+    families,
+    unsupported_families: unsupportedFamilies,
+    deferred_renderer: adapter.deferred_renderer,
+    findings,
+  };
+}
+
 function buildImplementationCandidateChecks(candidate, implementationContract) {
   const text = candidateText(candidate);
   const rawControls = detectRawControls(text);
@@ -4912,10 +5493,16 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
   const browserQaRequired = implementationContract.browser_qa.required;
   const missingBrowserQa = browserQaRequired && (!browserQaText || !hasDesktopQa || !hasMobileQa);
   const modalActions = reviewModalActions(candidate);
+  const actionBoundaries = reviewActionBoundaries(candidate, implementationContract);
+  const dataVisibility = reviewDataVisibility(candidate, implementationContract);
   const accessibilityEvidence = reviewAccessibilityEvidence(
     candidate,
     implementationContract,
     text,
+  );
+  const visualTokenEvidence = reviewVisualTokenEvidence(
+    candidate,
+    implementationContract,
   );
   const findings = [];
 
@@ -4979,6 +5566,9 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
   }
 
   findings.push(...accessibilityEvidence.findings);
+  findings.push(...actionBoundaries.findings);
+  findings.push(...dataVisibility.findings);
+  findings.push(...visualTokenEvidence.findings);
 
   return {
     raw_controls: {
@@ -5010,8 +5600,157 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
       reviewed: modalActions.reviewed,
       entries: modalActions.entries,
     },
+    action_boundaries: actionBoundaries,
+    data_visibility: dataVisibility,
     accessibility_evidence: accessibilityEvidence,
+    visual_tokens: visualTokenEvidence,
     findings,
+  };
+}
+
+function normalizeIterationContext(iterationContext, iterationPolicy) {
+  const source = isPlainObject(iterationContext) ? iterationContext : {};
+  const maxAttempts = Math.max(
+    1,
+    numberOrFallback(
+      source.max_attempts ?? source.maxAttempts,
+      iterationPolicy.default_max_attempts,
+    ),
+  );
+  const currentAttempt = Math.max(
+    1,
+    numberOrFallback(
+      source.current_attempt ??
+        source.currentAttempt ??
+        source.attempt ??
+        source.attempt_number,
+      1,
+    ),
+  );
+
+  return {
+    current_attempt: currentAttempt,
+    max_attempts: maxAttempts,
+    previous_findings: Array.isArray(source.previous_findings)
+      ? source.previous_findings
+      : Array.isArray(source.previousFindings)
+        ? source.previousFindings
+        : [],
+  };
+}
+
+function findingContractArea(check) {
+  if (["raw_controls", "approved_primitives"].includes(check)) {
+    return "primitive_defaults";
+  }
+
+  if (check === "state_coverage") {
+    return "state_rules";
+  }
+
+  if (check === "action_boundaries" || check === "modal_actions") {
+    return "action_boundaries";
+  }
+
+  if (check === "data_visibility") {
+    return "data_visibility";
+  }
+
+  if (String(check).startsWith("accessibility_evidence")) {
+    return "accessibility";
+  }
+
+  if (check === "visual_tokens") {
+    return "visual_tokens";
+  }
+
+  return "evidence_gates";
+}
+
+function repairInstructionForFinding(finding, implementationContract) {
+  const check = optionalString(finding.check);
+
+  if (check === "raw_controls") {
+    return "Replace raw form controls with approved primitives or repo-local helpers before resubmitting.";
+  }
+
+  if (check === "approved_primitives") {
+    return `Use only approved primitives: ${implementationContract.approved_primitives.join(", ")}.`;
+  }
+
+  if (check === "state_coverage") {
+    return `Cover required states: ${implementationContract.state_coverage.required_states.join(", ")}.`;
+  }
+
+  if (check === "static_enforcement") {
+    return "Add local static check evidence or an equivalent inspection command.";
+  }
+
+  if (check === "browser_qa") {
+    return "Add desktop and mobile browser QA evidence before resubmitting.";
+  }
+
+  if (check === "modal_actions") {
+    return "Put cancel or dismiss before the primary completion action and make the primary action visually final.";
+  }
+
+  if (check === "action_boundaries") {
+    return "Add explicit approval-boundary evidence for risky actions, or remove unauthorized actions.";
+  }
+
+  if (check === "data_visibility") {
+    return "Move diagnostic-only terms out of primary UI text unless the activity is setup, debugging, auditing, integration, or explicit source inspection.";
+  }
+
+  if (check.startsWith("accessibility_evidence")) {
+    return "Provide passing accessibility evidence for the failed accessibility contract.";
+  }
+
+  if (check === "visual_tokens") {
+    return "Keep visual token evidence boundary-only: use supported token families, avoid renderer/component/catalog/compiler work, and do not use tokens as a substitute for required implementation gates.";
+  }
+
+  return "Repair the failed implementation contract evidence before resubmitting.";
+}
+
+function buildRepairInstructions(findings, implementationContract) {
+  const groups = {};
+
+  for (const finding of findings) {
+    const area = findingContractArea(finding.check);
+
+    if (!groups[area]) {
+      groups[area] = [];
+    }
+
+    groups[area].push({
+      check: finding.check,
+      issue: finding.message,
+      required_change: repairInstructionForFinding(finding, implementationContract),
+      evidence: finding.evidence,
+    });
+  }
+
+  return {
+    status: findings.length > 0 ? "repair_required" : "none",
+    groups,
+  };
+}
+
+function buildAutofixLoop(failed, iterationContext, iterationPolicy) {
+  const currentAttempt = iterationContext.current_attempt;
+  const maxAttempts = iterationContext.max_attempts;
+  const remainingAttempts = Math.max(0, maxAttempts - currentAttempt);
+  const stopForHuman = failed && currentAttempt >= maxAttempts;
+
+  return {
+    owner: iterationPolicy.owner,
+    status: failed ? (stopForHuman ? "stopped" : "repairable") : "passed",
+    current_attempt: currentAttempt,
+    max_attempts: maxAttempts,
+    remaining_attempts: failed ? remainingAttempts : maxAttempts - currentAttempt,
+    loop: iterationPolicy.loop,
+    judgmentkit_role: iterationPolicy.judgmentkit_role,
   };
 }
 
@@ -5034,12 +5773,29 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
   );
   const checks = buildImplementationCandidateChecks(candidate, implementationContract);
   const failed = checks.findings.some((finding) => finding.severity === "fail");
+  const iterationPolicy = implementationContract.iteration_policy;
+  const iterationContext = normalizeIterationContext(
+    options.iteration_context ?? options.iterationContext,
+    iterationPolicy,
+  );
+  const autofixLoop = buildAutofixLoop(failed, iterationContext, iterationPolicy);
+  const nextAgentAction = failed
+    ? autofixLoop.status === "stopped"
+      ? "stop_for_human"
+      : "repair_and_resubmit"
+    : "accept";
   const packet = {
     version: contract.version,
     contract_id: contract.id,
     workflow_id: getContractWorkflowId(contract),
     implementation_review_status: failed ? "failed" : "passed",
     implementation_contract_id: implementationContract.id,
+    next_agent_action: nextAgentAction,
+    autofix_loop: autofixLoop,
+    repair_instructions: buildRepairInstructions(
+      failed ? checks.findings : [],
+      implementationContract,
+    ),
     generation_gates: [
       {
         id: "activity_gate",
@@ -5061,7 +5817,10 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
       static_enforcement: checks.static_enforcement,
       browser_qa: checks.browser_qa,
       modal_actions: checks.modal_actions,
+      action_boundaries: checks.action_boundaries,
+      data_visibility: checks.data_visibility,
       accessibility_evidence: checks.accessibility_evidence,
+      visual_tokens: checks.visual_tokens,
     },
     findings: checks.findings,
     implementation_contract: implementationContract,
@@ -5081,6 +5840,10 @@ function compactImplementationContractForHandoff(implementationContract) {
     state_coverage: implementationContract.state_coverage,
     static_enforcement: implementationContract.static_enforcement,
     browser_qa: implementationContract.browser_qa,
+    default_ai_native_design_system:
+      implementationContract.default_ai_native_design_system,
+    iteration_policy: implementationContract.iteration_policy,
+    visual_token_adapter: implementationContract.visual_token_adapter,
     visual_asset_policy: implementationContract.visual_asset_policy,
     accessibility_policy: implementationContract.accessibility_policy,
     failure_signals: implementationContract.failure_signals,

@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JudgmentKit MCP Pilot Report</title>
+  <style>
+    body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #17201b; background: #f7f8f5; }
+    main { max-width: 1120px; margin: 0 auto; padding: 40px 20px 64px; }
+    .hero, .case { background: #fff; border: 1px solid #d9ded7; border-radius: 8px; padding: 24px; box-shadow: 0 10px 30px rgba(23, 32, 27, 0.06); }
+    .hero { margin-bottom: 20px; }
+    h1, h2, h3, p { margin-top: 0; }
+    .lede { max-width: 780px; color: #526058; }
+    .summary, .case dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: #d9ded7; border: 1px solid #d9ded7; border-radius: 8px; overflow: hidden; }
+    .summary div, .case dl div { background: #fff; padding: 14px; }
+    .model-roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin: 18px 0; }
+    .model-roles article { border: 1px solid #d9ded7; border-radius: 8px; padding: 16px; background: #fbfffd; }
+    .model-roles article p { color: #66736b; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+    .model-roles article h2 { font-size: 1.1rem; margin-bottom: 12px; }
+    .model-roles article dl { display: grid; gap: 1px; background: #d9ded7; border: 1px solid #d9ded7; border-radius: 8px; overflow: hidden; }
+    .model-roles article dl div { background: #fff; padding: 12px; }
+    .model-roles article dd { font-size: 1rem; }
+    dt { color: #66736b; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    dd { margin: 4px 0 0; font-size: 1.25rem; font-weight: 800; }
+    .case { margin-top: 16px; }
+    .case header { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
+    .case header p { color: #66736b; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; }
+    .case header strong { border: 1px solid #bdc8bf; border-radius: 999px; padding: 6px 10px; white-space: nowrap; }
+    .repair-loop { margin-top: 16px; border: 1px solid #c8d8d0; border-radius: 8px; padding: 16px; background: #fbfffd; }
+    .repair-loop h3 { margin-bottom: 12px; }
+    .repair-loop p { margin: 12px 0 0; color: #526058; font-weight: 700; }
+    .variants { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 16px; }
+    .variant { border: 1px solid #d9ded7; border-radius: 8px; padding: 16px; }
+    .judgmentkit_mcp { border-color: #9ac6b4; background: #fbfffd; }
+    .score { font-size: 1.8rem; font-weight: 850; }
+    ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+    li { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid #edf0eb; padding-top: 6px; }
+    .leaks { margin-top: 12px; color: #8a2424; font-weight: 700; }
+    a { color: #245f73; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <p><a href="mcp-pilot-report.json">JSON report</a> · <a href="../../../../index.json">Catalog JSON</a></p>
+      <h1>JudgmentKit MCP Private Pilot</h1>
+      <p class="lede">Private repo-local pilot. Scores are deterministic checks against saved model captures; JudgmentKit is not used as the judge. Default mode scores existing versioned captures only. Missing or MCP-version-mismatched captures are reported as capture-required. Live capture is opt-in with --capture and reuses existing captures in the target capture directory. Repair-loop results are deterministic fixture proof of contract governance and agent-owned resubmission behavior; they do not measure visual quality or live-model repair quality. Repair-loop observation is an opt-in Codex CLI dogfood pass of agent-owned repair behavior; it is not a deterministic fixture proof, visual-quality score, or pass/fail gate.</p>
+
+      <dl class="summary">
+        <div><dt>Status</dt><dd>capture-required</dd></div>
+        <div><dt>Cases</dt><dd>0/4</dd></div>
+        <div><dt>Passed</dt><dd>0</dd></div>
+        <div><dt>Std delta passed</dt><dd>0</dd></div>
+        <div><dt>Calibrated-only</dt><dd>0</dd></div>
+        <div><dt>Average delta</dt><dd>0</dd></div>
+        <div><dt>Loop cases</dt><dd>4</dd></div>
+        <div><dt>Avg attempts to pass</dt><dd>2</dd></div>
+        <div><dt>Stopped loops</dt><dd>1</dd></div>
+
+        <div><dt>Observed loops</dt><dd>4</dd></div>
+        <div><dt>Observed converged</dt><dd>4</dd></div>
+        <div><dt>Observed failed</dt><dd>0</dd></div>
+        <div><dt>Invalid outputs</dt><dd>0</dd></div>
+        <div><dt>Guided leaks</dt><dd>0</dd></div>
+        <div><dt>Run</dt><dd>run-013</dd></div>
+      </dl>
+    </section>
+
+    <section class="case">
+      <header>
+        <p>GPT-5.5 Codex · implementation_review</p>
+        <h2>Raw form controls implementation review</h2>
+        <strong>Capture required</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd></dd></div>
+        <div><dt>Delta</dt><dd>n/a</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>n/a</dd></div>
+        <div><dt>Calibrated reason</dt><dd>none</dd></div>
+      </dl>
+
+      <div class="repair-loop">
+        <h3>Repair loop</h3>
+        <dl>
+          <div><dt>Attempts</dt><dd>2</dd></div>
+          <div><dt>Final action</dt><dd>accept</dd></div>
+          <div><dt>Converged</dt><dd>yes</dd></div>
+          <div><dt>Attempts to pass</dt><dd>2</dd></div>
+          <div><dt>Stopped</dt><dd>no</dd></div>
+        </dl>
+        <p>Deterministic fixture proof; not a visual-quality or live-model-quality measurement.</p>
+        <p>Failure categories: action_boundaries</p>
+      </div>
+
+      <div class="repair-loop">
+        <h3>Live repair-loop observation</h3>
+        <dl>
+          <div><dt>Status</dt><dd>cached</dd></div>
+          <div><dt>Attempts</dt><dd>3</dd></div>
+          <div><dt>Final action</dt><dd>accept</dd></div>
+          <div><dt>Converged</dt><dd>yes</dd></div>
+          <div><dt>Attempts to pass</dt><dd>3</dd></div>
+          <div><dt>Stopped</dt><dd>no</dd></div>
+        </dl>
+        <p>Codex CLI dogfood observation; not a deterministic fixture proof or pass/fail gate.</p>
+        <p>Followed categories: primitive_defaults, state_rules, evidence_gates, accessibility</p>
+        <p>Unresolved categories: none</p>
+        <p>Unresolved accessibility evidence: none</p>
+        <p>Transcript: evals/mcp-pilot-captures/mcp-0.2.0/gpt-5.5-codex/raw-form-controls-implementation/repair-loop-observation.json</p>
+      </div>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">capture-required</p>
+          <ul><li><span>activity_fit</span><strong>n/a</strong></li><li><span>decision_support</span><strong>n/a</strong></li><li><span>evidence_grounding</span><strong>n/a</strong></li><li><span>disclosure_discipline</span><strong>n/a</strong></li><li><span>handoff_quality</span><strong>n/a</strong></li><li><span>rework_risk</span><strong>n/a</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">capture-required</p>
+          <ul><li><span>activity_fit</span><strong>n/a</strong></li><li><span>decision_support</span><strong>n/a</strong></li><li><span>evidence_grounding</span><strong>n/a</strong></li><li><span>disclosure_discipline</span><strong>n/a</strong></li><li><span>handoff_quality</span><strong>n/a</strong></li><li><span>rework_risk</span><strong>n/a</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>GPT-5.5 Codex · implementation_review</p>
+        <h2>Missing accessibility evidence review</h2>
+        <strong>Capture required</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd></dd></div>
+        <div><dt>Delta</dt><dd>n/a</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>n/a</dd></div>
+        <div><dt>Calibrated reason</dt><dd>none</dd></div>
+      </dl>
+
+      <div class="repair-loop">
+        <h3>Repair loop</h3>
+        <dl>
+          <div><dt>Attempts</dt><dd>2</dd></div>
+          <div><dt>Final action</dt><dd>accept</dd></div>
+          <div><dt>Converged</dt><dd>yes</dd></div>
+          <div><dt>Attempts to pass</dt><dd>2</dd></div>
+          <div><dt>Stopped</dt><dd>no</dd></div>
+        </dl>
+        <p>Deterministic fixture proof; not a visual-quality or live-model-quality measurement.</p>
+        <p>Failure categories: accessibility</p>
+      </div>
+
+      <div class="repair-loop">
+        <h3>Live repair-loop observation</h3>
+        <dl>
+          <div><dt>Status</dt><dd>cached</dd></div>
+          <div><dt>Attempts</dt><dd>3</dd></div>
+          <div><dt>Final action</dt><dd>accept</dd></div>
+          <div><dt>Converged</dt><dd>yes</dd></div>
+          <div><dt>Attempts to pass</dt><dd>3</dd></div>
+          <div><dt>Stopped</dt><dd>no</dd></div>
+        </dl>
+        <p>Codex CLI dogfood observation; not a deterministic fixture proof or pass/fail gate.</p>
+        <p>Followed categories: state_rules, accessibility</p>
+        <p>Unresolved categories: none</p>
+        <p>Unresolved accessibility evidence: none</p>
+        <p>Transcript: evals/mcp-pilot-captures/mcp-0.2.0/gpt-5.5-codex/missing-accessibility-evidence/repair-loop-observation.json</p>
+      </div>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">capture-required</p>
+          <ul><li><span>activity_fit</span><strong>n/a</strong></li><li><span>decision_support</span><strong>n/a</strong></li><li><span>evidence_grounding</span><strong>n/a</strong></li><li><span>disclosure_discipline</span><strong>n/a</strong></li><li><span>handoff_quality</span><strong>n/a</strong></li><li><span>rework_risk</span><strong>n/a</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">capture-required</p>
+          <ul><li><span>activity_fit</span><strong>n/a</strong></li><li><span>decision_support</span><strong>n/a</strong></li><li><span>evidence_grounding</span><strong>n/a</strong></li><li><span>disclosure_discipline</span><strong>n/a</strong></li><li><span>handoff_quality</span><strong>n/a</strong></li><li><span>rework_risk</span><strong>n/a</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>GPT-5.5 Codex · implementation_review</p>
+        <h2>Modal action order review</h2>
+        <strong>Capture required</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd></dd></div>
+        <div><dt>Delta</dt><dd>n/a</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>n/a</dd></div>
+        <div><dt>Calibrated reason</dt><dd>none</dd></div>
+      </dl>
+
+      <div class="repair-loop">
+        <h3>Repair loop</h3>
+        <dl>
+          <div><dt>Attempts</dt><dd>3</dd></div>
+          <div><dt>Final action</dt><dd>stop_for_human</dd></div>
+          <div><dt>Converged</dt><dd>no</dd></div>
+          <div><dt>Attempts to pass</dt><dd>n/a</dd></div>
+          <div><dt>Stopped</dt><dd>yes</dd></div>
+        </dl>
+        <p>Deterministic fixture proof; not a visual-quality or live-model-quality measurement.</p>
+        <p>Failure categories: primitive_defaults, state_rules, evidence_gates, accessibility</p>
+      </div>
+
+      <div class="repair-loop">
+        <h3>Live repair-loop observation</h3>
+        <dl>
+          <div><dt>Status</dt><dd>cached</dd></div>
+          <div><dt>Attempts</dt><dd>3</dd></div>
+          <div><dt>Final action</dt><dd>accept</dd></div>
+          <div><dt>Converged</dt><dd>yes</dd></div>
+          <div><dt>Attempts to pass</dt><dd>3</dd></div>
+          <div><dt>Stopped</dt><dd>no</dd></div>
+        </dl>
+        <p>Codex CLI dogfood observation; not a deterministic fixture proof or pass/fail gate.</p>
+        <p>Followed categories: primitive_defaults, state_rules, evidence_gates, accessibility</p>
+        <p>Unresolved categories: none</p>
+        <p>Unresolved accessibility evidence: none</p>
+        <p>Transcript: evals/mcp-pilot-captures/mcp-0.2.0/gpt-5.5-codex/modal-action-order-review/repair-loop-observation.json</p>
+      </div>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">capture-required</p>
+          <ul><li><span>activity_fit</span><strong>n/a</strong></li><li><span>decision_support</span><strong>n/a</strong></li><li><span>evidence_grounding</span><strong>n/a</strong></li><li><span>disclosure_discipline</span><strong>n/a</strong></li><li><span>handoff_quality</span><strong>n/a</strong></li><li><span>rework_risk</span><strong>n/a</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">capture-required</p>
+          <ul><li><span>activity_fit</span><strong>n/a</strong></li><li><span>decision_support</span><strong>n/a</strong></li><li><span>evidence_grounding</span><strong>n/a</strong></li><li><span>disclosure_discipline</span><strong>n/a</strong></li><li><span>handoff_quality</span><strong>n/a</strong></li><li><span>rework_risk</span><strong>n/a</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>GPT-5.5 Codex · implementation_review</p>
+        <h2>Implementation-term leakage review</h2>
+        <strong>Capture required</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd></dd></div>
+        <div><dt>Delta</dt><dd>n/a</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>n/a</dd></div>
+        <div><dt>Calibrated reason</dt><dd>none</dd></div>
+      </dl>
+
+      <div class="repair-loop">
+        <h3>Repair loop</h3>
+        <dl>
+          <div><dt>Attempts</dt><dd>2</dd></div>
+          <div><dt>Final action</dt><dd>accept</dd></div>
+          <div><dt>Converged</dt><dd>yes</dd></div>
+          <div><dt>Attempts to pass</dt><dd>2</dd></div>
+          <div><dt>Stopped</dt><dd>no</dd></div>
+        </dl>
+        <p>Deterministic fixture proof; not a visual-quality or live-model-quality measurement.</p>
+        <p>Failure categories: data_visibility</p>
+      </div>
+
+      <div class="repair-loop">
+        <h3>Live repair-loop observation</h3>
+        <dl>
+          <div><dt>Status</dt><dd>cached</dd></div>
+          <div><dt>Attempts</dt><dd>3</dd></div>
+          <div><dt>Final action</dt><dd>accept</dd></div>
+          <div><dt>Converged</dt><dd>yes</dd></div>
+          <div><dt>Attempts to pass</dt><dd>3</dd></div>
+          <div><dt>Stopped</dt><dd>no</dd></div>
+        </dl>
+        <p>Codex CLI dogfood observation; not a deterministic fixture proof or pass/fail gate.</p>
+        <p>Followed categories: state_rules, accessibility</p>
+        <p>Unresolved categories: none</p>
+        <p>Unresolved accessibility evidence: none</p>
+        <p>Transcript: evals/mcp-pilot-captures/mcp-0.2.0/gpt-5.5-codex/implementation-term-leakage-review/repair-loop-observation.json</p>
+      </div>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">capture-required</p>
+          <ul><li><span>activity_fit</span><strong>n/a</strong></li><li><span>decision_support</span><strong>n/a</strong></li><li><span>evidence_grounding</span><strong>n/a</strong></li><li><span>disclosure_discipline</span><strong>n/a</strong></li><li><span>handoff_quality</span><strong>n/a</strong></li><li><span>rework_risk</span><strong>n/a</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">capture-required</p>
+          <ul><li><span>activity_fit</span><strong>n/a</strong></li><li><span>decision_support</span><strong>n/a</strong></li><li><span>evidence_grounding</span><strong>n/a</strong></li><li><span>disclosure_discipline</span><strong>n/a</strong></li><li><span>handoff_quality</span><strong>n/a</strong></li><li><span>rework_risk</span><strong>n/a</strong></li></ul>
+
+        </article></div>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "missing-accessibility-evidence",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:58914/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "cb5c14327100ed2dc88cfbd03c5559ed62b9e557dc3be41427448744714cf5c5",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:11:58.771Z",
+  "duration_ms": 45785,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "17a7d76711a1c4e864e728c574213a0af554095c0a12a09ff1959a746808f4fe",
+  "prompt_sha256": "9e1a2cf5bf579535ed2fcdaf391800a1f518fe32198a57149a96b5edce946036",
+  "mcp_context_sha256": "d1283b71165b3d6cdd788489ef62cd9cce1b51b99850cd9d31df6d86cc98d54a",
+  "raw_response_sha256": "0843636f47a8e80bc67a583010349cf2151ca644dcb5a9a831470587f04426ef",
+  "raw_response": "{\"response\":\"Accept the candidate after the accessibility repair. The dense operator review screen covers the queue, detail panel, decision controls, and handoff receipt, and the prior accessibility gap has been addressed for the custom controls and decision controls.\",\"next_action\":\"accept\",\"questions\":[],\"handoff\":\"Decision: accept; Owner: implementation agent; Action: keep semantic content and landmark/heading evidence attached to the operator review; Reason: initial accessibility evidence was missing but the repair passed; Required fix: semantic content plus landmark/heading coverage for custom controls and decision controls; Verification: tests, desktop/mobile QA, and accessibility review remain passing.\",\"rationale\":\"The first pass was not acceptable because core accessibility evidence was absent for a dense operator review with custom controls. The repair supplied the missing accessibility coverage and the follow-up review found no remaining issues, so there is no source question to ask and the candidate can be accepted.\"}",
+  "parsed": {
+    "response": "Accept the candidate after the accessibility repair. The dense operator review screen covers the queue, detail panel, decision controls, and handoff receipt, and the prior accessibility gap has been addressed for the custom controls and decision controls.",
+    "next_action": "accept",
+    "questions": [],
+    "handoff": "Decision: accept; Owner: implementation agent; Action: keep semantic content and landmark/heading evidence attached to the operator review; Reason: initial accessibility evidence was missing but the repair passed; Required fix: semantic content plus landmark/heading coverage for custom controls and decision controls; Verification: tests, desktop/mobile QA, and accessibility review remain passing.",
+    "rationale": "The first pass was not acceptable because core accessibility evidence was absent for a dense operator review with custom controls. The repair supplied the missing accessibility coverage and the follow-up review found no remaining issues, so there is no source question to ask and the candidate can be accepted."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "aacecd14cd43c9e1d12dcd3b45e63547f10fd75a7642f0941fe1e6f992e51062",
+    "stderr_sha256": "ca4cb57431917d7bd42c31d9504ab5946efd0d3f199e3334b86bbcc2103ecdf3",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

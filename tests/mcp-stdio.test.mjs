@@ -26,6 +26,51 @@ function assertPlanningCard(response, heading, status) {
   return text;
 }
 
+function coreAccessibilityEvidence() {
+  return {
+    automated_checks: {
+      status: "pass",
+      method: "static accessibility checks",
+      artifacts: ["npm test"],
+    },
+    semantic_content: {
+      status: "pass",
+      method: "DOM inspection",
+      notes: "Semantic content verified.",
+    },
+    landmarks_headings: {
+      status: "pass",
+      method: "accessibility tree inspection",
+      notes: "Landmarks and headings verified.",
+    },
+    name_role_value: {
+      status: "pass",
+      method: "accessibility tree inspection",
+      notes: "Names, roles, states, and values verified.",
+    },
+    keyboard_navigation: {
+      status: "pass",
+      method: "keyboard walkthrough",
+      notes: "All actions are keyboard operable.",
+    },
+    focus_order: {
+      status: "pass",
+      method: "keyboard walkthrough",
+      notes: "Focus order preserves meaning.",
+    },
+    focus_visible: {
+      status: "pass",
+      method: "browser review",
+      notes: "Focus indicators remain visible.",
+    },
+    responsive_no_overflow: {
+      status: "pass",
+      method: "desktop and mobile browser review",
+      notes: "No responsive overflow.",
+    },
+  };
+}
+
 let transport;
 let client;
 let stderrOutput = "";
@@ -369,6 +414,20 @@ try {
       "Implementation contract ready",
     ).includes("Accessibility evidence"),
   );
+  assert.ok(
+    assertPlanningCard(
+      implementationContractResponse,
+      "## JudgmentKit Implementation Contract",
+      "Implementation contract ready",
+    ).includes("Agent loop"),
+  );
+  assert.ok(
+    assertPlanningCard(
+      implementationContractResponse,
+      "## JudgmentKit Implementation Contract",
+      "Implementation contract ready",
+    ).includes("Visual token adapter"),
+  );
   assert.equal(
     implementationContractResponse.structuredContent.implementation_contract_status,
     "ready",
@@ -378,6 +437,67 @@ try {
       implementationContractResponse.structuredContent.implementation_contract
         .accessibility_policy.conditional_evidence.visual_background_contrast,
     ),
+  );
+  assert.equal(
+    implementationContractResponse.structuredContent.implementation_contract
+      .default_ai_native_design_system.mode,
+    "contract_defaults",
+  );
+  assert.equal(
+    implementationContractResponse.structuredContent.implementation_contract
+      .iteration_policy.default_max_attempts,
+    3,
+  );
+  assert.equal(
+    implementationContractResponse.structuredContent.implementation_contract
+      .visual_token_adapter.mode,
+    "boundary_only",
+  );
+  assert.ok(
+    implementationContractResponse.structuredContent.implementation_contract
+      .visual_token_adapter.token_families.includes("color"),
+  );
+
+  const implementationReviewResponse = await withTimeout(
+    client.callTool({
+      name: "review_ui_implementation_candidate",
+      arguments: {
+        implementation_contract: implementationContractResponse.structuredContent,
+        iteration_context: { current_attempt: 2 },
+        candidate: {
+          primitives_used: ["queue", "detail panel", "decision controls", "handoff receipt"],
+          states_covered:
+            implementationContractResponse.structuredContent.implementation_contract
+              .state_coverage.required_states,
+          static_checks: ["npm test"],
+          browser_qa: { desktop: "passed", mobile: "passed" },
+          accessibility_evidence: coreAccessibilityEvidence(),
+          actions: ["Auto approve refund"],
+          action_boundary_evidence: {},
+        },
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(implementationReviewResponse.isError, undefined);
+  const implementationReviewText = assertPlanningCard(
+    implementationReviewResponse,
+    "## JudgmentKit Implementation Review",
+    "Implementation gate failed",
+  );
+  assert.ok(implementationReviewText.includes("repair_and_resubmit"));
+  assert.equal(
+    implementationReviewResponse.structuredContent.next_agent_action,
+    "repair_and_resubmit",
+  );
+  assert.equal(
+    implementationReviewResponse.structuredContent.checks.action_boundaries.status,
+    "fail",
+  );
+  assert.equal(
+    implementationReviewResponse.structuredContent.checks.visual_tokens.status,
+    "pass",
   );
 
   const handoffResponse = await withTimeout(

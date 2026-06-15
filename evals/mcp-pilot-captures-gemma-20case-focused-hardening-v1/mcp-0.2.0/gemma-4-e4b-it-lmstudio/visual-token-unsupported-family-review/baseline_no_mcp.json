@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "visual-token-unsupported-family-review",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54314/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:45:43.292Z",
+  "duration_ms": 4803,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 547,
+    "completion_tokens": 217,
+    "total_tokens": 764,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "ba01c61a1fe53e5f700a221947c2c8be8ed932e5ec8cbc3e20fae32806fd82ad",
+  "prompt_sha256": "bb2a6c712374e7d74658eae934caa53b73666a845c26d97d3664cb465ac6753a",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "90345cd5766bb91d0c519b22c7d61398e1ae1d907c9de81707e98cc553f25e75",
+  "raw_response": "{\"response\": \"The implementation candidate appears robust across functional, accessibility, and basic visual checks. The primary concern is the unsupported texture family evidence provided in the token evidence, which falls outside the boundary adapter's expected scope for a refund review workbench.\", \"next_action\": \"Investigate the necessity and acceptance criteria for unsupported visual token families, specifically the out-of-boundary texture family, given the context of a standard refund review UI.\", \"questions\": [\"What is the established policy regarding accepting evidence from visual tokens that belong to an unsupported or out-of-boundary family?\", \"Is there an alternative mechanism or fallback required when encountering such unsupported token evidence in this specific workbench type?\"], \"handoff\": \"Handoff to Design/Platform Standards team for clarification on handling unsupported visual token families.\" , \"rationale\": \"The candidate passes most checks, but the explicit mention of an 'unsupported texture family' outside the boundary adapter is a critical gap that requires policy clarification before acceptance can be determined. This moves beyond simple implementation review into architectural standard adherence.\"}",
+  "parsed": {
+    "response": "The implementation candidate appears robust across functional, accessibility, and basic visual checks. The primary concern is the unsupported texture family evidence provided in the token evidence, which falls outside the boundary adapter's expected scope for a refund review workbench.",
+    "next_action": "Investigate the necessity and acceptance criteria for unsupported visual token families, specifically the out-of-boundary texture family, given the context of a standard refund review UI.",
+    "questions": [
+      "What is the established policy regarding accepting evidence from visual tokens that belong to an unsupported or out-of-boundary family?",
+      "Is there an alternative mechanism or fallback required when encountering such unsupported token evidence in this specific workbench type?"
+    ],
+    "handoff": "Handoff to Design/Platform Standards team for clarification on handling unsupported visual token families.",
+    "rationale": "The candidate passes most checks, but the explicit mention of an 'unsupported texture family' outside the boundary adapter is a critical gap that requires policy clarification before acceptance can be determined. This moves beyond simple implementation review into architectural standard adherence."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The implementation candidate appears robust across functional, accessibility, and basic visual checks. The primary concern is the unsupported texture family evidence provided in the token evidence, which falls outside the boundary adapter's expected scope for a refund review workbench.\", \"next_action\": \"Investigate the necessity and acceptance criteria for unsupported visual token families, specifically the out-of-boundary texture family, given the context of a standard refund review UI.\", \"questions\": [\"What is the established policy regarding accepting evidence from visual tokens that belong to an unsupported or out-of-boundary family?\", \"Is there an alternative mechanism or fallback required when encountering such unsupported token evidence in this specific workbench type?\"], \"handoff\": \"Handoff to Design/Platform Standards team for clarification on handling unsupported visual token families.\" , \"rationale\": \"The candidate passes most checks, but the explicit mention of an 'unsupported texture family' outside the boundary adapter is a critical gap that requires policy clarification before acceptance can be determined. This moves beyond simple implementation review into architectural standard adherence.\"}",
+    "usage": {
+      "prompt_tokens": 547,
+      "completion_tokens": 217,
+      "total_tokens": 764,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "970d898ab7dfb49325ed3f7a508b2e0d6adeb0bbcf69746c312c1048ae22c882",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

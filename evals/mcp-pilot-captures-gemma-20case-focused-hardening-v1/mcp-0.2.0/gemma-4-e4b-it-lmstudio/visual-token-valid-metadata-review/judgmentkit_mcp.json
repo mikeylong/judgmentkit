@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "visual-token-valid-metadata-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54314/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "be53bfedd3aad618e575a1f0850aab24a64de9a694cacb499cc9d0e73ca9f15b",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:45:38.477Z",
+  "duration_ms": 3128,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1165,
+    "completion_tokens": 101,
+    "total_tokens": 1266,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "2a46b6526cb5a9c05a79a2458333cbbbea76c566173706e09c083c9ca4e6d345",
+  "prompt_sha256": "298960e4516f555ac47e4a0acdab5f21baacc0ba6729d805594d0a0d67a6b0a3",
+  "mcp_context_sha256": "1fd10896cabae3fbfb68984e0514874b0d9152ca69ccf9b7e373ebc2bf2ce115",
+  "raw_response_sha256": "1765b9a9fc3d7faaa6c7a9337597d8accc77fb9ec0f8d40c9c9ef900abc30ec2",
+  "raw_response": "{\"response\": \"accept\", \"next_action\": \"Proceed with standard workflow.\", \"questions\": [], \"handoff\": \"N/A\", \"rationale\": \"The implementation evidence confirms that all required areas—primitives usage, state coverage, static checks, browser QA (desktop and mobile), accessibility compliance across multiple dimensions, visible text presence, and visual token metadata application—have been successfully addressed. The MCP context indicates a 'passed' status for the relevant step, supporting acceptance.\"}",
+  "parsed": {
+    "response": "accept",
+    "next_action": "Proceed with standard workflow.",
+    "questions": [],
+    "handoff": "N/A",
+    "rationale": "The implementation evidence confirms that all required areas—primitives usage, state coverage, static checks, browser QA (desktop and mobile), accessibility compliance across multiple dimensions, visible text presence, and visual token metadata application—have been successfully addressed. The MCP context indicates a 'passed' status for the relevant step, supporting acceptance."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"accept\", \"next_action\": \"Proceed with standard workflow.\", \"questions\": [], \"handoff\": \"N/A\", \"rationale\": \"The implementation evidence confirms that all required areas—primitives usage, state coverage, static checks, browser QA (desktop and mobile), accessibility compliance across multiple dimensions, visible text presence, and visual token metadata application—have been successfully addressed. The MCP context indicates a 'passed' status for the relevant step, supporting acceptance.\"}",
+    "usage": {
+      "prompt_tokens": 1165,
+      "completion_tokens": 101,
+      "total_tokens": 1266,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "6cf68e6e3b93db14c2e9c7c2c5dacf2a1686f100537f284f8445e244b6546224",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

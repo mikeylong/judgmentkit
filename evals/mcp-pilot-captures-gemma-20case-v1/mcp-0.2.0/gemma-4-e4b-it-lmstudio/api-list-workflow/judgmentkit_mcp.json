@@ -1,0 +1,66 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "api-list-workflow",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "7c6975946cae5f8df6af83ae9e50b3a2808679d6fe88016b0a2558d69b62e403",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:46:46.118Z",
+  "duration_ms": 4531,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 702,
+    "completion_tokens": 203,
+    "total_tokens": 905,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "839aff3c3791ee1440e6362a0c7c6417ee38b6f6aa3ffd9d765bb84817c3672b",
+  "prompt_sha256": "dad70bfd22f30c4d4bf6a1e146c6728d82500621ac7c7ad2167356fff063d4e2",
+  "mcp_context_sha256": "121fb2590c5f23f19ef53e5c821a4eae1e068e214b638cb6bc36bf5cce810d2a",
+  "raw_response_sha256": "e34fc95a068f60568d5f28baed4c9d5f6cb5d185b9ba27e91c08eb188a3b05a1",
+  "raw_response": "{\"response\": \"To proceed with creating the workflow UI using the provided endpoints, I need more context regarding the desired user experience and outcome. Specifically, I need to understand what decision or next action the UI should facilitate for the user, and what key knowledge or completion state the user should achieve after interacting with this workflow.\", \"next_action\": \"Ask targeted questions\", \"questions\": [\"What decision or next action should the UI make easier for the user?\", \"What should the user leave the surface knowing or having done?\"], \"handoff\": \"Owner: Agent; Action: Gather missing context; Reason: The initial step requires understanding the desired user goal to properly model the activity and recommend appropriate surfaces/workflows.\", \"rationale\": \"The source brief only lists available endpoints, which is insufficient for designing a functional UI workflow. The diagnostic guidance indicates that the 'create_activity_model_review' step requires context on user intent (decision/action) and desired outcome (knowledge/completion).\"}",
+  "parsed": {
+    "response": "To proceed with creating the workflow UI using the provided endpoints, I need more context regarding the desired user experience and outcome. Specifically, I need to understand what decision or next action the UI should facilitate for the user, and what key knowledge or completion state the user should achieve after interacting with this workflow.",
+    "next_action": "Ask targeted questions",
+    "questions": [
+      "What decision or next action should the UI make easier for the user?",
+      "What should the user leave the surface knowing or having done?"
+    ],
+    "handoff": "Owner: Agent; Action: Gather missing context; Reason: The initial step requires understanding the desired user goal to properly model the activity and recommend appropriate surfaces/workflows.",
+    "rationale": "The source brief only lists available endpoints, which is insufficient for designing a functional UI workflow. The diagnostic guidance indicates that the 'create_activity_model_review' step requires context on user intent (decision/action) and desired outcome (knowledge/completion)."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"To proceed with creating the workflow UI using the provided endpoints, I need more context regarding the desired user experience and outcome. Specifically, I need to understand what decision or next action the UI should facilitate for the user, and what key knowledge or completion state the user should achieve after interacting with this workflow.\", \"next_action\": \"Ask targeted questions\", \"questions\": [\"What decision or next action should the UI make easier for the user?\", \"What should the user leave the surface knowing or having done?\"], \"handoff\": \"Owner: Agent; Action: Gather missing context; Reason: The initial step requires understanding the desired user goal to properly model the activity and recommend appropriate surfaces/workflows.\", \"rationale\": \"The source brief only lists available endpoints, which is insufficient for designing a functional UI workflow. The diagnostic guidance indicates that the 'create_activity_model_review' step requires context on user intent (decision/action) and desired outcome (knowledge/completion).\"}",
+    "usage": {
+      "prompt_tokens": 702,
+      "completion_tokens": 203,
+      "total_tokens": 905,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "3ba3efb085e436c8e2f95e7f594292b4ca9ee89f97bd781b9b08ce51289a2a3d",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

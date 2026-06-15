@@ -1,0 +1,67 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "vague-system-dashboard",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54314/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "99f0a389c465ea8106496b164aeb95901f45622af862a290544f8b5b510e7cc6",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:43:16.071Z",
+  "duration_ms": 3861,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 727,
+    "completion_tokens": 220,
+    "total_tokens": 947,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "0bdcbe035851aa0b187bb1291d513d3fea2401db6203c9ba96c13d9b484bcbe7",
+  "prompt_sha256": "abf10c06fc6ce9b885a149b715166653906c42600872d21b7514261e02f7bca9",
+  "mcp_context_sha256": "6805773a28e814db1ade8f55007e053774969d7e01e7621731658d9ce86d46ea",
+  "raw_response_sha256": "7d4b1e62e0b7de0cdc589e8519fff83f917252947c8a8faf389facbfe27b8def",
+  "raw_response": "{\"response\": \"To plan an effective dashboard, I need more specific details about the system's purpose and the user workflow. A dashboard needs to serve a clear function for the person using it.\", \"next_action\": \"Ask targeted questions\", \"questions\": [\"What primary activity should this dashboard support? (e.g., monitoring status, initiating a process, reviewing history)\", \"What key decision or next action do you want the user to make easier by looking at this screen?\", \"When the user finishes interacting with this dashboard, what specific information must they know or have accomplished?\"], \"handoff\": \"Owner: User/Product Owner; Evidence Gap: Specific functional requirements for the dashboard; Required Fix: Gather detailed workflow context regarding system monitoring, decision points, and desired outcomes.\"\n  , \"rationale\": \"The source brief is too vague ('Plan a dashboard'). The diagnostic guidance indicates that multiple steps require source context. I must gather user-facing details about activity, decision support, and expected outcome to structure the plan effectively, rather than guessing at layout elements.\"}",
+  "parsed": {
+    "response": "To plan an effective dashboard, I need more specific details about the system's purpose and the user workflow. A dashboard needs to serve a clear function for the person using it.",
+    "next_action": "Ask targeted questions",
+    "questions": [
+      "What primary activity should this dashboard support? (e.g., monitoring status, initiating a process, reviewing history)",
+      "What key decision or next action do you want the user to make easier by looking at this screen?",
+      "When the user finishes interacting with this dashboard, what specific information must they know or have accomplished?"
+    ],
+    "handoff": "Owner: User/Product Owner; Evidence Gap: Specific functional requirements for the dashboard; Required Fix: Gather detailed workflow context regarding system monitoring, decision points, and desired outcomes.",
+    "rationale": "The source brief is too vague ('Plan a dashboard'). The diagnostic guidance indicates that multiple steps require source context. I must gather user-facing details about activity, decision support, and expected outcome to structure the plan effectively, rather than guessing at layout elements."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"To plan an effective dashboard, I need more specific details about the system's purpose and the user workflow. A dashboard needs to serve a clear function for the person using it.\", \"next_action\": \"Ask targeted questions\", \"questions\": [\"What primary activity should this dashboard support? (e.g., monitoring status, initiating a process, reviewing history)\", \"What key decision or next action do you want the user to make easier by looking at this screen?\", \"When the user finishes interacting with this dashboard, what specific information must they know or have accomplished?\"], \"handoff\": \"Owner: User/Product Owner; Evidence Gap: Specific functional requirements for the dashboard; Required Fix: Gather detailed workflow context regarding system monitoring, decision points, and desired outcomes.\"\n  , \"rationale\": \"The source brief is too vague ('Plan a dashboard'). The diagnostic guidance indicates that multiple steps require source context. I must gather user-facing details about activity, decision support, and expected outcome to structure the plan effectively, rather than guessing at layout elements.\"}",
+    "usage": {
+      "prompt_tokens": 727,
+      "completion_tokens": 220,
+      "total_tokens": 947,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "86b23af27f6010f698eff5e4edb18a8f5d186bf26f43dfd1acdb425d9c51a500",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

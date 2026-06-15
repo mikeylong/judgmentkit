@@ -1,0 +1,61 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "invented-activity-candidate",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54314/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "review_activity_model_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "6817d6e84f14c4a8b9343052e112f8824eec9a2df85a7dd86d414a28b677b797",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:44:28.644Z",
+  "duration_ms": 4114,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 865,
+    "completion_tokens": 192,
+    "total_tokens": 1057,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "2046242668206575490b477e7f6bfef20f64e8f7819566a7d8f57bbacee0a786",
+  "prompt_sha256": "201bc349edb80c5460a4b4feee395cd297f7b4f40bc8a75149f5206de86e3770",
+  "mcp_context_sha256": "d66acf2204c884641c690fd203162fcbc0f8a80c2066ea48ad316a38e4cbff73",
+  "raw_response_sha256": "44d8f2ab5ab020d0f3592266633104154669335be34f46b477224a37ba82d815",
+  "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Request a refund-triage-aligned replacement activity that accurately reflects the process of reviewing refund requests and making one of three decisions: approve, policy review, or return for missing evidence.\", \"questions\": [], \"handoff\": \"Decision: Reject; Action: Request Replacement; Reason: The submitted fixture describes an internal optimization/allocation process unrelated to the source brief's focus on a support lead triaging refund requests and deciding between approval, policy review, or returning for missing evidence. Owner: Triage Specialist; Evidence Gap: Specific workflow steps for decision-making (approve/policy review/return); Required Fix: Model the activity around the stated triage process.\", \"rationale\": \"The submitted fixture details an internal optimization and allocation mechanism, which does not align with the source brief's domain of a support lead performing daily refund request triage and making one of three specific disposition decisions.\"}",
+  "parsed": {
+    "response": "Reject",
+    "next_action": "Request a refund-triage-aligned replacement activity that accurately reflects the process of reviewing refund requests and making one of three decisions: approve, policy review, or return for missing evidence.",
+    "questions": [],
+    "handoff": "Decision: Reject; Action: Request Replacement; Reason: The submitted fixture describes an internal optimization/allocation process unrelated to the source brief's focus on a support lead triaging refund requests and deciding between approval, policy review, or returning for missing evidence. Owner: Triage Specialist; Evidence Gap: Specific workflow steps for decision-making (approve/policy review/return); Required Fix: Model the activity around the stated triage process.",
+    "rationale": "The submitted fixture details an internal optimization and allocation mechanism, which does not align with the source brief's domain of a support lead performing daily refund request triage and making one of three specific disposition decisions."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Request a refund-triage-aligned replacement activity that accurately reflects the process of reviewing refund requests and making one of three decisions: approve, policy review, or return for missing evidence.\", \"questions\": [], \"handoff\": \"Decision: Reject; Action: Request Replacement; Reason: The submitted fixture describes an internal optimization/allocation process unrelated to the source brief's focus on a support lead triaging refund requests and deciding between approval, policy review, or returning for missing evidence. Owner: Triage Specialist; Evidence Gap: Specific workflow steps for decision-making (approve/policy review/return); Required Fix: Model the activity around the stated triage process.\", \"rationale\": \"The submitted fixture details an internal optimization and allocation mechanism, which does not align with the source brief's domain of a support lead performing daily refund request triage and making one of three specific disposition decisions.\"}",
+    "usage": {
+      "prompt_tokens": 865,
+      "completion_tokens": 192,
+      "total_tokens": 1057,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "e55830d1dd6df0ab1dbe406a38b4725675c5385f5cd37d6924ae2c7a13379aa3",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

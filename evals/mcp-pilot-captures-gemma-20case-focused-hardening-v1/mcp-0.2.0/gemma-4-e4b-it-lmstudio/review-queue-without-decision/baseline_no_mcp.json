@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "review-queue-without-decision",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54314/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:43:19.183Z",
+  "duration_ms": 3108,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 204,
+    "completion_tokens": 204,
+    "total_tokens": 408,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "527d126a09fde0fdba627f2b2b75879516f34e2dc353a82a50b50598cf7365ac",
+  "prompt_sha256": "5c2ca99448edf9e2f4c8dde5ccf85acb8e686d22982426e7d17473bf67307a49",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "52b5655e6f1f9be9fabcaf060200266c727cc6af3ec36330a20d9b8b3adc83f5",
+  "raw_response": "{\"response\": \"To best plan the next agent response, I need more information about the existing system or desired functionality. Could you clarify what 'easy to scan' means in this context? For example, should it involve visual grouping, sorting by urgency, or a specific layout?\", \"next_action\": \"Gather clarification on 'easy to scan' criteria.\", \"questions\": [\"What are the primary dimensions (e.g., priority, type, age) that users need to use to quickly filter or group items in the review queue?\", \"Are there any existing UI patterns or examples of queues you can reference for what constitutes 'easy to scan'?\"], \"handoff\": \"Need clarification on user expectations for 'easy to scan' functionality.\", \"rationale\": \"The source brief is too high-level. To plan a concrete next step, I must understand the specific usability requirements implied by 'easy to scan'. The fixture provides no technical constraints or existing context beyond the general goal of creating a queue.\"}",
+  "parsed": {
+    "response": "To best plan the next agent response, I need more information about the existing system or desired functionality. Could you clarify what 'easy to scan' means in this context? For example, should it involve visual grouping, sorting by urgency, or a specific layout?",
+    "next_action": "Gather clarification on 'easy to scan' criteria.",
+    "questions": [
+      "What are the primary dimensions (e.g., priority, type, age) that users need to use to quickly filter or group items in the review queue?",
+      "Are there any existing UI patterns or examples of queues you can reference for what constitutes 'easy to scan'?"
+    ],
+    "handoff": "Need clarification on user expectations for 'easy to scan' functionality.",
+    "rationale": "The source brief is too high-level. To plan a concrete next step, I must understand the specific usability requirements implied by 'easy to scan'. The fixture provides no technical constraints or existing context beyond the general goal of creating a queue."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"To best plan the next agent response, I need more information about the existing system or desired functionality. Could you clarify what 'easy to scan' means in this context? For example, should it involve visual grouping, sorting by urgency, or a specific layout?\", \"next_action\": \"Gather clarification on 'easy to scan' criteria.\", \"questions\": [\"What are the primary dimensions (e.g., priority, type, age) that users need to use to quickly filter or group items in the review queue?\", \"Are there any existing UI patterns or examples of queues you can reference for what constitutes 'easy to scan'?\"], \"handoff\": \"Need clarification on user expectations for 'easy to scan' functionality.\", \"rationale\": \"The source brief is too high-level. To plan a concrete next step, I must understand the specific usability requirements implied by 'easy to scan'. The fixture provides no technical constraints or existing context beyond the general goal of creating a queue.\"}",
+    "usage": {
+      "prompt_tokens": 204,
+      "completion_tokens": 204,
+      "total_tokens": 408,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "7aea0a9fa98a121a051f503e58a8e4e407d146f71f7f49159d84d73815d3f681",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "schema-leaking-workflow",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54174/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "4033b1ca58c32471e068c564a960f8fedc67f3303fe129c2fa60d1f732951cf9",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:52:19.281Z",
+  "duration_ms": 3744,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 877,
+    "completion_tokens": 169,
+    "total_tokens": 1046,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "ec23aff01a1de7b63a7777f8eb3215096d8d9a6a52918029e10fcf2787f67ebb",
+  "prompt_sha256": "4228341b659ad5081b2d41513657acddc813919eff5b724134426ea3b7d2a35e",
+  "mcp_context_sha256": "b5941b5c7acc0b12815c4ef31519cf0ed9c4e755ebda42f2042dfc5680222403",
+  "raw_response_sha256": "fb1b0b885017057a1ab00f7c32a5384d776b02db4cc07465593a0ca1cf79c471",
+  "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Request clarification on required user knowledge and implementation term handling.\", \"questions\": [\"What should the user leave the surface knowing or having done?\", \"Which implementation terms in the workflow candidate should move to diagnostics or be translated?\"], \"handoff\": \"Owner: Reviewer; Action: Clarify missing context; Reason: The source brief describes a support lead's decision process (approve, policy review, return for missing evidence), but the candidate fixture uses generic internal placeholders and lacks any domain-specific language related to refund triage decisions. This is a source/workflow mismatch.\", \"rationale\": \"The candidate fixture contains only internal implementation details and does not reflect the required support workflow logic described in the source brief (approving, policy reviewing, or returning refunds based on evidence).\"}",
+  "parsed": {
+    "response": "Reject",
+    "next_action": "Request clarification on required user knowledge and implementation term handling.",
+    "questions": [
+      "What should the user leave the surface knowing or having done?",
+      "Which implementation terms in the workflow candidate should move to diagnostics or be translated?"
+    ],
+    "handoff": "Owner: Reviewer; Action: Clarify missing context; Reason: The source brief describes a support lead's decision process (approve, policy review, return for missing evidence), but the candidate fixture uses generic internal placeholders and lacks any domain-specific language related to refund triage decisions. This is a source/workflow mismatch.",
+    "rationale": "The candidate fixture contains only internal implementation details and does not reflect the required support workflow logic described in the source brief (approving, policy reviewing, or returning refunds based on evidence)."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Request clarification on required user knowledge and implementation term handling.\", \"questions\": [\"What should the user leave the surface knowing or having done?\", \"Which implementation terms in the workflow candidate should move to diagnostics or be translated?\"], \"handoff\": \"Owner: Reviewer; Action: Clarify missing context; Reason: The source brief describes a support lead's decision process (approve, policy review, return for missing evidence), but the candidate fixture uses generic internal placeholders and lacks any domain-specific language related to refund triage decisions. This is a source/workflow mismatch.\", \"rationale\": \"The candidate fixture contains only internal implementation details and does not reflect the required support workflow logic described in the source brief (approving, policy reviewing, or returning refunds based on evidence).\"}",
+    "usage": {
+      "prompt_tokens": 877,
+      "completion_tokens": 169,
+      "total_tokens": 1046,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "ad0cd0c84663e821cac11423edcd5e84dc7e8e7b30b936597f65031a00e69a4a",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

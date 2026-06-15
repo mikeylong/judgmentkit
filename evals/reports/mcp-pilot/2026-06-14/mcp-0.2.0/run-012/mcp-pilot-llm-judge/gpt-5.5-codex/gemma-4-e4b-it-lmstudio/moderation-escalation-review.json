@@ -1,0 +1,95 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "moderation-escalation-review",
+  "title": "Content moderation escalation review",
+  "case_type": "operator_review_handoff",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T02:51:00.900Z",
+  "duration_ms": 55933,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "a6f2b7866ac41be55212f623c7fcd1a606b0f90332dfed799717565924c0b71d",
+  "raw_response_sha256": "f89f5f37cdaa86e9e9a5b771ae85d0c3318cc1c8fdbd5265e3ac3bdd59371312",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"medium\",\"rationale\":\"Output A is the better handoff plan because it directly follows the expected next action: preparing an escalation handoff. It includes an owner, next action, reason, evidence gap, and required fix, which makes it more operationally useful for a downstream agent. Output B is more conditional and drifts back into the broader review workflow, including return-for-more-evidence questions that are not the expected next move. Both outputs invent some case specifics and leak internal context, so the win is not clean.\",\"decisive_differences\":[\"Output A names the escalation handoff as the immediate next action; Output B frames escalation as conditional and partially delays it.\",\"Output A provides concrete handoff fields; Output B's handoff is more narrative and tells the agent to gather missing context before finalizing escalation.\",\"Output B asks about an alternate return-for-more-evidence path, which distracts from the expected escalation handoff.\",\"Output A has an internal leakage problem in its rationale, but Output B also leaks fixture/context language and is less operationally aligned.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Prepare the escalation handoff to the policy reviewer.\",\"why_it_matters\":\"This matches the expected next action directly.\"},{\"output\":\"output_a\",\"quote\":\"Owner: Policy Reviewer; Next Action: Review escalated case for final determination; Reason: Severity and policy evidence require expert review\",\"why_it_matters\":\"It includes the core handoff/action/reason structure needed by a downstream agent.\"},{\"output\":\"output_b\",\"quote\":\"The immediate focus must be on completing the handoff preparation if escalation is chosen.\",\"why_it_matters\":\"This weakens the required next move by making escalation conditional rather than preparing the handoff.\"},{\"output\":\"output_b\",\"quote\":\"If the operator selects 'Return for more evidence,' what is the standardized format\",\"why_it_matters\":\"This introduces a different workflow path and distracts from the escalation handoff task.\"},{\"output\":\"output_a\",\"quote\":\"The MCP guidance confirms\",\"why_it_matters\":\"This is internal context leakage and lowers Output A's quality despite its stronger action alignment.\"}],\"output_a_quality\":{\"score\":7.1,\"strengths\":[\"Directly matches the expected next action.\",\"Provides actionable handoff fields including owner, next action, reason, evidence gap, and required fix.\",\"More useful for a downstream agent that needs to proceed with escalation.\"],\"risks\":[\"Leaks internal MCP guidance in the rationale.\",\"Invents or assumes a missing user history gap not present in the source brief.\",\"Overstates that the operator already made specific findings.\" ]},\"output_b_quality\":{\"score\":5.6,\"strengths\":[\"Recognizes the relevant moderation review dimensions: policy evidence, user history, and severity.\",\"Mentions required escalation handoff fields such as policy reason, owner, and evidence gap.\",\"Avoids fully committing to an unsafe final moderation decision.\"],\"risks\":[\"Does not clearly execute the expected next action; escalation remains conditional.\",\"Adds generic questions and an unrelated return-for-more-evidence branch.\",\"Invents fixture/current-handoff details not present in the source brief.\",\"Tells the agent to gather missing context before finalizing escalation, which may block the expected handoff.\" ]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "medium",
+    "rationale": "Output A is the better handoff plan because it directly follows the expected next action: preparing an escalation handoff. It includes an owner, next action, reason, evidence gap, and required fix, which makes it more operationally useful for a downstream agent. Output B is more conditional and drifts back into the broader review workflow, including return-for-more-evidence questions that are not the expected next move. Both outputs invent some case specifics and leak internal context, so the win is not clean.",
+    "decisive_differences": [
+      "Output A names the escalation handoff as the immediate next action; Output B frames escalation as conditional and partially delays it.",
+      "Output A provides concrete handoff fields; Output B's handoff is more narrative and tells the agent to gather missing context before finalizing escalation.",
+      "Output B asks about an alternate return-for-more-evidence path, which distracts from the expected escalation handoff.",
+      "Output A has an internal leakage problem in its rationale, but Output B also leaks fixture/context language and is less operationally aligned."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Prepare the escalation handoff to the policy reviewer.",
+        "why_it_matters": "This matches the expected next action directly."
+      },
+      {
+        "output": "output_a",
+        "quote": "Owner: Policy Reviewer; Next Action: Review escalated case for final determination; Reason: Severity and policy evidence require expert review",
+        "why_it_matters": "It includes the core handoff/action/reason structure needed by a downstream agent."
+      },
+      {
+        "output": "output_b",
+        "quote": "The immediate focus must be on completing the handoff preparation if escalation is chosen.",
+        "why_it_matters": "This weakens the required next move by making escalation conditional rather than preparing the handoff."
+      },
+      {
+        "output": "output_b",
+        "quote": "If the operator selects 'Return for more evidence,' what is the standardized format",
+        "why_it_matters": "This introduces a different workflow path and distracts from the escalation handoff task."
+      },
+      {
+        "output": "output_a",
+        "quote": "The MCP guidance confirms",
+        "why_it_matters": "This is internal context leakage and lowers Output A's quality despite its stronger action alignment."
+      }
+    ],
+    "output_a_quality": {
+      "score": 7.1,
+      "strengths": [
+        "Directly matches the expected next action.",
+        "Provides actionable handoff fields including owner, next action, reason, evidence gap, and required fix.",
+        "More useful for a downstream agent that needs to proceed with escalation."
+      ],
+      "risks": [
+        "Leaks internal MCP guidance in the rationale.",
+        "Invents or assumes a missing user history gap not present in the source brief.",
+        "Overstates that the operator already made specific findings."
+      ]
+    },
+    "output_b_quality": {
+      "score": 5.6,
+      "strengths": [
+        "Recognizes the relevant moderation review dimensions: policy evidence, user history, and severity.",
+        "Mentions required escalation handoff fields such as policy reason, owner, and evidence gap.",
+        "Avoids fully committing to an unsafe final moderation decision."
+      ],
+      "risks": [
+        "Does not clearly execute the expected next action; escalation remains conditional.",
+        "Adds generic questions and an unrelated return-for-more-evidence branch.",
+        "Invents fixture/current-handoff details not present in the source brief.",
+        "Tells the agent to gather missing context before finalizing escalation, which may block the expected handoff."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "467f29d14672ef8ff52ebbfbec271d1fe14a534ad90959eac930a5578f3b38e1",
+    "stderr_sha256": "5e88338d2e18036aae62f87452f9b27f4b09c0101bf0b137bade61b0588924f8",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

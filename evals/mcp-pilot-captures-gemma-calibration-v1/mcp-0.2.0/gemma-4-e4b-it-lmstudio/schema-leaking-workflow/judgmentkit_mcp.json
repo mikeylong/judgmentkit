@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "schema-leaking-workflow",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51813/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "ff471d2bcc2824e7d5b1821377b709d4a5fcd1de7bc9eceb45458826bba2bdba",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-13T22:07:24.027Z",
+  "duration_ms": 3476,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 630,
+    "completion_tokens": 123,
+    "total_tokens": 753,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "e588dc6cb4ab3961ccf636f3f51b885f6f0747e85a37c7e9c92f15b1b7d2624a",
+  "prompt_sha256": "d39ca5f4b3cf38a9a2716f562d4d435e832f9393583703940e96188e4814a512",
+  "mcp_context_sha256": "c4727440249aa5783d74cb554cf181b9394731a6e2026e3c6fe35c69fd148f17",
+  "raw_response_sha256": "fed934dc42542698a79e59af2fc9372582a33ea8c7ffb1dee27675fe1079b689",
+  "raw_response": "{\"response\": \"Untrusted\", \"next_action\": \"None\", \"questions\": [\"What is the relationship between reviewing refund requests and inspecting a JSON schema?\"], \"handoff\": \"Need clarification on how 'JSON schema' relates to the support lead's task of reviewing refund requests.\", \"rationale\": \"The source brief describes a human process (support lead triage) involving decisions (approve, policy review, return). The candidate fixture describes technical actions related to JSON schemas and database updates. There is no apparent connection between the two, suggesting schema leakage or misinterpretation of the required workflow.\"}",
+  "parsed": {
+    "response": "Untrusted",
+    "next_action": "None",
+    "questions": [
+      "What is the relationship between reviewing refund requests and inspecting a JSON schema?"
+    ],
+    "handoff": "Need clarification on how 'JSON schema' relates to the support lead's task of reviewing refund requests.",
+    "rationale": "The source brief describes a human process (support lead triage) involving decisions (approve, policy review, return). The candidate fixture describes technical actions related to JSON schemas and database updates. There is no apparent connection between the two, suggesting schema leakage or misinterpretation of the required workflow."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Untrusted\", \"next_action\": \"None\", \"questions\": [\"What is the relationship between reviewing refund requests and inspecting a JSON schema?\"], \"handoff\": \"Need clarification on how 'JSON schema' relates to the support lead's task of reviewing refund requests.\", \"rationale\": \"The source brief describes a human process (support lead triage) involving decisions (approve, policy review, return). The candidate fixture describes technical actions related to JSON schemas and database updates. There is no apparent connection between the two, suggesting schema leakage or misinterpretation of the required workflow.\"}",
+    "usage": {
+      "prompt_tokens": 630,
+      "completion_tokens": 123,
+      "total_tokens": 753,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "d9c5138ed263835f50fc0feb0a71311a8dfa6c0a71c78f5a5a031aeab037898c",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

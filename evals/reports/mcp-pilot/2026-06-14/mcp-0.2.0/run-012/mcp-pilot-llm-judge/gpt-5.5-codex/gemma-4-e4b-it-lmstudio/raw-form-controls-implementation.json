@@ -1,0 +1,83 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "raw-form-controls-implementation",
+  "title": "Raw form controls implementation review",
+  "case_type": "implementation_review",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T02:55:42.903Z",
+  "duration_ms": 71014,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "e0953cca48383ff3970d795ec313386cee227aa407031d98aa16ec095c61d0f3",
+  "raw_response_sha256": "e36aef1649d8a821a85ec382019819897a4158716558781a7ee1ae159c3dfe64",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"medium\",\"rationale\":\"Output B is more operationally useful for the expected next move: it rejects the implementation, requires replacing raw controls with approved primitives, and includes a verification step. Output A also rejects, but its questions ask for information already implied by the brief and would slow the downstream agent. Output B is penalized for ungrounded details about a table and subsequent repair attempts, so the win is not high confidence.\",\"decisive_differences\":[\"Output B gives a direct repair-and-resubmit path tied to approved primitives and verification.\",\"Output A adds unnecessary questions and a vague UI/UX lead handoff despite enough source context to reject.\",\"Output B has invented details, especially subsequent repair attempts, which lowers confidence but does not overturn its clearer next action.\"],\"evidence\":[{\"output\":\"output_b\",\"quote\":\"Required Fix: Replace all instances of raw form controls with the designated, approved UI primitives for this workflow.\",\"why_it_matters\":\"This directly matches the expected next action to reject raw controls and require approved primitives.\"},{\"output\":\"output_a\",\"quote\":\"Which specific components are intended to replace 'raw input' and 'raw select'\",\"why_it_matters\":\"The source brief already names the primitive areas, so this is an avoidable clarification that weakens the handoff.\"},{\"output\":\"output_b\",\"quote\":\"Although subsequent repair attempts passed\",\"why_it_matters\":\"This is ungrounded in the provided case and introduces misleading workflow history.\"}],\"output_a_quality\":{\"score\":6.8,\"strengths\":[\"Correctly rejects the implementation.\",\"Identifies raw input/select as violating the approved-primitives requirement.\",\"Mentions the required workbench structures.\"],\"risks\":[\"Asks generic clarification questions instead of issuing the required revision path.\",\"Handoff is vague and routed to confirmation rather than implementation repair.\",\"Does not clearly specify verification of approved primitives across the workbench.\"]},\"output_b_quality\":{\"score\":7.3,\"strengths\":[\"Directly rejects and calls for repair/resubmission.\",\"Clearly requires replacing raw form controls with approved primitives.\",\"Includes a concrete verification criterion.\"],\"risks\":[\"Invents or assumes details about a raw table.\",\"Invents subsequent repair attempts, which could mislead downstream handling.\",\"Uses somewhat internal/action-code phrasing in next_action.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "medium",
+    "rationale": "Output B is more operationally useful for the expected next move: it rejects the implementation, requires replacing raw controls with approved primitives, and includes a verification step. Output A also rejects, but its questions ask for information already implied by the brief and would slow the downstream agent. Output B is penalized for ungrounded details about a table and subsequent repair attempts, so the win is not high confidence.",
+    "decisive_differences": [
+      "Output B gives a direct repair-and-resubmit path tied to approved primitives and verification.",
+      "Output A adds unnecessary questions and a vague UI/UX lead handoff despite enough source context to reject.",
+      "Output B has invented details, especially subsequent repair attempts, which lowers confidence but does not overturn its clearer next action."
+    ],
+    "evidence": [
+      {
+        "output": "output_b",
+        "quote": "Required Fix: Replace all instances of raw form controls with the designated, approved UI primitives for this workflow.",
+        "why_it_matters": "This directly matches the expected next action to reject raw controls and require approved primitives."
+      },
+      {
+        "output": "output_a",
+        "quote": "Which specific components are intended to replace 'raw input' and 'raw select'",
+        "why_it_matters": "The source brief already names the primitive areas, so this is an avoidable clarification that weakens the handoff."
+      },
+      {
+        "output": "output_b",
+        "quote": "Although subsequent repair attempts passed",
+        "why_it_matters": "This is ungrounded in the provided case and introduces misleading workflow history."
+      }
+    ],
+    "output_a_quality": {
+      "score": 6.8,
+      "strengths": [
+        "Correctly rejects the implementation.",
+        "Identifies raw input/select as violating the approved-primitives requirement.",
+        "Mentions the required workbench structures."
+      ],
+      "risks": [
+        "Asks generic clarification questions instead of issuing the required revision path.",
+        "Handoff is vague and routed to confirmation rather than implementation repair.",
+        "Does not clearly specify verification of approved primitives across the workbench."
+      ]
+    },
+    "output_b_quality": {
+      "score": 7.3,
+      "strengths": [
+        "Directly rejects and calls for repair/resubmission.",
+        "Clearly requires replacing raw form controls with approved primitives.",
+        "Includes a concrete verification criterion."
+      ],
+      "risks": [
+        "Invents or assumes details about a raw table.",
+        "Invents subsequent repair attempts, which could mislead downstream handling.",
+        "Uses somewhat internal/action-code phrasing in next_action."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "d866459e1e931fc4e6a606434fe7d479b460d3ae15bdad662f45c0a35d969c1e",
+    "stderr_sha256": "649144ff0907205688e3e433c5463b8bddd3df8c9af9540d4918e97e13ffb826",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

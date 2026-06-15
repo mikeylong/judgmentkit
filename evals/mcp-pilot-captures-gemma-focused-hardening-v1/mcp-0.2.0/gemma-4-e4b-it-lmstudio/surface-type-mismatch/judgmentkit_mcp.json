@@ -1,0 +1,61 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "surface-type-mismatch",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:53462/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "8db3000f67f2601e73639297be9f736be14febd9e66f5648659ff3b13dc54703",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:32:05.559Z",
+  "duration_ms": 29364,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 967,
+    "completion_tokens": 223,
+    "total_tokens": 1190,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "5cf1f5538b6de5ef4c45b5a02f0af36893766ecb51d07173f236be1b8cca3b95",
+  "prompt_sha256": "a3471b308a9369535c7bc93fde9cde6ecef41270042c7d7140fed4f698d99945",
+  "mcp_context_sha256": "0d510d752f66687ff3e56dac48d5a5333268de66552a0d59577f3e039ff27e8c",
+  "raw_response_sha256": "572fac921e4867109836ebabdadc81a4093c0ad60db10d8befb98d16379599af",
+  "raw_response": "{\"response\": \"The submitted workflow and UI structure are entirely focused on incident management processes (reviewing incidents, assigning owners, escalating/closing incidents). This fundamentally mismatches the source brief's intent, which is to create a product landing page explaining JudgmentKit to AI tooling teams deciding on installation. The content domain language mismatch is severe.\", \"next_action\": \"Repair direction: Rebuild the entire artifact to focus on marketing and educational content suitable for a product landing page targeting technical decision-makers regarding tool adoption.\", \"questions\": [], \"handoff\": \"Decision/Action/Reason: Reject fixture; return to product landing-page intent. Owner: Product Marketing Team. Evidence Gap: Missing core educational narrative structure for a 'Should I Install This?' type of guide. Required Fix: Develop content sections covering problem statement, solution overview (JudgmentKit), key benefits for AI tooling teams, and clear decision criteria/next steps.\", \"rationale\": \"The submitted fixture describes an operational workflow for incident handling, not the informational, persuasive content required for a product landing page designed to drive adoption decisions.\"}",
+  "parsed": {
+    "response": "The submitted workflow and UI structure are entirely focused on incident management processes (reviewing incidents, assigning owners, escalating/closing incidents). This fundamentally mismatches the source brief's intent, which is to create a product landing page explaining JudgmentKit to AI tooling teams deciding on installation. The content domain language mismatch is severe.",
+    "next_action": "Repair direction: Rebuild the entire artifact to focus on marketing and educational content suitable for a product landing page targeting technical decision-makers regarding tool adoption.",
+    "questions": [],
+    "handoff": "Decision/Action/Reason: Reject fixture; return to product landing-page intent. Owner: Product Marketing Team. Evidence Gap: Missing core educational narrative structure for a 'Should I Install This?' type of guide. Required Fix: Develop content sections covering problem statement, solution overview (JudgmentKit), key benefits for AI tooling teams, and clear decision criteria/next steps.",
+    "rationale": "The submitted fixture describes an operational workflow for incident handling, not the informational, persuasive content required for a product landing page designed to drive adoption decisions."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The submitted workflow and UI structure are entirely focused on incident management processes (reviewing incidents, assigning owners, escalating/closing incidents). This fundamentally mismatches the source brief's intent, which is to create a product landing page explaining JudgmentKit to AI tooling teams deciding on installation. The content domain language mismatch is severe.\", \"next_action\": \"Repair direction: Rebuild the entire artifact to focus on marketing and educational content suitable for a product landing page targeting technical decision-makers regarding tool adoption.\", \"questions\": [], \"handoff\": \"Decision/Action/Reason: Reject fixture; return to product landing-page intent. Owner: Product Marketing Team. Evidence Gap: Missing core educational narrative structure for a 'Should I Install This?' type of guide. Required Fix: Develop content sections covering problem statement, solution overview (JudgmentKit), key benefits for AI tooling teams, and clear decision criteria/next steps.\", \"rationale\": \"The submitted fixture describes an operational workflow for incident handling, not the informational, persuasive content required for a product landing page designed to drive adoption decisions.\"}",
+    "usage": {
+      "prompt_tokens": 967,
+      "completion_tokens": 223,
+      "total_tokens": 1190,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "6568ddbf95784689c34c1044543edeaf4edac5dcc98e29790c75960b1828dccc",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

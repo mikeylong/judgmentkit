@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "schema-leaking-workflow",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51813/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-13T22:07:20.550Z",
+  "duration_ms": 4401,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 486,
+    "completion_tokens": 174,
+    "total_tokens": 660,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "90dfc8ec9e69367e7d2c1c9faeb27c76563127f8f9b94934b4172e2b31c5beab",
+  "prompt_sha256": "8fa9aa0fa426d35b66367286f35ffd6d61ebd22c629668fd5b55317d8c19b75b",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "700ca2470acadf8be3a7070589dc681af9ab6de153b28709bbdd5cef88cb67d5",
+  "raw_response": "{\"response\": \"Untrusted\", \"next_action\": \"None\", \"questions\": [\"What specific evidence or information related to refund requests (e.g., error messages, required fields) should be present in the workflow/UI?\", \"Does the candidate's focus on 'JSON schema' and 'database field' accurately reflect the process of reviewing a refund request for missing evidence?\"], \"handoff\": \"N/A\", \"rationale\": \"The source brief describes a support lead triaging refund requests and making decisions (approve, policy review, return). The candidate fixture describes technical actions related to JSON schema validation, database editing, and API endpoints. There is a significant mismatch between the operational context of the source request and the technical implementation details provided in the candidate fixture, suggesting it leaks underlying system structure rather than modeling the support workflow itself.\"}",
+  "parsed": {
+    "response": "Untrusted",
+    "next_action": "None",
+    "questions": [
+      "What specific evidence or information related to refund requests (e.g., error messages, required fields) should be present in the workflow/UI?",
+      "Does the candidate's focus on 'JSON schema' and 'database field' accurately reflect the process of reviewing a refund request for missing evidence?"
+    ],
+    "handoff": "N/A",
+    "rationale": "The source brief describes a support lead triaging refund requests and making decisions (approve, policy review, return). The candidate fixture describes technical actions related to JSON schema validation, database editing, and API endpoints. There is a significant mismatch between the operational context of the source request and the technical implementation details provided in the candidate fixture, suggesting it leaks underlying system structure rather than modeling the support workflow itself."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Untrusted\", \"next_action\": \"None\", \"questions\": [\"What specific evidence or information related to refund requests (e.g., error messages, required fields) should be present in the workflow/UI?\", \"Does the candidate's focus on 'JSON schema' and 'database field' accurately reflect the process of reviewing a refund request for missing evidence?\"], \"handoff\": \"N/A\", \"rationale\": \"The source brief describes a support lead triaging refund requests and making decisions (approve, policy review, return). The candidate fixture describes technical actions related to JSON schema validation, database editing, and API endpoints. There is a significant mismatch between the operational context of the source request and the technical implementation details provided in the candidate fixture, suggesting it leaks underlying system structure rather than modeling the support workflow itself.\"}",
+    "usage": {
+      "prompt_tokens": 486,
+      "completion_tokens": 174,
+      "total_tokens": 660,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "2f629c2e40b6bbe77d391eccab024400607517834a7d454f3a08557e1ccd3aea",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

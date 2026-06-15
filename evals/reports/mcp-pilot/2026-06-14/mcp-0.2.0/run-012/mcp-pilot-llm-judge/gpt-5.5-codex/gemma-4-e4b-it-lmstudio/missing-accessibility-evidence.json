@@ -1,0 +1,86 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "missing-accessibility-evidence",
+  "title": "Missing accessibility evidence review",
+  "case_type": "implementation_review",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T02:56:32.435Z",
+  "duration_ms": 49532,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "b9de8021d8a7c62d693d275e4526e8697c261fd1f637f270597fc708565d716f",
+  "raw_response_sha256": "db5f28049b1fea28e0fc6cf14114aa1df9e82bad52746e7718cd9cbb0c441614",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"medium\",\"rationale\":\"Output B is more useful for the downstream agent because it makes the required acceptance decision explicit and pairs it with a repair/resubmit path and concrete accessibility evidence to supply. Output A recognizes the missing evidence but softens the decision into requesting clarification and includes generic questions, which is less aligned with the expected next action. Confidence is only medium because Output B also invents unsupported context about basic functional checks and subsequent attempts.\",\"decisive_differences\":[\"Output B explicitly says to reject and resubmit with accessibility evidence, matching the expected next action.\",\"Output A says the candidate cannot be accepted but does not frame the next move as rejection; it asks process questions instead.\",\"Both outputs add unsupported details, but Output A’s generic questions and invented empty accessibility_evidence object are less operational than Output B’s acceptance-blocking handoff.\"],\"evidence\":[{\"output\":\"output_b\",\"quote\":\"\\\"response\\\": \\\"reject\\\"\",\"why_it_matters\":\"Directly matches the required implementation review decision.\"},{\"output\":\"output_b\",\"quote\":\"\\\"Required Fix: Provide comprehensive and passing accessibility evidence covering semantic content, landmarks/headings, name/role/value attributes, keyboard navigation, focus order, and visible focus indicators.\\\"\",\"why_it_matters\":\"Gives a downstream agent concrete evidence categories relevant to custom dense operator controls.\"},{\"output\":\"output_a\",\"quote\":\"\\\"Request the necessary accessibility evidence to complete the review.\\\"\",\"why_it_matters\":\"Correctly identifies the missing evidence, but is weaker than rejecting until the evidence is supplied.\"},{\"output\":\"output_b\",\"quote\":\"\\\"despite passing basic functional checks\\\"\",\"why_it_matters\":\"This is unsupported by the source brief and lowers confidence in Output B.\"}],\"output_a_quality\":{\"score\":6.5,\"strengths\":[\"Recognizes that missing core accessibility evidence blocks acceptance.\",\"Grounds the main rationale in the source brief’s mandatory requirement.\"],\"risks\":[\"Does not explicitly choose reject as the next action.\",\"Asks generic process questions instead of giving a decisive handoff.\",\"Invents that the candidate showed an empty accessibility_evidence object.\" ]},\"output_b_quality\":{\"score\":7.5,\"strengths\":[\"Explicitly rejects the implementation candidate.\",\"Provides an actionable repair/resubmit path.\",\"Names accessibility evidence areas that are relevant for dense custom-control UIs.\"],\"risks\":[\"Invents unsupported context about basic functional checks and subsequent attempts.\",\"Uses broader evidence requirements than the brief explicitly states.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "medium",
+    "rationale": "Output B is more useful for the downstream agent because it makes the required acceptance decision explicit and pairs it with a repair/resubmit path and concrete accessibility evidence to supply. Output A recognizes the missing evidence but softens the decision into requesting clarification and includes generic questions, which is less aligned with the expected next action. Confidence is only medium because Output B also invents unsupported context about basic functional checks and subsequent attempts.",
+    "decisive_differences": [
+      "Output B explicitly says to reject and resubmit with accessibility evidence, matching the expected next action.",
+      "Output A says the candidate cannot be accepted but does not frame the next move as rejection; it asks process questions instead.",
+      "Both outputs add unsupported details, but Output A’s generic questions and invented empty accessibility_evidence object are less operational than Output B’s acceptance-blocking handoff."
+    ],
+    "evidence": [
+      {
+        "output": "output_b",
+        "quote": "\"response\": \"reject\"",
+        "why_it_matters": "Directly matches the required implementation review decision."
+      },
+      {
+        "output": "output_b",
+        "quote": "\"Required Fix: Provide comprehensive and passing accessibility evidence covering semantic content, landmarks/headings, name/role/value attributes, keyboard navigation, focus order, and visible focus indicators.\"",
+        "why_it_matters": "Gives a downstream agent concrete evidence categories relevant to custom dense operator controls."
+      },
+      {
+        "output": "output_a",
+        "quote": "\"Request the necessary accessibility evidence to complete the review.\"",
+        "why_it_matters": "Correctly identifies the missing evidence, but is weaker than rejecting until the evidence is supplied."
+      },
+      {
+        "output": "output_b",
+        "quote": "\"despite passing basic functional checks\"",
+        "why_it_matters": "This is unsupported by the source brief and lowers confidence in Output B."
+      }
+    ],
+    "output_a_quality": {
+      "score": 6.5,
+      "strengths": [
+        "Recognizes that missing core accessibility evidence blocks acceptance.",
+        "Grounds the main rationale in the source brief’s mandatory requirement."
+      ],
+      "risks": [
+        "Does not explicitly choose reject as the next action.",
+        "Asks generic process questions instead of giving a decisive handoff.",
+        "Invents that the candidate showed an empty accessibility_evidence object."
+      ]
+    },
+    "output_b_quality": {
+      "score": 7.5,
+      "strengths": [
+        "Explicitly rejects the implementation candidate.",
+        "Provides an actionable repair/resubmit path.",
+        "Names accessibility evidence areas that are relevant for dense custom-control UIs."
+      ],
+      "risks": [
+        "Invents unsupported context about basic functional checks and subsequent attempts.",
+        "Uses broader evidence requirements than the brief explicitly states."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "ed92efc2b33ba91797a718850615398cb767b25c510b5b5ba2a3b78cbc7d3486",
+    "stderr_sha256": "6ea6c712f89a29733c8213667ec8521dcca0a5b361915918c4fd9f07f9bbf099",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

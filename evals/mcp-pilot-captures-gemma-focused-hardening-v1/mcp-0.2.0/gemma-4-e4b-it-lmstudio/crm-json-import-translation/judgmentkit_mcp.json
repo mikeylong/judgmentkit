@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "crm-json-import-translation",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:53462/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "96014a17a061ea66814ddfc6f4ebd27cc8805da883edd4761f97f3dc3492138e",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:27:51.319Z",
+  "duration_ms": 4242,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 863,
+    "completion_tokens": 206,
+    "total_tokens": 1069,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "4dd6bc04b02fe64e2c47c944d702ac518b29d903961fd179e27f94c7655a9f40",
+  "prompt_sha256": "659107fbfd66d2193156c666d5e65362a0672da980a8d4810bf8a943167e0785",
+  "mcp_context_sha256": "9968bb0832243639c3c7e237bdd2bec5479115c26e7492853c690ba07f39b83f",
+  "raw_response_sha256": "a57e75f9da3f23586f656b644f0e4bff1c5009fff0ad90ea2ed6985d7fcd9e04",
+  "raw_response": "{\"response\": \"The agent should present a structured review screen to the account operations user. This screen must clearly delineate three sections: records ready for acceptance (which can be processed immediately), records requiring owner attention due to data issues (and specifying the required fix for each), and a final import summary detailing the overall outcome of the batch process.\", \"next_action\": \"Present the structured review interface to the user, guiding them through accepting clean records, reviewing flagged records with necessary remediation steps, and confirming the final submission summary.\", \"questions\": [], \"handoff\": \"Action: Present Account Operations Record Acceptance Review; Owner: Agent; Reason: User needs a clear decision point for batch import results, separating accepted, fix-required, and summary information.\", \"rationale\": \"The goal is to guide the user through the necessary acceptance workflow after a data translation/import process. The structure must match the required output components (Acceptable Records, Fix Needed Records, Summary) based on the source brief's focus.\"}",
+  "parsed": {
+    "response": "The agent should present a structured review screen to the account operations user. This screen must clearly delineate three sections: records ready for acceptance (which can be processed immediately), records requiring owner attention due to data issues (and specifying the required fix for each), and a final import summary detailing the overall outcome of the batch process.",
+    "next_action": "Present the structured review interface to the user, guiding them through accepting clean records, reviewing flagged records with necessary remediation steps, and confirming the final submission summary.",
+    "questions": [],
+    "handoff": "Action: Present Account Operations Record Acceptance Review; Owner: Agent; Reason: User needs a clear decision point for batch import results, separating accepted, fix-required, and summary information.",
+    "rationale": "The goal is to guide the user through the necessary acceptance workflow after a data translation/import process. The structure must match the required output components (Acceptable Records, Fix Needed Records, Summary) based on the source brief's focus."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent should present a structured review screen to the account operations user. This screen must clearly delineate three sections: records ready for acceptance (which can be processed immediately), records requiring owner attention due to data issues (and specifying the required fix for each), and a final import summary detailing the overall outcome of the batch process.\", \"next_action\": \"Present the structured review interface to the user, guiding them through accepting clean records, reviewing flagged records with necessary remediation steps, and confirming the final submission summary.\", \"questions\": [], \"handoff\": \"Action: Present Account Operations Record Acceptance Review; Owner: Agent; Reason: User needs a clear decision point for batch import results, separating accepted, fix-required, and summary information.\", \"rationale\": \"The goal is to guide the user through the necessary acceptance workflow after a data translation/import process. The structure must match the required output components (Acceptable Records, Fix Needed Records, Summary) based on the source brief's focus.\"}",
+    "usage": {
+      "prompt_tokens": 863,
+      "completion_tokens": 206,
+      "total_tokens": 1069,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "9184e16f6614673669aaa386f09895729338b4fe973a76c2b1677460daf23c90",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

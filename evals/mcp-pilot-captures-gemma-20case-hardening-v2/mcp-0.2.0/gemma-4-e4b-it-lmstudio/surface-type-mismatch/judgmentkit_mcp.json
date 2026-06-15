@@ -1,0 +1,65 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "surface-type-mismatch",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59425/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "8db3000f67f2601e73639297be9f736be14febd9e66f5648659ff3b13dc54703",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T21:28:54.857Z",
+  "duration_ms": 11127,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 898,
+    "completion_tokens": 282,
+    "total_tokens": 1180,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "de9d9d9e94c6616714668ad12d19d5aaec0b4711d87246fefb83570419e34b0e",
+  "prompt_sha256": "226426ee130ae90ee41938c78dd6abe44d48b139c9ae337405d3bbd403711e2a",
+  "mcp_context_sha256": "8555b2b84a7a62682d880996c0bf34f888195a93b1e07d71bdb8785eca5c82ae",
+  "raw_response_sha256": "3990dc71b45f346f517794cd2a45b9f5f4f58d2365d2c255dce7a00af45079bc",
+  "raw_response": "{\"response\": \"The submitted fixture describes a workflow centered around incident management (reviewing, assigning ownership, and closing incidents), which fundamentally mismatches the source request to create a product landing page explaining JudgmentKit for AI tooling teams. The language used in the fixture is domain-specific to operational support processes rather than marketing or product education.\", \"next_action\": \"Request clarification on the intended surface type/domain.\", \"questions\": [\"What specific user goal should this landing page help an AI tooling team achieve (e.g., understanding features, comparing tools, initiating setup)?\", \"Who is the primary persona reading this page (e.g., Lead Engineer, Product Manager, CTO)?\", \"What key sections or concepts must be explained on the page to guide their decision-making process?\"], \"handoff\": \"Decision: Reject; Reason: Surface type mismatch. The source brief requires marketing/product documentation content, but the submitted fixture details an operational incident management workflow. Owner: Product Strategy Team; Evidence Gap: Missing product education context; Required Fix: Reorient the output to address user decision-making regarding tool adoption, not incident resolution.\", \"rationale\": \"The core mismatch is between 'creating a product landing page' and the provided structure detailing 'Review incidents,' 'Assign owner,' and 'Close incident.' The next steps must guide the candidate toward marketing/educational content generation.\"}",
+  "parsed": {
+    "response": "The submitted fixture describes a workflow centered around incident management (reviewing, assigning ownership, and closing incidents), which fundamentally mismatches the source request to create a product landing page explaining JudgmentKit for AI tooling teams. The language used in the fixture is domain-specific to operational support processes rather than marketing or product education.",
+    "next_action": "Request clarification on the intended surface type/domain.",
+    "questions": [
+      "What specific user goal should this landing page help an AI tooling team achieve (e.g., understanding features, comparing tools, initiating setup)?",
+      "Who is the primary persona reading this page (e.g., Lead Engineer, Product Manager, CTO)?",
+      "What key sections or concepts must be explained on the page to guide their decision-making process?"
+    ],
+    "handoff": "Decision: Reject; Reason: Surface type mismatch. The source brief requires marketing/product documentation content, but the submitted fixture details an operational incident management workflow. Owner: Product Strategy Team; Evidence Gap: Missing product education context; Required Fix: Reorient the output to address user decision-making regarding tool adoption, not incident resolution.",
+    "rationale": "The core mismatch is between 'creating a product landing page' and the provided structure detailing 'Review incidents,' 'Assign owner,' and 'Close incident.' The next steps must guide the candidate toward marketing/educational content generation."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The submitted fixture describes a workflow centered around incident management (reviewing, assigning ownership, and closing incidents), which fundamentally mismatches the source request to create a product landing page explaining JudgmentKit for AI tooling teams. The language used in the fixture is domain-specific to operational support processes rather than marketing or product education.\", \"next_action\": \"Request clarification on the intended surface type/domain.\", \"questions\": [\"What specific user goal should this landing page help an AI tooling team achieve (e.g., understanding features, comparing tools, initiating setup)?\", \"Who is the primary persona reading this page (e.g., Lead Engineer, Product Manager, CTO)?\", \"What key sections or concepts must be explained on the page to guide their decision-making process?\"], \"handoff\": \"Decision: Reject; Reason: Surface type mismatch. The source brief requires marketing/product documentation content, but the submitted fixture details an operational incident management workflow. Owner: Product Strategy Team; Evidence Gap: Missing product education context; Required Fix: Reorient the output to address user decision-making regarding tool adoption, not incident resolution.\", \"rationale\": \"The core mismatch is between 'creating a product landing page' and the provided structure detailing 'Review incidents,' 'Assign owner,' and 'Close incident.' The next steps must guide the candidate toward marketing/educational content generation.\"}",
+    "usage": {
+      "prompt_tokens": 898,
+      "completion_tokens": 282,
+      "total_tokens": 1180,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "eb969e6aac597d230e53ac978a03b6620f433f8d6fdc307d0e3b4885303d4f12",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

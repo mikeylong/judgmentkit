@@ -1,0 +1,126 @@
+{
+  "packet_id": "judgmentkit-mcp-private-pilot-evidence-v1",
+  "evidence_type": "repo-local saved-capture product proof",
+  "methodology": "Deterministic scoring of saved baseline and JudgmentKit-guided model captures. JudgmentKit MCP supplies context but is not used as the judge.",
+  "checkpoint_policy": "Checkpoint means a reproducible evidence packet plus scoped file manifest; no git commit is implied.",
+  "mcp": {
+    "required_version": "0.2.0",
+    "actual_version": "0.2.0",
+    "package_version": "0.2.0",
+    "local_metadata_sha256": "d485ce78b1923a201f749bcf506338004f0be6d08b47cf51a734ab3f89549035",
+    "endpoint_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53"
+  },
+  "scoring_policy": {
+    "metric_scale": {
+      "metric_score": "0-5",
+      "total_score": "0-100 weighted"
+    },
+    "pass_bar": "Pilot passes when at least 75% of evaluated cases pass, average guided delta is at least +10, and guided critical disclosure leaks are zero.",
+    "calibration": "Calibrated pass reasons preserve raw scores while allowing high absolute guided scores and verified implementation repair-loop evidence to pass."
+  },
+  "primary": {
+    "run_id": "run-001",
+    "run_path": "2026-06-15/mcp-0.2.0/run-001",
+    "report_path": "evals/reports/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-report.json",
+    "capture_dir": "evals/mcp-pilot-captures",
+    "status": "capture-required",
+    "matrix_status": null,
+    "cases": 8,
+    "evaluated_cases": 0,
+    "passed": 0,
+    "failed": 0,
+    "guided_wins": 0,
+    "baseline_wins": 0,
+    "ties": 0,
+    "average_guided_delta": 0,
+    "invalid_outputs": 0,
+    "guided_critical_disclosure_leaks": 0,
+    "standard_delta_passed": 0,
+    "calibrated_only_passes": 0,
+    "calibrated_pass_reason_counts": {},
+    "proofs": {
+      "repair_loop": {
+        "loop_cases": 4,
+        "converged_cases": 3,
+        "stopped_cases": 1,
+        "average_attempts_to_pass": 2,
+        "failure_category_counts": {
+          "action_boundaries": 1,
+          "accessibility": 4,
+          "primitive_defaults": 3,
+          "state_rules": 3,
+          "evidence_gates": 3,
+          "data_visibility": 1
+        },
+        "proof_policy": "Repair-loop results are deterministic fixture proof of contract governance and agent-owned resubmission behavior; they do not measure visual quality or live-model repair quality."
+      },
+      "live_repair_observation": {
+        "observation_cases": 4,
+        "observation_converged_cases": 4,
+        "observation_stopped_cases": 0,
+        "observation_failed_cases": 0,
+        "observation_average_attempts_to_pass": 3,
+        "proof_policy": "Repair-loop observation is an opt-in Codex CLI dogfood pass of agent-owned repair behavior; it is not a deterministic fixture proof, visual-quality score, or pass/fail gate."
+      },
+      "visual_token_adapter": {
+        "visual_token_cases": 4,
+        "visual_token_passed_cases": 4,
+        "visual_token_failed_cases": 0,
+        "visual_token_failure_category_counts": {
+          "visual_tokens": 2,
+          "accessibility": 1
+        },
+        "proof_policy": "Visual-token adapter results are deterministic boundary proof that token evidence is metadata only; they do not introduce renderer packages, component libraries, A2UI, or visual-quality scoring."
+      }
+    },
+    "models": [
+      {
+        "id": "gpt-5.5-codex",
+        "label": "GPT-5.5 Codex",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "local": false,
+        "role": null
+      }
+    ],
+    "remaining_failures": []
+  },
+  "comparisons": [],
+  "artifact_paths": {
+    "primary_report": "evals/reports/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-report.json",
+    "comparison_reports": [],
+    "primary_html_report": "2026-06-15/mcp-0.2.0/run-001/mcp-pilot-report.html",
+    "primary_capture_dir": "evals/mcp-pilot-captures"
+  },
+  "scoped_changed_file_manifest": {
+    "policy": "Intentional proof-package scope. Existing unrelated capture/report artifacts are preserved outside this manifest.",
+    "files": [
+      "contracts/ai-ui-generation.activity-contract.json",
+      "contracts/judgmentkit-kernel.schema.json",
+      "src/index.mjs",
+      "src/mcp.mjs",
+      "evals/run-mcp-pilot-evals.mjs",
+      "evals/mcp-pilot-cases.json",
+      "evals/build-mcp-pilot-evidence-packet.mjs",
+      "tests/kernel-contract.test.mjs",
+      "tests/ui-generation-handoff.test.mjs",
+      "tests/mcp.test.mjs",
+      "tests/mcp-stdio.test.mjs",
+      "tests/mcp-http.test.mjs",
+      "tests/mcp-pilot-evals.test.mjs"
+    ]
+  },
+  "next_milestone": {
+    "id": "milestone-4-default-renderer-component-package",
+    "status": "deferred_planning_only",
+    "summary": "Default renderer/component package driven by implementation_contract.visual_token_adapter.",
+    "constraints": [
+      "renderer consumes contract primitives and visual token semantics",
+      "renderer does not create approved primitives",
+      "renderer cannot satisfy or bypass implementation gates",
+      "renderer does not introduce A2UI, a catalog compiler, or protocol compiler",
+      "renderer is not visual-quality scoring"
+    ],
+    "deferred_contract_pointer": "implementation_contract.visual_token_adapter.deferred_renderer remains deferred"
+  }
+}

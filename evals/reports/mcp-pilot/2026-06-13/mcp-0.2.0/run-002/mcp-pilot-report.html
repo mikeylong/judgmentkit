@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JudgmentKit MCP Pilot Report</title>
+  <style>
+    body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #17201b; background: #f7f8f5; }
+    main { max-width: 1120px; margin: 0 auto; padding: 40px 20px 64px; }
+    .hero, .case { background: #fff; border: 1px solid #d9ded7; border-radius: 8px; padding: 24px; box-shadow: 0 10px 30px rgba(23, 32, 27, 0.06); }
+    .hero { margin-bottom: 20px; }
+    h1, h2, h3, p { margin-top: 0; }
+    .lede { max-width: 780px; color: #526058; }
+    .summary, .case dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: #d9ded7; border: 1px solid #d9ded7; border-radius: 8px; overflow: hidden; }
+    .summary div, .case dl div { background: #fff; padding: 14px; }
+    dt { color: #66736b; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    dd { margin: 4px 0 0; font-size: 1.25rem; font-weight: 800; }
+    .case { margin-top: 16px; }
+    .case header { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
+    .case header p { color: #66736b; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; }
+    .case header strong { border: 1px solid #bdc8bf; border-radius: 999px; padding: 6px 10px; white-space: nowrap; }
+    .variants { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 16px; }
+    .variant { border: 1px solid #d9ded7; border-radius: 8px; padding: 16px; }
+    .judgmentkit_mcp { border-color: #9ac6b4; background: #fbfffd; }
+    .score { font-size: 1.8rem; font-weight: 850; }
+    ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+    li { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid #edf0eb; padding-top: 6px; }
+    .leaks { margin-top: 12px; color: #8a2424; font-weight: 700; }
+    a { color: #245f73; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <p><a href="mcp-pilot-report.json">JSON report</a> · <a href="../../../../index.json">Catalog JSON</a></p>
+      <h1>JudgmentKit MCP Private Pilot</h1>
+      <p class="lede">Private repo-local pilot. Scores are deterministic checks against saved Codex captures; JudgmentKit is not used as the judge. Default mode scores existing captures only. Missing captures are reported as capture-required. Live capture is opt-in with --capture and reuses existing captures in the target capture directory.</p>
+      <dl class="summary">
+        <div><dt>Status</dt><dd>failed</dd></div>
+        <div><dt>Cases</dt><dd>5/5</dd></div>
+        <div><dt>Passed</dt><dd>2</dd></div>
+        <div><dt>Average delta</dt><dd>3.41</dd></div>
+        <div><dt>Guided leaks</dt><dd>0</dd></div>
+        <div><dt>Run</dt><dd>run-002</dd></div>
+      </dl>
+    </section>
+
+    <section class="case">
+      <header>
+        <p>activity_translation</p>
+        <h2>Refund schema admin translation</h2>
+        <strong>Failed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>Baseline</dd></div>
+        <div><dt>Delta</dt><dd>-13.28</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+      </dl>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">99/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>5</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>4</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">85.72/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>3.93</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>missing_context_restraint</p>
+        <h2>Vague system dashboard restraint</h2>
+        <strong>Failed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>2</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+      </dl>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">86.32/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>4.58</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>3</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">88.32/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>4.58</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>operator_review_handoff</p>
+        <h2>Clinical intake operator review</h2>
+        <strong>Failed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>Baseline</dd></div>
+        <div><dt>Delta</dt><dd>-6.68</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+      </dl>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">100/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>5</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">93.32/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>3.33</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>candidate_validation</p>
+        <h2>Schema-leaking workflow candidate</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>25</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+      </dl>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">70/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>3.75</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">95/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>3.75</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>implementation_review</p>
+        <h2>Missing accessibility evidence review</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>10.01</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+      </dl>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">69/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>2.25</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">79.01/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>2.25</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>1.67</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+  </main>
+</body>
+</html>

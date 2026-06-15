@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "raw-form-controls-implementation",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "311e398f9e68129730870f3b235ad9d3203351a2b5b32eaa4957cddbe122ad46",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:48:21.061Z",
+  "duration_ms": 3293,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1127,
+    "completion_tokens": 99,
+    "total_tokens": 1226,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "e6f029c7086528986b182eb6349472064f819b90c3c798c483a906659bedc596",
+  "prompt_sha256": "6ae380a7b3cb216b5984463ed87b03a174331bc287205327959acd0202ef2f7f",
+  "mcp_context_sha256": "a4c303cb864f3fdef576b9b01ebcba1041c5cfbdc5c8bd2970eea805bfde35ef",
+  "raw_response_sha256": "defaa7a47ae59a1a647d823ca3586fa01ddce0f3abbc6cd60692bc6a0c0b9aa2",
+  "raw_response": "{\"response\": \"The implementation candidate should be accepted.\", \"next_action\": \"Accept the current implementation.\", \"questions\": [], \"handoff\": \"Decision: Accept; Reason: The final review iteration passed, indicating successful remediation of prior issues and meeting all requirements.\", \"rationale\": \"The process shows a successful repair loop convergence. Although initial reviews flagged an issue related to action boundaries, subsequent attempts corrected this, leading to the final passing status and expected 'accept' action.\"}",
+  "parsed": {
+    "response": "The implementation candidate should be accepted.",
+    "next_action": "Accept the current implementation.",
+    "questions": [],
+    "handoff": "Decision: Accept; Reason: The final review iteration passed, indicating successful remediation of prior issues and meeting all requirements.",
+    "rationale": "The process shows a successful repair loop convergence. Although initial reviews flagged an issue related to action boundaries, subsequent attempts corrected this, leading to the final passing status and expected 'accept' action."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The implementation candidate should be accepted.\", \"next_action\": \"Accept the current implementation.\", \"questions\": [], \"handoff\": \"Decision: Accept; Reason: The final review iteration passed, indicating successful remediation of prior issues and meeting all requirements.\", \"rationale\": \"The process shows a successful repair loop convergence. Although initial reviews flagged an issue related to action boundaries, subsequent attempts corrected this, leading to the final passing status and expected 'accept' action.\"}",
+    "usage": {
+      "prompt_tokens": 1127,
+      "completion_tokens": 99,
+      "total_tokens": 1226,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "f70501ff784849f93d2c5393dfa504a2336e4f88adfd309723f2c9d995e3688f",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

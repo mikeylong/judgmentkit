@@ -1,0 +1,51 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "vague-system-dashboard",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:58914/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:06:04.479Z",
+  "duration_ms": 44918,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "43482679bb88ed9536222aee54fe0a8d37cfbbff9f35ad8e6b5bf62e6d2cef39",
+  "prompt_sha256": "b48d5c6aec2fd44ee58dce10cd80c7f622f272b0a13eeb26e878be00d7331c84",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "b357996c6079aff6fa5f867aece6a39656fe02b6d8cc9bf5f05e929a26e3c4c1",
+  "raw_response": "{\"response\":\"The brief is too underspecified to plan a responsible system dashboard. The next response should pause on concrete design decisions and ask for the work activity, users, decisions, outcomes, system boundary, and source artifacts that should constrain the plan.\",\"next_action\":\"Ask the targeted discovery questions, then use the answers to produce an activity-first dashboard plan that names supported decisions, meaningful states, source evidence, and details that should remain hidden unless needed for diagnosis.\",\"questions\":[\"What system is this dashboard for, and what domain or operational activity does it support?\",\"Who will use it, and what decision or action should they be able to make from it?\",\"What outcomes define success for the dashboard: faster response, safer review, throughput, quality control, compliance, or something else?\",\"What existing tools, reports, logs, tickets, workflows, or source artifacts should the plan align with?\",\"Which implementation details or internal machinery should stay hidden from primary users, and which diagnostic details may be revealed when needed?\"],\"handoff\":\"Owner: requester; action: provide system domain, users, decisions, outcomes, and source artifacts; reason: the current brief only asks for a dashboard and does not supply enough activity context to avoid invented requirements.\",\"rationale\":\"A useful dashboard plan depends on the work people are doing and the decisions they need to make. With only a vague dashboard request, the safest next agent response is targeted discovery rather than inventing metrics, panels, or workflows.\"}",
+  "parsed": {
+    "response": "The brief is too underspecified to plan a responsible system dashboard. The next response should pause on concrete design decisions and ask for the work activity, users, decisions, outcomes, system boundary, and source artifacts that should constrain the plan.",
+    "next_action": "Ask the targeted discovery questions, then use the answers to produce an activity-first dashboard plan that names supported decisions, meaningful states, source evidence, and details that should remain hidden unless needed for diagnosis.",
+    "questions": [
+      "What system is this dashboard for, and what domain or operational activity does it support?",
+      "Who will use it, and what decision or action should they be able to make from it?",
+      "What outcomes define success for the dashboard: faster response, safer review, throughput, quality control, compliance, or something else?",
+      "What existing tools, reports, logs, tickets, workflows, or source artifacts should the plan align with?",
+      "Which implementation details or internal machinery should stay hidden from primary users, and which diagnostic details may be revealed when needed?"
+    ],
+    "handoff": "Owner: requester; action: provide system domain, users, decisions, outcomes, and source artifacts; reason: the current brief only asks for a dashboard and does not supply enough activity context to avoid invented requirements.",
+    "rationale": "A useful dashboard plan depends on the work people are doing and the decisions they need to make. With only a vague dashboard request, the safest next agent response is targeted discovery rather than inventing metrics, panels, or workflows."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "b1b46ed1fdf7b3c745cc34e8457912c954c311afd172895f7c624480e1809c2b",
+    "stderr_sha256": "c53b79300dd3895929a8cc9005b44a5c77c38d10dcf4cd1aa644fae3e76b93f7",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

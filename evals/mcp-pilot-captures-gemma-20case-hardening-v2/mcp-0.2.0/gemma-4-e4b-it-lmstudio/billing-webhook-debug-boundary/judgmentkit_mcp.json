@@ -1,0 +1,67 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "billing-webhook-debug-boundary",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59425/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "3015594e9023071169560aba33bf640fddef12d4b919efbf6cb090e0f0e76406",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T21:23:30.851Z",
+  "duration_ms": 4478,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 787,
+    "completion_tokens": 238,
+    "total_tokens": 1025,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "46d7fdeca6537815c2212661272a4a37c9191cd4ad894b6054ebccd8ad28e887",
+  "prompt_sha256": "d48b8526c650f82a12c98bdf9b1ff010825f18523e806384a4d0042fa20465a9",
+  "mcp_context_sha256": "faf7a9c873171964f9f8451be5b9f4fce9894ff5d9bd5b0f5f61ede5af71e858",
+  "raw_response_sha256": "206511278861acecb510555df2af98be8bae87422dbac9177206850bd546513f",
+  "raw_response": "{\"response\": \"The agent should guide the user through establishing the core workflow and necessary knowledge base for the billing operations UI. Since the initial steps require understanding the intended activity, desired user outcome, and required domain vocabulary, the immediate next step is to gather this foundational context.\", \"next_action\": \"Gather missing foundational requirements regarding the UI's scope, expected user knowledge transfer, and necessary domain terminology.\", \"questions\": [\"What specific activities must this billing operations UI support before we can design any screen structure?\", \"After using this UI, what should the billing specialist know or be able to do?\", \"Which key participants or specialized vocabulary from the billing domain need to be incorporated into the interface?\"], \"handoff\": \"Decision/Action: Gather foundational context; Owner: Product Manager; Evidence Gap: Missing definition of required user activity, desired end-state knowledge, and core domain vocabulary for the billing operations UI.\", \"rationale\": \"The diagnostic guidance indicates that the initial steps require source context regarding the intended workflow (activity), the measurable outcome (user knowledge/action), and the necessary terminology (domain vocabulary). These are prerequisites before designing any surface type or structure.\"}",
+  "parsed": {
+    "response": "The agent should guide the user through establishing the core workflow and necessary knowledge base for the billing operations UI. Since the initial steps require understanding the intended activity, desired user outcome, and required domain vocabulary, the immediate next step is to gather this foundational context.",
+    "next_action": "Gather missing foundational requirements regarding the UI's scope, expected user knowledge transfer, and necessary domain terminology.",
+    "questions": [
+      "What specific activities must this billing operations UI support before we can design any screen structure?",
+      "After using this UI, what should the billing specialist know or be able to do?",
+      "Which key participants or specialized vocabulary from the billing domain need to be incorporated into the interface?"
+    ],
+    "handoff": "Decision/Action: Gather foundational context; Owner: Product Manager; Evidence Gap: Missing definition of required user activity, desired end-state knowledge, and core domain vocabulary for the billing operations UI.",
+    "rationale": "The diagnostic guidance indicates that the initial steps require source context regarding the intended workflow (activity), the measurable outcome (user knowledge/action), and the necessary terminology (domain vocabulary). These are prerequisites before designing any surface type or structure."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent should guide the user through establishing the core workflow and necessary knowledge base for the billing operations UI. Since the initial steps require understanding the intended activity, desired user outcome, and required domain vocabulary, the immediate next step is to gather this foundational context.\", \"next_action\": \"Gather missing foundational requirements regarding the UI's scope, expected user knowledge transfer, and necessary domain terminology.\", \"questions\": [\"What specific activities must this billing operations UI support before we can design any screen structure?\", \"After using this UI, what should the billing specialist know or be able to do?\", \"Which key participants or specialized vocabulary from the billing domain need to be incorporated into the interface?\"], \"handoff\": \"Decision/Action: Gather foundational context; Owner: Product Manager; Evidence Gap: Missing definition of required user activity, desired end-state knowledge, and core domain vocabulary for the billing operations UI.\", \"rationale\": \"The diagnostic guidance indicates that the initial steps require source context regarding the intended workflow (activity), the measurable outcome (user knowledge/action), and the necessary terminology (domain vocabulary). These are prerequisites before designing any surface type or structure.\"}",
+    "usage": {
+      "prompt_tokens": 787,
+      "completion_tokens": 238,
+      "total_tokens": 1025,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "69fdc45888142acd14d7f1e2056f88f05435b06987d7de3dbd215366541e9c4b",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

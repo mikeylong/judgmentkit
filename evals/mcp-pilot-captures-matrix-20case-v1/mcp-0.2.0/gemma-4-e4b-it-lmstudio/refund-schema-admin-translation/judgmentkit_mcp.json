@@ -1,0 +1,66 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "refund-schema-admin-translation",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59425/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "038747f6ec7be2cd79873427b98674390b6680e82266d8f9a49ddb6140589cbd",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T21:23:02.318Z",
+  "duration_ms": 5269,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 778,
+    "completion_tokens": 287,
+    "total_tokens": 1065,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "fa455bab5f4ec670d0cf99152f60e41d785967d41770199f71bfe69e59b74d00",
+  "prompt_sha256": "f08a44276bc80562a6f535f68a75cb1c121f8a572a97faf0846a7c8ef4925e7d",
+  "mcp_context_sha256": "12aaf05f9dd608f3e682fac003fbb8e8241d24b015027238dcde6e071bf12757",
+  "raw_response_sha256": "90e46cb23e7537b4bf05b612cc993dfd8f19b22ab6f418f24f2d6bb70a990b2e",
+  "raw_response": "{\"response\": \"The agent needs to build an administrative interface for a support lead. This interface must allow the lead to review a refund case and make one of three decisions: approve the refund, escalate it for policy review, or send it back to the user because evidence is missing. The core task involves translating internal system details into clear, actionable domain language for the support lead.\", \"next_action\": \"Draft the workflow steps and required decision points for the admin screen based on the intended user journey.\", \"questions\": [\"What specific information must the support lead see about the refund request to make an approval/escalation decision?\", \"Are there any mandatory fields or data points that, if missing, automatically trigger a 'return for missing evidence' path?\"], \"handoff\": \"Decision: Design Phase; Reason: The current context requires translating internal system components into a user-facing workflow for a support lead. Owner: Product Designer/UX Writer; Evidence Gap: Specific details on the required output state (what the lead must know) and which technical fields are purely diagnostic vs. visible to the user.\", \"rationale\": \"The MCP indicates that Step 1 requires source context regarding what the end-user should know and how internal implementation details map to domain language. The next step is to structure the workflow around the support lead's decision points (Approve, Escalate, Return) using this translated understanding.\"}",
+  "parsed": {
+    "response": "The agent needs to build an administrative interface for a support lead. This interface must allow the lead to review a refund case and make one of three decisions: approve the refund, escalate it for policy review, or send it back to the user because evidence is missing. The core task involves translating internal system details into clear, actionable domain language for the support lead.",
+    "next_action": "Draft the workflow steps and required decision points for the admin screen based on the intended user journey.",
+    "questions": [
+      "What specific information must the support lead see about the refund request to make an approval/escalation decision?",
+      "Are there any mandatory fields or data points that, if missing, automatically trigger a 'return for missing evidence' path?"
+    ],
+    "handoff": "Decision: Design Phase; Reason: The current context requires translating internal system components into a user-facing workflow for a support lead. Owner: Product Designer/UX Writer; Evidence Gap: Specific details on the required output state (what the lead must know) and which technical fields are purely diagnostic vs. visible to the user.",
+    "rationale": "The MCP indicates that Step 1 requires source context regarding what the end-user should know and how internal implementation details map to domain language. The next step is to structure the workflow around the support lead's decision points (Approve, Escalate, Return) using this translated understanding."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent needs to build an administrative interface for a support lead. This interface must allow the lead to review a refund case and make one of three decisions: approve the refund, escalate it for policy review, or send it back to the user because evidence is missing. The core task involves translating internal system details into clear, actionable domain language for the support lead.\", \"next_action\": \"Draft the workflow steps and required decision points for the admin screen based on the intended user journey.\", \"questions\": [\"What specific information must the support lead see about the refund request to make an approval/escalation decision?\", \"Are there any mandatory fields or data points that, if missing, automatically trigger a 'return for missing evidence' path?\"], \"handoff\": \"Decision: Design Phase; Reason: The current context requires translating internal system components into a user-facing workflow for a support lead. Owner: Product Designer/UX Writer; Evidence Gap: Specific details on the required output state (what the lead must know) and which technical fields are purely diagnostic vs. visible to the user.\", \"rationale\": \"The MCP indicates that Step 1 requires source context regarding what the end-user should know and how internal implementation details map to domain language. The next step is to structure the workflow around the support lead's decision points (Approve, Escalate, Return) using this translated understanding.\"}",
+    "usage": {
+      "prompt_tokens": 778,
+      "completion_tokens": 287,
+      "total_tokens": 1065,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "61e4a15e16e1f2009128f80a687320f4587ed2ca17ef4dc7176bb9016252cf13",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

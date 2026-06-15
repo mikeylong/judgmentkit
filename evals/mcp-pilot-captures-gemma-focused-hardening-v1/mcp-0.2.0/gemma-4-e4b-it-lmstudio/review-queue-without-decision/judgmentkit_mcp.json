@@ -1,0 +1,66 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "review-queue-without-decision",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:53462/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "a6fc13d018a5153f38073f2a8cc06636c0b10e731b93809cba8473d8d3afc187",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:30:06.245Z",
+  "duration_ms": 18355,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 716,
+    "completion_tokens": 222,
+    "total_tokens": 938,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "a42e4b6cbedd0ef1f327511ab2130d8eee778e0eef8fd506392db73702862082",
+  "prompt_sha256": "7ac5c0a4e3bffd693723168154f71cb5d397408e564a5990cfc81aa9917ee8ac",
+  "mcp_context_sha256": "89e498d65cc1b4e5a40c60a074cdc2d2dd21b2100ac2ac410f0cebc0744d6a5b",
+  "raw_response_sha256": "b485b40e165ba36b328376791115cf6cd0d02f0c07a05aaa21614b914f1f2d35",
+  "raw_response": "{\"response\": \"To effectively design the review queue, I need more clarity on the desired user outcome and the specific decision points that need simplification. Could you please provide details regarding what action or decision the system should make easier for the user within this queue?\", \"next_action\": \"Ask targeted questions to clarify required functionality.\", \"questions\": [\"What specific decision or next action should the interface make easier for the user when viewing items in the review queue?\", \"What is the desired end state or key piece of information the user must leave the surface knowing after reviewing an item?\"], \"handoff\": \"Owner: Product Manager; Evidence Gap: Specific required user actions/outcomes for the review queue; Required Fix: Clarification on decision points and expected user knowledge post-review.\", \"rationale\": \"The source brief is high-level ('Create a review queue... Make it easy to scan'). The diagnostic context indicates that key steps require understanding the intended user action or decision point, which is missing. Therefore, targeted questions are necessary to gather functional requirements before planning the UI/UX implementation.\"}",
+  "parsed": {
+    "response": "To effectively design the review queue, I need more clarity on the desired user outcome and the specific decision points that need simplification. Could you please provide details regarding what action or decision the system should make easier for the user within this queue?",
+    "next_action": "Ask targeted questions to clarify required functionality.",
+    "questions": [
+      "What specific decision or next action should the interface make easier for the user when viewing items in the review queue?",
+      "What is the desired end state or key piece of information the user must leave the surface knowing after reviewing an item?"
+    ],
+    "handoff": "Owner: Product Manager; Evidence Gap: Specific required user actions/outcomes for the review queue; Required Fix: Clarification on decision points and expected user knowledge post-review.",
+    "rationale": "The source brief is high-level ('Create a review queue... Make it easy to scan'). The diagnostic context indicates that key steps require understanding the intended user action or decision point, which is missing. Therefore, targeted questions are necessary to gather functional requirements before planning the UI/UX implementation."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"To effectively design the review queue, I need more clarity on the desired user outcome and the specific decision points that need simplification. Could you please provide details regarding what action or decision the system should make easier for the user within this queue?\", \"next_action\": \"Ask targeted questions to clarify required functionality.\", \"questions\": [\"What specific decision or next action should the interface make easier for the user when viewing items in the review queue?\", \"What is the desired end state or key piece of information the user must leave the surface knowing after reviewing an item?\"], \"handoff\": \"Owner: Product Manager; Evidence Gap: Specific required user actions/outcomes for the review queue; Required Fix: Clarification on decision points and expected user knowledge post-review.\", \"rationale\": \"The source brief is high-level ('Create a review queue... Make it easy to scan'). The diagnostic context indicates that key steps require understanding the intended user action or decision point, which is missing. Therefore, targeted questions are necessary to gather functional requirements before planning the UI/UX implementation.\"}",
+    "usage": {
+      "prompt_tokens": 716,
+      "completion_tokens": 222,
+      "total_tokens": 938,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "8834bd943a2adc2d11a061383aae791861a49a4427a1d408dbc26b0f1fc76533",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

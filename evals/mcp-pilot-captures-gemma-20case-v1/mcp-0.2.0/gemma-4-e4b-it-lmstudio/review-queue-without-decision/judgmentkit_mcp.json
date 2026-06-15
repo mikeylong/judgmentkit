@@ -1,0 +1,66 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "review-queue-without-decision",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "7cddd5705da51d1ea8d0d0e8521094c0f6b311eadd047d53f0ff8e89d24900fa",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:46:37.051Z",
+  "duration_ms": 4412,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 692,
+    "completion_tokens": 206,
+    "total_tokens": 898,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "da8a2ccb141e2aabf495afd9a825142f5999dad9641a146a5cf6a369758a2f2e",
+  "prompt_sha256": "4a047665aa6d1504c80ab52549e08ae9055325cdd413f6399299cddb3e725d95",
+  "mcp_context_sha256": "a541e3c1657a023caa78f0a43cf39d718d51f1a263c88758b4704a57cae83cb5",
+  "raw_response_sha256": "af924fe52e99b248660e13dc3ad4004b8b55d8e3c3a1a6f8e2227630e146565c",
+  "raw_response": "{\"response\": \"To effectively create a review queue, I need more clarity on the intended user interaction and desired outcome. The current context suggests we are building out the structure but lacks specific decision points or knowledge transfer goals.\", \"next_action\": \"Ask targeted questions to define scope and goal.\", \"questions\": [\"What specific decision or next action should the interface make easier for the user within this review queue?\", \"When a user views an item in this queue, what is the single most important piece of information they must leave knowing or having done?\"], \"handoff\": \"Owner: Product Owner; Evidence Gap: Specific user goals and required decisions for the review queue; Required Fix: Clarification on desired user action/knowledge state.\" , \"rationale\": \"The source brief is high-level ('Create a review queue... Make it easy to scan'). The diagnostic context indicates that key modeling steps require input regarding the intended decision point and the expected end-state knowledge for the user, which are currently missing.\"}",
+  "parsed": {
+    "response": "To effectively create a review queue, I need more clarity on the intended user interaction and desired outcome. The current context suggests we are building out the structure but lacks specific decision points or knowledge transfer goals.",
+    "next_action": "Ask targeted questions to define scope and goal.",
+    "questions": [
+      "What specific decision or next action should the interface make easier for the user within this review queue?",
+      "When a user views an item in this queue, what is the single most important piece of information they must leave knowing or having done?"
+    ],
+    "handoff": "Owner: Product Owner; Evidence Gap: Specific user goals and required decisions for the review queue; Required Fix: Clarification on desired user action/knowledge state.",
+    "rationale": "The source brief is high-level ('Create a review queue... Make it easy to scan'). The diagnostic context indicates that key modeling steps require input regarding the intended decision point and the expected end-state knowledge for the user, which are currently missing."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"To effectively create a review queue, I need more clarity on the intended user interaction and desired outcome. The current context suggests we are building out the structure but lacks specific decision points or knowledge transfer goals.\", \"next_action\": \"Ask targeted questions to define scope and goal.\", \"questions\": [\"What specific decision or next action should the interface make easier for the user within this review queue?\", \"When a user views an item in this queue, what is the single most important piece of information they must leave knowing or having done?\"], \"handoff\": \"Owner: Product Owner; Evidence Gap: Specific user goals and required decisions for the review queue; Required Fix: Clarification on desired user action/knowledge state.\" , \"rationale\": \"The source brief is high-level ('Create a review queue... Make it easy to scan'). The diagnostic context indicates that key modeling steps require input regarding the intended decision point and the expected end-state knowledge for the user, which are currently missing.\"}",
+    "usage": {
+      "prompt_tokens": 692,
+      "completion_tokens": 206,
+      "total_tokens": 898,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "0d4b3bae0cec72becb0c8fd5bcee2dfb54a1b9c8c89289b2e58397a3a8a04574",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

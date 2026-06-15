@@ -1,0 +1,51 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "vague-system-dashboard",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T01:44:07.347Z",
+  "duration_ms": 36758,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "43482679bb88ed9536222aee54fe0a8d37cfbbff9f35ad8e6b5bf62e6d2cef39",
+  "prompt_sha256": "b48d5c6aec2fd44ee58dce10cd80c7f622f272b0a13eeb26e878be00d7331c84",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "5544ce0295985f524b4201d2aebb3cc80da749bf12b4ea882addd868cc205d27",
+  "raw_response": "{\"response\":\"The next response should restrain scope. The brief is too vague to responsibly plan a dashboard, so the agent should acknowledge the missing activity context and ask for the minimum details needed before proposing content, metrics, or layout.\",\"next_action\":\"Ask the targeted questions, then wait for answers before drafting any dashboard plan.\",\"questions\":[\"What system is this dashboard for, and who will use it?\",\"What activity should the dashboard support: live monitoring, issue triage, periodic review, planning, or something else?\",\"What decisions or actions should the user be able to take from the dashboard?\",\"What outcome would make the dashboard successful?\",\"What data sources, existing reports, alerts, or tools must it align with?\"],\"handoff\":\"Requester needs to provide system domain, users, activity, decisions, outcomes, and data context before the agent plans dashboard content or layout.\",\"rationale\":\"The source brief only says to plan a dashboard for the system. Without domain, participants, activity, decisions, outcomes, and data constraints, any dashboard plan would invent requirements and risk exposing the wrong information or optimizing for the wrong work.\"}",
+  "parsed": {
+    "response": "The next response should restrain scope. The brief is too vague to responsibly plan a dashboard, so the agent should acknowledge the missing activity context and ask for the minimum details needed before proposing content, metrics, or layout.",
+    "next_action": "Ask the targeted questions, then wait for answers before drafting any dashboard plan.",
+    "questions": [
+      "What system is this dashboard for, and who will use it?",
+      "What activity should the dashboard support: live monitoring, issue triage, periodic review, planning, or something else?",
+      "What decisions or actions should the user be able to take from the dashboard?",
+      "What outcome would make the dashboard successful?",
+      "What data sources, existing reports, alerts, or tools must it align with?"
+    ],
+    "handoff": "Requester needs to provide system domain, users, activity, decisions, outcomes, and data context before the agent plans dashboard content or layout.",
+    "rationale": "The source brief only says to plan a dashboard for the system. Without domain, participants, activity, decisions, outcomes, and data constraints, any dashboard plan would invent requirements and risk exposing the wrong information or optimizing for the wrong work."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "0a424bc1c868361417dfaa43b2f69adede83cf5e26f1ebe9507f47479b950fbb",
+    "stderr_sha256": "fe7b2972880577402a4e4fc3e56f4f745a2d602793f6509057739d3a426de41d",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

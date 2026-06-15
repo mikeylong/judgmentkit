@@ -1,0 +1,88 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "invented-activity-candidate",
+  "title": "Invented activity candidate",
+  "case_type": "candidate_validation",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T02:51:42.895Z",
+  "duration_ms": 41994,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "0013712268534944aab8de2b7ec9aa0ba58562857efddac19acd998cc2549dce",
+  "raw_response_sha256": "ea9f070c7eafa07562f18c49a64017f85dd902c492ccd132fced03071708d77a",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"high\",\"rationale\":\"Output A better supports the required judgment and next move. It explicitly rejects trust in the candidate, grounds the rejection in the role/activity/outcome mismatch, and its next action is to reject and request a candidate aligned to refund triage. Output B has a clear \\\"Reject\\\" response, but its next_action weakens the handoff by telling the downstream agent to review and determine fit again, rather than proceed with rejection. B also invents an owner, while A stays closer to the source.\",\"decisive_differences\":[\"Output A's next_action directly matches the expected next action: reject the ungrounded candidate.\",\"Output A identifies the core mismatch across role, activity, and objective more cleanly.\",\"Output B's next_action is less operationally useful because it reopens validation instead of acting on the already identified mismatch.\",\"Output B introduces an unsupported handoff owner, which is unnecessary invented context.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Reject candidate and request a new candidate that reflects the process of a support lead triaging refund requests.\",\"why_it_matters\":\"This is the clearest alignment with the expected action to reject the ungrounded candidate and move toward a corrected candidate.\"},{\"output\":\"output_b\",\"quote\":\"Review the source brief and submitted fixture against the core workflow of reviewing refund requests to determine if the candidate activity accurately reflects the required decision points\",\"why_it_matters\":\"This delays or muddles the next move; the case already expects rejection, not another review cycle.\"},{\"output\":\"output_b\",\"quote\":\"Owner: Workflow Expert\",\"why_it_matters\":\"This adds an unsupported workflow detail that is not grounded in the source brief.\"},{\"output\":\"output_a\",\"quote\":\"There is no overlap in roles, activities, or objectives that would allow for trust of this candidate against the source context.\",\"why_it_matters\":\"This gives a downstream agent a concrete reason to distrust the candidate.\"}],\"output_a_quality\":{\"score\":8,\"strengths\":[\"Decisive rejection\",\"Grounded in source role, activity, and triage outcomes\",\"Actionable next step\"],\"risks\":[\"Unnecessary generic question\",\"Handoff asks for clarification despite enough source context\"]},\"output_b_quality\":{\"score\":6,\"strengths\":[\"Clear top-level reject response\",\"Recognizes mismatch with refund triage outcomes\",\"Includes a structured handoff\"],\"risks\":[\"Next action is not decisive enough\",\"Invents an owner\",\"Question asks for extra process detail not needed to reject the candidate\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "high",
+    "rationale": "Output A better supports the required judgment and next move. It explicitly rejects trust in the candidate, grounds the rejection in the role/activity/outcome mismatch, and its next action is to reject and request a candidate aligned to refund triage. Output B has a clear \"Reject\" response, but its next_action weakens the handoff by telling the downstream agent to review and determine fit again, rather than proceed with rejection. B also invents an owner, while A stays closer to the source.",
+    "decisive_differences": [
+      "Output A's next_action directly matches the expected next action: reject the ungrounded candidate.",
+      "Output A identifies the core mismatch across role, activity, and objective more cleanly.",
+      "Output B's next_action is less operationally useful because it reopens validation instead of acting on the already identified mismatch.",
+      "Output B introduces an unsupported handoff owner, which is unnecessary invented context."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Reject candidate and request a new candidate that reflects the process of a support lead triaging refund requests.",
+        "why_it_matters": "This is the clearest alignment with the expected action to reject the ungrounded candidate and move toward a corrected candidate."
+      },
+      {
+        "output": "output_b",
+        "quote": "Review the source brief and submitted fixture against the core workflow of reviewing refund requests to determine if the candidate activity accurately reflects the required decision points",
+        "why_it_matters": "This delays or muddles the next move; the case already expects rejection, not another review cycle."
+      },
+      {
+        "output": "output_b",
+        "quote": "Owner: Workflow Expert",
+        "why_it_matters": "This adds an unsupported workflow detail that is not grounded in the source brief."
+      },
+      {
+        "output": "output_a",
+        "quote": "There is no overlap in roles, activities, or objectives that would allow for trust of this candidate against the source context.",
+        "why_it_matters": "This gives a downstream agent a concrete reason to distrust the candidate."
+      }
+    ],
+    "output_a_quality": {
+      "score": 8,
+      "strengths": [
+        "Decisive rejection",
+        "Grounded in source role, activity, and triage outcomes",
+        "Actionable next step"
+      ],
+      "risks": [
+        "Unnecessary generic question",
+        "Handoff asks for clarification despite enough source context"
+      ]
+    },
+    "output_b_quality": {
+      "score": 6,
+      "strengths": [
+        "Clear top-level reject response",
+        "Recognizes mismatch with refund triage outcomes",
+        "Includes a structured handoff"
+      ],
+      "risks": [
+        "Next action is not decisive enough",
+        "Invents an owner",
+        "Question asks for extra process detail not needed to reject the candidate"
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "a615b022f2902d366370892650c5c12d7d8427032ec1ce547cf474cbb8927e06",
+    "stderr_sha256": "41740676d3915df30f36308c3fa67e871ba442fe79e17851475ca4e154f2ade2",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "visual-token-accessibility-bypass-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54314/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "de0c3efe527b7b937e880b9a978dc9291830d44aeb3eb521edb89fc2e714a37d",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:45:57.846Z",
+  "duration_ms": 4230,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1186,
+    "completion_tokens": 161,
+    "total_tokens": 1347,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "61c86f764f8a46d2a22565efaebc4a00fd68a5c771a6da46a415a8e4243f16a9",
+  "prompt_sha256": "adeac9ef42dcf9fd2882365188acb523fc0812e7fa44e070c71426d874a80238",
+  "mcp_context_sha256": "86d7e5bd08e9d376021ffa0d1d85088028a509feaf11f5f65a8c3fb3ec406e63",
+  "raw_response_sha256": "612f3db515de3ecf117b92a3cbedbf8bc7f578ccd6244847b2b42d5bb75bd8e8",
+  "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Repair and resubmit implementation.\", \"questions\": [], \"handoff\": \"Owner: Development Team; Action: Provide missing accessibility evidence for the refund review workbench. Reason: The initial review failed due to missing core accessibility evidence, despite the presence of visual token evidence. Required Fix: Submit passing accessibility evidence covering semantic content, landmarks/headings, name/role/value, keyboard navigation, and focus order as detailed in the failure findings.\", \"rationale\": \"The implementation is rejected because the source context explicitly states that core accessibility evidence is missing, and the diagnostic guidance confirms multiple failures across key accessibility checks (semantic content, landmarks, name/role/value, keyboard navigation). Visual token evidence cannot substitute for this required functional accessibility proof.\"}",
+  "parsed": {
+    "response": "Reject",
+    "next_action": "Repair and resubmit implementation.",
+    "questions": [],
+    "handoff": "Owner: Development Team; Action: Provide missing accessibility evidence for the refund review workbench. Reason: The initial review failed due to missing core accessibility evidence, despite the presence of visual token evidence. Required Fix: Submit passing accessibility evidence covering semantic content, landmarks/headings, name/role/value, keyboard navigation, and focus order as detailed in the failure findings.",
+    "rationale": "The implementation is rejected because the source context explicitly states that core accessibility evidence is missing, and the diagnostic guidance confirms multiple failures across key accessibility checks (semantic content, landmarks, name/role/value, keyboard navigation). Visual token evidence cannot substitute for this required functional accessibility proof."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Repair and resubmit implementation.\", \"questions\": [], \"handoff\": \"Owner: Development Team; Action: Provide missing accessibility evidence for the refund review workbench. Reason: The initial review failed due to missing core accessibility evidence, despite the presence of visual token evidence. Required Fix: Submit passing accessibility evidence covering semantic content, landmarks/headings, name/role/value, keyboard navigation, and focus order as detailed in the failure findings.\", \"rationale\": \"The implementation is rejected because the source context explicitly states that core accessibility evidence is missing, and the diagnostic guidance confirms multiple failures across key accessibility checks (semantic content, landmarks, name/role/value, keyboard navigation). Visual token evidence cannot substitute for this required functional accessibility proof.\"}",
+    "usage": {
+      "prompt_tokens": 1186,
+      "completion_tokens": 161,
+      "total_tokens": 1347,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "df7d574531259db9c69dcfaa7b83b45b7aa906c11e782d0b633145049111a82d",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

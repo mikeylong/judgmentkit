@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "missing-handoff-workflow",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "f0ada2434804cfd2c101db2c4d84157188c20ed1066344be44e76f26fb2c100c",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:48:12.570Z",
+  "duration_ms": 5150,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 773,
+    "completion_tokens": 213,
+    "total_tokens": 986,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "c102029cef6a27ce16f5cb4d6b4d085747261388e53a1aaf4ced92b41fb4d03a",
+  "prompt_sha256": "c52cc8a0be620e54ff78f5d45bfd4a2a971dec7298ec966af0b9b3414cd7d5c0",
+  "mcp_context_sha256": "54b340fe4b4f81cc3650ff30e1e002df44b28df2f72ab61bf534fc01d13701de",
+  "raw_response_sha256": "98c0253c8ccb31f5c81957087bc0530c82298b6255e11fbf8b5b53481807a307",
+  "raw_response": "{\"response\": \"The candidate fixture is missing a defined handoff workflow structure, which is required by the source brief. The current structure only defines reading and sorting steps, marking as reviewed, and has an empty handoff object.\", \"next_action\": \"Request clarification on the specific components needed for the handoff mechanism (owner assignment, action details, reason documentation, evidence gap identification).\", \"questions\": [\"What are the required fields or data points that must be captured when leaving a handoff?\"], \"handoff\": \"Reject; Missing handoff workflow structure. Owner: Product Team; Evidence Gap: The candidate fixture's 'handoff' object is empty and does not contain the necessary components (next owner, action, reason, evidence gap) described in the source brief.\", \"rationale\": \"The source brief explicitly requires the output to include a handoff with next owner, action, reason, and evidence gap. The candidate fixture provides an empty 'handoff' object, failing to meet this core requirement of the task domain.\"}",
+  "parsed": {
+    "response": "The candidate fixture is missing a defined handoff workflow structure, which is required by the source brief. The current structure only defines reading and sorting steps, marking as reviewed, and has an empty handoff object.",
+    "next_action": "Request clarification on the specific components needed for the handoff mechanism (owner assignment, action details, reason documentation, evidence gap identification).",
+    "questions": [
+      "What are the required fields or data points that must be captured when leaving a handoff?"
+    ],
+    "handoff": "Reject; Missing handoff workflow structure. Owner: Product Team; Evidence Gap: The candidate fixture's 'handoff' object is empty and does not contain the necessary components (next owner, action, reason, evidence gap) described in the source brief.",
+    "rationale": "The source brief explicitly requires the output to include a handoff with next owner, action, reason, and evidence gap. The candidate fixture provides an empty 'handoff' object, failing to meet this core requirement of the task domain."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The candidate fixture is missing a defined handoff workflow structure, which is required by the source brief. The current structure only defines reading and sorting steps, marking as reviewed, and has an empty handoff object.\", \"next_action\": \"Request clarification on the specific components needed for the handoff mechanism (owner assignment, action details, reason documentation, evidence gap identification).\", \"questions\": [\"What are the required fields or data points that must be captured when leaving a handoff?\"], \"handoff\": \"Reject; Missing handoff workflow structure. Owner: Product Team; Evidence Gap: The candidate fixture's 'handoff' object is empty and does not contain the necessary components (next owner, action, reason, evidence gap) described in the source brief.\", \"rationale\": \"The source brief explicitly requires the output to include a handoff with next owner, action, reason, and evidence gap. The candidate fixture provides an empty 'handoff' object, failing to meet this core requirement of the task domain.\"}",
+    "usage": {
+      "prompt_tokens": 773,
+      "completion_tokens": 213,
+      "total_tokens": 986,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "3fb4ecb4f3eeb87a8f71c3137e304bf00133d17399a6a6198e06031bb6bc7594",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

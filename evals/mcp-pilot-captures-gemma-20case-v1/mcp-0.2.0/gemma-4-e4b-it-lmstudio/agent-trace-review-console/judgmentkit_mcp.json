@@ -1,0 +1,66 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "agent-trace-review-console",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "92947c9aabee7e20c326c2ac287b5689504c8f804b6209d5351f1ccb854ab460",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:46:00.610Z",
+  "duration_ms": 4945,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 756,
+    "completion_tokens": 249,
+    "total_tokens": 1005,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "30617a994833288ce806bd69bab350128d984dce2fa9150ae5b314d6649ff2fc",
+  "prompt_sha256": "f87d07ecac892065286e1f75f33753eaadae59ff3cb4614d9d3dd13aae5f1e93",
+  "mcp_context_sha256": "c6f5af7ad7ac89e0afc0e86a9007a328bde290655a9e0e912654f20b08aa3ed0",
+  "raw_response_sha256": "06bbb9093f728e38239e18a2461d23a01b51ef096112658a6999105d683a6e44",
+  "raw_response": "{\"response\": \"The next agent response should guide the operator through a structured review process of the entire interaction history. The primary goal is to facilitate a clear decision on whether an AI-generated escalation is appropriate, requires refinement, or needs further evidence gathering.\", \"next_action\": \"Present a consolidated view allowing the operator to easily navigate and compare model messages, function calls, tool outputs, and associated metadata (like token counts and retry attempts) against the stated goal of the interaction.\", \"questions\": [\"What specific decision point within the trace should be highlighted first for the operator's immediate attention?\", \"Should the UI surface a summary view that synthesizes the evidence gaps identified across all components (model messages, tool outputs, etc.)?\"], \"handoff\": \"Decision/Action: Design the core review workflow. Reason: The system needs to guide the operator through evaluating the completeness and correctness of the AI's proposed escalation path based on all available trace artifacts.\", \"rationale\": \"The current context indicates that while some components are ready, key design decisions regarding user focus (what decision is easiest, what should the user know) are missing. The next step must synthesize these elements into a cohesive review experience for the operator.\"}",
+  "parsed": {
+    "response": "The next agent response should guide the operator through a structured review process of the entire interaction history. The primary goal is to facilitate a clear decision on whether an AI-generated escalation is appropriate, requires refinement, or needs further evidence gathering.",
+    "next_action": "Present a consolidated view allowing the operator to easily navigate and compare model messages, function calls, tool outputs, and associated metadata (like token counts and retry attempts) against the stated goal of the interaction.",
+    "questions": [
+      "What specific decision point within the trace should be highlighted first for the operator's immediate attention?",
+      "Should the UI surface a summary view that synthesizes the evidence gaps identified across all components (model messages, tool outputs, etc.)?"
+    ],
+    "handoff": "Decision/Action: Design the core review workflow. Reason: The system needs to guide the operator through evaluating the completeness and correctness of the AI's proposed escalation path based on all available trace artifacts.",
+    "rationale": "The current context indicates that while some components are ready, key design decisions regarding user focus (what decision is easiest, what should the user know) are missing. The next step must synthesize these elements into a cohesive review experience for the operator."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The next agent response should guide the operator through a structured review process of the entire interaction history. The primary goal is to facilitate a clear decision on whether an AI-generated escalation is appropriate, requires refinement, or needs further evidence gathering.\", \"next_action\": \"Present a consolidated view allowing the operator to easily navigate and compare model messages, function calls, tool outputs, and associated metadata (like token counts and retry attempts) against the stated goal of the interaction.\", \"questions\": [\"What specific decision point within the trace should be highlighted first for the operator's immediate attention?\", \"Should the UI surface a summary view that synthesizes the evidence gaps identified across all components (model messages, tool outputs, etc.)?\"], \"handoff\": \"Decision/Action: Design the core review workflow. Reason: The system needs to guide the operator through evaluating the completeness and correctness of the AI's proposed escalation path based on all available trace artifacts.\", \"rationale\": \"The current context indicates that while some components are ready, key design decisions regarding user focus (what decision is easiest, what should the user know) are missing. The next step must synthesize these elements into a cohesive review experience for the operator.\"}",
+    "usage": {
+      "prompt_tokens": 756,
+      "completion_tokens": 249,
+      "total_tokens": 1005,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "7101c1ce53b0d02effc0d371a12555ecc22f56e2313f8b34c020e90875894a69",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

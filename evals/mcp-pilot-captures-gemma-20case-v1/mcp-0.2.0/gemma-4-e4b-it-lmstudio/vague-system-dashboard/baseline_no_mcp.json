@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "vague-system-dashboard",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:46:24.538Z",
+  "duration_ms": 3870,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 198,
+    "completion_tokens": 206,
+    "total_tokens": 404,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "37a3ca1e94b93fea1ca30a0d3d0189a0577c0d61b410ea12f66353917a337e13",
+  "prompt_sha256": "b48d5c6aec2fd44ee58dce10cd80c7f622f272b0a13eeb26e878be00d7331c84",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "8e3bd84ed5639b56e36b60e57156f73db88743bfb6db472d8d2dcd33548cdbb1",
+  "raw_response": "{\"response\": \"To plan an effective dashboard, I need more specific information about what the system does and who will be using this dashboard. Could you please provide details on the primary functions of the system and the key metrics or data points that users need to monitor at a glance?\", \"next_action\": \"Gather detailed requirements regarding system functionality and target user needs.\", \"questions\": [\"What is the core purpose or function of the system being monitored?\", \"Who are the primary end-users of this dashboard (e.g., executives, technical staff, operations team)?\", \"What specific business questions should this dashboard help answer?\"], \"handoff\": \"Awaiting functional requirements and user personas to scope the dashboard design.\", \"rationale\": \"The source brief is too vague ('Plan a dashboard for the system'). To create a useful plan, I must understand the 'system' itself (its purpose) and its intended audience (the users). The questions are designed to elicit this missing context directly from the user.\"}",
+  "parsed": {
+    "response": "To plan an effective dashboard, I need more specific information about what the system does and who will be using this dashboard. Could you please provide details on the primary functions of the system and the key metrics or data points that users need to monitor at a glance?",
+    "next_action": "Gather detailed requirements regarding system functionality and target user needs.",
+    "questions": [
+      "What is the core purpose or function of the system being monitored?",
+      "Who are the primary end-users of this dashboard (e.g., executives, technical staff, operations team)?",
+      "What specific business questions should this dashboard help answer?"
+    ],
+    "handoff": "Awaiting functional requirements and user personas to scope the dashboard design.",
+    "rationale": "The source brief is too vague ('Plan a dashboard for the system'). To create a useful plan, I must understand the 'system' itself (its purpose) and its intended audience (the users). The questions are designed to elicit this missing context directly from the user."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"To plan an effective dashboard, I need more specific information about what the system does and who will be using this dashboard. Could you please provide details on the primary functions of the system and the key metrics or data points that users need to monitor at a glance?\", \"next_action\": \"Gather detailed requirements regarding system functionality and target user needs.\", \"questions\": [\"What is the core purpose or function of the system being monitored?\", \"Who are the primary end-users of this dashboard (e.g., executives, technical staff, operations team)?\", \"What specific business questions should this dashboard help answer?\"], \"handoff\": \"Awaiting functional requirements and user personas to scope the dashboard design.\", \"rationale\": \"The source brief is too vague ('Plan a dashboard for the system'). To create a useful plan, I must understand the 'system' itself (its purpose) and its intended audience (the users). The questions are designed to elicit this missing context directly from the user.\"}",
+    "usage": {
+      "prompt_tokens": 198,
+      "completion_tokens": 206,
+      "total_tokens": 404,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "6eb85b093d0126d28851b095b6043f4cff11ad6f996509fe64645b53a3befdea",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

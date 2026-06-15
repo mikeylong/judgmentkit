@@ -1,0 +1,748 @@
+{
+  "eval_id": "judgmentkit-mcp-private-pilot-v1",
+  "evaluation_type": "private_saved_capture_scoring",
+  "benchmark_policy": "Private repo-local pilot. Scores are deterministic checks against saved model captures; JudgmentKit is not used as the judge.",
+  "capture_policy": "Default mode scores existing versioned captures only. Missing or MCP-version-mismatched captures are reported as capture-required. Live capture is opt-in with --capture and reuses existing captures in the target capture directory.",
+  "repair_loop_proof_policy": "Repair-loop results are deterministic fixture proof of contract governance and agent-owned resubmission behavior; they do not measure visual quality or live-model repair quality.",
+  "comparison": {
+    "baseline": "baseline_no_mcp",
+    "guided": "judgmentkit_mcp",
+    "models": [
+      {
+        "id": "gpt-5.5-codex",
+        "label": "GPT-5.5 Codex",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "local": false
+      }
+    ]
+  },
+  "mcp": {
+    "required_version": "0.2.0",
+    "actual_version": "0.2.0",
+    "package_version": "0.2.0",
+    "local_metadata_sha256": "12f3fbb61677c28eacccbe7dfc2e868fa225c95354db05aa7fa2cca9b3075fca",
+    "endpoint_url": "http://127.0.0.1:54723/mcp",
+    "endpoint_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2"
+  },
+  "run": {
+    "date": "2026-06-13",
+    "mcp_release": "0.2.0",
+    "mcp_release_segment": "mcp-0.2.0",
+    "run_id": "run-008",
+    "run_path": "2026-06-13/mcp-0.2.0/run-008",
+    "html_report": "2026-06-13/mcp-0.2.0/run-008/mcp-pilot-report.html",
+    "json_report": "2026-06-13/mcp-0.2.0/run-008/mcp-pilot-report.json"
+  },
+  "summary": {
+    "cases": 4,
+    "evaluated_cases": 0,
+    "capture_required_cases": 4,
+    "passed": 0,
+    "failed": 0,
+    "guided_wins": 0,
+    "baseline_wins": 0,
+    "ties": 0,
+    "average_guided_delta": 0,
+    "invalid_outputs": 0,
+    "average_duration_ms": 0,
+    "guided_critical_disclosure_leaks": 0,
+    "loop_cases": 4,
+    "converged_cases": 3,
+    "stopped_cases": 1,
+    "average_attempts_to_pass": 2,
+    "failure_category_counts": {
+      "action_boundaries": 1,
+      "accessibility": 4,
+      "primitive_defaults": 3,
+      "state_rules": 3,
+      "evidence_gates": 3,
+      "data_visibility": 1
+    },
+    "pilot_passed": false,
+    "pilot_status": "capture-required",
+    "unique_cases": 4,
+    "models": 1,
+    "per_model": {
+      "gpt-5.5-codex": {
+        "label": "GPT-5.5 Codex",
+        "cases": 4,
+        "evaluated_cases": 0,
+        "capture_required_cases": 4,
+        "passed": 0,
+        "failed": 0,
+        "guided_wins": 0,
+        "baseline_wins": 0,
+        "ties": 0,
+        "average_guided_delta": 0,
+        "invalid_outputs": 0,
+        "average_duration_ms": 0,
+        "guided_critical_disclosure_leaks": 0,
+        "loop_cases": 4,
+        "converged_cases": 3,
+        "stopped_cases": 1,
+        "average_attempts_to_pass": 2,
+        "failure_category_counts": {
+          "action_boundaries": 1,
+          "accessibility": 4,
+          "primitive_defaults": 3,
+          "state_rules": 3,
+          "evidence_gates": 3,
+          "data_visibility": 1
+        },
+        "pilot_passed": false,
+        "pilot_status": "capture-required"
+      }
+    }
+  },
+  "metric_scale": {
+    "metric_score": "0-5",
+    "total_score": "0-100 weighted"
+  },
+  "capture_dir": "evals/mcp-pilot-captures",
+  "results": [
+    {
+      "id": "raw-form-controls-implementation",
+      "title": "Raw form controls implementation review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "reject raw controls and require approved primitives",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:54723/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "d7f44aa6a3330c01a9dd113c12b9cd9baf5b95e64dc59f61023216d2ef97be2e",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready"
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "17e84f9c7d437bae8884dc7dcc3d22f4adbd99a1c6ccf9499cfc6ff117f8c6a0",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit"
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "01088bdd263236fad56622da7a3057eaa5e8863752c8daff030ecdd43f22e0f7",
+            "summary": {
+              "status": "passed",
+              "next_agent_action": "accept"
+            }
+          }
+        ],
+        "repair_loop_summary": {
+          "enabled": true,
+          "attempts": 2,
+          "final_action": "accept",
+          "converged": true,
+          "stopped_for_human": false,
+          "attempts_to_pass": 2,
+          "failure_categories": [
+            "action_boundaries"
+          ],
+          "failure_category_counts": {
+            "action_boundaries": 1
+          },
+          "attempt_summaries": [
+            {
+              "attempt": 1,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "action_boundaries"
+              ],
+              "finding_count": 1
+            },
+            {
+              "attempt": 2,
+              "implementation_review_status": "passed",
+              "next_agent_action": "accept",
+              "loop_status": "passed",
+              "failure_categories": [],
+              "finding_count": 0
+            }
+          ],
+          "expected_final_action": "accept",
+          "expected_converged": true,
+          "expectation_status": "passed",
+          "expectation_failures": []
+        }
+      },
+      "repair_loop": {
+        "enabled": true,
+        "attempts": 2,
+        "final_action": "accept",
+        "converged": true,
+        "stopped_for_human": false,
+        "attempts_to_pass": 2,
+        "failure_categories": [
+          "action_boundaries"
+        ],
+        "failure_category_counts": {
+          "action_boundaries": 1
+        },
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "action_boundaries"
+            ],
+            "finding_count": 1
+          },
+          {
+            "attempt": 2,
+            "implementation_review_status": "passed",
+            "next_agent_action": "accept",
+            "loop_status": "passed",
+            "failure_categories": [],
+            "finding_count": 0
+          }
+        ],
+        "expected_final_action": "accept",
+        "expected_converged": true,
+        "expectation_status": "passed",
+        "expectation_failures": []
+      }
+    },
+    {
+      "id": "missing-accessibility-evidence",
+      "title": "Missing accessibility evidence review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "reject until accessibility evidence is supplied",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:54723/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "0c3edd0cf5cd3beed8ab5732cfa95ffda7d24674af6c1cfc44e5900ce30136f4",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready"
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "d315ab1ad3fd4df8ca227fa2dee25dd590576bfff0d4dffbe06665bb8d2ab411",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit"
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "faa85c12b95ce038a8be03a41908e74231ef7c647d2504410e15c74a3ac0dcd4",
+            "summary": {
+              "status": "passed",
+              "next_agent_action": "accept"
+            }
+          }
+        ],
+        "repair_loop_summary": {
+          "enabled": true,
+          "attempts": 2,
+          "final_action": "accept",
+          "converged": true,
+          "stopped_for_human": false,
+          "attempts_to_pass": 2,
+          "failure_categories": [
+            "accessibility"
+          ],
+          "failure_category_counts": {
+            "accessibility": 1
+          },
+          "attempt_summaries": [
+            {
+              "attempt": 1,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "accessibility"
+              ],
+              "finding_count": 7
+            },
+            {
+              "attempt": 2,
+              "implementation_review_status": "passed",
+              "next_agent_action": "accept",
+              "loop_status": "passed",
+              "failure_categories": [],
+              "finding_count": 0
+            }
+          ],
+          "expected_final_action": "accept",
+          "expected_converged": true,
+          "expectation_status": "passed",
+          "expectation_failures": []
+        }
+      },
+      "repair_loop": {
+        "enabled": true,
+        "attempts": 2,
+        "final_action": "accept",
+        "converged": true,
+        "stopped_for_human": false,
+        "attempts_to_pass": 2,
+        "failure_categories": [
+          "accessibility"
+        ],
+        "failure_category_counts": {
+          "accessibility": 1
+        },
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "accessibility"
+            ],
+            "finding_count": 7
+          },
+          {
+            "attempt": 2,
+            "implementation_review_status": "passed",
+            "next_agent_action": "accept",
+            "loop_status": "passed",
+            "failure_categories": [],
+            "finding_count": 0
+          }
+        ],
+        "expected_final_action": "accept",
+        "expected_converged": true,
+        "expectation_status": "passed",
+        "expectation_failures": []
+      }
+    },
+    {
+      "id": "modal-action-order-review",
+      "title": "Modal action order review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "reject until modal action order and focus evidence are verified",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:54723/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "2a746251972eb0f7f8f32f01a144306052f6a64aee28110360ebbbe7575d10e4",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "95367b6ed3f11dd905258c40e0a9e80a76e23c7af2adf393b78545e6d4617975",
+            "summary": {
+              "status": "ready"
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "f0d5719605bd5682650a136fc490cb6c30209b6f7e3a8dec458c9f9ec29d362c",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit"
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "d50e9d1cec2d46d9223d361522351be95d058f74d2f4236f92fa69d995482350",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit"
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "e6cf5aaf44f0b60a3a98f3d5947521a36e619cccec19328abfd7d930295d4133",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "stop_for_human"
+            }
+          }
+        ],
+        "repair_loop_summary": {
+          "enabled": true,
+          "attempts": 3,
+          "final_action": "stop_for_human",
+          "converged": false,
+          "stopped_for_human": true,
+          "attempts_to_pass": null,
+          "failure_categories": [
+            "primitive_defaults",
+            "state_rules",
+            "evidence_gates",
+            "accessibility"
+          ],
+          "failure_category_counts": {
+            "primitive_defaults": 3,
+            "state_rules": 3,
+            "evidence_gates": 3,
+            "accessibility": 3
+          },
+          "attempt_summaries": [
+            {
+              "attempt": 1,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "primitive_defaults",
+                "state_rules",
+                "evidence_gates",
+                "accessibility"
+              ],
+              "finding_count": 12
+            },
+            {
+              "attempt": 2,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "primitive_defaults",
+                "state_rules",
+                "evidence_gates",
+                "accessibility"
+              ],
+              "finding_count": 12
+            },
+            {
+              "attempt": 3,
+              "implementation_review_status": "failed",
+              "next_agent_action": "stop_for_human",
+              "loop_status": "stopped",
+              "failure_categories": [
+                "primitive_defaults",
+                "state_rules",
+                "evidence_gates",
+                "accessibility"
+              ],
+              "finding_count": 12
+            }
+          ],
+          "expected_final_action": "stop_for_human",
+          "expected_converged": false,
+          "expectation_status": "passed",
+          "expectation_failures": []
+        }
+      },
+      "repair_loop": {
+        "enabled": true,
+        "attempts": 3,
+        "final_action": "stop_for_human",
+        "converged": false,
+        "stopped_for_human": true,
+        "attempts_to_pass": null,
+        "failure_categories": [
+          "primitive_defaults",
+          "state_rules",
+          "evidence_gates",
+          "accessibility"
+        ],
+        "failure_category_counts": {
+          "primitive_defaults": 3,
+          "state_rules": 3,
+          "evidence_gates": 3,
+          "accessibility": 3
+        },
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "primitive_defaults",
+              "state_rules",
+              "evidence_gates",
+              "accessibility"
+            ],
+            "finding_count": 12
+          },
+          {
+            "attempt": 2,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "primitive_defaults",
+              "state_rules",
+              "evidence_gates",
+              "accessibility"
+            ],
+            "finding_count": 12
+          },
+          {
+            "attempt": 3,
+            "implementation_review_status": "failed",
+            "next_agent_action": "stop_for_human",
+            "loop_status": "stopped",
+            "failure_categories": [
+              "primitive_defaults",
+              "state_rules",
+              "evidence_gates",
+              "accessibility"
+            ],
+            "finding_count": 12
+          }
+        ],
+        "expected_final_action": "stop_for_human",
+        "expected_converged": false,
+        "expectation_status": "passed",
+        "expectation_failures": []
+      }
+    },
+    {
+      "id": "implementation-term-leakage-review",
+      "title": "Implementation-term leakage review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "reject product-label leakage and require user-facing language",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:54723/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "c6b1dd03061543bec566d0419b1b49819ec4dd027981a293191f61cab2f1e2da",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready"
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "8b7d92defd0feaa9df75fc90caee27df1a16da3a7285f9c834b8a7ff86ea77cf",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit"
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "3ac03f9cadf212ee398a9c5d8d83a06b460b0839aaa0507fc238da89aadb8f9e",
+            "summary": {
+              "status": "passed",
+              "next_agent_action": "accept"
+            }
+          }
+        ],
+        "repair_loop_summary": {
+          "enabled": true,
+          "attempts": 2,
+          "final_action": "accept",
+          "converged": true,
+          "stopped_for_human": false,
+          "attempts_to_pass": 2,
+          "failure_categories": [
+            "data_visibility"
+          ],
+          "failure_category_counts": {
+            "data_visibility": 1
+          },
+          "attempt_summaries": [
+            {
+              "attempt": 1,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "data_visibility"
+              ],
+              "finding_count": 1
+            },
+            {
+              "attempt": 2,
+              "implementation_review_status": "passed",
+              "next_agent_action": "accept",
+              "loop_status": "passed",
+              "failure_categories": [],
+              "finding_count": 0
+            }
+          ],
+          "expected_final_action": "accept",
+          "expected_converged": true,
+          "expectation_status": "passed",
+          "expectation_failures": []
+        }
+      },
+      "repair_loop": {
+        "enabled": true,
+        "attempts": 2,
+        "final_action": "accept",
+        "converged": true,
+        "stopped_for_human": false,
+        "attempts_to_pass": 2,
+        "failure_categories": [
+          "data_visibility"
+        ],
+        "failure_category_counts": {
+          "data_visibility": 1
+        },
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "data_visibility"
+            ],
+            "finding_count": 1
+          },
+          {
+            "attempt": 2,
+            "implementation_review_status": "passed",
+            "next_agent_action": "accept",
+            "loop_status": "passed",
+            "failure_categories": [],
+            "finding_count": 0
+          }
+        ],
+        "expected_final_action": "accept",
+        "expected_converged": true,
+        "expectation_status": "passed",
+        "expectation_failures": []
+      }
+    }
+  ]
+}

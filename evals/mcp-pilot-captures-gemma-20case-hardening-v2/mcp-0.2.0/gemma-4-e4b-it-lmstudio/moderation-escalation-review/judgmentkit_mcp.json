@@ -1,0 +1,64 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "moderation-escalation-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59425/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract"
+  ],
+  "mcp_tool_transcript_sha256": "542613dd553bf7ed80cebc447d06e1574d2b285b5c82b3dd526643826612f3f9",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T21:28:18.713Z",
+  "duration_ms": 5701,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1035,
+    "completion_tokens": 225,
+    "total_tokens": 1260,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "e91d5a1044558897ea1c5d5798e38381c17f9066c8507c8e7a0824c4da19257c",
+  "prompt_sha256": "fa8354bfcff9366e2ad2868d6de283524c0b9582c6a87d885badff0ebb0e2673",
+  "mcp_context_sha256": "639480605e1c4f7808ba2a1d89f8a2201fd622187dae4404b1dea3e6918a5818",
+  "raw_response_sha256": "454fe54ce6612fd76608b95636f706937ff824ab8e66068d105e6976c20b1339",
+  "raw_response": "{\"response\": \"The operator has reviewed the flagged content and determined that while policy evidence is present, the severity level and user history context are insufficient for a final decision. The next step requires escalating this case to a specialized policy reviewer.\", \"next_action\": \"Prepare the escalation handoff to the policy reviewer.\", \"questions\": [\"What specific information should the operator be guided to include in the handoff regarding the missing user history context?\"], \"handoff\": \"Owner: Policy Reviewer; Next Action: Review escalated case for final determination; Reason: Severity and policy evidence require expert review due to incomplete user history context; Evidence Gap: Missing user history context; Required Fix: Ensure the operator captures or flags the need for user history data before escalating.\", \"rationale\": \"The source material indicates a handoff is required because the decision hinges on severity and policy evidence, but there is an explicit gap in user history. The MCP guidance confirms that step 1 needs clarification regarding the desired outcome for the operator, which aligns with ensuring all necessary context (like user history) is addressed before passing it off.\"}",
+  "parsed": {
+    "response": "The operator has reviewed the flagged content and determined that while policy evidence is present, the severity level and user history context are insufficient for a final decision. The next step requires escalating this case to a specialized policy reviewer.",
+    "next_action": "Prepare the escalation handoff to the policy reviewer.",
+    "questions": [
+      "What specific information should the operator be guided to include in the handoff regarding the missing user history context?"
+    ],
+    "handoff": "Owner: Policy Reviewer; Next Action: Review escalated case for final determination; Reason: Severity and policy evidence require expert review due to incomplete user history context; Evidence Gap: Missing user history context; Required Fix: Ensure the operator captures or flags the need for user history data before escalating.",
+    "rationale": "The source material indicates a handoff is required because the decision hinges on severity and policy evidence, but there is an explicit gap in user history. The MCP guidance confirms that step 1 needs clarification regarding the desired outcome for the operator, which aligns with ensuring all necessary context (like user history) is addressed before passing it off."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The operator has reviewed the flagged content and determined that while policy evidence is present, the severity level and user history context are insufficient for a final decision. The next step requires escalating this case to a specialized policy reviewer.\", \"next_action\": \"Prepare the escalation handoff to the policy reviewer.\", \"questions\": [\"What specific information should the operator be guided to include in the handoff regarding the missing user history context?\"], \"handoff\": \"Owner: Policy Reviewer; Next Action: Review escalated case for final determination; Reason: Severity and policy evidence require expert review due to incomplete user history context; Evidence Gap: Missing user history context; Required Fix: Ensure the operator captures or flags the need for user history data before escalating.\", \"rationale\": \"The source material indicates a handoff is required because the decision hinges on severity and policy evidence, but there is an explicit gap in user history. The MCP guidance confirms that step 1 needs clarification regarding the desired outcome for the operator, which aligns with ensuring all necessary context (like user history) is addressed before passing it off.\"}",
+    "usage": {
+      "prompt_tokens": 1035,
+      "completion_tokens": 225,
+      "total_tokens": 1260,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "9b896d8297787a7fb4e05c66a3f05ea7c94ab402389129054e27a84e7926db01",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

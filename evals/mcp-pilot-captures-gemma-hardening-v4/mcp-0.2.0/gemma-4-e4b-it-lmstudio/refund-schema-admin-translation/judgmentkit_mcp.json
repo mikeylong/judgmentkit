@@ -1,0 +1,66 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "refund-schema-admin-translation",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:55277/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "59b617e73e1e2aec08fd2a933bc598a7ebeea3c50f6c46406823e4f6b77437ad",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:54:07.682Z",
+  "duration_ms": 5261,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 746,
+    "completion_tokens": 285,
+    "total_tokens": 1031,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "c7f924822167588a71c8de6e24f894bbdb4f5063a261288081ffa7dab5130836",
+  "prompt_sha256": "18acc13b5bd1f5799f4c6ebee4ee5e1869472efba5fa1c8a3273eb4eba156202",
+  "mcp_context_sha256": "bc2c4c635c0554f075ce8600e1c202ac927c7e60eeb1caf4a01f9a5c0e418261",
+  "raw_response_sha256": "bd7dd61e97982a7da9b73e2e5caa3aca51de38bb0ad799141c6a96d4741b86de",
+  "raw_response": "{\"response\": \"The next agent response should guide the support lead through a structured review process for refund cases. The primary goal is to facilitate a clear decision: Approve, Send to Policy Review, or Return for Missing Evidence. This requires synthesizing data from the underlying database structure and API capabilities into actionable UI elements.\", \"next_action\": \"Develop the core workflow logic based on the required decision points (Approve/Policy/Return) and map necessary data inputs from the source schema to these paths.\", \"questions\": [\"What specific information must the support lead confirm or view before making a final decision?\", \"Are there any conditional paths? For example, if evidence is missing, does the system need to prompt for *which* evidence is missing?\"], \"handoff\": \"Decision/Action: Design the primary review screen flow. Reason: The initial activity model review requires clarification on desired user outcomes and which internal details must be translated into domain language. Owner: UX Designer/Product Manager; Evidence Gap: User goal definition and diagnostic detail translation guidance; Required Fix: Address targeted questions from create_activity_model_review to finalize the scope of the surface.\", \"rationale\": \"The process requires defining the user's end state (what they know or have done) before building the interface. The current context indicates missing source context for key modeling steps, necessitating clarification on both desired outcomes and data presentation strategy.\"}",
+  "parsed": {
+    "response": "The next agent response should guide the support lead through a structured review process for refund cases. The primary goal is to facilitate a clear decision: Approve, Send to Policy Review, or Return for Missing Evidence. This requires synthesizing data from the underlying database structure and API capabilities into actionable UI elements.",
+    "next_action": "Develop the core workflow logic based on the required decision points (Approve/Policy/Return) and map necessary data inputs from the source schema to these paths.",
+    "questions": [
+      "What specific information must the support lead confirm or view before making a final decision?",
+      "Are there any conditional paths? For example, if evidence is missing, does the system need to prompt for *which* evidence is missing?"
+    ],
+    "handoff": "Decision/Action: Design the primary review screen flow. Reason: The initial activity model review requires clarification on desired user outcomes and which internal details must be translated into domain language. Owner: UX Designer/Product Manager; Evidence Gap: User goal definition and diagnostic detail translation guidance; Required Fix: Address targeted questions from create_activity_model_review to finalize the scope of the surface.",
+    "rationale": "The process requires defining the user's end state (what they know or have done) before building the interface. The current context indicates missing source context for key modeling steps, necessitating clarification on both desired outcomes and data presentation strategy."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The next agent response should guide the support lead through a structured review process for refund cases. The primary goal is to facilitate a clear decision: Approve, Send to Policy Review, or Return for Missing Evidence. This requires synthesizing data from the underlying database structure and API capabilities into actionable UI elements.\", \"next_action\": \"Develop the core workflow logic based on the required decision points (Approve/Policy/Return) and map necessary data inputs from the source schema to these paths.\", \"questions\": [\"What specific information must the support lead confirm or view before making a final decision?\", \"Are there any conditional paths? For example, if evidence is missing, does the system need to prompt for *which* evidence is missing?\"], \"handoff\": \"Decision/Action: Design the primary review screen flow. Reason: The initial activity model review requires clarification on desired user outcomes and which internal details must be translated into domain language. Owner: UX Designer/Product Manager; Evidence Gap: User goal definition and diagnostic detail translation guidance; Required Fix: Address targeted questions from create_activity_model_review to finalize the scope of the surface.\", \"rationale\": \"The process requires defining the user's end state (what they know or have done) before building the interface. The current context indicates missing source context for key modeling steps, necessitating clarification on both desired outcomes and data presentation strategy.\"}",
+    "usage": {
+      "prompt_tokens": 746,
+      "completion_tokens": 285,
+      "total_tokens": 1031,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "14bab258d6cee00328a2f58624e5d03de5f0de5e843263fc60d52ea2b591a8c2",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

@@ -1,0 +1,59 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "schema-leaking-workflow",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51706/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:43:12.292Z",
+  "duration_ms": 3072,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 600,
+    "completion_tokens": 166,
+    "total_tokens": 766,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "90dfc8ec9e69367e7d2c1c9faeb27c76563127f8f9b94934b4172e2b31c5beab",
+  "prompt_sha256": "c6964fd1a5d62805622066f1762073768dc1f841eb688adc2cb853180c08dc34",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "3e29bfd693f34a5b2d721e9741ff6e4e959a1289c92a440bdb9147bc88e5b290",
+  "raw_response": "{\"response\": \"The candidate fixture describes a workflow centered around JSON schema inspection, database field editing, and saving CRUD updates, which does not align with the source request of a support lead reviewing refund requests to decide on approval, policy review, or return for missing evidence.\", \"next_action\": \"Reject\", \"questions\": [], \"handoff\": \"Decision: Reject; Reason: Workflow describes schema/database manipulation instead of support triage actions (approve/policy review/return); Owner: Reviewer needs to map the required support logic onto a suitable workflow structure.\", \"rationale\": \"The candidate's core functionality (JSON schema, database updates) is entirely mismatched with the source brief's domain (support ticket triage for refunds). The fixture leaks internal implementation details related to data modeling rather than process flow management.\"}",
+  "parsed": {
+    "response": "The candidate fixture describes a workflow centered around JSON schema inspection, database field editing, and saving CRUD updates, which does not align with the source request of a support lead reviewing refund requests to decide on approval, policy review, or return for missing evidence.",
+    "next_action": "Reject",
+    "questions": [],
+    "handoff": "Decision: Reject; Reason: Workflow describes schema/database manipulation instead of support triage actions (approve/policy review/return); Owner: Reviewer needs to map the required support logic onto a suitable workflow structure.",
+    "rationale": "The candidate's core functionality (JSON schema, database updates) is entirely mismatched with the source brief's domain (support ticket triage for refunds). The fixture leaks internal implementation details related to data modeling rather than process flow management."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The candidate fixture describes a workflow centered around JSON schema inspection, database field editing, and saving CRUD updates, which does not align with the source request of a support lead reviewing refund requests to decide on approval, policy review, or return for missing evidence.\", \"next_action\": \"Reject\", \"questions\": [], \"handoff\": \"Decision: Reject; Reason: Workflow describes schema/database manipulation instead of support triage actions (approve/policy review/return); Owner: Reviewer needs to map the required support logic onto a suitable workflow structure.\", \"rationale\": \"The candidate's core functionality (JSON schema, database updates) is entirely mismatched with the source brief's domain (support ticket triage for refunds). The fixture leaks internal implementation details related to data modeling rather than process flow management.\"}",
+    "usage": {
+      "prompt_tokens": 600,
+      "completion_tokens": 166,
+      "total_tokens": 766,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "960e886dd8b9afe06c9de48fa56c4334524ace571ea3ff5a17eb1b4ec0ab7074",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

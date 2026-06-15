@@ -1,0 +1,65 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "missing-accessibility-evidence",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51813/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "0c3edd0cf5cd3beed8ab5732cfa95ffda7d24674af6c1cfc44e5900ce30136f4",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-13T22:07:31.020Z",
+  "duration_ms": 3951,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 828,
+    "completion_tokens": 139,
+    "total_tokens": 967,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "a0f25b867e0a03e721cceac9313ccf8344ba69cdc65ae725b48fad49a5687c0f",
+  "prompt_sha256": "71655eb9266fa03aabbf64b2a181ad9fe747d5ab411c51cdba54574bc48c1963",
+  "mcp_context_sha256": "7ad1d591dff9090490b91528ca6483b5274c6cbec927ef6c70143036021e005c",
+  "raw_response_sha256": "2ec91cd87bcf73152f4d4961c8b6c5ea0249db55010c6ee6f3c8088bc76d05ae",
+  "raw_response": "{\"response\": \"Reject. The source brief explicitly states that the UI must provide core accessibility evidence before acceptance, and the implementation candidate's accessibility_evidence field is empty.\", \"next_action\": \"Request missing accessibility evidence from the implementer.\", \"questions\": [\"What are the core accessibility evidences for this dense operator review screen? Please provide them in the 'accessibility_evidence' field.\"], \"handoff\": \"Handoff to Implementer: Provide required accessibility evidence.\", \"rationale\": \"The source brief mandates core accessibility evidence before acceptance. The candidate lacks any data in 'accessibility_evidence', making it non-compliant with the stated requirement, despite passing other checks.\"}",
+  "parsed": {
+    "response": "Reject. The source brief explicitly states that the UI must provide core accessibility evidence before acceptance, and the implementation candidate's accessibility_evidence field is empty.",
+    "next_action": "Request missing accessibility evidence from the implementer.",
+    "questions": [
+      "What are the core accessibility evidences for this dense operator review screen? Please provide them in the 'accessibility_evidence' field."
+    ],
+    "handoff": "Handoff to Implementer: Provide required accessibility evidence.",
+    "rationale": "The source brief mandates core accessibility evidence before acceptance. The candidate lacks any data in 'accessibility_evidence', making it non-compliant with the stated requirement, despite passing other checks."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Reject. The source brief explicitly states that the UI must provide core accessibility evidence before acceptance, and the implementation candidate's accessibility_evidence field is empty.\", \"next_action\": \"Request missing accessibility evidence from the implementer.\", \"questions\": [\"What are the core accessibility evidences for this dense operator review screen? Please provide them in the 'accessibility_evidence' field.\"], \"handoff\": \"Handoff to Implementer: Provide required accessibility evidence.\", \"rationale\": \"The source brief mandates core accessibility evidence before acceptance. The candidate lacks any data in 'accessibility_evidence', making it non-compliant with the stated requirement, despite passing other checks.\"}",
+    "usage": {
+      "prompt_tokens": 828,
+      "completion_tokens": 139,
+      "total_tokens": 967,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "6df7fd26576acd31677d06ac97f19451a2bcd2f743c7b69163e52b9a59342fcb",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

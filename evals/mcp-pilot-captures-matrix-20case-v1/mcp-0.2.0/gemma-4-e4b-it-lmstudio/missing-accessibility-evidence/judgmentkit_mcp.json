@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "missing-accessibility-evidence",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59425/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "597c13e2bdafb17b2c69c0d275d32d089829738b2254d4c2f6077ead39969945",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T21:32:28.921Z",
+  "duration_ms": 44793,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1464,
+    "completion_tokens": 152,
+    "total_tokens": 1616,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "675968f4b5ce807b6295741c3b9478c7c3271cc368433c8cd07b6c96cb3d6b26",
+  "prompt_sha256": "cf837f6632a8a553f7f44702587c4355deabd213b97f94f68e5154681c2c98dc",
+  "mcp_context_sha256": "0443295769116d998c57abbd3901a5301f56ba126e2475217b72c9bd2cdf7626",
+  "raw_response_sha256": "7dd41c376b0e1fe72a82f6ee85c5fcbadf8bc07df8e07d75e8943704bc416c18",
+  "raw_response": "{\"response\": \"reject\", \"next_action\": \"repair_and_resubmit\", \"questions\": [], \"handoff\": \"Decision: Reject original implementation. Reason: The initial submission lacked required accessibility evidence for the dense operator review screen, despite passing basic functional checks. Required Fix: Provide comprehensive and passing accessibility evidence covering semantic content, landmarks/headings, name/role/value attributes, keyboard navigation, focus order, and visible focus indicators. Verification: Re-submit with all specified accessibility evidence included.\", \"rationale\": \"The initial implementation failed due to missing core accessibility evidence required for the complex UI component. Although subsequent attempts may have passed, the directive requires rejecting the original submission and mandating a repair based on the identified gaps.\"}",
+  "parsed": {
+    "response": "reject",
+    "next_action": "repair_and_resubmit",
+    "questions": [],
+    "handoff": "Decision: Reject original implementation. Reason: The initial submission lacked required accessibility evidence for the dense operator review screen, despite passing basic functional checks. Required Fix: Provide comprehensive and passing accessibility evidence covering semantic content, landmarks/headings, name/role/value attributes, keyboard navigation, focus order, and visible focus indicators. Verification: Re-submit with all specified accessibility evidence included.",
+    "rationale": "The initial implementation failed due to missing core accessibility evidence required for the complex UI component. Although subsequent attempts may have passed, the directive requires rejecting the original submission and mandating a repair based on the identified gaps."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"reject\", \"next_action\": \"repair_and_resubmit\", \"questions\": [], \"handoff\": \"Decision: Reject original implementation. Reason: The initial submission lacked required accessibility evidence for the dense operator review screen, despite passing basic functional checks. Required Fix: Provide comprehensive and passing accessibility evidence covering semantic content, landmarks/headings, name/role/value attributes, keyboard navigation, focus order, and visible focus indicators. Verification: Re-submit with all specified accessibility evidence included.\", \"rationale\": \"The initial implementation failed due to missing core accessibility evidence required for the complex UI component. Although subsequent attempts may have passed, the directive requires rejecting the original submission and mandating a repair based on the identified gaps.\"}",
+    "usage": {
+      "prompt_tokens": 1464,
+      "completion_tokens": 152,
+      "total_tokens": 1616,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "10b929cbf51706372d9b202ba583bb1bc11703550f48e465ba4b963a22f81e49",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

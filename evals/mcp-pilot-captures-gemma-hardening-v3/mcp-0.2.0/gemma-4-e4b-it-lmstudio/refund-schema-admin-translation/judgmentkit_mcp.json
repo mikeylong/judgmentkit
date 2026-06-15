@@ -1,0 +1,66 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "refund-schema-admin-translation",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54174/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "59b617e73e1e2aec08fd2a933bc598a7ebeea3c50f6c46406823e4f6b77437ad",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:51:54.302Z",
+  "duration_ms": 4804,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 727,
+    "completion_tokens": 250,
+    "total_tokens": 977,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "80ec1a80dbf7ff73015b6d3aa0b2a444eb431ae41f7d400ae97ef4d7762a5bd2",
+  "prompt_sha256": "b9ddcf15a5cfc674509256ea234f9831b41c3f84882c5f4a72059bd5907bb1f2",
+  "mcp_context_sha256": "202bc36d99178c3cffc4312f49322b6615dfcf40454b6e2a237515be975d54b5",
+  "raw_response_sha256": "42d577b404b5b4c6e70bcd528b02d7be7c5516c2c547f119e2a761859f8c0bcf",
+  "raw_response": "{\"response\": \"The next agent response should focus on structuring the administrative review workflow for refund cases. Since the initial activity model creation requires clarification regarding user knowledge transfer and diagnostic vs. domain language translation, the immediate action is to gather this missing context before proceeding with UI recommendations.\", \"next_action\": \"Gather required source context regarding desired end-state knowledge and appropriate surface representation of internal details.\", \"questions\": [\"What should the support lead leave knowing or having done after using this admin screen?\", \"For the detected implementation details, which are purely diagnostic for our process and which must be translated into language visible to the support lead?\"], \"handoff\": \"Decision/Action: Gather missing context on user knowledge transfer and detail translation. Owner: Support Lead SME. Evidence Gap: Specifics on desired end-state knowledge and classification of internal vs. domain details. Required Fix: Obtain answers to the two targeted questions identified in the activity model review step.\", \"rationale\": \"The process flow is blocked because the initial activity modeling tool requires input defining the user's expected outcome and how technical implementation details should be presented to the end-user (the support lead). Addressing this context gap is prerequisite to finalizing surface types and workflow profiles.\"}",
+  "parsed": {
+    "response": "The next agent response should focus on structuring the administrative review workflow for refund cases. Since the initial activity model creation requires clarification regarding user knowledge transfer and diagnostic vs. domain language translation, the immediate action is to gather this missing context before proceeding with UI recommendations.",
+    "next_action": "Gather required source context regarding desired end-state knowledge and appropriate surface representation of internal details.",
+    "questions": [
+      "What should the support lead leave knowing or having done after using this admin screen?",
+      "For the detected implementation details, which are purely diagnostic for our process and which must be translated into language visible to the support lead?"
+    ],
+    "handoff": "Decision/Action: Gather missing context on user knowledge transfer and detail translation. Owner: Support Lead SME. Evidence Gap: Specifics on desired end-state knowledge and classification of internal vs. domain details. Required Fix: Obtain answers to the two targeted questions identified in the activity model review step.",
+    "rationale": "The process flow is blocked because the initial activity modeling tool requires input defining the user's expected outcome and how technical implementation details should be presented to the end-user (the support lead). Addressing this context gap is prerequisite to finalizing surface types and workflow profiles."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The next agent response should focus on structuring the administrative review workflow for refund cases. Since the initial activity model creation requires clarification regarding user knowledge transfer and diagnostic vs. domain language translation, the immediate action is to gather this missing context before proceeding with UI recommendations.\", \"next_action\": \"Gather required source context regarding desired end-state knowledge and appropriate surface representation of internal details.\", \"questions\": [\"What should the support lead leave knowing or having done after using this admin screen?\", \"For the detected implementation details, which are purely diagnostic for our process and which must be translated into language visible to the support lead?\"], \"handoff\": \"Decision/Action: Gather missing context on user knowledge transfer and detail translation. Owner: Support Lead SME. Evidence Gap: Specifics on desired end-state knowledge and classification of internal vs. domain details. Required Fix: Obtain answers to the two targeted questions identified in the activity model review step.\", \"rationale\": \"The process flow is blocked because the initial activity modeling tool requires input defining the user's expected outcome and how technical implementation details should be presented to the end-user (the support lead). Addressing this context gap is prerequisite to finalizing surface types and workflow profiles.\"}",
+    "usage": {
+      "prompt_tokens": 727,
+      "completion_tokens": 250,
+      "total_tokens": 977,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "374816a2af24411ef1adb1ec59a7f87bca85a3d80782d8e69d5d5a5f043c4a65",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

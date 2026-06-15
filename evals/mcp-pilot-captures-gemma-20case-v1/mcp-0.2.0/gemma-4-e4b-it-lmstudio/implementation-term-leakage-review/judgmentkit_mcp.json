@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "implementation-term-leakage-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "7b993e63ac1a988a52db5fa682935865099034bcf4ae0f726e604d3679b00855",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:48:49.194Z",
+  "duration_ms": 5696,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1261,
+    "completion_tokens": 221,
+    "total_tokens": 1482,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "96859cfcaa19255f0ba102b35f8b55f01d0a10146626ff76ec3079125bb085da",
+  "prompt_sha256": "74d7e8c949787fe03789cb381c9fb3f16852c9b5e01a570fa0a5120cc35ea32e",
+  "mcp_context_sha256": "dc47f94d8a6fe25fcdd4166ae9efc3f3ab996156d6464b3ea80aeae0a9c05c6d",
+  "raw_response_sha256": "7f5137808483575ec21baa58a9e7c57d9ed92bfcb0d9dc3080b677c217048dfd",
+  "raw_response": "{\"response\": \"The candidate implementation leaks internal terminology into the visible product labels. This violates data visibility standards.\", \"next_action\": \"Repair and resubmit based on guidance provided in the failure category 'data_visibility'.\", \"questions\": [], \"handoff\": \"Owner: Development Team; Action: Redact all leaked internal terms (ready_for_review, activity_model, guardrails, candidate, implementation_contract) from visible product labels. Reason: The source context shows these terms are being exposed to the user interface where they should not be visible. Fix: Ensure only user-facing, non-technical language is used in the final UI copy. Verification: Manual spot check of all displayed text against a list of prohibited internal terms.\", \"rationale\": \"The implementation candidate explicitly lists several internal system/process terms as 'visible_text'. The MCP context indicates a failure category of 'data_visibility' related to this leakage, and the repair guidance confirms that data visibility is the issue. Therefore, the action must be a targeted fix to remove these leaked terms.\"}",
+  "parsed": {
+    "response": "The candidate implementation leaks internal terminology into the visible product labels. This violates data visibility standards.",
+    "next_action": "Repair and resubmit based on guidance provided in the failure category 'data_visibility'.",
+    "questions": [],
+    "handoff": "Owner: Development Team; Action: Redact all leaked internal terms (ready_for_review, activity_model, guardrails, candidate, implementation_contract) from visible product labels. Reason: The source context shows these terms are being exposed to the user interface where they should not be visible. Fix: Ensure only user-facing, non-technical language is used in the final UI copy. Verification: Manual spot check of all displayed text against a list of prohibited internal terms.",
+    "rationale": "The implementation candidate explicitly lists several internal system/process terms as 'visible_text'. The MCP context indicates a failure category of 'data_visibility' related to this leakage, and the repair guidance confirms that data visibility is the issue. Therefore, the action must be a targeted fix to remove these leaked terms."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The candidate implementation leaks internal terminology into the visible product labels. This violates data visibility standards.\", \"next_action\": \"Repair and resubmit based on guidance provided in the failure category 'data_visibility'.\", \"questions\": [], \"handoff\": \"Owner: Development Team; Action: Redact all leaked internal terms (ready_for_review, activity_model, guardrails, candidate, implementation_contract) from visible product labels. Reason: The source context shows these terms are being exposed to the user interface where they should not be visible. Fix: Ensure only user-facing, non-technical language is used in the final UI copy. Verification: Manual spot check of all displayed text against a list of prohibited internal terms.\", \"rationale\": \"The implementation candidate explicitly lists several internal system/process terms as 'visible_text'. The MCP context indicates a failure category of 'data_visibility' related to this leakage, and the repair guidance confirms that data visibility is the issue. Therefore, the action must be a targeted fix to remove these leaked terms.\"}",
+    "usage": {
+      "prompt_tokens": 1261,
+      "completion_tokens": 221,
+      "total_tokens": 1482,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "f5e0f49d08bfb42c3641d47938807aa2fa817471d7b78f5ee98455fdcc40d929",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

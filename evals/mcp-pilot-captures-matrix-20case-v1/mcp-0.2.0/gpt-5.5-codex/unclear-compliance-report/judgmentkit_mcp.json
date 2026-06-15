@@ -1,0 +1,53 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "unclear-compliance-report",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "7eb4f247ec56ff223705ecbd2559295697affba22eab4831cf8c74efdd4982ad",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T01:49:32.855Z",
+  "duration_ms": 48303,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "7112b02ffdbaa6c6cdc65639662a579b559f997f37a7e1f5c05cb8ed6bd0b020",
+  "prompt_sha256": "54f9fc3acbdc608ab2be7ec6a6b51091339106ce3019b4b5857d023e46cf3ffe",
+  "mcp_context_sha256": "bf5a7ce33e11d576082ac85b68d0e51635c37653f9fbaf40e6e536e0e0cf07a7",
+  "raw_response_sha256": "c1045e1483df431fe6193aa98fe326c1c9224cdfdf062509dedccf2311071657",
+  "raw_response": "{\"response\":\"Pause screen planning until the report's use is defined. The next response should ask for the compliance activity, the decision or next action the report must support, and the outcome the user must leave with, then commit to shaping the page around that workflow once answered.\",\"next_action\":\"Request missing source context before proposing structure or content hierarchy.\",\"questions\":[\"Who will use this report, and what compliance activity are they doing with it: audit review, remediation planning, executive sign-off, or regulator response?\",\"What decision or next action should the report make easier, such as assigning fixes, approving exceptions, escalating risk, or confirming readiness?\",\"What should the user leave knowing or having done after using the page?\"],\"handoff\":\"Decision: defer page planning; Action: ask for activity, decision, and outcome; Reason: the brief says to include all findings but does not define the audience or workflow needed to make them actionable.\",\"rationale\":\"Without the audience and desired action, \\\"all findings\\\" could mean different evidence, severity, ownership, and routing treatments. Targeted clarification prevents inventing a generic compliance dashboard.\"}",
+  "parsed": {
+    "response": "Pause screen planning until the report's use is defined. The next response should ask for the compliance activity, the decision or next action the report must support, and the outcome the user must leave with, then commit to shaping the page around that workflow once answered.",
+    "next_action": "Request missing source context before proposing structure or content hierarchy.",
+    "questions": [
+      "Who will use this report, and what compliance activity are they doing with it: audit review, remediation planning, executive sign-off, or regulator response?",
+      "What decision or next action should the report make easier, such as assigning fixes, approving exceptions, escalating risk, or confirming readiness?",
+      "What should the user leave knowing or having done after using the page?"
+    ],
+    "handoff": "Decision: defer page planning; Action: ask for activity, decision, and outcome; Reason: the brief says to include all findings but does not define the audience or workflow needed to make them actionable.",
+    "rationale": "Without the audience and desired action, \"all findings\" could mean different evidence, severity, ownership, and routing treatments. Targeted clarification prevents inventing a generic compliance dashboard."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "52aace891d995220770667d431f6b3abbdc6c0a7243a9f86283ec8d2162bff8a",
+    "stderr_sha256": "a3ba1a971ccde29c528aec97195646f5ce306a35394ecb2db8bcca75aabe612b",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

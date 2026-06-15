@@ -1,0 +1,59 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "clinical-intake-operator-review",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51706/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:43:05.038Z",
+  "duration_ms": 4080,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 696,
+    "completion_tokens": 215,
+    "total_tokens": 911,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "ec675cf80345fc6a8f7b898fdda3ce43c6858f4b805669949b82c1f9bda7b0da",
+  "prompt_sha256": "6827e1a16638b2ad2b791dd2564b474c292690d89eb4c00e44847e5decfa7dae",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "069c9e78f356ecf57c8c4bbae40fca9057c5da5f674b1274e2e0c0c01586783d",
+  "raw_response": "{\"response\": \"The next agent response should guide the care coordinator through a structured review process, focusing on validating critical elements before making a routing decision. The plan must synthesize the information gathered in the 'Evidence summary' against established protocols for urgency and consent.\", \"next_action\": \"Present the care coordinator with a guided checklist or comparison view that explicitly juxtaposes the documented symptoms/urgency signals against required standards, followed by clear action buttons corresponding to the defined routing paths (Nurse Review, Clarification Needed, Ready for Scheduling).\", \"questions\": [], \"handoff\": \"Owner: Care Coordinator; Action: Validate completeness of consent and clarity of urgency signal before proceeding with routing decision.\", \"rationale\": \"The source brief indicates the core task is comparison (symptoms, urgency, missing consent) leading to a decision. The fixture confirms this structure but needs an agent response that operationalizes this comparison for the user, rather than just listing components. The handoff section provides excellent guidance on *why* the coordinator is needed and what they must check for.\"}",
+  "parsed": {
+    "response": "The next agent response should guide the care coordinator through a structured review process, focusing on validating critical elements before making a routing decision. The plan must synthesize the information gathered in the 'Evidence summary' against established protocols for urgency and consent.",
+    "next_action": "Present the care coordinator with a guided checklist or comparison view that explicitly juxtaposes the documented symptoms/urgency signals against required standards, followed by clear action buttons corresponding to the defined routing paths (Nurse Review, Clarification Needed, Ready for Scheduling).",
+    "questions": [],
+    "handoff": "Owner: Care Coordinator; Action: Validate completeness of consent and clarity of urgency signal before proceeding with routing decision.",
+    "rationale": "The source brief indicates the core task is comparison (symptoms, urgency, missing consent) leading to a decision. The fixture confirms this structure but needs an agent response that operationalizes this comparison for the user, rather than just listing components. The handoff section provides excellent guidance on *why* the coordinator is needed and what they must check for."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The next agent response should guide the care coordinator through a structured review process, focusing on validating critical elements before making a routing decision. The plan must synthesize the information gathered in the 'Evidence summary' against established protocols for urgency and consent.\", \"next_action\": \"Present the care coordinator with a guided checklist or comparison view that explicitly juxtaposes the documented symptoms/urgency signals against required standards, followed by clear action buttons corresponding to the defined routing paths (Nurse Review, Clarification Needed, Ready for Scheduling).\", \"questions\": [], \"handoff\": \"Owner: Care Coordinator; Action: Validate completeness of consent and clarity of urgency signal before proceeding with routing decision.\", \"rationale\": \"The source brief indicates the core task is comparison (symptoms, urgency, missing consent) leading to a decision. The fixture confirms this structure but needs an agent response that operationalizes this comparison for the user, rather than just listing components. The handoff section provides excellent guidance on *why* the coordinator is needed and what they must check for.\"}",
+    "usage": {
+      "prompt_tokens": 696,
+      "completion_tokens": 215,
+      "total_tokens": 911,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "ae287d90b840cd6cffe2f4f3b661ac2e5af2e52264032ff7ce0af9fd5a2730fa",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

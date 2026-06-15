@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "api-list-workflow",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54753/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:47:35.311Z",
+  "duration_ms": 3550,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 216,
+    "completion_tokens": 227,
+    "total_tokens": 443,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "cd65cb7274c211c98182a1f075ee7f3b065cef198eb20d0ccd4668ad60422f7c",
+  "prompt_sha256": "0890a1f50c9eee2984b0db129a1ca058de121fd049ef4b2d4c2a1aa223337a4c",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "562158e79da9d24b1b66c6953d093467524ef387b3b6fd104f313e4b276d19f7",
+  "raw_response": "{\"response\": \"Based on the provided source brief, the goal is to use a list of endpoints (GET /items, POST /items, PATCH /items, DELETE /items) to construct a workflow UI. To proceed with planning the agent's response, I need more context regarding the desired output format or interaction model for this UI.\", \"next_action\": \"Request clarification on the required output structure for the workflow UI.\", \"questions\": [\"What is the expected format or technology stack for the generated workflow UI (e.g., JSON schema, React component description, plain text steps)?\", \"Should the agent's response simulate the interaction with these endpoints, or should it generate the code/structure that *uses* these endpoints?\"], \"handoff\": \"Need clarification on the desired output format and simulation level for the workflow UI.\", \"rationale\": \"The source brief only lists the available endpoints but does not specify how they should be integrated into a 'workflow UI' or what the final deliverable structure should look like. The next step requires defining this missing structural context to generate an actionable plan.\"}",
+  "parsed": {
+    "response": "Based on the provided source brief, the goal is to use a list of endpoints (GET /items, POST /items, PATCH /items, DELETE /items) to construct a workflow UI. To proceed with planning the agent's response, I need more context regarding the desired output format or interaction model for this UI.",
+    "next_action": "Request clarification on the required output structure for the workflow UI.",
+    "questions": [
+      "What is the expected format or technology stack for the generated workflow UI (e.g., JSON schema, React component description, plain text steps)?",
+      "Should the agent's response simulate the interaction with these endpoints, or should it generate the code/structure that *uses* these endpoints?"
+    ],
+    "handoff": "Need clarification on the desired output format and simulation level for the workflow UI.",
+    "rationale": "The source brief only lists the available endpoints but does not specify how they should be integrated into a 'workflow UI' or what the final deliverable structure should look like. The next step requires defining this missing structural context to generate an actionable plan."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Based on the provided source brief, the goal is to use a list of endpoints (GET /items, POST /items, PATCH /items, DELETE /items) to construct a workflow UI. To proceed with planning the agent's response, I need more context regarding the desired output format or interaction model for this UI.\", \"next_action\": \"Request clarification on the required output structure for the workflow UI.\", \"questions\": [\"What is the expected format or technology stack for the generated workflow UI (e.g., JSON schema, React component description, plain text steps)?\", \"Should the agent's response simulate the interaction with these endpoints, or should it generate the code/structure that *uses* these endpoints?\"], \"handoff\": \"Need clarification on the desired output format and simulation level for the workflow UI.\", \"rationale\": \"The source brief only lists the available endpoints but does not specify how they should be integrated into a 'workflow UI' or what the final deliverable structure should look like. The next step requires defining this missing structural context to generate an actionable plan.\"}",
+    "usage": {
+      "prompt_tokens": 216,
+      "completion_tokens": 227,
+      "total_tokens": 443,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "5ab7da493b8d8dd37d3aea86074b5f4088840a5d65026e6c46abd88138ad0fd9",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

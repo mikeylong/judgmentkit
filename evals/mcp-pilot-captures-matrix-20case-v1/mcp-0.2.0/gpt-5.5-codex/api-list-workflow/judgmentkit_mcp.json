@@ -1,0 +1,52 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "api-list-workflow",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "6084df7e73938fb9aab2c584bf7f32d7212e1fbd0a851d91e597ba18c96f930b",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T01:48:01.899Z",
+  "duration_ms": 54785,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "e4b670ab09ff4f9e7b738410b3fc183c05b5661f62d4e60858797e6393e134c5",
+  "prompt_sha256": "f4b3362933666a2410fea94f07a74d8377cf278437134d840cc3a3d3dea382e2",
+  "mcp_context_sha256": "e485b32b573c5fe35f00b4459ce223924a10e219b19f4a0ff201732450559bdc",
+  "raw_response_sha256": "b470e582da17447e4cfd80dbd32a40e012673ae653e784b86927bb63e16fee54",
+  "raw_response": "{\"response\":\"Pause before designing from the technical inventory. Reply that the list is not enough to define the workflow: first establish the user activity, the decision the surface should support, and the completion state. Once answered, map the available routes into user-facing tasks and labels, keeping implementation structure out of the primary experience.\",\"next_action\":\"request_source_context\",\"questions\":[\"What decision or next action should this workflow UI make easier for the user?\",\"What should the user leave the surface knowing or having done?\"],\"handoff\":\"Decision: hold UI generation; Owner: requester; Action: provide the target decision and desired outcome; Reason: the current source gives routing inventory but not the user workflow.\",\"rationale\":\"The brief provides a technical list but not enough activity context to define a reliable workflow. Asking two focused questions prevents inventing the surface and keeps the eventual plan centered on user decisions, outcomes, and product-language mapping.\"}",
+  "parsed": {
+    "response": "Pause before designing from the technical inventory. Reply that the list is not enough to define the workflow: first establish the user activity, the decision the surface should support, and the completion state. Once answered, map the available routes into user-facing tasks and labels, keeping implementation structure out of the primary experience.",
+    "next_action": "request_source_context",
+    "questions": [
+      "What decision or next action should this workflow UI make easier for the user?",
+      "What should the user leave the surface knowing or having done?"
+    ],
+    "handoff": "Decision: hold UI generation; Owner: requester; Action: provide the target decision and desired outcome; Reason: the current source gives routing inventory but not the user workflow.",
+    "rationale": "The brief provides a technical list but not enough activity context to define a reliable workflow. Asking two focused questions prevents inventing the surface and keeps the eventual plan centered on user decisions, outcomes, and product-language mapping."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "0312a0e9ce34d9a79d681b93ca29a25592ecc98edf18f140844754520e626118",
+    "stderr_sha256": "7aa88ddb17e537ee37d11d695fc1e45ff2a2ed266105cdcceb7433d6ae13d4b4",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

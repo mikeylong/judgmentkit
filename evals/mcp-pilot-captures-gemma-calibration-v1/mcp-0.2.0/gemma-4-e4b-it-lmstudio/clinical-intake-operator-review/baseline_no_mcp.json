@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "clinical-intake-operator-review",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51813/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-13T22:07:10.040Z",
+  "duration_ms": 6615,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 582,
+    "completion_tokens": 234,
+    "total_tokens": 816,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "ec675cf80345fc6a8f7b898fdda3ce43c6858f4b805669949b82c1f9bda7b0da",
+  "prompt_sha256": "b5814b6e8605e392c45c3bceaf042813db5d20fb8a645c3f6fecaaa2fb52ffc9",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "fcffb4e4b9e2e3e59e931e260c4499867a8c30c1afa3a3a75b6d58de9ad01a3d",
+  "raw_response": "{\"response\": \"The next agent response should guide the care coordinator through the decision-making process based on the identified gaps (consent/urgency) and provide clear options for the subsequent steps.\", \"next_action\": \"Guide the user to review specific sections of the intake summary related to consent and urgency, and then prompt them to select one of the defined primary actions: Route to nurse review or Return for clarification.\", \"questions\": [\"What is the expected format or source for confirming 'consent' status?\", \"Are there specific guidelines provided for classifying 'ambiguous urgency signals' that the coordinator must follow?\"], \"handoff\": \"The handoff indicates the care coordinator needs to make a decision based on unclear consent or urgency. The next step should focus on presenting actionable guidance related to these gaps.\", \"rationale\": \"The source brief and fixture confirm that the core task is for the coordinator to review evidence, compare urgency/consent, and choose a route. Since the handoff explicitly points to 'Missing consent or ambiguous urgency signal' as an evidence gap, the next response must address how to resolve those specific issues before allowing the final routing decision.\"}",
+  "parsed": {
+    "response": "The next agent response should guide the care coordinator through the decision-making process based on the identified gaps (consent/urgency) and provide clear options for the subsequent steps.",
+    "next_action": "Guide the user to review specific sections of the intake summary related to consent and urgency, and then prompt them to select one of the defined primary actions: Route to nurse review or Return for clarification.",
+    "questions": [
+      "What is the expected format or source for confirming 'consent' status?",
+      "Are there specific guidelines provided for classifying 'ambiguous urgency signals' that the coordinator must follow?"
+    ],
+    "handoff": "The handoff indicates the care coordinator needs to make a decision based on unclear consent or urgency. The next step should focus on presenting actionable guidance related to these gaps.",
+    "rationale": "The source brief and fixture confirm that the core task is for the coordinator to review evidence, compare urgency/consent, and choose a route. Since the handoff explicitly points to 'Missing consent or ambiguous urgency signal' as an evidence gap, the next response must address how to resolve those specific issues before allowing the final routing decision."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The next agent response should guide the care coordinator through the decision-making process based on the identified gaps (consent/urgency) and provide clear options for the subsequent steps.\", \"next_action\": \"Guide the user to review specific sections of the intake summary related to consent and urgency, and then prompt them to select one of the defined primary actions: Route to nurse review or Return for clarification.\", \"questions\": [\"What is the expected format or source for confirming 'consent' status?\", \"Are there specific guidelines provided for classifying 'ambiguous urgency signals' that the coordinator must follow?\"], \"handoff\": \"The handoff indicates the care coordinator needs to make a decision based on unclear consent or urgency. The next step should focus on presenting actionable guidance related to these gaps.\", \"rationale\": \"The source brief and fixture confirm that the core task is for the coordinator to review evidence, compare urgency/consent, and choose a route. Since the handoff explicitly points to 'Missing consent or ambiguous urgency signal' as an evidence gap, the next response must address how to resolve those specific issues before allowing the final routing decision.\"}",
+    "usage": {
+      "prompt_tokens": 582,
+      "completion_tokens": 234,
+      "total_tokens": 816,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "e926b0d5654914d1562d69204c38d2892a62d49471436cfbd67afe17c8528d24",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

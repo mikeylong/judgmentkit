@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "missing-accessibility-evidence",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51706/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "cb5c14327100ed2dc88cfbd03c5559ed62b9e557dc3be41427448744714cf5c5",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:43:22.552Z",
+  "duration_ms": 3621,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1149,
+    "completion_tokens": 119,
+    "total_tokens": 1268,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "db4e0db748f1cb956d316cfc6e309c60082137367bc30188feddc8c4f47d01a6",
+  "prompt_sha256": "8d1a4a7aa5461414cb5886cfea6fbbc2cc5b62f2cc7dc6dd6a6f9e5f8efb78c4",
+  "mcp_context_sha256": "5660462c0c062bb0ce7739fdcb878446f2badf84b64bb3539e56f29590b6262b",
+  "raw_response_sha256": "5586932ec20412288daea957106da3ae28833e22fd414c8084053c9b1458daf1",
+  "raw_response": "{\"response\": \"The candidate requires updates to include specific accessibility evidence before acceptance.\", \"next_action\": \"Repair and Resubmit\", \"questions\": [], \"handoff\": \"Action: Repair the implementation. Reason: The review failed due to missing accessibility evidence, specifically requiring 'accessibility_evidence.semantic_content' and 'accessibility_evidence.landmarks_headings'. Fix: Update the candidate to populate these required fields in the accessibility evidence structure.\", \"rationale\": \"The initial review identified critical gaps in accessibility documentation within the implementation candidate, necessitating a repair cycle before final acceptance.\"}",
+  "parsed": {
+    "response": "The candidate requires updates to include specific accessibility evidence before acceptance.",
+    "next_action": "Repair and Resubmit",
+    "questions": [],
+    "handoff": "Action: Repair the implementation. Reason: The review failed due to missing accessibility evidence, specifically requiring 'accessibility_evidence.semantic_content' and 'accessibility_evidence.landmarks_headings'. Fix: Update the candidate to populate these required fields in the accessibility evidence structure.",
+    "rationale": "The initial review identified critical gaps in accessibility documentation within the implementation candidate, necessitating a repair cycle before final acceptance."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The candidate requires updates to include specific accessibility evidence before acceptance.\", \"next_action\": \"Repair and Resubmit\", \"questions\": [], \"handoff\": \"Action: Repair the implementation. Reason: The review failed due to missing accessibility evidence, specifically requiring 'accessibility_evidence.semantic_content' and 'accessibility_evidence.landmarks_headings'. Fix: Update the candidate to populate these required fields in the accessibility evidence structure.\", \"rationale\": \"The initial review identified critical gaps in accessibility documentation within the implementation candidate, necessitating a repair cycle before final acceptance.\"}",
+    "usage": {
+      "prompt_tokens": 1149,
+      "completion_tokens": 119,
+      "total_tokens": 1268,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "2a2357ec5a66575b172db725362640803f1ae000bf35f35d0af723e5d305a8ee",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

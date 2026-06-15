@@ -1,0 +1,65 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "clinical-intake-operator-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:55277/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract"
+  ],
+  "mcp_tool_transcript_sha256": "7f70a64019ca34fac2fc8473bfa449013a5b7991d244ddd64c1fade6c507e772",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:54:23.823Z",
+  "duration_ms": 4377,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1029,
+    "completion_tokens": 220,
+    "total_tokens": 1249,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "0596ede8771a4385210c42bede3a6ca2a88535963cf6d56d39bb87511dfb6d85",
+  "prompt_sha256": "ec15f649b351f548d137845620a654c06d9b9e1361cbf4a58399aa83c316845c",
+  "mcp_context_sha256": "5fe2f598ddf2f8b85e26e1ccad40b36264136a12d82f3b93128813bf869e3c9b",
+  "raw_response_sha256": "8b81f77bfbe9cbfb3c594d9e3a5be19746f795813e5290234bf954559173f8ca",
+  "raw_response": "{\"response\": \"The agent should guide the care coordinator through a structured review process, focusing on synthesizing the intake evidence against established criteria for urgency and consent. The next step involves presenting clear options based on identified gaps.\", \"next_action\": \"Guide the user to confirm if the intake is ready, requires nurse escalation, or needs further information gathering.\", \"questions\": [\"What specific outcome should the care coordinator achieve after completing this review?\", \"Are there any mandatory data points that must be present before marking an intake as ready for scheduling?\"], \"handoff\": \"Owner: Care Coordinator; Next Action: Review evidence against urgency/consent criteria and select a routing decision (Nurse Review, Clarification, or Schedule); Reason: To ensure all critical elements are validated before proceeding; Evidence Gap: None identified in the source context, but confirmation on required final state knowledge is needed.\", \"rationale\": \"The goal is to create an actionable plan for the operator review. The MCP context indicates a need to define the desired user outcome and confirm mandatory data points, which informs the next guiding steps.\"}",
+  "parsed": {
+    "response": "The agent should guide the care coordinator through a structured review process, focusing on synthesizing the intake evidence against established criteria for urgency and consent. The next step involves presenting clear options based on identified gaps.",
+    "next_action": "Guide the user to confirm if the intake is ready, requires nurse escalation, or needs further information gathering.",
+    "questions": [
+      "What specific outcome should the care coordinator achieve after completing this review?",
+      "Are there any mandatory data points that must be present before marking an intake as ready for scheduling?"
+    ],
+    "handoff": "Owner: Care Coordinator; Next Action: Review evidence against urgency/consent criteria and select a routing decision (Nurse Review, Clarification, or Schedule); Reason: To ensure all critical elements are validated before proceeding; Evidence Gap: None identified in the source context, but confirmation on required final state knowledge is needed.",
+    "rationale": "The goal is to create an actionable plan for the operator review. The MCP context indicates a need to define the desired user outcome and confirm mandatory data points, which informs the next guiding steps."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent should guide the care coordinator through a structured review process, focusing on synthesizing the intake evidence against established criteria for urgency and consent. The next step involves presenting clear options based on identified gaps.\", \"next_action\": \"Guide the user to confirm if the intake is ready, requires nurse escalation, or needs further information gathering.\", \"questions\": [\"What specific outcome should the care coordinator achieve after completing this review?\", \"Are there any mandatory data points that must be present before marking an intake as ready for scheduling?\"], \"handoff\": \"Owner: Care Coordinator; Next Action: Review evidence against urgency/consent criteria and select a routing decision (Nurse Review, Clarification, or Schedule); Reason: To ensure all critical elements are validated before proceeding; Evidence Gap: None identified in the source context, but confirmation on required final state knowledge is needed.\", \"rationale\": \"The goal is to create an actionable plan for the operator review. The MCP context indicates a need to define the desired user outcome and confirm mandatory data points, which informs the next guiding steps.\"}",
+    "usage": {
+      "prompt_tokens": 1029,
+      "completion_tokens": 220,
+      "total_tokens": 1249,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "50305324048cccbe2aaafcaaeaef71de8f0782e7839bc0d75fa01eea660da27b",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

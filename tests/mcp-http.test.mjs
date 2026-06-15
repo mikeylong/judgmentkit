@@ -104,6 +104,38 @@ async function runMcpClient(endpoint) {
     assert.equal(textContent(reviewResponse).trim().startsWith("{"), false);
     assert.equal(reviewResponse.structuredContent.review_status, "ready_for_review");
     assert.equal(reviewResponse.structuredContent.source.mode, "deterministic");
+
+    const implementationContractResponse = await withTimeout(
+      client.callTool({
+        name: "create_ui_implementation_contract",
+        arguments: {
+          target_stack: "React",
+          approved_primitives: [
+            "queue",
+            "detail panel",
+            "decision controls",
+            "handoff receipt",
+          ],
+          static_rules: ["npm test"],
+          browser_qa_checks: ["desktop review", "mobile review"],
+        },
+      }),
+      5_000,
+    );
+
+    assert.equal(implementationContractResponse.isError, undefined);
+    assert.ok(
+      textContent(implementationContractResponse).includes("Visual token adapter"),
+    );
+    assert.equal(
+      implementationContractResponse.structuredContent.implementation_contract
+        .visual_token_adapter.mode,
+      "boundary_only",
+    );
+    assert.ok(
+      implementationContractResponse.structuredContent.implementation_contract
+        .visual_token_adapter.token_families.includes("color"),
+    );
   } finally {
     await client?.close().catch(() => {});
     await transport?.close().catch(() => {});
@@ -233,13 +265,24 @@ assert.deepEqual(
         tool_name: "create_activity_model_review",
       },
     ],
+    [
+      "JudgmentKit MCP call tool",
+      {
+        tool_name: "create_ui_implementation_contract",
+      },
+    ],
   ],
 );
 assert.equal(JSON.stringify(analyticsEvents).includes(REVIEW_BRIEF), false);
 assert.equal(JSON.stringify(analyticsEvents).includes("ready_for_review"), false);
 assert.deepEqual(
   analyticsEvents.map((event) => event.headers["user-agent"]),
-  ["judgmentkit-mcp", "judgmentkit-mcp", "judgmentkit-mcp"],
+  [
+    "judgmentkit-mcp",
+    "judgmentkit-mcp",
+    "judgmentkit-mcp",
+    "judgmentkit-mcp",
+  ],
 );
 
 await withTestServer(

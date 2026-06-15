@@ -1,0 +1,59 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "missing-accessibility-evidence",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51706/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:43:18.930Z",
+  "duration_ms": 2600,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 422,
+    "completion_tokens": 126,
+    "total_tokens": 548,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "41f96b9faabdb80aec4d022e65a5c05a38776644caff0b47fed3d8cf8791e9ee",
+  "prompt_sha256": "9bafd18bc7e6044697e4388e84e7072af07128572420509fbba5e68dde8502da",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "9ccfddb1281aafd796701651343467b525a36a6cdb75d46e4a53744eebecf559",
+  "raw_response": "{\"response\": \"Reject. The implementation candidate lacks required core accessibility evidence, which is mandatory for acceptance based on the source brief.\", \"next_action\": \"Request updated candidate with complete accessibility evidence.\", \"questions\": [], \"handoff\": \"Evidence Gap: Missing core accessibility evidence; Owner: Development Team; Required Fix: Provide comprehensive accessibility testing results/evidence matching the requirements outlined in the source brief.\", \"rationale\": \"The source brief explicitly states that the UI must provide core accessibility evidence before acceptance. The provided candidate shows an empty object for 'accessibility_evidence', indicating this critical requirement has not been met.\"}",
+  "parsed": {
+    "response": "Reject. The implementation candidate lacks required core accessibility evidence, which is mandatory for acceptance based on the source brief.",
+    "next_action": "Request updated candidate with complete accessibility evidence.",
+    "questions": [],
+    "handoff": "Evidence Gap: Missing core accessibility evidence; Owner: Development Team; Required Fix: Provide comprehensive accessibility testing results/evidence matching the requirements outlined in the source brief.",
+    "rationale": "The source brief explicitly states that the UI must provide core accessibility evidence before acceptance. The provided candidate shows an empty object for 'accessibility_evidence', indicating this critical requirement has not been met."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Reject. The implementation candidate lacks required core accessibility evidence, which is mandatory for acceptance based on the source brief.\", \"next_action\": \"Request updated candidate with complete accessibility evidence.\", \"questions\": [], \"handoff\": \"Evidence Gap: Missing core accessibility evidence; Owner: Development Team; Required Fix: Provide comprehensive accessibility testing results/evidence matching the requirements outlined in the source brief.\", \"rationale\": \"The source brief explicitly states that the UI must provide core accessibility evidence before acceptance. The provided candidate shows an empty object for 'accessibility_evidence', indicating this critical requirement has not been met.\"}",
+    "usage": {
+      "prompt_tokens": 422,
+      "completion_tokens": 126,
+      "total_tokens": 548,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "1eed717a2d941b3d3172dabf716790c252d3d37ad7dff4f8c6a280a1c58ff543",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

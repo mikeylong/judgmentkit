@@ -1,0 +1,29 @@
+{
+  "capture_type": "codex-output-transcript",
+  "case_id": "clinical-intake-operator-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-13T20:57:16.094Z",
+  "source_context_sha256": "978642e5e5a3f7c6816566062ce36abadc9b7ce749e195aa5f41bce2022d5861",
+  "prompt_sha256": "0056eb89e9188863f02b12ad93bba97bcbac4dc2ffcceb7d14053b8947111015",
+  "mcp_context_sha256": "8cea13b87226788441ddb8711286e48573a11c456db3b7e3260fd25602f32bb9",
+  "raw_response_sha256": "6adbaea921711c19d08fe768e53c98b764c7e67d928e88de2a3e44f760d22189",
+  "raw_response": "{\"response\":\"Proceed with the clinical intake review workbench. The next response should frame the activity as selecting an intake, comparing symptoms, urgency, and consent, choosing one routing decision, and preparing a handoff receipt that states owner, route, reason, and evidence gap.\",\"next_action\":\"Prepare the routing handoff for the selected intake.\",\"questions\":[],\"handoff\":\"Owner: care coordinator; action: prepare routing handoff; reason: urgency and consent must be clear before scheduling; evidence gap: missing consent or ambiguous urgency signal.\",\"rationale\":\"The fixture supplies the needed completion outcome: a routing handoff with owner, reason, and evidence gap. Keep the primary surface as an operational review queue with evidence summary, routing decision, and receipt; use clinical terms and keep diagnostics out unless auditing is requested.\"}",
+  "parsed": {
+    "response": "Proceed with the clinical intake review workbench. The next response should frame the activity as selecting an intake, comparing symptoms, urgency, and consent, choosing one routing decision, and preparing a handoff receipt that states owner, route, reason, and evidence gap.",
+    "next_action": "Prepare the routing handoff for the selected intake.",
+    "questions": [],
+    "handoff": "Owner: care coordinator; action: prepare routing handoff; reason: urgency and consent must be clear before scheduling; evidence gap: missing consent or ambiguous urgency signal.",
+    "rationale": "The fixture supplies the needed completion outcome: a routing handoff with owner, reason, and evidence gap. Keep the primary surface as an operational review queue with evidence summary, routing decision, and receipt; use clinical terms and keep diagnostics out unless auditing is requested."
+  },
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "95482df3f4f88d95d54631e9888ae7ebb23266a4348f687669c22f0b68f81c65",
+    "stderr_sha256": "b83454cf8b188d11e91de11038d6a319b314612507409d92eb65e0fc8cd107a1",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

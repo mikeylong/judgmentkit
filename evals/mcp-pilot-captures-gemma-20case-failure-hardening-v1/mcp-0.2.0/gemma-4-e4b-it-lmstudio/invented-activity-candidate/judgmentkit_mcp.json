@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "invented-activity-candidate",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56554/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_activity_model_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "6817d6e84f14c4a8b9343052e112f8824eec9a2df85a7dd86d414a28b677b797",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T21:16:38.385Z",
+  "duration_ms": 6554,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 802,
+    "completion_tokens": 211,
+    "total_tokens": 1013,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "d248b8dcee91e1e3557af01736ef31627f7e3ae28a4ac7a66a69d632f877f236",
+  "prompt_sha256": "f1f771cd6de4ad488805254b4da9f7409bf720e27afa4676208de8048404154f",
+  "mcp_context_sha256": "52be4b777886b72740f3ea7dfa923725a3809a0bd5eff7fbc0ed7b7a19422b4f",
+  "raw_response_sha256": "32abb1fa8a3000e35630cd0a30fb8a173c52a5650acee1d22d75fd49cbd13b15",
+  "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Review the source brief and submitted fixture against the core workflow of reviewing refund requests to determine if the candidate activity accurately reflects the required decision points (approve, policy review, or return for missing evidence).\", \"questions\": [\"What specific actions are taken when a request is flagged for 'policy review' versus when it requires returning due to 'missing evidence'?\"], \"handoff\": \"Owner: Workflow Expert; Evidence Gap: The submitted fixture describes an activity involving optimization and allocation, which does not align with the source brief's focus on triage decisions (approve/policy review/return). Required Fix: Re-map the candidate activity structure to reflect the decision points described in the source brief.\", \"rationale\": \"The submitted fixture details an internal process involving 'optimization' and 'allocation,' whereas the source brief describes a support lead triaging refund requests with discrete outcomes of approval, policy review, or return for missing evidence. The mismatch is significant regarding the core business function being modeled.\"}",
+  "parsed": {
+    "response": "Reject",
+    "next_action": "Review the source brief and submitted fixture against the core workflow of reviewing refund requests to determine if the candidate activity accurately reflects the required decision points (approve, policy review, or return for missing evidence).",
+    "questions": [
+      "What specific actions are taken when a request is flagged for 'policy review' versus when it requires returning due to 'missing evidence'?"
+    ],
+    "handoff": "Owner: Workflow Expert; Evidence Gap: The submitted fixture describes an activity involving optimization and allocation, which does not align with the source brief's focus on triage decisions (approve/policy review/return). Required Fix: Re-map the candidate activity structure to reflect the decision points described in the source brief.",
+    "rationale": "The submitted fixture details an internal process involving 'optimization' and 'allocation,' whereas the source brief describes a support lead triaging refund requests with discrete outcomes of approval, policy review, or return for missing evidence. The mismatch is significant regarding the core business function being modeled."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Review the source brief and submitted fixture against the core workflow of reviewing refund requests to determine if the candidate activity accurately reflects the required decision points (approve, policy review, or return for missing evidence).\", \"questions\": [\"What specific actions are taken when a request is flagged for 'policy review' versus when it requires returning due to 'missing evidence'?\"], \"handoff\": \"Owner: Workflow Expert; Evidence Gap: The submitted fixture describes an activity involving optimization and allocation, which does not align with the source brief's focus on triage decisions (approve/policy review/return). Required Fix: Re-map the candidate activity structure to reflect the decision points described in the source brief.\", \"rationale\": \"The submitted fixture details an internal process involving 'optimization' and 'allocation,' whereas the source brief describes a support lead triaging refund requests with discrete outcomes of approval, policy review, or return for missing evidence. The mismatch is significant regarding the core business function being modeled.\"}",
+    "usage": {
+      "prompt_tokens": 802,
+      "completion_tokens": 211,
+      "total_tokens": 1013,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "d3e1622c28244058ae08b79eb973f639f6db511f2fe269f8e6b246928c168982",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

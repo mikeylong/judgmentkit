@@ -1,0 +1,64 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "modal-action-order-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "88b22dc14f54e54c4324ffa5cb825dc4898c8bbaae4402870ac778c582c06086",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:48:38.213Z",
+  "duration_ms": 5081,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1711,
+    "completion_tokens": 164,
+    "total_tokens": 1875,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "b02874b0e54602007a0095d41669c2b519aca5d7b10fc5369f331e9f70586d44",
+  "prompt_sha256": "c1de3f2ef3467baa3ab0c9a7b496d47a44a52bb6b3cab80ff38b45424367438b",
+  "mcp_context_sha256": "43611f3f1db0ed23766d638cd972a2525ecf8db627f0fd48f60430de88b2ed2a",
+  "raw_response_sha256": "995e4c4f1616262f1cd3267beff5b98fe08a9523054387e9b550b9ab730d20cb",
+  "raw_response": "{\"response\": \"reject\", \"next_action\": \"repair_and_resubmit\", \"questions\": [], \"handoff\": \"Owner: Development Team; Action: Repair implementation based on recurring failure categories (primitive_defaults, state_rules, evidence_gates, accessibility); Reason: The candidate failed multiple review cycles due to systemic issues across primitive usage, state coverage, evidence validation, and accessibility compliance. Required Fix: Address all findings related to approved primitives, ensure complete state coverage, provide robust browser QA evidence, and verify full accessibility adherence for the modal confirmation flow.\", \"rationale\": \"The implementation candidate is rejected because the diagnostic context shows repeated failures across multiple review attempts, indicating fundamental issues in primitive usage, state management, evidence provision, and accessibility that require developer intervention before re-submission.\"}",
+  "parsed": {
+    "response": "reject",
+    "next_action": "repair_and_resubmit",
+    "questions": [],
+    "handoff": "Owner: Development Team; Action: Repair implementation based on recurring failure categories (primitive_defaults, state_rules, evidence_gates, accessibility); Reason: The candidate failed multiple review cycles due to systemic issues across primitive usage, state coverage, evidence validation, and accessibility compliance. Required Fix: Address all findings related to approved primitives, ensure complete state coverage, provide robust browser QA evidence, and verify full accessibility adherence for the modal confirmation flow.",
+    "rationale": "The implementation candidate is rejected because the diagnostic context shows repeated failures across multiple review attempts, indicating fundamental issues in primitive usage, state management, evidence provision, and accessibility that require developer intervention before re-submission."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"reject\", \"next_action\": \"repair_and_resubmit\", \"questions\": [], \"handoff\": \"Owner: Development Team; Action: Repair implementation based on recurring failure categories (primitive_defaults, state_rules, evidence_gates, accessibility); Reason: The candidate failed multiple review cycles due to systemic issues across primitive usage, state coverage, evidence validation, and accessibility compliance. Required Fix: Address all findings related to approved primitives, ensure complete state coverage, provide robust browser QA evidence, and verify full accessibility adherence for the modal confirmation flow.\", \"rationale\": \"The implementation candidate is rejected because the diagnostic context shows repeated failures across multiple review attempts, indicating fundamental issues in primitive usage, state management, evidence provision, and accessibility that require developer intervention before re-submission.\"}",
+    "usage": {
+      "prompt_tokens": 1711,
+      "completion_tokens": 164,
+      "total_tokens": 1875,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "203d4e91a2f1bdbd72897610a55e48953f983395df0ca1674e8d57bbdcae1983",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

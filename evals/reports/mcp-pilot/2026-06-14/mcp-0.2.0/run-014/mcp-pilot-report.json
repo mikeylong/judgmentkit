@@ -1,0 +1,1573 @@
+{
+  "eval_id": "judgmentkit-mcp-private-pilot-v1",
+  "evaluation_type": "private_saved_capture_scoring",
+  "benchmark_policy": "Private repo-local pilot. Scores are deterministic checks against saved model captures; JudgmentKit is not used as the judge.",
+  "capture_policy": "Default mode scores existing versioned captures only. Missing or MCP-version-mismatched captures are reported as capture-required. Live capture is opt-in with --capture and reuses existing captures in the target capture directory.",
+  "repair_loop_proof_policy": "Repair-loop results are deterministic fixture proof of contract governance and agent-owned resubmission behavior; they do not measure visual quality or live-model repair quality.",
+  "repair_loop_observation_policy": "Repair-loop observation is an opt-in Codex CLI dogfood pass of agent-owned repair behavior; it is not a deterministic fixture proof, visual-quality score, or pass/fail gate.",
+  "comparison": {
+    "baseline": "baseline_no_mcp",
+    "guided": "judgmentkit_mcp",
+    "models": [
+      {
+        "id": "gpt-5.5-codex",
+        "label": "GPT-5.5 Codex",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "local": false
+      }
+    ]
+  },
+  "mcp": {
+    "required_version": "0.2.0",
+    "actual_version": "0.2.0",
+    "package_version": "0.2.0",
+    "local_metadata_sha256": "d485ce78b1923a201f749bcf506338004f0be6d08b47cf51a734ab3f89549035",
+    "endpoint_url": "http://127.0.0.1:53533/mcp",
+    "endpoint_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53"
+  },
+  "run": {
+    "date": "2026-06-14",
+    "mcp_release": "0.2.0",
+    "mcp_release_segment": "mcp-0.2.0",
+    "run_id": "run-014",
+    "run_path": "2026-06-14/mcp-0.2.0/run-014",
+    "html_report": "2026-06-14/mcp-0.2.0/run-014/mcp-pilot-report.html",
+    "json_report": "2026-06-14/mcp-0.2.0/run-014/mcp-pilot-report.json"
+  },
+  "summary": {
+    "cases": 4,
+    "evaluated_cases": 0,
+    "capture_required_cases": 4,
+    "passed": 0,
+    "failed": 0,
+    "calibrated_passes": 0,
+    "standard_delta_passed": 0,
+    "calibrated_only_passes": 0,
+    "calibrated_pass_reason_counts": {},
+    "guided_wins": 0,
+    "baseline_wins": 0,
+    "ties": 0,
+    "average_guided_delta": 0,
+    "invalid_outputs": 0,
+    "average_duration_ms": 0,
+    "guided_critical_disclosure_leaks": 0,
+    "loop_cases": 4,
+    "converged_cases": 3,
+    "stopped_cases": 1,
+    "average_attempts_to_pass": 2,
+    "failure_category_counts": {
+      "action_boundaries": 1,
+      "accessibility": 4,
+      "primitive_defaults": 3,
+      "state_rules": 3,
+      "evidence_gates": 3,
+      "data_visibility": 1
+    },
+    "observation_cases": 4,
+    "observation_converged_cases": 4,
+    "observation_stopped_cases": 0,
+    "observation_failed_cases": 0,
+    "observation_average_attempts_to_pass": 3,
+    "pilot_passed": false,
+    "pilot_status": "capture-required",
+    "unique_cases": 4,
+    "models": 1,
+    "per_model": {
+      "gpt-5.5-codex": {
+        "label": "GPT-5.5 Codex",
+        "cases": 4,
+        "evaluated_cases": 0,
+        "capture_required_cases": 4,
+        "passed": 0,
+        "failed": 0,
+        "calibrated_passes": 0,
+        "standard_delta_passed": 0,
+        "calibrated_only_passes": 0,
+        "calibrated_pass_reason_counts": {},
+        "guided_wins": 0,
+        "baseline_wins": 0,
+        "ties": 0,
+        "average_guided_delta": 0,
+        "invalid_outputs": 0,
+        "average_duration_ms": 0,
+        "guided_critical_disclosure_leaks": 0,
+        "loop_cases": 4,
+        "converged_cases": 3,
+        "stopped_cases": 1,
+        "average_attempts_to_pass": 2,
+        "failure_category_counts": {
+          "action_boundaries": 1,
+          "accessibility": 4,
+          "primitive_defaults": 3,
+          "state_rules": 3,
+          "evidence_gates": 3,
+          "data_visibility": 1
+        },
+        "observation_cases": 4,
+        "observation_converged_cases": 4,
+        "observation_stopped_cases": 0,
+        "observation_failed_cases": 0,
+        "observation_average_attempts_to_pass": 3,
+        "pilot_passed": false,
+        "pilot_status": "capture-required"
+      }
+    }
+  },
+  "metric_scale": {
+    "metric_score": "0-5",
+    "total_score": "0-100 weighted"
+  },
+  "capture_dir": "evals/mcp-pilot-captures",
+  "results": [
+    {
+      "id": "raw-form-controls-implementation",
+      "title": "Raw form controls implementation review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "reject raw controls and require approved primitives",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:53533/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "5472fb88f2a1fa3c0fcde8078f6c2a4a0cb0780a48dcb5227ac529380d36683b",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": []
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "5a646d26257453848163ff6f1d84bc0ddb43900bee7632fbe06074dd9e7e7f3e",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "targeted_questions": [],
+              "failure_categories": [
+                "action_boundaries"
+              ],
+              "failed_checks": [
+                "action_boundaries"
+              ],
+              "failed_findings": [
+                "action_boundaries: Risky or externally committing actions require explicit approval-boundary evidence."
+              ],
+              "finding_count": 1,
+              "repair_guidance": {
+                "action_boundaries": [
+                  "Add explicit approval-boundary evidence for risky actions, or remove unauthorized actions."
+                ]
+              }
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "e89bf86847ea575e9783a0f256fe0fca0db314a6fbbc35f637aa96adf19cf04f",
+            "summary": {
+              "status": "passed",
+              "next_agent_action": "accept",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": [],
+              "finding_count": 0
+            }
+          }
+        ],
+        "repair_loop_summary": {
+          "enabled": true,
+          "attempts": 2,
+          "final_action": "accept",
+          "converged": true,
+          "stopped_for_human": false,
+          "attempts_to_pass": 2,
+          "failure_categories": [
+            "action_boundaries"
+          ],
+          "failure_category_counts": {
+            "action_boundaries": 1
+          },
+          "attempt_summaries": [
+            {
+              "attempt": 1,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "action_boundaries"
+              ],
+              "finding_count": 1
+            },
+            {
+              "attempt": 2,
+              "implementation_review_status": "passed",
+              "next_agent_action": "accept",
+              "loop_status": "passed",
+              "failure_categories": [],
+              "finding_count": 0
+            }
+          ],
+          "expected_final_action": "accept",
+          "expected_converged": true,
+          "expectation_status": "passed",
+          "expectation_failures": []
+        }
+      },
+      "repair_loop": {
+        "enabled": true,
+        "attempts": 2,
+        "final_action": "accept",
+        "converged": true,
+        "stopped_for_human": false,
+        "attempts_to_pass": 2,
+        "failure_categories": [
+          "action_boundaries"
+        ],
+        "failure_category_counts": {
+          "action_boundaries": 1
+        },
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "action_boundaries"
+            ],
+            "finding_count": 1
+          },
+          {
+            "attempt": 2,
+            "implementation_review_status": "passed",
+            "next_agent_action": "accept",
+            "loop_status": "passed",
+            "failure_categories": [],
+            "finding_count": 0
+          }
+        ],
+        "expected_final_action": "accept",
+        "expected_converged": true,
+        "expectation_status": "passed",
+        "expectation_failures": []
+      },
+      "repair_loop_observation": {
+        "enabled": true,
+        "observation_type": "codex_cli_live_dogfood",
+        "capture_status": "cached",
+        "transcript_file": "evals/mcp-pilot-captures/mcp-0.2.0/gpt-5.5-codex/raw-form-controls-implementation/repair-loop-observation.json",
+        "model_config_id": "gpt-5.5-codex",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "attempts": 3,
+        "final_action": "accept",
+        "converged": true,
+        "stopped_for_human": false,
+        "attempts_to_pass": 3,
+        "followed_repair_categories": [
+          "primitive_defaults",
+          "state_rules",
+          "evidence_gates",
+          "accessibility"
+        ],
+        "unresolved_categories": [],
+        "unresolved_accessibility_evidence_keys": [],
+        "candidate_hashes": [
+          "3b5665417218003a94421d97b89cacd01609b4e5f4a6ccf8d7669e426a0d31b5",
+          "9278112b9f6ea0c2a2d9423b4af3cb983616a3ae434eea45f18261ad532a1575",
+          "34c8e37796b3594f4468bf18cb61a7011276c96f9d125a4410a6096bd8d0f97e"
+        ],
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "candidate_sha256": "3b5665417218003a94421d97b89cacd01609b4e5f4a6ccf8d7669e426a0d31b5",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "primitive_defaults",
+              "state_rules",
+              "evidence_gates",
+              "accessibility"
+            ],
+            "provided_accessibility_evidence_keys": [],
+            "failed_accessibility_evidence_keys": [
+              "automated_checks",
+              "semantic_content",
+              "landmarks_headings",
+              "name_role_value",
+              "keyboard_navigation",
+              "focus_order",
+              "focus_visible",
+              "responsive_no_overflow"
+            ],
+            "missing_failed_accessibility_evidence_keys": [
+              "automated_checks",
+              "semantic_content",
+              "landmarks_headings",
+              "name_role_value",
+              "keyboard_navigation",
+              "focus_order",
+              "focus_visible",
+              "responsive_no_overflow"
+            ],
+            "repair_capture_status": "captured",
+            "repair_candidate_sha256": "9278112b9f6ea0c2a2d9423b4af3cb983616a3ae434eea45f18261ad532a1575",
+            "repair_candidate_accessibility_evidence_keys": [
+              "automated_checks",
+              "focus_order",
+              "focus_visible",
+              "keyboard_navigation",
+              "landmarks_headings",
+              "name_role_value",
+              "responsive_no_overflow",
+              "semantic_content"
+            ],
+            "repair_candidate_missing_failed_accessibility_evidence_keys": []
+          },
+          {
+            "attempt": 2,
+            "candidate_sha256": "9278112b9f6ea0c2a2d9423b4af3cb983616a3ae434eea45f18261ad532a1575",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "accessibility"
+            ],
+            "provided_accessibility_evidence_keys": [
+              "automated_checks",
+              "focus_order",
+              "focus_visible",
+              "keyboard_navigation",
+              "landmarks_headings",
+              "name_role_value",
+              "responsive_no_overflow",
+              "semantic_content"
+            ],
+            "failed_accessibility_evidence_keys": [
+              "focus_not_obscured",
+              "no_keyboard_trap",
+              "reduced_motion",
+              "form_labels_instructions",
+              "form_errors",
+              "status_messages"
+            ],
+            "missing_failed_accessibility_evidence_keys": [
+              "focus_not_obscured",
+              "no_keyboard_trap",
+              "reduced_motion",
+              "form_labels_instructions",
+              "form_errors",
+              "status_messages"
+            ],
+            "repair_capture_status": "captured",
+            "repair_candidate_sha256": "34c8e37796b3594f4468bf18cb61a7011276c96f9d125a4410a6096bd8d0f97e",
+            "repair_candidate_accessibility_evidence_keys": [
+              "automated_checks",
+              "focus_not_obscured",
+              "focus_order",
+              "focus_visible",
+              "form_errors",
+              "form_labels_instructions",
+              "keyboard_navigation",
+              "landmarks_headings",
+              "name_role_value",
+              "no_keyboard_trap",
+              "reduced_motion",
+              "responsive_no_overflow",
+              "semantic_content",
+              "status_messages"
+            ],
+            "repair_candidate_missing_failed_accessibility_evidence_keys": []
+          },
+          {
+            "attempt": 3,
+            "candidate_sha256": "34c8e37796b3594f4468bf18cb61a7011276c96f9d125a4410a6096bd8d0f97e",
+            "next_agent_action": "accept",
+            "loop_status": "passed",
+            "failure_categories": [],
+            "provided_accessibility_evidence_keys": [
+              "automated_checks",
+              "focus_not_obscured",
+              "focus_order",
+              "focus_visible",
+              "form_errors",
+              "form_labels_instructions",
+              "keyboard_navigation",
+              "landmarks_headings",
+              "name_role_value",
+              "no_keyboard_trap",
+              "reduced_motion",
+              "responsive_no_overflow",
+              "semantic_content",
+              "status_messages"
+            ],
+            "failed_accessibility_evidence_keys": [],
+            "missing_failed_accessibility_evidence_keys": [],
+            "repair_capture_status": null,
+            "repair_candidate_sha256": null,
+            "repair_candidate_accessibility_evidence_keys": [],
+            "repair_candidate_missing_failed_accessibility_evidence_keys": []
+          }
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "missing-accessibility-evidence",
+      "title": "Missing accessibility evidence review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "reject until accessibility evidence is supplied",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:53533/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "9455addbf7ddbb5e14b5a23f3e9c13bc55abf90da7316aea9416270014b4d767",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": []
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "82ec5f7cf1768a395b70646c8c152f23c7cee59bf27c1024fb5de05e6837261c",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "targeted_questions": [],
+              "failure_categories": [
+                "accessibility"
+              ],
+              "failed_checks": [
+                "accessibility_evidence.semantic_content",
+                "accessibility_evidence.landmarks_headings",
+                "accessibility_evidence.name_role_value",
+                "accessibility_evidence.keyboard_navigation",
+                "accessibility_evidence.focus_order",
+                "accessibility_evidence.focus_visible"
+              ],
+              "failed_findings": [
+                "accessibility_evidence.semantic_content: Missing semantic content evidence.",
+                "accessibility_evidence.landmarks_headings: Missing landmarks and headings evidence.",
+                "accessibility_evidence.name_role_value: Missing name, role, value evidence.",
+                "accessibility_evidence.keyboard_navigation: Missing keyboard navigation evidence."
+              ],
+              "finding_count": 7,
+              "repair_guidance": {
+                "accessibility": [
+                  "Provide passing accessibility evidence for the failed accessibility contract.",
+                  "Provide passing accessibility evidence for the failed accessibility contract."
+                ]
+              }
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "6689fde23e8b73724a4d3538072f652d16de6974ebae68398a91fee0f193ba70",
+            "summary": {
+              "status": "passed",
+              "next_agent_action": "accept",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": [],
+              "finding_count": 0
+            }
+          }
+        ],
+        "repair_loop_summary": {
+          "enabled": true,
+          "attempts": 2,
+          "final_action": "accept",
+          "converged": true,
+          "stopped_for_human": false,
+          "attempts_to_pass": 2,
+          "failure_categories": [
+            "accessibility"
+          ],
+          "failure_category_counts": {
+            "accessibility": 1
+          },
+          "attempt_summaries": [
+            {
+              "attempt": 1,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "accessibility"
+              ],
+              "finding_count": 7
+            },
+            {
+              "attempt": 2,
+              "implementation_review_status": "passed",
+              "next_agent_action": "accept",
+              "loop_status": "passed",
+              "failure_categories": [],
+              "finding_count": 0
+            }
+          ],
+          "expected_final_action": "accept",
+          "expected_converged": true,
+          "expectation_status": "passed",
+          "expectation_failures": []
+        }
+      },
+      "repair_loop": {
+        "enabled": true,
+        "attempts": 2,
+        "final_action": "accept",
+        "converged": true,
+        "stopped_for_human": false,
+        "attempts_to_pass": 2,
+        "failure_categories": [
+          "accessibility"
+        ],
+        "failure_category_counts": {
+          "accessibility": 1
+        },
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "accessibility"
+            ],
+            "finding_count": 7
+          },
+          {
+            "attempt": 2,
+            "implementation_review_status": "passed",
+            "next_agent_action": "accept",
+            "loop_status": "passed",
+            "failure_categories": [],
+            "finding_count": 0
+          }
+        ],
+        "expected_final_action": "accept",
+        "expected_converged": true,
+        "expectation_status": "passed",
+        "expectation_failures": []
+      },
+      "repair_loop_observation": {
+        "enabled": true,
+        "observation_type": "codex_cli_live_dogfood",
+        "capture_status": "cached",
+        "transcript_file": "evals/mcp-pilot-captures/mcp-0.2.0/gpt-5.5-codex/missing-accessibility-evidence/repair-loop-observation.json",
+        "model_config_id": "gpt-5.5-codex",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "attempts": 3,
+        "final_action": "accept",
+        "converged": true,
+        "stopped_for_human": false,
+        "attempts_to_pass": 3,
+        "followed_repair_categories": [
+          "state_rules",
+          "accessibility"
+        ],
+        "unresolved_categories": [],
+        "unresolved_accessibility_evidence_keys": [],
+        "candidate_hashes": [
+          "cd87f0acc8ee940bf173edc76f80d3b6cf5b758ba0e082558410fc0f359adbcc",
+          "29074f8f40b88843c655b76c095e3087ecd3e85cc68aa51d572fcacf60d1b2c8",
+          "b53af6fd493bc56044744c103c2b5bf30a92a63452e7f62bdd920208167958d1"
+        ],
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "candidate_sha256": "cd87f0acc8ee940bf173edc76f80d3b6cf5b758ba0e082558410fc0f359adbcc",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "state_rules",
+              "accessibility"
+            ],
+            "provided_accessibility_evidence_keys": [],
+            "failed_accessibility_evidence_keys": [
+              "semantic_content",
+              "landmarks_headings",
+              "name_role_value",
+              "keyboard_navigation",
+              "focus_order",
+              "focus_visible",
+              "responsive_no_overflow"
+            ],
+            "missing_failed_accessibility_evidence_keys": [
+              "semantic_content",
+              "landmarks_headings",
+              "name_role_value",
+              "keyboard_navigation",
+              "focus_order",
+              "focus_visible",
+              "responsive_no_overflow"
+            ],
+            "repair_capture_status": "captured",
+            "repair_candidate_sha256": "29074f8f40b88843c655b76c095e3087ecd3e85cc68aa51d572fcacf60d1b2c8",
+            "repair_candidate_accessibility_evidence_keys": [
+              "automated_checks",
+              "focus_order",
+              "focus_visible",
+              "keyboard_navigation",
+              "landmarks_headings",
+              "name_role_value",
+              "responsive_no_overflow",
+              "semantic_content"
+            ],
+            "repair_candidate_missing_failed_accessibility_evidence_keys": []
+          },
+          {
+            "attempt": 2,
+            "candidate_sha256": "29074f8f40b88843c655b76c095e3087ecd3e85cc68aa51d572fcacf60d1b2c8",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "accessibility"
+            ],
+            "provided_accessibility_evidence_keys": [
+              "automated_checks",
+              "focus_order",
+              "focus_visible",
+              "keyboard_navigation",
+              "landmarks_headings",
+              "name_role_value",
+              "responsive_no_overflow",
+              "semantic_content"
+            ],
+            "failed_accessibility_evidence_keys": [
+              "non_text_contrast",
+              "focus_not_obscured",
+              "no_keyboard_trap",
+              "reduced_motion",
+              "form_labels_instructions",
+              "form_errors",
+              "status_messages"
+            ],
+            "missing_failed_accessibility_evidence_keys": [
+              "non_text_contrast",
+              "focus_not_obscured",
+              "no_keyboard_trap",
+              "reduced_motion",
+              "form_labels_instructions",
+              "form_errors",
+              "status_messages"
+            ],
+            "repair_capture_status": "captured",
+            "repair_candidate_sha256": "b53af6fd493bc56044744c103c2b5bf30a92a63452e7f62bdd920208167958d1",
+            "repair_candidate_accessibility_evidence_keys": [
+              "automated_checks",
+              "focus_not_obscured",
+              "focus_order",
+              "focus_visible",
+              "form_errors",
+              "form_labels_instructions",
+              "keyboard_navigation",
+              "landmarks_headings",
+              "name_role_value",
+              "no_keyboard_trap",
+              "non_text_contrast",
+              "reduced_motion",
+              "responsive_no_overflow",
+              "semantic_content",
+              "status_messages"
+            ],
+            "repair_candidate_missing_failed_accessibility_evidence_keys": []
+          },
+          {
+            "attempt": 3,
+            "candidate_sha256": "b53af6fd493bc56044744c103c2b5bf30a92a63452e7f62bdd920208167958d1",
+            "next_agent_action": "accept",
+            "loop_status": "passed",
+            "failure_categories": [],
+            "provided_accessibility_evidence_keys": [
+              "automated_checks",
+              "focus_not_obscured",
+              "focus_order",
+              "focus_visible",
+              "form_errors",
+              "form_labels_instructions",
+              "keyboard_navigation",
+              "landmarks_headings",
+              "name_role_value",
+              "no_keyboard_trap",
+              "non_text_contrast",
+              "reduced_motion",
+              "responsive_no_overflow",
+              "semantic_content",
+              "status_messages"
+            ],
+            "failed_accessibility_evidence_keys": [],
+            "missing_failed_accessibility_evidence_keys": [],
+            "repair_capture_status": null,
+            "repair_candidate_sha256": null,
+            "repair_candidate_accessibility_evidence_keys": [],
+            "repair_candidate_missing_failed_accessibility_evidence_keys": []
+          }
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "modal-action-order-review",
+      "title": "Modal action order review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "reject until modal action order and focus evidence are verified",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:53533/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "302a27a26919be3e921186f8ba2f0b74477c57cb8ff2e17c5629735f6bf59758",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "95367b6ed3f11dd905258c40e0a9e80a76e23c7af2adf393b78545e6d4617975",
+            "summary": {
+              "status": "ready",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": []
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "fa460dde94bd7d923c805d6abc4430df1df872c650e3242f70f8f7550a3bc4b3",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "targeted_questions": [],
+              "failure_categories": [
+                "primitive_defaults",
+                "state_rules",
+                "evidence_gates",
+                "accessibility"
+              ],
+              "failed_checks": [
+                "approved_primitives",
+                "state_coverage",
+                "browser_qa",
+                "accessibility_evidence.semantic_content",
+                "accessibility_evidence.landmarks_headings",
+                "accessibility_evidence.name_role_value"
+              ],
+              "failed_findings": [
+                "approved_primitives: Candidate uses primitives that are not in the implementation contract.",
+                "state_coverage: Candidate is missing required UI states.",
+                "browser_qa: Candidate does not provide desktop and mobile browser QA evidence.",
+                "accessibility_evidence.semantic_content: Missing semantic content evidence."
+              ],
+              "finding_count": 12,
+              "repair_guidance": {
+                "primitive_defaults": [
+                  "Use only approved primitives: modal, decision controls, handoff receipt."
+                ],
+                "state_rules": [
+                  "Cover required states: empty, ready, loading, error, disabled, focus-visible."
+                ],
+                "evidence_gates": [
+                  "Add desktop and mobile browser QA evidence before resubmitting."
+                ]
+              }
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "b03e5863f05c475c4edf47fe640255ca1755ffd1712b908d1b3493af0397260f",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "targeted_questions": [],
+              "failure_categories": [
+                "primitive_defaults",
+                "state_rules",
+                "evidence_gates",
+                "accessibility"
+              ],
+              "failed_checks": [
+                "approved_primitives",
+                "state_coverage",
+                "browser_qa",
+                "accessibility_evidence.semantic_content",
+                "accessibility_evidence.landmarks_headings",
+                "accessibility_evidence.name_role_value"
+              ],
+              "failed_findings": [
+                "approved_primitives: Candidate uses primitives that are not in the implementation contract.",
+                "state_coverage: Candidate is missing required UI states.",
+                "browser_qa: Candidate does not provide desktop and mobile browser QA evidence.",
+                "accessibility_evidence.semantic_content: Missing semantic content evidence."
+              ],
+              "finding_count": 12,
+              "repair_guidance": {
+                "primitive_defaults": [
+                  "Use only approved primitives: modal, decision controls, handoff receipt."
+                ],
+                "state_rules": [
+                  "Cover required states: empty, ready, loading, error, disabled, focus-visible."
+                ],
+                "evidence_gates": [
+                  "Add desktop and mobile browser QA evidence before resubmitting."
+                ]
+              }
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "1283a2f29ce1397d8e64d5655f6b0e64459b63408089f13622cde9c508651b57",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "stop_for_human",
+              "targeted_questions": [],
+              "failure_categories": [
+                "primitive_defaults",
+                "state_rules",
+                "evidence_gates",
+                "accessibility"
+              ],
+              "failed_checks": [
+                "approved_primitives",
+                "state_coverage",
+                "browser_qa",
+                "accessibility_evidence.semantic_content",
+                "accessibility_evidence.landmarks_headings",
+                "accessibility_evidence.name_role_value"
+              ],
+              "failed_findings": [
+                "approved_primitives: Candidate uses primitives that are not in the implementation contract.",
+                "state_coverage: Candidate is missing required UI states.",
+                "browser_qa: Candidate does not provide desktop and mobile browser QA evidence.",
+                "accessibility_evidence.semantic_content: Missing semantic content evidence."
+              ],
+              "finding_count": 12,
+              "repair_guidance": {
+                "primitive_defaults": [
+                  "Use only approved primitives: modal, decision controls, handoff receipt."
+                ],
+                "state_rules": [
+                  "Cover required states: empty, ready, loading, error, disabled, focus-visible."
+                ],
+                "evidence_gates": [
+                  "Add desktop and mobile browser QA evidence before resubmitting."
+                ]
+              }
+            }
+          }
+        ],
+        "repair_loop_summary": {
+          "enabled": true,
+          "attempts": 3,
+          "final_action": "stop_for_human",
+          "converged": false,
+          "stopped_for_human": true,
+          "attempts_to_pass": null,
+          "failure_categories": [
+            "primitive_defaults",
+            "state_rules",
+            "evidence_gates",
+            "accessibility"
+          ],
+          "failure_category_counts": {
+            "primitive_defaults": 3,
+            "state_rules": 3,
+            "evidence_gates": 3,
+            "accessibility": 3
+          },
+          "attempt_summaries": [
+            {
+              "attempt": 1,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "primitive_defaults",
+                "state_rules",
+                "evidence_gates",
+                "accessibility"
+              ],
+              "finding_count": 12
+            },
+            {
+              "attempt": 2,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "primitive_defaults",
+                "state_rules",
+                "evidence_gates",
+                "accessibility"
+              ],
+              "finding_count": 12
+            },
+            {
+              "attempt": 3,
+              "implementation_review_status": "failed",
+              "next_agent_action": "stop_for_human",
+              "loop_status": "stopped",
+              "failure_categories": [
+                "primitive_defaults",
+                "state_rules",
+                "evidence_gates",
+                "accessibility"
+              ],
+              "finding_count": 12
+            }
+          ],
+          "expected_final_action": "stop_for_human",
+          "expected_converged": false,
+          "expectation_status": "passed",
+          "expectation_failures": []
+        }
+      },
+      "repair_loop": {
+        "enabled": true,
+        "attempts": 3,
+        "final_action": "stop_for_human",
+        "converged": false,
+        "stopped_for_human": true,
+        "attempts_to_pass": null,
+        "failure_categories": [
+          "primitive_defaults",
+          "state_rules",
+          "evidence_gates",
+          "accessibility"
+        ],
+        "failure_category_counts": {
+          "primitive_defaults": 3,
+          "state_rules": 3,
+          "evidence_gates": 3,
+          "accessibility": 3
+        },
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "primitive_defaults",
+              "state_rules",
+              "evidence_gates",
+              "accessibility"
+            ],
+            "finding_count": 12
+          },
+          {
+            "attempt": 2,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "primitive_defaults",
+              "state_rules",
+              "evidence_gates",
+              "accessibility"
+            ],
+            "finding_count": 12
+          },
+          {
+            "attempt": 3,
+            "implementation_review_status": "failed",
+            "next_agent_action": "stop_for_human",
+            "loop_status": "stopped",
+            "failure_categories": [
+              "primitive_defaults",
+              "state_rules",
+              "evidence_gates",
+              "accessibility"
+            ],
+            "finding_count": 12
+          }
+        ],
+        "expected_final_action": "stop_for_human",
+        "expected_converged": false,
+        "expectation_status": "passed",
+        "expectation_failures": []
+      },
+      "repair_loop_observation": {
+        "enabled": true,
+        "observation_type": "codex_cli_live_dogfood",
+        "capture_status": "cached",
+        "transcript_file": "evals/mcp-pilot-captures/mcp-0.2.0/gpt-5.5-codex/modal-action-order-review/repair-loop-observation.json",
+        "model_config_id": "gpt-5.5-codex",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "attempts": 3,
+        "final_action": "accept",
+        "converged": true,
+        "stopped_for_human": false,
+        "attempts_to_pass": 3,
+        "followed_repair_categories": [
+          "primitive_defaults",
+          "state_rules",
+          "evidence_gates",
+          "accessibility"
+        ],
+        "unresolved_categories": [],
+        "unresolved_accessibility_evidence_keys": [],
+        "candidate_hashes": [
+          "66080543df1d5feaf9233bc84eac68d282a07e564776c89e2b5c34d59cf1bde9",
+          "7596cf38ac5517817c39a8fcb15c9607a905ee0076f50a8af02f1029a4cd8fc7",
+          "9b1ef79f4be7a4a64db26c0aeba7211cdc44f6daef3623e7205b6d03e76ae64c"
+        ],
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "candidate_sha256": "66080543df1d5feaf9233bc84eac68d282a07e564776c89e2b5c34d59cf1bde9",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "primitive_defaults",
+              "state_rules",
+              "evidence_gates",
+              "accessibility"
+            ],
+            "provided_accessibility_evidence_keys": [
+              "labels"
+            ],
+            "failed_accessibility_evidence_keys": [
+              "semantic_content",
+              "landmarks_headings",
+              "name_role_value",
+              "keyboard_navigation",
+              "focus_order",
+              "focus_visible",
+              "focus_not_obscured",
+              "no_keyboard_trap",
+              "responsive_no_overflow"
+            ],
+            "missing_failed_accessibility_evidence_keys": [
+              "semantic_content",
+              "landmarks_headings",
+              "name_role_value",
+              "keyboard_navigation",
+              "focus_order",
+              "focus_visible",
+              "focus_not_obscured",
+              "no_keyboard_trap",
+              "responsive_no_overflow"
+            ],
+            "repair_capture_status": "captured",
+            "repair_candidate_sha256": "7596cf38ac5517817c39a8fcb15c9607a905ee0076f50a8af02f1029a4cd8fc7",
+            "repair_candidate_accessibility_evidence_keys": [
+              "automated_checks",
+              "focus_not_obscured",
+              "focus_order",
+              "focus_visible",
+              "keyboard_navigation",
+              "landmarks_headings",
+              "name_role_value",
+              "no_keyboard_trap",
+              "responsive_no_overflow",
+              "semantic_content"
+            ],
+            "repair_candidate_missing_failed_accessibility_evidence_keys": []
+          },
+          {
+            "attempt": 2,
+            "candidate_sha256": "7596cf38ac5517817c39a8fcb15c9607a905ee0076f50a8af02f1029a4cd8fc7",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "accessibility"
+            ],
+            "provided_accessibility_evidence_keys": [
+              "automated_checks",
+              "focus_not_obscured",
+              "focus_order",
+              "focus_visible",
+              "keyboard_navigation",
+              "landmarks_headings",
+              "name_role_value",
+              "no_keyboard_trap",
+              "responsive_no_overflow",
+              "semantic_content"
+            ],
+            "failed_accessibility_evidence_keys": [
+              "reduced_motion"
+            ],
+            "missing_failed_accessibility_evidence_keys": [
+              "reduced_motion"
+            ],
+            "repair_capture_status": "captured",
+            "repair_candidate_sha256": "9b1ef79f4be7a4a64db26c0aeba7211cdc44f6daef3623e7205b6d03e76ae64c",
+            "repair_candidate_accessibility_evidence_keys": [
+              "automated_checks",
+              "focus_not_obscured",
+              "focus_order",
+              "focus_visible",
+              "keyboard_navigation",
+              "landmarks_headings",
+              "name_role_value",
+              "no_keyboard_trap",
+              "reduced_motion",
+              "responsive_no_overflow",
+              "semantic_content"
+            ],
+            "repair_candidate_missing_failed_accessibility_evidence_keys": []
+          },
+          {
+            "attempt": 3,
+            "candidate_sha256": "9b1ef79f4be7a4a64db26c0aeba7211cdc44f6daef3623e7205b6d03e76ae64c",
+            "next_agent_action": "accept",
+            "loop_status": "passed",
+            "failure_categories": [],
+            "provided_accessibility_evidence_keys": [
+              "automated_checks",
+              "focus_not_obscured",
+              "focus_order",
+              "focus_visible",
+              "keyboard_navigation",
+              "landmarks_headings",
+              "name_role_value",
+              "no_keyboard_trap",
+              "reduced_motion",
+              "responsive_no_overflow",
+              "semantic_content"
+            ],
+            "failed_accessibility_evidence_keys": [],
+            "missing_failed_accessibility_evidence_keys": [],
+            "repair_capture_status": null,
+            "repair_candidate_sha256": null,
+            "repair_candidate_accessibility_evidence_keys": [],
+            "repair_candidate_missing_failed_accessibility_evidence_keys": []
+          }
+        ],
+        "error": null
+      }
+    },
+    {
+      "id": "implementation-term-leakage-review",
+      "title": "Implementation-term leakage review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "reject product-label leakage and require user-facing language",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:53533/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "af6a5902634cdb5ec0e40382272d5381627c7f2ef8b66b2009645a6db38ef86a",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": []
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "8f71e5f050e94fc9a3a883b779bc365da55f2913b97069f9f23636e051528350",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "targeted_questions": [],
+              "failure_categories": [
+                "data_visibility"
+              ],
+              "failed_checks": [
+                "data_visibility"
+              ],
+              "failed_findings": [
+                "data_visibility: Primary UI text exposes diagnostic-only implementation terms without an allowed diagnostic context."
+              ],
+              "finding_count": 1,
+              "repair_guidance": {
+                "data_visibility": [
+                  "Move diagnostic-only terms out of primary UI text unless the activity is setup, debugging, auditing, integration, or explicit source inspection."
+                ]
+              }
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "3749ee3a61f67503511ebc741ab4e523bc833fc6e00f5dc170a7c1a52c62f1f7",
+            "summary": {
+              "status": "passed",
+              "next_agent_action": "accept",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": [],
+              "finding_count": 0
+            }
+          }
+        ],
+        "repair_loop_summary": {
+          "enabled": true,
+          "attempts": 2,
+          "final_action": "accept",
+          "converged": true,
+          "stopped_for_human": false,
+          "attempts_to_pass": 2,
+          "failure_categories": [
+            "data_visibility"
+          ],
+          "failure_category_counts": {
+            "data_visibility": 1
+          },
+          "attempt_summaries": [
+            {
+              "attempt": 1,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "data_visibility"
+              ],
+              "finding_count": 1
+            },
+            {
+              "attempt": 2,
+              "implementation_review_status": "passed",
+              "next_agent_action": "accept",
+              "loop_status": "passed",
+              "failure_categories": [],
+              "finding_count": 0
+            }
+          ],
+          "expected_final_action": "accept",
+          "expected_converged": true,
+          "expectation_status": "passed",
+          "expectation_failures": []
+        }
+      },
+      "repair_loop": {
+        "enabled": true,
+        "attempts": 2,
+        "final_action": "accept",
+        "converged": true,
+        "stopped_for_human": false,
+        "attempts_to_pass": 2,
+        "failure_categories": [
+          "data_visibility"
+        ],
+        "failure_category_counts": {
+          "data_visibility": 1
+        },
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "data_visibility"
+            ],
+            "finding_count": 1
+          },
+          {
+            "attempt": 2,
+            "implementation_review_status": "passed",
+            "next_agent_action": "accept",
+            "loop_status": "passed",
+            "failure_categories": [],
+            "finding_count": 0
+          }
+        ],
+        "expected_final_action": "accept",
+        "expected_converged": true,
+        "expectation_status": "passed",
+        "expectation_failures": []
+      },
+      "repair_loop_observation": {
+        "enabled": true,
+        "observation_type": "codex_cli_live_dogfood",
+        "capture_status": "cached",
+        "transcript_file": "evals/mcp-pilot-captures/mcp-0.2.0/gpt-5.5-codex/implementation-term-leakage-review/repair-loop-observation.json",
+        "model_config_id": "gpt-5.5-codex",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "attempts": 3,
+        "final_action": "accept",
+        "converged": true,
+        "stopped_for_human": false,
+        "attempts_to_pass": 3,
+        "followed_repair_categories": [
+          "state_rules",
+          "accessibility"
+        ],
+        "unresolved_categories": [],
+        "unresolved_accessibility_evidence_keys": [],
+        "candidate_hashes": [
+          "44b7417b0e995bb1e8ea40302f216855594c18f7ccf4cdb376f7a17393f333fa",
+          "14b4dd57c85c4d21f7de7683cf56b0dc1d728a94cb164d2bab7126ff0541aa3d",
+          "ac900dcdf31d33f9e32fc766085ca380b8915eb97194d277749459cdfc755ecc"
+        ],
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "candidate_sha256": "44b7417b0e995bb1e8ea40302f216855594c18f7ccf4cdb376f7a17393f333fa",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "state_rules",
+              "accessibility"
+            ],
+            "provided_accessibility_evidence_keys": [
+              "keyboard",
+              "landmarks"
+            ],
+            "failed_accessibility_evidence_keys": [
+              "semantic_content",
+              "landmarks_headings",
+              "name_role_value",
+              "keyboard_navigation",
+              "focus_order",
+              "focus_visible",
+              "responsive_no_overflow"
+            ],
+            "missing_failed_accessibility_evidence_keys": [
+              "semantic_content",
+              "landmarks_headings",
+              "name_role_value",
+              "keyboard_navigation",
+              "focus_order",
+              "focus_visible",
+              "responsive_no_overflow"
+            ],
+            "repair_capture_status": "captured",
+            "repair_candidate_sha256": "14b4dd57c85c4d21f7de7683cf56b0dc1d728a94cb164d2bab7126ff0541aa3d",
+            "repair_candidate_accessibility_evidence_keys": [
+              "automated_checks",
+              "focus_order",
+              "focus_visible",
+              "keyboard_navigation",
+              "landmarks_headings",
+              "name_role_value",
+              "responsive_no_overflow",
+              "semantic_content"
+            ],
+            "repair_candidate_missing_failed_accessibility_evidence_keys": []
+          },
+          {
+            "attempt": 2,
+            "candidate_sha256": "14b4dd57c85c4d21f7de7683cf56b0dc1d728a94cb164d2bab7126ff0541aa3d",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "accessibility"
+            ],
+            "provided_accessibility_evidence_keys": [
+              "automated_checks",
+              "focus_order",
+              "focus_visible",
+              "keyboard_navigation",
+              "landmarks_headings",
+              "name_role_value",
+              "responsive_no_overflow",
+              "semantic_content"
+            ],
+            "failed_accessibility_evidence_keys": [
+              "focus_not_obscured",
+              "no_keyboard_trap",
+              "reduced_motion"
+            ],
+            "missing_failed_accessibility_evidence_keys": [
+              "focus_not_obscured",
+              "no_keyboard_trap",
+              "reduced_motion"
+            ],
+            "repair_capture_status": "captured",
+            "repair_candidate_sha256": "ac900dcdf31d33f9e32fc766085ca380b8915eb97194d277749459cdfc755ecc",
+            "repair_candidate_accessibility_evidence_keys": [
+              "automated_checks",
+              "focus_not_obscured",
+              "focus_order",
+              "focus_visible",
+              "keyboard_navigation",
+              "landmarks_headings",
+              "name_role_value",
+              "no_keyboard_trap",
+              "reduced_motion",
+              "responsive_no_overflow",
+              "semantic_content"
+            ],
+            "repair_candidate_missing_failed_accessibility_evidence_keys": []
+          },
+          {
+            "attempt": 3,
+            "candidate_sha256": "ac900dcdf31d33f9e32fc766085ca380b8915eb97194d277749459cdfc755ecc",
+            "next_agent_action": "accept",
+            "loop_status": "passed",
+            "failure_categories": [],
+            "provided_accessibility_evidence_keys": [
+              "automated_checks",
+              "focus_not_obscured",
+              "focus_order",
+              "focus_visible",
+              "keyboard_navigation",
+              "landmarks_headings",
+              "name_role_value",
+              "no_keyboard_trap",
+              "reduced_motion",
+              "responsive_no_overflow",
+              "semantic_content"
+            ],
+            "failed_accessibility_evidence_keys": [],
+            "missing_failed_accessibility_evidence_keys": [],
+            "repair_capture_status": null,
+            "repair_candidate_sha256": null,
+            "repair_candidate_accessibility_evidence_keys": [],
+            "repair_candidate_missing_failed_accessibility_evidence_keys": []
+          }
+        ],
+        "error": null
+      }
+    }
+  ]
+}

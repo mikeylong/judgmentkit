@@ -233,6 +233,21 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
         description:
           "Optional accessibility policy override for WCAG baseline metadata, contrast targets, grouped accessibility contracts, evidence model, required evidence, conditional evidence, and failure signals.",
       },
+      default_ai_native_design_system: {
+        type: "object",
+        description:
+          "Optional override for the contract-only default AI-native design system envelope: primitives, surface patterns, states, actions, data visibility, accessibility, evidence gates, and adapter boundaries.",
+      },
+      iteration_policy: {
+        type: "object",
+        description:
+          "Optional agent-owned iteration policy. Defaults to 3 generate-review-repair-resubmit attempts.",
+      },
+      visual_token_adapter: {
+        type: "object",
+        description:
+          "Optional boundary-only visual token adapter metadata. It defines token families and evidence expectations but does not select a renderer or component package.",
+      },
     },
     additionalProperties: false,
   },
@@ -248,12 +263,17 @@ const REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL = {
     properties: {
       candidate: {
         description:
-          "Generated UI candidate as code text or structured evidence containing primitives_used, states_covered or covered_states, static_checks or static_evidence, browser_qa, and accessibility_evidence for core and condition-specific accessibility gates.",
+          "Generated UI candidate as code text or structured evidence containing primitives_used, states_covered or covered_states, static_checks or static_evidence, browser_qa, accessibility_evidence for core and condition-specific accessibility gates, and optional visual_token_evidence metadata.",
       },
       implementation_contract: {
         type: "object",
         description:
           "Implementation contract returned by create_ui_implementation_contract or equivalent repo-local packet.",
+      },
+      iteration_context: {
+        type: "object",
+        description:
+          "Optional current iteration state with current_attempt or attempt and optional max_attempts.",
       },
     },
     additionalProperties: false,
@@ -653,13 +673,27 @@ function formatImplementationContractCard(result) {
   const accessibilityPolicy = implementationContract.accessibility_policy ?? {};
   const contrastTargets = accessibilityPolicy.contrast_targets ?? {};
   const standardsProfile = accessibilityPolicy.standards_profile ?? {};
+  const defaultSystem =
+    implementationContract.default_ai_native_design_system ?? {};
+  const iterationPolicy = implementationContract.iteration_policy ?? {};
+  const visualTokenAdapter = implementationContract.visual_token_adapter ?? {};
 
   addSection(lines, "Implementation gate", [
     firstLine("Contract", implementationContract.id),
+    firstLine("Default system", defaultSystem.mode),
     listLine("Approved primitives", implementationContract.approved_primitives),
+    listLine("Surface patterns", defaultSystem.surface_patterns),
     listLine(
       "Required states",
       implementationContract.state_coverage?.required_states,
+    ),
+    listLine(
+      "Action boundaries",
+      defaultSystem.action_boundaries?.required,
+    ),
+    listLine(
+      "Data visibility",
+      defaultSystem.data_visibility?.primary_data_roles,
     ),
     listLine("Browser QA", implementationContract.browser_qa?.checks),
     firstLine(
@@ -671,11 +705,19 @@ function formatImplementationContractCard(result) {
     firstLine("Accessibility baseline", standardsProfile.baseline),
     listLine("Accessibility contracts", Object.keys(accessibilityPolicy.contracts ?? {})),
     listLine("Accessibility evidence", accessibilityPolicy.required_evidence),
+    firstLine("Visual token adapter", visualTokenAdapter.mode),
+    listLine("Visual token families", visualTokenAdapter.token_families),
     listLine(
       "Conditional evidence",
       Object.keys(accessibilityPolicy.conditional_evidence ?? {}).map(
         (key) => `accessibility_evidence.${key}`,
       ),
+    ),
+    firstLine(
+      "Agent loop",
+      iterationPolicy.default_max_attempts
+        ? `${iterationPolicy.owner || "agent"} owned; max ${iterationPolicy.default_max_attempts} attempts`
+        : "",
     ),
   ]);
   addSection(lines, "Failure signals", bulletList(implementationContract.failure_signals));
@@ -696,9 +738,22 @@ function formatImplementationReviewCard(result) {
     firstLine("Raw controls", result.checks?.raw_controls?.status),
     firstLine("Approved primitives", result.checks?.approved_primitives?.status),
     firstLine("State coverage", result.checks?.state_coverage?.status),
+    firstLine("Action boundaries", result.checks?.action_boundaries?.status),
+    firstLine("Data visibility", result.checks?.data_visibility?.status),
     firstLine("Static enforcement", result.checks?.static_enforcement?.status),
     firstLine("Browser QA", result.checks?.browser_qa?.status),
     firstLine("Accessibility evidence", result.checks?.accessibility_evidence?.status),
+    firstLine("Visual token evidence", result.checks?.visual_tokens?.status),
+  ]);
+  addSection(lines, "Agent loop", [
+    firstLine("Next action", result.next_agent_action),
+    firstLine(
+      "Attempt",
+      result.autofix_loop
+        ? `${result.autofix_loop.current_attempt}/${result.autofix_loop.max_attempts}`
+        : "",
+    ),
+    firstLine("Loop status", result.autofix_loop?.status),
   ]);
   addSection(
     lines,
@@ -980,6 +1035,7 @@ export async function handleToolCall(name, args = {}) {
         implementation_contract:
           args.implementation_contract?.implementation_contract ??
           args.implementation_contract,
+        iteration_context: args.iteration_context,
       });
     }
 
@@ -1134,6 +1190,9 @@ export function createJudgmentKitMcpServer() {
         static_rules: z.array(z.string()).optional(),
         browser_qa_checks: z.array(z.string()).optional(),
         accessibility_policy: z.record(z.any()).optional(),
+        default_ai_native_design_system: z.record(z.any()).optional(),
+        iteration_policy: z.record(z.any()).optional(),
+        visual_token_adapter: z.record(z.any()).optional(),
       },
     },
     async (args) =>
@@ -1147,6 +1206,7 @@ export function createJudgmentKitMcpServer() {
       inputSchema: {
         candidate: z.union([z.string(), z.record(z.any())]),
         implementation_contract: z.record(z.any()),
+        iteration_context: z.record(z.any()).optional(),
       },
     },
     async (args) =>

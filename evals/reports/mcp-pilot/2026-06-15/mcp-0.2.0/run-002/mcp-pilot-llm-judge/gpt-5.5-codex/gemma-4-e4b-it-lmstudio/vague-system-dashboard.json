@@ -1,0 +1,87 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "vague-system-dashboard",
+  "title": "Vague system dashboard restraint",
+  "case_type": "missing_context_restraint",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T05:36:46.368Z",
+  "duration_ms": 39477,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "39c79b07eae0b750422cd79071951cce8b089536911253254c5ecb7f59d8be0a",
+  "raw_response_sha256": "bbbcf92e4606ce0e43d41e3983f3f4fd85d43d77eb15f899de55952aca61d02c",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"high\",\"rationale\":\"Output A better matches the expected next move: it stays restrained and asks targeted questions about the dashboard's supported activity, the key decision or action it should enable, and the outcome the user should leave with. Output B is acceptable, but it drifts toward generic dashboard discovery with personas, metrics, and business questions, which is less directly aligned with the missing context called out by the case.\",\"decisive_differences\":[\"Output A directly covers activity, decision/action, and outcome, which are the expected context gaps.\",\"Output B asks reasonable but more generic discovery questions and prematurely frames the dashboard around metrics and monitoring at a glance.\",\"Output A is more operationally useful for a downstream agent deciding the next response, despite minor internal wording leakage in its rationale.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"What primary activity should this dashboard support?\",\"why_it_matters\":\"This targets the core missing activity context instead of assuming a dashboard type.\"},{\"output\":\"output_a\",\"quote\":\"What key decision or next action do you want the user to make easier by looking at this screen?\",\"why_it_matters\":\"This aligns precisely with the expected focus on decisions and outcomes.\"},{\"output\":\"output_b\",\"quote\":\"key metrics or data points that users need to monitor at a glance\",\"why_it_matters\":\"This assumes a conventional monitoring/metrics dashboard before the activity and outcome are known.\"},{\"output\":\"output_b\",\"quote\":\"Who are the primary end-users of this dashboard\",\"why_it_matters\":\"Audience matters, but this is less targeted than the expected activity-decision-outcome clarification.\"}],\"output_a_quality\":{\"score\":8,\"strengths\":[\"Asks targeted questions about activity, decision/action, and completion outcome.\",\"Correctly refuses to invent layout or dashboard content from a vague brief.\",\"Includes next_action, handoff, and rationale in usable form.\"],\"risks\":[\"Rationale mentions 'diagnostic guidance,' which is mild internal-process leakage.\",\"Handoff phrase 'system monitoring' slightly narrows the unknown dashboard purpose.\"]},\"output_b_quality\":{\"score\":6.3,\"strengths\":[\"Recognizes that the brief is too vague and asks for more context.\",\"Includes valid structure with next_action, questions, handoff, and rationale.\",\"Questions about system purpose and users are relevant.\"],\"risks\":[\"Less aligned with the expected activity-decision-outcome clarification.\",\"Prematurely assumes metrics, data points, and monitoring-at-a-glance needs.\",\"Handoff is thinner and less operational than Output A's.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "high",
+    "rationale": "Output A better matches the expected next move: it stays restrained and asks targeted questions about the dashboard's supported activity, the key decision or action it should enable, and the outcome the user should leave with. Output B is acceptable, but it drifts toward generic dashboard discovery with personas, metrics, and business questions, which is less directly aligned with the missing context called out by the case.",
+    "decisive_differences": [
+      "Output A directly covers activity, decision/action, and outcome, which are the expected context gaps.",
+      "Output B asks reasonable but more generic discovery questions and prematurely frames the dashboard around metrics and monitoring at a glance.",
+      "Output A is more operationally useful for a downstream agent deciding the next response, despite minor internal wording leakage in its rationale."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "What primary activity should this dashboard support?",
+        "why_it_matters": "This targets the core missing activity context instead of assuming a dashboard type."
+      },
+      {
+        "output": "output_a",
+        "quote": "What key decision or next action do you want the user to make easier by looking at this screen?",
+        "why_it_matters": "This aligns precisely with the expected focus on decisions and outcomes."
+      },
+      {
+        "output": "output_b",
+        "quote": "key metrics or data points that users need to monitor at a glance",
+        "why_it_matters": "This assumes a conventional monitoring/metrics dashboard before the activity and outcome are known."
+      },
+      {
+        "output": "output_b",
+        "quote": "Who are the primary end-users of this dashboard",
+        "why_it_matters": "Audience matters, but this is less targeted than the expected activity-decision-outcome clarification."
+      }
+    ],
+    "output_a_quality": {
+      "score": 8,
+      "strengths": [
+        "Asks targeted questions about activity, decision/action, and completion outcome.",
+        "Correctly refuses to invent layout or dashboard content from a vague brief.",
+        "Includes next_action, handoff, and rationale in usable form."
+      ],
+      "risks": [
+        "Rationale mentions 'diagnostic guidance,' which is mild internal-process leakage.",
+        "Handoff phrase 'system monitoring' slightly narrows the unknown dashboard purpose."
+      ]
+    },
+    "output_b_quality": {
+      "score": 6.3,
+      "strengths": [
+        "Recognizes that the brief is too vague and asks for more context.",
+        "Includes valid structure with next_action, questions, handoff, and rationale.",
+        "Questions about system purpose and users are relevant."
+      ],
+      "risks": [
+        "Less aligned with the expected activity-decision-outcome clarification.",
+        "Prematurely assumes metrics, data points, and monitoring-at-a-glance needs.",
+        "Handoff is thinner and less operational than Output A's."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "54f0563978f4e1a3b9d3c75a6379654f884ea0a91900eae5b78069a9f2f1c9e4",
+    "stderr_sha256": "39ef2ac55c3c644c6e425ba0c2c408bd8fbc66a758f22e4bcdf630f51e5a9dec",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

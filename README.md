@@ -8,6 +8,10 @@ It is not a beautifier, design-system compliance layer, prompt library, schema b
 
 AI-generated UI fails when the implementation model becomes the user experience. Tables become screens, schemas become forms, tool calls become buttons, and internal prompts become product vocabulary.
 
+JudgmentKit catches when AI-generated UI turns implementation mechanics into UX, then gives the agent repair instructions before the work ships.
+
+The shippable value path is the public `/value/` page: it shows what JudgmentKit prevents with concrete before/after cases for implementation-language leakage, unsafe approval boundaries, and missing accessibility evidence. Eval reports remain supporting evidence for audit and reproduction, not the primary product story.
+
 JudgmentKit gives the agent a better order of operations:
 
 1. Understand the activity.

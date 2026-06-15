@@ -1,0 +1,29 @@
+{
+  "capture_type": "codex-output-transcript",
+  "case_id": "refund-schema-admin-translation",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-13T20:39:37.653Z",
+  "source_context_sha256": "d766beb1778589276c38232a725438f4b45216440292fe893f0fd3f5ebc32cb8",
+  "prompt_sha256": "a813b8d16c73108d1a60d4adb68fd569e31d826a09da9eedd31ba3263ae024a7",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "f8397ce51fd9ae456b289fe906df6b549ed0029adafc1eebbe4f08ddfb97ed1a",
+  "raw_response": "{\"response\":\"Plan the response around the support lead’s triage job: show the refund case, customer and purchase context, policy signals, evidence completeness, and a clear decision path. The UI should help the lead choose approve, send to policy review, or return for missing evidence, then produce a handoff receipt with next owner, next action, and reason.\",\"next_action\":\"translate the request into a refund triage handoff surface\",\"questions\":[],\"handoff\":\"next owner: selected accountable queue; next action: approve, send to policy review, or return for missing evidence; reason: policy fit and evidence completeness.\",\"rationale\":\"The source brief describes an admin translation problem, but the actual activity is human refund triage. The next agent response should hide implementation sources and organize the screen around decision, evidence, and accountable next step.\"}",
+  "parsed": {
+    "response": "Plan the response around the support lead’s triage job: show the refund case, customer and purchase context, policy signals, evidence completeness, and a clear decision path. The UI should help the lead choose approve, send to policy review, or return for missing evidence, then produce a handoff receipt with next owner, next action, and reason.",
+    "next_action": "translate the request into a refund triage handoff surface",
+    "questions": [],
+    "handoff": "next owner: selected accountable queue; next action: approve, send to policy review, or return for missing evidence; reason: policy fit and evidence completeness.",
+    "rationale": "The source brief describes an admin translation problem, but the actual activity is human refund triage. The next agent response should hide implementation sources and organize the screen around decision, evidence, and accountable next step."
+  },
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "d040c7c3399303a39ac074de6d5467e45e4e0adb4b6bbaa8d677f9556d6ac569",
+    "stderr_sha256": "00329493277f64d3e521f2857f1cdc1b692e7c4014967f78fd70b3c26951d047",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

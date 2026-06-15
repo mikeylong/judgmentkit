@@ -1,0 +1,64 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "moderation-escalation-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract"
+  ],
+  "mcp_tool_transcript_sha256": "386afaaa2fb352b4a4ee2fa4059554af5db3b6b07cc5bf4126955a6ec18efc85",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:47:35.273Z",
+  "duration_ms": 5151,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1014,
+    "completion_tokens": 220,
+    "total_tokens": 1234,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "695673fd44691e2ad3fcce217d2df66035fb186b27a1d6fce2c4b85feab1a414",
+  "prompt_sha256": "3cea878c58bbd0f8b752706c1c89f1d47e4bc270704148eabb1615c13f9d612e",
+  "mcp_context_sha256": "896a0aa5f3780f26d941b83f23b80df5c3a0246e085deaf88303d7112b17f430",
+  "raw_response_sha256": "ef83ca50c59e5e41279c8040d58e9a704fa07e25f10a962dfdc960622b6dbec6",
+  "raw_response": "{\"response\": \"The agent should guide the user through synthesizing the review findings into a structured handoff, ensuring all necessary components for the next owner are present. The primary goal is to transition from internal decision-making (Approve/Escalate/Return) to an actionable output that informs the subsequent policy reviewer.\", \"next_action\": \"Draft the final escalation handoff based on the operator's decision and synthesize any missing context into a clear evidence gap statement for the next owner.\", \"questions\": [\"What specific information should the user leave the surface knowing or having done after completing this review?\"], \"handoff\": \"Owner: policy reviewer; Next Action: Review escalated content/evidence; Reason: Operator determined severity and policy conflict requires expert assessment; Evidence Gap: Missing user history context (as noted in source brief).\", \"rationale\": \"The current state is an operator-review handoff. The next agent response must guide the completion of this review by focusing on structuring the output for the subsequent owner, which involves synthesizing the decision and explicitly stating any missing data points.\"}",
+  "parsed": {
+    "response": "The agent should guide the user through synthesizing the review findings into a structured handoff, ensuring all necessary components for the next owner are present. The primary goal is to transition from internal decision-making (Approve/Escalate/Return) to an actionable output that informs the subsequent policy reviewer.",
+    "next_action": "Draft the final escalation handoff based on the operator's decision and synthesize any missing context into a clear evidence gap statement for the next owner.",
+    "questions": [
+      "What specific information should the user leave the surface knowing or having done after completing this review?"
+    ],
+    "handoff": "Owner: policy reviewer; Next Action: Review escalated content/evidence; Reason: Operator determined severity and policy conflict requires expert assessment; Evidence Gap: Missing user history context (as noted in source brief).",
+    "rationale": "The current state is an operator-review handoff. The next agent response must guide the completion of this review by focusing on structuring the output for the subsequent owner, which involves synthesizing the decision and explicitly stating any missing data points."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent should guide the user through synthesizing the review findings into a structured handoff, ensuring all necessary components for the next owner are present. The primary goal is to transition from internal decision-making (Approve/Escalate/Return) to an actionable output that informs the subsequent policy reviewer.\", \"next_action\": \"Draft the final escalation handoff based on the operator's decision and synthesize any missing context into a clear evidence gap statement for the next owner.\", \"questions\": [\"What specific information should the user leave the surface knowing or having done after completing this review?\"], \"handoff\": \"Owner: policy reviewer; Next Action: Review escalated content/evidence; Reason: Operator determined severity and policy conflict requires expert assessment; Evidence Gap: Missing user history context (as noted in source brief).\", \"rationale\": \"The current state is an operator-review handoff. The next agent response must guide the completion of this review by focusing on structuring the output for the subsequent owner, which involves synthesizing the decision and explicitly stating any missing data points.\"}",
+    "usage": {
+      "prompt_tokens": 1014,
+      "completion_tokens": 220,
+      "total_tokens": 1234,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "d4fda6ce11025c2f606414bd00f92ab89cf2fd2481136efc6a00969f2492e240",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

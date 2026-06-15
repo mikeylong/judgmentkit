@@ -1,0 +1,61 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "field-dispatch-review",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:47:19.732Z",
+  "duration_ms": 6182,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 586,
+    "completion_tokens": 277,
+    "total_tokens": 863,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "9b62212d56a1976104e5e84ebde7f1f17316ef67d7a69139198f8e0842279f15",
+  "prompt_sha256": "b256256d7a983c8db20898a6cbc0e3cada86cc00e68842269ade7e71a52c5c7e",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "a859e07f35cb28714d104547d312c0278f4c79b5df9fbb9343556801d392ad27",
+  "raw_response": "{\"response\": \"The agent should guide the field dispatcher through a structured review process that synthesizes multiple data points to make a final dispatch decision. The plan must prioritize assessing immediate assignment feasibility against known constraints.\", \"next_action\": \"Guide the user to systematically evaluate location, SLA risk, equipment fit, and parts availability before presenting the three primary action choices (Assign now, Defer for parts, Escalate).\", \"questions\": [\"What specific criteria or data points should be presented first to help the dispatcher prioritize their review?\"], \"handoff\": \"The next agent response must guide the user through a structured evaluation of location, SLA risk, equipment fit, and parts availability before presenting the three primary action choices (Assign now, Defer for parts, Escalate).\", \"rationale\": \"The source brief outlines several critical comparison points (location, SLA risk, equipment fit, parts availability) that must inform the final decision. The fixture confirms these inputs are necessary before selecting one of the three defined actions. Therefore, the next step is to structure the review process around gathering and comparing this evidence for the dispatcher's benefit, rather than just presenting the options immediately. This addresses the 'evidence gap' noted in the handoff regarding parts confirmation by structuring the preceding steps to force that check first. The goal is to move from data review to action selection smoothly.\"}",
+  "parsed": {
+    "response": "The agent should guide the field dispatcher through a structured review process that synthesizes multiple data points to make a final dispatch decision. The plan must prioritize assessing immediate assignment feasibility against known constraints.",
+    "next_action": "Guide the user to systematically evaluate location, SLA risk, equipment fit, and parts availability before presenting the three primary action choices (Assign now, Defer for parts, Escalate).",
+    "questions": [
+      "What specific criteria or data points should be presented first to help the dispatcher prioritize their review?"
+    ],
+    "handoff": "The next agent response must guide the user through a structured evaluation of location, SLA risk, equipment fit, and parts availability before presenting the three primary action choices (Assign now, Defer for parts, Escalate).",
+    "rationale": "The source brief outlines several critical comparison points (location, SLA risk, equipment fit, parts availability) that must inform the final decision. The fixture confirms these inputs are necessary before selecting one of the three defined actions. Therefore, the next step is to structure the review process around gathering and comparing this evidence for the dispatcher's benefit, rather than just presenting the options immediately. This addresses the 'evidence gap' noted in the handoff regarding parts confirmation by structuring the preceding steps to force that check first. The goal is to move from data review to action selection smoothly."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent should guide the field dispatcher through a structured review process that synthesizes multiple data points to make a final dispatch decision. The plan must prioritize assessing immediate assignment feasibility against known constraints.\", \"next_action\": \"Guide the user to systematically evaluate location, SLA risk, equipment fit, and parts availability before presenting the three primary action choices (Assign now, Defer for parts, Escalate).\", \"questions\": [\"What specific criteria or data points should be presented first to help the dispatcher prioritize their review?\"], \"handoff\": \"The next agent response must guide the user through a structured evaluation of location, SLA risk, equipment fit, and parts availability before presenting the three primary action choices (Assign now, Defer for parts, Escalate).\", \"rationale\": \"The source brief outlines several critical comparison points (location, SLA risk, equipment fit, parts availability) that must inform the final decision. The fixture confirms these inputs are necessary before selecting one of the three defined actions. Therefore, the next step is to structure the review process around gathering and comparing this evidence for the dispatcher's benefit, rather than just presenting the options immediately. This addresses the 'evidence gap' noted in the handoff regarding parts confirmation by structuring the preceding steps to force that check first. The goal is to move from data review to action selection smoothly.\"}",
+    "usage": {
+      "prompt_tokens": 586,
+      "completion_tokens": 277,
+      "total_tokens": 863,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "26543cb0d382d129183eee539f30eb9167d966ce6790f57b1f3b951f24d3c644",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

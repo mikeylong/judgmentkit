@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "surface-type-mismatch",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:53462/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:31:36.194Z",
+  "duration_ms": 27157,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 487,
+    "completion_tokens": 209,
+    "total_tokens": 696,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "65f922911a0acd0f585b15f9e9d2f3cfba8dee00da9aa2bbbc6901d230661837",
+  "prompt_sha256": "7fe0c3c52d46fd11b92469574d94e1749612b77ff079909b9834ba564ab0db52",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "3719901c0a524341e9c92afb007f1e00e6dd19a8ed61a425e9c615b23a4f05e9",
+  "raw_response": "{\"response\": \"The candidate fixture describes a workflow related to 'Operator incident queue' management, which does not align with the source request of creating a product landing page explaining JudgmentKit to AI tooling teams. Therefore, the candidate should not be trusted.\", \"next_action\": \"Request a revised candidate fixture that models content suitable for a product landing page targeting AI tooling teams.\", \"questions\": [\"What specific sections or components are expected on the product landing page (e.g., features list, use cases, comparison chart)?\", \"Are there any key technical terms related to JudgmentKit that must be included in the generated content structure?\"], \"handoff\": \"Handoff to Content Generation Agent: The next candidate should model a marketing/product documentation structure rather than an operational workflow.\", \"rationale\": \"The source brief requires creating explanatory marketing content for AI tooling teams. The provided fixture models an internal incident management process, representing a severe surface type mismatch between the required output domain and the provided sample data structure's context.\"}",
+  "parsed": {
+    "response": "The candidate fixture describes a workflow related to 'Operator incident queue' management, which does not align with the source request of creating a product landing page explaining JudgmentKit to AI tooling teams. Therefore, the candidate should not be trusted.",
+    "next_action": "Request a revised candidate fixture that models content suitable for a product landing page targeting AI tooling teams.",
+    "questions": [
+      "What specific sections or components are expected on the product landing page (e.g., features list, use cases, comparison chart)?",
+      "Are there any key technical terms related to JudgmentKit that must be included in the generated content structure?"
+    ],
+    "handoff": "Handoff to Content Generation Agent: The next candidate should model a marketing/product documentation structure rather than an operational workflow.",
+    "rationale": "The source brief requires creating explanatory marketing content for AI tooling teams. The provided fixture models an internal incident management process, representing a severe surface type mismatch between the required output domain and the provided sample data structure's context."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The candidate fixture describes a workflow related to 'Operator incident queue' management, which does not align with the source request of creating a product landing page explaining JudgmentKit to AI tooling teams. Therefore, the candidate should not be trusted.\", \"next_action\": \"Request a revised candidate fixture that models content suitable for a product landing page targeting AI tooling teams.\", \"questions\": [\"What specific sections or components are expected on the product landing page (e.g., features list, use cases, comparison chart)?\", \"Are there any key technical terms related to JudgmentKit that must be included in the generated content structure?\"], \"handoff\": \"Handoff to Content Generation Agent: The next candidate should model a marketing/product documentation structure rather than an operational workflow.\", \"rationale\": \"The source brief requires creating explanatory marketing content for AI tooling teams. The provided fixture models an internal incident management process, representing a severe surface type mismatch between the required output domain and the provided sample data structure's context.\"}",
+    "usage": {
+      "prompt_tokens": 487,
+      "completion_tokens": 209,
+      "total_tokens": 696,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "b4dc21e8530b3ac8585c29e234362d514cba71b437244b398e7e256b4acb4faa",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

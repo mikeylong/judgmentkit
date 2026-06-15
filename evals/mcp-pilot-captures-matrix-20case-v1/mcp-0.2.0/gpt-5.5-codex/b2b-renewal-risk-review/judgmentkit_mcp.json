@@ -1,0 +1,48 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "b2b-renewal-risk-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract"
+  ],
+  "mcp_tool_transcript_sha256": "7502a2730cc3e8ca3fb425f0114507cee548493bae2487954760d4ff843afd08",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T01:52:14.920Z",
+  "duration_ms": 42130,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "09d277e2983eb3b879243234b38fd53075b22491da07dd857b19afa75da06e2f",
+  "prompt_sha256": "6e2d81db5d806b8197ab37f85a7e3b039c3f3cf34d60cd50761ca931daf887b1",
+  "mcp_context_sha256": "c8ba41e166972d05811086094d61ed4083a919ebe099c6aeb6e2e5f42eb48fb6",
+  "raw_response_sha256": "f5e61449c06f0baa61b48f6817f46dfc77f69db9380af5e49bc34ea62dbc17c8",
+  "raw_response": "{\"response\":\"Guide the next response toward an operator handoff: summarize the risk signals, compare usage decline, sponsor change, and procurement timing, then route the account to one of the available renewal actions. Keep the language customer-success-facing and make the output end in a handoff that can be used before the account meeting.\",\"next_action\":\"Have the customer success manager confirm procurement timing, identify the procurement owner and renewal date, then choose whether to start a save plan, escalate the executive sponsor, or wait for stronger evidence.\",\"questions\":[],\"handoff\":\"Owner: customer success manager | Action: confirm procurement owner and renewal date, then choose start save plan, executive sponsor escalation, or wait for stronger evidence | Reason: sponsor change plus usage decline creates renewal risk | Evidence gap: procurement owner and renewal date | Verification: handoff names owner, action, reason, and evidence gap.\",\"rationale\":\"The source context already defines the activity, decision routes, completion state, and evidence gap, so no clarification is needed. The response should preserve the operator-review workflow and focus the next agent on evidence-based renewal routing rather than implementation details.\"}",
+  "parsed": {
+    "response": "Guide the next response toward an operator handoff: summarize the risk signals, compare usage decline, sponsor change, and procurement timing, then route the account to one of the available renewal actions. Keep the language customer-success-facing and make the output end in a handoff that can be used before the account meeting.",
+    "next_action": "Have the customer success manager confirm procurement timing, identify the procurement owner and renewal date, then choose whether to start a save plan, escalate the executive sponsor, or wait for stronger evidence.",
+    "questions": [],
+    "handoff": "Owner: customer success manager | Action: confirm procurement owner and renewal date, then choose start save plan, executive sponsor escalation, or wait for stronger evidence | Reason: sponsor change plus usage decline creates renewal risk | Evidence gap: procurement owner and renewal date | Verification: handoff names owner, action, reason, and evidence gap.",
+    "rationale": "The source context already defines the activity, decision routes, completion state, and evidence gap, so no clarification is needed. The response should preserve the operator-review workflow and focus the next agent on evidence-based renewal routing rather than implementation details."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "43936bc8f418088135b340bce824d5ae8aee4f1f1a32edf3f74d1206bac1ead4",
+    "stderr_sha256": "d32ba327855baf9e7ad6b4f8312e687d4a8bb5a013a3084d1212cb374591d1b4",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

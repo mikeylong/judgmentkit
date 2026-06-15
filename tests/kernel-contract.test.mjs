@@ -106,6 +106,49 @@ assert.ok(
   ),
   "The implementation contract must require modal footer order QA when dialogs are present.",
 );
+assert.equal(
+  contract.implementation_contract.default_ai_native_design_system.mode,
+  "contract_defaults",
+  "The implementation contract must include built-in AI-native contract defaults.",
+);
+assert.ok(
+  contract.implementation_contract.default_ai_native_design_system.surface_patterns.some(
+    (pattern) => pattern.includes("operator review"),
+  ),
+  "The default AI-native system must include surface pattern defaults.",
+);
+assert.ok(
+  contract.implementation_contract.default_ai_native_design_system.action_boundaries.required.some(
+    (rule) => rule.includes("approval boundary"),
+  ),
+  "The default AI-native system must include action-boundary defaults.",
+);
+assert.ok(
+  contract.implementation_contract.default_ai_native_design_system.data_visibility
+    .diagnostic_only_terms.includes("JSON schema"),
+  "The default AI-native system must include data-visibility defaults.",
+);
+assert.ok(
+  contract.implementation_contract.default_ai_native_design_system.adapter_boundary
+    .visual_token_adapter.includes("visual_token_adapter"),
+  "The default AI-native system must point to the visual token adapter boundary.",
+);
+assert.equal(
+  contract.implementation_contract.iteration_policy.owner,
+  "agent",
+  "The iteration policy must be agent-owned.",
+);
+assert.equal(
+  contract.implementation_contract.iteration_policy.default_max_attempts,
+  3,
+  "The iteration policy must default to three attempts.",
+);
+assert.ok(
+  contract.implementation_contract.iteration_policy.failure_statuses.includes(
+    "repair_and_resubmit",
+  ),
+  "The iteration policy must support repair-and-resubmit outcomes.",
+);
 assert.ok(
   contract.implementation_contract.visual_asset_policy.applies_when.some((rule) =>
     rule.includes("substantive visuals"),
@@ -209,6 +252,64 @@ assert.ok(
   schema.$defs.implementationContract.required.includes("accessibility_policy"),
   "The schema must require implementation_contract.accessibility_policy.",
 );
+assert.ok(
+  schema.$defs.implementationContract.required.includes(
+    "default_ai_native_design_system",
+  ),
+  "The schema must require implementation_contract.default_ai_native_design_system.",
+);
+assert.ok(
+  schema.$defs.implementationContract.required.includes("iteration_policy"),
+  "The schema must require implementation_contract.iteration_policy.",
+);
+assert.ok(
+  schema.$defs.implementationContract.required.includes("visual_token_adapter"),
+  "The schema must require implementation_contract.visual_token_adapter.",
+);
+assert.deepEqual(
+  schema.$defs.implementationContract.properties.default_ai_native_design_system.required,
+  [
+    "id",
+    "mode",
+    "purpose",
+    "primitive_defaults",
+    "surface_patterns",
+    "state_rules",
+    "action_boundaries",
+    "data_visibility",
+    "accessibility",
+    "evidence_gates",
+    "adapter_boundary",
+  ],
+  "The schema must require the default AI-native system shape.",
+);
+assert.deepEqual(
+  schema.$defs.implementationContract.properties.iteration_policy.required,
+  [
+    "owner",
+    "default_max_attempts",
+    "loop",
+    "pass_status",
+    "failure_statuses",
+    "judgmentkit_role",
+  ],
+  "The schema must require the iteration policy shape.",
+);
+assert.deepEqual(
+  schema.$defs.implementationContract.properties.visual_token_adapter.required,
+  [
+    "id",
+    "mode",
+    "purpose",
+    "token_families",
+    "semantic_roles",
+    "adapter_rules",
+    "evidence_expectations",
+    "deferred_renderer",
+    "failure_signals",
+  ],
+  "The schema must require the visual token adapter shape.",
+);
 assert.deepEqual(
   schema.$defs.implementationContract.properties.accessibility_policy.required,
   [
@@ -257,6 +358,62 @@ assert.deepEqual(
   overriddenContract.implementation_contract.accessibility_policy.conditional_evidence
     .visual_background_contrast.applies_when,
   ["text over video"],
+);
+const overriddenIterationContract = createUiImplementationContract({
+  iteration_policy: {
+    default_max_attempts: 5,
+  },
+});
+assert.equal(
+  overriddenIterationContract.implementation_contract.iteration_policy.default_max_attempts,
+  5,
+  "createUiImplementationContract must round-trip iteration policy overrides.",
+);
+assert.equal(
+  overriddenIterationContract.implementation_contract.default_ai_native_design_system
+    .adapter_boundary.visual_token_adapter.includes("visual_token_adapter"),
+  true,
+  "createUiImplementationContract must keep the default system pointing at the token adapter boundary.",
+);
+assert.equal(
+  contract.implementation_contract.visual_token_adapter.mode,
+  "boundary_only",
+  "The visual token adapter must be boundary-only in Milestone 3.",
+);
+assert.ok(
+  contract.implementation_contract.visual_token_adapter.token_families.includes("color"),
+  "The visual token adapter must include color as a supported family.",
+);
+assert.ok(
+  contract.implementation_contract.visual_token_adapter.token_families.includes("motion"),
+  "The visual token adapter must include motion as a supported family.",
+);
+assert.equal(
+  contract.implementation_contract.visual_token_adapter.deferred_renderer.renderer_package,
+  "deferred",
+  "The visual token adapter must defer renderer packages.",
+);
+assert.ok(
+  contract.implementation_contract.visual_token_adapter.adapter_rules.some((rule) =>
+    rule.includes("cannot satisfy missing activity"),
+  ),
+  "The visual token adapter must not weaken existing gates.",
+);
+const overriddenTokenContract = createUiImplementationContract({
+  visual_token_adapter: {
+    token_families: ["color", "motion"],
+    semantic_roles: ["focus", "status"],
+    evidence_expectations: ["map semantic token use to focus and status roles"],
+  },
+});
+assert.deepEqual(
+  overriddenTokenContract.implementation_contract.visual_token_adapter.token_families,
+  ["color", "motion"],
+  "createUiImplementationContract must normalize visual token adapter overrides.",
+);
+assert.deepEqual(
+  overriddenTokenContract.implementation_contract.visual_token_adapter.semantic_roles,
+  ["focus", "status"],
 );
 assert.ok(
   contract.implementation_contract.failure_signals.some((signal) =>

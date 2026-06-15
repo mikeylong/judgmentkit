@@ -324,6 +324,42 @@ function visualHeavyStaticCandidate(overrides = {}) {
   };
 }
 
+function refundOperatorImplementationCandidate(overrides = {}) {
+  return {
+    code: "renderRefundReviewWorkbench({ queue, evidence, decisionBar })",
+    primitives_used: ["FormField", "CheckboxGroup", "CheckboxOption", "ModalActions"],
+    states_covered: implementationContract.state_coverage.required_states,
+    static_checks: ["npm run check"],
+    browser_qa: {
+      desktop: "desktop viewport refund review checked",
+      mobile: "mobile viewport refund review checked",
+    },
+    accessibility_evidence: modalAccessibilityEvidence(),
+    actions: ["Approve refund", "Send to policy review", "Return for evidence"],
+    action_boundary_evidence: {
+      approval_boundary:
+        "Approve refund requires an explicit user confirmation before submission.",
+      completion_receipt:
+        "Completion leaves a handoff receipt with the decision reason.",
+    },
+    visible_text: [
+      "Refund request",
+      "Evidence checklist",
+      "Policy review",
+      "Decision reason",
+      "Send handoff",
+    ],
+    data_visibility_evidence: {
+      primary_data_roles: ["domain evidence", "decision options", "handoff receipt"],
+    },
+    ...overrides,
+    accessibility_evidence: {
+      ...modalAccessibilityEvidence(),
+      ...(overrides.accessibility_evidence ?? {}),
+    },
+  };
+}
+
 {
   const workflowReview = reviewUiWorkflowCandidate(
     REFUND_TRIAGE_BRIEF,
@@ -388,7 +424,151 @@ function visualHeavyStaticCandidate(overrides = {}) {
 
   assert.equal(approvedReview.implementation_review_status, "passed");
   assert.equal(approvedReview.checks.approved_primitives.status, "pass");
+  assert.equal(approvedReview.next_agent_action, "accept");
+  assert.equal(approvedReview.autofix_loop.status, "passed");
   assert.deepEqual(approvedReview.findings, []);
+
+  const refundOperatorReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate(),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(refundOperatorReview.implementation_review_status, "passed");
+  assert.equal(refundOperatorReview.checks.action_boundaries.status, "pass");
+  assert.equal(refundOperatorReview.checks.action_boundaries.reviewed, true);
+  assert.equal(refundOperatorReview.checks.data_visibility.status, "pass");
+  assert.equal(refundOperatorReview.checks.data_visibility.reviewed, true);
+  assert.equal(refundOperatorReview.checks.visual_tokens.status, "pass");
+  assert.equal(refundOperatorReview.checks.visual_tokens.reviewed, false);
+  assert.equal(refundOperatorReview.next_agent_action, "accept");
+
+  const tokenMetadataReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      visual_token_evidence: {
+        token_families: ["color", "type", "spacing", "motion"],
+        semantic_roles: ["focus", "status", "decision"],
+        evidence_expectations: [
+          "color and focus roles map to decision controls and handoff receipt",
+        ],
+      },
+      accessibility_evidence: {
+        forced_colors: {
+          status: "pass",
+          method: "forced-colors emulation",
+          notes: "Tokenized color roles preserve text, status, and focus visibility.",
+        },
+        reduced_motion: {
+          status: "pass",
+          method: "prefers-reduced-motion review",
+          notes: "Motion tokens are disabled or reduced when the user requests reduced motion.",
+        },
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(tokenMetadataReview.implementation_review_status, "passed");
+  assert.equal(tokenMetadataReview.checks.visual_tokens.status, "pass");
+  assert.equal(tokenMetadataReview.checks.visual_tokens.reviewed, true);
+  assert.deepEqual(tokenMetadataReview.checks.visual_tokens.unsupported_families, []);
+
+  const tokenMisuseReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      visual_token_evidence: {
+        token_families: ["color", "texture"],
+        evidence_expectations: [
+          "visual tokens replace accessibility and browser QA evidence",
+          "component package is ready for this boundary slice",
+        ],
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(tokenMisuseReview.implementation_review_status, "failed");
+  assert.equal(tokenMisuseReview.checks.visual_tokens.status, "fail");
+  assert.ok(
+    tokenMisuseReview.repair_instructions.groups.visual_tokens.some(
+      (instruction) => instruction.check === "visual_tokens",
+    ),
+  );
+
+  const tokenCannotSatisfyPrimitiveReview = reviewUiImplementationCandidate(
+    {
+      ...refundOperatorImplementationCandidate({
+        primitives_used: ["ImaginaryTokenWorkbench"],
+        visual_token_evidence: {
+          token_families: ["color", "spacing"],
+          semantic_roles: ["decision"],
+        },
+      }),
+    },
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(tokenCannotSatisfyPrimitiveReview.implementation_review_status, "failed");
+  assert.equal(tokenCannotSatisfyPrimitiveReview.checks.visual_tokens.status, "pass");
+  assert.equal(tokenCannotSatisfyPrimitiveReview.checks.approved_primitives.status, "fail");
+  assert.ok(
+    tokenCannotSatisfyPrimitiveReview.repair_instructions.groups.primitive_defaults.some(
+      (instruction) => instruction.check === "approved_primitives",
+    ),
+  );
+
+  const riskyActionReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      actions: ["Auto approve refund", "Charge card"],
+      action_boundary_evidence: {},
+    }),
+    {
+      implementation_contract: implementationContract,
+      iteration_context: { current_attempt: 2 },
+    },
+  );
+
+  assert.equal(riskyActionReview.implementation_review_status, "failed");
+  assert.equal(riskyActionReview.checks.action_boundaries.status, "fail");
+  assert.equal(riskyActionReview.next_agent_action, "repair_and_resubmit");
+  assert.equal(riskyActionReview.autofix_loop.current_attempt, 2);
+  assert.equal(riskyActionReview.autofix_loop.max_attempts, 3);
+  assert.ok(
+    riskyActionReview.repair_instructions.groups.action_boundaries.some(
+      (instruction) => instruction.check === "action_boundaries",
+    ),
+  );
+
+  const stoppedActionReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      actions: ["Auto approve refund"],
+      action_boundary_evidence: {},
+    }),
+    {
+      implementation_contract: implementationContract,
+      iteration_context: { current_attempt: 3 },
+    },
+  );
+
+  assert.equal(stoppedActionReview.next_agent_action, "stop_for_human");
+  assert.equal(stoppedActionReview.autofix_loop.status, "stopped");
+
+  const dataLeakReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      visible_text: ["Refund request", "JSON schema", "resource id"],
+      data_visibility_evidence: {
+        primary_data_roles: ["domain evidence"],
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(dataLeakReview.implementation_review_status, "failed");
+  assert.equal(dataLeakReview.checks.data_visibility.status, "fail");
+  assert.equal(dataLeakReview.next_agent_action, "repair_and_resubmit");
+  assert.ok(
+    dataLeakReview.repair_instructions.groups.data_visibility.some(
+      (instruction) => instruction.required_change.includes("diagnostic-only terms"),
+    ),
+  );
 
   const coreEvidenceKeys = [
     "automated_checks",

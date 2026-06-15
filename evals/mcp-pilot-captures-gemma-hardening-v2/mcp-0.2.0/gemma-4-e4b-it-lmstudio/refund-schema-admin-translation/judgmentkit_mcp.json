@@ -1,0 +1,66 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "refund-schema-admin-translation",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:52592/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "59b617e73e1e2aec08fd2a933bc598a7ebeea3c50f6c46406823e4f6b77437ad",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:46:51.065Z",
+  "duration_ms": 9787,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 728,
+    "completion_tokens": 296,
+    "total_tokens": 1024,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "58d11550b6886fc8f6221604a31de40e9e372653f2f764b8bad36844edbf151c",
+  "prompt_sha256": "9edb19f8510a359036953ab388cb6e374983dae913f92cc14fcaaf13c8c28d1f",
+  "mcp_context_sha256": "b65c766c3fbac8c45b6e3aba4699eda7153a447314fbbd8e1174a0c01b9d7f91",
+  "raw_response_sha256": "ab06525a6fad344ffd52ce2075eaf79fd0e4eae01a0d261a5a50c12e5edb8358",
+  "raw_response": "{\"response\": \"The next agent response should guide the support lead through a structured review process for refund cases. This involves presenting key information derived from the refund request data, allowing the lead to make one of three decisions: Approve Refund, Escalate to Policy Review, or Return for More Information. The interface must surface actionable insights based on the available source context.\", \"next_action\": \"Develop the core decision-making workflow and required input fields for the admin screen.\", \"questions\": [\"What specific information should the support lead be able to confirm or verify before making a final decision?\", \"Are there any mandatory data points from the refund request that must be visible on the initial review screen, regardless of the outcome?\"], \"handoff\": \"Decision/Action: Design the primary workflow structure for the admin review screen. Reason: The system needs to translate the raw data and process steps into a clear decision path for the support lead. Owner: UX Designer; Evidence Gap: Specific required inputs for 'Return for Missing Evidence' status; Required Fix: Define the minimum set of fields that must be populated when returning a case.\", \"rationale\": \"The goal is to build an admin screen facilitating a multi-path decision (Approve, Escalate, Return). The current context indicates missing source knowledge regarding user expectations and which implementation details are purely diagnostic versus domain-facing. Therefore, the immediate next step is defining the high-level workflow based on the required outcomes.\"}",
+  "parsed": {
+    "response": "The next agent response should guide the support lead through a structured review process for refund cases. This involves presenting key information derived from the refund request data, allowing the lead to make one of three decisions: Approve Refund, Escalate to Policy Review, or Return for More Information. The interface must surface actionable insights based on the available source context.",
+    "next_action": "Develop the core decision-making workflow and required input fields for the admin screen.",
+    "questions": [
+      "What specific information should the support lead be able to confirm or verify before making a final decision?",
+      "Are there any mandatory data points from the refund request that must be visible on the initial review screen, regardless of the outcome?"
+    ],
+    "handoff": "Decision/Action: Design the primary workflow structure for the admin review screen. Reason: The system needs to translate the raw data and process steps into a clear decision path for the support lead. Owner: UX Designer; Evidence Gap: Specific required inputs for 'Return for Missing Evidence' status; Required Fix: Define the minimum set of fields that must be populated when returning a case.",
+    "rationale": "The goal is to build an admin screen facilitating a multi-path decision (Approve, Escalate, Return). The current context indicates missing source knowledge regarding user expectations and which implementation details are purely diagnostic versus domain-facing. Therefore, the immediate next step is defining the high-level workflow based on the required outcomes."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The next agent response should guide the support lead through a structured review process for refund cases. This involves presenting key information derived from the refund request data, allowing the lead to make one of three decisions: Approve Refund, Escalate to Policy Review, or Return for More Information. The interface must surface actionable insights based on the available source context.\", \"next_action\": \"Develop the core decision-making workflow and required input fields for the admin screen.\", \"questions\": [\"What specific information should the support lead be able to confirm or verify before making a final decision?\", \"Are there any mandatory data points from the refund request that must be visible on the initial review screen, regardless of the outcome?\"], \"handoff\": \"Decision/Action: Design the primary workflow structure for the admin review screen. Reason: The system needs to translate the raw data and process steps into a clear decision path for the support lead. Owner: UX Designer; Evidence Gap: Specific required inputs for 'Return for Missing Evidence' status; Required Fix: Define the minimum set of fields that must be populated when returning a case.\", \"rationale\": \"The goal is to build an admin screen facilitating a multi-path decision (Approve, Escalate, Return). The current context indicates missing source knowledge regarding user expectations and which implementation details are purely diagnostic versus domain-facing. Therefore, the immediate next step is defining the high-level workflow based on the required outcomes.\"}",
+    "usage": {
+      "prompt_tokens": 728,
+      "completion_tokens": 296,
+      "total_tokens": 1024,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "8fb64af7c959c9170c7584589a2f6f7f05ed10b516825db5b523196be453e228",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

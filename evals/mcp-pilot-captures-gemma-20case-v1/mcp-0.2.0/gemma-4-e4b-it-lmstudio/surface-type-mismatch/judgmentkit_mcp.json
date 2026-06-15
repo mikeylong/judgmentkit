@@ -1,0 +1,65 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "surface-type-mismatch",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "9b97560347980897f0fdd8128469e79363fec2300230526878eeb3663e98da37",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:48:02.586Z",
+  "duration_ms": 5171,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 874,
+    "completion_tokens": 231,
+    "total_tokens": 1105,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "070a29d6094eb8f1c1d031f1fad371d7759d3b44e43ae9778d441899217982ab",
+  "prompt_sha256": "9e9140d367b31b7a7918cd0fd5785582c59674c55974b2f42c1f054c503f4562",
+  "mcp_context_sha256": "6034785154c70eb2e275a966771c59604f95e9386d972c80cad97f1e2c801848",
+  "raw_response_sha256": "54a903ee247185faad14379d62570dc6f837a6a89b27d200e5a766300b50c4e9",
+  "raw_response": "{\"response\": \"The candidate fixture describes a workflow and UI related to incident management, which does not align with the source request of creating a product landing page explaining JudgmentKit. The structure is entirely mismatched.\", \"next_action\": \"Request clarification on the intended surface type for the output.\", \"questions\": [\"What specific domain or function should this proposed surface support? (e.g., Product Marketing, Technical Documentation, etc.)\", \"Who is the primary target audience for this content (e.g., AI tooling teams)?\", \"What core message must the landing page convey to help users decide on installation?\"], \"handoff\": \"Decision: Reject; Reason: Surface type mismatch. The candidate describes an 'Operator incident queue' workflow, while the source requires a product landing page for AI tooling teams.\", \"rationale\": \"The candidate output is structured around operational workflows (incidents, escalation) and UI elements specific to incident response, which bears no resemblance to the content requirements of a marketing-focused product landing page explaining JudgmentKit's value proposition to technical teams. The mismatch is fundamental to the required domain/surface type.\"}",
+  "parsed": {
+    "response": "The candidate fixture describes a workflow and UI related to incident management, which does not align with the source request of creating a product landing page explaining JudgmentKit. The structure is entirely mismatched.",
+    "next_action": "Request clarification on the intended surface type for the output.",
+    "questions": [
+      "What specific domain or function should this proposed surface support? (e.g., Product Marketing, Technical Documentation, etc.)",
+      "Who is the primary target audience for this content (e.g., AI tooling teams)?",
+      "What core message must the landing page convey to help users decide on installation?"
+    ],
+    "handoff": "Decision: Reject; Reason: Surface type mismatch. The candidate describes an 'Operator incident queue' workflow, while the source requires a product landing page for AI tooling teams.",
+    "rationale": "The candidate output is structured around operational workflows (incidents, escalation) and UI elements specific to incident response, which bears no resemblance to the content requirements of a marketing-focused product landing page explaining JudgmentKit's value proposition to technical teams. The mismatch is fundamental to the required domain/surface type."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The candidate fixture describes a workflow and UI related to incident management, which does not align with the source request of creating a product landing page explaining JudgmentKit. The structure is entirely mismatched.\", \"next_action\": \"Request clarification on the intended surface type for the output.\", \"questions\": [\"What specific domain or function should this proposed surface support? (e.g., Product Marketing, Technical Documentation, etc.)\", \"Who is the primary target audience for this content (e.g., AI tooling teams)?\", \"What core message must the landing page convey to help users decide on installation?\"], \"handoff\": \"Decision: Reject; Reason: Surface type mismatch. The candidate describes an 'Operator incident queue' workflow, while the source requires a product landing page for AI tooling teams.\", \"rationale\": \"The candidate output is structured around operational workflows (incidents, escalation) and UI elements specific to incident response, which bears no resemblance to the content requirements of a marketing-focused product landing page explaining JudgmentKit's value proposition to technical teams. The mismatch is fundamental to the required domain/surface type.\"}",
+    "usage": {
+      "prompt_tokens": 874,
+      "completion_tokens": 231,
+      "total_tokens": 1105,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "3f035e83f88e7fe849b804c1963a5de51f750b8a2577832abebe9afb7ffa6127",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

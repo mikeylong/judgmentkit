@@ -1,0 +1,61 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "invented-activity-candidate",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:47:39.777Z",
+  "duration_ms": 4499,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 439,
+    "completion_tokens": 211,
+    "total_tokens": 650,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "d63902e1265dfda37f2a7db06ae591f1d1180967a77585ab9afa693a8dca28a7",
+  "prompt_sha256": "75c7d88079c303bd835a538af689621758af3cc4186320886f5257725402b568",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "4b44d3eb25af3a8d70f86229eb718c5c94b5b139ccea9195434665be7f9ce469",
+  "raw_response": "{\"response\": \"The candidate fixture describes a treasury analyst optimizing cash reserves, which does not align with the source request detailing a support lead reviewing refund requests for triage decisions (approve, policy review, or return for missing evidence). Therefore, the candidate should not be trusted.\", \"next_action\": \"Reject candidate and request a new candidate that reflects the process of a support lead triaging refund requests.\", \"questions\": [\"What specific aspects of the source brief need to be captured in the next candidate fixture (e.g., decision points, required inputs)?\"], \"handoff\": \"Need clarification on which parts of the source brief must be represented in the next candidate fixture for accurate comparison.\", \"rationale\": \"The core activity described in the source brief is 'reviewing refund requests' by a 'support lead' to make triage decisions. The provided candidate describes a completely different financial process involving a 'treasury analyst'. There is no overlap in roles, activities, or objectives that would allow for trust of this candidate against the source context.\"}",
+  "parsed": {
+    "response": "The candidate fixture describes a treasury analyst optimizing cash reserves, which does not align with the source request detailing a support lead reviewing refund requests for triage decisions (approve, policy review, or return for missing evidence). Therefore, the candidate should not be trusted.",
+    "next_action": "Reject candidate and request a new candidate that reflects the process of a support lead triaging refund requests.",
+    "questions": [
+      "What specific aspects of the source brief need to be captured in the next candidate fixture (e.g., decision points, required inputs)?"
+    ],
+    "handoff": "Need clarification on which parts of the source brief must be represented in the next candidate fixture for accurate comparison.",
+    "rationale": "The core activity described in the source brief is 'reviewing refund requests' by a 'support lead' to make triage decisions. The provided candidate describes a completely different financial process involving a 'treasury analyst'. There is no overlap in roles, activities, or objectives that would allow for trust of this candidate against the source context."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The candidate fixture describes a treasury analyst optimizing cash reserves, which does not align with the source request detailing a support lead reviewing refund requests for triage decisions (approve, policy review, or return for missing evidence). Therefore, the candidate should not be trusted.\", \"next_action\": \"Reject candidate and request a new candidate that reflects the process of a support lead triaging refund requests.\", \"questions\": [\"What specific aspects of the source brief need to be captured in the next candidate fixture (e.g., decision points, required inputs)?\"], \"handoff\": \"Need clarification on which parts of the source brief must be represented in the next candidate fixture for accurate comparison.\", \"rationale\": \"The core activity described in the source brief is 'reviewing refund requests' by a 'support lead' to make triage decisions. The provided candidate describes a completely different financial process involving a 'treasury analyst'. There is no overlap in roles, activities, or objectives that would allow for trust of this candidate against the source context.\"}",
+    "usage": {
+      "prompt_tokens": 439,
+      "completion_tokens": 211,
+      "total_tokens": 650,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "85d80a144caa479806c789d14a9ae1499d67610f17882e8a9311453b57e8fc98",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

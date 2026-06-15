@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "visual-token-valid-metadata-review",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54314/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:45:35.346Z",
+  "duration_ms": 7234,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 628,
+    "completion_tokens": 353,
+    "total_tokens": 981,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "7857dee030807dcee609157a38f97c8479bc107b5c99da36a095365ec5dd2c24",
+  "prompt_sha256": "4d302b03d0b19823b3862f0c4e3c55de1813eb90a3f81be6189b1b8d55d99ed8",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "a4d29cb7829f06f8add77dd99a38807cec167548c71d3d34bbbc6caadd066f4c",
+  "raw_response": "{\"response\": \"The implementation candidate demonstrates strong coverage across primitives, states, static checks, browser QA, and accessibility evidence. The inclusion of visual token metadata (color, type, spacing, motion) in `visual_token_evidence` is noted. However, acceptance must remain gated by the core requirements outlined in the source brief: approved primitives, states, evidence, accessibility, and browser QA. Since all these foundational areas show 'pass' or explicit coverage, the visual token metadata serves as supplementary confirmation rather than a primary determinant of acceptance.\", \"next_action\": \"Proceed with review based on established criteria; confirm if the inclusion of detailed visual token evidence requires an update to the core acceptance checklist or if it is purely informational for this specific artifact.\", \"questions\": [\"Does the acceptance decision hinge solely on the presence and passing status of the foundational checks (primitives, states, accessibility, QA), or does the explicit documentation of visual token metadata necessitate a formal sign-off/update to the acceptance criteria?\", \"Are there any known gaps in the source brief regarding how 'color' or 'motion' tokens specifically interact with the 'decision controls' or 'handoff receipt' beyond the stated evidence expectation?\"], \"handoff\": \"Handoff to Design System Governance for confirmation on whether visual token metadata documentation requires a formal acceptance gate update, given that foundational criteria are met.\", \"rationale\": \"The source brief clearly states that acceptance depends on approved primitives, states, evidence, accessibility, and browser QA. The candidate passes these core areas. While the visual token data is rich, it appears supplementary to the primary gating factors. Therefore, the next step is clarification on whether this metadata elevates its status from descriptive to prescriptive for final approval.\"}",
+  "parsed": {
+    "response": "The implementation candidate demonstrates strong coverage across primitives, states, static checks, browser QA, and accessibility evidence. The inclusion of visual token metadata (color, type, spacing, motion) in `visual_token_evidence` is noted. However, acceptance must remain gated by the core requirements outlined in the source brief: approved primitives, states, evidence, accessibility, and browser QA. Since all these foundational areas show 'pass' or explicit coverage, the visual token metadata serves as supplementary confirmation rather than a primary determinant of acceptance.",
+    "next_action": "Proceed with review based on established criteria; confirm if the inclusion of detailed visual token evidence requires an update to the core acceptance checklist or if it is purely informational for this specific artifact.",
+    "questions": [
+      "Does the acceptance decision hinge solely on the presence and passing status of the foundational checks (primitives, states, accessibility, QA), or does the explicit documentation of visual token metadata necessitate a formal sign-off/update to the acceptance criteria?",
+      "Are there any known gaps in the source brief regarding how 'color' or 'motion' tokens specifically interact with the 'decision controls' or 'handoff receipt' beyond the stated evidence expectation?"
+    ],
+    "handoff": "Handoff to Design System Governance for confirmation on whether visual token metadata documentation requires a formal acceptance gate update, given that foundational criteria are met.",
+    "rationale": "The source brief clearly states that acceptance depends on approved primitives, states, evidence, accessibility, and browser QA. The candidate passes these core areas. While the visual token data is rich, it appears supplementary to the primary gating factors. Therefore, the next step is clarification on whether this metadata elevates its status from descriptive to prescriptive for final approval."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The implementation candidate demonstrates strong coverage across primitives, states, static checks, browser QA, and accessibility evidence. The inclusion of visual token metadata (color, type, spacing, motion) in `visual_token_evidence` is noted. However, acceptance must remain gated by the core requirements outlined in the source brief: approved primitives, states, evidence, accessibility, and browser QA. Since all these foundational areas show 'pass' or explicit coverage, the visual token metadata serves as supplementary confirmation rather than a primary determinant of acceptance.\", \"next_action\": \"Proceed with review based on established criteria; confirm if the inclusion of detailed visual token evidence requires an update to the core acceptance checklist or if it is purely informational for this specific artifact.\", \"questions\": [\"Does the acceptance decision hinge solely on the presence and passing status of the foundational checks (primitives, states, accessibility, QA), or does the explicit documentation of visual token metadata necessitate a formal sign-off/update to the acceptance criteria?\", \"Are there any known gaps in the source brief regarding how 'color' or 'motion' tokens specifically interact with the 'decision controls' or 'handoff receipt' beyond the stated evidence expectation?\"], \"handoff\": \"Handoff to Design System Governance for confirmation on whether visual token metadata documentation requires a formal acceptance gate update, given that foundational criteria are met.\", \"rationale\": \"The source brief clearly states that acceptance depends on approved primitives, states, evidence, accessibility, and browser QA. The candidate passes these core areas. While the visual token data is rich, it appears supplementary to the primary gating factors. Therefore, the next step is clarification on whether this metadata elevates its status from descriptive to prescriptive for final approval.\"}",
+    "usage": {
+      "prompt_tokens": 628,
+      "completion_tokens": 353,
+      "total_tokens": 981,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "e3df119dcbdab4607c4ef123cc0d53316a2a94ca3b64bb3fe9895879124fa3f8",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "capture_type": "codex-output-transcript",
+  "case_id": "clinical-intake-operator-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-13T20:42:46.010Z",
+  "source_context_sha256": "978642e5e5a3f7c6816566062ce36abadc9b7ce749e195aa5f41bce2022d5861",
+  "prompt_sha256": "3aa9dc2c3231a6c5fb7607704fa9a45a0eb050f9783a2966884beaecd4959333",
+  "mcp_context_sha256": "8cea13b87226788441ddb8711286e48573a11c456db3b7e3260fd25602f32bb9",
+  "raw_response_sha256": "d7c7d3aac92aa36e6ea0a914cca707428410adefdff59026e79076597d414553",
+  "raw_response": "{\"response\":\"Center the next response on the care coordinator completing the selected intake review: compare symptoms, urgency, and consent, choose the route, then issue a handoff receipt with the required fields.\",\"next_action\":\"prepare a routing handoff\",\"questions\":[],\"handoff\":\"owner: care coordinator; action: route to nurse review, return for clarification, or mark ready for scheduling; reason: urgency and consent must be clear before scheduling; evidence gap: missing consent or ambiguous urgency signal.\",\"rationale\":\"The fixture fits an operator-review workbench: queue, evidence detail, bounded routing controls, and completion receipt. Source context is sufficient for the next response because the expected outcome and required handoff fields are supplied, while internal mechanics stay out of the user-facing plan.\"}",
+  "parsed": {
+    "response": "Center the next response on the care coordinator completing the selected intake review: compare symptoms, urgency, and consent, choose the route, then issue a handoff receipt with the required fields.",
+    "next_action": "prepare a routing handoff",
+    "questions": [],
+    "handoff": "owner: care coordinator; action: route to nurse review, return for clarification, or mark ready for scheduling; reason: urgency and consent must be clear before scheduling; evidence gap: missing consent or ambiguous urgency signal.",
+    "rationale": "The fixture fits an operator-review workbench: queue, evidence detail, bounded routing controls, and completion receipt. Source context is sufficient for the next response because the expected outcome and required handoff fields are supplied, while internal mechanics stay out of the user-facing plan."
+  },
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "39623b1cca037babc529a9fe5ed2bb0e7b65d691f7adb0de11f50a73ec8977bd",
+    "stderr_sha256": "f30d7a74b7380833bd46cf8ef366498ff1c1edf5e888634a4ec6742d1615ff46",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

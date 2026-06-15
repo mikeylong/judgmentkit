@@ -1,0 +1,67 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "crm-json-import-translation",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56554/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "96014a17a061ea66814ddfc6f4ebd27cc8805da883edd4761f97f3dc3492138e",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T21:15:51.185Z",
+  "duration_ms": 4677,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 782,
+    "completion_tokens": 211,
+    "total_tokens": 993,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "ba2aad410952107073bbd677c79558304a7ee51941ff69ea31290f38588d107e",
+  "prompt_sha256": "6e06269d0f5ddb0988a51c3b73a94671f38e7abce0d029bbc67aeaa006a1c799",
+  "mcp_context_sha256": "f3f5b75041379e337581441a24152a3bf4225f8dd25a6d9bf8f07362fa01e89a",
+  "raw_response_sha256": "0846a9d0efa7f58a7c07da370063bb8eb436dbb9f121475a6d684c1ec1cb0cff",
+  "raw_response": "{\"response\": \"Guide the user through reviewing the import results by presenting a clear summary that separates records ready for acceptance, records requiring manual correction, and any overall process warnings. The primary goal is to facilitate a final decision on which data set to commit.\", \"next_action\": \"Present the structured review interface based on the source payload analysis.\", \"questions\": [\"What specific outcomes or knowledge should the user walk away with after completing this import review?\", \"Which technical details from the underlying data structure need to be translated into plain language for the end-user?\", \"Are there any specific roles or domain terms that must be used when describing the process steps?\"], \"handoff\": \"Decision/Action: Owner needs to define the required user knowledge and vocabulary. Evidence Gap: Missing guidance on desired user takeaway, diagnostic detail translation rules, and necessary domain terminology for the import summary screen.\", \"rationale\": \"The current context indicates missing information regarding the expected user outcome, which is critical for designing the final review step of a data import process.\"}",
+  "parsed": {
+    "response": "Guide the user through reviewing the import results by presenting a clear summary that separates records ready for acceptance, records requiring manual correction, and any overall process warnings. The primary goal is to facilitate a final decision on which data set to commit.",
+    "next_action": "Present the structured review interface based on the source payload analysis.",
+    "questions": [
+      "What specific outcomes or knowledge should the user walk away with after completing this import review?",
+      "Which technical details from the underlying data structure need to be translated into plain language for the end-user?",
+      "Are there any specific roles or domain terms that must be used when describing the process steps?"
+    ],
+    "handoff": "Decision/Action: Owner needs to define the required user knowledge and vocabulary. Evidence Gap: Missing guidance on desired user takeaway, diagnostic detail translation rules, and necessary domain terminology for the import summary screen.",
+    "rationale": "The current context indicates missing information regarding the expected user outcome, which is critical for designing the final review step of a data import process."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Guide the user through reviewing the import results by presenting a clear summary that separates records ready for acceptance, records requiring manual correction, and any overall process warnings. The primary goal is to facilitate a final decision on which data set to commit.\", \"next_action\": \"Present the structured review interface based on the source payload analysis.\", \"questions\": [\"What specific outcomes or knowledge should the user walk away with after completing this import review?\", \"Which technical details from the underlying data structure need to be translated into plain language for the end-user?\", \"Are there any specific roles or domain terms that must be used when describing the process steps?\"], \"handoff\": \"Decision/Action: Owner needs to define the required user knowledge and vocabulary. Evidence Gap: Missing guidance on desired user takeaway, diagnostic detail translation rules, and necessary domain terminology for the import summary screen.\", \"rationale\": \"The current context indicates missing information regarding the expected user outcome, which is critical for designing the final review step of a data import process.\"}",
+    "usage": {
+      "prompt_tokens": 782,
+      "completion_tokens": 211,
+      "total_tokens": 993,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "0b23ff98e6f76fc1aa28f30c4dc63e116787f78afe000e5a7e12bc7152a40a2b",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "implementation-term-leakage-review",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56554/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T21:20:25.809Z",
+  "duration_ms": 40231,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 420,
+    "completion_tokens": 252,
+    "total_tokens": 672,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "4e1435f1938947cebbdc313744cedf8a09eeeb4c4900f747f91864c749b63f4e",
+  "prompt_sha256": "36add2b0b39617b9832e3336cedd7e1607ce89e46b00ee5a68673179a5d2433a",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "8a9be2d9329367cca2ee7894db58d52be113fbaf1217dfffccdd309b44e8e506",
+  "raw_response": "{\"response\": \"The implementation candidate appears to be leaking internal system terminology into user-facing product labels, specifically including terms like 'ready_for_review', 'activity_model', 'guardrails', 'candidate', and 'implementation_contract'. This suggests a failure in the final presentation layer that exposes underlying development or process artifacts to the customer. The core functionality seems technically sound based on primitives used, state coverage, and testing results, but the leakage is a significant usability/UX flaw.\", \"next_action\": \"Require revision of the UI copy for all listed labels to use customer-facing, non-technical language.\", \"questions\": [\"What is the intended user understanding or purpose behind displaying these specific terms ('ready_for_review', 'activity_model', etc.) on a customer refund review screen?\", \"Are there existing style guides or documentation that define acceptable terminology for this product area?\"], \"handoff\": \"Handoff to UX Writing/Content team for copy revision and sign-off.\", \"rationale\": \"The technical implementation seems robust (passing tests, covering states), but the visible text leaks internal jargon, which degrades the user experience and suggests an incomplete polish pass. This requires content remediation rather than functional rework.\"}",
+  "parsed": {
+    "response": "The implementation candidate appears to be leaking internal system terminology into user-facing product labels, specifically including terms like 'ready_for_review', 'activity_model', 'guardrails', 'candidate', and 'implementation_contract'. This suggests a failure in the final presentation layer that exposes underlying development or process artifacts to the customer. The core functionality seems technically sound based on primitives used, state coverage, and testing results, but the leakage is a significant usability/UX flaw.",
+    "next_action": "Require revision of the UI copy for all listed labels to use customer-facing, non-technical language.",
+    "questions": [
+      "What is the intended user understanding or purpose behind displaying these specific terms ('ready_for_review', 'activity_model', etc.) on a customer refund review screen?",
+      "Are there existing style guides or documentation that define acceptable terminology for this product area?"
+    ],
+    "handoff": "Handoff to UX Writing/Content team for copy revision and sign-off.",
+    "rationale": "The technical implementation seems robust (passing tests, covering states), but the visible text leaks internal jargon, which degrades the user experience and suggests an incomplete polish pass. This requires content remediation rather than functional rework."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The implementation candidate appears to be leaking internal system terminology into user-facing product labels, specifically including terms like 'ready_for_review', 'activity_model', 'guardrails', 'candidate', and 'implementation_contract'. This suggests a failure in the final presentation layer that exposes underlying development or process artifacts to the customer. The core functionality seems technically sound based on primitives used, state coverage, and testing results, but the leakage is a significant usability/UX flaw.\", \"next_action\": \"Require revision of the UI copy for all listed labels to use customer-facing, non-technical language.\", \"questions\": [\"What is the intended user understanding or purpose behind displaying these specific terms ('ready_for_review', 'activity_model', etc.) on a customer refund review screen?\", \"Are there existing style guides or documentation that define acceptable terminology for this product area?\"], \"handoff\": \"Handoff to UX Writing/Content team for copy revision and sign-off.\", \"rationale\": \"The technical implementation seems robust (passing tests, covering states), but the visible text leaks internal jargon, which degrades the user experience and suggests an incomplete polish pass. This requires content remediation rather than functional rework.\"}",
+    "usage": {
+      "prompt_tokens": 420,
+      "completion_tokens": 252,
+      "total_tokens": 672,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "24fab0504f6ab52d7677cb936bde707920d6986207aa3f5400dfa757518b78fd",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

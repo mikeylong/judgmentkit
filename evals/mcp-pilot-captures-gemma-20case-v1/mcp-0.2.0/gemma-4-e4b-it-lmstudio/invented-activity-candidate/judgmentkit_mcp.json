@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "invented-activity-candidate",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_activity_model_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "b9da051a5eb6fda014a78ed10f1a08965c477f364f08bfce633d9e4b04cd5f46",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:47:43.684Z",
+  "duration_ms": 3906,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 772,
+    "completion_tokens": 161,
+    "total_tokens": 933,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "fbaf8a046d0b7ddc3d503b305eb5cc44f52c39f731e7d06288848cce01ab8468",
+  "prompt_sha256": "f0a8177347b898437bf4c927f1bf36fe9bfcfe16394609c898aa4c07835f36cf",
+  "mcp_context_sha256": "530ca83e32a87cd9f091a2389316d8c5d4d42670ef700369332cc1798aa6ffec",
+  "raw_response_sha256": "9d2cfd75c702a5b2cc8842ee6837fff770abb2b4e87fac8ba9444de11b71a6fd",
+  "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Ask for clarification on the intended core activity and decision points.\", \"questions\": [\"What should the user leave the surface knowing or having done?\"], \"handoff\": \"Owner: Reviewer; Evidence Gap: The candidate describes a treasury function, but the source brief is about reviewing refund requests. A fix is needed to align the candidate's activity model with the source domain (refund review). Verification: Confirm if the core process involves financial optimization or customer service triage.\", \"rationale\": \"The candidate fixture details an activity related to 'Treasury analyst optimizes cash reserves,' which has no semantic overlap with the source brief describing a support lead reviewing refund requests. The mismatch is in the entire operational domain and primary decision-making context.\"}",
+  "parsed": {
+    "response": "Reject",
+    "next_action": "Ask for clarification on the intended core activity and decision points.",
+    "questions": [
+      "What should the user leave the surface knowing or having done?"
+    ],
+    "handoff": "Owner: Reviewer; Evidence Gap: The candidate describes a treasury function, but the source brief is about reviewing refund requests. A fix is needed to align the candidate's activity model with the source domain (refund review). Verification: Confirm if the core process involves financial optimization or customer service triage.",
+    "rationale": "The candidate fixture details an activity related to 'Treasury analyst optimizes cash reserves,' which has no semantic overlap with the source brief describing a support lead reviewing refund requests. The mismatch is in the entire operational domain and primary decision-making context."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Ask for clarification on the intended core activity and decision points.\", \"questions\": [\"What should the user leave the surface knowing or having done?\"], \"handoff\": \"Owner: Reviewer; Evidence Gap: The candidate describes a treasury function, but the source brief is about reviewing refund requests. A fix is needed to align the candidate's activity model with the source domain (refund review). Verification: Confirm if the core process involves financial optimization or customer service triage.\", \"rationale\": \"The candidate fixture details an activity related to 'Treasury analyst optimizes cash reserves,' which has no semantic overlap with the source brief describing a support lead reviewing refund requests. The mismatch is in the entire operational domain and primary decision-making context.\"}",
+    "usage": {
+      "prompt_tokens": 772,
+      "completion_tokens": 161,
+      "total_tokens": 933,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "6f5ecdc3af203953590fa0f5eb5c3ebb96dd8cec718329a4a7b35b3aaecb13b3",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

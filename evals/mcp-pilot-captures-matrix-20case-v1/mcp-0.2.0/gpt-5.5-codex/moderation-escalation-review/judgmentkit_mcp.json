@@ -1,0 +1,48 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "moderation-escalation-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract"
+  ],
+  "mcp_tool_transcript_sha256": "4d570e007fff8b9b96f41ef968a72528df2b4cff8b33ee05f4d44b53004f8347",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T01:55:10.019Z",
+  "duration_ms": 36092,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "17c66d89bd8d280ad8bfcf04c2499de2a410edf48c57947d84147d99f4980464",
+  "prompt_sha256": "fa8354bfcff9366e2ad2868d6de283524c0b9582c6a87d885badff0ebb0e2673",
+  "mcp_context_sha256": "022da738ddcf2f3a32efc847b263b5eb49c544db50ef3344cc6adafa6cb3692d",
+  "raw_response_sha256": "bb9f372a53e197a05b25d4a36df2ca12700186d4512ef60f774cf202cfda2fd5",
+  "raw_response": "{\"response\":\"Prepare the next response as an operator-review routing handoff: state that the reviewer has compared the flagged content against policy evidence, severity, and available history, then direct the case toward policy review unless the missing history is required before escalation.\",\"next_action\":\"Prepare the escalation handoff and verify it includes the policy reviewer as owner, the escalation reason, the severity basis, available policy evidence, route options, and the missing user history context.\",\"questions\":[],\"handoff\":\"Decision: escalate for policy review; Owner: policy reviewer; Action: review severity and policy evidence, or return for more evidence if user history is required; Reason: severity and policy evidence support escalation; Evidence gap: missing user history context; Verification: handoff names owner, policy reason, and evidence gap.\",\"rationale\":\"The source context is sufficient to route the case without another clarification. The response should keep the focus on the reviewer decision, the allowed routes, and the evidence needed for a complete escalation record.\"}",
+  "parsed": {
+    "response": "Prepare the next response as an operator-review routing handoff: state that the reviewer has compared the flagged content against policy evidence, severity, and available history, then direct the case toward policy review unless the missing history is required before escalation.",
+    "next_action": "Prepare the escalation handoff and verify it includes the policy reviewer as owner, the escalation reason, the severity basis, available policy evidence, route options, and the missing user history context.",
+    "questions": [],
+    "handoff": "Decision: escalate for policy review; Owner: policy reviewer; Action: review severity and policy evidence, or return for more evidence if user history is required; Reason: severity and policy evidence support escalation; Evidence gap: missing user history context; Verification: handoff names owner, policy reason, and evidence gap.",
+    "rationale": "The source context is sufficient to route the case without another clarification. The response should keep the focus on the reviewer decision, the allowed routes, and the evidence needed for a complete escalation record."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "3c9afd5953a19691ee85e615cab2dca9c8f5ee2b8d30597c0bcefc5e6857cf5c",
+    "stderr_sha256": "4c57a10c33ba88071b64858ba779d7b687c565820744af0af4ad450496e09c92",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

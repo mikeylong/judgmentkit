@@ -1,0 +1,47 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "surface-type-mismatch",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "8db3000f67f2601e73639297be9f736be14febd9e66f5648659ff3b13dc54703",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T02:00:01.975Z",
+  "duration_ms": 51773,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "3c01476d56d5f9b1127a8d70457f1a242e60810b66e6752fd5580d4223fceb21",
+  "prompt_sha256": "226426ee130ae90ee41938c78dd6abe44d48b139c9ae337405d3bbd403711e2a",
+  "mcp_context_sha256": "ac38d0ab4dc2c18c69c7fce4ed6671e1546ee67f0665541172afc69cf4b77cf4",
+  "raw_response_sha256": "02e9a22c66a569bf4de421dc0ec444e480bc4b874eafce6ba62e33bf5e94a6d5",
+  "raw_response": "{\"response\":\"Reject the candidate. It models an incident review and escalation workbench, while the source request is a product landing page for AI tooling teams evaluating whether to install JudgmentKit. The proposed workflow, actions, vocabulary, and completion state shift the activity from product understanding and installation decision support into operations triage, so it should not be trusted.\",\"next_action\":\"Rebuild from the source activity: explain what JudgmentKit is, who on an AI tooling team should care, what installation decision they are making, what evidence supports trust and fit, and what action the visitor should take next.\",\"questions\":[],\"handoff\":\"Decision: reject; Action: rebuild as an install-evaluation landing page; Reason: surface type, workflow, vocabulary, and outcome are incident operations instead of product evaluation; Required fix: align activity, sections, terms, and completion state to helping AI tooling teams decide whether to install JudgmentKit; Verification: confirm the page leaves visitors with a clear fit decision and install path.\",\"rationale\":\"The source brief provides enough context to make the trust decision. The candidate does not merely need wording adjustments; it uses the wrong surface and domain model, so repair should start by re-establishing the product-evaluation activity before proposing page structure.\"}",
+  "parsed": {
+    "response": "Reject the candidate. It models an incident review and escalation workbench, while the source request is a product landing page for AI tooling teams evaluating whether to install JudgmentKit. The proposed workflow, actions, vocabulary, and completion state shift the activity from product understanding and installation decision support into operations triage, so it should not be trusted.",
+    "next_action": "Rebuild from the source activity: explain what JudgmentKit is, who on an AI tooling team should care, what installation decision they are making, what evidence supports trust and fit, and what action the visitor should take next.",
+    "questions": [],
+    "handoff": "Decision: reject; Action: rebuild as an install-evaluation landing page; Reason: surface type, workflow, vocabulary, and outcome are incident operations instead of product evaluation; Required fix: align activity, sections, terms, and completion state to helping AI tooling teams decide whether to install JudgmentKit; Verification: confirm the page leaves visitors with a clear fit decision and install path.",
+    "rationale": "The source brief provides enough context to make the trust decision. The candidate does not merely need wording adjustments; it uses the wrong surface and domain model, so repair should start by re-establishing the product-evaluation activity before proposing page structure."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "a605dbdc6df317a59512b0fce2671f2abe4918570005db2f10e4a736edfe212d",
+    "stderr_sha256": "93974ac59e225632ef26519853d08a2071b7f94fd862533330cc193d3b41f698",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}
