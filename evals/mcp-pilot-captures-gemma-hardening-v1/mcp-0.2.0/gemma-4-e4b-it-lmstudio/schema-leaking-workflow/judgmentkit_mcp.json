@@ -1,0 +1,64 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "schema-leaking-workflow",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51706/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "4033b1ca58c32471e068c564a960f8fedc67f3303fe129c2fa60d1f732951cf9",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:43:16.326Z",
+  "duration_ms": 4034,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 886,
+    "completion_tokens": 194,
+    "total_tokens": 1080,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "ca3ddf634366cd2064f74acd3a30e43beb2bad8cfe9a5ccdb151bd748ad1b517",
+  "prompt_sha256": "a49482389880759de1334c4df4f7fae6a223c39176309ebd4a7c23976d550473",
+  "mcp_context_sha256": "12f141b1d95dc634a514bc178823a385b13a41b6ceecde9e21aba838c372ef0b",
+  "raw_response_sha256": "3ff1fb11283d8a13850dfaad8fe1b6dfcdda372844649cd5661f4361657fdf7f",
+  "raw_response": "{\"response\": \"The candidate leaks internal implementation details by exposing technical concepts like 'JSON schema', 'database field', and 'API endpoint' in user-facing elements, which is inappropriate for a support lead reviewing refund requests.\", \"next_action\": \"Revise the workflow representation to use only domain-specific language relevant to the source brief (e.g., 'Review Refund Details', 'Update Record').\", \"questions\": [\"What should the user leave the surface knowing or having done?\", \"Which implementation terms in the workflow candidate should move to diagnostics or be translated?\"], \"handoff\": \"Reject; Fix required: Remove all internal implementation details ('JSON schema', 'database field', 'API endpoint') from user-facing fields and replace them with domain language matching the source brief (refund review process).\", \"rationale\": \"The candidate violates the principle of abstraction by exposing technical artifacts instead of modeling the support lead's actual workflow steps.\"}",
+  "parsed": {
+    "response": "The candidate leaks internal implementation details by exposing technical concepts like 'JSON schema', 'database field', and 'API endpoint' in user-facing elements, which is inappropriate for a support lead reviewing refund requests.",
+    "next_action": "Revise the workflow representation to use only domain-specific language relevant to the source brief (e.g., 'Review Refund Details', 'Update Record').",
+    "questions": [
+      "What should the user leave the surface knowing or having done?",
+      "Which implementation terms in the workflow candidate should move to diagnostics or be translated?"
+    ],
+    "handoff": "Reject; Fix required: Remove all internal implementation details ('JSON schema', 'database field', 'API endpoint') from user-facing fields and replace them with domain language matching the source brief (refund review process).",
+    "rationale": "The candidate violates the principle of abstraction by exposing technical artifacts instead of modeling the support lead's actual workflow steps."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The candidate leaks internal implementation details by exposing technical concepts like 'JSON schema', 'database field', and 'API endpoint' in user-facing elements, which is inappropriate for a support lead reviewing refund requests.\", \"next_action\": \"Revise the workflow representation to use only domain-specific language relevant to the source brief (e.g., 'Review Refund Details', 'Update Record').\", \"questions\": [\"What should the user leave the surface knowing or having done?\", \"Which implementation terms in the workflow candidate should move to diagnostics or be translated?\"], \"handoff\": \"Reject; Fix required: Remove all internal implementation details ('JSON schema', 'database field', 'API endpoint') from user-facing fields and replace them with domain language matching the source brief (refund review process).\", \"rationale\": \"The candidate violates the principle of abstraction by exposing technical artifacts instead of modeling the support lead's actual workflow steps.\"}",
+    "usage": {
+      "prompt_tokens": 886,
+      "completion_tokens": 194,
+      "total_tokens": 1080,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "d54e58c1d4424a3b5cce5e464f196e4857cde8b36bbff9f5453b4432c7c44eef",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

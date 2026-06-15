@@ -1,0 +1,48 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "billing-webhook-debug-boundary",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T01:42:29.840Z",
+  "duration_ms": 68471,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "e1609c571badb473370b6b5fe68ac8afa945e2fb8fdd797a696ab886c252b658",
+  "prompt_sha256": "5889420cd89eb01329ad5b3bd1c116a930ff30313e92cbe1b7ba5e14693adf1d",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "c9e07d4270dab687d9a3a98d294db8731c5ce685d3564be738682d7841be3780",
+  "raw_response": "{\"response\":\"Frame the requested UI as billing incident triage, not a generic webhook console. The next response should name the activity: a billing specialist is resolving invoice issues by weighing event evidence against operational policy. Keep the three decisions central: customer-visible impact, engineering escalation, or safe retry. Use webhook event names, Stripe payload highlights, retry history, endpoint status, and request IDs as evidence only where they help justify one of those decisions; keep raw diagnostic material available for drilldown and handoff rather than making it the primary surface.\",\"next_action\":\"Ask for the missing fixture and policy thresholds if they are not available; otherwise draft a scoped response that defines decision labels, evidence needed for each label, and the handoff required for retry or engineering escalation.\",\"questions\":[\"What representative fixture rows are available, including event names, invoice/payment state changes, retry outcomes, endpoint status, and request IDs?\",\"What policy defines customer-visible impact, safe-to-retry cases, and engineering-escalation triggers?\"],\"handoff\":\"Billing operations owner: provide representative webhook/retry examples and classification thresholds so evidence can be mapped to retry, escalation, or customer-impact decisions.\",\"rationale\":\"The brief gives the activity, evidence sources, and target decisions, but not the concrete examples or operational thresholds needed to classify issues safely. The next agent response should protect the billing specialist from implementation noise while preserving enough evidence for accountable action and engineering handoff.\"}",
+  "parsed": {
+    "response": "Frame the requested UI as billing incident triage, not a generic webhook console. The next response should name the activity: a billing specialist is resolving invoice issues by weighing event evidence against operational policy. Keep the three decisions central: customer-visible impact, engineering escalation, or safe retry. Use webhook event names, Stripe payload highlights, retry history, endpoint status, and request IDs as evidence only where they help justify one of those decisions; keep raw diagnostic material available for drilldown and handoff rather than making it the primary surface.",
+    "next_action": "Ask for the missing fixture and policy thresholds if they are not available; otherwise draft a scoped response that defines decision labels, evidence needed for each label, and the handoff required for retry or engineering escalation.",
+    "questions": [
+      "What representative fixture rows are available, including event names, invoice/payment state changes, retry outcomes, endpoint status, and request IDs?",
+      "What policy defines customer-visible impact, safe-to-retry cases, and engineering-escalation triggers?"
+    ],
+    "handoff": "Billing operations owner: provide representative webhook/retry examples and classification thresholds so evidence can be mapped to retry, escalation, or customer-impact decisions.",
+    "rationale": "The brief gives the activity, evidence sources, and target decisions, but not the concrete examples or operational thresholds needed to classify issues safely. The next agent response should protect the billing specialist from implementation noise while preserving enough evidence for accountable action and engineering handoff."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "68062e1e3d60ba667dec5ea223af3ab968b9043f2795cbda71f796c9bc39b9a4",
+    "stderr_sha256": "03ca7c46b4a91864a5cf718e1c2bd90685b5257280ad15698f2e469bdbfe746c",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "capture_type": "codex-output-transcript",
+  "case_id": "vague-system-dashboard",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-13T20:40:53.326Z",
+  "source_context_sha256": "bb0bf2fea939c04fbcced3bc560cb998d0ec150320a1eed4b698cf7760a17a2c",
+  "prompt_sha256": "6e14caa85ce23821f2355354c237ce66320d7902d5e3d31d90e2377fff7c9dbe",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "26386ecfdeb690c8729178512ddb20c9839f54862f49473577ea2120a4e6fb88",
+  "raw_response": "{\"response\":\"The brief is too broad to plan a useful surface. First narrow the work it supports, the decision it should help someone make, and the outcome the user should leave with.\",\"next_action\":\"ask targeted questions about activity, decision, and outcome\",\"questions\":[\"What activity should this surface support, and who performs it?\",\"What decision should the user be able to make from it?\",\"What outcome should the user leave with or hand off after using it?\"],\"handoff\":\"activity: missing; decision: missing; outcome: missing; required fix: answer the targeted questions before planning the surface.\",\"rationale\":\"The source brief names a generic surface but does not define the user's work, decision point, or desired result, so planning layout or content would invent unsupported context.\"}",
+  "parsed": {
+    "response": "The brief is too broad to plan a useful surface. First narrow the work it supports, the decision it should help someone make, and the outcome the user should leave with.",
+    "next_action": "ask targeted questions about activity, decision, and outcome",
+    "questions": [
+      "What activity should this surface support, and who performs it?",
+      "What decision should the user be able to make from it?",
+      "What outcome should the user leave with or hand off after using it?"
+    ],
+    "handoff": "activity: missing; decision: missing; outcome: missing; required fix: answer the targeted questions before planning the surface.",
+    "rationale": "The source brief names a generic surface but does not define the user's work, decision point, or desired result, so planning layout or content would invent unsupported context."
+  },
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "889324cce49ba3cc63541d27dbdf4bb94d0e151c3b3b42b9a1c6d16e3c8c624a",
+    "stderr_sha256": "d1edcedf87786572529490834dddd88050ccbc8ec21759847fce7344ed362a16",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

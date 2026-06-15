@@ -1,0 +1,61 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "schema-leaking-workflow",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:47:47.521Z",
+  "duration_ms": 3829,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 504,
+    "completion_tokens": 208,
+    "total_tokens": 712,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "90dfc8ec9e69367e7d2c1c9faeb27c76563127f8f9b94934b4172e2b31c5beab",
+  "prompt_sha256": "a65cc22a7dacdbfeedeb74215086114ae034c124506ba387e954799fcd3fb220",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "5d6de5011d817d50519525373cdf4425ddfab0362e37de87de43c9282e6c1411",
+  "raw_response": "{\"response\": \"The candidate fixture describes a workflow centered around inspecting, editing, and saving JSON schemas and database fields via an API endpoint. This does not align with the source request, which describes a support lead reviewing refund requests to decide between 'approve', 'policy review', or 'return for missing evidence'. The core functionality mismatch suggests the candidate is inappropriate for this task.\", \"next_action\": \"Discard candidate; requires re-evaluation against the actual triage process.\", \"questions\": [\"What specific actions should be modeled when a support lead decides to 'policy review' a refund request? (e.g., assigning it to another team, adding internal notes)\"], \"handoff\": \"Handoff to workflow designer for refinement based on required decision outcomes (approve/review/return).\", \"rationale\": \"The candidate fixture details schema management and CRUD operations, which is unrelated to the support triage process described in the source brief. The primary actions and UI elements do not reflect reviewing refund requests or making approval decisions.\"}",
+  "parsed": {
+    "response": "The candidate fixture describes a workflow centered around inspecting, editing, and saving JSON schemas and database fields via an API endpoint. This does not align with the source request, which describes a support lead reviewing refund requests to decide between 'approve', 'policy review', or 'return for missing evidence'. The core functionality mismatch suggests the candidate is inappropriate for this task.",
+    "next_action": "Discard candidate; requires re-evaluation against the actual triage process.",
+    "questions": [
+      "What specific actions should be modeled when a support lead decides to 'policy review' a refund request? (e.g., assigning it to another team, adding internal notes)"
+    ],
+    "handoff": "Handoff to workflow designer for refinement based on required decision outcomes (approve/review/return).",
+    "rationale": "The candidate fixture details schema management and CRUD operations, which is unrelated to the support triage process described in the source brief. The primary actions and UI elements do not reflect reviewing refund requests or making approval decisions."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The candidate fixture describes a workflow centered around inspecting, editing, and saving JSON schemas and database fields via an API endpoint. This does not align with the source request, which describes a support lead reviewing refund requests to decide between 'approve', 'policy review', or 'return for missing evidence'. The core functionality mismatch suggests the candidate is inappropriate for this task.\", \"next_action\": \"Discard candidate; requires re-evaluation against the actual triage process.\", \"questions\": [\"What specific actions should be modeled when a support lead decides to 'policy review' a refund request? (e.g., assigning it to another team, adding internal notes)\"], \"handoff\": \"Handoff to workflow designer for refinement based on required decision outcomes (approve/review/return).\", \"rationale\": \"The candidate fixture details schema management and CRUD operations, which is unrelated to the support triage process described in the source brief. The primary actions and UI elements do not reflect reviewing refund requests or making approval decisions.\"}",
+    "usage": {
+      "prompt_tokens": 504,
+      "completion_tokens": 208,
+      "total_tokens": 712,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "5f69bdb3cddf43a11598cc0af0385b2539bcc1c1b25c6ff9011948791edda1d0",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

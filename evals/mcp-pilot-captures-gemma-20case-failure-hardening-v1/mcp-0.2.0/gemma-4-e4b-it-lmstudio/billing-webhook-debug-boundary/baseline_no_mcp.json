@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "billing-webhook-debug-boundary",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56554/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T21:15:56.611Z",
+  "duration_ms": 5420,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 245,
+    "completion_tokens": 267,
+    "total_tokens": 512,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "7735c15c2fcf4ba5e98f7d8c245b3fe77d0e8a5d050682b73391c9b9a5eba475",
+  "prompt_sha256": "5889420cd89eb01329ad5b3bd1c116a930ff30313e92cbe1b7ba5e14693adf1d",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "58c5a8014fc2c8718e49d17445d7b4b62f5456f787149312d9ba73500c6c4374",
+  "raw_response": "{\"response\": \"Based on the provided information—webhook event names, Stripe payloads, retry logs, endpoint status, and request IDs—the next step is to synthesize a comprehensive diagnostic view for the billing specialist. This view must allow them to trace an invoice issue's lifecycle from initial webhook receipt through processing attempts, pinpointing where it stalled or failed.\", \"next_action\": \"Develop a structured workflow that ingests and correlates data points (event name $\\\\rightarrow$ payload $\\\\rightarrow$ retry status $\\\\rightarrow$ endpoint health) into actionable decision nodes for the specialist.\", \"questions\": [\"What are the specific criteria used to determine if an invoice issue is 'customer-visible' versus requiring engineering escalation?\", \"Are there predefined thresholds or patterns in the retry logs that automatically suggest a resolution path (e.g., 'retry after 1 hour')?\"], \"handoff\": \"Need clarification on decision boundaries for customer visibility and engineering escalation criteria.\", \"rationale\": \"The goal is to build a diagnostic tool, not just display data. The specialist needs clear decision paths based on the correlated evidence provided by the various logs and payloads. The current source brief describes inputs but lacks the logic/rules engine required for the 'decide' step of the task description (customer-visible vs. engineering escalation).\"}",
+  "parsed": {
+    "response": "Based on the provided information—webhook event names, Stripe payloads, retry logs, endpoint status, and request IDs—the next step is to synthesize a comprehensive diagnostic view for the billing specialist. This view must allow them to trace an invoice issue's lifecycle from initial webhook receipt through processing attempts, pinpointing where it stalled or failed.",
+    "next_action": "Develop a structured workflow that ingests and correlates data points (event name $\\rightarrow$ payload $\\rightarrow$ retry status $\\rightarrow$ endpoint health) into actionable decision nodes for the specialist.",
+    "questions": [
+      "What are the specific criteria used to determine if an invoice issue is 'customer-visible' versus requiring engineering escalation?",
+      "Are there predefined thresholds or patterns in the retry logs that automatically suggest a resolution path (e.g., 'retry after 1 hour')?"
+    ],
+    "handoff": "Need clarification on decision boundaries for customer visibility and engineering escalation criteria.",
+    "rationale": "The goal is to build a diagnostic tool, not just display data. The specialist needs clear decision paths based on the correlated evidence provided by the various logs and payloads. The current source brief describes inputs but lacks the logic/rules engine required for the 'decide' step of the task description (customer-visible vs. engineering escalation)."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Based on the provided information—webhook event names, Stripe payloads, retry logs, endpoint status, and request IDs—the next step is to synthesize a comprehensive diagnostic view for the billing specialist. This view must allow them to trace an invoice issue's lifecycle from initial webhook receipt through processing attempts, pinpointing where it stalled or failed.\", \"next_action\": \"Develop a structured workflow that ingests and correlates data points (event name $\\\\rightarrow$ payload $\\\\rightarrow$ retry status $\\\\rightarrow$ endpoint health) into actionable decision nodes for the specialist.\", \"questions\": [\"What are the specific criteria used to determine if an invoice issue is 'customer-visible' versus requiring engineering escalation?\", \"Are there predefined thresholds or patterns in the retry logs that automatically suggest a resolution path (e.g., 'retry after 1 hour')?\"], \"handoff\": \"Need clarification on decision boundaries for customer visibility and engineering escalation criteria.\", \"rationale\": \"The goal is to build a diagnostic tool, not just display data. The specialist needs clear decision paths based on the correlated evidence provided by the various logs and payloads. The current source brief describes inputs but lacks the logic/rules engine required for the 'decide' step of the task description (customer-visible vs. engineering escalation).\"}",
+    "usage": {
+      "prompt_tokens": 245,
+      "completion_tokens": 267,
+      "total_tokens": 512,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "db2a1a3852b442dd719db56305cf94f06423cc16c00afd90197ae15b57b70578",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

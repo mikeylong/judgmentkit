@@ -150,6 +150,7 @@ const platformSites = [
 ];
 
 const primaryNavLinks = [
+  { label: "Value", href: "/value/" },
   { label: "Docs", href: "/docs/" },
   { label: "Examples", href: "/examples/" },
   { label: "Evals", href: "/evals/" },
@@ -165,6 +166,28 @@ function renderPlatformHeader() {
             ${primaryNavLinks
               .map((link) => `<a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>`)
               .join("\n            ")}
+          </div>
+          <div class="surfaces-primary-menu" data-surfaces-primary-menu-root>
+            <button
+              class="surfaces-primary-menu-button"
+              type="button"
+              aria-label="Open primary navigation"
+              aria-expanded="false"
+              aria-controls="surfaces-primary-menu"
+              aria-haspopup="menu"
+              data-surfaces-primary-menu-button
+            >
+              <span>Menu</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+                <path stroke-linecap="round" d="M4 7h16M4 12h16M4 17h16"></path>
+              </svg>
+            </button>
+            <div class="surfaces-primary-menu-backdrop" hidden data-surfaces-primary-menu-backdrop></div>
+            <div class="surfaces-primary-menu-list" id="surfaces-primary-menu" role="menu" hidden data-surfaces-primary-menu-list>
+              ${primaryNavLinks
+                .map((link) => `<a href="${escapeHtml(link.href)}" role="menuitem">${escapeHtml(link.label)}</a>`)
+                .join("\n              ")}
+            </div>
           </div>
         </div>
         <div class="surfaces-navigation-right">
@@ -203,12 +226,8 @@ function platformNavigationScript() {
       (() => {
         const navs = document.querySelectorAll("[data-surfaces-navigation]");
 
-        for (const nav of navs) {
-          const button = nav.querySelector("[data-surfaces-system-menu-button]");
-          const menu = nav.querySelector("[data-surfaces-system-menu]");
-          const backdrop = nav.querySelector("[data-surfaces-system-menu-backdrop]");
-
-          if (!button || !menu || !backdrop) continue;
+        const bindMenu = ({ button, menu, backdrop }) => {
+          if (!button || !menu || !backdrop) return;
 
           const setOpen = (open) => {
             button.setAttribute("aria-expanded", String(open));
@@ -226,6 +245,20 @@ function platformNavigationScript() {
           });
           document.addEventListener("keydown", (event) => {
             if (event.key === "Escape") setOpen(false);
+          });
+        };
+
+        for (const nav of navs) {
+          bindMenu({
+            button: nav.querySelector("[data-surfaces-primary-menu-button]"),
+            menu: nav.querySelector("[data-surfaces-primary-menu-list]"),
+            backdrop: nav.querySelector("[data-surfaces-primary-menu-backdrop]"),
+          });
+
+          bindMenu({
+            button: nav.querySelector("[data-surfaces-system-menu-button]"),
+            menu: nav.querySelector("[data-surfaces-system-menu]"),
+            backdrop: nav.querySelector("[data-surfaces-system-menu-backdrop]"),
           });
         }
       })();
@@ -488,6 +521,7 @@ a {
   display: flex;
   align-items: center;
   gap: 48px;
+  min-width: 0;
 }
 .surfaces-navigation-identifier {
   color: var(--ink);
@@ -513,6 +547,75 @@ a {
 .surfaces-navigation-sections a:hover,
 .surfaces-navigation-sections a:focus-visible {
   color: #171717;
+}
+.surfaces-primary-menu {
+  position: relative;
+  display: none;
+}
+.surfaces-primary-menu-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 5px 8px;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  background-color: #ffffff;
+  color: #525252;
+  cursor: pointer;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+.surfaces-primary-menu-button:hover,
+.surfaces-primary-menu-button:focus-visible {
+  color: #171717;
+  outline: 0;
+}
+.surfaces-primary-menu-button:focus-visible {
+  box-shadow: 0 0 0 2px rgba(23, 23, 23, 0.18);
+}
+.surfaces-primary-menu-button svg {
+  display: block;
+  flex: 0 0 auto;
+}
+.surfaces-primary-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+.surfaces-primary-menu-list {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 220px;
+  max-width: calc(100vw - 48px);
+  padding: 8px;
+  border: 1px solid #e5e5e5;
+  border-radius: 4px;
+  background-color: #ffffff;
+  z-index: 50;
+  animation: surfaces-menu-enter 0.12s linear;
+}
+.surfaces-primary-menu-backdrop[hidden],
+.surfaces-primary-menu-list[hidden] {
+  display: none;
+}
+.surfaces-primary-menu-list a {
+  display: block;
+  padding: 12px;
+  border-radius: 4px;
+  color: #171717;
+  font-family: Inter, sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.12s linear;
+}
+.surfaces-primary-menu-list a:hover,
+.surfaces-primary-menu-list a:focus-visible {
+  background-color: #fafafa;
+  outline: 0;
 }
 .surfaces-navigation-right {
   display: flex;
@@ -1036,6 +1139,131 @@ pre {
   margin-top: 16px;
 }
 .system-map-summary p {
+  margin-bottom: 0;
+}
+.value-page {
+  display: grid;
+  gap: clamp(28px, 5vw, 52px);
+  padding-top: clamp(36px, 5vw, 62px);
+}
+.value-hero {
+  max-width: 980px;
+}
+.value-hero h1 {
+  max-width: 16ch;
+}
+.value-hero .lede {
+  max-width: 72ch;
+}
+.value-case-grid {
+  display: grid;
+  gap: 22px;
+}
+.value-case {
+  display: grid;
+  grid-template-columns: minmax(0, 0.86fr) minmax(320px, 1.14fr);
+  gap: clamp(18px, 4vw, 34px);
+  align-items: start;
+  padding: clamp(18px, 4vw, 28px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.value-case h2 {
+  max-width: 18ch;
+  font-size: clamp(26px, 3vw, 38px);
+}
+.value-case-copy {
+  min-width: 0;
+}
+.value-findings {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 0;
+}
+.value-findings div {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfaf6;
+}
+.value-findings dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.value-findings dd {
+  margin: 4px 0 0;
+}
+.value-screenshot-pair,
+.value-receipt {
+  min-width: 0;
+}
+.value-screenshot-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 0;
+}
+.value-screenshot-pair a {
+  display: grid;
+  gap: 8px;
+  color: var(--ink);
+  font-weight: 800;
+  text-decoration: none;
+}
+.value-screenshot-pair img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: top center;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+}
+.value-screenshot-pair figcaption,
+.value-screenshot-pair span {
+  color: var(--muted);
+  font-size: 13px;
+}
+.value-receipt {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid rgba(36, 95, 115, 0.22);
+  border-radius: 8px;
+  background: rgba(36, 95, 115, 0.05);
+}
+.value-receipt-row {
+  display: grid;
+  grid-template-columns: 148px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(36, 95, 115, 0.18);
+}
+.value-receipt-row:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+.value-receipt-row strong {
+  color: var(--accent-strong);
+}
+.value-receipt-row p {
+  margin-bottom: 0;
+}
+.value-evidence {
+  display: grid;
+  gap: 14px;
+  max-width: 920px;
+  padding: clamp(18px, 4vw, 28px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fbfaf6;
+}
+.value-evidence h2 {
   margin-bottom: 0;
 }
 .command {
@@ -2081,7 +2309,13 @@ pre {
   gap: 10px;
   margin-top: 16px;
 }
-@media (max-width: 1120px) and (min-width: 821px) {
+@media (max-width: 1120px) and (min-width: 768px) {
+  .surfaces-navigation-left {
+    gap: 28px;
+  }
+  .surfaces-navigation-sections {
+    gap: 20px;
+  }
   .doc-layout {
     grid-template-columns: minmax(160px, 200px) minmax(0, 1fr);
     gap: 24px;
@@ -2136,7 +2370,11 @@ pre {
   }
   .example-gallery-grid,
   .example-comparison-pair,
+  .value-case,
   .example-gallery-modal-panel {
+    grid-template-columns: 1fr;
+  }
+  .value-screenshot-pair {
     grid-template-columns: 1fr;
   }
   .example-gallery-modal-panel {
@@ -2198,7 +2436,30 @@ pre {
   }
 }
 @media (max-width: 767px) {
+  .surfaces-navigation-inner {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+  .surfaces-navigation-left {
+    gap: 12px;
+  }
   .surfaces-navigation-sections {
+    display: none;
+  }
+  .surfaces-primary-menu {
+    display: block;
+  }
+  .surfaces-primary-menu-list {
+    position: fixed;
+    top: 64px;
+    left: 16px;
+    right: 16px;
+    width: auto;
+    max-width: none;
+  }
+}
+@media (max-width: 359px) {
+  .surfaces-primary-menu-button span {
     display: none;
   }
 }
@@ -2212,10 +2473,11 @@ function homepage() {
       <div>
         <p class="eyebrow">Activity-first judgment for AI agents</p>
         <h1>Judgment before generation.</h1>
-        <p class="lede">JudgmentKit stops implementation mechanics from becoming UX. Use it before accepting AI-generated product work, so the next interface starts from the activity, decision, evidence, and handoff instead of from schemas, prompts, or tool traces.</p>
+        <p class="lede">JudgmentKit catches when AI-generated UI turns implementation mechanics into UX, then gives the agent repair instructions before the work ships.</p>
         <div class="hero-actions" aria-label="Primary proof paths">
-          <a class="hero-action hero-action-primary" data-hero-action="primary" href="/examples/">Examples</a>
-          <a class="hero-action hero-action-secondary" data-hero-action="secondary" href="/evals/">Evals</a>
+          <a class="hero-action hero-action-primary" data-hero-action="primary" href="/value/">What it prevents</a>
+          <a class="hero-action hero-action-secondary" data-hero-action="secondary" href="/examples/">Examples</a>
+          <a class="hero-action hero-action-secondary" data-hero-action="evidence" href="/evals/">Evals</a>
         </div>
       </div>
       <div class="proof-panel" aria-label="JudgmentKit proof path">
@@ -2293,6 +2555,170 @@ function homepage() {
         "JudgmentKit helps AI agents review activity, workflow, disclosure, and handoff quality before generating product UI.",
       headExtra: systemMapFlowAssets(),
       path: "/",
+    },
+  );
+}
+
+async function buildValueEvidenceLinks() {
+  const links = [
+    {
+      label: "Public evaluation report",
+      href: "/evals/judgmentkit-mcp/",
+    },
+  ];
+  const mcpPilotCatalog = await readJsonIfExists("evals/reports/mcp-pilot/index.json");
+  const latestPilotRun = mcpPilotCatalog?.latest;
+
+  if (latestPilotRun?.html_report) {
+    links.push({
+      label: "Latest MCP pilot report",
+      href: `/evals/mcp-pilot/${latestPilotRun.html_report}`,
+    });
+  } else {
+    links.push({
+      label: "MCP pilot reports",
+      href: "/evals/mcp-pilot/",
+    });
+  }
+
+  if (latestPilotRun?.run_path) {
+    const latestLlmEvidencePath = path.join(
+      "evals/reports/mcp-pilot",
+      latestPilotRun.run_path,
+      "mcp-pilot-llm-evidence.md",
+    );
+
+    try {
+      await fs.access(path.join(ROOT, latestLlmEvidencePath));
+      links.push({
+        label: "Latest LLM evidence",
+        href: `/evals/mcp-pilot/${latestPilotRun.run_path}/mcp-pilot-llm-evidence.md`,
+      });
+    } catch {
+      // The report is still useful when optional LLM evidence is absent.
+    }
+  }
+
+  const milestoneProofPath =
+    "evals/reports/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-evidence-packet.md";
+
+  try {
+    await fs.access(path.join(ROOT, milestoneProofPath));
+    links.push({
+      label: "Milestone proof packet",
+      href: "/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-evidence-packet.md",
+    });
+  } catch {
+    // Keep the public page buildable even when local proof packets are not present.
+  }
+
+  links.push({
+    label: "One-shot demo",
+    href: "/examples/one-shot-demo.html",
+  });
+
+  return links;
+}
+
+function renderValueEvidenceLinks(links) {
+  return links
+    .map((link) => `<a class="pill-link" href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>`)
+    .join("\n          ");
+}
+
+async function valuePage() {
+  const evidenceLinks = await buildValueEvidenceLinks();
+
+  return page(
+    "What JudgmentKit Prevents",
+    `
+    <section class="section value-page">
+      <div class="value-hero">
+        <p class="eyebrow">Shippable value</p>
+        <h1>What JudgmentKit prevents</h1>
+        <p class="lede">JudgmentKit catches when AI-generated UI turns implementation mechanics into UX, then gives the agent repair instructions before the work ships.</p>
+        <div class="hero-actions" aria-label="Value page actions">
+          <a class="hero-action hero-action-primary" href="/install">Install JudgmentKit</a>
+          <a class="hero-action hero-action-secondary" href="/examples/">Review examples</a>
+        </div>
+      </div>
+
+      <div class="value-case-grid">
+        <article class="value-case" id="implementation-language">
+          <div class="value-case-copy">
+            <p class="eyebrow">Implementation language leak</p>
+            <h2>Internal objects stop becoming the product surface.</h2>
+            <p>A raw generation pass tends to expose database fields, schema labels, endpoint status, and debug structure. JudgmentKit redirects the agent toward the actual activity: a support lead reviewing refund evidence and leaving a handoff.</p>
+            <dl class="value-findings">
+              <div><dt>Baseline failure</dt><dd>Source mechanics become navigation and labels the support lead has to translate.</dd></div>
+              <div><dt>JudgmentKit catches</dt><dd>The activity, participant, decision, outcome, and disclosure boundary are missing or weak.</dd></div>
+              <div><dt>Repaired outcome</dt><dd>The primary surface uses refund review language and keeps diagnostics secondary.</dd></div>
+            </dl>
+          </div>
+          <figure class="value-screenshot-pair" aria-label="Implementation language before and after screenshots">
+            <a href="/examples/model-ui/refund-system-map/artifacts/deterministic-no-judgmentkit.html">
+              <img src="/examples/model-ui/refund-system-map/screenshots/deterministic-no-judgmentkit.png" alt="Raw refund triage artifact screenshot">
+              <span>Raw brief</span>
+            </a>
+            <a href="/examples/model-ui/refund-system-map/artifacts/deterministic-with-judgmentkit.html">
+              <img src="/examples/model-ui/refund-system-map/screenshots/deterministic-with-judgmentkit.png" alt="JudgmentKit-guided refund triage artifact screenshot">
+              <span>JudgmentKit-guided</span>
+            </a>
+            <figcaption>Same refund activity, different source discipline.</figcaption>
+          </figure>
+        </article>
+
+        <article class="value-case" id="action-boundary">
+          <div class="value-case-copy">
+            <p class="eyebrow">Unsafe action boundary</p>
+            <h2>Approval work gets a human decision point.</h2>
+            <p>Refund review is not a generic submit flow. The user needs to approve, send to policy review, or return for missing evidence with a reason the next owner can trust.</p>
+            <dl class="value-findings">
+              <div><dt>Baseline failure</dt><dd>Actions advance the case before the approval boundary and handoff reason are explicit.</dd></div>
+              <div><dt>JudgmentKit catches</dt><dd>The primary action, reversible states, and next-owner receipt are not grounded in the review activity.</dd></div>
+              <div><dt>Repaired outcome</dt><dd>The interface separates decision, reason, and handoff so the case can move forward cleanly.</dd></div>
+            </dl>
+          </div>
+          <div class="value-receipt" aria-label="Refund action boundary repair receipt">
+            <div class="value-receipt-row"><strong>Decision</strong><p>Approve, send to policy review, or return for missing evidence.</p></div>
+            <div class="value-receipt-row"><strong>Required reason</strong><p>The user records the evidence behind the selected outcome.</p></div>
+            <div class="value-receipt-row"><strong>Handoff</strong><p>The next owner receives the action, rationale, and unresolved evidence.</p></div>
+          </div>
+        </article>
+
+        <article class="value-case" id="accessibility-evidence">
+          <div class="value-case-copy">
+            <p class="eyebrow">Missing accessibility evidence</p>
+            <h2>Claims are not accepted without evidence.</h2>
+            <p>JudgmentKit treats accessibility as part of the implementation contract. An agent cannot pass by saying the UI is accessible in a rationale while leaving required evidence out of the candidate.</p>
+            <dl class="value-findings">
+              <div><dt>Baseline failure</dt><dd>Labels, focus-visible behavior, status messaging, or conditional modal evidence are absent.</dd></div>
+              <div><dt>JudgmentKit catches</dt><dd>The failed evidence keys are grouped into repair instructions for the agent.</dd></div>
+              <div><dt>Repaired outcome</dt><dd>The candidate resubmits with concrete accessibility evidence before acceptance.</dd></div>
+            </dl>
+          </div>
+          <div class="value-receipt" aria-label="Accessibility repair guidance example">
+            <div class="value-receipt-row"><strong>Failed check</strong><p>Missing focus, keyboard, status, or conditional evidence.</p></div>
+            <div class="value-receipt-row"><strong>Repair</strong><p>Add the evidence inside the implementation candidate, not only in the rationale.</p></div>
+            <div class="value-receipt-row"><strong>Result</strong><p>The agent repairs, resubmits, and either passes or stops for human review after the attempt limit.</p></div>
+          </div>
+        </article>
+      </div>
+
+      <section class="value-evidence" aria-labelledby="value-evidence-title">
+        <p class="eyebrow">Evidence, not the main story</p>
+        <h2 id="value-evidence-title">Audit material stays available.</h2>
+        <p>The public value path above is the product story. The reports remain available for people who want the underlying deterministic proof, model matrix, and repair-loop data.</p>
+        <div class="link-row">
+          ${renderValueEvidenceLinks(evidenceLinks)}
+        </div>
+      </section>
+    </section>
+  `,
+    {
+      description:
+        "Concrete before and after examples of what JudgmentKit prevents in AI-generated product UI.",
+      path: "/value/",
     },
   );
 }
@@ -3601,6 +4027,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.mkdir(path.join(outDir, "evals"), { recursive: true });
   await fs.mkdir(path.join(outDir, "evals", "judgmentkit-mcp"), { recursive: true });
   await fs.mkdir(path.join(outDir, "examples"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "value"), { recursive: true });
 
   await fs.writeFile(path.join(outDir, "assets", "site.css"), stylesheet.trimStart());
   const socialThumbnailSourcePath = path.join(__dirname, "assets", SOCIAL_THUMBNAIL_SOURCE_FILENAME);
@@ -3619,6 +4046,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   );
   await fs.writeFile(path.join(outDir, "index.html"), homepage());
   await fs.writeFile(path.join(outDir, "robots.txt"), "User-agent: *\nAllow: /\n");
+  await fs.writeFile(path.join(outDir, "value", "index.html"), await valuePage());
   await fs.writeFile(path.join(outDir, "docs", "index.html"), docsPage());
   await fs.writeFile(path.join(outDir, "examples", "index.html"), await examplesPage());
   await fs.writeFile(path.join(outDir, "install"), await bootstrapScript(), { mode: 0o755 });
@@ -3629,6 +4057,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
       "",
       "JudgmentKit is an activity-first judgment layer for AI-generated product work.",
       "",
+      "- /value/",
       "- /docs/",
       "- /examples/",
       "- /evals/",
@@ -3658,7 +4087,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
 
   return {
     out_dir: outDir,
-    routes: ["/", "/docs/", "/examples/", "/evals/", "/evals/judgmentkit-mcp/", "/install", "/mcp"],
+    routes: ["/", "/value/", "/docs/", "/examples/", "/evals/", "/evals/judgmentkit-mcp/", "/install", "/mcp"],
   };
 }
 

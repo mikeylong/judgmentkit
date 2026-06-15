@@ -1,0 +1,64 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "clinical-intake-operator-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:52592/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract"
+  ],
+  "mcp_tool_transcript_sha256": "7f70a64019ca34fac2fc8473bfa449013a5b7991d244ddd64c1fade6c507e772",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:47:16.573Z",
+  "duration_ms": 7997,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1023,
+    "completion_tokens": 271,
+    "total_tokens": 1294,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "11ed3a3ee053b0d85467ea2133b75a3dc7a4ecd82f5950cd8d7a29c2d1a02d9d",
+  "prompt_sha256": "dd6bd04f87b7ce27a73b1a3ff2fc67fa642f01c3f8938d9c0b799464bae2105b",
+  "mcp_context_sha256": "5a98fbc108c6644edaadd14a21b8557b6cda5827bc397b3434c9a5b5d918a581",
+  "raw_response_sha256": "8035442622d044e9481d1dc1f67e3c8a2a75e674bb9b9e25f74af6ec93ddc3bb",
+  "raw_response": "{\"response\": \"The agent should guide the care coordinator through a structured review process, ensuring all critical elements—symptoms, urgency assessment, and consent status—are explicitly addressed before allowing a final routing decision. The next step must focus on resolving any identified gaps.\", \"next_action\": \"Guide the operator to resolve evidence gaps (consent/urgency) or confirm readiness for specific downstream paths (nurse review vs. scheduling).\", \"questions\": [\"What is the primary goal of the care coordinator's interaction with this workflow? (e.g., Final sign-off, data extraction, triage?)\"], \"handoff\": \"Owner: Care Coordinator; Next Action: Resolve evidence gap or confirm routing path; Reason: The current handoff indicates potential gaps in consent or urgency that must be addressed before proceeding to scheduling; Evidence Gap: Need confirmation on the required fix for ambiguous urgency signals (e.g., escalate to a specific triage nurse) and verification of the necessary data capture when returning for clarification.\", \"rationale\": \"The source brief outlines a decision point based on comparing symptoms, urgency, and consent. The MCP context indicates that the review process needs refinement regarding what the user should know or have done upon completion. Therefore, the next plan must focus on actionable guidance to resolve the identified evidence gaps before finalizing the handoff.\"}",
+  "parsed": {
+    "response": "The agent should guide the care coordinator through a structured review process, ensuring all critical elements—symptoms, urgency assessment, and consent status—are explicitly addressed before allowing a final routing decision. The next step must focus on resolving any identified gaps.",
+    "next_action": "Guide the operator to resolve evidence gaps (consent/urgency) or confirm readiness for specific downstream paths (nurse review vs. scheduling).",
+    "questions": [
+      "What is the primary goal of the care coordinator's interaction with this workflow? (e.g., Final sign-off, data extraction, triage?)"
+    ],
+    "handoff": "Owner: Care Coordinator; Next Action: Resolve evidence gap or confirm routing path; Reason: The current handoff indicates potential gaps in consent or urgency that must be addressed before proceeding to scheduling; Evidence Gap: Need confirmation on the required fix for ambiguous urgency signals (e.g., escalate to a specific triage nurse) and verification of the necessary data capture when returning for clarification.",
+    "rationale": "The source brief outlines a decision point based on comparing symptoms, urgency, and consent. The MCP context indicates that the review process needs refinement regarding what the user should know or have done upon completion. Therefore, the next plan must focus on actionable guidance to resolve the identified evidence gaps before finalizing the handoff."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent should guide the care coordinator through a structured review process, ensuring all critical elements—symptoms, urgency assessment, and consent status—are explicitly addressed before allowing a final routing decision. The next step must focus on resolving any identified gaps.\", \"next_action\": \"Guide the operator to resolve evidence gaps (consent/urgency) or confirm readiness for specific downstream paths (nurse review vs. scheduling).\", \"questions\": [\"What is the primary goal of the care coordinator's interaction with this workflow? (e.g., Final sign-off, data extraction, triage?)\"], \"handoff\": \"Owner: Care Coordinator; Next Action: Resolve evidence gap or confirm routing path; Reason: The current handoff indicates potential gaps in consent or urgency that must be addressed before proceeding to scheduling; Evidence Gap: Need confirmation on the required fix for ambiguous urgency signals (e.g., escalate to a specific triage nurse) and verification of the necessary data capture when returning for clarification.\", \"rationale\": \"The source brief outlines a decision point based on comparing symptoms, urgency, and consent. The MCP context indicates that the review process needs refinement regarding what the user should know or have done upon completion. Therefore, the next plan must focus on actionable guidance to resolve the identified evidence gaps before finalizing the handoff.\"}",
+    "usage": {
+      "prompt_tokens": 1023,
+      "completion_tokens": 271,
+      "total_tokens": 1294,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "2c698fbdf8e966bac72630a63bc3864e8a87d6c267e262c087fb77595ed22dd3",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

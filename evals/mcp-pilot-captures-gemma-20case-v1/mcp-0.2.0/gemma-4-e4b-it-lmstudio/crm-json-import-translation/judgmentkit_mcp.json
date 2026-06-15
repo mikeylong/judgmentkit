@@ -1,0 +1,67 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "crm-json-import-translation",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "35d4557f8ed91c31dc10115a8ea8ddd74e10ac76f130d243b412ddf1eef7bd0f",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:46:10.581Z",
+  "duration_ms": 5514,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 754,
+    "completion_tokens": 281,
+    "total_tokens": 1035,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "7d517fff0b138d8dbf06f678c3b8fe7374e72ac2e1262cea127e680395327a6b",
+  "prompt_sha256": "65d4c8a924b9aceb52ffd81fdd9aa752fcb4db58aba4bf9089e4d697364465bb",
+  "mcp_context_sha256": "e493846730842c5c05720916d307a00377e1767f18488dbedb0e381137fc59dd",
+  "raw_response_sha256": "cae7b5d5561437cfeb5968cf5e7122a07713b82338cd78efc2151e30ff7c605b",
+  "raw_response": "{\"response\": \"The agent should guide the user through a multi-step review process that synthesizes the raw data, mapping rules, and validation outcomes into actionable decisions. The primary goal is to allow the account operations user to finalize the import batch.\", \"next_action\": \"Present a structured review interface allowing the user to triage records based on validation status (Acceptable, Needs Owner Fix, Rejected).\", \"questions\": [\"What specific outcome should the user be able to confirm or achieve after completing this review process?\", \"Are there any internal system details regarding data transformation that need to be translated into plain language for the end-user?\", \"Should the final summary message incorporate domain-specific terminology related to record acceptance?\"], \"handoff\": \"Decision/Action: Design and implement a multi-stage review workbench. Reason: The user needs to make explicit decisions on which records pass, which require manual correction, and what the final system confirmation should be. Owner: UX Designer/Product Manager; Evidence Gap: Specific required fields for the 'Owner Fix' action; Required Fix: Define the exact workflow steps for escalating a record requiring owner intervention.\", \"rationale\": \"The context indicates that the user needs to move from raw data review (JSON, mapping) to final decision-making (Accept/Fix/Reject). The next step must be an interactive workbench that surfaces these decisions clearly.\"}",
+  "parsed": {
+    "response": "The agent should guide the user through a multi-step review process that synthesizes the raw data, mapping rules, and validation outcomes into actionable decisions. The primary goal is to allow the account operations user to finalize the import batch.",
+    "next_action": "Present a structured review interface allowing the user to triage records based on validation status (Acceptable, Needs Owner Fix, Rejected).",
+    "questions": [
+      "What specific outcome should the user be able to confirm or achieve after completing this review process?",
+      "Are there any internal system details regarding data transformation that need to be translated into plain language for the end-user?",
+      "Should the final summary message incorporate domain-specific terminology related to record acceptance?"
+    ],
+    "handoff": "Decision/Action: Design and implement a multi-stage review workbench. Reason: The user needs to make explicit decisions on which records pass, which require manual correction, and what the final system confirmation should be. Owner: UX Designer/Product Manager; Evidence Gap: Specific required fields for the 'Owner Fix' action; Required Fix: Define the exact workflow steps for escalating a record requiring owner intervention.",
+    "rationale": "The context indicates that the user needs to move from raw data review (JSON, mapping) to final decision-making (Accept/Fix/Reject). The next step must be an interactive workbench that surfaces these decisions clearly."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent should guide the user through a multi-step review process that synthesizes the raw data, mapping rules, and validation outcomes into actionable decisions. The primary goal is to allow the account operations user to finalize the import batch.\", \"next_action\": \"Present a structured review interface allowing the user to triage records based on validation status (Acceptable, Needs Owner Fix, Rejected).\", \"questions\": [\"What specific outcome should the user be able to confirm or achieve after completing this review process?\", \"Are there any internal system details regarding data transformation that need to be translated into plain language for the end-user?\", \"Should the final summary message incorporate domain-specific terminology related to record acceptance?\"], \"handoff\": \"Decision/Action: Design and implement a multi-stage review workbench. Reason: The user needs to make explicit decisions on which records pass, which require manual correction, and what the final system confirmation should be. Owner: UX Designer/Product Manager; Evidence Gap: Specific required fields for the 'Owner Fix' action; Required Fix: Define the exact workflow steps for escalating a record requiring owner intervention.\", \"rationale\": \"The context indicates that the user needs to move from raw data review (JSON, mapping) to final decision-making (Accept/Fix/Reject). The next step must be an interactive workbench that surfaces these decisions clearly.\"}",
+    "usage": {
+      "prompt_tokens": 754,
+      "completion_tokens": 281,
+      "total_tokens": 1035,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "9c1904051c57182519cb1b6a10e2c54547120c9afd8d5458078e102aef6bac19",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

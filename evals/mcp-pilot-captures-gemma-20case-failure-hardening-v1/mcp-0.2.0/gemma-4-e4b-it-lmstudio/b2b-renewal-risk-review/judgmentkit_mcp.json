@@ -1,0 +1,64 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "b2b-renewal-risk-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56554/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract"
+  ],
+  "mcp_tool_transcript_sha256": "e31658387194f833db8e1845b8ba7845388e8e86096aacbbd34b991fca36eb75",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T21:16:13.801Z",
+  "duration_ms": 6324,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1045,
+    "completion_tokens": 230,
+    "total_tokens": 1275,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "76b35faeaec06054d1511ce9f7cc1d76a21f7190c99950c780883769f38bc987",
+  "prompt_sha256": "6e2d81db5d806b8197ab37f85a7e3b039c3f3cf34d60cd50761ca931daf887b1",
+  "mcp_context_sha256": "c95c677131dc230a176ce25543a79610b256b099a463bf67b956f3b166d30806",
+  "raw_response_sha256": "beb7eab23162d229b1aaf021b02d1f78952ae751c84fd681d4619d92e8472beb",
+  "raw_response": "{\"response\": \"The next step requires the customer success manager to confirm the procurement timing and select a definitive renewal action based on the identified risks (sponsor change and usage decline). The system should guide the user through confirming this missing information before finalizing the handoff.\", \"next_action\": \"Guide the user to confirm procurement timing details and then proceed to select one of the defined renewal actions: start save plan, escalate executive sponsor, or wait for stronger evidence.\", \"questions\": [\"What specific information regarding the procurement timeline is needed from the customer or internal records to resolve the identified gap?\"], \"handoff\": \"Owner: Customer Success Manager; Action: Confirm procurement timing and select renewal action; Reason: Sponsor change combined with usage decline necessitates a clear path forward; Route Options: Review account signals for final confirmation, then proceed to decision point; Evidence Gap: Procurement owner and definitive renewal date.\", \"rationale\": \"The current state indicates an evidence gap regarding the procurement timeline. The next logical step is to guide the user to resolve this specific data point before they can confidently choose a final action (save plan, escalation, or wait).\"}",
+  "parsed": {
+    "response": "The next step requires the customer success manager to confirm the procurement timing and select a definitive renewal action based on the identified risks (sponsor change and usage decline). The system should guide the user through confirming this missing information before finalizing the handoff.",
+    "next_action": "Guide the user to confirm procurement timing details and then proceed to select one of the defined renewal actions: start save plan, escalate executive sponsor, or wait for stronger evidence.",
+    "questions": [
+      "What specific information regarding the procurement timeline is needed from the customer or internal records to resolve the identified gap?"
+    ],
+    "handoff": "Owner: Customer Success Manager; Action: Confirm procurement timing and select renewal action; Reason: Sponsor change combined with usage decline necessitates a clear path forward; Route Options: Review account signals for final confirmation, then proceed to decision point; Evidence Gap: Procurement owner and definitive renewal date.",
+    "rationale": "The current state indicates an evidence gap regarding the procurement timeline. The next logical step is to guide the user to resolve this specific data point before they can confidently choose a final action (save plan, escalation, or wait)."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The next step requires the customer success manager to confirm the procurement timing and select a definitive renewal action based on the identified risks (sponsor change and usage decline). The system should guide the user through confirming this missing information before finalizing the handoff.\", \"next_action\": \"Guide the user to confirm procurement timing details and then proceed to select one of the defined renewal actions: start save plan, escalate executive sponsor, or wait for stronger evidence.\", \"questions\": [\"What specific information regarding the procurement timeline is needed from the customer or internal records to resolve the identified gap?\"], \"handoff\": \"Owner: Customer Success Manager; Action: Confirm procurement timing and select renewal action; Reason: Sponsor change combined with usage decline necessitates a clear path forward; Route Options: Review account signals for final confirmation, then proceed to decision point; Evidence Gap: Procurement owner and definitive renewal date.\", \"rationale\": \"The current state indicates an evidence gap regarding the procurement timeline. The next logical step is to guide the user to resolve this specific data point before they can confidently choose a final action (save plan, escalation, or wait).\"}",
+    "usage": {
+      "prompt_tokens": 1045,
+      "completion_tokens": 230,
+      "total_tokens": 1275,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "d6014733b8fa5a8fde802b8517531bfe1fd3e432a4ea7a38d45da15f40fead8f",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

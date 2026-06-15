@@ -1,0 +1,53 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "crm-json-import-translation",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "96014a17a061ea66814ddfc6f4ebd27cc8805da883edd4761f97f3dc3492138e",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T01:41:21.362Z",
+  "duration_ms": 40313,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "bbf7743678db6ef85d6715b7eb6c656f86c9e845f4c7248dc5e12851e34e72c6",
+  "prompt_sha256": "6e06269d0f5ddb0988a51c3b73a94671f38e7abce0d029bbc67aeaa006a1c799",
+  "mcp_context_sha256": "b33c31d9b806bd136793ec2b8bd7e519447f49771d7949ff01f369e705c35d44",
+  "raw_response_sha256": "c58d76281c85f8ae0c950f445e39fc72e652eaa261a24e97a71b2f7c0a96a0e2",
+  "raw_response": "{\"response\":\"Frame the work as an account-operations import decision workbench. The next response should translate source data, validation findings, and preview results into record-level decisions: ready to accept, needs owner correction, or needs review before import summary. Keep the operator focused on account, contact, owner, duplicate, and field-confidence evidence, with implementation details treated as diagnostics only.\",\"next_action\":\"Ask for the missing decision rules only if they are not already in the source material, then propose the first-screen flow: batch summary, exception queue, record evidence panel, owner-fix routing, and a sendable import summary. Prioritize what the operator can decide now over visual styling.\",\"questions\":[\"Which record states count as acceptable, owner-fix, or blocked for this import?\",\"Who receives owner-fix requests and who receives the final import summary?\",\"Which preview fields are authoritative evidence for accepting a record versus diagnostic context only?\"],\"handoff\":\"Owner: account operations; Action: build an import decision workbench that groups records by accept, owner-fix, and review states; Reason: operators need evidence-backed routing and a sendable summary without exposing import mechanics; Evidence gap: confirm decision rules, recipients, and authoritative preview fields.\",\"rationale\":\"The source brief provides the activity and participant but leaves acceptance rules, vocabulary boundaries, and recipient routing underspecified. The next response should convert hidden source mechanics into domain language, preserve diagnostic evidence for exceptions, and move toward an actionable import triage surface rather than a generic data preview.\"}",
+  "parsed": {
+    "response": "Frame the work as an account-operations import decision workbench. The next response should translate source data, validation findings, and preview results into record-level decisions: ready to accept, needs owner correction, or needs review before import summary. Keep the operator focused on account, contact, owner, duplicate, and field-confidence evidence, with implementation details treated as diagnostics only.",
+    "next_action": "Ask for the missing decision rules only if they are not already in the source material, then propose the first-screen flow: batch summary, exception queue, record evidence panel, owner-fix routing, and a sendable import summary. Prioritize what the operator can decide now over visual styling.",
+    "questions": [
+      "Which record states count as acceptable, owner-fix, or blocked for this import?",
+      "Who receives owner-fix requests and who receives the final import summary?",
+      "Which preview fields are authoritative evidence for accepting a record versus diagnostic context only?"
+    ],
+    "handoff": "Owner: account operations; Action: build an import decision workbench that groups records by accept, owner-fix, and review states; Reason: operators need evidence-backed routing and a sendable summary without exposing import mechanics; Evidence gap: confirm decision rules, recipients, and authoritative preview fields.",
+    "rationale": "The source brief provides the activity and participant but leaves acceptance rules, vocabulary boundaries, and recipient routing underspecified. The next response should convert hidden source mechanics into domain language, preserve diagnostic evidence for exceptions, and move toward an actionable import triage surface rather than a generic data preview."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "cae306ab7acae069c1b75baec44e7785671e67015d5ab8ec88a3ea186c5617b9",
+    "stderr_sha256": "1a3cf0042ca56ce0cfddc4c0d533f77e07cad97f2720005fe7e1d376b01fdfa9",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

@@ -245,6 +245,169 @@
         "disabled, empty, error, and ready state review"
       ]
     },
+    "default_ai_native_design_system": {
+      "id": "judgmentkit.ai-native-default.contract-v1",
+      "mode": "contract_defaults",
+      "purpose": "Govern agent-generated UI at the contract layer before any adapter-layer renderer choices",
+      "primitive_defaults": [
+        "use only approved implementation primitives or documented repo-local equivalents",
+        "new primitives require contract evidence before use",
+        "raw controls stay behind approved helper primitives"
+      ],
+      "surface_patterns": [
+        "activity-first structure before renderer choices",
+        "workbench surfaces keep selection, evidence, decision, and completion state adjacent",
+        "operator review surfaces keep produced work, evidence, risk, bounded decision, and receipt together",
+        "form flows keep labels, validation, review, submit, and confirmation in task order",
+        "setup and debug surfaces may expose implementation detail only when that is the activity"
+      ],
+      "state_rules": [
+        "cover required states from implementation_contract.state_coverage.required_states",
+        "show disabled, error, loading, empty, ready, and focus-visible states with readable reasons",
+        "state names must describe user-visible work state instead of internal lifecycle mechanics"
+      ],
+      "action_boundaries": {
+        "required": [
+          "primary actions must come from the workflow, domain decision, or explicit handoff path",
+          "committing, destructive, financial, publishing, or external side-effect actions require an explicit approval boundary",
+          "diagnostic or setup actions stay secondary unless the activity is setup, debugging, auditing, or integration",
+          "completion actions leave a receipt, result, or handoff reason"
+        ],
+        "risky_action_terms": [
+          "approve",
+          "auto approve",
+          "charge",
+          "delete",
+          "deploy",
+          "execute",
+          "issue refund",
+          "pay",
+          "publish",
+          "refund",
+          "release",
+          "submit order"
+        ],
+        "failure_signals": [
+          "a risky action is exposed without explicit user approval or confirmation evidence",
+          "an unauthorized action is listed in the generated UI candidate",
+          "a diagnostic action is promoted as a primary work action outside setup, debugging, auditing, or integration",
+          "completion can occur without a receipt, result, or handoff reason"
+        ]
+      },
+      "data_visibility": {
+        "primary_data_roles": [
+          "work item identity",
+          "domain evidence",
+          "decision options",
+          "validation and disabled reasons",
+          "completion result or handoff receipt"
+        ],
+        "diagnostic_only_terms": [
+          "MCP server",
+          "tool call",
+          "prompt template",
+          "JSON schema",
+          "resource id",
+          "trace",
+          "model configuration"
+        ],
+        "allowed_diagnostic_contexts": [
+          "setup",
+          "debugging",
+          "auditing",
+          "integration",
+          "explicit source inspection"
+        ],
+        "failure_signals": [
+          "primary UI text exposes diagnostic-only terms outside an allowed diagnostic context",
+          "source identifiers, prompts, schemas, traces, or tool mechanics appear as user-facing work vocabulary",
+          "data fields are listed because they exist rather than because they support the activity"
+        ]
+      },
+      "accessibility": {
+        "baseline": "WCAG 2.2 AA",
+        "evidence_source": "implementation_contract.accessibility_policy"
+      },
+      "evidence_gates": [
+        "activity gate before implementation",
+        "workflow review before implementation",
+        "approved primitive evidence",
+        "state coverage evidence",
+        "action boundary evidence when risky actions are present",
+        "data visibility evidence when primary text or fields are supplied",
+        "static enforcement evidence",
+        "desktop and mobile browser QA evidence",
+        "accessibility evidence"
+      ],
+      "adapter_boundary": {
+        "visual_token_adapter": "boundary-only metadata lives at implementation_contract.visual_token_adapter; renderer use remains deferred",
+        "renderer_package": "deferred until a token adapter can drive rendered primitives without changing the activity contract"
+      }
+    },
+    "iteration_policy": {
+      "owner": "agent",
+      "default_max_attempts": 3,
+      "loop": [
+        "generate",
+        "review",
+        "repair",
+        "resubmit"
+      ],
+      "pass_status": "accept",
+      "failure_statuses": [
+        "repair_and_resubmit",
+        "stop_for_human"
+      ],
+      "judgmentkit_role": "review generated UI evidence and return structured failures; do not mutate files or call a provider model"
+    },
+    "visual_token_adapter": {
+      "id": "judgmentkit.visual-token-adapter.boundary-v1",
+      "mode": "boundary_only",
+      "purpose": "Define semantic visual token evidence after contract governance without selecting renderer components",
+      "token_families": [
+        "color",
+        "type",
+        "spacing",
+        "radius",
+        "density",
+        "elevation",
+        "motion",
+        "semantic"
+      ],
+      "semantic_roles": [
+        "surface",
+        "text",
+        "border",
+        "focus",
+        "status",
+        "decision",
+        "risk",
+        "disabled",
+        "receipt"
+      ],
+      "adapter_rules": [
+        "visual token evidence describes semantic roles and constraints; it does not create approved primitives",
+        "visual token evidence cannot satisfy missing activity, primitive, state, action-boundary, data-visibility, accessibility, static-check, or browser-QA gates",
+        "token names stay adapter metadata and must not become primary UI vocabulary",
+        "renderer and component packages remain deferred until the token adapter can drive rendered primitives without changing the activity contract"
+      ],
+      "evidence_expectations": [
+        "name visual token families used by the candidate",
+        "map token semantics to approved primitives, states, and surface patterns",
+        "include accessibility-relevant token evidence when color, motion, density, focus, or status roles affect readability or input"
+      ],
+      "deferred_renderer": {
+        "renderer_package": "deferred",
+        "component_package": "deferred",
+        "catalog_compiler": "deferred"
+      },
+      "failure_signals": [
+        "visual token evidence is used as a substitute for approved primitives or required states",
+        "visual token evidence claims to pass accessibility, action, data-visibility, static, or browser gates without the required evidence",
+        "unsupported token families are introduced without adapter evidence",
+        "renderer, component package, catalog, compiler, or A2UI work is introduced in the boundary-only slice"
+      ]
+    },
     "visual_asset_policy": {
       "applies_when": [
         "the UI or design spec calls for substantive visuals, imagery, media, domain scenes, product/place/object visuals, or spatial/data visualization where visual quality is part of the expected result"

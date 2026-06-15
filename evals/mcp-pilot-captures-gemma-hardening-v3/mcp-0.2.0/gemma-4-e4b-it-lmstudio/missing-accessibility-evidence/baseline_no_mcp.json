@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "missing-accessibility-evidence",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54174/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:52:23.249Z",
+  "duration_ms": 3956,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 326,
+    "completion_tokens": 191,
+    "total_tokens": 517,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "41f96b9faabdb80aec4d022e65a5c05a38776644caff0b47fed3d8cf8791e9ee",
+  "prompt_sha256": "d963ebed31190408d49d88fa026dd5f0b6dc0793c323ac88953b6e0d2d9d2c6b",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "bf8f08c30c689ef6a312eb0ac6a1a936323bd012c22f7d9b28e7868209862447",
+  "raw_response": "{\"response\": \"The implementation candidate is missing core accessibility evidence, which is a mandatory requirement for acceptance based on the source brief. Therefore, it cannot be accepted in its current state.\", \"next_action\": \"Request the necessary accessibility evidence to complete the review.\", \"questions\": [\"What specific accessibility evidence (e.g., WCAG conformance reports, automated audit results, manual testing sign-offs) is required for this type of dense operator review screen?\", \"Is there a defined process or artifact that must be attached to satisfy the 'core accessibility evidence' requirement?\"], \"handoff\": \"Handoff to Accessibility Specialist: Need core accessibility evidence before acceptance.\", \"rationale\": \"The source brief explicitly states that the UI must provide core accessibility evidence for acceptance. The provided candidate shows an empty object for 'accessibility_evidence', indicating this critical piece of information is missing, preventing a final decision on acceptance or rejection based on completeness.\"}",
+  "parsed": {
+    "response": "The implementation candidate is missing core accessibility evidence, which is a mandatory requirement for acceptance based on the source brief. Therefore, it cannot be accepted in its current state.",
+    "next_action": "Request the necessary accessibility evidence to complete the review.",
+    "questions": [
+      "What specific accessibility evidence (e.g., WCAG conformance reports, automated audit results, manual testing sign-offs) is required for this type of dense operator review screen?",
+      "Is there a defined process or artifact that must be attached to satisfy the 'core accessibility evidence' requirement?"
+    ],
+    "handoff": "Handoff to Accessibility Specialist: Need core accessibility evidence before acceptance.",
+    "rationale": "The source brief explicitly states that the UI must provide core accessibility evidence for acceptance. The provided candidate shows an empty object for 'accessibility_evidence', indicating this critical piece of information is missing, preventing a final decision on acceptance or rejection based on completeness."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The implementation candidate is missing core accessibility evidence, which is a mandatory requirement for acceptance based on the source brief. Therefore, it cannot be accepted in its current state.\", \"next_action\": \"Request the necessary accessibility evidence to complete the review.\", \"questions\": [\"What specific accessibility evidence (e.g., WCAG conformance reports, automated audit results, manual testing sign-offs) is required for this type of dense operator review screen?\", \"Is there a defined process or artifact that must be attached to satisfy the 'core accessibility evidence' requirement?\"], \"handoff\": \"Handoff to Accessibility Specialist: Need core accessibility evidence before acceptance.\", \"rationale\": \"The source brief explicitly states that the UI must provide core accessibility evidence for acceptance. The provided candidate shows an empty object for 'accessibility_evidence', indicating this critical piece of information is missing, preventing a final decision on acceptance or rejection based on completeness.\"}",
+    "usage": {
+      "prompt_tokens": 326,
+      "completion_tokens": 191,
+      "total_tokens": 517,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "cee40ac3eed9b8a8a4078b6fe1fe5476576a8a3e37f81c4c36594c245f217ae5",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

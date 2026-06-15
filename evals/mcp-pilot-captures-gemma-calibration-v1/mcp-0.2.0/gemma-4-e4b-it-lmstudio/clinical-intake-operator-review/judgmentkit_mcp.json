@@ -1,0 +1,65 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "clinical-intake-operator-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51813/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract"
+  ],
+  "mcp_tool_transcript_sha256": "510ea7f94db9cdf49d7ac5b0260e91e63731db8c6c5fe72b2ed7da55ddae88c5",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-13T22:07:16.142Z",
+  "duration_ms": 6101,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 776,
+    "completion_tokens": 258,
+    "total_tokens": 1034,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "3b283c21b19ecc24382facef3d70fe66d9b4de90daf00eaeacc1cdc7922372e6",
+  "prompt_sha256": "6d52c3f9951d96f45c32d8825e67e6db57f5f7faf67e889aecd897fe00576cd5",
+  "mcp_context_sha256": "b5a2826b86c054215e8c3685250b6c655d620e1f0d288e4b2a21150d1cc52af3",
+  "raw_response_sha256": "356638f27878f6bfbc651df31ef6a92969cc3be0fd70332e8f418f3d7de23440",
+  "raw_response": "{\"response\": \"The next agent response should guide the care coordinator through the decision-making process based on the provided handoff context. Since the current state indicates a need to either route to nurse review or return for clarification due to missing consent or ambiguous urgency, the system should prioritize presenting these options clearly within the UI.\", \"next_action\": \"Guide the agent to select one of the two specified next actions (Route to nurse review OR Return for clarification) based on the evidence gap identified in the handoff.\", \"questions\": [\"What specific criteria define 'ambiguous urgency signal' that requires clarification?\", \"What is the required format or documentation needed when returning for clarification regarding consent?\"], \"handoff\": \"The system needs to confirm the precise workflow steps and data requirements associated with 'Return for clarification' vs. 'Route to nurse review' to ensure the agent follows the correct protocol.\", \"rationale\": \"The source context provides a clear handoff state indicating two potential next paths (nurse review or clarification) based on specific gaps (consent/urgency). The response must guide the agent to execute one of these defined paths, which requires more detail than just listing the options. The diagnostic tool also flagged needing source context for workflow review, suggesting process refinement is needed.\"}",
+  "parsed": {
+    "response": "The next agent response should guide the care coordinator through the decision-making process based on the provided handoff context. Since the current state indicates a need to either route to nurse review or return for clarification due to missing consent or ambiguous urgency, the system should prioritize presenting these options clearly within the UI.",
+    "next_action": "Guide the agent to select one of the two specified next actions (Route to nurse review OR Return for clarification) based on the evidence gap identified in the handoff.",
+    "questions": [
+      "What specific criteria define 'ambiguous urgency signal' that requires clarification?",
+      "What is the required format or documentation needed when returning for clarification regarding consent?"
+    ],
+    "handoff": "The system needs to confirm the precise workflow steps and data requirements associated with 'Return for clarification' vs. 'Route to nurse review' to ensure the agent follows the correct protocol.",
+    "rationale": "The source context provides a clear handoff state indicating two potential next paths (nurse review or clarification) based on specific gaps (consent/urgency). The response must guide the agent to execute one of these defined paths, which requires more detail than just listing the options. The diagnostic tool also flagged needing source context for workflow review, suggesting process refinement is needed."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The next agent response should guide the care coordinator through the decision-making process based on the provided handoff context. Since the current state indicates a need to either route to nurse review or return for clarification due to missing consent or ambiguous urgency, the system should prioritize presenting these options clearly within the UI.\", \"next_action\": \"Guide the agent to select one of the two specified next actions (Route to nurse review OR Return for clarification) based on the evidence gap identified in the handoff.\", \"questions\": [\"What specific criteria define 'ambiguous urgency signal' that requires clarification?\", \"What is the required format or documentation needed when returning for clarification regarding consent?\"], \"handoff\": \"The system needs to confirm the precise workflow steps and data requirements associated with 'Return for clarification' vs. 'Route to nurse review' to ensure the agent follows the correct protocol.\", \"rationale\": \"The source context provides a clear handoff state indicating two potential next paths (nurse review or clarification) based on specific gaps (consent/urgency). The response must guide the agent to execute one of these defined paths, which requires more detail than just listing the options. The diagnostic tool also flagged needing source context for workflow review, suggesting process refinement is needed.\"}",
+    "usage": {
+      "prompt_tokens": 776,
+      "completion_tokens": 258,
+      "total_tokens": 1034,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "e29d3f21786e00767235e16f67a88cfae0d2053112d33557409b15142def88eb",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

@@ -1,0 +1,931 @@
+{
+  "eval_id": "judgmentkit-mcp-private-pilot-v1",
+  "evaluation_type": "private_saved_capture_scoring",
+  "benchmark_policy": "Private repo-local pilot. Scores are deterministic checks against saved Codex captures; JudgmentKit is not used as the judge.",
+  "capture_policy": "Default mode scores existing captures only. Missing captures are reported as capture-required. Live capture is opt-in with --capture and reuses existing captures in the target capture directory.",
+  "comparison": {
+    "baseline": "baseline_no_mcp",
+    "guided": "judgmentkit_mcp",
+    "model": "gpt-5.5",
+    "reasoning_effort": "xhigh"
+  },
+  "run": {
+    "date": "2026-06-13",
+    "mcp_release": "0.2.0",
+    "mcp_release_segment": "mcp-0.2.0",
+    "run_id": "run-003",
+    "run_path": "2026-06-13/mcp-0.2.0/run-003",
+    "html_report": "2026-06-13/mcp-0.2.0/run-003/mcp-pilot-report.html",
+    "json_report": "2026-06-13/mcp-0.2.0/run-003/mcp-pilot-report.json"
+  },
+  "summary": {
+    "cases": 5,
+    "evaluated_cases": 5,
+    "capture_required_cases": 0,
+    "passed": 2,
+    "failed": 3,
+    "guided_wins": 3,
+    "baseline_wins": 2,
+    "ties": 0,
+    "average_guided_delta": 3.41,
+    "guided_critical_disclosure_leaks": 0,
+    "pilot_passed": false,
+    "pilot_status": "failed"
+  },
+  "metric_scale": {
+    "metric_score": "0-5",
+    "total_score": "0-100 weighted"
+  },
+  "capture_dir": "evals/mcp-pilot-captures-calibration-v2",
+  "results": [
+    {
+      "id": "refund-schema-admin-translation",
+      "title": "Refund schema admin translation",
+      "case_type": "activity_translation",
+      "status": "evaluated",
+      "passed": false,
+      "winner": "baseline_no_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": -13.28,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "translate the request into a refund triage handoff surface",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 99,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "refund triage",
+                "support lead"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 5,
+              "present": [
+                "approve",
+                "policy review",
+                "missing evidence"
+              ],
+              "missing": [],
+              "expected_action_score": 5
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "case evidence",
+                "refund request"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "next owner",
+                "next action",
+                "reason"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 4,
+              "present": [
+                "clear next step"
+              ],
+              "missing": [],
+              "question_count": 3,
+              "max_questions": 2,
+              "question_penalty": 1
+            }
+          },
+          "question_count": 3,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "refund-schema-admin-translation/baseline_no_mcp.json",
+            "model": "gpt-5.5",
+            "raw_response_sha256": "5abe316933e90bc85d9c62ac81a9e02aaaeeda79cd8226c624d770e678c37745",
+            "prompt_sha256": "3bc387db5bcbc9a45879bc718fa3307a7dd90ad55fe7055e63d8e3221046031d",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 85.72,
+          "metric_results": {
+            "activity_fit": {
+              "score": 2.5,
+              "present": [
+                "support lead"
+              ],
+              "missing": [
+                "refund triage"
+              ]
+            },
+            "decision_support": {
+              "score": 3.93,
+              "present": [
+                "approve",
+                "policy review",
+                "missing evidence"
+              ],
+              "missing": [],
+              "expected_action_score": 2.86
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "case evidence",
+                "refund request"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "next owner",
+                "next action",
+                "reason"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "clear next step"
+              ],
+              "missing": [],
+              "question_count": 2,
+              "max_questions": 2,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 2,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "refund-schema-admin-translation/judgmentkit_mcp.json",
+            "model": "gpt-5.5",
+            "raw_response_sha256": "b1cc7f4c48279073fdcb5d7232dfa2e8c844f4d44c74c3d519eefe803414753f",
+            "prompt_sha256": "112e616e32419110c23321f6229f1257ad7c6d3bfe8dfcf46288a36e30e0886f",
+            "mcp_context_sha256": "33759dbb09d7fed21dd9c6818d1833414e2f2affde71989043c52a93f48ca5a4"
+          }
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "create_activity_model_review",
+          "recommend_surface_types",
+          "recommend_ui_workflow_profiles"
+        ],
+        "tool_summaries": [
+          {
+            "name": "create_activity_model_review",
+            "args_sha256": "14aac0f8d2084573f4b56a0b2c1a4facc26f545e6647b459ca298898e89a1fd0",
+            "summary": {
+              "status": "needs_source_context",
+              "targeted_questions_count": 2
+            }
+          },
+          {
+            "name": "recommend_surface_types",
+            "args_sha256": "33c1bbd87fb952632c09488dfe9abaafd1992d09631c0bdc685d4a2fe4ec6563",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "operator_review"
+            }
+          },
+          {
+            "name": "recommend_ui_workflow_profiles",
+            "args_sha256": "14aac0f8d2084573f4b56a0b2c1a4facc26f545e6647b459ca298898e89a1fd0",
+            "summary": {
+              "status": "ok"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "vague-system-dashboard",
+      "title": "Vague system dashboard restraint",
+      "case_type": "missing_context_restraint",
+      "status": "evaluated",
+      "passed": false,
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 2,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "ask targeted questions about activity decision and outcome",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 86.32,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "activity",
+                "user"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 4.58,
+              "present": [
+                "decision",
+                "next action"
+              ],
+              "missing": [],
+              "expected_action_score": 4.17
+            },
+            "evidence_grounding": {
+              "score": 2.5,
+              "present": [
+                "source context"
+              ],
+              "missing": [
+                "missing"
+              ]
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "activity",
+                "decision",
+                "outcome"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 3,
+              "present": [
+                "targeted questions"
+              ],
+              "missing": [],
+              "question_count": 5,
+              "max_questions": 3,
+              "question_penalty": 2
+            }
+          },
+          "question_count": 5,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "vague-system-dashboard/baseline_no_mcp.json",
+            "model": "gpt-5.5",
+            "raw_response_sha256": "c4d7e2860252c9125c5a7df4fbc1964ab9da408bfde204b4e2f221e1f2fe7c09",
+            "prompt_sha256": "8459e0d2ac3458e24a0e81231731007d905f9916f61456adf6e152b3cc52eed0",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 88.32,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "activity",
+                "user"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 4.58,
+              "present": [
+                "decision",
+                "next action"
+              ],
+              "missing": [],
+              "expected_action_score": 4.17
+            },
+            "evidence_grounding": {
+              "score": 2.5,
+              "present": [
+                "source context"
+              ],
+              "missing": [
+                "missing"
+              ]
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "activity",
+                "decision",
+                "outcome"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "targeted questions"
+              ],
+              "missing": [],
+              "question_count": 3,
+              "max_questions": 3,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 3,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "vague-system-dashboard/judgmentkit_mcp.json",
+            "model": "gpt-5.5",
+            "raw_response_sha256": "5b00ee618cdc35926e7662fc3e221c67ac4c07ae76d2a432eef0bb6c9b590aea",
+            "prompt_sha256": "1131075f481dd7fa623ee6325847581ef52e7f7f6fe5a22246a3a4e75ab84a8a",
+            "mcp_context_sha256": "2163ea90405b5f199ed182750d1af376961f60e17f224327383b3f87762cc54d"
+          }
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "create_activity_model_review",
+          "recommend_surface_types",
+          "recommend_ui_workflow_profiles"
+        ],
+        "tool_summaries": [
+          {
+            "name": "create_activity_model_review",
+            "args_sha256": "5f7a4b7a5c4619e73ccd8a4dcfb5e5e5b09a8c55659d90a5bf2e84cd07014391",
+            "summary": {
+              "status": "needs_source_context",
+              "targeted_questions_count": 3
+            }
+          },
+          {
+            "name": "recommend_surface_types",
+            "args_sha256": "3344a5dc7b817f119d0104b6c6eaa44277f2665e703ed73ccf3962418fd93aa1",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "operator_review"
+            }
+          },
+          {
+            "name": "recommend_ui_workflow_profiles",
+            "args_sha256": "5f7a4b7a5c4619e73ccd8a4dcfb5e5e5b09a8c55659d90a5bf2e84cd07014391",
+            "summary": {
+              "status": "ok"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "clinical-intake-operator-review",
+      "title": "Clinical intake operator review",
+      "case_type": "operator_review_handoff",
+      "status": "evaluated",
+      "passed": false,
+      "winner": "baseline_no_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": -6.68,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "prepare a routing handoff",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 100,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "clinical intake",
+                "care coordinator"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 5,
+              "present": [
+                "nurse review",
+                "clarification",
+                "scheduling"
+              ],
+              "missing": [],
+              "expected_action_score": 5
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "symptoms",
+                "urgency",
+                "consent"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "next owner",
+                "next action",
+                "reason",
+                "evidence gap"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "routing handoff"
+              ],
+              "missing": [],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "clinical-intake-operator-review/baseline_no_mcp.json",
+            "model": "gpt-5.5",
+            "raw_response_sha256": "b7f99017861c14e789657069765e002ffe64a78499c837eec477ac315355719e",
+            "prompt_sha256": "b5814b6e8605e392c45c3bceaf042813db5d20fb8a645c3f6fecaaa2fb52ffc9",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 93.32,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "clinical intake",
+                "care coordinator"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 3.33,
+              "present": [
+                "scheduling"
+              ],
+              "missing": [
+                "nurse review",
+                "clarification"
+              ],
+              "expected_action_score": 5
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "symptoms",
+                "urgency",
+                "consent"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "next owner",
+                "next action",
+                "reason",
+                "evidence gap"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "routing handoff"
+              ],
+              "missing": [],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "clinical-intake-operator-review/judgmentkit_mcp.json",
+            "model": "gpt-5.5",
+            "raw_response_sha256": "6adbaea921711c19d08fe768e53c98b764c7e67d928e88de2a3e44f760d22189",
+            "prompt_sha256": "0056eb89e9188863f02b12ad93bba97bcbac4dc2ffcceb7d14053b8947111015",
+            "mcp_context_sha256": "8cea13b87226788441ddb8711286e48573a11c456db3b7e3260fd25602f32bb9"
+          }
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "review_ui_workflow_candidate",
+          "create_ui_implementation_contract"
+        ],
+        "tool_summaries": [
+          {
+            "name": "review_ui_workflow_candidate",
+            "args_sha256": "d8d112adfa9ff34a44c7903c43b5585338f1749890b6ede5722d4a5ee062327a",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench",
+              "profile_id": "operator-review-ui",
+              "targeted_questions_count": 1
+            }
+          },
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "schema-leaking-workflow",
+      "title": "Schema-leaking workflow candidate",
+      "case_type": "candidate_validation",
+      "status": "evaluated",
+      "passed": true,
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 25,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "reject the schema-leaking workflow",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 70,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "refund triage",
+                "support lead"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 3.75,
+              "present": [
+                "approve",
+                "policy review",
+                "missing evidence"
+              ],
+              "missing": [],
+              "expected_action_score": 2.5
+            },
+            "evidence_grounding": {
+              "score": 2.5,
+              "present": [
+                "candidate leaks"
+              ],
+              "missing": [
+                "source brief"
+              ]
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "decision",
+                "reason"
+              ]
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "needs source context"
+              ],
+              "missing": [],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "schema-leaking-workflow/baseline_no_mcp.json",
+            "model": "gpt-5.5",
+            "raw_response_sha256": "9dcd22fd4b7bb767b47cf286a6bd3bba0a714fe912bc254dbce166c1a3c7372e",
+            "prompt_sha256": "8fa9aa0fa426d35b66367286f35ffd6d61ebd22c629668fd5b55317d8c19b75b",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 95,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "refund triage",
+                "support lead"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 3.75,
+              "present": [
+                "approve",
+                "policy review",
+                "missing evidence"
+              ],
+              "missing": [],
+              "expected_action_score": 2.5
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "candidate leaks",
+                "source brief"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "decision",
+                "reason"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "needs source context"
+              ],
+              "missing": [],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "schema-leaking-workflow/judgmentkit_mcp.json",
+            "model": "gpt-5.5",
+            "raw_response_sha256": "c5bae003f065d907e258ea9eda9909a0414f8ed33cd8d4ec191bf6fee0ad8580",
+            "prompt_sha256": "45cfbfd9509d24b1d1c8a51aef90595cb106dd607aec87146f429e7cabe05092",
+            "mcp_context_sha256": "bc0a0a6223a6b0877c73d7389278ae93e2cb8ab32c0cd3f54ce379df9562bfc2"
+          }
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "review_ui_workflow_candidate"
+        ],
+        "tool_summaries": [
+          {
+            "name": "review_ui_workflow_candidate",
+            "args_sha256": "ff3a246a6df22df59506025b1f61d5b1c067d8d667e011f2cf4c63be4c54a035",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench",
+              "profile_id": "operator-review-ui",
+              "targeted_questions_count": 2
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "missing-accessibility-evidence",
+      "title": "Missing accessibility evidence review",
+      "case_type": "implementation_review",
+      "status": "evaluated",
+      "passed": true,
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 10.01,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "reject until accessibility evidence is supplied",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 69,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "operator review",
+                "dense"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 2.25,
+              "present": [
+                "custom controls"
+              ],
+              "missing": [
+                "decision controls"
+              ],
+              "expected_action_score": 2
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "accessibility evidence",
+                "candidate evidence"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "decision",
+                "reason",
+                "required fix"
+              ]
+            },
+            "rework_risk": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "block"
+              ],
+              "question_count": 0,
+              "max_questions": 0,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "missing-accessibility-evidence/baseline_no_mcp.json",
+            "model": "gpt-5.5",
+            "raw_response_sha256": "52a93d1b96eafa12bd23d07fdfb6b49f9e424e5cd355256c99f56adf00aa71a4",
+            "prompt_sha256": "5e79c72a0e397cbdd47483e6cada7600d77061b22811994f3929dc49398fad31",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 79.01,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "operator review",
+                "dense"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 2.25,
+              "present": [
+                "custom controls"
+              ],
+              "missing": [
+                "decision controls"
+              ],
+              "expected_action_score": 2
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "accessibility evidence",
+                "candidate evidence"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 1.67,
+              "present": [
+                "reason"
+              ],
+              "missing": [
+                "decision",
+                "required fix"
+              ]
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "block"
+              ],
+              "missing": [],
+              "question_count": 0,
+              "max_questions": 0,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "missing-accessibility-evidence/judgmentkit_mcp.json",
+            "model": "gpt-5.5",
+            "raw_response_sha256": "99440addf9140033837064f8e752508c2ea84995f0a764d237a33a000bbb6757",
+            "prompt_sha256": "3ba1a55c6ea99a1ba31ad332e41bba84656e45ef94137c48498f9312d6b05cff",
+            "mcp_context_sha256": "1212c7b4d96d3141f5dc71dbdd99948a5fffca54ac2c94b8448eee8fedf678b1"
+          }
+        }
+      ],
+      "mcp_context": {
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready"
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "468dde7b9395e0ba60d60dbfcd9e037ceda4560c61a0e724a3663f99c40cc9cd",
+            "summary": {
+              "status": "failed"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

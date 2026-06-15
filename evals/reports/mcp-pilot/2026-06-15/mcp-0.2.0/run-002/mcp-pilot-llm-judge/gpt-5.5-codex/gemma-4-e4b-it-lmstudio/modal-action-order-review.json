@@ -1,0 +1,87 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "modal-action-order-review",
+  "title": "Modal action order review",
+  "case_type": "implementation_review",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T05:41:21.283Z",
+  "duration_ms": 56252,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "cb0e6dd3350494157be45c135fc47ecbfb3e2e4859044d11e3e3fa95c2665931",
+  "raw_response_sha256": "f85947f2ce239f5db9b17498edd22fc0265ed0c9da8d9e30e312ab1b53ae9bf1",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"medium\",\"rationale\":\"Output A is the better downstream aid because it takes the required rejection/block stance and identifies the missing evidence around action order and focus behavior. It is imperfect: it invents repeated review failures and over-specifies focus landing on the final action, which may be wrong. Output B is more explanatory in places, but it leans toward acceptance, invents accessibility evidence, and does not clearly reject pending modal action order/focus verification.\",\"decisive_differences\":[\"Output A matches the expected next move by blocking until evidence is supplied; Output B only asks for further review and says the candidate appears to address requirements.\",\"Output A names action order/final-action clarity and keyboard focus as evidence gaps; Output B focuses on focus trap/return and visual clarity but misses modal action order as a required proof point.\",\"Output B invents positive evidence from the candidate, while Output A's main invented detail is harmful but less decisive than B's unsafe acceptance posture.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Block until final-action clarity and keyboard focus verification is provided.\",\"why_it_matters\":\"This directly aligns with rejecting until the key modal behavior evidence is verified.\"},{\"output\":\"output_a\",\"quote\":\"Missing evidence for modal action order, specifically confirming the sequence of actions and proper focus management\",\"why_it_matters\":\"It identifies the central evidence gap the downstream agent should pursue.\"},{\"output\":\"output_b\",\"quote\":\"The implementation candidate appears to address the core requirements\",\"why_it_matters\":\"This is too acceptance-leaning for a case where the expected action is to reject until evidence is verified.\"},{\"output\":\"output_b\",\"quote\":\"The inclusion of 'labels: present' for accessibility evidence is positive.\",\"why_it_matters\":\"This introduces source-unsupported evidence and can mislead the downstream judgment.\"}],\"output_a_quality\":{\"score\":6.5,\"strengths\":[\"Correct reject/block posture.\",\"Includes next action, handoff, and rationale.\",\"Calls out action order/final-action clarity and focus evidence gaps.\"],\"risks\":[\"Invents repeated failures and a human-review stop.\",\"Over-prescribes focus landing on the final action, which is not established by the brief.\",\"Uses implementation-fix language instead of purely evidence-based review framing.\"]},\"output_b_quality\":{\"score\":4,\"strengths\":[\"Recognizes focus behavior and destructive/final action clarity as critical requirements.\",\"Includes handoff, rationale, and questions for missing evidence.\"],\"risks\":[\"Does not clearly reject the candidate pending verification.\",\"Invents positive accessibility evidence and says the candidate appears to address requirements.\",\"Misses explicit modal action order verification in the next action/handoff.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "medium",
+    "rationale": "Output A is the better downstream aid because it takes the required rejection/block stance and identifies the missing evidence around action order and focus behavior. It is imperfect: it invents repeated review failures and over-specifies focus landing on the final action, which may be wrong. Output B is more explanatory in places, but it leans toward acceptance, invents accessibility evidence, and does not clearly reject pending modal action order/focus verification.",
+    "decisive_differences": [
+      "Output A matches the expected next move by blocking until evidence is supplied; Output B only asks for further review and says the candidate appears to address requirements.",
+      "Output A names action order/final-action clarity and keyboard focus as evidence gaps; Output B focuses on focus trap/return and visual clarity but misses modal action order as a required proof point.",
+      "Output B invents positive evidence from the candidate, while Output A's main invented detail is harmful but less decisive than B's unsafe acceptance posture."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Block until final-action clarity and keyboard focus verification is provided.",
+        "why_it_matters": "This directly aligns with rejecting until the key modal behavior evidence is verified."
+      },
+      {
+        "output": "output_a",
+        "quote": "Missing evidence for modal action order, specifically confirming the sequence of actions and proper focus management",
+        "why_it_matters": "It identifies the central evidence gap the downstream agent should pursue."
+      },
+      {
+        "output": "output_b",
+        "quote": "The implementation candidate appears to address the core requirements",
+        "why_it_matters": "This is too acceptance-leaning for a case where the expected action is to reject until evidence is verified."
+      },
+      {
+        "output": "output_b",
+        "quote": "The inclusion of 'labels: present' for accessibility evidence is positive.",
+        "why_it_matters": "This introduces source-unsupported evidence and can mislead the downstream judgment."
+      }
+    ],
+    "output_a_quality": {
+      "score": 6.5,
+      "strengths": [
+        "Correct reject/block posture.",
+        "Includes next action, handoff, and rationale.",
+        "Calls out action order/final-action clarity and focus evidence gaps."
+      ],
+      "risks": [
+        "Invents repeated failures and a human-review stop.",
+        "Over-prescribes focus landing on the final action, which is not established by the brief.",
+        "Uses implementation-fix language instead of purely evidence-based review framing."
+      ]
+    },
+    "output_b_quality": {
+      "score": 4,
+      "strengths": [
+        "Recognizes focus behavior and destructive/final action clarity as critical requirements.",
+        "Includes handoff, rationale, and questions for missing evidence."
+      ],
+      "risks": [
+        "Does not clearly reject the candidate pending verification.",
+        "Invents positive accessibility evidence and says the candidate appears to address requirements.",
+        "Misses explicit modal action order verification in the next action/handoff."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "95c84da93046dbabde0de40181ea0655f0d4d0b3ae27c7cd3ff59447297ed4d9",
+    "stderr_sha256": "e562021351d7960200e0cc05d771a411344c3c0280a69d00f4d17cc8662d59c7",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

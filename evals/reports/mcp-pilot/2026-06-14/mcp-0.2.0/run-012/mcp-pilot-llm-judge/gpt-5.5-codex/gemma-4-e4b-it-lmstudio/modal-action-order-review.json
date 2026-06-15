@@ -1,0 +1,87 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "modal-action-order-review",
+  "title": "Modal action order review",
+  "case_type": "implementation_review",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T02:58:20.196Z",
+  "duration_ms": 107761,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "20f7e0dcca557b8cd7ff2bb8fd153817dcab004b7a3e85bd96fd0a8585cd0122",
+  "raw_response_sha256": "15e1df5354ff65d8fc67f1514109192e4a9cb9adc7a143b8a231de8a8c4d8294",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"medium\",\"rationale\":\"Output B is the better aid because it centers the two source-backed requirements: final/destructive action clarity and keyboard focus behavior, and it asks for evidence before proceeding. It is still too soft: it should explicitly reject/block until modal action order and focus evidence are verified. Output A reaches a block decision, but it is dominated by unsupported claims about approved primitives, state coverage, browser QA, repeated failures, and accessibility checks, which would send a downstream agent toward ungrounded work.\",\"decisive_differences\":[\"Output B's missing-evidence handoff is closer to the expected next action, even though it should be phrased as rejection.\",\"Output A invents broad failure history and requirements absent from the source brief.\",\"Output A misses the modal action order/focus evidence target; Output B at least identifies focus trapping/return and destructive/final action clarity.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"use only approved primitives (modal, decision controls, handoff receipt), cover all required UI states\",\"why_it_matters\":\"These requirements are not in the source brief and could misdirect the next agent.\"},{\"output\":\"output_a\",\"quote\":\"repeated failures across primitive usage, state coverage, evidence provision, and accessibility compliance\",\"why_it_matters\":\"The output asserts a failure history and categories of defects not grounded in the provided case.\"},{\"output\":\"output_b\",\"quote\":\"lacks evidence confirming these specific behavioral constraints were met\",\"why_it_matters\":\"This matches the expected need to withhold acceptance until evidence is verified.\"},{\"output\":\"output_b\",\"quote\":\"focus trapping/return behavior and explicit visual confirmation of destructive action clarity\",\"why_it_matters\":\"These are the relevant modal concerns, though action order should have been named explicitly.\"}],\"output_a_quality\":{\"score\":3,\"strengths\":[\"Makes a blocking decision.\",\"Includes next_action, handoff, and rationale.\"],\"risks\":[\"Invents requirements and repeated-failure context.\",\"Does not specifically require modal action order evidence.\",\"Next action drifts to broad human review rather than targeted rejection pending evidence.\"]},\"output_b_quality\":{\"score\":6.5,\"strengths\":[\"Focuses on source-backed focus behavior and final/destructive action clarity.\",\"Asks for verification evidence instead of acceptance.\",\"Handoff is operationally pointed.\"],\"risks\":[\"Too soft: does not explicitly reject/block.\",\"Mentions positive candidate details that may be unsupported.\",\"Does not explicitly name modal action order.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "medium",
+    "rationale": "Output B is the better aid because it centers the two source-backed requirements: final/destructive action clarity and keyboard focus behavior, and it asks for evidence before proceeding. It is still too soft: it should explicitly reject/block until modal action order and focus evidence are verified. Output A reaches a block decision, but it is dominated by unsupported claims about approved primitives, state coverage, browser QA, repeated failures, and accessibility checks, which would send a downstream agent toward ungrounded work.",
+    "decisive_differences": [
+      "Output B's missing-evidence handoff is closer to the expected next action, even though it should be phrased as rejection.",
+      "Output A invents broad failure history and requirements absent from the source brief.",
+      "Output A misses the modal action order/focus evidence target; Output B at least identifies focus trapping/return and destructive/final action clarity."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "use only approved primitives (modal, decision controls, handoff receipt), cover all required UI states",
+        "why_it_matters": "These requirements are not in the source brief and could misdirect the next agent."
+      },
+      {
+        "output": "output_a",
+        "quote": "repeated failures across primitive usage, state coverage, evidence provision, and accessibility compliance",
+        "why_it_matters": "The output asserts a failure history and categories of defects not grounded in the provided case."
+      },
+      {
+        "output": "output_b",
+        "quote": "lacks evidence confirming these specific behavioral constraints were met",
+        "why_it_matters": "This matches the expected need to withhold acceptance until evidence is verified."
+      },
+      {
+        "output": "output_b",
+        "quote": "focus trapping/return behavior and explicit visual confirmation of destructive action clarity",
+        "why_it_matters": "These are the relevant modal concerns, though action order should have been named explicitly."
+      }
+    ],
+    "output_a_quality": {
+      "score": 3,
+      "strengths": [
+        "Makes a blocking decision.",
+        "Includes next_action, handoff, and rationale."
+      ],
+      "risks": [
+        "Invents requirements and repeated-failure context.",
+        "Does not specifically require modal action order evidence.",
+        "Next action drifts to broad human review rather than targeted rejection pending evidence."
+      ]
+    },
+    "output_b_quality": {
+      "score": 6.5,
+      "strengths": [
+        "Focuses on source-backed focus behavior and final/destructive action clarity.",
+        "Asks for verification evidence instead of acceptance.",
+        "Handoff is operationally pointed."
+      ],
+      "risks": [
+        "Too soft: does not explicitly reject/block.",
+        "Mentions positive candidate details that may be unsupported.",
+        "Does not explicitly name modal action order."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "65be707d682a56cc80cb02b546ca4ae05c25834da8d97590cab9fd64c6ffc3ca",
+    "stderr_sha256": "11669bead1fc3ff542085c77435090655ca87c87189c2c0cf8ee53532329887d",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

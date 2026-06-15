@@ -1,0 +1,29 @@
+{
+  "capture_type": "codex-output-transcript",
+  "case_id": "schema-leaking-workflow",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-13T20:57:59.541Z",
+  "source_context_sha256": "9b57cf42165a0e136325ed57187ee20fce1d69eb79dca12599e53cb2441c1c88",
+  "prompt_sha256": "8fa9aa0fa426d35b66367286f35ffd6d61ebd22c629668fd5b55317d8c19b75b",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "9dcd22fd4b7bb767b47cf286a6bd3bba0a714fe912bc254dbce166c1a3c7372e",
+  "raw_response": "{\"response\":\"{\\\"response\\\":\\\"Do not trust this candidate.\\\",\\\"next_action\\\":\\\"Rewrite it as a refund triage workflow where the support lead reviews refund evidence and chooses approve, policy review, or return for missing evidence.\\\",\\\"questions\\\":[],\\\"handoff\\\":\\\"Owner: support product lead; action: replace the candidate with a refund triage flow; reason: it exposes internal mechanics and misses the support lead's actual decisions; evidence gap: refund evidence requirements and policy-review criteria.\\\",\\\"rationale\\\":\\\"The source activity is daily refund triage by a support lead. The candidate shifts the work to internal configuration, save operations, and technical artifacts, so the primary action, decision point, completion state, and visible terms do not match the user's activity. It should be rejected rather than used as a basis for the workflow.\\\"}\",\"next_action\":\"\",\"questions\":[],\"handoff\":\"\",\"rationale\":\"\"}",
+  "parsed": {
+    "response": "{\"response\":\"Do not trust this candidate.\",\"next_action\":\"Rewrite it as a refund triage workflow where the support lead reviews refund evidence and chooses approve, policy review, or return for missing evidence.\",\"questions\":[],\"handoff\":\"Owner: support product lead; action: replace the candidate with a refund triage flow; reason: it exposes internal mechanics and misses the support lead's actual decisions; evidence gap: refund evidence requirements and policy-review criteria.\",\"rationale\":\"The source activity is daily refund triage by a support lead. The candidate shifts the work to internal configuration, save operations, and technical artifacts, so the primary action, decision point, completion state, and visible terms do not match the user's activity. It should be rejected rather than used as a basis for the workflow.\"}",
+    "next_action": "",
+    "questions": [],
+    "handoff": "",
+    "rationale": ""
+  },
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "8e9efceac860f0cb6911eece6eaa0ebf1ea20401cc3a75dc82448f5b3adc59c2",
+    "stderr_sha256": "b928915f34bf7d3cef257354e7b69621cafbb1b9ef68dcda6ec86fc997c933ad",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

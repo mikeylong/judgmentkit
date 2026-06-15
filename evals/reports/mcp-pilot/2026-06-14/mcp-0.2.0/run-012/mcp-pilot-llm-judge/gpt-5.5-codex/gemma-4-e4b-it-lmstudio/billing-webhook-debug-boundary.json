@@ -1,0 +1,89 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "billing-webhook-debug-boundary",
+  "title": "Billing webhook debug boundary",
+  "case_type": "activity_translation",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T02:43:01.407Z",
+  "duration_ms": 41836,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "01331283b4f2609f9c194c69bc09f0cd553152862e5e242c2b62af5a69fe6152",
+  "raw_response_sha256": "ad0928a67ce434ccb52b29506fee056fe3e42df7b00450c39cf9ce24a905d8e7",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"high\",\"rationale\":\"Output A would better help the downstream agent because it stays anchored to the supplied billing/webhook evidence and frames the UI around deciding whether an invoice issue is customer-visible, escalatable, or retry-resolvable. It is imperfect: it leans into ingestion/workflow implementation language and asks for rules instead of directly translating the mechanics into an incident triage model. Output B is more generic and retreats to foundational discovery even though the brief already supplies the activity, participant, evidence types, and decision outcomes.\",\"decisive_differences\":[\"Output A uses the actual source artifacts: webhook event names, Stripe payloads, retry logs, endpoint status, and request IDs.\",\"Output A names the key billing decisions from the brief: customer visibility, engineering escalation, and retry path.\",\"Output B asks broad discovery questions that do not advance the expected next action of translating webhook mechanics into billing incident triage.\",\"Output B invents a process-oriented handoff to a Product Manager and focuses on terminology/scope rather than incident evidence and decision support.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"trace an invoice issue's lifecycle from initial webhook receipt through processing attempts, pinpointing where it stalled or failed\",\"why_it_matters\":\"This is grounded in the webhook/retry/request-ID evidence and moves toward operational diagnosis.\"},{\"output\":\"output_a\",\"quote\":\"determine if an invoice issue is 'customer-visible' versus requiring engineering escalation\",\"why_it_matters\":\"This directly matches the decision boundary in the source brief.\"},{\"output\":\"output_b\",\"quote\":\"gather this foundational context\",\"why_it_matters\":\"The source brief already provides enough activity context to proceed; this delays the expected translation step.\"},{\"output\":\"output_b\",\"quote\":\"What specific activities must this billing operations UI support before we can design any screen structure?\",\"why_it_matters\":\"This is generic and misses that the activity is billing incident triage from webhook and retry evidence.\"}],\"output_a_quality\":{\"score\":0.78,\"strengths\":[\"Grounded in the provided source artifacts.\",\"Recognizes the UI should support diagnosis rather than raw data display.\",\"Identifies the relevant decision boundaries for customer visibility, escalation, and retry handling.\"],\"risks\":[\"Uses implementation-heavy language such as ingestion, correlation, and rules engine.\",\"Asks for criteria instead of proposing a concrete triage framing from the available brief.\",\"Could better name the next move as billing incident triage rather than a structured workflow.\"]},\"output_b_quality\":{\"score\":0.42,\"strengths\":[\"Valid JSON with action, questions, handoff, and rationale.\",\"Shows restraint by acknowledging missing context.\"],\"risks\":[\"Too generic for the case; it ignores much of the provided source brief.\",\"Does not translate webhook mechanics into billing incident triage.\",\"Questions are broad activity-discovery prompts rather than operational decision questions.\",\"Handoff invents Product Manager ownership and does not help the next agent make the immediate judgment.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "high",
+    "rationale": "Output A would better help the downstream agent because it stays anchored to the supplied billing/webhook evidence and frames the UI around deciding whether an invoice issue is customer-visible, escalatable, or retry-resolvable. It is imperfect: it leans into ingestion/workflow implementation language and asks for rules instead of directly translating the mechanics into an incident triage model. Output B is more generic and retreats to foundational discovery even though the brief already supplies the activity, participant, evidence types, and decision outcomes.",
+    "decisive_differences": [
+      "Output A uses the actual source artifacts: webhook event names, Stripe payloads, retry logs, endpoint status, and request IDs.",
+      "Output A names the key billing decisions from the brief: customer visibility, engineering escalation, and retry path.",
+      "Output B asks broad discovery questions that do not advance the expected next action of translating webhook mechanics into billing incident triage.",
+      "Output B invents a process-oriented handoff to a Product Manager and focuses on terminology/scope rather than incident evidence and decision support."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "trace an invoice issue's lifecycle from initial webhook receipt through processing attempts, pinpointing where it stalled or failed",
+        "why_it_matters": "This is grounded in the webhook/retry/request-ID evidence and moves toward operational diagnosis."
+      },
+      {
+        "output": "output_a",
+        "quote": "determine if an invoice issue is 'customer-visible' versus requiring engineering escalation",
+        "why_it_matters": "This directly matches the decision boundary in the source brief."
+      },
+      {
+        "output": "output_b",
+        "quote": "gather this foundational context",
+        "why_it_matters": "The source brief already provides enough activity context to proceed; this delays the expected translation step."
+      },
+      {
+        "output": "output_b",
+        "quote": "What specific activities must this billing operations UI support before we can design any screen structure?",
+        "why_it_matters": "This is generic and misses that the activity is billing incident triage from webhook and retry evidence."
+      }
+    ],
+    "output_a_quality": {
+      "score": 0.78,
+      "strengths": [
+        "Grounded in the provided source artifacts.",
+        "Recognizes the UI should support diagnosis rather than raw data display.",
+        "Identifies the relevant decision boundaries for customer visibility, escalation, and retry handling."
+      ],
+      "risks": [
+        "Uses implementation-heavy language such as ingestion, correlation, and rules engine.",
+        "Asks for criteria instead of proposing a concrete triage framing from the available brief.",
+        "Could better name the next move as billing incident triage rather than a structured workflow."
+      ]
+    },
+    "output_b_quality": {
+      "score": 0.42,
+      "strengths": [
+        "Valid JSON with action, questions, handoff, and rationale.",
+        "Shows restraint by acknowledging missing context."
+      ],
+      "risks": [
+        "Too generic for the case; it ignores much of the provided source brief.",
+        "Does not translate webhook mechanics into billing incident triage.",
+        "Questions are broad activity-discovery prompts rather than operational decision questions.",
+        "Handoff invents Product Manager ownership and does not help the next agent make the immediate judgment."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "9938f7105f5f7099d5c13085d170d1c61d925e01cb0fee630a57291ad5e93869",
+    "stderr_sha256": "d4ab6399b2b13e1b8d724a19f7062e81e64c2bbe9ed6ae89c38f626398b9a624",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

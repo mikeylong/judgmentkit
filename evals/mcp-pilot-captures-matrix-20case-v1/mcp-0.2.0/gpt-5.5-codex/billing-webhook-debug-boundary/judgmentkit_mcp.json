@@ -1,0 +1,53 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "billing-webhook-debug-boundary",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "3015594e9023071169560aba33bf640fddef12d4b919efbf6cb090e0f0e76406",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T01:43:30.584Z",
+  "duration_ms": 60742,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "dcd1ef9ebb1ee986057878c7ecf972d624265fa896ccbbfe72f25973c131a331",
+  "prompt_sha256": "d48b8526c650f82a12c98bdf9b1ff010825f18523e806384a4d0042fa20465a9",
+  "mcp_context_sha256": "351b26941ae9e14e5e2112856c79c70fc3ac208c853462609084c022fcef3ab1",
+  "raw_response_sha256": "f75137df536c28e21a0e7425d3a05053e22606b7589b40c81cda95aec81376a3",
+  "raw_response": "{\"response\":\"Plan the next response around the billing specialist's triage activity: determining invoice impact and routing the case. State that the UI should behave as an operations workbench, not a raw event browser. It should help the specialist compare customer-facing invoice state, payment/retry status, recent billing signals, and escalation evidence, then choose one of three outcomes: customer-visible issue, engineering escalation, or safe retry.\",\"next_action\":\"Ask only for the missing operational definitions, then draft an activity model and implementation plan that organizes evidence by decision: customer impact, retry eligibility, and escalation triggers. Keep internal event machinery behind specialist-facing labels and make the final state a recorded routing decision with supporting evidence.\",\"questions\":[\"What evidence should count as customer-visible: invoice delivery, portal status, payment notice, balance change, support contact, or another signal?\",\"What are the allowed retry actions and limits for the billing specialist, including when retrying could create duplicate charges or customer confusion?\",\"Which conditions require engineering escalation, and what evidence should be attached when escalating?\"],\"handoff\":\"Handoff: Billing operations owns invoice-issue triage; action is to define customer-impact, retry-safe, and escalation-ready evidence before screen layout; reason is to prevent a raw diagnostic view from becoming the decision surface; required fix is domain labels plus one recorded routing outcome, verified against sample invoice cases.\",\"rationale\":\"The source gives a clear decision boundary but leaves key source context undefined. The next response should not invent specific event meanings or expose internal diagnostics; it should convert the available billing signals into evidence for the specialist's routing decision and request only the missing rules needed to make that reliable.\"}",
+  "parsed": {
+    "response": "Plan the next response around the billing specialist's triage activity: determining invoice impact and routing the case. State that the UI should behave as an operations workbench, not a raw event browser. It should help the specialist compare customer-facing invoice state, payment/retry status, recent billing signals, and escalation evidence, then choose one of three outcomes: customer-visible issue, engineering escalation, or safe retry.",
+    "next_action": "Ask only for the missing operational definitions, then draft an activity model and implementation plan that organizes evidence by decision: customer impact, retry eligibility, and escalation triggers. Keep internal event machinery behind specialist-facing labels and make the final state a recorded routing decision with supporting evidence.",
+    "questions": [
+      "What evidence should count as customer-visible: invoice delivery, portal status, payment notice, balance change, support contact, or another signal?",
+      "What are the allowed retry actions and limits for the billing specialist, including when retrying could create duplicate charges or customer confusion?",
+      "Which conditions require engineering escalation, and what evidence should be attached when escalating?"
+    ],
+    "handoff": "Handoff: Billing operations owns invoice-issue triage; action is to define customer-impact, retry-safe, and escalation-ready evidence before screen layout; reason is to prevent a raw diagnostic view from becoming the decision surface; required fix is domain labels plus one recorded routing outcome, verified against sample invoice cases.",
+    "rationale": "The source gives a clear decision boundary but leaves key source context undefined. The next response should not invent specific event meanings or expose internal diagnostics; it should convert the available billing signals into evidence for the specialist's routing decision and request only the missing rules needed to make that reliable."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "fca2852af21e8d31b7c2f2aa6b8067442e99e447c5f6a67a0363b1ae2c03eeb7",
+    "stderr_sha256": "9ce496ebc9d38f8bca96581602ef06dedd72d6b49ddb736d25838e7996cebe6d",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

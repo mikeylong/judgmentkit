@@ -1,0 +1,49 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "missing-accessibility-evidence",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "9455addbf7ddbb5e14b5a23f3e9c13bc55abf90da7316aea9416270014b4d767",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T02:04:52.499Z",
+  "duration_ms": 47894,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "a3a39a06547dd711b6220e404f7e94f9b886368a65a9e03a1b88df15daafe2d0",
+  "prompt_sha256": "cf837f6632a8a553f7f44702587c4355deabd213b97f94f68e5154681c2c98dc",
+  "mcp_context_sha256": "bddca586902004f7697ab66ed74e68063b9d651cc897daecff8ca5680c00cff0",
+  "raw_response_sha256": "d96bde99057cdcbbbd5fc737690e47e8986d915f484b5fd90e6c176d8bf4d05c",
+  "raw_response": "{\"response\":\"Reject the original implementation candidate. The dense operator review screen includes the expected queue, detail panel, decision controls, and handoff receipt, but the custom controls and decision controls cannot be accepted without core accessibility evidence.\",\"next_action\":\"repair_and_resubmit\",\"questions\":[],\"handoff\":\"Decision: reject original; Owner: implementation owner; Action: repair and resubmit; Reason: custom controls and decision controls lack required accessibility evidence; Required fix: provide passing evidence for semantic content, landmarks/headings, name-role-value, keyboard navigation, focus order, and visible focus; Verification: rerun tests and desktop/mobile review with completed accessibility checks.\",\"rationale\":\"The original candidate passed static and browser checks, but acceptance requires accessibility evidence for a dense operator review workflow. A later repaired submission may pass, but the original implementation evidence remains incomplete and should not be accepted.\"}",
+  "parsed": {
+    "response": "Reject the original implementation candidate. The dense operator review screen includes the expected queue, detail panel, decision controls, and handoff receipt, but the custom controls and decision controls cannot be accepted without core accessibility evidence.",
+    "next_action": "repair_and_resubmit",
+    "questions": [],
+    "handoff": "Decision: reject original; Owner: implementation owner; Action: repair and resubmit; Reason: custom controls and decision controls lack required accessibility evidence; Required fix: provide passing evidence for semantic content, landmarks/headings, name-role-value, keyboard navigation, focus order, and visible focus; Verification: rerun tests and desktop/mobile review with completed accessibility checks.",
+    "rationale": "The original candidate passed static and browser checks, but acceptance requires accessibility evidence for a dense operator review workflow. A later repaired submission may pass, but the original implementation evidence remains incomplete and should not be accepted."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "828500c0edda43a9b310315293bfa15a03a9b49b6a0018711d94d24b48c2673d",
+    "stderr_sha256": "49e1d9978af80bbcd3056508a0d03e066d491d3ebef400b0880262d1ae7ee972",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

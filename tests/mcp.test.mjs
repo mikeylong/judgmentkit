@@ -56,8 +56,12 @@ assert.equal(tools[5].inputSchema.properties.profile_id.type, "string");
 assert.equal(tools[5].inputSchema.properties.surface_type.type, "string");
 assert.equal(tools[6].inputSchema.properties.approved_primitives.type, "array");
 assert.equal(tools[6].inputSchema.properties.accessibility_policy.type, "object");
+assert.equal(tools[6].inputSchema.properties.default_ai_native_design_system.type, "object");
+assert.equal(tools[6].inputSchema.properties.iteration_policy.type, "object");
+assert.equal(tools[6].inputSchema.properties.visual_token_adapter.type, "object");
 assert.equal(tools[7].inputSchema.required.includes("candidate"), true);
 assert.equal(tools[7].inputSchema.required.includes("implementation_contract"), true);
+assert.equal(tools[7].inputSchema.properties.iteration_context.type, "object");
 assert.equal(tools[8].inputSchema.required.includes("workflow_review"), true);
 assert.equal(tools[8].inputSchema.required.includes("implementation_contract"), true);
 assert.equal(tools[9].inputSchema.required.includes("ui_generation_handoff"), true);
@@ -331,6 +335,23 @@ function coreAccessibilityEvidence() {
         .conditional_evidence.visual_background_contrast,
     ),
   );
+  assert.equal(
+    implementationContract.implementation_contract.default_ai_native_design_system.mode,
+    "contract_defaults",
+  );
+  assert.equal(
+    implementationContract.implementation_contract.iteration_policy.default_max_attempts,
+    3,
+  );
+  assert.equal(
+    implementationContract.implementation_contract.visual_token_adapter.mode,
+    "boundary_only",
+  );
+  assert.ok(
+    implementationContract.implementation_contract.visual_token_adapter.token_families.includes(
+      "color",
+    ),
+  );
 
   const implementationReview = await handleToolCall("review_ui_implementation_candidate", {
     implementation_contract: implementationContract,
@@ -345,6 +366,50 @@ function coreAccessibilityEvidence() {
 
   assert.equal("error" in implementationReview, false);
   assert.equal(implementationReview.implementation_review_status, "passed");
+  assert.equal(implementationReview.next_agent_action, "accept");
+  assert.equal(implementationReview.autofix_loop.status, "passed");
+  assert.equal(implementationReview.checks.visual_tokens.status, "pass");
+
+  const repairReview = await handleToolCall("review_ui_implementation_candidate", {
+    implementation_contract: implementationContract,
+    iteration_context: { current_attempt: 2 },
+    candidate: {
+      primitives_used: ["queue", "detail panel", "decision controls", "handoff receipt"],
+      states_covered:
+        implementationContract.implementation_contract.state_coverage.required_states,
+      static_checks: ["npm test"],
+      browser_qa: { desktop: "passed", mobile: "passed" },
+      accessibility_evidence: coreAccessibilityEvidence(),
+      actions: ["Auto approve refund"],
+      action_boundary_evidence: {},
+    },
+  });
+
+  assert.equal("error" in repairReview, false);
+  assert.equal(repairReview.implementation_review_status, "failed");
+  assert.equal(repairReview.next_agent_action, "repair_and_resubmit");
+  assert.equal(repairReview.autofix_loop.current_attempt, 2);
+  assert.ok(repairReview.repair_instructions.groups.action_boundaries.length > 0);
+
+  const stoppedReview = await handleToolCall("review_ui_implementation_candidate", {
+    implementation_contract: implementationContract,
+    iteration_context: { current_attempt: 3 },
+    candidate: {
+      primitives_used: ["queue", "detail panel", "decision controls", "handoff receipt"],
+      states_covered:
+        implementationContract.implementation_contract.state_coverage.required_states,
+      static_checks: ["npm test"],
+      browser_qa: { desktop: "passed", mobile: "passed" },
+      accessibility_evidence: coreAccessibilityEvidence(),
+      visible_text: ["JSON schema", "resource id"],
+    },
+  });
+
+  assert.equal("error" in stoppedReview, false);
+  assert.equal(stoppedReview.implementation_review_status, "failed");
+  assert.equal(stoppedReview.next_agent_action, "stop_for_human");
+  assert.equal(stoppedReview.autofix_loop.status, "stopped");
+  assert.ok(stoppedReview.repair_instructions.groups.data_visibility.length > 0);
 
   const handoffResult = await handleToolCall("create_ui_generation_handoff", {
     workflow_review: result,

@@ -1,0 +1,67 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "billing-webhook-debug-boundary",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "72de22aaada8511fee307572cbdfc37244189b152367dd467600f3360247f8bc",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:46:20.659Z",
+  "duration_ms": 5000,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 751,
+    "completion_tokens": 240,
+    "total_tokens": 991,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "b369da4fce7c3fa124464f3b446714fb04561d1a14d08709421f3bc7f69af030",
+  "prompt_sha256": "ba8fe016459f8c254bb9f55d2be1267d63b008c3a062e004be6a2b269805853d",
+  "mcp_context_sha256": "27166fa50f3a094bd06b169a550b8bd0a00d3016ba75d5b920dca936fc1792a6",
+  "raw_response_sha256": "dc40578fb0424cf48635878e6c43236178996b8aec92794a24399b8b35f1c353",
+  "raw_response": "{\"response\": \"The agent should guide the user through establishing the core operational flow for diagnosing billing webhook issues. The initial focus must be on defining the scope of the required activity before designing any interface elements.\", \"next_action\": \"Ask clarifying questions to define the necessary business process steps and desired outcomes for the billing specialist.\", \"questions\": [\"What specific actions should the billing specialist be able to take within this UI (e.g., view history, trigger a retry, manually update status)?\", \"When the specialist finishes reviewing an issue, what is the definitive next step or decision they must make?\", \"Are there any existing internal processes or required domain terms that must be surfaced in the design?\"], \"handoff\": \"Decision/Action: Define core activity model scope; Reason: The initial analysis indicates missing context regarding the primary user activities and desired knowledge state, which is necessary before recommending surface types or workflows.\", \"rationale\": \"The current context shows that defining the underlying activity model is blocked because the system requires input on what activity the UI should support, what the user must know upon completion, and what domain vocabulary to include. This foundational step must precede any structural recommendations.\"}",
+  "parsed": {
+    "response": "The agent should guide the user through establishing the core operational flow for diagnosing billing webhook issues. The initial focus must be on defining the scope of the required activity before designing any interface elements.",
+    "next_action": "Ask clarifying questions to define the necessary business process steps and desired outcomes for the billing specialist.",
+    "questions": [
+      "What specific actions should the billing specialist be able to take within this UI (e.g., view history, trigger a retry, manually update status)?",
+      "When the specialist finishes reviewing an issue, what is the definitive next step or decision they must make?",
+      "Are there any existing internal processes or required domain terms that must be surfaced in the design?"
+    ],
+    "handoff": "Decision/Action: Define core activity model scope; Reason: The initial analysis indicates missing context regarding the primary user activities and desired knowledge state, which is necessary before recommending surface types or workflows.",
+    "rationale": "The current context shows that defining the underlying activity model is blocked because the system requires input on what activity the UI should support, what the user must know upon completion, and what domain vocabulary to include. This foundational step must precede any structural recommendations."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent should guide the user through establishing the core operational flow for diagnosing billing webhook issues. The initial focus must be on defining the scope of the required activity before designing any interface elements.\", \"next_action\": \"Ask clarifying questions to define the necessary business process steps and desired outcomes for the billing specialist.\", \"questions\": [\"What specific actions should the billing specialist be able to take within this UI (e.g., view history, trigger a retry, manually update status)?\", \"When the specialist finishes reviewing an issue, what is the definitive next step or decision they must make?\", \"Are there any existing internal processes or required domain terms that must be surfaced in the design?\"], \"handoff\": \"Decision/Action: Define core activity model scope; Reason: The initial analysis indicates missing context regarding the primary user activities and desired knowledge state, which is necessary before recommending surface types or workflows.\", \"rationale\": \"The current context shows that defining the underlying activity model is blocked because the system requires input on what activity the UI should support, what the user must know upon completion, and what domain vocabulary to include. This foundational step must precede any structural recommendations.\"}",
+    "usage": {
+      "prompt_tokens": 751,
+      "completion_tokens": 240,
+      "total_tokens": 991,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "0144d662d10086879ab527bcb7ce19071a36670e303d676d641060ddea123bf6",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

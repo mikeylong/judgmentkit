@@ -1,0 +1,64 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "clinical-intake-operator-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54174/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract"
+  ],
+  "mcp_tool_transcript_sha256": "7f70a64019ca34fac2fc8473bfa449013a5b7991d244ddd64c1fade6c507e772",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:52:11.607Z",
+  "duration_ms": 5457,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1010,
+    "completion_tokens": 245,
+    "total_tokens": 1255,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "afacf1694c9b5174661375674cee74b274b536a5c299b0d2581bd8595874f71b",
+  "prompt_sha256": "460831f627c1cebff51ec4dc69809e502a9eccf644b0f15a7587a1c113139d8b",
+  "mcp_context_sha256": "63f2dc0ba3cad952ab80c926c83ab80269bcfc0651c21c139f13981a667bafdc",
+  "raw_response_sha256": "209b50bc04f2e83b42538f5462d98d7dd83357790da8ede8b131e5b9f8dfe8c9",
+  "raw_response": "{\"response\": \"The agent should guide the care coordinator through a structured review process, ensuring all critical elements—symptoms, urgency assessment, and consent status—are explicitly addressed before allowing a final routing decision. The immediate next step is to prompt the user to confirm if the intake requires escalation (nurse review) or further data gathering (clarification).\", \"next_action\": \"Guide the operator to perform a structured comparison of symptoms/urgency against required documentation (consent) and select one of the defined primary actions.\", \"questions\": [\"What specific information should the care coordinator be prompted to confirm they have reviewed regarding consent status?\"], \"handoff\": \"Owner: Care Coordinator; Next Action: Confirm review of all intake components (symptoms, urgency, consent); Reason: The current handoff indicates an evidence gap in missing consent or ambiguous urgency, which must be resolved before proceeding. Evidence Gap: Missing confirmation on the resolution path for the identified evidence gaps.\", \"rationale\": \"The source context provides a clear workflow and decision points. The MCP diagnostic suggests that while one tool is ready, another requires knowing what the user should leave the surface knowing/having done to guide the next interaction plan effectively.\"}",
+  "parsed": {
+    "response": "The agent should guide the care coordinator through a structured review process, ensuring all critical elements—symptoms, urgency assessment, and consent status—are explicitly addressed before allowing a final routing decision. The immediate next step is to prompt the user to confirm if the intake requires escalation (nurse review) or further data gathering (clarification).",
+    "next_action": "Guide the operator to perform a structured comparison of symptoms/urgency against required documentation (consent) and select one of the defined primary actions.",
+    "questions": [
+      "What specific information should the care coordinator be prompted to confirm they have reviewed regarding consent status?"
+    ],
+    "handoff": "Owner: Care Coordinator; Next Action: Confirm review of all intake components (symptoms, urgency, consent); Reason: The current handoff indicates an evidence gap in missing consent or ambiguous urgency, which must be resolved before proceeding. Evidence Gap: Missing confirmation on the resolution path for the identified evidence gaps.",
+    "rationale": "The source context provides a clear workflow and decision points. The MCP diagnostic suggests that while one tool is ready, another requires knowing what the user should leave the surface knowing/having done to guide the next interaction plan effectively."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent should guide the care coordinator through a structured review process, ensuring all critical elements—symptoms, urgency assessment, and consent status—are explicitly addressed before allowing a final routing decision. The immediate next step is to prompt the user to confirm if the intake requires escalation (nurse review) or further data gathering (clarification).\", \"next_action\": \"Guide the operator to perform a structured comparison of symptoms/urgency against required documentation (consent) and select one of the defined primary actions.\", \"questions\": [\"What specific information should the care coordinator be prompted to confirm they have reviewed regarding consent status?\"], \"handoff\": \"Owner: Care Coordinator; Next Action: Confirm review of all intake components (symptoms, urgency, consent); Reason: The current handoff indicates an evidence gap in missing consent or ambiguous urgency, which must be resolved before proceeding. Evidence Gap: Missing confirmation on the resolution path for the identified evidence gaps.\", \"rationale\": \"The source context provides a clear workflow and decision points. The MCP diagnostic suggests that while one tool is ready, another requires knowing what the user should leave the surface knowing/having done to guide the next interaction plan effectively.\"}",
+    "usage": {
+      "prompt_tokens": 1010,
+      "completion_tokens": 245,
+      "total_tokens": 1255,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "498e386f0b9a1afe79af0f35336040a4a53702eddff8df0dd9ea374ef7848476",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

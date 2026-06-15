@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "raw-form-controls-implementation",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56554/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "de7a95dd1b3694f76e30d3ae80a51ef0bfa9b6e4bc424700b9616f9fe8946343",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T21:17:16.359Z",
+  "duration_ms": 11289,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1318,
+    "completion_tokens": 174,
+    "total_tokens": 1492,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "17c0c174fc499c7a8d11783546fcccdcf6ccd30a24c397df2aa9effcedd26991",
+  "prompt_sha256": "c523a489411dadfcd74e0bd806cb4f4969849a29e515cf25f1c28acd5cc28835",
+  "mcp_context_sha256": "0e739dd60f27406acb1a30adc6f90fd5537ff6062dcf80b3f29c664b38d1dc64",
+  "raw_response_sha256": "c28e57c44a3c98ee23a9439b8789299b3537fe617fc394aa04cb3439b2fb5516",
+  "raw_response": "{\"response\": \"reject\", \"next_action\": \"repair_and_resubmit\", \"questions\": [], \"handoff\": \"Decision: Reject original implementation. Reason: The initial submission used unapproved primitives (raw input, raw select, table) instead of approved components for the refund review workbench. Required Fix: Replace all instances of raw form controls with the designated, approved UI primitives for this workflow. Verification: Confirm that only approved primitives are utilized across the entire workbench interface.\", \"rationale\": \"The implementation evidence shows the use of 'raw input', 'raw select', and 'table' primitives, which violates the requirement to use approved primitives for the refund review workbench (queue, detail panel, decision controls, handoff receipt). Although subsequent repair attempts passed, the initial submission must be rejected because it did not meet the foundational component standard.\"}",
+  "parsed": {
+    "response": "reject",
+    "next_action": "repair_and_resubmit",
+    "questions": [],
+    "handoff": "Decision: Reject original implementation. Reason: The initial submission used unapproved primitives (raw input, raw select, table) instead of approved components for the refund review workbench. Required Fix: Replace all instances of raw form controls with the designated, approved UI primitives for this workflow. Verification: Confirm that only approved primitives are utilized across the entire workbench interface.",
+    "rationale": "The implementation evidence shows the use of 'raw input', 'raw select', and 'table' primitives, which violates the requirement to use approved primitives for the refund review workbench (queue, detail panel, decision controls, handoff receipt). Although subsequent repair attempts passed, the initial submission must be rejected because it did not meet the foundational component standard."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"reject\", \"next_action\": \"repair_and_resubmit\", \"questions\": [], \"handoff\": \"Decision: Reject original implementation. Reason: The initial submission used unapproved primitives (raw input, raw select, table) instead of approved components for the refund review workbench. Required Fix: Replace all instances of raw form controls with the designated, approved UI primitives for this workflow. Verification: Confirm that only approved primitives are utilized across the entire workbench interface.\", \"rationale\": \"The implementation evidence shows the use of 'raw input', 'raw select', and 'table' primitives, which violates the requirement to use approved primitives for the refund review workbench (queue, detail panel, decision controls, handoff receipt). Although subsequent repair attempts passed, the initial submission must be rejected because it did not meet the foundational component standard.\"}",
+    "usage": {
+      "prompt_tokens": 1318,
+      "completion_tokens": 174,
+      "total_tokens": 1492,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "db633391c9ffb5de3618782ae946df8c49a2861248c4b54210511a0218901fa0",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

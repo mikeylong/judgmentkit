@@ -1,0 +1,885 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JudgmentKit MCP Pilot Report</title>
+  <style>
+    body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #17201b; background: #f7f8f5; }
+    main { max-width: 1120px; margin: 0 auto; padding: 40px 20px 64px; }
+    .hero, .case { background: #fff; border: 1px solid #d9ded7; border-radius: 8px; padding: 24px; box-shadow: 0 10px 30px rgba(23, 32, 27, 0.06); }
+    .hero { margin-bottom: 20px; }
+    h1, h2, h3, p { margin-top: 0; }
+    .lede { max-width: 780px; color: #526058; }
+    .summary, .case dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: #d9ded7; border: 1px solid #d9ded7; border-radius: 8px; overflow: hidden; }
+    .summary div, .case dl div { background: #fff; padding: 14px; }
+    .model-roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin: 18px 0; }
+    .model-roles article { border: 1px solid #d9ded7; border-radius: 8px; padding: 16px; background: #fbfffd; }
+    .model-roles article p { color: #66736b; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+    .model-roles article h2 { font-size: 1.1rem; margin-bottom: 12px; }
+    .model-roles article dl { display: grid; gap: 1px; background: #d9ded7; border: 1px solid #d9ded7; border-radius: 8px; overflow: hidden; }
+    .model-roles article dl div { background: #fff; padding: 12px; }
+    .model-roles article dd { font-size: 1rem; }
+    dt { color: #66736b; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    dd { margin: 4px 0 0; font-size: 1.25rem; font-weight: 800; }
+    .case { margin-top: 16px; }
+    .case header { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
+    .case header p { color: #66736b; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; }
+    .case header strong { border: 1px solid #bdc8bf; border-radius: 999px; padding: 6px 10px; white-space: nowrap; }
+    .repair-loop { margin-top: 16px; border: 1px solid #c8d8d0; border-radius: 8px; padding: 16px; background: #fbfffd; }
+    .repair-loop h3 { margin-bottom: 12px; }
+    .repair-loop p { margin: 12px 0 0; color: #526058; font-weight: 700; }
+    .variants { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 16px; }
+    .variant { border: 1px solid #d9ded7; border-radius: 8px; padding: 16px; }
+    .judgmentkit_mcp { border-color: #9ac6b4; background: #fbfffd; }
+    .score { font-size: 1.8rem; font-weight: 850; }
+    ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+    li { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid #edf0eb; padding-top: 6px; }
+    .leaks { margin-top: 12px; color: #8a2424; font-weight: 700; }
+    a { color: #245f73; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <p><a href="mcp-pilot-report.json">JSON report</a> · <a href="../../../../index.json">Catalog JSON</a></p>
+      <h1>JudgmentKit MCP Private Pilot</h1>
+      <p class="lede">Private repo-local pilot. Scores are deterministic checks against saved model captures; JudgmentKit is not used as the judge. Default mode scores existing versioned captures only. Missing or MCP-version-mismatched captures are reported as capture-required. Live capture is opt-in with --capture and reuses existing captures in the target capture directory. Repair-loop results are deterministic fixture proof of contract governance and agent-owned resubmission behavior; they do not measure visual quality or live-model repair quality. Visual-token adapter results are deterministic boundary proof that token evidence is metadata only; they do not introduce renderer packages, component libraries, A2UI, or visual-quality scoring.</p>
+
+      <dl class="summary">
+        <div><dt>Status</dt><dd>failed</dd></div>
+        <div><dt>Cases</dt><dd>24/24</dd></div>
+        <div><dt>Passed</dt><dd>17</dd></div>
+        <div><dt>Std delta passed</dt><dd>15</dd></div>
+        <div><dt>Calibrated-only</dt><dd>2</dd></div>
+        <div><dt>Average delta</dt><dd>19.25</dd></div>
+        <div><dt>Loop cases</dt><dd>4</dd></div>
+        <div><dt>Converged loops</dt><dd>3</dd></div>
+        <div><dt>Avg attempts to pass</dt><dd>2</dd></div>
+        <div><dt>Stopped loops</dt><dd>1</dd></div>
+
+
+        <div><dt>Token cases</dt><dd>4</dd></div>
+        <div><dt>Token passed</dt><dd>4</dd></div>
+        <div><dt>Token failed</dt><dd>0</dd></div>
+        <div><dt>Invalid outputs</dt><dd>0</dd></div>
+        <div><dt>Guided leaks</dt><dd>0</dd></div>
+        <div><dt>Run</dt><dd>run-003</dd></div>
+      </dl>
+    </section>
+
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · activity_translation</p>
+        <h2>Refund schema admin translation</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>60.91</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">22.64/100</p>
+          <ul><li><span>activity_fit</span><strong>0</strong></li><li><span>decision_support</span><strong>1.91</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>0</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+          <p class="leaks">Leaks: JSON schema, API endpoint, prompt template, tool call trace</p>
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">83.55/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>4.64</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>3.33</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · activity_translation</p>
+        <h2>Agent trace review console</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>46.64</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">26.68/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>1.67</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>0</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+          <p class="leaks">Leaks: function calls, tool outputs, model messages, retry metadata</p>
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">73.32/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>4.58</strong></li><li><span>evidence_grounding</span><strong>0</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · activity_translation</p>
+        <h2>CRM JSON import translation</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>35</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">45.72/100</p>
+          <ul><li><span>activity_fit</span><strong>0</strong></li><li><span>decision_support</span><strong>3.93</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">80.72/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>3.93</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · activity_translation</p>
+        <h2>Billing webhook debug boundary</h2>
+        <strong>Failed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>2.13</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>no</dd></div>
+        <div><dt>Calibrated reason</dt><dd>none</dd></div>
+      </dl>
+
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">34.28/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>3.57</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>0</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+          <p class="leaks">Leaks: webhook, Stripe payload, retry logs, endpoint status, request ID</p>
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">36.41/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>0.35</strong></li><li><span>evidence_grounding</span><strong>0</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>1.67</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · missing_context_restraint</p>
+        <h2>Vague system dashboard restraint</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>26.67</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">58.32/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>2.08</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">84.99/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>5</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>3.33</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · missing_context_restraint</p>
+        <h2>Review queue without decision</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>32.01</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">41/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>2.75</strong></li><li><span>evidence_grounding</span><strong>0</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">73.01/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>3.25</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>1.67</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · missing_context_restraint</p>
+        <h2>API list workflow restraint</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>36.99</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">24/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>2.25</strong></li><li><span>evidence_grounding</span><strong>0</strong></li><li><span>disclosure_discipline</span><strong>0</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+          <p class="leaks">Leaks: GET /items, POST /items, PATCH /items, DELETE /items</p>
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">60.99/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>4</strong></li><li><span>evidence_grounding</span><strong>0</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>3.33</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · missing_context_restraint</p>
+        <h2>Unclear compliance report audience</h2>
+        <strong>Failed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>6.69</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>no</dd></div>
+        <div><dt>Calibrated reason</dt><dd>none</dd></div>
+      </dl>
+
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">60/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>2.5</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">66.69/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>4.17</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>1.67</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · operator_review_handoff</p>
+        <h2>Clinical intake operator review</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>29.61</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">66.07/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>3.33</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>3.75</strong></li><li><span>handoff_quality</span><strong>1.25</strong></li><li><span>rework_risk</span><strong>4</strong></li></ul>
+          <p class="leaks">Leaks: prompt</p>
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">95.68/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>4.17</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>4</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · operator_review_handoff</p>
+        <h2>B2B renewal risk review</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>8.5</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>no</dd></div>
+        <div><dt>Calibrated reason</dt><dd>high_absolute_guided_score</dd></div>
+      </dl>
+
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">88.18/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>4.17</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>2.5</strong></li><li><span>rework_risk</span><strong>4</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">96.68/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>4.17</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · operator_review_handoff</p>
+        <h2>Field dispatch review</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>12.5</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">70.43/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>4.17</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>1.25</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">82.93/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>4.17</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>3.75</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · operator_review_handoff</p>
+        <h2>Content moderation escalation review</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>13.89</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">59.43/100</p>
+          <ul><li><span>activity_fit</span><strong>0</strong></li><li><span>decision_support</span><strong>4.17</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>3.75</strong></li><li><span>handoff_quality</span><strong>1.25</strong></li><li><span>rework_risk</span><strong>4</strong></li></ul>
+          <p class="leaks">Leaks: prompt</p>
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">73.32/100</p>
+          <ul><li><span>activity_fit</span><strong>0</strong></li><li><span>decision_support</span><strong>3.33</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · candidate_validation</p>
+        <h2>Invented activity candidate</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>21.64</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">61.68/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>4.17</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>2.5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+          <p class="leaks">Leaks: treasury, cash reserves</p>
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">83.32/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>3.33</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · candidate_validation</p>
+        <h2>Schema-leaking workflow candidate</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>25.02</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">57.5/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>3.75</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>0</strong></li><li><span>handoff_quality</span><strong>2.5</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+          <p class="leaks">Leaks: JSON schema, database field, API endpoint, CRUD</p>
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">82.52/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>4.38</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · candidate_validation</p>
+        <h2>Surface type mismatch</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>12.88</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">55.72/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>1.43</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>2.5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+          <p class="leaks">Leaks: incident queue, operator</p>
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">68.6/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>3.4</strong></li><li><span>evidence_grounding</span><strong>0</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · candidate_validation</p>
+        <h2>Missing handoff workflow candidate</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>32.88</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">52.84/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>3.21</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">85.72/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>3.93</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · implementation_review</p>
+        <h2>Raw form controls implementation review</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>7</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>no</dd></div>
+        <div><dt>Calibrated reason</dt><dd>implementation_repair_loop_verified</dd></div>
+      </dl>
+
+      <div class="repair-loop">
+        <h3>Repair loop</h3>
+        <dl>
+          <div><dt>Attempts</dt><dd>2</dd></div>
+          <div><dt>Final action</dt><dd>accept</dd></div>
+          <div><dt>Converged</dt><dd>yes</dd></div>
+          <div><dt>Attempts to pass</dt><dd>2</dd></div>
+          <div><dt>Stopped</dt><dd>no</dd></div>
+        </dl>
+        <p>Deterministic fixture proof; not a visual-quality or live-model-quality measurement.</p>
+        <p>Failure categories: action_boundaries</p>
+      </div>
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">83/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>5</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>3</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">90/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>5</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · implementation_review</p>
+        <h2>Missing accessibility evidence review</h2>
+        <strong>Failed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>Baseline</dd></div>
+        <div><dt>Delta</dt><dd>-3</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>no</dd></div>
+        <div><dt>Calibrated reason</dt><dd>none</dd></div>
+      </dl>
+
+      <div class="repair-loop">
+        <h3>Repair loop</h3>
+        <dl>
+          <div><dt>Attempts</dt><dd>2</dd></div>
+          <div><dt>Final action</dt><dd>accept</dd></div>
+          <div><dt>Converged</dt><dd>yes</dd></div>
+          <div><dt>Attempts to pass</dt><dd>2</dd></div>
+          <div><dt>Stopped</dt><dd>no</dd></div>
+        </dl>
+        <p>Deterministic fixture proof; not a visual-quality or live-model-quality measurement.</p>
+        <p>Failure categories: accessibility</p>
+      </div>
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">69/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>1.5</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>3</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">66/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>1.5</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · implementation_review</p>
+        <h2>Modal action order review</h2>
+        <strong>Failed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>9.53</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>no</dd></div>
+        <div><dt>Calibrated reason</dt><dd>none</dd></div>
+      </dl>
+
+      <div class="repair-loop">
+        <h3>Repair loop</h3>
+        <dl>
+          <div><dt>Attempts</dt><dd>3</dd></div>
+          <div><dt>Final action</dt><dd>stop_for_human</dd></div>
+          <div><dt>Converged</dt><dd>no</dd></div>
+          <div><dt>Attempts to pass</dt><dd>n/a</dd></div>
+          <div><dt>Stopped</dt><dd>yes</dd></div>
+        </dl>
+        <p>Deterministic fixture proof; not a visual-quality or live-model-quality measurement.</p>
+        <p>Failure categories: primitive_defaults, state_rules, evidence_gates, accessibility</p>
+      </div>
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">63/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>2.5</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>3</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">72.53/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>3.13</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>1.67</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · implementation_review</p>
+        <h2>Implementation-term leakage review</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>16.24</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+      <div class="repair-loop">
+        <h3>Repair loop</h3>
+        <dl>
+          <div><dt>Attempts</dt><dd>2</dd></div>
+          <div><dt>Final action</dt><dd>accept</dd></div>
+          <div><dt>Converged</dt><dd>yes</dd></div>
+          <div><dt>Attempts to pass</dt><dd>2</dd></div>
+          <div><dt>Stopped</dt><dd>no</dd></div>
+        </dl>
+        <p>Deterministic fixture proof; not a visual-quality or live-model-quality measurement.</p>
+        <p>Failure categories: data_visibility</p>
+      </div>
+
+
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">48.76/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>2.19</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>0</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+          <p class="leaks">Leaks: ready_for_review, activity_model, guardrails, candidate, implementation_contract</p>
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">65/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>1.25</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · implementation_review</p>
+        <h2>Visual token metadata accepted review</h2>
+        <strong>Failed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>Baseline</dd></div>
+        <div><dt>Delta</dt><dd>-5</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>no</dd></div>
+        <div><dt>Calibrated reason</dt><dd>none</dd></div>
+      </dl>
+
+
+
+      <div class="repair-loop">
+        <h3>Visual token adapter proof</h3>
+        <dl>
+          <div><dt>Review status</dt><dd>passed</dd></div>
+          <div><dt>Token evidence</dt><dd>pass</dd></div>
+          <div><dt>Next action</dt><dd>accept</dd></div>
+          <div><dt>Expectation</dt><dd>passed</dd></div>
+        </dl>
+        <p>Deterministic boundary proof; not a renderer or visual-quality measurement.</p>
+        <p>Failure categories: none</p>
+      </div>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">50.72/100</p>
+          <ul><li><span>activity_fit</span><strong>0</strong></li><li><span>decision_support</span><strong>2.68</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">45.72/100</p>
+          <ul><li><span>activity_fit</span><strong>0</strong></li><li><span>decision_support</span><strong>1.43</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · implementation_review</p>
+        <h2>Unsupported visual token family review</h2>
+        <strong>Failed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>Baseline</dd></div>
+        <div><dt>Delta</dt><dd>-6.67</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>no</dd></div>
+        <div><dt>Calibrated reason</dt><dd>none</dd></div>
+      </dl>
+
+
+
+      <div class="repair-loop">
+        <h3>Visual token adapter proof</h3>
+        <dl>
+          <div><dt>Review status</dt><dd>failed</dd></div>
+          <div><dt>Token evidence</dt><dd>fail</dd></div>
+          <div><dt>Next action</dt><dd>repair_and_resubmit</dd></div>
+          <div><dt>Expectation</dt><dd>passed</dd></div>
+        </dl>
+        <p>Deterministic boundary proof; not a renderer or visual-quality measurement.</p>
+        <p>Failure categories: visual_tokens</p>
+      </div>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">65.56/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>1.39</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">58.89/100</p>
+          <ul><li><span>activity_fit</span><strong>0</strong></li><li><span>decision_support</span><strong>2.22</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>1.67</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · implementation_review</p>
+        <h2>Visual token accessibility bypass review</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>33.87</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+      <div class="repair-loop">
+        <h3>Visual token adapter proof</h3>
+        <dl>
+          <div><dt>Review status</dt><dd>failed</dd></div>
+          <div><dt>Token evidence</dt><dd>pass</dd></div>
+          <div><dt>Next action</dt><dd>repair_and_resubmit</dd></div>
+          <div><dt>Expectation</dt><dd>passed</dd></div>
+        </dl>
+        <p>Deterministic boundary proof; not a renderer or visual-quality measurement.</p>
+        <p>Failure categories: accessibility</p>
+      </div>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">36.68/100</p>
+          <ul><li><span>activity_fit</span><strong>0</strong></li><li><span>decision_support</span><strong>1.67</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">70.55/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>1.39</strong></li><li><span>evidence_grounding</span><strong>2.5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>3.33</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>Gemma 4 E4B LM Studio · implementation_review</p>
+        <h2>Visual token renderer boundary review</h2>
+        <strong>Failed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>6.08</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>no</dd></div>
+        <div><dt>Calibrated reason</dt><dd>none</dd></div>
+      </dl>
+
+
+
+      <div class="repair-loop">
+        <h3>Visual token adapter proof</h3>
+        <dl>
+          <div><dt>Review status</dt><dd>failed</dd></div>
+          <div><dt>Token evidence</dt><dd>fail</dd></div>
+          <div><dt>Next action</dt><dd>repair_and_resubmit</dd></div>
+          <div><dt>Expectation</dt><dd>passed</dd></div>
+        </dl>
+        <p>Deterministic boundary proof; not a renderer or visual-quality measurement.</p>
+        <p>Failure categories: visual_tokens</p>
+      </div>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">52.81/100</p>
+          <ul><li><span>activity_fit</span><strong>0</strong></li><li><span>decision_support</span><strong>1.95</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>1.67</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">58.89/100</p>
+          <ul><li><span>activity_fit</span><strong>0</strong></li><li><span>decision_support</span><strong>2.22</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>1.67</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+  </main>
+</body>
+</html>

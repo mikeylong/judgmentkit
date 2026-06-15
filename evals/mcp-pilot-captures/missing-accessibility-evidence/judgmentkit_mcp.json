@@ -1,0 +1,29 @@
+{
+  "capture_type": "codex-output-transcript",
+  "case_id": "missing-accessibility-evidence",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-13T20:45:29.781Z",
+  "source_context_sha256": "e8846b8034a5d40ef828260cf64048115a1b45d3813dc8f851210572afb75754",
+  "prompt_sha256": "cddc6f1b584f02c36ceb259c7a6f406eda8351f58c20ff8e83ff8d9d853235be",
+  "mcp_context_sha256": "1212c7b4d96d3141f5dc71dbdd99948a5fffca54ac2c94b8448eee8fedf678b1",
+  "raw_response_sha256": "6c45c6dfb6cf84d1dc965b10c006feb1bb41ec64503156f87fe8825abecd9f94",
+  "raw_response": "{\"response\":\"Reject the implementation candidate. The approved primitives, static check, and desktop/mobile QA evidence do not satisfy the acceptance gate because accessibility_evidence is empty and required WCAG 2.2 AA evidence is missing for semantics, structure, name/role/value, keyboard operation, focus order, focus visibility, and responsive reflow.\",\"next_action\":\"reject until accessibility evidence is supplied\",\"questions\":[],\"handoff\":\"decision=reject; reason=missing core accessibility evidence for a dense custom-control operator review screen; required fix=supply passing accessibility_evidence entries for semantic_content, landmarks_headings, name_role_value, keyboard_navigation, focus_order, focus_visible, responsive_no_overflow, automated_checks, and re-review missing empty, disabled, and focus-visible states.\",\"rationale\":\"The implementation gate failed. Browser QA and npm test are insufficient without the required accessibility evidence model, and the candidate also omits required empty, disabled, and focus-visible state coverage.\"}",
+  "parsed": {
+    "response": "Reject the implementation candidate. The approved primitives, static check, and desktop/mobile QA evidence do not satisfy the acceptance gate because accessibility_evidence is empty and required WCAG 2.2 AA evidence is missing for semantics, structure, name/role/value, keyboard operation, focus order, focus visibility, and responsive reflow.",
+    "next_action": "reject until accessibility evidence is supplied",
+    "questions": [],
+    "handoff": "decision=reject; reason=missing core accessibility evidence for a dense custom-control operator review screen; required fix=supply passing accessibility_evidence entries for semantic_content, landmarks_headings, name_role_value, keyboard_navigation, focus_order, focus_visible, responsive_no_overflow, automated_checks, and re-review missing empty, disabled, and focus-visible states.",
+    "rationale": "The implementation gate failed. Browser QA and npm test are insufficient without the required accessibility evidence model, and the candidate also omits required empty, disabled, and focus-visible state coverage."
+  },
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "6d039fa34fc3e8695b410bce0df8a95ad452eccd720e69e26d94df201fddf6b5",
+    "stderr_sha256": "66f98392b910bfa1cac6013afbcade0a02c30a3e499f935ff1f3b1ca979c2085",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "schema-leaking-workflow",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:55277/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "4033b1ca58c32471e068c564a960f8fedc67f3303fe129c2fa60d1f732951cf9",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:54:31.869Z",
+  "duration_ms": 4694,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 896,
+    "completion_tokens": 247,
+    "total_tokens": 1143,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "e27f8e2dd31b39219c16a1849a14ee0d4457f367e26ff87e11d6fa11ca874d02",
+  "prompt_sha256": "62126a667099a98a9281e38bfd1c99b3f59c1edf3b58dc5f123c16da4af4f95a",
+  "mcp_context_sha256": "965004d7169ae2cf16683fe626fd4693ddf8b8bafb9ea88a4ede19a0a3c377ae",
+  "raw_response_sha256": "31e2755ce72e2e0c416c7bc4d4fd0b0353ade9e70def99c43b0e56e10aec18b5",
+  "raw_response": "{\"response\": \"The candidate fixture uses internal, placeholder details throughout its structure (e.g., \\\"[internal detail]\\\"). This prevents a meaningful comparison against the source brief's domain language regarding refund review actions (approve, policy review, return for missing evidence).\", \"next_action\": \"Request clarification on specific workflow elements and user-facing terms to map them accurately to the required support lead triage process.\", \"questions\": [\"What are the precise steps a support lead takes when reviewing a refund request? Specifically, what are the distinct actions corresponding to 'approve', 'policy review', and 'return for missing evidence'?\", \"Which specific UI elements or data points must be visible on the surface for the lead to make these three decisions?\"], \"handoff\": \"Owner: Subject Matter Expert (SME); Evidence Gap: Specific domain terminology and workflow steps are missing; Required Fix: Populate candidate fixture with concrete, non-placeholder terms reflecting the 'approve/policy review/return' decision flow.\", \"rationale\": \"The source brief describes a high-level support process involving distinct decisions. The candidate is entirely filled with internal placeholders, making it impossible to assess if the structure supports the required domain logic.\"}",
+  "parsed": {
+    "response": "The candidate fixture uses internal, placeholder details throughout its structure (e.g., \"[internal detail]\"). This prevents a meaningful comparison against the source brief's domain language regarding refund review actions (approve, policy review, return for missing evidence).",
+    "next_action": "Request clarification on specific workflow elements and user-facing terms to map them accurately to the required support lead triage process.",
+    "questions": [
+      "What are the precise steps a support lead takes when reviewing a refund request? Specifically, what are the distinct actions corresponding to 'approve', 'policy review', and 'return for missing evidence'?",
+      "Which specific UI elements or data points must be visible on the surface for the lead to make these three decisions?"
+    ],
+    "handoff": "Owner: Subject Matter Expert (SME); Evidence Gap: Specific domain terminology and workflow steps are missing; Required Fix: Populate candidate fixture with concrete, non-placeholder terms reflecting the 'approve/policy review/return' decision flow.",
+    "rationale": "The source brief describes a high-level support process involving distinct decisions. The candidate is entirely filled with internal placeholders, making it impossible to assess if the structure supports the required domain logic."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The candidate fixture uses internal, placeholder details throughout its structure (e.g., \\\"[internal detail]\\\"). This prevents a meaningful comparison against the source brief's domain language regarding refund review actions (approve, policy review, return for missing evidence).\", \"next_action\": \"Request clarification on specific workflow elements and user-facing terms to map them accurately to the required support lead triage process.\", \"questions\": [\"What are the precise steps a support lead takes when reviewing a refund request? Specifically, what are the distinct actions corresponding to 'approve', 'policy review', and 'return for missing evidence'?\", \"Which specific UI elements or data points must be visible on the surface for the lead to make these three decisions?\"], \"handoff\": \"Owner: Subject Matter Expert (SME); Evidence Gap: Specific domain terminology and workflow steps are missing; Required Fix: Populate candidate fixture with concrete, non-placeholder terms reflecting the 'approve/policy review/return' decision flow.\", \"rationale\": \"The source brief describes a high-level support process involving distinct decisions. The candidate is entirely filled with internal placeholders, making it impossible to assess if the structure supports the required domain logic.\"}",
+    "usage": {
+      "prompt_tokens": 896,
+      "completion_tokens": 247,
+      "total_tokens": 1143,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "bc17fc2a39305dd63be1a6896f2439db9f677959846a9746cc9419e90a4f77f5",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

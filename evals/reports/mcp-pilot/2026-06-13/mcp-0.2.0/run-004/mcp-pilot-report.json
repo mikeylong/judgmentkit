@@ -1,0 +1,236 @@
+{
+  "eval_id": "judgmentkit-mcp-private-pilot-v1",
+  "evaluation_type": "private_saved_capture_scoring",
+  "benchmark_policy": "Private repo-local pilot. Scores are deterministic checks against saved model captures; JudgmentKit is not used as the judge.",
+  "capture_policy": "Default mode scores existing versioned captures only. Missing or MCP-version-mismatched captures are reported as capture-required. Live capture is opt-in with --capture and reuses existing captures in the target capture directory.",
+  "comparison": {
+    "baseline": "baseline_no_mcp",
+    "guided": "judgmentkit_mcp",
+    "models": [
+      {
+        "id": "gpt-5.5-codex",
+        "label": "GPT-5.5 Codex",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "local": false
+      },
+      {
+        "id": "gemma-4-e4b-it-lmstudio",
+        "label": "Gemma 4 E4B LM Studio",
+        "provider": "lmstudio-openai-chat",
+        "model": "gemma-4-e4b-it@q4_k_m",
+        "local": true
+      }
+    ]
+  },
+  "mcp": {
+    "required_version": "0.2.0",
+    "actual_version": "0.2.0",
+    "package_version": "0.2.0",
+    "local_metadata_sha256": "12f3fbb61677c28eacccbe7dfc2e868fa225c95354db05aa7fa2cca9b3075fca",
+    "endpoint_url": null,
+    "endpoint_metadata_sha256": null
+  },
+  "run": {
+    "date": "2026-06-13",
+    "mcp_release": "0.2.0",
+    "mcp_release_segment": "mcp-0.2.0",
+    "run_id": "run-004",
+    "run_path": "2026-06-13/mcp-0.2.0/run-004",
+    "html_report": "2026-06-13/mcp-0.2.0/run-004/mcp-pilot-report.html",
+    "json_report": "2026-06-13/mcp-0.2.0/run-004/mcp-pilot-report.json"
+  },
+  "summary": {
+    "cases": 4,
+    "evaluated_cases": 0,
+    "capture_required_cases": 4,
+    "passed": 0,
+    "failed": 0,
+    "guided_wins": 0,
+    "baseline_wins": 0,
+    "ties": 0,
+    "average_guided_delta": 0,
+    "invalid_outputs": 0,
+    "average_duration_ms": 0,
+    "guided_critical_disclosure_leaks": 0,
+    "pilot_passed": false,
+    "pilot_status": "capture-required",
+    "unique_cases": 2,
+    "models": 2,
+    "per_model": {
+      "gpt-5.5-codex": {
+        "label": "GPT-5.5 Codex",
+        "cases": 2,
+        "evaluated_cases": 0,
+        "capture_required_cases": 2,
+        "passed": 0,
+        "failed": 0,
+        "guided_wins": 0,
+        "baseline_wins": 0,
+        "ties": 0,
+        "average_guided_delta": 0,
+        "invalid_outputs": 0,
+        "average_duration_ms": 0,
+        "guided_critical_disclosure_leaks": 0,
+        "pilot_passed": false,
+        "pilot_status": "capture-required"
+      },
+      "gemma-4-e4b-it-lmstudio": {
+        "label": "Gemma 4 E4B LM Studio",
+        "cases": 2,
+        "evaluated_cases": 0,
+        "capture_required_cases": 2,
+        "passed": 0,
+        "failed": 0,
+        "guided_wins": 0,
+        "baseline_wins": 0,
+        "ties": 0,
+        "average_guided_delta": 0,
+        "invalid_outputs": 0,
+        "average_duration_ms": 0,
+        "guided_critical_disclosure_leaks": 0,
+        "pilot_passed": false,
+        "pilot_status": "capture-required"
+      }
+    }
+  },
+  "metric_scale": {
+    "metric_score": "0-5",
+    "total_score": "0-100 weighted"
+  },
+  "capture_dir": "evals/mcp-pilot-captures",
+  "results": [
+    {
+      "id": "refund-schema-admin-translation",
+      "title": "Refund schema admin translation",
+      "case_type": "activity_translation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "translate the request into a refund triage handoff surface",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "vague-system-dashboard",
+      "title": "Vague system dashboard restraint",
+      "case_type": "missing_context_restraint",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "ask targeted questions about activity decision and outcome",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "refund-schema-admin-translation",
+      "title": "Refund schema admin translation",
+      "case_type": "activity_translation",
+      "model_config_id": "gemma-4-e4b-it-lmstudio",
+      "model_label": "Gemma 4 E4B LM Studio",
+      "model_provider": "lmstudio-openai-chat",
+      "model": "gemma-4-e4b-it@q4_k_m",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "translate the request into a refund triage handoff surface",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "vague-system-dashboard",
+      "title": "Vague system dashboard restraint",
+      "case_type": "missing_context_restraint",
+      "model_config_id": "gemma-4-e4b-it-lmstudio",
+      "model_label": "Gemma 4 E4B LM Studio",
+      "model_provider": "lmstudio-openai-chat",
+      "model": "gemma-4-e4b-it@q4_k_m",
+      "status": "capture-required",
+      "passed": false,
+      "expected_next_action": "ask targeted questions about activity decision and outcome",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    }
+  ]
+}

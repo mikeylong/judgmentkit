@@ -1,0 +1,166 @@
+{
+  "packet_id": "judgmentkit-mcp-private-pilot-evidence-v1",
+  "evidence_type": "repo-local saved-capture product proof",
+  "methodology": "Deterministic scoring of saved baseline and JudgmentKit-guided model captures. JudgmentKit MCP supplies context but is not used as the judge.",
+  "mcp": {
+    "required_version": "0.2.0",
+    "actual_version": "0.2.0",
+    "package_version": "0.2.0",
+    "local_metadata_sha256": "12f3fbb61677c28eacccbe7dfc2e868fa225c95354db05aa7fa2cca9b3075fca",
+    "endpoint_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2"
+  },
+  "scoring_policy": {
+    "metric_scale": {
+      "metric_score": "0-5",
+      "total_score": "0-100 weighted"
+    },
+    "pass_bar": "Pilot passes when at least 75% of evaluated cases pass, average guided delta is at least +10, and guided critical disclosure leaks are zero.",
+    "calibration": "Calibrated pass reasons preserve raw scores while allowing high absolute guided scores and verified implementation repair-loop evidence to pass."
+  },
+  "primary": {
+    "run_id": "run-012",
+    "run_path": "2026-06-14/mcp-0.2.0/run-012",
+    "report_path": "evals/reports/mcp-pilot/2026-06-14/mcp-0.2.0/run-012/mcp-pilot-report.json",
+    "capture_dir": "evals/mcp-pilot-captures-gemma-20case-hardening-v2",
+    "status": "passed",
+    "matrix_status": null,
+    "cases": 20,
+    "evaluated_cases": 20,
+    "passed": 17,
+    "failed": 3,
+    "guided_wins": 19,
+    "baseline_wins": 1,
+    "ties": 0,
+    "average_guided_delta": 21.56,
+    "invalid_outputs": 0,
+    "guided_critical_disclosure_leaks": 0,
+    "standard_delta_passed": 14,
+    "calibrated_only_passes": 3,
+    "calibrated_pass_reason_counts": {
+      "delta_threshold": 14,
+      "high_absolute_guided_score": 1,
+      "implementation_repair_loop_verified": 2
+    },
+    "models": [
+      {
+        "id": "gemma-4-e4b-it-lmstudio",
+        "label": "Gemma 4 E4B LM Studio",
+        "provider": "lmstudio-openai-chat",
+        "model": "gemma-4-e4b-it@q4_k_m",
+        "local": true,
+        "role": null
+      }
+    ],
+    "remaining_failures": [
+      {
+        "id": "billing-webhook-debug-boundary",
+        "title": "Billing webhook debug boundary",
+        "case_type": "activity_translation",
+        "winner": "judgmentkit_mcp",
+        "score_delta": 8.55,
+        "minimum_score_delta": 10,
+        "calibrated_pass_reason": null,
+        "guided_score": 42.83,
+        "baseline_score": 34.28,
+        "guided_critical_disclosure_leaks": []
+      },
+      {
+        "id": "unclear-compliance-report",
+        "title": "Unclear compliance report audience",
+        "case_type": "missing_context_restraint",
+        "winner": "judgmentkit_mcp",
+        "score_delta": 6.69,
+        "minimum_score_delta": 10,
+        "calibrated_pass_reason": null,
+        "guided_score": 66.69,
+        "baseline_score": 60,
+        "guided_critical_disclosure_leaks": []
+      },
+      {
+        "id": "modal-action-order-review",
+        "title": "Modal action order review",
+        "case_type": "implementation_review",
+        "winner": "baseline_no_mcp",
+        "score_delta": -8.01,
+        "minimum_score_delta": 10,
+        "calibrated_pass_reason": null,
+        "guided_score": 54.99,
+        "baseline_score": 63,
+        "guided_critical_disclosure_leaks": []
+      }
+    ]
+  },
+  "comparisons": [
+    {
+      "run_id": "run-008",
+      "run_path": "2026-06-14/mcp-0.2.0/run-008",
+      "report_path": "evals/reports/mcp-pilot/2026-06-14/mcp-0.2.0/run-008/mcp-pilot-report.json",
+      "capture_dir": "evals/mcp-pilot-captures-gemma-20case-v1",
+      "status": "failed",
+      "matrix_status": null,
+      "cases": 20,
+      "evaluated_cases": 20,
+      "passed": 9,
+      "failed": 11,
+      "guided_wins": 14,
+      "baseline_wins": 6,
+      "ties": 0,
+      "average_guided_delta": 12.76,
+      "invalid_outputs": 0,
+      "guided_critical_disclosure_leaks": 17,
+      "standard_delta_passed": null,
+      "calibrated_only_passes": null,
+      "calibrated_pass_reason_counts": {},
+      "models": [
+        {
+          "id": "gemma-4-e4b-it-lmstudio",
+          "label": "Gemma 4 E4B LM Studio",
+          "provider": "lmstudio-openai-chat",
+          "model": "gemma-4-e4b-it@q4_k_m",
+          "local": true,
+          "role": null
+        }
+      ]
+    },
+    {
+      "run_id": "run-011",
+      "run_path": "2026-06-14/mcp-0.2.0/run-011",
+      "report_path": "evals/reports/mcp-pilot/2026-06-14/mcp-0.2.0/run-011/mcp-pilot-report.json",
+      "capture_dir": "evals/mcp-pilot-captures-gemma-20case-hardening-v2",
+      "status": "failed",
+      "matrix_status": null,
+      "cases": 20,
+      "evaluated_cases": 20,
+      "passed": 14,
+      "failed": 6,
+      "guided_wins": 19,
+      "baseline_wins": 1,
+      "ties": 0,
+      "average_guided_delta": 21.56,
+      "invalid_outputs": 0,
+      "guided_critical_disclosure_leaks": 0,
+      "standard_delta_passed": null,
+      "calibrated_only_passes": null,
+      "calibrated_pass_reason_counts": {},
+      "models": [
+        {
+          "id": "gemma-4-e4b-it-lmstudio",
+          "label": "Gemma 4 E4B LM Studio",
+          "provider": "lmstudio-openai-chat",
+          "model": "gemma-4-e4b-it@q4_k_m",
+          "local": true,
+          "role": null
+        }
+      ]
+    }
+  ],
+  "artifact_paths": {
+    "primary_report": "evals/reports/mcp-pilot/2026-06-14/mcp-0.2.0/run-012/mcp-pilot-report.json",
+    "comparison_reports": [
+      "evals/reports/mcp-pilot/2026-06-14/mcp-0.2.0/run-008/mcp-pilot-report.json",
+      "evals/reports/mcp-pilot/2026-06-14/mcp-0.2.0/run-011/mcp-pilot-report.json"
+    ],
+    "primary_html_report": "2026-06-14/mcp-0.2.0/run-012/mcp-pilot-report.html",
+    "primary_capture_dir": "evals/mcp-pilot-captures-gemma-20case-hardening-v2"
+  }
+}

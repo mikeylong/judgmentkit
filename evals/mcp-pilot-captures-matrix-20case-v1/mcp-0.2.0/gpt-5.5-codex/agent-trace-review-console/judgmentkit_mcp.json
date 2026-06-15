@@ -1,0 +1,53 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "agent-trace-review-console",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "549a397cf859bc1c14ecbe7ce12dbb984bcd4c1da295fde4b4e76dd6bef251ed",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T01:39:30.791Z",
+  "duration_ms": 72266,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "4ea1498480700d00f3c8c4d40bed63a1e3973328693b95b86087641682f22156",
+  "prompt_sha256": "0f010a6288bc195d2bfe9a01941665708227d1fff612ad2207ee49cddfd72ac3",
+  "mcp_context_sha256": "601f4b4aad0930704f6db70f8f1b867f4fc352435a9b7a221c4ab5cefebbb8de",
+  "raw_response_sha256": "7ab7f498a5818c99f4e2f38d5278d024112c926e4c2b6b28e639e2ae003f44ea",
+  "raw_response": "{\"response\":\"Plan the next agent response around the operator's review activity: the operator compares a generated escalation with the available evidence, decides whether it is ready to advance, needs tightening, or must be returned for missing support, and leaves a clear review record. Keep underlying execution details behind domain language such as evidence, rationale, risk, readiness, missing support, and disposition.\",\"next_action\":\"Write the response as an activity-first implementation plan: define the review queue, evidence packet, escalation draft, decision controls, required rationale, routing outcome, and audit trail; then flag the remaining source questions before committing layout details.\",\"questions\":[\"What evidence threshold or policy separates advance, tighten, and return for missing support?\",\"Who receives each disposition, and what review note or record must be left for them?\",\"Which underlying activity details are safe to show as operator-facing evidence, and which should stay hidden or be paraphrased into domain language?\"],\"handoff\":\"Owner: product/design; action: proceed with an escalation-readiness review workflow; reason: the core decision is known, but evidence thresholds, routing recipients, and safe operator-facing labels must be verified before layout or copy is finalized.\",\"rationale\":\"The brief supplies the activity, participant, and primary decision, so the next response should advance the work rather than stall on broad discovery. The remaining risk is disclosure and evidence quality: a review console should help operators judge readiness and gaps without exposing implementation machinery or making unsupported escalations look complete.\"}",
+  "parsed": {
+    "response": "Plan the next agent response around the operator's review activity: the operator compares a generated escalation with the available evidence, decides whether it is ready to advance, needs tightening, or must be returned for missing support, and leaves a clear review record. Keep underlying execution details behind domain language such as evidence, rationale, risk, readiness, missing support, and disposition.",
+    "next_action": "Write the response as an activity-first implementation plan: define the review queue, evidence packet, escalation draft, decision controls, required rationale, routing outcome, and audit trail; then flag the remaining source questions before committing layout details.",
+    "questions": [
+      "What evidence threshold or policy separates advance, tighten, and return for missing support?",
+      "Who receives each disposition, and what review note or record must be left for them?",
+      "Which underlying activity details are safe to show as operator-facing evidence, and which should stay hidden or be paraphrased into domain language?"
+    ],
+    "handoff": "Owner: product/design; action: proceed with an escalation-readiness review workflow; reason: the core decision is known, but evidence thresholds, routing recipients, and safe operator-facing labels must be verified before layout or copy is finalized.",
+    "rationale": "The brief supplies the activity, participant, and primary decision, so the next response should advance the work rather than stall on broad discovery. The remaining risk is disclosure and evidence quality: a review console should help operators judge readiness and gaps without exposing implementation machinery or making unsupported escalations look complete."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "049f23e77fad3b9b07b2d864a56fe8aaf723a99541532a333b7e420f038d3f7e",
+    "stderr_sha256": "c3be1bba7750b0bf0681b81aa93c4e38a511fd9cd16ac73e6601d6cff5d8ec13",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

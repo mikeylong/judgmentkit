@@ -336,7 +336,7 @@
       { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
       { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
     ],
-    "expected_mcp_tools": ["review_ui_workflow_candidate", "create_ui_implementation_contract", "create_ui_generation_handoff"]
+    "expected_mcp_tools": ["review_ui_workflow_candidate", "create_ui_implementation_contract"]
   },
   {
     "id": "b2b-renewal-risk-review",
@@ -395,7 +395,7 @@
       { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
       { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
     ],
-    "expected_mcp_tools": ["review_ui_workflow_candidate", "create_ui_implementation_contract", "create_ui_generation_handoff"]
+    "expected_mcp_tools": ["review_ui_workflow_candidate", "create_ui_implementation_contract"]
   },
   {
     "id": "field-dispatch-review",
@@ -454,7 +454,7 @@
       { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
       { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
     ],
-    "expected_mcp_tools": ["review_ui_workflow_candidate", "create_ui_implementation_contract", "create_ui_generation_handoff"]
+    "expected_mcp_tools": ["review_ui_workflow_candidate", "create_ui_implementation_contract"]
   },
   {
     "id": "moderation-escalation-review",
@@ -513,7 +513,7 @@
       { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
       { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
     ],
-    "expected_mcp_tools": ["review_ui_workflow_candidate", "create_ui_implementation_contract", "create_ui_generation_handoff"]
+    "expected_mcp_tools": ["review_ui_workflow_candidate", "create_ui_implementation_contract"]
   },
   {
     "id": "invented-activity-candidate",
@@ -766,6 +766,56 @@
       "browser_qa": {},
       "accessibility_evidence": {}
     },
+    "repair_loop": {
+      "max_attempts": 3,
+      "expected_final_action": "accept",
+      "expected_converged": true,
+      "attempts": [
+        {
+          "candidate": {
+            "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
+            "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
+            "static_checks": ["npm test"],
+            "browser_qa": { "desktop": "passed", "mobile": "passed" },
+            "accessibility_evidence": {
+              "automated_checks": "pass",
+              "semantic_content": "pass",
+              "landmarks_headings": "pass",
+              "name_role_value": "pass",
+              "keyboard_navigation": "pass",
+              "focus_order": "pass",
+              "focus_visible": "pass",
+              "responsive_no_overflow": "pass"
+            },
+            "actions": ["Auto approve refund"],
+            "action_boundary_evidence": {}
+          }
+        },
+        {
+          "candidate": {
+            "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
+            "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
+            "static_checks": ["npm test"],
+            "browser_qa": { "desktop": "passed", "mobile": "passed" },
+            "accessibility_evidence": {
+              "automated_checks": "pass",
+              "semantic_content": "pass",
+              "landmarks_headings": "pass",
+              "name_role_value": "pass",
+              "keyboard_navigation": "pass",
+              "focus_order": "pass",
+              "focus_visible": "pass",
+              "responsive_no_overflow": "pass"
+            },
+            "actions": ["Approve refund"],
+            "action_boundary_evidence": {
+              "approval_boundary": "Approve refund requires explicit user confirmation before submission.",
+              "completion_receipt": "Completion leaves a handoff receipt with the decision reason."
+            }
+          }
+        }
+      ]
+    },
     "expected_next_action": "reject raw controls and require approved primitives",
     "required_terms": {
       "activity_fit": ["refund review", "workbench"],
@@ -791,7 +841,7 @@
       { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
       { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
     ],
-    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate"]
+    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate", "review_ui_implementation_candidate"]
   },
   {
     "id": "missing-accessibility-evidence",
@@ -813,6 +863,40 @@
       "static_checks": ["npm test"],
       "browser_qa": { "desktop": "passed", "mobile": "passed" },
       "accessibility_evidence": {}
+    },
+    "repair_loop": {
+      "max_attempts": 3,
+      "expected_final_action": "accept",
+      "expected_converged": true,
+      "attempts": [
+        {
+          "candidate": {
+            "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
+            "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
+            "static_checks": ["npm test"],
+            "browser_qa": { "desktop": "passed", "mobile": "passed" },
+            "accessibility_evidence": {}
+          }
+        },
+        {
+          "candidate": {
+            "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
+            "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
+            "static_checks": ["npm test"],
+            "browser_qa": { "desktop": "passed", "mobile": "passed" },
+            "accessibility_evidence": {
+              "automated_checks": "pass",
+              "semantic_content": "pass",
+              "landmarks_headings": "pass",
+              "name_role_value": "pass",
+              "keyboard_navigation": "pass",
+              "focus_order": "pass",
+              "focus_visible": "pass",
+              "responsive_no_overflow": "pass"
+            }
+          }
+        }
+      ]
     },
     "expected_next_action": "reject until accessibility evidence is supplied",
     "required_terms": {
@@ -839,7 +923,7 @@
       { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
       { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
     ],
-    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate"]
+    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate", "review_ui_implementation_candidate"]
   },
   {
     "id": "modal-action-order-review",
@@ -861,6 +945,40 @@
       "static_checks": ["npm test"],
       "browser_qa": { "desktop": "passed" },
       "accessibility_evidence": { "labels": "present" }
+    },
+    "repair_loop": {
+      "max_attempts": 3,
+      "expected_final_action": "stop_for_human",
+      "expected_converged": false,
+      "attempts": [
+        {
+          "candidate": {
+            "primitives_used": ["modal", "button"],
+            "states_covered": ["ready"],
+            "static_checks": ["npm test"],
+            "browser_qa": { "desktop": "passed" },
+            "accessibility_evidence": { "labels": "present" }
+          }
+        },
+        {
+          "candidate": {
+            "primitives_used": ["modal", "button"],
+            "states_covered": ["ready"],
+            "static_checks": ["npm test"],
+            "browser_qa": { "desktop": "passed" },
+            "accessibility_evidence": { "labels": "present" }
+          }
+        },
+        {
+          "candidate": {
+            "primitives_used": ["modal", "button"],
+            "states_covered": ["ready"],
+            "static_checks": ["npm test"],
+            "browser_qa": { "desktop": "passed" },
+            "accessibility_evidence": { "labels": "present" }
+          }
+        }
+      ]
     },
     "expected_next_action": "reject until modal action order and focus evidence are verified",
     "required_terms": {
@@ -887,7 +1005,7 @@
       { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
       { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
     ],
-    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate"]
+    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate", "review_ui_implementation_candidate", "review_ui_implementation_candidate"]
   },
   {
     "id": "implementation-term-leakage-review",
@@ -911,6 +1029,51 @@
       "accessibility_evidence": { "landmarks": "present", "keyboard": "passed" },
       "visible_text": ["ready_for_review", "activity_model", "guardrails", "candidate", "implementation_contract"]
     },
+    "repair_loop": {
+      "max_attempts": 3,
+      "expected_final_action": "accept",
+      "expected_converged": true,
+      "attempts": [
+        {
+          "candidate": {
+            "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
+            "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
+            "static_checks": ["npm test"],
+            "browser_qa": { "desktop": "passed", "mobile": "passed" },
+            "accessibility_evidence": {
+              "automated_checks": "pass",
+              "semantic_content": "pass",
+              "landmarks_headings": "pass",
+              "name_role_value": "pass",
+              "keyboard_navigation": "pass",
+              "focus_order": "pass",
+              "focus_visible": "pass",
+              "responsive_no_overflow": "pass"
+            },
+            "visible_text": ["Refund request", "JSON schema", "resource id"]
+          }
+        },
+        {
+          "candidate": {
+            "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
+            "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
+            "static_checks": ["npm test"],
+            "browser_qa": { "desktop": "passed", "mobile": "passed" },
+            "accessibility_evidence": {
+              "automated_checks": "pass",
+              "semantic_content": "pass",
+              "landmarks_headings": "pass",
+              "name_role_value": "pass",
+              "keyboard_navigation": "pass",
+              "focus_order": "pass",
+              "focus_visible": "pass",
+              "responsive_no_overflow": "pass"
+            },
+            "visible_text": ["Refund request", "Evidence checklist", "Decision options", "Handoff receipt"]
+          }
+        }
+      ]
+    },
     "expected_next_action": "reject product-label leakage and require user-facing language",
     "required_terms": {
       "activity_fit": ["customer refund review", "product labels"],
@@ -921,6 +1084,284 @@
       "rework_risk": ["reject"]
     },
     "forbidden_terms": ["ready_for_review", "activity_model", "guardrails", "candidate", "implementation_contract"],
+    "max_questions": 0,
+    "required_handoff_fields": ["decision", "reason", "required fix"],
+    "scoring_weights": {
+      "activity_fit": 0.2,
+      "decision_support": 0.2,
+      "evidence_grounding": 0.2,
+      "disclosure_discipline": 0.2,
+      "handoff_quality": 0.15,
+      "rework_risk": 0.05
+    },
+    "minimum_score_delta": 10,
+    "variants": [
+      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
+      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+    ],
+    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate", "review_ui_implementation_candidate"]
+  },
+  {
+    "id": "visual-token-valid-metadata-review",
+    "title": "Visual token metadata accepted review",
+    "case_type": "implementation_review",
+    "task_prompt": "Review the implementation candidate and decide whether token evidence changes acceptance.",
+    "source_context": {
+      "brief": "The UI is a refund review workbench. Token evidence may describe color, type, spacing, and motion semantics, but acceptance still depends on approved primitives, states, evidence, accessibility, and browser QA."
+    },
+    "implementation_contract_args": {
+      "target_stack": "React",
+      "approved_primitives": ["queue", "detail panel", "decision controls", "handoff receipt"],
+      "static_rules": ["npm test"],
+      "browser_qa_checks": ["desktop review", "mobile review"]
+    },
+    "implementation_candidate": {
+      "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
+      "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
+      "static_checks": ["npm test"],
+      "browser_qa": { "desktop": "passed", "mobile": "passed" },
+      "accessibility_evidence": {
+        "automated_checks": "pass",
+        "semantic_content": "pass",
+        "landmarks_headings": "pass",
+        "name_role_value": "pass",
+        "keyboard_navigation": "pass",
+        "focus_order": "pass",
+        "focus_visible": "pass",
+        "responsive_no_overflow": "pass",
+        "forced_colors": "pass: color and focus roles remain visible in forced-colors mode.",
+        "reduced_motion": "pass: motion token use respects prefers-reduced-motion."
+      },
+      "visible_text": ["Refund request", "Evidence checklist", "Decision options", "Handoff receipt"],
+      "visual_token_evidence": {
+        "token_families": ["color", "type", "spacing", "motion"],
+        "semantic_roles": ["focus", "status", "decision"],
+        "evidence_expectations": [
+          "color and focus roles map to decision controls and handoff receipt"
+        ]
+      }
+    },
+    "visual_token_adapter_proof": {
+      "proof_type": "valid_metadata",
+      "expected_review_status": "passed",
+      "expected_visual_token_status": "pass",
+      "expected_next_agent_action": "accept",
+      "expected_failure_categories": []
+    },
+    "expected_next_action": "accept visual token metadata without treating it as a renderer",
+    "required_terms": {
+      "activity_fit": ["refund review", "workbench"],
+      "decision_support": ["decision options", "handoff receipt"],
+      "evidence_grounding": ["token evidence", "metadata"],
+      "disclosure_discipline": ["implementation review"],
+      "handoff_quality": ["accept", "evidence"],
+      "rework_risk": ["no renderer"]
+    },
+    "forbidden_terms": ["component package", "A2UI", "visual quality score"],
+    "max_questions": 0,
+    "required_handoff_fields": ["decision", "reason", "evidence"],
+    "scoring_weights": {
+      "activity_fit": 0.2,
+      "decision_support": 0.2,
+      "evidence_grounding": 0.2,
+      "disclosure_discipline": 0.2,
+      "handoff_quality": 0.15,
+      "rework_risk": 0.05
+    },
+    "minimum_score_delta": 10,
+    "variants": [
+      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
+      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+    ],
+    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate"]
+  },
+  {
+    "id": "visual-token-unsupported-family-review",
+    "title": "Unsupported visual token family review",
+    "case_type": "implementation_review",
+    "task_prompt": "Review the implementation candidate and decide whether unsupported token evidence should be accepted.",
+    "source_context": {
+      "brief": "The UI is a refund review workbench. Token evidence includes an unsupported texture family that is outside the boundary adapter."
+    },
+    "implementation_contract_args": {
+      "target_stack": "React",
+      "approved_primitives": ["queue", "detail panel", "decision controls", "handoff receipt"],
+      "static_rules": ["npm test"],
+      "browser_qa_checks": ["desktop review", "mobile review"]
+    },
+    "implementation_candidate": {
+      "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
+      "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
+      "static_checks": ["npm test"],
+      "browser_qa": { "desktop": "passed", "mobile": "passed" },
+      "accessibility_evidence": {
+        "automated_checks": "pass",
+        "semantic_content": "pass",
+        "landmarks_headings": "pass",
+        "name_role_value": "pass",
+        "keyboard_navigation": "pass",
+        "focus_order": "pass",
+        "focus_visible": "pass",
+        "responsive_no_overflow": "pass",
+        "forced_colors": "pass: color roles remain visible in forced-colors mode."
+      },
+      "visible_text": ["Refund request", "Evidence checklist", "Decision options", "Handoff receipt"],
+      "visual_token_evidence": {
+        "token_families": ["color", "texture"],
+        "semantic_roles": ["status", "decision"]
+      }
+    },
+    "visual_token_adapter_proof": {
+      "proof_type": "unsupported_family",
+      "expected_review_status": "failed",
+      "expected_visual_token_status": "fail",
+      "expected_next_agent_action": "repair_and_resubmit",
+      "expected_failure_categories": ["visual_tokens"]
+    },
+    "expected_next_action": "reject unsupported token families and return visual token repair guidance",
+    "required_terms": {
+      "activity_fit": ["refund review", "workbench"],
+      "decision_support": ["decision options", "handoff receipt"],
+      "evidence_grounding": ["unsupported token", "visual token"],
+      "disclosure_discipline": ["boundary adapter"],
+      "handoff_quality": ["required fix", "supported token"],
+      "rework_risk": ["reject"]
+    },
+    "forbidden_terms": ["accept as-is", "renderer ready", "component package"],
+    "max_questions": 0,
+    "required_handoff_fields": ["decision", "reason", "required fix"],
+    "scoring_weights": {
+      "activity_fit": 0.2,
+      "decision_support": 0.2,
+      "evidence_grounding": 0.2,
+      "disclosure_discipline": 0.2,
+      "handoff_quality": 0.15,
+      "rework_risk": 0.05
+    },
+    "minimum_score_delta": 10,
+    "variants": [
+      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
+      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+    ],
+    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate"]
+  },
+  {
+    "id": "visual-token-accessibility-bypass-review",
+    "title": "Visual token accessibility bypass review",
+    "case_type": "implementation_review",
+    "task_prompt": "Review the implementation candidate and decide whether token evidence can replace missing accessibility evidence.",
+    "source_context": {
+      "brief": "The UI is a refund review workbench. Token evidence is present, but core accessibility evidence is missing."
+    },
+    "implementation_contract_args": {
+      "target_stack": "React",
+      "approved_primitives": ["queue", "detail panel", "decision controls", "handoff receipt"],
+      "static_rules": ["npm test"],
+      "browser_qa_checks": ["desktop review", "mobile review"]
+    },
+    "implementation_candidate": {
+      "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
+      "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
+      "static_checks": ["npm test"],
+      "browser_qa": { "desktop": "passed", "mobile": "passed" },
+      "accessibility_evidence": {},
+      "visible_text": ["Refund request", "Evidence checklist", "Decision options", "Handoff receipt"],
+      "visual_token_evidence": {
+        "token_families": ["color", "spacing"],
+        "semantic_roles": ["focus", "status", "decision"]
+      }
+    },
+    "visual_token_adapter_proof": {
+      "proof_type": "cannot_bypass_accessibility",
+      "expected_review_status": "failed",
+      "expected_visual_token_status": "pass",
+      "expected_next_agent_action": "repair_and_resubmit",
+      "expected_failure_categories": ["accessibility"]
+    },
+    "expected_next_action": "reject missing accessibility evidence even when token metadata is present",
+    "required_terms": {
+      "activity_fit": ["refund review", "workbench"],
+      "decision_support": ["decision options", "handoff receipt"],
+      "evidence_grounding": ["accessibility evidence", "token metadata"],
+      "disclosure_discipline": ["evidence gate"],
+      "handoff_quality": ["required fix", "accessibility"],
+      "rework_risk": ["reject"]
+    },
+    "forbidden_terms": ["accept as-is", "tokens are enough", "visual quality score"],
+    "max_questions": 0,
+    "required_handoff_fields": ["decision", "reason", "required fix"],
+    "scoring_weights": {
+      "activity_fit": 0.2,
+      "decision_support": 0.2,
+      "evidence_grounding": 0.2,
+      "disclosure_discipline": 0.2,
+      "handoff_quality": 0.15,
+      "rework_risk": 0.05
+    },
+    "minimum_score_delta": 10,
+    "variants": [
+      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
+      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+    ],
+    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate"]
+  },
+  {
+    "id": "visual-token-renderer-boundary-review",
+    "title": "Visual token renderer boundary review",
+    "case_type": "implementation_review",
+    "task_prompt": "Review the implementation candidate and decide whether token evidence may introduce renderer or component package work.",
+    "source_context": {
+      "brief": "The UI is a refund review workbench. Token evidence tries to turn the boundary adapter into a renderer and component package."
+    },
+    "implementation_contract_args": {
+      "target_stack": "React",
+      "approved_primitives": ["queue", "detail panel", "decision controls", "handoff receipt"],
+      "static_rules": ["npm test"],
+      "browser_qa_checks": ["desktop review", "mobile review"]
+    },
+    "implementation_candidate": {
+      "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
+      "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
+      "static_checks": ["npm test"],
+      "browser_qa": { "desktop": "passed", "mobile": "passed" },
+      "accessibility_evidence": {
+        "automated_checks": "pass",
+        "semantic_content": "pass",
+        "landmarks_headings": "pass",
+        "name_role_value": "pass",
+        "keyboard_navigation": "pass",
+        "focus_order": "pass",
+        "focus_visible": "pass",
+        "responsive_no_overflow": "pass",
+        "forced_colors": "pass: color roles remain visible in forced-colors mode."
+      },
+      "visible_text": ["Refund request", "Evidence checklist", "Decision options", "Handoff receipt"],
+      "visual_token_evidence": {
+        "token_families": ["color", "type", "spacing"],
+        "semantic_roles": ["status", "decision"],
+        "evidence_expectations": [
+          "component package is ready for this boundary slice",
+          "renderer package can now drive the default component library"
+        ]
+      }
+    },
+    "visual_token_adapter_proof": {
+      "proof_type": "renderer_boundary",
+      "expected_review_status": "failed",
+      "expected_visual_token_status": "fail",
+      "expected_next_agent_action": "repair_and_resubmit",
+      "expected_failure_categories": ["visual_tokens"]
+    },
+    "expected_next_action": "reject renderer and component package work in boundary-only token evidence",
+    "required_terms": {
+      "activity_fit": ["refund review", "workbench"],
+      "decision_support": ["decision options", "handoff receipt"],
+      "evidence_grounding": ["renderer boundary", "visual token"],
+      "disclosure_discipline": ["boundary-only"],
+      "handoff_quality": ["required fix", "deferred renderer"],
+      "rework_risk": ["reject"]
+    },
+    "forbidden_terms": ["accept as-is", "A2UI", "component package ready"],
     "max_questions": 0,
     "required_handoff_fields": ["decision", "reason", "required fix"],
     "scoring_weights": {

@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "moderation-escalation-review",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54314/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:44:15.484Z",
+  "duration_ms": 5678,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 586,
+    "completion_tokens": 287,
+    "total_tokens": 873,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "253d4c3af3647d15802ead241b309a8a557882ab9c25c42208636931048fcd1e",
+  "prompt_sha256": "099d8a9888f8a79eda6f36ed970dc2645f1d8070cf78229781958f03038ffbbe",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "a17bdedd9ede4f5edea0b84020ea74b6fabd723154c42317bb2fd423b84e4ee5",
+  "raw_response": "{\"response\": \"The agent should guide the operator through a structured review process that synthesizes policy evidence, user history, and content severity to determine the appropriate next step: Approve, Escalate for Policy Review, or Return for More Evidence. The immediate focus must be on completing the handoff preparation if escalation is chosen.\", \"next_action\": \"Guide the agent to finalize the 'Escalation handoff' by ensuring all required fields (policy reason, owner, evidence gap) are populated based on the review findings.\", \"questions\": [\"What specific information should the operator provide regarding the policy violation when selecting 'Escalate for policy review'?\",\"If the operator selects 'Return for more evidence,' what is the standardized format or set of questions to prompt the user to request missing context?\"], \"handoff\": \"The current handoff indicates a need for 'policy reviewer' ownership due to severity/evidence mismatch, but it flags a missing 'user history context.' The agent must prioritize gathering this missing context before finalizing any escalation.\", \"rationale\": \"The source brief describes the core function: review and decide. The fixture confirms the workflow steps and primary actions. Since the handoff already suggests an owner ('policy reviewer') and identifies a gap ('Missing user history context'), the next logical step is to guide the agent on how to resolve that gap or proceed with the existing information, rather than just listing UI elements.\"}",
+  "parsed": {
+    "response": "The agent should guide the operator through a structured review process that synthesizes policy evidence, user history, and content severity to determine the appropriate next step: Approve, Escalate for Policy Review, or Return for More Evidence. The immediate focus must be on completing the handoff preparation if escalation is chosen.",
+    "next_action": "Guide the agent to finalize the 'Escalation handoff' by ensuring all required fields (policy reason, owner, evidence gap) are populated based on the review findings.",
+    "questions": [
+      "What specific information should the operator provide regarding the policy violation when selecting 'Escalate for policy review'?",
+      "If the operator selects 'Return for more evidence,' what is the standardized format or set of questions to prompt the user to request missing context?"
+    ],
+    "handoff": "The current handoff indicates a need for 'policy reviewer' ownership due to severity/evidence mismatch, but it flags a missing 'user history context.' The agent must prioritize gathering this missing context before finalizing any escalation.",
+    "rationale": "The source brief describes the core function: review and decide. The fixture confirms the workflow steps and primary actions. Since the handoff already suggests an owner ('policy reviewer') and identifies a gap ('Missing user history context'), the next logical step is to guide the agent on how to resolve that gap or proceed with the existing information, rather than just listing UI elements."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent should guide the operator through a structured review process that synthesizes policy evidence, user history, and content severity to determine the appropriate next step: Approve, Escalate for Policy Review, or Return for More Evidence. The immediate focus must be on completing the handoff preparation if escalation is chosen.\", \"next_action\": \"Guide the agent to finalize the 'Escalation handoff' by ensuring all required fields (policy reason, owner, evidence gap) are populated based on the review findings.\", \"questions\": [\"What specific information should the operator provide regarding the policy violation when selecting 'Escalate for policy review'?\",\"If the operator selects 'Return for more evidence,' what is the standardized format or set of questions to prompt the user to request missing context?\"], \"handoff\": \"The current handoff indicates a need for 'policy reviewer' ownership due to severity/evidence mismatch, but it flags a missing 'user history context.' The agent must prioritize gathering this missing context before finalizing any escalation.\", \"rationale\": \"The source brief describes the core function: review and decide. The fixture confirms the workflow steps and primary actions. Since the handoff already suggests an owner ('policy reviewer') and identifies a gap ('Missing user history context'), the next logical step is to guide the agent on how to resolve that gap or proceed with the existing information, rather than just listing UI elements.\"}",
+    "usage": {
+      "prompt_tokens": 586,
+      "completion_tokens": 287,
+      "total_tokens": 873,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "251d722dd4b8b83c5e700296d2d59e5b6674cf19e98d12a89331262036ea4034",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

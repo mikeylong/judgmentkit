@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "missing-handoff-workflow",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59425/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "a049d7bba7fa3ac313d9d6ac28bded98f6b102a005dd6715599097ed7668f473",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T21:29:36.699Z",
+  "duration_ms": 34421,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 795,
+    "completion_tokens": 176,
+    "total_tokens": 971,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "554c22cba5ec97145d5fe12ddc5c188217495b7353efcf1a97e9fecc1b389c01",
+  "prompt_sha256": "9ee49239626ff6d3dea2cd75901a02635da4236d95cf8d5069c1edfe3c7bce6c",
+  "mcp_context_sha256": "8afd4a1c1c6fea8b04db00f45138e0e5e263091f52f56254e32d90343cb45efe",
+  "raw_response_sha256": "53068b9dfecd42d6bab00a97dc93df4172b5668d0a22e5eb5971a0e777ad1604",
+  "raw_response": "{\"response\": \"The submitted candidate is missing the required handoff workflow structure.\", \"next_action\": \"Request the owner to provide a complete handoff object detailing the next owner, action, reason, and evidence gap as specified in the source brief.\", \"questions\": [\"What specific information must be included in the handoff regarding the next owner, action, reason, and evidence gap?\"], \"handoff\": \"Decision: Reject; Reason: The submitted fixture lacks any definition for a required handoff workflow structure, which is mandatory according to the source brief. Owner needs to provide the full handoff details.\", \"rationale\": \"The source brief explicitly requires that a policy reviewer must leave a handoff with next owner, action, reason, and evidence gap. The provided fixture has an empty 'handoff' object, indicating this critical workflow step was omitted.\"}",
+  "parsed": {
+    "response": "The submitted candidate is missing the required handoff workflow structure.",
+    "next_action": "Request the owner to provide a complete handoff object detailing the next owner, action, reason, and evidence gap as specified in the source brief.",
+    "questions": [
+      "What specific information must be included in the handoff regarding the next owner, action, reason, and evidence gap?"
+    ],
+    "handoff": "Decision: Reject; Reason: The submitted fixture lacks any definition for a required handoff workflow structure, which is mandatory according to the source brief. Owner needs to provide the full handoff details.",
+    "rationale": "The source brief explicitly requires that a policy reviewer must leave a handoff with next owner, action, reason, and evidence gap. The provided fixture has an empty 'handoff' object, indicating this critical workflow step was omitted."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The submitted candidate is missing the required handoff workflow structure.\", \"next_action\": \"Request the owner to provide a complete handoff object detailing the next owner, action, reason, and evidence gap as specified in the source brief.\", \"questions\": [\"What specific information must be included in the handoff regarding the next owner, action, reason, and evidence gap?\"], \"handoff\": \"Decision: Reject; Reason: The submitted fixture lacks any definition for a required handoff workflow structure, which is mandatory according to the source brief. Owner needs to provide the full handoff details.\", \"rationale\": \"The source brief explicitly requires that a policy reviewer must leave a handoff with next owner, action, reason, and evidence gap. The provided fixture has an empty 'handoff' object, indicating this critical workflow step was omitted.\"}",
+    "usage": {
+      "prompt_tokens": 795,
+      "completion_tokens": 176,
+      "total_tokens": 971,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "ac9a2fb3d6f73ac4a6d5fbb223acf3f951919d1d2f3d08636bbe15d9dec2fdf1",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

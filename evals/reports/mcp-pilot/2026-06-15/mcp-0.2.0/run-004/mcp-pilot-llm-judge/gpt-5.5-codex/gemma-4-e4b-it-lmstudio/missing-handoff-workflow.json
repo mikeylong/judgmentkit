@@ -1,0 +1,91 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "missing-handoff-workflow",
+  "title": "Missing handoff workflow candidate",
+  "case_type": "candidate_validation",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T06:04:32.426Z",
+  "duration_ms": 85617,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "8198a5c5a48b3fa73f17ee078582679d9a26f08c77c9c096030ae8e0b6025ced",
+  "raw_response_sha256": "8550059a160e977ce4b7e634a3cb9b0300c5bdb3c77bc637e9cf98e46a3b3977",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"medium\",\"rationale\":\"Output B is the better downstream signal because it makes the validation decision explicit with “Reject” and keeps the next move focused on the missing handoff structure. Output A is more restrained about not inventing field values, but it weakens the handoff by asking a generic format question and never clearly states the expected block/reject action. Both outputs are flawed because both mark `output_valid` as true and neither cleanly says to block handoff creation until the required fields are present.\",\"decisive_differences\":[\"Output B gives a clear reject decision, which better matches the expected validation outcome.\",\"Output A asks an unnecessary generic question about output format, which could delay the correct next move.\",\"Output B is less restrained because it invents `Owner=Reviewer`, so the win is narrow rather than strong.\"],\"evidence\":[{\"output\":\"output_b\",\"quote\":\"\\\"response\\\": \\\"Reject\\\"\",\"why_it_matters\":\"This directly tells the downstream agent not to trust the candidate, aligning with the expected blocking decision.\"},{\"output\":\"output_b\",\"quote\":\"\\\"questions\\\": []\",\"why_it_matters\":\"It avoids unnecessary clarification and keeps the agent moving toward repair/blocking.\"},{\"output\":\"output_a\",\"quote\":\"\\\"What is the expected format for specifying the 'next owner', 'action', 'reason', and 'evidence gap' in the final JSON output?\\\"\",\"why_it_matters\":\"This is a generic format question despite the source already specifying the required fields.\"},{\"output\":\"output_b\",\"quote\":\"\\\"Owner=Reviewer\\\"\",\"why_it_matters\":\"This is a material risk because it fabricates a handoff owner instead of blocking until the missing handoff fields are supplied.\"}],\"output_a_quality\":{\"score\":6,\"strengths\":[\"Grounded in the source brief’s required handoff fields.\",\"Correctly says the candidate cannot be trusted as-is in the rationale.\",\"Avoids fabricating a specific next owner.\"],\"risks\":[\"Marks `output_valid` as true despite the candidate needing rejection/blocking.\",\"Does not clearly state `Reject` or `block handoff creation`.\",\"Asks a generic format question that is not needed for the validation decision.\",\"Uses implementation-facing language such as fixture/final JSON.\"]},\"output_b_quality\":{\"score\":7,\"strengths\":[\"Makes the validation decision explicit with `Reject`.\",\"Correctly identifies the missing next owner, action, reason, and evidence gap fields.\",\"Avoids unnecessary questions.\",\"More operationally useful for a downstream agent deciding the next move.\"],\"risks\":[\"Marks `output_valid` as true, which conflicts with the rejection.\",\"Invents `Owner=Reviewer` rather than requiring the missing owner to be supplied.\",\"Does not explicitly phrase the next action as blocking handoff creation until fields are present.\",\"Uses implementation-facing fixture language.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "medium",
+    "rationale": "Output B is the better downstream signal because it makes the validation decision explicit with “Reject” and keeps the next move focused on the missing handoff structure. Output A is more restrained about not inventing field values, but it weakens the handoff by asking a generic format question and never clearly states the expected block/reject action. Both outputs are flawed because both mark `output_valid` as true and neither cleanly says to block handoff creation until the required fields are present.",
+    "decisive_differences": [
+      "Output B gives a clear reject decision, which better matches the expected validation outcome.",
+      "Output A asks an unnecessary generic question about output format, which could delay the correct next move.",
+      "Output B is less restrained because it invents `Owner=Reviewer`, so the win is narrow rather than strong."
+    ],
+    "evidence": [
+      {
+        "output": "output_b",
+        "quote": "\"response\": \"Reject\"",
+        "why_it_matters": "This directly tells the downstream agent not to trust the candidate, aligning with the expected blocking decision."
+      },
+      {
+        "output": "output_b",
+        "quote": "\"questions\": []",
+        "why_it_matters": "It avoids unnecessary clarification and keeps the agent moving toward repair/blocking."
+      },
+      {
+        "output": "output_a",
+        "quote": "\"What is the expected format for specifying the 'next owner', 'action', 'reason', and 'evidence gap' in the final JSON output?\"",
+        "why_it_matters": "This is a generic format question despite the source already specifying the required fields."
+      },
+      {
+        "output": "output_b",
+        "quote": "\"Owner=Reviewer\"",
+        "why_it_matters": "This is a material risk because it fabricates a handoff owner instead of blocking until the missing handoff fields are supplied."
+      }
+    ],
+    "output_a_quality": {
+      "score": 6,
+      "strengths": [
+        "Grounded in the source brief’s required handoff fields.",
+        "Correctly says the candidate cannot be trusted as-is in the rationale.",
+        "Avoids fabricating a specific next owner."
+      ],
+      "risks": [
+        "Marks `output_valid` as true despite the candidate needing rejection/blocking.",
+        "Does not clearly state `Reject` or `block handoff creation`.",
+        "Asks a generic format question that is not needed for the validation decision.",
+        "Uses implementation-facing language such as fixture/final JSON."
+      ]
+    },
+    "output_b_quality": {
+      "score": 7,
+      "strengths": [
+        "Makes the validation decision explicit with `Reject`.",
+        "Correctly identifies the missing next owner, action, reason, and evidence gap fields.",
+        "Avoids unnecessary questions.",
+        "More operationally useful for a downstream agent deciding the next move."
+      ],
+      "risks": [
+        "Marks `output_valid` as true, which conflicts with the rejection.",
+        "Invents `Owner=Reviewer` rather than requiring the missing owner to be supplied.",
+        "Does not explicitly phrase the next action as blocking handoff creation until fields are present.",
+        "Uses implementation-facing fixture language."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "f5c3aa0d2edb9b856dd8134ff0bad4fd1a070ca7aab868794580aa2f84240a4a",
+    "stderr_sha256": "f51a727b765bc87941cdc6f9d8420a8bbccc36b70a7078c01bb9dee162445795",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

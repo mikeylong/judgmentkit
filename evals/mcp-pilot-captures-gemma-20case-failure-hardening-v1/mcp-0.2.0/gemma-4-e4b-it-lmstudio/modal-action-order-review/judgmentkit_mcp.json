@@ -1,0 +1,64 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "modal-action-order-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56554/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "3528f9f0391b5f7bb23b792cbf9d5349e3ab2aabe1b68058f79583b21c8002be",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T21:19:45.566Z",
+  "duration_ms": 35555,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 2306,
+    "completion_tokens": 166,
+    "total_tokens": 2472,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "a98d03a4c8a16b15036aca9feb401a32c6db520ae492770db77de7af2fbd7114",
+  "prompt_sha256": "5bb951dcdba5aaae55fa52f268cc8de8cd68cd79401018d36f08edeb20459fad",
+  "mcp_context_sha256": "d9310981148984e03398bc6198531fa0599fdf608b88e89a1ae63103fb1c21b2",
+  "raw_response_sha256": "43c81da46003ed7cddd7df2af50abe198a4665e0041d4520860983aa1deb2870",
+  "raw_response": "{\"response\": \"block\", \"next_action\": \"human_review\", \"questions\": [], \"handoff\": \"Block original implementation. Required Fix: Update the component to use only approved primitives (modal, decision controls, handoff receipt), cover all required UI states (empty, ready, loading, error, disabled, focus-visible), and provide both desktop and mobile browser QA evidence. Verification: Human review is required due to repeated failures across primitive usage, state coverage, evidence provision, and accessibility compliance.\", \"rationale\": \"The implementation failed multiple times across several critical areas, including using unapproved primitives, missing necessary UI states, lacking comprehensive cross-browser testing evidence (desktop/mobile), and failing semantic and structural accessibility checks. The process has reached a mandatory human review stop after repeated repair attempts.\"}",
+  "parsed": {
+    "response": "block",
+    "next_action": "human_review",
+    "questions": [],
+    "handoff": "Block original implementation. Required Fix: Update the component to use only approved primitives (modal, decision controls, handoff receipt), cover all required UI states (empty, ready, loading, error, disabled, focus-visible), and provide both desktop and mobile browser QA evidence. Verification: Human review is required due to repeated failures across primitive usage, state coverage, evidence provision, and accessibility compliance.",
+    "rationale": "The implementation failed multiple times across several critical areas, including using unapproved primitives, missing necessary UI states, lacking comprehensive cross-browser testing evidence (desktop/mobile), and failing semantic and structural accessibility checks. The process has reached a mandatory human review stop after repeated repair attempts."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"block\", \"next_action\": \"human_review\", \"questions\": [], \"handoff\": \"Block original implementation. Required Fix: Update the component to use only approved primitives (modal, decision controls, handoff receipt), cover all required UI states (empty, ready, loading, error, disabled, focus-visible), and provide both desktop and mobile browser QA evidence. Verification: Human review is required due to repeated failures across primitive usage, state coverage, evidence provision, and accessibility compliance.\", \"rationale\": \"The implementation failed multiple times across several critical areas, including using unapproved primitives, missing necessary UI states, lacking comprehensive cross-browser testing evidence (desktop/mobile), and failing semantic and structural accessibility checks. The process has reached a mandatory human review stop after repeated repair attempts.\"}",
+    "usage": {
+      "prompt_tokens": 2306,
+      "completion_tokens": 166,
+      "total_tokens": 2472,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "95f9d92554732afceef5b595967881eeee65a1072e1e14dd2c6fda054d7ce752",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

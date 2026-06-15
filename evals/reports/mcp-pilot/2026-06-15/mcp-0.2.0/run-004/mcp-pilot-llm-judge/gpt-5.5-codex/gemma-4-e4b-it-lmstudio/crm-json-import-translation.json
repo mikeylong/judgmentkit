@@ -1,0 +1,89 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "crm-json-import-translation",
+  "title": "CRM JSON import translation",
+  "case_type": "activity_translation",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T05:52:51.848Z",
+  "duration_ms": 52390,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "94b9b9aeb8db95cebeb51d489fb18de9b645e050817dff556fe41d9d13565a55",
+  "raw_response_sha256": "8de82ab6fca314d95473752d1ff602a83495cbc9eb0c39107fa59a58457ade02",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"high\",\"rationale\":\"Output B better matches the expected next action: it reframes the JSON import mechanics as an account-operations record acceptance review. It is more restrained, keeps the decision structure centered on acceptable records, owner-fix records, and the summary to send, and includes a usable Action/Owner/Reason handoff. Output A is directionally relevant but invents more workflow detail and asks generic clarification questions that would slow the next move.\",\"decisive_differences\":[\"Output B provides a clearer operational handoff with action, owner, and reason.\",\"Output B stays closer to the source brief's acceptance-review activity instead of starting with UI mechanics like clicking into sections.\",\"Output A invents remediation details such as manual corrections, individual accept/reject controls, and a rejected bucket not clearly required by the brief.\",\"Output A's questions are generic and make the next agent pause rather than proceed with the expected translation.\"],\"evidence\":[{\"output\":\"output_b\",\"quote\":\"Action: Present Account Operations Record Acceptance Review; Owner: Agent; Reason: User needs a clear decision point\",\"why_it_matters\":\"This gives the downstream agent a concrete next move tied to the user's activity and decision.\"},{\"output\":\"output_b\",\"quote\":\"records ready for acceptance... records requiring owner attention... final import summary\",\"why_it_matters\":\"This mirrors the brief's core decisions without overexposing JSON, schemas, or API mechanics.\"},{\"output\":\"output_a\",\"quote\":\"make manual corrections or accept/reject them individually\",\"why_it_matters\":\"This adds specific remediation workflow behavior that was not established in the source brief.\"},{\"output\":\"output_a\",\"quote\":\"Need clarification on the required workflow steps\",\"why_it_matters\":\"The expected next action is known, so this handoff is less operationally useful.\"}],\"output_a_quality\":{\"score\":5.5,\"strengths\":[\"Recognizes the need for triage across accepted, fix-needed, and summary states.\",\"Identifies account operations decisions around records and errors.\"],\"risks\":[\"Invents workflow mechanics such as drilldown, manual correction, individual accept/reject, and final submission confirmation.\",\"Uses generic clarification questions instead of committing to the expected next move.\",\"Handoff lacks action/reason structure and defers despite enough context to proceed.\",\"Introduces a rejected category that may be plausible but is not directly grounded in the brief.\"]},\"output_b_quality\":{\"score\":8,\"strengths\":[\"Strong activity fit: record acceptance review for account operations.\",\"Grounded in the brief's three outcomes: accepted records, owner fixes, and import summary.\",\"No unnecessary clarification questions.\",\"Handoff is operational and includes Action, Owner, and Reason.\"],\"risks\":[\"Could be stronger by explicitly tying validation errors, field mapping, and API preview to evidence shown for each record.\",\"Some phrasing remains generic, such as 'batch process' and 'structured review interface'.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "high",
+    "rationale": "Output B better matches the expected next action: it reframes the JSON import mechanics as an account-operations record acceptance review. It is more restrained, keeps the decision structure centered on acceptable records, owner-fix records, and the summary to send, and includes a usable Action/Owner/Reason handoff. Output A is directionally relevant but invents more workflow detail and asks generic clarification questions that would slow the next move.",
+    "decisive_differences": [
+      "Output B provides a clearer operational handoff with action, owner, and reason.",
+      "Output B stays closer to the source brief's acceptance-review activity instead of starting with UI mechanics like clicking into sections.",
+      "Output A invents remediation details such as manual corrections, individual accept/reject controls, and a rejected bucket not clearly required by the brief.",
+      "Output A's questions are generic and make the next agent pause rather than proceed with the expected translation."
+    ],
+    "evidence": [
+      {
+        "output": "output_b",
+        "quote": "Action: Present Account Operations Record Acceptance Review; Owner: Agent; Reason: User needs a clear decision point",
+        "why_it_matters": "This gives the downstream agent a concrete next move tied to the user's activity and decision."
+      },
+      {
+        "output": "output_b",
+        "quote": "records ready for acceptance... records requiring owner attention... final import summary",
+        "why_it_matters": "This mirrors the brief's core decisions without overexposing JSON, schemas, or API mechanics."
+      },
+      {
+        "output": "output_a",
+        "quote": "make manual corrections or accept/reject them individually",
+        "why_it_matters": "This adds specific remediation workflow behavior that was not established in the source brief."
+      },
+      {
+        "output": "output_a",
+        "quote": "Need clarification on the required workflow steps",
+        "why_it_matters": "The expected next action is known, so this handoff is less operationally useful."
+      }
+    ],
+    "output_a_quality": {
+      "score": 5.5,
+      "strengths": [
+        "Recognizes the need for triage across accepted, fix-needed, and summary states.",
+        "Identifies account operations decisions around records and errors."
+      ],
+      "risks": [
+        "Invents workflow mechanics such as drilldown, manual correction, individual accept/reject, and final submission confirmation.",
+        "Uses generic clarification questions instead of committing to the expected next move.",
+        "Handoff lacks action/reason structure and defers despite enough context to proceed.",
+        "Introduces a rejected category that may be plausible but is not directly grounded in the brief."
+      ]
+    },
+    "output_b_quality": {
+      "score": 8,
+      "strengths": [
+        "Strong activity fit: record acceptance review for account operations.",
+        "Grounded in the brief's three outcomes: accepted records, owner fixes, and import summary.",
+        "No unnecessary clarification questions.",
+        "Handoff is operational and includes Action, Owner, and Reason."
+      ],
+      "risks": [
+        "Could be stronger by explicitly tying validation errors, field mapping, and API preview to evidence shown for each record.",
+        "Some phrasing remains generic, such as 'batch process' and 'structured review interface'."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "08ff7ba04f0cdef21b52cf6c6db3f093ed9f0883293b1d11a859d79c117610ad",
+    "stderr_sha256": "c850546811b63b443c80f7167dd91bb3c417c002eb88a0301330828a76d1e896",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

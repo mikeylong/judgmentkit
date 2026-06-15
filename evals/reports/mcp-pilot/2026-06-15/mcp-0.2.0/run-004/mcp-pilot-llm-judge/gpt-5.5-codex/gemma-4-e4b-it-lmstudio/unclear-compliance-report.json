@@ -1,0 +1,93 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "unclear-compliance-report",
+  "title": "Unclear compliance report audience",
+  "case_type": "missing_context_restraint",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T05:57:11.811Z",
+  "duration_ms": 43073,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "944e2981e4eea75c5aaae4f413f5d6b41a050054faa1682c89bdaaf155a5033f",
+  "raw_response_sha256": "2dd2c35115eef022be633ce3abd6b0c80da2a064a829f8e1d6bd846c845eb936",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"medium\",\"rationale\":\"Output B is more operationally useful because it asks both required missing-context questions: who the audience is and what concrete decision or action they should take from the findings. It also includes a usable handoff with owner, action, and reason. Its main weakness is explicit internal leakage in the rationale about MCP context, plus one somewhat broader extra question. Output A is more restrained and avoids leakage, but it misses the expected action question directly and leaves the handoff empty.\",\"decisive_differences\":[\"Output B asks what specific decision or next action should follow from the report; Output A only asks a generic goal question.\",\"Output B includes a handoff with owner/action/reason; Output A's handoff is empty.\",\"Output A avoids internal tool/context leakage; Output B improperly mentions MCP context, reducing confidence.\"],\"evidence\":[{\"output\":\"output_b\",\"quote\":\"What specific decision or next action should the user be able to take immediately after viewing this report?\",\"why_it_matters\":\"This directly matches the expected next action to ask what action reviewers take.\"},{\"output\":\"output_b\",\"quote\":\"Owner: User; Action: Clarify scope and audience for compliance reporting; Reason: The source brief is too vague\",\"why_it_matters\":\"This gives a downstream agent a concrete handoff instead of leaving the next move implicit.\"},{\"output\":\"output_b\",\"quote\":\"The MCP context indicates\",\"why_it_matters\":\"This is internal leakage and should be penalized even though the rest of the output is useful.\"},{\"output\":\"output_a\",\"quote\":\"handoff\\\": \\\"\\\"\",\"why_it_matters\":\"The missing handoff makes it less useful for a downstream agent despite otherwise reasonable restraint.\"},{\"output\":\"output_a\",\"quote\":\"What is the main goal of the report—to inform, persuade action, or document findings?\",\"why_it_matters\":\"This is adjacent but less targeted than asking what action the reviewer takes.\"}],\"output_a_quality\":{\"score\":6.2,\"strengths\":[\"Restrained response that recognizes missing context before proceeding.\",\"Asks the primary audience question, which is one of the expected missing pieces.\",\"Avoids internal tool or MCP leakage.\"],\"risks\":[\"Does not directly ask what action the reviewer should take from the findings.\",\"Empty handoff weakens operational usefulness.\",\"Second question is generic and could invite broad intent discussion rather than the needed action context.\"]},\"output_b_quality\":{\"score\":7.4,\"strengths\":[\"Asks who the report is for and what decision or next action it should support.\",\"Provides a clear handoff with owner, action, and reason.\",\"Better aligned with the expected next move for the downstream agent.\"],\"risks\":[\"Rationale leaks internal context by mentioning MCP.\",\"Includes an extra broader outcome question that may be slightly more than needed.\",\"Some phrasing frames the request as too broad rather than staying purely task-focused.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "medium",
+    "rationale": "Output B is more operationally useful because it asks both required missing-context questions: who the audience is and what concrete decision or action they should take from the findings. It also includes a usable handoff with owner, action, and reason. Its main weakness is explicit internal leakage in the rationale about MCP context, plus one somewhat broader extra question. Output A is more restrained and avoids leakage, but it misses the expected action question directly and leaves the handoff empty.",
+    "decisive_differences": [
+      "Output B asks what specific decision or next action should follow from the report; Output A only asks a generic goal question.",
+      "Output B includes a handoff with owner/action/reason; Output A's handoff is empty.",
+      "Output A avoids internal tool/context leakage; Output B improperly mentions MCP context, reducing confidence."
+    ],
+    "evidence": [
+      {
+        "output": "output_b",
+        "quote": "What specific decision or next action should the user be able to take immediately after viewing this report?",
+        "why_it_matters": "This directly matches the expected next action to ask what action reviewers take."
+      },
+      {
+        "output": "output_b",
+        "quote": "Owner: User; Action: Clarify scope and audience for compliance reporting; Reason: The source brief is too vague",
+        "why_it_matters": "This gives a downstream agent a concrete handoff instead of leaving the next move implicit."
+      },
+      {
+        "output": "output_b",
+        "quote": "The MCP context indicates",
+        "why_it_matters": "This is internal leakage and should be penalized even though the rest of the output is useful."
+      },
+      {
+        "output": "output_a",
+        "quote": "handoff\": \"\"",
+        "why_it_matters": "The missing handoff makes it less useful for a downstream agent despite otherwise reasonable restraint."
+      },
+      {
+        "output": "output_a",
+        "quote": "What is the main goal of the report—to inform, persuade action, or document findings?",
+        "why_it_matters": "This is adjacent but less targeted than asking what action the reviewer takes."
+      }
+    ],
+    "output_a_quality": {
+      "score": 6.2,
+      "strengths": [
+        "Restrained response that recognizes missing context before proceeding.",
+        "Asks the primary audience question, which is one of the expected missing pieces.",
+        "Avoids internal tool or MCP leakage."
+      ],
+      "risks": [
+        "Does not directly ask what action the reviewer should take from the findings.",
+        "Empty handoff weakens operational usefulness.",
+        "Second question is generic and could invite broad intent discussion rather than the needed action context."
+      ]
+    },
+    "output_b_quality": {
+      "score": 7.4,
+      "strengths": [
+        "Asks who the report is for and what decision or next action it should support.",
+        "Provides a clear handoff with owner, action, and reason.",
+        "Better aligned with the expected next move for the downstream agent."
+      ],
+      "risks": [
+        "Rationale leaks internal context by mentioning MCP.",
+        "Includes an extra broader outcome question that may be slightly more than needed.",
+        "Some phrasing frames the request as too broad rather than staying purely task-focused."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "de0a0ddb6ad38ab071e33cdcb92ff6b10e0d320f1c65c60d2abf8c5c0c7ad0b6",
+    "stderr_sha256": "a21b65b21769803ee24645ce30bd15a5cf3c58c1168574e8a89835c5038f1cf6",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

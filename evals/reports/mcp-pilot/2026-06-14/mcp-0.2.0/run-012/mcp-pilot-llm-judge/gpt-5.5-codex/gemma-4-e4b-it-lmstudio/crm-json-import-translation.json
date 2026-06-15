@@ -1,0 +1,89 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "crm-json-import-translation",
+  "title": "CRM JSON import translation",
+  "case_type": "activity_translation",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T02:42:19.571Z",
+  "duration_ms": 48020,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "959a4e7afc09ed91e155dbd2bcb9cbc5222b64fdb1e4957b6bbbd027df23c9d2",
+  "raw_response_sha256": "87f60b91bf4556651dd605ff916e1ef0564abe88ea30e7138f8e87b734875465",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"high\",\"rationale\":\"Output A better supports the expected next move: converting raw import mechanics into a record acceptance review for an account operations user. It names the core decision categories and gives a usable next action. It has some invented workflow details, especially rejected records, individual accept/reject, and manual correction, but it stays closer to the source brief than Output B. Output B is restrained but too generic, asks for context the brief already provides, and does not operationalize the owner-fix and import-summary decisions.\",\"decisive_differences\":[\"Output A directly frames the activity around record acceptance and owner-fix triage, matching the expected next action.\",\"Output A provides a concrete next action with record status counts, while Output B's next action is vague and implementation-shaped.\",\"Output B asks generic activity-model questions instead of using the supplied evidence from the source brief.\",\"Output B misses the specific import summary decision and owner-fix workflow more than Output A does.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"present the overall summary of records (Accepted, Needs Fixes, Rejected)\",\"why_it_matters\":\"This is close to the needed record acceptance review, though 'Rejected' is not explicitly in the brief.\"},{\"output\":\"output_a\",\"quote\":\"Present the initial summary dashboard showing counts for Accepted, Needs Fixes, and Rejected records.\",\"why_it_matters\":\"This gives the downstream agent an actionable next UI move grounded in triage decisions.\"},{\"output\":\"output_b\",\"quote\":\"Present the structured review interface based on the source payload analysis.\",\"why_it_matters\":\"This is too abstract to guide the next agent response.\"},{\"output\":\"output_b\",\"quote\":\"What specific outcomes or knowledge should the user walk away with after completing this import review?\",\"why_it_matters\":\"The brief already states the user needs to decide accepted records, owner fixes, and import summary, so this question wastes the supplied context.\"}],\"output_a_quality\":{\"score\":0.78,\"strengths\":[\"Activity-fit: translates JSON import artifacts into account-operations triage.\",\"Operational next action: summary counts and owner-fix review are usable for the downstream agent.\",\"Includes handoff, next_action, and rationale fields.\"],\"risks\":[\"Invents some workflow details not in the brief, including rejected records, manual corrections, individual accept/reject, and final submission confirmation.\",\"Could better emphasize evidence from validation errors, field mapping, and API preview as the basis for acceptance decisions.\"]},\"output_b_quality\":{\"score\":0.52,\"strengths\":[\"Avoids many detailed workflow inventions.\",\"Recognizes the need to separate ready records from records requiring correction.\",\"Includes handoff, next_action, and rationale fields.\"],\"risks\":[\"Too generic to guide the next move.\",\"Asks broad clarification questions despite the source brief already defining the activity and outcomes.\",\"Underplays owner fixes and the import summary to be sent.\",\"Uses vague phrases like 'structured review interface' and 'source payload analysis' without a concrete user decision path.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "high",
+    "rationale": "Output A better supports the expected next move: converting raw import mechanics into a record acceptance review for an account operations user. It names the core decision categories and gives a usable next action. It has some invented workflow details, especially rejected records, individual accept/reject, and manual correction, but it stays closer to the source brief than Output B. Output B is restrained but too generic, asks for context the brief already provides, and does not operationalize the owner-fix and import-summary decisions.",
+    "decisive_differences": [
+      "Output A directly frames the activity around record acceptance and owner-fix triage, matching the expected next action.",
+      "Output A provides a concrete next action with record status counts, while Output B's next action is vague and implementation-shaped.",
+      "Output B asks generic activity-model questions instead of using the supplied evidence from the source brief.",
+      "Output B misses the specific import summary decision and owner-fix workflow more than Output A does."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "present the overall summary of records (Accepted, Needs Fixes, Rejected)",
+        "why_it_matters": "This is close to the needed record acceptance review, though 'Rejected' is not explicitly in the brief."
+      },
+      {
+        "output": "output_a",
+        "quote": "Present the initial summary dashboard showing counts for Accepted, Needs Fixes, and Rejected records.",
+        "why_it_matters": "This gives the downstream agent an actionable next UI move grounded in triage decisions."
+      },
+      {
+        "output": "output_b",
+        "quote": "Present the structured review interface based on the source payload analysis.",
+        "why_it_matters": "This is too abstract to guide the next agent response."
+      },
+      {
+        "output": "output_b",
+        "quote": "What specific outcomes or knowledge should the user walk away with after completing this import review?",
+        "why_it_matters": "The brief already states the user needs to decide accepted records, owner fixes, and import summary, so this question wastes the supplied context."
+      }
+    ],
+    "output_a_quality": {
+      "score": 0.78,
+      "strengths": [
+        "Activity-fit: translates JSON import artifacts into account-operations triage.",
+        "Operational next action: summary counts and owner-fix review are usable for the downstream agent.",
+        "Includes handoff, next_action, and rationale fields."
+      ],
+      "risks": [
+        "Invents some workflow details not in the brief, including rejected records, manual corrections, individual accept/reject, and final submission confirmation.",
+        "Could better emphasize evidence from validation errors, field mapping, and API preview as the basis for acceptance decisions."
+      ]
+    },
+    "output_b_quality": {
+      "score": 0.52,
+      "strengths": [
+        "Avoids many detailed workflow inventions.",
+        "Recognizes the need to separate ready records from records requiring correction.",
+        "Includes handoff, next_action, and rationale fields."
+      ],
+      "risks": [
+        "Too generic to guide the next move.",
+        "Asks broad clarification questions despite the source brief already defining the activity and outcomes.",
+        "Underplays owner fixes and the import summary to be sent.",
+        "Uses vague phrases like 'structured review interface' and 'source payload analysis' without a concrete user decision path."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "f72ab95efee57cdb8529357f558076d0fa01646be05fef686930117635361b0d",
+    "stderr_sha256": "349296c1d8ac6eb1fcea19d592bb869dffe0bd57d81134e631b76d6905e39cab",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

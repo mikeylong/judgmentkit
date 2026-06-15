@@ -1,0 +1,64 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "field-dispatch-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract"
+  ],
+  "mcp_tool_transcript_sha256": "5ff2b5925564d99e3a1e1d645217babded5ac3900e475be91c2b0774eca14a9f",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:47:24.222Z",
+  "duration_ms": 4489,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1012,
+    "completion_tokens": 206,
+    "total_tokens": 1218,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "74ed3f0663da97102611afe4cd6ae85a47273c7c9124808f5d58888cc54298a8",
+  "prompt_sha256": "3e9611fc0ac849f46afc6246a0a12a573b28fd4aebb8ff26bf59498a9d753598",
+  "mcp_context_sha256": "169d6932d1d7cdd1499d730790dac544bd82767120d7b4d52ad2e274e390d8de",
+  "raw_response_sha256": "902546276d113d904903d327a7f39cd780db6c75971e6a68e6067dec8c22ab04",
+  "raw_response": "{\"response\": \"The agent should guide the field dispatcher through a structured review process, prioritizing the comparison of job evidence against technician capabilities and current resource constraints. The primary goal is to determine the immediate dispatch action (Assign now, Defer for parts, or Escalate).\", \"next_action\": \"Guide the user to confirm necessary missing information regarding parts availability before finalizing an assignment decision.\", \"questions\": [\"What specific confirmation or documentation is required regarding parts availability to proceed with a definitive assignment?\"], \"handoff\": \"Owner: field dispatcher; Next Action: Confirm parts evidence and finalize dispatch action; Reason: The current handoff indicates 'Parts confirmation' as the critical missing piece needed to move forward from the review stage.\", \"rationale\": \"The source context outlines a multi-step review process culminating in a decision. The MCP diagnostic points to needing source context regarding the desired user outcome, which aligns with ensuring all necessary evidence (specifically parts) is gathered before the final handoff step can be completed successfully.\"}",
+  "parsed": {
+    "response": "The agent should guide the field dispatcher through a structured review process, prioritizing the comparison of job evidence against technician capabilities and current resource constraints. The primary goal is to determine the immediate dispatch action (Assign now, Defer for parts, or Escalate).",
+    "next_action": "Guide the user to confirm necessary missing information regarding parts availability before finalizing an assignment decision.",
+    "questions": [
+      "What specific confirmation or documentation is required regarding parts availability to proceed with a definitive assignment?"
+    ],
+    "handoff": "Owner: field dispatcher; Next Action: Confirm parts evidence and finalize dispatch action; Reason: The current handoff indicates 'Parts confirmation' as the critical missing piece needed to move forward from the review stage.",
+    "rationale": "The source context outlines a multi-step review process culminating in a decision. The MCP diagnostic points to needing source context regarding the desired user outcome, which aligns with ensuring all necessary evidence (specifically parts) is gathered before the final handoff step can be completed successfully."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent should guide the field dispatcher through a structured review process, prioritizing the comparison of job evidence against technician capabilities and current resource constraints. The primary goal is to determine the immediate dispatch action (Assign now, Defer for parts, or Escalate).\", \"next_action\": \"Guide the user to confirm necessary missing information regarding parts availability before finalizing an assignment decision.\", \"questions\": [\"What specific confirmation or documentation is required regarding parts availability to proceed with a definitive assignment?\"], \"handoff\": \"Owner: field dispatcher; Next Action: Confirm parts evidence and finalize dispatch action; Reason: The current handoff indicates 'Parts confirmation' as the critical missing piece needed to move forward from the review stage.\", \"rationale\": \"The source context outlines a multi-step review process culminating in a decision. The MCP diagnostic points to needing source context regarding the desired user outcome, which aligns with ensuring all necessary evidence (specifically parts) is gathered before the final handoff step can be completed successfully.\"}",
+    "usage": {
+      "prompt_tokens": 1012,
+      "completion_tokens": 206,
+      "total_tokens": 1218,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "5ab1b94613194ae9609ee361109924b03ffbcdbbffbfa289555c94e81fadb1b4",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

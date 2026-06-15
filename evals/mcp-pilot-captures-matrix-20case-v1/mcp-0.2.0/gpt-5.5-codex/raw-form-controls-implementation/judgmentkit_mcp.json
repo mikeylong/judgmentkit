@@ -1,0 +1,49 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "raw-form-controls-implementation",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "5472fb88f2a1fa3c0fcde8078f6c2a4a0cb0780a48dcb5227ac529380d36683b",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T02:03:23.034Z",
+  "duration_ms": 66997,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "67ec400e7898f32e5714c2dae126700c93b72c86065bf4f709e96cbf43cc7d8d",
+  "prompt_sha256": "c523a489411dadfcd74e0bd806cb4f4969849a29e515cf25f1c28acd5cc28835",
+  "mcp_context_sha256": "7d627604fc7d85055a072e06011a7eddaeff64ea89378e10b45fb8d74678cee9",
+  "raw_response_sha256": "acfa188df314cbb234719d60301013bf1ec8e319cfe3bfc9859b37452854cc8d",
+  "raw_response": "{\"response\":\"Reject the original refund review workbench implementation. It does not demonstrate the approved refund queue, detail panel custom controls, decision controls, or handoff receipt, and the submitted evidence covers only the ready state without static checks, browser QA, or accessibility evidence. The failed approval-boundary review means the original candidate still needs repair even though a later repaired attempt passed.\",\"next_action\":\"repair_and_resubmit\",\"questions\":[],\"handoff\":\"Decision: reject original implementation; Owner: implementation agent; Action: repair and resubmit; Reason: refund decision actions lack explicit approval-boundary evidence; Required fix: use approved refund queue, detail panel custom controls, decision controls, and handoff receipt, or remove any unauthorized externally committing actions; Verification: show approval boundaries plus state coverage, static checks, browser QA, and accessibility evidence.\",\"rationale\":\"The source calls for approved refund review workbench primitives, while the original evidence shows basic form/table controls and incomplete verification. Because the first implementation review failed on approval boundaries, the original cannot be accepted; the passing later repair only confirms the required fix path.\"}",
+  "parsed": {
+    "response": "Reject the original refund review workbench implementation. It does not demonstrate the approved refund queue, detail panel custom controls, decision controls, or handoff receipt, and the submitted evidence covers only the ready state without static checks, browser QA, or accessibility evidence. The failed approval-boundary review means the original candidate still needs repair even though a later repaired attempt passed.",
+    "next_action": "repair_and_resubmit",
+    "questions": [],
+    "handoff": "Decision: reject original implementation; Owner: implementation agent; Action: repair and resubmit; Reason: refund decision actions lack explicit approval-boundary evidence; Required fix: use approved refund queue, detail panel custom controls, decision controls, and handoff receipt, or remove any unauthorized externally committing actions; Verification: show approval boundaries plus state coverage, static checks, browser QA, and accessibility evidence.",
+    "rationale": "The source calls for approved refund review workbench primitives, while the original evidence shows basic form/table controls and incomplete verification. Because the first implementation review failed on approval boundaries, the original cannot be accepted; the passing later repair only confirms the required fix path."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "e82ed48d84d08f9430808efb82c02f25189407257dcb89af877c7d69bb79edee",
+    "stderr_sha256": "0bf973b61b1103a06290032f77652a7044a0313142e09ccfef3e1d23a2340847",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

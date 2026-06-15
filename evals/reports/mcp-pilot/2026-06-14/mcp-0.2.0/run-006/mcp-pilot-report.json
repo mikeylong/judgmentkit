@@ -1,0 +1,2667 @@
+{
+  "eval_id": "judgmentkit-mcp-private-pilot-v1",
+  "evaluation_type": "private_saved_capture_scoring",
+  "benchmark_policy": "Private repo-local pilot. Scores are deterministic checks against saved model captures; JudgmentKit is not used as the judge.",
+  "capture_policy": "Default mode scores existing versioned captures only. Missing or MCP-version-mismatched captures are reported as capture-required. Live capture is opt-in with --capture and reuses existing captures in the target capture directory.",
+  "repair_loop_proof_policy": "Repair-loop results are deterministic fixture proof of contract governance and agent-owned resubmission behavior; they do not measure visual quality or live-model repair quality.",
+  "comparison": {
+    "baseline": "baseline_no_mcp",
+    "guided": "judgmentkit_mcp",
+    "models": [
+      {
+        "id": "gpt-5.5-codex",
+        "label": "GPT-5.5 Codex",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "local": false
+      },
+      {
+        "id": "gemma-4-e4b-it-lmstudio",
+        "label": "Gemma 4 E4B LM Studio",
+        "provider": "lmstudio-openai-chat",
+        "model": "gemma-4-e4b-it@q4_k_m",
+        "local": true
+      }
+    ]
+  },
+  "mcp": {
+    "required_version": "0.2.0",
+    "actual_version": "0.2.0",
+    "package_version": "0.2.0",
+    "local_metadata_sha256": "12f3fbb61677c28eacccbe7dfc2e868fa225c95354db05aa7fa2cca9b3075fca",
+    "endpoint_url": "http://127.0.0.1:62968/mcp",
+    "endpoint_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2"
+  },
+  "run": {
+    "date": "2026-06-14",
+    "mcp_release": "0.2.0",
+    "mcp_release_segment": "mcp-0.2.0",
+    "run_id": "run-006",
+    "run_path": "2026-06-14/mcp-0.2.0/run-006",
+    "html_report": "2026-06-14/mcp-0.2.0/run-006/mcp-pilot-report.html",
+    "json_report": "2026-06-14/mcp-0.2.0/run-006/mcp-pilot-report.json"
+  },
+  "summary": {
+    "cases": 10,
+    "evaluated_cases": 10,
+    "capture_required_cases": 0,
+    "passed": 4,
+    "failed": 6,
+    "guided_wins": 8,
+    "baseline_wins": 1,
+    "ties": 1,
+    "average_guided_delta": 14.09,
+    "invalid_outputs": 0,
+    "average_duration_ms": 34178.7,
+    "guided_critical_disclosure_leaks": 0,
+    "loop_cases": 2,
+    "converged_cases": 2,
+    "stopped_cases": 0,
+    "average_attempts_to_pass": 2,
+    "failure_category_counts": {
+      "accessibility": 2
+    },
+    "pilot_passed": false,
+    "pilot_status": "failed",
+    "unique_cases": 5,
+    "models": 2,
+    "per_model": {
+      "gpt-5.5-codex": {
+        "label": "GPT-5.5 Codex",
+        "cases": 5,
+        "evaluated_cases": 5,
+        "capture_required_cases": 0,
+        "passed": 0,
+        "failed": 5,
+        "guided_wins": 4,
+        "baseline_wins": 0,
+        "ties": 1,
+        "average_guided_delta": 3.65,
+        "invalid_outputs": 0,
+        "average_duration_ms": 54192.4,
+        "guided_critical_disclosure_leaks": 0,
+        "loop_cases": 1,
+        "converged_cases": 1,
+        "stopped_cases": 0,
+        "average_attempts_to_pass": 2,
+        "failure_category_counts": {
+          "accessibility": 1
+        },
+        "pilot_passed": false,
+        "pilot_status": "failed"
+      },
+      "gemma-4-e4b-it-lmstudio": {
+        "label": "Gemma 4 E4B LM Studio",
+        "cases": 5,
+        "evaluated_cases": 5,
+        "capture_required_cases": 0,
+        "passed": 4,
+        "failed": 1,
+        "guided_wins": 4,
+        "baseline_wins": 1,
+        "ties": 0,
+        "average_guided_delta": 24.53,
+        "invalid_outputs": 0,
+        "average_duration_ms": 14165,
+        "guided_critical_disclosure_leaks": 0,
+        "loop_cases": 1,
+        "converged_cases": 1,
+        "stopped_cases": 0,
+        "average_attempts_to_pass": 2,
+        "failure_category_counts": {
+          "accessibility": 1
+        },
+        "pilot_passed": true,
+        "pilot_status": "passed"
+      }
+    }
+  },
+  "metric_scale": {
+    "metric_score": "0-5",
+    "total_score": "0-100 weighted"
+  },
+  "capture_dir": "evals/mcp-pilot-captures-matrix-5case-v1",
+  "results": [
+    {
+      "id": "refund-schema-admin-translation",
+      "title": "Refund schema admin translation",
+      "case_type": "activity_translation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "evaluated",
+      "passed": false,
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 6.42,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "translate the request into a refund triage handoff surface",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 88.57,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "refund triage",
+                "support lead"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 4.64,
+              "present": [
+                "approve",
+                "policy review",
+                "missing evidence"
+              ],
+              "missing": [],
+              "expected_action_score": 4.29
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "case evidence",
+                "refund request"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 1.67,
+              "present": [
+                "reason"
+              ],
+              "missing": [
+                "next owner",
+                "next action"
+              ]
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "clear next step"
+              ],
+              "missing": [],
+              "question_count": 0,
+              "max_questions": 2,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gpt-5.5-codex/refund-schema-admin-translation/baseline_no_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:58914/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [],
+            "mcp_tool_transcript_sha256": null,
+            "duration_ms": 82379,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "fbd4c4fbc93822c01bcad421a32bc2e0d32950d3a56d80011b0245636697698b",
+            "prompt_sha256": "35cc042e8ca6789bf14d1d1b7821fa5e006229b200719a3a9c3638980c344a8d",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 94.99,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "refund triage",
+                "support lead"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 5,
+              "present": [
+                "approve",
+                "policy review",
+                "missing evidence"
+              ],
+              "missing": [],
+              "expected_action_score": 5
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "case evidence",
+                "refund request"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 3.33,
+              "present": [
+                "next action",
+                "reason"
+              ],
+              "missing": [
+                "next owner"
+              ]
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "clear next step"
+              ],
+              "missing": [],
+              "question_count": 2,
+              "max_questions": 2,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 2,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gpt-5.5-codex/refund-schema-admin-translation/judgmentkit_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:58914/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [
+              "create_activity_model_review",
+              "recommend_surface_types",
+              "recommend_ui_workflow_profiles"
+            ],
+            "mcp_tool_transcript_sha256": "59b617e73e1e2aec08fd2a933bc598a7ebeea3c50f6c46406823e4f6b77437ad",
+            "duration_ms": 60354,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "013a1ca4d81981f840daa5f56bb51050942c98c4e084181f527c56722732a004",
+            "prompt_sha256": "18acc13b5bd1f5799f4c6ebee4ee5e1869472efba5fa1c8a3273eb4eba156202",
+            "mcp_context_sha256": "12b305790c66a77f2763da782118aedce813cb8a1075c79ff50ae238ff7a419e"
+          }
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:62968/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+        "tool_sequence": [
+          "create_activity_model_review",
+          "recommend_surface_types",
+          "recommend_ui_workflow_profiles"
+        ],
+        "tool_transcript_sha256": "59b617e73e1e2aec08fd2a933bc598a7ebeea3c50f6c46406823e4f6b77437ad",
+        "tool_summaries": [
+          {
+            "name": "create_activity_model_review",
+            "args_sha256": "14aac0f8d2084573f4b56a0b2c1a4facc26f545e6647b459ca298898e89a1fd0",
+            "summary": {
+              "status": "needs_source_context",
+              "targeted_questions_count": 2,
+              "targeted_questions": [
+                "What should the user leave the surface knowing or having done?",
+                "Which detected implementation details are diagnostic only, and which should be translated into domain language?"
+              ],
+              "failure_categories": []
+            }
+          },
+          {
+            "name": "recommend_surface_types",
+            "args_sha256": "33c1bbd87fb952632c09488dfe9abaafd1992d09631c0bdc685d4a2fe4ec6563",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "operator_review",
+              "targeted_questions": [],
+              "failure_categories": []
+            }
+          },
+          {
+            "name": "recommend_ui_workflow_profiles",
+            "args_sha256": "14aac0f8d2084573f4b56a0b2c1a4facc26f545e6647b459ca298898e89a1fd0",
+            "summary": {
+              "status": "ok",
+              "targeted_questions": [],
+              "failure_categories": []
+            }
+          }
+        ],
+        "repair_loop_summary": null
+      }
+    },
+    {
+      "id": "vague-system-dashboard",
+      "title": "Vague system dashboard restraint",
+      "case_type": "missing_context_restraint",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "evaluated",
+      "passed": false,
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 5.36,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "ask targeted questions about activity decision and outcome",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 86.32,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "activity",
+                "user"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 4.58,
+              "present": [
+                "decision",
+                "next action"
+              ],
+              "missing": [],
+              "expected_action_score": 4.17
+            },
+            "evidence_grounding": {
+              "score": 2.5,
+              "present": [
+                "source context"
+              ],
+              "missing": [
+                "missing"
+              ]
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "activity",
+                "decision",
+                "outcome"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 3,
+              "present": [
+                "targeted questions"
+              ],
+              "missing": [],
+              "question_count": 5,
+              "max_questions": 3,
+              "question_penalty": 2
+            }
+          },
+          "question_count": 5,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gpt-5.5-codex/vague-system-dashboard/baseline_no_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:58914/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [],
+            "mcp_tool_transcript_sha256": null,
+            "duration_ms": 44918,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "b357996c6079aff6fa5f867aece6a39656fe02b6d8cc9bf5f05e929a26e3c4c1",
+            "prompt_sha256": "b48d5c6aec2fd44ee58dce10cd80c7f622f272b0a13eeb26e878be00d7331c84",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 91.68,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "activity",
+                "user"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 4.17,
+              "present": [
+                "decision",
+                "next action"
+              ],
+              "missing": [],
+              "expected_action_score": 3.33
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "source context",
+                "missing"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "activity",
+                "decision",
+                "outcome"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "targeted questions"
+              ],
+              "question_count": 3,
+              "max_questions": 3,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 3,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gpt-5.5-codex/vague-system-dashboard/judgmentkit_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:58914/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [
+              "create_activity_model_review",
+              "recommend_surface_types",
+              "recommend_ui_workflow_profiles"
+            ],
+            "mcp_tool_transcript_sha256": "52f6acb1877aaadd8c2fbbf832b49233b37249818a582affec89822a40f3af38",
+            "duration_ms": 42567,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "b7b145599f5725423f91ff4b644b229d4b8cb4cb71d3aa99b9a76d69debc2c04",
+            "prompt_sha256": "6b0778d50e269f259a4a1151fe68087fc20267577c84c2d8f8c6e8ef018a72f0",
+            "mcp_context_sha256": "7182c1dbd12227e66de341bd7b66adaafc8cc6201c2b5fd37a83ca244135a617"
+          }
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:62968/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+        "tool_sequence": [
+          "create_activity_model_review",
+          "recommend_surface_types",
+          "recommend_ui_workflow_profiles"
+        ],
+        "tool_transcript_sha256": "52f6acb1877aaadd8c2fbbf832b49233b37249818a582affec89822a40f3af38",
+        "tool_summaries": [
+          {
+            "name": "create_activity_model_review",
+            "args_sha256": "5f7a4b7a5c4619e73ccd8a4dcfb5e5e5b09a8c55659d90a5bf2e84cd07014391",
+            "summary": {
+              "status": "needs_source_context",
+              "targeted_questions_count": 3,
+              "targeted_questions": [
+                "What activity should this UI support before any screen structure is proposed?",
+                "What decision or next action should the UI make easier for the user?",
+                "What should the user leave the surface knowing or having done?"
+              ],
+              "failure_categories": []
+            }
+          },
+          {
+            "name": "recommend_surface_types",
+            "args_sha256": "3344a5dc7b817f119d0104b6c6eaa44277f2665e703ed73ccf3962418fd93aa1",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "operator_review",
+              "targeted_questions": [],
+              "failure_categories": []
+            }
+          },
+          {
+            "name": "recommend_ui_workflow_profiles",
+            "args_sha256": "5f7a4b7a5c4619e73ccd8a4dcfb5e5e5b09a8c55659d90a5bf2e84cd07014391",
+            "summary": {
+              "status": "ok",
+              "targeted_questions": [],
+              "failure_categories": []
+            }
+          }
+        ],
+        "repair_loop_summary": null
+      }
+    },
+    {
+      "id": "clinical-intake-operator-review",
+      "title": "Clinical intake operator review",
+      "case_type": "operator_review_handoff",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "evaluated",
+      "passed": false,
+      "winner": "tie",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 0,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "prepare a routing handoff",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 100,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "clinical intake",
+                "care coordinator"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 5,
+              "present": [
+                "nurse review",
+                "clarification",
+                "scheduling"
+              ],
+              "missing": [],
+              "expected_action_score": 5
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "symptoms",
+                "urgency",
+                "consent"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "next owner",
+                "next action",
+                "reason",
+                "evidence gap"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "routing handoff"
+              ],
+              "missing": [],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gpt-5.5-codex/clinical-intake-operator-review/baseline_no_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:58914/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [],
+            "mcp_tool_transcript_sha256": null,
+            "duration_ms": 56764,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "ecd7518db4f25f62135bce33d7c9606589f7c14ff9d4e7182f27ec36ccb51f06",
+            "prompt_sha256": "08e30db749e6c1dee043be9eb5169dec050227bd023519780ceba233dba99edd",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 100,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "clinical intake",
+                "care coordinator"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 5,
+              "present": [
+                "nurse review",
+                "clarification",
+                "scheduling"
+              ],
+              "missing": [],
+              "expected_action_score": 5
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "symptoms",
+                "urgency",
+                "consent"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "next owner",
+                "next action",
+                "reason",
+                "evidence gap"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "routing handoff"
+              ],
+              "missing": [],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gpt-5.5-codex/clinical-intake-operator-review/judgmentkit_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:58914/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [
+              "review_ui_workflow_candidate",
+              "create_ui_implementation_contract"
+            ],
+            "mcp_tool_transcript_sha256": "7f70a64019ca34fac2fc8473bfa449013a5b7991d244ddd64c1fade6c507e772",
+            "duration_ms": 55331,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "43252cc29570c8517f0fcc8c0bb073ad582b1e46964fc1b5b5b917fe2ac9d428",
+            "prompt_sha256": "ec15f649b351f548d137845620a654c06d9b9e1361cbf4a58399aa83c316845c",
+            "mcp_context_sha256": "eba9fc02fe048d0797bec1911e4fa3a2b0ec26f66178788bd81c51744ce0d2ff"
+          }
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:62968/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+        "tool_sequence": [
+          "review_ui_workflow_candidate",
+          "create_ui_implementation_contract"
+        ],
+        "tool_transcript_sha256": "7f70a64019ca34fac2fc8473bfa449013a5b7991d244ddd64c1fade6c507e772",
+        "tool_summaries": [
+          {
+            "name": "review_ui_workflow_candidate",
+            "args_sha256": "d8d112adfa9ff34a44c7903c43b5585338f1749890b6ede5722d4a5ee062327a",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench",
+              "profile_id": "operator-review-ui",
+              "targeted_questions_count": 1,
+              "targeted_questions": [
+                "What should the user leave the surface knowing or having done?"
+              ],
+              "failure_categories": []
+            }
+          },
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready",
+              "targeted_questions": [],
+              "failure_categories": []
+            }
+          }
+        ],
+        "repair_loop_summary": null
+      }
+    },
+    {
+      "id": "schema-leaking-workflow",
+      "title": "Schema-leaking workflow candidate",
+      "case_type": "candidate_validation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "evaluated",
+      "passed": false,
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 1.48,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "reject the schema-leaking workflow",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 92.52,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "refund triage",
+                "support lead"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 3.13,
+              "present": [
+                "approve",
+                "policy review",
+                "missing evidence"
+              ],
+              "missing": [],
+              "expected_action_score": 1.25
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "candidate leaks",
+                "source brief"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "decision",
+                "reason"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "needs source context"
+              ],
+              "missing": [],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gpt-5.5-codex/schema-leaking-workflow/baseline_no_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:58914/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [],
+            "mcp_tool_transcript_sha256": null,
+            "duration_ms": 39952,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "f79b4df9576670b74e5d4fc2f55473953e6cd88631cb6f8a33d8ec98ba848ea3",
+            "prompt_sha256": "a65cc22a7dacdbfeedeb74215086114ae034c124506ba387e954799fcd3fb220",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 94,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "refund triage",
+                "support lead"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 3.75,
+              "present": [
+                "approve",
+                "policy review",
+                "missing evidence"
+              ],
+              "missing": [],
+              "expected_action_score": 2.5
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "candidate leaks",
+                "source brief"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "decision",
+                "reason"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 4,
+              "present": [
+                "needs source context"
+              ],
+              "missing": [],
+              "question_count": 2,
+              "max_questions": 1,
+              "question_penalty": 1
+            }
+          },
+          "question_count": 2,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gpt-5.5-codex/schema-leaking-workflow/judgmentkit_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:58914/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [
+              "review_ui_workflow_candidate"
+            ],
+            "mcp_tool_transcript_sha256": "4033b1ca58c32471e068c564a960f8fedc67f3303fe129c2fa60d1f732951cf9",
+            "duration_ms": 76274,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "e9082715a943c0b2da74b41066b4c8a546e85038929eb9303fa78fda4c3bca76",
+            "prompt_sha256": "62126a667099a98a9281e38bfd1c99b3f59c1edf3b58dc5f123c16da4af4f95a",
+            "mcp_context_sha256": "fa35d4b91460993ff416a7af66c7ff8daac8043b88a244198334f5e59df5c890"
+          }
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:62968/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+        "tool_sequence": [
+          "review_ui_workflow_candidate"
+        ],
+        "tool_transcript_sha256": "4033b1ca58c32471e068c564a960f8fedc67f3303fe129c2fa60d1f732951cf9",
+        "tool_summaries": [
+          {
+            "name": "review_ui_workflow_candidate",
+            "args_sha256": "ff3a246a6df22df59506025b1f61d5b1c067d8d667e011f2cf4c63be4c54a035",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench",
+              "profile_id": "operator-review-ui",
+              "targeted_questions_count": 2,
+              "targeted_questions": [
+                "What should the user leave the surface knowing or having done?",
+                "Which implementation terms in the workflow candidate should move to diagnostics or be translated?"
+              ],
+              "failure_categories": []
+            }
+          }
+        ],
+        "repair_loop_summary": null
+      }
+    },
+    {
+      "id": "missing-accessibility-evidence",
+      "title": "Missing accessibility evidence review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "evaluated",
+      "passed": false,
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 4.99,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "reject until accessibility evidence is supplied",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 86.01,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "operator review",
+                "dense"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 4,
+              "present": [
+                "custom controls",
+                "decision controls"
+              ],
+              "missing": [],
+              "expected_action_score": 3
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "accessibility evidence",
+                "candidate evidence"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 1.67,
+              "present": [
+                "reason"
+              ],
+              "missing": [
+                "decision",
+                "required fix"
+              ]
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "block"
+              ],
+              "missing": [],
+              "question_count": 0,
+              "max_questions": 0,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gpt-5.5-codex/missing-accessibility-evidence/baseline_no_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:58914/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [],
+            "mcp_tool_transcript_sha256": null,
+            "duration_ms": 37600,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "bd67708d083e1c4e2c8570ee2f5e29adc414991417d1f210c4c233c6a29db7ab",
+            "prompt_sha256": "d963ebed31190408d49d88fa026dd5f0b6dc0793c323ac88953b6e0d2d9d2c6b",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 91,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "operator review",
+                "dense"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 4,
+              "present": [
+                "custom controls",
+                "decision controls"
+              ],
+              "missing": [],
+              "expected_action_score": 3
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "accessibility evidence",
+                "candidate evidence"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "decision",
+                "reason",
+                "required fix"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "block"
+              ],
+              "question_count": 0,
+              "max_questions": 0,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gpt-5.5-codex/missing-accessibility-evidence/judgmentkit_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:58914/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [
+              "create_ui_implementation_contract",
+              "review_ui_implementation_candidate",
+              "review_ui_implementation_candidate"
+            ],
+            "mcp_tool_transcript_sha256": "cb5c14327100ed2dc88cfbd03c5559ed62b9e557dc3be41427448744714cf5c5",
+            "duration_ms": 45785,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "0843636f47a8e80bc67a583010349cf2151ca644dcb5a9a831470587f04426ef",
+            "prompt_sha256": "9e1a2cf5bf579535ed2fcdaf391800a1f518fe32198a57149a96b5edce946036",
+            "mcp_context_sha256": "d1283b71165b3d6cdd788489ef62cd9cce1b51b99850cd9d31df6d86cc98d54a"
+          }
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:62968/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "cb5c14327100ed2dc88cfbd03c5559ed62b9e557dc3be41427448744714cf5c5",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready",
+              "targeted_questions": [],
+              "failure_categories": []
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "d315ab1ad3fd4df8ca227fa2dee25dd590576bfff0d4dffbe06665bb8d2ab411",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "targeted_questions": [],
+              "failure_categories": [
+                "accessibility"
+              ],
+              "finding_count": 7,
+              "repair_guidance": {
+                "accessibility": [
+                  "accessibility_evidence.semantic_content",
+                  "accessibility_evidence.landmarks_headings"
+                ]
+              }
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "faa85c12b95ce038a8be03a41908e74231ef7c647d2504410e15c74a3ac0dcd4",
+            "summary": {
+              "status": "passed",
+              "next_agent_action": "accept",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "finding_count": 0
+            }
+          }
+        ],
+        "repair_loop_summary": {
+          "enabled": true,
+          "attempts": 2,
+          "final_action": "accept",
+          "converged": true,
+          "stopped_for_human": false,
+          "attempts_to_pass": 2,
+          "failure_categories": [
+            "accessibility"
+          ],
+          "failure_category_counts": {
+            "accessibility": 1
+          },
+          "attempt_summaries": [
+            {
+              "attempt": 1,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "accessibility"
+              ],
+              "finding_count": 7
+            },
+            {
+              "attempt": 2,
+              "implementation_review_status": "passed",
+              "next_agent_action": "accept",
+              "loop_status": "passed",
+              "failure_categories": [],
+              "finding_count": 0
+            }
+          ],
+          "expected_final_action": "accept",
+          "expected_converged": true,
+          "expectation_status": "passed",
+          "expectation_failures": []
+        }
+      },
+      "repair_loop": {
+        "enabled": true,
+        "attempts": 2,
+        "final_action": "accept",
+        "converged": true,
+        "stopped_for_human": false,
+        "attempts_to_pass": 2,
+        "failure_categories": [
+          "accessibility"
+        ],
+        "failure_category_counts": {
+          "accessibility": 1
+        },
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "accessibility"
+            ],
+            "finding_count": 7
+          },
+          {
+            "attempt": 2,
+            "implementation_review_status": "passed",
+            "next_agent_action": "accept",
+            "loop_status": "passed",
+            "failure_categories": [],
+            "finding_count": 0
+          }
+        ],
+        "expected_final_action": "accept",
+        "expected_converged": true,
+        "expectation_status": "passed",
+        "expectation_failures": []
+      }
+    },
+    {
+      "id": "refund-schema-admin-translation",
+      "title": "Refund schema admin translation",
+      "case_type": "activity_translation",
+      "model_config_id": "gemma-4-e4b-it-lmstudio",
+      "model_label": "Gemma 4 E4B LM Studio",
+      "model_provider": "lmstudio-openai-chat",
+      "model": "gemma-4-e4b-it@q4_k_m",
+      "status": "evaluated",
+      "passed": true,
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 54.52,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "translate the request into a refund triage handoff surface",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 22.64,
+          "metric_results": {
+            "activity_fit": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "refund triage",
+                "support lead"
+              ]
+            },
+            "decision_support": {
+              "score": 1.91,
+              "present": [
+                "missing evidence"
+              ],
+              "missing": [
+                "approve",
+                "policy review"
+              ],
+              "expected_action_score": 2.14
+            },
+            "evidence_grounding": {
+              "score": 2.5,
+              "present": [
+                "refund request"
+              ],
+              "missing": [
+                "case evidence"
+              ]
+            },
+            "disclosure_discipline": {
+              "score": 0,
+              "leaks": [
+                "JSON schema",
+                "API endpoint",
+                "prompt template",
+                "tool call trace"
+              ],
+              "critical_leak_count": 4
+            },
+            "handoff_quality": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "next owner",
+                "next action",
+                "reason"
+              ]
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "clear next step"
+              ],
+              "missing": [],
+              "question_count": 2,
+              "max_questions": 2,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 2,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [
+            "JSON schema",
+            "API endpoint",
+            "prompt template",
+            "tool call trace"
+          ],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gemma-4-e4b-it-lmstudio/refund-schema-admin-translation/baseline_no_mcp.json",
+            "model_config_id": "gemma-4-e4b-it-lmstudio",
+            "provider": "lmstudio-openai-chat",
+            "model": "gemma-4-e4b-it@q4_k_m",
+            "runtime": "lmstudio-openai-compatible",
+            "local": true,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:62968/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [],
+            "mcp_tool_transcript_sha256": null,
+            "duration_ms": 25022,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": {
+              "prompt_tokens": 248,
+              "completion_tokens": 268,
+              "total_tokens": 516,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "raw_response_sha256": "8001aa1e02575bf785fcea93af410c063db087a1970882cb2df6d9d9eb7188eb",
+            "prompt_sha256": "35cc042e8ca6789bf14d1d1b7821fa5e006229b200719a3a9c3638980c344a8d",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 77.16,
+          "metric_results": {
+            "activity_fit": {
+              "score": 2.5,
+              "present": [
+                "support lead"
+              ],
+              "missing": [
+                "refund triage"
+              ]
+            },
+            "decision_support": {
+              "score": 4.29,
+              "present": [
+                "approve",
+                "policy review",
+                "missing evidence"
+              ],
+              "missing": [],
+              "expected_action_score": 3.57
+            },
+            "evidence_grounding": {
+              "score": 2.5,
+              "present": [
+                "refund request"
+              ],
+              "missing": [
+                "case evidence"
+              ]
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "next owner",
+                "next action",
+                "reason"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "clear next step"
+              ],
+              "missing": [],
+              "question_count": 2,
+              "max_questions": 2,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 2,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gemma-4-e4b-it-lmstudio/refund-schema-admin-translation/judgmentkit_mcp.json",
+            "model_config_id": "gemma-4-e4b-it-lmstudio",
+            "provider": "lmstudio-openai-chat",
+            "model": "gemma-4-e4b-it@q4_k_m",
+            "runtime": "lmstudio-openai-compatible",
+            "local": true,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:62968/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [
+              "create_activity_model_review",
+              "recommend_surface_types",
+              "recommend_ui_workflow_profiles"
+            ],
+            "mcp_tool_transcript_sha256": "59b617e73e1e2aec08fd2a933bc598a7ebeea3c50f6c46406823e4f6b77437ad",
+            "duration_ms": 35601,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": {
+              "prompt_tokens": 746,
+              "completion_tokens": 285,
+              "total_tokens": 1031,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "raw_response_sha256": "bd7dd61e97982a7da9b73e2e5caa3aca51de38bb0ad799141c6a96d4741b86de",
+            "prompt_sha256": "18acc13b5bd1f5799f4c6ebee4ee5e1869472efba5fa1c8a3273eb4eba156202",
+            "mcp_context_sha256": "3107c24abffb7e24adcf8b8dfff8a82f3f6cbeb391cd6e9375009b17bb287a9f"
+          }
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:62968/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+        "tool_sequence": [
+          "create_activity_model_review",
+          "recommend_surface_types",
+          "recommend_ui_workflow_profiles"
+        ],
+        "tool_transcript_sha256": "59b617e73e1e2aec08fd2a933bc598a7ebeea3c50f6c46406823e4f6b77437ad",
+        "tool_summaries": [
+          {
+            "name": "create_activity_model_review",
+            "args_sha256": "14aac0f8d2084573f4b56a0b2c1a4facc26f545e6647b459ca298898e89a1fd0",
+            "summary": {
+              "status": "needs_source_context",
+              "targeted_questions_count": 2,
+              "targeted_questions": [
+                "What should the user leave the surface knowing or having done?",
+                "Which detected implementation details are diagnostic only, and which should be translated into domain language?"
+              ],
+              "failure_categories": []
+            }
+          },
+          {
+            "name": "recommend_surface_types",
+            "args_sha256": "33c1bbd87fb952632c09488dfe9abaafd1992d09631c0bdc685d4a2fe4ec6563",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "operator_review",
+              "targeted_questions": [],
+              "failure_categories": []
+            }
+          },
+          {
+            "name": "recommend_ui_workflow_profiles",
+            "args_sha256": "14aac0f8d2084573f4b56a0b2c1a4facc26f545e6647b459ca298898e89a1fd0",
+            "summary": {
+              "status": "ok",
+              "targeted_questions": [],
+              "failure_categories": []
+            }
+          }
+        ],
+        "repair_loop_summary": null
+      }
+    },
+    {
+      "id": "vague-system-dashboard",
+      "title": "Vague system dashboard restraint",
+      "case_type": "missing_context_restraint",
+      "model_config_id": "gemma-4-e4b-it-lmstudio",
+      "model_label": "Gemma 4 E4B LM Studio",
+      "model_provider": "lmstudio-openai-chat",
+      "model": "gemma-4-e4b-it@q4_k_m",
+      "status": "evaluated",
+      "passed": true,
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 31.68,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "ask targeted questions about activity decision and outcome",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 58.32,
+          "metric_results": {
+            "activity_fit": {
+              "score": 2.5,
+              "present": [
+                "user"
+              ],
+              "missing": [
+                "activity"
+              ]
+            },
+            "decision_support": {
+              "score": 2.08,
+              "present": [
+                "next action"
+              ],
+              "missing": [
+                "decision"
+              ],
+              "expected_action_score": 1.67
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "source context",
+                "missing"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "activity",
+                "decision",
+                "outcome"
+              ]
+            },
+            "rework_risk": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "targeted questions"
+              ],
+              "question_count": 3,
+              "max_questions": 3,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 3,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gemma-4-e4b-it-lmstudio/vague-system-dashboard/baseline_no_mcp.json",
+            "model_config_id": "gemma-4-e4b-it-lmstudio",
+            "provider": "lmstudio-openai-chat",
+            "model": "gemma-4-e4b-it@q4_k_m",
+            "runtime": "lmstudio-openai-compatible",
+            "local": true,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:62968/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [],
+            "mcp_tool_transcript_sha256": null,
+            "duration_ms": 28406,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": {
+              "prompt_tokens": 198,
+              "completion_tokens": 206,
+              "total_tokens": 404,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "raw_response_sha256": "8e3bd84ed5639b56e36b60e57156f73db88743bfb6db472d8d2dcd33548cdbb1",
+            "prompt_sha256": "b48d5c6aec2fd44ee58dce10cd80c7f622f272b0a13eeb26e878be00d7331c84",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 90,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "activity",
+                "user"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 5,
+              "present": [
+                "decision",
+                "next action"
+              ],
+              "missing": [],
+              "expected_action_score": 5
+            },
+            "evidence_grounding": {
+              "score": 2.5,
+              "present": [
+                "source context"
+              ],
+              "missing": [
+                "missing"
+              ]
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "activity",
+                "decision",
+                "outcome"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "targeted questions"
+              ],
+              "missing": [],
+              "question_count": 3,
+              "max_questions": 3,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 3,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gemma-4-e4b-it-lmstudio/vague-system-dashboard/judgmentkit_mcp.json",
+            "model_config_id": "gemma-4-e4b-it-lmstudio",
+            "provider": "lmstudio-openai-chat",
+            "model": "gemma-4-e4b-it@q4_k_m",
+            "runtime": "lmstudio-openai-compatible",
+            "local": true,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:62968/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [
+              "create_activity_model_review",
+              "recommend_surface_types",
+              "recommend_ui_workflow_profiles"
+            ],
+            "mcp_tool_transcript_sha256": "52f6acb1877aaadd8c2fbbf832b49233b37249818a582affec89822a40f3af38",
+            "duration_ms": 24391,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": {
+              "prompt_tokens": 703,
+              "completion_tokens": 229,
+              "total_tokens": 932,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "raw_response_sha256": "871b802056008e1d4392e897f1e5c035cf1956b3b391fb563e50269093845bf0",
+            "prompt_sha256": "6b0778d50e269f259a4a1151fe68087fc20267577c84c2d8f8c6e8ef018a72f0",
+            "mcp_context_sha256": "2890bb4898ebb91b6822f0c598d6074af899ff47e50e26c8180b9e45e7834e68"
+          }
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:62968/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+        "tool_sequence": [
+          "create_activity_model_review",
+          "recommend_surface_types",
+          "recommend_ui_workflow_profiles"
+        ],
+        "tool_transcript_sha256": "52f6acb1877aaadd8c2fbbf832b49233b37249818a582affec89822a40f3af38",
+        "tool_summaries": [
+          {
+            "name": "create_activity_model_review",
+            "args_sha256": "5f7a4b7a5c4619e73ccd8a4dcfb5e5e5b09a8c55659d90a5bf2e84cd07014391",
+            "summary": {
+              "status": "needs_source_context",
+              "targeted_questions_count": 3,
+              "targeted_questions": [
+                "What activity should this UI support before any screen structure is proposed?",
+                "What decision or next action should the UI make easier for the user?",
+                "What should the user leave the surface knowing or having done?"
+              ],
+              "failure_categories": []
+            }
+          },
+          {
+            "name": "recommend_surface_types",
+            "args_sha256": "3344a5dc7b817f119d0104b6c6eaa44277f2665e703ed73ccf3962418fd93aa1",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "operator_review",
+              "targeted_questions": [],
+              "failure_categories": []
+            }
+          },
+          {
+            "name": "recommend_ui_workflow_profiles",
+            "args_sha256": "5f7a4b7a5c4619e73ccd8a4dcfb5e5e5b09a8c55659d90a5bf2e84cd07014391",
+            "summary": {
+              "status": "ok",
+              "targeted_questions": [],
+              "failure_categories": []
+            }
+          }
+        ],
+        "repair_loop_summary": null
+      }
+    },
+    {
+      "id": "clinical-intake-operator-review",
+      "title": "Clinical intake operator review",
+      "case_type": "operator_review_handoff",
+      "model_config_id": "gemma-4-e4b-it-lmstudio",
+      "model_label": "Gemma 4 E4B LM Studio",
+      "model_provider": "lmstudio-openai-chat",
+      "model": "gemma-4-e4b-it@q4_k_m",
+      "status": "evaluated",
+      "passed": true,
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 22.93,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "prepare a routing handoff",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 66.07,
+          "metric_results": {
+            "activity_fit": {
+              "score": 2.5,
+              "present": [
+                "care coordinator"
+              ],
+              "missing": [
+                "clinical intake"
+              ]
+            },
+            "decision_support": {
+              "score": 3.33,
+              "present": [
+                "clarification",
+                "scheduling"
+              ],
+              "missing": [
+                "nurse review"
+              ],
+              "expected_action_score": 3.33
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "symptoms",
+                "urgency",
+                "consent"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 3.75,
+              "leaks": [
+                "prompt"
+              ],
+              "critical_leak_count": 1
+            },
+            "handoff_quality": {
+              "score": 1.25,
+              "present": [
+                "evidence gap"
+              ],
+              "missing": [
+                "next owner",
+                "next action",
+                "reason"
+              ]
+            },
+            "rework_risk": {
+              "score": 4,
+              "present": [
+                "routing handoff"
+              ],
+              "missing": [],
+              "question_count": 2,
+              "max_questions": 1,
+              "question_penalty": 1
+            }
+          },
+          "question_count": 2,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [
+            "prompt"
+          ],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gemma-4-e4b-it-lmstudio/clinical-intake-operator-review/baseline_no_mcp.json",
+            "model_config_id": "gemma-4-e4b-it-lmstudio",
+            "provider": "lmstudio-openai-chat",
+            "model": "gemma-4-e4b-it@q4_k_m",
+            "runtime": "lmstudio-openai-compatible",
+            "local": true,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:62968/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [],
+            "mcp_tool_transcript_sha256": null,
+            "duration_ms": 8937,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": {
+              "prompt_tokens": 600,
+              "completion_tokens": 224,
+              "total_tokens": 824,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "raw_response_sha256": "d6b754cad55721e93ed2b90fcbc8ba7038f04398c868b33ed66a13e1dc38135f",
+            "prompt_sha256": "08e30db749e6c1dee043be9eb5169dec050227bd023519780ceba233dba99edd",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 89,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "clinical intake",
+                "care coordinator"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 4.17,
+              "present": [
+                "nurse review",
+                "clarification",
+                "scheduling"
+              ],
+              "missing": [],
+              "expected_action_score": 3.33
+            },
+            "evidence_grounding": {
+              "score": 3.33,
+              "present": [
+                "urgency",
+                "consent"
+              ],
+              "missing": [
+                "symptoms"
+              ]
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "next owner",
+                "next action",
+                "reason",
+                "evidence gap"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 4,
+              "present": [
+                "routing handoff"
+              ],
+              "missing": [],
+              "question_count": 2,
+              "max_questions": 1,
+              "question_penalty": 1
+            }
+          },
+          "question_count": 2,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gemma-4-e4b-it-lmstudio/clinical-intake-operator-review/judgmentkit_mcp.json",
+            "model_config_id": "gemma-4-e4b-it-lmstudio",
+            "provider": "lmstudio-openai-chat",
+            "model": "gemma-4-e4b-it@q4_k_m",
+            "runtime": "lmstudio-openai-compatible",
+            "local": true,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:62968/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [
+              "review_ui_workflow_candidate",
+              "create_ui_implementation_contract"
+            ],
+            "mcp_tool_transcript_sha256": "7f70a64019ca34fac2fc8473bfa449013a5b7991d244ddd64c1fade6c507e772",
+            "duration_ms": 3887,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": {
+              "prompt_tokens": 1029,
+              "completion_tokens": 220,
+              "total_tokens": 1249,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "raw_response_sha256": "8b81f77bfbe9cbfb3c594d9e3a5be19746f795813e5290234bf954559173f8ca",
+            "prompt_sha256": "ec15f649b351f548d137845620a654c06d9b9e1361cbf4a58399aa83c316845c",
+            "mcp_context_sha256": "4795efbf104e1e195fe342de95437d393980f32d3733d2685bf510ffe224090b"
+          }
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:62968/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+        "tool_sequence": [
+          "review_ui_workflow_candidate",
+          "create_ui_implementation_contract"
+        ],
+        "tool_transcript_sha256": "7f70a64019ca34fac2fc8473bfa449013a5b7991d244ddd64c1fade6c507e772",
+        "tool_summaries": [
+          {
+            "name": "review_ui_workflow_candidate",
+            "args_sha256": "d8d112adfa9ff34a44c7903c43b5585338f1749890b6ede5722d4a5ee062327a",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench",
+              "profile_id": "operator-review-ui",
+              "targeted_questions_count": 1,
+              "targeted_questions": [
+                "What should the user leave the surface knowing or having done?"
+              ],
+              "failure_categories": []
+            }
+          },
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready",
+              "targeted_questions": [],
+              "failure_categories": []
+            }
+          }
+        ],
+        "repair_loop_summary": null
+      }
+    },
+    {
+      "id": "schema-leaking-workflow",
+      "title": "Schema-leaking workflow candidate",
+      "case_type": "candidate_validation",
+      "model_config_id": "gemma-4-e4b-it-lmstudio",
+      "model_label": "Gemma 4 E4B LM Studio",
+      "model_provider": "lmstudio-openai-chat",
+      "model": "gemma-4-e4b-it@q4_k_m",
+      "status": "evaluated",
+      "passed": true,
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 16.52,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "reject the schema-leaking workflow",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 57.5,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "refund triage",
+                "support lead"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 3.75,
+              "present": [
+                "approve",
+                "policy review",
+                "missing evidence"
+              ],
+              "missing": [],
+              "expected_action_score": 2.5
+            },
+            "evidence_grounding": {
+              "score": 2.5,
+              "present": [
+                "source brief"
+              ],
+              "missing": [
+                "candidate leaks"
+              ]
+            },
+            "disclosure_discipline": {
+              "score": 0,
+              "leaks": [
+                "JSON schema",
+                "database field",
+                "API endpoint",
+                "CRUD"
+              ],
+              "critical_leak_count": 4
+            },
+            "handoff_quality": {
+              "score": 2.5,
+              "present": [
+                "decision"
+              ],
+              "missing": [
+                "reason"
+              ]
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "needs source context"
+              ],
+              "missing": [],
+              "question_count": 1,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 1,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [
+            "JSON schema",
+            "database field",
+            "API endpoint",
+            "CRUD"
+          ],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gemma-4-e4b-it-lmstudio/schema-leaking-workflow/baseline_no_mcp.json",
+            "model_config_id": "gemma-4-e4b-it-lmstudio",
+            "provider": "lmstudio-openai-chat",
+            "model": "gemma-4-e4b-it@q4_k_m",
+            "runtime": "lmstudio-openai-compatible",
+            "local": true,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:62968/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [],
+            "mcp_tool_transcript_sha256": null,
+            "duration_ms": 3721,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": {
+              "prompt_tokens": 504,
+              "completion_tokens": 208,
+              "total_tokens": 712,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "raw_response_sha256": "5d6de5011d817d50519525373cdf4425ddfab0362e37de87de43c9282e6c1411",
+            "prompt_sha256": "a65cc22a7dacdbfeedeb74215086114ae034c124506ba387e954799fcd3fb220",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 74.02,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "refund triage",
+                "support lead"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 3.13,
+              "present": [
+                "approve",
+                "policy review",
+                "missing evidence"
+              ],
+              "missing": [],
+              "expected_action_score": 1.25
+            },
+            "evidence_grounding": {
+              "score": 2.5,
+              "present": [
+                "source brief"
+              ],
+              "missing": [
+                "candidate leaks"
+              ]
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 2.5,
+              "present": [
+                "decision"
+              ],
+              "missing": [
+                "reason"
+              ]
+            },
+            "rework_risk": {
+              "score": 4,
+              "present": [
+                "needs source context"
+              ],
+              "missing": [],
+              "question_count": 2,
+              "max_questions": 1,
+              "question_penalty": 1
+            }
+          },
+          "question_count": 2,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gemma-4-e4b-it-lmstudio/schema-leaking-workflow/judgmentkit_mcp.json",
+            "model_config_id": "gemma-4-e4b-it-lmstudio",
+            "provider": "lmstudio-openai-chat",
+            "model": "gemma-4-e4b-it@q4_k_m",
+            "runtime": "lmstudio-openai-compatible",
+            "local": true,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:62968/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [
+              "review_ui_workflow_candidate"
+            ],
+            "mcp_tool_transcript_sha256": "4033b1ca58c32471e068c564a960f8fedc67f3303fe129c2fa60d1f732951cf9",
+            "duration_ms": 4673,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": {
+              "prompt_tokens": 896,
+              "completion_tokens": 247,
+              "total_tokens": 1143,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "raw_response_sha256": "31e2755ce72e2e0c416c7bc4d4fd0b0353ade9e70def99c43b0e56e10aec18b5",
+            "prompt_sha256": "62126a667099a98a9281e38bfd1c99b3f59c1edf3b58dc5f123c16da4af4f95a",
+            "mcp_context_sha256": "6b19ba3b540ac6bbff7fb9ca76d28b5d4ece3ca998014392f344f2ed199cfd68"
+          }
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:62968/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+        "tool_sequence": [
+          "review_ui_workflow_candidate"
+        ],
+        "tool_transcript_sha256": "4033b1ca58c32471e068c564a960f8fedc67f3303fe129c2fa60d1f732951cf9",
+        "tool_summaries": [
+          {
+            "name": "review_ui_workflow_candidate",
+            "args_sha256": "ff3a246a6df22df59506025b1f61d5b1c067d8d667e011f2cf4c63be4c54a035",
+            "summary": {
+              "status": "needs_source_context",
+              "surface_type": "workbench",
+              "profile_id": "operator-review-ui",
+              "targeted_questions_count": 2,
+              "targeted_questions": [
+                "What should the user leave the surface knowing or having done?",
+                "Which implementation terms in the workflow candidate should move to diagnostics or be translated?"
+              ],
+              "failure_categories": []
+            }
+          }
+        ],
+        "repair_loop_summary": null
+      }
+    },
+    {
+      "id": "missing-accessibility-evidence",
+      "title": "Missing accessibility evidence review",
+      "case_type": "implementation_review",
+      "model_config_id": "gemma-4-e4b-it-lmstudio",
+      "model_label": "Gemma 4 E4B LM Studio",
+      "model_provider": "lmstudio-openai-chat",
+      "model": "gemma-4-e4b-it@q4_k_m",
+      "status": "evaluated",
+      "passed": false,
+      "winner": "baseline_no_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": -3,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "reject until accessibility evidence is supplied",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 69,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "operator review",
+                "dense"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 1.5,
+              "present": [],
+              "missing": [
+                "custom controls",
+                "decision controls"
+              ],
+              "expected_action_score": 3
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "accessibility evidence",
+                "candidate evidence"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "decision",
+                "reason",
+                "required fix"
+              ]
+            },
+            "rework_risk": {
+              "score": 3,
+              "present": [
+                "block"
+              ],
+              "missing": [],
+              "question_count": 2,
+              "max_questions": 0,
+              "question_penalty": 2
+            }
+          },
+          "question_count": 2,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gemma-4-e4b-it-lmstudio/missing-accessibility-evidence/baseline_no_mcp.json",
+            "model_config_id": "gemma-4-e4b-it-lmstudio",
+            "provider": "lmstudio-openai-chat",
+            "model": "gemma-4-e4b-it@q4_k_m",
+            "runtime": "lmstudio-openai-compatible",
+            "local": true,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:62968/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [],
+            "mcp_tool_transcript_sha256": null,
+            "duration_ms": 4003,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": {
+              "prompt_tokens": 326,
+              "completion_tokens": 191,
+              "total_tokens": 517,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "raw_response_sha256": "bf8f08c30c689ef6a312eb0ac6a1a936323bd012c22f7d9b28e7868209862447",
+            "prompt_sha256": "d963ebed31190408d49d88fa026dd5f0b6dc0793c323ac88953b6e0d2d9d2c6b",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 66,
+          "metric_results": {
+            "activity_fit": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "operator review",
+                "dense"
+              ]
+            },
+            "decision_support": {
+              "score": 1.5,
+              "present": [],
+              "missing": [
+                "custom controls",
+                "decision controls"
+              ],
+              "expected_action_score": 3
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "accessibility evidence",
+                "candidate evidence"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "decision",
+                "reason",
+                "required fix"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "block"
+              ],
+              "missing": [],
+              "question_count": 0,
+              "max_questions": 0,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.2.0/gemma-4-e4b-it-lmstudio/missing-accessibility-evidence/judgmentkit_mcp.json",
+            "model_config_id": "gemma-4-e4b-it-lmstudio",
+            "provider": "lmstudio-openai-chat",
+            "model": "gemma-4-e4b-it@q4_k_m",
+            "runtime": "lmstudio-openai-compatible",
+            "local": true,
+            "mcp_version": "0.2.0",
+            "mcp_url": "http://127.0.0.1:62968/mcp",
+            "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+            "mcp_tool_sequence": [
+              "create_ui_implementation_contract",
+              "review_ui_implementation_candidate",
+              "review_ui_implementation_candidate"
+            ],
+            "mcp_tool_transcript_sha256": "cb5c14327100ed2dc88cfbd03c5559ed62b9e557dc3be41427448744714cf5c5",
+            "duration_ms": 3009,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": {
+              "prompt_tokens": 1169,
+              "completion_tokens": 164,
+              "total_tokens": 1333,
+              "completion_tokens_details": {
+                "reasoning_tokens": 0
+              }
+            },
+            "raw_response_sha256": "adb0d7abb8fe8889208b879ce1f471915c89a918cd1ed14a9ec875ac45ecc0a0",
+            "prompt_sha256": "9e1a2cf5bf579535ed2fcdaf391800a1f518fe32198a57149a96b5edce946036",
+            "mcp_context_sha256": "712249f01addb7dfecc9bc0d82dedf19106161aec8175e07d229b6f46480eab1"
+          }
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:62968/mcp",
+        "mcp_version": "0.2.0",
+        "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "cb5c14327100ed2dc88cfbd03c5559ed62b9e557dc3be41427448744714cf5c5",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready",
+              "targeted_questions": [],
+              "failure_categories": []
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "d315ab1ad3fd4df8ca227fa2dee25dd590576bfff0d4dffbe06665bb8d2ab411",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "targeted_questions": [],
+              "failure_categories": [
+                "accessibility"
+              ],
+              "finding_count": 7,
+              "repair_guidance": {
+                "accessibility": [
+                  "accessibility_evidence.semantic_content",
+                  "accessibility_evidence.landmarks_headings"
+                ]
+              }
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "faa85c12b95ce038a8be03a41908e74231ef7c647d2504410e15c74a3ac0dcd4",
+            "summary": {
+              "status": "passed",
+              "next_agent_action": "accept",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "finding_count": 0
+            }
+          }
+        ],
+        "repair_loop_summary": {
+          "enabled": true,
+          "attempts": 2,
+          "final_action": "accept",
+          "converged": true,
+          "stopped_for_human": false,
+          "attempts_to_pass": 2,
+          "failure_categories": [
+            "accessibility"
+          ],
+          "failure_category_counts": {
+            "accessibility": 1
+          },
+          "attempt_summaries": [
+            {
+              "attempt": 1,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "accessibility"
+              ],
+              "finding_count": 7
+            },
+            {
+              "attempt": 2,
+              "implementation_review_status": "passed",
+              "next_agent_action": "accept",
+              "loop_status": "passed",
+              "failure_categories": [],
+              "finding_count": 0
+            }
+          ],
+          "expected_final_action": "accept",
+          "expected_converged": true,
+          "expectation_status": "passed",
+          "expectation_failures": []
+        }
+      },
+      "repair_loop": {
+        "enabled": true,
+        "attempts": 2,
+        "final_action": "accept",
+        "converged": true,
+        "stopped_for_human": false,
+        "attempts_to_pass": 2,
+        "failure_categories": [
+          "accessibility"
+        ],
+        "failure_category_counts": {
+          "accessibility": 1
+        },
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "accessibility"
+            ],
+            "finding_count": 7
+          },
+          {
+            "attempt": 2,
+            "implementation_review_status": "passed",
+            "next_agent_action": "accept",
+            "loop_status": "passed",
+            "failure_categories": [],
+            "finding_count": 0
+          }
+        ],
+        "expected_final_action": "accept",
+        "expected_converged": true,
+        "expectation_status": "passed",
+        "expectation_failures": []
+      }
+    }
+  ]
+}

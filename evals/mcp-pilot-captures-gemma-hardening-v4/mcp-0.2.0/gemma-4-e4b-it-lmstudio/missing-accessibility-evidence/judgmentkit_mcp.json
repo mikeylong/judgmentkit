@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "missing-accessibility-evidence",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:55277/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "cb5c14327100ed2dc88cfbd03c5559ed62b9e557dc3be41427448744714cf5c5",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:54:38.910Z",
+  "duration_ms": 3625,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1169,
+    "completion_tokens": 164,
+    "total_tokens": 1333,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "d336e4197b7ca5c4bea43ce7e186381808beeed138feaddfe76eb728af02520c",
+  "prompt_sha256": "9e1a2cf5bf579535ed2fcdaf391800a1f518fe32198a57149a96b5edce946036",
+  "mcp_context_sha256": "108d89aa7446e7890cec9b448988d597cece0cf6274d49d52123554ab048fa7a",
+  "raw_response_sha256": "adb0d7abb8fe8889208b879ce1f471915c89a918cd1ed14a9ec875ac45ecc0a0",
+  "raw_response": "{\"response\": \"The implementation candidate is rejected because it lacks required accessibility evidence.\", \"next_action\": \"Repair and resubmit the candidate to include necessary accessibility details.\", \"questions\": [], \"handoff\": \"Decision: Reject; Action: Repair/Resubmit; Reason: Missing core accessibility evidence (semantic content, landmarks headings) as identified in previous review cycles. Owner: Development Team; Required Fix: Update the implementation to populate 'accessibility_evidence' with semantic content and landmark heading information; Verification: Re-run the full review process after updating the candidate.\", \"rationale\": \"The source context explicitly states that the UI must provide core accessibility evidence before acceptance, and the provided candidate shows an empty object for 'accessibility_evidence'. The MCP context confirms this failure category and provides specific repair guidance.\"}",
+  "parsed": {
+    "response": "The implementation candidate is rejected because it lacks required accessibility evidence.",
+    "next_action": "Repair and resubmit the candidate to include necessary accessibility details.",
+    "questions": [],
+    "handoff": "Decision: Reject; Action: Repair/Resubmit; Reason: Missing core accessibility evidence (semantic content, landmarks headings) as identified in previous review cycles. Owner: Development Team; Required Fix: Update the implementation to populate 'accessibility_evidence' with semantic content and landmark heading information; Verification: Re-run the full review process after updating the candidate.",
+    "rationale": "The source context explicitly states that the UI must provide core accessibility evidence before acceptance, and the provided candidate shows an empty object for 'accessibility_evidence'. The MCP context confirms this failure category and provides specific repair guidance."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The implementation candidate is rejected because it lacks required accessibility evidence.\", \"next_action\": \"Repair and resubmit the candidate to include necessary accessibility details.\", \"questions\": [], \"handoff\": \"Decision: Reject; Action: Repair/Resubmit; Reason: Missing core accessibility evidence (semantic content, landmarks headings) as identified in previous review cycles. Owner: Development Team; Required Fix: Update the implementation to populate 'accessibility_evidence' with semantic content and landmark heading information; Verification: Re-run the full review process after updating the candidate.\", \"rationale\": \"The source context explicitly states that the UI must provide core accessibility evidence before acceptance, and the provided candidate shows an empty object for 'accessibility_evidence'. The MCP context confirms this failure category and provides specific repair guidance.\"}",
+    "usage": {
+      "prompt_tokens": 1169,
+      "completion_tokens": 164,
+      "total_tokens": 1333,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "2c28f0f8638e06030fde48c1ef563db1d4460ebfb6a72e0d71aa627534c06f6b",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

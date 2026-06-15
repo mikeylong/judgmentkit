@@ -1,0 +1,67 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "vague-system-dashboard",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51813/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "82eb563bb76d3cbd1c8c7f48ea13ad33e93678773dfef1f9fc803821495d337d",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-13T22:07:03.421Z",
+  "duration_ms": 5408,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 408,
+    "completion_tokens": 206,
+    "total_tokens": 614,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "3ada5707e0d87e273ec72e9b5512133a51fae34c525d0149e64e2570d64b9ad0",
+  "prompt_sha256": "c399f858ebd22deba0450d30cad9785d4db7619d24e34967586cf9fe205fb8c3",
+  "mcp_context_sha256": "748f73389273917af6c3069a32b75c108cb7e6fcaf62fb109d222ee0265af45e",
+  "raw_response_sha256": "c8e7829d4075dd190a671da0cdd5a1baa5c780e8eb57ef0ea8e20f7b918b7c1c",
+  "raw_response": "{\"response\": \"To plan the dashboard effectively, I need more specific details about what the system does and who will be using it. The current context suggests a multi-step process involving activity model review, surface type recommendations, and UI workflow profiling.\", \"next_action\": \"Ask clarifying questions to gather necessary inputs for the remaining tools.\", \"questions\": [\"What is the primary function or goal of the system that this dashboard needs to represent?\", \"Who are the primary users of this dashboard (e.g., operators, managers, analysts)?\", \"Are there any specific key metrics or data points that absolutely must be visible on the main dashboard view?\"], \"handoff\": \"\", \"rationale\": \"The source context is too vague ('Plan a dashboard for the system'). The tool summaries indicate that 'create_activity_model_review' and 'recommend_surface_types' both require missing source context. Therefore, targeted questions are necessary to gather the required inputs before proceeding with planning or recommending specific components.\"}",
+  "parsed": {
+    "response": "To plan the dashboard effectively, I need more specific details about what the system does and who will be using it. The current context suggests a multi-step process involving activity model review, surface type recommendations, and UI workflow profiling.",
+    "next_action": "Ask clarifying questions to gather necessary inputs for the remaining tools.",
+    "questions": [
+      "What is the primary function or goal of the system that this dashboard needs to represent?",
+      "Who are the primary users of this dashboard (e.g., operators, managers, analysts)?",
+      "Are there any specific key metrics or data points that absolutely must be visible on the main dashboard view?"
+    ],
+    "handoff": "",
+    "rationale": "The source context is too vague ('Plan a dashboard for the system'). The tool summaries indicate that 'create_activity_model_review' and 'recommend_surface_types' both require missing source context. Therefore, targeted questions are necessary to gather the required inputs before proceeding with planning or recommending specific components."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"To plan the dashboard effectively, I need more specific details about what the system does and who will be using it. The current context suggests a multi-step process involving activity model review, surface type recommendations, and UI workflow profiling.\", \"next_action\": \"Ask clarifying questions to gather necessary inputs for the remaining tools.\", \"questions\": [\"What is the primary function or goal of the system that this dashboard needs to represent?\", \"Who are the primary users of this dashboard (e.g., operators, managers, analysts)?\", \"Are there any specific key metrics or data points that absolutely must be visible on the main dashboard view?\"], \"handoff\": \"\", \"rationale\": \"The source context is too vague ('Plan a dashboard for the system'). The tool summaries indicate that 'create_activity_model_review' and 'recommend_surface_types' both require missing source context. Therefore, targeted questions are necessary to gather the required inputs before proceeding with planning or recommending specific components.\"}",
+    "usage": {
+      "prompt_tokens": 408,
+      "completion_tokens": 206,
+      "total_tokens": 614,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "48de8f2d82d6bf746ef79427b690ef4f3eb662a7fb82c30d22579795d76a7209",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

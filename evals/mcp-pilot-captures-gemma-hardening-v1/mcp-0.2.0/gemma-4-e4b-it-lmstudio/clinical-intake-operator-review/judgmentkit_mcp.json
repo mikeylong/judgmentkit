@@ -1,0 +1,64 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "clinical-intake-operator-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51706/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract"
+  ],
+  "mcp_tool_transcript_sha256": "7f70a64019ca34fac2fc8473bfa449013a5b7991d244ddd64c1fade6c507e772",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:43:09.211Z",
+  "duration_ms": 4173,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1030,
+    "completion_tokens": 219,
+    "total_tokens": 1249,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "bbfeaaeceb9c70c08cfd05b0d754d73fe29af5eb093727ff41ba2d389f5698d5",
+  "prompt_sha256": "87383db522346d777c8673dbf2ed355be8a210996e27b206c7557186506fa32e",
+  "mcp_context_sha256": "ad41329e1aa552bb20efa10d3af764e8ab073d3e07f4ab0a0cfd71e160e32e19",
+  "raw_response_sha256": "56d88ba4e2c878d83b00981986bade42e8ab9b32e8a513df635d878b9aefb679",
+  "raw_response": "{\"response\": \"The agent should guide the care coordinator through a structured review process, ensuring all critical elements—symptoms, urgency signals, and consent status—are explicitly addressed before allowing a final routing decision. The immediate next step is to prompt for clarification on any identified gaps.\", \"next_action\": \"Prompt the user to address the evidence gap (missing consent or ambiguous urgency) by either gathering missing information or confirming the ambiguity requires escalation.\", \"questions\": [\"What specific information regarding consent or urgency needs to be gathered from the patient/source before proceeding with a routing decision?\"], \"handoff\": \"Action: Clarify Evidence Gap; Reason: The current handoff indicates an evidence gap (missing consent or ambiguous urgency) that must be resolved by the care coordinator before determining the final route. Owner: Care Coordinator.\", \"rationale\": \"The candidate fixture provides a solid workflow structure, but the diagnostic context reveals that the UI surface needs refinement based on what the user should know upon completion. The immediate focus must be resolving the identified evidence gap to move past the decision point.\"}",
+  "parsed": {
+    "response": "The agent should guide the care coordinator through a structured review process, ensuring all critical elements—symptoms, urgency signals, and consent status—are explicitly addressed before allowing a final routing decision. The immediate next step is to prompt for clarification on any identified gaps.",
+    "next_action": "Prompt the user to address the evidence gap (missing consent or ambiguous urgency) by either gathering missing information or confirming the ambiguity requires escalation.",
+    "questions": [
+      "What specific information regarding consent or urgency needs to be gathered from the patient/source before proceeding with a routing decision?"
+    ],
+    "handoff": "Action: Clarify Evidence Gap; Reason: The current handoff indicates an evidence gap (missing consent or ambiguous urgency) that must be resolved by the care coordinator before determining the final route. Owner: Care Coordinator.",
+    "rationale": "The candidate fixture provides a solid workflow structure, but the diagnostic context reveals that the UI surface needs refinement based on what the user should know upon completion. The immediate focus must be resolving the identified evidence gap to move past the decision point."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent should guide the care coordinator through a structured review process, ensuring all critical elements—symptoms, urgency signals, and consent status—are explicitly addressed before allowing a final routing decision. The immediate next step is to prompt for clarification on any identified gaps.\", \"next_action\": \"Prompt the user to address the evidence gap (missing consent or ambiguous urgency) by either gathering missing information or confirming the ambiguity requires escalation.\", \"questions\": [\"What specific information regarding consent or urgency needs to be gathered from the patient/source before proceeding with a routing decision?\"], \"handoff\": \"Action: Clarify Evidence Gap; Reason: The current handoff indicates an evidence gap (missing consent or ambiguous urgency) that must be resolved by the care coordinator before determining the final route. Owner: Care Coordinator.\", \"rationale\": \"The candidate fixture provides a solid workflow structure, but the diagnostic context reveals that the UI surface needs refinement based on what the user should know upon completion. The immediate focus must be resolving the identified evidence gap to move past the decision point.\"}",
+    "usage": {
+      "prompt_tokens": 1030,
+      "completion_tokens": 219,
+      "total_tokens": 1249,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "c1f9c916cdfb7a75041a4c4bc24ce0dfd81572319d1ac750889f8ee5ddac16b0",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

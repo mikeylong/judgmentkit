@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "unclear-compliance-report",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59425/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T21:24:37.708Z",
+  "duration_ms": 43408,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 205,
+    "completion_tokens": 202,
+    "total_tokens": 407,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "cb8e3ecbea516b4cda8db8a06222bd083828fec2a2704cefdf3bfefb76a0cb96",
+  "prompt_sha256": "9936fc534a116dc94adbf68a61c93ebaeb0410c64af1de537f00f57f164c1719",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "85fec98459a1e412bf400b14e3911a89f9f3873841a827e2579a465b42e71b9f",
+  "raw_response": "{\"response\": \"To ensure the compliance report meets your needs, could you please clarify who the primary audience for this report will be? Knowing the audience (e.g., executive leadership, technical team, legal counsel) will help tailor the level of detail, tone, and actionable recommendations.\", \"next_action\": \"Ask clarifying questions about the intended audience to scope the report's content and depth.\", \"questions\": [\"Who is the primary audience for this compliance report (e.g., executives, technical staff, legal team)?\", \"What is the main goal of the report—to inform, persuade action, or document findings?\"], \"handoff\": \"\", \"rationale\": \"The source brief is too vague ('Make a compliance report page. Include all findings and make it actionable.') to proceed effectively. The key missing piece of information is the intended audience, as this dictates the necessary level of technical detail, executive summary focus, and type of actionability required for the final output.\"}",
+  "parsed": {
+    "response": "To ensure the compliance report meets your needs, could you please clarify who the primary audience for this report will be? Knowing the audience (e.g., executive leadership, technical team, legal counsel) will help tailor the level of detail, tone, and actionable recommendations.",
+    "next_action": "Ask clarifying questions about the intended audience to scope the report's content and depth.",
+    "questions": [
+      "Who is the primary audience for this compliance report (e.g., executives, technical staff, legal team)?",
+      "What is the main goal of the report—to inform, persuade action, or document findings?"
+    ],
+    "handoff": "",
+    "rationale": "The source brief is too vague ('Make a compliance report page. Include all findings and make it actionable.') to proceed effectively. The key missing piece of information is the intended audience, as this dictates the necessary level of technical detail, executive summary focus, and type of actionability required for the final output."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"To ensure the compliance report meets your needs, could you please clarify who the primary audience for this report will be? Knowing the audience (e.g., executive leadership, technical team, legal counsel) will help tailor the level of detail, tone, and actionable recommendations.\", \"next_action\": \"Ask clarifying questions about the intended audience to scope the report's content and depth.\", \"questions\": [\"Who is the primary audience for this compliance report (e.g., executives, technical staff, legal team)?\", \"What is the main goal of the report—to inform, persuade action, or document findings?\"], \"handoff\": \"\", \"rationale\": \"The source brief is too vague ('Make a compliance report page. Include all findings and make it actionable.') to proceed effectively. The key missing piece of information is the intended audience, as this dictates the necessary level of technical detail, executive summary focus, and type of actionability required for the final output.\"}",
+    "usage": {
+      "prompt_tokens": 205,
+      "completion_tokens": 202,
+      "total_tokens": 407,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "df17a183fcd1dfa66fcee30867d6a052981b00483aa4b01e81b725bddb855c11",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

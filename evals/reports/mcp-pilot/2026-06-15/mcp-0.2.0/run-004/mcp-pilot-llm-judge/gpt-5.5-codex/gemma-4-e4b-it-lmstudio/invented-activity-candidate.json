@@ -1,0 +1,89 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "invented-activity-candidate",
+  "title": "Invented activity candidate",
+  "case_type": "candidate_validation",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T06:01:05.873Z",
+  "duration_ms": 42257,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "3394b1df77a571d7e11e9b25a955b8dc5090a0690ec43ab2e6fb20a69d6f7027",
+  "raw_response_sha256": "e29849d07cae802e0fbd21c641e08a050d6f3cc95930e9ec9ddad24b1d100346",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"high\",\"rationale\":\"Both outputs correctly reject the ungrounded candidate, but Output B is more useful for a downstream agent because it gives a direct rejection, a concrete replacement action, and a handoff with decision/action/reason. Output A is grounded, but it weakens the result by asking for clarification that is not needed from the source brief and by making the handoff about uncertainty rather than the next move.\",\"decisive_differences\":[\"Output B has a clearer operational next action tied to the three refund triage dispositions.\",\"Output B avoids generic questions, while Output A adds an unnecessary clarification question despite enough source context.\",\"Output B's handoff includes decision, action, reason, evidence gap, and required fix; Output A's handoff is less actionable.\",\"Output B has a minor invented role label, but that risk is smaller than Output A's unnecessary uncertainty.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Need clarification on which parts of the source brief must be represented in the next candidate fixture for accurate comparison.\",\"why_it_matters\":\"This creates avoidable uncertainty; the source brief already states the role, activity, and decision outcomes.\"},{\"output\":\"output_b\",\"quote\":\"Request a refund-triage-aligned replacement activity that accurately reflects the process of reviewing refund requests and making one of three decisions: approve, policy review, or return for missing evidence.\",\"why_it_matters\":\"This directly matches the expected next action and preserves the source activity.\"},{\"output\":\"output_b\",\"quote\":\"Decision: Reject; Action: Request Replacement; Reason:\",\"why_it_matters\":\"The handoff is structured in a way that helps the next agent continue without re-deriving the judgment.\"},{\"output\":\"output_b\",\"quote\":\"Owner: Triage Specialist\",\"why_it_matters\":\"This is a small grounding issue because the source says support lead, not triage specialist.\"}],\"output_a_quality\":{\"score\":7,\"strengths\":[\"Correctly rejects the candidate as misaligned.\",\"Grounds the rationale in role, activity, and objective mismatch.\",\"Provides a replacement-oriented next action.\"],\"risks\":[\"Adds an unnecessary generic question.\",\"Handoff implies clarification is needed when the source brief is sufficient.\",\"Less operationally structured than Output B.\"]},\"output_b_quality\":{\"score\":8.5,\"strengths\":[\"Correctly rejects the candidate.\",\"Gives a concrete next action aligned to refund triage.\",\"Provides a useful handoff with decision, action, reason, gap, and fix.\",\"Avoids unnecessary questions.\"],\"risks\":[\"Introduces a slightly ungrounded owner label.\",\"Uses some broad phrasing like internal optimization/allocation process without the same specificity as Output A.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "high",
+    "rationale": "Both outputs correctly reject the ungrounded candidate, but Output B is more useful for a downstream agent because it gives a direct rejection, a concrete replacement action, and a handoff with decision/action/reason. Output A is grounded, but it weakens the result by asking for clarification that is not needed from the source brief and by making the handoff about uncertainty rather than the next move.",
+    "decisive_differences": [
+      "Output B has a clearer operational next action tied to the three refund triage dispositions.",
+      "Output B avoids generic questions, while Output A adds an unnecessary clarification question despite enough source context.",
+      "Output B's handoff includes decision, action, reason, evidence gap, and required fix; Output A's handoff is less actionable.",
+      "Output B has a minor invented role label, but that risk is smaller than Output A's unnecessary uncertainty."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Need clarification on which parts of the source brief must be represented in the next candidate fixture for accurate comparison.",
+        "why_it_matters": "This creates avoidable uncertainty; the source brief already states the role, activity, and decision outcomes."
+      },
+      {
+        "output": "output_b",
+        "quote": "Request a refund-triage-aligned replacement activity that accurately reflects the process of reviewing refund requests and making one of three decisions: approve, policy review, or return for missing evidence.",
+        "why_it_matters": "This directly matches the expected next action and preserves the source activity."
+      },
+      {
+        "output": "output_b",
+        "quote": "Decision: Reject; Action: Request Replacement; Reason:",
+        "why_it_matters": "The handoff is structured in a way that helps the next agent continue without re-deriving the judgment."
+      },
+      {
+        "output": "output_b",
+        "quote": "Owner: Triage Specialist",
+        "why_it_matters": "This is a small grounding issue because the source says support lead, not triage specialist."
+      }
+    ],
+    "output_a_quality": {
+      "score": 7,
+      "strengths": [
+        "Correctly rejects the candidate as misaligned.",
+        "Grounds the rationale in role, activity, and objective mismatch.",
+        "Provides a replacement-oriented next action."
+      ],
+      "risks": [
+        "Adds an unnecessary generic question.",
+        "Handoff implies clarification is needed when the source brief is sufficient.",
+        "Less operationally structured than Output B."
+      ]
+    },
+    "output_b_quality": {
+      "score": 8.5,
+      "strengths": [
+        "Correctly rejects the candidate.",
+        "Gives a concrete next action aligned to refund triage.",
+        "Provides a useful handoff with decision, action, reason, gap, and fix.",
+        "Avoids unnecessary questions."
+      ],
+      "risks": [
+        "Introduces a slightly ungrounded owner label.",
+        "Uses some broad phrasing like internal optimization/allocation process without the same specificity as Output A."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "909f6e0a4b46bbbf5621687f80e042277504d5b1b30507d5f709eb8a4f63adc4",
+    "stderr_sha256": "db5344126acd256c83f0fbb2bf9ce38081c428c540ee9472cb9f0d9813da495a",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "vague-system-dashboard",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51706/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "52f6acb1877aaadd8c2fbbf832b49233b37249818a582affec89822a40f3af38",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:43:00.954Z",
+  "duration_ms": 3554,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 711,
+    "completion_tokens": 194,
+    "total_tokens": 905,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "afb99495ed7f4be1874a3e5797130ddcb28481fbb8dd5996b0c854450ff2efe2",
+  "prompt_sha256": "423bd2aa4f3c68c1daa91e329d224b87c703f253651ca5e5b519cb582e6c3b17",
+  "mcp_context_sha256": "c44be736a086f5f85a229ce4d264e47aacceb519784614c72ec6c179e2d200df",
+  "raw_response_sha256": "9b6af724bc19f92947e0fbf20061f86ac3f52565619b46c34d1f323a3a84f90b",
+  "raw_response": "{\"response\": \"To plan an effective system dashboard, I need more specific details about the system's function and the user goals. Could you please provide answers to the following questions?\", \"next_action\": \"Gather missing context regarding system activity and desired outcomes.\", \"questions\": [\"What core activity should this UI support before any screen structure is proposed?\", \"What key decision or next action should the dashboard make easier for the user?\", \"What essential knowledge or outcome should the user leave the surface knowing or having accomplished?\"], \"handoff\": \"Action: Gather missing context. Reason: The initial request ('Plan a dashboard') is too vague, and the underlying tools require specific inputs regarding system activity, decision points, and desired user outcomes to proceed with planning.\", \"rationale\": \"The source brief is insufficient for generating a meaningful plan. The diagnostic guidance indicates that the first tool requires three targeted pieces of information related to the intended workflow and user goals.\"}",
+  "parsed": {
+    "response": "To plan an effective system dashboard, I need more specific details about the system's function and the user goals. Could you please provide answers to the following questions?",
+    "next_action": "Gather missing context regarding system activity and desired outcomes.",
+    "questions": [
+      "What core activity should this UI support before any screen structure is proposed?",
+      "What key decision or next action should the dashboard make easier for the user?",
+      "What essential knowledge or outcome should the user leave the surface knowing or having accomplished?"
+    ],
+    "handoff": "Action: Gather missing context. Reason: The initial request ('Plan a dashboard') is too vague, and the underlying tools require specific inputs regarding system activity, decision points, and desired user outcomes to proceed with planning.",
+    "rationale": "The source brief is insufficient for generating a meaningful plan. The diagnostic guidance indicates that the first tool requires three targeted pieces of information related to the intended workflow and user goals."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"To plan an effective system dashboard, I need more specific details about the system's function and the user goals. Could you please provide answers to the following questions?\", \"next_action\": \"Gather missing context regarding system activity and desired outcomes.\", \"questions\": [\"What core activity should this UI support before any screen structure is proposed?\", \"What key decision or next action should the dashboard make easier for the user?\", \"What essential knowledge or outcome should the user leave the surface knowing or having accomplished?\"], \"handoff\": \"Action: Gather missing context. Reason: The initial request ('Plan a dashboard') is too vague, and the underlying tools require specific inputs regarding system activity, decision points, and desired user outcomes to proceed with planning.\", \"rationale\": \"The source brief is insufficient for generating a meaningful plan. The diagnostic guidance indicates that the first tool requires three targeted pieces of information related to the intended workflow and user goals.\"}",
+    "usage": {
+      "prompt_tokens": 711,
+      "completion_tokens": 194,
+      "total_tokens": 905,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "acc0eea83db4384d1d6a1b0bf9aefd27cbb998528c3a6582d0a5fc4e5990fc73",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

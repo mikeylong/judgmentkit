@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "missing-accessibility-evidence",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:52592/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "cb5c14327100ed2dc88cfbd03c5559ed62b9e557dc3be41427448744714cf5c5",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:47:37.679Z",
+  "duration_ms": 5064,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1163,
+    "completion_tokens": 136,
+    "total_tokens": 1299,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "9a7645d69270aa6d7e266bd1d18df0d734075d992553ae33d63600ce89582795",
+  "prompt_sha256": "4ebb3469c055c531564bcc292da968cb491444d52ef3b47b23db4e324f8c76d5",
+  "mcp_context_sha256": "4887d25085c3e3bd598f4484adab2388c1f9a75aa9584acb0b92fe5864848317",
+  "raw_response_sha256": "9b1574d7b569e3f19c27af8b8b4e74857d5cd3017ca357f6660b9818f4146952",
+  "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Repair and resubmit based on accessibility findings.\", \"questions\": [], \"handoff\": \"Decision: Reject. Reason: Missing core accessibility evidence required for acceptance, specifically semantic content and landmark headings. Required Fix: Update the implementation candidate to include values for 'accessibility_evidence.semantic_content' and 'accessibility_evidence.landmarks_headings'. Verification: Re-run the review process after incorporating the specified accessibility data.\", \"rationale\": \"The source brief mandates core accessibility evidence before acceptance, and the current implementation candidate shows empty accessibility evidence. The diagnostic context confirms this failure category and provides specific repair guidance.\"}",
+  "parsed": {
+    "response": "Reject",
+    "next_action": "Repair and resubmit based on accessibility findings.",
+    "questions": [],
+    "handoff": "Decision: Reject. Reason: Missing core accessibility evidence required for acceptance, specifically semantic content and landmark headings. Required Fix: Update the implementation candidate to include values for 'accessibility_evidence.semantic_content' and 'accessibility_evidence.landmarks_headings'. Verification: Re-run the review process after incorporating the specified accessibility data.",
+    "rationale": "The source brief mandates core accessibility evidence before acceptance, and the current implementation candidate shows empty accessibility evidence. The diagnostic context confirms this failure category and provides specific repair guidance."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Repair and resubmit based on accessibility findings.\", \"questions\": [], \"handoff\": \"Decision: Reject. Reason: Missing core accessibility evidence required for acceptance, specifically semantic content and landmark headings. Required Fix: Update the implementation candidate to include values for 'accessibility_evidence.semantic_content' and 'accessibility_evidence.landmarks_headings'. Verification: Re-run the review process after incorporating the specified accessibility data.\", \"rationale\": \"The source brief mandates core accessibility evidence before acceptance, and the current implementation candidate shows empty accessibility evidence. The diagnostic context confirms this failure category and provides specific repair guidance.\"}",
+    "usage": {
+      "prompt_tokens": 1163,
+      "completion_tokens": 136,
+      "total_tokens": 1299,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "43f0afb49ca857028224a7d5cfcf504a51448a7795a501d935bef931370be22c",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

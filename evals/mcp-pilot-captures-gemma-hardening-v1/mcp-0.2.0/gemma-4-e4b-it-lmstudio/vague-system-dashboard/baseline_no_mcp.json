@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "vague-system-dashboard",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51706/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:42:57.398Z",
+  "duration_ms": 3857,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 294,
+    "completion_tokens": 238,
+    "total_tokens": 532,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "37a3ca1e94b93fea1ca30a0d3d0189a0577c0d61b410ea12f66353917a337e13",
+  "prompt_sha256": "3ed46ac80ca7a041df3c40889857164e4b7e3c569d5e05c15b749cc839ecdf42",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "ade71bb2a372ae137ecef43e889970323be9991cd93523df76d50bb95117cd1b",
+  "raw_response": "{\"response\": \"To plan an effective system dashboard, I need more specific information about what the system does and who will be using this dashboard. Could you please provide details on the primary goals of the dashboard (e.g., monitoring performance, tracking user activity, visualizing key metrics), the main users (e.g., administrators, end-users, executives), and any existing data sources or critical KPIs that must be displayed?\", \"next_action\": \"Gather detailed requirements regarding system function, target audience, and necessary Key Performance Indicators (KPIs) to structure the dashboard plan.\", \"questions\": [\"What is the primary purpose of this dashboard (e.g., monitoring health, tracking usage, reporting outcomes)?\", \"Who are the primary users of this dashboard (e.g., technical staff, management, general users)?\", \"Are there any specific metrics or data points that absolutely must be visible on the initial version?\"], \"handoff\": \"Need system context/requirements gathering from user.\", \"rationale\": \"The source brief is too vague ('Plan a dashboard for the system') to generate an actionable plan. The response must elicit necessary functional and audience details.\"}",
+  "parsed": {
+    "response": "To plan an effective system dashboard, I need more specific information about what the system does and who will be using this dashboard. Could you please provide details on the primary goals of the dashboard (e.g., monitoring performance, tracking user activity, visualizing key metrics), the main users (e.g., administrators, end-users, executives), and any existing data sources or critical KPIs that must be displayed?",
+    "next_action": "Gather detailed requirements regarding system function, target audience, and necessary Key Performance Indicators (KPIs) to structure the dashboard plan.",
+    "questions": [
+      "What is the primary purpose of this dashboard (e.g., monitoring health, tracking usage, reporting outcomes)?",
+      "Who are the primary users of this dashboard (e.g., technical staff, management, general users)?",
+      "Are there any specific metrics or data points that absolutely must be visible on the initial version?"
+    ],
+    "handoff": "Need system context/requirements gathering from user.",
+    "rationale": "The source brief is too vague ('Plan a dashboard for the system') to generate an actionable plan. The response must elicit necessary functional and audience details."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"To plan an effective system dashboard, I need more specific information about what the system does and who will be using this dashboard. Could you please provide details on the primary goals of the dashboard (e.g., monitoring performance, tracking user activity, visualizing key metrics), the main users (e.g., administrators, end-users, executives), and any existing data sources or critical KPIs that must be displayed?\", \"next_action\": \"Gather detailed requirements regarding system function, target audience, and necessary Key Performance Indicators (KPIs) to structure the dashboard plan.\", \"questions\": [\"What is the primary purpose of this dashboard (e.g., monitoring health, tracking usage, reporting outcomes)?\", \"Who are the primary users of this dashboard (e.g., technical staff, management, general users)?\", \"Are there any specific metrics or data points that absolutely must be visible on the initial version?\"], \"handoff\": \"Need system context/requirements gathering from user.\", \"rationale\": \"The source brief is too vague ('Plan a dashboard for the system') to generate an actionable plan. The response must elicit necessary functional and audience details.\"}",
+    "usage": {
+      "prompt_tokens": 294,
+      "completion_tokens": 238,
+      "total_tokens": 532,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "386247aa2c01436dd58867fc340abe97ca1fbdc894da88c412386b717edf9832",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

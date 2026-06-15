@@ -1,0 +1,57 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "vague-system-dashboard",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:57245/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "82eb563bb76d3cbd1c8c7f48ea13ad33e93678773dfef1f9fc803821495d337d",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-13T21:50:36.386Z",
+  "duration_ms": 11232,
+  "output_valid": false,
+  "parse_error": "Unterminated string in JSON at position 658 (line 1 column 659)",
+  "usage": {
+    "prompt_tokens": 8072,
+    "completion_tokens": 120,
+    "total_tokens": 8192,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "5c6fe3422dffe4eab58a201ff09f452c353895f9fdb538222117f4fa950eb814",
+  "prompt_sha256": "0c5ed12bd2f659363c77fa867f5bcaab99268d2bbfce7ce500610b2ecfa73dab",
+  "mcp_context_sha256": "11fa5e0e16ee790dff53bd69f896f191e22e35bf2cd8270fa02345a1b2fd1fa2",
+  "raw_response_sha256": "b04a7851837c4570fcd2e33a0a9b1318eeb4aedde4dd006f8c4bd8c74b3de7f3",
+  "raw_response": "{\"response\": \"The initial analysis indicates that the request, \\\"Plan a dashboard for the system,\\\" is too vague to generate a concrete UI plan. The subsequent tool calls confirmed this by identifying missing core components: activity/goal definition, specific decision points, and required outcomes. The recommended surface type is 'operator_review' (suggesting review of produced work), but this recommendation is currently blocked because the underlying *activity* that requires reviewing has not been defined.\\n\\nThe next step must be to gather sufficient context from the user to define the core activity model before proceeding with surface or workflow",
+  "parsed": null,
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The initial analysis indicates that the request, \\\"Plan a dashboard for the system,\\\" is too vague to generate a concrete UI plan. The subsequent tool calls confirmed this by identifying missing core components: activity/goal definition, specific decision points, and required outcomes. The recommended surface type is 'operator_review' (suggesting review of produced work), but this recommendation is currently blocked because the underlying *activity* that requires reviewing has not been defined.\\n\\nThe next step must be to gather sufficient context from the user to define the core activity model before proceeding with surface or workflow",
+    "usage": {
+      "prompt_tokens": 8072,
+      "completion_tokens": 120,
+      "total_tokens": 8192,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "139ba91dc858413d0d8d5956f76d66bfeb9da6733e56ebf7a3e67a67c90d2286",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

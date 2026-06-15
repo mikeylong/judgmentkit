@@ -1,0 +1,49 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "invented-activity-candidate",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "review_activity_model_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "6817d6e84f14c4a8b9343052e112f8824eec9a2df85a7dd86d414a28b677b797",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T01:56:41.123Z",
+  "duration_ms": 51022,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "1759018e00ce9b30728dc2d01e44ff0a83f7bcd2c264b0b6abb75b7971882fd9",
+  "prompt_sha256": "f1f771cd6de4ad488805254b4da9f7409bf720e27afa4676208de8048404154f",
+  "mcp_context_sha256": "5cadfe7348aa8788ce2966a508b9dbe77335d688f90f7361d54217d2ea492af0",
+  "raw_response_sha256": "601d9fb60e8b1823b7f040b0d1f38af6e4b5fce7248763e4dfeabc57f0ed8858",
+  "raw_response": "{\"response\":\"Reject the candidate. It does not preserve the support refund triage activity: it changes the worker role, replaces refund-request review with an unrelated financial optimization workflow, and loses the required routing decisions of approve, send to policy review, or return for missing evidence.\",\"next_action\":\"Discard the candidate and rebuild the activity model from the refund triage brief. Anchor it on the support lead's daily review, the evidence needed to make a decision, the three allowed outcomes, and a completion state that shows each request has either been approved, routed for policy review, or returned for missing evidence.\",\"questions\":[\"What should the support lead leave each daily triage pass knowing or having done: completed decisions on all reviewed refund requests, a prioritized exception queue, or documented follow-up requests for missing evidence?\"],\"handoff\":\"Decision: reject; Owner: next agent; Action: rebuild around support-led refund triage; Reason: candidate invents a different workflow; Evidence gap: confirm the intended completion state for a triage pass; Required fix: use refund, policy review, evidence, and request-routing language; Verification: every primary decision maps to approve, policy review, or return for missing evidence.\",\"rationale\":\"The source brief is about operational support triage, not financial optimization. Trusting this candidate would route the design around the wrong participant, wrong objective, wrong vocabulary, and wrong completion signal.\"}",
+  "parsed": {
+    "response": "Reject the candidate. It does not preserve the support refund triage activity: it changes the worker role, replaces refund-request review with an unrelated financial optimization workflow, and loses the required routing decisions of approve, send to policy review, or return for missing evidence.",
+    "next_action": "Discard the candidate and rebuild the activity model from the refund triage brief. Anchor it on the support lead's daily review, the evidence needed to make a decision, the three allowed outcomes, and a completion state that shows each request has either been approved, routed for policy review, or returned for missing evidence.",
+    "questions": [
+      "What should the support lead leave each daily triage pass knowing or having done: completed decisions on all reviewed refund requests, a prioritized exception queue, or documented follow-up requests for missing evidence?"
+    ],
+    "handoff": "Decision: reject; Owner: next agent; Action: rebuild around support-led refund triage; Reason: candidate invents a different workflow; Evidence gap: confirm the intended completion state for a triage pass; Required fix: use refund, policy review, evidence, and request-routing language; Verification: every primary decision maps to approve, policy review, or return for missing evidence.",
+    "rationale": "The source brief is about operational support triage, not financial optimization. Trusting this candidate would route the design around the wrong participant, wrong objective, wrong vocabulary, and wrong completion signal."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "73e540af1493738f2b4bcec49c2d614cce8b8b96a71404b988d4e6eeba6967c9",
+    "stderr_sha256": "cbedef6d04e4a204f5128565743a2719d457ceeca39ec668e433cfe0534813a0",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

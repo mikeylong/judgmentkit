@@ -1,0 +1,88 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "review-queue-without-decision",
+  "title": "Review queue without decision",
+  "case_type": "missing_context_restraint",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T05:55:34.933Z",
+  "duration_ms": 52970,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "a1cfb117e26e7d2ef9a41585be6579b1dbdc8c7829f06532b447264971b6a50b",
+  "raw_response_sha256": "c957d7350d496ae4b7808109bcb5b5d6356a98fdcfa83db65a0d93e2a296d7db",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"high\",\"rationale\":\"Output B is better because it identifies the core missing context: what decision or next action the review queue is meant to support. Output A is restrained and valid, but it shifts the clarification toward scanability mechanics and UI patterns before establishing the activity outcome, which is the expected next move in this case. Output B has flaws, especially the invented Product Manager owner and the phrase \\\"diagnostic context,\\\" but its questions would better guide the downstream agent.\",\"decisive_differences\":[\"Output B asks directly about the decision or next action the queue should support, matching the expected next action.\",\"Output A focuses on visual grouping, sorting, filtering, and examples of scanability, which are premature without knowing the review decision.\",\"Output B's handoff is more operational about the evidence gap, though it weakens itself by inventing an owner.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Could you clarify what 'easy to scan' means in this context?\",\"why_it_matters\":\"This is relevant but not the central missing context; scanability should follow from the review decision.\"},{\"output\":\"output_a\",\"quote\":\"What are the primary dimensions (e.g., priority, type, age) that users need to use to quickly filter or group items\",\"why_it_matters\":\"This assumes queue dimensions before establishing what users are deciding or doing.\"},{\"output\":\"output_b\",\"quote\":\"What specific decision or next action should the interface make easier for the user when viewing items in the review queue?\",\"why_it_matters\":\"This directly asks the expected targeted question and anchors the next agent move in activity fit.\"},{\"output\":\"output_b\",\"quote\":\"Owner: Product Manager\",\"why_it_matters\":\"This is invented workflow detail not grounded in the brief, so it should be penalized even though Output B still wins.\"}],\"output_a_quality\":{\"score\":5.5,\"strengths\":[\"Valid structure with response, next_action, questions, handoff, and rationale.\",\"Restrained in not accepting the vague brief as sufficient.\",\"Questions are somewhat relevant to making a queue scannable.\"],\"risks\":[\"Misses the expected core question about what decision the review queue supports.\",\"Prematurely asks about UI mechanics and examples.\",\"Handoff frames the gap as scanability preference rather than activity outcome.\"]},\"output_b_quality\":{\"score\":7,\"strengths\":[\"Directly asks what decision or next action the queue should make easier.\",\"Connects the brief to user outcome and end state rather than visual polish.\",\"Provides a usable evidence-gap handoff.\"],\"risks\":[\"Invents an owner not present in the source.\",\"References \\\"diagnostic context,\\\" which feels like internal leakage.\",\"Response is slightly wordy and could be more restrained.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "high",
+    "rationale": "Output B is better because it identifies the core missing context: what decision or next action the review queue is meant to support. Output A is restrained and valid, but it shifts the clarification toward scanability mechanics and UI patterns before establishing the activity outcome, which is the expected next move in this case. Output B has flaws, especially the invented Product Manager owner and the phrase \"diagnostic context,\" but its questions would better guide the downstream agent.",
+    "decisive_differences": [
+      "Output B asks directly about the decision or next action the queue should support, matching the expected next action.",
+      "Output A focuses on visual grouping, sorting, filtering, and examples of scanability, which are premature without knowing the review decision.",
+      "Output B's handoff is more operational about the evidence gap, though it weakens itself by inventing an owner."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Could you clarify what 'easy to scan' means in this context?",
+        "why_it_matters": "This is relevant but not the central missing context; scanability should follow from the review decision."
+      },
+      {
+        "output": "output_a",
+        "quote": "What are the primary dimensions (e.g., priority, type, age) that users need to use to quickly filter or group items",
+        "why_it_matters": "This assumes queue dimensions before establishing what users are deciding or doing."
+      },
+      {
+        "output": "output_b",
+        "quote": "What specific decision or next action should the interface make easier for the user when viewing items in the review queue?",
+        "why_it_matters": "This directly asks the expected targeted question and anchors the next agent move in activity fit."
+      },
+      {
+        "output": "output_b",
+        "quote": "Owner: Product Manager",
+        "why_it_matters": "This is invented workflow detail not grounded in the brief, so it should be penalized even though Output B still wins."
+      }
+    ],
+    "output_a_quality": {
+      "score": 5.5,
+      "strengths": [
+        "Valid structure with response, next_action, questions, handoff, and rationale.",
+        "Restrained in not accepting the vague brief as sufficient.",
+        "Questions are somewhat relevant to making a queue scannable."
+      ],
+      "risks": [
+        "Misses the expected core question about what decision the review queue supports.",
+        "Prematurely asks about UI mechanics and examples.",
+        "Handoff frames the gap as scanability preference rather than activity outcome."
+      ]
+    },
+    "output_b_quality": {
+      "score": 7,
+      "strengths": [
+        "Directly asks what decision or next action the queue should make easier.",
+        "Connects the brief to user outcome and end state rather than visual polish.",
+        "Provides a usable evidence-gap handoff."
+      ],
+      "risks": [
+        "Invents an owner not present in the source.",
+        "References \"diagnostic context,\" which feels like internal leakage.",
+        "Response is slightly wordy and could be more restrained."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "83e5803db6134cdf57f5d186a305f792aab9c884a2e05801e86365a8960355a7",
+    "stderr_sha256": "38da08007963ab6193f601e96d528a186db7f443391c1b91773348abcab98e03",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

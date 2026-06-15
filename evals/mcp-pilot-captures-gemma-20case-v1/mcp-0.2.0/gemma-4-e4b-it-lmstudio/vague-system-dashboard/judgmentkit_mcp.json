@@ -1,0 +1,67 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "vague-system-dashboard",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "52f6acb1877aaadd8c2fbbf832b49233b37249818a582affec89822a40f3af38",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:46:28.752Z",
+  "duration_ms": 4212,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 703,
+    "completion_tokens": 229,
+    "total_tokens": 932,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "2f4e7f79d351fc7004944beffb7ad5ecc85e9e016a8368e7bf1f54304c4f10e4",
+  "prompt_sha256": "6b0778d50e269f259a4a1151fe68087fc20267577c84c2d8f8c6e8ef018a72f0",
+  "mcp_context_sha256": "9283da989f0938d16c1f9cfd1950ec1ed666833c8beed0d86e7ca0c802e6d5b2",
+  "raw_response_sha256": "871b802056008e1d4392e897f1e5c035cf1956b3b391fb563e50269093845bf0",
+  "raw_response": "{\"response\": \"To plan an effective dashboard, I need more specific details about the system's purpose and the user's goals. The current request is too general.\", \"next_action\": \"Ask targeted questions to define scope and objective.\", \"questions\": [\"What core activity should this dashboard support? (e.g., monitoring status, initiating a process, reviewing exceptions)\", \"What key decision or next action do users need the dashboard to facilitate?\", \"What specific information must the user be able to see or know after viewing this dashboard?\"], \"handoff\": \"Owner: User/Requester; Evidence Gap: Specific functional requirements for the dashboard; Required Fix: Provide details on the primary activity, desired decisions, and necessary outcomes for the system dashboard.\"\n  , \"rationale\": \"The source brief is too vague ('Plan a dashboard'). The diagnostic context indicates that the initial step requires understanding the underlying activity model. Therefore, the next action must be to gather targeted information regarding the user's goals, decision points, and desired knowledge state, as guided by the required inputs for creating an activity model review.\"}",
+  "parsed": {
+    "response": "To plan an effective dashboard, I need more specific details about the system's purpose and the user's goals. The current request is too general.",
+    "next_action": "Ask targeted questions to define scope and objective.",
+    "questions": [
+      "What core activity should this dashboard support? (e.g., monitoring status, initiating a process, reviewing exceptions)",
+      "What key decision or next action do users need the dashboard to facilitate?",
+      "What specific information must the user be able to see or know after viewing this dashboard?"
+    ],
+    "handoff": "Owner: User/Requester; Evidence Gap: Specific functional requirements for the dashboard; Required Fix: Provide details on the primary activity, desired decisions, and necessary outcomes for the system dashboard.",
+    "rationale": "The source brief is too vague ('Plan a dashboard'). The diagnostic context indicates that the initial step requires understanding the underlying activity model. Therefore, the next action must be to gather targeted information regarding the user's goals, decision points, and desired knowledge state, as guided by the required inputs for creating an activity model review."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"To plan an effective dashboard, I need more specific details about the system's purpose and the user's goals. The current request is too general.\", \"next_action\": \"Ask targeted questions to define scope and objective.\", \"questions\": [\"What core activity should this dashboard support? (e.g., monitoring status, initiating a process, reviewing exceptions)\", \"What key decision or next action do users need the dashboard to facilitate?\", \"What specific information must the user be able to see or know after viewing this dashboard?\"], \"handoff\": \"Owner: User/Requester; Evidence Gap: Specific functional requirements for the dashboard; Required Fix: Provide details on the primary activity, desired decisions, and necessary outcomes for the system dashboard.\"\n  , \"rationale\": \"The source brief is too vague ('Plan a dashboard'). The diagnostic context indicates that the initial step requires understanding the underlying activity model. Therefore, the next action must be to gather targeted information regarding the user's goals, decision points, and desired knowledge state, as guided by the required inputs for creating an activity model review.\"}",
+    "usage": {
+      "prompt_tokens": 703,
+      "completion_tokens": 229,
+      "total_tokens": 932,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "a204af498e608111ded160c3904a8b5c953825b42bfbf52a63eb228957c49bc3",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

@@ -41,7 +41,7 @@ const OLD_FRAMING = [
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-site-"));
 const result = await buildSite(tempDir);
 
-assert.deepEqual(result.routes, ["/", "/docs/", "/examples/", "/evals/", "/evals/judgmentkit-mcp/", "/install", "/mcp"]);
+assert.deepEqual(result.routes, ["/", "/value/", "/docs/", "/examples/", "/evals/", "/evals/judgmentkit-mcp/", "/install", "/mcp"]);
 
 function assertAnalyticsBootstrap(html, label) {
   assert.ok(html.includes("window.va = window.va || function"), `${label} should initialize Vercel Analytics queue`);
@@ -85,10 +85,27 @@ assert.match(
 assert.equal(systemMapFlowSource.includes('id: "with-design-system"'), false);
 assert.ok(platformNavMarkup.includes('<a class="surfaces-navigation-identifier" href="/">JudgmentKit</a>'));
 assert.ok(platformNavMarkup.includes('<div class="surfaces-navigation-sections" aria-label="Primary">'));
+assert.ok(platformNavMarkup.includes('href="/value/"'));
 assert.ok(platformNavMarkup.includes('href="/docs/"'));
 assert.ok(platformNavMarkup.includes('href="/examples/"'));
 assert.ok(platformNavMarkup.includes('href="/evals/"'));
 assert.ok(platformNavMarkup.includes('href="/mcp"'));
+assert.ok(platformNavMarkup.includes('class="surfaces-primary-menu-button"'));
+assert.ok(platformNavMarkup.includes('aria-label="Open primary navigation"'));
+assert.ok(platformNavMarkup.includes('aria-controls="surfaces-primary-menu"'));
+assert.ok(platformNavMarkup.includes('data-surfaces-primary-menu-button'));
+assert.ok(platformNavMarkup.includes('data-surfaces-primary-menu-backdrop'));
+assert.ok(platformNavMarkup.includes('id="surfaces-primary-menu" role="menu"'));
+assert.ok(platformNavMarkup.includes('data-surfaces-primary-menu-list'));
+for (const [href, label] of [
+  ["/value/", "Value"],
+  ["/docs/", "Docs"],
+  ["/examples/", "Examples"],
+  ["/evals/", "Evals"],
+  ["/mcp", "MCP"],
+]) {
+  assert.ok(platformNavMarkup.includes(`<a href="${href}" role="menuitem">${label}</a>`));
+}
 assert.ok(platformNavMarkup.includes('class="surfaces-system-switch-button"'));
 assert.ok(platformNavMarkup.includes('aria-haspopup="menu"'));
 assert.ok(platformNavMarkup.includes('data-surfaces-system-menu-button'));
@@ -104,14 +121,24 @@ assert.ok(platformNavMarkup.includes("Embedded MCP judgment for live design deci
 assert.equal(platformNavMarkup.includes("target="), false);
 assert.equal(platformNavMarkup.includes("rel="), false);
 assert.equal(platformNavMarkup.includes("pop-out"), false);
+assert.ok(siteCss.includes(".surfaces-primary-menu"));
+assert.ok(siteCss.includes(".surfaces-primary-menu-button"));
+assert.ok(siteCss.includes(".surfaces-primary-menu-list"));
+assert.ok(siteCss.includes("@media (max-width: 1120px) and (min-width: 768px)"));
+assert.ok(siteCss.includes("@media (max-width: 767px)"));
+assert.ok(siteCss.includes(".surfaces-navigation-sections {\n    display: none;"));
+assert.ok(siteCss.includes(".surfaces-primary-menu {\n    display: block;"));
+assert.ok(siteCss.includes("@media (max-width: 359px)"));
+assert.ok(homepage.includes("[data-surfaces-primary-menu-button]"));
 assert.ok(homepage.includes("[data-surfaces-system-menu-button]"));
 assert.ok(homepage.includes("Judgment before generation."));
-assert.ok(homepage.includes("implementation mechanics from becoming UX"));
-assert.ok(homepage.includes("Use it before accepting AI-generated product work"));
+assert.ok(homepage.includes("JudgmentKit catches when AI-generated UI turns implementation mechanics into UX"));
+assert.ok(homepage.includes('href="/value/"'));
 assert.ok(homepage.includes('href="/evals/"'));
 assert.ok(homepage.includes('class="hero-actions" aria-label="Primary proof paths"'));
-assert.ok(homepage.includes('class="hero-action hero-action-primary" data-hero-action="primary" href="/examples/"'));
-assert.ok(homepage.includes('class="hero-action hero-action-secondary" data-hero-action="secondary" href="/evals/"'));
+assert.ok(homepage.includes('class="hero-action hero-action-primary" data-hero-action="primary" href="/value/"'));
+assert.ok(homepage.includes('class="hero-action hero-action-secondary" data-hero-action="secondary" href="/examples/"'));
+assert.ok(homepage.includes('data-hero-action="evidence" href="/evals/"'));
 assert.ok(homepage.includes("Prompt"));
 assert.ok(homepage.includes('class="prompt-evidence" title="Participant"'));
 assert.ok(homepage.includes('class="prompt-evidence" title="Objective and activity"'));
@@ -185,6 +212,7 @@ assert.ok(homepage.includes('name="twitter:card" content="summary_large_image"')
 assert.ok(homepage.includes('name="twitter:image" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20260611.png"'));
 assert.ok(homepage.includes('name="twitter:image:alt" content="JudgmentKit. Before the UI."'));
 assert.ok(llms.includes("- /evals/judgmentkit-mcp/"));
+assert.ok(llms.includes("- /value/"));
 assertAnalyticsBootstrap(homepage, "homepage");
 
 for (const forbidden of OLD_FRAMING) {
@@ -264,6 +292,42 @@ assert.ok(docs.includes("not the final UI renderer"));
 assert.equal(docs.includes("optional styling path"), false);
 assert.ok(docs.includes("operator-review-ui"));
 assert.equal(docs.includes("judgmentkit2"), false);
+
+const value = fs.readFileSync(path.join(tempDir, "value", "index.html"), "utf8");
+const valuePrimaryStory = value
+  .split('<section class="section value-page">')[1]
+  .split('<section class="value-evidence"')[0];
+assertAnalyticsBootstrap(value, "value");
+assert.ok(value.includes("What JudgmentKit Prevents"));
+assert.ok(value.includes("What JudgmentKit prevents"));
+assert.ok(value.includes("JudgmentKit catches when AI-generated UI turns implementation mechanics into UX"));
+assert.ok(value.includes("Install JudgmentKit"));
+assert.ok(value.includes('href="/install"'));
+assert.ok(value.includes("Implementation language leak"));
+assert.ok(value.includes("Internal objects stop becoming the product surface."));
+assert.ok(value.includes("Unsafe action boundary"));
+assert.ok(value.includes("Approval work gets a human decision point."));
+assert.ok(value.includes("Missing accessibility evidence"));
+assert.ok(value.includes("Claims are not accepted without evidence."));
+assert.ok(value.includes("Baseline failure"));
+assert.ok(value.includes("JudgmentKit catches"));
+assert.ok(value.includes("Repaired outcome"));
+assert.ok(value.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-no-judgmentkit.png"));
+assert.ok(value.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-with-judgmentkit.png"));
+assert.ok(value.includes("Public evaluation report"));
+assert.ok(value.includes("Latest MCP pilot report"));
+assert.ok(value.includes("/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-004/mcp-pilot-report.html"));
+assert.ok(value.includes("Latest LLM evidence"));
+assert.ok(value.includes("/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-004/mcp-pilot-llm-evidence.md"));
+assert.ok(value.includes("Milestone proof packet"));
+assert.ok(value.includes("/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-evidence-packet.md"));
+assert.equal(value.includes("/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-report.html"), false);
+assert.ok(value.includes("/examples/one-shot-demo.html"));
+assert.equal(valuePrimaryStory.includes("MCP"), false);
+assert.ok(siteCss.includes(".value-page"));
+assert.ok(siteCss.includes(".value-case"));
+assert.ok(siteCss.includes(".value-screenshot-pair"));
+assert.ok(siteCss.includes(".value-receipt"));
 
 const examples = fs.readFileSync(path.join(tempDir, "examples", "index.html"), "utf8");
 const experimentRoute = "/experiments/netflix-library";

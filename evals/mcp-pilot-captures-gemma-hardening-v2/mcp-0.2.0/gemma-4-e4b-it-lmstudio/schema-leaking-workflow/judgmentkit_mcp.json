@@ -1,0 +1,64 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "schema-leaking-workflow",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:52592/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "4033b1ca58c32471e068c564a960f8fedc67f3303fe129c2fa60d1f732951cf9",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:47:27.679Z",
+  "duration_ms": 5452,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 873,
+    "completion_tokens": 183,
+    "total_tokens": 1056,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "631015325dc7c23846575bda9d953ba7c63bffb36009f17f57748ef9a59464dd",
+  "prompt_sha256": "6cda9bdcabb380051e005adff2456b855b3825d2c55050d53c3997f101afccdd",
+  "mcp_context_sha256": "cc3acd6352173a6085b52217afd6d564fc9869e32164582e0a542dedfd8da93c",
+  "raw_response_sha256": "75d512d6ec7df6d3de960de71ac89e17720b3b9b834c0b8afaf220f09a6ce33d",
+  "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Re-evaluate based on source domain language.\", \"questions\": [\"What should the user leave the surface knowing or having done?\", \"Which implementation terms in the workflow candidate should move to diagnostics or be translated?\"], \"handoff\": \"Owner: Developer; Evidence Gap: The candidate uses technical implementation details (e.g., JSON schema, database field) instead of process-oriented language related to refund triage decisions (approve, policy review, return for missing evidence). Required Fix: Rewrite the workflow and UI elements using terminology directly from the source brief's domain context.\", \"rationale\": \"The candidate fixture describes a technical interface for managing data structures (JSON schema, database fields) rather than modeling the support lead's decision-making process described in the source brief (reviewing requests to decide on approval, policy review, or return).\"}",
+  "parsed": {
+    "response": "Reject",
+    "next_action": "Re-evaluate based on source domain language.",
+    "questions": [
+      "What should the user leave the surface knowing or having done?",
+      "Which implementation terms in the workflow candidate should move to diagnostics or be translated?"
+    ],
+    "handoff": "Owner: Developer; Evidence Gap: The candidate uses technical implementation details (e.g., JSON schema, database field) instead of process-oriented language related to refund triage decisions (approve, policy review, return for missing evidence). Required Fix: Rewrite the workflow and UI elements using terminology directly from the source brief's domain context.",
+    "rationale": "The candidate fixture describes a technical interface for managing data structures (JSON schema, database fields) rather than modeling the support lead's decision-making process described in the source brief (reviewing requests to decide on approval, policy review, or return)."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Re-evaluate based on source domain language.\", \"questions\": [\"What should the user leave the surface knowing or having done?\", \"Which implementation terms in the workflow candidate should move to diagnostics or be translated?\"], \"handoff\": \"Owner: Developer; Evidence Gap: The candidate uses technical implementation details (e.g., JSON schema, database field) instead of process-oriented language related to refund triage decisions (approve, policy review, return for missing evidence). Required Fix: Rewrite the workflow and UI elements using terminology directly from the source brief's domain context.\", \"rationale\": \"The candidate fixture describes a technical interface for managing data structures (JSON schema, database fields) rather than modeling the support lead's decision-making process described in the source brief (reviewing requests to decide on approval, policy review, or return).\"}",
+    "usage": {
+      "prompt_tokens": 873,
+      "completion_tokens": 183,
+      "total_tokens": 1056,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "23056e8e7798a938ca54ffab7300c77acf0f6b7b3516fd8dc1e4f3dd56bc1d89",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

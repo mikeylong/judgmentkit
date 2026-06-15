@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "visual-token-unsupported-family-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54314/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "d638692d996b73e8b2ee10b22a55db8331c1ce00aedd6584fca88a12ac050a59",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:45:46.943Z",
+  "duration_ms": 3649,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1195,
+    "completion_tokens": 124,
+    "total_tokens": 1319,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "3e237ec128a20f4199d7fa65253cc6b1794372acbe1a516e364763034618c915",
+  "prompt_sha256": "62638953666bcfe95b5eaf1b4bad1e12cc5381a0e78ba781ad7b11f552c72dfe",
+  "mcp_context_sha256": "ac3aaf4d6bdca28f538e40d99832e9211abdfb6fe48bd8b4a5288d8d71142075",
+  "raw_response_sha256": "15524cd49fc07b39e44e91d3de2a6e41e446e2d8537f7c5d5b1d377ecc39cd3f",
+  "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Repair and resubmit based on guidance.\", \"questions\": [], \"handoff\": \"Owner: Implementation Team; Action: Repair visual token evidence; Reason: The submitted evidence includes an unsupported texture family outside the boundary adapter. Fix: Limit visual token evidence to supported families, avoiding renderer/component/catalog/compiler work, and do not use tokens as a substitute for required implementation gates.\", \"rationale\": \"The implementation fails because the visual token evidence contains an unsupported texture family that falls outside the defined boundary adapter, as indicated by the diagnostic context.\"}",
+  "parsed": {
+    "response": "Reject",
+    "next_action": "Repair and resubmit based on guidance.",
+    "questions": [],
+    "handoff": "Owner: Implementation Team; Action: Repair visual token evidence; Reason: The submitted evidence includes an unsupported texture family outside the boundary adapter. Fix: Limit visual token evidence to supported families, avoiding renderer/component/catalog/compiler work, and do not use tokens as a substitute for required implementation gates.",
+    "rationale": "The implementation fails because the visual token evidence contains an unsupported texture family that falls outside the defined boundary adapter, as indicated by the diagnostic context."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Repair and resubmit based on guidance.\", \"questions\": [], \"handoff\": \"Owner: Implementation Team; Action: Repair visual token evidence; Reason: The submitted evidence includes an unsupported texture family outside the boundary adapter. Fix: Limit visual token evidence to supported families, avoiding renderer/component/catalog/compiler work, and do not use tokens as a substitute for required implementation gates.\", \"rationale\": \"The implementation fails because the visual token evidence contains an unsupported texture family that falls outside the defined boundary adapter, as indicated by the diagnostic context.\"}",
+    "usage": {
+      "prompt_tokens": 1195,
+      "completion_tokens": 124,
+      "total_tokens": 1319,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "dea50d8e564fa7bb946bbc7530e8d6183dfd87e9bc2ef6a782f9883b1b7c828c",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

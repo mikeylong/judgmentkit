@@ -1,0 +1,66 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "refund-schema-admin-translation",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51706/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "59b617e73e1e2aec08fd2a933bc598a7ebeea3c50f6c46406823e4f6b77437ad",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T19:42:53.533Z",
+  "duration_ms": 3696,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 749,
+    "completion_tokens": 201,
+    "total_tokens": 950,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "012c72a18f4308c295e39c06df6eb795e432172e12a9bb3876206cb2cc2ecb47",
+  "prompt_sha256": "0a84b6a8e567b58da0337e5527f2d2375296bf781357c0248a94539133b05a86",
+  "mcp_context_sha256": "584efad7f0bbea1b4746d5e1a1c39cf56a50f12d58c251d3711f2c44c78d1f79",
+  "raw_response_sha256": "0ca08080af565dbbc1a695be0eb38cba8da83ce625acc83389ca4f233c8c0573",
+  "raw_response": "{\"response\": \"The next steps require clarifying the desired user outcome and distinguishing between diagnostic implementation details and domain-facing information for the activity model review. Additionally, while a surface type was recommended, further context is needed to finalize the UI workflow profile.\", \"next_action\": \"Gather missing source context regarding user knowledge/actions and implementation detail classification.\", \"questions\": [\"What should the user leave the surface knowing or having done?\", \"Which detected implementation details are diagnostic only, and which should be translated into domain language?\"], \"handoff\": \"Action: Gather Missing Context; Owner: Product Designer; Reason: The initial activity model review tool call requires clarification on desired user outcomes and source context translation before proceeding with UI design.\", \"rationale\": \"The process is blocked because the 'create_activity_model_review' step explicitly reported needing source context regarding user knowledge/actions and implementation detail classification. This information is critical for accurately modeling the support lead's decision-making flow.\"}",
+  "parsed": {
+    "response": "The next steps require clarifying the desired user outcome and distinguishing between diagnostic implementation details and domain-facing information for the activity model review. Additionally, while a surface type was recommended, further context is needed to finalize the UI workflow profile.",
+    "next_action": "Gather missing source context regarding user knowledge/actions and implementation detail classification.",
+    "questions": [
+      "What should the user leave the surface knowing or having done?",
+      "Which detected implementation details are diagnostic only, and which should be translated into domain language?"
+    ],
+    "handoff": "Action: Gather Missing Context; Owner: Product Designer; Reason: The initial activity model review tool call requires clarification on desired user outcomes and source context translation before proceeding with UI design.",
+    "rationale": "The process is blocked because the 'create_activity_model_review' step explicitly reported needing source context regarding user knowledge/actions and implementation detail classification. This information is critical for accurately modeling the support lead's decision-making flow."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The next steps require clarifying the desired user outcome and distinguishing between diagnostic implementation details and domain-facing information for the activity model review. Additionally, while a surface type was recommended, further context is needed to finalize the UI workflow profile.\", \"next_action\": \"Gather missing source context regarding user knowledge/actions and implementation detail classification.\", \"questions\": [\"What should the user leave the surface knowing or having done?\", \"Which detected implementation details are diagnostic only, and which should be translated into domain language?\"], \"handoff\": \"Action: Gather Missing Context; Owner: Product Designer; Reason: The initial activity model review tool call requires clarification on desired user outcomes and source context translation before proceeding with UI design.\", \"rationale\": \"The process is blocked because the 'create_activity_model_review' step explicitly reported needing source context regarding user knowledge/actions and implementation detail classification. This information is critical for accurately modeling the support lead's decision-making flow.\"}",
+    "usage": {
+      "prompt_tokens": 749,
+      "completion_tokens": 201,
+      "total_tokens": 950,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "7b07422dd7c07e5843760b2aa19a5054a69a81c103735802ab28efa4991af3a2",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

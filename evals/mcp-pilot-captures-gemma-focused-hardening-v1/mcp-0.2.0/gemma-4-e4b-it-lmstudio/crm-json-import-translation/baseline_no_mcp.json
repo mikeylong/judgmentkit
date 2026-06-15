@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "crm-json-import-translation",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:53462/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:27:47.076Z",
+  "duration_ms": 13705,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 244,
+    "completion_tokens": 242,
+    "total_tokens": 486,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "10ad1fa1071ec93ee27c7f2159bb755c4513990ac784c80c3daa4cdeef357883",
+  "prompt_sha256": "fe44956c1e321b4f8aca61f107f9f6ca20adce1530e8317df3112f19c6a1a8c4",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "d5fb263d1bce00bffbd16d6839ee85de0e2302e555f596a9309bc49c17bedd14",
+  "raw_response": "{\"response\": \"The agent needs to guide the user through a multi-step review process for the JSON import. First, present the overall summary of records (Accepted, Needs Fixes, Rejected). Second, allow the user to drill down into the 'Needs Owner Fixes' section to review specific record errors and make manual corrections or accept/reject them individually. Third, provide a final confirmation step before submitting the corrected payload.\", \"next_action\": \"Present the initial summary dashboard showing counts for Accepted, Needs Fixes, and Rejected records. Prompt the user to click on 'Needs Owner Fixes' to begin remediation.\", \"questions\": [\"What is the expected format or interaction model for reviewing individual record errors (e.g., inline editing, modal pop-up)?\", \"Are there any specific business rules that dictate when a record should be automatically rejected versus flagged for owner review?\"], \"handoff\": \"Need clarification on the required workflow steps for error remediation and final submission confirmation.\", \"rationale\": \"The source brief outlines three distinct user decisions: accepting records, fixing errors, and summarizing. The next logical step is to present the initial triage view that facilitates these decisions sequentially.\"}",
+  "parsed": {
+    "response": "The agent needs to guide the user through a multi-step review process for the JSON import. First, present the overall summary of records (Accepted, Needs Fixes, Rejected). Second, allow the user to drill down into the 'Needs Owner Fixes' section to review specific record errors and make manual corrections or accept/reject them individually. Third, provide a final confirmation step before submitting the corrected payload.",
+    "next_action": "Present the initial summary dashboard showing counts for Accepted, Needs Fixes, and Rejected records. Prompt the user to click on 'Needs Owner Fixes' to begin remediation.",
+    "questions": [
+      "What is the expected format or interaction model for reviewing individual record errors (e.g., inline editing, modal pop-up)?",
+      "Are there any specific business rules that dictate when a record should be automatically rejected versus flagged for owner review?"
+    ],
+    "handoff": "Need clarification on the required workflow steps for error remediation and final submission confirmation.",
+    "rationale": "The source brief outlines three distinct user decisions: accepting records, fixing errors, and summarizing. The next logical step is to present the initial triage view that facilitates these decisions sequentially."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent needs to guide the user through a multi-step review process for the JSON import. First, present the overall summary of records (Accepted, Needs Fixes, Rejected). Second, allow the user to drill down into the 'Needs Owner Fixes' section to review specific record errors and make manual corrections or accept/reject them individually. Third, provide a final confirmation step before submitting the corrected payload.\", \"next_action\": \"Present the initial summary dashboard showing counts for Accepted, Needs Fixes, and Rejected records. Prompt the user to click on 'Needs Owner Fixes' to begin remediation.\", \"questions\": [\"What is the expected format or interaction model for reviewing individual record errors (e.g., inline editing, modal pop-up)?\", \"Are there any specific business rules that dictate when a record should be automatically rejected versus flagged for owner review?\"], \"handoff\": \"Need clarification on the required workflow steps for error remediation and final submission confirmation.\", \"rationale\": \"The source brief outlines three distinct user decisions: accepting records, fixing errors, and summarizing. The next logical step is to present the initial triage view that facilitates these decisions sequentially.\"}",
+    "usage": {
+      "prompt_tokens": 244,
+      "completion_tokens": 242,
+      "total_tokens": 486,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "71acf37f9823a3c534f4ebbffaff83203aad31948ce6ec4b1d8b8c5ba3119725",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

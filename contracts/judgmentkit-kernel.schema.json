@@ -257,6 +257,9 @@
         "state_coverage",
         "static_enforcement",
         "browser_qa",
+        "default_ai_native_design_system",
+        "iteration_policy",
+        "visual_token_adapter",
         "visual_asset_policy",
         "accessibility_policy",
         "repo_scaffold_outputs",
@@ -303,6 +306,131 @@
           "properties": {
             "required": { "type": "boolean" },
             "checks": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        "default_ai_native_design_system": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "mode",
+            "purpose",
+            "primitive_defaults",
+            "surface_patterns",
+            "state_rules",
+            "action_boundaries",
+            "data_visibility",
+            "accessibility",
+            "evidence_gates",
+            "adapter_boundary"
+          ],
+          "properties": {
+            "id": { "type": "string" },
+            "mode": { "type": "string" },
+            "purpose": { "type": "string" },
+            "primitive_defaults": { "type": "array", "items": { "type": "string" } },
+            "surface_patterns": { "type": "array", "items": { "type": "string" } },
+            "state_rules": { "type": "array", "items": { "type": "string" } },
+            "action_boundaries": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["required", "risky_action_terms", "failure_signals"],
+              "properties": {
+                "required": { "type": "array", "items": { "type": "string" } },
+                "risky_action_terms": { "type": "array", "items": { "type": "string" } },
+                "failure_signals": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "data_visibility": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "primary_data_roles",
+                "diagnostic_only_terms",
+                "allowed_diagnostic_contexts",
+                "failure_signals"
+              ],
+              "properties": {
+                "primary_data_roles": { "type": "array", "items": { "type": "string" } },
+                "diagnostic_only_terms": { "type": "array", "items": { "type": "string" } },
+                "allowed_diagnostic_contexts": { "type": "array", "items": { "type": "string" } },
+                "failure_signals": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "accessibility": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["baseline", "evidence_source"],
+              "properties": {
+                "baseline": { "type": "string" },
+                "evidence_source": { "type": "string" }
+              }
+            },
+            "evidence_gates": { "type": "array", "items": { "type": "string" } },
+            "adapter_boundary": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["visual_token_adapter", "renderer_package"],
+              "properties": {
+                "visual_token_adapter": { "type": "string" },
+                "renderer_package": { "type": "string" }
+              }
+            }
+          }
+        },
+        "iteration_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "owner",
+            "default_max_attempts",
+            "loop",
+            "pass_status",
+            "failure_statuses",
+            "judgmentkit_role"
+          ],
+          "properties": {
+            "owner": { "type": "string" },
+            "default_max_attempts": { "type": "number", "minimum": 1 },
+            "loop": { "type": "array", "items": { "type": "string" } },
+            "pass_status": { "type": "string" },
+            "failure_statuses": { "type": "array", "items": { "type": "string" } },
+            "judgmentkit_role": { "type": "string" }
+          }
+        },
+        "visual_token_adapter": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "mode",
+            "purpose",
+            "token_families",
+            "semantic_roles",
+            "adapter_rules",
+            "evidence_expectations",
+            "deferred_renderer",
+            "failure_signals"
+          ],
+          "properties": {
+            "id": { "type": "string" },
+            "mode": { "type": "string" },
+            "purpose": { "type": "string" },
+            "token_families": { "type": "array", "items": { "type": "string" } },
+            "semantic_roles": { "type": "array", "items": { "type": "string" } },
+            "adapter_rules": { "type": "array", "items": { "type": "string" } },
+            "evidence_expectations": { "type": "array", "items": { "type": "string" } },
+            "deferred_renderer": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["renderer_package", "component_package", "catalog_compiler"],
+              "properties": {
+                "renderer_package": { "type": "string" },
+                "component_package": { "type": "string" },
+                "catalog_compiler": { "type": "string" }
+              }
+            },
+            "failure_signals": { "type": "array", "items": { "type": "string" } }
           }
         },
         "visual_asset_policy": {

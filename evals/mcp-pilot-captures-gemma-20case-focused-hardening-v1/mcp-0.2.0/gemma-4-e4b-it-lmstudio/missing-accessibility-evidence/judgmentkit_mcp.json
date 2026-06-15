@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "missing-accessibility-evidence",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54314/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "9455addbf7ddbb5e14b5a23f3e9c13bc55abf90da7316aea9416270014b4d767",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:45:11.355Z",
+  "duration_ms": 4456,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1555,
+    "completion_tokens": 153,
+    "total_tokens": 1708,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "0bf9b7deb6564233bed6a891e0c9e693ce3a7a785778db5acdd7ef0bfaf52f60",
+  "prompt_sha256": "6a1ac24c7d614442175790a8c1d1607a9a73566b220f8cf67c11200b9df54f2e",
+  "mcp_context_sha256": "fd14334fb4afe1a96e782dea4dd8ba15de2ce39536aefa425c608a8b1b7c0451",
+  "raw_response_sha256": "ddbbab2e638bfde91c3dc4db9c512be2de42c100a288e5d1151b6a15a9b5378f",
+  "raw_response": "{\"response\": \"reject\", \"next_action\": \"repair_and_resubmit\", \"questions\": [], \"handoff\": \"Decision: Reject original implementation. Reason: The initial submission lacked required accessibility evidence, despite the source brief indicating this is a core requirement for the operator review screen. Required Fix: Provide passing accessibility evidence covering semantic content, landmarks/headings, name/role/value, keyboard navigation, focus order, and focus visible. Verification: Re-submit with all specified accessibility evidence included.\", \"rationale\": \"The initial implementation failed due to missing required accessibility evidence as detailed in the source brief. Although subsequent attempts may have passed, the directive requires rejecting the original submission and mandating a repair based on the first failure state.\"}",
+  "parsed": {
+    "response": "reject",
+    "next_action": "repair_and_resubmit",
+    "questions": [],
+    "handoff": "Decision: Reject original implementation. Reason: The initial submission lacked required accessibility evidence, despite the source brief indicating this is a core requirement for the operator review screen. Required Fix: Provide passing accessibility evidence covering semantic content, landmarks/headings, name/role/value, keyboard navigation, focus order, and focus visible. Verification: Re-submit with all specified accessibility evidence included.",
+    "rationale": "The initial implementation failed due to missing required accessibility evidence as detailed in the source brief. Although subsequent attempts may have passed, the directive requires rejecting the original submission and mandating a repair based on the first failure state."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"reject\", \"next_action\": \"repair_and_resubmit\", \"questions\": [], \"handoff\": \"Decision: Reject original implementation. Reason: The initial submission lacked required accessibility evidence, despite the source brief indicating this is a core requirement for the operator review screen. Required Fix: Provide passing accessibility evidence covering semantic content, landmarks/headings, name/role/value, keyboard navigation, focus order, and focus visible. Verification: Re-submit with all specified accessibility evidence included.\", \"rationale\": \"The initial implementation failed due to missing required accessibility evidence as detailed in the source brief. Although subsequent attempts may have passed, the directive requires rejecting the original submission and mandating a repair based on the first failure state.\"}",
+    "usage": {
+      "prompt_tokens": 1555,
+      "completion_tokens": 153,
+      "total_tokens": 1708,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "715f84d67436b4e95477dd1b79bb7afc5bcac995f88bc3ad81ca8a0839e1f1e8",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

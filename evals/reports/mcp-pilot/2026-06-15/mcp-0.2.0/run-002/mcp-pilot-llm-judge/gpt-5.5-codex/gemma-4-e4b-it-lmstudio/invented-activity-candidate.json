@@ -1,0 +1,96 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "invented-activity-candidate",
+  "title": "Invented activity candidate",
+  "case_type": "candidate_validation",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T05:38:30.465Z",
+  "duration_ms": 49077,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "3394b1df77a571d7e11e9b25a955b8dc5090a0690ec43ab2e6fb20a69d6f7027",
+  "raw_response_sha256": "844906334cd1a45d7c5ba22e16511888a432678ad9bb6a01c1b7d69a296f2b27",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"high\",\"rationale\":\"Output B better supports the expected next move: reject the ungrounded candidate and request a source-aligned replacement. Output A identifies the mismatch, but weakens the judgment by asking for clarification and framing the handoff as needing clarification despite the source brief being sufficient to reject. Output B is not perfect because it invents an owner and includes some fixture/internal language, but it is more operationally useful.\",\"decisive_differences\":[\"Output B gives a direct reject decision and replacement action aligned to refund triage.\",\"Output A introduces an unnecessary clarification question after already determining the candidate is unrelated.\",\"Output B's handoff contains decision, action, reason, and required fix; Output A's handoff is less useful because it asks what still needs clarification.\",\"Output B has a minor grounding risk from the invented owner 'Triage Specialist'. Both outputs have some risk from `output_valid: true` in a rejection case.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Need clarification on which parts of the source brief must be represented in the next candidate fixture\",\"why_it_matters\":\"This is unnecessary because the source already states the role, activity, and three decision outcomes needed to reject and replace the candidate.\"},{\"output\":\"output_a\",\"quote\":\"What specific aspects of the source brief need to be captured\",\"why_it_matters\":\"The question is generic and slows the downstream next move instead of cleanly rejecting the ungrounded candidate.\"},{\"output\":\"output_b\",\"quote\":\"Reject\",\"why_it_matters\":\"This matches the expected next action directly.\"},{\"output\":\"output_b\",\"quote\":\"Request a refund-triage-aligned replacement activity\",\"why_it_matters\":\"The next action is grounded in the source brief and gives a concrete path forward.\"},{\"output\":\"output_b\",\"quote\":\"Owner: Triage Specialist\",\"why_it_matters\":\"This is an invented detail because the source names a support lead, so it is a real but non-decisive flaw.\"}],\"output_a_quality\":{\"score\":6.5,\"strengths\":[\"Correctly identifies that the candidate does not align with refund-request triage.\",\"Gives a reject-oriented next action.\",\"Rationale compares role, activity, and objective.\"],\"risks\":[\"Asks an unnecessary clarification question.\",\"Handoff is weaker than the decision because it says clarification is needed.\",\"Uses internal/benchmark-ish language like 'candidate fixture'.\",\"`output_valid: true` is potentially confusing in a rejection case.\"]},\"output_b_quality\":{\"score\":8,\"strengths\":[\"Directly rejects the ungrounded candidate.\",\"Next action is concrete and source-aligned.\",\"No unnecessary questions.\",\"Handoff includes decision, action, reason, and required fix.\"],\"risks\":[\"Invents an owner not present in the source.\",\"Uses some internal/benchmark-ish language like 'fixture'.\",\"`output_valid: true` is potentially confusing in a rejection case.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "high",
+    "rationale": "Output B better supports the expected next move: reject the ungrounded candidate and request a source-aligned replacement. Output A identifies the mismatch, but weakens the judgment by asking for clarification and framing the handoff as needing clarification despite the source brief being sufficient to reject. Output B is not perfect because it invents an owner and includes some fixture/internal language, but it is more operationally useful.",
+    "decisive_differences": [
+      "Output B gives a direct reject decision and replacement action aligned to refund triage.",
+      "Output A introduces an unnecessary clarification question after already determining the candidate is unrelated.",
+      "Output B's handoff contains decision, action, reason, and required fix; Output A's handoff is less useful because it asks what still needs clarification.",
+      "Output B has a minor grounding risk from the invented owner 'Triage Specialist'. Both outputs have some risk from `output_valid: true` in a rejection case."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Need clarification on which parts of the source brief must be represented in the next candidate fixture",
+        "why_it_matters": "This is unnecessary because the source already states the role, activity, and three decision outcomes needed to reject and replace the candidate."
+      },
+      {
+        "output": "output_a",
+        "quote": "What specific aspects of the source brief need to be captured",
+        "why_it_matters": "The question is generic and slows the downstream next move instead of cleanly rejecting the ungrounded candidate."
+      },
+      {
+        "output": "output_b",
+        "quote": "Reject",
+        "why_it_matters": "This matches the expected next action directly."
+      },
+      {
+        "output": "output_b",
+        "quote": "Request a refund-triage-aligned replacement activity",
+        "why_it_matters": "The next action is grounded in the source brief and gives a concrete path forward."
+      },
+      {
+        "output": "output_b",
+        "quote": "Owner: Triage Specialist",
+        "why_it_matters": "This is an invented detail because the source names a support lead, so it is a real but non-decisive flaw."
+      }
+    ],
+    "output_a_quality": {
+      "score": 6.5,
+      "strengths": [
+        "Correctly identifies that the candidate does not align with refund-request triage.",
+        "Gives a reject-oriented next action.",
+        "Rationale compares role, activity, and objective."
+      ],
+      "risks": [
+        "Asks an unnecessary clarification question.",
+        "Handoff is weaker than the decision because it says clarification is needed.",
+        "Uses internal/benchmark-ish language like 'candidate fixture'.",
+        "`output_valid: true` is potentially confusing in a rejection case."
+      ]
+    },
+    "output_b_quality": {
+      "score": 8,
+      "strengths": [
+        "Directly rejects the ungrounded candidate.",
+        "Next action is concrete and source-aligned.",
+        "No unnecessary questions.",
+        "Handoff includes decision, action, reason, and required fix."
+      ],
+      "risks": [
+        "Invents an owner not present in the source.",
+        "Uses some internal/benchmark-ish language like 'fixture'.",
+        "`output_valid: true` is potentially confusing in a rejection case."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "5be18e654600665ca0ff78d61eac5cef622f4380751b9bd60c0bd13545e79922",
+    "stderr_sha256": "d839b089a141be254e272de2f0471e4f56c7aa3021f042a44c5b96a6093df4ba",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

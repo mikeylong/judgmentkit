@@ -1,0 +1,88 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "refund-schema-admin-translation",
+  "title": "Refund schema admin translation",
+  "case_type": "activity_translation",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T02:40:25.752Z",
+  "duration_ms": 43554,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "fdf6802a3337e476f3137c1dbaf3cfad0486313f2060ee74f55f208ca95f1f71",
+  "raw_response_sha256": "6392de4bb67a14397d7f0b5e592fd9b0a28a65a2249d5eac3c04ca1ffc201705",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"high\",\"rationale\":\"Output A is closer to the expected next move: it translates the source brief into the support lead's refund triage activity, names the three operational decisions, and frames the work as user-facing decision support rather than exposing raw schema/API/tool traces. Output B over-blocks on missing context even though the brief already supplies enough to plan the next response, and its questions drift toward generic UI fixture discovery instead of refund triage handoff design. Output A is not perfect because it leaks internal context with \\\"MCP indicates\\\" and its next action is a bit generic, but it would still better guide a downstream agent.\",\"decisive_differences\":[\"Output A identifies the real activity and decision set: approve refund, policy review, or return for missing evidence.\",\"Output A includes decision/reason/evidence-gap handoff structure; Output B only asks for more context.\",\"Output B treats the supplied brief as insufficient and delays the expected translation into a refund triage handoff surface.\",\"Output A has an internal-leakage flaw, but Output B misses the expected action more fundamentally.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"review a refund case and make one of three decisions: approve the refund, escalate it for policy review, or send it back\",\"why_it_matters\":\"This matches the source brief's real user and decision outcomes, making it activity-fit and operationally useful.\"},{\"output\":\"output_a\",\"quote\":\"Evidence Gap: Specific details on the required output state\",\"why_it_matters\":\"It at least frames missing information as an evidence/disclosure issue relevant to a handoff.\"},{\"output\":\"output_b\",\"quote\":\"I cannot generate the final agent response plan\",\"why_it_matters\":\"This is an unnecessary refusal because the case provides enough context to plan the next response.\"},{\"output\":\"output_b\",\"quote\":\"Request the specific UI request or fixture\",\"why_it_matters\":\"This moves away from the expected next action: translating the request into a refund triage handoff surface.\"}],\"output_a_quality\":{\"score\":7.2,\"strengths\":[\"Grounded in the support lead's refund triage activity.\",\"Names the core decisions and avoids centering implementation artifacts in the user-facing surface.\",\"Includes a handoff with decision, reason, owner, and evidence gap.\"],\"risks\":[\"Leaks internal machinery with \\\"The MCP indicates\\\".\",\"Next action remains somewhat generic instead of directly specifying the refund triage handoff surface.\",\"Questions could be more source-grounded and less open-ended.\"]},\"output_b_quality\":{\"score\":3.1,\"strengths\":[\"Restrained about absent detailed schema/API contents.\",\"Recognizes that multiple technical sources need synthesis.\"],\"risks\":[\"Blocks despite sufficient source brief and expected next action.\",\"Asks generic fixture/mockup questions rather than planning activity, decision, evidence, and next step.\",\"Fails to translate internal artifacts into the support lead's refund triage handoff surface.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "high",
+    "rationale": "Output A is closer to the expected next move: it translates the source brief into the support lead's refund triage activity, names the three operational decisions, and frames the work as user-facing decision support rather than exposing raw schema/API/tool traces. Output B over-blocks on missing context even though the brief already supplies enough to plan the next response, and its questions drift toward generic UI fixture discovery instead of refund triage handoff design. Output A is not perfect because it leaks internal context with \"MCP indicates\" and its next action is a bit generic, but it would still better guide a downstream agent.",
+    "decisive_differences": [
+      "Output A identifies the real activity and decision set: approve refund, policy review, or return for missing evidence.",
+      "Output A includes decision/reason/evidence-gap handoff structure; Output B only asks for more context.",
+      "Output B treats the supplied brief as insufficient and delays the expected translation into a refund triage handoff surface.",
+      "Output A has an internal-leakage flaw, but Output B misses the expected action more fundamentally."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "review a refund case and make one of three decisions: approve the refund, escalate it for policy review, or send it back",
+        "why_it_matters": "This matches the source brief's real user and decision outcomes, making it activity-fit and operationally useful."
+      },
+      {
+        "output": "output_a",
+        "quote": "Evidence Gap: Specific details on the required output state",
+        "why_it_matters": "It at least frames missing information as an evidence/disclosure issue relevant to a handoff."
+      },
+      {
+        "output": "output_b",
+        "quote": "I cannot generate the final agent response plan",
+        "why_it_matters": "This is an unnecessary refusal because the case provides enough context to plan the next response."
+      },
+      {
+        "output": "output_b",
+        "quote": "Request the specific UI request or fixture",
+        "why_it_matters": "This moves away from the expected next action: translating the request into a refund triage handoff surface."
+      }
+    ],
+    "output_a_quality": {
+      "score": 7.2,
+      "strengths": [
+        "Grounded in the support lead's refund triage activity.",
+        "Names the core decisions and avoids centering implementation artifacts in the user-facing surface.",
+        "Includes a handoff with decision, reason, owner, and evidence gap."
+      ],
+      "risks": [
+        "Leaks internal machinery with \"The MCP indicates\".",
+        "Next action remains somewhat generic instead of directly specifying the refund triage handoff surface.",
+        "Questions could be more source-grounded and less open-ended."
+      ]
+    },
+    "output_b_quality": {
+      "score": 3.1,
+      "strengths": [
+        "Restrained about absent detailed schema/API contents.",
+        "Recognizes that multiple technical sources need synthesis."
+      ],
+      "risks": [
+        "Blocks despite sufficient source brief and expected next action.",
+        "Asks generic fixture/mockup questions rather than planning activity, decision, evidence, and next step.",
+        "Fails to translate internal artifacts into the support lead's refund triage handoff surface."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "1b26278e8efab433805cfa2c610b10df45ed04e898e032c35340826182ea6461",
+    "stderr_sha256": "9afa743b6ed58335496efad9a130f2adf74b6bd855abdcee139f4e236cb32b39",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

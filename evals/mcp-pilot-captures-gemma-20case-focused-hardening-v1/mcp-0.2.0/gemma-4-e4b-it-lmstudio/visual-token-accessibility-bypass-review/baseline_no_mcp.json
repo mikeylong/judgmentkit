@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "visual-token-accessibility-bypass-review",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54314/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:45:53.613Z",
+  "duration_ms": 6665,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 444,
+    "completion_tokens": 317,
+    "total_tokens": 761,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "782cbf1c880a2954a2d1d384c4fb64af11aae5e6590d43d957f23dee0d192d62",
+  "prompt_sha256": "aad3361b32e5cfb33ef72b99b4b5c0c0304774ca9264576cb5753dd0b20306a2",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "35d1a6ccc20ecaa497af0ceb174d6b3bdc526b75900cb1bde47643d7e5f20f1b",
+  "raw_response": "{\"response\": \"The implementation candidate shows strong evidence of visual token usage across color and spacing, and semantic roles for focus, status, and decision states. However, the `accessibility_evidence` object is empty, indicating a complete lack of core accessibility testing artifacts despite passing basic browser QA checks. Relying solely on visual token evidence to replace missing core accessibility evidence is insufficient because tokens describe *how* things look (e.g., color contrast via 'color' token), but they do not prove compliance with WCAG success criteria or the functional operability required by screen readers and keyboard navigation, which are the primary concerns when core accessibility evidence is absent.\", \"next_action\": \"Request specific accessibility test results (e.g., ARIA attribute validation reports, keyboard focus order walkthroughs) to supplement the existing token evidence before making a final determination on completeness.\", \"questions\": [\"What specific WCAG success criteria were intended to be covered by the missing core accessibility evidence?\", \"Are there any automated accessibility audit reports available that detail violations or successes beyond simple 'passed' status for desktop/mobile?\"], \"handoff\": \"Handoff to Accessibility Specialist: Need validation on whether visual token coverage (color, spacing) can substitute for functional and programmatic accessibility testing artifacts.\", \"rationale\": \"The gap is between *visual implementation* (tokens present) and *functional compliance* (accessibility evidence missing). Tokens confirm design system adherence but not WCAG conformance. The next step must bridge this functional gap with targeted evidence gathering rather than assuming token usage implies full accessibility coverage.\"}",
+  "parsed": {
+    "response": "The implementation candidate shows strong evidence of visual token usage across color and spacing, and semantic roles for focus, status, and decision states. However, the `accessibility_evidence` object is empty, indicating a complete lack of core accessibility testing artifacts despite passing basic browser QA checks. Relying solely on visual token evidence to replace missing core accessibility evidence is insufficient because tokens describe *how* things look (e.g., color contrast via 'color' token), but they do not prove compliance with WCAG success criteria or the functional operability required by screen readers and keyboard navigation, which are the primary concerns when core accessibility evidence is absent.",
+    "next_action": "Request specific accessibility test results (e.g., ARIA attribute validation reports, keyboard focus order walkthroughs) to supplement the existing token evidence before making a final determination on completeness.",
+    "questions": [
+      "What specific WCAG success criteria were intended to be covered by the missing core accessibility evidence?",
+      "Are there any automated accessibility audit reports available that detail violations or successes beyond simple 'passed' status for desktop/mobile?"
+    ],
+    "handoff": "Handoff to Accessibility Specialist: Need validation on whether visual token coverage (color, spacing) can substitute for functional and programmatic accessibility testing artifacts.",
+    "rationale": "The gap is between *visual implementation* (tokens present) and *functional compliance* (accessibility evidence missing). Tokens confirm design system adherence but not WCAG conformance. The next step must bridge this functional gap with targeted evidence gathering rather than assuming token usage implies full accessibility coverage."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The implementation candidate shows strong evidence of visual token usage across color and spacing, and semantic roles for focus, status, and decision states. However, the `accessibility_evidence` object is empty, indicating a complete lack of core accessibility testing artifacts despite passing basic browser QA checks. Relying solely on visual token evidence to replace missing core accessibility evidence is insufficient because tokens describe *how* things look (e.g., color contrast via 'color' token), but they do not prove compliance with WCAG success criteria or the functional operability required by screen readers and keyboard navigation, which are the primary concerns when core accessibility evidence is absent.\", \"next_action\": \"Request specific accessibility test results (e.g., ARIA attribute validation reports, keyboard focus order walkthroughs) to supplement the existing token evidence before making a final determination on completeness.\", \"questions\": [\"What specific WCAG success criteria were intended to be covered by the missing core accessibility evidence?\", \"Are there any automated accessibility audit reports available that detail violations or successes beyond simple 'passed' status for desktop/mobile?\"], \"handoff\": \"Handoff to Accessibility Specialist: Need validation on whether visual token coverage (color, spacing) can substitute for functional and programmatic accessibility testing artifacts.\", \"rationale\": \"The gap is between *visual implementation* (tokens present) and *functional compliance* (accessibility evidence missing). Tokens confirm design system adherence but not WCAG conformance. The next step must bridge this functional gap with targeted evidence gathering rather than assuming token usage implies full accessibility coverage.\"}",
+    "usage": {
+      "prompt_tokens": 444,
+      "completion_tokens": 317,
+      "total_tokens": 761,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "c347864b66d0a094469d2a9cc7692fd46e97085ed206f258a37ec2eb6b1a3f20",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "modal-action-order-review",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:48:33.126Z",
+  "duration_ms": 4826,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 315,
+    "completion_tokens": 245,
+    "total_tokens": 560,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "247c4a0b9295ef24ef9ee26ecc440e85db69c4bc553655c4b96d2e0fb61d51e3",
+  "prompt_sha256": "6c3b693e7a7ab7890da747bfd8e9f2aee94b8a35b150a8b05adff150dac95d20",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "dbc9004d2d50a963ce52441f097219600cfc8a3e07b6c0f0193a308a97d7a045",
+  "raw_response": "{\"response\": \"The implementation candidate appears to address the core requirements outlined in the source brief by utilizing a modal structure with buttons, which suggests an attempt to manage a final action confirmation. The inclusion of 'labels: present' for accessibility evidence is positive.\", \"next_action\": \"Review the specific implementation details regarding focus management and destructive action clarity within the context of the modal flow.\", \"questions\": [\"Can you provide evidence or documentation confirming that keyboard focus is correctly managed (i.e., trapped inside the modal and returned to the correct element upon dismissal) when using this implementation candidate?\", \"Does the current implementation clearly distinguish the 'destructive' nature of the final action within the modal, as required by the source brief?\"], \"handoff\": \"Need confirmation on focus trapping/return behavior and explicit visual confirmation of destructive action clarity.\", \"rationale\": \"The source brief mandates two critical functional requirements: 1) Keeping the destructive/final action clear, and 2) Preserving keyboard focus behavior. While the candidate lists primitives used ('modal', 'button') and passes basic checks, it lacks evidence confirming these specific behavioral constraints were met. The questions are designed to elicit this missing behavioral proof point.\"}",
+  "parsed": {
+    "response": "The implementation candidate appears to address the core requirements outlined in the source brief by utilizing a modal structure with buttons, which suggests an attempt to manage a final action confirmation. The inclusion of 'labels: present' for accessibility evidence is positive.",
+    "next_action": "Review the specific implementation details regarding focus management and destructive action clarity within the context of the modal flow.",
+    "questions": [
+      "Can you provide evidence or documentation confirming that keyboard focus is correctly managed (i.e., trapped inside the modal and returned to the correct element upon dismissal) when using this implementation candidate?",
+      "Does the current implementation clearly distinguish the 'destructive' nature of the final action within the modal, as required by the source brief?"
+    ],
+    "handoff": "Need confirmation on focus trapping/return behavior and explicit visual confirmation of destructive action clarity.",
+    "rationale": "The source brief mandates two critical functional requirements: 1) Keeping the destructive/final action clear, and 2) Preserving keyboard focus behavior. While the candidate lists primitives used ('modal', 'button') and passes basic checks, it lacks evidence confirming these specific behavioral constraints were met. The questions are designed to elicit this missing behavioral proof point."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The implementation candidate appears to address the core requirements outlined in the source brief by utilizing a modal structure with buttons, which suggests an attempt to manage a final action confirmation. The inclusion of 'labels: present' for accessibility evidence is positive.\", \"next_action\": \"Review the specific implementation details regarding focus management and destructive action clarity within the context of the modal flow.\", \"questions\": [\"Can you provide evidence or documentation confirming that keyboard focus is correctly managed (i.e., trapped inside the modal and returned to the correct element upon dismissal) when using this implementation candidate?\", \"Does the current implementation clearly distinguish the 'destructive' nature of the final action within the modal, as required by the source brief?\"], \"handoff\": \"Need confirmation on focus trapping/return behavior and explicit visual confirmation of destructive action clarity.\", \"rationale\": \"The source brief mandates two critical functional requirements: 1) Keeping the destructive/final action clear, and 2) Preserving keyboard focus behavior. While the candidate lists primitives used ('modal', 'button') and passes basic checks, it lacks evidence confirming these specific behavioral constraints were met. The questions are designed to elicit this missing behavioral proof point.\"}",
+    "usage": {
+      "prompt_tokens": 315,
+      "completion_tokens": 245,
+      "total_tokens": 560,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "ff107233061c217bacd971f228954c9441d128d51bcace9807f26596be5a9582",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

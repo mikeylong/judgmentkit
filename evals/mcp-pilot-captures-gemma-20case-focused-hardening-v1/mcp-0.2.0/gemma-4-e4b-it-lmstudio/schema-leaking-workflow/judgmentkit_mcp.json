@@ -1,0 +1,61 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "schema-leaking-workflow",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54314/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "1001b92b13e1d44ae9e2ea2d228f3d333cc0ae47419d2da8eaa69e0a77843ac8",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:44:36.288Z",
+  "duration_ms": 3739,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 980,
+    "completion_tokens": 167,
+    "total_tokens": 1147,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "85349c42cd41982a8cc7b32630560aa8744aebe50fcf7c105ac634ff8b6bf82f",
+  "prompt_sha256": "d3f371ca4379678b6146528e93496bf92ab4c1c8dcb5bab5a6c87da88d5c8239",
+  "mcp_context_sha256": "4333a564eae5db0e206949bef058646a28ccdcce0e77931eba1c0e2497040efc",
+  "raw_response_sha256": "f3647b9a92784026ddce5d227c7c4f061438fb1be28dddea2b509321607cd953",
+  "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Repair the workflow to reflect user-facing triage steps (e.g., Approve, Policy Review, Missing Evidence) instead of exposing internal system details or mechanics.\", \"questions\": [], \"handoff\": \"Decision: Reject; Action: Repair Direction; Reason: The submitted fixture exposes internal implementation details and schema elements rather than describing a user-facing workflow for refund triage. Owner: Triage Specialist; Required Fix: Redraft the steps, decision points, and UI components using only language relevant to the support lead's daily review process (e.g., reviewing evidence, making a disposition decision).\", \"rationale\": \"The submitted fixture contains numerous placeholders and internal system terms that leak implementation details, which is inappropriate for modeling a user-facing triage workflow.\"}",
+  "parsed": {
+    "response": "Reject",
+    "next_action": "Repair the workflow to reflect user-facing triage steps (e.g., Approve, Policy Review, Missing Evidence) instead of exposing internal system details or mechanics.",
+    "questions": [],
+    "handoff": "Decision: Reject; Action: Repair Direction; Reason: The submitted fixture exposes internal implementation details and schema elements rather than describing a user-facing workflow for refund triage. Owner: Triage Specialist; Required Fix: Redraft the steps, decision points, and UI components using only language relevant to the support lead's daily review process (e.g., reviewing evidence, making a disposition decision).",
+    "rationale": "The submitted fixture contains numerous placeholders and internal system terms that leak implementation details, which is inappropriate for modeling a user-facing triage workflow."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Repair the workflow to reflect user-facing triage steps (e.g., Approve, Policy Review, Missing Evidence) instead of exposing internal system details or mechanics.\", \"questions\": [], \"handoff\": \"Decision: Reject; Action: Repair Direction; Reason: The submitted fixture exposes internal implementation details and schema elements rather than describing a user-facing workflow for refund triage. Owner: Triage Specialist; Required Fix: Redraft the steps, decision points, and UI components using only language relevant to the support lead's daily review process (e.g., reviewing evidence, making a disposition decision).\", \"rationale\": \"The submitted fixture contains numerous placeholders and internal system terms that leak implementation details, which is inappropriate for modeling a user-facing triage workflow.\"}",
+    "usage": {
+      "prompt_tokens": 980,
+      "completion_tokens": 167,
+      "total_tokens": 1147,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "5ad4e3ddabeefda39dfaaafd4b17749ee205a446314225e141c5f199318c0c74",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "implementation-term-leakage-review",
+  "title": "Implementation-term leakage review",
+  "case_type": "implementation_review",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-15T02:58:57.830Z",
+  "duration_ms": 37634,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "78b92765da0806441f4bf2d06f145c75825af12595120714d2b816e136b89d15",
+  "raw_response_sha256": "bef1821bf5f947deae5c9371c431d445093a0fc69d7f35560acb517cea7ca5f5",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"high\",\"rationale\":\"Output A is better aligned with the required judgment because it explicitly rejects the candidate and requires removing internal review/implementation terms from user-facing refund-review labels. Output B notices the leakage, but it weakens the judgment by treating the implementation as technically sound, inventing testing/state-coverage evidence, asking generic questions, and failing to clearly reject acceptance.\",\"decisive_differences\":[\"Output A gives the required accept/reject decision; Output B does not.\",\"Output A's next move is repair and resubmit; Output B frames the issue as copy sign-off and content remediation.\",\"Output B invents unsupported claims about primitives, state coverage, and testing results.\",\"Output A has one unsupported line about subsequent repair attempts, but its core decision and handoff are closer to the benchmark expectation.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"\\\"response\\\": \\\"reject\\\"\",\"why_it_matters\":\"The expected next action is to reject product-label leakage.\"},{\"output\":\"output_a\",\"quote\":\"\\\"Remove all diagnostic-only terms from the customer refund review UI labels\\\"\",\"why_it_matters\":\"This directly addresses the source issue: internal terms appearing in product labels.\"},{\"output\":\"output_b\",\"quote\":\"\\\"The core functionality seems technically sound based on primitives used, state coverage, and testing results\\\"\",\"why_it_matters\":\"These details are unsupported by the brief and make the output less safe for downstream judgment.\"},{\"output\":\"output_b\",\"quote\":\"\\\"Handoff to UX Writing/Content team for copy revision and sign-off.\\\"\",\"why_it_matters\":\"This under-specifies the acceptance-blocking implementation revision needed before resubmission.\"}],\"output_a_quality\":{\"score\":8,\"strengths\":[\"Clear rejection decision.\",\"Actionable fix focused on removing internal terms from customer-facing UI.\",\"No unnecessary questions.\"],\"risks\":[\"Invents unsupported context about subsequent repair attempts passing.\",\"Uses somewhat generic language like data visibility standards.\"]},\"output_b_quality\":{\"score\":5,\"strengths\":[\"Identifies the leaked terms and calls for customer-facing language.\",\"Recognizes that exposed internal terminology is a significant flaw.\"],\"risks\":[\"Does not clearly reject the implementation candidate.\",\"Invents technical soundness, state coverage, and test results.\",\"Asks generic questions despite enough evidence to act.\",\"Frames the fix as UX polish rather than acceptance-blocking product-label leakage.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "high",
+    "rationale": "Output A is better aligned with the required judgment because it explicitly rejects the candidate and requires removing internal review/implementation terms from user-facing refund-review labels. Output B notices the leakage, but it weakens the judgment by treating the implementation as technically sound, inventing testing/state-coverage evidence, asking generic questions, and failing to clearly reject acceptance.",
+    "decisive_differences": [
+      "Output A gives the required accept/reject decision; Output B does not.",
+      "Output A's next move is repair and resubmit; Output B frames the issue as copy sign-off and content remediation.",
+      "Output B invents unsupported claims about primitives, state coverage, and testing results.",
+      "Output A has one unsupported line about subsequent repair attempts, but its core decision and handoff are closer to the benchmark expectation."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "\"response\": \"reject\"",
+        "why_it_matters": "The expected next action is to reject product-label leakage."
+      },
+      {
+        "output": "output_a",
+        "quote": "\"Remove all diagnostic-only terms from the customer refund review UI labels\"",
+        "why_it_matters": "This directly addresses the source issue: internal terms appearing in product labels."
+      },
+      {
+        "output": "output_b",
+        "quote": "\"The core functionality seems technically sound based on primitives used, state coverage, and testing results\"",
+        "why_it_matters": "These details are unsupported by the brief and make the output less safe for downstream judgment."
+      },
+      {
+        "output": "output_b",
+        "quote": "\"Handoff to UX Writing/Content team for copy revision and sign-off.\"",
+        "why_it_matters": "This under-specifies the acceptance-blocking implementation revision needed before resubmission."
+      }
+    ],
+    "output_a_quality": {
+      "score": 8,
+      "strengths": [
+        "Clear rejection decision.",
+        "Actionable fix focused on removing internal terms from customer-facing UI.",
+        "No unnecessary questions."
+      ],
+      "risks": [
+        "Invents unsupported context about subsequent repair attempts passing.",
+        "Uses somewhat generic language like data visibility standards."
+      ]
+    },
+    "output_b_quality": {
+      "score": 5,
+      "strengths": [
+        "Identifies the leaked terms and calls for customer-facing language.",
+        "Recognizes that exposed internal terminology is a significant flaw."
+      ],
+      "risks": [
+        "Does not clearly reject the implementation candidate.",
+        "Invents technical soundness, state coverage, and test results.",
+        "Asks generic questions despite enough evidence to act.",
+        "Frames the fix as UX polish rather than acceptance-blocking product-label leakage."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "8e414c8f4169e8f5e88701e2767198c082f244b51e75345dd784d55e3262aab2",
+    "stderr_sha256": "f04150196816e1af17d03e18a8d5f3cc6e54598a8f4a546ea7ed115797e535ad",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

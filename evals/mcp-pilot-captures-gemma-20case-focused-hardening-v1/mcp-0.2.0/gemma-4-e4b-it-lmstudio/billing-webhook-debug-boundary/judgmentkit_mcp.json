@@ -1,0 +1,67 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "billing-webhook-debug-boundary",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54314/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "3015594e9023071169560aba33bf640fddef12d4b919efbf6cb090e0f0e76406",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:43:08.983Z",
+  "duration_ms": 3739,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 861,
+    "completion_tokens": 213,
+    "total_tokens": 1074,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "13ddd51e26cb41c7aaf55bb90b0915fcc3d5350eb1c97a3788464291e06a9dbe",
+  "prompt_sha256": "a7e7d1efd99a1e8996718f75c35cefaba4cbc68b5c93afd8d34eb3cf92d6eb6f",
+  "mcp_context_sha256": "6543479563076ba3a6f4755840b0eff48f74ebb73bdc1ec6f7362d4c8f7cb752",
+  "raw_response_sha256": "6d98b79e668a1455ad9c2a6d58828e824213962c787d62b03590a5ddbdc214bd",
+  "raw_response": "{\"response\": \"I need more information to design the billing operations UI. To proceed with planning the agent's next response, please clarify the required scope and intended user experience for this tool.\", \"next_action\": \"Gather missing context regarding the desired functionality and user goals for the billing operations interface.\", \"questions\": [\"What specific activities should this UI support before we can propose a screen structure?\", \"What key knowledge or actions must the user gain from using this surface?\", \"Which domain vocabulary or roles (e.g., Billing Specialist, Customer Support) need to be included in the design?\"], \"handoff\": \"Handoff: Need clarification on required scope and user goals for billing operations UI design; Owner: Product Design/UX Team; Evidence Gap: Missing details on desired activities, user knowledge outcomes, and domain vocabulary.\", \"rationale\": \"The provided context indicates that multiple steps require source context to proceed with designing the UI. The immediate next step must be gathering this foundational information before any concrete plan or response can be formulated.\"}",
+  "parsed": {
+    "response": "I need more information to design the billing operations UI. To proceed with planning the agent's next response, please clarify the required scope and intended user experience for this tool.",
+    "next_action": "Gather missing context regarding the desired functionality and user goals for the billing operations interface.",
+    "questions": [
+      "What specific activities should this UI support before we can propose a screen structure?",
+      "What key knowledge or actions must the user gain from using this surface?",
+      "Which domain vocabulary or roles (e.g., Billing Specialist, Customer Support) need to be included in the design?"
+    ],
+    "handoff": "Handoff: Need clarification on required scope and user goals for billing operations UI design; Owner: Product Design/UX Team; Evidence Gap: Missing details on desired activities, user knowledge outcomes, and domain vocabulary.",
+    "rationale": "The provided context indicates that multiple steps require source context to proceed with designing the UI. The immediate next step must be gathering this foundational information before any concrete plan or response can be formulated."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"I need more information to design the billing operations UI. To proceed with planning the agent's next response, please clarify the required scope and intended user experience for this tool.\", \"next_action\": \"Gather missing context regarding the desired functionality and user goals for the billing operations interface.\", \"questions\": [\"What specific activities should this UI support before we can propose a screen structure?\", \"What key knowledge or actions must the user gain from using this surface?\", \"Which domain vocabulary or roles (e.g., Billing Specialist, Customer Support) need to be included in the design?\"], \"handoff\": \"Handoff: Need clarification on required scope and user goals for billing operations UI design; Owner: Product Design/UX Team; Evidence Gap: Missing details on desired activities, user knowledge outcomes, and domain vocabulary.\", \"rationale\": \"The provided context indicates that multiple steps require source context to proceed with designing the UI. The immediate next step must be gathering this foundational information before any concrete plan or response can be formulated.\"}",
+    "usage": {
+      "prompt_tokens": 861,
+      "completion_tokens": 213,
+      "total_tokens": 1074,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "eb1183eef56e5d6c1bce53d145279324f71ed34aee2a49d822fd1855c4644236",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

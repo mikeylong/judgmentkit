@@ -1,0 +1,47 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "b2b-renewal-risk-review",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:56816/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T01:51:32.790Z",
+  "duration_ms": 46952,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "338fd5e93189f55649c2d166e897daaf683492b44c41b2b448980f6620fb6d90",
+  "prompt_sha256": "0320653ff84f1dd8fc4aee8dfb0e59a2dd1c4499b6226b813c3aaaf8d526db07",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "459d6194092886ffa2bb24f4c589a1cf9b32f011393b9c153afeefca0bdfee7a",
+  "raw_response": "{\"response\":\"Plan the next agent response as an operator-review handoff for a customer success manager preparing for an account meeting. Center the response on comparing usage decline, sponsor change, and procurement timing, then guide the manager to choose one renewal action: start a save plan, escalate an executive sponsor, or wait for stronger evidence. Keep the language domain-facing and make the final handoff name the owner, action, reason, and evidence gap.\",\"next_action\":\"Confirm procurement owner and renewal date, then select the renewal action and prepare the account handoff.\",\"questions\":[\"Who owns procurement, and what renewal date governs the account meeting?\"],\"handoff\":\"Customer success manager to confirm procurement owner and renewal date, then choose a renewal action because sponsor change plus usage decline creates renewal risk; evidence gap: procurement owner and renewal date.\",\"rationale\":\"The workflow is a decision handoff, not a visual or implementation planning task. The available context identifies the activity, participant, evidence types, decision options, and completion state; the only missing detail needed to complete the handoff is procurement timing ownership and date.\"}",
+  "parsed": {
+    "response": "Plan the next agent response as an operator-review handoff for a customer success manager preparing for an account meeting. Center the response on comparing usage decline, sponsor change, and procurement timing, then guide the manager to choose one renewal action: start a save plan, escalate an executive sponsor, or wait for stronger evidence. Keep the language domain-facing and make the final handoff name the owner, action, reason, and evidence gap.",
+    "next_action": "Confirm procurement owner and renewal date, then select the renewal action and prepare the account handoff.",
+    "questions": [
+      "Who owns procurement, and what renewal date governs the account meeting?"
+    ],
+    "handoff": "Customer success manager to confirm procurement owner and renewal date, then choose a renewal action because sponsor change plus usage decline creates renewal risk; evidence gap: procurement owner and renewal date.",
+    "rationale": "The workflow is a decision handoff, not a visual or implementation planning task. The available context identifies the activity, participant, evidence types, decision options, and completion state; the only missing detail needed to complete the handoff is procurement timing ownership and date."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "e2f309028a2deb042b3c75a554d693a6bbdc6b38422147765a7c8ad1b34852e8",
+    "stderr_sha256": "00050214750200173da8acd5d1d51122986b28e26f23fa3ab23dff9841931458",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

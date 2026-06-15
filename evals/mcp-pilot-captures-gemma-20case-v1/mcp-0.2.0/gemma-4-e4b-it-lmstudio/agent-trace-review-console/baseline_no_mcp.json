@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "agent-trace-review-console",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:59768/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T20:45:55.664Z",
+  "duration_ms": 5764,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 241,
+    "completion_tokens": 313,
+    "total_tokens": 554,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "c868986c2c8dc39695ec1ac329bf17e27e8032d785174a8a5db8054fb9aba5cc",
+  "prompt_sha256": "565b2d19a00a35bf068f28dceefe2e7824ec2cde3c73b4a5046275f08fd893db",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "d0803af7cddc3513aac7a36f70ee8086a5935db952b05e94c4997cf2842f7236",
+  "raw_response": "{\"response\": \"The agent needs a comprehensive review console to analyze the full lifecycle of an AI interaction. This console must aggregate and display all relevant components: model messages (inputs/outputs), function calls, associated tool outputs, token usage metrics, and any retry metadata. The primary user goal is to make a judgment call on whether an AI-generated escalation path is appropriate—specifically, if it should proceed as is, require refinement, or be rejected due to insufficient supporting evidence.\", \"next_action\": \"Design the core data visualization structure for the trace review console, prioritizing clear temporal flow and distinct sections for different data types (e.g., Conversation History, Tool Execution Log, Metadata Summary).\", \"questions\": [\"What are the specific fields required for 'missing evidence' flagging? Should this be a simple boolean flag or require linking to specific missing source documents/steps?\", \"Are there predefined escalation paths that dictate which components must be present for an 'advance' decision (e.g., always requires at least one successful tool call)?\"], \"handoff\": \"Design the initial wireframe structure focusing on data aggregation and temporal flow.\", \"rationale\": \"The core task is reviewing a complex, multi-stage interaction trace to make a high-stakes judgment call. The response must guide the design toward an information architecture that supports this review process by grouping related evidence types (messages, calls, outputs, metadata). Since no specific context or fixture was provided beyond the source brief, the next step must be structural design planning rather than content generation.\"}",
+  "parsed": {
+    "response": "The agent needs a comprehensive review console to analyze the full lifecycle of an AI interaction. This console must aggregate and display all relevant components: model messages (inputs/outputs), function calls, associated tool outputs, token usage metrics, and any retry metadata. The primary user goal is to make a judgment call on whether an AI-generated escalation path is appropriate—specifically, if it should proceed as is, require refinement, or be rejected due to insufficient supporting evidence.",
+    "next_action": "Design the core data visualization structure for the trace review console, prioritizing clear temporal flow and distinct sections for different data types (e.g., Conversation History, Tool Execution Log, Metadata Summary).",
+    "questions": [
+      "What are the specific fields required for 'missing evidence' flagging? Should this be a simple boolean flag or require linking to specific missing source documents/steps?",
+      "Are there predefined escalation paths that dictate which components must be present for an 'advance' decision (e.g., always requires at least one successful tool call)?"
+    ],
+    "handoff": "Design the initial wireframe structure focusing on data aggregation and temporal flow.",
+    "rationale": "The core task is reviewing a complex, multi-stage interaction trace to make a high-stakes judgment call. The response must guide the design toward an information architecture that supports this review process by grouping related evidence types (messages, calls, outputs, metadata). Since no specific context or fixture was provided beyond the source brief, the next step must be structural design planning rather than content generation."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent needs a comprehensive review console to analyze the full lifecycle of an AI interaction. This console must aggregate and display all relevant components: model messages (inputs/outputs), function calls, associated tool outputs, token usage metrics, and any retry metadata. The primary user goal is to make a judgment call on whether an AI-generated escalation path is appropriate—specifically, if it should proceed as is, require refinement, or be rejected due to insufficient supporting evidence.\", \"next_action\": \"Design the core data visualization structure for the trace review console, prioritizing clear temporal flow and distinct sections for different data types (e.g., Conversation History, Tool Execution Log, Metadata Summary).\", \"questions\": [\"What are the specific fields required for 'missing evidence' flagging? Should this be a simple boolean flag or require linking to specific missing source documents/steps?\", \"Are there predefined escalation paths that dictate which components must be present for an 'advance' decision (e.g., always requires at least one successful tool call)?\"], \"handoff\": \"Design the initial wireframe structure focusing on data aggregation and temporal flow.\", \"rationale\": \"The core task is reviewing a complex, multi-stage interaction trace to make a high-stakes judgment call. The response must guide the design toward an information architecture that supports this review process by grouping related evidence types (messages, calls, outputs, metadata). Since no specific context or fixture was provided beyond the source brief, the next step must be structural design planning rather than content generation.\"}",
+    "usage": {
+      "prompt_tokens": 241,
+      "completion_tokens": 313,
+      "total_tokens": 554,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "aeebda55790af2a08a864bf1d4c4609badcad5897b18e02cc10303d0af55212d",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

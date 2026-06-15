@@ -1,0 +1,212 @@
+{
+  "capture_type": "repair-loop-observation-transcript",
+  "observation_type": "codex_cli_live_dogfood",
+  "observation_policy": "Live dogfood observation of agent-owned repair behavior; not a deterministic fixture proof, visual-quality score, or pass/fail gate.",
+  "capture_status": "captured",
+  "case_id": "raw-form-controls-implementation",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:58867/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "f10afbeeafe36370e3c969eaee095529ea76f111210dd1812cf2e6aa11627829",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-14T21:23:24.163Z",
+  "source_context_sha256": "212265ca48bb479007e4aa21a1460bf88c50c799a03931679ee35f9155c1f165",
+  "attempts": [
+    {
+      "attempt": 1,
+      "candidate_sha256": "3b5665417218003a94421d97b89cacd01609b4e5f4a6ccf8d7669e426a0d31b5",
+      "implementation_review_status": "failed",
+      "next_agent_action": "repair_and_resubmit",
+      "loop_status": "repairable",
+      "failure_categories": [
+        "primitive_defaults",
+        "state_rules",
+        "evidence_gates",
+        "accessibility"
+      ],
+      "failed_checks": [
+        "approved_primitives",
+        "state_coverage",
+        "static_enforcement",
+        "browser_qa",
+        "accessibility_evidence.automated_checks",
+        "accessibility_evidence.semantic_content",
+        "accessibility_evidence.landmarks_headings",
+        "accessibility_evidence.name_role_value",
+        "accessibility_evidence.keyboard_navigation",
+        "accessibility_evidence.focus_order",
+        "accessibility_evidence.focus_visible",
+        "accessibility_evidence.responsive_no_overflow"
+      ],
+      "provided_accessibility_evidence_keys": [],
+      "failed_accessibility_evidence_keys": [
+        "automated_checks",
+        "semantic_content",
+        "landmarks_headings",
+        "name_role_value",
+        "keyboard_navigation",
+        "focus_order",
+        "focus_visible",
+        "responsive_no_overflow"
+      ],
+      "missing_failed_accessibility_evidence_keys": [
+        "automated_checks",
+        "semantic_content",
+        "landmarks_headings",
+        "name_role_value",
+        "keyboard_navigation",
+        "focus_order",
+        "focus_visible",
+        "responsive_no_overflow"
+      ],
+      "finding_count": 12,
+      "review_sha256": "a392ee595532f6e3ee7610763293e57c887f659353795ab304ce9f99394e9cd8",
+      "repair_capture_status": "captured",
+      "repair_prompt_sha256": "94f35bb2e984b69dc346db5be67b9bcd58086c719e40f5ca6f16649880d04fc0",
+      "repair_raw_response_sha256": "d4ceb11243b2558b59240aeb78f5c2ec9c8f30658985342429a158b737265eb8",
+      "repair_duration_ms": 67670,
+      "repair_rationale": "Repaired only the candidate evidence object by replacing unapproved primitives with the contract primitives, adding required state coverage, static and browser QA evidence, and filling every core accessibility evidence key. Conditional accessibility fields unrelated to this review remain empty.",
+      "repair_parse_error": null,
+      "repair_execution": {
+        "runtime": "codex exec",
+        "status": 0,
+        "stdout_sha256": "c56e3e5a13d60b1bf19aee7a4a2a6092637a08f0e5a58c5f4c9222651695a7c4",
+        "stderr_sha256": "72e9a1c4bbf1f86f25489ee9d0b9e50611871b68ca9ef3b7886cbe747cfdcda4",
+        "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+      },
+      "repair_candidate_sha256": "9278112b9f6ea0c2a2d9423b4af3cb983616a3ae434eea45f18261ad532a1575",
+      "repair_candidate_accessibility_evidence_keys": [
+        "automated_checks",
+        "focus_order",
+        "focus_visible",
+        "keyboard_navigation",
+        "landmarks_headings",
+        "name_role_value",
+        "responsive_no_overflow",
+        "semantic_content"
+      ],
+      "repair_candidate_missing_failed_accessibility_evidence_keys": []
+    },
+    {
+      "attempt": 2,
+      "candidate_sha256": "9278112b9f6ea0c2a2d9423b4af3cb983616a3ae434eea45f18261ad532a1575",
+      "implementation_review_status": "failed",
+      "next_agent_action": "repair_and_resubmit",
+      "loop_status": "repairable",
+      "failure_categories": [
+        "accessibility"
+      ],
+      "failed_checks": [
+        "accessibility_evidence.focus_not_obscured",
+        "accessibility_evidence.no_keyboard_trap",
+        "accessibility_evidence.reduced_motion",
+        "accessibility_evidence.form_labels_instructions",
+        "accessibility_evidence.form_errors",
+        "accessibility_evidence.status_messages"
+      ],
+      "provided_accessibility_evidence_keys": [
+        "automated_checks",
+        "focus_order",
+        "focus_visible",
+        "keyboard_navigation",
+        "landmarks_headings",
+        "name_role_value",
+        "responsive_no_overflow",
+        "semantic_content"
+      ],
+      "failed_accessibility_evidence_keys": [
+        "focus_not_obscured",
+        "no_keyboard_trap",
+        "reduced_motion",
+        "form_labels_instructions",
+        "form_errors",
+        "status_messages"
+      ],
+      "missing_failed_accessibility_evidence_keys": [
+        "focus_not_obscured",
+        "no_keyboard_trap",
+        "reduced_motion",
+        "form_labels_instructions",
+        "form_errors",
+        "status_messages"
+      ],
+      "finding_count": 6,
+      "review_sha256": "a00fda3242aefc6b2a25a3f36378ce66e4b9b9edf0f0dd88f893b9df9c5743d5",
+      "repair_capture_status": "captured",
+      "repair_prompt_sha256": "609b7fc340e4aca859e72fc7d3317954f6fc8dbfd6bb580ce59ee20e94cbd372",
+      "repair_raw_response_sha256": "754b1120928d965425461f9323268428b9df2dd9643bf428cd165ec3f1347eb0",
+      "repair_duration_ms": 99696,
+      "repair_rationale": "Repaired only the failed accessibility evidence entries while preserving the candidate structure, approved primitives, domain language, and empty non-applicable conditional fields.",
+      "repair_parse_error": null,
+      "repair_execution": {
+        "runtime": "codex exec",
+        "status": 0,
+        "stdout_sha256": "00488be1fd5ca7303fc2ca6c7aa11a8155d2edf31f9bb811582422a14c4cde12",
+        "stderr_sha256": "6635d8e3abec44af6569247fd3fb750ccefd3cd385840c363b8ff71fd493820f",
+        "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+      },
+      "repair_candidate_sha256": "34c8e37796b3594f4468bf18cb61a7011276c96f9d125a4410a6096bd8d0f97e",
+      "repair_candidate_accessibility_evidence_keys": [
+        "automated_checks",
+        "focus_not_obscured",
+        "focus_order",
+        "focus_visible",
+        "form_errors",
+        "form_labels_instructions",
+        "keyboard_navigation",
+        "landmarks_headings",
+        "name_role_value",
+        "no_keyboard_trap",
+        "reduced_motion",
+        "responsive_no_overflow",
+        "semantic_content",
+        "status_messages"
+      ],
+      "repair_candidate_missing_failed_accessibility_evidence_keys": []
+    },
+    {
+      "attempt": 3,
+      "candidate_sha256": "34c8e37796b3594f4468bf18cb61a7011276c96f9d125a4410a6096bd8d0f97e",
+      "implementation_review_status": "passed",
+      "next_agent_action": "accept",
+      "loop_status": "passed",
+      "failure_categories": [],
+      "failed_checks": [],
+      "provided_accessibility_evidence_keys": [
+        "automated_checks",
+        "focus_not_obscured",
+        "focus_order",
+        "focus_visible",
+        "form_errors",
+        "form_labels_instructions",
+        "keyboard_navigation",
+        "landmarks_headings",
+        "name_role_value",
+        "no_keyboard_trap",
+        "reduced_motion",
+        "responsive_no_overflow",
+        "semantic_content",
+        "status_messages"
+      ],
+      "failed_accessibility_evidence_keys": [],
+      "missing_failed_accessibility_evidence_keys": [],
+      "finding_count": 0,
+      "review_sha256": "4865bcee5b98cc30d39197599247931be304b419a95df7322d81ad8dbe27e96d"
+    }
+  ],
+  "final_action": "accept",
+  "error": null,
+  "transcript_file": "evals/mcp-pilot-captures/mcp-0.2.0/gpt-5.5-codex/raw-form-controls-implementation/repair-loop-observation.json"
+}

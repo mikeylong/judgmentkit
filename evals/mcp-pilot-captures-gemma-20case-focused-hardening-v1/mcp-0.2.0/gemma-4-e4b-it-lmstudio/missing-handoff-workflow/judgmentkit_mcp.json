@@ -1,0 +1,61 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "missing-handoff-workflow",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:54314/mcp",
+  "mcp_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "a049d7bba7fa3ac313d9d6ac28bded98f6b102a005dd6715599097ed7668f473",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-15T05:44:53.309Z",
+  "duration_ms": 3745,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 832,
+    "completion_tokens": 177,
+    "total_tokens": 1009,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "cb44f6bc8e3de8343547e154df98597cd3088d08469e6d68eaf5031afd4092b6",
+  "prompt_sha256": "99a89c234dd0ce70a8988fe60d986814b13110b14b6b5e7acfe0af089468860e",
+  "mcp_context_sha256": "b3083660d27823a6b782a7299cb7b9b6c9103b8ae70cdce2d8b2902230895e19",
+  "raw_response_sha256": "cc0e073f358affd30da6c9ba8d15f82a5fe3417ca1509c1c977352fa79c3d387",
+  "raw_response": "{\"response\": \"Reject\", \"next_action\": \"The submitted fixture lacks the required handoff structure. The source brief explicitly requires a handoff containing next owner, action, reason, and evidence gap. The provided fixture has an empty 'handoff' object.\", \"questions\": [], \"handoff\": \"Repair/Missing Handoff Structure: Owner=Reviewer; Action=Populate mandatory handoff fields (next owner, action, reason, evidence gap); Reason=The source brief mandates a complete handoff structure for policy reviewers; Fix=Update the fixture to include all required components within the 'handoff' object.\", \"rationale\": \"The submitted fixture fails to meet the core requirement of the source brief by omitting any content in the 'handoff' section, which must contain specific workflow elements (next owner, action, reason, evidence gap).\"}",
+  "parsed": {
+    "response": "Reject",
+    "next_action": "The submitted fixture lacks the required handoff structure. The source brief explicitly requires a handoff containing next owner, action, reason, and evidence gap. The provided fixture has an empty 'handoff' object.",
+    "questions": [],
+    "handoff": "Repair/Missing Handoff Structure: Owner=Reviewer; Action=Populate mandatory handoff fields (next owner, action, reason, evidence gap); Reason=The source brief mandates a complete handoff structure for policy reviewers; Fix=Update the fixture to include all required components within the 'handoff' object.",
+    "rationale": "The submitted fixture fails to meet the core requirement of the source brief by omitting any content in the 'handoff' section, which must contain specific workflow elements (next owner, action, reason, evidence gap)."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Reject\", \"next_action\": \"The submitted fixture lacks the required handoff structure. The source brief explicitly requires a handoff containing next owner, action, reason, and evidence gap. The provided fixture has an empty 'handoff' object.\", \"questions\": [], \"handoff\": \"Repair/Missing Handoff Structure: Owner=Reviewer; Action=Populate mandatory handoff fields (next owner, action, reason, evidence gap); Reason=The source brief mandates a complete handoff structure for policy reviewers; Fix=Update the fixture to include all required components within the 'handoff' object.\", \"rationale\": \"The submitted fixture fails to meet the core requirement of the source brief by omitting any content in the 'handoff' section, which must contain specific workflow elements (next owner, action, reason, evidence gap).\"}",
+    "usage": {
+      "prompt_tokens": 832,
+      "completion_tokens": 177,
+      "total_tokens": 1009,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "82ed576c70cbc0bc22c854d36a3a76229202d8f51fce875d88ebefe4021531fb",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

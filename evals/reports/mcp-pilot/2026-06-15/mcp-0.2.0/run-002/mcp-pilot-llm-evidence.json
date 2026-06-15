@@ -1,0 +1,528 @@
+{
+  "evidence_type": "mcp-pilot-llm-preference-evidence",
+  "benchmark_policy": "Blinded LLM preference judging of saved baseline and JudgmentKit-guided model outputs. This is product evidence, not deterministic scoring.",
+  "source_report": "evals/reports/mcp-pilot/2026-06-15/mcp-0.2.0/run-002/mcp-pilot-report.json",
+  "source_capture_dir": "evals/mcp-pilot-captures-gemma-focused-hardening-v1",
+  "mcp": {
+    "required_version": "0.2.0",
+    "actual_version": "0.2.0",
+    "package_version": "0.2.0",
+    "local_metadata_sha256": "d485ce78b1923a201f749bcf506338004f0be6d08b47cf51a734ab3f89549035",
+    "endpoint_url": "http://127.0.0.1:53462/mcp",
+    "endpoint_metadata_sha256": "72c5f5bca45bf96254e02c42ddbebb69dbee9e79f536c8fbb358cd89ff641d53"
+  },
+  "model_under_test": {
+    "id": "gemma-4-e4b-it-lmstudio",
+    "summary": {
+      "label": "Gemma 4 E4B LM Studio",
+      "cases": 10,
+      "evaluated_cases": 10,
+      "capture_required_cases": 0,
+      "passed": 8,
+      "failed": 2,
+      "calibrated_passes": 8,
+      "standard_delta_passed": 8,
+      "calibrated_only_passes": 0,
+      "calibrated_pass_reason_counts": {
+        "delta_threshold": 8
+      },
+      "guided_wins": 10,
+      "baseline_wins": 0,
+      "ties": 0,
+      "average_guided_delta": 24.2,
+      "invalid_outputs": 0,
+      "average_duration_ms": 21180,
+      "guided_critical_disclosure_leaks": 0,
+      "loop_cases": 2,
+      "converged_cases": 1,
+      "stopped_cases": 1,
+      "average_attempts_to_pass": 2,
+      "failure_category_counts": {
+        "primitive_defaults": 3,
+        "state_rules": 3,
+        "evidence_gates": 3,
+        "accessibility": 3,
+        "data_visibility": 1
+      },
+      "pilot_passed": true,
+      "pilot_status": "passed"
+    }
+  },
+  "judge": {
+    "id": "gpt-5.5-codex",
+    "label": "GPT-5.5 Codex",
+    "provider": "codex",
+    "model": "gpt-5.5",
+    "reasoning_effort": "xhigh"
+  },
+  "summary": {
+    "total_cases": 10,
+    "valid_judgments": 10,
+    "invalid_judgments": 0,
+    "judge_required": 0,
+    "guided_preferred": 9,
+    "baseline_preferred": 1,
+    "ties": 0,
+    "guided_preference_rate": 0.9,
+    "high_confidence_guided_preferred": 7,
+    "average_guided_quality_delta": 1.79
+  },
+  "judgments": [
+    {
+      "case_id": "refund-schema-admin-translation",
+      "title": "Refund schema admin translation",
+      "case_type": "activity_translation",
+      "status": "judged",
+      "output_valid": true,
+      "parse_error": null,
+      "blinded_winner": "output_a",
+      "treatment_winner": "judgmentkit_mcp",
+      "confidence": "high",
+      "rationale": "Output A is meaningfully closer to the expected next move: it translates the backend/source-material brief into the support lead's refund triage activity and names the core decision outcomes. It is imperfect because it stays generic, asks broad clarification questions, invents an owner, and leaks internal context in the rationale. Output B is too withholding: it treats the provided source brief as insufficient and redirects to requesting more context instead of planning the refund triage handoff surface.",
+      "decisive_differences": [
+        "Output A grounds the plan in the support lead's activity and decision set; Output B blocks on missing context even though the case brief supplies the actor, activity, and expected next action.",
+        "Output A offers an actionable step toward a decisioning/admin surface; Output B's next action is to ask for a fixture, which would delay the downstream agent from making the intended judgment.",
+        "Output A has source-fit but includes internal leakage and generic questions; Output B is restrained but operationally unhelpful for this benchmark."
+      ],
+      "evidence": [
+        {
+          "output": "output_a",
+          "quote": "approve the refund, escalate it for policy review, or send it back to the user/requester because evidence is missing",
+          "why_it_matters": "This matches the source brief's triage decisions and helps a downstream agent center the UI on the support lead's judgment."
+        },
+        {
+          "output": "output_b",
+          "quote": "I cannot generate the final agent response plan. I need the actual UI request or context",
+          "why_it_matters": "This is the wrong next move because the supplied brief already states the activity, actor, evidence sources, and expected translation target."
+        },
+        {
+          "output": "output_a",
+          "quote": "The MCP context indicates",
+          "why_it_matters": "This leaks internal provenance and should be penalized, though it does not erase A's stronger activity fit."
+        }
+      ],
+      "baseline_quality_score": 2,
+      "guided_quality_score": 6.5,
+      "deterministic_winner": "judgmentkit_mcp",
+      "deterministic_delta": 60.91,
+      "deterministic_passed": true,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-15/mcp-0.2.0/run-002/mcp-pilot-llm-judge/gpt-5.5-codex/gemma-4-e4b-it-lmstudio/refund-schema-admin-translation.json"
+    },
+    {
+      "case_id": "crm-json-import-translation",
+      "title": "CRM JSON import translation",
+      "case_type": "activity_translation",
+      "status": "judged",
+      "output_valid": true,
+      "parse_error": null,
+      "blinded_winner": "output_b",
+      "treatment_winner": "judgmentkit_mcp",
+      "confidence": "high",
+      "rationale": "Output B is more useful for the downstream agent because it translates the raw import mechanics into the account operations activity: reviewing record acceptance, identifying owner-required fixes, and preparing the import summary. It stays closer to the source brief and provides an explicit handoff with Action, Owner, and Reason. Output A is directionally related but adds unsupported workflow details and asks generic clarification questions that would slow the next move.",
+      "decisive_differences": [
+        "Output B frames the next action as a record acceptance review, matching the expected next action.",
+        "Output B includes a concrete Action/Owner/Reason handoff; Output A's handoff only asks for clarification.",
+        "Output A invents details not in the brief, including a Rejected category, manual corrections, individual accept/reject actions, and a click path into remediation.",
+        "Output A's questions are generic interaction/design-process questions rather than necessary activity decisions."
+      ],
+      "evidence": [
+        {
+          "output": "output_b",
+          "quote": "Action: Present Account Operations Record Acceptance Review; Owner: Agent; Reason: User needs a clear decision point",
+          "why_it_matters": "This gives the downstream agent an operational next move tied to the user's decision activity."
+        },
+        {
+          "output": "output_b",
+          "quote": "records ready for acceptance... records requiring owner attention... final import summary",
+          "why_it_matters": "These map directly to the source brief's required decisions."
+        },
+        {
+          "output": "output_a",
+          "quote": "make manual corrections or accept/reject them individually",
+          "why_it_matters": "The brief says the user must decide which records need owner fixes, not that they should manually correct or individually accept/reject every record."
+        },
+        {
+          "output": "output_a",
+          "quote": "Need clarification on the required workflow steps",
+          "why_it_matters": "This weakens the handoff despite enough source context to proceed with an acceptance review."
+        }
+      ],
+      "baseline_quality_score": 4.5,
+      "guided_quality_score": 8,
+      "deterministic_winner": "judgmentkit_mcp",
+      "deterministic_delta": 35,
+      "deterministic_passed": true,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-15/mcp-0.2.0/run-002/mcp-pilot-llm-judge/gpt-5.5-codex/gemma-4-e4b-it-lmstudio/crm-json-import-translation.json"
+    },
+    {
+      "case_id": "billing-webhook-debug-boundary",
+      "title": "Billing webhook debug boundary",
+      "case_type": "activity_translation",
+      "status": "judged",
+      "output_valid": true,
+      "parse_error": null,
+      "blinded_winner": "output_a",
+      "treatment_winner": "baseline_no_mcp",
+      "confidence": "high",
+      "rationale": "Output A would better help a downstream agent because it treats the UI as billing incident triage and ties the supplied webhook evidence to operator decisions. It is not perfect: it leans into implementation language like ingestion and a rules engine, and it asks for clarification instead of proposing provisional triage boundaries. Output B is much weaker because it ignores the activity and role already present in the brief and falls back to generic discovery questions.",
+      "decisive_differences": [
+        "Output A connects webhook event names, Stripe payloads, retry logs, endpoint status, and request IDs to invoice issue diagnosis.",
+        "Output A frames the specialist's work around tracing where an invoice issue failed or stalled, which is close to the expected triage action.",
+        "Output B asks generic scope and vocabulary questions even though the brief already names the user, evidence sources, and decisions.",
+        "Output B does not translate webhook mechanics into customer-visible, escalation, or retry decisions."
+      ],
+      "evidence": [
+        {
+          "output": "output_a",
+          "quote": "trace an invoice issue's lifecycle from initial webhook receipt through processing attempts, pinpointing where it stalled or failed",
+          "why_it_matters": "This is grounded in the billing incident activity and helps define the UI around evidence-to-decision work."
+        },
+        {
+          "output": "output_a",
+          "quote": "correlates data points (event name $\\rightarrow$ payload $\\rightarrow$ retry status $\\rightarrow$ endpoint health) into actionable decision nodes",
+          "why_it_matters": "This directly maps source inputs into decision support, though it is somewhat implementation-heavy."
+        },
+        {
+          "output": "output_b",
+          "quote": "I need more information to design the billing operations UI",
+          "why_it_matters": "This is overly restrained because the source brief already supplies enough activity context for a next response plan."
+        },
+        {
+          "output": "output_b",
+          "quote": "What specific activities should this UI support before we can propose a screen structure?",
+          "why_it_matters": "The activity is already stated: billing specialists triage invoice issues using webhook and retry evidence."
+        }
+      ],
+      "baseline_quality_score": 7.4,
+      "guided_quality_score": 3.1,
+      "deterministic_winner": "judgmentkit_mcp",
+      "deterministic_delta": 2.13,
+      "deterministic_passed": false,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-15/mcp-0.2.0/run-002/mcp-pilot-llm-judge/gpt-5.5-codex/gemma-4-e4b-it-lmstudio/billing-webhook-debug-boundary.json"
+    },
+    {
+      "case_id": "vague-system-dashboard",
+      "title": "Vague system dashboard restraint",
+      "case_type": "missing_context_restraint",
+      "status": "judged",
+      "output_valid": true,
+      "parse_error": null,
+      "blinded_winner": "output_a",
+      "treatment_winner": "judgmentkit_mcp",
+      "confidence": "high",
+      "rationale": "Output A better matches the expected next move: it stays restrained and asks targeted questions about the dashboard's supported activity, the key decision or action it should enable, and the outcome the user should leave with. Output B is acceptable, but it drifts toward generic dashboard discovery with personas, metrics, and business questions, which is less directly aligned with the missing context called out by the case.",
+      "decisive_differences": [
+        "Output A directly covers activity, decision/action, and outcome, which are the expected context gaps.",
+        "Output B asks reasonable but more generic discovery questions and prematurely frames the dashboard around metrics and monitoring at a glance.",
+        "Output A is more operationally useful for a downstream agent deciding the next response, despite minor internal wording leakage in its rationale."
+      ],
+      "evidence": [
+        {
+          "output": "output_a",
+          "quote": "What primary activity should this dashboard support?",
+          "why_it_matters": "This targets the core missing activity context instead of assuming a dashboard type."
+        },
+        {
+          "output": "output_a",
+          "quote": "What key decision or next action do you want the user to make easier by looking at this screen?",
+          "why_it_matters": "This aligns precisely with the expected focus on decisions and outcomes."
+        },
+        {
+          "output": "output_b",
+          "quote": "key metrics or data points that users need to monitor at a glance",
+          "why_it_matters": "This assumes a conventional monitoring/metrics dashboard before the activity and outcome are known."
+        },
+        {
+          "output": "output_b",
+          "quote": "Who are the primary end-users of this dashboard",
+          "why_it_matters": "Audience matters, but this is less targeted than the expected activity-decision-outcome clarification."
+        }
+      ],
+      "baseline_quality_score": 6.3,
+      "guided_quality_score": 8,
+      "deterministic_winner": "judgmentkit_mcp",
+      "deterministic_delta": 26.67,
+      "deterministic_passed": true,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-15/mcp-0.2.0/run-002/mcp-pilot-llm-judge/gpt-5.5-codex/gemma-4-e4b-it-lmstudio/vague-system-dashboard.json"
+    },
+    {
+      "case_id": "review-queue-without-decision",
+      "title": "Review queue without decision",
+      "case_type": "missing_context_restraint",
+      "status": "judged",
+      "output_valid": true,
+      "parse_error": null,
+      "blinded_winner": "output_b",
+      "treatment_winner": "judgmentkit_mcp",
+      "confidence": "high",
+      "rationale": "Output B is better because it identifies the missing activity contract: the review queue cannot be planned responsibly until the agent knows what decision or next action the queue supports. Output A stays restrained but drifts into scan mechanics and layout/filter dimensions, which are secondary before the decision context is known. Output B has minor issues: it invents a Product Manager owner and mentions diagnostic context, but those do not outweigh its stronger next move.",
+      "decisive_differences": [
+        "Output B asks the expected targeted question about the decision or next action supported by the queue.",
+        "Output A focuses on scan criteria, grouping, sorting, and UI examples before establishing the underlying review decision.",
+        "Output B gives a more operational handoff around the evidence gap and required fix, though it overreaches by naming an owner."
+      ],
+      "evidence": [
+        {
+          "output": "output_b",
+          "quote": "What specific decision or next action should the interface make easier for the user when viewing items in the review queue?",
+          "why_it_matters": "This directly matches the expected next action and keeps the agent focused on the missing decision context."
+        },
+        {
+          "output": "output_a",
+          "quote": "Could you clarify what 'easy to scan' means in this context? For example, should it involve visual grouping, sorting by urgency, or a specific layout?",
+          "why_it_matters": "This asks a plausible clarification, but it prematurely frames the problem around presentation mechanics instead of the supported review decision."
+        },
+        {
+          "output": "output_b",
+          "quote": "Evidence Gap: Specific required user actions/outcomes for the review queue; Required Fix: Clarification on decision points and expected user knowledge post-review.",
+          "why_it_matters": "The handoff is operationally useful because it names what is missing and what must be clarified before proceeding."
+        },
+        {
+          "output": "output_b",
+          "quote": "Owner: Product Manager",
+          "why_it_matters": "This is an invented workflow detail and should be penalized, though it is not central enough to reverse the comparison."
+        }
+      ],
+      "baseline_quality_score": 5,
+      "guided_quality_score": 8,
+      "deterministic_winner": "judgmentkit_mcp",
+      "deterministic_delta": 32.01,
+      "deterministic_passed": true,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-15/mcp-0.2.0/run-002/mcp-pilot-llm-judge/gpt-5.5-codex/gemma-4-e4b-it-lmstudio/review-queue-without-decision.json"
+    },
+    {
+      "case_id": "invented-activity-candidate",
+      "title": "Invented activity candidate",
+      "case_type": "candidate_validation",
+      "status": "judged",
+      "output_valid": true,
+      "parse_error": null,
+      "blinded_winner": "output_b",
+      "treatment_winner": "judgmentkit_mcp",
+      "confidence": "high",
+      "rationale": "Output B better supports the expected next move: reject the ungrounded candidate and request a source-aligned replacement. Output A identifies the mismatch, but weakens the judgment by asking for clarification and framing the handoff as needing clarification despite the source brief being sufficient to reject. Output B is not perfect because it invents an owner and includes some fixture/internal language, but it is more operationally useful.",
+      "decisive_differences": [
+        "Output B gives a direct reject decision and replacement action aligned to refund triage.",
+        "Output A introduces an unnecessary clarification question after already determining the candidate is unrelated.",
+        "Output B's handoff contains decision, action, reason, and required fix; Output A's handoff is less useful because it asks what still needs clarification.",
+        "Output B has a minor grounding risk from the invented owner 'Triage Specialist'. Both outputs have some risk from `output_valid: true` in a rejection case."
+      ],
+      "evidence": [
+        {
+          "output": "output_a",
+          "quote": "Need clarification on which parts of the source brief must be represented in the next candidate fixture",
+          "why_it_matters": "This is unnecessary because the source already states the role, activity, and three decision outcomes needed to reject and replace the candidate."
+        },
+        {
+          "output": "output_a",
+          "quote": "What specific aspects of the source brief need to be captured",
+          "why_it_matters": "The question is generic and slows the downstream next move instead of cleanly rejecting the ungrounded candidate."
+        },
+        {
+          "output": "output_b",
+          "quote": "Reject",
+          "why_it_matters": "This matches the expected next action directly."
+        },
+        {
+          "output": "output_b",
+          "quote": "Request a refund-triage-aligned replacement activity",
+          "why_it_matters": "The next action is grounded in the source brief and gives a concrete path forward."
+        },
+        {
+          "output": "output_b",
+          "quote": "Owner: Triage Specialist",
+          "why_it_matters": "This is an invented detail because the source names a support lead, so it is a real but non-decisive flaw."
+        }
+      ],
+      "baseline_quality_score": 6.5,
+      "guided_quality_score": 8,
+      "deterministic_winner": "judgmentkit_mcp",
+      "deterministic_delta": 21.64,
+      "deterministic_passed": true,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-15/mcp-0.2.0/run-002/mcp-pilot-llm-judge/gpt-5.5-codex/gemma-4-e4b-it-lmstudio/invented-activity-candidate.json"
+    },
+    {
+      "case_id": "schema-leaking-workflow",
+      "title": "Schema-leaking workflow candidate",
+      "case_type": "candidate_validation",
+      "status": "judged",
+      "output_valid": true,
+      "parse_error": null,
+      "blinded_winner": "output_b",
+      "treatment_winner": "judgmentkit_mcp",
+      "confidence": "medium",
+      "rationale": "Output B better supports the expected next move because it makes the rejection explicit, gives a direct repair direction, avoids unnecessary clarification questions, and packages the handoff with decision, action, reason, and required fix. Output A is more specifically grounded in the schema/API mismatch, but it is less decisive operationally and introduces an extra question with invented possible workflow details.",
+      "decisive_differences": [
+        "Output B clearly says to reject and repair the schema-leaking workflow; Output A implies rejection through discard/re-evaluation but is less direct.",
+        "Output B has a more actionable handoff with decision, action, reason, and required fix.",
+        "Output A asks an unnecessary clarification question and invents possible follow-on actions like assigning to another team or adding internal notes.",
+        "Output B has its own risk from inventing an owner and using slightly generic language, but it still better matches the expected next action."
+      ],
+      "evidence": [
+        {
+          "output": "output_b",
+          "quote": "Reject",
+          "why_it_matters": "The benchmark expects rejection of the schema-leaking workflow, and this states the judgment plainly."
+        },
+        {
+          "output": "output_b",
+          "quote": "Repair the workflow to reflect user-facing triage steps",
+          "why_it_matters": "This gives the downstream agent a concrete next move aligned with the source activity."
+        },
+        {
+          "output": "output_a",
+          "quote": "What specific actions should be modeled when a support lead decides to 'policy review'",
+          "why_it_matters": "This adds a clarification question after the candidate should already be rejected, and the examples introduce details not present in the brief."
+        },
+        {
+          "output": "output_a",
+          "quote": "The candidate fixture details schema management and CRUD operations",
+          "why_it_matters": "This is a strength because it grounds the rejection in the source mismatch, but the overall handoff is less operational than B."
+        }
+      ],
+      "baseline_quality_score": 7,
+      "guided_quality_score": 8,
+      "deterministic_winner": "judgmentkit_mcp",
+      "deterministic_delta": 25.02,
+      "deterministic_passed": true,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-15/mcp-0.2.0/run-002/mcp-pilot-llm-judge/gpt-5.5-codex/gemma-4-e4b-it-lmstudio/schema-leaking-workflow.json"
+    },
+    {
+      "case_id": "surface-type-mismatch",
+      "title": "Surface type mismatch",
+      "case_type": "candidate_validation",
+      "status": "judged",
+      "output_valid": true,
+      "parse_error": null,
+      "blinded_winner": "output_a",
+      "treatment_winner": "judgmentkit_mcp",
+      "confidence": "high",
+      "rationale": "Output A is more useful for a downstream agent because it identifies the surface mismatch, explicitly rejects the incident/operator workflow, and gives a direct repair path back to the product landing-page intent. Output B also catches the mismatch, but its generic questions and weaker handoff make the next move less decisive. Both are imperfect because they mark output_valid as true despite saying the candidate should be rejected.",
+      "decisive_differences": [
+        "Output A explicitly says to reject and return to the landing-page intent; Output B only requests a revised candidate fixture.",
+        "Output A has a clearer Decision/Action/Reason-style handoff, matching the expected next action more closely.",
+        "Output B asks generic questions about page sections and terms even though the source brief already establishes the needed surface and audience.",
+        "Output A is slightly over-specified with an invented owner and guide framing, but that is less harmful than Output B's weaker operational direction."
+      ],
+      "evidence": [
+        {
+          "output": "output_a",
+          "quote": "Reject fixture; return to product landing-page intent.",
+          "why_it_matters": "This directly matches the expected next action."
+        },
+        {
+          "output": "output_a",
+          "quote": "Rebuild the entire artifact to focus on marketing and educational content suitable for a product landing page",
+          "why_it_matters": "It gives the downstream agent a concrete correction path tied to the source brief."
+        },
+        {
+          "output": "output_b",
+          "quote": "What specific sections or components are expected on the product landing page",
+          "why_it_matters": "This is a generic question that slows the next move instead of acting on the clear mismatch."
+        },
+        {
+          "output": "output_b",
+          "quote": "Handoff to Content Generation Agent",
+          "why_it_matters": "The handoff is less grounded in decision/action/reason and introduces unnecessary agent-routing language."
+        }
+      ],
+      "baseline_quality_score": 6.5,
+      "guided_quality_score": 8,
+      "deterministic_winner": "judgmentkit_mcp",
+      "deterministic_delta": 12.88,
+      "deterministic_passed": true,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-15/mcp-0.2.0/run-002/mcp-pilot-llm-judge/gpt-5.5-codex/gemma-4-e4b-it-lmstudio/surface-type-mismatch.json"
+    },
+    {
+      "case_id": "modal-action-order-review",
+      "title": "Modal action order review",
+      "case_type": "implementation_review",
+      "status": "judged",
+      "output_valid": true,
+      "parse_error": null,
+      "blinded_winner": "output_a",
+      "treatment_winner": "judgmentkit_mcp",
+      "confidence": "medium",
+      "rationale": "Output A is the better downstream aid because it takes the required rejection/block stance and identifies the missing evidence around action order and focus behavior. It is imperfect: it invents repeated review failures and over-specifies focus landing on the final action, which may be wrong. Output B is more explanatory in places, but it leans toward acceptance, invents accessibility evidence, and does not clearly reject pending modal action order/focus verification.",
+      "decisive_differences": [
+        "Output A matches the expected next move by blocking until evidence is supplied; Output B only asks for further review and says the candidate appears to address requirements.",
+        "Output A names action order/final-action clarity and keyboard focus as evidence gaps; Output B focuses on focus trap/return and visual clarity but misses modal action order as a required proof point.",
+        "Output B invents positive evidence from the candidate, while Output A's main invented detail is harmful but less decisive than B's unsafe acceptance posture."
+      ],
+      "evidence": [
+        {
+          "output": "output_a",
+          "quote": "Block until final-action clarity and keyboard focus verification is provided.",
+          "why_it_matters": "This directly aligns with rejecting until the key modal behavior evidence is verified."
+        },
+        {
+          "output": "output_a",
+          "quote": "Missing evidence for modal action order, specifically confirming the sequence of actions and proper focus management",
+          "why_it_matters": "It identifies the central evidence gap the downstream agent should pursue."
+        },
+        {
+          "output": "output_b",
+          "quote": "The implementation candidate appears to address the core requirements",
+          "why_it_matters": "This is too acceptance-leaning for a case where the expected action is to reject until evidence is verified."
+        },
+        {
+          "output": "output_b",
+          "quote": "The inclusion of 'labels: present' for accessibility evidence is positive.",
+          "why_it_matters": "This introduces source-unsupported evidence and can mislead the downstream judgment."
+        }
+      ],
+      "baseline_quality_score": 4,
+      "guided_quality_score": 6.5,
+      "deterministic_winner": "judgmentkit_mcp",
+      "deterministic_delta": 9.53,
+      "deterministic_passed": false,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-15/mcp-0.2.0/run-002/mcp-pilot-llm-judge/gpt-5.5-codex/gemma-4-e4b-it-lmstudio/modal-action-order-review.json"
+    },
+    {
+      "case_id": "implementation-term-leakage-review",
+      "title": "Implementation-term leakage review",
+      "case_type": "implementation_review",
+      "status": "judged",
+      "output_valid": true,
+      "parse_error": null,
+      "blinded_winner": "output_a",
+      "treatment_winner": "judgmentkit_mcp",
+      "confidence": "high",
+      "rationale": "Output A better matches the required judgment: reject the implementation and require removal of implementation/review-packet terminology from user-facing labels. It is more operationally useful because it gives a clear decision, next action, required fix, and verification target. Output B identifies the leakage and asks for customer-facing language, but it weakens the judgment by not explicitly rejecting, inventing technical robustness/testing details not present in the source, adding generic questions, and framing the handoff as UX copy sign-off rather than a product acceptance failure.",
+      "decisive_differences": [
+        "Output A explicitly rejects; Output B only describes a flaw and requires revision.",
+        "Output A's handoff names the failure and required fix; Output B's handoff is weaker and routes to UX Writing without a clear accept/reject decision.",
+        "Output B invents context about primitives, state coverage, and testing results, which the source brief does not provide.",
+        "Output B includes generic questions that do not help the expected next move."
+      ],
+      "evidence": [
+        {
+          "output": "output_a",
+          "quote": "\"response\": \"reject\"",
+          "why_it_matters": "The expected next action is rejection, and A makes that decision explicit."
+        },
+        {
+          "output": "output_a",
+          "quote": "\"Remove all diagnostic-only terms from the customer refund review UI labels\"",
+          "why_it_matters": "This directly addresses the product-label leakage described in the source brief."
+        },
+        {
+          "output": "output_b",
+          "quote": "\"The core functionality seems technically sound based on primitives used, state coverage, and testing results\"",
+          "why_it_matters": "These details are not in the source and create unsafe confidence in the candidate."
+        },
+        {
+          "output": "output_b",
+          "quote": "\"Handoff to UX Writing/Content team for copy revision and sign-off.\"",
+          "why_it_matters": "This is less operationally aligned than requiring rejection and resubmission with user-facing labels."
+        }
+      ],
+      "baseline_quality_score": 5,
+      "guided_quality_score": 8,
+      "deterministic_winner": "judgmentkit_mcp",
+      "deterministic_delta": 16.24,
+      "deterministic_passed": true,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-15/mcp-0.2.0/run-002/mcp-pilot-llm-judge/gpt-5.5-codex/gemma-4-e4b-it-lmstudio/implementation-term-leakage-review.json"
+    }
+  ]
+}

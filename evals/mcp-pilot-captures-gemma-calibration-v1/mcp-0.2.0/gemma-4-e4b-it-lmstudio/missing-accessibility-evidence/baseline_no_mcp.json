@@ -1,0 +1,61 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "missing-accessibility-evidence",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.2.0",
+  "mcp_url": "http://127.0.0.1:51813/mcp",
+  "mcp_metadata_sha256": "82ee2578ad8ec7998f319195bfa18603a93b9f7b848d2cb24984623397506ee2",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-13T22:07:27.066Z",
+  "duration_ms": 3028,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 308,
+    "completion_tokens": 115,
+    "total_tokens": 423,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "41f96b9faabdb80aec4d022e65a5c05a38776644caff0b47fed3d8cf8791e9ee",
+  "prompt_sha256": "5e79c72a0e397cbdd47483e6cada7600d77061b22811994f3929dc49398fad31",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "f55a9ffd9f7bac050a6db46e84421108536fad9bf0b008e2549fb410c67e9ea9",
+  "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Request accessibility evidence.\", \"questions\": [\"What specific core accessibility evidence needs to be provided for this dense operator review screen?\"], \"handoff\": \"Handoff to Accessibility Specialist: Core accessibility evidence is missing from the implementation candidate, which is required before acceptance.\", \"rationale\": \"The source brief explicitly states that the UI must provide core accessibility evidence before acceptance. The implementation candidate's 'accessibility_evidence' field is empty, indicating this critical requirement has not been met or provided for review.\"}",
+  "parsed": {
+    "response": "Reject",
+    "next_action": "Request accessibility evidence.",
+    "questions": [
+      "What specific core accessibility evidence needs to be provided for this dense operator review screen?"
+    ],
+    "handoff": "Handoff to Accessibility Specialist: Core accessibility evidence is missing from the implementation candidate, which is required before acceptance.",
+    "rationale": "The source brief explicitly states that the UI must provide core accessibility evidence before acceptance. The implementation candidate's 'accessibility_evidence' field is empty, indicating this critical requirement has not been met or provided for review."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Request accessibility evidence.\", \"questions\": [\"What specific core accessibility evidence needs to be provided for this dense operator review screen?\"], \"handoff\": \"Handoff to Accessibility Specialist: Core accessibility evidence is missing from the implementation candidate, which is required before acceptance.\", \"rationale\": \"The source brief explicitly states that the UI must provide core accessibility evidence before acceptance. The implementation candidate's 'accessibility_evidence' field is empty, indicating this critical requirement has not been met or provided for review.\"}",
+    "usage": {
+      "prompt_tokens": 308,
+      "completion_tokens": 115,
+      "total_tokens": 423,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "e78f05f43f935a36c2a5939390b8cda5ee50df96f9dba6aa2c1577c4ff44723a",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}
