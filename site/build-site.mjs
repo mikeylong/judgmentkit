@@ -2727,6 +2727,7 @@ function docsPage() {
       <div class="doc-layout">
         <aside class="doc-nav" aria-label="Docs sections">
           <a href="#quickstart">Quickstart</a>
+          <a href="#first-use">First 10 Minutes</a>
           <a href="#planning-examples">Planning Examples</a>
           <a href="#mcp">MCP</a>
           <a href="#system-map">System Map</a>
@@ -2744,6 +2745,15 @@ function docsPage() {
 curl -fsSL https://judgmentkit.ai/install | bash -s -- --client claude
 curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></pre>
             <p class="note">Codex is the default client. Use <code>--client codex</code>, <code>--client claude</code>, or <code>--client cursor</code> when scripting.</p>
+          </section>
+          <section class="doc-section" id="first-use">
+            <h2>First 10 Minutes</h2>
+            <p>Use the replayable first-use fixture to see the AI-native design system as a contract loop, not a renderer. The fixture gives the agent one brief, one implementation contract input, one failing candidate, one repaired candidate, and the expected two-attempt transcript.</p>
+            <pre><code>examples/ai-native-design-system/first-use.json
+examples/ai-native-design-system/canonical-examples.json</code></pre>
+            <p><strong>Loop:</strong> create the implementation contract, review the failing candidate, read <code>next_agent_action</code> and grouped <code>repair_instructions</code>, repair the candidate, then resubmit and expect <code>accept</code>.</p>
+            <p><strong>Canonical cases:</strong> setup/onboarding, operational dashboard, and high-stakes review/refund workflow. Each case includes the activity model, implementation contract input, failing candidate, repaired candidate, and proof expectation.</p>
+            <p><strong>Renderer boundary:</strong> <code>visual_token_adapter</code> remains boundary-only metadata. The default renderer/component package starts only after the first-use loop and token boundary stay stable.</p>
           </section>
           <section class="doc-section" id="planning-examples">
             <h2>Planning Mode Examples</h2>
@@ -3331,10 +3341,44 @@ async function examplesPage() {
     <section class="section examples-page" data-model-ui-examples>
       <div class="examples-hero">
         <h1>Examples</h1>
-        <p class="lede">Model UI generation matrix examples compare how the same activity changes across raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill plus Material UI paths.</p>
+        <p class="lede">Start with the replayable AI-native contract examples, then use the model UI matrix for broader before/after comparison.</p>
       </div>
+      <section class="example-preview example-preview-focus" aria-labelledby="ai-native-examples-title">
+        <div class="example-preview-body">
+          <div class="example-gallery-intro">
+            <p class="eyebrow">AI-native design system</p>
+            <h2 id="ai-native-examples-title">First-use loop and canonical contract cases</h2>
+            <p>The first-use fixture shows the agent-owned loop: create contract, review, repair, resubmit, accept. The canonical examples cover setup/onboarding, an operational dashboard, and high-stakes refund review before any renderer package exists.</p>
+          </div>
+          <div class="route-grid">
+            <article>
+              <h3>First-use repair loop</h3>
+              <p>One brief, one failing implementation candidate, one repaired candidate, and a two-attempt transcript.</p>
+              <div class="link-row">
+                <a class="pill-link" href="/examples/ai-native-design-system/first-use.json">Open fixture JSON</a>
+              </div>
+            </article>
+            <article>
+              <h3>Canonical examples</h3>
+              <p>Replay setup/onboarding, operational dashboard, and high-stakes review/refund contract failures and repairs.</p>
+              <div class="link-row">
+                <a class="pill-link" href="/examples/ai-native-design-system/canonical-examples.json">Open canonical JSON</a>
+              </div>
+            </article>
+            <article>
+              <h3>Renderer boundary</h3>
+              <p>Visual tokens remain governed metadata. They cannot bypass primitives, states, action boundaries, data visibility, accessibility, static checks, or browser QA.</p>
+            </article>
+          </div>
+        </div>
+      </section>
       <div class="examples-layout">
         <div class="examples-main">
+          <div class="example-gallery-intro">
+            <p class="eyebrow">Model UI matrix</p>
+            <h2>Before and after generation paths</h2>
+            <p>These matrix examples compare how the same activity changes across raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill plus Material UI paths.</p>
+          </div>
           ${renderModelUiUseCaseSelect(modelUiExample.useCases ?? [])}
           <section id="model-ui-system-map" class="example-preview example-preview-focus" aria-label="Model UI generation matrix">
             <div class="example-preview-body" data-model-ui-preview>
@@ -4071,6 +4115,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await copyIfExists("examples/comparison/music/version-a.html", path.join(outDir, "examples", "comparison", "music", "version-a.html"));
   await copyIfExists("examples/comparison/music/version-b.html", path.join(outDir, "examples", "comparison", "music", "version-b.html"));
   await copyIfExists("examples/comparison/music/facilitator-scorecard.md", path.join(outDir, "examples", "comparison", "music", "facilitator-scorecard.md"));
+  await copyDirectoryIfExists("examples/ai-native-design-system", path.join(outDir, "examples", "ai-native-design-system"));
   await copyDirectoryIfExists("evals/reports", path.join(outDir, "evals"));
   await copyDirectoryIfExists("evals/reports", path.join(outDir, "examples", "evals"));
   await fs.writeFile(path.join(outDir, "evals", "index.html"), await evalsPage());

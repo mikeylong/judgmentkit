@@ -62,6 +62,26 @@ The first workflow is AI UI generation. It starts with one contract:
 
 - `contracts/ai-ui-generation.activity-contract.json`
 
+## First 10 Minutes
+
+Use the first-use fixture when you want to see the AI-native contract loop without reading an eval report:
+
+- `examples/ai-native-design-system/first-use.json`
+
+The fixture contains one brief, one implementation contract input, one failing candidate, one repaired candidate, and a two-attempt transcript. The intended loop is:
+
+1. Create the implementation contract.
+2. Review the failing candidate.
+3. Read `next_agent_action` and grouped `repair_instructions`.
+4. Repair the candidate.
+5. Resubmit and expect `accept`.
+
+The canonical examples live beside it:
+
+- `examples/ai-native-design-system/canonical-examples.json`
+
+They cover setup/onboarding, an operational dashboard, and a high-stakes review/refund workflow. The renderer package is still deferred; these examples prove the contract and repair behavior before visual rendering.
+
 The first validation command is:
 
 ```bash

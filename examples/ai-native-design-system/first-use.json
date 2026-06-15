@@ -1,0 +1,322 @@
+{
+  "id": "judgmentkit-first-use-repair-loop-v1",
+  "release_target": "0.3.0",
+  "target_time_minutes": 10,
+  "claim": "Install JudgmentKit, review a generated UI candidate, repair the failed contract area, and resubmit to acceptance.",
+  "brief": "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+  "implementation_contract_input": {
+    "repo_name": "first-use-refund-review",
+    "target_stack": "React",
+    "approved_primitives": [
+      "FormField",
+      "TextField",
+      "TextArea",
+      "SelectField",
+      "CheckboxGroup",
+      "CheckboxOption",
+      "FieldGrid",
+      "ModalActions"
+    ],
+    "static_rules": [
+      "npm test"
+    ],
+    "browser_qa_checks": [
+      "desktop viewport screenshot",
+      "mobile viewport screenshot"
+    ]
+  },
+  "failing_candidate": {
+    "description": "Raw generated admin surface for refund escalation review.",
+    "code": "renderRefundAdminConsole({ FormField, TextArea, CheckboxGroup, ModalActions })",
+    "primitives_used": [
+      "FormField",
+      "TextArea",
+      "CheckboxGroup",
+      "CheckboxOption",
+      "ModalActions"
+    ],
+    "states_covered": [
+      "empty",
+      "ready",
+      "loading",
+      "error",
+      "disabled",
+      "focus-visible"
+    ],
+    "static_checks": [
+      "npm test"
+    ],
+    "browser_qa": {
+      "desktop": "desktop viewport screenshot checked",
+      "mobile": "mobile viewport screenshot checked"
+    },
+    "accessibility_evidence": {
+      "automated_checks": {
+        "status": "pass",
+        "method": "axe smoke check",
+        "notes": "No automated violations in the reviewed states."
+      },
+      "semantic_content": {
+        "status": "pass",
+        "method": "manual DOM inspection",
+        "notes": "The queue, evidence review, decision reason, and handoff receipt use semantic regions."
+      },
+      "landmarks_headings": {
+        "status": "pass",
+        "method": "keyboard and screen reader outline inspection",
+        "notes": "Main, review, evidence, decision, and receipt headings support orientation."
+      },
+      "name_role_value": {
+        "status": "pass",
+        "method": "browser accessibility tree inspection",
+        "notes": "Decision controls expose names, roles, checked state, and disabled reasons."
+      },
+      "keyboard_navigation": {
+        "status": "pass",
+        "method": "manual keyboard pass",
+        "notes": "The support lead can review evidence, select an outcome, enter a reason, and submit by keyboard."
+      },
+      "focus_order": {
+        "status": "pass",
+        "method": "tab order inspection",
+        "notes": "Focus follows queue, evidence, decision, reason, and receipt order."
+      },
+      "focus_visible": {
+        "status": "pass",
+        "method": "browser focus inspection",
+        "notes": "Focus remains visible on all controls."
+      },
+      "responsive_no_overflow": {
+        "status": "pass",
+        "method": "desktop and 390px viewport checks",
+        "notes": "Long labels and reasons wrap without horizontal overflow."
+      },
+      "non_text_contrast": {
+        "status": "pass",
+        "method": "computed contrast review",
+        "notes": "Checkbox indicators and decision states meet 3:1 non-text contrast."
+      },
+      "target_size": {
+        "status": "pass",
+        "method": "pointer target inspection",
+        "notes": "Decision controls and modal actions meet minimum target size or spacing exceptions."
+      },
+      "focus_not_obscured": {
+        "status": "pass",
+        "method": "modal keyboard inspection",
+        "notes": "The confirmation panel never covers focused controls."
+      },
+      "no_keyboard_trap": {
+        "status": "pass",
+        "method": "modal keyboard inspection",
+        "notes": "Focus can leave the decision confirmation by standard keyboard methods."
+      },
+      "form_labels_instructions": {
+        "status": "pass",
+        "method": "label and instruction inspection",
+        "notes": "Decision reason and evidence check fields have visible labels and instructions."
+      },
+      "form_errors": {
+        "status": "pass",
+        "method": "validation state inspection",
+        "notes": "Reason-required and incomplete-evidence validation states name the field and next correction."
+      },
+      "status_messages": {
+        "status": "pass",
+        "method": "aria-live inspection",
+        "notes": "Save, loading, error, and handoff receipt updates are announced without moving focus."
+      }
+    },
+    "actions": [
+      "Approve refund",
+      "Send to policy review",
+      "Return for evidence"
+    ],
+    "modal_actions": [
+      {
+        "context": "refund decision confirmation",
+        "order": [
+          "Cancel",
+          "Submit decision"
+        ],
+        "primary_action": "Submit decision",
+        "primary_position": "last"
+      }
+    ],
+    "action_boundary_evidence": {
+      "approval_boundary": "Approve refund requires explicit user confirmation and a decision reason before submission.",
+      "completion_receipt": "Completion leaves a handoff receipt with the selected outcome, reason, and unresolved evidence."
+    },
+    "visible_text": [
+      "Refund case data model",
+      "JSON schema",
+      "API endpoint status",
+      "Prompt template",
+      "Approve refund",
+      "Send to policy review"
+    ],
+    "data_visibility_evidence": {
+      "primary_data_roles": [
+        "work item identity",
+        "domain evidence",
+        "decision options",
+        "handoff receipt"
+      ]
+    }
+  },
+  "repaired_candidate": {
+    "description": "Refund review workspace with diagnostic implementation detail removed from the primary surface.",
+    "code": "renderRefundReviewWorkspace({ FormField, TextArea, CheckboxGroup, ModalActions })",
+    "primitives_used": [
+      "FormField",
+      "TextArea",
+      "CheckboxGroup",
+      "CheckboxOption",
+      "ModalActions"
+    ],
+    "states_covered": [
+      "empty",
+      "ready",
+      "loading",
+      "error",
+      "disabled",
+      "focus-visible"
+    ],
+    "static_checks": [
+      "npm test"
+    ],
+    "browser_qa": {
+      "desktop": "desktop viewport screenshot checked",
+      "mobile": "mobile viewport screenshot checked"
+    },
+    "accessibility_evidence": {
+      "automated_checks": {
+        "status": "pass",
+        "method": "axe smoke check",
+        "notes": "No automated violations in the reviewed states."
+      },
+      "semantic_content": {
+        "status": "pass",
+        "method": "manual DOM inspection",
+        "notes": "The queue, evidence review, decision reason, and handoff receipt use semantic regions."
+      },
+      "landmarks_headings": {
+        "status": "pass",
+        "method": "keyboard and screen reader outline inspection",
+        "notes": "Main, review, evidence, decision, and receipt headings support orientation."
+      },
+      "name_role_value": {
+        "status": "pass",
+        "method": "browser accessibility tree inspection",
+        "notes": "Decision controls expose names, roles, checked state, and disabled reasons."
+      },
+      "keyboard_navigation": {
+        "status": "pass",
+        "method": "manual keyboard pass",
+        "notes": "The support lead can review evidence, select an outcome, enter a reason, and submit by keyboard."
+      },
+      "focus_order": {
+        "status": "pass",
+        "method": "tab order inspection",
+        "notes": "Focus follows queue, evidence, decision, reason, and receipt order."
+      },
+      "focus_visible": {
+        "status": "pass",
+        "method": "browser focus inspection",
+        "notes": "Focus remains visible on all controls."
+      },
+      "responsive_no_overflow": {
+        "status": "pass",
+        "method": "desktop and 390px viewport checks",
+        "notes": "Long labels and reasons wrap without horizontal overflow."
+      },
+      "non_text_contrast": {
+        "status": "pass",
+        "method": "computed contrast review",
+        "notes": "Checkbox indicators and decision states meet 3:1 non-text contrast."
+      },
+      "target_size": {
+        "status": "pass",
+        "method": "pointer target inspection",
+        "notes": "Decision controls and modal actions meet minimum target size or spacing exceptions."
+      },
+      "focus_not_obscured": {
+        "status": "pass",
+        "method": "modal keyboard inspection",
+        "notes": "The confirmation panel never covers focused controls."
+      },
+      "no_keyboard_trap": {
+        "status": "pass",
+        "method": "modal keyboard inspection",
+        "notes": "Focus can leave the decision confirmation by standard keyboard methods."
+      },
+      "form_labels_instructions": {
+        "status": "pass",
+        "method": "label and instruction inspection",
+        "notes": "Decision reason and evidence check fields have visible labels and instructions."
+      },
+      "form_errors": {
+        "status": "pass",
+        "method": "validation state inspection",
+        "notes": "Reason-required and incomplete-evidence validation states name the field and next correction."
+      },
+      "status_messages": {
+        "status": "pass",
+        "method": "aria-live inspection",
+        "notes": "Save, loading, error, and handoff receipt updates are announced without moving focus."
+      }
+    },
+    "actions": [
+      "Approve refund",
+      "Send to policy review",
+      "Return for evidence"
+    ],
+    "modal_actions": [
+      {
+        "context": "refund decision confirmation",
+        "order": [
+          "Cancel",
+          "Submit decision"
+        ],
+        "primary_action": "Submit decision",
+        "primary_position": "last"
+      }
+    ],
+    "action_boundary_evidence": {
+      "approval_boundary": "Approve refund requires explicit user confirmation and a decision reason before submission.",
+      "completion_receipt": "Completion leaves a handoff receipt with the selected outcome, reason, and unresolved evidence."
+    },
+    "visible_text": [
+      "Refund request",
+      "Evidence checklist",
+      "Decision reason",
+      "Approve refund",
+      "Send to policy review",
+      "Return for evidence",
+      "Handoff receipt"
+    ],
+    "data_visibility_evidence": {
+      "primary_data_roles": [
+        "work item identity",
+        "domain evidence",
+        "decision options",
+        "handoff receipt"
+      ]
+    }
+  },
+  "transcript": [
+    {
+      "attempt": 1,
+      "agent_action": "review",
+      "expected_next_agent_action": "repair_and_resubmit",
+      "failed_contract_area": "data_visibility",
+      "agent_repair": "Replace implementation-language primary labels with refund review language."
+    },
+    {
+      "attempt": 2,
+      "agent_action": "resubmit",
+      "expected_next_agent_action": "accept",
+      "result": "The repaired candidate keeps implementation mechanics out of the primary product surface."
+    }
+  ]
+}

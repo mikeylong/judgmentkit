@@ -118,6 +118,32 @@ try {
   }
 
   {
+    const response = await fetchRoute(
+      url,
+      "/examples/ai-native-design-system/first-use.json",
+    );
+    const body = await response.json();
+
+    assert.equal(response.status, 200, "first-use fixture should return 200");
+    assert.equal(response.headers.get("content-type"), "application/json; charset=utf-8");
+    assert.equal(body.release_target, "0.3.0");
+    assert.equal(body.target_time_minutes, 10);
+  }
+
+  {
+    const response = await fetchRoute(
+      url,
+      "/examples/ai-native-design-system/canonical-examples.json",
+    );
+    const body = await response.json();
+
+    assert.equal(response.status, 200, "canonical examples fixture should return 200");
+    assert.equal(response.headers.get("content-type"), "application/json; charset=utf-8");
+    assert.equal(body.examples.length, 3);
+    assert.equal(body.renderer_boundary.status, "deferred");
+  }
+
+  {
     const response = await fetchRoute(url, "/_vercel/insights/script.js");
     const body = await response.text();
 

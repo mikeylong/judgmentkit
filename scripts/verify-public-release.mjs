@@ -795,7 +795,7 @@ async function verifyMcpMetadata(baseUrl) {
   const toolNames = metadata.capabilities.tools.map((tool) => tool.name);
 
   assert.equal(metadata.name, "JudgmentKit");
-  assert.equal(metadata.version, "0.2.0");
+  assert.equal(metadata.version, "0.3.0");
   assert.equal(metadata.transport, "streamable-http");
   assert.equal(metadata.public_route.role, "mcp_endpoint_and_metadata");
   assert.equal(metadata.public_route.hosted_mcp_endpoint, true);

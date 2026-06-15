@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 0.3.0 - 2026-06-15
+
+- Released the first shippable AI-native contract package with package, contract, MCP metadata, and MCP pilot required version sources aligned to `0.3.0`.
+- Added replayable first-use fixtures for the generate, review, repair, resubmit loop.
+- Added canonical setup/onboarding, operational dashboard, and high-stakes review examples for the contract-governed AI-native design system.
+- Added package install/import smoke coverage from an `npm pack` artifact.
+- Kept the visual token adapter boundary-only and the default renderer/component package deferred.
+
 ## 0.2.0 - 2026-06-12
 
 - Expanded the UI implementation contract with `implementation_contract.accessibility_policy`.
