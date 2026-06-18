@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JudgmentKit MCP 0.4.0 Production Verification</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17211b;
+      --muted: #5c6a61;
+      --line: #d8e2dc;
+      --soft: #f5f7f3;
+      --panel: #ffffff;
+      --pass-bg: #dff5e7;
+      --pass-ink: #145332;
+      --fail-bg: #ffe3df;
+      --fail-ink: #81271e;
+      --accent: #1f6f56;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: #f7f5ef;
+      line-height: 1.5;
+    }
+    main {
+      width: min(1180px, calc(100vw - 40px));
+      margin: 0 auto;
+      padding: 40px 0 64px;
+    }
+    header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 24px;
+      align-items: end;
+      padding-bottom: 28px;
+      border-bottom: 1px solid var(--line);
+    }
+    h1 {
+      margin: 0 0 10px;
+      font-size: clamp(32px, 4vw, 58px);
+      line-height: 1;
+      letter-spacing: 0;
+    }
+    h2 { margin: 0 0 14px; font-size: 22px; letter-spacing: 0; }
+    p { margin: 0; color: var(--muted); max-width: 760px; }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92em; }
+    .status {
+      display: grid;
+      gap: 8px;
+      justify-items: end;
+      text-align: right;
+    }
+    .status strong { font-size: 28px; color: var(--accent); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin: 24px 0;
+    }
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .panel .label { color: var(--muted); font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; }
+    .panel .value { margin-top: 8px; font-size: 18px; overflow-wrap: anywhere; }
+    .section { margin-top: 28px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    th, td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    th { background: var(--soft); color: #2f3a34; font-size: 13px; text-transform: uppercase; letter-spacing: 0.08em; }
+    tr:last-child td { border-bottom: 0; }
+    .pill { display: inline-flex; align-items: center; min-height: 24px; padding: 2px 9px; border-radius: 999px; font-weight: 700; font-size: 13px; }
+    .pass { background: var(--pass-bg); color: var(--pass-ink); }
+    .fail { background: var(--fail-bg); color: var(--fail-ink); }
+    .notice { border-left: 4px solid var(--accent); background: #eef7f1; padding: 14px 16px; border-radius: 6px; color: #224136; }
+    .legacy-list { display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 14px 0 0; list-style: none; }
+    .legacy-list li { background: var(--soft); border: 1px solid var(--line); border-radius: 999px; padding: 6px 10px; }
+    .tool-list { columns: 2; padding-left: 20px; margin: 10px 0 0; }
+    pre { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; background: #111c16; color: #f1f7f2; padding: 18px; border-radius: 8px; font-size: 13px; }
+    @media (max-width: 820px) {
+      main { width: min(100vw - 24px, 1180px); padding-top: 24px; }
+      header { grid-template-columns: 1fr; }
+      .status { justify-items: start; text-align: left; }
+      .grid { grid-template-columns: 1fr; }
+      .tool-list { columns: 1; }
+      table { display: block; overflow-x: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>JudgmentKit MCP 0.4.0 Production Verification</h1>
+        <p>Live probe against <code>https://judgmentkit.ai/mcp</code> after the 0.4.0 production deploy. The production MCP contract requires topology, work units, surface set, handoff, and diagnostics. Legacy workflow compatibility is removed.</p>
+      </div>
+      <div class="status">
+        <span>Overall status</span>
+        <strong>PASS</strong>
+      </div>
+    </header>
+
+    <section class="grid" aria-label="Deployment summary">
+      <div class="panel">
+        <div class="label">Production alias</div>
+        <div class="value"><a href="https://judgmentkit.ai">https://judgmentkit.ai</a></div>
+      </div>
+      <div class="panel">
+        <div class="label">Deployment</div>
+        <div class="value"><a href="https://judgmentkit-wq2c0bbkj-surfaces-platform.vercel.app">https://judgmentkit-wq2c0bbkj-surfaces-platform.vercel.app</a></div>
+      </div>
+      <div class="panel">
+        <div class="label">MCP version</div>
+        <div class="value"><code>0.4.0</code></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Legacy Fields Removed</h2>
+      <div class="notice">Tool metadata and successful structured outputs contain no legacy workflow keys. Rejection errors intentionally name the rejected legacy input field so callers know what to change.</div>
+      <ul class="legacy-list">
+        <li><code>workflow.steps</code></li>
+        <li><code>primary_ui</code></li>
+        <li><code>primary_surface</code></li>
+        <li><code>terms_to_keep_out_of_primary_ui</code></li>
+        <li><code>primary_ui_rule</code></li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2>Checks</h2>
+      <table>
+        <thead><tr><th>Check</th><th>Status</th></tr></thead>
+        <tbody>
+        <tr>
+          <td>metadata version 0 4 0</td>
+          <td><span class="pill pass">pass</span></td>
+        </tr>
+        <tr>
+          <td>metadata no legacy fields</td>
+          <td><span class="pill pass">pass</span></td>
+        </tr>
+        <tr>
+          <td>valid workbench accepted</td>
+          <td><span class="pill pass">pass</span></td>
+        </tr>
+        <tr>
+          <td>valid workbench no legacy keys</td>
+          <td><span class="pill pass">pass</span></td>
+        </tr>
+        <tr>
+          <td>legacy steps rejected</td>
+          <td><span class="pill pass">pass</span></td>
+        </tr>
+        <tr>
+          <td>legacy primary ui rejected</td>
+          <td><span class="pill pass">pass</span></td>
+        </tr>
+        <tr>
+          <td>staged workbench blocked</td>
+          <td><span class="pill pass">pass</span></td>
+        </tr>
+        <tr>
+          <td>staged form accepted</td>
+          <td><span class="pill pass">pass</span></td>
+        </tr>
+        <tr>
+          <td>staged form no legacy keys</td>
+          <td><span class="pill pass">pass</span></td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>Workflow Probe Results</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Case</th><th>Status</th><th>Topology</th><th>Work units</th><th>Stepper</th><th>Blocked</th><th>Legacy keys</th>
+          </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>valid workbench</td>
+          <td>ready_for_review</td>
+          <td>workspace</td>
+          <td>Review evidence, Choose path, Prepare handoff</td>
+          <td>not allowed</td>
+          <td>not blocked</td>
+          <td>none</td>
+        </tr>
+        <tr>
+          <td>legacy steps</td>
+          <td>invalid_input</td>
+          <td>n/a</td>
+          <td>n/a</td>
+          <td>n/a</td>
+          <td>n/a</td>
+          <td>none</td>
+        </tr>
+        <tr>
+          <td>legacy primary ui</td>
+          <td>invalid_input</td>
+          <td>n/a</td>
+          <td>n/a</td>
+          <td>n/a</td>
+          <td>n/a</td>
+          <td>none</td>
+        </tr>
+        <tr>
+          <td>staged workbench</td>
+          <td>needs_source_context</td>
+          <td>staged_flow</td>
+          <td>Open case, Review evidence, Choose path, Send handoff</td>
+          <td>not allowed</td>
+          <td>blocked</td>
+          <td>none</td>
+        </tr>
+        <tr>
+          <td>staged form</td>
+          <td>ready_for_review</td>
+          <td>staged_flow</td>
+          <td>Enter billing information, Resolve validation, Review and submit</td>
+          <td>allowed</td>
+          <td>not blocked</td>
+          <td>none</td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="section">
+      <h2>Tools</h2>
+      <div class="panel">
+        <div class="label">11 production MCP tools</div>
+        <ul class="tool-list"><li><code>analyze_implementation_brief</code></li>
+<li><code>create_activity_model_review</code></li>
+<li><code>recommend_surface_types</code></li>
+<li><code>recommend_ui_workflow_profiles</code></li>
+<li><code>review_activity_model_candidate</code></li>
+<li><code>review_ui_workflow_candidate</code></li>
+<li><code>create_ui_implementation_contract</code></li>
+<li><code>review_ui_implementation_candidate</code></li>
+<li><code>create_ui_generation_handoff</code></li>
+<li><code>create_frontend_generation_context</code></li>
+<li><code>create_frontend_implementation_skill_context</code></li></ul>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>Raw Probe JSON</h2>
+      <pre>{
+  "generated_at": "2026-06-18T05:11:07.082Z",
+  "endpoint": "https://judgmentkit.ai/mcp",
+  "deployment": {
+    "production_alias": "https://judgmentkit.ai",
+    "deployment_url": "https://judgmentkit-wq2c0bbkj-surfaces-platform.vercel.app",
+    "deployment_id": "dpl_H9dGJWyNRJz3CUpPEDzMkXhLSYof"
+  },
+  "metadata": {
+    "status": 200,
+    "name": "JudgmentKit",
+    "version": "0.4.0"
+  },
+  "tool_count": 11,
+  "tool_names": [
+    "analyze_implementation_brief",
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles",
+    "review_activity_model_candidate",
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "create_ui_generation_handoff",
+    "create_frontend_generation_context",
+    "create_frontend_implementation_skill_context"
+  ],
+  "metadata_legacy_matches": [],
+  "checks": {
+    "metadata_version_0_4_0": true,
+    "metadata_no_legacy_fields": true,
+    "valid_workbench_accepted": true,
+    "valid_workbench_no_legacy_keys": true,
+    "legacy_steps_rejected": true,
+    "legacy_primary_ui_rejected": true,
+    "staged_workbench_blocked": true,
+    "staged_form_accepted": true,
+    "staged_form_no_legacy_keys": true
+  },
+  "results": {
+    "valid_workbench": {
+      "isError": false,
+      "review_status": "ready_for_review",
+      "candidate_topology": "workspace",
+      "candidate_work_units": [
+        "Review evidence",
+        "Choose path",
+        "Prepare handoff"
+      ],
+      "candidate_surface_count": 1,
+      "stepper_allowed": false,
+      "stepper_blocked": false,
+      "stepper_reason": "No staged-flow intent detected; use topology, work units, and coordinated surfaces instead.",
+      "legacy_key_paths": []
+    },
+    "legacy_steps": {
+      "isError": true,
+      "error_code": "invalid_input",
+      "error_message": "UI workflow candidate no longer accepts workflow.steps. Use workflow.work_units.",
+      "legacy_key_paths": []
+    },
+    "legacy_primary_ui": {
+      "isError": true,
+      "error_code": "invalid_input",
+      "error_message": "UI workflow candidate no longer accepts primary_ui. Use surface_set.",
+      "legacy_key_paths": []
+    },
+    "staged_workbench": {
+      "isError": false,
+      "review_status": "needs_source_context",
+      "candidate_topology": "staged_flow",
+      "candidate_work_units": [
+        "Open case",
+        "Review evidence",
+        "Choose path",
+        "Send handoff"
+      ],
+      "candidate_surface_count": 1,
+      "stepper_allowed": false,
+      "stepper_blocked": true,
+      "stepper_reason": "Staged-flow topology needs explicit wizard intent, setup/form sequence, or strict dependency order.",
+      "legacy_key_paths": []
+    },
+    "staged_form": {
+      "isError": false,
+      "review_status": "ready_for_review",
+      "candidate_topology": "staged_flow",
+      "candidate_work_units": [
+        "Enter billing information",
+        "Resolve validation",
+        "Review and submit"
+      ],
+      "candidate_surface_count": 1,
+      "stepper_allowed": true,
+      "stepper_blocked": false,
+      "stepper_reason": "Source evidence supports staged progression.",
+      "legacy_key_paths": []
+    }
+  }
+}</pre>
+    </section>
+  </main>
+</body>
+</html>

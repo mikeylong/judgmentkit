@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-06-18T05:11:07.082Z",
+  "endpoint": "https://judgmentkit.ai/mcp",
+  "deployment": {
+    "production_alias": "https://judgmentkit.ai",
+    "deployment_url": "https://judgmentkit-wq2c0bbkj-surfaces-platform.vercel.app",
+    "deployment_id": "dpl_H9dGJWyNRJz3CUpPEDzMkXhLSYof"
+  },
+  "metadata": {
+    "status": 200,
+    "name": "JudgmentKit",
+    "version": "0.4.0"
+  },
+  "tool_count": 11,
+  "tool_names": [
+    "analyze_implementation_brief",
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles",
+    "review_activity_model_candidate",
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "create_ui_generation_handoff",
+    "create_frontend_generation_context",
+    "create_frontend_implementation_skill_context"
+  ],
+  "metadata_legacy_matches": [],
+  "checks": {
+    "metadata_version_0_4_0": true,
+    "metadata_no_legacy_fields": true,
+    "valid_workbench_accepted": true,
+    "valid_workbench_no_legacy_keys": true,
+    "legacy_steps_rejected": true,
+    "legacy_primary_ui_rejected": true,
+    "staged_workbench_blocked": true,
+    "staged_form_accepted": true,
+    "staged_form_no_legacy_keys": true
+  },
+  "results": {
+    "valid_workbench": {
+      "isError": false,
+      "review_status": "ready_for_review",
+      "candidate_topology": "workspace",
+      "candidate_work_units": [
+        "Review evidence",
+        "Choose path",
+        "Prepare handoff"
+      ],
+      "candidate_surface_count": 1,
+      "stepper_allowed": false,
+      "stepper_blocked": false,
+      "stepper_reason": "No staged-flow intent detected; use topology, work units, and coordinated surfaces instead.",
+      "legacy_key_paths": []
+    },
+    "legacy_steps": {
+      "isError": true,
+      "error_code": "invalid_input",
+      "error_message": "UI workflow candidate no longer accepts workflow.steps. Use workflow.work_units.",
+      "legacy_key_paths": []
+    },
+    "legacy_primary_ui": {
+      "isError": true,
+      "error_code": "invalid_input",
+      "error_message": "UI workflow candidate no longer accepts primary_ui. Use surface_set.",
+      "legacy_key_paths": []
+    },
+    "staged_workbench": {
+      "isError": false,
+      "review_status": "needs_source_context",
+      "candidate_topology": "staged_flow",
+      "candidate_work_units": [
+        "Open case",
+        "Review evidence",
+        "Choose path",
+        "Send handoff"
+      ],
+      "candidate_surface_count": 1,
+      "stepper_allowed": false,
+      "stepper_blocked": true,
+      "stepper_reason": "Staged-flow topology needs explicit wizard intent, setup/form sequence, or strict dependency order.",
+      "legacy_key_paths": []
+    },
+    "staged_form": {
+      "isError": false,
+      "review_status": "ready_for_review",
+      "candidate_topology": "staged_flow",
+      "candidate_work_units": [
+        "Enter billing information",
+        "Resolve validation",
+        "Review and submit"
+      ],
+      "candidate_surface_count": 1,
+      "stepper_allowed": true,
+      "stepper_blocked": false,
+      "stepper_reason": "Source evidence supports staged progression.",
+      "legacy_key_paths": []
+    }
+  }
+}
