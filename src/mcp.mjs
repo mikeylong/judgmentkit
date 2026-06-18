@@ -567,6 +567,9 @@ function formatActivityReviewCard(result) {
 function formatWorkflowReviewCard(result) {
   const workflow = result.candidate?.workflow ?? {};
   const primaryUi = result.candidate?.primary_ui ?? {};
+  const surfaceSet = Array.isArray(result.candidate?.surface_set)
+    ? result.candidate.surface_set
+    : [];
   const handoff = result.candidate?.handoff ?? {};
   const status = planningStatus(result);
   const nextStep = result.review_status === "ready_for_review"
@@ -580,6 +583,18 @@ function formatWorkflowReviewCard(result) {
 
   addSection(lines, "Plan from this", [
     firstLine("Workflow", workflow.surface_name),
+    firstLine("Topology", workflow.topology),
+    listLine("Work units", workflow.work_units),
+    firstLine(
+      "Stepper",
+      workflow.stepper_eligibility?.allowed ? "eligible" : "not eligible",
+    ),
+    listLine(
+      "Surfaces",
+      surfaceSet.map((surface) =>
+        [surface.name, surface.purpose].filter(Boolean).join(": "),
+      ),
+    ),
     listLine("Primary actions", workflow.primary_actions),
     listLine("Decision points", workflow.decision_points),
     firstLine("Completion", workflow.completion_state),
@@ -596,7 +611,7 @@ function formatHandoffCard(result) {
   const lines = [
     "## JudgmentKit UI Handoff",
     `**Status:** ${planningStatus(result)}`,
-    "**Next step:** Generate UI from this handoff, keeping disclosure reminders out of the primary product surface.",
+    "**Next step:** Generate UI from this handoff, using the workflow topology and surface set while keeping disclosure reminders out of the primary product UI.",
   ];
 
   addSection(lines, "Plan from this", [
@@ -604,6 +619,18 @@ function formatHandoffCard(result) {
     firstLine("Primary decision", result.interaction_contract?.primary_decision),
     firstLine("Outcome", result.interaction_contract?.completion),
     firstLine("Workflow", result.workflow?.surface_name),
+    firstLine("Topology", result.workflow?.topology),
+    listLine("Work units", result.workflow?.work_units),
+    firstLine(
+      "Stepper",
+      result.workflow?.stepper_eligibility?.allowed ? "eligible" : "not eligible",
+    ),
+    listLine(
+      "Surfaces",
+      (Array.isArray(result.surface_set) ? result.surface_set : []).map((surface) =>
+        [surface.name, surface.purpose].filter(Boolean).join(": "),
+      ),
+    ),
     listLine("Primary actions", result.workflow?.primary_actions),
     listLine("Primary sections", result.primary_surface?.sections),
     firstLine("Handoff", result.handoff?.next_action),
@@ -777,6 +804,17 @@ function formatFrontendContextCard(result) {
     firstLine("Surface type", result.surface_type),
     firstLine("Activity", result.activity_model?.activity),
     firstLine("Workflow", result.workflow?.surface_name),
+    firstLine("Topology", result.workflow?.topology),
+    listLine("Work units", result.workflow?.work_units),
+    listLine(
+      "Required surfaces",
+      (Array.isArray(result.implementation_guidance?.required_surfaces)
+        ? result.implementation_guidance.required_surfaces
+        : []
+      ).map((surface) =>
+        [surface.name, surface.purpose].filter(Boolean).join(": "),
+      ),
+    ),
     listLine("Required sections", result.implementation_guidance?.required_sections),
     listLine("Required controls", result.implementation_guidance?.required_controls),
     listLine("Visual requirements", result.frontend_context?.visual_requirements),
@@ -815,6 +853,23 @@ function formatFrontendSkillContextCard(result) {
 
   addSection(lines, "Plan from this", [
     firstLine("Surface type", result.surface_type_guidance?.surface_type),
+    firstLine("Topology", result.surface_type_guidance?.workflow_topology),
+    listLine("Work units", result.surface_type_guidance?.work_units),
+    firstLine(
+      "Stepper",
+      result.surface_type_guidance?.stepper_eligibility?.allowed
+        ? "eligible"
+        : "not eligible",
+    ),
+    listLine(
+      "Surfaces",
+      (Array.isArray(result.surface_type_guidance?.surface_set)
+        ? result.surface_type_guidance.surface_set
+        : []
+      ).map((surface) =>
+        [surface.name, surface.purpose].filter(Boolean).join(": "),
+      ),
+    ),
     listLine("Approved primitives", result.approved_primitives),
     listLine("Approved component families", result.approved_component_families),
     listLine("Visual asset paths", result.visual_asset_policy?.preferred_paths),

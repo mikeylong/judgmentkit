@@ -18,7 +18,46 @@
     "copy JudgmentKit v1 resource, prompt, schema, or MCP structures"
   ],
   "workflow": {
-    "id": "workflow.ai-ui-generation"
+    "id": "workflow.ai-ui-generation",
+    "topology_policy": {
+      "allowed_topologies": [
+        "workspace",
+        "multi_surface",
+        "staged_flow",
+        "dashboard",
+        "report",
+        "conversation"
+      ],
+      "preferred_default": "workspace",
+      "work_units_guidance": [
+        "Name domain work units, checkpoints, or objects the UI must support without implying a numbered sequence.",
+        "Use work units for queues, review work, dashboards, reports, and conversation contexts when order is not the user's primary mental model.",
+        "Do not convert repeated inspect, compare, decide, or handoff work into a 1-2-3 wizard."
+      ],
+      "surface_set_guidance": [
+        "Consider whether the activity needs several coordinated surfaces, such as list, detail, evidence, decision, receipt, dashboard, report, or diagnostic views.",
+        "A workflow may be supported by multiple surfaces; do not collapse the work into one all-purpose screen unless the activity calls for it.",
+        "Surface relationships should explain how the user moves among work areas without exposing implementation machinery."
+      ],
+      "stepper_eligibility": {
+        "policy": "strong_intent",
+        "allowed_when": [
+          "The user or source brief explicitly asks for a wizard, stepper, guided setup, onboarding sequence, or staged flow.",
+          "The activity clearly requires ordered stages because each stage depends on completion or validation of the previous stage.",
+          "The surface type is form_flow or setup_debug_tool and task evidence shows validation, setup, onboarding, checkout, application, or strict dependency order."
+        ],
+        "not_allowed_when": [
+          "The activity is a workbench, operator review, dashboard monitor, content/report, conversation, or ordinary multi-surface workflow.",
+          "The source describes repeated work items, queues, evidence comparison, bounded decisions, monitoring, reading, or handoff without strict sequence.",
+          "Numbered steps are used only to make a workflow look organized rather than because the user thinks in staged progression."
+        ],
+        "failure_signals": [
+          "A review queue, workbench, dashboard, report, or conversation is represented as 1-2-3 numbered steps without staged-flow evidence.",
+          "The generated UI collapses a multi-surface workflow into a single wizard when coordinated surfaces would better support the activity.",
+          "Stepper labels describe generic process stages instead of domain work units, evidence, decisions, or handoff outcomes."
+        ]
+      }
+    }
   },
   "profiles": {
     "operator-review-ui": {

@@ -1,0 +1,89 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "clinical-intake-operator-review",
+  "title": "Clinical intake operator review",
+  "case_type": "operator_review_handoff",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-18T03:21:16.191Z",
+  "duration_ms": 73372,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "3108864fb99ba3012002d41afb1a03f2e7271702c1bbe80c4cf6f475aeec3040",
+  "raw_response_sha256": "963665273f4e3c7eb84f47a832da7236f9096acdb1ff47375763f9622193954f",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"medium\",\"rationale\":\"Output A is the better downstream aid because it includes a recognizable owner, next action, reason, and evidence gap in the handoff. That matters for an operator-review handoff case where the expected next move is routing preparation. Both outputs have problems: A leaks internal MCP context and overstates workflow details, while B is somewhat more restrained but its handoff is generic and missing key fields.\",\"decisive_differences\":[\"Output A provides explicit handoff structure with owner, next action, reason, and evidence gap; Output B does not.\",\"Output B better references the three routing options pattern, but it fails to turn that into an operational handoff.\",\"Both outputs leak internal context, but A's 'MCP diagnostic' leakage is more explicit; B's 'fixture confirms' language is also inappropriate.\",\"Output A invents or overstates details like established urgency guidelines and immediate escalation, reducing confidence.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Owner: care coordinator; Next Action: Review evidence against established guidelines to determine routing path; Reason:\",\"why_it_matters\":\"This is closer to the expected routing handoff format and gives a downstream agent fields it can act on.\"},{\"output\":\"output_b\",\"quote\":\"The next step requires confirming the necessary data points\",\"why_it_matters\":\"This is directionally relevant but too generic and lacks owner/action/reason structure.\"},{\"output\":\"output_b\",\"quote\":\"then present the three clear routing options based on those findings\",\"why_it_matters\":\"This is a strength because the source brief centers on choosing among routing paths.\"},{\"output\":\"output_a\",\"quote\":\"The MCP diagnostic points\",\"why_it_matters\":\"This is internal leakage and should be penalized even though A is still more operationally useful overall.\"}],\"output_a_quality\":{\"score\":5.5,\"strengths\":[\"Includes owner, next action, reason, and evidence gap.\",\"Grounds the review around symptoms, urgency, and consent.\",\"More useful as a routing handoff scaffold.\"],\"risks\":[\"Leaks internal MCP context.\",\"Invents or overstates urgency-guideline and escalation details.\",\"Next action still emphasizes review more than preparing the final routing handoff.\"]},\"output_b_quality\":{\"score\":4.5,\"strengths\":[\"Mentions the three routing options pattern.\",\"More concise and somewhat restrained.\",\"Prioritizes urgency and consent checks before routing.\"],\"risks\":[\"Handoff is generic and missing explicit owner/action/reason fields.\",\"Includes internal 'fixture' leakage.\",\"Asks an irrelevant owner-field-format question and does not produce a usable routing handoff.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "medium",
+    "rationale": "Output A is the better downstream aid because it includes a recognizable owner, next action, reason, and evidence gap in the handoff. That matters for an operator-review handoff case where the expected next move is routing preparation. Both outputs have problems: A leaks internal MCP context and overstates workflow details, while B is somewhat more restrained but its handoff is generic and missing key fields.",
+    "decisive_differences": [
+      "Output A provides explicit handoff structure with owner, next action, reason, and evidence gap; Output B does not.",
+      "Output B better references the three routing options pattern, but it fails to turn that into an operational handoff.",
+      "Both outputs leak internal context, but A's 'MCP diagnostic' leakage is more explicit; B's 'fixture confirms' language is also inappropriate.",
+      "Output A invents or overstates details like established urgency guidelines and immediate escalation, reducing confidence."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Owner: care coordinator; Next Action: Review evidence against established guidelines to determine routing path; Reason:",
+        "why_it_matters": "This is closer to the expected routing handoff format and gives a downstream agent fields it can act on."
+      },
+      {
+        "output": "output_b",
+        "quote": "The next step requires confirming the necessary data points",
+        "why_it_matters": "This is directionally relevant but too generic and lacks owner/action/reason structure."
+      },
+      {
+        "output": "output_b",
+        "quote": "then present the three clear routing options based on those findings",
+        "why_it_matters": "This is a strength because the source brief centers on choosing among routing paths."
+      },
+      {
+        "output": "output_a",
+        "quote": "The MCP diagnostic points",
+        "why_it_matters": "This is internal leakage and should be penalized even though A is still more operationally useful overall."
+      }
+    ],
+    "output_a_quality": {
+      "score": 5.5,
+      "strengths": [
+        "Includes owner, next action, reason, and evidence gap.",
+        "Grounds the review around symptoms, urgency, and consent.",
+        "More useful as a routing handoff scaffold."
+      ],
+      "risks": [
+        "Leaks internal MCP context.",
+        "Invents or overstates urgency-guideline and escalation details.",
+        "Next action still emphasizes review more than preparing the final routing handoff."
+      ]
+    },
+    "output_b_quality": {
+      "score": 4.5,
+      "strengths": [
+        "Mentions the three routing options pattern.",
+        "More concise and somewhat restrained.",
+        "Prioritizes urgency and consent checks before routing."
+      ],
+      "risks": [
+        "Handoff is generic and missing explicit owner/action/reason fields.",
+        "Includes internal 'fixture' leakage.",
+        "Asks an irrelevant owner-field-format question and does not produce a usable routing handoff."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "348a63beb6e3a6b52a7390d29b40e568e99cf94dcb73e6feba30595977d3ab00",
+    "stderr_sha256": "72a19ca01a41f244c9dbcc9c48bdb04d0ad428265719ce95b8496d9d3fe27845",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

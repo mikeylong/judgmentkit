@@ -38,6 +38,27 @@
   },
   "workflow": {
     "surface_name": "Renewal risk review",
+    "topology": "workspace",
+    "work_units": [
+      "Choose the active renewal account",
+      "Review usage, sponsor, procurement, and renewal timing",
+      "Choose save plan, executive escalation, or evidence follow-up",
+      "Send a renewal handoff"
+    ],
+    "stepper_eligibility": {
+      "policy": "strong_intent",
+      "allowed": false,
+      "requested": false,
+      "blocked": false,
+      "surface_type": "",
+      "reason": "No staged-flow intent detected; use topology, work units, and coordinated surfaces instead.",
+      "evidence": {
+        "explicit_staged_request": false,
+        "staged_dependency_order": false,
+        "form_or_setup_sequence": false,
+        "blocked_surface_type": false
+      }
+    },
     "steps": [
       "Choose the active renewal account",
       "Review usage, sponsor, procurement, and renewal timing",
@@ -55,6 +76,28 @@
     ],
     "completion_state": "The customer success team receives the next owner, action, risk reason, and evidence gap"
   },
+  "surface_set": [
+    {
+      "name": "Renewal risk review",
+      "purpose": "Support the activity work units, decision, completion, and handoff",
+      "sections": [
+        "Renewal queue",
+        "Selected account",
+        "Risk evidence",
+        "Renewal policy",
+        "Decision path",
+        "Renewal handoff"
+      ],
+      "controls": [
+        "Select account",
+        "Start save plan",
+        "Escalate executive sponsor",
+        "Request procurement date",
+        "Send handoff"
+      ],
+      "relationship_to_workflow": "Compatibility surface synthesized from legacy primary_ui"
+    }
+  ],
   "primary_surface": {
     "sections": [
       "Renewal queue",

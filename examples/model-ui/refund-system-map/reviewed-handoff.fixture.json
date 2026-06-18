@@ -42,6 +42,27 @@
   },
   "workflow": {
     "surface_name": "Refund escalation review",
+    "topology": "workspace",
+    "work_units": [
+      "Choose the active refund request",
+      "Review customer context and evidence",
+      "Choose the next refund path",
+      "Send a clear handoff"
+    ],
+    "stepper_eligibility": {
+      "policy": "strong_intent",
+      "allowed": false,
+      "requested": false,
+      "blocked": false,
+      "surface_type": "",
+      "reason": "No staged-flow intent detected; use topology, work units, and coordinated surfaces instead.",
+      "evidence": {
+        "explicit_staged_request": false,
+        "staged_dependency_order": false,
+        "form_or_setup_sequence": false,
+        "blocked_surface_type": false
+      }
+    },
     "steps": [
       "Choose the active refund request",
       "Review customer context and evidence",
@@ -59,6 +80,29 @@
     ],
     "completion_state": "The next owner receives a handoff with the chosen path and the reason"
   },
+  "surface_set": [
+    {
+      "name": "Refund escalation review",
+      "purpose": "Support the activity work units, decision, completion, and handoff",
+      "sections": [
+        "Refund queue",
+        "Selected request",
+        "Evidence checklist",
+        "Policy context",
+        "Decision path",
+        "Handoff reason"
+      ],
+      "controls": [
+        "Select request",
+        "Approve refund",
+        "Send to policy review",
+        "Return for evidence",
+        "Choose next owner",
+        "Send handoff"
+      ],
+      "relationship_to_workflow": "Compatibility surface synthesized from legacy primary_ui"
+    }
+  ],
   "primary_surface": {
     "sections": [
       "Refund queue",

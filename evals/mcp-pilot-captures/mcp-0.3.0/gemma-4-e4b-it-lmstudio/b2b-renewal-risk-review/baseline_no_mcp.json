@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "b2b-renewal-risk-review",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.3.0",
+  "mcp_url": "http://127.0.0.1:61843/mcp",
+  "mcp_metadata_sha256": "c2b723da0bd930c1dac3a255d2f1820fdf92f092b5f8b8a1f0bc714857c62199",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-18T03:11:22.021Z",
+  "duration_ms": 4210,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 594,
+    "completion_tokens": 237,
+    "total_tokens": 831,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "19470bd23cccec249254be169529c815566b45bb191cb86ea603a537e60ef363",
+  "prompt_sha256": "0320653ff84f1dd8fc4aee8dfb0e59a2dd1c4499b6226b813c3aaaf8d526db07",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "5da543f918c81e38069e247cf727cebc7f82a61644b5719306fe74a38ca2bf30",
+  "raw_response": "{\"response\": \"The next agent response should guide the Customer Success Manager (CSM) through synthesizing the gathered risk signals to make a definitive recommendation for the account meeting.\", \"next_action\": \"Guide the CSM to confirm procurement timing, synthesize usage decline/sponsor change evidence, and select one of the three primary renewal actions: Start save plan, Escalate executive sponsor, or Wait for stronger evidence. The final output must populate the handoff details (owner, action, reason, evidence gap).\", \"questions\": [\"What is the expected timeline for confirming procurement timing?\", \"Who owns the current account sponsorship relationship to confirm the 'sponsor change' impact?\"], \"handoff\": \"The CSM needs to finalize the renewal strategy by addressing the identified evidence gaps (Procurement owner and renewal date) before completing the handoff.\", \"rationale\": \"The source brief indicates the CSM reviews multiple signals (usage decline, sponsor change, procurement timing) to decide on a path. The fixture confirms this flow but highlights that the next critical step is resolving the 'evidence gap' identified in the current handoff data point to finalize the decision and prepare the final account handoff.\"}",
+  "parsed": {
+    "response": "The next agent response should guide the Customer Success Manager (CSM) through synthesizing the gathered risk signals to make a definitive recommendation for the account meeting.",
+    "next_action": "Guide the CSM to confirm procurement timing, synthesize usage decline/sponsor change evidence, and select one of the three primary renewal actions: Start save plan, Escalate executive sponsor, or Wait for stronger evidence. The final output must populate the handoff details (owner, action, reason, evidence gap).",
+    "questions": [
+      "What is the expected timeline for confirming procurement timing?",
+      "Who owns the current account sponsorship relationship to confirm the 'sponsor change' impact?"
+    ],
+    "handoff": "The CSM needs to finalize the renewal strategy by addressing the identified evidence gaps (Procurement owner and renewal date) before completing the handoff.",
+    "rationale": "The source brief indicates the CSM reviews multiple signals (usage decline, sponsor change, procurement timing) to decide on a path. The fixture confirms this flow but highlights that the next critical step is resolving the 'evidence gap' identified in the current handoff data point to finalize the decision and prepare the final account handoff."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The next agent response should guide the Customer Success Manager (CSM) through synthesizing the gathered risk signals to make a definitive recommendation for the account meeting.\", \"next_action\": \"Guide the CSM to confirm procurement timing, synthesize usage decline/sponsor change evidence, and select one of the three primary renewal actions: Start save plan, Escalate executive sponsor, or Wait for stronger evidence. The final output must populate the handoff details (owner, action, reason, evidence gap).\", \"questions\": [\"What is the expected timeline for confirming procurement timing?\", \"Who owns the current account sponsorship relationship to confirm the 'sponsor change' impact?\"], \"handoff\": \"The CSM needs to finalize the renewal strategy by addressing the identified evidence gaps (Procurement owner and renewal date) before completing the handoff.\", \"rationale\": \"The source brief indicates the CSM reviews multiple signals (usage decline, sponsor change, procurement timing) to decide on a path. The fixture confirms this flow but highlights that the next critical step is resolving the 'evidence gap' identified in the current handoff data point to finalize the decision and prepare the final account handoff.\"}",
+    "usage": {
+      "prompt_tokens": 594,
+      "completion_tokens": 237,
+      "total_tokens": 831,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "0b8310893aa265e4b3c8cfa7ec916330b8c4a8a54a12e5430df24d897a573f6a",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

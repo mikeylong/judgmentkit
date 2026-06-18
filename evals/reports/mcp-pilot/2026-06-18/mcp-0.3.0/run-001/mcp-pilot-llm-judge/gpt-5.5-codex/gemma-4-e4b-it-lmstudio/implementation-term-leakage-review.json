@@ -1,0 +1,87 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "implementation-term-leakage-review",
+  "title": "Implementation-term leakage review",
+  "case_type": "implementation_review",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-18T03:31:52.686Z",
+  "duration_ms": 34475,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "41645b62c91299e05293ace12eccdd3d4ba0b48334f814c091808297b34ad99f",
+  "raw_response_sha256": "fb0579f5d2dad3fedb3c0becc78ecfe17d1b910cdb7d679d85417bde7bf76419",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"high\",\"rationale\":\"Output A is the better downstream aid because it makes the required judgment explicit: reject and repair the user-facing leakage. It grounds the reason in diagnostic/internal terms appearing in the primary UI and gives a verification-oriented handoff. Output B identifies the leakage and asks for user-facing copy, but it fails to clearly reject the candidate, invents unsupported technical robustness and passing-test context, adds generic questions, and downplays the defect as content polish rather than an acceptance blocker.\",\"decisive_differences\":[\"Output A explicitly rejects the candidate and requires repair; Output B only requires revision and never clearly returns a reject decision.\",\"Output A treats leaked implementation terms in primary UI as the core failure; Output B dilutes the judgment with unsupported claims about technical soundness and passing tests.\",\"Output A has a usable handoff with reason, fix, and verification; Output B routes to UX writing sign-off and adds questions that are not needed to make the expected next move.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"\\\"response\\\": \\\"reject\\\"\",\"why_it_matters\":\"The benchmark expected rejection of product-label leakage, so the decision is direct and actionable.\"},{\"output\":\"output_a\",\"quote\":\"\\\"Remove all diagnostic-only terms from the customer refund review UI labels\\\"\",\"why_it_matters\":\"This targets the exact source problem: review packet terms copied into product labels.\"},{\"output\":\"output_b\",\"quote\":\"\\\"The core functionality seems technically sound based on primitives used, state coverage, and testing results\\\"\",\"why_it_matters\":\"These details are not in the source brief and create unsafe confidence around an implementation that should be rejected.\"},{\"output\":\"output_b\",\"quote\":\"\\\"requires content remediation rather than functional rework\\\"\",\"why_it_matters\":\"This frames the issue as a polish/content task instead of an acceptance-blocking user-facing language defect.\"}],\"output_a_quality\":{\"score\":8,\"strengths\":[\"Explicit reject decision.\",\"Names the leakage as diagnostic-only terms exposed in primary UI text.\",\"Provides repair and verification expectations.\"],\"risks\":[\"Mentions unsupported \\\"subsequent attempts passed\\\" context.\",\"Could be stronger about replacing labels with customer refund review language, not just removing internal terms.\"]},\"output_b_quality\":{\"score\":4,\"strengths\":[\"Correctly detects internal terminology leakage.\",\"Next action asks for customer-facing, non-technical language.\"],\"risks\":[\"Does not clearly reject the candidate.\",\"Invents technical soundness, passing tests, state coverage, and implementation details not in the source.\",\"Adds generic questions despite enough context to decide.\",\"Downplays the failure as UX polish/content remediation.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "high",
+    "rationale": "Output A is the better downstream aid because it makes the required judgment explicit: reject and repair the user-facing leakage. It grounds the reason in diagnostic/internal terms appearing in the primary UI and gives a verification-oriented handoff. Output B identifies the leakage and asks for user-facing copy, but it fails to clearly reject the candidate, invents unsupported technical robustness and passing-test context, adds generic questions, and downplays the defect as content polish rather than an acceptance blocker.",
+    "decisive_differences": [
+      "Output A explicitly rejects the candidate and requires repair; Output B only requires revision and never clearly returns a reject decision.",
+      "Output A treats leaked implementation terms in primary UI as the core failure; Output B dilutes the judgment with unsupported claims about technical soundness and passing tests.",
+      "Output A has a usable handoff with reason, fix, and verification; Output B routes to UX writing sign-off and adds questions that are not needed to make the expected next move."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "\"response\": \"reject\"",
+        "why_it_matters": "The benchmark expected rejection of product-label leakage, so the decision is direct and actionable."
+      },
+      {
+        "output": "output_a",
+        "quote": "\"Remove all diagnostic-only terms from the customer refund review UI labels\"",
+        "why_it_matters": "This targets the exact source problem: review packet terms copied into product labels."
+      },
+      {
+        "output": "output_b",
+        "quote": "\"The core functionality seems technically sound based on primitives used, state coverage, and testing results\"",
+        "why_it_matters": "These details are not in the source brief and create unsafe confidence around an implementation that should be rejected."
+      },
+      {
+        "output": "output_b",
+        "quote": "\"requires content remediation rather than functional rework\"",
+        "why_it_matters": "This frames the issue as a polish/content task instead of an acceptance-blocking user-facing language defect."
+      }
+    ],
+    "output_a_quality": {
+      "score": 8,
+      "strengths": [
+        "Explicit reject decision.",
+        "Names the leakage as diagnostic-only terms exposed in primary UI text.",
+        "Provides repair and verification expectations."
+      ],
+      "risks": [
+        "Mentions unsupported \"subsequent attempts passed\" context.",
+        "Could be stronger about replacing labels with customer refund review language, not just removing internal terms."
+      ]
+    },
+    "output_b_quality": {
+      "score": 4,
+      "strengths": [
+        "Correctly detects internal terminology leakage.",
+        "Next action asks for customer-facing, non-technical language."
+      ],
+      "risks": [
+        "Does not clearly reject the candidate.",
+        "Invents technical soundness, passing tests, state coverage, and implementation details not in the source.",
+        "Adds generic questions despite enough context to decide.",
+        "Downplays the failure as UX polish/content remediation."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "9cf20fd2b0c994a6dc9a122eaa95ce8045cd5daa830fd8299d12206de7c83de5",
+    "stderr_sha256": "67bce83add1fc8cc933f2921167a68e9d8b7bdb324e72aa3730cf9ff19814678",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

@@ -45,9 +45,11 @@ const SETUP_DEBUG_BRIEF = `
 `;
 
 const FORM_FLOW_BRIEF = `
-  A support admin updates an account settings form. The activity is entering required
-  billing information, resolving validation errors, and submitting the change.
-  The outcome is saved settings and a confirmation.
+  A support manager updates an account settings form. The activity is entering required
+  billing information, resolving validation errors, and deciding whether the account
+  settings are complete enough to submit. The outcome is saved settings and a confirmation.
+  The billing information review produces a submitted change, validation decision,
+  and confirmation for the support team.
 `;
 
 const CONVERSATION_BRIEF = `
@@ -83,6 +85,79 @@ function refundWorkflowCandidate() {
       next_owner: "support agent",
       reason: "Receipt or support evidence is missing.",
       next_action: "Send handoff with next action and decision reason.",
+    },
+    diagnostics: {
+      implementation_terms: [],
+      reveal_contexts: ["setup", "debugging", "auditing", "integration"],
+    },
+  };
+}
+
+function refundMultiSurfaceCandidate() {
+  return {
+    workflow: {
+      surface_name: "Refund triage workspace",
+      topology: "multi_surface",
+      work_units: ["Case queue", "Evidence comparison", "Decision handoff"],
+      primary_actions: ["Approve refund", "Send to policy review", "Return for evidence"],
+      decision_points: [
+        "Decide whether the case should be approved, sent to policy review, or returned for missing evidence.",
+      ],
+      completion_state: "Clear handoff with next action and decision reason.",
+    },
+    surface_set: [
+      {
+        name: "Case queue",
+        purpose: "Select refund requests and preserve queue context.",
+        sections: ["Refund queue", "Selected case"],
+        controls: ["Select case"],
+        relationship_to_workflow: "Feeds the selected case into review.",
+      },
+      {
+        name: "Evidence workspace",
+        purpose: "Compare evidence, choose an action, and send the handoff.",
+        sections: ["Evidence checklist", "Policy review context", "Handoff"],
+        controls: ["Approve refund", "Send to policy review", "Return for evidence", "Send handoff"],
+        relationship_to_workflow: "Keeps decision controls adjacent to case evidence.",
+      },
+    ],
+    handoff: {
+      next_owner: "support agent",
+      reason: "Receipt or support evidence is missing.",
+      next_action: "Send handoff with next action and decision reason.",
+    },
+    diagnostics: {
+      implementation_terms: [],
+      reveal_contexts: ["setup", "debugging", "auditing", "integration"],
+    },
+  };
+}
+
+function stagedFormCandidate() {
+  return {
+    workflow: {
+      surface_name: "Billing information update",
+      topology: "staged_flow",
+      work_units: ["Enter billing information", "Resolve validation", "Review and submit"],
+      primary_actions: ["Save billing information", "Submit change"],
+      decision_points: [
+        "Decide whether the billing information is complete enough to submit.",
+      ],
+      completion_state: "Saved settings with confirmation.",
+    },
+    surface_set: [
+      {
+        name: "Billing update form",
+        purpose: "Guide required billing fields through validation and confirmation.",
+        sections: ["Billing information", "Validation messages", "Review", "Confirmation"],
+        controls: ["Save billing information", "Submit change"],
+        relationship_to_workflow: "Stages required input before final submission.",
+      },
+    ],
+    handoff: {
+      next_owner: "support admin",
+      reason: "Required billing information has been validated.",
+      next_action: "Submit the saved settings change.",
     },
     diagnostics: {
       implementation_terms: [],
@@ -175,9 +250,21 @@ function refundWorkflowCandidate() {
   });
 
   assert.equal(workflowReview.surface_type, "workbench");
+  assert.equal(workflowReview.candidate.workflow.topology, "workspace");
+  assert.deepEqual(workflowReview.candidate.workflow.work_units, [
+    "Review evidence",
+    "Choose path",
+    "Prepare handoff",
+  ]);
+  assert.equal(workflowReview.candidate.workflow.stepper_eligibility.allowed, false);
   assert.equal(handoff.surface_type, "workbench");
+  assert.equal(handoff.workflow.topology, "workspace");
+  assert.ok(handoff.workflow.work_units.includes("Review evidence"));
+  assert.equal(handoff.workflow.stepper_eligibility.allowed, false);
   assert.equal(frontendContext.frontend_context_status, "ready_for_frontend_implementation");
   assert.equal(frontendContext.surface_type, "workbench");
+  assert.equal(frontendContext.workflow.topology, "workspace");
+  assert.ok(frontendContext.surface_set.length > 0);
   assert.ok(frontendContext.implementation_contract.approved_primitives.length > 0);
   assert.equal(frontendContext.frontend_context.ui_library, "Material UI");
   assert.ok(
@@ -206,6 +293,7 @@ function refundWorkflowCandidate() {
     ),
   );
   assert.ok(frontendContext.implementation_guidance.required_sections.includes("Evidence checklist"));
+  assert.ok(frontendContext.implementation_guidance.required_surfaces.length > 0);
   assert.ok(frontendContext.implementation_guidance.verification_expectations.commands.includes("npm test"));
 
   const skillContext = createFrontendImplementationSkillContext({
@@ -228,6 +316,10 @@ function refundWorkflowCandidate() {
   assert.equal(skillContext.design_system_policy.mode, "adapter_after_judgment");
   assert.equal(skillContext.design_system_policy.name, "Material UI");
   assert.ok(skillContext.design_system_policy.renderer_components.includes("Button"));
+  assert.equal(skillContext.surface_type_guidance.workflow_topology, "workspace");
+  assert.ok(skillContext.surface_type_guidance.work_units.includes("Review evidence"));
+  assert.equal(skillContext.surface_type_guidance.stepper_eligibility.allowed, false);
+  assert.ok(skillContext.surface_type_guidance.surface_set.length > 0);
   assert.ok(skillContext.approved_component_families.includes("queue"));
   assert.ok(skillContext.visual_requirements.includes("case evidence hero image"));
   assert.ok(skillContext.approved_visual_asset_sources.includes("imagegen"));
@@ -275,6 +367,62 @@ function refundWorkflowCandidate() {
   assert.ok(skillContext.instruction_markdown.includes("Material UI"));
   assert.ok(skillContext.instruction_markdown.includes("Visual Asset Policy"));
   assert.ok(skillContext.instruction_markdown.includes("premium Three.js"));
+}
+
+{
+  const surfaceReview = recommendSurfaceTypes(REFUND_TRIAGE_BRIEF);
+  const workflowReview = reviewUiWorkflowCandidate(
+    REFUND_TRIAGE_BRIEF,
+    refundMultiSurfaceCandidate(),
+    { surface_review: surfaceReview },
+  );
+  const handoff = createUiGenerationHandoff(workflowReview);
+
+  assert.equal(workflowReview.review_status, "ready_for_review");
+  assert.equal(workflowReview.candidate.workflow.topology, "multi_surface");
+  assert.ok(workflowReview.candidate.workflow.work_units.includes("Evidence comparison"));
+  assert.equal(workflowReview.candidate.workflow.steps.length, 0);
+  assert.equal(workflowReview.candidate.surface_set.length, 2);
+  assert.ok(workflowReview.candidate.primary_ui.sections.includes("Evidence checklist"));
+  assert.equal(handoff.surface_set.length, 2);
+  assert.ok(handoff.primary_surface.sections.includes("Policy review context"));
+}
+
+{
+  const surfaceReview = recommendSurfaceTypes(REFUND_TRIAGE_BRIEF);
+  const stagedWorkbench = refundMultiSurfaceCandidate();
+  stagedWorkbench.workflow.topology = "staged_flow";
+  stagedWorkbench.workflow.work_units = ["1. Review evidence", "2. Choose path", "3. Prepare handoff"];
+
+  const workflowReview = reviewUiWorkflowCandidate(
+    REFUND_TRIAGE_BRIEF,
+    stagedWorkbench,
+    { surface_review: surfaceReview },
+  );
+
+  assert.equal(workflowReview.review_status, "needs_source_context");
+  assert.equal(workflowReview.guardrails.stepper_eligibility.blocked, true);
+  assert.equal(workflowReview.guardrails.stepper_eligibility.allowed, false);
+  assert.ok(
+    workflowReview.review.targeted_questions.some((question) =>
+      question.includes("staged wizard or stepper"),
+    ),
+  );
+}
+
+{
+  const surfaceReview = recommendSurfaceTypes(FORM_FLOW_BRIEF);
+  const workflowReview = reviewUiWorkflowCandidate(
+    FORM_FLOW_BRIEF,
+    stagedFormCandidate(),
+    { surface_review: surfaceReview },
+  );
+
+  assert.equal(workflowReview.review_status, "ready_for_review");
+  assert.equal(workflowReview.surface_type, "form_flow");
+  assert.equal(workflowReview.candidate.workflow.topology, "staged_flow");
+  assert.equal(workflowReview.candidate.workflow.stepper_eligibility.allowed, true);
+  assert.equal(workflowReview.guardrails.stepper_eligibility.blocked, false);
 }
 
 {

@@ -467,12 +467,15 @@ function buildBaselinePrimarySurface() {
   `;
 }
 
-function buildWorkflowSteps(steps) {
-  return steps
+function workflowUnits(workflow) {
+  return workflow.work_units?.length > 0 ? workflow.work_units : workflow.steps;
+}
+
+function buildWorkflowUnits(units) {
+  return units
     .map(
       (step, index) => `
         <li${index === 0 ? ' class="is-current"' : ""}>
-          <span>${index + 1}</span>
           ${escapeHtml(step)}
         </li>
       `,
@@ -543,7 +546,7 @@ function buildGuidedPrimarySurface(handoff) {
           <p class="eyebrow">Hosting flow</p>
           <h2>${escapeHtml(handoff.workflow.surface_name)}</h2>
         </div>
-        <ol>${buildWorkflowSteps(handoff.workflow.steps)}</ol>
+        <ul>${buildWorkflowUnits(workflowUnits(handoff.workflow))}</ul>
       </section>
 
       <section class="brief-panel">
@@ -797,7 +800,7 @@ function buildStyles() {
       margin: 22px 0;
     }
 
-    .workflow-strip ol {
+    .workflow-strip ul {
       display: grid;
       grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 10px;
@@ -1009,7 +1012,7 @@ function buildStyles() {
         margin-top: 14px;
       }
 
-      .workflow-strip ol {
+      .workflow-strip ul {
         grid-template-columns: 1fr;
       }
 

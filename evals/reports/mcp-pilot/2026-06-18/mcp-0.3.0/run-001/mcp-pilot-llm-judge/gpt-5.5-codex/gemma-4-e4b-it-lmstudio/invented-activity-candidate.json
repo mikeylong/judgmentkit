@@ -1,0 +1,85 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "invented-activity-candidate",
+  "title": "Invented activity candidate",
+  "case_type": "candidate_validation",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-18T03:25:45.340Z",
+  "duration_ms": 67271,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "98eb87973f835b2af233aac43d067fed85398fb813b57fbc2eb7081959cc17db",
+  "raw_response_sha256": "62db91c7ea4cd2d0d1a9bfe877d7ff5029fdfea8bd45cbbe5ce1eba3bbb6dbf5",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"high\",\"rationale\":\"Both outputs correctly reject the ungrounded candidate, but Output B better supports the downstream next move: it gives a direct rejection, an aligned replacement action, no unnecessary questions, and a handoff with decision/action/reason. Output A is well grounded but undermines its own action by adding a generic clarification question and a handoff that asks for more information when the source brief already contains the needed activity, role, decisions, and outcomes.\",\"decisive_differences\":[\"Output B gives a cleaner operational handoff with Decision, Action, and Reason; Output A's handoff asks for clarification instead of carrying the rejection forward.\",\"Output B leaves questions empty, while Output A adds a generic question that could distract from the expected reject-and-replace move.\",\"Output A is slightly more explicit about the treasury-versus-refund mismatch, but B still grounds the rejection in the refund triage decisions and is more useful for next action.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Need clarification on which parts of the source brief must be represented\",\"why_it_matters\":\"This is an unnecessary blocker because the source brief already specifies the role, activity, and decision outcomes.\"},{\"output\":\"output_a\",\"quote\":\"What specific aspects of the source brief need to be captured\",\"why_it_matters\":\"The question is generic and risks sending the downstream agent into clarification instead of rejecting the ungrounded candidate.\"},{\"output\":\"output_b\",\"quote\":\"Decision: Reject; Action: Request Replacement; Reason:\",\"why_it_matters\":\"This directly supplies the handoff fields needed for a downstream agent to take the expected next action.\"},{\"output\":\"output_b\",\"quote\":\"reviewing refund requests to decide on approval, policy review, or return for missing evidence\",\"why_it_matters\":\"This mirrors the source brief's activity and outcomes, keeping the replacement request grounded.\"}],\"output_a_quality\":{\"score\":7,\"strengths\":[\"Correctly rejects the candidate as unaligned with the refund-triage source brief.\",\"Clearly identifies the role/activity mismatch and gives a replacement direction.\"],\"risks\":[\"Adds an unnecessary generic clarification question.\",\"Handoff weakens the decision by saying clarification is needed despite adequate source context.\"]},\"output_b_quality\":{\"score\":8.5,\"strengths\":[\"Correctly rejects and gives a clear replacement action grounded in refund triage.\",\"Provides a concise handoff with explicit decision, action, and reason.\",\"Avoids unnecessary questions.\"],\"risks\":[\"Rationale includes some internal/process terminology such as activity model, interaction contract, and disclosure policy.\",\"Slightly less specific than Output A about the exact treasury-analyst mismatch.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "high",
+    "rationale": "Both outputs correctly reject the ungrounded candidate, but Output B better supports the downstream next move: it gives a direct rejection, an aligned replacement action, no unnecessary questions, and a handoff with decision/action/reason. Output A is well grounded but undermines its own action by adding a generic clarification question and a handoff that asks for more information when the source brief already contains the needed activity, role, decisions, and outcomes.",
+    "decisive_differences": [
+      "Output B gives a cleaner operational handoff with Decision, Action, and Reason; Output A's handoff asks for clarification instead of carrying the rejection forward.",
+      "Output B leaves questions empty, while Output A adds a generic question that could distract from the expected reject-and-replace move.",
+      "Output A is slightly more explicit about the treasury-versus-refund mismatch, but B still grounds the rejection in the refund triage decisions and is more useful for next action."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Need clarification on which parts of the source brief must be represented",
+        "why_it_matters": "This is an unnecessary blocker because the source brief already specifies the role, activity, and decision outcomes."
+      },
+      {
+        "output": "output_a",
+        "quote": "What specific aspects of the source brief need to be captured",
+        "why_it_matters": "The question is generic and risks sending the downstream agent into clarification instead of rejecting the ungrounded candidate."
+      },
+      {
+        "output": "output_b",
+        "quote": "Decision: Reject; Action: Request Replacement; Reason:",
+        "why_it_matters": "This directly supplies the handoff fields needed for a downstream agent to take the expected next action."
+      },
+      {
+        "output": "output_b",
+        "quote": "reviewing refund requests to decide on approval, policy review, or return for missing evidence",
+        "why_it_matters": "This mirrors the source brief's activity and outcomes, keeping the replacement request grounded."
+      }
+    ],
+    "output_a_quality": {
+      "score": 7,
+      "strengths": [
+        "Correctly rejects the candidate as unaligned with the refund-triage source brief.",
+        "Clearly identifies the role/activity mismatch and gives a replacement direction."
+      ],
+      "risks": [
+        "Adds an unnecessary generic clarification question.",
+        "Handoff weakens the decision by saying clarification is needed despite adequate source context."
+      ]
+    },
+    "output_b_quality": {
+      "score": 8.5,
+      "strengths": [
+        "Correctly rejects and gives a clear replacement action grounded in refund triage.",
+        "Provides a concise handoff with explicit decision, action, and reason.",
+        "Avoids unnecessary questions."
+      ],
+      "risks": [
+        "Rationale includes some internal/process terminology such as activity model, interaction contract, and disclosure policy.",
+        "Slightly less specific than Output A about the exact treasury-analyst mismatch."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "98b7be5c7c5c43257ae3398187a43e919e148b78a90fe2a7b4e34409a9fa4989",
+    "stderr_sha256": "e3dcbaa98eadb870e94773fefcb1f57f51bf89ae10cbdeab1df8fbf13da4b568",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

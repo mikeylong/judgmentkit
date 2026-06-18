@@ -1,0 +1,89 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "agent-trace-review-console",
+  "title": "Agent trace review console",
+  "case_type": "activity_translation",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-18T03:14:56.053Z",
+  "duration_ms": 56186,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "48bf3188b1aaf1470d1767b8b794d1b24fd57be905550656115646871ac246b0",
+  "raw_response_sha256": "75b9d609e9aa1007fc07b3e2795aba6a894a41ed976fd46f927c259b3483accd",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"medium\",\"rationale\":\"Output B is the better downstream handoff because it translates the trace console into the operator's escalation-review activity: choosing Advance, Refine, or Return for Evidence. Output A is more faithful to the trace-data inventory, but its next move drifts toward generic data visualization and information architecture instead of the expected escalation review workflow. Output B is not excellent because it leaks internal context by mentioning MCP, asks generic questions, and under-specifies how trace evidence should support each decision.\",\"decisive_differences\":[\"Output B centers the actual decision workflow: advance, refine, or return for evidence.\",\"Output A over-prioritizes temporal trace display and data-type sections, which is less directly aligned with the expected next action.\",\"Output B includes a stronger handoff with owner, action, and reason; Output A's handoff is vague.\",\"Output B has a notable internal-leakage flaw in its rationale, which keeps the margin from being high-confidence.\"],\"evidence\":[{\"output\":\"output_b\",\"quote\":\"Present a structured review interface allowing the operator to select one of three paths: Advance Escalation, Refine Escalation, or Return for Evidence.\",\"why_it_matters\":\"This directly matches the expected move: translate traces into an escalation review workflow.\"},{\"output\":\"output_a\",\"quote\":\"Design the core data visualization structure for the trace review console, prioritizing clear temporal flow and distinct sections for different data types\",\"why_it_matters\":\"This is grounded in trace artifacts but shifts the agent toward implementation structure rather than the operator's escalation judgment.\"},{\"output\":\"output_b\",\"quote\":\"Owner: Product Design; Action: Define UI flow for escalation review decision points; Reason:\",\"why_it_matters\":\"This gives a downstream agent a clearer operational handoff than Output A.\"},{\"output\":\"output_b\",\"quote\":\"The MCP indicates that key details\",\"why_it_matters\":\"This exposes internal/tool context and should be penalized under the benchmark criteria.\"}],\"output_a_quality\":{\"score\":6.4,\"strengths\":[\"Grounded in the source brief's trace artifacts: messages, function calls, tool outputs, token usage, and retry metadata.\",\"Recognizes the operator's judgment among proceed, refine, or reject for insufficient evidence.\",\"Questions are somewhat concrete around missing evidence and escalation prerequisites.\"],\"risks\":[\"Next action emphasizes generic temporal data visualization rather than escalation review workflow.\",\"Handoff lacks owner/action/reason structure and is not very actionable.\",\"Leans toward implementation/information architecture language over activity, decision, and evidence framing.\"]},\"output_b_quality\":{\"score\":7.2,\"strengths\":[\"Best matches the expected next action by framing the UI around Advance, Refine, and Return for Evidence decisions.\",\"More activity-fit and operator-centered than Output A.\",\"Handoff includes owner, action, and reason, making the next step clearer.\"],\"risks\":[\"Contains internal leakage: the rationale says \\\"The MCP indicates\\\".\",\"Questions are generic and do not strongly ground the workflow in model messages, tool outputs, token counts, retries, or evidence gaps.\",\"Could be stronger if it mapped each trace artifact to decision evidence and review confidence.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "medium",
+    "rationale": "Output B is the better downstream handoff because it translates the trace console into the operator's escalation-review activity: choosing Advance, Refine, or Return for Evidence. Output A is more faithful to the trace-data inventory, but its next move drifts toward generic data visualization and information architecture instead of the expected escalation review workflow. Output B is not excellent because it leaks internal context by mentioning MCP, asks generic questions, and under-specifies how trace evidence should support each decision.",
+    "decisive_differences": [
+      "Output B centers the actual decision workflow: advance, refine, or return for evidence.",
+      "Output A over-prioritizes temporal trace display and data-type sections, which is less directly aligned with the expected next action.",
+      "Output B includes a stronger handoff with owner, action, and reason; Output A's handoff is vague.",
+      "Output B has a notable internal-leakage flaw in its rationale, which keeps the margin from being high-confidence."
+    ],
+    "evidence": [
+      {
+        "output": "output_b",
+        "quote": "Present a structured review interface allowing the operator to select one of three paths: Advance Escalation, Refine Escalation, or Return for Evidence.",
+        "why_it_matters": "This directly matches the expected move: translate traces into an escalation review workflow."
+      },
+      {
+        "output": "output_a",
+        "quote": "Design the core data visualization structure for the trace review console, prioritizing clear temporal flow and distinct sections for different data types",
+        "why_it_matters": "This is grounded in trace artifacts but shifts the agent toward implementation structure rather than the operator's escalation judgment."
+      },
+      {
+        "output": "output_b",
+        "quote": "Owner: Product Design; Action: Define UI flow for escalation review decision points; Reason:",
+        "why_it_matters": "This gives a downstream agent a clearer operational handoff than Output A."
+      },
+      {
+        "output": "output_b",
+        "quote": "The MCP indicates that key details",
+        "why_it_matters": "This exposes internal/tool context and should be penalized under the benchmark criteria."
+      }
+    ],
+    "output_a_quality": {
+      "score": 6.4,
+      "strengths": [
+        "Grounded in the source brief's trace artifacts: messages, function calls, tool outputs, token usage, and retry metadata.",
+        "Recognizes the operator's judgment among proceed, refine, or reject for insufficient evidence.",
+        "Questions are somewhat concrete around missing evidence and escalation prerequisites."
+      ],
+      "risks": [
+        "Next action emphasizes generic temporal data visualization rather than escalation review workflow.",
+        "Handoff lacks owner/action/reason structure and is not very actionable.",
+        "Leans toward implementation/information architecture language over activity, decision, and evidence framing."
+      ]
+    },
+    "output_b_quality": {
+      "score": 7.2,
+      "strengths": [
+        "Best matches the expected next action by framing the UI around Advance, Refine, and Return for Evidence decisions.",
+        "More activity-fit and operator-centered than Output A.",
+        "Handoff includes owner, action, and reason, making the next step clearer."
+      ],
+      "risks": [
+        "Contains internal leakage: the rationale says \"The MCP indicates\".",
+        "Questions are generic and do not strongly ground the workflow in model messages, tool outputs, token counts, retries, or evidence gaps.",
+        "Could be stronger if it mapped each trace artifact to decision evidence and review confidence."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "082086db41757e4e289af23154c2b30cc4db6d484b102082b4467ae7e24ab922",
+    "stderr_sha256": "e9305cee45df2b7a898a8707b031a3e3144c7a493c9bed641d1864532bf9287b",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

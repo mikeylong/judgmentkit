@@ -38,6 +38,27 @@
   },
   "workflow": {
     "surface_name": "Repair visit dispatch review",
+    "topology": "workspace",
+    "work_units": [
+      "Choose the active repair visit",
+      "Review route, certification, parts, and access readiness",
+      "Choose assignment, reschedule, or escalation",
+      "Send a dispatch handoff"
+    ],
+    "stepper_eligibility": {
+      "policy": "strong_intent",
+      "allowed": false,
+      "requested": false,
+      "blocked": false,
+      "surface_type": "",
+      "reason": "No staged-flow intent detected; use topology, work units, and coordinated surfaces instead.",
+      "evidence": {
+        "explicit_staged_request": false,
+        "staged_dependency_order": false,
+        "form_or_setup_sequence": false,
+        "blocked_surface_type": false
+      }
+    },
     "steps": [
       "Choose the active repair visit",
       "Review route, certification, parts, and access readiness",
@@ -55,6 +76,28 @@
     ],
     "completion_state": "The dispatch team receives the next owner, timing constraint, and reason"
   },
+  "surface_set": [
+    {
+      "name": "Repair visit dispatch review",
+      "purpose": "Support the activity work units, decision, completion, and handoff",
+      "sections": [
+        "Visit queue",
+        "Selected visit",
+        "Readiness checklist",
+        "Dispatch policy",
+        "Decision path",
+        "Dispatch handoff"
+      ],
+      "controls": [
+        "Select visit",
+        "Assign technician",
+        "Reschedule for parts",
+        "Escalate SLA risk",
+        "Request gate code"
+      ],
+      "relationship_to_workflow": "Compatibility surface synthesized from legacy primary_ui"
+    }
+  ],
   "primary_surface": {
     "sections": [
       "Visit queue",

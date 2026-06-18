@@ -34,7 +34,8 @@ function refundWorkflowCandidate() {
   return {
     workflow: {
       surface_name: "Refund escalation queue",
-      steps: ["Review evidence", "Choose path", "Prepare handoff"],
+      topology: "workspace",
+      work_units: ["Selected case", "Evidence checklist", "Policy review context", "Handoff"],
       primary_actions: [
         "Approve refund",
         "Send to policy review",
@@ -45,27 +46,27 @@ function refundWorkflowCandidate() {
       ],
       completion_state: "Clear handoff with next action and decision reason.",
     },
-    primary_ui: {
-      sections: [
-        "Selected case",
-        "Customer refund context",
-        "Evidence checklist",
-        "Policy review context",
-        "Handoff",
-      ],
-      controls: [
-        "Approve refund",
-        "Send to policy review",
-        "Return for evidence",
-        "Send handoff",
-      ],
-      user_facing_terms: [
-        "refund request",
-        "policy review",
-        "missing evidence",
-        "handoff reason",
-      ],
-    },
+    surface_set: [
+      {
+        name: "Refund queue",
+        purpose: "Select and scan refund requests waiting for triage.",
+        sections: ["Selected case", "Customer refund context"],
+        controls: ["Select case"],
+        relationship_to_workflow: "Feeds the selected case into evidence review.",
+      },
+      {
+        name: "Evidence and decision",
+        purpose: "Compare refund evidence and choose the next action.",
+        sections: ["Evidence checklist", "Policy review context", "Handoff"],
+        controls: [
+          "Approve refund",
+          "Send to policy review",
+          "Return for evidence",
+          "Send handoff",
+        ],
+        relationship_to_workflow: "Keeps evidence adjacent to the decision and handoff.",
+      },
+    ],
     handoff: {
       next_owner: "support agent",
       reason: "Receipt or support evidence is missing.",
@@ -83,7 +84,7 @@ function leakyWorkflowCandidate() {
 
   candidate.workflow.surface_name = "Refund JSON schema console";
   candidate.workflow.primary_actions = ["Save CRUD update", "Send to policy review"];
-  candidate.primary_ui.sections = ["Prompt template", "Evidence checklist"];
+  candidate.surface_set[0].sections = ["Prompt template", "Evidence checklist"];
 
   return candidate;
 }
@@ -196,10 +197,22 @@ function createProvider(fetchImpl) {
   assert.equal(call.body.text.format.strict, true);
   assert.deepEqual(call.body.text.format.schema.required, [
     "workflow",
-    "primary_ui",
+    "surface_set",
     "handoff",
     "diagnostics",
   ]);
+  assert.deepEqual(call.body.text.format.schema.properties.workflow.required, [
+    "surface_name",
+    "topology",
+    "work_units",
+    "primary_actions",
+    "decision_points",
+    "completion_state",
+  ]);
+  assert.equal(
+    call.body.text.format.schema.properties.workflow.properties.steps,
+    undefined,
+  );
   assertNoAdapterRequestKeys(call.body);
 }
 

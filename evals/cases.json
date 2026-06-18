@@ -1024,5 +1024,191 @@
         ]
       }
     }
+  },
+  {
+    "id": "multi-surface-workbench-staged-flow-block",
+    "tags": [
+      "workflow-topology",
+      "stepper-eligibility",
+      "multi-surface",
+      "expected-next-action:block-staged-workbench"
+    ],
+    "brief": "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The work moves between a case queue, evidence comparison, and handoff receipt, but the lead can move between those surfaces as needed. The outcome is a clear handoff with the next action and the reason for the decision.",
+    "ui_workflow_candidate": {
+      "workflow": {
+        "surface_name": "Refund triage workspace",
+        "topology": "staged_flow",
+        "work_units": [
+          "1. Review evidence",
+          "2. Choose path",
+          "3. Prepare handoff"
+        ],
+        "primary_actions": [
+          "Approve refund",
+          "Send to policy review",
+          "Return for evidence"
+        ],
+        "decision_points": [
+          "Decide whether the case should be approved, sent to policy review, or returned for missing evidence."
+        ],
+        "completion_state": "Clear handoff with next action and decision reason."
+      },
+      "surface_set": [
+        {
+          "name": "Case queue",
+          "purpose": "Select refund requests and preserve queue context.",
+          "sections": [
+            "Refund queue",
+            "Selected case"
+          ],
+          "controls": [
+            "Select case"
+          ],
+          "relationship_to_workflow": "Feeds the selected case into review."
+        },
+        {
+          "name": "Evidence workspace",
+          "purpose": "Compare evidence, choose an action, and send the handoff.",
+          "sections": [
+            "Evidence checklist",
+            "Policy review context",
+            "Handoff"
+          ],
+          "controls": [
+            "Approve refund",
+            "Send to policy review",
+            "Return for evidence",
+            "Send handoff"
+          ],
+          "relationship_to_workflow": "Keeps decision controls adjacent to case evidence."
+        }
+      ],
+      "handoff": {
+        "next_owner": "support agent",
+        "reason": "Receipt or support evidence is missing.",
+        "next_action": "Send handoff with next action and decision reason."
+      },
+      "diagnostics": {
+        "implementation_terms": [],
+        "reveal_contexts": [
+          "setup",
+          "debugging",
+          "auditing",
+          "integration"
+        ]
+      }
+    },
+    "expect": {
+      "status": "ready",
+      "max_review_questions": 0,
+      "evidence": {
+        "activity": true,
+        "domain_vocabulary": true,
+        "decision": true,
+        "outcome": true
+      },
+      "ui_workflow": {
+        "status": "needs_source_context",
+        "max_targeted_questions": 1,
+        "targeted_question_includes": [
+          "staged wizard or stepper"
+        ],
+        "candidate_equals": {
+          "workflow.topology": "staged_flow",
+          "workflow.steps": [],
+          "workflow.stepper_eligibility.allowed": false,
+          "workflow.stepper_eligibility.requested": true,
+          "workflow.stepper_eligibility.blocked": true,
+          "surface_set.1.name": "Evidence workspace"
+        }
+      }
+    }
+  },
+  {
+    "id": "staged-setup-form-eligible",
+    "tags": [
+      "workflow-topology",
+      "stepper-eligibility",
+      "form-flow",
+      "expected-next-action:allow-staged-flow"
+    ],
+    "brief": "A support manager updates an account settings form. The activity is entering required billing information, resolving validation errors, and deciding whether the account settings are complete enough to submit. The billing information review must complete required fields before final submission. The outcome is saved settings and a confirmation for the support team.",
+    "ui_workflow_candidate": {
+      "workflow": {
+        "surface_name": "Billing information update",
+        "topology": "staged_flow",
+        "work_units": [
+          "Enter billing information",
+          "Resolve validation",
+          "Review and submit"
+        ],
+        "primary_actions": [
+          "Save billing information",
+          "Submit change"
+        ],
+        "decision_points": [
+          "Decide whether the billing information is complete enough to submit."
+        ],
+        "completion_state": "Saved settings with confirmation."
+      },
+      "surface_set": [
+        {
+          "name": "Billing update form",
+          "purpose": "Guide required billing fields through validation and confirmation.",
+          "sections": [
+            "Billing information",
+            "Validation messages",
+            "Review",
+            "Confirmation"
+          ],
+          "controls": [
+            "Save billing information",
+            "Submit change"
+          ],
+          "relationship_to_workflow": "Stages required input before final submission."
+        }
+      ],
+      "handoff": {
+        "next_owner": "support admin",
+        "reason": "Required billing information has been validated.",
+        "next_action": "Submit the saved settings change."
+      },
+      "diagnostics": {
+        "implementation_terms": [],
+        "reveal_contexts": [
+          "setup",
+          "debugging",
+          "auditing",
+          "integration"
+        ]
+      }
+    },
+    "expect": {
+      "status": "ready",
+      "max_review_questions": 0,
+      "evidence": {
+        "activity": true,
+        "domain_vocabulary": true,
+        "decision": true,
+        "outcome": true
+      },
+      "ui_workflow": {
+        "status": "ready_for_review",
+        "max_targeted_questions": 0,
+        "candidate_equals": {
+          "workflow.topology": "staged_flow",
+          "workflow.work_units": [
+            "Enter billing information",
+            "Resolve validation",
+            "Review and submit"
+          ],
+          "workflow.steps": [],
+          "workflow.stepper_eligibility.allowed": true,
+          "workflow.stepper_eligibility.requested": true,
+          "workflow.stepper_eligibility.blocked": false,
+          "surface_set.0.name": "Billing update form"
+        }
+      }
+    }
   }
 ]

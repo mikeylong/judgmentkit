@@ -325,9 +325,9 @@ assert.ok(value.includes("/examples/model-ui/refund-system-map/screenshots/deter
 assert.ok(value.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-with-judgmentkit.png"));
 assert.ok(value.includes("Public evaluation report"));
 assert.ok(value.includes("Latest MCP pilot report"));
-assert.ok(value.includes("/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-004/mcp-pilot-report.html"));
+assert.ok(value.includes("/evals/mcp-pilot/2026-06-18/mcp-0.3.0/run-001/mcp-pilot-report.html"));
 assert.ok(value.includes("Latest LLM evidence"));
-assert.ok(value.includes("/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-004/mcp-pilot-llm-evidence.md"));
+assert.ok(value.includes("/evals/mcp-pilot/2026-06-18/mcp-0.3.0/run-001/mcp-pilot-llm-evidence.md"));
 assert.ok(value.includes("Milestone proof packet"));
 assert.ok(value.includes("/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-evidence-packet.md"));
 assert.equal(value.includes("/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-report.html"), false);

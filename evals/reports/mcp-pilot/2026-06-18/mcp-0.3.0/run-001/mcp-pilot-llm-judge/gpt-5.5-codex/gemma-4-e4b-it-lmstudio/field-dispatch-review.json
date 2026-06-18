@@ -1,0 +1,88 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "field-dispatch-review",
+  "title": "Field dispatch review",
+  "case_type": "operator_review_handoff",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-18T03:23:26.769Z",
+  "duration_ms": 69765,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "751772a395609206ac6ae3b2a7a51c0d7848f37b011a3c16ad069889d8f933c6",
+  "raw_response_sha256": "d422363fb0140720fd4d92bd27f7645ac8037a4ef3110548aa65234a49f2ed95",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"medium\",\"rationale\":\"Output A is still flawed, but it is more useful for a downstream agent because it provides an explicit handoff shape with owner, next action, reason, route options, and evidence gap. Output B is somewhat more source-aligned in its main action, but it mostly restates a review workflow and its handoff omits concrete handoff fields. Both should be penalized for inventing a parts evidence gap and leaking benchmark/tooling language; neither directly states the expected next move as sending an assignment handoff.\",\"decisive_differences\":[\"Output A gives a more operational handoff with owner/action/reason fields; Output B's handoff is a generic instruction.\",\"Output B's next action is more balanced across all source factors, but it delays the decision instead of sending the assignment handoff.\",\"Both leak internal context and invent a parts-confirmation gap, but Output A remains easier to convert into the expected handoff response.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Owner: field dispatcher; Next Action: Confirm part availability status before final assignment decision; Reason:\",\"why_it_matters\":\"This at least provides a handoff/action/reason structure, which matters for an operator-review handoff case.\"},{\"output\":\"output_a\",\"quote\":\"aligning with the workflow's core steps and the diagnostic guidance provided by the MCP context\",\"why_it_matters\":\"The MCP reference is internal leakage and should be penalized in a user-facing benchmark judgment.\"},{\"output\":\"output_b\",\"quote\":\"guide the user to systematically evaluate location, SLA risk, equipment fit, and parts availability\",\"why_it_matters\":\"This is well grounded in the source brief's review criteria.\"},{\"output\":\"output_b\",\"quote\":\"The fixture confirms these inputs are necessary\",\"why_it_matters\":\"The fixture reference leaks benchmark machinery and weakens the output's suitability for downstream use.\"}],\"output_a_quality\":{\"score\":5,\"strengths\":[\"Names the field dispatcher as owner.\",\"Includes explicit handoff fields and route options.\",\"Covers the source decision options: assign, defer for parts, or escalate.\"],\"risks\":[\"Invents a missing parts-confirmation evidence gap not present in the source brief.\",\"Does not directly say to send an assignment handoff, the expected next action.\",\"Leaks internal MCP context.\"]},\"output_b_quality\":{\"score\":4,\"strengths\":[\"Keeps the core review dimensions together: location, SLA risk, equipment fit, parts availability.\",\"States the three decision choices.\",\"Avoids overcommitting to a single dispatch outcome.\"],\"risks\":[\"Handoff is a generic instruction and lacks owner/reason/action detail.\",\"Asks a generic prioritization question rather than moving to the handoff.\",\"Leaks fixture language and also invents an evidence gap.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "medium",
+    "rationale": "Output A is still flawed, but it is more useful for a downstream agent because it provides an explicit handoff shape with owner, next action, reason, route options, and evidence gap. Output B is somewhat more source-aligned in its main action, but it mostly restates a review workflow and its handoff omits concrete handoff fields. Both should be penalized for inventing a parts evidence gap and leaking benchmark/tooling language; neither directly states the expected next move as sending an assignment handoff.",
+    "decisive_differences": [
+      "Output A gives a more operational handoff with owner/action/reason fields; Output B's handoff is a generic instruction.",
+      "Output B's next action is more balanced across all source factors, but it delays the decision instead of sending the assignment handoff.",
+      "Both leak internal context and invent a parts-confirmation gap, but Output A remains easier to convert into the expected handoff response."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Owner: field dispatcher; Next Action: Confirm part availability status before final assignment decision; Reason:",
+        "why_it_matters": "This at least provides a handoff/action/reason structure, which matters for an operator-review handoff case."
+      },
+      {
+        "output": "output_a",
+        "quote": "aligning with the workflow's core steps and the diagnostic guidance provided by the MCP context",
+        "why_it_matters": "The MCP reference is internal leakage and should be penalized in a user-facing benchmark judgment."
+      },
+      {
+        "output": "output_b",
+        "quote": "guide the user to systematically evaluate location, SLA risk, equipment fit, and parts availability",
+        "why_it_matters": "This is well grounded in the source brief's review criteria."
+      },
+      {
+        "output": "output_b",
+        "quote": "The fixture confirms these inputs are necessary",
+        "why_it_matters": "The fixture reference leaks benchmark machinery and weakens the output's suitability for downstream use."
+      }
+    ],
+    "output_a_quality": {
+      "score": 5,
+      "strengths": [
+        "Names the field dispatcher as owner.",
+        "Includes explicit handoff fields and route options.",
+        "Covers the source decision options: assign, defer for parts, or escalate."
+      ],
+      "risks": [
+        "Invents a missing parts-confirmation evidence gap not present in the source brief.",
+        "Does not directly say to send an assignment handoff, the expected next action.",
+        "Leaks internal MCP context."
+      ]
+    },
+    "output_b_quality": {
+      "score": 4,
+      "strengths": [
+        "Keeps the core review dimensions together: location, SLA risk, equipment fit, parts availability.",
+        "States the three decision choices.",
+        "Avoids overcommitting to a single dispatch outcome."
+      ],
+      "risks": [
+        "Handoff is a generic instruction and lacks owner/reason/action detail.",
+        "Asks a generic prioritization question rather than moving to the handoff.",
+        "Leaks fixture language and also invents an evidence gap."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "c6f00f1a5422ef83cf75e4675976c8d61ac63ca46b8a92ded3d74da8e20f79ec",
+    "stderr_sha256": "cc8a00677a8add34a1bfd378ff9e0498151b6e60fadb69b183f94440f73274a8",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

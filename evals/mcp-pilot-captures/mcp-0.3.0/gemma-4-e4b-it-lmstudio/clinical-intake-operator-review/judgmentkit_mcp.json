@@ -1,0 +1,65 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "clinical-intake-operator-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.3.0",
+  "mcp_url": "http://127.0.0.1:61843/mcp",
+  "mcp_metadata_sha256": "c2b723da0bd930c1dac3a255d2f1820fdf92f092b5f8b8a1f0bc714857c62199",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract"
+  ],
+  "mcp_tool_transcript_sha256": "c5ed5e47ea86979173f369653e493b5d9bbbae0f5e4ac902f9bbc1b80247d7a9",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-18T03:11:17.801Z",
+  "duration_ms": 5127,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1050,
+    "completion_tokens": 268,
+    "total_tokens": 1318,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "9934879450848fb7a3f91f891a91e99554639725e0199d65a8a1f843b87959ad",
+  "prompt_sha256": "82498f436aa225d7bd3180c714bd96a3c9e9baa92133fde5d9b452cbf2c06a1c",
+  "mcp_context_sha256": "beed35c87a6ab8aba9b5f7a24c028a5156a24a471c075e5a95c1e9c376d4df1d",
+  "raw_response_sha256": "9d63197837d995dccb5d74504135b1a6a584147ea5409828912ea9ee2102e7c4",
+  "raw_response": "{\"response\": \"The agent should guide the care coordinator through reviewing the intake evidence, specifically focusing on comparing reported symptoms against established urgency guidelines and verifying all necessary consent documentation. Based on this review, the next step is to determine if the case requires immediate escalation to a nurse for specialized assessment or if further information gathering from the user is needed before proceeding to scheduling.\", \"next_action\": \"Guide the care coordinator to perform a structured comparison of symptoms/urgency and check for missing consent documentation.\", \"questions\": [\"What specific criteria define an 'ambiguous urgency signal' that requires clarification?\", \"What are the acceptable fallback actions if both consent and urgency appear clear but the intake summary is incomplete?\"], \"handoff\": \"Owner: care coordinator; Next Action: Review evidence against established guidelines to determine routing path; Reason: The system needs confirmation on how to proceed when ambiguity exists in either urgency or consent documentation; Evidence Gap: Need explicit workflow guidance for handling ambiguous urgency signals and partial data sets.\", \"rationale\": \"The source context indicates the operator must compare symptoms, urgency, and consent. The MCP diagnostic points to a need for targeted knowledge regarding what constitutes 'ambiguous' findings and how to proceed when multiple checks are inconclusive, which is best addressed by guiding the agent through structured verification steps rather than just presenting options.\"}",
+  "parsed": {
+    "response": "The agent should guide the care coordinator through reviewing the intake evidence, specifically focusing on comparing reported symptoms against established urgency guidelines and verifying all necessary consent documentation. Based on this review, the next step is to determine if the case requires immediate escalation to a nurse for specialized assessment or if further information gathering from the user is needed before proceeding to scheduling.",
+    "next_action": "Guide the care coordinator to perform a structured comparison of symptoms/urgency and check for missing consent documentation.",
+    "questions": [
+      "What specific criteria define an 'ambiguous urgency signal' that requires clarification?",
+      "What are the acceptable fallback actions if both consent and urgency appear clear but the intake summary is incomplete?"
+    ],
+    "handoff": "Owner: care coordinator; Next Action: Review evidence against established guidelines to determine routing path; Reason: The system needs confirmation on how to proceed when ambiguity exists in either urgency or consent documentation; Evidence Gap: Need explicit workflow guidance for handling ambiguous urgency signals and partial data sets.",
+    "rationale": "The source context indicates the operator must compare symptoms, urgency, and consent. The MCP diagnostic points to a need for targeted knowledge regarding what constitutes 'ambiguous' findings and how to proceed when multiple checks are inconclusive, which is best addressed by guiding the agent through structured verification steps rather than just presenting options."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent should guide the care coordinator through reviewing the intake evidence, specifically focusing on comparing reported symptoms against established urgency guidelines and verifying all necessary consent documentation. Based on this review, the next step is to determine if the case requires immediate escalation to a nurse for specialized assessment or if further information gathering from the user is needed before proceeding to scheduling.\", \"next_action\": \"Guide the care coordinator to perform a structured comparison of symptoms/urgency and check for missing consent documentation.\", \"questions\": [\"What specific criteria define an 'ambiguous urgency signal' that requires clarification?\", \"What are the acceptable fallback actions if both consent and urgency appear clear but the intake summary is incomplete?\"], \"handoff\": \"Owner: care coordinator; Next Action: Review evidence against established guidelines to determine routing path; Reason: The system needs confirmation on how to proceed when ambiguity exists in either urgency or consent documentation; Evidence Gap: Need explicit workflow guidance for handling ambiguous urgency signals and partial data sets.\", \"rationale\": \"The source context indicates the operator must compare symptoms, urgency, and consent. The MCP diagnostic points to a need for targeted knowledge regarding what constitutes 'ambiguous' findings and how to proceed when multiple checks are inconclusive, which is best addressed by guiding the agent through structured verification steps rather than just presenting options.\"}",
+    "usage": {
+      "prompt_tokens": 1050,
+      "completion_tokens": 268,
+      "total_tokens": 1318,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "9accb0b6b43c4fe06543b937a7c9b77012411a636f6718607bd6a3677cb4f82e",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

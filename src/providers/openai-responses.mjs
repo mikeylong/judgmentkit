@@ -14,7 +14,18 @@ const UI_WORKFLOW_CANDIDATE_SCHEMA = {
       type: "object",
       properties: {
         surface_name: { type: "string" },
-        steps: {
+        topology: {
+          type: "string",
+          enum: [
+            "workspace",
+            "multi_surface",
+            "staged_flow",
+            "dashboard",
+            "report",
+            "conversation",
+          ],
+        },
+        work_units: {
           type: "array",
           items: { type: "string" },
         },
@@ -30,31 +41,40 @@ const UI_WORKFLOW_CANDIDATE_SCHEMA = {
       },
       required: [
         "surface_name",
-        "steps",
+        "topology",
+        "work_units",
         "primary_actions",
         "decision_points",
         "completion_state",
       ],
       additionalProperties: false,
     },
-    primary_ui: {
-      type: "object",
-      properties: {
-        sections: {
-          type: "array",
-          items: { type: "string" },
+    surface_set: {
+      type: "array",
+      items: {
+        type: "object",
+        properties: {
+          name: { type: "string" },
+          purpose: { type: "string" },
+          sections: {
+            type: "array",
+            items: { type: "string" },
+          },
+          controls: {
+            type: "array",
+            items: { type: "string" },
+          },
+          relationship_to_workflow: { type: "string" },
         },
-        controls: {
-          type: "array",
-          items: { type: "string" },
-        },
-        user_facing_terms: {
-          type: "array",
-          items: { type: "string" },
-        },
+        required: [
+          "name",
+          "purpose",
+          "sections",
+          "controls",
+          "relationship_to_workflow",
+        ],
+        additionalProperties: false,
       },
-      required: ["sections", "controls", "user_facing_terms"],
-      additionalProperties: false,
     },
     handoff: {
       type: "object",
@@ -82,7 +102,7 @@ const UI_WORKFLOW_CANDIDATE_SCHEMA = {
       additionalProperties: false,
     },
   },
-  required: ["workflow", "primary_ui", "handoff", "diagnostics"],
+  required: ["workflow", "surface_set", "handoff", "diagnostics"],
   additionalProperties: false,
 };
 

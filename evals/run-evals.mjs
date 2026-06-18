@@ -7,6 +7,7 @@ import {
   createActivityModelProposer,
   createActivityModelReview,
   createModelAssistedActivityModelReview,
+  recommendSurfaceTypes,
   reviewActivityModelCandidate,
   reviewUiWorkflowCandidate,
 } from "../src/index.mjs";
@@ -102,6 +103,30 @@ function checkPhrases(label, actualValue, expectedValues, failures) {
   for (const expectedValue of expectedValues ?? []) {
     if (!actualText.includes(expectedValue.toLowerCase())) {
       failures.push(`${label} missing expected phrase: ${expectedValue}`);
+    }
+  }
+}
+
+function checkPathEquals(label, packet, expectedFields, failures) {
+  for (const [pathExpression, expectedValue] of Object.entries(expectedFields ?? {})) {
+    const actualValue = getPath(packet, pathExpression);
+
+    if (JSON.stringify(actualValue) !== JSON.stringify(expectedValue)) {
+      failures.push(
+        `${label}.${pathExpression} expected ${JSON.stringify(expectedValue)}, got ${JSON.stringify(actualValue)}`,
+      );
+    }
+  }
+}
+
+function checkPathsAbsent(label, packet, expectedPaths, failures) {
+  for (const pathExpression of expectedPaths ?? []) {
+    const actualValue = getPath(packet, pathExpression);
+
+    if (actualValue !== undefined) {
+      failures.push(
+        `${label}.${pathExpression} expected absent, got ${JSON.stringify(actualValue)}`,
+      );
     }
   }
 }
@@ -295,6 +320,24 @@ function checkUiWorkflowPacket(reviewPacket, expectedWorkflow, failures) {
     );
   }
 
+  checkPhrases(
+    "ui_workflow.review.targeted_questions",
+    reviewPacket.review.targeted_questions,
+    expectedWorkflow.targeted_question_includes,
+    failures,
+  );
+  checkPathEquals(
+    "ui_workflow.candidate",
+    reviewPacket.candidate,
+    expectedWorkflow.candidate_equals,
+    failures,
+  );
+  checkPathsAbsent(
+    "ui_workflow.candidate",
+    reviewPacket.candidate,
+    expectedWorkflow.candidate_absent,
+    failures,
+  );
   checkUiWorkflowCandidateIncludes(
     reviewPacket,
     expectedWorkflow.candidate_includes,
@@ -370,8 +413,14 @@ async function evaluateCase(testCase) {
           }),
         })
       : null;
+  const surfaceReviewPacket = testCase.ui_workflow_candidate
+    ? recommendSurfaceTypes(testCase.brief, { activity_review: reviewPacket })
+    : null;
   const uiWorkflowReviewPacket = testCase.ui_workflow_candidate
-    ? reviewUiWorkflowCandidate(testCase.brief, testCase.ui_workflow_candidate)
+    ? reviewUiWorkflowCandidate(testCase.brief, testCase.ui_workflow_candidate, {
+        activity_review: reviewPacket,
+        surface_review: surfaceReviewPacket,
+      })
     : null;
   const failures = [];
   const terms = detectedTerms(packet);

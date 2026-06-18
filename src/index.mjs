@@ -19,6 +19,14 @@ const SURFACE_TYPE_IDS = [
   "setup_debug_tool",
   "conversation",
 ];
+const WORKFLOW_TOPOLOGY_IDS = [
+  "workspace",
+  "multi_surface",
+  "staged_flow",
+  "dashboard",
+  "report",
+  "conversation",
+];
 
 export class JudgmentKitInputError extends Error {
   constructor(message, options = {}) {
@@ -37,6 +45,31 @@ export function loadActivityContract(contractPath = DEFAULT_CONTRACT_PATH) {
 
 function getContractWorkflowId(contract) {
   return contract.workflow?.id ?? DEFAULT_WORKFLOW_ID;
+}
+
+function getWorkflowTopologyPolicy(contract) {
+  const policy = contract.workflow?.topology_policy;
+
+  if (isPlainObject(policy)) {
+    return policy;
+  }
+
+  return {
+    allowed_topologies: WORKFLOW_TOPOLOGY_IDS,
+    preferred_default: "workspace",
+    work_units_guidance: [
+      "Name domain work units without implying a numbered sequence.",
+    ],
+    surface_set_guidance: [
+      "Use coordinated surfaces when the activity needs them.",
+    ],
+    stepper_eligibility: {
+      policy: "strong_intent",
+      allowed_when: [],
+      not_allowed_when: [],
+      failure_signals: [],
+    },
+  };
 }
 
 function getUiWorkflowProfiles(contract) {
@@ -475,6 +508,9 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
     /\b(?:decision|decide|deciding|choose|compare|approve|block|return|handoff|prioritize|resolve)\b/.test(text);
   const hasMarketing =
     /\b(?:marketing|landing page|homepage|home page|campaign|pricing|signup|sign up|trial|demo|conversion|convert|lead|prospect|visitor|buyer|offer|value prop|value proposition|positioning|launch)\b/.test(text);
+  const hasStructuredFormFlow =
+    /\b(?:form|submit|submission|intake|application|onboarding|settings|profile|checkout|edit|update|create|enter|collect|structured information)\b/.test(text) &&
+    /\b(?:validation|required|invalid|input|field|error state|save changes|confirm|confirmation|saved settings)\b/.test(text);
   const hasSetupDebug =
     /\b(?:setup|configure|configuration|debug|debugging|diagnostic|troubleshoot|test connection|integration setup|audit integration|safe to ship|schema change|prompt template|api endpoint|tool call trace|raw system mechanics)\b/.test(text) ||
     implementationTermsDetected.length > 0;
@@ -561,6 +597,13 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
         "Passive monitoring should stay a dashboard monitor.",
         /\b(?:passive dashboard|monitor|monitoring|status overview|trend dashboard|health dashboard)\b/.test(text) && !hasReviewDecision,
         "Monitoring or dashboard language appears without decision work.",
+      ),
+      surfaceEvidence(
+        "structured_form_flow",
+        "Structured form and validation work should stay a form flow.",
+        hasStructuredFormFlow &&
+          !/\b(?:queue|list|multiple|several|cases|items|records|requests|findings|workstreams|candidates)\b/.test(text),
+        "Form, validation, required input, submit, or confirmation language is primary.",
       ),
     ];
 
@@ -2217,6 +2260,7 @@ function uiWorkflowPrimaryFields(candidate) {
   return {
     workflow: candidate.workflow,
     primary_ui: candidate.primary_ui,
+    surface_set: candidate.surface_set,
     handoff: candidate.handoff,
   };
 }
@@ -2323,6 +2367,195 @@ function toDiagnosticTermArray(value) {
     .filter(Boolean);
 }
 
+function toSurfaceSetArray(value) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value.filter(isPlainObject);
+}
+
+function rawWorkflowTopology(value) {
+  const topology = optionalString(value);
+
+  return WORKFLOW_TOPOLOGY_IDS.includes(topology) ? topology : "";
+}
+
+function inferWorkflowTopology(candidate, surfaceGuidance, contract) {
+  const explicitTopology = rawWorkflowTopology(candidate.workflow?.topology);
+
+  if (explicitTopology) {
+    return explicitTopology;
+  }
+
+  const surfaceSet = toSurfaceSetArray(candidate.surface_set);
+
+  if (surfaceSet.length > 1) {
+    return "multi_surface";
+  }
+
+  const surfaceType = optionalString(surfaceGuidance?.recommended_surface_type);
+
+  if (surfaceType === "dashboard_monitor") {
+    return "dashboard";
+  }
+
+  if (surfaceType === "content_report") {
+    return "report";
+  }
+
+  if (surfaceType === "conversation") {
+    return "conversation";
+  }
+
+  const policy = getWorkflowTopologyPolicy(contract);
+  const preferredDefault = optionalString(policy.preferred_default);
+
+  return WORKFLOW_TOPOLOGY_IDS.includes(preferredDefault)
+    ? preferredDefault
+    : "workspace";
+}
+
+function aggregateSurfaceSet(surfaceSet) {
+  const sections = [];
+  const controls = [];
+
+  for (const surface of surfaceSet) {
+    sections.push(...toStringArray(surface.sections));
+    controls.push(...toStringArray(surface.controls));
+  }
+
+  return {
+    sections: unique(sections),
+    controls: unique(controls),
+  };
+}
+
+function buildDefaultSurfaceSet(candidate, implementationTermsDetected) {
+  const workflow = candidate.workflow ?? {};
+  const primaryUi = isPlainObject(candidate.primary_ui) ? candidate.primary_ui : {};
+
+  return [
+    {
+      name: sanitizeUiWorkflowString(
+        workflow.surface_name,
+        implementationTermsDetected,
+        "Primary work surface",
+      ),
+      purpose: "Support the activity work units, decision, completion, and handoff.",
+      sections: sanitizeUiWorkflowList(primaryUi.sections, implementationTermsDetected),
+      controls: sanitizeUiWorkflowList(primaryUi.controls, implementationTermsDetected),
+      relationship_to_workflow:
+        "Compatibility surface synthesized from legacy primary_ui.",
+    },
+  ];
+}
+
+function normalizeUiWorkflowSurfaceSet(candidate, implementationTermsDetected) {
+  const providedSurfaceSet = toSurfaceSetArray(candidate.surface_set);
+
+  if (providedSurfaceSet.length === 0) {
+    return buildDefaultSurfaceSet(candidate, implementationTermsDetected);
+  }
+
+  return providedSurfaceSet.map((surface, index) => ({
+    name: sanitizeUiWorkflowString(
+      surface.name,
+      implementationTermsDetected,
+      `Surface ${index + 1}`,
+    ),
+    purpose: sanitizeUiWorkflowString(
+      surface.purpose,
+      implementationTermsDetected,
+      "Support a coordinated part of the workflow.",
+    ),
+    sections: sanitizeUiWorkflowList(surface.sections, implementationTermsDetected),
+    controls: sanitizeUiWorkflowList(surface.controls, implementationTermsDetected),
+    relationship_to_workflow: sanitizeUiWorkflowString(
+      surface.relationship_to_workflow,
+      implementationTermsDetected,
+      "Coordinates with the rest of the workflow.",
+    ),
+  }));
+}
+
+function collectStepperEligibilityText(activityReview, candidate, surfaceGuidance) {
+  const activityCandidate = activityReview?.candidate ?? {};
+  const workflow = candidate.workflow ?? {};
+
+  return [
+    activityReview?.source?.input_excerpt,
+    activityCandidate.activity_model?.activity,
+    activityCandidate.activity_model?.objective,
+    ...(toStringArray(activityCandidate.activity_model?.participants)),
+    ...(toStringArray(activityCandidate.activity_model?.outcomes)),
+    ...(toStringArray(activityCandidate.activity_model?.domain_vocabulary)),
+    activityCandidate.interaction_contract?.primary_decision,
+    ...(toStringArray(activityCandidate.interaction_contract?.next_actions)),
+    activityCandidate.interaction_contract?.completion,
+    surfaceGuidance?.recommended_surface_type,
+    workflow.surface_name,
+    workflow.topology,
+    ...(toStringArray(workflow.work_units)),
+    ...(toStringArray(workflow.steps)),
+    ...(toSurfaceSetArray(candidate.surface_set).flatMap((surface) => [
+      surface.name,
+      surface.purpose,
+      surface.relationship_to_workflow,
+      ...(toStringArray(surface.sections)),
+      ...(toStringArray(surface.controls)),
+    ])),
+  ].filter(Boolean).join(" ");
+}
+
+function buildStepperEligibility(activityReview, candidate, surfaceGuidance, contract) {
+  const topology = rawWorkflowTopology(candidate.workflow?.topology);
+  const surfaceType = optionalString(surfaceGuidance?.recommended_surface_type);
+  const text = normalizeText(
+    collectStepperEligibilityText(activityReview, candidate, surfaceGuidance),
+  );
+  const explicitStagedRequest =
+    /\b(?:wizard|stepper|stepped|step by step|step-by-step|multi-step|multistep|staged flow|guided flow|guided setup|setup wizard|onboarding sequence)\b/.test(text);
+  const stagedDependencyOrder =
+    /\b(?:strict dependency|dependency order|ordered stages|must complete|complete .* before|before continuing|after completing|prerequisite|sequential|sequence|previous stage|next stage|first .* then)\b/.test(text);
+  const formOrSetupSequence =
+    ["form_flow", "setup_debug_tool"].includes(surfaceType) &&
+    /\b(?:form|submit|submission|validation|required|invalid|confirmation|checkout|application|intake|onboarding|setup|configure|configuration|install|installation|test connection|verification)\b/.test(text);
+  const blockedSurfaceType = [
+    "workbench",
+    "operator_review",
+    "dashboard_monitor",
+    "content_report",
+    "conversation",
+  ].includes(surfaceType);
+  const allowed =
+    explicitStagedRequest ||
+    (formOrSetupSequence && stagedDependencyOrder) ||
+    (formOrSetupSequence && !blockedSurfaceType);
+  const requested = topology === "staged_flow";
+  const blocked = requested && !allowed;
+  const policy = getWorkflowTopologyPolicy(contract).stepper_eligibility ?? {};
+
+  return {
+    policy: optionalString(policy.policy) || "strong_intent",
+    allowed,
+    requested,
+    blocked,
+    surface_type: surfaceType,
+    reason: allowed
+      ? "Source evidence supports staged progression."
+      : requested
+        ? "Staged-flow topology needs explicit wizard intent, setup/form sequence, or strict dependency order."
+        : "No staged-flow intent detected; use topology, work units, and coordinated surfaces instead.",
+    evidence: {
+      explicit_staged_request: explicitStagedRequest,
+      staged_dependency_order: stagedDependencyOrder,
+      form_or_setup_sequence: formOrSetupSequence,
+      blocked_surface_type: blockedSurfaceType,
+    },
+  };
+}
+
 function assertUiWorkflowCandidateShape(candidate) {
   if (!isPlainObject(candidate)) {
     throw new JudgmentKitInputError("UI workflow candidate must be an object.");
@@ -2332,8 +2565,10 @@ function assertUiWorkflowCandidateShape(candidate) {
     throw new JudgmentKitInputError("UI workflow candidate requires workflow.");
   }
 
-  if (!isPlainObject(candidate.primary_ui)) {
-    throw new JudgmentKitInputError("UI workflow candidate requires primary_ui.");
+  if (!isPlainObject(candidate.primary_ui) && toSurfaceSetArray(candidate.surface_set).length === 0) {
+    throw new JudgmentKitInputError(
+      "UI workflow candidate requires primary_ui or surface_set.",
+    );
   }
 
   if (!isPlainObject(candidate.handoff)) {
@@ -2347,24 +2582,36 @@ function assertUiWorkflowCandidateShape(candidate) {
 
 function buildUiWorkflowCandidateMissingFields(candidate) {
   const workflow = candidate.workflow;
-  const primaryUi = candidate.primary_ui;
+  const primaryUi = isPlainObject(candidate.primary_ui) ? candidate.primary_ui : {};
   const handoff = candidate.handoff;
   const completionState = optionalString(workflow.completion_state);
   const handoffCompletion =
     optionalString(handoff.next_action).length > 0 &&
     optionalString(handoff.reason).length > 0;
+  const workUnits = toStringArray(workflow.work_units).length > 0
+    ? toStringArray(workflow.work_units)
+    : toStringArray(workflow.steps);
+  const surfaceSet = toSurfaceSetArray(candidate.surface_set);
+  const hasSurfaceStructure =
+    toStringArray(primaryUi.sections).length > 0 ||
+    surfaceSet.some((surface) => toStringArray(surface.sections).length > 0);
 
   return {
-    workflow_steps: toStringArray(workflow.steps).length === 0,
+    workflow_structure: workUnits.length === 0 && !hasSurfaceStructure,
     primary_actions: toStringArray(workflow.primary_actions).length === 0,
     decision_support: toStringArray(workflow.decision_points).length === 0,
-    primary_ui_sections: toStringArray(primaryUi.sections).length === 0,
+    surface_sections: !hasSurfaceStructure,
     completion_or_handoff:
       completionState.length === 0 && !handoffCompletion,
   };
 }
 
-function buildUiWorkflowCandidateGuardrails(candidate, contract) {
+function buildUiWorkflowCandidateGuardrails(
+  candidate,
+  contract,
+  activityReview,
+  surfaceGuidance,
+) {
   return {
     candidate_primary_terms_detected: buildUiWorkflowPrimaryTermsDetected(
       candidate,
@@ -2373,6 +2620,12 @@ function buildUiWorkflowCandidateGuardrails(candidate, contract) {
     candidate_primary_meta_terms_detected:
       buildCandidatePrimaryMetaTermsDetected(candidate),
     candidate_missing_fields: buildUiWorkflowCandidateMissingFields(candidate),
+    stepper_eligibility: buildStepperEligibility(
+      activityReview,
+      candidate,
+      surfaceGuidance,
+      contract,
+    ),
   };
 }
 
@@ -2380,9 +2633,18 @@ function hasUiWorkflowMissingField(candidateMissingFields) {
   return Object.values(candidateMissingFields).some(Boolean);
 }
 
-function normalizeUiWorkflowCandidate(candidate, activityReview, candidatePrimaryTermsDetected) {
+function normalizeUiWorkflowCandidate(
+  candidate,
+  activityReview,
+  candidatePrimaryTermsDetected,
+  {
+    contract,
+    surfaceGuidance,
+    stepperEligibility,
+  } = {},
+) {
   const workflow = candidate.workflow;
-  const primaryUi = candidate.primary_ui;
+  const primaryUi = isPlainObject(candidate.primary_ui) ? candidate.primary_ui : {};
   const handoff = candidate.handoff;
   const diagnostics = candidate.diagnostics;
   const activityCandidate = activityReview.candidate;
@@ -2403,6 +2665,15 @@ function normalizeUiWorkflowCandidate(candidate, activityReview, candidatePrimar
     ...sanitizeUiWorkflowList(primaryUi.user_facing_terms, candidatePrimaryTermsDetected),
     ...sanitizeUiWorkflowList(defaultTerms, candidatePrimaryTermsDetected),
   ]);
+  const surfaceSet = normalizeUiWorkflowSurfaceSet(
+    candidate,
+    candidatePrimaryTermsDetected,
+  );
+  const aggregateSurfaces = aggregateSurfaceSet(surfaceSet);
+  const workUnits = toStringArray(workflow.work_units).length > 0
+    ? sanitizeUiWorkflowList(workflow.work_units, candidatePrimaryTermsDetected)
+    : sanitizeUiWorkflowList(workflow.steps, candidatePrimaryTermsDetected);
+  const topology = inferWorkflowTopology(candidate, surfaceGuidance, contract);
 
   return {
     workflow: {
@@ -2411,6 +2682,9 @@ function normalizeUiWorkflowCandidate(candidate, activityReview, candidatePrimar
         candidatePrimaryTermsDetected,
         "Workflow review",
       ),
+      topology,
+      work_units: workUnits,
+      stepper_eligibility: stepperEligibility,
       steps: sanitizeUiWorkflowList(workflow.steps, candidatePrimaryTermsDetected),
       primary_actions: sanitizeUiWorkflowList(
         workflow.primary_actions,
@@ -2427,10 +2701,15 @@ function normalizeUiWorkflowCandidate(candidate, activityReview, candidatePrimar
       ),
     },
     primary_ui: {
-      sections: sanitizeUiWorkflowList(primaryUi.sections, candidatePrimaryTermsDetected),
-      controls: sanitizeUiWorkflowList(primaryUi.controls, candidatePrimaryTermsDetected),
+      sections: sanitizeUiWorkflowList(primaryUi.sections, candidatePrimaryTermsDetected).length > 0
+        ? sanitizeUiWorkflowList(primaryUi.sections, candidatePrimaryTermsDetected)
+        : aggregateSurfaces.sections,
+      controls: sanitizeUiWorkflowList(primaryUi.controls, candidatePrimaryTermsDetected).length > 0
+        ? sanitizeUiWorkflowList(primaryUi.controls, candidatePrimaryTermsDetected)
+        : aggregateSurfaces.controls,
       user_facing_terms: sanitizedUserTerms,
     },
+    surface_set: surfaceSet,
     handoff: {
       next_owner: sanitizeUiWorkflowString(
         handoff.next_owner,
@@ -2460,8 +2739,10 @@ function buildUiWorkflowQuestions(activityReview, candidateGuardrails) {
   const questions = [...(activityReview.review?.targeted_questions ?? [])];
   const missing = candidateGuardrails.candidate_missing_fields;
 
-  if (missing.workflow_steps) {
-    questions.push("What workflow steps should the UI candidate support?");
+  if (missing.workflow_structure) {
+    questions.push(
+      "What workflow topology, work units, or coordinated surfaces should the UI candidate support?",
+    );
   }
 
   if (missing.primary_actions) {
@@ -2476,6 +2757,10 @@ function buildUiWorkflowQuestions(activityReview, candidateGuardrails) {
     questions.push("What completion state or handoff should the workflow make clear?");
   }
 
+  if (missing.surface_sections) {
+    questions.push("What surface sections or coordinated surfaces should the UI candidate show?");
+  }
+
   if (candidateGuardrails.candidate_primary_terms_detected.length > 0) {
     questions.push(
       "Which implementation terms in the workflow candidate should move to diagnostics or be translated?",
@@ -2485,6 +2770,12 @@ function buildUiWorkflowQuestions(activityReview, candidateGuardrails) {
   if (candidateGuardrails.candidate_primary_meta_terms_detected.length > 0) {
     questions.push(
       "Which JudgmentKit review terms in the workflow candidate should be removed from the product UI?",
+    );
+  }
+
+  if (candidateGuardrails.stepper_eligibility?.blocked) {
+    questions.push(
+      "What source evidence makes this a staged wizard or stepper instead of a workspace, dashboard, report, conversation, or multi-surface workflow?",
     );
   }
 
@@ -2533,6 +2824,7 @@ function buildUiWorkflowConfidence(activityReview, candidateGuardrails) {
   if (
     activityReview.review_status !== "ready_for_review" ||
     hasUiWorkflowMissingField(candidateGuardrails.candidate_missing_fields) ||
+    candidateGuardrails.stepper_eligibility?.blocked ||
     candidateGuardrails.candidate_primary_terms_detected.length > 0 ||
     candidateGuardrails.candidate_primary_meta_terms_detected.length > 0
   ) {
@@ -2555,21 +2847,32 @@ function buildUiWorkflowReviewPacket(
   surfaceReview = null,
 ) {
   const sourceReady = activityReview.review_status === "ready_for_review";
-  const candidateGuardrails = buildUiWorkflowCandidateGuardrails(candidate, contract);
+  const surfaceGuidance = summarizeSurfaceReview(surfaceReview);
+  const candidateGuardrails = buildUiWorkflowCandidateGuardrails(
+    candidate,
+    contract,
+    activityReview,
+    surfaceGuidance,
+  );
   const candidateReady =
     !hasUiWorkflowMissingField(candidateGuardrails.candidate_missing_fields) &&
+    !candidateGuardrails.stepper_eligibility?.blocked &&
     candidateGuardrails.candidate_primary_terms_detected.length === 0 &&
     candidateGuardrails.candidate_primary_meta_terms_detected.length === 0;
   const normalizedCandidate = normalizeUiWorkflowCandidate(
     candidate,
     activityReview,
     candidateGuardrails.candidate_primary_terms_detected,
+    {
+      contract,
+      surfaceGuidance,
+      stepperEligibility: candidateGuardrails.stepper_eligibility,
+    },
   );
   const sourceMissingEvidence =
     activityReview.guardrails?.source_missing_evidence ??
     activityReview.guardrails?.missing_evidence ??
     {};
-  const surfaceGuidance = summarizeSurfaceReview(surfaceReview);
   const packet = {
     version: activityReview.version,
     contract_id: activityReview.contract_id,
@@ -2593,11 +2896,16 @@ function buildUiWorkflowReviewPacket(
     review: {
       evidence: {
         activity_review_ready: sourceReady,
-        workflow_steps: !candidateGuardrails.candidate_missing_fields.workflow_steps,
+        workflow_structure:
+          !candidateGuardrails.candidate_missing_fields.workflow_structure,
+        workflow_topology: normalizedCandidate.workflow.topology,
+        work_units: normalizedCandidate.workflow.work_units.length > 0,
+        surface_set: normalizedCandidate.surface_set.length > 0,
         primary_actions: !candidateGuardrails.candidate_missing_fields.primary_actions,
         decision_support: !candidateGuardrails.candidate_missing_fields.decision_support,
         completion_or_handoff:
           !candidateGuardrails.candidate_missing_fields.completion_or_handoff,
+        stepper_eligibility: candidateGuardrails.stepper_eligibility,
         implementation_terms_detected:
           activityReview.guardrails?.implementation_terms_detected ?? [],
         candidate_primary_terms_detected:
@@ -2622,6 +2930,7 @@ function buildUiWorkflowReviewPacket(
         candidateGuardrails.candidate_primary_terms_detected,
       candidate_primary_meta_terms_detected:
         candidateGuardrails.candidate_primary_meta_terms_detected,
+      stepper_eligibility: candidateGuardrails.stepper_eligibility,
       implementation_terms_detected:
         activityReview.guardrails?.implementation_terms_detected ?? [],
       disclosure_translation_candidates:
@@ -2641,17 +2950,26 @@ function buildUiWorkflowReviewPacket(
 function buildUiWorkflowCandidateShapeGuide() {
   return {
     workflow: {
-      surface_name: "Short domain name for the workflow surface.",
-      steps: ["Ordered workflow steps in user-facing language."],
+      surface_name: "Short domain name for the workflow.",
+      topology:
+        "One of: workspace, multi_surface, staged_flow, dashboard, report, conversation.",
+      work_units: [
+        "Domain work units, checkpoints, or objects the UI must support without implying numbered order.",
+      ],
       primary_actions: ["Actions the user can take to move the work forward."],
       decision_points: ["Decisions the workflow helps the user resolve."],
       completion_state: "What done means for this workflow.",
     },
-    primary_ui: {
-      sections: ["Primary sections the user needs for the work."],
-      controls: ["Named controls or commands in user-facing language."],
-      user_facing_terms: ["Domain terms suitable for the primary UI."],
-    },
+    surface_set: [
+      {
+        name: "Domain name for a coordinated surface.",
+        purpose: "What this surface helps the user do.",
+        sections: ["Sections needed on this surface."],
+        controls: ["Named controls or commands in user-facing language."],
+        relationship_to_workflow:
+          "How this surface coordinates with other workflow surfaces.",
+      },
+    ],
     handoff: {
       next_owner: "Who receives the next action.",
       reason: "Reason the decision or handoff is being made.",
@@ -2732,8 +3050,9 @@ export function buildUiWorkflowCandidateRequest({
         content: [
           "You propose a reviewable JudgmentKit UI workflow candidate.",
           "Return only JSON whose root object matches the UI workflow candidate shape.",
-          "Ground workflow steps, actions, decisions, handoff, and user-facing terms in the source brief and activity review.",
-          "Keep implementation terms and JudgmentKit review-packet terms out of workflow, primary_ui, and handoff.",
+          "Ground topology, work units, coordinated surfaces, actions, decisions, handoff, and user-facing terms in the source brief and activity review.",
+          "Do not use staged_flow or numbered wizard/stepper framing unless the source has strong staged-flow intent such as explicit wizard wording, ordered setup/onboarding, form validation sequence, or strict dependency order.",
+          "Keep implementation terms and JudgmentKit review-packet terms out of workflow, surface_set, primary_ui, and handoff.",
           "Implementation terms may appear only in diagnostics when they are diagnostic.",
           guidanceProfile
             ? "Apply the selected guidance_profile as activity guidance; do not copy guardrail ids or internal mechanics into product UI copy."
@@ -2754,7 +3073,7 @@ export function buildUiWorkflowCandidateRequest({
       root: "candidate",
       required_top_level_keys: [
         "workflow",
-        "primary_ui",
+        "surface_set",
         "handoff",
         "diagnostics",
       ],
@@ -2893,9 +3212,12 @@ function assertReadyUiWorkflowReviewShape(workflowReview) {
     );
   }
 
-  if (!isPlainObject(workflowReview.candidate.primary_ui)) {
+  if (
+    !isPlainObject(workflowReview.candidate.primary_ui) &&
+    toSurfaceSetArray(workflowReview.candidate.surface_set).length === 0
+  ) {
     throw new JudgmentKitInputError(
-      "createUiGenerationHandoff requires candidate.primary_ui.",
+      "createUiGenerationHandoff requires candidate.primary_ui or candidate.surface_set.",
     );
   }
 
@@ -2938,6 +3260,7 @@ function buildUiGenerationHandoffBlockDetails(workflowReview) {
     confidence: workflowReview.review?.confidence,
     targeted_questions: workflowReview.review?.targeted_questions ?? [],
     missing_fields: workflowReview.guardrails?.candidate_missing_fields ?? {},
+    stepper_eligibility: workflowReview.guardrails?.stepper_eligibility ?? {},
     source_missing_evidence: workflowReview.guardrails?.source_missing_evidence ?? {},
     implementation_leakage_terms:
       workflowReview.guardrails?.candidate_primary_terms_detected ?? [],
@@ -5884,6 +6207,15 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
       contract.implementation_contract,
     { contract },
   );
+  const workflowSurfaceSet = toSurfaceSetArray(workflowCandidate.surface_set);
+  const aggregateSurfaces = aggregateSurfaceSet(workflowSurfaceSet);
+  const primaryUi = isPlainObject(workflowCandidate.primary_ui)
+    ? workflowCandidate.primary_ui
+    : {
+        sections: aggregateSurfaces.sections,
+        controls: aggregateSurfaces.controls,
+        user_facing_terms: [],
+      };
   const handoff = {
     version: workflowReview.version,
     contract_id: workflowReview.contract_id,
@@ -5916,15 +6248,26 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
     },
     workflow: {
       surface_name: optionalString(workflowCandidate.workflow.surface_name),
+      topology: optionalString(workflowCandidate.workflow.topology),
+      work_units: toStringArray(workflowCandidate.workflow.work_units),
+      stepper_eligibility:
+        workflowCandidate.workflow.stepper_eligibility ?? workflowReview.guardrails?.stepper_eligibility,
       steps: toStringArray(workflowCandidate.workflow.steps),
       primary_actions: toStringArray(workflowCandidate.workflow.primary_actions),
       decision_points: toStringArray(workflowCandidate.workflow.decision_points),
       completion_state: optionalString(workflowCandidate.workflow.completion_state),
     },
+    surface_set: workflowSurfaceSet.map((surface) => ({
+      name: optionalString(surface.name),
+      purpose: optionalString(surface.purpose),
+      sections: toStringArray(surface.sections),
+      controls: toStringArray(surface.controls),
+      relationship_to_workflow: optionalString(surface.relationship_to_workflow),
+    })),
     primary_surface: {
-      sections: toStringArray(workflowCandidate.primary_ui.sections),
-      controls: toStringArray(workflowCandidate.primary_ui.controls),
-      user_facing_terms: toStringArray(workflowCandidate.primary_ui.user_facing_terms),
+      sections: toStringArray(primaryUi.sections),
+      controls: toStringArray(primaryUi.controls),
+      user_facing_terms: toStringArray(primaryUi.user_facing_terms),
     },
     handoff: {
       next_owner: optionalString(workflowCandidate.handoff.next_owner),
@@ -5982,10 +6325,19 @@ function textFromHandoff(handoff) {
     ...(toStringArray(handoff.interaction_contract?.next_actions)),
     handoff.interaction_contract?.completion,
     handoff.workflow?.surface_name,
+    handoff.workflow?.topology,
+    ...(toStringArray(handoff.workflow?.work_units)),
     ...(toStringArray(handoff.workflow?.steps)),
     ...(toStringArray(handoff.workflow?.primary_actions)),
     ...(toStringArray(handoff.workflow?.decision_points)),
     handoff.workflow?.completion_state,
+    ...(toSurfaceSetArray(handoff.surface_set).flatMap((surface) => [
+      surface.name,
+      surface.purpose,
+      surface.relationship_to_workflow,
+      ...(toStringArray(surface.sections)),
+      ...(toStringArray(surface.controls)),
+    ])),
     ...(toStringArray(handoff.primary_surface?.sections)),
     ...(toStringArray(handoff.primary_surface?.controls)),
     ...(toStringArray(handoff.primary_surface?.user_facing_terms)),
@@ -6126,6 +6478,7 @@ export function createFrontendGenerationContext({
     activity_model: uiGenerationHandoff.activity_model,
     interaction_contract: uiGenerationHandoff.interaction_contract,
     workflow: uiGenerationHandoff.workflow,
+    surface_set: toSurfaceSetArray(uiGenerationHandoff.surface_set),
     primary_surface: uiGenerationHandoff.primary_surface,
     handoff: uiGenerationHandoff.handoff,
     implementation_contract: uiGenerationHandoff.implementation_contract,
@@ -6159,6 +6512,7 @@ export function createFrontendGenerationContext({
       accessibility_policy:
         uiGenerationHandoff.implementation_contract?.accessibility_policy ??
         DEFAULT_ACCESSIBILITY_POLICY,
+      required_surfaces: toSurfaceSetArray(uiGenerationHandoff.surface_set),
       required_sections: toStringArray(uiGenerationHandoff.primary_surface?.sections),
       required_controls: toStringArray(uiGenerationHandoff.primary_surface?.controls),
       verification_expectations: {
@@ -6189,6 +6543,8 @@ function buildFrontendImplementationInstructionMarkdown({
   const implementationGuidance = frontendGenerationContext.implementation_guidance ?? {};
   const verification = implementationGuidance.verification_expectations ?? {};
   const frontendContext = frontendGenerationContext.frontend_context ?? {};
+  const workflow = frontendGenerationContext.workflow ?? {};
+  const requiredSurfaces = toSurfaceSetArray(implementationGuidance.required_surfaces);
   const visualAssetPolicy =
     implementationGuidance.visual_asset_policy ?? DEFAULT_VISUAL_ASSET_POLICY;
   const accessibilityPolicy =
@@ -6213,12 +6569,14 @@ function buildFrontendImplementationInstructionMarkdown({
     "## Source",
     `- Target client: ${targetClient || "agent"}`,
     `- Surface type: ${frontendGenerationContext.surface_type || "unspecified"}`,
+    `- Workflow topology: ${workflow.topology || "workspace"}`,
     `- Runtime: ${frontendContext.target_runtime || "unspecified"}`,
     `- UI library: ${frontendContext.ui_library || "unspecified"}`,
     "",
     "## Implementation Sequence",
-    "- Confirm the activity, primary decision, workflow, and handoff are represented in the surface.",
-    "- Shape the interface around the selected surface type and required sections.",
+    "- Confirm the activity, primary decision, workflow topology, work units, coordinated surfaces, and handoff are represented.",
+    "- Shape the interface around the selected surface type and surface set before choosing section layout.",
+    "- Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
     "- Use approved primitives and approved component families before introducing new UI helpers.",
     "- Apply any design system only as the renderer after the activity and workflow are clear.",
     "- Verify core accessibility evidence for semantics, landmarks/headings, name/role/value, keyboard navigation, focus order, focus-visible, responsive reflow/no-overflow, and automated checks.",
@@ -6228,6 +6586,10 @@ function buildFrontendImplementationInstructionMarkdown({
     "- Review generated code or evidence with review_ui_implementation_candidate before final handoff.",
     "",
     "## Required Surface",
+    `- Topology: ${workflow.topology || "workspace"}`,
+    `- Work units: ${toStringArray(workflow.work_units).join("; ") || "none supplied"}`,
+    `- Stepper eligibility: ${workflow.stepper_eligibility?.allowed ? "allowed" : "not allowed"}`,
+    `- Surfaces: ${requiredSurfaces.map((surface) => `${surface.name}: ${surface.purpose}`).join("; ") || "none supplied"}`,
     `- Sections: ${toStringArray(implementationGuidance.required_sections).join("; ") || "none supplied"}`,
     `- Controls: ${toStringArray(implementationGuidance.required_controls).join("; ") || "none supplied"}`,
     "",
@@ -6300,6 +6662,8 @@ export function createFrontendImplementationSkillContext({
     frontendGenerationContext.implementation_contract ?? {};
   const verificationExpectations =
     implementationGuidance.verification_expectations ?? {};
+  const workflow = frontendGenerationContext.workflow ?? {};
+  const requiredSurfaces = toSurfaceSetArray(implementationGuidance.required_surfaces);
   const visualAssetPolicy =
     implementationGuidance.visual_asset_policy ??
     implementationContract.visual_asset_policy ??
@@ -6386,8 +6750,9 @@ export function createFrontendImplementationSkillContext({
       targetClient: normalizedTargetClient,
     }),
     implementation_sequence: [
-      "Confirm the activity, primary decision, workflow, and handoff from the ready frontend context.",
-      "Map the selected surface type to the required sections, controls, density, navigation, and responsive expectations.",
+      "Confirm the activity, primary decision, workflow topology, work units, coordinated surfaces, and handoff from the ready frontend context.",
+      "Map the selected surface type to the surface set, required sections, controls, density, navigation, and responsive expectations.",
+      "Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
       "Use approved primitives and approved component families before introducing new UI helpers.",
       "Apply the design system only as a renderer adapter after the activity and workflow are represented.",
       "When the spec calls for substantive visuals, use imagegen or premium Three.js/WebGL/D3-style rendering instead of rudimentary deterministic geometry.",
@@ -6399,6 +6764,10 @@ export function createFrontendImplementationSkillContext({
     ],
     surface_type_guidance: {
       surface_type: frontendGenerationContext.surface_type,
+      workflow_topology: optionalString(workflow.topology) || "workspace",
+      work_units: toStringArray(workflow.work_units),
+      stepper_eligibility: workflow.stepper_eligibility ?? {},
+      surface_set: requiredSurfaces,
       interaction_implications:
         implementationGuidance.interaction_implications ?? {},
       disclosure_implications:

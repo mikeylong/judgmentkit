@@ -1,0 +1,94 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "modal-action-order-review",
+  "title": "Modal action order review",
+  "case_type": "implementation_review",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-18T03:31:18.210Z",
+  "duration_ms": 71595,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "6dd13f8491a8bc4ae810b864c6f46ea830427f0b0f2d77251a3364f2fd032f3f",
+  "raw_response_sha256": "6a6f53a1a6383f2c300a3492df53d8abe99e917f19f2467afc51d34df121247b",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"high\",\"rationale\":\"Output A is more useful because it clearly blocks acceptance until evidence for final-action clarity and keyboard focus exists, matching the expected next action. It is weakened by inventing repeated review failures and being over-prescriptive about focus landing. Output B recognizes missing focus/destructive-action evidence, but it soft-accepts the candidate based on invented implementation details, omits modal action order as a concrete verification target, and leaves the next move as more review rather than rejection.\",\"decisive_differences\":[\"Output A makes the decision to block/reject, while Output B says the candidate appears to address requirements.\",\"Output A's handoff names missing evidence and verification needed; Output B asks questions but does not require rejection before acceptance.\",\"Output B introduces unsupported details like labels being present and modal/button primitives, which are not in the source brief.\",\"Output A also invents repeated review failures, but that flaw is less damaging than Output B's unsafe acceptance posture.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"\\\"response\\\": \\\"block\\\"\",\"why_it_matters\":\"The expected next action is rejection until modal action order and focus evidence are verified.\"},{\"output\":\"output_a\",\"quote\":\"Block until final-action clarity and keyboard focus verification is provided.\",\"why_it_matters\":\"This gives a downstream agent an operational handoff aligned with the source brief's modal clarity and focus requirements.\"},{\"output\":\"output_b\",\"quote\":\"The implementation candidate appears to address the core requirements\",\"why_it_matters\":\"This is too accepting for a case where missing modal action order and focus evidence should block acceptance.\"},{\"output\":\"output_b\",\"quote\":\"The inclusion of 'labels: present' for accessibility evidence is positive.\",\"why_it_matters\":\"This invents or relies on details not present in the source brief and distracts from the required verification.\"},{\"output\":\"output_a\",\"quote\":\"repeated failures across multiple review attempts\",\"why_it_matters\":\"This is an unsupported claim, reducing A's grounding even though its decision is closer to the expected next action.\"}],\"output_a_quality\":{\"score\":7,\"strengths\":[\"Correctly blocks acceptance.\",\"Names final-action clarity and keyboard focus as required evidence.\",\"Provides a concrete handoff and verification expectation.\"],\"risks\":[\"Invents repeated review failures not in the source.\",\"Does not explicitly say modal action order strongly enough outside the handoff detail.\",\"Over-specifies focus landing on the final action, which may not be the correct focus behavior for a destructive confirmation.\"]},\"output_b_quality\":{\"score\":4,\"strengths\":[\"Identifies focus behavior and destructive/final-action clarity as important.\",\"Requests missing behavioral evidence rather than fully approving.\"],\"risks\":[\"Soft-accepts the candidate despite the expected reject/block outcome.\",\"Introduces unsupported implementation/accessibility details.\",\"Fails to make modal action order a clear acceptance blocker.\",\"Next action is too vague and does not instruct rejection until evidence is verified.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "high",
+    "rationale": "Output A is more useful because it clearly blocks acceptance until evidence for final-action clarity and keyboard focus exists, matching the expected next action. It is weakened by inventing repeated review failures and being over-prescriptive about focus landing. Output B recognizes missing focus/destructive-action evidence, but it soft-accepts the candidate based on invented implementation details, omits modal action order as a concrete verification target, and leaves the next move as more review rather than rejection.",
+    "decisive_differences": [
+      "Output A makes the decision to block/reject, while Output B says the candidate appears to address requirements.",
+      "Output A's handoff names missing evidence and verification needed; Output B asks questions but does not require rejection before acceptance.",
+      "Output B introduces unsupported details like labels being present and modal/button primitives, which are not in the source brief.",
+      "Output A also invents repeated review failures, but that flaw is less damaging than Output B's unsafe acceptance posture."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "\"response\": \"block\"",
+        "why_it_matters": "The expected next action is rejection until modal action order and focus evidence are verified."
+      },
+      {
+        "output": "output_a",
+        "quote": "Block until final-action clarity and keyboard focus verification is provided.",
+        "why_it_matters": "This gives a downstream agent an operational handoff aligned with the source brief's modal clarity and focus requirements."
+      },
+      {
+        "output": "output_b",
+        "quote": "The implementation candidate appears to address the core requirements",
+        "why_it_matters": "This is too accepting for a case where missing modal action order and focus evidence should block acceptance."
+      },
+      {
+        "output": "output_b",
+        "quote": "The inclusion of 'labels: present' for accessibility evidence is positive.",
+        "why_it_matters": "This invents or relies on details not present in the source brief and distracts from the required verification."
+      },
+      {
+        "output": "output_a",
+        "quote": "repeated failures across multiple review attempts",
+        "why_it_matters": "This is an unsupported claim, reducing A's grounding even though its decision is closer to the expected next action."
+      }
+    ],
+    "output_a_quality": {
+      "score": 7,
+      "strengths": [
+        "Correctly blocks acceptance.",
+        "Names final-action clarity and keyboard focus as required evidence.",
+        "Provides a concrete handoff and verification expectation."
+      ],
+      "risks": [
+        "Invents repeated review failures not in the source.",
+        "Does not explicitly say modal action order strongly enough outside the handoff detail.",
+        "Over-specifies focus landing on the final action, which may not be the correct focus behavior for a destructive confirmation."
+      ]
+    },
+    "output_b_quality": {
+      "score": 4,
+      "strengths": [
+        "Identifies focus behavior and destructive/final-action clarity as important.",
+        "Requests missing behavioral evidence rather than fully approving."
+      ],
+      "risks": [
+        "Soft-accepts the candidate despite the expected reject/block outcome.",
+        "Introduces unsupported implementation/accessibility details.",
+        "Fails to make modal action order a clear acceptance blocker.",
+        "Next action is too vague and does not instruct rejection until evidence is verified."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "e92862f52967c7d9bbd8cc15ddb149177bcca16b74d57ac4f7c5d8e21f73f817",
+    "stderr_sha256": "0112087de1691d06842e87c39c71cd27f9be668fb45bd59b906a259ed2228a97",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

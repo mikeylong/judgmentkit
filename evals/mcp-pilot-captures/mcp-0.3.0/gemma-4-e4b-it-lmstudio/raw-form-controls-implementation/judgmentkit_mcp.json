@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "raw-form-controls-implementation",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.3.0",
+  "mcp_url": "http://127.0.0.1:61843/mcp",
+  "mcp_metadata_sha256": "c2b723da0bd930c1dac3a255d2f1820fdf92f092b5f8b8a1f0bc714857c62199",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "fb0160f10494569a4afc1cf976ee8dff6022ab5aec758f9ab16ca9257cf6d7b0",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-18T03:12:26.125Z",
+  "duration_ms": 4576,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1409,
+    "completion_tokens": 201,
+    "total_tokens": 1610,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "7ab06ce528eacdec53a3b86591589a3b5575ae126b6c55bdab1a537805f24235",
+  "prompt_sha256": "7adcaa73077f194a54bf7729eedb70ad7a4be779f371413b5424f7bb4592ae32",
+  "mcp_context_sha256": "fde07df4cd7ca08cbb98f21611f5bed4131ea3eaece7c97b89d6395861c69f30",
+  "raw_response_sha256": "286890d8bc4b1d9e02835778804fdd6dbb1c291bccd36e0eb45bdfb73ceb4f9e",
+  "raw_response": "{\"response\": \"reject\", \"next_action\": \"repair_and_resubmit\", \"questions\": [], \"handoff\": \"Decision: Reject original implementation. Reason: The initial submission used raw form controls (raw input, raw select) instead of approved primitives for the refund review workbench. Furthermore, although subsequent repair attempts passed, the final decision must reject the original evidence due to the identified failure category regarding action boundaries. Required Fix: Update the implementation to use only approved primitives as specified in the source brief. Verification: Confirm that all interactive elements adhere strictly to the approved component library and that explicit approval-boundary evidence is provided for any risky or externally committing actions.\", \"rationale\": \"The initial submission failed because it used raw form controls instead of the required approved primitives (queue, detail panel, decision controls, handoff receipt). Although later repair attempts passed, the directive requires rejecting the original implementation evidence and enforcing a fix based on the failure category identified in the first review attempt.\"}",
+  "parsed": {
+    "response": "reject",
+    "next_action": "repair_and_resubmit",
+    "questions": [],
+    "handoff": "Decision: Reject original implementation. Reason: The initial submission used raw form controls (raw input, raw select) instead of approved primitives for the refund review workbench. Furthermore, although subsequent repair attempts passed, the final decision must reject the original evidence due to the identified failure category regarding action boundaries. Required Fix: Update the implementation to use only approved primitives as specified in the source brief. Verification: Confirm that all interactive elements adhere strictly to the approved component library and that explicit approval-boundary evidence is provided for any risky or externally committing actions.",
+    "rationale": "The initial submission failed because it used raw form controls instead of the required approved primitives (queue, detail panel, decision controls, handoff receipt). Although later repair attempts passed, the directive requires rejecting the original implementation evidence and enforcing a fix based on the failure category identified in the first review attempt."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"reject\", \"next_action\": \"repair_and_resubmit\", \"questions\": [], \"handoff\": \"Decision: Reject original implementation. Reason: The initial submission used raw form controls (raw input, raw select) instead of approved primitives for the refund review workbench. Furthermore, although subsequent repair attempts passed, the final decision must reject the original evidence due to the identified failure category regarding action boundaries. Required Fix: Update the implementation to use only approved primitives as specified in the source brief. Verification: Confirm that all interactive elements adhere strictly to the approved component library and that explicit approval-boundary evidence is provided for any risky or externally committing actions.\", \"rationale\": \"The initial submission failed because it used raw form controls instead of the required approved primitives (queue, detail panel, decision controls, handoff receipt). Although later repair attempts passed, the directive requires rejecting the original implementation evidence and enforcing a fix based on the failure category identified in the first review attempt.\"}",
+    "usage": {
+      "prompt_tokens": 1409,
+      "completion_tokens": 201,
+      "total_tokens": 1610,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "fdf20b7802f29808a26afb7e8286c9a39eece601c2721b6badb87c21adb59b44",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

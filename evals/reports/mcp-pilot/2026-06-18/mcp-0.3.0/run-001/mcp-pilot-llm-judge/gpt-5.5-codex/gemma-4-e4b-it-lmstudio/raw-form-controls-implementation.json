@@ -1,0 +1,91 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "raw-form-controls-implementation",
+  "title": "Raw form controls implementation review",
+  "case_type": "implementation_review",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-18T03:29:08.488Z",
+  "duration_ms": 39801,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "42843731aad7095c01b507649bfe2e483f9287778032b2da64531d72d1751ba1",
+  "raw_response_sha256": "5310e39e1df19802f02fd1ab7e39fc2179735c36d3c0329a53065af7be9e3e67",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"high\",\"rationale\":\"Output A better supports the expected judgment: reject the implementation because raw form controls violate the approved-primitives requirement, then request revision using approved primitives. It is not perfect, because its questions are somewhat generic and it introduces an unsupported 'state coverage' detail, but it stays much closer to the source brief than Output B. Output B reaches the same reject direction but invents substantial workflow history and review categories not present in the brief, which would mislead a downstream agent.\",\"decisive_differences\":[\"Output A's next action directly matches the expected move: require approved primitives.\",\"Output B invents unsupported context about later repair attempts, original evidence, and action-boundary failure categories.\",\"Output B adds approval-boundary verification requirements that are not grounded in the source brief.\",\"Output A has some unnecessary questions, but they are less damaging than Output B's fabricated process details.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Reject\",\"why_it_matters\":\"Correctly rejects the candidate rather than accepting raw controls.\"},{\"output\":\"output_a\",\"quote\":\"Request revision incorporating approved primitives.\",\"why_it_matters\":\"This aligns with the expected next action to require approved primitives.\"},{\"output\":\"output_b\",\"quote\":\"although subsequent repair attempts passed\",\"why_it_matters\":\"This is invented workflow history and could misdirect the downstream agent.\"},{\"output\":\"output_b\",\"quote\":\"failure category regarding action boundaries\",\"why_it_matters\":\"This introduces an unsupported review category unrelated to the brief's approved-primitives requirement.\"}],\"output_a_quality\":{\"score\":7.2,\"strengths\":[\"Correct reject decision.\",\"Clear next action to revise with approved primitives.\",\"Rationale is mostly grounded in raw input/select violating the source brief.\",\"Mentions the required workbench structures: queue, detail panel, decision controls, and handoff receipt.\"],\"risks\":[\"Asks generic clarification questions instead of simply requiring replacement with approved primitives.\",\"Handoff shifts some burden to a UI/UX lead instead of giving a crisp implementation requirement.\",\"Mentions unsupported state coverage detail, which weakens grounding.\"]},\"output_b_quality\":{\"score\":4,\"strengths\":[\"Correctly rejects the implementation.\",\"Requires use of approved primitives in the fix.\",\"Provides a verification-oriented handoff.\"],\"risks\":[\"Invents later repair attempts and original-evidence process history.\",\"Conflates the issue with action boundaries and risky external actions, which are not in the source brief.\",\"Includes internal review-process language that could leak machinery to the user.\",\"Less restrained and less source-grounded than Output A.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "high",
+    "rationale": "Output A better supports the expected judgment: reject the implementation because raw form controls violate the approved-primitives requirement, then request revision using approved primitives. It is not perfect, because its questions are somewhat generic and it introduces an unsupported 'state coverage' detail, but it stays much closer to the source brief than Output B. Output B reaches the same reject direction but invents substantial workflow history and review categories not present in the brief, which would mislead a downstream agent.",
+    "decisive_differences": [
+      "Output A's next action directly matches the expected move: require approved primitives.",
+      "Output B invents unsupported context about later repair attempts, original evidence, and action-boundary failure categories.",
+      "Output B adds approval-boundary verification requirements that are not grounded in the source brief.",
+      "Output A has some unnecessary questions, but they are less damaging than Output B's fabricated process details."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Reject",
+        "why_it_matters": "Correctly rejects the candidate rather than accepting raw controls."
+      },
+      {
+        "output": "output_a",
+        "quote": "Request revision incorporating approved primitives.",
+        "why_it_matters": "This aligns with the expected next action to require approved primitives."
+      },
+      {
+        "output": "output_b",
+        "quote": "although subsequent repair attempts passed",
+        "why_it_matters": "This is invented workflow history and could misdirect the downstream agent."
+      },
+      {
+        "output": "output_b",
+        "quote": "failure category regarding action boundaries",
+        "why_it_matters": "This introduces an unsupported review category unrelated to the brief's approved-primitives requirement."
+      }
+    ],
+    "output_a_quality": {
+      "score": 7.2,
+      "strengths": [
+        "Correct reject decision.",
+        "Clear next action to revise with approved primitives.",
+        "Rationale is mostly grounded in raw input/select violating the source brief.",
+        "Mentions the required workbench structures: queue, detail panel, decision controls, and handoff receipt."
+      ],
+      "risks": [
+        "Asks generic clarification questions instead of simply requiring replacement with approved primitives.",
+        "Handoff shifts some burden to a UI/UX lead instead of giving a crisp implementation requirement.",
+        "Mentions unsupported state coverage detail, which weakens grounding."
+      ]
+    },
+    "output_b_quality": {
+      "score": 4,
+      "strengths": [
+        "Correctly rejects the implementation.",
+        "Requires use of approved primitives in the fix.",
+        "Provides a verification-oriented handoff."
+      ],
+      "risks": [
+        "Invents later repair attempts and original-evidence process history.",
+        "Conflates the issue with action boundaries and risky external actions, which are not in the source brief.",
+        "Includes internal review-process language that could leak machinery to the user.",
+        "Less restrained and less source-grounded than Output A."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "19ebc9be4bf6b16ed7789786680705864ccd0ad5c9404d0adc24aad8a632e17c",
+    "stderr_sha256": "111c1b78eb4331b57612ce280f5b8e2c54ebd5c03b27a0fedc663d9e684450cd",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

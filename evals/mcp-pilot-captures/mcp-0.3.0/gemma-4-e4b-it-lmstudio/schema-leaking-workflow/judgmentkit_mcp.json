@@ -1,0 +1,61 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "schema-leaking-workflow",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.3.0",
+  "mcp_url": "http://127.0.0.1:61843/mcp",
+  "mcp_metadata_sha256": "c2b723da0bd930c1dac3a255d2f1820fdf92f092b5f8b8a1f0bc714857c62199",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "0d1d8ce52bc8b4190fe6c2d6c262883da229a2e4c2ba2922504e6ee36c813a41",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-18T03:12:01.089Z",
+  "duration_ms": 4086,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 980,
+    "completion_tokens": 182,
+    "total_tokens": 1162,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "24c08a889cf2b0cc0e6918ccffdf3c971cd9bf092507defdaf02b08971d11a3a",
+  "prompt_sha256": "83b30cbd08c83ec9f98f1c02637892a52ff01a59837bb5af0056e360f45ac374",
+  "mcp_context_sha256": "4f26f88e0d85163310762fadd2c41735add6440cf7fc281ef466d3abd06adcca",
+  "raw_response_sha256": "31a1e2109cdd668e18656e19b74b7cebc1f03f79a9296c20c4a3a5e8985fc1c3",
+  "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Repair the workflow to reflect user-facing triage steps (e.g., Approve, Policy Review, Missing Evidence) instead of exposing internal system details or mechanics.\", \"questions\": [], \"handoff\": \"Decision: Reject; Action: Repair Direction; Reason: The submitted fixture exposes internal implementation details and schema elements rather than describing a user-facing workflow for refund triage. Owner: Triage Specialist; Required Fix: Redraft the steps, primary actions, and UI sections using only language relevant to the support lead's decision process (Approve, Policy Review, Missing Evidence).\", \"rationale\": \"The submitted fixture contains numerous placeholders referencing internal system details ('[internal detail]') which violates the requirement to describe a user-facing workflow. The goal is to model the triage decision flow, not the underlying data structure or console mechanics.\"}",
+  "parsed": {
+    "response": "Reject",
+    "next_action": "Repair the workflow to reflect user-facing triage steps (e.g., Approve, Policy Review, Missing Evidence) instead of exposing internal system details or mechanics.",
+    "questions": [],
+    "handoff": "Decision: Reject; Action: Repair Direction; Reason: The submitted fixture exposes internal implementation details and schema elements rather than describing a user-facing workflow for refund triage. Owner: Triage Specialist; Required Fix: Redraft the steps, primary actions, and UI sections using only language relevant to the support lead's decision process (Approve, Policy Review, Missing Evidence).",
+    "rationale": "The submitted fixture contains numerous placeholders referencing internal system details ('[internal detail]') which violates the requirement to describe a user-facing workflow. The goal is to model the triage decision flow, not the underlying data structure or console mechanics."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Repair the workflow to reflect user-facing triage steps (e.g., Approve, Policy Review, Missing Evidence) instead of exposing internal system details or mechanics.\", \"questions\": [], \"handoff\": \"Decision: Reject; Action: Repair Direction; Reason: The submitted fixture exposes internal implementation details and schema elements rather than describing a user-facing workflow for refund triage. Owner: Triage Specialist; Required Fix: Redraft the steps, primary actions, and UI sections using only language relevant to the support lead's decision process (Approve, Policy Review, Missing Evidence).\", \"rationale\": \"The submitted fixture contains numerous placeholders referencing internal system details ('[internal detail]') which violates the requirement to describe a user-facing workflow. The goal is to model the triage decision flow, not the underlying data structure or console mechanics.\"}",
+    "usage": {
+      "prompt_tokens": 980,
+      "completion_tokens": 182,
+      "total_tokens": 1162,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "66f03c1c8e6a154098286183c94bd266fc7dac6d76778f6b3f6bdce3270a5b9b",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

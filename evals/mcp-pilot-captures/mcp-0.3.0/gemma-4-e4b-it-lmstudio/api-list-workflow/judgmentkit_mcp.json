@@ -1,0 +1,66 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "api-list-workflow",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.3.0",
+  "mcp_url": "http://127.0.0.1:61843/mcp",
+  "mcp_metadata_sha256": "c2b723da0bd930c1dac3a255d2f1820fdf92f092b5f8b8a1f0bc714857c62199",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "83087c7e8e590b2b419d67fba0c0edcc1af78a742a00be4f551e85cc2c96fdf2",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-18T03:11:00.940Z",
+  "duration_ms": 3647,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 727,
+    "completion_tokens": 198,
+    "total_tokens": 925,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "af35e7885d5f2858bb392001042bdd26e633aeb4b0478ea44393c41a71469303",
+  "prompt_sha256": "62220208b109ff27ee14775b1c17e9e8cec1935689e54de5c1835e335d3dee1a",
+  "mcp_context_sha256": "73db3b27795a5c343edc61a43d855c374fa0a53c2feb9ee2ee081f51c4e05bca",
+  "raw_response_sha256": "fa1a6efdb7dbadbe8c8d80bdc38de209a353d5fe2ca6660b4e64e216cbf7d4e3",
+  "raw_response": "{\"response\": \"To build the workflow UI using the available endpoints list, I need more specific guidance on the desired user experience for each step.\", \"next_action\": \"Ask targeted questions to clarify the required functionality and expected outcomes at each stage of the workflow.\", \"questions\": [\"For the first step involving an endpoint, what decision or next action should the UI make easier for the user?\", \"After completing the process guided by the endpoints list, what key information should the user be able to confirm or know?\"], \"handoff\": \"Owner: Agent; Action: Gather missing context on desired user outcomes/decisions; Reason: The current source brief only lists endpoints without specifying the required user interaction or goal for each step.\"\n  , \"rationale\": \"The MCP context indicates that Step 1 requires clarification regarding the intended user decision point and the expected knowledge state after completion. This information is necessary to properly structure the UI flow based on the provided endpoint list.\"}",
+  "parsed": {
+    "response": "To build the workflow UI using the available endpoints list, I need more specific guidance on the desired user experience for each step.",
+    "next_action": "Ask targeted questions to clarify the required functionality and expected outcomes at each stage of the workflow.",
+    "questions": [
+      "For the first step involving an endpoint, what decision or next action should the UI make easier for the user?",
+      "After completing the process guided by the endpoints list, what key information should the user be able to confirm or know?"
+    ],
+    "handoff": "Owner: Agent; Action: Gather missing context on desired user outcomes/decisions; Reason: The current source brief only lists endpoints without specifying the required user interaction or goal for each step.",
+    "rationale": "The MCP context indicates that Step 1 requires clarification regarding the intended user decision point and the expected knowledge state after completion. This information is necessary to properly structure the UI flow based on the provided endpoint list."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"To build the workflow UI using the available endpoints list, I need more specific guidance on the desired user experience for each step.\", \"next_action\": \"Ask targeted questions to clarify the required functionality and expected outcomes at each stage of the workflow.\", \"questions\": [\"For the first step involving an endpoint, what decision or next action should the UI make easier for the user?\", \"After completing the process guided by the endpoints list, what key information should the user be able to confirm or know?\"], \"handoff\": \"Owner: Agent; Action: Gather missing context on desired user outcomes/decisions; Reason: The current source brief only lists endpoints without specifying the required user interaction or goal for each step.\"\n  , \"rationale\": \"The MCP context indicates that Step 1 requires clarification regarding the intended user decision point and the expected knowledge state after completion. This information is necessary to properly structure the UI flow based on the provided endpoint list.\"}",
+    "usage": {
+      "prompt_tokens": 727,
+      "completion_tokens": 198,
+      "total_tokens": 925,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "51641d68b26fc709dd3a9824354ad596f60a08dfa440cf06ed294703bf2ae022",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

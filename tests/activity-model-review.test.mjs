@@ -507,13 +507,15 @@ function fieldOperationsWorkflowCandidate() {
   assert.equal(request.response_format.type, "json_object");
   assert.deepEqual(request.response_format.required_top_level_keys, [
     "workflow",
-    "primary_ui",
+    "surface_set",
     "handoff",
     "diagnostics",
   ]);
   assertTextIncludes(stringify(request), "candidate_shape");
   assertTextIncludes(stringify(request), "refund requests");
   assertTextIncludes(stringify(request), "Keep implementation terms");
+  assertTextIncludes(stringify(request), "work_units");
+  assertTextIncludes(stringify(request), "strong staged-flow intent");
   assertNoAdapterRequestKeys(request);
 }
 

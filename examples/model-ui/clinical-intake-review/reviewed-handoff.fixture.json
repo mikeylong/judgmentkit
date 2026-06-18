@@ -37,6 +37,27 @@
   },
   "workflow": {
     "surface_name": "Administrative intake readiness review",
+    "topology": "workspace",
+    "work_units": [
+      "Choose the active intake packet",
+      "Review referral, insurance, and required forms",
+      "Choose schedule, return for forms, or insurance verification",
+      "Send an administrative handoff"
+    ],
+    "stepper_eligibility": {
+      "policy": "strong_intent",
+      "allowed": false,
+      "requested": false,
+      "blocked": false,
+      "surface_type": "",
+      "reason": "No staged-flow intent detected; use topology, work units, and coordinated surfaces instead.",
+      "evidence": {
+        "explicit_staged_request": false,
+        "staged_dependency_order": false,
+        "form_or_setup_sequence": false,
+        "blocked_surface_type": false
+      }
+    },
     "steps": [
       "Choose the active intake packet",
       "Review referral, insurance, and required forms",
@@ -54,6 +75,28 @@
     ],
     "completion_state": "The intake team receives the next administrative action and reason"
   },
+  "surface_set": [
+    {
+      "name": "Administrative intake readiness review",
+      "purpose": "Support the activity work units, decision, completion, and handoff",
+      "sections": [
+        "Intake queue",
+        "Selected packet",
+        "Readiness checklist",
+        "Administrative policy",
+        "Decision path",
+        "Intake handoff"
+      ],
+      "controls": [
+        "Select packet",
+        "Ready to schedule",
+        "Return for consent",
+        "Escalate insurance verification",
+        "Send handoff"
+      ],
+      "relationship_to_workflow": "Compatibility surface synthesized from legacy primary_ui"
+    }
+  ],
   "primary_surface": {
     "sections": [
       "Intake queue",

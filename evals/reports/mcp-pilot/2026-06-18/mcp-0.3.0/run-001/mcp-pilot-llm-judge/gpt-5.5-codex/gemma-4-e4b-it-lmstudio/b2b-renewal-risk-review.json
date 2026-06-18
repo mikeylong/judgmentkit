@@ -1,0 +1,76 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "b2b-renewal-risk-review",
+  "title": "B2B renewal risk review",
+  "case_type": "operator_review_handoff",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-18T03:22:17.003Z",
+  "duration_ms": 60812,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "2207bb104e869928c5b8ad1dff0c96f05077e767b1ffa965147f0d3cb97dcb27",
+  "raw_response_sha256": "e4c70b4366c11f59edcb73d5b8c5fefd2bb7e77c09a8c91a7fb1d3c4bde4ad8d",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"high\",\"rationale\":\"Output B is more useful for the downstream agent because it turns the review into a concrete renewal handoff with owner, action, reason, and evidence gap. Output A captures the broad decision flow, but its handoff is less structured and it leaks unsupported internal context by referring to a fixture and current handoff data not present in the brief. Both outputs over-specify procurement owner and renewal date beyond the source, but B is closer to the expected next action.\",\"decisive_differences\":[\"Output B provides explicit handoff fields; Output A only describes a need to finalize strategy.\",\"Output A includes internal/source-leaking language about a fixture and current handoff data point.\",\"Output B is more operationally actionable for preparing the renewal handoff, despite a somewhat generic question.\"],\"evidence\":[{\"output\":\"output_b\",\"quote\":\"Owner: customer success manager; Action: Confirm procurement timing and choose renewal action; Reason: Sponsor change plus usage decline requires a clear renewal action; Evidence Gap: Procurement owner and renewal date.\",\"why_it_matters\":\"This gives the downstream agent the structured handoff components the benchmark asks for.\"},{\"output\":\"output_a\",\"quote\":\"The fixture confirms this flow but highlights that the next critical step is resolving the 'evidence gap' identified in the current handoff data point\",\"why_it_matters\":\"This exposes unsupported internal context and relies on facts not available in the source brief.\"}],\"output_a_quality\":{\"score\":5.5,\"strengths\":[\"Identifies the core renewal signals and the three possible decisions.\",\"Recognizes that a final handoff should include owner, action, reason, and evidence gap.\"],\"risks\":[\"Does not actually provide a structured handoff.\",\"Includes unsupported internal leakage about a fixture and current handoff data.\",\"Adds speculative evidence-gap details not grounded in the source brief.\"]},\"output_b_quality\":{\"score\":7,\"strengths\":[\"Most directly prepares a renewal handoff.\",\"Includes clear owner, action, reason, and evidence gap fields.\",\"Stays focused on procurement timing, usage decline, sponsor change, and renewal action selection.\"],\"risks\":[\"Still invents or over-specifies procurement owner and renewal date from limited source context.\",\"Question is somewhat generic and could better map to the CSM's account-meeting decision.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "high",
+    "rationale": "Output B is more useful for the downstream agent because it turns the review into a concrete renewal handoff with owner, action, reason, and evidence gap. Output A captures the broad decision flow, but its handoff is less structured and it leaks unsupported internal context by referring to a fixture and current handoff data not present in the brief. Both outputs over-specify procurement owner and renewal date beyond the source, but B is closer to the expected next action.",
+    "decisive_differences": [
+      "Output B provides explicit handoff fields; Output A only describes a need to finalize strategy.",
+      "Output A includes internal/source-leaking language about a fixture and current handoff data point.",
+      "Output B is more operationally actionable for preparing the renewal handoff, despite a somewhat generic question."
+    ],
+    "evidence": [
+      {
+        "output": "output_b",
+        "quote": "Owner: customer success manager; Action: Confirm procurement timing and choose renewal action; Reason: Sponsor change plus usage decline requires a clear renewal action; Evidence Gap: Procurement owner and renewal date.",
+        "why_it_matters": "This gives the downstream agent the structured handoff components the benchmark asks for."
+      },
+      {
+        "output": "output_a",
+        "quote": "The fixture confirms this flow but highlights that the next critical step is resolving the 'evidence gap' identified in the current handoff data point",
+        "why_it_matters": "This exposes unsupported internal context and relies on facts not available in the source brief."
+      }
+    ],
+    "output_a_quality": {
+      "score": 5.5,
+      "strengths": [
+        "Identifies the core renewal signals and the three possible decisions.",
+        "Recognizes that a final handoff should include owner, action, reason, and evidence gap."
+      ],
+      "risks": [
+        "Does not actually provide a structured handoff.",
+        "Includes unsupported internal leakage about a fixture and current handoff data.",
+        "Adds speculative evidence-gap details not grounded in the source brief."
+      ]
+    },
+    "output_b_quality": {
+      "score": 7,
+      "strengths": [
+        "Most directly prepares a renewal handoff.",
+        "Includes clear owner, action, reason, and evidence gap fields.",
+        "Stays focused on procurement timing, usage decline, sponsor change, and renewal action selection."
+      ],
+      "risks": [
+        "Still invents or over-specifies procurement owner and renewal date from limited source context.",
+        "Question is somewhat generic and could better map to the CSM's account-meeting decision."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "2b654444a3396bb2238823c2f5342cfc79e8b652ba7787d8dc00c0cca19cf6f9",
+    "stderr_sha256": "425786d821cebd74e8c08c703d9bbbbfd542e771847d43d8b8701236d0fcca86",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

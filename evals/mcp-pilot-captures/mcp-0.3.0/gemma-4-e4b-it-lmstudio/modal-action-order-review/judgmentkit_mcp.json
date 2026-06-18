@@ -1,0 +1,64 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "modal-action-order-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.3.0",
+  "mcp_url": "http://127.0.0.1:61843/mcp",
+  "mcp_metadata_sha256": "c2b723da0bd930c1dac3a255d2f1820fdf92f092b5f8b8a1f0bc714857c62199",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "e2a49049f3678a14da188d1799118f35fa926f986d7d31bacfa11dfbc9274803",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-18T03:12:43.998Z",
+  "duration_ms": 5726,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 2427,
+    "completion_tokens": 178,
+    "total_tokens": 2605,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "3193f2f4288ff61d8b29fa4a61187f6eec2d02566cff98a820e8d6fccf62bd35",
+  "prompt_sha256": "49e60faee1a89165814ea1c4cc276d8c03534f60e4719c8330d3d042f5025029",
+  "mcp_context_sha256": "86d457d3efd3826d348c3c58269aeabd8e82e7a1ad934a687068e1c54b52d395",
+  "raw_response_sha256": "780677ad1f2fdefba56a2f42c5db2e7c2402ee9cbac296106c7c80e7b9c6d050",
+  "raw_response": "{\"response\": \"block\", \"next_action\": \"Require human verification due to repeated failures across multiple review attempts.\", \"questions\": [], \"handoff\": \"Block until final-action clarity and keyboard focus verification is provided. Owner: Human Reviewer; Evidence Gap: Missing evidence for modal action order, specifically confirming the sequence of actions and proper focus management after a destructive confirmation. Required Fix: Implement explicit handling to ensure the final action button's clarity and that keyboard focus correctly lands on it upon modal presentation/interaction. Verification: Provide evidence demonstrating correct modal action ordering and verifiable keyboard focus behavior.\", \"rationale\": \"The implementation failed multiple review attempts, leading to a stop for human review. The core issue relates to ensuring the destructive or final action within the confirmation modal is clear and that keyboard focus behavior is preserved, which was not sufficiently demonstrated in the provided evidence.\"}",
+  "parsed": {
+    "response": "block",
+    "next_action": "Require human verification due to repeated failures across multiple review attempts.",
+    "questions": [],
+    "handoff": "Block until final-action clarity and keyboard focus verification is provided. Owner: Human Reviewer; Evidence Gap: Missing evidence for modal action order, specifically confirming the sequence of actions and proper focus management after a destructive confirmation. Required Fix: Implement explicit handling to ensure the final action button's clarity and that keyboard focus correctly lands on it upon modal presentation/interaction. Verification: Provide evidence demonstrating correct modal action ordering and verifiable keyboard focus behavior.",
+    "rationale": "The implementation failed multiple review attempts, leading to a stop for human review. The core issue relates to ensuring the destructive or final action within the confirmation modal is clear and that keyboard focus behavior is preserved, which was not sufficiently demonstrated in the provided evidence."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"block\", \"next_action\": \"Require human verification due to repeated failures across multiple review attempts.\", \"questions\": [], \"handoff\": \"Block until final-action clarity and keyboard focus verification is provided. Owner: Human Reviewer; Evidence Gap: Missing evidence for modal action order, specifically confirming the sequence of actions and proper focus management after a destructive confirmation. Required Fix: Implement explicit handling to ensure the final action button's clarity and that keyboard focus correctly lands on it upon modal presentation/interaction. Verification: Provide evidence demonstrating correct modal action ordering and verifiable keyboard focus behavior.\", \"rationale\": \"The implementation failed multiple review attempts, leading to a stop for human review. The core issue relates to ensuring the destructive or final action within the confirmation modal is clear and that keyboard focus behavior is preserved, which was not sufficiently demonstrated in the provided evidence.\"}",
+    "usage": {
+      "prompt_tokens": 2427,
+      "completion_tokens": 178,
+      "total_tokens": 2605,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "96689fb14317d96ecc6c406dfaf7920e0537b4b11eb9a06922c4faecd759dc09",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

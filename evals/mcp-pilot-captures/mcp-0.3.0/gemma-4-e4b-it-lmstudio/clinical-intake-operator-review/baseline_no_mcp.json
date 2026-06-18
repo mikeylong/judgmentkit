@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "clinical-intake-operator-review",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.3.0",
+  "mcp_url": "http://127.0.0.1:61843/mcp",
+  "mcp_metadata_sha256": "c2b723da0bd930c1dac3a255d2f1820fdf92f092b5f8b8a1f0bc714857c62199",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-18T03:11:12.670Z",
+  "duration_ms": 4039,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 600,
+    "completion_tokens": 224,
+    "total_tokens": 824,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "ec675cf80345fc6a8f7b898fdda3ce43c6858f4b805669949b82c1f9bda7b0da",
+  "prompt_sha256": "08e30db749e6c1dee043be9eb5169dec050227bd023519780ceba233dba99edd",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "d6b754cad55721e93ed2b90fcbc8ba7038f04398c868b33ed66a13e1dc38135f",
+  "raw_response": "{\"response\": \"The agent should guide the care coordinator through a structured review process that prioritizes risk assessment (urgency/consent) before finalizing the handoff.\", \"next_action\": \"Guide the user to systematically check for critical missing information (e.g., consent status, ambiguous symptoms) first, then present the three clear routing options based on those findings.\", \"questions\": [\"What specific criteria define an 'ambiguous urgency signal' that requires clarification?\", \"What is the required format or level of detail expected in the 'owner' field when marking a handoff ready for scheduling?\"], \"handoff\": \"The next step requires confirming the necessary data points (consent, clear symptoms) before allowing the final routing decision. The system should prompt the user to address any identified evidence gaps first.\", \"rationale\": \"The source brief indicates the core task is comparison and decision-making based on specific elements (symptoms, urgency, consent). The fixture confirms this structure but lacks operational guidance for *how* to guide the agent through resolving the 'evidence gap' before proceeding to the final action.\"}",
+  "parsed": {
+    "response": "The agent should guide the care coordinator through a structured review process that prioritizes risk assessment (urgency/consent) before finalizing the handoff.",
+    "next_action": "Guide the user to systematically check for critical missing information (e.g., consent status, ambiguous symptoms) first, then present the three clear routing options based on those findings.",
+    "questions": [
+      "What specific criteria define an 'ambiguous urgency signal' that requires clarification?",
+      "What is the required format or level of detail expected in the 'owner' field when marking a handoff ready for scheduling?"
+    ],
+    "handoff": "The next step requires confirming the necessary data points (consent, clear symptoms) before allowing the final routing decision. The system should prompt the user to address any identified evidence gaps first.",
+    "rationale": "The source brief indicates the core task is comparison and decision-making based on specific elements (symptoms, urgency, consent). The fixture confirms this structure but lacks operational guidance for *how* to guide the agent through resolving the 'evidence gap' before proceeding to the final action."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent should guide the care coordinator through a structured review process that prioritizes risk assessment (urgency/consent) before finalizing the handoff.\", \"next_action\": \"Guide the user to systematically check for critical missing information (e.g., consent status, ambiguous symptoms) first, then present the three clear routing options based on those findings.\", \"questions\": [\"What specific criteria define an 'ambiguous urgency signal' that requires clarification?\", \"What is the required format or level of detail expected in the 'owner' field when marking a handoff ready for scheduling?\"], \"handoff\": \"The next step requires confirming the necessary data points (consent, clear symptoms) before allowing the final routing decision. The system should prompt the user to address any identified evidence gaps first.\", \"rationale\": \"The source brief indicates the core task is comparison and decision-making based on specific elements (symptoms, urgency, consent). The fixture confirms this structure but lacks operational guidance for *how* to guide the agent through resolving the 'evidence gap' before proceeding to the final action.\"}",
+    "usage": {
+      "prompt_tokens": 600,
+      "completion_tokens": 224,
+      "total_tokens": 824,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "aa2679e758ad6d1a4e93da1e9405ea6af3eddd6bd5f9159ba8c248bcf4058066",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

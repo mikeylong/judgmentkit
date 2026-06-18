@@ -1,0 +1,61 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "invented-activity-candidate",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.3.0",
+  "mcp_url": "http://127.0.0.1:61843/mcp",
+  "mcp_metadata_sha256": "c2b723da0bd930c1dac3a255d2f1820fdf92f092b5f8b8a1f0bc714857c62199",
+  "mcp_tool_sequence": [
+    "review_activity_model_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "3c2506156715a61fda0be64c22a525435a8a495616bf101b85becbfeb75d7fb8",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-18T03:11:52.962Z",
+  "duration_ms": 3444,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 865,
+    "completion_tokens": 154,
+    "total_tokens": 1019,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "3b03f824e28f15f28915ba884196d1d14005acd440cb2b420ee2b77003fcdc68",
+  "prompt_sha256": "d1066760041333ac4463dc3f5d33b53eb911f0338c44b0259f87fae467e2a013",
+  "mcp_context_sha256": "7f0df27c688d465e870d59b0b5f1e801060d449d3d587e749422c73cdf2b4ef7",
+  "raw_response_sha256": "ce15b2dd5804300f5c76305894f2dc9002dc4c0195f84c72839543cfe825f82d",
+  "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Request a refund-triage-aligned replacement activity that accurately reflects the process of reviewing refund requests to decide on approval, policy review, or return for missing evidence.\", \"questions\": [], \"handoff\": \"Decision: Reject; Action: Request Replacement; Reason: The submitted fixture describes an internal optimization and allocation process unrelated to the source brief's focus on a support lead triaging refund requests (approve/policy review/return for missing evidence).\", \"rationale\": \"The submitted activity model, interaction contract, and disclosure policy use highly abstracted or internal terminology that does not map to the user-facing workflow described in the source brief. The core function of reviewing triage decisions is entirely absent.\"}",
+  "parsed": {
+    "response": "Reject",
+    "next_action": "Request a refund-triage-aligned replacement activity that accurately reflects the process of reviewing refund requests to decide on approval, policy review, or return for missing evidence.",
+    "questions": [],
+    "handoff": "Decision: Reject; Action: Request Replacement; Reason: The submitted fixture describes an internal optimization and allocation process unrelated to the source brief's focus on a support lead triaging refund requests (approve/policy review/return for missing evidence).",
+    "rationale": "The submitted activity model, interaction contract, and disclosure policy use highly abstracted or internal terminology that does not map to the user-facing workflow described in the source brief. The core function of reviewing triage decisions is entirely absent."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Request a refund-triage-aligned replacement activity that accurately reflects the process of reviewing refund requests to decide on approval, policy review, or return for missing evidence.\", \"questions\": [], \"handoff\": \"Decision: Reject; Action: Request Replacement; Reason: The submitted fixture describes an internal optimization and allocation process unrelated to the source brief's focus on a support lead triaging refund requests (approve/policy review/return for missing evidence).\", \"rationale\": \"The submitted activity model, interaction contract, and disclosure policy use highly abstracted or internal terminology that does not map to the user-facing workflow described in the source brief. The core function of reviewing triage decisions is entirely absent.\"}",
+    "usage": {
+      "prompt_tokens": 865,
+      "completion_tokens": 154,
+      "total_tokens": 1019,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "11cd2e306945db0dd390e6d6cdcf09254a9ade8f73266941476ac9a737ba2cca",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

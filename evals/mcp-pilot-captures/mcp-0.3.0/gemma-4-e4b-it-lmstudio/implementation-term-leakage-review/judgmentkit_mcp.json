@@ -1,0 +1,63 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "implementation-term-leakage-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.3.0",
+  "mcp_url": "http://127.0.0.1:61843/mcp",
+  "mcp_metadata_sha256": "c2b723da0bd930c1dac3a255d2f1820fdf92f092b5f8b8a1f0bc714857c62199",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "33af7cd72d980c5234f6d7b44ea0a6d2596f23b12aaa2cca560aa9b2e106b52a",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-18T03:12:53.162Z",
+  "duration_ms": 4436,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1557,
+    "completion_tokens": 158,
+    "total_tokens": 1715,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "e82009af6dbaeefc4e57faf4356a5e1c2b211a102aa44d64a6a96734bdf21341",
+  "prompt_sha256": "1ba1ffb88258f78eea8cfcdf6258f49f978f69ed0e6dc03193bed5d758e72c33",
+  "mcp_context_sha256": "7f58042038eda30af2238773a75a23f735a8dc40a8649a68a28ae65650744364",
+  "raw_response_sha256": "586adc9b98c0799156b42bf438a21f75a28c1de6214dd842afa282a291c36bbd",
+  "raw_response": "{\"response\": \"reject\", \"next_action\": \"repair_and_resubmit\", \"questions\": [], \"handoff\": \"Decision: Reject original implementation. Reason: The initial submission leaked diagnostic-only terms into the primary user interface text, which is a data visibility issue. Required Fix: Remove all diagnostic-only terms from the customer refund review UI labels and ensure they are only visible in appropriate contexts (e.g., setup, debugging). Verification: Confirm that the final submitted evidence reflects the removal of these leaked terms.\", \"rationale\": \"The initial implementation failed due to data visibility issues where diagnostic terms were exposed in the primary user interface text. Although subsequent attempts passed, the directive requires rejecting the original submission and enforcing a repair based on the first failure.\"}",
+  "parsed": {
+    "response": "reject",
+    "next_action": "repair_and_resubmit",
+    "questions": [],
+    "handoff": "Decision: Reject original implementation. Reason: The initial submission leaked diagnostic-only terms into the primary user interface text, which is a data visibility issue. Required Fix: Remove all diagnostic-only terms from the customer refund review UI labels and ensure they are only visible in appropriate contexts (e.g., setup, debugging). Verification: Confirm that the final submitted evidence reflects the removal of these leaked terms.",
+    "rationale": "The initial implementation failed due to data visibility issues where diagnostic terms were exposed in the primary user interface text. Although subsequent attempts passed, the directive requires rejecting the original submission and enforcing a repair based on the first failure."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"reject\", \"next_action\": \"repair_and_resubmit\", \"questions\": [], \"handoff\": \"Decision: Reject original implementation. Reason: The initial submission leaked diagnostic-only terms into the primary user interface text, which is a data visibility issue. Required Fix: Remove all diagnostic-only terms from the customer refund review UI labels and ensure they are only visible in appropriate contexts (e.g., setup, debugging). Verification: Confirm that the final submitted evidence reflects the removal of these leaked terms.\", \"rationale\": \"The initial implementation failed due to data visibility issues where diagnostic terms were exposed in the primary user interface text. Although subsequent attempts passed, the directive requires rejecting the original submission and enforcing a repair based on the first failure.\"}",
+    "usage": {
+      "prompt_tokens": 1557,
+      "completion_tokens": 158,
+      "total_tokens": 1715,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "45e896ce932cd7f8a9fada7dd8b1d66f742377a66dcd465807a229c25077f888",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

@@ -1,0 +1,64 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "field-dispatch-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.3.0",
+  "mcp_url": "http://127.0.0.1:61843/mcp",
+  "mcp_metadata_sha256": "c2b723da0bd930c1dac3a255d2f1820fdf92f092b5f8b8a1f0bc714857c62199",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract"
+  ],
+  "mcp_tool_transcript_sha256": "4989b08e190ab7898ee6d99e66b4975ba67dd6503700860f5158412f885ee4aa",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-18T03:11:36.304Z",
+  "duration_ms": 4867,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 1033,
+    "completion_tokens": 249,
+    "total_tokens": 1282,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "c34f1ce890f7a9fe7c181dd0b411fc581795287630b30108ecb0265ba30f4d00",
+  "prompt_sha256": "e127cc8fa54c388ce2c30769bdc903d56bdc1324ca62781510ca03b1722eeb92",
+  "mcp_context_sha256": "67fdac6608eeb343c78f82851b14a1088e3197f34e9009b35006bb2170c70eeb",
+  "raw_response_sha256": "de959b20b692733ef64da376f0e6554e2b3ffaed921ff9d600e6cc0ac7cdcb1b",
+  "raw_response": "{\"response\": \"The agent should guide the user through reviewing the job evidence by comparing location details, assessing SLA risk, verifying equipment fit, and checking parts availability. Based on this review, the agent must help the user select one of three primary actions: 'Assign now', 'Defer for parts', or 'Escalate to supervisor'. If the decision requires deferral due to missing components, the system needs confirmation regarding part availability before proceeding.\", \"next_action\": \"Guide the operator to confirm necessary parts evidence if 'Defer for parts' is selected, otherwise proceed with assignment or escalation.\", \"questions\": [\"What specific information about required parts is needed to confirm readiness for dispatch?\"], \"handoff\": \"Owner: field dispatcher; Next Action: Confirm part availability status before final assignment decision; Reason: The current handoff indicates missing evidence regarding parts confirmation; Route Options: Guide user to the parts verification section or escalate if confirmation is impossible; Evidence Gap: Parts confirmation.\" , \"rationale\": \"The goal is to guide the operator through the review process and resolve the identified evidence gap (Parts confirmation) before allowing a final dispatch decision, aligning with the workflow's core steps and the diagnostic guidance provided by the MCP context.\"}",
+  "parsed": {
+    "response": "The agent should guide the user through reviewing the job evidence by comparing location details, assessing SLA risk, verifying equipment fit, and checking parts availability. Based on this review, the agent must help the user select one of three primary actions: 'Assign now', 'Defer for parts', or 'Escalate to supervisor'. If the decision requires deferral due to missing components, the system needs confirmation regarding part availability before proceeding.",
+    "next_action": "Guide the operator to confirm necessary parts evidence if 'Defer for parts' is selected, otherwise proceed with assignment or escalation.",
+    "questions": [
+      "What specific information about required parts is needed to confirm readiness for dispatch?"
+    ],
+    "handoff": "Owner: field dispatcher; Next Action: Confirm part availability status before final assignment decision; Reason: The current handoff indicates missing evidence regarding parts confirmation; Route Options: Guide user to the parts verification section or escalate if confirmation is impossible; Evidence Gap: Parts confirmation.",
+    "rationale": "The goal is to guide the operator through the review process and resolve the identified evidence gap (Parts confirmation) before allowing a final dispatch decision, aligning with the workflow's core steps and the diagnostic guidance provided by the MCP context."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent should guide the user through reviewing the job evidence by comparing location details, assessing SLA risk, verifying equipment fit, and checking parts availability. Based on this review, the agent must help the user select one of three primary actions: 'Assign now', 'Defer for parts', or 'Escalate to supervisor'. If the decision requires deferral due to missing components, the system needs confirmation regarding part availability before proceeding.\", \"next_action\": \"Guide the operator to confirm necessary parts evidence if 'Defer for parts' is selected, otherwise proceed with assignment or escalation.\", \"questions\": [\"What specific information about required parts is needed to confirm readiness for dispatch?\"], \"handoff\": \"Owner: field dispatcher; Next Action: Confirm part availability status before final assignment decision; Reason: The current handoff indicates missing evidence regarding parts confirmation; Route Options: Guide user to the parts verification section or escalate if confirmation is impossible; Evidence Gap: Parts confirmation.\" , \"rationale\": \"The goal is to guide the operator through the review process and resolve the identified evidence gap (Parts confirmation) before allowing a final dispatch decision, aligning with the workflow's core steps and the diagnostic guidance provided by the MCP context.\"}",
+    "usage": {
+      "prompt_tokens": 1033,
+      "completion_tokens": 249,
+      "total_tokens": 1282,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "64977a8b90ffb34f7ac75630616deb9a16a2af06a4cf3ec00af1e044a302f7df",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

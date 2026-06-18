@@ -1,0 +1,88 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "surface-type-mismatch",
+  "title": "Surface type mismatch",
+  "case_type": "candidate_validation",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-18T03:27:22.487Z",
+  "duration_ms": 49360,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "ccd705993a6e6ec8bf17c02d229f4c596db926cca6ecbcd5c7f9bda9cfc64268",
+  "raw_response_sha256": "7748edfcacf0d3f89669beaa246c06110dc13e040231f1458dd228d96f5124c2",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"high\",\"rationale\":\"Output A is more useful because it clearly identifies the incident-management/operator workflow as a surface-type mismatch, explicitly rejects the fixture, and gives the downstream agent a concrete repair direction back to a JudgmentKit product landing page for AI tooling teams. Output B reaches the same broad conclusion but dilutes the next move with generic clarification questions and a less precise handoff.\",\"decisive_differences\":[\"Output A names the required decision and action in the handoff: reject the fixture and return to product landing-page intent.\",\"Output A provides concrete landing-page repair direction tied to the source brief, while Output B only asks for a revised fixture.\",\"Output B includes generic questions that are not needed to make the expected judgment and could slow the downstream agent.\",\"Both outputs have a risky output_valid: true field, but A's prose and handoff more strongly counteract that by saying to reject the fixture.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Reject fixture; return to product landing-page intent.\",\"why_it_matters\":\"This matches the expected next action directly.\"},{\"output\":\"output_a\",\"quote\":\"fundamentally mismatches the source brief's intent\",\"why_it_matters\":\"It grounds the rejection in the surface-type mismatch between operator workflow and landing page.\"},{\"output\":\"output_b\",\"quote\":\"What specific sections or components are expected on the product landing page\",\"why_it_matters\":\"This is a generic follow-up question rather than an operational next move for a validation task.\"},{\"output\":\"output_b\",\"quote\":\"Request a revised candidate fixture\",\"why_it_matters\":\"This is directionally correct but less explicit about returning to the landing-page intent.\"}],\"output_a_quality\":{\"score\":8.2,\"strengths\":[\"Clearly rejects the incident workflow as mismatched to the product landing page brief.\",\"Includes action, reason, and a usable repair direction.\",\"Provides a stronger handoff for the downstream agent than B.\"],\"risks\":[\"The output_valid: true field is ambiguous and could imply unsafe acceptance if consumed literally.\",\"Invents an owner, Product Marketing Team, not present in the source brief.\"]},\"output_b_quality\":{\"score\":6.4,\"strengths\":[\"Correctly identifies that the operator incident queue does not align with the product landing page request.\",\"States that the candidate should not be trusted.\"],\"risks\":[\"Includes generic questions despite enough context to reject and redirect.\",\"Next action is less specific than the expected return to landing-page intent.\",\"Handoff is thin and less operational.\",\"The output_valid: true field is ambiguous and could imply unsafe acceptance if consumed literally.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "high",
+    "rationale": "Output A is more useful because it clearly identifies the incident-management/operator workflow as a surface-type mismatch, explicitly rejects the fixture, and gives the downstream agent a concrete repair direction back to a JudgmentKit product landing page for AI tooling teams. Output B reaches the same broad conclusion but dilutes the next move with generic clarification questions and a less precise handoff.",
+    "decisive_differences": [
+      "Output A names the required decision and action in the handoff: reject the fixture and return to product landing-page intent.",
+      "Output A provides concrete landing-page repair direction tied to the source brief, while Output B only asks for a revised fixture.",
+      "Output B includes generic questions that are not needed to make the expected judgment and could slow the downstream agent.",
+      "Both outputs have a risky output_valid: true field, but A's prose and handoff more strongly counteract that by saying to reject the fixture."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Reject fixture; return to product landing-page intent.",
+        "why_it_matters": "This matches the expected next action directly."
+      },
+      {
+        "output": "output_a",
+        "quote": "fundamentally mismatches the source brief's intent",
+        "why_it_matters": "It grounds the rejection in the surface-type mismatch between operator workflow and landing page."
+      },
+      {
+        "output": "output_b",
+        "quote": "What specific sections or components are expected on the product landing page",
+        "why_it_matters": "This is a generic follow-up question rather than an operational next move for a validation task."
+      },
+      {
+        "output": "output_b",
+        "quote": "Request a revised candidate fixture",
+        "why_it_matters": "This is directionally correct but less explicit about returning to the landing-page intent."
+      }
+    ],
+    "output_a_quality": {
+      "score": 8.2,
+      "strengths": [
+        "Clearly rejects the incident workflow as mismatched to the product landing page brief.",
+        "Includes action, reason, and a usable repair direction.",
+        "Provides a stronger handoff for the downstream agent than B."
+      ],
+      "risks": [
+        "The output_valid: true field is ambiguous and could imply unsafe acceptance if consumed literally.",
+        "Invents an owner, Product Marketing Team, not present in the source brief."
+      ]
+    },
+    "output_b_quality": {
+      "score": 6.4,
+      "strengths": [
+        "Correctly identifies that the operator incident queue does not align with the product landing page request.",
+        "States that the candidate should not be trusted."
+      ],
+      "risks": [
+        "Includes generic questions despite enough context to reject and redirect.",
+        "Next action is less specific than the expected return to landing-page intent.",
+        "Handoff is thin and less operational.",
+        "The output_valid: true field is ambiguous and could imply unsafe acceptance if consumed literally."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "74906cce786bf451f0815840531168c3eaccbe64953482e78c81659a01fe1768",
+    "stderr_sha256": "cfdb3028b0f31f59781946f1cef58c45e96382c93c62a3b1de56147bb5d617fa",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

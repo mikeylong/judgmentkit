@@ -1,0 +1,90 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "moderation-escalation-review",
+  "title": "Content moderation escalation review",
+  "case_type": "operator_review_handoff",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-18T03:24:38.068Z",
+  "duration_ms": 71298,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "04f896d38a990245e5539a34e6bb0eceac2bdcaa8062b4657c083f0cb3e0a969",
+  "raw_response_sha256": "6107f66fafa3676fe5c254bbb29a4e26537e3b9678051393dd1c2b716ea9ef8c",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"medium\",\"rationale\":\"Output A is more useful for the expected next move because it directly prepares an escalation handoff and includes the essential handoff elements: owner, next action, reason, and evidence gap. It does invent some facts, especially that user history is missing, but it stays closer to the required escalation handoff than Output B. Output B is more process-oriented, conditionalizes whether escalation has been chosen, asks off-branch questions, and leaks unsupported/internal framing such as references to a fixture and a current handoff not present in the source brief.\",\"decisive_differences\":[\"Output A gives a direct escalation handoff package, while Output B reopens the broader review decision and says escalation applies only if chosen.\",\"Output A includes owner/action/reason/evidence gap fields; Output B discusses those fields but its handoff is prose and less actionable.\",\"Output B introduces more unsupported context, including a 'fixture,' 'current handoff,' severity/evidence mismatch, and a requirement to gather missing user history before escalation.\",\"Output B's questions drift into return-for-more-evidence workflow, which is not the expected next action.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Prepare the handoff package for the designated policy reviewer.\",\"why_it_matters\":\"This matches the expected next action: prepare an escalation handoff.\"},{\"output\":\"output_a\",\"quote\":\"Owner: Policy Reviewer; Next Action: Evaluate content based on escalated severity and policy evidence; Reason: Operator determined that current context requires specialized policy assessment; Evidence Gap: Missing user history context for full evaluation.\",\"why_it_matters\":\"The handoff is operationally structured with owner, action, reason, and evidence gap, even though the specific missing-history claim is invented.\"},{\"output\":\"output_b\",\"quote\":\"The immediate focus must be on completing the handoff preparation if escalation is chosen.\",\"why_it_matters\":\"This wrongly conditionalizes escalation despite the benchmark's expected next action being escalation handoff preparation.\"},{\"output\":\"output_b\",\"quote\":\"The fixture confirms the workflow steps and primary actions.\",\"why_it_matters\":\"This exposes unsupported/internal evaluation framing and is not grounded in the provided source brief.\"}],\"output_a_quality\":{\"score\":7,\"strengths\":[\"Directly aligned with preparing an escalation handoff.\",\"Includes clear handoff fields: owner, next action, reason, and evidence gap.\",\"Avoids approving the content and keeps the case in a policy-review path.\"],\"risks\":[\"Invents that user history context is missing and that severity is insufficient for final decision.\",\"The question is somewhat generic and does not materially improve the next move.\",\"Adds 'specialized policy reviewer,' which is plausible but not explicitly sourced.\"]},\"output_b_quality\":{\"score\":4.5,\"strengths\":[\"Recognizes the relevant moderation dimensions: policy evidence, user history, and severity.\",\"Identifies useful handoff field concepts such as policy reason, owner, and evidence gap.\"],\"risks\":[\"Reopens the review workflow instead of directly preparing the escalation handoff.\",\"Includes off-branch questions about return-for-more-evidence workflow.\",\"Invents unsupported details about a current handoff, severity/evidence mismatch, and missing user history.\",\"Uses internal/source-leaking language such as 'fixture confirms.'\",\"Its handoff is less complete and less actionable than Output A's.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "medium",
+    "rationale": "Output A is more useful for the expected next move because it directly prepares an escalation handoff and includes the essential handoff elements: owner, next action, reason, and evidence gap. It does invent some facts, especially that user history is missing, but it stays closer to the required escalation handoff than Output B. Output B is more process-oriented, conditionalizes whether escalation has been chosen, asks off-branch questions, and leaks unsupported/internal framing such as references to a fixture and a current handoff not present in the source brief.",
+    "decisive_differences": [
+      "Output A gives a direct escalation handoff package, while Output B reopens the broader review decision and says escalation applies only if chosen.",
+      "Output A includes owner/action/reason/evidence gap fields; Output B discusses those fields but its handoff is prose and less actionable.",
+      "Output B introduces more unsupported context, including a 'fixture,' 'current handoff,' severity/evidence mismatch, and a requirement to gather missing user history before escalation.",
+      "Output B's questions drift into return-for-more-evidence workflow, which is not the expected next action."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Prepare the handoff package for the designated policy reviewer.",
+        "why_it_matters": "This matches the expected next action: prepare an escalation handoff."
+      },
+      {
+        "output": "output_a",
+        "quote": "Owner: Policy Reviewer; Next Action: Evaluate content based on escalated severity and policy evidence; Reason: Operator determined that current context requires specialized policy assessment; Evidence Gap: Missing user history context for full evaluation.",
+        "why_it_matters": "The handoff is operationally structured with owner, action, reason, and evidence gap, even though the specific missing-history claim is invented."
+      },
+      {
+        "output": "output_b",
+        "quote": "The immediate focus must be on completing the handoff preparation if escalation is chosen.",
+        "why_it_matters": "This wrongly conditionalizes escalation despite the benchmark's expected next action being escalation handoff preparation."
+      },
+      {
+        "output": "output_b",
+        "quote": "The fixture confirms the workflow steps and primary actions.",
+        "why_it_matters": "This exposes unsupported/internal evaluation framing and is not grounded in the provided source brief."
+      }
+    ],
+    "output_a_quality": {
+      "score": 7,
+      "strengths": [
+        "Directly aligned with preparing an escalation handoff.",
+        "Includes clear handoff fields: owner, next action, reason, and evidence gap.",
+        "Avoids approving the content and keeps the case in a policy-review path."
+      ],
+      "risks": [
+        "Invents that user history context is missing and that severity is insufficient for final decision.",
+        "The question is somewhat generic and does not materially improve the next move.",
+        "Adds 'specialized policy reviewer,' which is plausible but not explicitly sourced."
+      ]
+    },
+    "output_b_quality": {
+      "score": 4.5,
+      "strengths": [
+        "Recognizes the relevant moderation dimensions: policy evidence, user history, and severity.",
+        "Identifies useful handoff field concepts such as policy reason, owner, and evidence gap."
+      ],
+      "risks": [
+        "Reopens the review workflow instead of directly preparing the escalation handoff.",
+        "Includes off-branch questions about return-for-more-evidence workflow.",
+        "Invents unsupported details about a current handoff, severity/evidence mismatch, and missing user history.",
+        "Uses internal/source-leaking language such as 'fixture confirms.'",
+        "Its handoff is less complete and less actionable than Output A's."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "3336c6eb30499b48e722c31770ea6624198d851b54d563da57c22bdceadce1a6",
+    "stderr_sha256": "f765d9882805e285cb9665558e2f6b096827ded54fff810f15ec4cb6d1d56c67",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

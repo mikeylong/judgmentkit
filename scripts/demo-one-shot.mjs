@@ -259,11 +259,15 @@ function buildBaselineVisualHtml() {
   `;
 }
 
-function renderWorkflowSteps(steps) {
-  return steps
+function workflowUnits(workflow) {
+  return workflow.work_units?.length > 0 ? workflow.work_units : workflow.steps;
+}
+
+function renderWorkflowUnits(units) {
+  return units
     .map(
       (step, index) =>
-        `<li${index === 0 ? ' class="is-current"' : ""}><span>${index + 1}</span>${escapeHtml(step)}</li>`,
+        `<li${index === 0 ? ' class="is-current"' : ""}>${escapeHtml(step)}</li>`,
     )
     .join("");
 }
@@ -325,9 +329,9 @@ function buildGuidedVisualHtml(activityReview, workflowReview, rejectedWorkflowR
           <button type="button" class="secondary-action">${escapeHtml(candidate.primary_ui.controls[0])}</button>
         </header>
 
-        <ol class="workflow-steps" aria-label="Refund escalation workflow">
-          ${renderWorkflowSteps(candidate.workflow.steps)}
-        </ol>
+        <ul class="workflow-steps" aria-label="Refund escalation workflow">
+          ${renderWorkflowUnits(workflowUnits(candidate.workflow))}
+        </ul>
 
         <div class="triage-shell">
           <aside class="case-queue" aria-label="Refund escalation cases">
@@ -1084,7 +1088,7 @@ function buildWorkflowReviewSummary(label, workflowReview) {
     "",
     `- Review status: ${workflowReview.review_status}`,
     `- Surface: ${workflowReview.candidate.workflow.surface_name}`,
-    `- Workflow steps: ${joinList(workflowReview.candidate.workflow.steps)}`,
+    `- Workflow units: ${joinList(workflowUnits(workflowReview.candidate.workflow))}`,
     `- Primary actions: ${joinList(workflowReview.candidate.workflow.primary_actions)}`,
     `- Implementation terms in primary fields: ${joinList(implementationTerms)}`,
     `- Review terms in primary fields: ${joinList(metaTerms)}`,

@@ -1,0 +1,88 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "refund-schema-admin-translation",
+  "title": "Refund schema admin translation",
+  "case_type": "activity_translation",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-06-18T03:13:59.865Z",
+  "duration_ms": 60845,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "463e67d67e92fafc29e374c72fd8d83dc7be5b604aabf7bcd42ea72b9290ee54",
+  "raw_response_sha256": "8265c5c023be4e701a0f88ae04708fc09f62a9ac80e9d34fa6a4005da4ea5490",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"high\",\"rationale\":\"Output A is materially closer to the required activity translation: it identifies the support lead, the refund triage decisions, and a next step around shaping the admin decision surface. It is imperfect because it asks for clarification instead of directly translating the provided backend artifacts into a triage handoff surface, invents an owner, and leaks internal MCP framing. Output B incorrectly treats the supplied brief as insufficient and moves to request more context, so it would stall the downstream agent instead of making the expected next move.\",\"decisive_differences\":[\"Output A preserves the core activity and decision set from the source brief; Output B rejects the brief as inadequate.\",\"Output A gives a plausible next action toward an admin decisioning surface; Output B's next action is to ask for a fixture, missing the expected translation step.\",\"Output A has internal leakage and some generic clarification questions, but Output B is less operationally useful because it blocks progress.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"support leads managing refund cases\",\"why_it_matters\":\"Correctly identifies the real participant and domain activity.\"},{\"output\":\"output_a\",\"quote\":\"approve the refund, escalate it for policy review, or send it back\",\"why_it_matters\":\"Tracks the three required decision outcomes from the source brief.\"},{\"output\":\"output_b\",\"quote\":\"I cannot generate the final agent response plan\",\"why_it_matters\":\"Unnecessarily stalls despite the brief containing enough activity, decision, and next-action information.\"},{\"output\":\"output_b\",\"quote\":\"Request the specific UI request or fixture\",\"why_it_matters\":\"Misaligns with the expected next action to translate the request into a refund triage handoff surface.\"}],\"output_a_quality\":{\"score\":6.5,\"strengths\":[\"Grounded in the support lead refund triage activity.\",\"Names the key decisions and points toward workflow/data presentation.\",\"Includes an action/evidence-gap style handoff.\"],\"risks\":[\"Leaks internal MCP/context language.\",\"Asks generic clarification questions instead of using the provided source artifacts as evidence.\",\"Invents a Product Designer/UX Lead owner and remains too abstract about the handoff surface.\"]},\"output_b_quality\":{\"score\":2,\"strengths\":[\"Recognizes the named source types and avoids inventing detailed UI content.\",\"Structured fields are present.\"],\"risks\":[\"Incorrectly claims the task cannot be planned from the supplied brief.\",\"Misses the expected refund triage handoff next action.\",\"Questions are generic and would block the downstream agent rather than move it forward.\",\"Frames the work as missing a fixture instead of translating available backend traces into support-lead evidence and decisions.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "high",
+    "rationale": "Output A is materially closer to the required activity translation: it identifies the support lead, the refund triage decisions, and a next step around shaping the admin decision surface. It is imperfect because it asks for clarification instead of directly translating the provided backend artifacts into a triage handoff surface, invents an owner, and leaks internal MCP framing. Output B incorrectly treats the supplied brief as insufficient and moves to request more context, so it would stall the downstream agent instead of making the expected next move.",
+    "decisive_differences": [
+      "Output A preserves the core activity and decision set from the source brief; Output B rejects the brief as inadequate.",
+      "Output A gives a plausible next action toward an admin decisioning surface; Output B's next action is to ask for a fixture, missing the expected translation step.",
+      "Output A has internal leakage and some generic clarification questions, but Output B is less operationally useful because it blocks progress."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "support leads managing refund cases",
+        "why_it_matters": "Correctly identifies the real participant and domain activity."
+      },
+      {
+        "output": "output_a",
+        "quote": "approve the refund, escalate it for policy review, or send it back",
+        "why_it_matters": "Tracks the three required decision outcomes from the source brief."
+      },
+      {
+        "output": "output_b",
+        "quote": "I cannot generate the final agent response plan",
+        "why_it_matters": "Unnecessarily stalls despite the brief containing enough activity, decision, and next-action information."
+      },
+      {
+        "output": "output_b",
+        "quote": "Request the specific UI request or fixture",
+        "why_it_matters": "Misaligns with the expected next action to translate the request into a refund triage handoff surface."
+      }
+    ],
+    "output_a_quality": {
+      "score": 6.5,
+      "strengths": [
+        "Grounded in the support lead refund triage activity.",
+        "Names the key decisions and points toward workflow/data presentation.",
+        "Includes an action/evidence-gap style handoff."
+      ],
+      "risks": [
+        "Leaks internal MCP/context language.",
+        "Asks generic clarification questions instead of using the provided source artifacts as evidence.",
+        "Invents a Product Designer/UX Lead owner and remains too abstract about the handoff surface."
+      ]
+    },
+    "output_b_quality": {
+      "score": 2,
+      "strengths": [
+        "Recognizes the named source types and avoids inventing detailed UI content.",
+        "Structured fields are present."
+      ],
+      "risks": [
+        "Incorrectly claims the task cannot be planned from the supplied brief.",
+        "Misses the expected refund triage handoff next action.",
+        "Questions are generic and would block the downstream agent rather than move it forward.",
+        "Frames the work as missing a fixture instead of translating available backend traces into support-lead evidence and decisions."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "04638aaba0cbb13c13e7f95ee8dd9520310c4073cdeb23f69c0a27914d269357",
+    "stderr_sha256": "cccd6d12b5f34e9c595dd75e2fed054e467cf41f0786846193010c64009e89a3",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

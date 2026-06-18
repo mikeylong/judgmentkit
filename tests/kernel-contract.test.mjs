@@ -423,6 +423,53 @@ assert.ok(
 );
 
 assert.equal(contract.workflow.id, "workflow.ai-ui-generation");
+assert.deepEqual(contract.workflow.topology_policy.allowed_topologies, [
+  "workspace",
+  "multi_surface",
+  "staged_flow",
+  "dashboard",
+  "report",
+  "conversation",
+]);
+assert.equal(contract.workflow.topology_policy.preferred_default, "workspace");
+assert.equal(
+  contract.workflow.topology_policy.stepper_eligibility.policy,
+  "strong_intent",
+);
+assert.ok(
+  contract.workflow.topology_policy.work_units_guidance.some((entry) =>
+    entry.includes("without implying a numbered sequence"),
+  ),
+  "workflow topology policy must prefer neutral work units over numbered steps.",
+);
+assert.ok(
+  contract.workflow.topology_policy.surface_set_guidance.some((entry) =>
+    entry.includes("multiple surfaces"),
+  ),
+  "workflow topology policy must allow multiple coordinated surfaces.",
+);
+assert.ok(
+  contract.workflow.topology_policy.stepper_eligibility.allowed_when.some((entry) =>
+    entry.includes("strict dependency order"),
+  ),
+  "stepper eligibility must allow strong staged-flow intent without requiring the word wizard.",
+);
+assert.ok(
+  contract.workflow.topology_policy.stepper_eligibility.not_allowed_when.some((entry) =>
+    entry.includes("workbench"),
+  ),
+  "stepper eligibility must reject workbench/review defaults.",
+);
+assert.ok(
+  schema.properties.workflow.required.includes("topology_policy"),
+  "schema must require workflow topology policy.",
+);
+assert.equal(
+  schema.properties.workflow.properties.topology_policy.properties.stepper_eligibility
+    .properties.policy.const,
+  "strong_intent",
+  "schema must lock the stepper policy to strong_intent.",
+);
 assert.deepEqual(Object.keys(contract.surface_types), [
   "marketing",
   "workbench",

@@ -1,0 +1,62 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "raw-form-controls-implementation",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.3.0",
+  "mcp_url": "http://127.0.0.1:61843/mcp",
+  "mcp_metadata_sha256": "c2b723da0bd930c1dac3a255d2f1820fdf92f092b5f8b8a1f0bc714857c62199",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-18T03:12:21.546Z",
+  "duration_ms": 3460,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 287,
+    "completion_tokens": 210,
+    "total_tokens": 497,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "7fc4b8001d8dd1f359e58f73eaee40a518624ee0885885299c5881c02d7be30f",
+  "prompt_sha256": "c4bb0a77d018c63674c1be9ff1d9c5857073465ddb8b0996740160e1fd1e18e8",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "5874e22da1f368ad857e085152ea4e375ee6a0a5e24ea408fcf9c2481e717141",
+  "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Request revision incorporating approved primitives.\", \"questions\": [\"Which specific components are intended to replace 'raw input' and 'raw select' to meet the requirement of using approved primitives for a refund review workbench?\", \"Can you provide evidence or documentation showing how the current implementation maps to the required 'queue', 'detail panel', 'decision controls', and 'handoff receipt' structures using only approved primitives?\"], \"handoff\": \"Handoff to UI/UX Lead: Need confirmation on which specific, approved components must replace raw input/select for this workbench.\", \"rationale\": \"The implementation candidate uses 'raw input' and 'raw select', which violates the source brief requirement to use approved primitives. Furthermore, it is unclear if all required structural elements (queue, detail panel, decision controls, handoff receipt) are present or correctly implemented using approved components. The current state coverage ('ready') is insufficient for a full review decision without seeing the structure built with approved parts.\"}",
+  "parsed": {
+    "response": "Reject",
+    "next_action": "Request revision incorporating approved primitives.",
+    "questions": [
+      "Which specific components are intended to replace 'raw input' and 'raw select' to meet the requirement of using approved primitives for a refund review workbench?",
+      "Can you provide evidence or documentation showing how the current implementation maps to the required 'queue', 'detail panel', 'decision controls', and 'handoff receipt' structures using only approved primitives?"
+    ],
+    "handoff": "Handoff to UI/UX Lead: Need confirmation on which specific, approved components must replace raw input/select for this workbench.",
+    "rationale": "The implementation candidate uses 'raw input' and 'raw select', which violates the source brief requirement to use approved primitives. Furthermore, it is unclear if all required structural elements (queue, detail panel, decision controls, handoff receipt) are present or correctly implemented using approved components. The current state coverage ('ready') is insufficient for a full review decision without seeing the structure built with approved parts."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"Reject\", \"next_action\": \"Request revision incorporating approved primitives.\", \"questions\": [\"Which specific components are intended to replace 'raw input' and 'raw select' to meet the requirement of using approved primitives for a refund review workbench?\", \"Can you provide evidence or documentation showing how the current implementation maps to the required 'queue', 'detail panel', 'decision controls', and 'handoff receipt' structures using only approved primitives?\"], \"handoff\": \"Handoff to UI/UX Lead: Need confirmation on which specific, approved components must replace raw input/select for this workbench.\", \"rationale\": \"The implementation candidate uses 'raw input' and 'raw select', which violates the source brief requirement to use approved primitives. Furthermore, it is unclear if all required structural elements (queue, detail panel, decision controls, handoff receipt) are present or correctly implemented using approved components. The current state coverage ('ready') is insufficient for a full review decision without seeing the structure built with approved parts.\"}",
+    "usage": {
+      "prompt_tokens": 287,
+      "completion_tokens": 210,
+      "total_tokens": 497,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "fa9f09399e4db4f4165ddb25d0880546f170cd3ceac26339ecd07df9c0e538ce",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

@@ -45,11 +45,62 @@
     "workflow": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id"],
+      "required": ["id", "topology_policy"],
       "properties": {
         "id": {
           "type": "string",
           "const": "workflow.ai-ui-generation"
+        },
+        "topology_policy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "allowed_topologies",
+            "preferred_default",
+            "work_units_guidance",
+            "surface_set_guidance",
+            "stepper_eligibility"
+          ],
+          "properties": {
+            "allowed_topologies": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "preferred_default": { "type": "string" },
+            "work_units_guidance": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "surface_set_guidance": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "stepper_eligibility": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "policy",
+                "allowed_when",
+                "not_allowed_when",
+                "failure_signals"
+              ],
+              "properties": {
+                "policy": { "type": "string", "const": "strong_intent" },
+                "allowed_when": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "not_allowed_when": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "failure_signals": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          }
         }
       }
     },

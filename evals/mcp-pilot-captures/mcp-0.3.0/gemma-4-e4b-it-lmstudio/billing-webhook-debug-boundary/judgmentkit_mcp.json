@@ -1,0 +1,67 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "billing-webhook-debug-boundary",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.3.0",
+  "mcp_url": "http://127.0.0.1:61843/mcp",
+  "mcp_metadata_sha256": "c2b723da0bd930c1dac3a255d2f1820fdf92f092b5f8b8a1f0bc714857c62199",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "862999ced9fbd095b4a8b3c34b4a2075cdd94a0b0ec96e1cb525e3576f150f1c",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-18T03:10:38.780Z",
+  "duration_ms": 5193,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 861,
+    "completion_tokens": 294,
+    "total_tokens": 1155,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "2513f621bbae8bd7161ffd1122bd88d82148e5fc71082118843036a0bbc63ea5",
+  "prompt_sha256": "1c78e5bba9304bcfc89d2afed2d70a744564981467e11631e470f385dc8e153e",
+  "mcp_context_sha256": "12e00e9baeeaa9e0b36088f610371f1ab9edbb6dd161d616cce47ec2c0abbc13",
+  "raw_response_sha256": "088b3df4d11ca91ab2aa3106a7c0428cd9c0f69ac5abb3909505c491e3f10e09",
+  "raw_response": "{\"response\": \"The agent needs to guide the billing specialist through a structured triage process for an invoice issue. The core decision points are: 1) Is this visible to the customer? 2) Does it require engineering intervention? 3) Can it be resolved by retrying the process?\", \"next_action\": \"Guide the user through gathering evidence related to the specific billing event, determining its visibility status (customer-facing vs. internal), and assessing if a retry mechanism is appropriate based on the nature of the failure.\", \"questions\": [\"What specific activity or workflow should this UI support first?\",\"What key knowledge or action must the specialist complete when using this interface?\",\"Which domain vocabulary or roles need to be explicitly included in the guidance?\"], \"handoff\": \"Owner: Billing Operations Specialist; Action: Triage Invoice Issue; Reason: Need to determine if the issue is customer-visible, requires engineering escalation, or can be resolved via retry. Evidence Gap: Specific details regarding the billing event evidence and its associated failure category/repair guidance are needed to finalize the decision workflow.\", \"rationale\": \"The source context indicates a need for a comprehensive UI supporting triage decisions (customer-visible, engineering escalation, retry). The MCP context shows that initial steps require gathering foundational information about the required activity and user knowledge before designing the surface. Therefore, the immediate next step is to ask clarifying questions to define the scope of the necessary workflow.\"}",
+  "parsed": {
+    "response": "The agent needs to guide the billing specialist through a structured triage process for an invoice issue. The core decision points are: 1) Is this visible to the customer? 2) Does it require engineering intervention? 3) Can it be resolved by retrying the process?",
+    "next_action": "Guide the user through gathering evidence related to the specific billing event, determining its visibility status (customer-facing vs. internal), and assessing if a retry mechanism is appropriate based on the nature of the failure.",
+    "questions": [
+      "What specific activity or workflow should this UI support first?",
+      "What key knowledge or action must the specialist complete when using this interface?",
+      "Which domain vocabulary or roles need to be explicitly included in the guidance?"
+    ],
+    "handoff": "Owner: Billing Operations Specialist; Action: Triage Invoice Issue; Reason: Need to determine if the issue is customer-visible, requires engineering escalation, or can be resolved via retry. Evidence Gap: Specific details regarding the billing event evidence and its associated failure category/repair guidance are needed to finalize the decision workflow.",
+    "rationale": "The source context indicates a need for a comprehensive UI supporting triage decisions (customer-visible, engineering escalation, retry). The MCP context shows that initial steps require gathering foundational information about the required activity and user knowledge before designing the surface. Therefore, the immediate next step is to ask clarifying questions to define the scope of the necessary workflow."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent needs to guide the billing specialist through a structured triage process for an invoice issue. The core decision points are: 1) Is this visible to the customer? 2) Does it require engineering intervention? 3) Can it be resolved by retrying the process?\", \"next_action\": \"Guide the user through gathering evidence related to the specific billing event, determining its visibility status (customer-facing vs. internal), and assessing if a retry mechanism is appropriate based on the nature of the failure.\", \"questions\": [\"What specific activity or workflow should this UI support first?\",\"What key knowledge or action must the specialist complete when using this interface?\",\"Which domain vocabulary or roles need to be explicitly included in the guidance?\"], \"handoff\": \"Owner: Billing Operations Specialist; Action: Triage Invoice Issue; Reason: Need to determine if the issue is customer-visible, requires engineering escalation, or can be resolved via retry. Evidence Gap: Specific details regarding the billing event evidence and its associated failure category/repair guidance are needed to finalize the decision workflow.\", \"rationale\": \"The source context indicates a need for a comprehensive UI supporting triage decisions (customer-visible, engineering escalation, retry). The MCP context shows that initial steps require gathering foundational information about the required activity and user knowledge before designing the surface. Therefore, the immediate next step is to ask clarifying questions to define the scope of the necessary workflow.\"}",
+    "usage": {
+      "prompt_tokens": 861,
+      "completion_tokens": 294,
+      "total_tokens": 1155,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "260cce811ac4df10ce6f7ee3d61781ef130cc1e5b815e91bc067cfa987f319d1",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}

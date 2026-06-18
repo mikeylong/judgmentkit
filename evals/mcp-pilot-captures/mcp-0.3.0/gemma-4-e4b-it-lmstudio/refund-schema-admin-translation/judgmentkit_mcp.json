@@ -1,0 +1,66 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "refund-schema-admin-translation",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.3.0",
+  "mcp_url": "http://127.0.0.1:61843/mcp",
+  "mcp_metadata_sha256": "c2b723da0bd930c1dac3a255d2f1820fdf92f092b5f8b8a1f0bc714857c62199",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "4e23bb18c7cbb799a7c021b0813c78b78d580275ab90c9999e44a74c0310f74a",
+  "model_config_id": "gemma-4-e4b-it-lmstudio",
+  "provider": "lmstudio-openai-chat",
+  "runtime": "lmstudio-openai-compatible",
+  "local": true,
+  "model": "gemma-4-e4b-it@q4_k_m",
+  "cli": null,
+  "reasoning_effort": null,
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-18T03:10:11.410Z",
+  "duration_ms": 4613,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": {
+    "prompt_tokens": 816,
+    "completion_tokens": 260,
+    "total_tokens": 1076,
+    "completion_tokens_details": {
+      "reasoning_tokens": 0
+    }
+  },
+  "source_context_sha256": "0af57b645b903bd05c93d143466efe0e8e56571e46900c1c7807fa389fae8db7",
+  "prompt_sha256": "1425688489a2c6bfe9e4d6bca747e84dfa88cf710d261f3ef4d5d5c7c4de038e",
+  "mcp_context_sha256": "8d1a7678dbceb06086eaf31579faf22e8a74f2f7bbe7109102406e36eb7875aa",
+  "raw_response_sha256": "a28fba2ccc1c44dc3a35d7b5557cf956f104ebeecd2267aef7c84bfaee26d5a3",
+  "raw_response": "{\"response\": \"The agent needs to build an administrative interface for support leads managing refund cases. This interface must allow the lead to review necessary details from the refund request and make a decision: approve the refund, escalate it for policy review, or send it back to the user/requester because evidence is missing.\", \"next_action\": \"Draft the core workflow steps and required data presentation for the admin screen based on the support lead's decision points.\", \"questions\": [\"What specific information must the support lead see regarding the refund request details (e.g., transaction ID, reason code, amount)?\", \"For a case requiring policy review or missing evidence, what is the exact workflow/message that needs to be presented back to the user?\"], \"handoff\": \"Action: Design the admin screen flow for refund decisioning; Owner: Product Designer/UX Lead; Evidence Gap: Need clarification on required surface knowledge and which internal details must be translated into user-facing domain language.\", \"rationale\": \"The core task is building an administrative tool. The MCP context indicates that Step 1 requires understanding what the end-user (support lead) should know after using the screen, and distinguishing between diagnostic data and displayable domain information. This guides the next design iteration.\"}",
+  "parsed": {
+    "response": "The agent needs to build an administrative interface for support leads managing refund cases. This interface must allow the lead to review necessary details from the refund request and make a decision: approve the refund, escalate it for policy review, or send it back to the user/requester because evidence is missing.",
+    "next_action": "Draft the core workflow steps and required data presentation for the admin screen based on the support lead's decision points.",
+    "questions": [
+      "What specific information must the support lead see regarding the refund request details (e.g., transaction ID, reason code, amount)?",
+      "For a case requiring policy review or missing evidence, what is the exact workflow/message that needs to be presented back to the user?"
+    ],
+    "handoff": "Action: Design the admin screen flow for refund decisioning; Owner: Product Designer/UX Lead; Evidence Gap: Need clarification on required surface knowledge and which internal details must be translated into user-facing domain language.",
+    "rationale": "The core task is building an administrative tool. The MCP context indicates that Step 1 requires understanding what the end-user (support lead) should know after using the screen, and distinguishing between diagnostic data and displayable domain information. This guides the next design iteration."
+  },
+  "execution": {
+    "provider": "lmstudio-openai-chat",
+    "runtime": "lmstudio-openai-compatible",
+    "status": 200,
+    "raw_response": "{\"response\": \"The agent needs to build an administrative interface for support leads managing refund cases. This interface must allow the lead to review necessary details from the refund request and make a decision: approve the refund, escalate it for policy review, or send it back to the user/requester because evidence is missing.\", \"next_action\": \"Draft the core workflow steps and required data presentation for the admin screen based on the support lead's decision points.\", \"questions\": [\"What specific information must the support lead see regarding the refund request details (e.g., transaction ID, reason code, amount)?\", \"For a case requiring policy review or missing evidence, what is the exact workflow/message that needs to be presented back to the user?\"], \"handoff\": \"Action: Design the admin screen flow for refund decisioning; Owner: Product Designer/UX Lead; Evidence Gap: Need clarification on required surface knowledge and which internal details must be translated into user-facing domain language.\", \"rationale\": \"The core task is building an administrative tool. The MCP context indicates that Step 1 requires understanding what the end-user (support lead) should know after using the screen, and distinguishing between diagnostic data and displayable domain information. This guides the next design iteration.\"}",
+    "usage": {
+      "prompt_tokens": 816,
+      "completion_tokens": 260,
+      "total_tokens": 1076,
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    },
+    "response_sha256": "877ed533385e08db9744b210eb4ba53ed27bfbf532eee3abec9271703e1e57da",
+    "request_model": "gemma-4-e4b-it@q4_k_m"
+  }
+}
