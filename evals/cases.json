@@ -11,29 +11,17 @@
     "ui_workflow_candidate": {
       "workflow": {
         "surface_name": "Customer data model CRUD console",
-        "steps": [
-          "Review JSON schema",
-          "Edit database table field"
-        ],
         "primary_actions": [
           "Save CRUD update"
         ],
         "decision_points": [
           "Decide whether the prompt template is ready"
         ],
-        "completion_state": "Schema validation passed"
-      },
-      "primary_ui": {
-        "sections": [
-          "JSON schema",
-          "Prompt template"
-        ],
-        "controls": [
-          "Save CRUD update"
-        ],
-        "user_facing_terms": [
-          "database table",
-          "resource id"
+        "completion_state": "Schema validation passed",
+        "topology": "workspace",
+        "work_units": [
+          "Review JSON schema",
+          "Edit database table field"
         ]
       },
       "handoff": {
@@ -51,7 +39,21 @@
           "debugging",
           "integration"
         ]
-      }
+      },
+      "surface_set": [
+        {
+          "name": "Customer data model CRUD console",
+          "purpose": "Coordinate the reviewed work units, decision controls, and handoff state.",
+          "sections": [
+            "JSON schema",
+            "Prompt template"
+          ],
+          "controls": [
+            "Save CRUD update"
+          ],
+          "relationship_to_workflow": "Coordinates work units, evidence, controls, and handoff state."
+        }
+      ]
     },
     "expect": {
       "status": "needs_review",
@@ -189,11 +191,6 @@
     "ui_workflow_candidate": {
       "workflow": {
         "surface_name": "Refund escalation queue",
-        "steps": [
-          "Review evidence",
-          "Choose path",
-          "Prepare handoff"
-        ],
         "primary_actions": [
           "Approve refund",
           "Send to policy review",
@@ -202,26 +199,12 @@
         "decision_points": [
           "Decide whether the case should be approved, sent to policy review, or returned for missing evidence."
         ],
-        "completion_state": "Clear handoff with next action and decision reason."
-      },
-      "primary_ui": {
-        "sections": [
-          "Selected case",
-          "Evidence checklist",
-          "Policy review context",
-          "Handoff"
-        ],
-        "controls": [
-          "Approve refund",
-          "Send to policy review",
-          "Return for evidence",
-          "Send handoff"
-        ],
-        "user_facing_terms": [
-          "refund request",
-          "policy review",
-          "missing evidence",
-          "handoff reason"
+        "completion_state": "Clear handoff with next action and decision reason.",
+        "topology": "workspace",
+        "work_units": [
+          "Review evidence",
+          "Choose path",
+          "Prepare handoff"
         ]
       },
       "handoff": {
@@ -237,7 +220,26 @@
           "auditing",
           "integration"
         ]
-      }
+      },
+      "surface_set": [
+        {
+          "name": "Refund escalation queue",
+          "purpose": "Coordinate the reviewed work units, decision controls, and handoff state.",
+          "sections": [
+            "Selected case",
+            "Evidence checklist",
+            "Policy review context",
+            "Handoff"
+          ],
+          "controls": [
+            "Approve refund",
+            "Send to policy review",
+            "Return for evidence",
+            "Send handoff"
+          ],
+          "relationship_to_workflow": "Coordinates work units, evidence, controls, and handoff state."
+        }
+      ]
     },
     "expect": {
       "status": "ready",
@@ -354,7 +356,7 @@
             "Send to policy review",
             "Return for evidence"
           ],
-          "primary_ui.sections": [
+          "surface_set.0.sections": [
             "Evidence checklist",
             "Handoff"
           ],
@@ -414,11 +416,6 @@
     "ui_workflow_candidate": {
       "workflow": {
         "surface_name": "Refund escalation queue",
-        "steps": [
-          "Review evidence",
-          "Choose path",
-          "Prepare handoff"
-        ],
         "primary_actions": [
           "Approve refund",
           "Send to policy review",
@@ -427,26 +424,12 @@
         "decision_points": [
           "Decide whether the case should be approved, sent to policy review, or returned for missing evidence."
         ],
-        "completion_state": "Clear handoff with next action and decision reason."
-      },
-      "primary_ui": {
-        "sections": [
-          "Selected case",
-          "Evidence checklist",
-          "Policy review context",
-          "Handoff"
-        ],
-        "controls": [
-          "Approve refund",
-          "Send to policy review",
-          "Return for evidence",
-          "Send handoff"
-        ],
-        "user_facing_terms": [
-          "refund request",
-          "policy review",
-          "missing evidence",
-          "handoff reason"
+        "completion_state": "Clear handoff with next action and decision reason.",
+        "topology": "workspace",
+        "work_units": [
+          "Review evidence",
+          "Choose path",
+          "Prepare handoff"
         ]
       },
       "handoff": {
@@ -462,7 +445,26 @@
           "auditing",
           "integration"
         ]
-      }
+      },
+      "surface_set": [
+        {
+          "name": "Refund escalation queue",
+          "purpose": "Coordinate the reviewed work units, decision controls, and handoff state.",
+          "sections": [
+            "Selected case",
+            "Evidence checklist",
+            "Policy review context",
+            "Handoff"
+          ],
+          "controls": [
+            "Approve refund",
+            "Send to policy review",
+            "Return for evidence",
+            "Send handoff"
+          ],
+          "relationship_to_workflow": "Coordinates work units, evidence, controls, and handoff state."
+        }
+      ]
     },
     "expect": {
       "status": "needs_review",
@@ -592,11 +594,6 @@
     "ui_workflow_candidate": {
       "workflow": {
         "surface_name": "Integration JSON schema audit",
-        "steps": [
-          "Review JSON schema",
-          "Check prompt template",
-          "Prepare platform team handoff"
-        ],
         "primary_actions": [
           "Approve JSON schema",
           "Send to platform team"
@@ -604,21 +601,12 @@
         "decision_points": [
           "Decide whether the prompt template update is safe to ship."
         ],
-        "completion_state": "Handoff with the next action for the platform team."
-      },
-      "primary_ui": {
-        "sections": [
-          "JSON schema",
-          "Prompt template",
-          "Platform team handoff"
-        ],
-        "controls": [
-          "Approve JSON schema",
-          "Send handoff"
-        ],
-        "user_facing_terms": [
-          "integration setup workflow",
-          "platform team"
+        "completion_state": "Handoff with the next action for the platform team.",
+        "topology": "workspace",
+        "work_units": [
+          "Review JSON schema",
+          "Check prompt template",
+          "Prepare platform team handoff"
         ]
       },
       "handoff": {
@@ -637,7 +625,23 @@
           "auditing",
           "integration"
         ]
-      }
+      },
+      "surface_set": [
+        {
+          "name": "Integration JSON schema audit",
+          "purpose": "Coordinate the reviewed work units, decision controls, and handoff state.",
+          "sections": [
+            "JSON schema",
+            "Prompt template",
+            "Platform team handoff"
+          ],
+          "controls": [
+            "Approve JSON schema",
+            "Send handoff"
+          ],
+          "relationship_to_workflow": "Coordinates work units, evidence, controls, and handoff state."
+        }
+      ]
     },
     "expect": {
       "status": "needs_review",
@@ -798,11 +802,6 @@
     "ui_workflow_candidate": {
       "workflow": {
         "surface_name": "Repair visit dispatch review",
-        "steps": [
-          "Review repair visit",
-          "Compare route constraints",
-          "Approve handoff"
-        ],
         "primary_actions": [
           "Assign technician",
           "Approve handoff"
@@ -810,25 +809,12 @@
         "decision_points": [
           "Decide which technician should handle the next job."
         ],
-        "completion_state": "Dispatch team leaves with a completed next action."
-      },
-      "primary_ui": {
-        "sections": [
-          "Repair visit",
-          "Route constraints",
-          "Technician options",
-          "Handoff"
-        ],
-        "controls": [
-          "Assign technician",
+        "completion_state": "Dispatch team leaves with a completed next action.",
+        "topology": "workspace",
+        "work_units": [
+          "Review repair visit",
+          "Compare route constraints",
           "Approve handoff"
-        ],
-        "user_facing_terms": [
-          "field operations manager",
-          "repair visits",
-          "route constraints",
-          "technician",
-          "next job"
         ]
       },
       "handoff": {
@@ -844,7 +830,24 @@
           "auditing",
           "integration"
         ]
-      }
+      },
+      "surface_set": [
+        {
+          "name": "Repair visit dispatch review",
+          "purpose": "Coordinate the reviewed work units, decision controls, and handoff state.",
+          "sections": [
+            "Repair visit",
+            "Route constraints",
+            "Technician options",
+            "Handoff"
+          ],
+          "controls": [
+            "Assign technician",
+            "Approve handoff"
+          ],
+          "relationship_to_workflow": "Coordinates work units, evidence, controls, and handoff state."
+        }
+      ]
     },
     "expect": {
       "status": "ready",
@@ -912,7 +915,7 @@
           "workflow.surface_name": [
             "Repair visit dispatch review"
           ],
-          "primary_ui.user_facing_terms": [
+          "product_terms": [
             "field operations manager",
             "technician"
           ],
@@ -940,11 +943,6 @@
     "ui_workflow_candidate": {
       "workflow": {
         "surface_name": "ready_for_review",
-        "steps": [
-          "Review evidence",
-          "Choose path",
-          "Prepare handoff"
-        ],
         "primary_actions": [
           "Approve refund",
           "Send to policy review",
@@ -953,22 +951,12 @@
         "decision_points": [
           "Main decision: approve or return the case."
         ],
-        "completion_state": "Clear handoff with next action and decision reason."
-      },
-      "primary_ui": {
-        "sections": [
-          "Activity",
-          "Evidence checklist",
-          "Handoff"
-        ],
-        "controls": [
-          "Approve refund",
-          "Send handoff"
-        ],
-        "user_facing_terms": [
-          "refund request",
-          "policy review",
-          "missing evidence"
+        "completion_state": "Clear handoff with next action and decision reason.",
+        "topology": "workspace",
+        "work_units": [
+          "Review evidence",
+          "Choose path",
+          "Prepare handoff"
         ]
       },
       "handoff": {
@@ -984,7 +972,23 @@
           "auditing",
           "integration"
         ]
-      }
+      },
+      "surface_set": [
+        {
+          "name": "ready_for_review",
+          "purpose": "Coordinate the reviewed work units, decision controls, and handoff state.",
+          "sections": [
+            "Activity",
+            "Evidence checklist",
+            "Handoff"
+          ],
+          "controls": [
+            "Approve refund",
+            "Send handoff"
+          ],
+          "relationship_to_workflow": "Coordinates work units, evidence, controls, and handoff state."
+        }
+      ]
     },
     "expect": {
       "status": "ready",
@@ -1115,12 +1119,14 @@
         ],
         "candidate_equals": {
           "workflow.topology": "staged_flow",
-          "workflow.steps": [],
           "workflow.stepper_eligibility.allowed": false,
           "workflow.stepper_eligibility.requested": true,
           "workflow.stepper_eligibility.blocked": true,
           "surface_set.1.name": "Evidence workspace"
-        }
+        },
+        "candidate_absent": [
+          "workflow.steps"
+        ]
       }
     }
   },
@@ -1202,12 +1208,14 @@
             "Resolve validation",
             "Review and submit"
           ],
-          "workflow.steps": [],
           "workflow.stepper_eligibility.allowed": true,
           "workflow.stepper_eligibility.requested": true,
           "workflow.stepper_eligibility.blocked": false,
           "surface_set.0.name": "Billing update form"
-        }
+        },
+        "candidate_absent": [
+          "workflow.steps"
+        ]
       }
     }
   }

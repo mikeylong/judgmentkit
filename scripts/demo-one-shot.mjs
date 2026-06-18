@@ -60,7 +60,8 @@ function buildAcceptedUiWorkflowCandidate() {
   return {
     workflow: {
       surface_name: "Refund Escalation Queue",
-      steps: [
+      topology: "workspace",
+      work_units: [
         "Review selected case",
         "Check evidence",
         "Choose refund path",
@@ -78,33 +79,30 @@ function buildAcceptedUiWorkflowCandidate() {
       completion_state:
         "A clear handoff with the next action and reason is sent to the right owner.",
     },
-    primary_ui: {
-      sections: [
-        "Selected case",
-        "Customer refund summary",
-        "Evidence checklist",
-        "Policy review context",
-        "Decision path",
-        "Handoff",
-      ],
-      controls: [
-        "Assign next case",
-        "Approve refund",
-        "Send to policy review",
-        "Return for evidence",
-        "Next owner",
-        "Handoff reason",
-        "Send handoff",
-      ],
-      user_facing_terms: [
-        "refund escalation",
-        "selected case",
-        "evidence checklist",
-        "policy review",
-        "handoff reason",
-        "next owner",
-      ],
-    },
+    surface_set: [
+      {
+        name: "Refund escalation workspace",
+        purpose: "Review selected case evidence, choose the refund path, and prepare the handoff.",
+        sections: [
+          "Selected case",
+          "Customer refund summary",
+          "Evidence checklist",
+          "Policy review context",
+          "Decision path",
+          "Handoff",
+        ],
+        controls: [
+          "Assign next case",
+          "Approve refund",
+          "Send to policy review",
+          "Return for evidence",
+          "Next owner",
+          "Handoff reason",
+          "Send handoff",
+        ],
+        relationship_to_workflow: "Keeps case evidence, decision controls, and handoff fields coordinated.",
+      },
+    ],
     handoff: {
       next_owner: "Support agent",
       reason:
@@ -123,7 +121,8 @@ function buildRejectedUiWorkflowCandidate() {
   return {
     workflow: {
       surface_name: "Refund case ready_for_review console",
-      steps: [
+      topology: "workspace",
+      work_units: [
         "Activity: inspect JSON schema errors",
         "Update CRUD row",
         "Check prompt template result",
@@ -139,23 +138,23 @@ function buildRejectedUiWorkflowCandidate() {
       completion_state:
         "review_status becomes ready_for_review after schema validation.",
     },
-    primary_ui: {
-      sections: [
-        "Activity diagnostics",
-        "JSON schema validation",
-        "CRUD editor",
-      ],
-      controls: [
-        "Rerun prompt template",
-        "Save CRUD update",
-        "Show ready_for_review",
-      ],
-      user_facing_terms: [
-        "activity_model",
-        "interaction_contract",
-        "JSON schema",
-      ],
-    },
+    surface_set: [
+      {
+        name: "Implementation diagnostics console",
+        purpose: "Expose implementation diagnostics that should be kept out of the refund product UI.",
+        sections: [
+          "Activity diagnostics",
+          "JSON schema validation",
+          "CRUD editor",
+        ],
+        controls: [
+          "Rerun prompt template",
+          "Save CRUD update",
+          "Show ready_for_review",
+        ],
+        relationship_to_workflow: "Intentionally leaks review-packet and implementation terms for the rejection example.",
+      },
+    ],
     handoff: {
       next_owner: "API endpoint owner",
       reason: "Schema field is missing from the CRUD update.",
@@ -174,7 +173,7 @@ function buildBaselineOneShot() {
     "",
     "**Refund Case Admin CRUD Console**",
     "",
-    "- Primary surface: a `refund_case` database table grid with every field visible.",
+    "- Product surface: a `refund_case` database table grid with every field visible.",
     "- Header controls: create, read, update, delete, refresh schema, and rerun prompt.",
     "- Detail panel: JSON schema validation errors, prompt template version, tool call result, resource id, and API endpoint status.",
     "- Main decision: edit fields until the record looks valid, then save the CRUD update.",
@@ -260,7 +259,11 @@ function buildBaselineVisualHtml() {
 }
 
 function workflowUnits(workflow) {
-  return workflow.work_units?.length > 0 ? workflow.work_units : workflow.steps;
+  return workflow.work_units ?? [];
+}
+
+function primarySurface(candidate) {
+  return candidate.surface_set?.[0] ?? { sections: [], controls: [] };
 }
 
 function renderWorkflowUnits(units) {
@@ -283,6 +286,7 @@ function renderActionButtons(actions) {
 
 function buildGuidedPrimaryConcept(workflowReview) {
   const candidate = workflowReview.candidate;
+  const surface = primarySurface(candidate);
 
   return [
     "### Accepted Workflow UI Concept",
@@ -290,7 +294,7 @@ function buildGuidedPrimaryConcept(workflowReview) {
     `**${candidate.workflow.surface_name}**`,
     "",
     "- The support operations manager opens a selected case from the refund escalation queue.",
-    `- The workspace keeps customer refund escalation cases organized around ${joinList(candidate.primary_ui.sections.map((section) => section.toLowerCase()))}.`,
+    `- The workspace keeps customer refund escalation cases organized around ${joinList(surface.sections.map((section) => section.toLowerCase()))}.`,
     `- The main controls are ${joinList(candidate.workflow.primary_actions.map((action) => action.toLowerCase()))}.`,
     `- The handoff area captures next owner, handoff reason, and ${candidate.handoff.next_action.toLowerCase()}`,
     `- Done means ${candidate.workflow.completion_state.toLowerCase()}`,
@@ -299,6 +303,7 @@ function buildGuidedPrimaryConcept(workflowReview) {
 
 function buildGuidedVisualHtml(activityReview, workflowReview, rejectedWorkflowReview) {
   const candidate = workflowReview.candidate;
+  const surface = primarySurface(candidate);
   const decisionActions = candidate.workflow.primary_actions.filter(
     (action) => action.toLowerCase() !== "send handoff",
   );
@@ -326,10 +331,10 @@ function buildGuidedVisualHtml(activityReview, workflowReview, rejectedWorkflowR
             <p class="eyebrow">Escalation review</p>
             <h2>${escapeHtml(candidate.workflow.surface_name)}</h2>
           </div>
-          <button type="button" class="secondary-action">${escapeHtml(candidate.primary_ui.controls[0])}</button>
+          <button type="button" class="secondary-action">${escapeHtml(surface.controls[0])}</button>
         </header>
 
-        <ul class="workflow-steps" aria-label="Refund escalation workflow">
+        <ul class="work-units" aria-label="Refund escalation work units">
           ${renderWorkflowUnits(workflowUnits(candidate.workflow))}
         </ul>
 
@@ -453,11 +458,11 @@ function buildGuidedVisualHtml(activityReview, workflowReview, rejectedWorkflowR
             <dd>${escapeHtml(rejectedWorkflowReview.review_status)}</dd>
           </div>
           <div>
-            <dt>Primary-field implementation terms</dt>
+            <dt>Product-field implementation terms</dt>
             <dd>${escapeHtml(joinList(rejectedImplementationTerms))}</dd>
           </div>
           <div>
-            <dt>Primary-field review terms</dt>
+            <dt>Product-field review terms</dt>
             <dd>${escapeHtml(joinList(rejectedMetaTerms))}</dd>
           </div>
           <div>
@@ -490,9 +495,9 @@ function buildDisclosureBoundary(activityReview, workflowReview, rejectedWorkflo
     "",
     `Diagnostic-only terms: ${joinList(diagnosticTerms)}`,
     "",
-    `Blocked primary terms: ${joinList(rejectedTerms)}`,
+    `Blocked product terms: ${joinList(rejectedTerms)}`,
     "",
-    "These terms can appear in setup, debugging, auditing, integration, or source inspection. They do not belong in the primary triage surface.",
+    "These terms can appear in setup, debugging, auditing, integration, or source inspection. They do not belong in the product triage surface.",
   ].join("\n");
 }
 
@@ -678,7 +683,7 @@ function buildVisualDemoHtml(
     .toolbar,
     .schema-strip,
     .debug-grid,
-    .workflow-steps,
+    .work-units,
     .triage-shell,
     .case-summary,
     .evidence-card,
@@ -747,7 +752,7 @@ function buildVisualDemoHtml(
       margin-top: 14px;
     }
 
-    .workflow-steps {
+    .work-units {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 8px;
@@ -755,7 +760,7 @@ function buildVisualDemoHtml(
       list-style: none;
     }
 
-    .workflow-steps li {
+    .work-units li {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -768,7 +773,7 @@ function buildVisualDemoHtml(
       font-weight: 750;
     }
 
-    .workflow-steps span {
+    .work-units span {
       display: inline-grid;
       place-items: center;
       width: 22px;
@@ -779,13 +784,13 @@ function buildVisualDemoHtml(
       font-size: 12px;
     }
 
-    .workflow-steps .is-current {
+    .work-units .is-current {
       border-color: #9fc9ba;
       background: var(--good-bg);
       color: var(--good);
     }
 
-    .workflow-steps .is-current span {
+    .work-units .is-current span {
       background: var(--good);
       color: #ffffff;
     }
@@ -971,7 +976,7 @@ function buildVisualDemoHtml(
       .demo-grid,
       .schema-strip,
       .debug-grid,
-      .workflow-steps,
+      .work-units,
       .triage-shell,
       .case-facts,
       .handoff-grid {
@@ -1028,7 +1033,7 @@ function buildVisualDemoHtml(
           </tr>
           <tr>
             <td>Disclosure</td>
-            <td>Implementation terms dominate the primary surface</td>
+            <td>Implementation terms dominate the product surface</td>
             <td>Implementation terms are contained in diagnostics</td>
           </tr>
         </tbody>

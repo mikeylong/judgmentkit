@@ -23,7 +23,8 @@ Use JudgmentKit before UI generation, UI critique, implementation planning, or h
 - Treat `needs_source_context` as a prompt to gather source context or ask the packet's targeted questions.
 - Treat surface type as activity-purpose guidance, not visual styling.
 - Treat the implementation contract as the authority for allowed primitives, control semantics, states, static checks, browser QA, visual asset handling, and accessibility evidence.
-- Keep implementation terms out of primary UI unless the activity is setup, debugging, auditing, integration, or explicit source inspection.
+- Treat `visual_token_adapter` as adapter-layer guidance for semantic tokens, portable system font stacks, and embedded inline SVG icon defaults. Repo or design-system adapters may override these assets, but asset guidance cannot replace activity fit, primitive coverage, state coverage, accessibility evidence, static checks, or browser QA.
+- Keep implementation terms out of product UI unless the activity is setup, debugging, auditing, integration, or explicit source inspection.
 - When a model proposes an activity model, call `review_activity_model_candidate` before trusting it.
 - When a model proposes a UI workflow, call `review_ui_workflow_candidate` before implementing it.
 - Do not generate UI directly from a raw workflow review packet when `create_ui_generation_handoff` is available.
@@ -47,11 +48,12 @@ Before handing off UI work, confirm:
 - outcome or completion state named
 - domain vocabulary available
 - implementation terms contained in disclosure, evidence, or guardrails
-- workflow steps, primary actions, decision support, and handoff are named
+- workflow topology, work units, surface set, primary actions, decision support, and handoff are named
 - implementation contract names approved primitives and required states
+- token, font, and icon guidance comes from the implementation contract or a repo-approved adapter, with no implied font CDN or external icon package
 - substantive visual requirements have an image-generation, premium 3D/rendering, or high-quality visualization path when present
 - static checks, browser QA, core accessibility evidence, and any conditional visual-background contrast, non-text contrast, forced-colors, target-size, focus-not-obscured, no-keyboard-trap, reduced-motion, pause/stop/hide, form/error/status, media alternative, or semantic fallback evidence are specified when required
-- review-packet terms are not copied into the primary UI
+- review-packet terms are not copied into the product UI
 - targeted questions resolved or explicitly accepted as open
 
 ## Status Interpretation
@@ -60,6 +62,6 @@ Before handing off UI work, confirm:
 
 `ready_for_generation` means a reviewed workflow has passed the handoff gate and can be used as the immediate input to UI generation.
 
-`needs_source_context` means the agent should pause primary UI generation and resolve the smallest set of missing facts.
+`needs_source_context` means the agent should pause product UI generation and resolve the smallest set of missing facts.
 
 The packet is not a product approval. It is a guardrail for the next agent step.

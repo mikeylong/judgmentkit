@@ -243,14 +243,14 @@
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "primary_ui_can_show",
-        "primary_ui_must_not_show",
+        "product_ui_can_show",
+        "product_ui_must_not_show",
         "diagnostic_contexts",
         "term_replacements"
       ],
       "properties": {
-        "primary_ui_can_show": { "type": "array", "items": { "type": "string" } },
-        "primary_ui_must_not_show": { "type": "array", "items": { "type": "string" } },
+        "product_ui_can_show": { "type": "array", "items": { "type": "string" } },
+        "product_ui_must_not_show": { "type": "array", "items": { "type": "string" } },
         "diagnostic_contexts": { "type": "array", "items": { "type": "string" } },
         "term_replacements": {
           "type": "array",
@@ -294,6 +294,54 @@
         "purpose": { "type": "string" },
         "applies_when_most_true": { "type": "array", "items": { "type": "string" } },
         "do_not_use_when": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "visualTokenRole": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "families", "usage"],
+      "properties": {
+        "role": { "type": "string" },
+        "families": { "type": "array", "items": { "type": "string" } },
+        "usage": { "type": "string" }
+      }
+    },
+    "fontRole": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "stack", "usage"],
+      "properties": {
+        "role": { "type": "string" },
+        "stack": { "type": "string" },
+        "usage": { "type": "string" },
+        "feature_settings": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "iconRegistryEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "role",
+        "label",
+        "viewBox",
+        "paths",
+        "svg_attributes",
+        "accessibility_guidance",
+        "allowed_usage"
+      ],
+      "properties": {
+        "id": { "type": "string" },
+        "role": { "type": "string" },
+        "label": { "type": "string" },
+        "viewBox": { "type": "string" },
+        "paths": { "type": "array", "items": { "type": "string" } },
+        "svg_attributes": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        },
+        "accessibility_guidance": { "type": "string" },
+        "allowed_usage": { "type": "array", "items": { "type": "string" } }
       }
     },
     "implementationContract": {
@@ -457,7 +505,13 @@
             "mode",
             "purpose",
             "token_families",
+            "token_roles",
             "semantic_roles",
+            "font_roles",
+            "font_rules",
+            "icon_roles",
+            "icon_registry",
+            "icon_rules",
             "adapter_rules",
             "evidence_expectations",
             "deferred_renderer",
@@ -468,7 +522,13 @@
             "mode": { "type": "string" },
             "purpose": { "type": "string" },
             "token_families": { "type": "array", "items": { "type": "string" } },
+            "token_roles": { "type": "array", "items": { "$ref": "#/$defs/visualTokenRole" } },
             "semantic_roles": { "type": "array", "items": { "type": "string" } },
+            "font_roles": { "type": "array", "items": { "$ref": "#/$defs/fontRole" } },
+            "font_rules": { "type": "array", "items": { "type": "string" } },
+            "icon_roles": { "type": "array", "items": { "type": "string" } },
+            "icon_registry": { "type": "array", "items": { "$ref": "#/$defs/iconRegistryEntry" } },
+            "icon_rules": { "type": "array", "items": { "type": "string" } },
             "adapter_rules": { "type": "array", "items": { "type": "string" } },
             "evidence_expectations": { "type": "array", "items": { "type": "string" } },
             "deferred_renderer": {

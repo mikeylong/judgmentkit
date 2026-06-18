@@ -12,7 +12,7 @@ There is also a music-app experiment using the same paired-app structure:
 - Version A: track-library implementation baseline.
 - Version B: dinner-playlist activity review, UI workflow review, and UI generation handoff.
 
-The apps do not show treatment labels in the primary surface. Use the manifest only for facilitator setup and analysis.
+The apps do not show treatment labels in the product surface. Use the manifest only for facilitator setup and analysis.
 
 ## Run It
 

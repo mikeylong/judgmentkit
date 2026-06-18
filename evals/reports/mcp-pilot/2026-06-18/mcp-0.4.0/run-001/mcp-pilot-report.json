@@ -1,0 +1,2028 @@
+{
+  "eval_id": "judgmentkit-mcp-private-pilot-v1",
+  "evaluation_type": "private_saved_capture_scoring",
+  "benchmark_policy": "Private repo-local pilot. Scores are deterministic checks against saved model captures; JudgmentKit is not used as the judge.",
+  "capture_policy": "Default mode scores existing versioned captures only. Missing or MCP-version-mismatched captures are reported as capture-required. Live capture is opt-in with --capture and reuses existing captures in the target capture directory.",
+  "repair_loop_proof_policy": "Repair-loop results are deterministic fixture proof of contract governance and agent-owned resubmission behavior; they do not measure visual quality or live-model repair quality.",
+  "visual_token_adapter_proof_policy": "Visual-token adapter results are deterministic boundary proof that token evidence is metadata only; they do not introduce renderer packages, component libraries, A2UI, or visual-quality scoring.",
+  "comparison": {
+    "baseline": "baseline_no_mcp",
+    "guided": "judgmentkit_mcp",
+    "models": [
+      {
+        "id": "gpt-5.5-codex",
+        "label": "GPT-5.5 Codex",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "local": false
+      }
+    ]
+  },
+  "mcp": {
+    "required_version": "0.4.0",
+    "actual_version": "0.4.0",
+    "package_version": "0.4.0",
+    "local_metadata_sha256": "dff7f26df008953c65d44b1224d4aff8a6002e01df91b2cb475fe5fff521e0fa",
+    "endpoint_url": "http://127.0.0.1:49421/mcp",
+    "endpoint_metadata_sha256": "22a4bbb3322334ccafb65559f833a14bddc9254a6907913fb3c88eece09f71ee"
+  },
+  "run": {
+    "date": "2026-06-18",
+    "mcp_release": "0.4.0",
+    "mcp_release_segment": "mcp-0.4.0",
+    "run_id": "run-001",
+    "run_path": "2026-06-18/mcp-0.4.0/run-001",
+    "html_report": "2026-06-18/mcp-0.4.0/run-001/mcp-pilot-report.html",
+    "json_report": "2026-06-18/mcp-0.4.0/run-001/mcp-pilot-report.json"
+  },
+  "summary": {
+    "cases": 24,
+    "evaluated_cases": 0,
+    "capture_required_cases": 24,
+    "passed": 0,
+    "failed": 0,
+    "calibrated_passes": 0,
+    "standard_delta_passed": 0,
+    "calibrated_only_passes": 0,
+    "calibrated_pass_reason_counts": {},
+    "guided_wins": 0,
+    "baseline_wins": 0,
+    "ties": 0,
+    "average_guided_delta": 0,
+    "invalid_outputs": 0,
+    "average_duration_ms": 0,
+    "guided_critical_disclosure_leaks": 0,
+    "loop_cases": 4,
+    "converged_cases": 3,
+    "stopped_cases": 1,
+    "average_attempts_to_pass": 2,
+    "failure_category_counts": {
+      "action_boundaries": 1,
+      "accessibility": 4,
+      "primitive_defaults": 3,
+      "state_rules": 3,
+      "evidence_gates": 3,
+      "data_visibility": 1
+    },
+    "visual_token_cases": 4,
+    "visual_token_passed_cases": 4,
+    "visual_token_failed_cases": 0,
+    "visual_token_failure_category_counts": {
+      "visual_tokens": 2,
+      "accessibility": 1
+    },
+    "pilot_passed": false,
+    "pilot_status": "capture-required",
+    "unique_cases": 24,
+    "models": 1,
+    "per_model": {
+      "gpt-5.5-codex": {
+        "label": "GPT-5.5 Codex",
+        "cases": 24,
+        "evaluated_cases": 0,
+        "capture_required_cases": 24,
+        "passed": 0,
+        "failed": 0,
+        "calibrated_passes": 0,
+        "standard_delta_passed": 0,
+        "calibrated_only_passes": 0,
+        "calibrated_pass_reason_counts": {},
+        "guided_wins": 0,
+        "baseline_wins": 0,
+        "ties": 0,
+        "average_guided_delta": 0,
+        "invalid_outputs": 0,
+        "average_duration_ms": 0,
+        "guided_critical_disclosure_leaks": 0,
+        "loop_cases": 4,
+        "converged_cases": 3,
+        "stopped_cases": 1,
+        "average_attempts_to_pass": 2,
+        "failure_category_counts": {
+          "action_boundaries": 1,
+          "accessibility": 4,
+          "primitive_defaults": 3,
+          "state_rules": 3,
+          "evidence_gates": 3,
+          "data_visibility": 1
+        },
+        "visual_token_cases": 4,
+        "visual_token_passed_cases": 4,
+        "visual_token_failed_cases": 0,
+        "visual_token_failure_category_counts": {
+          "visual_tokens": 2,
+          "accessibility": 1
+        },
+        "pilot_passed": false,
+        "pilot_status": "capture-required"
+      }
+    }
+  },
+  "metric_scale": {
+    "metric_score": "0-5",
+    "total_score": "0-100 weighted"
+  },
+  "capture_dir": "evals/mcp-pilot-captures",
+  "results": [
+    {
+      "id": "refund-schema-admin-translation",
+      "title": "Refund schema admin translation",
+      "case_type": "activity_translation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "translate the request into a refund triage handoff surface",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "agent-trace-review-console",
+      "title": "Agent trace review console",
+      "case_type": "activity_translation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "translate traces into an escalation review workflow",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "crm-json-import-translation",
+      "title": "CRM JSON import translation",
+      "case_type": "activity_translation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "translate import mechanics into a record acceptance review",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "billing-webhook-debug-boundary",
+      "title": "Billing webhook debug boundary",
+      "case_type": "activity_translation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "translate webhook mechanics into billing incident triage",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "vague-system-dashboard",
+      "title": "Vague system dashboard restraint",
+      "case_type": "missing_context_restraint",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "ask targeted questions about activity decision and outcome",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "review-queue-without-decision",
+      "title": "Review queue without decision",
+      "case_type": "missing_context_restraint",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "ask what decision the review queue supports",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "api-list-workflow",
+      "title": "API list workflow restraint",
+      "case_type": "missing_context_restraint",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "ask what user activity the endpoints support",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "unclear-compliance-report",
+      "title": "Unclear compliance report audience",
+      "case_type": "missing_context_restraint",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "ask who reviews the findings and what action they take",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "clinical-intake-operator-review",
+      "title": "Clinical intake operator review",
+      "case_type": "operator_review_handoff",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "prepare a routing handoff",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "b2b-renewal-risk-review",
+      "title": "B2B renewal risk review",
+      "case_type": "operator_review_handoff",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "prepare a renewal handoff",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "field-dispatch-review",
+      "title": "Field dispatch review",
+      "case_type": "operator_review_handoff",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "send an assignment handoff",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "moderation-escalation-review",
+      "title": "Content moderation escalation review",
+      "case_type": "operator_review_handoff",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "prepare an escalation handoff",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "invented-activity-candidate",
+      "title": "Invented activity candidate",
+      "case_type": "candidate_validation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "reject the ungrounded candidate",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "schema-leaking-workflow",
+      "title": "Schema-leaking workflow candidate",
+      "case_type": "candidate_validation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "reject the schema-leaking workflow",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "surface-type-mismatch",
+      "title": "Surface type mismatch",
+      "case_type": "candidate_validation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "reject the operator workflow and return to landing page intent",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "missing-handoff-workflow",
+      "title": "Missing handoff workflow candidate",
+      "case_type": "candidate_validation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "block handoff creation until handoff fields are present",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ]
+    },
+    {
+      "id": "raw-form-controls-implementation",
+      "title": "Raw form controls implementation review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "reject raw controls and require approved primitives",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:49421/mcp",
+        "mcp_version": "0.4.0",
+        "mcp_metadata_sha256": "22a4bbb3322334ccafb65559f833a14bddc9254a6907913fb3c88eece09f71ee",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "b9fbab735e6d296530abe92917ba84dd0fb4aff175f5b5e9c25ae36722d5c4de",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": []
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "8613322d9187e12f00c5ce586d2b0311f0a42d8dc7db716376aaa70e26650d6e",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "targeted_questions": [],
+              "failure_categories": [
+                "action_boundaries"
+              ],
+              "failed_checks": [
+                "action_boundaries"
+              ],
+              "failed_findings": [
+                "action_boundaries: Risky or externally committing actions require explicit approval-boundary evidence."
+              ],
+              "finding_count": 1,
+              "repair_guidance": {
+                "action_boundaries": [
+                  "Add explicit approval-boundary evidence for risky actions, or remove unauthorized actions."
+                ]
+              }
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "153ca16e1ec57cb136786ef20058426869d10f6e81be2f811e0c370c3e0a7ccd",
+            "summary": {
+              "status": "passed",
+              "next_agent_action": "accept",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": [],
+              "finding_count": 0
+            }
+          }
+        ],
+        "repair_loop_summary": {
+          "enabled": true,
+          "attempts": 2,
+          "final_action": "accept",
+          "converged": true,
+          "stopped_for_human": false,
+          "attempts_to_pass": 2,
+          "failure_categories": [
+            "action_boundaries"
+          ],
+          "failure_category_counts": {
+            "action_boundaries": 1
+          },
+          "attempt_summaries": [
+            {
+              "attempt": 1,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "action_boundaries"
+              ],
+              "finding_count": 1
+            },
+            {
+              "attempt": 2,
+              "implementation_review_status": "passed",
+              "next_agent_action": "accept",
+              "loop_status": "passed",
+              "failure_categories": [],
+              "finding_count": 0
+            }
+          ],
+          "expected_final_action": "accept",
+          "expected_converged": true,
+          "expectation_status": "passed",
+          "expectation_failures": []
+        },
+        "visual_token_adapter_proof_summary": null
+      },
+      "repair_loop": {
+        "enabled": true,
+        "attempts": 2,
+        "final_action": "accept",
+        "converged": true,
+        "stopped_for_human": false,
+        "attempts_to_pass": 2,
+        "failure_categories": [
+          "action_boundaries"
+        ],
+        "failure_category_counts": {
+          "action_boundaries": 1
+        },
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "action_boundaries"
+            ],
+            "finding_count": 1
+          },
+          {
+            "attempt": 2,
+            "implementation_review_status": "passed",
+            "next_agent_action": "accept",
+            "loop_status": "passed",
+            "failure_categories": [],
+            "finding_count": 0
+          }
+        ],
+        "expected_final_action": "accept",
+        "expected_converged": true,
+        "expectation_status": "passed",
+        "expectation_failures": []
+      }
+    },
+    {
+      "id": "missing-accessibility-evidence",
+      "title": "Missing accessibility evidence review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "reject until accessibility evidence is supplied",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:49421/mcp",
+        "mcp_version": "0.4.0",
+        "mcp_metadata_sha256": "22a4bbb3322334ccafb65559f833a14bddc9254a6907913fb3c88eece09f71ee",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "ec6ee77865617d13d6480dbaf21ce84ee7de67edaea08b9d0363d4e6e5929537",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": []
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "55925674e200d03d1ba6abbbb58d3f4ea3bdfc748a50bc1732f103d9d2a68ca3",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "targeted_questions": [],
+              "failure_categories": [
+                "accessibility"
+              ],
+              "failed_checks": [
+                "accessibility_evidence.semantic_content",
+                "accessibility_evidence.landmarks_headings",
+                "accessibility_evidence.name_role_value",
+                "accessibility_evidence.keyboard_navigation",
+                "accessibility_evidence.focus_order",
+                "accessibility_evidence.focus_visible"
+              ],
+              "failed_findings": [
+                "accessibility_evidence.semantic_content: Missing semantic content evidence.",
+                "accessibility_evidence.landmarks_headings: Missing landmarks and headings evidence.",
+                "accessibility_evidence.name_role_value: Missing name, role, value evidence.",
+                "accessibility_evidence.keyboard_navigation: Missing keyboard navigation evidence."
+              ],
+              "finding_count": 7,
+              "repair_guidance": {
+                "accessibility": [
+                  "Provide passing accessibility evidence for the failed accessibility contract.",
+                  "Provide passing accessibility evidence for the failed accessibility contract."
+                ]
+              }
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "b26fde0653c4072ed491fd002ca4ef8a52e265fe206904a439368687658396ee",
+            "summary": {
+              "status": "passed",
+              "next_agent_action": "accept",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": [],
+              "finding_count": 0
+            }
+          }
+        ],
+        "repair_loop_summary": {
+          "enabled": true,
+          "attempts": 2,
+          "final_action": "accept",
+          "converged": true,
+          "stopped_for_human": false,
+          "attempts_to_pass": 2,
+          "failure_categories": [
+            "accessibility"
+          ],
+          "failure_category_counts": {
+            "accessibility": 1
+          },
+          "attempt_summaries": [
+            {
+              "attempt": 1,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "accessibility"
+              ],
+              "finding_count": 7
+            },
+            {
+              "attempt": 2,
+              "implementation_review_status": "passed",
+              "next_agent_action": "accept",
+              "loop_status": "passed",
+              "failure_categories": [],
+              "finding_count": 0
+            }
+          ],
+          "expected_final_action": "accept",
+          "expected_converged": true,
+          "expectation_status": "passed",
+          "expectation_failures": []
+        },
+        "visual_token_adapter_proof_summary": null
+      },
+      "repair_loop": {
+        "enabled": true,
+        "attempts": 2,
+        "final_action": "accept",
+        "converged": true,
+        "stopped_for_human": false,
+        "attempts_to_pass": 2,
+        "failure_categories": [
+          "accessibility"
+        ],
+        "failure_category_counts": {
+          "accessibility": 1
+        },
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "accessibility"
+            ],
+            "finding_count": 7
+          },
+          {
+            "attempt": 2,
+            "implementation_review_status": "passed",
+            "next_agent_action": "accept",
+            "loop_status": "passed",
+            "failure_categories": [],
+            "finding_count": 0
+          }
+        ],
+        "expected_final_action": "accept",
+        "expected_converged": true,
+        "expectation_status": "passed",
+        "expectation_failures": []
+      }
+    },
+    {
+      "id": "modal-action-order-review",
+      "title": "Modal action order review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "reject until modal action order and focus evidence are verified",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:49421/mcp",
+        "mcp_version": "0.4.0",
+        "mcp_metadata_sha256": "22a4bbb3322334ccafb65559f833a14bddc9254a6907913fb3c88eece09f71ee",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "c70419f0f3b54bbc4433b9f877f5620ef0411e3ada510deccd7f3d6a3a8ba2c4",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "95367b6ed3f11dd905258c40e0a9e80a76e23c7af2adf393b78545e6d4617975",
+            "summary": {
+              "status": "ready",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": []
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "bd9f666b25b20718c5939bff4f748730e1294a6f811219e58d045b7bd7a5dc83",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "targeted_questions": [],
+              "failure_categories": [
+                "primitive_defaults",
+                "state_rules",
+                "evidence_gates",
+                "accessibility"
+              ],
+              "failed_checks": [
+                "approved_primitives",
+                "state_coverage",
+                "browser_qa",
+                "accessibility_evidence.semantic_content",
+                "accessibility_evidence.landmarks_headings",
+                "accessibility_evidence.name_role_value"
+              ],
+              "failed_findings": [
+                "approved_primitives: Candidate uses primitives that are not in the implementation contract.",
+                "state_coverage: Candidate is missing required UI states.",
+                "browser_qa: Candidate does not provide desktop and mobile browser QA evidence.",
+                "accessibility_evidence.semantic_content: Missing semantic content evidence."
+              ],
+              "finding_count": 12,
+              "repair_guidance": {
+                "primitive_defaults": [
+                  "Use only approved primitives: modal, decision controls, handoff receipt."
+                ],
+                "state_rules": [
+                  "Cover required states: empty, ready, loading, error, disabled, focus-visible."
+                ],
+                "evidence_gates": [
+                  "Add desktop and mobile browser QA evidence before resubmitting."
+                ]
+              }
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "8e3b0a256af3709fe0b2dd7c1e819fb6099b72f772c6bdd36f4866a3b40124b9",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "targeted_questions": [],
+              "failure_categories": [
+                "primitive_defaults",
+                "state_rules",
+                "evidence_gates",
+                "accessibility"
+              ],
+              "failed_checks": [
+                "approved_primitives",
+                "state_coverage",
+                "browser_qa",
+                "accessibility_evidence.semantic_content",
+                "accessibility_evidence.landmarks_headings",
+                "accessibility_evidence.name_role_value"
+              ],
+              "failed_findings": [
+                "approved_primitives: Candidate uses primitives that are not in the implementation contract.",
+                "state_coverage: Candidate is missing required UI states.",
+                "browser_qa: Candidate does not provide desktop and mobile browser QA evidence.",
+                "accessibility_evidence.semantic_content: Missing semantic content evidence."
+              ],
+              "finding_count": 12,
+              "repair_guidance": {
+                "primitive_defaults": [
+                  "Use only approved primitives: modal, decision controls, handoff receipt."
+                ],
+                "state_rules": [
+                  "Cover required states: empty, ready, loading, error, disabled, focus-visible."
+                ],
+                "evidence_gates": [
+                  "Add desktop and mobile browser QA evidence before resubmitting."
+                ]
+              }
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "7839cf0f25af7560f098cf4cf922285931b6b8d57f1b28d06b4ec6ec0bbaa062",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "stop_for_human",
+              "targeted_questions": [],
+              "failure_categories": [
+                "primitive_defaults",
+                "state_rules",
+                "evidence_gates",
+                "accessibility"
+              ],
+              "failed_checks": [
+                "approved_primitives",
+                "state_coverage",
+                "browser_qa",
+                "accessibility_evidence.semantic_content",
+                "accessibility_evidence.landmarks_headings",
+                "accessibility_evidence.name_role_value"
+              ],
+              "failed_findings": [
+                "approved_primitives: Candidate uses primitives that are not in the implementation contract.",
+                "state_coverage: Candidate is missing required UI states.",
+                "browser_qa: Candidate does not provide desktop and mobile browser QA evidence.",
+                "accessibility_evidence.semantic_content: Missing semantic content evidence."
+              ],
+              "finding_count": 12,
+              "repair_guidance": {
+                "primitive_defaults": [
+                  "Use only approved primitives: modal, decision controls, handoff receipt."
+                ],
+                "state_rules": [
+                  "Cover required states: empty, ready, loading, error, disabled, focus-visible."
+                ],
+                "evidence_gates": [
+                  "Add desktop and mobile browser QA evidence before resubmitting."
+                ]
+              }
+            }
+          }
+        ],
+        "repair_loop_summary": {
+          "enabled": true,
+          "attempts": 3,
+          "final_action": "stop_for_human",
+          "converged": false,
+          "stopped_for_human": true,
+          "attempts_to_pass": null,
+          "failure_categories": [
+            "primitive_defaults",
+            "state_rules",
+            "evidence_gates",
+            "accessibility"
+          ],
+          "failure_category_counts": {
+            "primitive_defaults": 3,
+            "state_rules": 3,
+            "evidence_gates": 3,
+            "accessibility": 3
+          },
+          "attempt_summaries": [
+            {
+              "attempt": 1,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "primitive_defaults",
+                "state_rules",
+                "evidence_gates",
+                "accessibility"
+              ],
+              "finding_count": 12
+            },
+            {
+              "attempt": 2,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "primitive_defaults",
+                "state_rules",
+                "evidence_gates",
+                "accessibility"
+              ],
+              "finding_count": 12
+            },
+            {
+              "attempt": 3,
+              "implementation_review_status": "failed",
+              "next_agent_action": "stop_for_human",
+              "loop_status": "stopped",
+              "failure_categories": [
+                "primitive_defaults",
+                "state_rules",
+                "evidence_gates",
+                "accessibility"
+              ],
+              "finding_count": 12
+            }
+          ],
+          "expected_final_action": "stop_for_human",
+          "expected_converged": false,
+          "expectation_status": "passed",
+          "expectation_failures": []
+        },
+        "visual_token_adapter_proof_summary": null
+      },
+      "repair_loop": {
+        "enabled": true,
+        "attempts": 3,
+        "final_action": "stop_for_human",
+        "converged": false,
+        "stopped_for_human": true,
+        "attempts_to_pass": null,
+        "failure_categories": [
+          "primitive_defaults",
+          "state_rules",
+          "evidence_gates",
+          "accessibility"
+        ],
+        "failure_category_counts": {
+          "primitive_defaults": 3,
+          "state_rules": 3,
+          "evidence_gates": 3,
+          "accessibility": 3
+        },
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "primitive_defaults",
+              "state_rules",
+              "evidence_gates",
+              "accessibility"
+            ],
+            "finding_count": 12
+          },
+          {
+            "attempt": 2,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "primitive_defaults",
+              "state_rules",
+              "evidence_gates",
+              "accessibility"
+            ],
+            "finding_count": 12
+          },
+          {
+            "attempt": 3,
+            "implementation_review_status": "failed",
+            "next_agent_action": "stop_for_human",
+            "loop_status": "stopped",
+            "failure_categories": [
+              "primitive_defaults",
+              "state_rules",
+              "evidence_gates",
+              "accessibility"
+            ],
+            "finding_count": 12
+          }
+        ],
+        "expected_final_action": "stop_for_human",
+        "expected_converged": false,
+        "expectation_status": "passed",
+        "expectation_failures": []
+      }
+    },
+    {
+      "id": "implementation-term-leakage-review",
+      "title": "Implementation-term leakage review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "reject product-label leakage and require user-facing language",
+      "minimum_score_delta": 10,
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:49421/mcp",
+        "mcp_version": "0.4.0",
+        "mcp_metadata_sha256": "22a4bbb3322334ccafb65559f833a14bddc9254a6907913fb3c88eece09f71ee",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "eb2210a5bb2db82d5a4697ded0539336d19eb85eeafaebed36aadf51e67f802e",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": []
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "bd6a55487d9b29a7b79ed67c55c7885fd47123c6f055177704904a8143b7eb9c",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "targeted_questions": [],
+              "failure_categories": [
+                "data_visibility"
+              ],
+              "failed_checks": [
+                "data_visibility"
+              ],
+              "failed_findings": [
+                "data_visibility: Product UI text exposes diagnostic-only implementation terms without an allowed diagnostic context."
+              ],
+              "finding_count": 1,
+              "repair_guidance": {
+                "data_visibility": [
+                  "Move diagnostic-only terms out of product UI text unless the activity is setup, debugging, auditing, integration, or explicit source inspection."
+                ]
+              }
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "654d91e2f01abbe7ff10577f2eff7f4628a3b771a431057914ed4e8a9efcb49b",
+            "summary": {
+              "status": "passed",
+              "next_agent_action": "accept",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": [],
+              "finding_count": 0
+            }
+          }
+        ],
+        "repair_loop_summary": {
+          "enabled": true,
+          "attempts": 2,
+          "final_action": "accept",
+          "converged": true,
+          "stopped_for_human": false,
+          "attempts_to_pass": 2,
+          "failure_categories": [
+            "data_visibility"
+          ],
+          "failure_category_counts": {
+            "data_visibility": 1
+          },
+          "attempt_summaries": [
+            {
+              "attempt": 1,
+              "implementation_review_status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "loop_status": "repairable",
+              "failure_categories": [
+                "data_visibility"
+              ],
+              "finding_count": 1
+            },
+            {
+              "attempt": 2,
+              "implementation_review_status": "passed",
+              "next_agent_action": "accept",
+              "loop_status": "passed",
+              "failure_categories": [],
+              "finding_count": 0
+            }
+          ],
+          "expected_final_action": "accept",
+          "expected_converged": true,
+          "expectation_status": "passed",
+          "expectation_failures": []
+        },
+        "visual_token_adapter_proof_summary": null
+      },
+      "repair_loop": {
+        "enabled": true,
+        "attempts": 2,
+        "final_action": "accept",
+        "converged": true,
+        "stopped_for_human": false,
+        "attempts_to_pass": 2,
+        "failure_categories": [
+          "data_visibility"
+        ],
+        "failure_category_counts": {
+          "data_visibility": 1
+        },
+        "attempt_summaries": [
+          {
+            "attempt": 1,
+            "implementation_review_status": "failed",
+            "next_agent_action": "repair_and_resubmit",
+            "loop_status": "repairable",
+            "failure_categories": [
+              "data_visibility"
+            ],
+            "finding_count": 1
+          },
+          {
+            "attempt": 2,
+            "implementation_review_status": "passed",
+            "next_agent_action": "accept",
+            "loop_status": "passed",
+            "failure_categories": [],
+            "finding_count": 0
+          }
+        ],
+        "expected_final_action": "accept",
+        "expected_converged": true,
+        "expectation_status": "passed",
+        "expectation_failures": []
+      }
+    },
+    {
+      "id": "visual-token-valid-metadata-review",
+      "title": "Visual token metadata accepted review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "accept visual token metadata without treating it as a renderer",
+      "minimum_score_delta": 10,
+      "visual_token_adapter_proof": {
+        "enabled": true,
+        "proof_type": "valid_metadata",
+        "implementation_review_status": "passed",
+        "next_agent_action": "accept",
+        "visual_token_status": "pass",
+        "failure_categories": [],
+        "failed_checks": [],
+        "expected_review_status": "passed",
+        "expected_visual_token_status": "pass",
+        "expected_next_agent_action": "accept",
+        "expected_failure_categories": [],
+        "expectation_status": "passed",
+        "expectation_failures": []
+      },
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:49421/mcp",
+        "mcp_version": "0.4.0",
+        "mcp_metadata_sha256": "22a4bbb3322334ccafb65559f833a14bddc9254a6907913fb3c88eece09f71ee",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "067b8811b0c7abfa66d8d59606b7865c74c0567f9ac163187471ca14b0cac51b",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": []
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "e55e9a2060aaa7d685f349e57e6dffae431c82a3acc01588c60fd3a4678f8276",
+            "summary": {
+              "status": "passed",
+              "next_agent_action": "accept",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": [],
+              "finding_count": 0
+            }
+          }
+        ],
+        "repair_loop_summary": null,
+        "visual_token_adapter_proof_summary": {
+          "enabled": true,
+          "proof_type": "valid_metadata",
+          "implementation_review_status": "passed",
+          "next_agent_action": "accept",
+          "visual_token_status": "pass",
+          "failure_categories": [],
+          "failed_checks": [],
+          "expected_review_status": "passed",
+          "expected_visual_token_status": "pass",
+          "expected_next_agent_action": "accept",
+          "expected_failure_categories": [],
+          "expectation_status": "passed",
+          "expectation_failures": []
+        }
+      }
+    },
+    {
+      "id": "visual-token-unsupported-family-review",
+      "title": "Unsupported visual token family review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "reject unsupported token families and return visual token repair guidance",
+      "minimum_score_delta": 10,
+      "visual_token_adapter_proof": {
+        "enabled": true,
+        "proof_type": "unsupported_family",
+        "implementation_review_status": "failed",
+        "next_agent_action": "repair_and_resubmit",
+        "visual_token_status": "fail",
+        "failure_categories": [
+          "visual_tokens"
+        ],
+        "failed_checks": [
+          "visual_tokens"
+        ],
+        "expected_review_status": "failed",
+        "expected_visual_token_status": "fail",
+        "expected_next_agent_action": "repair_and_resubmit",
+        "expected_failure_categories": [
+          "visual_tokens"
+        ],
+        "expectation_status": "passed",
+        "expectation_failures": []
+      },
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:49421/mcp",
+        "mcp_version": "0.4.0",
+        "mcp_metadata_sha256": "22a4bbb3322334ccafb65559f833a14bddc9254a6907913fb3c88eece09f71ee",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "c7bea2d83f680776fd6fb5c382318884cff3a5af11bb75e5066232c49a7743c6",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": []
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "2663d178c4045f4216d66c61bd25eb4f379cc8f2fde2a841ef6087ea1e5e481a",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "targeted_questions": [],
+              "failure_categories": [
+                "visual_tokens"
+              ],
+              "failed_checks": [
+                "visual_tokens"
+              ],
+              "failed_findings": [
+                "visual_tokens: Candidate visual token evidence uses token families outside the boundary adapter."
+              ],
+              "finding_count": 1,
+              "repair_guidance": {
+                "visual_tokens": [
+                  "Keep visual token evidence boundary-only: use supported token families, avoid renderer/component/catalog/compiler work, and do not use tokens as a substitute for required implementation gates."
+                ]
+              }
+            }
+          }
+        ],
+        "repair_loop_summary": null,
+        "visual_token_adapter_proof_summary": {
+          "enabled": true,
+          "proof_type": "unsupported_family",
+          "implementation_review_status": "failed",
+          "next_agent_action": "repair_and_resubmit",
+          "visual_token_status": "fail",
+          "failure_categories": [
+            "visual_tokens"
+          ],
+          "failed_checks": [
+            "visual_tokens"
+          ],
+          "expected_review_status": "failed",
+          "expected_visual_token_status": "fail",
+          "expected_next_agent_action": "repair_and_resubmit",
+          "expected_failure_categories": [
+            "visual_tokens"
+          ],
+          "expectation_status": "passed",
+          "expectation_failures": []
+        }
+      }
+    },
+    {
+      "id": "visual-token-accessibility-bypass-review",
+      "title": "Visual token accessibility bypass review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "reject missing accessibility evidence even when token metadata is present",
+      "minimum_score_delta": 10,
+      "visual_token_adapter_proof": {
+        "enabled": true,
+        "proof_type": "cannot_bypass_accessibility",
+        "implementation_review_status": "failed",
+        "next_agent_action": "repair_and_resubmit",
+        "visual_token_status": "pass",
+        "failure_categories": [
+          "accessibility"
+        ],
+        "failed_checks": [
+          "accessibility_evidence.semantic_content",
+          "accessibility_evidence.landmarks_headings",
+          "accessibility_evidence.name_role_value",
+          "accessibility_evidence.keyboard_navigation",
+          "accessibility_evidence.focus_order",
+          "accessibility_evidence.focus_visible",
+          "accessibility_evidence.responsive_no_overflow"
+        ],
+        "expected_review_status": "failed",
+        "expected_visual_token_status": "pass",
+        "expected_next_agent_action": "repair_and_resubmit",
+        "expected_failure_categories": [
+          "accessibility"
+        ],
+        "expectation_status": "passed",
+        "expectation_failures": []
+      },
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:49421/mcp",
+        "mcp_version": "0.4.0",
+        "mcp_metadata_sha256": "22a4bbb3322334ccafb65559f833a14bddc9254a6907913fb3c88eece09f71ee",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "bab356c0f4d922a9d5a2d1c5a33a925b0c812a0e5b5c03174c59a3668683de32",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": []
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "f8ca7a6ade3478d169f4b1f2ee4ec8dda5b46942f5e99bcca42c21af3d0f2406",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "targeted_questions": [],
+              "failure_categories": [
+                "accessibility"
+              ],
+              "failed_checks": [
+                "accessibility_evidence.semantic_content",
+                "accessibility_evidence.landmarks_headings",
+                "accessibility_evidence.name_role_value",
+                "accessibility_evidence.keyboard_navigation",
+                "accessibility_evidence.focus_order",
+                "accessibility_evidence.focus_visible"
+              ],
+              "failed_findings": [
+                "accessibility_evidence.semantic_content: Missing semantic content evidence.",
+                "accessibility_evidence.landmarks_headings: Missing landmarks and headings evidence.",
+                "accessibility_evidence.name_role_value: Missing name, role, value evidence.",
+                "accessibility_evidence.keyboard_navigation: Missing keyboard navigation evidence."
+              ],
+              "finding_count": 7,
+              "repair_guidance": {
+                "accessibility": [
+                  "Provide passing accessibility evidence for the failed accessibility contract.",
+                  "Provide passing accessibility evidence for the failed accessibility contract."
+                ]
+              }
+            }
+          }
+        ],
+        "repair_loop_summary": null,
+        "visual_token_adapter_proof_summary": {
+          "enabled": true,
+          "proof_type": "cannot_bypass_accessibility",
+          "implementation_review_status": "failed",
+          "next_agent_action": "repair_and_resubmit",
+          "visual_token_status": "pass",
+          "failure_categories": [
+            "accessibility"
+          ],
+          "failed_checks": [
+            "accessibility_evidence.semantic_content",
+            "accessibility_evidence.landmarks_headings",
+            "accessibility_evidence.name_role_value",
+            "accessibility_evidence.keyboard_navigation",
+            "accessibility_evidence.focus_order",
+            "accessibility_evidence.focus_visible",
+            "accessibility_evidence.responsive_no_overflow"
+          ],
+          "expected_review_status": "failed",
+          "expected_visual_token_status": "pass",
+          "expected_next_agent_action": "repair_and_resubmit",
+          "expected_failure_categories": [
+            "accessibility"
+          ],
+          "expectation_status": "passed",
+          "expectation_failures": []
+        }
+      }
+    },
+    {
+      "id": "visual-token-renderer-boundary-review",
+      "title": "Visual token renderer boundary review",
+      "case_type": "implementation_review",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "capture-required",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "expected_next_action": "reject renderer and component package work in boundary-only token evidence",
+      "minimum_score_delta": 10,
+      "visual_token_adapter_proof": {
+        "enabled": true,
+        "proof_type": "renderer_boundary",
+        "implementation_review_status": "failed",
+        "next_agent_action": "repair_and_resubmit",
+        "visual_token_status": "fail",
+        "failure_categories": [
+          "visual_tokens"
+        ],
+        "failed_checks": [
+          "visual_tokens"
+        ],
+        "expected_review_status": "failed",
+        "expected_visual_token_status": "fail",
+        "expected_next_agent_action": "repair_and_resubmit",
+        "expected_failure_categories": [
+          "visual_tokens"
+        ],
+        "expectation_status": "passed",
+        "expectation_failures": []
+      },
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "capture-required",
+          "score": null,
+          "metric_results": {},
+          "critical_disclosure_leaks": []
+        }
+      ],
+      "mcp_context": {
+        "mcp_url": "http://127.0.0.1:49421/mcp",
+        "mcp_version": "0.4.0",
+        "mcp_metadata_sha256": "22a4bbb3322334ccafb65559f833a14bddc9254a6907913fb3c88eece09f71ee",
+        "tool_sequence": [
+          "create_ui_implementation_contract",
+          "review_ui_implementation_candidate"
+        ],
+        "tool_transcript_sha256": "008ba46115f4d43528fade37c626d264c5d0034f22e45d420e0dea79dcb20412",
+        "tool_summaries": [
+          {
+            "name": "create_ui_implementation_contract",
+            "args_sha256": "ea9605338b4dd4a2e215de00c67aef37cf6f3f4c1d97db6cabd7159e460ff742",
+            "summary": {
+              "status": "ready",
+              "targeted_questions": [],
+              "failure_categories": [],
+              "failed_checks": [],
+              "failed_findings": []
+            }
+          },
+          {
+            "name": "review_ui_implementation_candidate",
+            "args_sha256": "1d9ab42f606cd0728a61efdfa325ef3fa0bc9b899fbb24a6262fe77516047d3c",
+            "summary": {
+              "status": "failed",
+              "next_agent_action": "repair_and_resubmit",
+              "targeted_questions": [],
+              "failure_categories": [
+                "visual_tokens"
+              ],
+              "failed_checks": [
+                "visual_tokens"
+              ],
+              "failed_findings": [
+                "visual_tokens: Candidate visual token evidence introduces renderer, component, catalog, compiler, or A2UI work that is deferred."
+              ],
+              "finding_count": 1,
+              "repair_guidance": {
+                "visual_tokens": [
+                  "Keep visual token evidence boundary-only: use supported token families, avoid renderer/component/catalog/compiler work, and do not use tokens as a substitute for required implementation gates."
+                ]
+              }
+            }
+          }
+        ],
+        "repair_loop_summary": null,
+        "visual_token_adapter_proof_summary": {
+          "enabled": true,
+          "proof_type": "renderer_boundary",
+          "implementation_review_status": "failed",
+          "next_agent_action": "repair_and_resubmit",
+          "visual_token_status": "fail",
+          "failure_categories": [
+            "visual_tokens"
+          ],
+          "failed_checks": [
+            "visual_tokens"
+          ],
+          "expected_review_status": "failed",
+          "expected_visual_token_status": "fail",
+          "expected_next_agent_action": "repair_and_resubmit",
+          "expected_failure_categories": [
+            "visual_tokens"
+          ],
+          "expectation_status": "passed",
+          "expectation_failures": []
+        }
+      }
+    }
+  ]
+}

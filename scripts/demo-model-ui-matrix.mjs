@@ -243,7 +243,7 @@ function buildFrontendProjectContext(output) {
     ui_library: usesMaterialUi ? DESIGN_SYSTEM_ADAPTER.design_system_name : "None",
     project_rules: [
       "Implement from the reviewed activity, workflow, and handoff before renderer choices.",
-      "Keep JudgmentKit review-packet terms and implementation machinery out of primary UI.",
+      "Keep JudgmentKit review-packet terms and implementation machinery out of product UI.",
       "Use compact operational layout, stable responsive dimensions, and visible state.",
     ],
     approved_component_families: usesMaterialUi
@@ -312,14 +312,14 @@ function compactReviewedHandoff(reviewedHandoff) {
     activity_model: reviewedHandoff.activity_model,
     interaction_contract: reviewedHandoff.interaction_contract,
     workflow: reviewedHandoff.workflow,
-    primary_surface: reviewedHandoff.primary_surface,
+    surface_set: reviewedHandoff.surface_set ?? [],
     handoff: reviewedHandoff.handoff,
     disclosure_reminders: {
-      terms_to_keep_out_of_primary_ui:
-        reviewedHandoff.disclosure_reminders?.terms_to_keep_out_of_primary_ui ?? [],
+      terms_to_keep_out_of_product_ui:
+        reviewedHandoff.disclosure_reminders?.terms_to_keep_out_of_product_ui ?? [],
       diagnostic_contexts:
         reviewedHandoff.disclosure_reminders?.diagnostic_contexts ?? [],
-      primary_ui_rule: reviewedHandoff.disclosure_reminders?.primary_ui_rule,
+      product_ui_rule: reviewedHandoff.disclosure_reminders?.product_ui_rule,
     },
     implementation_contract: {
       approved_primitives:
@@ -388,6 +388,18 @@ function stripVisualAssetPolicyInstruction(markdown) {
     );
 }
 
+function stripDefaultDesignAssetInstruction(markdown) {
+  return String(markdown ?? "")
+    .replace(
+      /\n- Use portable system font stacks and embedded inline SVG icon metadata unless a repo-approved adapter supplies replacements\./g,
+      "",
+    )
+    .replace(
+      /\n- Token families:.*(?:\n- Token roles:.*)?(?:\n- Font roles:.*)?(?:\n- Icon roles:.*)?(?:\n- Embedded icons:.*)?/g,
+      "",
+    );
+}
+
 function isDefaultAdapterGuidanceLine(value) {
   const text = String(value ?? "").toLowerCase();
 
@@ -419,6 +431,13 @@ function isDefaultAdapterGuidanceLine(value) {
     "captions",
     "transcripts",
     "target size",
+    "portable system font stacks",
+    "embedded inline svg icon",
+    "token families",
+    "token roles",
+    "font roles",
+    "icon roles",
+    "embedded icons",
   ].some((needle) => text.includes(needle));
 }
 
@@ -434,6 +453,12 @@ function stripDefaultVisualAssetPolicyForLegacyCapture(contextPayload) {
   }
 
   const legacy = cloneJson(contextPayload);
+  if (legacy.material_ui_adapter) {
+    delete legacy.material_ui_adapter.token_guidance;
+    delete legacy.material_ui_adapter.font_guidance;
+    delete legacy.material_ui_adapter.icon_guidance;
+  }
+
   const legacyFrontendContext =
     legacy.frontend_generation_context?.frontend_context;
 
@@ -446,6 +471,9 @@ function stripDefaultVisualAssetPolicyForLegacyCapture(contextPayload) {
 
   if (skillContext) {
     skillContext.instruction_markdown = stripVisualAssetPolicyInstruction(
+      skillContext.instruction_markdown,
+    );
+    skillContext.instruction_markdown = stripDefaultDesignAssetInstruction(
       skillContext.instruction_markdown,
     );
     skillContext.implementation_sequence = (
@@ -465,6 +493,16 @@ function stripDefaultVisualAssetPolicyForLegacyCapture(contextPayload) {
     delete skillContext.approved_visual_asset_sources;
     delete skillContext.visual_asset_policy;
     delete skillContext.accessibility_policy;
+    delete skillContext.visual_token_adapter;
+    delete skillContext.token_guidance;
+    delete skillContext.font_guidance;
+    delete skillContext.icon_guidance;
+
+    if (skillContext.design_system_policy) {
+      delete skillContext.design_system_policy.token_guidance;
+      delete skillContext.design_system_policy.font_guidance;
+      delete skillContext.design_system_policy.icon_guidance;
+    }
 
     if (skillContext.guardrails) {
       delete skillContext.guardrails.visual_asset_policy;

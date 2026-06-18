@@ -97,7 +97,7 @@ function assertTextIncludes(value, expectedValue) {
     Make it CRUD so the agent can expose tools/list diagnostics.
   `);
 
-  assert.equal(packet.version, "0.3.0");
+  assert.equal(packet.version, "0.4.0");
   assert.equal(packet.contract_id, "judgmentkit.ai-ui-generation.activity-contract");
   assert.equal(packet.status, "needs_review");
   assert.ok(terms(packet).includes("JSON schema"));
@@ -168,7 +168,7 @@ function assertTextIncludes(value, expectedValue) {
   assert.deepEqual(packet.interaction_contract.observed_primary_decisions, []);
   assert.equal(
     packet.ui_brief.activity_focus,
-    "Clarify the activity before proposing a primary surface.",
+    "Clarify the activity before proposing a product surface.",
   );
   assertNoForbiddenFieldNames(packet);
 }

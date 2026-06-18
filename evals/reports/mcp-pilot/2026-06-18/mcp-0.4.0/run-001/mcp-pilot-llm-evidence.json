@@ -1,0 +1,342 @@
+{
+  "evidence_type": "mcp-pilot-llm-preference-evidence",
+  "benchmark_policy": "Blinded LLM preference judging of saved baseline and JudgmentKit-guided model outputs. This is product evidence, not deterministic scoring.",
+  "source_report": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-report.json",
+  "source_capture_dir": "evals/mcp-pilot-captures",
+  "mcp": {
+    "required_version": "0.4.0",
+    "actual_version": "0.4.0",
+    "package_version": "0.4.0",
+    "local_metadata_sha256": "dff7f26df008953c65d44b1224d4aff8a6002e01df91b2cb475fe5fff521e0fa",
+    "endpoint_url": "http://127.0.0.1:49421/mcp",
+    "endpoint_metadata_sha256": "22a4bbb3322334ccafb65559f833a14bddc9254a6907913fb3c88eece09f71ee"
+  },
+  "model_under_test": {
+    "id": "gpt-5.5-codex",
+    "summary": {
+      "label": "GPT-5.5 Codex",
+      "cases": 24,
+      "evaluated_cases": 0,
+      "capture_required_cases": 24,
+      "passed": 0,
+      "failed": 0,
+      "calibrated_passes": 0,
+      "standard_delta_passed": 0,
+      "calibrated_only_passes": 0,
+      "calibrated_pass_reason_counts": {},
+      "guided_wins": 0,
+      "baseline_wins": 0,
+      "ties": 0,
+      "average_guided_delta": 0,
+      "invalid_outputs": 0,
+      "average_duration_ms": 0,
+      "guided_critical_disclosure_leaks": 0,
+      "loop_cases": 4,
+      "converged_cases": 3,
+      "stopped_cases": 1,
+      "average_attempts_to_pass": 2,
+      "failure_category_counts": {
+        "action_boundaries": 1,
+        "accessibility": 4,
+        "primitive_defaults": 3,
+        "state_rules": 3,
+        "evidence_gates": 3,
+        "data_visibility": 1
+      },
+      "visual_token_cases": 4,
+      "visual_token_passed_cases": 4,
+      "visual_token_failed_cases": 0,
+      "visual_token_failure_category_counts": {
+        "visual_tokens": 2,
+        "accessibility": 1
+      },
+      "pilot_passed": false,
+      "pilot_status": "capture-required"
+    }
+  },
+  "judge": {
+    "id": "gpt-5.5-codex",
+    "label": "GPT-5.5 Codex",
+    "provider": "codex",
+    "model": "gpt-5.5",
+    "reasoning_effort": "xhigh"
+  },
+  "summary": {
+    "total_cases": 24,
+    "valid_judgments": 0,
+    "invalid_judgments": 24,
+    "judge_required": 24,
+    "guided_preferred": 0,
+    "baseline_preferred": 0,
+    "ties": 0,
+    "guided_preference_rate": 0,
+    "high_confidence_guided_preferred": 0,
+    "average_guided_quality_delta": 0
+  },
+  "judgments": [
+    {
+      "case_id": "refund-schema-admin-translation",
+      "title": "Refund schema admin translation",
+      "case_type": "activity_translation",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/refund-schema-admin-translation.json"
+    },
+    {
+      "case_id": "agent-trace-review-console",
+      "title": "Agent trace review console",
+      "case_type": "activity_translation",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/agent-trace-review-console.json"
+    },
+    {
+      "case_id": "crm-json-import-translation",
+      "title": "CRM JSON import translation",
+      "case_type": "activity_translation",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/crm-json-import-translation.json"
+    },
+    {
+      "case_id": "billing-webhook-debug-boundary",
+      "title": "Billing webhook debug boundary",
+      "case_type": "activity_translation",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/billing-webhook-debug-boundary.json"
+    },
+    {
+      "case_id": "vague-system-dashboard",
+      "title": "Vague system dashboard restraint",
+      "case_type": "missing_context_restraint",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/vague-system-dashboard.json"
+    },
+    {
+      "case_id": "review-queue-without-decision",
+      "title": "Review queue without decision",
+      "case_type": "missing_context_restraint",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/review-queue-without-decision.json"
+    },
+    {
+      "case_id": "api-list-workflow",
+      "title": "API list workflow restraint",
+      "case_type": "missing_context_restraint",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/api-list-workflow.json"
+    },
+    {
+      "case_id": "unclear-compliance-report",
+      "title": "Unclear compliance report audience",
+      "case_type": "missing_context_restraint",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/unclear-compliance-report.json"
+    },
+    {
+      "case_id": "clinical-intake-operator-review",
+      "title": "Clinical intake operator review",
+      "case_type": "operator_review_handoff",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/clinical-intake-operator-review.json"
+    },
+    {
+      "case_id": "b2b-renewal-risk-review",
+      "title": "B2B renewal risk review",
+      "case_type": "operator_review_handoff",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/b2b-renewal-risk-review.json"
+    },
+    {
+      "case_id": "field-dispatch-review",
+      "title": "Field dispatch review",
+      "case_type": "operator_review_handoff",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/field-dispatch-review.json"
+    },
+    {
+      "case_id": "moderation-escalation-review",
+      "title": "Content moderation escalation review",
+      "case_type": "operator_review_handoff",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/moderation-escalation-review.json"
+    },
+    {
+      "case_id": "invented-activity-candidate",
+      "title": "Invented activity candidate",
+      "case_type": "candidate_validation",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/invented-activity-candidate.json"
+    },
+    {
+      "case_id": "schema-leaking-workflow",
+      "title": "Schema-leaking workflow candidate",
+      "case_type": "candidate_validation",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/schema-leaking-workflow.json"
+    },
+    {
+      "case_id": "surface-type-mismatch",
+      "title": "Surface type mismatch",
+      "case_type": "candidate_validation",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/surface-type-mismatch.json"
+    },
+    {
+      "case_id": "missing-handoff-workflow",
+      "title": "Missing handoff workflow candidate",
+      "case_type": "candidate_validation",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/missing-handoff-workflow.json"
+    },
+    {
+      "case_id": "raw-form-controls-implementation",
+      "title": "Raw form controls implementation review",
+      "case_type": "implementation_review",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/raw-form-controls-implementation.json"
+    },
+    {
+      "case_id": "missing-accessibility-evidence",
+      "title": "Missing accessibility evidence review",
+      "case_type": "implementation_review",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/missing-accessibility-evidence.json"
+    },
+    {
+      "case_id": "modal-action-order-review",
+      "title": "Modal action order review",
+      "case_type": "implementation_review",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/modal-action-order-review.json"
+    },
+    {
+      "case_id": "implementation-term-leakage-review",
+      "title": "Implementation-term leakage review",
+      "case_type": "implementation_review",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/implementation-term-leakage-review.json"
+    },
+    {
+      "case_id": "visual-token-valid-metadata-review",
+      "title": "Visual token metadata accepted review",
+      "case_type": "implementation_review",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/visual-token-valid-metadata-review.json"
+    },
+    {
+      "case_id": "visual-token-unsupported-family-review",
+      "title": "Unsupported visual token family review",
+      "case_type": "implementation_review",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/visual-token-unsupported-family-review.json"
+    },
+    {
+      "case_id": "visual-token-accessibility-bypass-review",
+      "title": "Visual token accessibility bypass review",
+      "case_type": "implementation_review",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/visual-token-accessibility-bypass-review.json"
+    },
+    {
+      "case_id": "visual-token-renderer-boundary-review",
+      "title": "Visual token renderer boundary review",
+      "case_type": "implementation_review",
+      "status": "judge-required",
+      "output_valid": false,
+      "parse_error": "missing LLM judge transcript",
+      "treatment_winner": null,
+      "confidence": null,
+      "transcript_file": "evals/reports/mcp-pilot/2026-06-18/mcp-0.4.0/run-001/mcp-pilot-llm-judge/gpt-5.5-codex/gpt-5.5-codex/visual-token-renderer-boundary-review.json"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 {
-  "version": "0.3.0",
+  "version": "0.4.0",
   "contract_id": "judgmentkit.ai-ui-generation.activity-contract",
   "handoff_status": "ready_for_generation",
   "source": {
@@ -37,7 +37,7 @@
     "make_easy": [
       "Confirm the activity model before screen structure",
       "Review the primary decision and outcome in domain language",
-      "Adjust vocabulary before implementation detail reaches the primary UI"
+      "Adjust vocabulary before implementation detail reaches the product UI"
     ]
   },
   "workflow": {
@@ -63,12 +63,6 @@
         "blocked_surface_type": false
       }
     },
-    "steps": [
-      "Choose the active refund request",
-      "Review customer context and evidence",
-      "Choose the next refund path",
-      "Send a clear handoff"
-    ],
     "primary_actions": [
       "Approve refund",
       "Send to policy review",
@@ -82,8 +76,8 @@
   },
   "surface_set": [
     {
-      "name": "Refund escalation review",
-      "purpose": "Support the activity work units, decision, completion, and handoff",
+      "name": "Refund escalation workspace",
+      "purpose": "Choose a refund request, review evidence, decide the next path, and send a handoff",
       "sections": [
         "Refund queue",
         "Selected request",
@@ -100,41 +94,19 @@
         "Choose next owner",
         "Send handoff"
       ],
-      "relationship_to_workflow": "Compatibility surface synthesized from legacy primary_ui"
+      "relationship_to_workflow": "Keeps queue selection, case evidence, decision controls, and handoff fields coordinated"
     }
   ],
-  "primary_surface": {
-    "sections": [
-      "Refund queue",
-      "Selected request",
-      "Evidence checklist",
-      "Policy context",
-      "Decision path",
-      "Handoff reason"
-    ],
-    "controls": [
-      "Select request",
-      "Approve refund",
-      "Send to policy review",
-      "Return for evidence",
-      "Choose next owner",
-      "Send handoff"
-    ],
-    "user_facing_terms": [
-      "refund escalation",
-      "selected request",
-      "evidence checklist",
-      "policy review",
-      "handoff reason",
-      "support agent",
-      "support operations manager",
-      "customer refund escalation cases",
-      "missing evidence",
-      "handoff",
-      "next action",
-      "reason for the decision"
-    ]
-  },
+  "product_terms": [
+    "support operations manager",
+    "support agent",
+    "customer refund escalation cases",
+    "policy review",
+    "missing evidence",
+    "handoff",
+    "next action",
+    "reason for the decision"
+  ],
   "handoff": {
     "next_owner": "Support agent",
     "reason": "Receipt photo is missing. Ask the customer to attach proof before approval",
@@ -223,7 +195,7 @@
         "prefer": "system action"
       }
     ],
-    "terms_to_keep_out_of_primary_ui": [
+    "terms_to_keep_out_of_product_ui": [
       "API endpoint",
       "CRUD",
       "data model",
@@ -237,7 +209,7 @@
       "schema",
       "tool call"
     ],
-    "primary_ui_rule": "Keep implementation details and JudgmentKit review-packet terms out of product UI."
+    "product_ui_rule": "Keep implementation details and JudgmentKit review-packet terms out of product UI."
   },
   "generation_gates": [
     {
@@ -385,7 +357,7 @@
           "explicit source inspection"
         ],
         "failure_signals": [
-          "primary UI text exposes diagnostic-only terms outside an allowed diagnostic context",
+          "product UI text exposes diagnostic-only terms outside an allowed diagnostic context",
           "source identifiers, prompts, schemas, traces, or tool mechanics appear as user-facing work vocabulary",
           "data fields are listed because they exist rather than because they support the activity"
         ]
@@ -440,6 +412,80 @@
         "motion",
         "semantic"
       ],
+      "token_roles": [
+        {
+          "role": "surface",
+          "families": [
+            "color",
+            "elevation"
+          ],
+          "usage": "backgrounds, panels, overlays, and work-surface regions"
+        },
+        {
+          "role": "text",
+          "families": [
+            "color",
+            "type"
+          ],
+          "usage": "body copy, headings, labels, and dense operational text"
+        },
+        {
+          "role": "border",
+          "families": [
+            "color",
+            "radius"
+          ],
+          "usage": "control boundaries, dividers, panels, and grouped evidence"
+        },
+        {
+          "role": "focus",
+          "families": [
+            "color",
+            "motion"
+          ],
+          "usage": "visible focus indicators and keyboard navigation affordances"
+        },
+        {
+          "role": "status",
+          "families": [
+            "color",
+            "semantic"
+          ],
+          "usage": "success, warning, error, loading, and empty states"
+        },
+        {
+          "role": "decision",
+          "families": [
+            "color",
+            "density"
+          ],
+          "usage": "primary decision controls and bounded action groups"
+        },
+        {
+          "role": "risk",
+          "families": [
+            "color",
+            "semantic"
+          ],
+          "usage": "risk, escalation, destructive, or externally committing actions"
+        },
+        {
+          "role": "disabled",
+          "families": [
+            "color",
+            "semantic"
+          ],
+          "usage": "disabled controls and unavailable state reasons"
+        },
+        {
+          "role": "receipt",
+          "families": [
+            "color",
+            "semantic"
+          ],
+          "usage": "completion, confirmation, and handoff receipt states"
+        }
+      ],
       "semantic_roles": [
         "surface",
         "text",
@@ -451,15 +497,237 @@
         "disabled",
         "receipt"
       ],
+      "font_roles": [
+        {
+          "role": "body",
+          "stack": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+          "usage": "primary product text and work-surface copy",
+          "feature_settings": []
+        },
+        {
+          "role": "heading",
+          "stack": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+          "usage": "section titles and hierarchy labels",
+          "feature_settings": []
+        },
+        {
+          "role": "label",
+          "stack": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+          "usage": "form labels, metadata labels, tabs, and compact control text",
+          "feature_settings": []
+        },
+        {
+          "role": "numeric",
+          "stack": "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+          "usage": "counts, prices, times, IDs, and values that need stable width",
+          "feature_settings": [
+            "font-variant-numeric: tabular-nums"
+          ]
+        },
+        {
+          "role": "diagnostic",
+          "stack": "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, \"Liberation Mono\", monospace",
+          "usage": "diagnostic-only identifiers, logs, code, and implementation details in allowed contexts",
+          "feature_settings": []
+        }
+      ],
+      "font_rules": [
+        "portable defaults use system font stacks and do not load remote font files",
+        "diagnostic font roles may appear only in setup, debugging, auditing, integration, or explicit source-inspection contexts",
+        "numeric font roles should preserve readable alignment with tabular numbers when supported"
+      ],
+      "icon_roles": [
+        "action",
+        "status",
+        "navigation",
+        "disclosure",
+        "decision",
+        "risk",
+        "receipt"
+      ],
+      "icon_registry": [
+        {
+          "id": "status-check",
+          "role": "status",
+          "label": "Status check",
+          "viewBox": "0 0 24 24",
+          "paths": [
+            "M20 6 9 17l-5-5"
+          ],
+          "svg_attributes": {
+            "fill": "none",
+            "stroke": "currentColor",
+            "stroke_width": "2",
+            "stroke_linecap": "round",
+            "stroke_linejoin": "round"
+          },
+          "accessibility_guidance": "Decorative when adjacent text names the status; otherwise provide an accessible name",
+          "allowed_usage": [
+            "success state",
+            "completed state",
+            "confirmed receipt"
+          ]
+        },
+        {
+          "id": "status-alert",
+          "role": "risk",
+          "label": "Status alert",
+          "viewBox": "0 0 24 24",
+          "paths": [
+            "M12 3 22 20H2L12 3Z",
+            "M12 9v4",
+            "M12 17h.01"
+          ],
+          "svg_attributes": {
+            "fill": "none",
+            "stroke": "currentColor",
+            "stroke_width": "2",
+            "stroke_linecap": "round",
+            "stroke_linejoin": "round"
+          },
+          "accessibility_guidance": "Pair with text that names the risk, warning, or blocked reason",
+          "allowed_usage": [
+            "risk state",
+            "warning state",
+            "blocked decision"
+          ]
+        },
+        {
+          "id": "info-circle",
+          "role": "status",
+          "label": "Information",
+          "viewBox": "0 0 24 24",
+          "paths": [
+            "M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z",
+            "M12 10v6",
+            "M12 7h.01"
+          ],
+          "svg_attributes": {
+            "fill": "none",
+            "stroke": "currentColor",
+            "stroke_width": "2",
+            "stroke_linecap": "round",
+            "stroke_linejoin": "round"
+          },
+          "accessibility_guidance": "Decorative beside explanatory text; named when it opens help or details",
+          "allowed_usage": [
+            "information state",
+            "help affordance",
+            "diagnostic note"
+          ]
+        },
+        {
+          "id": "chevron-right",
+          "role": "navigation",
+          "label": "Next",
+          "viewBox": "0 0 24 24",
+          "paths": [
+            "M9 18l6-6-6-6"
+          ],
+          "svg_attributes": {
+            "fill": "none",
+            "stroke": "currentColor",
+            "stroke_width": "2",
+            "stroke_linecap": "round",
+            "stroke_linejoin": "round"
+          },
+          "accessibility_guidance": "Use for navigation or disclosure only when surrounding text names the destination or state",
+          "allowed_usage": [
+            "next item",
+            "drill-in",
+            "disclosure"
+          ]
+        },
+        {
+          "id": "filter",
+          "role": "action",
+          "label": "Filter",
+          "viewBox": "0 0 24 24",
+          "paths": [
+            "M4 6h16",
+            "M7 12h10",
+            "M10 18h4"
+          ],
+          "svg_attributes": {
+            "fill": "none",
+            "stroke": "currentColor",
+            "stroke_width": "2",
+            "stroke_linecap": "round",
+            "stroke_linejoin": "round"
+          },
+          "accessibility_guidance": "Icon-only filter controls require an accessible name and target-size evidence",
+          "allowed_usage": [
+            "filter action",
+            "queue narrowing",
+            "view refinement"
+          ]
+        },
+        {
+          "id": "send",
+          "role": "action",
+          "label": "Send",
+          "viewBox": "0 0 24 24",
+          "paths": [
+            "M22 2 11 13",
+            "M22 2 15 22l-4-9-9-4 20-7Z"
+          ],
+          "svg_attributes": {
+            "fill": "none",
+            "stroke": "currentColor",
+            "stroke_width": "2",
+            "stroke_linecap": "round",
+            "stroke_linejoin": "round"
+          },
+          "accessibility_guidance": "Use only with explicit action text or an accessible name that states what will be sent",
+          "allowed_usage": [
+            "send handoff",
+            "submit message",
+            "forward result"
+          ]
+        },
+        {
+          "id": "receipt",
+          "role": "receipt",
+          "label": "Receipt",
+          "viewBox": "0 0 24 24",
+          "paths": [
+            "M6 3h12v18l-3-2-3 2-3-2-3 2V3Z",
+            "M9 8h6",
+            "M9 12h6",
+            "M9 16h4"
+          ],
+          "svg_attributes": {
+            "fill": "none",
+            "stroke": "currentColor",
+            "stroke_width": "2",
+            "stroke_linecap": "round",
+            "stroke_linejoin": "round"
+          },
+          "accessibility_guidance": "Pair with completion text that names the receipt, result, or handoff outcome",
+          "allowed_usage": [
+            "handoff receipt",
+            "confirmation",
+            "completion state"
+          ]
+        }
+      ],
+      "icon_rules": [
+        "default icons are embedded inline SVG metadata returned in MCP structured content",
+        "icons that convey meaning require adjacent text or an accessible name",
+        "icon-only controls require target-size and keyboard/focus evidence",
+        "meaningful icons require non-text contrast evidence"
+      ],
       "adapter_rules": [
-        "visual token evidence describes semantic roles and constraints; it does not create approved primitives",
-        "visual token evidence cannot satisfy missing activity, primitive, state, action-boundary, data-visibility, accessibility, static-check, or browser-QA gates",
-        "token names stay adapter metadata and must not become primary UI vocabulary",
+        "visual token, font, and icon evidence describes semantic roles and constraints; it does not create approved primitives",
+        "visual token, font, and icon evidence cannot satisfy missing activity, primitive, state, action-boundary, data-visibility, accessibility, static-check, or browser-QA gates",
+        "token, font, and icon names stay adapter metadata and must not become product UI vocabulary",
         "renderer and component packages remain deferred until the token adapter can drive rendered primitives without changing the activity contract"
       ],
       "evidence_expectations": [
         "name visual token families used by the candidate",
         "map token semantics to approved primitives, states, and surface patterns",
+        "name font roles and confirm system stacks or repo-approved font assets",
+        "name icon roles and confirm embedded SVG or repo-approved icon assets",
         "include accessibility-relevant token evidence when color, motion, density, focus, or status roles affect readability or input"
       ],
       "deferred_renderer": {
@@ -468,9 +736,9 @@
         "catalog_compiler": "deferred"
       },
       "failure_signals": [
-        "visual token evidence is used as a substitute for approved primitives or required states",
-        "visual token evidence claims to pass accessibility, action, data-visibility, static, or browser gates without the required evidence",
-        "unsupported token families are introduced without adapter evidence",
+        "visual token, font, or icon evidence is used as a substitute for approved primitives or required states",
+        "visual token, font, or icon evidence claims to pass accessibility, action, data-visibility, static, or browser gates without the required evidence",
+        "unsupported token families, font roles, or icon roles are introduced without adapter evidence",
         "renderer, component package, catalog, compiler, or A2UI work is introduced in the boundary-only slice"
       ]
     },

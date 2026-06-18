@@ -258,7 +258,7 @@ function countImplementationTerm(text, term) {
 function collectImplementationTerms(contract) {
   return unique([
     ...contract.activity_model.implementation_concepts_to_hide,
-    ...contract.disclosure_policy.primary_ui_must_not_show,
+    ...contract.disclosure_policy.product_ui_must_not_show,
     ...contract.disclosure_policy.term_replacements.map((entry) => entry.avoid),
   ]);
 }
@@ -345,7 +345,7 @@ function buildOperatorReviewTriggerEvidence(input, contract) {
       ),
       matchedEvidence(
         "raw_mechanics_secondary",
-        "Raw system mechanics exist, but should not drive the primary UI.",
+        "Raw system mechanics exist, but should not drive the product UI.",
         hasRawMechanics,
         implementationTermsDetected.length > 0
           ? "Implementation terms were detected and should stay diagnostic."
@@ -759,7 +759,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "raw_mechanics_are_diagnostic_only",
         "If raw mechanics are diagnostic only, do not make them the primary setup surface.",
-        /\b(?:stay diagnostic|diagnostic only|remain diagnostic|should not drive the primary ui)\b/.test(text) &&
+        /\b(?:stay diagnostic|diagnostic only|remain diagnostic|should not drive the product ui)\b/.test(text) &&
           !/\b(?:setup|configure|debug|troubleshoot|test connection|safe to ship)\b/.test(text),
         "The brief says raw mechanics should stay diagnostic.",
       ),
@@ -777,8 +777,8 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
   if (surfaceType === "conversation") {
     const triggers = [
       surfaceEvidence(
-        "thread_is_primary_surface",
-        "The thread or message exchange is the primary surface.",
+        "thread_is_product_surface",
+        "The thread or message exchange is the product surface.",
         hasConversation,
         "Looked for chat, conversation, thread, message composer, live chat, or open-ended exchange language.",
       ),
@@ -857,7 +857,7 @@ function buildSurfaceImplications(surfaceType) {
         completion_focus: "The visitor knows the offer and has a clear next action.",
       },
       disclosure_implications: {
-        primary_ui_rule: "Keep implementation details out of the public-facing message.",
+        product_ui_rule: "Keep implementation details out of the public-facing message.",
         reveal_implementation_terms: false,
         diagnostic_contexts: ["setup", "auditing"],
       },
@@ -877,7 +877,7 @@ function buildSurfaceImplications(surfaceType) {
         completion_focus: "The user advances the selected work with a clear result.",
       },
       disclosure_implications: {
-        primary_ui_rule: "Primary UI uses domain terms; diagnostics stay secondary.",
+        product_ui_rule: "Product UI uses domain terms; diagnostics stay secondary.",
         reveal_implementation_terms: false,
         diagnostic_contexts: ["debugging", "auditing", "explicit source inspection"],
       },
@@ -897,7 +897,7 @@ function buildSurfaceImplications(surfaceType) {
         completion_focus: "The review leaves a receipt or handoff with the chosen path and reason.",
       },
       disclosure_implications: {
-        primary_ui_rule: "System mechanics are diagnostic unless the activity is explicitly auditing them.",
+        product_ui_rule: "System mechanics are diagnostic unless the activity is explicitly auditing them.",
         reveal_implementation_terms: false,
         diagnostic_contexts: ["auditing", "debugging", "explicit source inspection"],
       },
@@ -917,7 +917,7 @@ function buildSurfaceImplications(surfaceType) {
         completion_focus: "The user knows the submission or change succeeded.",
       },
       disclosure_implications: {
-        primary_ui_rule: "Fields are named in user/domain language, not storage or schema language.",
+        product_ui_rule: "Fields are named in user/domain language, not storage or schema language.",
         reveal_implementation_terms: false,
         diagnostic_contexts: ["debugging", "integration"],
       },
@@ -937,7 +937,7 @@ function buildSurfaceImplications(surfaceType) {
         completion_focus: "The user knows status, exceptions, and whether follow-up is needed.",
       },
       disclosure_implications: {
-        primary_ui_rule: "Metrics and statuses use domain language; source mechanics remain diagnostic.",
+        product_ui_rule: "Metrics and statuses use domain language; source mechanics remain diagnostic.",
         reveal_implementation_terms: false,
         diagnostic_contexts: ["auditing", "debugging"],
       },
@@ -957,7 +957,7 @@ function buildSurfaceImplications(surfaceType) {
         completion_focus: "The reader understands the information and can cite or share it.",
       },
       disclosure_implications: {
-        primary_ui_rule: "Expose source/provenance only when it helps trust, citation, or audit.",
+        product_ui_rule: "Expose source/provenance only when it helps trust, citation, or audit.",
         reveal_implementation_terms: false,
         diagnostic_contexts: ["auditing", "explicit source inspection"],
       },
@@ -977,7 +977,7 @@ function buildSurfaceImplications(surfaceType) {
         completion_focus: "The user knows whether setup is valid or what to fix next.",
       },
       disclosure_implications: {
-        primary_ui_rule: "Implementation details may be primary when the task is explicitly setup, debugging, auditing, or integration.",
+        product_ui_rule: "Implementation details may be primary when the task is explicitly setup, debugging, auditing, or integration.",
         reveal_implementation_terms: true,
         diagnostic_contexts: ["setup", "debugging", "auditing", "integration", "explicit source inspection"],
       },
@@ -997,7 +997,7 @@ function buildSurfaceImplications(surfaceType) {
         completion_focus: "The participant can continue or close the exchange with context intact.",
       },
       disclosure_implications: {
-        primary_ui_rule: "System instructions and tool traces stay hidden unless the conversation is explicitly diagnostic.",
+        product_ui_rule: "System instructions and tool traces stay hidden unless the conversation is explicitly diagnostic.",
         reveal_implementation_terms: false,
         diagnostic_contexts: ["debugging", "auditing", "explicit source inspection"],
       },
@@ -1451,8 +1451,8 @@ function buildInteractionContract(contract, evidence, observed) {
 
 function buildDisclosurePolicy(contract, observed) {
   return {
-    primary_ui_can_show: contract.disclosure_policy.primary_ui_can_show,
-    primary_ui_must_not_show: contract.disclosure_policy.primary_ui_must_not_show,
+    product_ui_can_show: contract.disclosure_policy.product_ui_can_show,
+    product_ui_must_not_show: contract.disclosure_policy.product_ui_must_not_show,
     diagnostic_contexts: contract.disclosure_policy.diagnostic_contexts,
     term_replacements: contract.disclosure_policy.term_replacements,
     diagnostic_terms_detected: observed.diagnostic_terms_detected,
@@ -1464,7 +1464,7 @@ function buildUiBrief(contract, evidence, status, observed, implementationTermsD
   return {
     purpose: evidence.hasActivity
       ? "Support the named activity with a concise surface focused on decisions and next actions."
-      : "Clarify the activity before proposing a primary surface.",
+      : "Clarify the activity before proposing a product surface.",
     primary_user_action: evidence.hasDecision
       ? "Make the next meaningful decision visible and easy to complete."
       : "Identify the decision or next action the surface should support.",
@@ -1473,7 +1473,7 @@ function buildUiBrief(contract, evidence, status, observed, implementationTermsD
       implementationTermsDetected,
       evidence.hasActivity
         ? "Support the named activity without exposing source mechanics."
-        : "Clarify the activity before proposing a primary surface.",
+        : "Clarify the activity before proposing a product surface.",
     ),
     primary_decision: safePrimaryText(
       observed.observed_primary_decisions[0],
@@ -1499,7 +1499,7 @@ function buildUiBrief(contract, evidence, status, observed, implementationTermsD
       (term) => term !== "diagnostic detail",
     ),
     handoff_notes: [
-      "Keep source mechanics out of the primary surface.",
+      "Keep source mechanics out of the product surface.",
       "Reveal source mechanics only for setup, debugging, auditing, integration, or explicit inspection.",
       status === "ready"
         ? "Proceed to a UI brief after confirming the domain terms."
@@ -1542,7 +1542,7 @@ function buildCandidateActivity(analyzerPacket) {
     primaryCandidateValue(
       analyzerPacket.ui_brief.activity_focus,
       termsDetected,
-      "Clarify the activity before proposing a primary surface",
+      "Clarify the activity before proposing a product surface",
     ),
   );
 }
@@ -1603,7 +1603,7 @@ function buildCandidateInteractionContract(analyzerPacket) {
     make_easy: [
       "Confirm the activity model before screen structure.",
       "Review the primary decision and outcome in domain language.",
-      "Adjust vocabulary before implementation detail reaches the primary UI.",
+      "Adjust vocabulary before implementation detail reaches the product UI.",
     ],
   };
 }
@@ -1836,7 +1836,7 @@ function normalizeActivityModelCandidate(candidate, analyzerPacket, candidatePri
           : [
               "Confirm the activity model before screen structure.",
               "Review the primary decision and outcome in domain language.",
-              "Adjust vocabulary before implementation detail reaches the primary UI.",
+              "Adjust vocabulary before implementation detail reaches the product UI.",
             ],
     },
     disclosure_policy: {
@@ -2259,7 +2259,6 @@ function collectStringValues(value, values = []) {
 function uiWorkflowPrimaryFields(candidate) {
   return {
     workflow: candidate.workflow,
-    primary_ui: candidate.primary_ui,
     surface_set: candidate.surface_set,
     handoff: candidate.handoff,
   };
@@ -2431,32 +2430,8 @@ function aggregateSurfaceSet(surfaceSet) {
   };
 }
 
-function buildDefaultSurfaceSet(candidate, implementationTermsDetected) {
-  const workflow = candidate.workflow ?? {};
-  const primaryUi = isPlainObject(candidate.primary_ui) ? candidate.primary_ui : {};
-
-  return [
-    {
-      name: sanitizeUiWorkflowString(
-        workflow.surface_name,
-        implementationTermsDetected,
-        "Primary work surface",
-      ),
-      purpose: "Support the activity work units, decision, completion, and handoff.",
-      sections: sanitizeUiWorkflowList(primaryUi.sections, implementationTermsDetected),
-      controls: sanitizeUiWorkflowList(primaryUi.controls, implementationTermsDetected),
-      relationship_to_workflow:
-        "Compatibility surface synthesized from legacy primary_ui.",
-    },
-  ];
-}
-
 function normalizeUiWorkflowSurfaceSet(candidate, implementationTermsDetected) {
   const providedSurfaceSet = toSurfaceSetArray(candidate.surface_set);
-
-  if (providedSurfaceSet.length === 0) {
-    return buildDefaultSurfaceSet(candidate, implementationTermsDetected);
-  }
 
   return providedSurfaceSet.map((surface, index) => ({
     name: sanitizeUiWorkflowString(
@@ -2497,7 +2472,6 @@ function collectStepperEligibilityText(activityReview, candidate, surfaceGuidanc
     workflow.surface_name,
     workflow.topology,
     ...(toStringArray(workflow.work_units)),
-    ...(toStringArray(workflow.steps)),
     ...(toSurfaceSetArray(candidate.surface_set).flatMap((surface) => [
       surface.name,
       surface.purpose,
@@ -2565,10 +2539,32 @@ function assertUiWorkflowCandidateShape(candidate) {
     throw new JudgmentKitInputError("UI workflow candidate requires workflow.");
   }
 
-  if (!isPlainObject(candidate.primary_ui) && toSurfaceSetArray(candidate.surface_set).length === 0) {
+  if (Object.prototype.hasOwnProperty.call(candidate.workflow, "steps")) {
     throw new JudgmentKitInputError(
-      "UI workflow candidate requires primary_ui or surface_set.",
+      "UI workflow candidate no longer accepts workflow.steps. Use workflow.work_units.",
     );
+  }
+
+  if (Object.prototype.hasOwnProperty.call(candidate, "primary_ui")) {
+    throw new JudgmentKitInputError(
+      "UI workflow candidate no longer accepts primary_ui. Use surface_set.",
+    );
+  }
+
+  if (!rawWorkflowTopology(candidate.workflow.topology)) {
+    throw new JudgmentKitInputError(
+      "UI workflow candidate requires workflow.topology.",
+    );
+  }
+
+  if (toStringArray(candidate.workflow.work_units).length === 0) {
+    throw new JudgmentKitInputError(
+      "UI workflow candidate requires workflow.work_units.",
+    );
+  }
+
+  if (toSurfaceSetArray(candidate.surface_set).length === 0) {
+    throw new JudgmentKitInputError("UI workflow candidate requires surface_set.");
   }
 
   if (!isPlainObject(candidate.handoff)) {
@@ -2582,18 +2578,14 @@ function assertUiWorkflowCandidateShape(candidate) {
 
 function buildUiWorkflowCandidateMissingFields(candidate) {
   const workflow = candidate.workflow;
-  const primaryUi = isPlainObject(candidate.primary_ui) ? candidate.primary_ui : {};
   const handoff = candidate.handoff;
   const completionState = optionalString(workflow.completion_state);
   const handoffCompletion =
     optionalString(handoff.next_action).length > 0 &&
     optionalString(handoff.reason).length > 0;
-  const workUnits = toStringArray(workflow.work_units).length > 0
-    ? toStringArray(workflow.work_units)
-    : toStringArray(workflow.steps);
+  const workUnits = toStringArray(workflow.work_units);
   const surfaceSet = toSurfaceSetArray(candidate.surface_set);
   const hasSurfaceStructure =
-    toStringArray(primaryUi.sections).length > 0 ||
     surfaceSet.some((surface) => toStringArray(surface.sections).length > 0);
 
   return {
@@ -2644,7 +2636,6 @@ function normalizeUiWorkflowCandidate(
   } = {},
 ) {
   const workflow = candidate.workflow;
-  const primaryUi = isPlainObject(candidate.primary_ui) ? candidate.primary_ui : {};
   const handoff = candidate.handoff;
   const diagnostics = candidate.diagnostics;
   const activityCandidate = activityReview.candidate;
@@ -2661,18 +2652,18 @@ function normalizeUiWorkflowCandidate(
       "auditing",
       "integration",
     ];
-  const sanitizedUserTerms = unique([
-    ...sanitizeUiWorkflowList(primaryUi.user_facing_terms, candidatePrimaryTermsDetected),
-    ...sanitizeUiWorkflowList(defaultTerms, candidatePrimaryTermsDetected),
-  ]);
+  const sanitizedUserTerms = sanitizeUiWorkflowList(
+    defaultTerms,
+    candidatePrimaryTermsDetected,
+  );
   const surfaceSet = normalizeUiWorkflowSurfaceSet(
     candidate,
     candidatePrimaryTermsDetected,
   );
-  const aggregateSurfaces = aggregateSurfaceSet(surfaceSet);
-  const workUnits = toStringArray(workflow.work_units).length > 0
-    ? sanitizeUiWorkflowList(workflow.work_units, candidatePrimaryTermsDetected)
-    : sanitizeUiWorkflowList(workflow.steps, candidatePrimaryTermsDetected);
+  const workUnits = sanitizeUiWorkflowList(
+    workflow.work_units,
+    candidatePrimaryTermsDetected,
+  );
   const topology = inferWorkflowTopology(candidate, surfaceGuidance, contract);
 
   return {
@@ -2685,7 +2676,6 @@ function normalizeUiWorkflowCandidate(
       topology,
       work_units: workUnits,
       stepper_eligibility: stepperEligibility,
-      steps: sanitizeUiWorkflowList(workflow.steps, candidatePrimaryTermsDetected),
       primary_actions: sanitizeUiWorkflowList(
         workflow.primary_actions,
         candidatePrimaryTermsDetected,
@@ -2700,16 +2690,8 @@ function normalizeUiWorkflowCandidate(
         activityCandidate?.interaction_contract?.completion ?? "",
       ),
     },
-    primary_ui: {
-      sections: sanitizeUiWorkflowList(primaryUi.sections, candidatePrimaryTermsDetected).length > 0
-        ? sanitizeUiWorkflowList(primaryUi.sections, candidatePrimaryTermsDetected)
-        : aggregateSurfaces.sections,
-      controls: sanitizeUiWorkflowList(primaryUi.controls, candidatePrimaryTermsDetected).length > 0
-        ? sanitizeUiWorkflowList(primaryUi.controls, candidatePrimaryTermsDetected)
-        : aggregateSurfaces.controls,
-      user_facing_terms: sanitizedUserTerms,
-    },
     surface_set: surfaceSet,
+    product_terms: sanitizedUserTerms,
     handoff: {
       next_owner: sanitizeUiWorkflowString(
         handoff.next_owner,
@@ -2976,7 +2958,7 @@ function buildUiWorkflowCandidateShapeGuide() {
       next_action: "Next action after the workflow decision.",
     },
     diagnostics: {
-      implementation_terms: ["Implementation terms allowed only outside primary UI."],
+      implementation_terms: ["Implementation terms allowed only outside product UI."],
       reveal_contexts: ["Contexts where diagnostics may be shown."],
     },
   };
@@ -3052,7 +3034,7 @@ export function buildUiWorkflowCandidateRequest({
           "Return only JSON whose root object matches the UI workflow candidate shape.",
           "Ground topology, work units, coordinated surfaces, actions, decisions, handoff, and user-facing terms in the source brief and activity review.",
           "Do not use staged_flow or numbered wizard/stepper framing unless the source has strong staged-flow intent such as explicit wizard wording, ordered setup/onboarding, form validation sequence, or strict dependency order.",
-          "Keep implementation terms and JudgmentKit review-packet terms out of workflow, surface_set, primary_ui, and handoff.",
+          "Keep implementation terms and JudgmentKit review-packet terms out of workflow, surface_set, and handoff.",
           "Implementation terms may appear only in diagnostics when they are diagnostic.",
           guidanceProfile
             ? "Apply the selected guidance_profile as activity guidance; do not copy guardrail ids or internal mechanics into product UI copy."
@@ -3212,12 +3194,9 @@ function assertReadyUiWorkflowReviewShape(workflowReview) {
     );
   }
 
-  if (
-    !isPlainObject(workflowReview.candidate.primary_ui) &&
-    toSurfaceSetArray(workflowReview.candidate.surface_set).length === 0
-  ) {
+  if (toSurfaceSetArray(workflowReview.candidate.surface_set).length === 0) {
     throw new JudgmentKitInputError(
-      "createUiGenerationHandoff requires candidate.primary_ui or candidate.surface_set.",
+      "createUiGenerationHandoff requires candidate.surface_set.",
     );
   }
 
@@ -3270,7 +3249,7 @@ function buildUiGenerationHandoffBlockDetails(workflowReview) {
   };
 }
 
-function buildTermsToKeepOutOfPrimaryUi(workflowReview) {
+function buildTermsToKeepOutOfProductUi(workflowReview) {
   return unique([
     ...termEntriesToNames(workflowReview.guardrails?.implementation_terms_detected),
     ...termEntriesToNames(workflowReview.guardrails?.candidate_primary_terms_detected),
@@ -3731,7 +3710,7 @@ const DEFAULT_AI_NATIVE_DESIGN_SYSTEM = {
       "explicit source inspection",
     ],
     failure_signals: [
-      "primary UI text exposes diagnostic-only terms outside an allowed diagnostic context",
+      "product UI text exposes diagnostic-only terms outside an allowed diagnostic context",
       "source identifiers, prompts, schemas, traces, or tool mechanics appear as user-facing work vocabulary",
       "data fields are listed because they exist rather than because they support the activity",
     ],
@@ -3759,11 +3738,226 @@ const DEFAULT_AI_NATIVE_DESIGN_SYSTEM = {
   },
 };
 
+const DEFAULT_TOKEN_ROLES = [
+  {
+    role: "surface",
+    families: ["color", "elevation"],
+    usage: "backgrounds, panels, overlays, and work-surface regions",
+  },
+  {
+    role: "text",
+    families: ["color", "type"],
+    usage: "body copy, headings, labels, and dense operational text",
+  },
+  {
+    role: "border",
+    families: ["color", "radius"],
+    usage: "control boundaries, dividers, panels, and grouped evidence",
+  },
+  {
+    role: "focus",
+    families: ["color", "motion"],
+    usage: "visible focus indicators and keyboard navigation affordances",
+  },
+  {
+    role: "status",
+    families: ["color", "semantic"],
+    usage: "success, warning, error, loading, and empty states",
+  },
+  {
+    role: "decision",
+    families: ["color", "density"],
+    usage: "primary decision controls and bounded action groups",
+  },
+  {
+    role: "risk",
+    families: ["color", "semantic"],
+    usage: "risk, escalation, destructive, or externally committing actions",
+  },
+  {
+    role: "disabled",
+    families: ["color", "semantic"],
+    usage: "disabled controls and unavailable state reasons",
+  },
+  {
+    role: "receipt",
+    families: ["color", "semantic"],
+    usage: "completion, confirmation, and handoff receipt states",
+  },
+];
+
+const DEFAULT_FONT_ROLES = [
+  {
+    role: "body",
+    stack:
+      'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    usage: "primary product text and work-surface copy",
+  },
+  {
+    role: "heading",
+    stack:
+      'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    usage: "section titles and hierarchy labels",
+  },
+  {
+    role: "label",
+    stack:
+      'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    usage: "form labels, metadata labels, tabs, and compact control text",
+  },
+  {
+    role: "numeric",
+    stack:
+      'ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+    usage: "counts, prices, times, IDs, and values that need stable width",
+    feature_settings: ["font-variant-numeric: tabular-nums"],
+  },
+  {
+    role: "diagnostic",
+    stack:
+      'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace',
+    usage:
+      "diagnostic-only identifiers, logs, code, and implementation details in allowed contexts",
+  },
+];
+
+const DEFAULT_ICON_ROLES = [
+  "action",
+  "status",
+  "navigation",
+  "disclosure",
+  "decision",
+  "risk",
+  "receipt",
+];
+
+const DEFAULT_ICON_REGISTRY = [
+  {
+    id: "status-check",
+    role: "status",
+    label: "Status check",
+    viewBox: "0 0 24 24",
+    paths: ["M20 6 9 17l-5-5"],
+    svg_attributes: {
+      fill: "none",
+      stroke: "currentColor",
+      stroke_width: "2",
+      stroke_linecap: "round",
+      stroke_linejoin: "round",
+    },
+    accessibility_guidance:
+      "Decorative when adjacent text names the status; otherwise provide an accessible name.",
+    allowed_usage: ["success state", "completed state", "confirmed receipt"],
+  },
+  {
+    id: "status-alert",
+    role: "risk",
+    label: "Status alert",
+    viewBox: "0 0 24 24",
+    paths: ["M12 3 22 20H2L12 3Z", "M12 9v4", "M12 17h.01"],
+    svg_attributes: {
+      fill: "none",
+      stroke: "currentColor",
+      stroke_width: "2",
+      stroke_linecap: "round",
+      stroke_linejoin: "round",
+    },
+    accessibility_guidance:
+      "Pair with text that names the risk, warning, or blocked reason.",
+    allowed_usage: ["risk state", "warning state", "blocked decision"],
+  },
+  {
+    id: "info-circle",
+    role: "status",
+    label: "Information",
+    viewBox: "0 0 24 24",
+    paths: ["M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z", "M12 10v6", "M12 7h.01"],
+    svg_attributes: {
+      fill: "none",
+      stroke: "currentColor",
+      stroke_width: "2",
+      stroke_linecap: "round",
+      stroke_linejoin: "round",
+    },
+    accessibility_guidance:
+      "Decorative beside explanatory text; named when it opens help or details.",
+    allowed_usage: ["information state", "help affordance", "diagnostic note"],
+  },
+  {
+    id: "chevron-right",
+    role: "navigation",
+    label: "Next",
+    viewBox: "0 0 24 24",
+    paths: ["M9 18l6-6-6-6"],
+    svg_attributes: {
+      fill: "none",
+      stroke: "currentColor",
+      stroke_width: "2",
+      stroke_linecap: "round",
+      stroke_linejoin: "round",
+    },
+    accessibility_guidance:
+      "Use for navigation or disclosure only when surrounding text names the destination or state.",
+    allowed_usage: ["next item", "drill-in", "disclosure"],
+  },
+  {
+    id: "filter",
+    role: "action",
+    label: "Filter",
+    viewBox: "0 0 24 24",
+    paths: ["M4 6h16", "M7 12h10", "M10 18h4"],
+    svg_attributes: {
+      fill: "none",
+      stroke: "currentColor",
+      stroke_width: "2",
+      stroke_linecap: "round",
+      stroke_linejoin: "round",
+    },
+    accessibility_guidance:
+      "Icon-only filter controls require an accessible name and target-size evidence.",
+    allowed_usage: ["filter action", "queue narrowing", "view refinement"],
+  },
+  {
+    id: "send",
+    role: "action",
+    label: "Send",
+    viewBox: "0 0 24 24",
+    paths: ["M22 2 11 13", "M22 2 15 22l-4-9-9-4 20-7Z"],
+    svg_attributes: {
+      fill: "none",
+      stroke: "currentColor",
+      stroke_width: "2",
+      stroke_linecap: "round",
+      stroke_linejoin: "round",
+    },
+    accessibility_guidance:
+      "Use only with explicit action text or an accessible name that states what will be sent.",
+    allowed_usage: ["send handoff", "submit message", "forward result"],
+  },
+  {
+    id: "receipt",
+    role: "receipt",
+    label: "Receipt",
+    viewBox: "0 0 24 24",
+    paths: ["M6 3h12v18l-3-2-3 2-3-2-3 2V3Z", "M9 8h6", "M9 12h6", "M9 16h4"],
+    svg_attributes: {
+      fill: "none",
+      stroke: "currentColor",
+      stroke_width: "2",
+      stroke_linecap: "round",
+      stroke_linejoin: "round",
+    },
+    accessibility_guidance:
+      "Pair with completion text that names the receipt, result, or handoff outcome.",
+    allowed_usage: ["handoff receipt", "confirmation", "completion state"],
+  },
+];
+
 const DEFAULT_VISUAL_TOKEN_ADAPTER = {
   id: "judgmentkit.visual-token-adapter.boundary-v1",
   mode: "boundary_only",
   purpose:
-    "Define semantic visual token evidence after contract governance without selecting renderer components.",
+    "Define semantic token, font, and icon evidence after contract governance without selecting renderer components.",
   token_families: [
     "color",
     "type",
@@ -3774,6 +3968,7 @@ const DEFAULT_VISUAL_TOKEN_ADAPTER = {
     "motion",
     "semantic",
   ],
+  token_roles: DEFAULT_TOKEN_ROLES,
   semantic_roles: [
     "surface",
     "text",
@@ -3785,15 +3980,31 @@ const DEFAULT_VISUAL_TOKEN_ADAPTER = {
     "disabled",
     "receipt",
   ],
+  font_roles: DEFAULT_FONT_ROLES,
+  font_rules: [
+    "portable defaults use system font stacks and do not load remote font files",
+    "diagnostic font roles may appear only in setup, debugging, auditing, integration, or explicit source-inspection contexts",
+    "numeric font roles should preserve readable alignment with tabular numbers when supported",
+  ],
+  icon_roles: DEFAULT_ICON_ROLES,
+  icon_registry: DEFAULT_ICON_REGISTRY,
+  icon_rules: [
+    "default icons are embedded inline SVG metadata returned in MCP structured content",
+    "icons that convey meaning require adjacent text or an accessible name",
+    "icon-only controls require target-size and keyboard/focus evidence",
+    "meaningful icons require non-text contrast evidence",
+  ],
   adapter_rules: [
-    "visual token evidence describes semantic roles and constraints; it does not create approved primitives",
-    "visual token evidence cannot satisfy missing activity, primitive, state, action-boundary, data-visibility, accessibility, static-check, or browser-QA gates",
-    "token names stay adapter metadata and must not become primary UI vocabulary",
+    "visual token, font, and icon evidence describes semantic roles and constraints; it does not create approved primitives",
+    "visual token, font, and icon evidence cannot satisfy missing activity, primitive, state, action-boundary, data-visibility, accessibility, static-check, or browser-QA gates",
+    "token, font, and icon names stay adapter metadata and must not become product UI vocabulary",
     "renderer and component packages remain deferred until the token adapter can drive rendered primitives without changing the activity contract",
   ],
   evidence_expectations: [
     "name visual token families used by the candidate",
     "map token semantics to approved primitives, states, and surface patterns",
+    "name font roles and confirm system stacks or repo-approved font assets",
+    "name icon roles and confirm embedded SVG or repo-approved icon assets",
     "include accessibility-relevant token evidence when color, motion, density, focus, or status roles affect readability or input",
   ],
   deferred_renderer: {
@@ -3802,9 +4013,9 @@ const DEFAULT_VISUAL_TOKEN_ADAPTER = {
     catalog_compiler: "deferred",
   },
   failure_signals: [
-    "visual token evidence is used as a substitute for approved primitives or required states",
-    "visual token evidence claims to pass accessibility, action, data-visibility, static, or browser gates without the required evidence",
-    "unsupported token families are introduced without adapter evidence",
+    "visual token, font, or icon evidence is used as a substitute for approved primitives or required states",
+    "visual token, font, or icon evidence claims to pass accessibility, action, data-visibility, static, or browser gates without the required evidence",
+    "unsupported token families, font roles, or icon roles are introduced without adapter evidence",
     "renderer, component package, catalog, compiler, or A2UI work is introduced in the boundary-only slice",
   ],
 };
@@ -3910,11 +4121,151 @@ function normalizeDefaultAiNativeDesignSystem(sourcePolicy, fallbackPolicy) {
   );
 }
 
+function firstDefined(...values) {
+  return values.find((value) => value !== undefined && value !== null);
+}
+
+function roleEntriesFromValue(value, valueKey = "value") {
+  if (Array.isArray(value)) {
+    return value.flatMap((entry) => roleEntriesFromValue(entry, valueKey));
+  }
+
+  if (typeof value === "string") {
+    return [{ role: cleanClause(value) }];
+  }
+
+  if (!isPlainObject(value)) {
+    return [];
+  }
+
+  const directRole = optionalString(value.role ?? value.id ?? value.name);
+
+  if (directRole) {
+    return [{ ...value, role: directRole }];
+  }
+
+  return Object.entries(value).map(([role, child]) => {
+    const normalizedRole = cleanClause(role);
+
+    if (isPlainObject(child)) {
+      return {
+        ...child,
+        role: optionalString(child.role ?? child.id ?? child.name) || normalizedRole,
+      };
+    }
+
+    return {
+      role: normalizedRole,
+      [valueKey]: typeof child === "string" ? cleanClause(child) : child,
+    };
+  });
+}
+
+function normalizeRoleEntries(sourceValue, fallbackValue, options = {}) {
+  const fallbackEntries = roleEntriesFromValue(fallbackValue, options.valueKey)
+    .filter((entry) => optionalString(entry.role))
+    .map(clonePolicyValue);
+  const sourceEntries = roleEntriesFromValue(sourceValue, options.valueKey).filter(
+    (entry) => optionalString(entry.role),
+  );
+  const entries = sourceEntries.length > 0 ? sourceEntries : fallbackEntries;
+  const fallbackByRole = new Map(
+    fallbackEntries.map((entry) => [normalizeText(entry.role), entry]),
+  );
+  const seen = new Set();
+
+  return entries
+    .map((entry) => {
+      const role = optionalString(entry.role);
+      const fallbackEntry = fallbackByRole.get(normalizeText(role)) ?? {};
+      const merged = { ...fallbackEntry, ...entry, role };
+
+      for (const key of options.arrayKeys ?? []) {
+        merged[key] = normalizePrimitiveList(
+          merged[key] ?? merged[key.replace(/_([a-z])/g, (_, letter) => letter.toUpperCase())],
+          fallbackEntry[key],
+        );
+      }
+
+      for (const key of options.stringKeys ?? []) {
+        merged[key] = optionalString(merged[key]) || optionalString(fallbackEntry[key]);
+      }
+
+      return merged;
+    })
+    .filter((entry) => {
+      const role = normalizeText(entry.role);
+
+      if (!role || seen.has(role)) {
+        return false;
+      }
+
+      seen.add(role);
+      return true;
+    });
+}
+
+function normalizeIconRegistryEntries(sourceValue, fallbackValue) {
+  const fallbackEntries = Array.isArray(fallbackValue)
+    ? fallbackValue.filter(isPlainObject).map(clonePolicyValue)
+    : DEFAULT_ICON_REGISTRY.map(clonePolicyValue);
+  const sourceEntries = Array.isArray(sourceValue)
+    ? sourceValue.filter(isPlainObject)
+    : [];
+  const entries = sourceEntries.length > 0 ? sourceEntries : fallbackEntries;
+  const fallbackById = new Map(
+    fallbackEntries.map((entry) => [normalizeText(entry.id), entry]),
+  );
+  const seen = new Set();
+
+  return entries
+    .map((entry) => {
+      const id = optionalString(entry.id);
+      const fallbackEntry = fallbackById.get(normalizeText(id)) ?? {};
+      return {
+        ...fallbackEntry,
+        ...entry,
+        id,
+        role: optionalString(entry.role) || optionalString(fallbackEntry.role),
+        label: optionalString(entry.label) || optionalString(fallbackEntry.label),
+        viewBox:
+          optionalString(entry.viewBox ?? entry.view_box) ||
+          optionalString(fallbackEntry.viewBox ?? fallbackEntry.view_box),
+        paths: normalizePrimitiveList(entry.paths, fallbackEntry.paths),
+        svg_attributes: mergePolicyObject(
+          entry.svg_attributes ?? entry.svgAttributes,
+          fallbackEntry.svg_attributes ?? {},
+        ),
+        accessibility_guidance:
+          optionalString(entry.accessibility_guidance ?? entry.accessibilityGuidance) ||
+          optionalString(fallbackEntry.accessibility_guidance),
+        allowed_usage: normalizePrimitiveList(
+          entry.allowed_usage ?? entry.allowedUsage,
+          fallbackEntry.allowed_usage,
+        ),
+      };
+    })
+    .filter((entry) => {
+      const id = normalizeText(entry.id);
+
+      if (!id || seen.has(id)) {
+        return false;
+      }
+
+      seen.add(id);
+      return true;
+    });
+}
+
 function normalizeVisualTokenAdapter(sourcePolicy, fallbackPolicy) {
   const policy = mergePolicyObject(
     sourcePolicy,
     isPlainObject(fallbackPolicy) ? fallbackPolicy : DEFAULT_VISUAL_TOKEN_ADAPTER,
   );
+  const source = isPlainObject(sourcePolicy) ? sourcePolicy : {};
+  const fallback = isPlainObject(fallbackPolicy)
+    ? fallbackPolicy
+    : DEFAULT_VISUAL_TOKEN_ADAPTER;
 
   return {
     ...policy,
@@ -3926,9 +4277,44 @@ function normalizeVisualTokenAdapter(sourcePolicy, fallbackPolicy) {
       policy.token_families ?? policy.tokenFamilies,
       DEFAULT_VISUAL_TOKEN_ADAPTER.token_families,
     ),
+    token_roles: normalizeRoleEntries(
+      firstDefined(source.token_roles, source.tokenRoles, policy.token_roles, policy.tokenRoles),
+      fallback.token_roles ?? DEFAULT_VISUAL_TOKEN_ADAPTER.token_roles,
+      { arrayKeys: ["families"], stringKeys: ["usage"] },
+    ),
     semantic_roles: normalizePrimitiveList(
       policy.semantic_roles ?? policy.semanticRoles,
       DEFAULT_VISUAL_TOKEN_ADAPTER.semantic_roles,
+    ),
+    font_roles: normalizeRoleEntries(
+      firstDefined(source.font_roles, source.fontRoles, policy.font_roles, policy.fontRoles),
+      fallback.font_roles ?? DEFAULT_VISUAL_TOKEN_ADAPTER.font_roles,
+      {
+        valueKey: "stack",
+        arrayKeys: ["feature_settings"],
+        stringKeys: ["stack", "usage"],
+      },
+    ),
+    font_rules: normalizePrimitiveList(
+      policy.font_rules ?? policy.fontRules,
+      fallback.font_rules ?? DEFAULT_VISUAL_TOKEN_ADAPTER.font_rules,
+    ),
+    icon_roles: normalizePrimitiveList(
+      policy.icon_roles ?? policy.iconRoles,
+      fallback.icon_roles ?? DEFAULT_VISUAL_TOKEN_ADAPTER.icon_roles,
+    ),
+    icon_registry: normalizeIconRegistryEntries(
+      firstDefined(
+        source.icon_registry,
+        source.iconRegistry,
+        policy.icon_registry,
+        policy.iconRegistry,
+      ),
+      fallback.icon_registry ?? DEFAULT_VISUAL_TOKEN_ADAPTER.icon_registry,
+    ),
+    icon_rules: normalizePrimitiveList(
+      policy.icon_rules ?? policy.iconRules,
+      fallback.icon_rules ?? DEFAULT_VISUAL_TOKEN_ADAPTER.icon_rules,
     ),
     adapter_rules: normalizePrimitiveList(
       policy.adapter_rules ?? policy.adapterRules,
@@ -5596,7 +5982,7 @@ function reviewDataVisibility(candidate, implementationContract) {
   const visibleText = collectCandidateValuesByKey(candidate, [
     "visible_text",
     "primary_text",
-    "primary_ui_text",
+    "product_ui_text",
     "rendered_text",
     "screen_text",
     "user_facing_text",
@@ -5631,7 +6017,7 @@ function reviewDataVisibility(candidate, implementationContract) {
       severity: "fail",
       check: "data_visibility",
       message:
-        "Primary UI text exposes diagnostic-only implementation terms without an allowed diagnostic context.",
+        "Product UI text exposes diagnostic-only implementation terms without an allowed diagnostic context.",
       evidence: {
         diagnostic_only_terms: leakedTerms,
         allowed_contexts: policy.allowed_diagnostic_contexts,
@@ -5678,6 +6064,81 @@ function evidenceHasAnyValue(value) {
   return optionalString(value).length > 0;
 }
 
+function collectRoleNamesFromEvidenceValue(value) {
+  if (Array.isArray(value)) {
+    return value.flatMap(collectRoleNamesFromEvidenceValue);
+  }
+
+  if (typeof value === "string") {
+    return [cleanClause(value)];
+  }
+
+  if (!isPlainObject(value)) {
+    return [];
+  }
+
+  const directRole = optionalString(value.role ?? value.semantic_role ?? value.semanticRole);
+
+  if (directRole) {
+    return [directRole];
+  }
+
+  for (const key of [
+    "roles",
+    "font_roles",
+    "fontRoles",
+    "icon_roles",
+    "iconRoles",
+    "token_roles",
+    "tokenRoles",
+  ]) {
+    if (value[key] !== undefined) {
+      return collectRoleNamesFromEvidenceValue(value[key]);
+    }
+  }
+
+  if (
+    value.source !== undefined ||
+    value.mode !== undefined ||
+    value.rules !== undefined ||
+    value.icon_registry !== undefined ||
+    value.iconRegistry !== undefined
+  ) {
+    return [];
+  }
+
+  return Object.keys(value).map(cleanClause);
+}
+
+function collectEvidenceRoleNames(evidence, keyNames) {
+  if (!isPlainObject(evidence)) {
+    return [];
+  }
+
+  const wanted = new Set(keyNames);
+  const values = [];
+
+  function visit(value) {
+    if (!isPlainObject(value)) {
+      return;
+    }
+
+    for (const [key, child] of Object.entries(value)) {
+      if (wanted.has(key)) {
+        values.push(...collectRoleNamesFromEvidenceValue(child));
+      }
+
+      if (isPlainObject(child)) {
+        visit(child);
+      }
+    }
+  }
+
+  visit(evidence);
+
+  return unique(values.map(cleanClause).filter(Boolean));
+}
+
 function reviewVisualTokenEvidence(candidate, implementationContract) {
   const adapter =
     implementationContract.visual_token_adapter ?? DEFAULT_VISUAL_TOKEN_ADAPTER;
@@ -5709,6 +6170,42 @@ function reviewVisualTokenEvidence(candidate, implementationContract) {
   const unsupportedFamilies = families.filter(
     (family) => !allowedFamilySet.has(normalizeText(family)),
   );
+  const allowedFontRoles = normalizeRoleEntries(
+    adapter.font_roles,
+    DEFAULT_VISUAL_TOKEN_ADAPTER.font_roles,
+  ).map((entry) => entry.role);
+  const allowedFontRoleSet = new Set(
+    allowedFontRoles.map((role) => normalizeText(role)),
+  );
+  const fontRoles = collectEvidenceRoleNames(evidence, [
+    "font_roles",
+    "fontRoles",
+    "fonts",
+    "font_guidance",
+    "fontGuidance",
+    "typography_roles",
+    "typographyRoles",
+  ]);
+  const unsupportedFontRoles = fontRoles.filter(
+    (role) => !allowedFontRoleSet.has(normalizeText(role)),
+  );
+  const allowedIconRoles = normalizePrimitiveList(
+    adapter.icon_roles,
+    DEFAULT_VISUAL_TOKEN_ADAPTER.icon_roles,
+  );
+  const allowedIconRoleSet = new Set(
+    allowedIconRoles.map((role) => normalizeText(role)),
+  );
+  const iconRoles = collectEvidenceRoleNames(evidence, [
+    "icon_roles",
+    "iconRoles",
+    "icons",
+    "icon_guidance",
+    "iconGuidance",
+  ]);
+  const unsupportedIconRoles = iconRoles.filter(
+    (role) => !allowedIconRoleSet.has(normalizeText(role)),
+  );
   const deferredRendererTerms = [
     "renderer package",
     "component package",
@@ -5721,7 +6218,7 @@ function reviewVisualTokenEvidence(candidate, implementationContract) {
     evidenceText.includes(term),
   );
   const substitutesGateEvidence =
-    /(token|visual token).{0,60}(satisf|pass|replace|substitute|instead).{0,80}(approved primitive|primitive|state|accessibility|action boundary|data visibility|static|browser qa|implementation gate)/i.test(
+    /(token|visual token|font|icon|design asset).{0,60}(satisf|pass|replace|substitute|instead).{0,80}(approved primitive|primitive|state|accessibility|action boundary|data visibility|static|browser qa|implementation gate)/i.test(
       evidenceText,
     ) ||
     /(skip|without|no need for).{0,80}(approved primitive|state|accessibility|browser qa|static check|action boundary|data visibility)/i.test(
@@ -5738,6 +6235,32 @@ function reviewVisualTokenEvidence(candidate, implementationContract) {
       evidence: {
         unsupported_families: unsupportedFamilies,
         allowed_families: allowedFamilies,
+      },
+    });
+  }
+
+  if (unsupportedFontRoles.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "visual_tokens",
+      message:
+        "Candidate font evidence uses font roles outside the boundary adapter.",
+      evidence: {
+        unsupported_font_roles: unsupportedFontRoles,
+        allowed_font_roles: allowedFontRoles,
+      },
+    });
+  }
+
+  if (unsupportedIconRoles.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "visual_tokens",
+      message:
+        "Candidate icon evidence uses icon roles outside the boundary adapter.",
+      evidence: {
+        unsupported_icon_roles: unsupportedIconRoles,
+        allowed_icon_roles: allowedIconRoles,
       },
     });
   }
@@ -5774,6 +6297,16 @@ function reviewVisualTokenEvidence(candidate, implementationContract) {
     allowed_families: allowedFamilies,
     families,
     unsupported_families: unsupportedFamilies,
+    allowed_font_roles: allowedFontRoles,
+    font_roles: fontRoles,
+    unsupported_font_roles: unsupportedFontRoles,
+    allowed_icon_roles: allowedIconRoles,
+    icon_roles: iconRoles,
+    unsupported_icon_roles: unsupportedIconRoles,
+    icon_registry: normalizeIconRegistryEntries(
+      adapter.icon_registry,
+      DEFAULT_VISUAL_TOKEN_ADAPTER.icon_registry,
+    ),
     deferred_renderer: adapter.deferred_renderer,
     findings,
   };
@@ -6022,7 +6555,7 @@ function repairInstructionForFinding(finding, implementationContract) {
   }
 
   if (check === "data_visibility") {
-    return "Move diagnostic-only terms out of primary UI text unless the activity is setup, debugging, auditing, integration, or explicit source inspection.";
+    return "Move diagnostic-only terms out of product UI text unless the activity is setup, debugging, auditing, integration, or explicit source inspection.";
   }
 
   if (check.startsWith("accessibility_evidence")) {
@@ -6208,14 +6741,6 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
     { contract },
   );
   const workflowSurfaceSet = toSurfaceSetArray(workflowCandidate.surface_set);
-  const aggregateSurfaces = aggregateSurfaceSet(workflowSurfaceSet);
-  const primaryUi = isPlainObject(workflowCandidate.primary_ui)
-    ? workflowCandidate.primary_ui
-    : {
-        sections: aggregateSurfaces.sections,
-        controls: aggregateSurfaces.controls,
-        user_facing_terms: [],
-      };
   const handoff = {
     version: workflowReview.version,
     contract_id: workflowReview.contract_id,
@@ -6252,7 +6777,6 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
       work_units: toStringArray(workflowCandidate.workflow.work_units),
       stepper_eligibility:
         workflowCandidate.workflow.stepper_eligibility ?? workflowReview.guardrails?.stepper_eligibility,
-      steps: toStringArray(workflowCandidate.workflow.steps),
       primary_actions: toStringArray(workflowCandidate.workflow.primary_actions),
       decision_points: toStringArray(workflowCandidate.workflow.decision_points),
       completion_state: optionalString(workflowCandidate.workflow.completion_state),
@@ -6264,11 +6788,7 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
       controls: toStringArray(surface.controls),
       relationship_to_workflow: optionalString(surface.relationship_to_workflow),
     })),
-    primary_surface: {
-      sections: toStringArray(primaryUi.sections),
-      controls: toStringArray(primaryUi.controls),
-      user_facing_terms: toStringArray(primaryUi.user_facing_terms),
-    },
+    product_terms: toStringArray(workflowCandidate.product_terms),
     handoff: {
       next_owner: optionalString(workflowCandidate.handoff.next_owner),
       reason: optionalString(workflowCandidate.handoff.reason),
@@ -6281,8 +6801,8 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
       diagnostic_contexts: toStringArray(workflowCandidate.diagnostics?.reveal_contexts),
       translation_candidates:
         workflowReview.guardrails?.disclosure_translation_candidates ?? [],
-      terms_to_keep_out_of_primary_ui: buildTermsToKeepOutOfPrimaryUi(workflowReview),
-      primary_ui_rule:
+      terms_to_keep_out_of_product_ui: buildTermsToKeepOutOfProductUi(workflowReview),
+      product_ui_rule:
         "Keep implementation details and JudgmentKit review-packet terms out of product UI.",
     },
     generation_gates: [
@@ -6327,7 +6847,6 @@ function textFromHandoff(handoff) {
     handoff.workflow?.surface_name,
     handoff.workflow?.topology,
     ...(toStringArray(handoff.workflow?.work_units)),
-    ...(toStringArray(handoff.workflow?.steps)),
     ...(toStringArray(handoff.workflow?.primary_actions)),
     ...(toStringArray(handoff.workflow?.decision_points)),
     handoff.workflow?.completion_state,
@@ -6338,9 +6857,7 @@ function textFromHandoff(handoff) {
       ...(toStringArray(surface.sections)),
       ...(toStringArray(surface.controls)),
     ])),
-    ...(toStringArray(handoff.primary_surface?.sections)),
-    ...(toStringArray(handoff.primary_surface?.controls)),
-    ...(toStringArray(handoff.primary_surface?.user_facing_terms)),
+    ...(toStringArray(handoff.product_terms)),
     handoff.handoff?.next_owner,
     handoff.handoff?.reason,
     handoff.handoff?.next_action,
@@ -6397,6 +6914,100 @@ function optionalDesignSystemName(...values) {
   return "";
 }
 
+function hasDesignGuidanceValue(value) {
+  if (Array.isArray(value)) {
+    return value.length > 0;
+  }
+
+  return isPlainObject(value) && Object.keys(value).length > 0;
+}
+
+function formatRoleEntries(entries, formatter) {
+  return (Array.isArray(entries) ? entries : [])
+    .map(formatter)
+    .map(cleanClause)
+    .filter(Boolean)
+    .join("; ");
+}
+
+function normalizeAdapterTokenGuidance(source, visualTokenAdapter) {
+  const hasSource = hasDesignGuidanceValue(source);
+  const sourceObject = isPlainObject(source) ? source : {};
+
+  return {
+    source: hasSource ? "adapter_override" : "portable_defaults",
+    token_families: normalizePrimitiveList(
+      sourceObject.token_families ?? sourceObject.tokenFamilies,
+      visualTokenAdapter.token_families,
+    ),
+    token_roles: normalizeRoleEntries(
+      firstDefined(sourceObject.token_roles, sourceObject.tokenRoles),
+      visualTokenAdapter.token_roles,
+      { arrayKeys: ["families"], stringKeys: ["usage"] },
+    ),
+    semantic_roles: normalizePrimitiveList(
+      sourceObject.semantic_roles ?? sourceObject.semanticRoles,
+      visualTokenAdapter.semantic_roles,
+    ),
+    rules: normalizePrimitiveList(
+      sourceObject.rules ?? sourceObject.adapter_rules ?? sourceObject.adapterRules,
+      visualTokenAdapter.adapter_rules,
+    ),
+  };
+}
+
+function normalizeAdapterFontGuidance(source, visualTokenAdapter) {
+  const hasSource = hasDesignGuidanceValue(source);
+  const sourceObject = isPlainObject(source) ? source : {};
+
+  return {
+    source: hasSource ? "adapter_override" : "portable_defaults",
+    font_roles: normalizeRoleEntries(
+      firstDefined(
+        sourceObject.font_roles,
+        sourceObject.fontRoles,
+        sourceObject.roles,
+        source,
+      ),
+      visualTokenAdapter.font_roles,
+      {
+        valueKey: "stack",
+        arrayKeys: ["feature_settings"],
+        stringKeys: ["stack", "usage"],
+      },
+    ),
+    rules: normalizePrimitiveList(
+      sourceObject.rules ?? sourceObject.font_rules ?? sourceObject.fontRules,
+      visualTokenAdapter.font_rules,
+    ),
+  };
+}
+
+function normalizeAdapterIconGuidance(source, visualTokenAdapter) {
+  const hasSource = hasDesignGuidanceValue(source);
+  const sourceObject = isPlainObject(source) ? source : {};
+
+  return {
+    source: hasSource ? "adapter_override" : "portable_defaults",
+    icon_roles: normalizePrimitiveList(
+      sourceObject.icon_roles ?? sourceObject.iconRoles ?? sourceObject.roles,
+      visualTokenAdapter.icon_roles,
+    ),
+    icon_registry: normalizeIconRegistryEntries(
+      firstDefined(
+        sourceObject.icon_registry,
+        sourceObject.iconRegistry,
+        sourceObject.registry,
+      ),
+      visualTokenAdapter.icon_registry,
+    ),
+    rules: normalizePrimitiveList(
+      sourceObject.rules ?? sourceObject.icon_rules ?? sourceObject.iconRules,
+      visualTokenAdapter.icon_rules,
+    ),
+  };
+}
+
 export function createFrontendGenerationContext({
   ui_generation_handoff: uiGenerationHandoff,
   surface_review: surfaceReview,
@@ -6449,7 +7060,7 @@ export function createFrontendGenerationContext({
               activity_model: uiGenerationHandoff.activity_model,
               interaction_contract: uiGenerationHandoff.interaction_contract,
               disclosure_policy: {
-                terms_to_use: uiGenerationHandoff.primary_surface?.user_facing_terms ?? [],
+                terms_to_use: uiGenerationHandoff.product_terms ?? [],
               },
             },
           },
@@ -6459,6 +7070,8 @@ export function createFrontendGenerationContext({
   });
   const normalizedFrontendContext = normalizeFrontendContext(frontendContext);
   const normalizedVerification = normalizeVerificationContext(verification);
+  const requiredSurfaces = toSurfaceSetArray(uiGenerationHandoff.surface_set);
+  const requiredSurfaceAggregate = aggregateSurfaceSet(requiredSurfaces);
 
   return {
     version: uiGenerationHandoff.version,
@@ -6478,8 +7091,8 @@ export function createFrontendGenerationContext({
     activity_model: uiGenerationHandoff.activity_model,
     interaction_contract: uiGenerationHandoff.interaction_contract,
     workflow: uiGenerationHandoff.workflow,
-    surface_set: toSurfaceSetArray(uiGenerationHandoff.surface_set),
-    primary_surface: uiGenerationHandoff.primary_surface,
+    surface_set: requiredSurfaces,
+    product_terms: toStringArray(uiGenerationHandoff.product_terms),
     handoff: uiGenerationHandoff.handoff,
     implementation_contract: uiGenerationHandoff.implementation_contract,
     disclosure_reminders: uiGenerationHandoff.disclosure_reminders,
@@ -6512,9 +7125,9 @@ export function createFrontendGenerationContext({
       accessibility_policy:
         uiGenerationHandoff.implementation_contract?.accessibility_policy ??
         DEFAULT_ACCESSIBILITY_POLICY,
-      required_surfaces: toSurfaceSetArray(uiGenerationHandoff.surface_set),
-      required_sections: toStringArray(uiGenerationHandoff.primary_surface?.sections),
-      required_controls: toStringArray(uiGenerationHandoff.primary_surface?.controls),
+      required_surfaces: requiredSurfaces,
+      required_sections: requiredSurfaceAggregate.sections,
+      required_controls: requiredSurfaceAggregate.controls,
       verification_expectations: {
         commands: toStringArray(normalizedVerification.commands),
         browser_checks: toStringArray(normalizedVerification.browser_checks),
@@ -6525,8 +7138,8 @@ export function createFrontendGenerationContext({
       adapter_layer: true,
       requires_ready_handoff: true,
       activity_first: true,
-      terms_to_keep_out_of_primary_ui:
-        uiGenerationHandoff.disclosure_reminders?.terms_to_keep_out_of_primary_ui ?? [],
+      terms_to_keep_out_of_product_ui:
+        uiGenerationHandoff.disclosure_reminders?.terms_to_keep_out_of_product_ui ?? [],
       diagnostic_contexts:
         uiGenerationHandoff.disclosure_reminders?.diagnostic_contexts ?? [],
       approved_primitives:
@@ -6579,6 +7192,7 @@ function buildFrontendImplementationInstructionMarkdown({
     "- Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
     "- Use approved primitives and approved component families before introducing new UI helpers.",
     "- Apply any design system only as the renderer after the activity and workflow are clear.",
+    "- Use portable system font stacks and embedded inline SVG icon metadata unless a repo-approved adapter supplies replacements.",
     "- Verify core accessibility evidence for semantics, landmarks/headings, name/role/value, keyboard navigation, focus order, focus-visible, responsive reflow/no-overflow, and automated checks.",
     "- Add conditional accessibility evidence for visuals, custom widgets, forms, status messages, overlays, motion, media, dense controls, and hover/focus content when those patterns appear.",
     "- For text over substantive visuals or rendered backgrounds, verify WCAG AA contrast from browser-rendered output, not screenshots alone.",
@@ -6597,6 +7211,26 @@ function buildFrontendImplementationInstructionMarkdown({
     `- Mode: ${designSystemPolicy.mode}`,
     `- Authority: ${designSystemPolicy.authority}`,
     `- Constraint: ${designSystemPolicy.constraint}`,
+    `- Token families: ${toStringArray(designSystemPolicy.token_guidance?.token_families).join("; ") || "none supplied"}`,
+    `- Token roles: ${
+      formatRoleEntries(
+        designSystemPolicy.token_guidance?.token_roles,
+        (entry) => `${entry.role}: ${toStringArray(entry.families).join(", ")}`,
+      ) || "none supplied"
+    }`,
+    `- Font roles: ${
+      formatRoleEntries(
+        designSystemPolicy.font_guidance?.font_roles,
+        (entry) => `${entry.role}: ${entry.stack}`,
+      ) || "none supplied"
+    }`,
+    `- Icon roles: ${toStringArray(designSystemPolicy.icon_guidance?.icon_roles).join("; ") || "none supplied"}`,
+    `- Embedded icons: ${
+      formatRoleEntries(
+        designSystemPolicy.icon_guidance?.icon_registry,
+        (entry) => `${entry.id} (${entry.role})`,
+      ) || "none supplied"
+    }`,
     "",
     "## Visual Asset Policy",
     `- Applies when: ${toStringArray(visualAssetPolicy.applies_when).join("; ") || "no substantive visual requirements supplied"}`,
@@ -6672,6 +7306,10 @@ export function createFrontendImplementationSkillContext({
     implementationGuidance.accessibility_policy ??
     implementationContract.accessibility_policy ??
     DEFAULT_ACCESSIBILITY_POLICY;
+  const visualTokenAdapter = normalizeVisualTokenAdapter(
+    implementationContract.visual_token_adapter ?? {},
+    DEFAULT_VISUAL_TOKEN_ADAPTER,
+  );
   const designSystemName = optionalDesignSystemName(
     normalizedDesignSystemAdapter.design_system_name ??
       normalizedDesignSystemAdapter.name ??
@@ -6684,6 +7322,25 @@ export function createFrontendImplementationSkillContext({
   const designSystemComponents = toStringArray(
     normalizedDesignSystemAdapter.components ??
       normalizedDesignSystemAdapter.approved_component_families,
+  );
+  const tokenGuidance = normalizeAdapterTokenGuidance(
+    normalizedDesignSystemAdapter.token_guidance ??
+      normalizedDesignSystemAdapter.tokenGuidance ??
+      normalizedDesignSystemAdapter.tokens,
+    visualTokenAdapter,
+  );
+  const fontGuidance = normalizeAdapterFontGuidance(
+    normalizedDesignSystemAdapter.font_guidance ??
+      normalizedDesignSystemAdapter.fontGuidance ??
+      normalizedDesignSystemAdapter.fonts ??
+      normalizedDesignSystemAdapter.typography,
+    visualTokenAdapter,
+  );
+  const iconGuidance = normalizeAdapterIconGuidance(
+    normalizedDesignSystemAdapter.icon_guidance ??
+      normalizedDesignSystemAdapter.iconGuidance ??
+      normalizedDesignSystemAdapter.icons,
+    visualTokenAdapter,
   );
   const designSystemPolicy = {
     mode: designSystemName
@@ -6700,6 +7357,9 @@ export function createFrontendImplementationSkillContext({
     constraint:
       optionalString(normalizedDesignSystemAdapter.constraint) ||
       "Design-system compliance refines the rendered UI only after activity, workflow, disclosure, and implementation gates are ready.",
+    token_guidance: tokenGuidance,
+    font_guidance: fontGuidance,
+    icon_guidance: iconGuidance,
   };
   const verificationChecklist = unique([
     ...toStringArray(verificationExpectations.commands).map(
@@ -6755,6 +7415,7 @@ export function createFrontendImplementationSkillContext({
       "Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
       "Use approved primitives and approved component families before introducing new UI helpers.",
       "Apply the design system only as a renderer adapter after the activity and workflow are represented.",
+      "Use portable system font stacks and embedded inline SVG icon metadata unless a repo-approved adapter supplies replacements.",
       "When the spec calls for substantive visuals, use imagegen or premium Three.js/WebGL/D3-style rendering instead of rudimentary deterministic geometry.",
       "Verify core accessibility evidence: automated checks, semantic content, landmarks/headings, name-role-value, keyboard navigation, focus order, focus-visible, and responsive reflow/no-overflow.",
       "Add conditional accessibility evidence for visuals, custom widgets, forms, status messages, overlays, motion, media, dense controls, and hover/focus content when those patterns appear.",
@@ -6785,7 +7446,11 @@ export function createFrontendImplementationSkillContext({
     ),
     visual_asset_policy: visualAssetPolicy,
     accessibility_policy: accessibilityPolicy,
+    visual_token_adapter: visualTokenAdapter,
     design_system_policy: designSystemPolicy,
+    token_guidance: tokenGuidance,
+    font_guidance: fontGuidance,
+    icon_guidance: iconGuidance,
     verification_checklist: verificationChecklist,
     guardrails: {
       adapter_layer: true,
@@ -6795,10 +7460,10 @@ export function createFrontendImplementationSkillContext({
       design_system_is_adapter: true,
       visual_asset_policy: visualAssetPolicy,
       accessibility_policy: accessibilityPolicy,
-      primary_ui_rule:
+      product_ui_rule:
         "Do not copy JudgmentKit review-packet terms or implementation machinery into the product UI.",
-      terms_to_keep_out_of_primary_ui:
-        frontendGenerationContext.guardrails?.terms_to_keep_out_of_primary_ui ?? [],
+      terms_to_keep_out_of_product_ui:
+        frontendGenerationContext.guardrails?.terms_to_keep_out_of_product_ui ?? [],
       diagnostic_contexts:
         frontendGenerationContext.guardrails?.diagnostic_contexts ?? [],
     },

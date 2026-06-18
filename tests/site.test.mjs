@@ -40,6 +40,15 @@ const OLD_FRAMING = [
 
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-site-"));
 const result = await buildSite(tempDir);
+const mcpPilotCatalog = JSON.parse(
+  fs.readFileSync(new URL("../evals/reports/mcp-pilot/index.json", import.meta.url), "utf8"),
+);
+const latestMcpPilotRun = mcpPilotCatalog.latest;
+const latestMcpPilotLlmEvidencePath = new URL(
+  `../evals/reports/mcp-pilot/${latestMcpPilotRun.run_path}/mcp-pilot-llm-evidence.md`,
+  import.meta.url,
+);
+const hasLatestMcpPilotLlmEvidence = fs.existsSync(latestMcpPilotLlmEvidencePath);
 
 assert.deepEqual(result.routes, ["/", "/value/", "/docs/", "/examples/", "/evals/", "/evals/judgmentkit-mcp/", "/install", "/mcp"]);
 
@@ -325,9 +334,17 @@ assert.ok(value.includes("/examples/model-ui/refund-system-map/screenshots/deter
 assert.ok(value.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-with-judgmentkit.png"));
 assert.ok(value.includes("Public evaluation report"));
 assert.ok(value.includes("Latest MCP pilot report"));
-assert.ok(value.includes("/evals/mcp-pilot/2026-06-18/mcp-0.3.0/run-001/mcp-pilot-report.html"));
-assert.ok(value.includes("Latest LLM evidence"));
-assert.ok(value.includes("/evals/mcp-pilot/2026-06-18/mcp-0.3.0/run-001/mcp-pilot-llm-evidence.md"));
+assert.ok(value.includes(`/evals/mcp-pilot/${latestMcpPilotRun.html_report}`));
+if (hasLatestMcpPilotLlmEvidence) {
+  assert.ok(value.includes("Latest LLM evidence"));
+  assert.ok(value.includes(`/evals/mcp-pilot/${latestMcpPilotRun.run_path}/mcp-pilot-llm-evidence.md`));
+} else {
+  assert.equal(value.includes("Latest LLM evidence"), false);
+  assert.equal(
+    value.includes(`/evals/mcp-pilot/${latestMcpPilotRun.run_path}/mcp-pilot-llm-evidence.md`),
+    false,
+  );
+}
 assert.ok(value.includes("Milestone proof packet"));
 assert.ok(value.includes("/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-evidence-packet.md"));
 assert.equal(value.includes("/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-report.html"), false);
@@ -366,7 +383,7 @@ assert.ok(examples.includes("AI-native design system"));
 assert.ok(examples.includes("First-use loop and canonical contract cases"));
 assert.ok(examples.includes("/examples/ai-native-design-system/first-use.json"));
 assert.ok(examples.includes("/examples/ai-native-design-system/canonical-examples.json"));
-assert.ok(examples.includes("Visual tokens remain governed metadata"));
+assert.ok(examples.includes("Tokens, system font stacks, and embedded SVG icons remain governed metadata"));
 assert.ok(examples.includes("Model UI matrix"));
 assert.ok(examples.includes("These matrix examples compare"));
 assert.ok(examples.includes('class="model-ui-use-case-select" data-use-case-select aria-label="Use case"'));

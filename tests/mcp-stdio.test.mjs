@@ -292,7 +292,8 @@ try {
         candidate: {
           workflow: {
             surface_name: "Refund escalation queue",
-            steps: ["Review evidence", "Choose path", "Prepare handoff"],
+            topology: "workspace",
+            work_units: ["Review evidence", "Choose path", "Prepare handoff"],
             primary_actions: [
               "Approve refund",
               "Send to policy review",
@@ -303,21 +304,20 @@ try {
             ],
             completion_state: "Clear handoff with next action and decision reason.",
           },
-          primary_ui: {
-            sections: ["Selected case", "Evidence checklist", "Policy review context", "Handoff"],
-            controls: [
-              "Approve refund",
-              "Send to policy review",
-              "Return for evidence",
-              "Send handoff",
-            ],
-            user_facing_terms: [
-              "refund request",
-              "policy review",
-              "missing evidence",
-              "handoff reason",
-            ],
-          },
+          surface_set: [
+            {
+              name: "Refund escalation workspace",
+              purpose: "Review evidence, choose the refund path, and send a handoff.",
+              sections: ["Selected case", "Evidence checklist", "Policy review context", "Handoff"],
+              controls: [
+                "Approve refund",
+                "Send to policy review",
+                "Return for evidence",
+                "Send handoff",
+              ],
+              relationship_to_workflow: "Keeps evidence, decision controls, and handoff receipt together.",
+            },
+          ],
           handoff: {
             next_owner: "support agent",
             reason: "Receipt or support evidence is missing.",
@@ -373,10 +373,12 @@ try {
             ...workflowReviewResponse.structuredContent.candidate.workflow,
             surface_name: "ready_for_review JSON schema console",
           },
-          primary_ui: {
-            ...workflowReviewResponse.structuredContent.candidate.primary_ui,
-            sections: ["Activity", "Prompt template"],
-          },
+          surface_set: [
+            {
+              ...workflowReviewResponse.structuredContent.candidate.surface_set[0],
+              sections: ["Activity", "Prompt template"],
+            },
+          ],
         },
       },
     }),
@@ -456,6 +458,18 @@ try {
   assert.ok(
     implementationContractResponse.structuredContent.implementation_contract
       .visual_token_adapter.token_families.includes("color"),
+  );
+  assert.ok(
+    implementationContractResponse.structuredContent.implementation_contract
+      .visual_token_adapter.font_roles.some(
+        (entry) => entry.role === "body" && entry.stack.includes("system-ui"),
+      ),
+  );
+  assert.ok(
+    implementationContractResponse.structuredContent.implementation_contract
+      .visual_token_adapter.icon_registry.some(
+        (entry) => entry.id === "status-check" && entry.paths.length > 0,
+      ),
   );
 
   const implementationReviewResponse = await withTimeout(
@@ -615,6 +629,20 @@ try {
       "Frontend skill context ready",
     ).includes("review_ui_implementation_candidate"),
   );
+  assert.ok(
+    assertPlanningCard(
+      frontendSkillContextResponse,
+      "## JudgmentKit Frontend Skill Context",
+      "Frontend skill context ready",
+    ).includes("Font roles"),
+  );
+  assert.ok(
+    assertPlanningCard(
+      frontendSkillContextResponse,
+      "## JudgmentKit Frontend Skill Context",
+      "Frontend skill context ready",
+    ).includes("Embedded icons"),
+  );
   assert.equal(
     frontendSkillContextResponse.structuredContent.skill_context_status,
     "ready",
@@ -626,6 +654,16 @@ try {
   assert.ok(
     frontendSkillContextResponse.structuredContent.visual_asset_policy.preferred_paths.some(
       (rule) => rule.includes("D3"),
+    ),
+  );
+  assert.ok(
+    frontendSkillContextResponse.structuredContent.font_guidance.font_roles.some(
+      (entry) => entry.role === "body" && entry.stack.includes("system-ui"),
+    ),
+  );
+  assert.ok(
+    frontendSkillContextResponse.structuredContent.icon_guidance.icon_registry.some(
+      (entry) => entry.id === "status-check" && entry.viewBox === "0 0 24 24",
     ),
   );
   assert.ok(

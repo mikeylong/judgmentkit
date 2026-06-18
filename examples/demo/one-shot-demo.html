@@ -174,7 +174,7 @@
     .toolbar,
     .schema-strip,
     .debug-grid,
-    .workflow-steps,
+    .work-units,
     .triage-shell,
     .case-summary,
     .evidence-card,
@@ -243,7 +243,7 @@
       margin-top: 14px;
     }
 
-    .workflow-steps {
+    .work-units {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 8px;
@@ -251,7 +251,7 @@
       list-style: none;
     }
 
-    .workflow-steps li {
+    .work-units li {
       display: flex;
       align-items: center;
       gap: 8px;
@@ -264,7 +264,7 @@
       font-weight: 750;
     }
 
-    .workflow-steps span {
+    .work-units span {
       display: inline-grid;
       place-items: center;
       width: 22px;
@@ -275,13 +275,13 @@
       font-size: 12px;
     }
 
-    .workflow-steps .is-current {
+    .work-units .is-current {
       border-color: #9fc9ba;
       background: var(--good-bg);
       color: var(--good);
     }
 
-    .workflow-steps .is-current span {
+    .work-units .is-current span {
       background: var(--good);
       color: #ffffff;
     }
@@ -467,7 +467,7 @@
       .demo-grid,
       .schema-strip,
       .debug-grid,
-      .workflow-steps,
+      .work-units,
       .triage-shell,
       .case-facts,
       .handoff-grid {
@@ -574,7 +574,7 @@
           <button type="button" class="secondary-action">Assign next case</button>
         </header>
 
-        <ul class="workflow-steps" aria-label="Refund escalation workflow">
+        <ul class="work-units" aria-label="Refund escalation work units">
           <li class="is-current">Review selected case</li><li>Check evidence</li><li>Choose refund path</li><li>Send handoff</li>
         </ul>
 
@@ -694,12 +694,12 @@
             <dd>needs_source_context</dd>
           </div>
           <div>
-            <dt>Primary-field implementation terms</dt>
+            <dt>Product-field implementation terms</dt>
             <dd>API endpoint, CRUD, database table, field, JSON schema, prompt, prompt template, schema</dd>
           </div>
           <div>
-            <dt>Primary-field review terms</dt>
-            <dd>Activity, activity_model, interaction_contract, Main decision, ready_for_review, review_status</dd>
+            <dt>Product-field review terms</dt>
+            <dd>Activity, Main decision, ready_for_review, review_status</dd>
           </div>
           <div>
             <dt>Targeted questions</dt>
@@ -707,7 +707,7 @@
           </div>
         </dl>
         <div class="diagnostic-terms">
-          <span class="pill">API endpoint</span><span class="pill">CRUD</span><span class="pill">database table</span><span class="pill">field</span><span class="pill">JSON schema</span><span class="pill">prompt</span><span class="pill">prompt template</span><span class="pill">schema</span><span class="pill">Activity</span><span class="pill">activity_model</span><span class="pill">interaction_contract</span><span class="pill">Main decision</span><span class="pill">ready_for_review</span><span class="pill">review_status</span>
+          <span class="pill">API endpoint</span><span class="pill">CRUD</span><span class="pill">database table</span><span class="pill">field</span><span class="pill">JSON schema</span><span class="pill">prompt</span><span class="pill">prompt template</span><span class="pill">schema</span><span class="pill">Activity</span><span class="pill">Main decision</span><span class="pill">ready_for_review</span><span class="pill">review_status</span>
         </div>
       </section>
     </section>
@@ -742,7 +742,7 @@
           </tr>
           <tr>
             <td>Disclosure</td>
-            <td>Implementation terms dominate the primary surface</td>
+            <td>Implementation terms dominate the product surface</td>
             <td>Implementation terms are contained in diagnostics</td>
           </tr>
         </tbody>

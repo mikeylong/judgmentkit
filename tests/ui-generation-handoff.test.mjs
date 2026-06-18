@@ -46,7 +46,8 @@ function refundWorkflowCandidate() {
   return {
     workflow: {
       surface_name: "Refund escalation queue",
-      steps: ["Review evidence", "Choose path", "Prepare handoff"],
+      topology: "workspace",
+      work_units: ["Review evidence", "Choose path", "Prepare handoff"],
       primary_actions: [
         "Approve refund",
         "Send to policy review",
@@ -57,27 +58,26 @@ function refundWorkflowCandidate() {
       ],
       completion_state: "Clear handoff with next action and decision reason.",
     },
-    primary_ui: {
-      sections: [
-        "Selected case",
-        "Customer refund context",
-        "Evidence checklist",
-        "Policy review context",
-        "Handoff",
-      ],
-      controls: [
-        "Approve refund",
-        "Send to policy review",
-        "Return for evidence",
-        "Send handoff",
-      ],
-      user_facing_terms: [
-        "refund request",
-        "policy review",
-        "missing evidence",
-        "handoff reason",
-      ],
-    },
+    surface_set: [
+      {
+        name: "Refund escalation workspace",
+        purpose: "Review refund context, evidence, policy details, and handoff outcome.",
+        sections: [
+          "Selected case",
+          "Customer refund context",
+          "Evidence checklist",
+          "Policy review context",
+          "Handoff",
+        ],
+        controls: [
+          "Approve refund",
+          "Send to policy review",
+          "Return for evidence",
+          "Send handoff",
+        ],
+        relationship_to_workflow: "Keeps refund evidence and decision controls together.",
+      },
+    ],
     handoff: {
       next_owner: "support agent",
       reason: "Receipt or support evidence is missing.",
@@ -94,22 +94,23 @@ function integrationAuditWorkflowCandidate() {
   return {
     workflow: {
       surface_name: "Integration change audit",
-      steps: ["Review change summary", "Check release risk", "Prepare platform handoff"],
+      topology: "workspace",
+      work_units: ["Review change summary", "Check release risk", "Prepare platform handoff"],
       primary_actions: ["Mark safe to ship", "Send to platform review", "Return for evidence"],
       decision_points: [
         "Decide whether the integration change is safe to ship or needs platform review.",
       ],
       completion_state: "Platform team receives a clear handoff with the next action.",
     },
-    primary_ui: {
-      sections: ["Change summary", "Release risk", "Platform handoff"],
-      controls: ["Mark safe to ship", "Send to platform review", "Return for evidence"],
-      user_facing_terms: [
-        "integration setup workflow",
-        "release risk",
-        "platform handoff",
-      ],
-    },
+    surface_set: [
+      {
+        name: "Integration change audit",
+        purpose: "Review change summary, release risk, and platform handoff.",
+        sections: ["Change summary", "Release risk", "Platform handoff"],
+        controls: ["Mark safe to ship", "Send to platform review", "Return for evidence"],
+        relationship_to_workflow: "Keeps setup audit evidence near the release decision.",
+      },
+    ],
     handoff: {
       next_owner: "platform team",
       reason: "Release risk has been reviewed.",
@@ -127,7 +128,7 @@ function leakyWorkflowCandidate() {
 
   candidate.workflow.surface_name = "ready_for_review JSON schema console";
   candidate.workflow.primary_actions = ["Save CRUD update", "Send to policy review"];
-  candidate.primary_ui.sections = ["Activity", "Prompt template"];
+  candidate.surface_set[0].sections = ["Activity", "Prompt template"];
 
   return candidate;
 }
@@ -152,7 +153,7 @@ function primaryHandoffText(handoff) {
     activity_model: handoff.activity_model,
     interaction_contract: handoff.interaction_contract,
     workflow: handoff.workflow,
-    primary_surface: handoff.primary_surface,
+    surface_set: handoff.surface_set,
     handoff: handoff.handoff,
   }).toLowerCase();
 }
@@ -377,9 +378,10 @@ function refundOperatorImplementationCandidate(overrides = {}) {
   assert.ok(handoff.interaction_contract.primary_decision.includes("case should be approved"));
   assert.equal(handoff.workflow.surface_name, "Refund escalation queue");
   assert.ok(handoff.workflow.primary_actions.includes("Approve refund"));
-  assert.ok(handoff.primary_surface.sections.includes("Evidence checklist"));
+  assert.equal("primary_surface" in handoff, false);
+  assert.ok(handoff.surface_set[0].sections.includes("Evidence checklist"));
   assert.equal(handoff.handoff.next_owner, "support agent");
-  assert.equal(handoff.disclosure_reminders.primary_ui_rule.includes("implementation"), true);
+  assert.equal(handoff.disclosure_reminders.product_ui_rule.includes("implementation"), true);
   assert.deepEqual(
     handoff.generation_gates.map((gate) => gate.id),
     ["activity_gate", "implementation_gate"],
@@ -471,6 +473,83 @@ function refundOperatorImplementationCandidate(overrides = {}) {
   assert.equal(tokenMetadataReview.checks.visual_tokens.status, "pass");
   assert.equal(tokenMetadataReview.checks.visual_tokens.reviewed, true);
   assert.deepEqual(tokenMetadataReview.checks.visual_tokens.unsupported_families, []);
+  assert.ok(
+    tokenMetadataReview.checks.visual_tokens.allowed_font_roles.includes("body"),
+    "visual token checks should expose portable font role defaults.",
+  );
+  assert.ok(
+    tokenMetadataReview.checks.visual_tokens.icon_registry.some(
+      (entry) => entry.id === "status-check" && entry.paths.length > 0,
+    ),
+    "visual token checks should expose embedded SVG icon defaults.",
+  );
+
+  const fontIconMetadataReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      visual_token_evidence: {
+        token_families: ["color", "type"],
+        font_roles: ["body", "numeric", "diagnostic"],
+        icon_roles: ["status", "action", "receipt"],
+        icons: [{ role: "status", id: "status-check" }],
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(fontIconMetadataReview.implementation_review_status, "passed");
+  assert.equal(fontIconMetadataReview.checks.visual_tokens.status, "pass");
+  assert.deepEqual(fontIconMetadataReview.checks.visual_tokens.unsupported_font_roles, []);
+  assert.deepEqual(fontIconMetadataReview.checks.visual_tokens.unsupported_icon_roles, []);
+  assert.ok(fontIconMetadataReview.checks.visual_tokens.font_roles.includes("numeric"));
+  assert.ok(fontIconMetadataReview.checks.visual_tokens.icon_roles.includes("receipt"));
+
+  const unsupportedFontIconReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      visual_token_evidence: {
+        token_families: ["color"],
+        font_roles: ["brand-display"],
+        icon_roles: ["mascot"],
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(unsupportedFontIconReview.implementation_review_status, "failed");
+  assert.equal(unsupportedFontIconReview.checks.visual_tokens.status, "fail");
+  assert.deepEqual(unsupportedFontIconReview.checks.visual_tokens.unsupported_font_roles, [
+    "brand-display",
+  ]);
+  assert.deepEqual(unsupportedFontIconReview.checks.visual_tokens.unsupported_icon_roles, [
+    "mascot",
+  ]);
+
+  const inaccessibleIconReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      code: "renderIconButton({ icon: 'filter', label: undefined })",
+      visual_token_evidence: {
+        token_families: ["color"],
+        icon_roles: ["action"],
+        icons: [{ role: "action", id: "filter" }],
+      },
+      accessibility_evidence: {
+        name_role_value: undefined,
+        non_text_contrast: undefined,
+        target_size: undefined,
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(inaccessibleIconReview.implementation_review_status, "failed");
+  assert.equal(inaccessibleIconReview.checks.visual_tokens.status, "pass");
+  assert.equal(
+    inaccessibleIconReview.checks.accessibility_evidence.name_role_value.status,
+    "fail",
+  );
+  assert.equal(
+    inaccessibleIconReview.checks.accessibility_evidence.non_text_contrast.status,
+    "fail",
+  );
 
   const tokenMisuseReview = reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({

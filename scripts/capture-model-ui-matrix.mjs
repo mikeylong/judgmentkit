@@ -437,7 +437,7 @@ function buildFrontendProjectContext(target, designSystemAdapter) {
     ui_library: usesMaterialUi ? designSystemAdapter.design_system_name : "None",
     project_rules: [
       "Implement from the reviewed activity, workflow, and handoff before renderer choices.",
-      "Keep JudgmentKit review-packet terms and implementation machinery out of primary UI.",
+      "Keep JudgmentKit review-packet terms and implementation machinery out of product UI.",
       "Use compact operational layout, stable responsive dimensions, and visible state.",
     ],
     approved_component_families: usesMaterialUi
@@ -506,14 +506,14 @@ function compactReviewedHandoff(reviewedHandoff) {
     activity_model: reviewedHandoff.activity_model,
     interaction_contract: reviewedHandoff.interaction_contract,
     workflow: reviewedHandoff.workflow,
-    primary_surface: reviewedHandoff.primary_surface,
+    surface_set: reviewedHandoff.surface_set ?? [],
     handoff: reviewedHandoff.handoff,
     disclosure_reminders: {
-      terms_to_keep_out_of_primary_ui:
-        reviewedHandoff.disclosure_reminders?.terms_to_keep_out_of_primary_ui ?? [],
+      terms_to_keep_out_of_product_ui:
+        reviewedHandoff.disclosure_reminders?.terms_to_keep_out_of_product_ui ?? [],
       diagnostic_contexts:
         reviewedHandoff.disclosure_reminders?.diagnostic_contexts ?? [],
-      primary_ui_rule: reviewedHandoff.disclosure_reminders?.primary_ui_rule,
+      product_ui_rule: reviewedHandoff.disclosure_reminders?.product_ui_rule,
     },
     implementation_contract: {
       approved_primitives:
@@ -639,7 +639,7 @@ function buildPromptContextPayload(contextPayload) {
           activity_model: reviewedHandoff.activity_model,
           interaction_contract: reviewedHandoff.interaction_contract,
           workflow: reviewedHandoff.workflow,
-          primary_surface: reviewedHandoff.primary_surface,
+          surface_set: reviewedHandoff.surface_set ?? [],
           handoff: reviewedHandoff.handoff,
           disclosure_reminders: reviewedHandoff.disclosure_reminders,
           implementation_contract: reviewedHandoff.implementation_contract,
@@ -947,21 +947,27 @@ function buildCompactRetryPrompt(target, contextPayload) {
   };
   const caseSummary = `${SELECTED_CASE.id} ${SELECTED_CASE.customer} ${SELECTED_CASE.amount}: ${selectedStatus}. ${handoff.reason}`;
   const contextBoundary = contextPayload.context_included.reviewed_handoff
-    ? "Use the reviewed handoff and compiled frontend skill context: review evidence, choose next action, leave handoff, and keep implementation machinery out of primary UI."
+    ? "Use the reviewed handoff and compiled frontend skill context: review evidence, choose next action, leave handoff, and keep implementation machinery out of product UI."
     : `Use raw brief language if useful: ${activeUseCase.implementation_terms.slice(0, 5).join(", ")}.`;
   const designBoundary = contextPayload.context_included.material_ui_adapter
     ? "Return surface data for Material UI SSR, not HTML."
     : "Return HTML and nonempty CSS.";
   const skill = contextPayload.frontend_skill_context;
   const reviewedHandoff = contextPayload.reviewed_handoff;
+  const requiredSections = (reviewedHandoff?.surface_set ?? []).flatMap(
+    (surface) => surface.sections ?? [],
+  );
+  const requiredControls = (reviewedHandoff?.surface_set ?? []).flatMap(
+    (surface) => surface.controls ?? [],
+  );
   const skillLines = skill
     ? [
         `Frontend skill context: ${skill.skill_context_status}; source skill ${skill.source_skill?.name}; raw skill exposed ${String(skill.source_skill?.raw_skill_exposed)}.`,
-        `Required sections: ${(reviewedHandoff?.primary_surface?.sections ?? []).join(", ")}.`,
-        `Required controls: ${(reviewedHandoff?.primary_surface?.controls ?? []).join(", ")}.`,
+        `Required sections: ${requiredSections.join(", ")}.`,
+        `Required controls: ${requiredControls.join(", ")}.`,
         `Implementation sequence: ${(skill.implementation_sequence ?? []).slice(0, 4).join(" | ")}.`,
-        `Guardrail: ${skill.guardrails?.primary_ui_rule}`,
-        `Keep out of primary UI: ${(skill.guardrails?.terms_to_keep_out_of_primary_ui ?? []).join(", ")}.`,
+        `Guardrail: ${skill.guardrails?.product_ui_rule}`,
+        `Keep out of product UI: ${(skill.guardrails?.terms_to_keep_out_of_product_ui ?? []).join(", ")}.`,
         `Design policy: ${skill.design_system_policy?.mode}; ${skill.design_system_policy?.constraint}`,
         `Verify: ${(skill.verification_checklist ?? []).slice(0, 6).join(" | ")}.`,
       ]

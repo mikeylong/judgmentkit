@@ -54,7 +54,7 @@ function assertRepairLoop({ contractInput, failingCandidate, repairedCandidate, 
   const contractPacket = createUiImplementationContract(contractInput);
   const implementationContract = contractPacket.implementation_contract;
 
-  assert.equal(contractPacket.version, "0.3.0", `${label} contract should use release version`);
+  assert.equal(contractPacket.version, "0.4.0", `${label} contract should use release version`);
   assert.equal(implementationContract.iteration_policy.default_max_attempts, 3);
   assert.equal(implementationContract.visual_token_adapter.mode, "boundary_only");
   assert.equal(
@@ -98,12 +98,12 @@ const activityContract = readJson("contracts/ai-ui-generation.activity-contract.
 const firstUse = readJson("examples/ai-native-design-system/first-use.json");
 const canonicalExamples = readJson("examples/ai-native-design-system/canonical-examples.json");
 
-assert.equal(packageJson.version, "0.3.0");
-assert.equal(activityContract.version, "0.3.0");
-assert.equal(getMcpMetadata("streamable-http").version, "0.3.0");
+assert.equal(packageJson.version, "0.4.0");
+assert.equal(activityContract.version, "0.4.0");
+assert.equal(getMcpMetadata("streamable-http").version, "0.4.0");
 
 {
-  assert.equal(firstUse.release_target, "0.3.0");
+  assert.equal(firstUse.release_target, "0.4.0");
   assert.equal(firstUse.target_time_minutes, 10);
   assert.ok(firstUse.claim.includes("review a generated UI candidate"));
   assert.equal(firstUse.transcript.length, 2);
@@ -125,7 +125,7 @@ assert.equal(getMcpMetadata("streamable-http").version, "0.3.0");
 }
 
 {
-  assert.equal(canonicalExamples.release_target, "0.3.0");
+  assert.equal(canonicalExamples.release_target, "0.4.0");
   assert.equal(canonicalExamples.examples.length, 3);
   assert.deepEqual(
     canonicalExamples.examples.map((example) => example.surface),
@@ -165,7 +165,7 @@ assert.equal(getMcpMetadata("streamable-http").version, "0.3.0");
   const packedFiles = new Set(packInfo.files.map((file) => file.path));
 
   assert.equal(packInfo.name, "judgmentkit");
-  assert.equal(packInfo.version, "0.3.0");
+  assert.equal(packInfo.version, "0.4.0");
   assert.ok(packedFiles.has("src/index.mjs"));
   assert.ok(packedFiles.has("src/mcp.mjs"));
   assert.ok(packedFiles.has("bin/judgmentkit.mjs"));
@@ -204,7 +204,7 @@ const contractPacket = createUiImplementationContract({
   browser_qa_checks: ["desktop viewport screenshot", "mobile viewport screenshot"]
 });
 
-assert.equal(contractPacket.version, "0.3.0");
+assert.equal(contractPacket.version, "0.4.0");
 assert.equal(contractPacket.implementation_contract.iteration_policy.default_max_attempts, 3);
 assert.equal(contractPacket.implementation_contract.visual_token_adapter.mode, "boundary_only");
 

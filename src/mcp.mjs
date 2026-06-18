@@ -17,7 +17,7 @@ import {
 } from "./index.mjs";
 
 const MCP_SERVER_NAME = "JudgmentKit";
-const MCP_SERVER_VERSION = "0.3.0";
+const MCP_SERVER_VERSION = "0.4.0";
 
 const ANALYZE_TOOL = {
   name: "analyze_implementation_brief",
@@ -139,7 +139,7 @@ const REVIEW_UI_WORKFLOW_CANDIDATE_TOOL = {
       candidate: {
         type: "object",
         description:
-          "Externally proposed UI workflow candidate with workflow, primary_ui, handoff, and diagnostics.",
+          "Externally proposed UI workflow candidate with workflow, surface_set, handoff, and diagnostics.",
       },
       profile_id: {
         type: "string",
@@ -246,7 +246,7 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
       visual_token_adapter: {
         type: "object",
         description:
-          "Optional boundary-only visual token adapter metadata. It defines token families and evidence expectations but does not select a renderer or component package.",
+          "Optional boundary-only token, font, and icon adapter metadata. It defines token families, semantic token roles, portable font roles, embedded SVG icon metadata, and evidence expectations but does not select a renderer or component package.",
       },
     },
     additionalProperties: false,
@@ -334,7 +334,7 @@ const FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL = {
       design_system_adapter: {
         type: "object",
         description:
-          "Optional renderer adapter evidence such as UI library name, package, components, role, and constraints.",
+          "Optional renderer adapter evidence such as UI library name, package, components, token guidance, font guidance, icon guidance, role, and constraints.",
       },
       target_client: {
         type: "string",
@@ -439,6 +439,19 @@ function addSection(lines, title, entries) {
 
 function bulletList(values) {
   return toDisplayList(values, 3).map((value) => `- ${value}`);
+}
+
+function roleSummaryList(values, formatter, limit = 4) {
+  if (!Array.isArray(values)) {
+    return [];
+  }
+
+  return values
+    .filter((entry) => entry && typeof entry === "object")
+    .map(formatter)
+    .map(compactText)
+    .filter(Boolean)
+    .slice(0, limit);
 }
 
 function planningStatus(result) {
@@ -566,7 +579,6 @@ function formatActivityReviewCard(result) {
 
 function formatWorkflowReviewCard(result) {
   const workflow = result.candidate?.workflow ?? {};
-  const primaryUi = result.candidate?.primary_ui ?? {};
   const surfaceSet = Array.isArray(result.candidate?.surface_set)
     ? result.candidate.surface_set
     : [];
@@ -598,7 +610,6 @@ function formatWorkflowReviewCard(result) {
     listLine("Primary actions", workflow.primary_actions),
     listLine("Decision points", workflow.decision_points),
     firstLine("Completion", workflow.completion_state),
-    listLine("Primary sections", primaryUi.sections),
     firstLine("Handoff", handoff.next_action),
   ]);
   addSection(lines, "Targeted questions", bulletList(result.review?.targeted_questions));
@@ -611,7 +622,7 @@ function formatHandoffCard(result) {
   const lines = [
     "## JudgmentKit UI Handoff",
     `**Status:** ${planningStatus(result)}`,
-    "**Next step:** Generate UI from this handoff, using the workflow topology and surface set while keeping disclosure reminders out of the primary product UI.",
+    "**Next step:** Generate UI from this handoff, using the workflow topology and surface set while keeping disclosure reminders out of the product UI.",
   ];
 
   addSection(lines, "Plan from this", [
@@ -632,11 +643,10 @@ function formatHandoffCard(result) {
       ),
     ),
     listLine("Primary actions", result.workflow?.primary_actions),
-    listLine("Primary sections", result.primary_surface?.sections),
     firstLine("Handoff", result.handoff?.next_action),
   ]);
   addSection(lines, "Diagnostics", [
-    listLine("Terms to keep out", result.disclosure_reminders?.terms_to_keep_out_of_primary_ui),
+    listLine("Terms to keep out", result.disclosure_reminders?.terms_to_keep_out_of_product_ui),
     listLine("Diagnostic terms", result.disclosure_reminders?.diagnostic_terms),
   ]);
 
@@ -734,6 +744,28 @@ function formatImplementationContractCard(result) {
     listLine("Accessibility evidence", accessibilityPolicy.required_evidence),
     firstLine("Visual token adapter", visualTokenAdapter.mode),
     listLine("Visual token families", visualTokenAdapter.token_families),
+    listLine(
+      "Token roles",
+      roleSummaryList(
+        visualTokenAdapter.token_roles,
+        (entry) => `${entry.role}: ${(Array.isArray(entry.families) ? entry.families : []).join(", ")}`,
+      ),
+    ),
+    listLine(
+      "Font roles",
+      roleSummaryList(
+        visualTokenAdapter.font_roles,
+        (entry) => `${entry.role}: ${entry.stack}`,
+      ),
+    ),
+    listLine("Icon roles", visualTokenAdapter.icon_roles),
+    listLine(
+      "Embedded icons",
+      roleSummaryList(
+        visualTokenAdapter.icon_registry,
+        (entry) => `${entry.id} (${entry.role})`,
+      ),
+    ),
     listLine(
       "Conditional evidence",
       Object.keys(accessibilityPolicy.conditional_evidence ?? {}).map(
@@ -838,7 +870,7 @@ function formatFrontendContextCard(result) {
     ),
   ]);
   addSection(lines, "Diagnostics", [
-    listLine("Terms to keep out", result.guardrails?.terms_to_keep_out_of_primary_ui),
+    listLine("Terms to keep out", result.guardrails?.terms_to_keep_out_of_product_ui),
   ]);
 
   return lines.join("\n");
@@ -874,6 +906,22 @@ function formatFrontendSkillContextCard(result) {
     listLine("Approved component families", result.approved_component_families),
     listLine("Visual asset paths", result.visual_asset_policy?.preferred_paths),
     listLine("Accessibility evidence", result.accessibility_policy?.required_evidence),
+    listLine("Token families", result.token_guidance?.token_families),
+    listLine(
+      "Font roles",
+      roleSummaryList(
+        result.font_guidance?.font_roles,
+        (entry) => `${entry.role}: ${entry.stack}`,
+      ),
+    ),
+    listLine("Icon roles", result.icon_guidance?.icon_roles),
+    listLine(
+      "Embedded icons",
+      roleSummaryList(
+        result.icon_guidance?.icon_registry,
+        (entry) => `${entry.id} (${entry.role})`,
+      ),
+    ),
     listLine(
       "Conditional accessibility evidence",
       Object.keys(result.accessibility_policy?.conditional_evidence ?? {}).map(
@@ -888,7 +936,7 @@ function formatFrontendSkillContextCard(result) {
     firstLine("Next recommended tool", result.next_recommended_tool),
     listLine(
       "Terms to keep out",
-      result.guardrails?.terms_to_keep_out_of_primary_ui,
+      result.guardrails?.terms_to_keep_out_of_product_ui,
     ),
   ]);
 

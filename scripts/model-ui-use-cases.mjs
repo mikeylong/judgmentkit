@@ -166,6 +166,67 @@ function materialUiAdapter(id, name) {
         border_radius: 8,
       },
     },
+    token_guidance: {
+      token_families: ["color", "type", "spacing", "radius", "density", "semantic"],
+      token_roles: [
+        {
+          role: "surface",
+          families: ["color", "elevation"],
+          usage: "Material UI Paper, Card, AppBar, and surface backgrounds",
+        },
+        {
+          role: "decision",
+          families: ["color", "density"],
+          usage: "Material UI Button and action grouping states",
+        },
+        {
+          role: "status",
+          families: ["color", "semantic"],
+          usage: "Material UI Alert and Chip states",
+        },
+      ],
+    },
+    font_guidance: {
+      font_roles: {
+        body: {
+          stack: "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+          usage: "Material UI Typography body text",
+        },
+        heading: {
+          stack: "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+          usage: "Material UI Typography headings",
+        },
+        numeric: {
+          stack: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+          usage: "Queue counts, amounts, and timestamps",
+        },
+      },
+    },
+    icon_guidance: {
+      icon_roles: ["status", "action", "navigation", "receipt"],
+      icon_registry: [
+        {
+          id: "status-check",
+          role: "status",
+          label: "Status check",
+          viewBox: "0 0 24 24",
+          paths: ["M20 6 9 17l-5-5"],
+          svg_attributes: { fill: "none", stroke: "currentColor" },
+          accessibility_guidance: "Pair with Material UI status text.",
+          allowed_usage: ["success state", "completed state"],
+        },
+        {
+          id: "receipt",
+          role: "receipt",
+          label: "Receipt",
+          viewBox: "0 0 24 24",
+          paths: ["M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"],
+          svg_attributes: { fill: "none", stroke: "currentColor" },
+          accessibility_guidance: "Pair with completion or handoff text.",
+          allowed_usage: ["handoff receipt", "confirmation"],
+        },
+      ],
+    },
     components: COMMON_COMPONENTS,
     constraint:
       "Material UI changes the visual/component layer only; it does not supply activity fit, workflow fit, or disclosure discipline.",
@@ -241,7 +302,8 @@ export const MODEL_UI_USE_CASES = [
     workflow_candidate: {
       workflow: {
         surface_name: "Refund escalation review",
-        steps: [
+        topology: "workspace",
+        work_units: [
           "Choose the active refund request",
           "Review customer context and evidence",
           "Choose the next refund path",
@@ -259,32 +321,29 @@ export const MODEL_UI_USE_CASES = [
         completion_state:
           "The next owner receives a handoff with the chosen path and the reason.",
       },
-      primary_ui: {
-        sections: [
-          "Refund queue",
-          "Selected request",
-          "Evidence checklist",
-          "Policy context",
-          "Decision path",
-          "Handoff reason",
-        ],
-        controls: [
-          "Select request",
-          "Approve refund",
-          "Send to policy review",
-          "Return for evidence",
-          "Choose next owner",
-          "Send handoff",
-        ],
-        user_facing_terms: [
-          "refund escalation",
-          "selected request",
-          "evidence checklist",
-          "policy review",
-          "handoff reason",
-          "support agent",
-        ],
-      },
+      surface_set: [
+        {
+          name: "Refund escalation workspace",
+          purpose: "Choose a refund request, review evidence, decide the next path, and send a handoff.",
+          sections: [
+            "Refund queue",
+            "Selected request",
+            "Evidence checklist",
+            "Policy context",
+            "Decision path",
+            "Handoff reason",
+          ],
+          controls: [
+            "Select request",
+            "Approve refund",
+            "Send to policy review",
+            "Return for evidence",
+            "Choose next owner",
+            "Send handoff",
+          ],
+          relationship_to_workflow: "Keeps queue selection, case evidence, decision controls, and handoff fields coordinated.",
+        },
+      ],
       handoff: {
         next_owner: "Support agent",
         reason:
@@ -406,7 +465,8 @@ export const MODEL_UI_USE_CASES = [
     workflow_candidate: {
       workflow: {
         surface_name: "Repair visit dispatch review",
-        steps: [
+        topology: "workspace",
+        work_units: [
           "Choose the active repair visit",
           "Review route, certification, parts, and access readiness",
           "Choose assignment, reschedule, or escalation",
@@ -424,31 +484,28 @@ export const MODEL_UI_USE_CASES = [
         completion_state:
           "The dispatch team receives the next owner, timing constraint, and reason.",
       },
-      primary_ui: {
-        sections: [
-          "Visit queue",
-          "Selected visit",
-          "Readiness checklist",
-          "Dispatch policy",
-          "Decision path",
-          "Dispatch handoff",
-        ],
-        controls: [
-          "Select visit",
-          "Assign technician",
-          "Reschedule for parts",
-          "Escalate SLA risk",
-          "Request gate code",
-        ],
-        user_facing_terms: [
-          "repair visit",
-          "technician",
-          "parts readiness",
-          "site access",
-          "SLA risk",
-          "dispatch handoff",
-        ],
-      },
+      surface_set: [
+        {
+          name: "Repair visit dispatch workspace",
+          purpose: "Choose a repair visit, review readiness, decide the dispatch path, and send a handoff.",
+          sections: [
+            "Visit queue",
+            "Selected visit",
+            "Readiness checklist",
+            "Dispatch policy",
+            "Decision path",
+            "Dispatch handoff",
+          ],
+          controls: [
+            "Select visit",
+            "Assign technician",
+            "Reschedule for parts",
+            "Escalate SLA risk",
+            "Request gate code",
+          ],
+          relationship_to_workflow: "Keeps readiness evidence, dispatch choices, and handoff context coordinated.",
+        },
+      ],
       handoff: {
         next_owner: "Dispatch support",
         reason: "Gate code is missing before the qualified technician can be assigned.",
@@ -568,7 +625,8 @@ export const MODEL_UI_USE_CASES = [
     workflow_candidate: {
       workflow: {
         surface_name: "Administrative intake readiness review",
-        steps: [
+        topology: "workspace",
+        work_units: [
           "Choose the active intake packet",
           "Review referral, insurance, and required forms",
           "Choose schedule, return for forms, or insurance verification",
@@ -586,31 +644,28 @@ export const MODEL_UI_USE_CASES = [
         completion_state:
           "The intake team receives the next administrative action and reason.",
       },
-      primary_ui: {
-        sections: [
-          "Intake queue",
-          "Selected packet",
-          "Readiness checklist",
-          "Administrative policy",
-          "Decision path",
-          "Intake handoff",
-        ],
-        controls: [
-          "Select packet",
-          "Ready to schedule",
-          "Return for consent",
-          "Escalate insurance verification",
-          "Send handoff",
-        ],
-        user_facing_terms: [
-          "intake packet",
-          "referral",
-          "insurance verification",
-          "signed consent",
-          "schedule readiness",
-          "administrative handoff",
-        ],
-      },
+      surface_set: [
+        {
+          name: "Administrative intake workspace",
+          purpose: "Choose an intake packet, review readiness evidence, decide the administrative path, and send a handoff.",
+          sections: [
+            "Intake queue",
+            "Selected packet",
+            "Readiness checklist",
+            "Administrative policy",
+            "Decision path",
+            "Intake handoff",
+          ],
+          controls: [
+            "Select packet",
+            "Ready to schedule",
+            "Return for consent",
+            "Escalate insurance verification",
+            "Send handoff",
+          ],
+          relationship_to_workflow: "Keeps intake readiness evidence, administrative decision controls, and handoff state coordinated.",
+        },
+      ],
       handoff: {
         next_owner: "Intake coordinator",
         reason: "Signed consent is missing before the appointment can be scheduled.",
@@ -730,7 +785,8 @@ export const MODEL_UI_USE_CASES = [
     workflow_candidate: {
       workflow: {
         surface_name: "Renewal risk review",
-        steps: [
+        topology: "workspace",
+        work_units: [
           "Choose the active renewal account",
           "Review usage, sponsor, procurement, and renewal timing",
           "Choose save plan, executive escalation, or evidence follow-up",
@@ -748,31 +804,28 @@ export const MODEL_UI_USE_CASES = [
         completion_state:
           "The customer success team receives the next owner, action, risk reason, and evidence gap.",
       },
-      primary_ui: {
-        sections: [
-          "Renewal queue",
-          "Selected account",
-          "Risk evidence",
-          "Renewal policy",
-          "Decision path",
-          "Renewal handoff",
-        ],
-        controls: [
-          "Select account",
-          "Start save plan",
-          "Escalate executive sponsor",
-          "Request procurement date",
-          "Send handoff",
-        ],
-        user_facing_terms: [
-          "renewal risk",
-          "account",
-          "usage trend",
-          "champion change",
-          "procurement timeline",
-          "save plan",
-        ],
-      },
+      surface_set: [
+        {
+          name: "Renewal risk workspace",
+          purpose: "Choose a renewal account, compare risk evidence, decide the next path, and send a handoff.",
+          sections: [
+            "Renewal queue",
+            "Selected account",
+            "Risk evidence",
+            "Renewal policy",
+            "Decision path",
+            "Renewal handoff",
+          ],
+          controls: [
+            "Select account",
+            "Start save plan",
+            "Escalate executive sponsor",
+            "Request procurement date",
+            "Send handoff",
+          ],
+          relationship_to_workflow: "Keeps account risk evidence, renewal decision controls, and handoff details coordinated.",
+        },
+      ],
       handoff: {
         next_owner: "Customer success manager",
         reason: "Champion changed and usage dropped, but procurement timing is missing.",

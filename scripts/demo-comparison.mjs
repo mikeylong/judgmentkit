@@ -114,7 +114,8 @@ function buildUiWorkflowCandidate() {
   return {
     workflow: {
       surface_name: "Refund escalation queue",
-      steps: [
+      topology: "workspace",
+      work_units: [
         "Review selected case",
         "Check evidence",
         "Choose refund path",
@@ -132,33 +133,30 @@ function buildUiWorkflowCandidate() {
       completion_state:
         "A clear handoff with the next action and reason is sent to the right owner.",
     },
-    primary_ui: {
-      sections: [
-        "Selected case",
-        "Customer refund summary",
-        "Evidence checklist",
-        "Policy review context",
-        "Decision path",
-        "Handoff",
-      ],
-      controls: [
-        "Assign next case",
-        "Approve refund",
-        "Send to policy review",
-        "Return for evidence",
-        "Next owner",
-        "Handoff reason",
-        "Send handoff",
-      ],
-      user_facing_terms: [
-        "refund escalation",
-        "selected case",
-        "evidence checklist",
-        "policy review",
-        "handoff reason",
-        "next owner",
-      ],
-    },
+    surface_set: [
+      {
+        name: "Refund escalation workspace",
+        purpose: "Review selected case evidence, choose the refund path, and prepare the handoff.",
+        sections: [
+          "Selected case",
+          "Customer refund summary",
+          "Evidence checklist",
+          "Policy review context",
+          "Decision path",
+          "Handoff",
+        ],
+        controls: [
+          "Assign next case",
+          "Approve refund",
+          "Send to policy review",
+          "Return for evidence",
+          "Next owner",
+          "Handoff reason",
+          "Send handoff",
+        ],
+        relationship_to_workflow: "Keeps case evidence, decision controls, and handoff fields coordinated.",
+      },
+    ],
     handoff: {
       next_owner: "Support agent",
       reason:
@@ -312,7 +310,7 @@ function buildBaselinePrimarySurface() {
 }
 
 function workflowUnits(workflow) {
-  return workflow.work_units?.length > 0 ? workflow.work_units : workflow.steps;
+  return workflow.work_units ?? [];
 }
 
 function buildWorkflowUnits(units) {
@@ -803,8 +801,8 @@ function main() {
       next_recommended_tool: frontendSkillContext.next_recommended_tool,
       verification_checklist: frontendSkillContext.verification_checklist,
     },
-    terms_kept_out_of_primary_ui: [
-      ...handoff.disclosure_reminders.terms_to_keep_out_of_primary_ui,
+    terms_kept_out_of_product_ui: [
+      ...handoff.disclosure_reminders.terms_to_keep_out_of_product_ui,
       ...REVIEW_PACKET_TERMS,
     ],
   };

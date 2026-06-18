@@ -213,6 +213,8 @@ function createProvider(fetchImpl) {
     call.body.text.format.schema.properties.workflow.properties.steps,
     undefined,
   );
+  assert.equal(call.body.text.format.schema.properties.primary_ui, undefined);
+  assert.equal(call.body.text.format.schema.properties.primary_surface, undefined);
   assertNoAdapterRequestKeys(call.body);
 }
 

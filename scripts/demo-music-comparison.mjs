@@ -262,7 +262,8 @@ function buildUiWorkflowCandidate() {
   return {
     workflow: {
       surface_name: "Dinner playlist builder",
-      steps: [
+      topology: "workspace",
+      work_units: [
         "Review the dinner brief",
         "Compare suggested tracks",
         "Shape the energy flow",
@@ -285,40 +286,30 @@ function buildUiWorkflowCandidate() {
       completion_state:
         "A playable 10-song dinner playlist is saved with no known conflicts and a short sequence note.",
     },
-    primary_ui: {
-      sections: [
-        "Dinner brief",
-        "Guest preferences",
-        "Suggested tracks",
-        "Playlist sequence",
-        "Conflict checks",
-        "Sequence note",
-      ],
-      controls: [
-        "Add to playlist",
-        "Move earlier",
-        "Move later",
-        "Remove track",
-        "Conflict check",
-        "Save playlist",
-        "Share playlist",
-      ],
-      user_facing_terms: [
-        "playlist",
-        "track",
-        "artist",
-        "guest preference",
-        "dinner mood",
-        "energy flow",
-        "mellow opener",
-        "warm middle",
-        "closing track",
-        "genre balance",
-        "explicit track",
-        "disliked artist",
-        "sequence note",
-      ],
-    },
+    surface_set: [
+      {
+        name: "Dinner playlist workspace",
+        purpose: "Compare tracks, shape the sequence, resolve conflicts, and save the playlist.",
+        sections: [
+          "Dinner brief",
+          "Guest preferences",
+          "Suggested tracks",
+          "Playlist sequence",
+          "Conflict checks",
+          "Sequence note",
+        ],
+        controls: [
+          "Add to playlist",
+          "Move earlier",
+          "Move later",
+          "Remove track",
+          "Conflict check",
+          "Save playlist",
+          "Share playlist",
+        ],
+        relationship_to_workflow: "Keeps track comparison, sequence edits, conflict evidence, and sharing controls coordinated.",
+      },
+    ],
     handoff: {
       next_owner: "host",
       reason:
@@ -468,7 +459,7 @@ function buildBaselinePrimarySurface() {
 }
 
 function workflowUnits(workflow) {
-  return workflow.work_units?.length > 0 ? workflow.work_units : workflow.steps;
+  return workflow.work_units ?? [];
 }
 
 function buildWorkflowUnits(units) {
@@ -1158,8 +1149,8 @@ function main() {
       next_recommended_tool: frontendSkillContext.next_recommended_tool,
       verification_checklist: frontendSkillContext.verification_checklist,
     },
-    terms_kept_out_of_primary_ui: [
-      ...handoff.disclosure_reminders.terms_to_keep_out_of_primary_ui,
+    terms_kept_out_of_product_ui: [
+      ...handoff.disclosure_reminders.terms_to_keep_out_of_product_ui,
       ...REVIEW_PACKET_TERMS,
     ],
   };

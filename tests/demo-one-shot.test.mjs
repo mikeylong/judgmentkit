@@ -131,7 +131,7 @@ for (const term of implementationTerms) {
   assert.equal(
     guidedPrimarySection.toLowerCase().includes(term.toLowerCase()),
     false,
-    `guided primary UI concept leaked implementation term: ${term}`,
+    `guided product UI concept leaked implementation term: ${term}`,
   );
 }
 
@@ -139,7 +139,7 @@ for (const term of reviewPacketTerms) {
   assert.equal(
     guidedPrimarySection.toLowerCase().includes(term.toLowerCase()),
     false,
-    `guided primary UI concept leaked review-packet term: ${term}`,
+    `guided product UI concept leaked review-packet term: ${term}`,
   );
 }
 
@@ -151,7 +151,7 @@ for (const phrase of [
 ]) {
   assert.ok(
     guidedPrimarySection.toLowerCase().includes(phrase.toLowerCase()),
-    `guided primary UI concept missing phrase: ${phrase}`,
+    `guided product UI concept missing phrase: ${phrase}`,
   );
 }
 

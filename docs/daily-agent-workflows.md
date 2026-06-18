@@ -104,7 +104,7 @@ Plan an admin UI from our JSON schema, database tables, tool call traces, prompt
 Good agent behavior:
 
 - Treats schemas, tables, traces, prompts, and endpoints as diagnostic details unless the task is explicitly setup, debugging, auditing, or integration work.
-- Translates toward the user's activity before proposing a primary surface.
+- Translates toward the user's activity before proposing a product surface.
 - Asks what decision, workflow, or handoff those technical details are meant to support.
 
 Reviewer should accept:
@@ -123,7 +123,7 @@ Use the returned packet this way:
 
 - If `review_status` is `ready_for_review`, use `candidate.activity_model`, `candidate.interaction_contract`, and `candidate.disclosure_policy` as the working activity model.
 - If `review_status` is `needs_source_context`, ask only the questions in `review.targeted_questions` unless repo or product context can answer them.
-- Keep `guardrails` available for debugging, but do not turn guardrail terms into primary UI language.
+- Keep `guardrails` available for debugging, but do not turn guardrail terms into product UI language.
 
 CLI equivalent:
 
@@ -189,7 +189,7 @@ Use `operator-review-ui` when most of these are true:
 - the user compares evidence, understands risk, and makes a bounded decision
 - the next step may be approved, blocked, deferred, tightened, returned, or handed off
 - completion requires a handoff, receipt, audit, or closure state
-- raw system mechanics exist but should not drive the primary UI
+- raw system mechanics exist but should not drive the product UI
 
 Do not use it for simple forms, passive dashboards with no decision, reading-only pages or reports, open-ended chat, fully automated workflows with no human review, or debugging tools where raw system mechanics are the primary task.
 
@@ -199,13 +199,13 @@ The recommendation only classifies the brief. It does not apply a profile automa
 
 Call `review_ui_workflow_candidate` with the original brief and the proposed workflow candidate.
 
-Use this after activity review and before turning a model-proposed workflow into UI implementation. The candidate should name workflow steps, primary actions, decision points, completion or handoff, primary UI sections, controls, user-facing terms, and diagnostics.
+Use this after activity review and before turning a model-proposed workflow into UI implementation. The candidate should name workflow topology, work units, coordinated surfaces, primary actions, decision points, completion or handoff, product terms, and diagnostics.
 
 JudgmentKit accepts the workflow only when:
 
 - the source activity review is `ready_for_review`
-- workflow steps, actions, decision support, and completion or handoff are present
-- implementation terms stay out of workflow, `primary_ui`, and handoff
+- workflow topology, work units, actions, decision support, surface set, and completion or handoff are present
+- implementation terms stay out of workflow, `surface_set`, and handoff
 - review-packet terms such as `ready_for_review`, `activity_model`, `review_status`, `Primary user`, and `Main decision` stay out of the product UI
 
 When `profile_id: "operator-review-ui"` is selected, JudgmentKit adds guidance that checks the workflow against operator-review expectations: activity-first structure, queue/detail density boundaries, evidence-adjacent actions, contextual help disclosure, readable label/value evidence, and restrained operational states. Guardrail ids remain guidance metadata; do not copy them into product UI text.
@@ -222,7 +222,7 @@ MCP handoff calls should pass this packet as `implementation_contract`.
 
 Call `create_ui_generation_handoff` with the ready workflow review packet and implementation contract.
 
-Use the returned handoff as the immediate input to UI generation. It contains the activity model, interaction contract, workflow, primary surface responsibilities, handoff action, and disclosure reminders in one compact artifact.
+Use the returned handoff as the immediate input to UI generation. It contains the activity model, interaction contract, workflow, product surface responsibilities, handoff action, and disclosure reminders in one compact artifact.
 
 If the tool returns `handoff_blocked`, do not generate UI. Resolve the returned targeted questions or leakage details first, then review a corrected workflow candidate.
 
@@ -264,6 +264,8 @@ create_frontend_implementation_skill_context({
 ```
 
 The skill context compiles the local frontend implementation workflow into structured instructions, approved primitives, approved component families, adapter-layer design-system policy, visual asset policy, accessibility policy, verification checklist, and disclosure guardrails. It requires a ready frontend context and does not expose raw `SKILL.md` contents.
+
+The portable design defaults include semantic token roles, system font stacks for body, heading, label, numeric, and diagnostic text, and a small embedded inline SVG icon registry for common status, action, navigation, risk, and receipt roles. These defaults are returned as structured MCP content. They do not load a font CDN, ship font files, require an external icon package, or replace repo-approved design-system adapters.
 
 When a frontend spec calls for substantive visuals, the implementation path should use `imagegen`, premium Three.js/WebGL rendering, or D3-style data visualization. Deterministic CSS, SVG, and JavaScript remain appropriate for layout, exact text, UI chrome, icons, state indicators, simple diagrams, and accessible fallback structure.
 
@@ -320,7 +322,7 @@ JudgmentKit needs a little more source context before UI work. The blocking ques
 
 Implementation terms such as `JSON schema`, `prompt template`, `tool call`, `resource id`, and `API endpoint` belong in diagnostics unless the user is doing setup, debugging, auditing, integration, or explicit source inspection.
 
-Primary UI work should use domain language:
+Product UI work should use domain language:
 
 - Use `refund request`, not `database table`.
 - Use `handoff reason`, not `tool call result`.

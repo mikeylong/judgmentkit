@@ -2536,7 +2536,7 @@ function homepage() {
               <p><strong>Surface type:</strong> <code>recommend_surface_types</code> classifies activity purpose before workflow or frontend implementation guidance.</p>
               <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
               <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies approved primitives, required states, static checks, browser QA expectations, visual asset policy, and accessibility evidence expectations before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract.</p>
-              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
+              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions, semantic token roles, system font stacks, and embedded SVG icon defaults without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
         <p><strong>Iteration:</strong> draft review produces updated context that re-enters source/activity review rather than becoming only a longer prompt.</p>
       </div>
       <p class="system-branch"><strong>Blocked path:</strong> if activity, workflow, or handoff is not ready, resolve targeted questions or leakage details before generating UI.</p>
@@ -2753,7 +2753,7 @@ curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></p
 examples/ai-native-design-system/canonical-examples.json</code></pre>
             <p><strong>Loop:</strong> create the implementation contract, review the failing candidate, read <code>next_agent_action</code> and grouped <code>repair_instructions</code>, repair the candidate, then resubmit and expect <code>accept</code>.</p>
             <p><strong>Canonical cases:</strong> setup/onboarding, operational dashboard, and high-stakes review/refund workflow. Each case includes the activity model, implementation contract input, failing candidate, repaired candidate, and proof expectation.</p>
-            <p><strong>Renderer boundary:</strong> <code>visual_token_adapter</code> remains boundary-only metadata. The default renderer/component package starts only after the first-use loop and token boundary stay stable.</p>
+            <p><strong>Renderer boundary:</strong> <code>visual_token_adapter</code> remains boundary-only metadata for semantic tokens, portable system font stacks, and embedded SVG icon defaults. The default renderer/component package starts only after the first-use loop and asset boundary stay stable.</p>
           </section>
           <section class="doc-section" id="planning-examples">
             <h2>Planning Mode Examples</h2>
@@ -2793,7 +2793,7 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
               <p><strong>Surface type:</strong> <code>recommend_surface_types</code> classifies activity purpose as marketing, workbench, operator review, form flow, dashboard monitor, content/report, setup/debug tool, or conversation before frontend implementation guidance.</p>
               <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
               <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies approved primitives, required states, static checks, browser QA expectations, visual asset policy, and accessibility evidence expectations before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract.</p>
-              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
+              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions, semantic token roles, system font stacks, and embedded SVG icon defaults without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
               <p><strong>Iteration:</strong> draft review produces updated context that re-enters source/activity review rather than becoming only a longer prompt.</p>
             </div>
             <p class="system-branch"><strong>Blocked path:</strong> if activity, workflow, or handoff is not ready, resolve targeted questions or leakage details before generating UI.</p>
@@ -3367,7 +3367,7 @@ async function examplesPage() {
             </article>
             <article>
               <h3>Renderer boundary</h3>
-              <p>Visual tokens remain governed metadata. They cannot bypass primitives, states, action boundaries, data visibility, accessibility, static checks, or browser QA.</p>
+              <p>Tokens, system font stacks, and embedded SVG icons remain governed metadata. They cannot bypass primitives, states, action boundaries, data visibility, accessibility, static checks, or browser QA.</p>
             </article>
           </div>
         </div>

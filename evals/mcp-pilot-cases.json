@@ -9,16 +9,43 @@
     },
     "expected_next_action": "translate the request into a refund triage handoff surface",
     "required_terms": {
-      "activity_fit": ["refund triage", "support lead"],
-      "decision_support": ["approve", "policy review", "missing evidence"],
-      "evidence_grounding": ["case evidence", "refund request"],
-      "disclosure_discipline": ["hide implementation details"],
-      "handoff_quality": ["next owner", "reason"],
-      "rework_risk": ["clear next step"]
+      "activity_fit": [
+        "refund triage",
+        "support lead"
+      ],
+      "decision_support": [
+        "approve",
+        "policy review",
+        "missing evidence"
+      ],
+      "evidence_grounding": [
+        "case evidence",
+        "refund request"
+      ],
+      "disclosure_discipline": [
+        "hide implementation details"
+      ],
+      "handoff_quality": [
+        "next owner",
+        "reason"
+      ],
+      "rework_risk": [
+        "clear next step"
+      ]
     },
-    "forbidden_terms": ["database table", "JSON schema", "API endpoint", "prompt template", "tool call trace"],
+    "forbidden_terms": [
+      "database table",
+      "JSON schema",
+      "API endpoint",
+      "prompt template",
+      "tool call trace"
+    ],
     "max_questions": 2,
-    "required_handoff_fields": ["next owner", "next action", "reason"],
+    "required_handoff_fields": [
+      "next owner",
+      "next action",
+      "reason"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -29,10 +56,22 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["create_activity_model_review", "recommend_surface_types", "recommend_ui_workflow_profiles"]
+    "expected_mcp_tools": [
+      "create_activity_model_review",
+      "recommend_surface_types",
+      "recommend_ui_workflow_profiles"
+    ]
   },
   {
     "id": "agent-trace-review-console",
@@ -44,16 +83,43 @@
     },
     "expected_next_action": "translate traces into an escalation review workflow",
     "required_terms": {
-      "activity_fit": ["escalation review", "operator"],
-      "decision_support": ["advance", "tighten", "return"],
-      "evidence_grounding": ["evidence", "risk"],
-      "disclosure_discipline": ["diagnostics", "primary UI"],
-      "handoff_quality": ["decision reason", "handoff"],
-      "rework_risk": ["bounded decision"]
+      "activity_fit": [
+        "escalation review",
+        "operator"
+      ],
+      "decision_support": [
+        "advance",
+        "tighten",
+        "return"
+      ],
+      "evidence_grounding": [
+        "evidence",
+        "risk"
+      ],
+      "disclosure_discipline": [
+        "diagnostics",
+        "product UI"
+      ],
+      "handoff_quality": [
+        "decision reason",
+        "handoff"
+      ],
+      "rework_risk": [
+        "bounded decision"
+      ]
     },
-    "forbidden_terms": ["token counts", "function calls", "tool outputs", "model messages", "retry metadata"],
+    "forbidden_terms": [
+      "token counts",
+      "function calls",
+      "tool outputs",
+      "model messages",
+      "retry metadata"
+    ],
     "max_questions": 2,
-    "required_handoff_fields": ["next action", "decision reason"],
+    "required_handoff_fields": [
+      "next action",
+      "decision reason"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -64,10 +130,22 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["create_activity_model_review", "recommend_surface_types", "recommend_ui_workflow_profiles"]
+    "expected_mcp_tools": [
+      "create_activity_model_review",
+      "recommend_surface_types",
+      "recommend_ui_workflow_profiles"
+    ]
   },
   {
     "id": "crm-json-import-translation",
@@ -79,16 +157,42 @@
     },
     "expected_next_action": "translate import mechanics into a record acceptance review",
     "required_terms": {
-      "activity_fit": ["account operations", "record acceptance"],
-      "decision_support": ["accept", "owner fixes", "import summary"],
-      "evidence_grounding": ["validation errors", "records"],
-      "disclosure_discipline": ["translate technical details"],
-      "handoff_quality": ["owner", "summary"],
-      "rework_risk": ["fix list"]
+      "activity_fit": [
+        "account operations",
+        "record acceptance"
+      ],
+      "decision_support": [
+        "accept",
+        "owner fixes",
+        "import summary"
+      ],
+      "evidence_grounding": [
+        "validation errors",
+        "records"
+      ],
+      "disclosure_discipline": [
+        "translate technical details"
+      ],
+      "handoff_quality": [
+        "owner",
+        "summary"
+      ],
+      "rework_risk": [
+        "fix list"
+      ]
     },
-    "forbidden_terms": ["raw JSON", "field mapping schema", "API payload", "database field"],
+    "forbidden_terms": [
+      "raw JSON",
+      "field mapping schema",
+      "API payload",
+      "database field"
+    ],
     "max_questions": 2,
-    "required_handoff_fields": ["owner", "next action", "summary"],
+    "required_handoff_fields": [
+      "owner",
+      "next action",
+      "summary"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -99,10 +203,22 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["create_activity_model_review", "recommend_surface_types", "recommend_ui_workflow_profiles"]
+    "expected_mcp_tools": [
+      "create_activity_model_review",
+      "recommend_surface_types",
+      "recommend_ui_workflow_profiles"
+    ]
   },
   {
     "id": "billing-webhook-debug-boundary",
@@ -114,16 +230,43 @@
     },
     "expected_next_action": "translate webhook mechanics into billing incident triage",
     "required_terms": {
-      "activity_fit": ["billing incident triage", "billing specialist"],
-      "decision_support": ["customer-visible", "engineering escalation", "retry"],
-      "evidence_grounding": ["invoice issue", "customer impact"],
-      "disclosure_discipline": ["diagnostic details"],
-      "handoff_quality": ["escalation", "reason"],
-      "rework_risk": ["customer impact"]
+      "activity_fit": [
+        "billing incident triage",
+        "billing specialist"
+      ],
+      "decision_support": [
+        "customer-visible",
+        "engineering escalation",
+        "retry"
+      ],
+      "evidence_grounding": [
+        "invoice issue",
+        "customer impact"
+      ],
+      "disclosure_discipline": [
+        "diagnostic details"
+      ],
+      "handoff_quality": [
+        "escalation",
+        "reason"
+      ],
+      "rework_risk": [
+        "customer impact"
+      ]
     },
-    "forbidden_terms": ["webhook", "Stripe payload", "retry logs", "endpoint status", "request ID"],
+    "forbidden_terms": [
+      "webhook",
+      "Stripe payload",
+      "retry logs",
+      "endpoint status",
+      "request ID"
+    ],
     "max_questions": 2,
-    "required_handoff_fields": ["next action", "reason", "owner"],
+    "required_handoff_fields": [
+      "next action",
+      "reason",
+      "owner"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -134,10 +277,22 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["create_activity_model_review", "recommend_surface_types", "recommend_ui_workflow_profiles"]
+    "expected_mcp_tools": [
+      "create_activity_model_review",
+      "recommend_surface_types",
+      "recommend_ui_workflow_profiles"
+    ]
   },
   {
     "id": "vague-system-dashboard",
@@ -149,16 +304,40 @@
     },
     "expected_next_action": "ask targeted questions about activity decision and outcome",
     "required_terms": {
-      "activity_fit": ["activity", "user"],
-      "decision_support": ["decision", "next action"],
-      "evidence_grounding": ["source context", "missing"],
-      "disclosure_discipline": ["do not invent"],
-      "handoff_quality": ["outcome"],
-      "rework_risk": ["targeted questions"]
+      "activity_fit": [
+        "activity",
+        "user"
+      ],
+      "decision_support": [
+        "decision",
+        "next action"
+      ],
+      "evidence_grounding": [
+        "source context",
+        "missing"
+      ],
+      "disclosure_discipline": [
+        "do not invent"
+      ],
+      "handoff_quality": [
+        "outcome"
+      ],
+      "rework_risk": [
+        "targeted questions"
+      ]
     },
-    "forbidden_terms": ["KPI cards", "analytics chart", "database table", "admin console"],
+    "forbidden_terms": [
+      "KPI cards",
+      "analytics chart",
+      "database table",
+      "admin console"
+    ],
     "max_questions": 3,
-    "required_handoff_fields": ["activity", "decision", "outcome"],
+    "required_handoff_fields": [
+      "activity",
+      "decision",
+      "outcome"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -169,10 +348,22 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["create_activity_model_review", "recommend_surface_types", "recommend_ui_workflow_profiles"]
+    "expected_mcp_tools": [
+      "create_activity_model_review",
+      "recommend_surface_types",
+      "recommend_ui_workflow_profiles"
+    ]
   },
   {
     "id": "review-queue-without-decision",
@@ -184,16 +375,39 @@
     },
     "expected_next_action": "ask what decision the review queue supports",
     "required_terms": {
-      "activity_fit": ["review queue", "work items"],
-      "decision_support": ["decision", "primary action"],
-      "evidence_grounding": ["missing context"],
-      "disclosure_discipline": ["avoid inventing"],
-      "handoff_quality": ["completion state"],
-      "rework_risk": ["targeted questions"]
+      "activity_fit": [
+        "review queue",
+        "work items"
+      ],
+      "decision_support": [
+        "decision",
+        "primary action"
+      ],
+      "evidence_grounding": [
+        "missing context"
+      ],
+      "disclosure_discipline": [
+        "avoid inventing"
+      ],
+      "handoff_quality": [
+        "completion state"
+      ],
+      "rework_risk": [
+        "targeted questions"
+      ]
     },
-    "forbidden_terms": ["approve button", "risk score", "SLA chart", "AI finding"],
+    "forbidden_terms": [
+      "approve button",
+      "risk score",
+      "SLA chart",
+      "AI finding"
+    ],
     "max_questions": 3,
-    "required_handoff_fields": ["decision", "primary action", "completion state"],
+    "required_handoff_fields": [
+      "decision",
+      "primary action",
+      "completion state"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -204,10 +418,22 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["create_activity_model_review", "recommend_surface_types", "recommend_ui_workflow_profiles"]
+    "expected_mcp_tools": [
+      "create_activity_model_review",
+      "recommend_surface_types",
+      "recommend_ui_workflow_profiles"
+    ]
   },
   {
     "id": "api-list-workflow",
@@ -219,16 +445,40 @@
     },
     "expected_next_action": "ask what user activity the endpoints support",
     "required_terms": {
-      "activity_fit": ["user activity", "workflow"],
-      "decision_support": ["decision", "next action"],
-      "evidence_grounding": ["endpoints are insufficient"],
-      "disclosure_discipline": ["diagnostic details"],
-      "handoff_quality": ["outcome"],
-      "rework_risk": ["source context"]
+      "activity_fit": [
+        "user activity",
+        "workflow"
+      ],
+      "decision_support": [
+        "decision",
+        "next action"
+      ],
+      "evidence_grounding": [
+        "endpoints are insufficient"
+      ],
+      "disclosure_discipline": [
+        "diagnostic details"
+      ],
+      "handoff_quality": [
+        "outcome"
+      ],
+      "rework_risk": [
+        "source context"
+      ]
     },
-    "forbidden_terms": ["GET /items", "POST /items", "PATCH /items", "DELETE /items", "CRUD"],
+    "forbidden_terms": [
+      "GET /items",
+      "POST /items",
+      "PATCH /items",
+      "DELETE /items",
+      "CRUD"
+    ],
     "max_questions": 3,
-    "required_handoff_fields": ["activity", "decision", "outcome"],
+    "required_handoff_fields": [
+      "activity",
+      "decision",
+      "outcome"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -239,10 +489,22 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["create_activity_model_review", "recommend_surface_types", "recommend_ui_workflow_profiles"]
+    "expected_mcp_tools": [
+      "create_activity_model_review",
+      "recommend_surface_types",
+      "recommend_ui_workflow_profiles"
+    ]
   },
   {
     "id": "unclear-compliance-report",
@@ -254,16 +516,40 @@
     },
     "expected_next_action": "ask who reviews the findings and what action they take",
     "required_terms": {
-      "activity_fit": ["reviewer", "compliance findings"],
-      "decision_support": ["action", "decision"],
-      "evidence_grounding": ["audience", "missing"],
-      "disclosure_discipline": ["do not assume"],
-      "handoff_quality": ["outcome"],
-      "rework_risk": ["targeted questions"]
+      "activity_fit": [
+        "reviewer",
+        "compliance findings"
+      ],
+      "decision_support": [
+        "action",
+        "decision"
+      ],
+      "evidence_grounding": [
+        "audience",
+        "missing"
+      ],
+      "disclosure_discipline": [
+        "do not assume"
+      ],
+      "handoff_quality": [
+        "outcome"
+      ],
+      "rework_risk": [
+        "targeted questions"
+      ]
     },
-    "forbidden_terms": ["executive dashboard", "severity chart", "approval queue", "audit workflow"],
+    "forbidden_terms": [
+      "executive dashboard",
+      "severity chart",
+      "approval queue",
+      "audit workflow"
+    ],
     "max_questions": 3,
-    "required_handoff_fields": ["reviewer", "action", "outcome"],
+    "required_handoff_fields": [
+      "reviewer",
+      "action",
+      "outcome"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -274,10 +560,22 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["create_activity_model_review", "recommend_surface_types", "recommend_ui_workflow_profiles"]
+    "expected_mcp_tools": [
+      "create_activity_model_review",
+      "recommend_surface_types",
+      "recommend_ui_workflow_profiles"
+    ]
   },
   {
     "id": "clinical-intake-operator-review",
@@ -290,15 +588,22 @@
     "candidate": {
       "workflow": {
         "surface_name": "Clinical intake review queue",
-        "steps": ["Review intake evidence", "Compare urgency and consent", "Choose routing decision", "Prepare handoff"],
-        "primary_actions": ["Route to nurse review", "Return for clarification", "Mark ready for scheduling"],
-        "decision_points": ["Decide whether the intake is ready, needs nurse review, or needs clarification."],
-        "completion_state": "Routing handoff includes owner, reason, and evidence gap."
-      },
-      "primary_ui": {
-        "sections": ["Intake queue", "Evidence summary", "Routing decision", "Handoff receipt"],
-        "controls": ["Route to nurse review", "Return for clarification", "Mark ready for scheduling"],
-        "user_facing_terms": ["symptoms", "urgency", "consent", "routing decision"]
+        "primary_actions": [
+          "Route to nurse review",
+          "Return for clarification",
+          "Mark ready for scheduling"
+        ],
+        "decision_points": [
+          "Decide whether the intake is ready, needs nurse review, or needs clarification."
+        ],
+        "completion_state": "Routing handoff includes owner, reason, and evidence gap.",
+        "topology": "workspace",
+        "work_units": [
+          "Review intake evidence",
+          "Compare urgency and consent",
+          "Choose routing decision",
+          "Prepare handoff"
+        ]
       },
       "handoff": {
         "next_owner": "care coordinator",
@@ -308,21 +613,69 @@
       },
       "diagnostics": {
         "implementation_terms": [],
-        "reveal_contexts": ["auditing"]
-      }
+        "reveal_contexts": [
+          "auditing"
+        ]
+      },
+      "surface_set": [
+        {
+          "name": "Clinical intake review queue",
+          "purpose": "Coordinate the reviewed work units, decision controls, and handoff state.",
+          "sections": [
+            "Intake queue",
+            "Evidence summary",
+            "Routing decision",
+            "Handoff receipt"
+          ],
+          "controls": [
+            "Route to nurse review",
+            "Return for clarification",
+            "Mark ready for scheduling"
+          ],
+          "relationship_to_workflow": "Coordinates work units, evidence, controls, and handoff state."
+        }
+      ]
     },
     "expected_next_action": "prepare a routing handoff",
     "required_terms": {
-      "activity_fit": ["clinical intake", "care coordinator"],
-      "decision_support": ["nurse review", "clarification", "scheduling"],
-      "evidence_grounding": ["symptoms", "urgency", "consent"],
-      "disclosure_discipline": ["patient-facing terms"],
-      "handoff_quality": ["next owner", "evidence gap"],
-      "rework_risk": ["routing handoff"]
+      "activity_fit": [
+        "clinical intake",
+        "care coordinator"
+      ],
+      "decision_support": [
+        "nurse review",
+        "clarification",
+        "scheduling"
+      ],
+      "evidence_grounding": [
+        "symptoms",
+        "urgency",
+        "consent"
+      ],
+      "disclosure_discipline": [
+        "patient-facing terms"
+      ],
+      "handoff_quality": [
+        "next owner",
+        "evidence gap"
+      ],
+      "rework_risk": [
+        "routing handoff"
+      ]
     },
-    "forbidden_terms": ["diagnosis", "FHIR schema", "database", "prompt"],
+    "forbidden_terms": [
+      "diagnosis",
+      "FHIR schema",
+      "database",
+      "prompt"
+    ],
     "max_questions": 1,
-    "required_handoff_fields": ["next owner", "next action", "reason", "evidence gap"],
+    "required_handoff_fields": [
+      "next owner",
+      "next action",
+      "reason",
+      "evidence gap"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -333,10 +686,21 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["review_ui_workflow_candidate", "create_ui_implementation_contract"]
+    "expected_mcp_tools": [
+      "review_ui_workflow_candidate",
+      "create_ui_implementation_contract"
+    ]
   },
   {
     "id": "b2b-renewal-risk-review",
@@ -349,15 +713,22 @@
     "candidate": {
       "workflow": {
         "surface_name": "Renewal risk review",
-        "steps": ["Review account signals", "Compare risk evidence", "Choose renewal action", "Prepare account handoff"],
-        "primary_actions": ["Start save plan", "Escalate executive sponsor", "Wait for stronger evidence"],
-        "decision_points": ["Decide whether the account needs a save plan, sponsor escalation, or more evidence."],
-        "completion_state": "Account handoff names owner, action, reason, and evidence gap."
-      },
-      "primary_ui": {
-        "sections": ["Account queue", "Risk evidence", "Decision options", "Renewal handoff"],
-        "controls": ["Start save plan", "Escalate executive sponsor", "Wait for stronger evidence"],
-        "user_facing_terms": ["usage decline", "sponsor change", "procurement timing"]
+        "primary_actions": [
+          "Start save plan",
+          "Escalate executive sponsor",
+          "Wait for stronger evidence"
+        ],
+        "decision_points": [
+          "Decide whether the account needs a save plan, sponsor escalation, or more evidence."
+        ],
+        "completion_state": "Account handoff names owner, action, reason, and evidence gap.",
+        "topology": "workspace",
+        "work_units": [
+          "Review account signals",
+          "Compare risk evidence",
+          "Choose renewal action",
+          "Prepare account handoff"
+        ]
       },
       "handoff": {
         "next_owner": "customer success manager",
@@ -367,21 +738,69 @@
       },
       "diagnostics": {
         "implementation_terms": [],
-        "reveal_contexts": ["auditing"]
-      }
+        "reveal_contexts": [
+          "auditing"
+        ]
+      },
+      "surface_set": [
+        {
+          "name": "Renewal risk review",
+          "purpose": "Coordinate the reviewed work units, decision controls, and handoff state.",
+          "sections": [
+            "Account queue",
+            "Risk evidence",
+            "Decision options",
+            "Renewal handoff"
+          ],
+          "controls": [
+            "Start save plan",
+            "Escalate executive sponsor",
+            "Wait for stronger evidence"
+          ],
+          "relationship_to_workflow": "Coordinates work units, evidence, controls, and handoff state."
+        }
+      ]
     },
     "expected_next_action": "prepare a renewal handoff",
     "required_terms": {
-      "activity_fit": ["renewal risk", "customer success"],
-      "decision_support": ["save plan", "executive escalation", "stronger evidence"],
-      "evidence_grounding": ["usage decline", "sponsor change", "procurement timing"],
-      "disclosure_discipline": ["account language"],
-      "handoff_quality": ["owner", "evidence gap"],
-      "rework_risk": ["renewal action"]
+      "activity_fit": [
+        "renewal risk",
+        "customer success"
+      ],
+      "decision_support": [
+        "save plan",
+        "executive escalation",
+        "stronger evidence"
+      ],
+      "evidence_grounding": [
+        "usage decline",
+        "sponsor change",
+        "procurement timing"
+      ],
+      "disclosure_discipline": [
+        "account language"
+      ],
+      "handoff_quality": [
+        "owner",
+        "evidence gap"
+      ],
+      "rework_risk": [
+        "renewal action"
+      ]
     },
-    "forbidden_terms": ["CRM schema", "database", "model score", "JSON"],
+    "forbidden_terms": [
+      "CRM schema",
+      "database",
+      "model score",
+      "JSON"
+    ],
     "max_questions": 1,
-    "required_handoff_fields": ["owner", "next action", "reason", "evidence gap"],
+    "required_handoff_fields": [
+      "owner",
+      "next action",
+      "reason",
+      "evidence gap"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -392,10 +811,21 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["review_ui_workflow_candidate", "create_ui_implementation_contract"]
+    "expected_mcp_tools": [
+      "review_ui_workflow_candidate",
+      "create_ui_implementation_contract"
+    ]
   },
   {
     "id": "field-dispatch-review",
@@ -408,15 +838,22 @@
     "candidate": {
       "workflow": {
         "surface_name": "Dispatch assignment review",
-        "steps": ["Review job evidence", "Compare technician fit", "Choose dispatch action", "Send assignment handoff"],
-        "primary_actions": ["Assign now", "Defer for parts", "Escalate to supervisor"],
-        "decision_points": ["Decide whether the job can be assigned now or needs parts/supervisor escalation."],
-        "completion_state": "Dispatch handoff names technician, reason, and missing evidence."
-      },
-      "primary_ui": {
-        "sections": ["Job queue", "Technician fit", "Dispatch action", "Assignment handoff"],
-        "controls": ["Assign now", "Defer for parts", "Escalate to supervisor"],
-        "user_facing_terms": ["location", "SLA risk", "equipment fit", "parts availability"]
+        "primary_actions": [
+          "Assign now",
+          "Defer for parts",
+          "Escalate to supervisor"
+        ],
+        "decision_points": [
+          "Decide whether the job can be assigned now or needs parts/supervisor escalation."
+        ],
+        "completion_state": "Dispatch handoff names technician, reason, and missing evidence.",
+        "topology": "workspace",
+        "work_units": [
+          "Review job evidence",
+          "Compare technician fit",
+          "Choose dispatch action",
+          "Send assignment handoff"
+        ]
       },
       "handoff": {
         "next_owner": "field dispatcher",
@@ -426,21 +863,69 @@
       },
       "diagnostics": {
         "implementation_terms": [],
-        "reveal_contexts": ["auditing"]
-      }
+        "reveal_contexts": [
+          "auditing"
+        ]
+      },
+      "surface_set": [
+        {
+          "name": "Dispatch assignment review",
+          "purpose": "Coordinate the reviewed work units, decision controls, and handoff state.",
+          "sections": [
+            "Job queue",
+            "Technician fit",
+            "Dispatch action",
+            "Assignment handoff"
+          ],
+          "controls": [
+            "Assign now",
+            "Defer for parts",
+            "Escalate to supervisor"
+          ],
+          "relationship_to_workflow": "Coordinates work units, evidence, controls, and handoff state."
+        }
+      ]
     },
     "expected_next_action": "send an assignment handoff",
     "required_terms": {
-      "activity_fit": ["field service", "dispatcher"],
-      "decision_support": ["assign now", "defer for parts", "escalate"],
-      "evidence_grounding": ["location", "SLA risk", "parts availability"],
-      "disclosure_discipline": ["dispatch language"],
-      "handoff_quality": ["technician", "reason"],
-      "rework_risk": ["assignment readiness"]
+      "activity_fit": [
+        "field service",
+        "dispatcher"
+      ],
+      "decision_support": [
+        "assign now",
+        "defer for parts",
+        "escalate"
+      ],
+      "evidence_grounding": [
+        "location",
+        "SLA risk",
+        "parts availability"
+      ],
+      "disclosure_discipline": [
+        "dispatch language"
+      ],
+      "handoff_quality": [
+        "technician",
+        "reason"
+      ],
+      "rework_risk": [
+        "assignment readiness"
+      ]
     },
-    "forbidden_terms": ["routing API", "database", "JSON", "model"],
+    "forbidden_terms": [
+      "routing API",
+      "database",
+      "JSON",
+      "model"
+    ],
     "max_questions": 1,
-    "required_handoff_fields": ["technician", "next action", "reason", "evidence gap"],
+    "required_handoff_fields": [
+      "technician",
+      "next action",
+      "reason",
+      "evidence gap"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -451,10 +936,21 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["review_ui_workflow_candidate", "create_ui_implementation_contract"]
+    "expected_mcp_tools": [
+      "review_ui_workflow_candidate",
+      "create_ui_implementation_contract"
+    ]
   },
   {
     "id": "moderation-escalation-review",
@@ -467,15 +963,22 @@
     "candidate": {
       "workflow": {
         "surface_name": "Moderation escalation review",
-        "steps": ["Review flagged content", "Compare policy evidence", "Choose moderation action", "Prepare escalation handoff"],
-        "primary_actions": ["Approve", "Escalate for policy review", "Return for more evidence"],
-        "decision_points": ["Decide whether evidence supports approval, policy escalation, or return for evidence."],
-        "completion_state": "Escalation handoff names policy reason, owner, and evidence gap."
-      },
-      "primary_ui": {
-        "sections": ["Flagged queue", "Policy evidence", "Decision options", "Escalation handoff"],
-        "controls": ["Approve", "Escalate for policy review", "Return for more evidence"],
-        "user_facing_terms": ["policy evidence", "user history", "severity"]
+        "primary_actions": [
+          "Approve",
+          "Escalate for policy review",
+          "Return for more evidence"
+        ],
+        "decision_points": [
+          "Decide whether evidence supports approval, policy escalation, or return for evidence."
+        ],
+        "completion_state": "Escalation handoff names policy reason, owner, and evidence gap.",
+        "topology": "workspace",
+        "work_units": [
+          "Review flagged content",
+          "Compare policy evidence",
+          "Choose moderation action",
+          "Prepare escalation handoff"
+        ]
       },
       "handoff": {
         "next_owner": "policy reviewer",
@@ -485,21 +988,69 @@
       },
       "diagnostics": {
         "implementation_terms": [],
-        "reveal_contexts": ["auditing"]
-      }
+        "reveal_contexts": [
+          "auditing"
+        ]
+      },
+      "surface_set": [
+        {
+          "name": "Moderation escalation review",
+          "purpose": "Coordinate the reviewed work units, decision controls, and handoff state.",
+          "sections": [
+            "Flagged queue",
+            "Policy evidence",
+            "Decision options",
+            "Escalation handoff"
+          ],
+          "controls": [
+            "Approve",
+            "Escalate for policy review",
+            "Return for more evidence"
+          ],
+          "relationship_to_workflow": "Coordinates work units, evidence, controls, and handoff state."
+        }
+      ]
     },
     "expected_next_action": "prepare an escalation handoff",
     "required_terms": {
-      "activity_fit": ["trust and safety", "moderation"],
-      "decision_support": ["approve", "policy review", "return for more evidence"],
-      "evidence_grounding": ["policy evidence", "user history", "severity"],
-      "disclosure_discipline": ["policy language"],
-      "handoff_quality": ["policy reviewer", "evidence gap"],
-      "rework_risk": ["escalation handoff"]
+      "activity_fit": [
+        "trust and safety",
+        "moderation"
+      ],
+      "decision_support": [
+        "approve",
+        "policy review",
+        "return for more evidence"
+      ],
+      "evidence_grounding": [
+        "policy evidence",
+        "user history",
+        "severity"
+      ],
+      "disclosure_discipline": [
+        "policy language"
+      ],
+      "handoff_quality": [
+        "policy reviewer",
+        "evidence gap"
+      ],
+      "rework_risk": [
+        "escalation handoff"
+      ]
     },
-    "forbidden_terms": ["classifier score", "model log", "JSON", "prompt"],
+    "forbidden_terms": [
+      "classifier score",
+      "model log",
+      "JSON",
+      "prompt"
+    ],
     "max_questions": 1,
-    "required_handoff_fields": ["owner", "next action", "reason", "evidence gap"],
+    "required_handoff_fields": [
+      "owner",
+      "next action",
+      "reason",
+      "evidence gap"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -510,10 +1061,21 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["review_ui_workflow_candidate", "create_ui_implementation_contract"]
+    "expected_mcp_tools": [
+      "review_ui_workflow_candidate",
+      "create_ui_implementation_contract"
+    ]
   },
   {
     "id": "invented-activity-candidate",
@@ -527,36 +1089,74 @@
     "candidate": {
       "activity_model": {
         "activity": "Treasury analyst optimizes cash reserves.",
-        "participants": ["treasury analyst"],
+        "participants": [
+          "treasury analyst"
+        ],
         "objective": "Choose an investment allocation.",
-        "outcomes": ["Cash return improved."],
-        "domain_vocabulary": ["treasury", "allocation"]
+        "outcomes": [
+          "Cash return improved."
+        ],
+        "domain_vocabulary": [
+          "treasury",
+          "allocation"
+        ]
       },
       "interaction_contract": {
         "primary_decision": "Choose investment allocation.",
-        "next_actions": ["Allocate cash."],
+        "next_actions": [
+          "Allocate cash."
+        ],
         "completion": "Allocation saved.",
-        "make_easy": ["Compare returns."]
+        "make_easy": [
+          "Compare returns."
+        ]
       },
       "disclosure_policy": {
-        "terms_to_use": ["treasury"],
+        "terms_to_use": [
+          "treasury"
+        ],
         "hidden_implementation_terms": [],
         "translation_candidates": [],
-        "diagnostic_contexts": ["auditing"]
+        "diagnostic_contexts": [
+          "auditing"
+        ]
       }
     },
     "expected_next_action": "reject the ungrounded candidate",
     "required_terms": {
-      "activity_fit": ["refund requests", "support lead"],
-      "decision_support": ["approve", "policy review", "missing evidence"],
-      "evidence_grounding": ["not grounded", "source brief"],
-      "disclosure_discipline": ["do not trust"],
-      "handoff_quality": ["corrected candidate"],
-      "rework_risk": ["reject"]
+      "activity_fit": [
+        "refund requests",
+        "support lead"
+      ],
+      "decision_support": [
+        "approve",
+        "policy review",
+        "missing evidence"
+      ],
+      "evidence_grounding": [
+        "not grounded",
+        "source brief"
+      ],
+      "disclosure_discipline": [
+        "do not trust"
+      ],
+      "handoff_quality": [
+        "corrected candidate"
+      ],
+      "rework_risk": [
+        "reject"
+      ]
     },
-    "forbidden_terms": ["treasury", "cash reserves", "investment allocation"],
+    "forbidden_terms": [
+      "treasury",
+      "cash reserves",
+      "investment allocation"
+    ],
     "max_questions": 1,
-    "required_handoff_fields": ["decision", "reason"],
+    "required_handoff_fields": [
+      "decision",
+      "reason"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -567,10 +1167,20 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["review_activity_model_candidate"]
+    "expected_mcp_tools": [
+      "review_activity_model_candidate"
+    ]
   },
   {
     "id": "schema-leaking-workflow",
@@ -584,15 +1194,19 @@
     "candidate": {
       "workflow": {
         "surface_name": "Refund JSON schema console",
-        "steps": ["Inspect JSON schema", "Edit database field", "Save CRUD update"],
-        "primary_actions": ["Save CRUD update"],
-        "decision_points": ["Decide if the JSON schema is valid."],
-        "completion_state": "Schema saved."
-      },
-      "primary_ui": {
-        "sections": ["JSON schema", "Database fields", "API endpoint"],
-        "controls": ["Save CRUD update"],
-        "user_facing_terms": ["JSON schema", "database field", "API endpoint"]
+        "primary_actions": [
+          "Save CRUD update"
+        ],
+        "decision_points": [
+          "Decide if the JSON schema is valid."
+        ],
+        "completion_state": "Schema saved.",
+        "topology": "workspace",
+        "work_units": [
+          "Inspect JSON schema",
+          "Edit database field",
+          "Save CRUD update"
+        ]
       },
       "handoff": {
         "next_owner": "developer",
@@ -600,22 +1214,67 @@
         "next_action": "Update endpoint."
       },
       "diagnostics": {
-        "implementation_terms": ["JSON schema", "database field", "API endpoint"],
-        "reveal_contexts": ["debugging"]
-      }
+        "implementation_terms": [
+          "JSON schema",
+          "database field",
+          "API endpoint"
+        ],
+        "reveal_contexts": [
+          "debugging"
+        ]
+      },
+      "surface_set": [
+        {
+          "name": "Refund JSON schema console",
+          "purpose": "Coordinate the reviewed work units, decision controls, and handoff state.",
+          "sections": [
+            "JSON schema",
+            "Database fields",
+            "API endpoint"
+          ],
+          "controls": [
+            "Save CRUD update"
+          ],
+          "relationship_to_workflow": "Coordinates work units, evidence, controls, and handoff state."
+        }
+      ]
     },
     "expected_next_action": "reject the schema-leaking workflow",
     "required_terms": {
-      "activity_fit": ["refund triage", "support lead"],
-      "decision_support": ["approve", "policy review", "missing evidence"],
-      "evidence_grounding": ["candidate leaks", "source brief"],
-      "disclosure_discipline": ["implementation terms"],
-      "handoff_quality": ["review decision"],
-      "rework_risk": ["needs source context"]
+      "activity_fit": [
+        "refund triage",
+        "support lead"
+      ],
+      "decision_support": [
+        "approve",
+        "policy review",
+        "missing evidence"
+      ],
+      "evidence_grounding": [
+        "candidate leaks",
+        "source brief"
+      ],
+      "disclosure_discipline": [
+        "implementation terms"
+      ],
+      "handoff_quality": [
+        "review decision"
+      ],
+      "rework_risk": [
+        "needs source context"
+      ]
     },
-    "forbidden_terms": ["JSON schema", "database field", "API endpoint", "CRUD"],
+    "forbidden_terms": [
+      "JSON schema",
+      "database field",
+      "API endpoint",
+      "CRUD"
+    ],
     "max_questions": 1,
-    "required_handoff_fields": ["decision", "reason"],
+    "required_handoff_fields": [
+      "decision",
+      "reason"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -626,10 +1285,20 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["review_ui_workflow_candidate"]
+    "expected_mcp_tools": [
+      "review_ui_workflow_candidate"
+    ]
   },
   {
     "id": "surface-type-mismatch",
@@ -643,15 +1312,20 @@
     "candidate": {
       "workflow": {
         "surface_name": "Operator incident queue",
-        "steps": ["Review incidents", "Assign owner", "Close incident"],
-        "primary_actions": ["Escalate incident", "Close incident"],
-        "decision_points": ["Decide whether an incident needs escalation."],
-        "completion_state": "Incident handoff saved."
-      },
-      "primary_ui": {
-        "sections": ["Incident queue", "Evidence panel", "Escalation handoff"],
-        "controls": ["Escalate incident", "Close incident"],
-        "user_facing_terms": ["incident", "handoff"]
+        "primary_actions": [
+          "Escalate incident",
+          "Close incident"
+        ],
+        "decision_points": [
+          "Decide whether an incident needs escalation."
+        ],
+        "completion_state": "Incident handoff saved.",
+        "topology": "workspace",
+        "work_units": [
+          "Review incidents",
+          "Assign owner",
+          "Close incident"
+        ]
       },
       "handoff": {
         "next_owner": "operator",
@@ -660,21 +1334,61 @@
       },
       "diagnostics": {
         "implementation_terms": [],
-        "reveal_contexts": ["auditing"]
-      }
+        "reveal_contexts": [
+          "auditing"
+        ]
+      },
+      "surface_set": [
+        {
+          "name": "Operator incident queue",
+          "purpose": "Coordinate the reviewed work units, decision controls, and handoff state.",
+          "sections": [
+            "Incident queue",
+            "Evidence panel",
+            "Escalation handoff"
+          ],
+          "controls": [
+            "Escalate incident",
+            "Close incident"
+          ],
+          "relationship_to_workflow": "Coordinates work units, evidence, controls, and handoff state."
+        }
+      ]
     },
     "expected_next_action": "reject the operator workflow and return to landing page intent",
     "required_terms": {
-      "activity_fit": ["landing page", "AI tooling teams"],
-      "decision_support": ["install", "evaluate"],
-      "evidence_grounding": ["surface mismatch", "source request"],
-      "disclosure_discipline": ["product language"],
-      "handoff_quality": ["recommendation"],
-      "rework_risk": ["correct surface type"]
+      "activity_fit": [
+        "landing page",
+        "AI tooling teams"
+      ],
+      "decision_support": [
+        "install",
+        "evaluate"
+      ],
+      "evidence_grounding": [
+        "surface mismatch",
+        "source request"
+      ],
+      "disclosure_discipline": [
+        "product language"
+      ],
+      "handoff_quality": [
+        "recommendation"
+      ],
+      "rework_risk": [
+        "correct surface type"
+      ]
     },
-    "forbidden_terms": ["incident queue", "operator", "escalation handoff"],
+    "forbidden_terms": [
+      "incident queue",
+      "operator",
+      "escalation handoff"
+    ],
     "max_questions": 1,
-    "required_handoff_fields": ["decision", "reason"],
+    "required_handoff_fields": [
+      "decision",
+      "reason"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -685,10 +1399,20 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["review_ui_workflow_candidate"]
+    "expected_mcp_tools": [
+      "review_ui_workflow_candidate"
+    ]
   },
   {
     "id": "missing-handoff-workflow",
@@ -702,34 +1426,77 @@
     "candidate": {
       "workflow": {
         "surface_name": "Exception review table",
-        "steps": ["Read request", "Sort by date"],
-        "primary_actions": ["Mark reviewed"],
-        "decision_points": ["Decide whether reviewed."],
-        "completion_state": "Row marked reviewed."
-      },
-      "primary_ui": {
-        "sections": ["Request table"],
-        "controls": ["Mark reviewed"],
-        "user_facing_terms": ["exception request"]
+        "primary_actions": [
+          "Mark reviewed"
+        ],
+        "decision_points": [
+          "Decide whether reviewed."
+        ],
+        "completion_state": "Row marked reviewed.",
+        "topology": "workspace",
+        "work_units": [
+          "Read request",
+          "Sort by date"
+        ]
       },
       "handoff": {},
       "diagnostics": {
         "implementation_terms": [],
-        "reveal_contexts": ["auditing"]
-      }
+        "reveal_contexts": [
+          "auditing"
+        ]
+      },
+      "surface_set": [
+        {
+          "name": "Exception review table",
+          "purpose": "Coordinate the reviewed work units, decision controls, and handoff state.",
+          "sections": [
+            "Request table"
+          ],
+          "controls": [
+            "Mark reviewed"
+          ],
+          "relationship_to_workflow": "Coordinates work units, evidence, controls, and handoff state."
+        }
+      ]
     },
     "expected_next_action": "block handoff creation until handoff fields are present",
     "required_terms": {
-      "activity_fit": ["policy reviewer", "exception requests"],
-      "decision_support": ["handoff", "next owner"],
-      "evidence_grounding": ["missing handoff", "evidence gap"],
-      "disclosure_discipline": ["review language"],
-      "handoff_quality": ["next action", "reason"],
-      "rework_risk": ["block"]
+      "activity_fit": [
+        "policy reviewer",
+        "exception requests"
+      ],
+      "decision_support": [
+        "handoff",
+        "next owner"
+      ],
+      "evidence_grounding": [
+        "missing handoff",
+        "evidence gap"
+      ],
+      "disclosure_discipline": [
+        "review language"
+      ],
+      "handoff_quality": [
+        "next action",
+        "reason"
+      ],
+      "rework_risk": [
+        "block"
+      ]
     },
-    "forbidden_terms": ["ready for generation", "ship it", "approved"],
+    "forbidden_terms": [
+      "ready for generation",
+      "ship it",
+      "approved"
+    ],
     "max_questions": 1,
-    "required_handoff_fields": ["next owner", "next action", "reason", "evidence gap"],
+    "required_handoff_fields": [
+      "next owner",
+      "next action",
+      "reason",
+      "evidence gap"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -740,10 +1507,20 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["review_ui_workflow_candidate"]
+    "expected_mcp_tools": [
+      "review_ui_workflow_candidate"
+    ]
   },
   {
     "id": "raw-form-controls-implementation",
@@ -755,13 +1532,29 @@
     },
     "implementation_contract_args": {
       "target_stack": "React",
-      "approved_primitives": ["queue", "detail panel", "decision controls", "handoff receipt"],
-      "static_rules": ["npm test"],
-      "browser_qa_checks": ["desktop review", "mobile review"]
+      "approved_primitives": [
+        "queue",
+        "detail panel",
+        "decision controls",
+        "handoff receipt"
+      ],
+      "static_rules": [
+        "npm test"
+      ],
+      "browser_qa_checks": [
+        "desktop review",
+        "mobile review"
+      ]
     },
     "implementation_candidate": {
-      "primitives_used": ["raw input", "raw select", "table"],
-      "states_covered": ["ready"],
+      "primitives_used": [
+        "raw input",
+        "raw select",
+        "table"
+      ],
+      "states_covered": [
+        "ready"
+      ],
       "static_checks": [],
       "browser_qa": {},
       "accessibility_evidence": {}
@@ -773,10 +1566,27 @@
       "attempts": [
         {
           "candidate": {
-            "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
-            "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
-            "static_checks": ["npm test"],
-            "browser_qa": { "desktop": "passed", "mobile": "passed" },
+            "primitives_used": [
+              "queue",
+              "detail panel",
+              "decision controls",
+              "handoff receipt"
+            ],
+            "states_covered": [
+              "empty",
+              "ready",
+              "loading",
+              "error",
+              "disabled",
+              "focus-visible"
+            ],
+            "static_checks": [
+              "npm test"
+            ],
+            "browser_qa": {
+              "desktop": "passed",
+              "mobile": "passed"
+            },
             "accessibility_evidence": {
               "automated_checks": "pass",
               "semantic_content": "pass",
@@ -787,16 +1597,35 @@
               "focus_visible": "pass",
               "responsive_no_overflow": "pass"
             },
-            "actions": ["Auto approve refund"],
+            "actions": [
+              "Auto approve refund"
+            ],
             "action_boundary_evidence": {}
           }
         },
         {
           "candidate": {
-            "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
-            "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
-            "static_checks": ["npm test"],
-            "browser_qa": { "desktop": "passed", "mobile": "passed" },
+            "primitives_used": [
+              "queue",
+              "detail panel",
+              "decision controls",
+              "handoff receipt"
+            ],
+            "states_covered": [
+              "empty",
+              "ready",
+              "loading",
+              "error",
+              "disabled",
+              "focus-visible"
+            ],
+            "static_checks": [
+              "npm test"
+            ],
+            "browser_qa": {
+              "desktop": "passed",
+              "mobile": "passed"
+            },
             "accessibility_evidence": {
               "automated_checks": "pass",
               "semantic_content": "pass",
@@ -807,7 +1636,9 @@
               "focus_visible": "pass",
               "responsive_no_overflow": "pass"
             },
-            "actions": ["Approve refund"],
+            "actions": [
+              "Approve refund"
+            ],
             "action_boundary_evidence": {
               "approval_boundary": "Approve refund requires explicit user confirmation before submission.",
               "completion_receipt": "Completion leaves a handoff receipt with the decision reason."
@@ -818,16 +1649,40 @@
     },
     "expected_next_action": "reject raw controls and require approved primitives",
     "required_terms": {
-      "activity_fit": ["refund review", "workbench"],
-      "decision_support": ["decision controls", "handoff receipt"],
-      "evidence_grounding": ["candidate evidence", "approved primitives"],
-      "disclosure_discipline": ["implementation review"],
-      "handoff_quality": ["required fix", "owner"],
-      "rework_risk": ["reject"]
+      "activity_fit": [
+        "refund review",
+        "workbench"
+      ],
+      "decision_support": [
+        "decision controls",
+        "handoff receipt"
+      ],
+      "evidence_grounding": [
+        "candidate evidence",
+        "approved primitives"
+      ],
+      "disclosure_discipline": [
+        "implementation review"
+      ],
+      "handoff_quality": [
+        "required fix",
+        "owner"
+      ],
+      "rework_risk": [
+        "reject"
+      ]
     },
-    "forbidden_terms": ["accept as-is", "ready for production", "minor polish only"],
+    "forbidden_terms": [
+      "accept as-is",
+      "ready for production",
+      "minor polish only"
+    ],
     "max_questions": 0,
-    "required_handoff_fields": ["decision", "reason", "required fix"],
+    "required_handoff_fields": [
+      "decision",
+      "reason",
+      "required fix"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -838,10 +1693,22 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate", "review_ui_implementation_candidate"]
+    "expected_mcp_tools": [
+      "create_ui_implementation_contract",
+      "review_ui_implementation_candidate",
+      "review_ui_implementation_candidate"
+    ]
   },
   {
     "id": "missing-accessibility-evidence",
@@ -853,15 +1720,39 @@
     },
     "implementation_contract_args": {
       "target_stack": "React",
-      "approved_primitives": ["queue", "detail panel", "decision controls", "handoff receipt"],
-      "static_rules": ["npm test"],
-      "browser_qa_checks": ["desktop review", "mobile review"]
+      "approved_primitives": [
+        "queue",
+        "detail panel",
+        "decision controls",
+        "handoff receipt"
+      ],
+      "static_rules": [
+        "npm test"
+      ],
+      "browser_qa_checks": [
+        "desktop review",
+        "mobile review"
+      ]
     },
     "implementation_candidate": {
-      "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
-      "states_covered": ["ready", "loading", "error"],
-      "static_checks": ["npm test"],
-      "browser_qa": { "desktop": "passed", "mobile": "passed" },
+      "primitives_used": [
+        "queue",
+        "detail panel",
+        "decision controls",
+        "handoff receipt"
+      ],
+      "states_covered": [
+        "ready",
+        "loading",
+        "error"
+      ],
+      "static_checks": [
+        "npm test"
+      ],
+      "browser_qa": {
+        "desktop": "passed",
+        "mobile": "passed"
+      },
       "accessibility_evidence": {}
     },
     "repair_loop": {
@@ -871,19 +1762,53 @@
       "attempts": [
         {
           "candidate": {
-            "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
-            "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
-            "static_checks": ["npm test"],
-            "browser_qa": { "desktop": "passed", "mobile": "passed" },
+            "primitives_used": [
+              "queue",
+              "detail panel",
+              "decision controls",
+              "handoff receipt"
+            ],
+            "states_covered": [
+              "empty",
+              "ready",
+              "loading",
+              "error",
+              "disabled",
+              "focus-visible"
+            ],
+            "static_checks": [
+              "npm test"
+            ],
+            "browser_qa": {
+              "desktop": "passed",
+              "mobile": "passed"
+            },
             "accessibility_evidence": {}
           }
         },
         {
           "candidate": {
-            "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
-            "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
-            "static_checks": ["npm test"],
-            "browser_qa": { "desktop": "passed", "mobile": "passed" },
+            "primitives_used": [
+              "queue",
+              "detail panel",
+              "decision controls",
+              "handoff receipt"
+            ],
+            "states_covered": [
+              "empty",
+              "ready",
+              "loading",
+              "error",
+              "disabled",
+              "focus-visible"
+            ],
+            "static_checks": [
+              "npm test"
+            ],
+            "browser_qa": {
+              "desktop": "passed",
+              "mobile": "passed"
+            },
             "accessibility_evidence": {
               "automated_checks": "pass",
               "semantic_content": "pass",
@@ -900,16 +1825,40 @@
     },
     "expected_next_action": "reject until accessibility evidence is supplied",
     "required_terms": {
-      "activity_fit": ["operator review", "dense"],
-      "decision_support": ["custom controls", "decision controls"],
-      "evidence_grounding": ["accessibility evidence", "candidate evidence"],
-      "disclosure_discipline": ["evidence gate"],
-      "handoff_quality": ["required fix", "verification"],
-      "rework_risk": ["block"]
+      "activity_fit": [
+        "operator review",
+        "dense"
+      ],
+      "decision_support": [
+        "custom controls",
+        "decision controls"
+      ],
+      "evidence_grounding": [
+        "accessibility evidence",
+        "candidate evidence"
+      ],
+      "disclosure_discipline": [
+        "evidence gate"
+      ],
+      "handoff_quality": [
+        "required fix",
+        "verification"
+      ],
+      "rework_risk": [
+        "block"
+      ]
     },
-    "forbidden_terms": ["accept as-is", "visual review is enough", "ready for production"],
+    "forbidden_terms": [
+      "accept as-is",
+      "visual review is enough",
+      "ready for production"
+    ],
     "max_questions": 0,
-    "required_handoff_fields": ["decision", "reason", "required fix"],
+    "required_handoff_fields": [
+      "decision",
+      "reason",
+      "required fix"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -920,10 +1869,22 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate", "review_ui_implementation_candidate"]
+    "expected_mcp_tools": [
+      "create_ui_implementation_contract",
+      "review_ui_implementation_candidate",
+      "review_ui_implementation_candidate"
+    ]
   },
   {
     "id": "modal-action-order-review",
@@ -935,16 +1896,37 @@
     },
     "implementation_contract_args": {
       "target_stack": "React",
-      "approved_primitives": ["modal", "decision controls", "handoff receipt"],
-      "static_rules": ["npm test"],
-      "browser_qa_checks": ["desktop review", "mobile review", "keyboard focus check"]
+      "approved_primitives": [
+        "modal",
+        "decision controls",
+        "handoff receipt"
+      ],
+      "static_rules": [
+        "npm test"
+      ],
+      "browser_qa_checks": [
+        "desktop review",
+        "mobile review",
+        "keyboard focus check"
+      ]
     },
     "implementation_candidate": {
-      "primitives_used": ["modal", "button"],
-      "states_covered": ["ready"],
-      "static_checks": ["npm test"],
-      "browser_qa": { "desktop": "passed" },
-      "accessibility_evidence": { "labels": "present" }
+      "primitives_used": [
+        "modal",
+        "button"
+      ],
+      "states_covered": [
+        "ready"
+      ],
+      "static_checks": [
+        "npm test"
+      ],
+      "browser_qa": {
+        "desktop": "passed"
+      },
+      "accessibility_evidence": {
+        "labels": "present"
+      }
     },
     "repair_loop": {
       "max_attempts": 3,
@@ -953,45 +1935,102 @@
       "attempts": [
         {
           "candidate": {
-            "primitives_used": ["modal", "button"],
-            "states_covered": ["ready"],
-            "static_checks": ["npm test"],
-            "browser_qa": { "desktop": "passed" },
-            "accessibility_evidence": { "labels": "present" }
+            "primitives_used": [
+              "modal",
+              "button"
+            ],
+            "states_covered": [
+              "ready"
+            ],
+            "static_checks": [
+              "npm test"
+            ],
+            "browser_qa": {
+              "desktop": "passed"
+            },
+            "accessibility_evidence": {
+              "labels": "present"
+            }
           }
         },
         {
           "candidate": {
-            "primitives_used": ["modal", "button"],
-            "states_covered": ["ready"],
-            "static_checks": ["npm test"],
-            "browser_qa": { "desktop": "passed" },
-            "accessibility_evidence": { "labels": "present" }
+            "primitives_used": [
+              "modal",
+              "button"
+            ],
+            "states_covered": [
+              "ready"
+            ],
+            "static_checks": [
+              "npm test"
+            ],
+            "browser_qa": {
+              "desktop": "passed"
+            },
+            "accessibility_evidence": {
+              "labels": "present"
+            }
           }
         },
         {
           "candidate": {
-            "primitives_used": ["modal", "button"],
-            "states_covered": ["ready"],
-            "static_checks": ["npm test"],
-            "browser_qa": { "desktop": "passed" },
-            "accessibility_evidence": { "labels": "present" }
+            "primitives_used": [
+              "modal",
+              "button"
+            ],
+            "states_covered": [
+              "ready"
+            ],
+            "static_checks": [
+              "npm test"
+            ],
+            "browser_qa": {
+              "desktop": "passed"
+            },
+            "accessibility_evidence": {
+              "labels": "present"
+            }
           }
         }
       ]
     },
     "expected_next_action": "reject until modal action order and focus evidence are verified",
     "required_terms": {
-      "activity_fit": ["policy escalation", "handoff"],
-      "decision_support": ["final action", "cancel"],
-      "evidence_grounding": ["modal evidence", "keyboard focus"],
-      "disclosure_discipline": ["implementation review"],
-      "handoff_quality": ["required fix", "verification"],
-      "rework_risk": ["focus behavior"]
+      "activity_fit": [
+        "policy escalation",
+        "handoff"
+      ],
+      "decision_support": [
+        "final action",
+        "cancel"
+      ],
+      "evidence_grounding": [
+        "modal evidence",
+        "keyboard focus"
+      ],
+      "disclosure_discipline": [
+        "implementation review"
+      ],
+      "handoff_quality": [
+        "required fix",
+        "verification"
+      ],
+      "rework_risk": [
+        "focus behavior"
+      ]
     },
-    "forbidden_terms": ["accept as-is", "looks fine", "ready for production"],
+    "forbidden_terms": [
+      "accept as-is",
+      "looks fine",
+      "ready for production"
+    ],
     "max_questions": 0,
-    "required_handoff_fields": ["decision", "reason", "required fix"],
+    "required_handoff_fields": [
+      "decision",
+      "reason",
+      "required fix"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -1002,10 +2041,23 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate", "review_ui_implementation_candidate", "review_ui_implementation_candidate"]
+    "expected_mcp_tools": [
+      "create_ui_implementation_contract",
+      "review_ui_implementation_candidate",
+      "review_ui_implementation_candidate",
+      "review_ui_implementation_candidate"
+    ]
   },
   {
     "id": "implementation-term-leakage-review",
@@ -1017,17 +2069,52 @@
     },
     "implementation_contract_args": {
       "target_stack": "React",
-      "approved_primitives": ["queue", "detail panel", "decision controls", "handoff receipt"],
-      "static_rules": ["npm test"],
-      "browser_qa_checks": ["desktop review", "mobile review"]
+      "approved_primitives": [
+        "queue",
+        "detail panel",
+        "decision controls",
+        "handoff receipt"
+      ],
+      "static_rules": [
+        "npm test"
+      ],
+      "browser_qa_checks": [
+        "desktop review",
+        "mobile review"
+      ]
     },
     "implementation_candidate": {
-      "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
-      "states_covered": ["ready", "loading", "error", "disabled", "focus-visible"],
-      "static_checks": ["npm test"],
-      "browser_qa": { "desktop": "passed", "mobile": "passed" },
-      "accessibility_evidence": { "landmarks": "present", "keyboard": "passed" },
-      "visible_text": ["ready_for_review", "activity_model", "guardrails", "candidate", "implementation_contract"]
+      "primitives_used": [
+        "queue",
+        "detail panel",
+        "decision controls",
+        "handoff receipt"
+      ],
+      "states_covered": [
+        "ready",
+        "loading",
+        "error",
+        "disabled",
+        "focus-visible"
+      ],
+      "static_checks": [
+        "npm test"
+      ],
+      "browser_qa": {
+        "desktop": "passed",
+        "mobile": "passed"
+      },
+      "accessibility_evidence": {
+        "landmarks": "present",
+        "keyboard": "passed"
+      },
+      "visible_text": [
+        "ready_for_review",
+        "activity_model",
+        "guardrails",
+        "candidate",
+        "implementation_contract"
+      ]
     },
     "repair_loop": {
       "max_attempts": 3,
@@ -1036,10 +2123,27 @@
       "attempts": [
         {
           "candidate": {
-            "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
-            "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
-            "static_checks": ["npm test"],
-            "browser_qa": { "desktop": "passed", "mobile": "passed" },
+            "primitives_used": [
+              "queue",
+              "detail panel",
+              "decision controls",
+              "handoff receipt"
+            ],
+            "states_covered": [
+              "empty",
+              "ready",
+              "loading",
+              "error",
+              "disabled",
+              "focus-visible"
+            ],
+            "static_checks": [
+              "npm test"
+            ],
+            "browser_qa": {
+              "desktop": "passed",
+              "mobile": "passed"
+            },
             "accessibility_evidence": {
               "automated_checks": "pass",
               "semantic_content": "pass",
@@ -1050,15 +2154,36 @@
               "focus_visible": "pass",
               "responsive_no_overflow": "pass"
             },
-            "visible_text": ["Refund request", "JSON schema", "resource id"]
+            "visible_text": [
+              "Refund request",
+              "JSON schema",
+              "resource id"
+            ]
           }
         },
         {
           "candidate": {
-            "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
-            "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
-            "static_checks": ["npm test"],
-            "browser_qa": { "desktop": "passed", "mobile": "passed" },
+            "primitives_used": [
+              "queue",
+              "detail panel",
+              "decision controls",
+              "handoff receipt"
+            ],
+            "states_covered": [
+              "empty",
+              "ready",
+              "loading",
+              "error",
+              "disabled",
+              "focus-visible"
+            ],
+            "static_checks": [
+              "npm test"
+            ],
+            "browser_qa": {
+              "desktop": "passed",
+              "mobile": "passed"
+            },
             "accessibility_evidence": {
               "automated_checks": "pass",
               "semantic_content": "pass",
@@ -1069,23 +2194,55 @@
               "focus_visible": "pass",
               "responsive_no_overflow": "pass"
             },
-            "visible_text": ["Refund request", "Evidence checklist", "Decision options", "Handoff receipt"]
+            "visible_text": [
+              "Refund request",
+              "Evidence checklist",
+              "Decision options",
+              "Handoff receipt"
+            ]
           }
         }
       ]
     },
     "expected_next_action": "reject product-label leakage and require user-facing language",
     "required_terms": {
-      "activity_fit": ["customer refund review", "product labels"],
-      "decision_support": ["decision controls", "handoff receipt"],
-      "evidence_grounding": ["visible text", "leakage"],
-      "disclosure_discipline": ["user-facing language", "review packet terms"],
-      "handoff_quality": ["required fix", "reason"],
-      "rework_risk": ["reject"]
+      "activity_fit": [
+        "customer refund review",
+        "product labels"
+      ],
+      "decision_support": [
+        "decision controls",
+        "handoff receipt"
+      ],
+      "evidence_grounding": [
+        "visible text",
+        "leakage"
+      ],
+      "disclosure_discipline": [
+        "user-facing language",
+        "review packet terms"
+      ],
+      "handoff_quality": [
+        "required fix",
+        "reason"
+      ],
+      "rework_risk": [
+        "reject"
+      ]
     },
-    "forbidden_terms": ["ready_for_review", "activity_model", "guardrails", "candidate", "implementation_contract"],
+    "forbidden_terms": [
+      "ready_for_review",
+      "activity_model",
+      "guardrails",
+      "candidate",
+      "implementation_contract"
+    ],
     "max_questions": 0,
-    "required_handoff_fields": ["decision", "reason", "required fix"],
+    "required_handoff_fields": [
+      "decision",
+      "reason",
+      "required fix"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -1096,10 +2253,22 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate", "review_ui_implementation_candidate"]
+    "expected_mcp_tools": [
+      "create_ui_implementation_contract",
+      "review_ui_implementation_candidate",
+      "review_ui_implementation_candidate"
+    ]
   },
   {
     "id": "visual-token-valid-metadata-review",
@@ -1111,15 +2280,42 @@
     },
     "implementation_contract_args": {
       "target_stack": "React",
-      "approved_primitives": ["queue", "detail panel", "decision controls", "handoff receipt"],
-      "static_rules": ["npm test"],
-      "browser_qa_checks": ["desktop review", "mobile review"]
+      "approved_primitives": [
+        "queue",
+        "detail panel",
+        "decision controls",
+        "handoff receipt"
+      ],
+      "static_rules": [
+        "npm test"
+      ],
+      "browser_qa_checks": [
+        "desktop review",
+        "mobile review"
+      ]
     },
     "implementation_candidate": {
-      "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
-      "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
-      "static_checks": ["npm test"],
-      "browser_qa": { "desktop": "passed", "mobile": "passed" },
+      "primitives_used": [
+        "queue",
+        "detail panel",
+        "decision controls",
+        "handoff receipt"
+      ],
+      "states_covered": [
+        "empty",
+        "ready",
+        "loading",
+        "error",
+        "disabled",
+        "focus-visible"
+      ],
+      "static_checks": [
+        "npm test"
+      ],
+      "browser_qa": {
+        "desktop": "passed",
+        "mobile": "passed"
+      },
       "accessibility_evidence": {
         "automated_checks": "pass",
         "semantic_content": "pass",
@@ -1132,10 +2328,24 @@
         "forced_colors": "pass: color and focus roles remain visible in forced-colors mode.",
         "reduced_motion": "pass: motion token use respects prefers-reduced-motion."
       },
-      "visible_text": ["Refund request", "Evidence checklist", "Decision options", "Handoff receipt"],
+      "visible_text": [
+        "Refund request",
+        "Evidence checklist",
+        "Decision options",
+        "Handoff receipt"
+      ],
       "visual_token_evidence": {
-        "token_families": ["color", "type", "spacing", "motion"],
-        "semantic_roles": ["focus", "status", "decision"],
+        "token_families": [
+          "color",
+          "type",
+          "spacing",
+          "motion"
+        ],
+        "semantic_roles": [
+          "focus",
+          "status",
+          "decision"
+        ],
         "evidence_expectations": [
           "color and focus roles map to decision controls and handoff receipt"
         ]
@@ -1150,16 +2360,40 @@
     },
     "expected_next_action": "accept visual token metadata without treating it as a renderer",
     "required_terms": {
-      "activity_fit": ["refund review", "workbench"],
-      "decision_support": ["decision options", "handoff receipt"],
-      "evidence_grounding": ["token evidence", "metadata"],
-      "disclosure_discipline": ["implementation review"],
-      "handoff_quality": ["accept", "evidence"],
-      "rework_risk": ["no renderer"]
+      "activity_fit": [
+        "refund review",
+        "workbench"
+      ],
+      "decision_support": [
+        "decision options",
+        "handoff receipt"
+      ],
+      "evidence_grounding": [
+        "token evidence",
+        "metadata"
+      ],
+      "disclosure_discipline": [
+        "implementation review"
+      ],
+      "handoff_quality": [
+        "accept",
+        "evidence"
+      ],
+      "rework_risk": [
+        "no renderer"
+      ]
     },
-    "forbidden_terms": ["component package", "A2UI", "visual quality score"],
+    "forbidden_terms": [
+      "component package",
+      "A2UI",
+      "visual quality score"
+    ],
     "max_questions": 0,
-    "required_handoff_fields": ["decision", "reason", "evidence"],
+    "required_handoff_fields": [
+      "decision",
+      "reason",
+      "evidence"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -1170,10 +2404,21 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate"]
+    "expected_mcp_tools": [
+      "create_ui_implementation_contract",
+      "review_ui_implementation_candidate"
+    ]
   },
   {
     "id": "visual-token-unsupported-family-review",
@@ -1185,15 +2430,42 @@
     },
     "implementation_contract_args": {
       "target_stack": "React",
-      "approved_primitives": ["queue", "detail panel", "decision controls", "handoff receipt"],
-      "static_rules": ["npm test"],
-      "browser_qa_checks": ["desktop review", "mobile review"]
+      "approved_primitives": [
+        "queue",
+        "detail panel",
+        "decision controls",
+        "handoff receipt"
+      ],
+      "static_rules": [
+        "npm test"
+      ],
+      "browser_qa_checks": [
+        "desktop review",
+        "mobile review"
+      ]
     },
     "implementation_candidate": {
-      "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
-      "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
-      "static_checks": ["npm test"],
-      "browser_qa": { "desktop": "passed", "mobile": "passed" },
+      "primitives_used": [
+        "queue",
+        "detail panel",
+        "decision controls",
+        "handoff receipt"
+      ],
+      "states_covered": [
+        "empty",
+        "ready",
+        "loading",
+        "error",
+        "disabled",
+        "focus-visible"
+      ],
+      "static_checks": [
+        "npm test"
+      ],
+      "browser_qa": {
+        "desktop": "passed",
+        "mobile": "passed"
+      },
       "accessibility_evidence": {
         "automated_checks": "pass",
         "semantic_content": "pass",
@@ -1205,10 +2477,21 @@
         "responsive_no_overflow": "pass",
         "forced_colors": "pass: color roles remain visible in forced-colors mode."
       },
-      "visible_text": ["Refund request", "Evidence checklist", "Decision options", "Handoff receipt"],
+      "visible_text": [
+        "Refund request",
+        "Evidence checklist",
+        "Decision options",
+        "Handoff receipt"
+      ],
       "visual_token_evidence": {
-        "token_families": ["color", "texture"],
-        "semantic_roles": ["status", "decision"]
+        "token_families": [
+          "color",
+          "texture"
+        ],
+        "semantic_roles": [
+          "status",
+          "decision"
+        ]
       }
     },
     "visual_token_adapter_proof": {
@@ -1216,20 +2499,46 @@
       "expected_review_status": "failed",
       "expected_visual_token_status": "fail",
       "expected_next_agent_action": "repair_and_resubmit",
-      "expected_failure_categories": ["visual_tokens"]
+      "expected_failure_categories": [
+        "visual_tokens"
+      ]
     },
     "expected_next_action": "reject unsupported token families and return visual token repair guidance",
     "required_terms": {
-      "activity_fit": ["refund review", "workbench"],
-      "decision_support": ["decision options", "handoff receipt"],
-      "evidence_grounding": ["unsupported token", "visual token"],
-      "disclosure_discipline": ["boundary adapter"],
-      "handoff_quality": ["required fix", "supported token"],
-      "rework_risk": ["reject"]
+      "activity_fit": [
+        "refund review",
+        "workbench"
+      ],
+      "decision_support": [
+        "decision options",
+        "handoff receipt"
+      ],
+      "evidence_grounding": [
+        "unsupported token",
+        "visual token"
+      ],
+      "disclosure_discipline": [
+        "boundary adapter"
+      ],
+      "handoff_quality": [
+        "required fix",
+        "supported token"
+      ],
+      "rework_risk": [
+        "reject"
+      ]
     },
-    "forbidden_terms": ["accept as-is", "renderer ready", "component package"],
+    "forbidden_terms": [
+      "accept as-is",
+      "renderer ready",
+      "component package"
+    ],
     "max_questions": 0,
-    "required_handoff_fields": ["decision", "reason", "required fix"],
+    "required_handoff_fields": [
+      "decision",
+      "reason",
+      "required fix"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -1240,10 +2549,21 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate"]
+    "expected_mcp_tools": [
+      "create_ui_implementation_contract",
+      "review_ui_implementation_candidate"
+    ]
   },
   {
     "id": "visual-token-accessibility-bypass-review",
@@ -1255,20 +2575,59 @@
     },
     "implementation_contract_args": {
       "target_stack": "React",
-      "approved_primitives": ["queue", "detail panel", "decision controls", "handoff receipt"],
-      "static_rules": ["npm test"],
-      "browser_qa_checks": ["desktop review", "mobile review"]
+      "approved_primitives": [
+        "queue",
+        "detail panel",
+        "decision controls",
+        "handoff receipt"
+      ],
+      "static_rules": [
+        "npm test"
+      ],
+      "browser_qa_checks": [
+        "desktop review",
+        "mobile review"
+      ]
     },
     "implementation_candidate": {
-      "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
-      "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
-      "static_checks": ["npm test"],
-      "browser_qa": { "desktop": "passed", "mobile": "passed" },
+      "primitives_used": [
+        "queue",
+        "detail panel",
+        "decision controls",
+        "handoff receipt"
+      ],
+      "states_covered": [
+        "empty",
+        "ready",
+        "loading",
+        "error",
+        "disabled",
+        "focus-visible"
+      ],
+      "static_checks": [
+        "npm test"
+      ],
+      "browser_qa": {
+        "desktop": "passed",
+        "mobile": "passed"
+      },
       "accessibility_evidence": {},
-      "visible_text": ["Refund request", "Evidence checklist", "Decision options", "Handoff receipt"],
+      "visible_text": [
+        "Refund request",
+        "Evidence checklist",
+        "Decision options",
+        "Handoff receipt"
+      ],
       "visual_token_evidence": {
-        "token_families": ["color", "spacing"],
-        "semantic_roles": ["focus", "status", "decision"]
+        "token_families": [
+          "color",
+          "spacing"
+        ],
+        "semantic_roles": [
+          "focus",
+          "status",
+          "decision"
+        ]
       }
     },
     "visual_token_adapter_proof": {
@@ -1276,20 +2635,46 @@
       "expected_review_status": "failed",
       "expected_visual_token_status": "pass",
       "expected_next_agent_action": "repair_and_resubmit",
-      "expected_failure_categories": ["accessibility"]
+      "expected_failure_categories": [
+        "accessibility"
+      ]
     },
     "expected_next_action": "reject missing accessibility evidence even when token metadata is present",
     "required_terms": {
-      "activity_fit": ["refund review", "workbench"],
-      "decision_support": ["decision options", "handoff receipt"],
-      "evidence_grounding": ["accessibility evidence", "token metadata"],
-      "disclosure_discipline": ["evidence gate"],
-      "handoff_quality": ["required fix", "accessibility"],
-      "rework_risk": ["reject"]
+      "activity_fit": [
+        "refund review",
+        "workbench"
+      ],
+      "decision_support": [
+        "decision options",
+        "handoff receipt"
+      ],
+      "evidence_grounding": [
+        "accessibility evidence",
+        "token metadata"
+      ],
+      "disclosure_discipline": [
+        "evidence gate"
+      ],
+      "handoff_quality": [
+        "required fix",
+        "accessibility"
+      ],
+      "rework_risk": [
+        "reject"
+      ]
     },
-    "forbidden_terms": ["accept as-is", "tokens are enough", "visual quality score"],
+    "forbidden_terms": [
+      "accept as-is",
+      "tokens are enough",
+      "visual quality score"
+    ],
     "max_questions": 0,
-    "required_handoff_fields": ["decision", "reason", "required fix"],
+    "required_handoff_fields": [
+      "decision",
+      "reason",
+      "required fix"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -1300,10 +2685,21 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate"]
+    "expected_mcp_tools": [
+      "create_ui_implementation_contract",
+      "review_ui_implementation_candidate"
+    ]
   },
   {
     "id": "visual-token-renderer-boundary-review",
@@ -1315,15 +2711,42 @@
     },
     "implementation_contract_args": {
       "target_stack": "React",
-      "approved_primitives": ["queue", "detail panel", "decision controls", "handoff receipt"],
-      "static_rules": ["npm test"],
-      "browser_qa_checks": ["desktop review", "mobile review"]
+      "approved_primitives": [
+        "queue",
+        "detail panel",
+        "decision controls",
+        "handoff receipt"
+      ],
+      "static_rules": [
+        "npm test"
+      ],
+      "browser_qa_checks": [
+        "desktop review",
+        "mobile review"
+      ]
     },
     "implementation_candidate": {
-      "primitives_used": ["queue", "detail panel", "decision controls", "handoff receipt"],
-      "states_covered": ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
-      "static_checks": ["npm test"],
-      "browser_qa": { "desktop": "passed", "mobile": "passed" },
+      "primitives_used": [
+        "queue",
+        "detail panel",
+        "decision controls",
+        "handoff receipt"
+      ],
+      "states_covered": [
+        "empty",
+        "ready",
+        "loading",
+        "error",
+        "disabled",
+        "focus-visible"
+      ],
+      "static_checks": [
+        "npm test"
+      ],
+      "browser_qa": {
+        "desktop": "passed",
+        "mobile": "passed"
+      },
       "accessibility_evidence": {
         "automated_checks": "pass",
         "semantic_content": "pass",
@@ -1335,10 +2758,22 @@
         "responsive_no_overflow": "pass",
         "forced_colors": "pass: color roles remain visible in forced-colors mode."
       },
-      "visible_text": ["Refund request", "Evidence checklist", "Decision options", "Handoff receipt"],
+      "visible_text": [
+        "Refund request",
+        "Evidence checklist",
+        "Decision options",
+        "Handoff receipt"
+      ],
       "visual_token_evidence": {
-        "token_families": ["color", "type", "spacing"],
-        "semantic_roles": ["status", "decision"],
+        "token_families": [
+          "color",
+          "type",
+          "spacing"
+        ],
+        "semantic_roles": [
+          "status",
+          "decision"
+        ],
         "evidence_expectations": [
           "component package is ready for this boundary slice",
           "renderer package can now drive the default component library"
@@ -1350,20 +2785,46 @@
       "expected_review_status": "failed",
       "expected_visual_token_status": "fail",
       "expected_next_agent_action": "repair_and_resubmit",
-      "expected_failure_categories": ["visual_tokens"]
+      "expected_failure_categories": [
+        "visual_tokens"
+      ]
     },
     "expected_next_action": "reject renderer and component package work in boundary-only token evidence",
     "required_terms": {
-      "activity_fit": ["refund review", "workbench"],
-      "decision_support": ["decision options", "handoff receipt"],
-      "evidence_grounding": ["renderer boundary", "visual token"],
-      "disclosure_discipline": ["boundary-only"],
-      "handoff_quality": ["required fix", "deferred renderer"],
-      "rework_risk": ["reject"]
+      "activity_fit": [
+        "refund review",
+        "workbench"
+      ],
+      "decision_support": [
+        "decision options",
+        "handoff receipt"
+      ],
+      "evidence_grounding": [
+        "renderer boundary",
+        "visual token"
+      ],
+      "disclosure_discipline": [
+        "boundary-only"
+      ],
+      "handoff_quality": [
+        "required fix",
+        "deferred renderer"
+      ],
+      "rework_risk": [
+        "reject"
+      ]
     },
-    "forbidden_terms": ["accept as-is", "A2UI", "component package ready"],
+    "forbidden_terms": [
+      "accept as-is",
+      "A2UI",
+      "component package ready"
+    ],
     "max_questions": 0,
-    "required_handoff_fields": ["decision", "reason", "required fix"],
+    "required_handoff_fields": [
+      "decision",
+      "reason",
+      "required fix"
+    ],
     "scoring_weights": {
       "activity_fit": 0.2,
       "decision_support": 0.2,
@@ -1374,9 +2835,20 @@
     },
     "minimum_score_delta": 10,
     "variants": [
-      { "id": "baseline_no_mcp", "label": "Baseline without MCP", "treatment": "baseline_no_mcp" },
-      { "id": "judgmentkit_mcp", "label": "JudgmentKit MCP", "treatment": "judgmentkit_mcp" }
+      {
+        "id": "baseline_no_mcp",
+        "label": "Baseline without MCP",
+        "treatment": "baseline_no_mcp"
+      },
+      {
+        "id": "judgmentkit_mcp",
+        "label": "JudgmentKit MCP",
+        "treatment": "judgmentkit_mcp"
+      }
     ],
-    "expected_mcp_tools": ["create_ui_implementation_contract", "review_ui_implementation_candidate"]
+    "expected_mcp_tools": [
+      "create_ui_implementation_contract",
+      "review_ui_implementation_candidate"
+    ]
   }
 ]

@@ -34,7 +34,21 @@ assert.deepEqual(
   ],
 );
 assert.equal(metadata.name, "JudgmentKit");
+assert.equal(metadata.version, "0.4.0");
 assert.deepEqual(metadata.capabilities.prompts, []);
+const toolsJson = JSON.stringify(tools);
+for (const legacyField of [
+  "primary_ui",
+  "primary_surface",
+  "workflow.steps",
+  "terms_to_keep_out_of_primary_ui",
+]) {
+  assert.equal(
+    toolsJson.includes(legacyField),
+    false,
+    `MCP tool metadata must not expose legacy field ${legacyField}`,
+  );
+}
 for (const oldToolName of OLD_TOOL_NAMES) {
   assert.equal(
     tools.some((tool) => tool.name === oldToolName),
@@ -59,6 +73,16 @@ assert.equal(tools[6].inputSchema.properties.accessibility_policy.type, "object"
 assert.equal(tools[6].inputSchema.properties.default_ai_native_design_system.type, "object");
 assert.equal(tools[6].inputSchema.properties.iteration_policy.type, "object");
 assert.equal(tools[6].inputSchema.properties.visual_token_adapter.type, "object");
+assert.ok(
+  tools[6].inputSchema.properties.visual_token_adapter.description.includes(
+    "font",
+  ),
+);
+assert.ok(
+  tools[10].inputSchema.properties.design_system_adapter.description.includes(
+    "icon guidance",
+  ),
+);
 assert.equal(tools[7].inputSchema.required.includes("candidate"), true);
 assert.equal(tools[7].inputSchema.required.includes("implementation_contract"), true);
 assert.equal(tools[7].inputSchema.properties.iteration_context.type, "object");
@@ -94,18 +118,23 @@ const refundTriageCandidate = {
 const refundWorkflowCandidate = {
   workflow: {
     surface_name: "Refund escalation queue",
-    steps: ["Review evidence", "Choose path", "Prepare handoff"],
+    topology: "workspace",
+    work_units: ["Review evidence", "Choose path", "Prepare handoff"],
     primary_actions: ["Approve refund", "Send to policy review", "Return for evidence"],
     decision_points: [
       "Decide whether the case should be approved, sent to policy review, or returned for missing evidence.",
     ],
     completion_state: "Clear handoff with next action and decision reason.",
   },
-  primary_ui: {
-    sections: ["Selected case", "Evidence checklist", "Policy review context", "Handoff"],
-    controls: ["Approve refund", "Send to policy review", "Return for evidence", "Send handoff"],
-    user_facing_terms: ["refund request", "policy review", "missing evidence", "handoff reason"],
-  },
+  surface_set: [
+    {
+      name: "Refund escalation workspace",
+      purpose: "Review evidence, choose the refund path, and send a handoff.",
+      sections: ["Selected case", "Evidence checklist", "Policy review context", "Handoff"],
+      controls: ["Approve refund", "Send to policy review", "Return for evidence", "Send handoff"],
+      relationship_to_workflow: "Keeps evidence, decision controls, and handoff receipt together.",
+    },
+  ],
   handoff: {
     next_owner: "support agent",
     reason: "Receipt or support evidence is missing.",
@@ -352,6 +381,19 @@ function coreAccessibilityEvidence() {
       "color",
     ),
   );
+  assert.ok(
+    implementationContract.implementation_contract.visual_token_adapter.font_roles.some(
+      (entry) => entry.role === "body" && entry.stack.includes("system-ui"),
+    ),
+  );
+  assert.ok(
+    implementationContract.implementation_contract.visual_token_adapter.icon_registry.some(
+      (entry) =>
+        entry.id === "status-check" &&
+        entry.viewBox === "0 0 24 24" &&
+        entry.paths.length > 0,
+    ),
+  );
 
   const implementationReview = await handleToolCall("review_ui_implementation_candidate", {
     implementation_contract: implementationContract,
@@ -421,7 +463,8 @@ function coreAccessibilityEvidence() {
   assert.equal(handoffResult.guidance_profile.profile_id, "operator-review-ui");
   assert.equal(handoffResult.surface_type, "workbench");
   assert.ok(handoffResult.workflow.primary_actions.includes("Approve refund"));
-  assert.ok(handoffResult.primary_surface.sections.includes("Evidence checklist"));
+  assert.equal("primary_surface" in handoffResult, false);
+  assert.ok(handoffResult.surface_set[0].sections.includes("Evidence checklist"));
 
   const frontendContext = await handleToolCall("create_frontend_generation_context", {
     ui_generation_handoff: handoffResult,
@@ -465,6 +508,33 @@ function coreAccessibilityEvidence() {
       design_system_package: "@mui/material",
       role: "visual renderer after context selection",
       components: ["Stack", "Button"],
+      token_guidance: {
+        token_families: ["color", "type"],
+      },
+      font_guidance: {
+        font_roles: {
+          body: "var(--mui-font-family)",
+          numeric: {
+            stack: "var(--mui-font-family)",
+            usage: "numeric values in review queues",
+          },
+        },
+      },
+      icon_guidance: {
+        icon_roles: ["status", "action"],
+        icon_registry: [
+          {
+            id: "mui-check",
+            role: "status",
+            label: "Check",
+            viewBox: "0 0 24 24",
+            paths: ["M20 6 9 17l-5-5"],
+            svg_attributes: { fill: "none", stroke: "currentColor" },
+            accessibility_guidance: "Pair with status text.",
+            allowed_usage: ["status"],
+          },
+        ],
+      },
       constraint:
         "Material UI changes the renderer layer only; it does not supply activity fit.",
     },
@@ -476,6 +546,15 @@ function coreAccessibilityEvidence() {
   assert.equal(skillContext.source_skill.raw_skill_exposed, false);
   assert.equal(skillContext.design_system_policy.mode, "adapter_after_judgment");
   assert.ok(skillContext.design_system_policy.renderer_components.includes("Button"));
+  assert.deepEqual(skillContext.token_guidance.token_families, ["color", "type"]);
+  assert.ok(
+    skillContext.font_guidance.font_roles.some(
+      (entry) => entry.role === "body" && entry.stack === "var(--mui-font-family)",
+    ),
+  );
+  assert.equal(skillContext.icon_guidance.icon_registry[0].id, "mui-check");
+  assert.ok(skillContext.instruction_markdown.includes("Font roles"));
+  assert.ok(skillContext.instruction_markdown.includes("Embedded icons"));
   assert.ok(skillContext.visual_requirements.includes("substantive product image"));
   assert.ok(
     skillContext.visual_asset_policy.preferred_paths.some((rule) =>
@@ -504,10 +583,12 @@ function coreAccessibilityEvidence() {
         ...refundWorkflowCandidate.workflow,
         surface_name: "ready_for_review JSON schema console",
       },
-      primary_ui: {
-        ...refundWorkflowCandidate.primary_ui,
-        sections: ["Activity", "Prompt template"],
-      },
+      surface_set: [
+        {
+          ...refundWorkflowCandidate.surface_set[0],
+          sections: ["Activity", "Prompt template"],
+        },
+      ],
     },
   });
 
@@ -524,7 +605,7 @@ function coreAccessibilityEvidence() {
     ),
   );
   assert.equal(JSON.stringify(result.candidate.workflow).includes("JSON schema"), false);
-  assert.equal(JSON.stringify(result.candidate.primary_ui).includes("Prompt template"), false);
+  assert.equal(JSON.stringify(result.candidate.surface_set).includes("Prompt template"), false);
 
   const handoffResult = await handleToolCall("create_ui_generation_handoff", {
     workflow_review: result,
@@ -592,6 +673,42 @@ function coreAccessibilityEvidence() {
 
   assert.equal("error" in result, true);
   assert.equal(result.error.code, "invalid_input");
+}
+
+{
+  const result = await handleToolCall("review_ui_workflow_candidate", {
+    brief:
+      "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+    candidate: {
+      ...refundWorkflowCandidate,
+      workflow: {
+        ...refundWorkflowCandidate.workflow,
+        steps: ["Review evidence", "Choose path"],
+      },
+    },
+  });
+
+  assert.equal("error" in result, true);
+  assert.equal(result.error.code, "invalid_input");
+  assert.ok(result.error.message.includes("workflow.steps"));
+}
+
+{
+  const result = await handleToolCall("review_ui_workflow_candidate", {
+    brief:
+      "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+    candidate: {
+      ...refundWorkflowCandidate,
+      primary_ui: {
+        sections: ["Evidence checklist"],
+        controls: ["Approve refund"],
+      },
+    },
+  });
+
+  assert.equal("error" in result, true);
+  assert.equal(result.error.code, "invalid_input");
+  assert.ok(result.error.message.includes("primary_ui"));
 }
 
 {

@@ -18,6 +18,26 @@ function readJson(relativePath) {
 
 const contract = readJson("contracts/ai-ui-generation.activity-contract.json");
 const schema = readJson("contracts/judgmentkit-kernel.schema.json");
+const contractText = JSON.stringify(contract);
+const schemaText = JSON.stringify(schema);
+
+for (const legacyField of [
+  "primary_ui",
+  "primary_surface",
+  "workflow.steps",
+  "terms_to_keep_out_of_primary_ui",
+]) {
+  assert.equal(
+    contractText.includes(legacyField),
+    false,
+    `Activity contract must not expose legacy field ${legacyField}`,
+  );
+  assert.equal(
+    schemaText.includes(legacyField),
+    false,
+    `Kernel schema must not expose legacy field ${legacyField}`,
+  );
+}
 
 assert.equal(contract.source_model, "fresh_start");
 assert.deepEqual(contract.quality_order.slice(0, 4), [
@@ -50,8 +70,8 @@ for (const term of [
 ]) {
   assert.ok(hiddenTerms.has(term), `Expected ${term} to be hidden by default`);
   assert.ok(
-    contract.disclosure_policy.primary_ui_must_not_show.includes(term),
-    `Expected ${term} to be excluded from primary UI`,
+    contract.disclosure_policy.product_ui_must_not_show.includes(term),
+    `Expected ${term} to be excluded from product UI`,
   );
 }
 
@@ -302,7 +322,13 @@ assert.deepEqual(
     "mode",
     "purpose",
     "token_families",
+    "token_roles",
     "semantic_roles",
+    "font_roles",
+    "font_rules",
+    "icon_roles",
+    "icon_registry",
+    "icon_rules",
     "adapter_rules",
     "evidence_expectations",
     "deferred_renderer",
@@ -388,6 +414,38 @@ assert.ok(
   contract.implementation_contract.visual_token_adapter.token_families.includes("motion"),
   "The visual token adapter must include motion as a supported family.",
 );
+assert.ok(
+  contract.implementation_contract.visual_token_adapter.token_roles.some(
+    (entry) => entry.role === "surface" && entry.families.includes("color"),
+  ),
+  "The visual token adapter must include semantic token roles.",
+);
+assert.ok(
+  contract.implementation_contract.visual_token_adapter.font_roles.some(
+    (entry) => entry.role === "body" && entry.stack.includes("system-ui"),
+  ),
+  "The visual token adapter must include portable system font roles.",
+);
+assert.ok(
+  contract.implementation_contract.visual_token_adapter.font_roles.some(
+    (entry) => entry.role === "diagnostic" && entry.stack.includes("ui-monospace"),
+  ),
+  "The visual token adapter must include a diagnostic system monospace role.",
+);
+assert.ok(
+  contract.implementation_contract.visual_token_adapter.icon_roles.includes("status"),
+  "The visual token adapter must include semantic icon roles.",
+);
+assert.ok(
+  contract.implementation_contract.visual_token_adapter.icon_registry.some(
+    (entry) =>
+      entry.id === "status-check" &&
+      entry.role === "status" &&
+      entry.viewBox === "0 0 24 24" &&
+      entry.paths.some((pathData) => pathData.includes("20 6")),
+  ),
+  "The visual token adapter must include embedded inline SVG icon defaults.",
+);
 assert.equal(
   contract.implementation_contract.visual_token_adapter.deferred_renderer.renderer_package,
   "deferred",
@@ -402,7 +460,31 @@ assert.ok(
 const overriddenTokenContract = createUiImplementationContract({
   visual_token_adapter: {
     token_families: ["color", "motion"],
+    token_roles: [{ role: "focus", families: ["color"], usage: "focus ring" }],
     semantic_roles: ["focus", "status"],
+    font_roles: {
+      body: {
+        stack: "system-ui, sans-serif",
+        usage: "body text",
+      },
+      diagnostic: {
+        stack: "ui-monospace, monospace",
+        usage: "diagnostic values",
+      },
+    },
+    icon_roles: ["status", "risk"],
+    icon_registry: [
+      {
+        id: "risk-alert",
+        role: "risk",
+        label: "Risk alert",
+        viewBox: "0 0 24 24",
+        paths: ["M12 3 22 20H2L12 3Z"],
+        svg_attributes: { fill: "none", stroke: "currentColor" },
+        accessibility_guidance: "Pair with text naming the risk.",
+        allowed_usage: ["risk state"],
+      },
+    ],
     evidence_expectations: ["map semantic token use to focus and status roles"],
   },
 });
@@ -414,6 +496,26 @@ assert.deepEqual(
 assert.deepEqual(
   overriddenTokenContract.implementation_contract.visual_token_adapter.semantic_roles,
   ["focus", "status"],
+);
+assert.deepEqual(
+  overriddenTokenContract.implementation_contract.visual_token_adapter.token_roles,
+  [{ role: "focus", families: ["color"], usage: "focus ring" }],
+);
+assert.ok(
+  overriddenTokenContract.implementation_contract.visual_token_adapter.font_roles.some(
+    (entry) => entry.role === "body" && entry.stack === "system-ui, sans-serif",
+  ),
+  "createUiImplementationContract must normalize font role overrides.",
+);
+assert.deepEqual(
+  overriddenTokenContract.implementation_contract.visual_token_adapter.icon_roles,
+  ["status", "risk"],
+);
+assert.equal(
+  overriddenTokenContract.implementation_contract.visual_token_adapter.icon_registry[0]
+    .id,
+  "risk-alert",
+  "createUiImplementationContract must normalize embedded icon registry overrides.",
 );
 assert.ok(
   contract.implementation_contract.failure_signals.some((signal) =>
@@ -502,7 +604,7 @@ assert.deepEqual(
   [
     "guardrail.activity-first-ia",
     "guardrail.work-queue-topology",
-    "guardrail.primary-surface-economy",
+    "guardrail.product-surface-economy",
     "guardrail.selector-density-boundary",
     "guardrail.control-proximity",
     "guardrail.readable-label-value-patterns",

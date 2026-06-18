@@ -206,12 +206,12 @@ assert.equal(versionBMetadata.selected_playlist_id, "DINNER-10");
 for (const term of IMPLEMENTATION_TERMS) {
   assert.ok(
     versionAPrimary.toLowerCase().includes(term.toLowerCase()),
-    `baseline primary surface should expose implementation term: ${term}`,
+    `baseline product surface should expose implementation term: ${term}`,
   );
   assert.equal(
     versionBPrimary.toLowerCase().includes(term.toLowerCase()),
     false,
-    `JudgmentKit primary surface leaked implementation term: ${term}`,
+    `JudgmentKit product surface leaked implementation term: ${term}`,
   );
 }
 
@@ -219,7 +219,7 @@ for (const term of REVIEW_PACKET_TERMS) {
   assert.equal(
     versionBPrimary.toLowerCase().includes(term.toLowerCase()),
     false,
-    `JudgmentKit primary surface leaked review-packet term: ${term}`,
+    `JudgmentKit product surface leaked review-packet term: ${term}`,
   );
 }
 
@@ -246,7 +246,7 @@ for (const phrase of [
 ]) {
   assert.ok(
     versionBPrimary.toLowerCase().includes(phrase.toLowerCase()),
-    `JudgmentKit primary surface missing music activity phrase: ${phrase}`,
+    `JudgmentKit product surface missing music activity phrase: ${phrase}`,
   );
 }
 
@@ -260,7 +260,7 @@ for (const phrase of [
 ]) {
   assert.ok(
     versionAPrimary.toLowerCase().includes(phrase.toLowerCase()),
-    `baseline primary surface missing implementation phrase: ${phrase}`,
+    `baseline product surface missing implementation phrase: ${phrase}`,
   );
 }
 

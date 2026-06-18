@@ -69,18 +69,23 @@ function refundWorkflowCandidate() {
   return {
     workflow: {
       surface_name: "Refund escalation queue",
-      steps: ["Review evidence", "Choose path", "Prepare handoff"],
+      topology: "workspace",
+      work_units: ["Review evidence", "Choose path", "Prepare handoff"],
       primary_actions: ["Approve refund", "Send to policy review", "Return for evidence"],
       decision_points: [
         "Decide whether the case should be approved, sent to policy review, or returned for missing evidence.",
       ],
       completion_state: "Clear handoff with next action and decision reason.",
     },
-    primary_ui: {
-      sections: ["Selected case", "Evidence checklist", "Policy review context", "Handoff"],
-      controls: ["Approve refund", "Send to policy review", "Return for evidence", "Send handoff"],
-      user_facing_terms: ["refund request", "policy review", "missing evidence", "handoff reason"],
-    },
+    surface_set: [
+      {
+        name: "Refund escalation workspace",
+        purpose: "Review evidence, choose the refund path, and send a handoff.",
+        sections: ["Selected case", "Evidence checklist", "Policy review context", "Handoff"],
+        controls: ["Approve refund", "Send to policy review", "Return for evidence", "Send handoff"],
+        relationship_to_workflow: "Keeps evidence, decision controls, and handoff receipt together.",
+      },
+    ],
     handoff: {
       next_owner: "support agent",
       reason: "Receipt or support evidence is missing.",
@@ -381,11 +386,13 @@ function stagedFormCandidate() {
   assert.equal(workflowReview.review_status, "ready_for_review");
   assert.equal(workflowReview.candidate.workflow.topology, "multi_surface");
   assert.ok(workflowReview.candidate.workflow.work_units.includes("Evidence comparison"));
-  assert.equal(workflowReview.candidate.workflow.steps.length, 0);
+  assert.equal("steps" in workflowReview.candidate.workflow, false);
   assert.equal(workflowReview.candidate.surface_set.length, 2);
-  assert.ok(workflowReview.candidate.primary_ui.sections.includes("Evidence checklist"));
+  assert.equal("primary_ui" in workflowReview.candidate, false);
+  assert.ok(workflowReview.candidate.surface_set[1].sections.includes("Evidence checklist"));
   assert.equal(handoff.surface_set.length, 2);
-  assert.ok(handoff.primary_surface.sections.includes("Policy review context"));
+  assert.equal("primary_surface" in handoff, false);
+  assert.ok(handoff.surface_set[1].sections.includes("Policy review context"));
 }
 
 {

@@ -70,10 +70,11 @@ function assertNoPrimaryImplementationTerms(packet) {
   }
 }
 
-function assertNoPrimaryUiWorkflowLeaks(packet) {
+function assertNoProductUiWorkflowLeaks(packet) {
   const primaryCandidateText = stringify({
     workflow: packet.candidate.workflow,
-    primary_ui: packet.candidate.primary_ui,
+    surface_set: packet.candidate.surface_set,
+    product_terms: packet.candidate.product_terms,
     handoff: packet.candidate.handoff,
   }).toLowerCase();
 
@@ -183,7 +184,8 @@ function refundWorkflowCandidate() {
   return {
     workflow: {
       surface_name: "Refund escalation queue",
-      steps: ["Review evidence", "Choose path", "Prepare handoff"],
+      topology: "workspace",
+      work_units: ["Review evidence", "Choose path", "Prepare handoff"],
       primary_actions: [
         "Approve refund",
         "Send to policy review",
@@ -194,27 +196,26 @@ function refundWorkflowCandidate() {
       ],
       completion_state: "Clear handoff with next action and decision reason.",
     },
-    primary_ui: {
-      sections: [
-        "Selected case",
-        "Customer refund context",
-        "Evidence checklist",
-        "Policy review context",
-        "Handoff",
-      ],
-      controls: [
-        "Approve refund",
-        "Send to policy review",
-        "Return for evidence",
-        "Send handoff",
-      ],
-      user_facing_terms: [
-        "refund request",
-        "policy review",
-        "missing evidence",
-        "handoff reason",
-      ],
-    },
+    surface_set: [
+      {
+        name: "Refund escalation workspace",
+        purpose: "Review refund context, evidence, policy details, and handoff result.",
+        sections: [
+          "Selected case",
+          "Customer refund context",
+          "Evidence checklist",
+          "Policy review context",
+          "Handoff",
+        ],
+        controls: [
+          "Approve refund",
+          "Send to policy review",
+          "Return for evidence",
+          "Send handoff",
+        ],
+        relationship_to_workflow: "Keeps refund evidence and decision controls together.",
+      },
+    ],
     handoff: {
       next_owner: "support agent",
       reason: "Receipt or support evidence is missing.",
@@ -231,16 +232,21 @@ function fieldOperationsWorkflowCandidate() {
   return {
     workflow: {
       surface_name: "Repair visit dispatch review",
-      steps: ["Review repair visit", "Compare route constraints", "Approve handoff"],
+      topology: "workspace",
+      work_units: ["Review repair visit", "Compare route constraints", "Approve handoff"],
       primary_actions: ["Assign technician", "Approve handoff", "Return to dispatch"],
       decision_points: ["Decide which technician should handle the next job."],
       completion_state: "Dispatch team leaves with a completed next action.",
     },
-    primary_ui: {
-      sections: ["Repair visit", "Route constraints", "Technician options", "Handoff"],
-      controls: ["Assign technician", "Approve handoff"],
-      user_facing_terms: ["repair visits", "route constraints", "technician", "next job"],
-    },
+    surface_set: [
+      {
+        name: "Repair visit dispatch review",
+        purpose: "Compare repair visit details, route constraints, and technician options.",
+        sections: ["Repair visit", "Route constraints", "Technician options", "Handoff"],
+        controls: ["Assign technician", "Approve handoff"],
+        relationship_to_workflow: "Keeps dispatch evidence near the assignment decision.",
+      },
+    ],
     handoff: {
       next_owner: "dispatch team",
       reason: "Technician assignment is ready for dispatch.",
@@ -546,11 +552,13 @@ function fieldOperationsWorkflowCandidate() {
   assert.equal(packet.activity_review.review_status, "ready_for_review");
   assertTextIncludes(packet.candidate.workflow.surface_name, "Refund escalation queue");
   assertIncludes(packet.candidate.workflow.primary_actions, "Approve refund");
-  assertIncludes(packet.candidate.primary_ui.sections, "Evidence checklist");
+  assert.equal("steps" in packet.candidate.workflow, false);
+  assert.equal("primary_ui" in packet.candidate, false);
+  assertIncludes(packet.candidate.surface_set[0].sections, "Evidence checklist");
   assertTextIncludes(packet.candidate.handoff.next_action, "Send handoff");
   assert.deepEqual(packet.guardrails.candidate_primary_terms_detected, []);
   assert.deepEqual(packet.guardrails.candidate_primary_meta_terms_detected, []);
-  assertNoPrimaryUiWorkflowLeaks(packet);
+  assertNoProductUiWorkflowLeaks(packet);
 }
 
 {
@@ -580,14 +588,14 @@ function fieldOperationsWorkflowCandidate() {
   assert.equal(packet.guardrails.activity_review_status, "needs_source_context");
   assert.equal(packet.guardrails.source_missing_evidence.activity, true);
   assert.ok(packet.review.targeted_questions.length <= 3);
-  assertNoPrimaryUiWorkflowLeaks(packet);
+  assertNoProductUiWorkflowLeaks(packet);
 }
 
 {
   const leakyCandidate = refundWorkflowCandidate();
   leakyCandidate.workflow.surface_name = "Refund JSON schema console";
   leakyCandidate.workflow.primary_actions = ["Save CRUD update", "Send to policy review"];
-  leakyCandidate.primary_ui.sections = ["Prompt template", "Evidence checklist"];
+  leakyCandidate.surface_set[0].sections = ["Prompt template", "Evidence checklist"];
 
   const packet = reviewUiWorkflowCandidate(REFUND_TRIAGE_BRIEF, leakyCandidate);
 
@@ -607,13 +615,13 @@ function fieldOperationsWorkflowCandidate() {
       (entry) => entry.term === "CRUD",
     ),
   );
-  assertNoPrimaryUiWorkflowLeaks(packet);
+  assertNoProductUiWorkflowLeaks(packet);
 }
 
 {
   const leakyCandidate = refundWorkflowCandidate();
   leakyCandidate.workflow.surface_name = "ready_for_review";
-  leakyCandidate.primary_ui.sections = ["Activity", "Evidence checklist"];
+  leakyCandidate.surface_set[0].sections = ["Activity", "Evidence checklist"];
   leakyCandidate.workflow.decision_points = ["Main decision: approve or return the case."];
 
   const packet = reviewUiWorkflowCandidate(REFUND_TRIAGE_BRIEF, leakyCandidate);
@@ -634,7 +642,7 @@ function fieldOperationsWorkflowCandidate() {
       question.includes("JudgmentKit review terms"),
     ),
   );
-  assertNoPrimaryUiWorkflowLeaks(packet);
+  assertNoProductUiWorkflowLeaks(packet);
 }
 
 {
@@ -652,9 +660,10 @@ function fieldOperationsWorkflowCandidate() {
     packet.guardrails.candidate_primary_terms_detected.some((entry) => entry.term === "field"),
     false,
   );
-  assertIncludes(packet.candidate.primary_ui.user_facing_terms, "field operations manager");
-  assertIncludes(packet.candidate.primary_ui.user_facing_terms, "technician");
-  assertNoPrimaryUiWorkflowLeaks(packet);
+  assert.equal("primary_ui" in packet.candidate, false);
+  assertIncludes(packet.candidate.product_terms, "field operations manager");
+  assertIncludes(packet.candidate.product_terms, "technician");
+  assertNoProductUiWorkflowLeaks(packet);
 }
 
 {
@@ -775,7 +784,7 @@ for (const brief of [
   assert.equal(packet.guidance_profile.profile_id, "operator-review-ui");
   assert.equal(packet.guidance_profile.pattern_id, "operator-review");
   assert.equal(packet.guardrails.guidance_profile_id, "operator-review-ui");
-  assertNoPrimaryUiWorkflowLeaks(packet);
+  assertNoProductUiWorkflowLeaks(packet);
 }
 
 {

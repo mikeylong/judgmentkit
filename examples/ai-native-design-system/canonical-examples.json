@@ -1,6 +1,6 @@
 {
   "id": "judgmentkit-ai-native-design-system-canonical-examples-v1",
-  "release_target": "0.3.0",
+  "release_target": "0.4.0",
   "purpose": "Replayable examples for the contract-governed AI-native design system before renderer work.",
   "examples": [
     {

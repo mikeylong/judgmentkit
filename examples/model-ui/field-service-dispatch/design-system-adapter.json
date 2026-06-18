@@ -19,6 +19,104 @@
       "border_radius": 8
     }
   },
+  "token_guidance": {
+    "token_families": [
+      "color",
+      "type",
+      "spacing",
+      "radius",
+      "density",
+      "semantic"
+    ],
+    "token_roles": [
+      {
+        "role": "surface",
+        "families": [
+          "color",
+          "elevation"
+        ],
+        "usage": "Material UI Paper, Card, AppBar, and surface backgrounds"
+      },
+      {
+        "role": "decision",
+        "families": [
+          "color",
+          "density"
+        ],
+        "usage": "Material UI Button and action grouping states"
+      },
+      {
+        "role": "status",
+        "families": [
+          "color",
+          "semantic"
+        ],
+        "usage": "Material UI Alert and Chip states"
+      }
+    ]
+  },
+  "font_guidance": {
+    "font_roles": {
+      "body": {
+        "stack": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+        "usage": "Material UI Typography body text"
+      },
+      "heading": {
+        "stack": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+        "usage": "Material UI Typography headings"
+      },
+      "numeric": {
+        "stack": "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+        "usage": "Queue counts, amounts, and timestamps"
+      }
+    }
+  },
+  "icon_guidance": {
+    "icon_roles": [
+      "status",
+      "action",
+      "navigation",
+      "receipt"
+    ],
+    "icon_registry": [
+      {
+        "id": "status-check",
+        "role": "status",
+        "label": "Status check",
+        "viewBox": "0 0 24 24",
+        "paths": [
+          "M20 6 9 17l-5-5"
+        ],
+        "svg_attributes": {
+          "fill": "none",
+          "stroke": "currentColor"
+        },
+        "accessibility_guidance": "Pair with Material UI status text.",
+        "allowed_usage": [
+          "success state",
+          "completed state"
+        ]
+      },
+      {
+        "id": "receipt",
+        "role": "receipt",
+        "label": "Receipt",
+        "viewBox": "0 0 24 24",
+        "paths": [
+          "M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"
+        ],
+        "svg_attributes": {
+          "fill": "none",
+          "stroke": "currentColor"
+        },
+        "accessibility_guidance": "Pair with completion or handoff text.",
+        "allowed_usage": [
+          "handoff receipt",
+          "confirmation"
+        ]
+      }
+    ]
+  },
   "components": [
     "ThemeProvider",
     "CssBaseline",

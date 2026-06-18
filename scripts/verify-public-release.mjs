@@ -398,7 +398,7 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
         assert.equal(capture.render_mode, "html");
         assert.ok(
           capture.parsed?.html?.includes("data-primary-surface"),
-          `${artifact.id} capture should include parsed primary surface HTML`,
+          `${artifact.id} capture should include parsed product surface HTML`,
         );
         assert.ok(capture.parsed?.css?.trim(), `${artifact.id} capture should include parsed CSS`);
       }
@@ -695,7 +695,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       assert.equal(capture.render_mode, "html");
       assert.ok(
         capture.parsed?.html?.includes("data-primary-surface"),
-        `${artifact.id} capture should include parsed primary surface HTML`,
+        `${artifact.id} capture should include parsed product surface HTML`,
       );
       assert.ok(capture.parsed?.css?.trim(), `${artifact.id} capture should include parsed CSS`);
     }
@@ -795,7 +795,7 @@ async function verifyMcpMetadata(baseUrl) {
   const toolNames = metadata.capabilities.tools.map((tool) => tool.name);
 
   assert.equal(metadata.name, "JudgmentKit");
-  assert.equal(metadata.version, "0.3.0");
+  assert.equal(metadata.version, "0.4.0");
   assert.equal(metadata.transport, "streamable-http");
   assert.equal(metadata.public_route.role, "mcp_endpoint_and_metadata");
   assert.equal(metadata.public_route.hosted_mcp_endpoint, true);
