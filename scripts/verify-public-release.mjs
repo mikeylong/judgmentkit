@@ -449,7 +449,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     home.text,
     [
       "Judgment before generation.",
-      "JudgmentKit stops implementation mechanics from becoming UX",
+      "JudgmentKit catches when AI-generated UI turns implementation mechanics into UX",
       '<link rel="canonical" href="https://judgmentkit.ai/">',
       '<link rel="icon" href="/favicon.svg"',
       '<meta property="og:site_name" content="JudgmentKit">',
@@ -488,7 +488,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     [
       "Model UI generation matrix",
       "<h1>Examples</h1>",
-      "Model UI generation matrix examples compare",
+      "These matrix examples compare how the same activity changes across raw brief",
       "Gemma 4 (local LLM)",
       "GPT-5.5",
       "Support refund triage",
