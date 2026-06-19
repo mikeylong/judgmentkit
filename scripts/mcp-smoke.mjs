@@ -50,7 +50,32 @@ try {
     "create_ui_generation_handoff",
     "create_frontend_generation_context",
     "create_frontend_implementation_skill_context",
+    "list_icon_catalog",
+    "search_icon_catalog",
+    "get_icon_svg",
   ]);
+
+  const iconSearchResponse = await withTimeout(
+    client.callTool({
+      name: "search_icon_catalog",
+      arguments: { query: "receipt text", limit: 3 },
+    }),
+    5_000,
+  );
+
+  assert.equal(iconSearchResponse.isError, undefined);
+  assert.equal(iconSearchResponse.structuredContent.icons[0].id, "receipt-text");
+
+  const iconSvgResponse = await withTimeout(
+    client.callTool({
+      name: "get_icon_svg",
+      arguments: { id: "check" },
+    }),
+    5_000,
+  );
+
+  assert.equal(iconSvgResponse.isError, undefined);
+  assert.ok(iconSvgResponse.structuredContent.inline_svg.includes("<svg"));
 
   const reviewResponse = await withTimeout(
     client.callTool({
@@ -73,6 +98,7 @@ try {
       {
         ok: true,
         tools: toolNames,
+        icon_search_first_match: iconSearchResponse.structuredContent.icons[0].id,
         review_status: reviewResponse.structuredContent.review_status,
       },
       null,

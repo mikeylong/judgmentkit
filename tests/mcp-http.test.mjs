@@ -23,6 +23,9 @@ const EXPECTED_TOOL_NAMES = [
   "create_ui_generation_handoff",
   "create_frontend_generation_context",
   "create_frontend_implementation_skill_context",
+  "list_icon_catalog",
+  "search_icon_catalog",
+  "get_icon_svg",
 ];
 
 const REVIEW_BRIEF =
@@ -135,6 +138,18 @@ async function runMcpClient(endpoint) {
     assert.ok(
       implementationContractResponse.structuredContent.implementation_contract
         .visual_token_adapter.token_families.includes("color"),
+    );
+    assert.ok(
+      implementationContractResponse.structuredContent.implementation_contract
+        .default_ai_native_design_system.component_contracts.some(
+          (entry) => entry.id === "action_button",
+        ),
+    );
+    assert.ok(
+      implementationContractResponse.structuredContent.implementation_contract
+        .default_ai_native_design_system.pattern_contracts.some(
+          (entry) => entry.id === "workbench",
+        ),
     );
   } finally {
     await client?.close().catch(() => {});

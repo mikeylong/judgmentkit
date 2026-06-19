@@ -27,6 +27,9 @@ const EXPECTED_TOOL_NAMES = [
   "create_ui_generation_handoff",
   "create_frontend_generation_context",
   "create_frontend_implementation_skill_context",
+  "list_icon_catalog",
+  "search_icon_catalog",
+  "get_icon_svg",
 ];
 
 const OLD_TOOL_NAMES = [

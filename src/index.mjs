@@ -2,6 +2,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import {
+  LUCIDE_ICON_CATALOG,
+  LUCIDE_ICON_INDEX,
+  LUCIDE_ICON_SOURCE,
+} from "./lucide-icon-catalog.generated.mjs";
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_CONTRACT_PATH = path.resolve(
   __dirname,
@@ -3635,6 +3641,329 @@ const DEFAULT_ACCESSIBILITY_POLICY = {
   ],
 };
 
+const DEFAULT_COMPONENT_CONTRACTS = [
+  {
+    id: "action_button",
+    label: "Action button",
+    purpose: "Trigger one bounded user action.",
+    use_when: ["the user can commit, cancel, navigate, disclose, or retry a clear action"],
+    avoid_when: ["the action is a passive label, status, or unsupported shortcut"],
+    anatomy: ["visible label", "optional icon", "state affordance"],
+    required_states: ["ready", "disabled", "focus-visible", "loading"],
+    token_bindings: ["text", "border", "focus", "decision", "risk"],
+    accessibility_checks: ["accessible name", "keyboard activation", "focus visible", "target size"],
+    review_checks: ["action comes from the workflow", "risky actions have approval-boundary evidence"],
+    failure_signals: ["icon-only button has no accessible name", "destructive action appears without confirmation evidence"],
+  },
+  {
+    id: "action_group",
+    label: "Action group",
+    purpose: "Group related actions with clear priority and boundaries.",
+    use_when: ["several actions affect the same object or decision"],
+    avoid_when: ["unrelated actions compete for primary emphasis"],
+    anatomy: ["primary action", "secondary actions", "group label or context"],
+    required_states: ["ready", "disabled", "focus-visible"],
+    token_bindings: ["decision", "risk", "border", "spacing"],
+    accessibility_checks: ["logical tab order", "visible grouping", "target size"],
+    review_checks: ["primary action is singular", "secondary actions remain adjacent to their object"],
+    failure_signals: ["multiple primary actions compete", "actions are detached from the evidence they affect"],
+  },
+  {
+    id: "form_field",
+    label: "Form field",
+    purpose: "Collect one labeled value with help, error, and disabled affordances.",
+    use_when: ["the user enters or changes structured information"],
+    avoid_when: ["the value is read-only evidence or status"],
+    anatomy: ["label", "control", "help text", "error text"],
+    required_states: ["empty", "ready", "error", "disabled", "focus-visible"],
+    token_bindings: ["text", "border", "focus", "status", "disabled"],
+    accessibility_checks: ["programmatic label", "error association", "instructions available"],
+    review_checks: ["label uses domain vocabulary", "disabled reason is readable"],
+    failure_signals: ["placeholder is the only label", "error is color-only"],
+  },
+  {
+    id: "text_field",
+    label: "Text field",
+    purpose: "Collect short text or numeric values.",
+    use_when: ["the input is short, single-line, and directly editable"],
+    avoid_when: ["long-form text, selection, or multi-value choice is required"],
+    anatomy: ["label", "input", "help text", "error text"],
+    required_states: ["empty", "ready", "error", "disabled", "focus-visible"],
+    token_bindings: ["text", "border", "focus", "status"],
+    accessibility_checks: ["programmatic label", "input purpose when known", "error association"],
+    review_checks: ["input type matches the value", "validation is visible and textual"],
+    failure_signals: ["raw input replaces approved primitive", "invalid state lacks text feedback"],
+  },
+  {
+    id: "text_area",
+    label: "Text area",
+    purpose: "Collect longer written input.",
+    use_when: ["the user writes notes, reasons, instructions, or descriptions"],
+    avoid_when: ["a short value or fixed selection is enough"],
+    anatomy: ["label", "multi-line control", "help text", "error text"],
+    required_states: ["empty", "ready", "error", "disabled", "focus-visible"],
+    token_bindings: ["text", "border", "focus", "spacing"],
+    accessibility_checks: ["programmatic label", "resize or stable height", "error association"],
+    review_checks: ["expected content is clear", "long content does not collapse nearby controls"],
+    failure_signals: ["text area is used for structured choices", "long text overlaps following content"],
+  },
+  {
+    id: "select_field",
+    label: "Select field",
+    purpose: "Choose one value from a bounded option set.",
+    use_when: ["options are known and one option is selected"],
+    avoid_when: ["free text or multiple independent choices are needed"],
+    anatomy: ["label", "trigger or native select", "options", "help or error text"],
+    required_states: ["empty", "ready", "error", "disabled", "focus-visible"],
+    token_bindings: ["text", "border", "focus", "surface"],
+    accessibility_checks: ["name role value", "keyboard operation", "error association"],
+    review_checks: ["empty option is clear when optional", "selected value is visible"],
+    failure_signals: ["custom select lacks keyboard evidence", "unassigned state is ambiguous"],
+  },
+  {
+    id: "checkbox_group",
+    label: "Checkbox group",
+    purpose: "Choose independent options from a set.",
+    use_when: ["multiple options can be selected independently"],
+    avoid_when: ["the user must choose exactly one option"],
+    anatomy: ["legend", "checkbox options", "help or error text"],
+    required_states: ["ready", "error", "disabled", "focus-visible"],
+    token_bindings: ["text", "border", "focus", "spacing"],
+    accessibility_checks: ["fieldset and legend", "checked state", "keyboard operation"],
+    review_checks: ["long labels wrap cleanly", "options remain independent"],
+    failure_signals: ["checkboxes behave like radios", "group has no legend"],
+  },
+  {
+    id: "radio_group",
+    label: "Radio group",
+    purpose: "Choose exactly one option from a set.",
+    use_when: ["the options are mutually exclusive"],
+    avoid_when: ["multiple choices can be selected"],
+    anatomy: ["legend", "radio options", "help or error text"],
+    required_states: ["empty", "ready", "error", "disabled", "focus-visible"],
+    token_bindings: ["text", "border", "focus", "spacing"],
+    accessibility_checks: ["fieldset and legend", "selected state", "arrow-key operation"],
+    review_checks: ["option labels are comparable", "default selection is intentional"],
+    failure_signals: ["mutually exclusive options are shown as checkboxes", "selected state is visual-only"],
+  },
+  {
+    id: "toggle",
+    label: "Toggle",
+    purpose: "Switch a binary setting on or off.",
+    use_when: ["the setting changes between two persistent states"],
+    avoid_when: ["the action is one-time, destructive, or requires explanation before commit"],
+    anatomy: ["visible label", "switch control", "current state text"],
+    required_states: ["ready", "disabled", "focus-visible"],
+    token_bindings: ["status", "focus", "disabled"],
+    accessibility_checks: ["name role value", "keyboard operation", "state text"],
+    review_checks: ["label names the setting", "state change is reversible or bounded"],
+    failure_signals: ["toggle hides the current state", "toggle performs a destructive action"],
+  },
+  {
+    id: "tabs",
+    label: "Tabs",
+    purpose: "Switch between peer sections without changing the task object.",
+    use_when: ["sections are peers and the user compares or switches views"],
+    avoid_when: ["the flow is ordered or requires completion before the next step"],
+    anatomy: ["tab list", "tabs", "active tab", "tab panels"],
+    required_states: ["ready", "disabled", "focus-visible"],
+    token_bindings: ["surface", "border", "focus", "text"],
+    accessibility_checks: ["tablist semantics", "keyboard operation", "active panel association"],
+    review_checks: ["tabs are peers", "active state is visible"],
+    failure_signals: ["tabs are used as a wizard", "inactive panels are unreachable by keyboard"],
+  },
+  {
+    id: "menu",
+    label: "Menu",
+    purpose: "Reveal a compact set of contextual commands.",
+    use_when: ["secondary commands need disclosure near their object"],
+    avoid_when: ["primary decisions or required information are hidden"],
+    anatomy: ["trigger", "menu", "menu items", "dismiss behavior"],
+    required_states: ["ready", "disabled", "focus-visible"],
+    token_bindings: ["surface", "border", "focus", "text"],
+    accessibility_checks: ["trigger name", "keyboard operation", "dismissal", "focus return"],
+    review_checks: ["commands are contextual", "primary path remains visible"],
+    failure_signals: ["required action is hidden in a menu", "menu traps focus"],
+  },
+  {
+    id: "dialog",
+    label: "Dialog",
+    purpose: "Interrupt the current surface for a bounded decision or focused form.",
+    use_when: ["the user must confirm, complete, or inspect a focused task before returning"],
+    avoid_when: ["content can stay inline or the decision is not blocking"],
+    anatomy: ["title", "body", "dismiss action", "primary action"],
+    required_states: ["ready", "loading", "error", "focus-visible"],
+    token_bindings: ["surface", "border", "focus", "decision", "risk"],
+    accessibility_checks: ["dialog semantics", "focus management", "escape or dismiss", "no keyboard trap"],
+    review_checks: ["primary action is visually final", "cancel or dismiss precedes primary action"],
+    failure_signals: ["dialog lacks dismiss path", "focus is not returned after close"],
+  },
+  {
+    id: "alert",
+    label: "Alert",
+    purpose: "Call attention to important status, risk, or required action.",
+    use_when: ["the user needs immediate status, warning, error, or success context"],
+    avoid_when: ["the message is ordinary helper text"],
+    anatomy: ["status indicator", "message", "optional action"],
+    required_states: ["ready", "focus-visible"],
+    token_bindings: ["status", "risk", "receipt", "text"],
+    accessibility_checks: ["status or alert semantics", "non-color cue", "readable message"],
+    review_checks: ["severity matches the action needed", "message explains next step"],
+    failure_signals: ["color is the only severity cue", "alert repeats unrelated information"],
+  },
+  {
+    id: "table",
+    label: "Table",
+    purpose: "Compare structured rows and columns.",
+    use_when: ["the user scans, compares, sorts, or verifies tabular records"],
+    avoid_when: ["cards or prose better support the activity"],
+    anatomy: ["caption or heading", "headers", "rows", "cells", "empty state"],
+    required_states: ["empty", "ready", "loading", "error", "focus-visible"],
+    token_bindings: ["surface", "border", "text", "spacing"],
+    accessibility_checks: ["header associations", "caption or label", "keyboard reachable controls"],
+    review_checks: ["columns support decisions", "empty and loading states are clear"],
+    failure_signals: ["fields are shown only because they exist", "wide table overflows without review"],
+  },
+  {
+    id: "panel",
+    label: "Panel",
+    purpose: "Group related work, evidence, or controls in a bounded region.",
+    use_when: ["a region needs a readable boundary and heading"],
+    avoid_when: ["nested cards or decorative wrappers add noise"],
+    anatomy: ["heading", "content region", "optional actions"],
+    required_states: ["ready", "loading", "error"],
+    token_bindings: ["surface", "border", "spacing", "text"],
+    accessibility_checks: ["heading hierarchy", "region label when useful", "responsive no overflow"],
+    review_checks: ["panel groups one coherent concern", "actions are adjacent to content"],
+    failure_signals: ["card inside card nesting creates visual clutter", "panel title is generic"],
+  },
+  {
+    id: "card",
+    label: "Card",
+    purpose: "Summarize one repeated item or choice.",
+    use_when: ["items repeat and each needs a compact summary"],
+    avoid_when: ["the layout becomes a decorative page section"],
+    anatomy: ["item title", "summary", "metadata", "optional action"],
+    required_states: ["ready", "disabled", "focus-visible"],
+    token_bindings: ["surface", "border", "spacing", "text"],
+    accessibility_checks: ["clear heading", "focus target when clickable", "non-text contrast"],
+    review_checks: ["card represents one object", "interactive area is clear"],
+    failure_signals: ["page sections are styled as cards", "clickable card lacks keyboard evidence"],
+  },
+  {
+    id: "status_message",
+    label: "Status message",
+    purpose: "Report progress, result, validation, or completion.",
+    use_when: ["the user needs to know what happened or what to do next"],
+    avoid_when: ["status is decorative or duplicates nearby text"],
+    anatomy: ["status text", "severity or result", "optional next action"],
+    required_states: ["ready", "loading", "error"],
+    token_bindings: ["status", "risk", "receipt", "text"],
+    accessibility_checks: ["live-region behavior when async", "non-color cue", "plain-language message"],
+    review_checks: ["message names the user-relevant result", "completion leaves a receipt"],
+    failure_signals: ["spinner has no status text", "success state lacks receipt or next action"],
+  },
+];
+
+const DEFAULT_PATTERN_CONTRACTS = [
+  {
+    id: "marketing",
+    label: "Marketing surface",
+    surface_type: "marketing",
+    purpose: "Orient a visitor to an offer and move them to a clear next step.",
+    required_regions: ["offer", "proof", "primary next step"],
+    expected_controls: ["primary call to action", "secondary information path"],
+    completion_or_handoff: "visitor understands the offer and can take the next step",
+    disclosure_boundary: "implementation detail stays out of public persuasion copy",
+    accessibility_expectations: ["readable media text", "semantic headings", "keyboard reachable calls to action"],
+    failure_signals: ["decorative polish replaces proof", "primary offer is unclear"],
+  },
+  {
+    id: "workbench",
+    label: "Workbench",
+    surface_type: "workbench",
+    purpose: "Help a user repeatedly inspect, compare, decide, and act.",
+    required_regions: ["work queue", "detail workspace", "evidence", "decision or handoff"],
+    expected_controls: ["selection", "filter or sort", "decision action", "handoff action"],
+    completion_or_handoff: "selected work item advances or leaves a clear handoff",
+    disclosure_boundary: "diagnostics stay secondary unless the activity is inspection",
+    accessibility_expectations: ["selection state", "focus order across regions", "responsive no overflow"],
+    failure_signals: ["queue rows explain too much while detail lacks evidence", "decision controls are detached from evidence"],
+  },
+  {
+    id: "operator_review",
+    label: "Operator review",
+    surface_type: "operator_review",
+    purpose: "Review produced work, evidence, risk, and a bounded next action.",
+    required_regions: ["produced work", "evidence", "risk", "decision", "receipt"],
+    expected_controls: ["approve or accept", "return or request changes", "handoff action"],
+    completion_or_handoff: "review produces a decision reason and receipt",
+    disclosure_boundary: "raw system mechanics appear only as diagnostic evidence",
+    accessibility_expectations: ["risk is not color-only", "decision controls have approval boundaries", "receipt is textual"],
+    failure_signals: ["system output is trusted without evidence", "risky action has no approval boundary"],
+  },
+  {
+    id: "form_flow",
+    label: "Form flow",
+    surface_type: "form_flow",
+    purpose: "Collect or change structured information with validation.",
+    required_regions: ["inputs", "validation", "review or submit", "confirmation"],
+    expected_controls: ["field controls", "submit action", "cancel or back action"],
+    completion_or_handoff: "valid information is saved or submitted with confirmation",
+    disclosure_boundary: "field labels use domain language instead of schema names",
+    accessibility_expectations: ["programmatic labels", "text errors", "status messages"],
+    failure_signals: ["validation is color-only", "schema fields are exposed as product labels"],
+  },
+  {
+    id: "dashboard_monitor",
+    label: "Dashboard monitor",
+    surface_type: "dashboard_monitor",
+    purpose: "Track status, exceptions, trends, or operational health.",
+    required_regions: ["status summary", "exceptions", "trend or comparison", "follow-up path"],
+    expected_controls: ["filter", "time range", "drill in"],
+    completion_or_handoff: "user knows current state and whether follow-up is needed",
+    disclosure_boundary: "metrics explain operational meaning, not storage or API mechanics",
+    accessibility_expectations: ["chart alternatives", "non-color status cues", "keyboard reachable filters"],
+    failure_signals: ["metrics lack decision meaning", "charts carry meaning without text fallback"],
+  },
+  {
+    id: "content_report",
+    label: "Content or report",
+    surface_type: "content_report",
+    purpose: "Help the user read, understand, cite, or share information.",
+    required_regions: ["summary", "sections", "evidence or references", "share or export"],
+    expected_controls: ["table of contents", "copy or export", "reference navigation"],
+    completion_or_handoff: "reader understands, cites, exports, or shares the material",
+    disclosure_boundary: "source mechanics appear only when provenance is part of the report",
+    accessibility_expectations: ["semantic headings", "link purpose", "readable long-form text"],
+    failure_signals: ["report is broken into app chrome without reading hierarchy", "references are missing"],
+  },
+  {
+    id: "setup_debug_tool",
+    label: "Setup or debugging tool",
+    surface_type: "setup_debug_tool",
+    purpose: "Configure, inspect, test, or troubleshoot machinery.",
+    required_regions: ["configuration", "test result", "diagnostic detail", "next fix"],
+    expected_controls: ["run test", "copy diagnostic", "retry or repair"],
+    completion_or_handoff: "setup is valid or failure has a cause and next fix",
+    disclosure_boundary: "implementation detail is allowed because it is the work material",
+    accessibility_expectations: ["log text is readable", "test status has text", "keyboard reachable diagnostics"],
+    failure_signals: ["diagnostics appear without remediation", "raw logs replace user-facing result"],
+  },
+  {
+    id: "conversation",
+    label: "Conversation",
+    surface_type: "conversation",
+    purpose: "Support open-ended exchange where the thread is the product surface.",
+    required_regions: ["message history", "composer", "context or attachments", "status"],
+    expected_controls: ["send", "attach or reference", "recover or retry"],
+    completion_or_handoff: "conversation continues, recovers, or closes with context intact",
+    disclosure_boundary: "system traces stay hidden unless explicitly requested",
+    accessibility_expectations: ["message order", "composer label", "status updates"],
+    failure_signals: ["message state is visual-only", "composer lacks recovery after failure"],
+  },
+];
+
 const DEFAULT_AI_NATIVE_DESIGN_SYSTEM = {
   id: "judgmentkit.ai-native-default.contract-v1",
   mode: "contract_defaults",
@@ -3657,6 +3986,8 @@ const DEFAULT_AI_NATIVE_DESIGN_SYSTEM = {
     "show disabled, error, loading, empty, ready, and focus-visible states with readable reasons",
     "state names must describe user-visible work state instead of internal lifecycle mechanics",
   ],
+  component_contracts: DEFAULT_COMPONENT_CONTRACTS,
+  pattern_contracts: DEFAULT_PATTERN_CONTRACTS,
   action_boundaries: {
     required: [
       "primary actions must come from the workflow, domain decision, or explicit handoff path",
@@ -3786,6 +4117,128 @@ const DEFAULT_TOKEN_ROLES = [
   },
 ];
 
+const DEFAULT_CSS_CUSTOM_PROPERTIES = [
+  {
+    name: "--jk-color-canvas",
+    role: "surface",
+    family: "color",
+    value: "#f8f7f2",
+    usage: "page canvas and application background",
+  },
+  {
+    name: "--jk-color-surface",
+    role: "surface",
+    family: "color",
+    value: "#ffffff",
+    usage: "panels, cards, overlays, and work regions",
+  },
+  {
+    name: "--jk-color-text",
+    role: "text",
+    family: "color",
+    value: "#171717",
+    usage: "primary readable text",
+  },
+  {
+    name: "--jk-color-muted",
+    role: "text",
+    family: "color",
+    value: "#61615c",
+    usage: "secondary labels and supporting text",
+  },
+  {
+    name: "--jk-color-border",
+    role: "border",
+    family: "color",
+    value: "#d7d3c8",
+    usage: "dividers, control outlines, and grouped evidence",
+  },
+  {
+    name: "--jk-color-focus",
+    role: "focus",
+    family: "color",
+    value: "#245f73",
+    usage: "visible focus rings and active affordances",
+  },
+  {
+    name: "--jk-color-success",
+    role: "status",
+    family: "color",
+    value: "#2e6b48",
+    usage: "approved, completed, and successful states",
+  },
+  {
+    name: "--jk-color-warning",
+    role: "status",
+    family: "color",
+    value: "#8a5a16",
+    usage: "warning, waiting, and needs-attention states",
+  },
+  {
+    name: "--jk-color-risk",
+    role: "risk",
+    family: "color",
+    value: "#8f342f",
+    usage: "risk, escalation, and destructive action states",
+  },
+  {
+    name: "--jk-color-disabled",
+    role: "disabled",
+    family: "color",
+    value: "#8a8f93",
+    usage: "disabled controls with visible rationale",
+  },
+  {
+    name: "--jk-color-receipt",
+    role: "receipt",
+    family: "color",
+    value: "#23615f",
+    usage: "handoff receipts and completion confirmation",
+  },
+  {
+    name: "--jk-space-2",
+    role: "surface",
+    family: "spacing",
+    value: "0.5rem",
+    usage: "compact gaps inside dense controls",
+  },
+  {
+    name: "--jk-space-3",
+    role: "surface",
+    family: "spacing",
+    value: "0.75rem",
+    usage: "row gaps and adjacent evidence spacing",
+  },
+  {
+    name: "--jk-space-4",
+    role: "surface",
+    family: "spacing",
+    value: "1rem",
+    usage: "panel padding and section rhythm",
+  },
+  {
+    name: "--jk-radius-control",
+    role: "border",
+    family: "radius",
+    value: "4px",
+    usage: "buttons, inputs, and compact controls",
+  },
+  {
+    name: "--jk-radius-panel",
+    role: "surface",
+    family: "radius",
+    value: "8px",
+    usage: "cards, panels, and bounded work areas",
+  },
+  {
+    name: "--jk-focus-ring",
+    role: "focus",
+    family: "semantic",
+    value: "0 0 0 3px rgba(36, 95, 115, 0.28)",
+    usage: "focus-visible outline around interactive controls",
+  },
+];
+
 const DEFAULT_FONT_ROLES = [
   {
     role: "body",
@@ -3831,127 +4284,53 @@ const DEFAULT_ICON_ROLES = [
   "receipt",
 ];
 
-const DEFAULT_ICON_REGISTRY = [
-  {
-    id: "status-check",
-    role: "status",
-    label: "Status check",
-    viewBox: "0 0 24 24",
-    paths: ["M20 6 9 17l-5-5"],
-    svg_attributes: {
-      fill: "none",
-      stroke: "currentColor",
-      stroke_width: "2",
-      stroke_linecap: "round",
-      stroke_linejoin: "round",
-    },
-    accessibility_guidance:
-      "Decorative when adjacent text names the status; otherwise provide an accessible name.",
-    allowed_usage: ["success state", "completed state", "confirmed receipt"],
-  },
-  {
-    id: "status-alert",
-    role: "risk",
-    label: "Status alert",
-    viewBox: "0 0 24 24",
-    paths: ["M12 3 22 20H2L12 3Z", "M12 9v4", "M12 17h.01"],
-    svg_attributes: {
-      fill: "none",
-      stroke: "currentColor",
-      stroke_width: "2",
-      stroke_linecap: "round",
-      stroke_linejoin: "round",
-    },
-    accessibility_guidance:
-      "Pair with text that names the risk, warning, or blocked reason.",
-    allowed_usage: ["risk state", "warning state", "blocked decision"],
-  },
-  {
-    id: "info-circle",
-    role: "status",
-    label: "Information",
-    viewBox: "0 0 24 24",
-    paths: ["M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z", "M12 10v6", "M12 7h.01"],
-    svg_attributes: {
-      fill: "none",
-      stroke: "currentColor",
-      stroke_width: "2",
-      stroke_linecap: "round",
-      stroke_linejoin: "round",
-    },
-    accessibility_guidance:
-      "Decorative beside explanatory text; named when it opens help or details.",
-    allowed_usage: ["information state", "help affordance", "diagnostic note"],
-  },
-  {
-    id: "chevron-right",
-    role: "navigation",
-    label: "Next",
-    viewBox: "0 0 24 24",
-    paths: ["M9 18l6-6-6-6"],
-    svg_attributes: {
-      fill: "none",
-      stroke: "currentColor",
-      stroke_width: "2",
-      stroke_linecap: "round",
-      stroke_linejoin: "round",
-    },
-    accessibility_guidance:
-      "Use for navigation or disclosure only when surrounding text names the destination or state.",
-    allowed_usage: ["next item", "drill-in", "disclosure"],
-  },
-  {
-    id: "filter",
-    role: "action",
-    label: "Filter",
-    viewBox: "0 0 24 24",
-    paths: ["M4 6h16", "M7 12h10", "M10 18h4"],
-    svg_attributes: {
-      fill: "none",
-      stroke: "currentColor",
-      stroke_width: "2",
-      stroke_linecap: "round",
-      stroke_linejoin: "round",
-    },
-    accessibility_guidance:
-      "Icon-only filter controls require an accessible name and target-size evidence.",
-    allowed_usage: ["filter action", "queue narrowing", "view refinement"],
-  },
-  {
-    id: "send",
-    role: "action",
-    label: "Send",
-    viewBox: "0 0 24 24",
-    paths: ["M22 2 11 13", "M22 2 15 22l-4-9-9-4 20-7Z"],
-    svg_attributes: {
-      fill: "none",
-      stroke: "currentColor",
-      stroke_width: "2",
-      stroke_linecap: "round",
-      stroke_linejoin: "round",
-    },
-    accessibility_guidance:
-      "Use only with explicit action text or an accessible name that states what will be sent.",
-    allowed_usage: ["send handoff", "submit message", "forward result"],
-  },
-  {
-    id: "receipt",
-    role: "receipt",
-    label: "Receipt",
-    viewBox: "0 0 24 24",
-    paths: ["M6 3h12v18l-3-2-3 2-3-2-3 2V3Z", "M9 8h6", "M9 12h6", "M9 16h4"],
-    svg_attributes: {
-      fill: "none",
-      stroke: "currentColor",
-      stroke_width: "2",
-      stroke_linecap: "round",
-      stroke_linejoin: "round",
-    },
-    accessibility_guidance:
-      "Pair with completion text that names the receipt, result, or handoff outcome.",
-    allowed_usage: ["handoff receipt", "confirmation", "completion state"],
-  },
+const ICON_CATALOG_TOOL_NAMES = [
+  "list_icon_catalog",
+  "search_icon_catalog",
+  "get_icon_svg",
 ];
+
+const DEFAULT_ICON_CATALOG = {
+  source: "committed_generated_catalog",
+  library: LUCIDE_ICON_SOURCE.library,
+  package: LUCIDE_ICON_SOURCE.package,
+  version: LUCIDE_ICON_SOURCE.version,
+  icon_count: LUCIDE_ICON_SOURCE.icon_count,
+  license: LUCIDE_ICON_SOURCE.license,
+  notice: LUCIDE_ICON_SOURCE.notice,
+  style_system: "Lucide 24px outline icons with round caps and joins",
+  style_attributes: {
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    stroke_width: "2",
+    stroke_linecap: "round",
+    stroke_linejoin: "round",
+  },
+  mcp_tools: ICON_CATALOG_TOOL_NAMES,
+  default_include_svg: false,
+};
+
+const DEFAULT_ICON_SELECTION_POLICY = {
+  source_library: "lucide",
+  selection_flow: [
+    "Use search_icon_catalog to find candidate Lucide icons by activity meaning, source icon name, alias, or tag.",
+    "Use get_icon_svg for the selected canonical Lucide icon id before rendering inline SVG.",
+    "Use list_icon_catalog for pagination or category browsing; existing context tools intentionally return only this catalog summary.",
+  ],
+  semantic_guidance:
+    "JudgmentKit may recommend roles such as status icon, handoff icon, or risk icon; agents choose concrete Lucide icon ids through the catalog tools.",
+  accessibility_guidance: [
+    "Icon use never satisfies accessibility evidence by itself.",
+    "Icon-only controls require accessible names plus target-size and keyboard/focus evidence.",
+    "Meaningful icons require adjacent visible text when possible and non-text contrast evidence.",
+  ],
+  failure_signals: [
+    "selected icon ids are not canonical ids in the Lucide catalog",
+    "icons are used as a substitute for required labels, states, activity evidence, workflow evidence, accessibility evidence, or QA gates",
+    "icons are fetched from a runtime CDN or remote source instead of the committed MCP catalog",
+  ],
+};
 
 const DEFAULT_VISUAL_TOKEN_ADAPTER = {
   id: "judgmentkit.visual-token-adapter.boundary-v1",
@@ -3969,6 +4348,7 @@ const DEFAULT_VISUAL_TOKEN_ADAPTER = {
     "semantic",
   ],
   token_roles: DEFAULT_TOKEN_ROLES,
+  css_custom_properties: DEFAULT_CSS_CUSTOM_PROPERTIES,
   semantic_roles: [
     "surface",
     "text",
@@ -3987,9 +4367,11 @@ const DEFAULT_VISUAL_TOKEN_ADAPTER = {
     "numeric font roles should preserve readable alignment with tabular numbers when supported",
   ],
   icon_roles: DEFAULT_ICON_ROLES,
-  icon_registry: DEFAULT_ICON_REGISTRY,
+  icon_catalog: DEFAULT_ICON_CATALOG,
+  icon_selection_policy: DEFAULT_ICON_SELECTION_POLICY,
   icon_rules: [
-    "default icons are embedded inline SVG metadata returned in MCP structured content",
+    "default icons come from the committed Lucide catalog exposed through MCP icon tools",
+    "normal implementation context includes catalog summary and policy only, not the full catalog payload",
     "icons that convey meaning require adjacent text or an accessible name",
     "icon-only controls require target-size and keyboard/focus evidence",
     "meaningful icons require non-text contrast evidence",
@@ -4004,7 +4386,7 @@ const DEFAULT_VISUAL_TOKEN_ADAPTER = {
     "name visual token families used by the candidate",
     "map token semantics to approved primitives, states, and surface patterns",
     "name font roles and confirm system stacks or repo-approved font assets",
-    "name icon roles and confirm embedded SVG or repo-approved icon assets",
+    "name icon roles and selected canonical Lucide icon ids or repo-approved icon assets",
     "include accessibility-relevant token evidence when color, motion, density, focus, or status roles affect readability or input",
   ],
   deferred_renderer: {
@@ -4112,13 +4494,121 @@ function mergePolicyObject(sourceValue, fallbackValue) {
   return sourceValue === undefined ? fallbackValue : sourceValue;
 }
 
-function normalizeDefaultAiNativeDesignSystem(sourcePolicy, fallbackPolicy) {
-  return mergePolicyObject(
-    sourcePolicy,
-    isPlainObject(fallbackPolicy)
-      ? fallbackPolicy
-      : DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
+function normalizeContractEntryList(sourceValue, fallbackValue, fieldSpecs) {
+  const fallbackEntries = Array.isArray(fallbackValue)
+    ? fallbackValue.filter(isPlainObject).map(clonePolicyValue)
+    : [];
+  const sourceEntries = Array.isArray(sourceValue)
+    ? sourceValue.filter(isPlainObject)
+    : isPlainObject(sourceValue)
+      ? Object.entries(sourceValue).map(([id, entry]) =>
+          isPlainObject(entry) ? { id, ...entry } : { id },
+        )
+      : [];
+  const entries = sourceEntries.length > 0 ? sourceEntries : fallbackEntries;
+  const fallbackById = new Map(
+    fallbackEntries.map((entry) => [normalizeText(entry.id), entry]),
   );
+  const seen = new Set();
+
+  return entries
+    .map((entry) => {
+      const id = optionalString(entry.id);
+      const fallbackEntry = fallbackById.get(normalizeText(id)) ?? {};
+      const normalized = { ...fallbackEntry, ...entry, id };
+
+      for (const field of fieldSpecs.stringFields ?? []) {
+        normalized[field] =
+          optionalString(normalized[field]) || optionalString(fallbackEntry[field]);
+      }
+
+      for (const field of fieldSpecs.arrayFields ?? []) {
+        normalized[field] = normalizePrimitiveList(
+          normalized[field] ??
+            normalized[field.replace(/_([a-z])/g, (_, letter) =>
+              letter.toUpperCase(),
+            )],
+          fallbackEntry[field],
+        );
+      }
+
+      return normalized;
+    })
+    .filter((entry) => {
+      const id = normalizeText(entry.id);
+
+      if (!id || seen.has(id)) {
+        return false;
+      }
+
+      seen.add(id);
+      return true;
+    });
+}
+
+function normalizeComponentContracts(sourceValue, fallbackValue = DEFAULT_COMPONENT_CONTRACTS) {
+  return normalizeContractEntryList(sourceValue, fallbackValue, {
+    stringFields: ["label", "purpose"],
+    arrayFields: [
+      "use_when",
+      "avoid_when",
+      "anatomy",
+      "required_states",
+      "token_bindings",
+      "accessibility_checks",
+      "review_checks",
+      "failure_signals",
+    ],
+  });
+}
+
+function normalizePatternContracts(sourceValue, fallbackValue = DEFAULT_PATTERN_CONTRACTS) {
+  return normalizeContractEntryList(sourceValue, fallbackValue, {
+    stringFields: [
+      "label",
+      "surface_type",
+      "purpose",
+      "completion_or_handoff",
+      "disclosure_boundary",
+    ],
+    arrayFields: [
+      "required_regions",
+      "expected_controls",
+      "accessibility_expectations",
+      "failure_signals",
+    ],
+  });
+}
+
+function normalizeDefaultAiNativeDesignSystem(sourcePolicy, fallbackPolicy) {
+  const fallback = isPlainObject(fallbackPolicy)
+    ? fallbackPolicy
+    : DEFAULT_AI_NATIVE_DESIGN_SYSTEM;
+  const source = isPlainObject(sourcePolicy) ? sourcePolicy : {};
+  const sourceForMerge = { ...source };
+  const fallbackForMerge = { ...fallback };
+  delete sourceForMerge.component_contracts;
+  delete sourceForMerge.componentContracts;
+  delete sourceForMerge.pattern_contracts;
+  delete sourceForMerge.patternContracts;
+  delete fallbackForMerge.component_contracts;
+  delete fallbackForMerge.pattern_contracts;
+  const merged = mergePolicyObject(
+    sourceForMerge,
+    fallbackForMerge,
+  );
+
+  return {
+    ...merged,
+    component_contracts: normalizeComponentContracts(
+      source.component_contracts ?? source.componentContracts,
+      fallback.component_contracts ?? DEFAULT_COMPONENT_CONTRACTS,
+    ),
+    pattern_contracts: normalizePatternContracts(
+      source.pattern_contracts ?? source.patternContracts,
+      fallback.pattern_contracts ?? DEFAULT_PATTERN_CONTRACTS,
+    ),
+  };
 }
 
 function firstDefined(...values) {
@@ -4205,56 +4695,110 @@ function normalizeRoleEntries(sourceValue, fallbackValue, options = {}) {
     });
 }
 
-function normalizeIconRegistryEntries(sourceValue, fallbackValue) {
-  const fallbackEntries = Array.isArray(fallbackValue)
-    ? fallbackValue.filter(isPlainObject).map(clonePolicyValue)
-    : DEFAULT_ICON_REGISTRY.map(clonePolicyValue);
-  const sourceEntries = Array.isArray(sourceValue)
-    ? sourceValue.filter(isPlainObject)
-    : [];
-  const entries = sourceEntries.length > 0 ? sourceEntries : fallbackEntries;
-  const fallbackById = new Map(
-    fallbackEntries.map((entry) => [normalizeText(entry.id), entry]),
+function normalizeIconCatalog(sourceValue, fallbackValue) {
+  const fallback = isPlainObject(fallbackValue)
+    ? fallbackValue
+    : DEFAULT_ICON_CATALOG;
+  const source = isPlainObject(sourceValue) ? sourceValue : {};
+  const policy = mergePolicyObject(source, fallback);
+  const hasSource = Object.keys(source).length > 0;
+
+  return {
+    ...policy,
+    source:
+      optionalString(source.source ?? policy.source) ||
+      (hasSource ? "adapter_override" : fallback.source),
+    library: optionalString(policy.library) || fallback.library,
+    package: optionalString(policy.package) || fallback.package,
+    version: optionalString(policy.version) || fallback.version,
+    icon_count: numberOrFallback(policy.icon_count ?? policy.iconCount, fallback.icon_count),
+    license: optionalString(policy.license) || fallback.license,
+    notice: optionalString(policy.notice) || fallback.notice,
+    style_system:
+      optionalString(policy.style_system ?? policy.styleSystem) ||
+      fallback.style_system,
+    style_attributes: mergePolicyObject(
+      policy.style_attributes ?? policy.styleAttributes,
+      fallback.style_attributes,
+    ),
+    mcp_tools: normalizePrimitiveList(
+      policy.mcp_tools ?? policy.mcpTools ?? policy.tools,
+      fallback.mcp_tools,
+    ),
+    default_include_svg:
+      typeof (policy.default_include_svg ?? policy.defaultIncludeSvg) === "boolean"
+        ? policy.default_include_svg ?? policy.defaultIncludeSvg
+        : fallback.default_include_svg,
+  };
+}
+
+function normalizeIconSelectionPolicy(sourceValue, fallbackValue) {
+  const fallback = isPlainObject(fallbackValue)
+    ? fallbackValue
+    : DEFAULT_ICON_SELECTION_POLICY;
+  const source = isPlainObject(sourceValue) ? sourceValue : {};
+  const policy = mergePolicyObject(source, fallback);
+
+  return {
+    ...policy,
+    source_library:
+      optionalString(policy.source_library ?? policy.sourceLibrary) ||
+      fallback.source_library,
+    selection_flow: normalizePrimitiveList(
+      policy.selection_flow ?? policy.selectionFlow,
+      fallback.selection_flow,
+    ),
+    semantic_guidance:
+      optionalString(policy.semantic_guidance ?? policy.semanticGuidance) ||
+      fallback.semantic_guidance,
+    accessibility_guidance: normalizePrimitiveList(
+      policy.accessibility_guidance ?? policy.accessibilityGuidance,
+      fallback.accessibility_guidance,
+    ),
+    failure_signals: normalizePrimitiveList(
+      policy.failure_signals ?? policy.failureSignals,
+      fallback.failure_signals,
+    ),
+  };
+}
+
+function normalizeCssCustomProperties(sourceValue, fallbackValue) {
+  const fallback = Array.isArray(fallbackValue)
+    ? fallbackValue
+    : DEFAULT_CSS_CUSTOM_PROPERTIES;
+  const rawEntries = Array.isArray(sourceValue) ? sourceValue : fallback;
+  const fallbackByName = new Map(
+    fallback
+      .map((entry) => [normalizeText(entry.name), entry])
+      .filter(([name]) => Boolean(name)),
   );
   const seen = new Set();
 
-  return entries
+  return rawEntries
     .map((entry) => {
-      const id = optionalString(entry.id);
-      const fallbackEntry = fallbackById.get(normalizeText(id)) ?? {};
-      return {
-        ...fallbackEntry,
-        ...entry,
-        id,
-        role: optionalString(entry.role) || optionalString(fallbackEntry.role),
-        label: optionalString(entry.label) || optionalString(fallbackEntry.label),
-        viewBox:
-          optionalString(entry.viewBox ?? entry.view_box) ||
-          optionalString(fallbackEntry.viewBox ?? fallbackEntry.view_box),
-        paths: normalizePrimitiveList(entry.paths, fallbackEntry.paths),
-        svg_attributes: mergePolicyObject(
-          entry.svg_attributes ?? entry.svgAttributes,
-          fallbackEntry.svg_attributes ?? {},
-        ),
-        accessibility_guidance:
-          optionalString(entry.accessibility_guidance ?? entry.accessibilityGuidance) ||
-          optionalString(fallbackEntry.accessibility_guidance),
-        allowed_usage: normalizePrimitiveList(
-          entry.allowed_usage ?? entry.allowedUsage,
-          fallbackEntry.allowed_usage,
-        ),
-      };
-    })
-    .filter((entry) => {
-      const id = normalizeText(entry.id);
-
-      if (!id || seen.has(id)) {
-        return false;
+      if (!isPlainObject(entry)) {
+        return null;
       }
 
-      seen.add(id);
-      return true;
-    });
+      const name = optionalString(entry.name ?? entry.property ?? entry.token);
+      const fallbackEntry = fallbackByName.get(normalizeText(name)) ?? {};
+      const normalized = {
+        name: name || optionalString(fallbackEntry.name),
+        role: optionalString(entry.role) || optionalString(fallbackEntry.role),
+        family: optionalString(entry.family) || optionalString(fallbackEntry.family),
+        value: optionalString(entry.value) || optionalString(fallbackEntry.value),
+        usage: optionalString(entry.usage) || optionalString(fallbackEntry.usage),
+      };
+      const normalizedName = normalizeText(normalized.name);
+
+      if (!normalizedName || !normalized.value || seen.has(normalizedName)) {
+        return null;
+      }
+
+      seen.add(normalizedName);
+      return normalized;
+    })
+    .filter(Boolean);
 }
 
 function normalizeVisualTokenAdapter(sourcePolicy, fallbackPolicy) {
@@ -4282,6 +4826,16 @@ function normalizeVisualTokenAdapter(sourcePolicy, fallbackPolicy) {
       fallback.token_roles ?? DEFAULT_VISUAL_TOKEN_ADAPTER.token_roles,
       { arrayKeys: ["families"], stringKeys: ["usage"] },
     ),
+    css_custom_properties: normalizeCssCustomProperties(
+      firstDefined(
+        source.css_custom_properties,
+        source.cssCustomProperties,
+        policy.css_custom_properties,
+        policy.cssCustomProperties,
+      ),
+      fallback.css_custom_properties ??
+        DEFAULT_VISUAL_TOKEN_ADAPTER.css_custom_properties,
+    ),
     semantic_roles: normalizePrimitiveList(
       policy.semantic_roles ?? policy.semanticRoles,
       DEFAULT_VISUAL_TOKEN_ADAPTER.semantic_roles,
@@ -4303,14 +4857,24 @@ function normalizeVisualTokenAdapter(sourcePolicy, fallbackPolicy) {
       policy.icon_roles ?? policy.iconRoles,
       fallback.icon_roles ?? DEFAULT_VISUAL_TOKEN_ADAPTER.icon_roles,
     ),
-    icon_registry: normalizeIconRegistryEntries(
+    icon_catalog: normalizeIconCatalog(
       firstDefined(
-        source.icon_registry,
-        source.iconRegistry,
-        policy.icon_registry,
-        policy.iconRegistry,
+        source.icon_catalog,
+        source.iconCatalog,
+        policy.icon_catalog,
+        policy.iconCatalog,
       ),
-      fallback.icon_registry ?? DEFAULT_VISUAL_TOKEN_ADAPTER.icon_registry,
+      fallback.icon_catalog ?? DEFAULT_VISUAL_TOKEN_ADAPTER.icon_catalog,
+    ),
+    icon_selection_policy: normalizeIconSelectionPolicy(
+      firstDefined(
+        source.icon_selection_policy,
+        source.iconSelectionPolicy,
+        policy.icon_selection_policy,
+        policy.iconSelectionPolicy,
+      ),
+      fallback.icon_selection_policy ??
+        DEFAULT_VISUAL_TOKEN_ADAPTER.icon_selection_policy,
     ),
     icon_rules: normalizePrimitiveList(
       policy.icon_rules ?? policy.iconRules,
@@ -6101,8 +6665,10 @@ function collectRoleNamesFromEvidenceValue(value) {
     value.source !== undefined ||
     value.mode !== undefined ||
     value.rules !== undefined ||
-    value.icon_registry !== undefined ||
-    value.iconRegistry !== undefined
+    value.icon_catalog !== undefined ||
+    value.iconCatalog !== undefined ||
+    value.icon_selection_policy !== undefined ||
+    value.iconSelectionPolicy !== undefined
   ) {
     return [];
   }
@@ -6137,6 +6703,86 @@ function collectEvidenceRoleNames(evidence, keyNames) {
   visit(evidence);
 
   return unique(values.map(cleanClause).filter(Boolean));
+}
+
+function collectIconIdsFromEvidenceValue(value) {
+  if (Array.isArray(value)) {
+    return value.flatMap(collectIconIdsFromEvidenceValue);
+  }
+
+  if (typeof value === "string") {
+    return [cleanClause(value)];
+  }
+
+  if (!isPlainObject(value)) {
+    return [];
+  }
+
+  const directId = optionalString(
+    value.icon_id ??
+      value.iconId ??
+      value.lucide_icon_id ??
+      value.lucideIconId ??
+      value.id,
+  );
+
+  if (directId) {
+    return [directId];
+  }
+
+  return [
+    ...collectIconIdsFromEvidenceValue(value.icon_ids ?? value.iconIds),
+    ...collectIconIdsFromEvidenceValue(value.selected_icons ?? value.selectedIcons),
+    ...collectIconIdsFromEvidenceValue(value.lucide_icons ?? value.lucideIcons),
+    ...collectIconIdsFromEvidenceValue(value.catalog_icon_ids ?? value.catalogIconIds),
+  ];
+}
+
+function collectEvidenceIconIds(evidence) {
+  if (!isPlainObject(evidence)) {
+    return [];
+  }
+
+  const values = [];
+  const wantedKeys = new Set([
+    "icon_ids",
+    "iconIds",
+    "selected_icons",
+    "selectedIcons",
+    "lucide_icons",
+    "lucideIcons",
+    "catalog_icon_ids",
+    "catalogIconIds",
+  ]);
+
+  function visit(value) {
+    if (!isPlainObject(value)) {
+      return;
+    }
+
+    for (const [key, child] of Object.entries(value)) {
+      if (wantedKeys.has(key)) {
+        values.push(...collectIconIdsFromEvidenceValue(child));
+      }
+
+      if (isPlainObject(child)) {
+        const directId = optionalString(
+          child.icon_id ??
+            child.iconId ??
+            child.lucide_icon_id ??
+            child.lucideIconId,
+        );
+        if (directId) {
+          values.push(directId);
+        }
+        visit(child);
+      }
+    }
+  }
+
+  visit(evidence);
+
+  return unique(values.map((value) => value.trim()).filter(Boolean));
 }
 
 function reviewVisualTokenEvidence(candidate, implementationContract) {
@@ -6206,6 +6852,10 @@ function reviewVisualTokenEvidence(candidate, implementationContract) {
   const unsupportedIconRoles = iconRoles.filter(
     (role) => !allowedIconRoleSet.has(normalizeText(role)),
   );
+  const selectedIconIds = collectEvidenceIconIds(evidence);
+  const unsupportedIconIds = selectedIconIds.filter(
+    (id) => !LUCIDE_ICON_INDEX.has(id),
+  );
   const deferredRendererTerms = [
     "renderer package",
     "component package",
@@ -6265,6 +6915,21 @@ function reviewVisualTokenEvidence(candidate, implementationContract) {
     });
   }
 
+  if (unsupportedIconIds.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "visual_tokens",
+      message:
+        "Candidate icon evidence cites icon ids outside the committed Lucide catalog.",
+      evidence: {
+        unsupported_icon_ids: unsupportedIconIds,
+        catalog_library: adapter.icon_catalog?.library,
+        catalog_version: adapter.icon_catalog?.version,
+        catalog_tools: adapter.icon_catalog?.mcp_tools,
+      },
+    });
+  }
+
   if (deferredRendererClaims.length > 0) {
     findings.push({
       severity: "fail",
@@ -6303,11 +6968,444 @@ function reviewVisualTokenEvidence(candidate, implementationContract) {
     allowed_icon_roles: allowedIconRoles,
     icon_roles: iconRoles,
     unsupported_icon_roles: unsupportedIconRoles,
-    icon_registry: normalizeIconRegistryEntries(
-      adapter.icon_registry,
-      DEFAULT_VISUAL_TOKEN_ADAPTER.icon_registry,
+    selected_icon_ids: selectedIconIds,
+    unsupported_icon_ids: unsupportedIconIds,
+    icon_catalog: normalizeIconCatalog(
+      adapter.icon_catalog,
+      DEFAULT_VISUAL_TOKEN_ADAPTER.icon_catalog,
+    ),
+    icon_selection_policy: normalizeIconSelectionPolicy(
+      adapter.icon_selection_policy,
+      DEFAULT_VISUAL_TOKEN_ADAPTER.icon_selection_policy,
     ),
     deferred_renderer: adapter.deferred_renderer,
+    findings,
+  };
+}
+
+function candidateComponentContractEvidence(candidate) {
+  if (!isPlainObject(candidate)) {
+    return null;
+  }
+
+  return (
+    candidate.component_contract_evidence ??
+    candidate.componentContractEvidence ??
+    candidate.component_contracts_evidence ??
+    candidate.componentContractsEvidence ??
+    candidate.component_evidence ??
+    candidate.componentEvidence ??
+    null
+  );
+}
+
+function candidatePatternContractEvidence(candidate) {
+  if (!isPlainObject(candidate)) {
+    return null;
+  }
+
+  return (
+    candidate.pattern_contract_evidence ??
+    candidate.patternContractEvidence ??
+    candidate.pattern_contracts_evidence ??
+    candidate.patternContractsEvidence ??
+    candidate.pattern_evidence ??
+    candidate.patternEvidence ??
+    null
+  );
+}
+
+function collectIdsFromEvidenceValue(value, idKeys) {
+  if (Array.isArray(value)) {
+    return value.flatMap((entry) => collectIdsFromEvidenceValue(entry, idKeys));
+  }
+
+  if (typeof value === "string") {
+    return [cleanClause(value)];
+  }
+
+  if (!isPlainObject(value)) {
+    return [];
+  }
+
+  const directId = idKeys
+    .map((key) => optionalString(value[key]))
+    .find(Boolean);
+
+  if (directId) {
+    return [directId];
+  }
+
+  return idKeys.flatMap((key) => collectIdsFromEvidenceValue(value[key], idKeys));
+}
+
+function collectEvidenceValuesByKeys(evidence, keyNames) {
+  if (!isPlainObject(evidence)) {
+    return [];
+  }
+
+  const wanted = new Set(keyNames);
+  const values = [];
+
+  function visit(value) {
+    if (!isPlainObject(value)) {
+      return;
+    }
+
+    for (const [key, child] of Object.entries(value)) {
+      if (wanted.has(key)) {
+        values.push(...collectStrings(child));
+      }
+
+      if (isPlainObject(child)) {
+        visit(child);
+      }
+    }
+  }
+
+  visit(evidence);
+
+  return unique(values.map(cleanClause).filter(Boolean));
+}
+
+function normalizeEvidenceStateMap(evidence) {
+  if (!isPlainObject(evidence)) {
+    return new Map();
+  }
+
+  const source =
+    evidence.states_by_component ??
+    evidence.statesByComponent ??
+    evidence.component_states ??
+    evidence.componentStates ??
+    evidence.states_covered_by_component ??
+    evidence.statesCoveredByComponent;
+  const entries = [];
+
+  if (isPlainObject(source)) {
+    for (const [id, states] of Object.entries(source)) {
+      entries.push([id, toStringArray(states)]);
+    }
+  }
+
+  for (const key of [
+    "components",
+    "component_contracts",
+    "componentContracts",
+    "component_evidence",
+    "componentEvidence",
+  ]) {
+    const value = evidence[key];
+
+    if (!Array.isArray(value)) {
+      continue;
+    }
+
+    for (const entry of value) {
+      if (!isPlainObject(entry)) {
+        continue;
+      }
+
+      const id = optionalString(
+        entry.id ?? entry.component_id ?? entry.componentId,
+      );
+
+      if (!id) {
+        continue;
+      }
+
+      entries.push([
+        id,
+        toStringArray(
+          entry.states_covered ??
+            entry.statesCovered ??
+            entry.states ??
+            entry.required_states_covered ??
+            entry.requiredStatesCovered,
+        ),
+      ]);
+    }
+  }
+
+  return new Map(
+    entries
+      .filter(([, states]) => states.length > 0)
+      .map(([id, states]) => [normalizeText(id), unique(states)]),
+  );
+}
+
+function missingValues(requiredValues, suppliedValues) {
+  const suppliedSet = new Set(suppliedValues.map((value) => normalizeText(value)));
+  return requiredValues.filter((value) => !suppliedSet.has(normalizeText(value)));
+}
+
+function reviewComponentContractEvidence(candidate, implementationContract) {
+  const system = normalizeDefaultAiNativeDesignSystem(
+    implementationContract.default_ai_native_design_system,
+    DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
+  );
+  const contracts = normalizeComponentContracts(system.component_contracts);
+  const evidence = candidateComponentContractEvidence(candidate);
+  const evidenceText = evidenceToText(evidence).toLowerCase();
+  const reviewed = evidenceHasAnyValue(evidence);
+  const contractById = new Map(
+    contracts.map((contract) => [normalizeText(contract.id), contract]),
+  );
+  const componentIds = unique([
+    ...normalizeCandidateList(evidence, [
+      "component_ids",
+      "componentIds",
+      "components_used",
+      "componentsUsed",
+      "used_components",
+      "usedComponents",
+    ]),
+    ...collectIdsFromEvidenceValue(evidence?.components, [
+      "id",
+      "component_id",
+      "componentId",
+    ]),
+    ...collectIdsFromEvidenceValue(evidence?.component_contracts, [
+      "id",
+      "component_id",
+      "componentId",
+    ]),
+    ...collectIdsFromEvidenceValue(evidence?.componentContracts, [
+      "id",
+      "component_id",
+      "componentId",
+    ]),
+  ]);
+  const stateMap = normalizeEvidenceStateMap(evidence);
+  const unsupportedComponentIds = componentIds.filter(
+    (id) => !contractById.has(normalizeText(id)),
+  );
+  const substitutesGateEvidence =
+    /(component|component contract|design-system component|design system component).{0,80}(satisf|pass|replace|substitute|instead).{0,80}(accessibility|state|browser qa|activity|workflow|disclosure|implementation gate)/i.test(
+      evidenceText,
+    );
+  const missingStateEvidence = [];
+  const findings = [];
+
+  for (const id of componentIds) {
+    const contractEntry = contractById.get(normalizeText(id));
+
+    if (!contractEntry) {
+      continue;
+    }
+
+    const coveredStates = stateMap.get(normalizeText(id)) ?? [];
+    const missingStates = missingValues(
+      contractEntry.required_states ?? [],
+      coveredStates,
+    );
+
+    if (missingStates.length > 0) {
+      missingStateEvidence.push({
+        component_id: id,
+        missing_states: missingStates,
+        required_states: contractEntry.required_states ?? [],
+      });
+    }
+  }
+
+  if (unsupportedComponentIds.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "component_contracts",
+      message:
+        "Candidate component evidence uses component ids outside the design-system contract.",
+      evidence: {
+        unsupported_component_ids: unsupportedComponentIds,
+        allowed_component_ids: contracts.map((contract) => contract.id),
+      },
+    });
+  }
+
+  if (missingStateEvidence.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "component_contracts",
+      message:
+        "Candidate component evidence is missing required state coverage for used components.",
+      evidence: missingStateEvidence,
+    });
+  }
+
+  if (substitutesGateEvidence) {
+    findings.push({
+      severity: "fail",
+      check: "component_contracts",
+      message:
+        "Candidate component evidence is being used as a substitute for required implementation gate evidence.",
+      evidence: {
+        rule: "component contracts cannot replace activity, workflow, disclosure, state, accessibility, static, or browser-QA evidence",
+      },
+    });
+  }
+
+  return {
+    status: findings.length > 0 ? "fail" : "pass",
+    reviewed,
+    allowed_component_ids: contracts.map((contract) => contract.id),
+    used_component_ids: componentIds,
+    unsupported_component_ids: unsupportedComponentIds,
+    missing_state_evidence: missingStateEvidence,
+    findings,
+  };
+}
+
+function reviewPatternContractEvidence(candidate, implementationContract) {
+  const system = normalizeDefaultAiNativeDesignSystem(
+    implementationContract.default_ai_native_design_system,
+    DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
+  );
+  const contracts = normalizePatternContracts(system.pattern_contracts);
+  const evidence = candidatePatternContractEvidence(candidate);
+  const evidenceText = evidenceToText(evidence).toLowerCase();
+  const reviewed = evidenceHasAnyValue(evidence);
+  const contractById = new Map(
+    contracts.map((contract) => [normalizeText(contract.id), contract]),
+  );
+  const patternId = optionalString(
+    evidence?.pattern_id ??
+      evidence?.patternId ??
+      evidence?.id ??
+      candidate?.pattern_id ??
+      candidate?.patternId,
+  );
+  const selectedSurfaceType = optionalString(
+    evidence?.surface_type ??
+      evidence?.surfaceType ??
+      candidate?.surface_type ??
+      candidate?.surfaceType,
+  );
+  const pattern = contractById.get(normalizeText(patternId));
+  const regionsPresent = unique([
+    ...normalizeCandidateList(evidence, [
+      "regions_present",
+      "regionsPresent",
+      "required_regions_present",
+      "requiredRegionsPresent",
+    ]),
+    ...collectEvidenceValuesByKeys(evidence, [
+      "regions_present",
+      "regionsPresent",
+      "regions",
+      "sections",
+      "required_regions_present",
+      "requiredRegionsPresent",
+    ]),
+  ]);
+  const controlsPresent = unique([
+    ...normalizeCandidateList(evidence, [
+      "controls_present",
+      "controlsPresent",
+      "expected_controls_present",
+      "expectedControlsPresent",
+    ]),
+    ...collectEvidenceValuesByKeys(evidence, [
+      "controls_present",
+      "controlsPresent",
+      "controls",
+      "expected_controls_present",
+      "expectedControlsPresent",
+    ]),
+  ]);
+  const missingRegions = pattern
+    ? missingValues(pattern.required_regions ?? [], regionsPresent)
+    : [];
+  const missingControls = pattern
+    ? missingValues(pattern.expected_controls ?? [], controlsPresent)
+    : [];
+  const surfaceMismatch =
+    pattern &&
+    selectedSurfaceType &&
+    normalizeText(selectedSurfaceType) !== normalizeText(pattern.surface_type);
+  const substitutesGateEvidence =
+    /(pattern|surface pattern|pattern contract).{0,80}(satisf|pass|replace|substitute|instead).{0,80}(accessibility|state|browser qa|activity|workflow|disclosure|implementation gate)/i.test(
+      evidenceText,
+    );
+  const findings = [];
+
+  if (reviewed && !pattern) {
+    findings.push({
+      severity: "fail",
+      check: "pattern_contracts",
+      message:
+        "Candidate pattern evidence uses a pattern id outside the design-system contract.",
+      evidence: {
+        selected_pattern_id: patternId,
+        allowed_pattern_ids: contracts.map((contract) => contract.id),
+      },
+    });
+  }
+
+  if (surfaceMismatch) {
+    findings.push({
+      severity: "fail",
+      check: "pattern_contracts",
+      message:
+        "Candidate pattern evidence does not match the selected surface type.",
+      evidence: {
+        selected_pattern_id: patternId,
+        selected_surface_type: selectedSurfaceType,
+        required_surface_type: pattern.surface_type,
+      },
+    });
+  }
+
+  if (missingRegions.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "pattern_contracts",
+      message:
+        "Candidate pattern evidence is missing required regions for the selected surface pattern.",
+      evidence: {
+        selected_pattern_id: patternId,
+        missing_regions: missingRegions,
+        required_regions: pattern.required_regions ?? [],
+      },
+    });
+  }
+
+  if (missingControls.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "pattern_contracts",
+      message:
+        "Candidate pattern evidence is missing expected controls for the selected surface pattern.",
+      evidence: {
+        selected_pattern_id: patternId,
+        missing_controls: missingControls,
+        expected_controls: pattern.expected_controls ?? [],
+      },
+    });
+  }
+
+  if (substitutesGateEvidence) {
+    findings.push({
+      severity: "fail",
+      check: "pattern_contracts",
+      message:
+        "Candidate pattern evidence is being used as a substitute for required implementation gate evidence.",
+      evidence: {
+        rule: "pattern contracts cannot replace activity, workflow, disclosure, state, accessibility, static, or browser-QA evidence",
+      },
+    });
+  }
+
+  return {
+    status: findings.length > 0 ? "fail" : "pass",
+    reviewed,
+    allowed_pattern_ids: contracts.map((contract) => contract.id),
+    selected_pattern_id: patternId,
+    selected_surface_type: selectedSurfaceType,
+    required_surface_type: pattern?.surface_type ?? "",
+    regions_present: regionsPresent,
+    controls_present: controlsPresent,
+    missing_regions: missingRegions,
+    missing_controls: missingControls,
     findings,
   };
 }
@@ -6357,6 +7455,14 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
     text,
   );
   const visualTokenEvidence = reviewVisualTokenEvidence(
+    candidate,
+    implementationContract,
+  );
+  const componentContracts = reviewComponentContractEvidence(
+    candidate,
+    implementationContract,
+  );
+  const patternContracts = reviewPatternContractEvidence(
     candidate,
     implementationContract,
   );
@@ -6425,6 +7531,8 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
   findings.push(...actionBoundaries.findings);
   findings.push(...dataVisibility.findings);
   findings.push(...visualTokenEvidence.findings);
+  findings.push(...componentContracts.findings);
+  findings.push(...patternContracts.findings);
 
   return {
     raw_controls: {
@@ -6460,6 +7568,8 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
     data_visibility: dataVisibility,
     accessibility_evidence: accessibilityEvidence,
     visual_tokens: visualTokenEvidence,
+    component_contracts: componentContracts,
+    pattern_contracts: patternContracts,
     findings,
   };
 }
@@ -6520,6 +7630,14 @@ function findingContractArea(check) {
     return "visual_tokens";
   }
 
+  if (check === "component_contracts") {
+    return "component_contracts";
+  }
+
+  if (check === "pattern_contracts") {
+    return "pattern_contracts";
+  }
+
   return "evidence_gates";
 }
 
@@ -6564,6 +7682,14 @@ function repairInstructionForFinding(finding, implementationContract) {
 
   if (check === "visual_tokens") {
     return "Keep visual token evidence boundary-only: use supported token families, avoid renderer/component/catalog/compiler work, and do not use tokens as a substitute for required implementation gates.";
+  }
+
+  if (check === "component_contracts") {
+    return "Use only known design-system component contract ids and provide required state evidence for each used component.";
+  }
+
+  if (check === "pattern_contracts") {
+    return "Select the pattern that matches the chosen surface type and provide evidence for required regions and expected controls.";
   }
 
   return "Repair the failed implementation contract evidence before resubmitting.";
@@ -6677,6 +7803,8 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
       data_visibility: checks.data_visibility,
       accessibility_evidence: checks.accessibility_evidence,
       visual_tokens: checks.visual_tokens,
+      component_contracts: checks.component_contracts,
+      pattern_contracts: checks.pattern_contracts,
     },
     findings: checks.findings,
     implementation_contract: implementationContract,
@@ -6945,6 +8073,13 @@ function normalizeAdapterTokenGuidance(source, visualTokenAdapter) {
       visualTokenAdapter.token_roles,
       { arrayKeys: ["families"], stringKeys: ["usage"] },
     ),
+    css_custom_properties: normalizeCssCustomProperties(
+      firstDefined(
+        sourceObject.css_custom_properties,
+        sourceObject.cssCustomProperties,
+      ),
+      visualTokenAdapter.css_custom_properties,
+    ),
     semantic_roles: normalizePrimitiveList(
       sourceObject.semantic_roles ?? sourceObject.semanticRoles,
       visualTokenAdapter.semantic_roles,
@@ -6993,18 +8128,268 @@ function normalizeAdapterIconGuidance(source, visualTokenAdapter) {
       sourceObject.icon_roles ?? sourceObject.iconRoles ?? sourceObject.roles,
       visualTokenAdapter.icon_roles,
     ),
-    icon_registry: normalizeIconRegistryEntries(
+    icon_catalog: normalizeIconCatalog(
       firstDefined(
-        sourceObject.icon_registry,
-        sourceObject.iconRegistry,
-        sourceObject.registry,
+        sourceObject.icon_catalog,
+        sourceObject.iconCatalog,
+        sourceObject.catalog,
       ),
-      visualTokenAdapter.icon_registry,
+      visualTokenAdapter.icon_catalog,
+    ),
+    icon_selection_policy: normalizeIconSelectionPolicy(
+      firstDefined(
+        sourceObject.icon_selection_policy,
+        sourceObject.iconSelectionPolicy,
+        sourceObject.selection_policy,
+        sourceObject.selectionPolicy,
+      ),
+      visualTokenAdapter.icon_selection_policy,
     ),
     rules: normalizePrimitiveList(
       sourceObject.rules ?? sourceObject.icon_rules ?? sourceObject.iconRules,
       visualTokenAdapter.icon_rules,
     ),
+  };
+}
+
+const DEFAULT_ICON_CATALOG_LIST_LIMIT = 50;
+const DEFAULT_ICON_CATALOG_SEARCH_LIMIT = 24;
+const MAX_ICON_CATALOG_LIMIT = 100;
+
+function normalizeIconCatalogLimit(value, fallback) {
+  const numberValue = Number(value);
+  if (!Number.isFinite(numberValue) || numberValue <= 0) {
+    return fallback;
+  }
+  return Math.min(Math.floor(numberValue), MAX_ICON_CATALOG_LIMIT);
+}
+
+function normalizeIconCatalogCursor(cursor) {
+  if (cursor === undefined || cursor === null || cursor === "") {
+    return 0;
+  }
+
+  const offset = Number(cursor);
+  if (!Number.isInteger(offset) || offset < 0) {
+    throw new JudgmentKitInputError("cursor must be a non-negative integer offset.");
+  }
+  return offset;
+}
+
+function iconRecordForResponse(icon, includeSvg = false) {
+  if (includeSvg) {
+    return clonePolicyValue(icon);
+  }
+
+  const { svg, elements, paths, ...metadata } = icon;
+
+  return {
+    ...metadata,
+    element_count: Array.isArray(elements) ? elements.length : 0,
+    path_count: Array.isArray(paths) ? paths.length : 0,
+    has_svg: true,
+  };
+}
+
+function iconCatalogLicenseSummary() {
+  return {
+    license: LUCIDE_ICON_SOURCE.license,
+    notice: LUCIDE_ICON_SOURCE.notice,
+    feather_mit_derived_count: LUCIDE_ICON_SOURCE.feather_mit_derived_count,
+    notices_file: "THIRD_PARTY_NOTICES.md",
+  };
+}
+
+export function listIconCatalog({
+  limit,
+  cursor,
+  category,
+  include_svg: includeSvg,
+  includeSvg: includeSvgCamel,
+} = {}) {
+  const resolvedLimit = normalizeIconCatalogLimit(
+    limit,
+    DEFAULT_ICON_CATALOG_LIST_LIMIT,
+  );
+  const offset = normalizeIconCatalogCursor(cursor);
+  const normalizedCategory = normalizeText(optionalString(category));
+  const includeFullSvg = Boolean(includeSvg ?? includeSvgCamel);
+  const filteredIcons = normalizedCategory
+    ? LUCIDE_ICON_CATALOG.filter((icon) =>
+        icon.categories.some(
+          (iconCategory) => normalizeText(iconCategory) === normalizedCategory,
+        ),
+      )
+    : LUCIDE_ICON_CATALOG;
+  const page = filteredIcons.slice(offset, offset + resolvedLimit);
+  const nextOffset = offset + page.length;
+
+  return {
+    icon_catalog_status: "ready",
+    source: LUCIDE_ICON_SOURCE,
+    license_summary: iconCatalogLicenseSummary(),
+    total_count: filteredIcons.length,
+    catalog_count: LUCIDE_ICON_CATALOG.length,
+    category: optionalString(category) || null,
+    limit: resolvedLimit,
+    cursor: String(offset),
+    next_cursor: nextOffset < filteredIcons.length ? String(nextOffset) : null,
+    include_svg: includeFullSvg,
+    icons: page.map((icon) => iconRecordForResponse(icon, includeFullSvg)),
+  };
+}
+
+function iconSearchTerms(query) {
+  return unique(
+    normalizeText(query)
+      .split(/[^a-z0-9]+/g)
+      .map((term) => term.trim())
+      .filter(Boolean),
+  );
+}
+
+function scoreIconForQuery(icon, query, terms) {
+  const normalizedQuery = normalizeText(query);
+  const dashedQuery = normalizedQuery.replaceAll(" ", "-");
+  const id = normalizeText(icon.id);
+  const name = normalizeText(icon.name);
+  const aliases = toStringArray(icon.aliases).map(normalizeText);
+  const tags = toStringArray(icon.tags).map(normalizeText);
+  const searchTerms = toStringArray(icon.search_terms).map(normalizeText);
+  const categories = toStringArray(icon.categories).map(normalizeText);
+  let score = 0;
+
+  if (id === dashedQuery || id === normalizedQuery) {
+    score += 160;
+  } else if (id.startsWith(dashedQuery)) {
+    score += 90;
+  } else if (id.includes(dashedQuery)) {
+    score += 55;
+  }
+
+  if (name === normalizedQuery) {
+    score += 130;
+  } else if (name.startsWith(normalizedQuery)) {
+    score += 70;
+  } else if (name.includes(normalizedQuery)) {
+    score += 40;
+  }
+
+  for (const alias of aliases) {
+    if (alias === dashedQuery || alias === normalizedQuery) {
+      score += 120;
+    } else if (alias.includes(dashedQuery) || alias.includes(normalizedQuery)) {
+      score += 50;
+    }
+  }
+
+  for (const tag of tags) {
+    if (tag === normalizedQuery) {
+      score += 85;
+    } else if (tag.includes(normalizedQuery)) {
+      score += 32;
+    }
+  }
+
+  for (const term of terms) {
+    if (id.split("-").includes(term)) {
+      score += 35;
+    }
+    if (id.includes(term)) {
+      score += 20;
+    }
+    if (name.split(" ").includes(term)) {
+      score += 25;
+    }
+    if (aliases.some((alias) => alias.split("-").includes(term) || alias.includes(term))) {
+      score += 24;
+    }
+    if (tags.some((tag) => tag === term || tag.includes(term))) {
+      score += 22;
+    }
+    if (searchTerms.some((searchTerm) => searchTerm === term || searchTerm.includes(term))) {
+      score += 18;
+    }
+    if (categories.some((iconCategory) => iconCategory === term)) {
+      score += 10;
+    }
+  }
+
+  return score;
+}
+
+export function searchIconCatalog({
+  query,
+  limit,
+  include_svg: includeSvg,
+  includeSvg: includeSvgCamel,
+} = {}) {
+  const normalizedQuery = optionalString(query);
+  if (!normalizedQuery) {
+    throw new JudgmentKitInputError("query is required for search_icon_catalog.");
+  }
+
+  const resolvedLimit = normalizeIconCatalogLimit(
+    limit,
+    DEFAULT_ICON_CATALOG_SEARCH_LIMIT,
+  );
+  const includeFullSvg = Boolean(includeSvg ?? includeSvgCamel);
+  const terms = iconSearchTerms(normalizedQuery);
+  const matches = LUCIDE_ICON_CATALOG
+    .map((icon) => ({
+      icon,
+      score: scoreIconForQuery(icon, normalizedQuery, terms),
+    }))
+    .filter((match) => match.score > 0)
+    .sort((left, right) => {
+      if (right.score !== left.score) {
+        return right.score - left.score;
+      }
+      return left.icon.id.localeCompare(right.icon.id);
+    })
+    .slice(0, resolvedLimit);
+
+  return {
+    icon_catalog_status: "ready",
+    source: LUCIDE_ICON_SOURCE,
+    license_summary: iconCatalogLicenseSummary(),
+    query: normalizedQuery,
+    limit: resolvedLimit,
+    include_svg: includeFullSvg,
+    total_count: LUCIDE_ICON_CATALOG.length,
+    match_count: matches.length,
+    icons: matches.map((match) => ({
+      ...iconRecordForResponse(match.icon, includeFullSvg),
+      score: match.score,
+    })),
+  };
+}
+
+export function getIconSvg({ id } = {}) {
+  const normalizedId = optionalString(id);
+  if (!normalizedId) {
+    throw new JudgmentKitInputError("id is required for get_icon_svg.");
+  }
+
+  const icon = LUCIDE_ICON_INDEX.get(normalizedId);
+  if (!icon) {
+    throw new JudgmentKitInputError(`Unknown Lucide icon id: ${normalizedId}.`, {
+      details: {
+        id: normalizedId,
+        catalog_library: LUCIDE_ICON_SOURCE.library,
+        catalog_version: LUCIDE_ICON_SOURCE.version,
+        catalog_count: LUCIDE_ICON_SOURCE.icon_count,
+      },
+    });
+  }
+
+  return {
+    icon_catalog_status: "ready",
+    source: LUCIDE_ICON_SOURCE,
+    license_summary: iconCatalogLicenseSummary(),
+    id: icon.id,
+    icon: iconRecordForResponse(icon, true),
+    inline_svg: icon.svg,
   };
 }
 
@@ -7072,6 +8457,10 @@ export function createFrontendGenerationContext({
   const normalizedVerification = normalizeVerificationContext(verification);
   const requiredSurfaces = toSurfaceSetArray(uiGenerationHandoff.surface_set);
   const requiredSurfaceAggregate = aggregateSurfaceSet(requiredSurfaces);
+  const designSystemContract = normalizeDefaultAiNativeDesignSystem(
+    uiGenerationHandoff.implementation_contract?.default_ai_native_design_system,
+    DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
+  );
 
   return {
     version: uiGenerationHandoff.version,
@@ -7125,6 +8514,8 @@ export function createFrontendGenerationContext({
       accessibility_policy:
         uiGenerationHandoff.implementation_contract?.accessibility_policy ??
         DEFAULT_ACCESSIBILITY_POLICY,
+      component_contracts: designSystemContract.component_contracts,
+      pattern_contracts: designSystemContract.pattern_contracts,
       required_surfaces: requiredSurfaces,
       required_sections: requiredSurfaceAggregate.sections,
       required_controls: requiredSurfaceAggregate.controls,
@@ -7192,7 +8583,7 @@ function buildFrontendImplementationInstructionMarkdown({
     "- Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
     "- Use approved primitives and approved component families before introducing new UI helpers.",
     "- Apply any design system only as the renderer after the activity and workflow are clear.",
-    "- Use portable system font stacks and embedded inline SVG icon metadata unless a repo-approved adapter supplies replacements.",
+    "- Use portable system font stacks and the Lucide MCP icon catalog unless a repo-approved adapter supplies replacements.",
     "- Verify core accessibility evidence for semantics, landmarks/headings, name/role/value, keyboard navigation, focus order, focus-visible, responsive reflow/no-overflow, and automated checks.",
     "- Add conditional accessibility evidence for visuals, custom widgets, forms, status messages, overlays, motion, media, dense controls, and hover/focus content when those patterns appear.",
     "- For text over substantive visuals or rendered backgrounds, verify WCAG AA contrast from browser-rendered output, not screenshots alone.",
@@ -7218,6 +8609,12 @@ function buildFrontendImplementationInstructionMarkdown({
         (entry) => `${entry.role}: ${toStringArray(entry.families).join(", ")}`,
       ) || "none supplied"
     }`,
+    `- CSS custom properties: ${
+      formatRoleEntries(
+        designSystemPolicy.token_guidance?.css_custom_properties,
+        (entry) => `${entry.name}: ${entry.value} (${entry.role})`,
+      ) || "none supplied"
+    }`,
     `- Font roles: ${
       formatRoleEntries(
         designSystemPolicy.font_guidance?.font_roles,
@@ -7225,10 +8622,24 @@ function buildFrontendImplementationInstructionMarkdown({
       ) || "none supplied"
     }`,
     `- Icon roles: ${toStringArray(designSystemPolicy.icon_guidance?.icon_roles).join("; ") || "none supplied"}`,
-    `- Embedded icons: ${
+    `- Icon catalog: ${[
+      designSystemPolicy.icon_guidance?.icon_catalog?.library,
+      designSystemPolicy.icon_guidance?.icon_catalog?.version,
+      designSystemPolicy.icon_guidance?.icon_catalog?.icon_count
+        ? `${designSystemPolicy.icon_guidance.icon_catalog.icon_count} icons`
+        : "",
+    ].filter(Boolean).join(" ") || "none supplied"}`,
+    `- Icon tools: ${toStringArray(designSystemPolicy.icon_guidance?.icon_catalog?.mcp_tools).join("; ") || "none supplied"}`,
+    `- Component contracts: ${
       formatRoleEntries(
-        designSystemPolicy.icon_guidance?.icon_registry,
-        (entry) => `${entry.id} (${entry.role})`,
+        designSystemPolicy.component_contracts,
+        (entry) => `${entry.id}: ${entry.purpose}`,
+      ) || "none supplied"
+    }`,
+    `- Pattern contracts: ${
+      formatRoleEntries(
+        designSystemPolicy.pattern_contracts,
+        (entry) => `${entry.id}: ${entry.surface_type}`,
       ) || "none supplied"
     }`,
     "",
@@ -7310,6 +8721,10 @@ export function createFrontendImplementationSkillContext({
     implementationContract.visual_token_adapter ?? {},
     DEFAULT_VISUAL_TOKEN_ADAPTER,
   );
+  const designSystemContract = normalizeDefaultAiNativeDesignSystem(
+    implementationContract.default_ai_native_design_system,
+    DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
+  );
   const designSystemName = optionalDesignSystemName(
     normalizedDesignSystemAdapter.design_system_name ??
       normalizedDesignSystemAdapter.name ??
@@ -7360,6 +8775,8 @@ export function createFrontendImplementationSkillContext({
     token_guidance: tokenGuidance,
     font_guidance: fontGuidance,
     icon_guidance: iconGuidance,
+    component_contracts: designSystemContract.component_contracts,
+    pattern_contracts: designSystemContract.pattern_contracts,
   };
   const verificationChecklist = unique([
     ...toStringArray(verificationExpectations.commands).map(
@@ -7415,7 +8832,7 @@ export function createFrontendImplementationSkillContext({
       "Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
       "Use approved primitives and approved component families before introducing new UI helpers.",
       "Apply the design system only as a renderer adapter after the activity and workflow are represented.",
-      "Use portable system font stacks and embedded inline SVG icon metadata unless a repo-approved adapter supplies replacements.",
+      "Use portable system font stacks and the Lucide MCP icon catalog unless a repo-approved adapter supplies replacements.",
       "When the spec calls for substantive visuals, use imagegen or premium Three.js/WebGL/D3-style rendering instead of rudimentary deterministic geometry.",
       "Verify core accessibility evidence: automated checks, semantic content, landmarks/headings, name-role-value, keyboard navigation, focus order, focus-visible, and responsive reflow/no-overflow.",
       "Add conditional accessibility evidence for visuals, custom widgets, forms, status messages, overlays, motion, media, dense controls, and hover/focus content when those patterns appear.",
@@ -7451,6 +8868,8 @@ export function createFrontendImplementationSkillContext({
     token_guidance: tokenGuidance,
     font_guidance: fontGuidance,
     icon_guidance: iconGuidance,
+    component_contracts: designSystemContract.component_contracts,
+    pattern_contracts: designSystemContract.pattern_contracts,
     verification_checklist: verificationChecklist,
     guardrails: {
       adapter_layer: true,

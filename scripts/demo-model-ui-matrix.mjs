@@ -391,11 +391,11 @@ function stripVisualAssetPolicyInstruction(markdown) {
 function stripDefaultDesignAssetInstruction(markdown) {
   return String(markdown ?? "")
     .replace(
-      /\n- Use portable system font stacks and embedded inline SVG icon metadata unless a repo-approved adapter supplies replacements\./g,
+      /\n- Use portable system font stacks and the Lucide MCP icon catalog unless a repo-approved adapter supplies replacements\./g,
       "",
     )
     .replace(
-      /\n- Token families:.*(?:\n- Token roles:.*)?(?:\n- Font roles:.*)?(?:\n- Icon roles:.*)?(?:\n- Embedded icons:.*)?/g,
+      /\n- Token families:.*(?:\n- Token roles:.*)?(?:\n- Font roles:.*)?(?:\n- Icon roles:.*)?(?:\n- Icon catalog:.*)?(?:\n- Icon tools:.*)?/g,
       "",
     );
 }
@@ -432,12 +432,14 @@ function isDefaultAdapterGuidanceLine(value) {
     "transcripts",
     "target size",
     "portable system font stacks",
-    "embedded inline svg icon",
+    "lucide mcp icon catalog",
+    "lucide icon catalog",
     "token families",
     "token roles",
     "font roles",
     "icon roles",
-    "embedded icons",
+    "icon catalog",
+    "icon tools",
   ].some((needle) => text.includes(needle));
 }
 

@@ -265,7 +265,7 @@ create_frontend_implementation_skill_context({
 
 The skill context compiles the local frontend implementation workflow into structured instructions, approved primitives, approved component families, adapter-layer design-system policy, visual asset policy, accessibility policy, verification checklist, and disclosure guardrails. It requires a ready frontend context and does not expose raw `SKILL.md` contents.
 
-The portable design defaults include semantic token roles, system font stacks for body, heading, label, numeric, and diagnostic text, and a small embedded inline SVG icon registry for common status, action, navigation, risk, and receipt roles. These defaults are returned as structured MCP content. They do not load a font CDN, ship font files, require an external icon package, or replace repo-approved design-system adapters.
+The portable design defaults include semantic token roles, system font stacks for body, heading, label, numeric, and diagnostic text, and a committed Lucide icon catalog exposed through `list_icon_catalog`, `search_icon_catalog`, and `get_icon_svg`. Normal implementation context returns only the catalog summary, policy, count, source/version, and tool names; it does not embed the full catalog. These defaults do not load a font CDN, ship font files, use a runtime icon CDN, or replace repo-approved design-system adapters.
 
 When a frontend spec calls for substantive visuals, the implementation path should use `imagegen`, premium Three.js/WebGL rendering, or D3-style data visualization. Deterministic CSS, SVG, and JavaScript remain appropriate for layout, exact text, UI chrome, icons, state indicators, simple diagrams, and accessible fallback structure.
 

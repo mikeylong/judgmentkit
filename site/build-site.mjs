@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import crypto from "node:crypto";
 import fs from "node:fs/promises";
 import { createRequire } from "node:module";
 import path from "node:path";
@@ -9,18 +10,28 @@ import { build as buildWithEsbuild } from "esbuild";
 import {
   JUDGMENTKIT_MCP_TOOL_NAMES,
 } from "../scripts/install-mcp.mjs";
+import {
+  createUiImplementationContract,
+  getIconSvg,
+  listIconCatalog,
+  searchIconCatalog,
+} from "../src/index.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const DEFAULT_OUT_DIR = path.join(__dirname, "dist");
 const require = createRequire(import.meta.url);
 const ANALYTICS_SDK_VERSION = require("@vercel/analytics/package.json").version;
-const SYSTEM_MAP_FLOW_ASSET_VERSION = "judgmentkit-flow-aligned";
+const SYSTEM_MAP_FLOW_ASSET_VERSION = "judgmentkit-flow-controls-bottom-left";
 const SITE_ORIGIN = "https://judgmentkit.ai";
 const SOCIAL_THUMBNAIL_SOURCE_FILENAME = "judgmentkit-social-thumbnail.png";
 const SOCIAL_THUMBNAIL_FILENAME = "judgmentkit-social-thumbnail-20260611.png";
 const SOCIAL_THUMBNAIL_PATH = `/assets/${SOCIAL_THUMBNAIL_FILENAME}`;
 const SOCIAL_THUMBNAIL_ALT = "JudgmentKit. Before the UI.";
+const DESIGN_SYSTEM_SPECIMEN_RENDERER = {
+  id: "judgmentkit-static-specimens",
+  version: "0.1.0",
+};
 
 function parseArgs(argv) {
   const outIndex = argv.indexOf("--out");
@@ -46,6 +57,42 @@ function escapeHtml(value) {
 
 function serializeJsonForHtml(value) {
   return JSON.stringify(value).replaceAll("<", "\\u003c");
+}
+
+function canonicalizeJsonValue(value) {
+  if (Array.isArray(value)) {
+    return value.map(canonicalizeJsonValue);
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .map((key) => [key, canonicalizeJsonValue(value[key])]),
+    );
+  }
+
+  return value;
+}
+
+function canonicalJson(value) {
+  return JSON.stringify(canonicalizeJsonValue(value));
+}
+
+function sha256(value) {
+  return `sha256:${crypto.createHash("sha256").update(value).digest("hex")}`;
+}
+
+function hashCanonical(value) {
+  return sha256(canonicalJson(value));
+}
+
+function hashText(value) {
+  return sha256(String(value));
+}
+
+function shortHash(hash) {
+  return hash.replace(/^sha256:/, "").slice(0, 12);
 }
 
 function getAnalyticsConfig() {
@@ -152,9 +199,135 @@ const platformSites = [
 const primaryNavLinks = [
   { label: "Value", href: "/value/" },
   { label: "Docs", href: "/docs/" },
+  { label: "Design System", href: "/design-system/" },
   { label: "Examples", href: "/examples/" },
   { label: "Evals", href: "/evals/" },
   { label: "MCP", href: "/mcp" },
+];
+
+const DESIGN_SYSTEM_ROUTES = [
+  "/design-system/",
+  "/design-system/tokens/",
+  "/design-system/fonts/",
+  "/design-system/icons/",
+  "/design-system/components/",
+  "/design-system/patterns/",
+  "/design-system/accessibility/",
+];
+
+const ICON_PAGE_SCENARIOS = [
+  {
+    id: "status-success",
+    label: "Status success",
+    query: "check",
+    expected_icon_id: "check",
+    intent: "Show a completed status beside a visible result label.",
+  },
+  {
+    id: "status-info",
+    label: "Information",
+    query: "info",
+    expected_icon_id: "info",
+    intent: "Mark supporting context without replacing visible text.",
+  },
+  {
+    id: "navigation-next",
+    label: "Navigate next",
+    query: "chevron right",
+    expected_icon_id: "chevron-right",
+    intent: "Indicate a drill-in or next-item affordance.",
+  },
+  {
+    id: "filter-list",
+    label: "Filter list",
+    query: "list filter",
+    expected_icon_id: "list-filter",
+    intent: "Narrow a queue or worklist with an icon-backed control.",
+  },
+  {
+    id: "send-message",
+    label: "Send handoff",
+    query: "send",
+    expected_icon_id: "send",
+    intent: "Submit or forward a completed handoff.",
+  },
+  {
+    id: "receipt-record",
+    label: "Receipt text",
+    query: "receipt text",
+    expected_icon_id: "receipt-text",
+    intent: "Represent a completion receipt or record.",
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    query: "settings",
+    expected_icon_id: "settings",
+    intent: "Open bounded configuration controls.",
+  },
+  {
+    id: "calendar",
+    label: "Calendar",
+    query: "calendar",
+    expected_icon_id: "calendar",
+    intent: "Represent scheduled work or date selection.",
+  },
+  {
+    id: "search",
+    label: "Search",
+    query: "search",
+    expected_icon_id: "search",
+    intent: "Find a case, record, or catalog entry.",
+  },
+  {
+    id: "download",
+    label: "Download",
+    query: "download",
+    expected_icon_id: "download",
+    intent: "Export or save a generated artifact.",
+  },
+  {
+    id: "upload",
+    label: "Upload",
+    query: "upload",
+    expected_icon_id: "upload",
+    intent: "Import a file or handoff attachment.",
+  },
+  {
+    id: "delete",
+    label: "Delete",
+    query: "trash 2",
+    expected_icon_id: "trash-2",
+    intent: "Mark a destructive action with explicit visible text.",
+  },
+  {
+    id: "user",
+    label: "User",
+    query: "user",
+    expected_icon_id: "user",
+    intent: "Represent a person, owner, or participant.",
+  },
+  {
+    id: "notification",
+    label: "Bell",
+    query: "bell",
+    expected_icon_id: "bell",
+    intent: "Show a notification or alert entry point.",
+  },
+  {
+    id: "chart",
+    label: "Chart column",
+    query: "chart column",
+    expected_icon_id: "chart-column",
+    intent: "Represent a metric or summary visualization.",
+  },
+  {
+    id: "risk-alert",
+    label: "Circle alert",
+    query: "circle alert",
+    expected_icon_id: "circle-alert",
+    intent: "Mark risk or escalation beside a visible reason.",
+  },
 ];
 
 function renderPlatformHeader() {
@@ -1002,9 +1175,6 @@ pre {
   background: rgba(138, 90, 22, 0.06);
   color: #684310;
 }
-.system-map-toolbar {
-  margin: 18px 0 10px;
-}
 .system-map-canvas {
   aspect-ratio: 1760 / 1040;
   position: relative;
@@ -1290,6 +1460,780 @@ pre {
 }
 .doc-section {
   padding-bottom: 28px;
+}
+.design-system-page {
+  padding-top: clamp(36px, 5vw, 62px);
+}
+.design-system-layout {
+  max-width: 1220px;
+  margin: 0 auto;
+}
+.design-system-content {
+  min-width: 0;
+}
+.design-system-content h1 {
+  max-width: 14ch;
+}
+.design-system-hero {
+  display: grid;
+  gap: 14px;
+}
+.design-system-on-this-page {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+.design-system-on-this-page span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.design-system-on-this-page a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fbfaf6;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+.design-system-nav a[aria-current="page"] {
+  color: var(--accent-strong);
+  font-weight: 900;
+}
+.design-system-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin: 24px 0 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-metrics div {
+  min-width: 0;
+  padding: 15px;
+  border-right: 1px solid var(--line);
+}
+.design-system-metrics div:last-child {
+  border-right: 0;
+}
+.design-system-metrics dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.design-system-metrics dd {
+  margin: 4px 0 0;
+  font-size: clamp(20px, 3vw, 30px);
+  font-weight: 900;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+.design-system-metrics p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.design-system-section {
+  padding-top: clamp(28px, 5vw, 48px);
+}
+.design-system-foundation-list,
+.design-system-step-list,
+.design-system-example-grid,
+.design-icon-index-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.design-system-foundation-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.design-system-foundation-list article {
+  display: grid;
+  gap: 10px;
+  min-height: 100%;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-foundation-list h3,
+.design-system-foundation-list p {
+  margin: 0;
+}
+.design-system-step-list {
+  display: grid;
+  gap: 10px;
+  counter-reset: design-system-step;
+}
+.design-system-step-list li {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-step-list li::before {
+  counter-increment: design-system-step;
+  content: counter(design-system-step);
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+}
+.design-system-review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+.design-system-review-grid article,
+.design-system-example-grid article {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-example-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.design-system-example-grid li {
+  min-width: 0;
+}
+.design-system-example-grid h3 {
+  margin-bottom: 10px;
+}
+.design-system-review-grid h2 {
+  margin-bottom: 12px;
+  font-size: clamp(22px, 2.6vw, 30px);
+}
+.design-system-example-grid dl {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+.design-system-example-grid dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.design-system-example-grid dd {
+  margin: 3px 0 0;
+}
+.design-system-agent-links {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.design-system-agent-links li {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.design-system-role-grid,
+.design-icon-scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.design-system-role-card,
+.design-icon-scenario,
+.design-icon-tile {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-role-card {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+}
+.design-system-role-card h3,
+.design-system-role-card p {
+  margin: 0;
+}
+.design-system-role-card dl,
+.design-icon-scenario dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+.design-system-role-card dl div,
+.design-icon-scenario dl div {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 8px;
+}
+.design-system-role-card dt,
+.design-icon-scenario dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.design-system-role-card dd,
+.design-icon-scenario dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.design-system-role-card code,
+.design-icon-scenario code {
+  font-size: 12px;
+}
+.design-system-rule-list {
+  display: grid;
+  gap: 10px;
+  max-width: 880px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.design-system-rule-list li {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-rule-list-risk li {
+  border-color: rgba(138, 90, 22, 0.28);
+  background: rgba(138, 90, 22, 0.06);
+}
+.design-system-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.design-system-table caption {
+  padding: 12px 14px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-align: left;
+  text-transform: uppercase;
+}
+.design-system-table th,
+.design-system-table td {
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+.design-system-table th {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.design-system-specimen-list {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+}
+.design-system-specimen {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-specimen-header {
+  display: flex;
+  gap: 18px;
+  align-items: start;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid var(--line);
+}
+.design-system-specimen-header h3,
+.design-system-specimen-header p {
+  margin: 0;
+}
+.design-system-specimen-header .eyebrow {
+  margin-bottom: 4px;
+}
+.design-system-specimen-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, 0.65fr);
+  min-width: 0;
+}
+.design-system-specimen-preview-frame,
+.design-system-specimen-support {
+  min-width: 0;
+  padding: 16px;
+}
+.design-system-specimen-preview-frame {
+  border-right: 1px solid var(--line);
+  background: #fbfaf6;
+}
+.design-system-specimen-support {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+}
+.design-system-specimen-support h4 {
+  margin: 0;
+  font-size: 13px;
+}
+.design-system-specimen-pills,
+.jk-specimen-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.design-system-specimen-pills li,
+.jk-specimen-chip-list li {
+  min-width: 0;
+  padding: 4px 7px;
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: 999px;
+  background: var(--jk-color-surface, #ffffff);
+  color: var(--jk-color-text, var(--ink));
+  font-size: 12px;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+.design-system-specimen-facts {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+.design-system-specimen-facts div {
+  min-width: 0;
+}
+.design-system-specimen-facts dt {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.design-system-specimen-facts dd {
+  margin: 2px 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+.design-system-specimen details {
+  min-width: 0;
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+.design-system-specimen summary {
+  cursor: pointer;
+  font-weight: 850;
+}
+.design-system-specimen pre {
+  max-width: 100%;
+  margin: 10px 0 0;
+  padding: 10px;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #f5f3ec;
+  font-size: 12px;
+}
+.jk-specimen-preview {
+  display: grid;
+  gap: var(--jk-space-3, 0.75rem);
+  min-width: 0;
+  padding: var(--jk-space-4, 1rem);
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-panel, 8px);
+  background: var(--jk-color-canvas, #f8f7f2);
+  color: var(--jk-color-text, var(--ink));
+  font-size: 14px;
+  line-height: 1.4;
+}
+.jk-component-state-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--jk-space-3, 0.75rem);
+}
+.jk-component-state {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+  min-height: 118px;
+  padding: var(--jk-space-3, 0.75rem);
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-control, 4px);
+  background: var(--jk-color-surface, #ffffff);
+}
+.jk-component-state.is-focus-visible {
+  box-shadow: var(--jk-focus-ring, 0 0 0 3px rgba(36, 95, 115, 0.28));
+}
+.jk-component-state.is-error {
+  border-color: var(--jk-color-risk, #8f342f);
+}
+.jk-component-state.is-loading {
+  border-style: dashed;
+}
+.jk-component-state.is-disabled {
+  color: var(--jk-color-disabled, #8a8f93);
+}
+.jk-state-label,
+.jk-pattern-header span,
+.jk-specimen-map-row > span {
+  color: var(--jk-color-muted, var(--muted));
+  font-size: 11px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.jk-sample-button,
+.jk-sample-action-group button,
+.jk-sample-menu button,
+.jk-sample-dialog button,
+.jk-sample-alert button,
+.jk-sample-card button,
+.jk-sample-status button,
+.jk-pattern-controls button {
+  min-height: 34px;
+  padding: 7px 10px;
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-control, 4px);
+  background: var(--jk-color-surface, #ffffff);
+  color: var(--jk-color-text, var(--ink));
+  font: inherit;
+  font-weight: 850;
+}
+.jk-sample-button,
+.jk-pattern-controls button.is-primary {
+  border-color: var(--jk-color-focus, #245f73);
+  background: var(--jk-color-focus, #245f73);
+  color: #ffffff;
+}
+.jk-sample-button {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  align-items: center;
+  justify-content: center;
+}
+.jk-sample-action-group,
+.jk-sample-toggle,
+.jk-sample-alert,
+.jk-sample-status,
+.jk-pattern-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+.jk-sample-field,
+.jk-sample-choice-group,
+.jk-sample-tabs,
+.jk-sample-menu,
+.jk-sample-dialog,
+.jk-sample-panel,
+.jk-sample-card {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+.jk-sample-field input,
+.jk-sample-field textarea,
+.jk-sample-field select {
+  width: 100%;
+  min-height: 34px;
+  padding: 7px 9px;
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-control, 4px);
+  background: var(--jk-color-surface, #ffffff);
+  color: var(--jk-color-text, var(--ink));
+  font: inherit;
+}
+.jk-sample-field textarea {
+  min-height: 70px;
+  resize: vertical;
+}
+.jk-sample-field strong,
+.jk-sample-choice-group span {
+  color: var(--jk-color-risk, #8f342f);
+}
+.jk-sample-choice-group {
+  margin: 0;
+  padding: 10px;
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-control, 4px);
+}
+.jk-sample-toggle [data-component-anatomy="switch-control"] {
+  width: 30px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--jk-color-success, #2e6b48);
+}
+.jk-sample-tabs [role="tablist"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.jk-sample-tabs [role="tab"],
+.jk-sample-menu li {
+  padding: 6px 8px;
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-control, 4px);
+  background: var(--jk-color-surface, #ffffff);
+}
+.jk-sample-tabs [aria-selected="true"] {
+  border-color: var(--jk-color-focus, #245f73);
+  color: var(--jk-color-focus, #245f73);
+  font-weight: 900;
+}
+.jk-sample-menu ul {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.jk-sample-dialog,
+.jk-sample-panel,
+.jk-sample-card,
+.jk-sample-status,
+.jk-sample-alert {
+  padding: 10px;
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-control, 4px);
+  background: var(--jk-color-surface, #ffffff);
+}
+.jk-sample-dialog h4,
+.jk-sample-panel h4,
+.jk-sample-card h4,
+.jk-sample-dialog p,
+.jk-sample-panel p,
+.jk-sample-card p,
+.jk-sample-status span {
+  margin: 0;
+}
+.jk-sample-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--jk-color-surface, #ffffff);
+  font-size: 13px;
+}
+.jk-sample-table caption,
+.jk-sample-table th,
+.jk-sample-table td {
+  padding: 6px 8px;
+  border: 1px solid var(--jk-color-border, var(--line));
+  text-align: left;
+}
+.jk-specimen-map-row {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.jk-pattern-header {
+  display: grid;
+  gap: 3px;
+}
+.jk-pattern-header strong {
+  font-size: 18px;
+}
+.jk-pattern-region-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--jk-space-3, 0.75rem);
+}
+.jk-pattern-region-grid section {
+  min-width: 0;
+  min-height: 92px;
+  padding: var(--jk-space-3, 0.75rem);
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-control, 4px);
+  background: var(--jk-color-surface, #ffffff);
+}
+.jk-pattern-region-grid strong,
+.jk-pattern-region-grid p,
+.jk-pattern-completion {
+  margin: 0;
+}
+.jk-pattern-region-grid p,
+.jk-pattern-completion {
+  color: var(--jk-color-muted, var(--muted));
+}
+.jk-pattern-completion {
+  padding: 9px 10px;
+  border-left: 3px solid var(--jk-color-receipt, #23615f);
+  background: rgba(35, 97, 95, 0.08);
+}
+.token-value-with-swatch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.token-color-swatch {
+  display: inline-block;
+  width: 22px;
+  height: 22px;
+  flex: 0 0 22px;
+  border: 1px solid rgba(23, 23, 23, 0.28);
+  border-radius: 4px;
+  background-color: var(--token-swatch-color);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.52);
+}
+.font-specimen {
+  display: inline-block;
+  min-width: max-content;
+}
+.font-specimen-heading {
+  font-weight: 900;
+  font-size: 18px;
+}
+.font-specimen-label {
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.font-specimen-numeric {
+  font-variant-numeric: tabular-nums;
+}
+.font-specimen-diagnostic {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+}
+.design-icon-scenario {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  min-height: 178px;
+  padding: 14px;
+}
+.design-icon-scenario h3,
+.design-icon-scenario p {
+  margin: 0;
+}
+.design-icon-scenario p {
+  margin-bottom: 12px;
+}
+.design-icon-tile {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-height: 46px;
+  padding: 9px;
+}
+.design-icon-tile span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+.design-icon-symbol {
+  display: grid;
+  width: 28px;
+  min-height: 28px;
+  place-items: center;
+  color: var(--accent);
+}
+.design-icon-symbol svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.design-system-search {
+  display: block;
+  margin: 16px 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-search form {
+  display: grid;
+  gap: 10px;
+}
+.design-system-search label {
+  font-weight: 850;
+}
+.design-system-search form > div {
+  display: flex;
+  gap: 8px;
+}
+.design-system-search input {
+  min-width: 0;
+  flex: 1;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+.design-system-search button {
+  min-height: 42px;
+  padding: 8px 13px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 900;
+}
+.design-icon-index-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.design-icon-index-list li {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-icon-index-list code,
+.design-icon-index-list span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.design-icon-index-list span {
+  color: var(--muted);
+  font-size: 12px;
 }
 .examples-page {
   padding-top: clamp(36px, 5vw, 62px);
@@ -2434,6 +3378,29 @@ pre {
   .report-summary div:last-child {
     border-bottom: 0;
   }
+  .design-system-metrics,
+  .design-system-foundation-list,
+  .design-system-review-grid,
+  .design-system-example-grid,
+  .design-system-role-grid,
+  .design-system-specimen-body,
+  .jk-component-state-grid,
+  .jk-pattern-region-grid,
+  .design-icon-scenario-grid,
+  .design-icon-index-list {
+    grid-template-columns: 1fr;
+  }
+  .design-system-specimen-preview-frame {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .design-system-metrics div {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .design-system-metrics div:last-child {
+    border-bottom: 0;
+  }
 }
 @media (max-width: 767px) {
   .surfaces-navigation-inner {
@@ -2525,9 +3492,6 @@ function homepage() {
     <section class="section" id="system-map" aria-labelledby="generation-loop-title" data-system-map-flow-section>
       <h2 id="generation-loop-title">System map</h2>
       <p class="lede system-diagram-intro">JudgmentKit sits before generation and stays in the loop across iterations. It is the judgment layer around LLM UI generation, not the final renderer.</p>
-      <div class="system-map-toolbar">
-        <p class="note">Scroll the page normally. Drag to pan the map; use controls or pinch/ctrl-wheel to zoom.</p>
-      </div>
       ${systemMapShell("homepage-system-map-svg-title", "homepage-system-map-svg-desc")}
       <div class="system-map-summary" aria-label="System map text summary">
         <p><strong>MCP boundary:</strong> agents call JudgmentKit tools through MCP; MCP is access and transport, not the LLM.</p>
@@ -2536,7 +3500,7 @@ function homepage() {
               <p><strong>Surface type:</strong> <code>recommend_surface_types</code> classifies activity purpose before workflow or frontend implementation guidance.</p>
               <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
               <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies approved primitives, required states, static checks, browser QA expectations, visual asset policy, and accessibility evidence expectations before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract.</p>
-              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions, semantic token roles, system font stacks, and embedded SVG icon defaults without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
+              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions, semantic token roles, system font stacks, and Lucide icon catalog policy without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
         <p><strong>Iteration:</strong> draft review produces updated context that re-enters source/activity review rather than becoming only a longer prompt.</p>
       </div>
       <p class="system-branch"><strong>Blocked path:</strong> if activity, workflow, or handoff is not ready, resolve targeted questions or leakage details before generating UI.</p>
@@ -2624,6 +3588,2026 @@ function renderValueEvidenceLinks(links) {
   return links
     .map((link) => `<a class="pill-link" href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>`)
     .join("\n          ");
+}
+
+function defaultVisualTokenAdapter() {
+  return createUiImplementationContract().implementation_contract.visual_token_adapter;
+}
+
+function defaultDesignSystemContract() {
+  return createUiImplementationContract().implementation_contract
+    .default_ai_native_design_system;
+}
+
+function defaultAccessibilityPolicy() {
+  return createUiImplementationContract().implementation_contract.accessibility_policy;
+}
+
+function stripIconScenarioForExport(scenario) {
+  const { inline_svg: _inlineSvg, ...exportedScenario } = scenario;
+  return exportedScenario;
+}
+
+function markdownList(items) {
+  return items.map((item) => `- ${item}`).join("\n");
+}
+
+function markdownRoleList(entries, renderDetail) {
+  return entries
+    .map((entry) => `- \`${entry.role}\`: ${renderDetail(entry)}`)
+    .join("\n");
+}
+
+function cssCustomPropertyBlock(properties) {
+  return `:root {\n${properties
+    .map((entry) => `  ${entry.name}: ${entry.value};`)
+    .join("\n")}\n}`;
+}
+
+function renderCssCustomPropertyValue(row) {
+  const value = escapeHtml(row.value);
+  if (row.family !== "color") {
+    return `<code>${value}</code>`;
+  }
+
+  const name = escapeHtml(row.name);
+  return `<span class="token-value-with-swatch">
+                    <span class="token-color-swatch" data-token-swatch="${name}" style="--token-swatch-color: ${value};" aria-label="${name} color swatch: ${value}" role="img"></span>
+                    <code>${value}</code>
+                  </span>`;
+}
+
+function cssCustomPropertyStyle(properties) {
+  return properties
+    .map((entry) => `${entry.name}: ${entry.value};`)
+    .join(" ");
+}
+
+function attrSelector(name, value) {
+  return `[${name}="${String(value).replaceAll("\\", "\\\\").replaceAll('"', '\\"')}"]`;
+}
+
+function specimenId(type, contractId) {
+  return `${type}.${contractId}`;
+}
+
+function specimenAnchor(contractId) {
+  return slugId(contractId);
+}
+
+function normalizeToken(value) {
+  return String(value)
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function componentStateClass(state) {
+  const normalized = normalizeToken(state);
+  if (normalized === "disabled") return "is-disabled";
+  if (normalized === "error") return "is-error";
+  if (normalized === "loading") return "is-loading";
+  if (normalized === "focus-visible") return "is-focus-visible";
+  if (normalized === "empty") return "is-empty";
+  return "is-ready";
+}
+
+function stateLabel(state) {
+  return state.replaceAll("-", " ");
+}
+
+function renderComponentStatePreview(contract, state) {
+  const id = contract.id;
+  const label = contract.label;
+  const stateSlug = slugId(state);
+  const stateClass = componentStateClass(state);
+  const disabled = state === "disabled";
+  const busy = state === "loading";
+  const invalid = state === "error";
+  const empty = state === "empty";
+  const focus = state === "focus-visible";
+  const disabledAttr = disabled ? " disabled aria-disabled=\"true\"" : "";
+  const busyAttr = busy ? " aria-busy=\"true\"" : "";
+  const invalidAttr = invalid ? " aria-invalid=\"true\"" : "";
+  const focusAttr = focus ? " data-focus-visible=\"true\"" : "";
+  const stateAttrs = `class="jk-component-state ${stateClass}" data-component-state="${escapeHtml(state)}"`;
+  const stateHeading = `<span class="jk-state-label">${escapeHtml(stateLabel(state))}</span>`;
+  const sampleId = `${slugId(id)}-${stateSlug}`;
+  const valueText = empty ? "" : "Policy review";
+  const helpText = invalid
+    ? "Add a reason before continuing."
+    : disabled
+      ? "Unavailable until evidence is complete."
+      : busy
+        ? "Saving the current decision."
+        : "Visible helper text stays with the control.";
+
+  let body;
+  switch (id) {
+    case "action_button":
+      body = `<button class="jk-sample-button"${disabledAttr}${busyAttr}${focusAttr}>
+                <span data-component-anatomy="optional-icon" aria-hidden="true">ok</span>
+                <span data-component-anatomy="visible-label">${busy ? "Saving decision" : "Approve refund"}</span>
+                <span data-component-anatomy="state-affordance">${escapeHtml(stateLabel(state))}</span>
+              </button>`;
+      break;
+    case "action_group":
+      body = `<div class="jk-sample-action-group" role="group" aria-label="Refund decision actions"${focusAttr}>
+                <span data-component-anatomy="group-label-or-context">Case action</span>
+                <button data-component-anatomy="primary-action"${disabledAttr}>Approve</button>
+                <button data-component-anatomy="secondary-actions"${disabledAttr}>Return</button>
+              </div>`;
+      break;
+    case "form_field":
+    case "text_field":
+      body = `<label class="jk-sample-field" for="${escapeHtml(sampleId)}">
+                <span data-component-anatomy="label">Reason</span>
+                <input id="${escapeHtml(sampleId)}" data-component-anatomy="${id === "form_field" ? "control" : "input"}" value="${escapeHtml(valueText)}" placeholder="Add reason"${disabledAttr}${invalidAttr}${focusAttr}>
+                <span data-component-anatomy="help-text">${escapeHtml(helpText)}</span>
+                ${invalid ? `<strong data-component-anatomy="error-text">Reason is required.</strong>` : ""}
+              </label>`;
+      break;
+    case "text_area":
+      body = `<label class="jk-sample-field" for="${escapeHtml(sampleId)}">
+                <span data-component-anatomy="label">Handoff note</span>
+                <textarea id="${escapeHtml(sampleId)}" data-component-anatomy="multi-line-control"${disabledAttr}${invalidAttr}${focusAttr}>${empty ? "" : "Customer requested policy review after missing receipt evidence."}</textarea>
+                <span data-component-anatomy="help-text">${escapeHtml(helpText)}</span>
+                ${invalid ? `<strong data-component-anatomy="error-text">Add a handoff note.</strong>` : ""}
+              </label>`;
+      break;
+    case "select_field":
+      body = `<label class="jk-sample-field" for="${escapeHtml(sampleId)}">
+                <span data-component-anatomy="label">Decision</span>
+                <select id="${escapeHtml(sampleId)}" data-component-anatomy="trigger-or-native-select"${disabledAttr}${invalidAttr}${focusAttr}>
+                  <option data-component-anatomy="options">${empty ? "Choose decision" : "Approve"}</option>
+                  <option>Return for evidence</option>
+                </select>
+                <span data-component-anatomy="help-or-error-text">${escapeHtml(helpText)}</span>
+              </label>`;
+      break;
+    case "checkbox_group":
+      body = `<fieldset class="jk-sample-choice-group"${disabled ? " disabled" : ""}${focusAttr}>
+                <legend data-component-anatomy="legend">Evidence present</legend>
+                <label data-component-anatomy="checkbox-options"><input type="checkbox" checked${disabledAttr}> Receipt</label>
+                <label data-component-anatomy="checkbox-options"><input type="checkbox"${disabledAttr}> Manager approval</label>
+                <span data-component-anatomy="help-or-error-text">${invalid ? "Select at least one evidence source." : "Choose all evidence sources."}</span>
+              </fieldset>`;
+      break;
+    case "radio_group":
+      body = `<fieldset class="jk-sample-choice-group"${disabled ? " disabled" : ""}${focusAttr}>
+                <legend data-component-anatomy="legend">Outcome</legend>
+                <label data-component-anatomy="radio-options"><input type="radio" name="${escapeHtml(sampleId)}" checked${disabledAttr}> Approve</label>
+                <label data-component-anatomy="radio-options"><input type="radio" name="${escapeHtml(sampleId)}"${disabledAttr}> Return</label>
+                <span data-component-anatomy="help-or-error-text">${invalid ? "Choose one outcome." : "Select one decision."}</span>
+              </fieldset>`;
+      break;
+    case "toggle":
+      body = `<button class="jk-sample-toggle" role="switch" aria-checked="${disabled ? "false" : "true"}"${disabledAttr}${focusAttr}>
+                <span data-component-anatomy="switch-control" aria-hidden="true"></span>
+                <span data-component-anatomy="visible-label">Require approval</span>
+                <strong data-component-anatomy="current-state-text">${disabled ? "Off" : "On"}</strong>
+              </button>`;
+      break;
+    case "tabs":
+      body = `<div class="jk-sample-tabs"${focusAttr}>
+                <div role="tablist" data-component-anatomy="tab-list" aria-label="Case evidence">
+                  <button role="tab" aria-selected="true" data-component-anatomy="active-tab tabs"${disabledAttr}>Evidence</button>
+                  <button role="tab" data-component-anatomy="tabs"${disabledAttr}>History</button>
+                </div>
+                <section role="tabpanel" data-component-anatomy="tab-panels">Receipt and approval evidence.</section>
+              </div>`;
+      break;
+    case "menu":
+      body = `<div class="jk-sample-menu"${focusAttr}>
+                <button data-component-anatomy="trigger"${disabledAttr}>More actions</button>
+                <ul role="menu" data-component-anatomy="menu">
+                  <li role="menuitem" data-component-anatomy="menu-items">Copy summary</li>
+                  <li role="menuitem">Send handoff</li>
+                </ul>
+                <span data-component-anatomy="dismiss-behavior">Dismiss with Escape or outside click.</span>
+              </div>`;
+      break;
+    case "dialog":
+      body = `<section class="jk-sample-dialog" role="dialog" aria-modal="false" aria-labelledby="${escapeHtml(sampleId)}-title"${busyAttr}${focusAttr}>
+                <h4 id="${escapeHtml(sampleId)}-title" data-component-anatomy="title">Confirm approval</h4>
+                <p data-component-anatomy="body">${invalid ? "Resolve the missing reason before approval." : "This records the refund decision and receipt."}</p>
+                <div>
+                  <button data-component-anatomy="dismiss-action">Cancel</button>
+                  <button data-component-anatomy="primary-action"${busy ? " aria-busy=\"true\"" : ""}>Confirm</button>
+                </div>
+              </section>`;
+      break;
+    case "alert":
+      body = `<div class="jk-sample-alert" role="${invalid ? "alert" : "status"}"${focusAttr}>
+                <span data-component-anatomy="status-indicator" aria-hidden="true">!</span>
+                <p data-component-anatomy="message">${invalid ? "Receipt is missing." : "Case is ready for review."}</p>
+                <button data-component-anatomy="optional-action">View evidence</button>
+              </div>`;
+      break;
+    case "table":
+      body = `<table class="jk-sample-table"${busyAttr}${focusAttr}>
+                <caption data-component-anatomy="caption-or-heading">Escalation queue</caption>
+                <thead><tr data-component-anatomy="headers"><th>Case</th><th>Status</th></tr></thead>
+                <tbody data-component-anatomy="rows">
+                  <tr><td data-component-anatomy="cells">${empty ? "No cases" : "RF-1842"}</td><td>${invalid ? "Needs repair" : busy ? "Loading" : "Ready"}</td></tr>
+                </tbody>
+                <tfoot><tr><td colspan="2" data-component-anatomy="empty-state">${empty ? "No work waiting." : "1 case shown."}</td></tr></tfoot>
+              </table>`;
+      break;
+    case "panel":
+      body = `<section class="jk-sample-panel"${busyAttr}>
+                <h4 data-component-anatomy="heading">Evidence</h4>
+                <p data-component-anatomy="content-region">${invalid ? "Evidence conflict needs review." : busy ? "Loading evidence." : "Receipt, policy, and customer note are grouped here."}</p>
+                <button data-component-anatomy="optional-actions">Open detail</button>
+              </section>`;
+      break;
+    case "card":
+      body = `<article class="jk-sample-card"${disabled ? " aria-disabled=\"true\"" : ""}${focusAttr}>
+                <h4 data-component-anatomy="item-title">Refund RF-1842</h4>
+                <p data-component-anatomy="summary">Policy exception with receipt evidence.</p>
+                <span data-component-anatomy="metadata">Updated 4 min ago</span>
+                <button data-component-anatomy="optional-action"${disabledAttr}>Review</button>
+              </article>`;
+      break;
+    case "status_message":
+      body = `<div class="jk-sample-status" role="${invalid ? "alert" : "status"}"${busyAttr}>
+                <strong data-component-anatomy="severity-or-result">${invalid ? "Needs repair" : busy ? "Saving" : "Ready"}</strong>
+                <span data-component-anatomy="status-text">${invalid ? "Add missing evidence before handoff." : "Decision can be handed off."}</span>
+                <button data-component-anatomy="optional-next-action">Continue</button>
+              </div>`;
+      break;
+    default:
+      body = `<div class="jk-sample-panel">
+                <h4>${escapeHtml(label)}</h4>
+                <p>${escapeHtml(contract.purpose)}</p>
+              </div>`;
+  }
+
+  return `<div ${stateAttrs}>
+            ${stateHeading}
+            ${body}
+          </div>`;
+}
+
+function renderSpecimenEvidenceChips(items, attrName, className) {
+  return `<ul class="${className}">
+            ${items
+              .map(
+                (item) =>
+                  `<li ${attrName}="${escapeHtml(slugId(item))}">${escapeHtml(item)}</li>`,
+              )
+              .join("\n            ")}
+          </ul>`;
+}
+
+function renderComponentSpecimenPreview(contract, context) {
+  const id = specimenId("component", contract.id);
+  return `<div class="jk-specimen-preview jk-component-preview" data-specimen-id="${escapeHtml(id)}" data-contract-id="${escapeHtml(contract.id)}" data-contract-hash="${escapeHtml(context.contract_hash)}" style="${escapeHtml(context.token_style)}">
+            <div class="jk-component-state-grid">
+              ${(contract.required_states ?? [])
+                .map((state) => renderComponentStatePreview(contract, state))
+                .join("\n              ")}
+            </div>
+            <div class="jk-specimen-map-row" aria-label="${escapeHtml(contract.label)} anatomy">
+              <span>Anatomy</span>
+              ${renderSpecimenEvidenceChips(contract.anatomy ?? [], "data-component-anatomy", "jk-specimen-chip-list")}
+            </div>
+            <div class="jk-specimen-map-row" aria-label="${escapeHtml(contract.label)} token roles">
+              <span>Tokens</span>
+              ${renderSpecimenEvidenceChips(contract.token_bindings ?? [], "data-token-role", "jk-specimen-chip-list")}
+            </div>
+          </div>`;
+}
+
+function renderPatternSpecimenPreview(contract, context) {
+  const id = specimenId("pattern", contract.id);
+  return `<div class="jk-specimen-preview jk-pattern-preview" data-specimen-id="${escapeHtml(id)}" data-contract-id="${escapeHtml(contract.id)}" data-contract-hash="${escapeHtml(context.contract_hash)}" data-surface-type="${escapeHtml(contract.surface_type)}" style="${escapeHtml(context.token_style)}">
+            <header class="jk-pattern-header">
+              <span>${escapeHtml(contract.surface_type.replaceAll("_", " "))}</span>
+              <strong>${escapeHtml(contract.label)}</strong>
+            </header>
+            <div class="jk-pattern-region-grid">
+              ${(contract.required_regions ?? [])
+                .map(
+                  (region, index) => `<section data-pattern-region="${escapeHtml(slugId(region))}">
+                <strong>${escapeHtml(region)}</strong>
+                <p>${escapeHtml(patternRegionCopy(contract, region, index))}</p>
+              </section>`,
+                )
+                .join("\n              ")}
+            </div>
+            <div class="jk-pattern-controls" aria-label="${escapeHtml(contract.label)} controls">
+              ${(contract.expected_controls ?? [])
+                .map(
+                  (control, index) =>
+                    `<button data-pattern-control="${escapeHtml(slugId(control))}"${index === 0 ? ' class="is-primary"' : ""}>${escapeHtml(control)}</button>`,
+                )
+                .join("\n              ")}
+            </div>
+            <p class="jk-pattern-completion">${escapeHtml(contract.completion_or_handoff)}</p>
+          </div>`;
+}
+
+function patternRegionCopy(contract, region, index) {
+  const lowerRegion = region.toLowerCase();
+  if (lowerRegion.includes("evidence")) return "Visible support for the decision stays adjacent to the work.";
+  if (lowerRegion.includes("risk")) return "Risk is named in domain terms before action.";
+  if (lowerRegion.includes("decision")) return "The next action is bounded by the review context.";
+  if (lowerRegion.includes("status")) return "Current state is summarized without hiding exceptions.";
+  if (lowerRegion.includes("configuration")) return "Settings are visible because setup is the activity.";
+  if (lowerRegion.includes("composer")) return "Message creation stays close to context and status.";
+  if (lowerRegion.includes("offer")) return "The main promise is stated before supporting proof.";
+  return `${contract.label} region ${index + 1} supports ${contract.purpose.toLowerCase()}`;
+}
+
+function buildSpecimenContext(adapter, system) {
+  return {
+    token_hash: hashCanonical(adapter.css_custom_properties),
+    icon_catalog_hash: hashCanonical(adapter.icon_catalog),
+    design_system_contract_hash: hashCanonical(system),
+    token_style: cssCustomPropertyStyle(adapter.css_custom_properties),
+  };
+}
+
+function buildComponentSpecimens(contracts, context) {
+  return contracts.map((contract) => {
+    const id = specimenId("component", contract.id);
+    const contractHash = hashCanonical(contract);
+    const renderedHtml = renderComponentSpecimenPreview(contract, {
+      ...context,
+      contract_hash: contractHash,
+    });
+    const states = contract.required_states ?? [];
+    const anatomy = contract.anatomy ?? [];
+    const tokenBindings = contract.token_bindings ?? [];
+
+    return {
+      id,
+      type: "component",
+      anchor: `#${specimenAnchor(contract.id)}`,
+      contract_id: contract.id,
+      label: contract.label,
+      purpose: contract.purpose,
+      contract_hash: contractHash,
+      token_hash: context.token_hash,
+      icon_catalog_hash: context.icon_catalog_hash,
+      renderer_id: DESIGN_SYSTEM_SPECIMEN_RENDERER.id,
+      renderer_version: DESIGN_SYSTEM_SPECIMEN_RENDERER.version,
+      output_hash: hashText(renderedHtml),
+      selectors: {
+        root: attrSelector("data-specimen-id", id),
+        states: Object.fromEntries(
+          states.map((state) => [
+            state,
+            `${attrSelector("data-specimen-id", id)} ${attrSelector("data-component-state", state)}`,
+          ]),
+        ),
+        anatomy: Object.fromEntries(
+          anatomy.map((item) => [
+            item,
+            `${attrSelector("data-specimen-id", id)} ${attrSelector("data-component-anatomy", slugId(item))}`,
+          ]),
+        ),
+        token_bindings: Object.fromEntries(
+          tokenBindings.map((role) => [
+            role,
+            `${attrSelector("data-specimen-id", id)} ${attrSelector("data-token-role", slugId(role))}`,
+          ]),
+        ),
+      },
+      covered_states: states,
+      covered_anatomy: anatomy,
+      covered_token_bindings: tokenBindings,
+      accessibility_checks: contract.accessibility_checks ?? [],
+      review_checks: contract.review_checks ?? [],
+      rendered_html: renderedHtml,
+      contract,
+    };
+  });
+}
+
+function buildPatternSpecimens(contracts, context) {
+  return contracts.map((contract) => {
+    const id = specimenId("pattern", contract.id);
+    const contractHash = hashCanonical(contract);
+    const renderedHtml = renderPatternSpecimenPreview(contract, {
+      ...context,
+      contract_hash: contractHash,
+    });
+    const regions = contract.required_regions ?? [];
+    const controls = contract.expected_controls ?? [];
+
+    return {
+      id,
+      type: "pattern",
+      anchor: `#${specimenAnchor(contract.id)}`,
+      contract_id: contract.id,
+      label: contract.label,
+      surface_type: contract.surface_type,
+      purpose: contract.purpose,
+      contract_hash: contractHash,
+      token_hash: context.token_hash,
+      icon_catalog_hash: context.icon_catalog_hash,
+      renderer_id: DESIGN_SYSTEM_SPECIMEN_RENDERER.id,
+      renderer_version: DESIGN_SYSTEM_SPECIMEN_RENDERER.version,
+      output_hash: hashText(renderedHtml),
+      selectors: {
+        root: attrSelector("data-specimen-id", id),
+        regions: Object.fromEntries(
+          regions.map((region) => [
+            region,
+            `${attrSelector("data-specimen-id", id)} ${attrSelector("data-pattern-region", slugId(region))}`,
+          ]),
+        ),
+        controls: Object.fromEntries(
+          controls.map((control) => [
+            control,
+            `${attrSelector("data-specimen-id", id)} ${attrSelector("data-pattern-control", slugId(control))}`,
+          ]),
+        ),
+      },
+      covered_regions: regions,
+      covered_controls: controls,
+      completion_or_handoff: contract.completion_or_handoff,
+      disclosure_boundary: contract.disclosure_boundary,
+      accessibility_expectations: contract.accessibility_expectations ?? [],
+      rendered_html: renderedHtml,
+      contract,
+    };
+  });
+}
+
+function exportSpecimen(specimen) {
+  const { contract: _contract, ...exported } = specimen;
+  return exported;
+}
+
+function designSystemSpecimenProvenance(model) {
+  return {
+    source: model.system.id,
+    renderer: DESIGN_SYSTEM_SPECIMEN_RENDERER,
+    generated_from: model.generated_from,
+    proof_scope:
+      "Hashes and selectors prove specimen provenance and drift control; they do not replace activity, workflow, disclosure, accessibility, static, or browser-QA evidence.",
+    design_system_contract_hash: model.specimen_hashes.design_system_contract_hash,
+    token_hash: model.specimen_hashes.token_hash,
+    icon_catalog_hash: model.specimen_hashes.icon_catalog_hash,
+    component_specimens: model.component_specimens.map((specimen) => ({
+      id: specimen.id,
+      contract_id: specimen.contract_id,
+      contract_hash: specimen.contract_hash,
+      output_hash: specimen.output_hash,
+      covered_states: specimen.covered_states,
+    })),
+    pattern_specimens: model.pattern_specimens.map((specimen) => ({
+      id: specimen.id,
+      contract_id: specimen.contract_id,
+      surface_type: specimen.surface_type,
+      contract_hash: specimen.contract_hash,
+      output_hash: specimen.output_hash,
+      covered_regions: specimen.covered_regions,
+      covered_controls: specimen.covered_controls,
+    })),
+  };
+}
+
+function designSystemExports(model) {
+  return {
+    manifest: {
+      section: "JudgmentKit Design System",
+      purpose: "Human reference for foundation assets.",
+      routes: model.pages.map((pageEntry) => ({
+        id: pageEntry.id,
+        title: pageEntry.title,
+        html: pageEntry.path,
+        markdown: pageEntry.markdown_path,
+      })),
+      exports: {
+        manifest: "/design-system/manifest.json",
+        visual_token_adapter: "/design-system/visual-token-adapter.json",
+        component_contracts: "/design-system/component-contracts.json",
+        pattern_contracts: "/design-system/pattern-contracts.json",
+        component_specimens: "/design-system/component-specimens.json",
+        pattern_specimens: "/design-system/pattern-specimens.json",
+        specimen_provenance: "/design-system/specimen-provenance.json",
+        accessibility_policy: "/design-system/accessibility-policy.json",
+        icon_scenarios: "/design-system/icon-scenarios.json",
+        llms: "/design-system/llms.txt",
+        llms_full: "/design-system/llms-full.txt",
+      },
+      source: {
+        visual_token_adapter_id: model.adapter.id,
+        design_system_contract_id: model.system.id,
+        lucide: model.adapter.icon_catalog,
+      },
+      principles: model.principles,
+    },
+    visualTokenAdapter: model.adapter,
+    componentContracts: {
+      source: model.system.id,
+      contracts: model.component_contracts,
+    },
+    patternContracts: {
+      source: model.system.id,
+      contracts: model.pattern_contracts,
+    },
+    componentSpecimens: {
+      source: model.system.id,
+      renderer: DESIGN_SYSTEM_SPECIMEN_RENDERER,
+      specimens: model.component_specimens.map(exportSpecimen),
+    },
+    patternSpecimens: {
+      source: model.system.id,
+      renderer: DESIGN_SYSTEM_SPECIMEN_RENDERER,
+      specimens: model.pattern_specimens.map(exportSpecimen),
+    },
+    specimenProvenance: designSystemSpecimenProvenance(model),
+    accessibilityPolicy: model.accessibility_policy,
+    iconScenarios: {
+      source: {
+        library: model.adapter.icon_catalog.library,
+        package: model.adapter.icon_catalog.package,
+        version: model.adapter.icon_catalog.version,
+        icon_count: model.adapter.icon_catalog.icon_count,
+      },
+      mcp_tools: model.adapter.icon_catalog.mcp_tools,
+      scenarios: model.icon_scenarios.map(stripIconScenarioForExport),
+    },
+  };
+}
+
+function buildDesignSystemIconIndex() {
+  const icons = [];
+  let cursor;
+
+  do {
+    const pageResult = listIconCatalog({
+      limit: 100,
+      cursor,
+      include_svg: false,
+    });
+    icons.push(...pageResult.icons);
+    cursor = pageResult.next_cursor;
+  } while (cursor);
+
+  return icons.map((icon) => ({
+    id: icon.id,
+    name: icon.name,
+    aliases: icon.aliases ?? [],
+    categories: icon.categories ?? [],
+    tags: icon.tags ?? [],
+    search_terms: icon.search_terms ?? [],
+  }));
+}
+
+function buildDesignSystemContentModel() {
+  const adapter = defaultVisualTokenAdapter();
+  const system = defaultDesignSystemContract();
+  const accessibilityPolicy = defaultAccessibilityPolicy();
+  const componentContracts = system.component_contracts ?? [];
+  const patternContracts = system.pattern_contracts ?? [];
+  const specimenContext = buildSpecimenContext(adapter, system);
+  const componentSpecimens = buildComponentSpecimens(componentContracts, specimenContext);
+  const patternSpecimens = buildPatternSpecimens(patternContracts, specimenContext);
+  const iconScenarios = buildDesignSystemIconScenarios();
+  const iconIndex = buildDesignSystemIconIndex();
+  const pages = [
+    {
+      id: "overview",
+      title: "JudgmentKit Design System",
+      nav_label: "Overview",
+      path: "/design-system/",
+      markdown_path: "/design-system/index.html.md",
+      heading: "Foundations",
+      eyebrow: "Design system",
+      summary:
+        "Foundation assets and review contracts for building JudgmentKit interfaces: tokens, typography, icons, components, patterns, and accessibility.",
+      sections: ["Foundation assets", "How to review", "Principles"],
+      examples: [
+        {
+          title: "Review a generated interface",
+          use: "Start with the task and workflow, then use foundations to check consistency, hierarchy, and meaning.",
+          caution: "Do not use visual polish as proof that the interface supports the right work.",
+        },
+      ],
+    },
+    {
+      id: "tokens",
+      title: "JudgmentKit Tokens",
+      nav_label: "Tokens",
+      path: "/design-system/tokens/",
+      markdown_path: "/design-system/tokens/index.html.md",
+      heading: "Tokens",
+      eyebrow: "Foundations",
+      summary:
+        "Semantic roles and portable CSS defaults for color, spacing, borders, focus, status, risk, disabled states, and receipts.",
+      sections: ["Usage", "Values", "Token roles", "Examples", "Accessibility"],
+      examples: [
+        {
+          title: "Status that has visible meaning",
+          use: "Pair status color with text such as Approved, Warning, Returned, or Complete.",
+          caution: "Do not rely on color alone for decisions, errors, or progress.",
+        },
+        {
+          title: "Focus that is easy to find",
+          use: "Use focus roles for keyboard-visible controls and clear active regions.",
+          caution: "Do not remove focus styling to make a layout look cleaner.",
+        },
+      ],
+    },
+    {
+      id: "fonts",
+      title: "JudgmentKit Typography",
+      nav_label: "Typography",
+      path: "/design-system/fonts/",
+      markdown_path: "/design-system/fonts/index.html.md",
+      heading: "Typography",
+      eyebrow: "Foundations",
+      summary:
+        "System font roles for readable interface text without remote font files or bundled font assets.",
+      sections: ["Usage", "Type roles", "Examples", "Accessibility"],
+      examples: [
+        {
+          title: "Numeric values",
+          use: "Use the numeric role for counts, prices, times, and aligned values.",
+          caution: "Do not use proportional number rendering where column comparison matters.",
+        },
+        {
+          title: "Diagnostic text",
+          use: "Reserve monospace for setup, debugging, auditing, integration, or source inspection screens.",
+          caution: "Do not make technical identifiers the primary product vocabulary.",
+        },
+      ],
+    },
+    {
+      id: "icons",
+      title: "JudgmentKit Icons",
+      nav_label: "Icons",
+      path: "/design-system/icons/",
+      markdown_path: "/design-system/icons/index.html.md",
+      heading: "Icons",
+      eyebrow: "Foundations",
+      summary:
+        "A complete Lucide icon catalog with one coherent 24px outline style, plus common examples for interface meaning.",
+      sections: ["Usage", "Icon examples", "Icon index", "Accessibility", "Source"],
+      examples: [
+        {
+          title: "Meaningful icon",
+          use: "Pair the icon with visible text when it communicates status, navigation, or action meaning.",
+          caution: "Do not make an icon-only control depend on visual recognition alone.",
+        },
+        {
+          title: "Consistent family",
+          use: "Choose from the committed Lucide catalog so line weight, caps, joins, and proportions stay consistent.",
+          caution: "Do not mix unrelated icon packs in the same interface.",
+        },
+      ],
+    },
+    {
+      id: "components",
+      title: "JudgmentKit Components",
+      nav_label: "Components",
+      path: "/design-system/components/",
+      markdown_path: "/design-system/components/index.html.md",
+      heading: "Components",
+      eyebrow: "Contracts",
+      summary:
+        "Framework-neutral component contracts for core controls, regions, and states.",
+      sections: ["Usage", "Specimens", "Component contracts", "Review checks", "Accessibility"],
+      examples: [
+        {
+          title: "Action with a boundary",
+          use: "Use an action button when the user can trigger one clear outcome with visible state.",
+          caution: "Do not expose risky or destructive action without approval-boundary evidence.",
+        },
+        {
+          title: "Field with clear state",
+          use: "Use field contracts when labels, help, validation, disabled state, and focus must stay together.",
+          caution: "Do not rely on placeholder text or color-only errors.",
+        },
+      ],
+    },
+    {
+      id: "patterns",
+      title: "JudgmentKit Patterns",
+      nav_label: "Patterns",
+      path: "/design-system/patterns/",
+      markdown_path: "/design-system/patterns/index.html.md",
+      heading: "Patterns",
+      eyebrow: "Contracts",
+      summary:
+        "Surface patterns that connect activity purpose to required regions, controls, and completion behavior.",
+      sections: ["Usage", "Specimens", "Surface patterns", "Review checks", "Accessibility"],
+      examples: [
+        {
+          title: "Workbench activity",
+          use: "Use the workbench pattern when the user repeatedly inspects, compares, decides, and hands off work items.",
+          caution: "Do not turn repeated review work into a numbered wizard without staged-flow evidence.",
+        },
+        {
+          title: "Setup or debugging",
+          use: "Use the setup pattern when implementation details are the work material.",
+          caution: "Do not leak diagnostics into product surfaces where the activity is not setup, auditing, or debugging.",
+        },
+      ],
+    },
+    {
+      id: "accessibility",
+      title: "JudgmentKit Accessibility",
+      nav_label: "Accessibility",
+      path: "/design-system/accessibility/",
+      markdown_path: "/design-system/accessibility/index.html.md",
+      heading: "Accessibility",
+      eyebrow: "Contracts",
+      summary:
+        "Accessibility baseline, evidence groups, contrast targets, and failure signals for generated interfaces.",
+      sections: ["Usage", "Baseline", "Evidence groups", "Failure signals"],
+      examples: [
+        {
+          title: "Color and status",
+          use: "Pair visual state with text, semantics, and non-color cues.",
+          caution: "Do not treat a token color or icon as accessibility evidence by itself.",
+        },
+        {
+          title: "Keyboard and focus",
+          use: "Check focus order, visible focus, no traps, and equivalent keyboard operation.",
+          caution: "Do not accept custom widgets with roles but no matching keyboard behavior.",
+        },
+      ],
+    },
+  ];
+
+  const foundationAssets = [
+    {
+      title: "Tokens",
+      href: "/design-system/tokens/",
+      summary:
+        "Semantic roles for surfaces, text, borders, focus, statuses, decisions, risk, disabled states, and receipts.",
+      meta: `${adapter.token_roles.length} roles`,
+    },
+    {
+      title: "Typography",
+      href: "/design-system/fonts/",
+      summary:
+        "System font stacks for body, heading, label, numeric, and diagnostic text.",
+      meta: `${adapter.font_roles.length} roles`,
+    },
+    {
+      title: "Icons",
+      href: "/design-system/icons/",
+      summary:
+        "A committed Lucide catalog for selecting one consistent icon family.",
+      meta: `${adapter.icon_catalog.icon_count} icons`,
+    },
+    {
+      title: "Components",
+      href: "/design-system/components/",
+      summary:
+        "Core component contracts for actions, fields, choices, dialogs, tables, panels, cards, and status.",
+      meta: `${componentContracts.length} contracts + specimens`,
+    },
+    {
+      title: "Patterns",
+      href: "/design-system/patterns/",
+      summary:
+        "Surface contracts for marketing, workbench, review, form, dashboard, report, setup, and conversation work.",
+      meta: `${patternContracts.length} patterns + specimens`,
+    },
+    {
+      title: "Accessibility",
+      href: "/design-system/accessibility/",
+      summary:
+        "Baseline checks for contrast, semantics, keyboard operation, focus, states, motion, and responsive behavior.",
+      meta: accessibilityPolicy.standards_profile?.baseline ?? "WCAG 2.2 AA",
+    },
+  ];
+
+  const principles = [
+    "Start with the work the interface supports; foundations refine that work after the structure is sound.",
+    "Use visible labels, semantic HTML, and accessibility evidence when color, type, or icons carry meaning.",
+    "Use component and pattern contracts to review behavior before choosing renderer components.",
+    "Use complete source details for review, but keep source mechanics out of the primary browsing path.",
+  ];
+
+  const model = {
+    id: "judgmentkit-design-system",
+    generated_from: "createUiImplementationContract",
+    system,
+    adapter,
+    component_contracts: componentContracts,
+    pattern_contracts: patternContracts,
+    component_specimens: componentSpecimens,
+    pattern_specimens: patternSpecimens,
+    specimen_hashes: {
+      design_system_contract_hash: specimenContext.design_system_contract_hash,
+      token_hash: specimenContext.token_hash,
+      icon_catalog_hash: specimenContext.icon_catalog_hash,
+    },
+    accessibility_policy: accessibilityPolicy,
+    icon_index: iconIndex,
+    icon_scenarios: iconScenarios,
+    foundation_assets: foundationAssets,
+    pages,
+    principles,
+  };
+
+  return {
+    ...model,
+    exports: designSystemExports(model),
+  };
+}
+
+function renderDesignSystemNav(model, activeId) {
+  return `<aside class="doc-nav design-system-nav" aria-label="Design system sections">
+          ${model.pages
+            .map(
+              (pageEntry) =>
+                `<a href="${pageEntry.path}"${pageEntry.id === activeId ? ' aria-current="page"' : ""}>${escapeHtml(pageEntry.nav_label)}</a>`,
+            )
+            .join("\n          ")}
+        </aside>`;
+}
+
+function renderDesignSystemOnThisPage(pageEntry) {
+  return `<nav class="design-system-on-this-page" aria-label="On this page">
+            <span>On this page</span>
+            ${pageEntry.sections
+              .map((label) => `<a href="#${escapeHtml(slugId(label))}">${escapeHtml(label)}</a>`)
+              .join("\n            ")}
+          </nav>`;
+}
+
+function renderDesignSystemLayout(model, activeId, content) {
+  return `
+    <section class="section design-system-page" data-design-system-page="${escapeHtml(activeId)}">
+      <div class="doc-layout design-system-layout">
+        ${renderDesignSystemNav(model, activeId)}
+        <div class="design-system-content">
+          ${content}
+        </div>
+      </div>
+    </section>`;
+}
+
+function renderDesignSystemHero(pageEntry) {
+  return `<header class="design-system-hero">
+            <p class="eyebrow">${escapeHtml(pageEntry.eyebrow)}</p>
+            <h1>${escapeHtml(pageEntry.heading)}</h1>
+            <p class="lede">${escapeHtml(pageEntry.summary)}</p>
+            ${renderDesignSystemOnThisPage(pageEntry)}
+          </header>`;
+}
+
+function renderDesignSystemMetric(label, value, detail = "") {
+  return `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd>${detail ? `<p>${escapeHtml(detail)}</p>` : ""}</div>`;
+}
+
+function renderDesignSystemMetrics(metrics) {
+  return `<dl class="design-system-metrics">
+          ${metrics.map((metric) => renderDesignSystemMetric(metric.label, metric.value, metric.detail)).join("\n          ")}
+        </dl>`;
+}
+
+function renderDesignSystemRuleList(items, className = "design-system-rule-list") {
+  return `<ul class="${className}">
+          ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("\n          ")}
+        </ul>`;
+}
+
+function renderDesignSystemExamples(pageEntry) {
+  if (!pageEntry.examples?.length) {
+    return "";
+  }
+
+  return `<section class="design-system-section" aria-labelledby="examples">
+            <h2 id="examples">Examples</h2>
+            <ul class="design-system-example-grid">
+              ${pageEntry.examples
+                .map(
+                  (example) => `<li>
+                <article>
+                  <h3>${escapeHtml(example.title)}</h3>
+                  <dl>
+                    <div><dt>Use</dt><dd>${escapeHtml(example.use)}</dd></div>
+                    <div><dt>Watch for</dt><dd>${escapeHtml(example.caution)}</dd></div>
+                  </dl>
+                </article>
+              </li>`,
+                )
+                .join("\n              ")}
+            </ul>
+          </section>`;
+}
+
+function renderSpecimenFacts(rows) {
+  return `<dl class="design-system-specimen-facts">
+            ${rows
+              .map(
+                ([label, value]) =>
+                  `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd></div>`,
+              )
+              .join("\n            ")}
+          </dl>`;
+}
+
+function renderSpecimenPillList(items, className = "design-system-specimen-pills") {
+  return `<ul class="${className}">
+            ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("\n            ")}
+          </ul>`;
+}
+
+function renderComponentSpecimenList(specimens) {
+  return `<div class="design-system-specimen-list">
+            ${specimens
+              .map((specimen) => {
+                const contractExcerpt = {
+                  id: specimen.contract_id,
+                  purpose: specimen.purpose,
+                  required_states: specimen.covered_states,
+                  anatomy: specimen.covered_anatomy,
+                  token_bindings: specimen.covered_token_bindings,
+                };
+
+                return `<article class="design-system-specimen" id="${escapeHtml(specimenAnchor(specimen.contract_id))}" data-component-specimen="${escapeHtml(specimen.contract_id)}">
+              <header class="design-system-specimen-header">
+                <div>
+                  <p class="eyebrow">Component specimen</p>
+                  <h3>${escapeHtml(specimen.label)}</h3>
+                  <p>${escapeHtml(specimen.purpose)}</p>
+                </div>
+                <a class="pill-link" href="${escapeHtml(specimen.anchor)}">Open</a>
+              </header>
+              <div class="design-system-specimen-body">
+                <div class="design-system-specimen-preview-frame">
+                  ${specimen.rendered_html}
+                </div>
+                <aside class="design-system-specimen-support" aria-label="${escapeHtml(specimen.label)} coverage">
+                  <h4>States</h4>
+                  ${renderSpecimenPillList(specimen.covered_states)}
+                  <h4>Anatomy</h4>
+                  ${renderSpecimenPillList(specimen.covered_anatomy)}
+                  <h4>Evidence</h4>
+                  ${renderSpecimenFacts([
+                    ["Contract", specimen.contract_id],
+                    ["Contract hash", shortHash(specimen.contract_hash)],
+                    ["Output hash", shortHash(specimen.output_hash)],
+                  ])}
+                  <details>
+                    <summary>Contract</summary>
+                    <pre><code>${escapeHtml(JSON.stringify(contractExcerpt, null, 2))}</code></pre>
+                  </details>
+                </aside>
+              </div>
+            </article>`;
+              })
+              .join("\n            ")}
+          </div>`;
+}
+
+function renderPatternSpecimenList(specimens) {
+  return `<div class="design-system-specimen-list">
+            ${specimens
+              .map((specimen) => {
+                const contractExcerpt = {
+                  id: specimen.contract_id,
+                  surface_type: specimen.surface_type,
+                  purpose: specimen.purpose,
+                  required_regions: specimen.covered_regions,
+                  expected_controls: specimen.covered_controls,
+                  completion_or_handoff: specimen.completion_or_handoff,
+                };
+
+                return `<article class="design-system-specimen" id="${escapeHtml(specimenAnchor(specimen.contract_id))}" data-pattern-specimen="${escapeHtml(specimen.contract_id)}">
+              <header class="design-system-specimen-header">
+                <div>
+                  <p class="eyebrow">Pattern specimen</p>
+                  <h3>${escapeHtml(specimen.label)}</h3>
+                  <p>${escapeHtml(specimen.purpose)}</p>
+                </div>
+                <a class="pill-link" href="${escapeHtml(specimen.anchor)}">Open</a>
+              </header>
+              <div class="design-system-specimen-body">
+                <div class="design-system-specimen-preview-frame">
+                  ${specimen.rendered_html}
+                </div>
+                <aside class="design-system-specimen-support" aria-label="${escapeHtml(specimen.label)} coverage">
+                  <h4>Regions</h4>
+                  ${renderSpecimenPillList(specimen.covered_regions)}
+                  <h4>Controls</h4>
+                  ${renderSpecimenPillList(specimen.covered_controls)}
+                  <h4>Evidence</h4>
+                  ${renderSpecimenFacts([
+                    ["Surface", specimen.surface_type],
+                    ["Contract hash", shortHash(specimen.contract_hash)],
+                    ["Output hash", shortHash(specimen.output_hash)],
+                  ])}
+                  <details>
+                    <summary>Contract</summary>
+                    <pre><code>${escapeHtml(JSON.stringify(contractExcerpt, null, 2))}</code></pre>
+                  </details>
+                </aside>
+              </div>
+            </article>`;
+              })
+              .join("\n            ")}
+          </div>`;
+}
+
+function renderDesignSystemTable({ caption, columns, rows, rowAttributes = () => "" }) {
+  return `<div class="design-system-table-wrap">
+            <table class="design-system-table">
+              <caption>${escapeHtml(caption)}</caption>
+              <thead>
+                <tr>
+                  ${columns.map((column) => `<th scope="col">${escapeHtml(column.label)}</th>`).join("")}
+                </tr>
+              </thead>
+              <tbody>
+                ${rows
+                  .map(
+                    (row) => `<tr${rowAttributes(row) ? ` ${rowAttributes(row)}` : ""}>
+                  ${columns
+                    .map((column) => {
+                      const value = column.render ? column.render(row) : escapeHtml(row[column.key] ?? "");
+                      return `<td>${value}</td>`;
+                    })
+                    .join("")}
+                </tr>`,
+                  )
+                  .join("\n                ")}
+              </tbody>
+            </table>
+          </div>`;
+}
+
+function designSystemPageById(model, id) {
+  const pageEntry = model.pages.find((entry) => entry.id === id);
+  if (!pageEntry) {
+    throw new Error(`Unknown design-system page: ${id}`);
+  }
+  return pageEntry;
+}
+
+function slugId(value) {
+  return String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function tokenReviewNote(role) {
+  const notes = {
+    surface: "Check that panels, overlays, and page regions are visually distinct without adding clutter.",
+    text: "Check readable contrast, line length, and hierarchy before decorative styling.",
+    border: "Use borders to clarify grouping, control bounds, and evidence adjacency.",
+    focus: "Keyboard focus must remain visible and easy to follow.",
+    status: "Pair status treatment with visible words and state changes.",
+    decision: "Primary and destructive actions need clear separation and labels.",
+    risk: "Escalation and destructive states need visible context, not just stronger color.",
+    disabled: "Disabled controls need an unavailable reason when the next step matters.",
+    receipt: "Completion states should leave a clear confirmation or handoff record.",
+  };
+
+  return notes[role] ?? "Check that the role supports visible work on the page.";
+}
+
+function renderDesignSystemOverviewPage(model) {
+  const adapter = model.adapter;
+  const iconCatalog = adapter.icon_catalog;
+  const pageEntry = designSystemPageById(model, "overview");
+
+  return page(
+    pageEntry.title,
+    renderDesignSystemLayout(
+      model,
+      "overview",
+      `
+          ${renderDesignSystemHero(pageEntry)}
+          ${renderDesignSystemMetrics([
+            {
+              label: "Token roles",
+              value: adapter.token_roles.length,
+              detail: "Semantic foundation roles.",
+            },
+            {
+              label: "Type roles",
+              value: adapter.font_roles.length,
+              detail: "System font stacks.",
+            },
+            {
+              label: "Icons",
+              value: iconCatalog.icon_count,
+              detail: `${iconCatalog.package}@${iconCatalog.version}`,
+            },
+          ])}
+          <section class="design-system-section" aria-labelledby="foundation-assets">
+            <h2 id="foundation-assets">Foundation assets</h2>
+            <ul class="design-system-foundation-list">
+              ${model.foundation_assets
+                .map(
+                  (asset) => `<li>
+                <article>
+                  <p class="status">${escapeHtml(asset.meta)}</p>
+                  <h3>${escapeHtml(asset.title)}</h3>
+                  <p>${escapeHtml(asset.summary)}</p>
+                  <a class="pill-link" href="${escapeHtml(asset.href)}">Open ${escapeHtml(asset.title)}</a>
+                </article>
+              </li>`,
+                )
+                .join("\n              ")}
+            </ul>
+          </section>
+          <section class="design-system-section" aria-labelledby="how-to-review">
+            <h2 id="how-to-review">How to review</h2>
+            <ol class="design-system-step-list">
+              <li>Confirm the interface supports the right task and workflow.</li>
+              <li>Use foundations to review hierarchy, meaning, consistency, and source constraints.</li>
+              <li>Check accessibility evidence when color, type, or icons communicate meaning.</li>
+              <li>Reference stable asset names when implementation or review feedback needs precision.</li>
+            </ol>
+          </section>
+          <section class="design-system-section" aria-labelledby="principles">
+            <h2 id="principles">Principles</h2>
+            ${renderDesignSystemRuleList(model.principles)}
+          </section>
+          ${renderDesignSystemExamples(pageEntry)}
+        `,
+    ),
+    {
+      description:
+        "JudgmentKit design-system foundations: tokens, typography, and icons for human review.",
+      path: "/design-system/",
+    },
+  );
+}
+
+function renderDesignSystemTokensPage(model) {
+  const adapter = model.adapter;
+  const pageEntry = designSystemPageById(model, "tokens");
+
+  return page(
+    pageEntry.title,
+    renderDesignSystemLayout(
+      model,
+      "tokens",
+      `
+          ${renderDesignSystemHero(pageEntry)}
+          ${renderDesignSystemMetrics([
+            {
+              label: "Families",
+              value: adapter.token_families.length,
+              detail: adapter.token_families.join(", "),
+            },
+            {
+              label: "Roles",
+              value: adapter.token_roles.length,
+              detail: "Named by meaning, not raw values.",
+            },
+            {
+              label: "Current scope",
+              value: "roles + CSS",
+              detail: "Portable values ship as CSS custom properties.",
+            },
+          ])}
+          <section class="design-system-section" aria-labelledby="usage">
+            <h2 id="usage">Usage</h2>
+            <p class="note">Use token roles to describe what a visual choice is doing: separating a surface, marking focus, showing status, identifying risk, or recording completion. The CSS custom properties below are portable defaults for generated interfaces; repo-approved design systems can replace the values after the activity and workflow gates are clear.</p>
+          </section>
+          <section class="design-system-section" aria-labelledby="values">
+            <h2 id="values">Values</h2>
+            <p class="note">The role-first layer exists because agents need to choose visual intent before choosing a brand palette. The values make that intent renderable and reviewable without pretending this is a full component library.</p>
+            <pre><code>${escapeHtml(cssCustomPropertyBlock(adapter.css_custom_properties))}</code></pre>
+            ${renderDesignSystemTable({
+              caption: "Portable CSS custom properties",
+              columns: [
+                {
+                  key: "name",
+                  label: "Property",
+                  render: (row) => `<code>${escapeHtml(row.name)}</code>`,
+                },
+                {
+                  key: "value",
+                  label: "Value",
+                  render: renderCssCustomPropertyValue,
+                },
+                {
+                  key: "role",
+                  label: "Role",
+                  render: (row) => `<code>${escapeHtml(row.role)}</code>`,
+                },
+                {
+                  key: "usage",
+                  label: "Use",
+                },
+              ],
+              rows: adapter.css_custom_properties,
+              rowAttributes: (row) => `data-token-value="${escapeHtml(row.name)}"`,
+            })}
+          </section>
+          <section class="design-system-section" aria-labelledby="token-roles">
+            <h2 id="token-roles">Token roles</h2>
+            ${renderDesignSystemTable({
+              caption: "JudgmentKit token roles",
+              columns: [
+                {
+                  key: "role",
+                  label: "Role",
+                  render: (row) => `<code>${escapeHtml(row.role)}</code>`,
+                },
+                {
+                  key: "families",
+                  label: "Families",
+                  render: (row) => escapeHtml((row.families ?? []).join(", ")),
+                },
+                {
+                  key: "usage",
+                  label: "Use",
+                },
+                {
+                  key: "review",
+                  label: "Review check",
+                  render: (row) => escapeHtml(tokenReviewNote(row.role)),
+                },
+              ],
+              rows: adapter.token_roles,
+              rowAttributes: (row) => `data-token-role="${escapeHtml(row.role)}"`,
+            })}
+          </section>
+          ${renderDesignSystemExamples(pageEntry)}
+          <section class="design-system-section" aria-labelledby="accessibility">
+            <h2 id="accessibility">Accessibility</h2>
+            ${renderDesignSystemRuleList([
+              "Color cannot be the only way a user understands status, error, risk, or completion.",
+              "Focus treatment must be visible for keyboard users and must not be hidden by surrounding layout.",
+              "Status, risk, disabled, and receipt states need visible text or nearby context.",
+            ])}
+          </section>
+        `,
+    ),
+    {
+      description:
+        "JudgmentKit token roles for design-system foundations.",
+      path: "/design-system/tokens/",
+    },
+  );
+}
+
+function renderDesignSystemFontsPage(model) {
+  const adapter = model.adapter;
+  const pageEntry = designSystemPageById(model, "fonts");
+
+  return page(
+    pageEntry.title,
+    renderDesignSystemLayout(
+      model,
+      "fonts",
+      `
+          ${renderDesignSystemHero(pageEntry)}
+          ${renderDesignSystemMetrics([
+            {
+              label: "Type roles",
+              value: adapter.font_roles.length,
+              detail: "body, heading, label, numeric, diagnostic",
+            },
+            {
+              label: "Source",
+              value: "system",
+              detail: "No font CDN or bundled font files.",
+            },
+            {
+              label: "Numeric text",
+              value: "tabular",
+              detail: "Stable comparison for aligned values.",
+            },
+          ])}
+          <section class="design-system-section" aria-labelledby="usage">
+            <h2 id="usage">Usage</h2>
+            <p class="note">Use typography roles to preserve readable hierarchy and predictable rendering across local systems.</p>
+          </section>
+          <section class="design-system-section" aria-labelledby="type-roles">
+            <h2 id="type-roles">Type roles</h2>
+            ${renderDesignSystemTable({
+              caption: "JudgmentKit typography roles",
+              columns: [
+                {
+                  key: "role",
+                  label: "Role",
+                  render: (row) => `<code>${escapeHtml(row.role)}</code>`,
+                },
+                {
+                  key: "usage",
+                  label: "Use",
+                },
+                {
+                  key: "stack",
+                  label: "Stack",
+                  render: (row) => `<code>${escapeHtml(row.stack)}</code>`,
+                },
+                {
+                  key: "specimen",
+                  label: "Specimen",
+                  render: (row) => `<span class="font-specimen font-specimen-${escapeHtml(row.role)}">${escapeHtml(row.role === "numeric" ? "12,480" : row.role === "label" ? "Status label" : row.role === "diagnostic" ? "source.id" : "Interface text")}</span>`,
+                },
+              ],
+              rows: adapter.font_roles,
+              rowAttributes: (row) => `data-font-role="${escapeHtml(row.role)}"`,
+            })}
+          </section>
+          ${renderDesignSystemExamples(pageEntry)}
+          <section class="design-system-section" aria-labelledby="accessibility">
+            <h2 id="accessibility">Accessibility</h2>
+            ${renderDesignSystemRuleList([
+              "Respect browser text scaling and avoid viewport-based font sizing.",
+              "Use heading roles for hierarchy, not just larger text.",
+              "Keep diagnostic monospace secondary unless source inspection is the task.",
+            ])}
+          </section>
+        `,
+    ),
+    {
+      description:
+        "JudgmentKit typography foundations using portable system font stacks.",
+      path: "/design-system/fonts/",
+    },
+  );
+}
+
+function buildDesignSystemIconScenarios() {
+  return ICON_PAGE_SCENARIOS.map((scenario) => {
+    const searchResult = searchIconCatalog({
+      query: scenario.query,
+      limit: 8,
+      include_svg: false,
+    });
+    const selected =
+      searchResult.icons.find((icon) => icon.id === scenario.expected_icon_id) ??
+      searchResult.icons[0];
+    const svgResult = getIconSvg({ id: selected.id });
+
+    return {
+      ...scenario,
+      selected_icon_id: selected.id,
+      search_rank: searchResult.icons.findIndex((icon) => icon.id === selected.id) + 1,
+      inline_svg: svgResult.inline_svg,
+    };
+  });
+}
+
+function renderDesignSystemIconScenario(scenario) {
+  return `<article class="design-icon-scenario" data-icon-example="${escapeHtml(scenario.id)}" data-selected-icon-id="${escapeHtml(scenario.selected_icon_id)}">
+            <div class="design-icon-symbol" aria-hidden="true">${scenario.inline_svg}</div>
+            <div>
+              <h3>${escapeHtml(scenario.label)}</h3>
+              <p>${escapeHtml(scenario.intent)}</p>
+              <dl>
+                <div><dt>Icon</dt><dd><code>${escapeHtml(scenario.selected_icon_id)}</code></dd></div>
+              </dl>
+            </div>
+          </article>`;
+}
+
+function renderDesignSystemIconIndex(icons) {
+  return `<search class="design-system-search" aria-labelledby="icon-index">
+            <form action="/design-system/icons/" method="get" role="search" data-design-icon-search-form>
+              <label for="icon-search">Search icon names</label>
+              <div>
+                <input id="icon-search" name="q" type="search" autocomplete="off" placeholder="Try receipt, calendar, alert, upload" data-design-icon-search aria-describedby="icon-search-count">
+                <button type="submit">Search</button>
+              </div>
+              <p id="icon-search-count" class="note" aria-live="polite" data-design-icon-count>${escapeHtml(icons.length)} icons shown</p>
+            </form>
+          </search>
+          <ul class="design-icon-index-list" data-design-icon-results>
+            ${icons
+              .map(
+                (icon) => `<li data-icon-id="${escapeHtml(icon.id)}">
+              <code>${escapeHtml(icon.id)}</code>
+              <span>${escapeHtml(icon.name)}</span>
+            </li>`,
+              )
+              .join("\n            ")}
+          </ul>`;
+}
+
+function renderDesignSystemIconSearchScript() {
+  return `<script>
+      (() => {
+        const input = document.querySelector("[data-design-icon-search]");
+        const count = document.querySelector("[data-design-icon-count]");
+        const items = [...document.querySelectorAll("[data-design-icon-results] [data-icon-id]")];
+        const form = document.querySelector("[data-design-icon-search-form]");
+        if (!input || !count || !items.length) return;
+
+        const render = () => {
+          const terms = input.value.toLowerCase().trim().split(/\\s+/).filter(Boolean);
+          let visible = 0;
+          for (const item of items) {
+            const text = item.textContent.toLowerCase();
+            const match = terms.every((term) => text.includes(term));
+            item.hidden = !match;
+            if (match) visible += 1;
+          }
+          count.textContent = terms.length
+            ? visible + " of " + items.length + " icons match"
+            : items.length + " icons shown";
+        };
+
+        form?.addEventListener("submit", (event) => {
+          event.preventDefault();
+          render();
+        });
+        input.addEventListener("input", render);
+        render();
+      })();
+    </script>`;
+}
+
+function renderDesignSystemIconsPage(model) {
+  const adapter = model.adapter;
+  const scenarios = model.icon_scenarios;
+  const source = adapter.icon_catalog;
+  const totalCount = source.icon_count;
+  const pageEntry = designSystemPageById(model, "icons");
+
+  return page(
+    pageEntry.title,
+    renderDesignSystemLayout(
+      model,
+      "icons",
+      `
+          ${renderDesignSystemHero(pageEntry)}
+          ${renderDesignSystemMetrics([
+            {
+              label: "Source",
+              value: `${source.package}@${source.version}`,
+              detail: source.license,
+            },
+            {
+              label: "Catalog icons",
+              value: totalCount,
+              detail: `${source.library} 24px outline style`,
+            },
+            {
+              label: "Rendering",
+              value: source.style_attributes.viewBox,
+              detail: "inline SVG, currentColor stroke",
+            },
+          ])}
+          <section class="design-system-section" aria-labelledby="usage">
+            <h2 id="usage">Usage</h2>
+            ${renderDesignSystemRuleList([
+              "Choose the icon by the meaning a person needs to recognize: status, direction, filtering, scheduling, handoff, or risk.",
+              "Use one Lucide icon family so line weight, corner style, and proportions stay coherent.",
+              "Prefer adjacent visible text for meaningful icons and reserve icon-only controls for familiar, named actions.",
+            ])}
+          </section>
+          <section class="design-system-section" aria-labelledby="icon-examples">
+            <h2 id="icon-examples">Icon examples</h2>
+            <p class="note">These examples show common interface meanings with stable Lucide icon IDs.</p>
+            <div class="design-icon-scenario-grid">
+              ${scenarios.map(renderDesignSystemIconScenario).join("\n              ")}
+            </div>
+          </section>
+          <section class="design-system-section" aria-labelledby="icon-index">
+            <h2 id="icon-index">Icon index</h2>
+            <p class="note">Search the committed Lucide IDs and names without loading the full SVG grid into this reference page.</p>
+            ${renderDesignSystemIconIndex(model.icon_index)}
+          </section>
+          <section class="design-system-section" aria-labelledby="accessibility">
+            <h2 id="accessibility">Accessibility</h2>
+            ${renderDesignSystemRuleList([
+              "Icon-only controls require accessible names, keyboard focus, and adequate target size.",
+              "Meaningful icons should have adjacent visible text whenever possible.",
+              "Icons that communicate state need non-text contrast evidence and must not replace the state label.",
+            ])}
+          </section>
+          <section class="design-system-section" aria-labelledby="source">
+            <h2 id="source">Source</h2>
+            <p class="note">The catalog is generated from the committed ${escapeHtml(source.package)} package at version ${escapeHtml(source.version)}. The complete visual smoke proof remains available for regression review.</p>
+            <a class="pill-link" href="/examples/lucide-icon-catalog-smoke.html">Open full catalog smoke proof</a>
+          </section>
+          ${renderDesignSystemExamples(pageEntry)}
+          ${renderDesignSystemIconSearchScript()}
+        `,
+    ),
+    {
+      description:
+        "JudgmentKit iconography reference using the complete Lucide catalog.",
+      path: "/design-system/icons/",
+    },
+  );
+}
+
+function renderDesignSystemComponentsPage(model) {
+  const pageEntry = designSystemPageById(model, "components");
+  const contracts = model.component_contracts;
+  const specimens = model.component_specimens;
+  const stateCount = new Set(contracts.flatMap((entry) => entry.required_states ?? [])).size;
+  const bindingCount = new Set(contracts.flatMap((entry) => entry.token_bindings ?? [])).size;
+
+  return page(
+    pageEntry.title,
+    renderDesignSystemLayout(
+      model,
+      "components",
+      `
+          ${renderDesignSystemHero(pageEntry)}
+          ${renderDesignSystemMetrics([
+            {
+              label: "Specimens",
+              value: specimens.length,
+              detail: "Rendered from current contracts.",
+            },
+            {
+              label: "States",
+              value: stateCount,
+              detail: "Required state names across components.",
+            },
+            {
+              label: "Bindings",
+              value: bindingCount,
+              detail: "Token roles tied to component behavior.",
+            },
+          ])}
+          <section class="design-system-section" aria-labelledby="usage">
+            <h2 id="usage">Usage</h2>
+            <p class="note">Use component contracts to choose the smallest interface primitive that supports the work. These contracts describe behavior, state, and review evidence; they are not a renderer package.</p>
+          </section>
+          <section class="design-system-section" aria-labelledby="specimens">
+            <h2 id="specimens">Specimens</h2>
+            <p class="note">Each specimen pairs a rendered preview with required state coverage, anatomy, token roles, and source evidence from the current contract.</p>
+            ${renderComponentSpecimenList(specimens)}
+          </section>
+          <section class="design-system-section" aria-labelledby="component-contracts">
+            <h2 id="component-contracts">Component contracts</h2>
+            ${renderDesignSystemTable({
+              caption: "Core UI component contracts",
+              columns: [
+                {
+                  key: "id",
+                  label: "Component",
+                  render: (row) => `<code>${escapeHtml(row.id)}</code><br>${escapeHtml(row.label)}`,
+                },
+                {
+                  key: "purpose",
+                  label: "Purpose",
+                },
+                {
+                  key: "required_states",
+                  label: "States",
+                  render: (row) => escapeHtml((row.required_states ?? []).join(", ")),
+                },
+                {
+                  key: "review_checks",
+                  label: "Review",
+                  render: (row) => escapeHtml((row.review_checks ?? []).join("; ")),
+                },
+              ],
+              rows: contracts,
+              rowAttributes: (row) => `data-component-contract="${escapeHtml(row.id)}"`,
+            })}
+          </section>
+          <section class="design-system-section" aria-labelledby="review-checks">
+            <h2 id="review-checks">Review checks</h2>
+            ${renderDesignSystemRuleList([
+              "Use only known component contract ids when citing component evidence.",
+              "Provide required state coverage for every component contract used.",
+              "Keep risky action evidence separate from component evidence.",
+              "Do not use renderer or component-library compliance as proof of activity fit.",
+            ])}
+          </section>
+          <section class="design-system-section" aria-labelledby="accessibility">
+            <h2 id="accessibility">Accessibility</h2>
+            ${renderDesignSystemRuleList([
+              "Controls need accessible names, keyboard operation, visible focus, and target-size evidence.",
+              "Forms need labels, instructions, text errors, and status messages.",
+              "Dialogs, menus, tabs, and custom widgets need name-role-value and focus-management evidence.",
+            ])}
+          </section>
+          ${renderDesignSystemExamples(pageEntry)}
+        `,
+    ),
+  );
+}
+
+function renderDesignSystemPatternsPage(model) {
+  const pageEntry = designSystemPageById(model, "patterns");
+  const contracts = model.pattern_contracts;
+  const specimens = model.pattern_specimens;
+  const regionCount = new Set(contracts.flatMap((entry) => entry.required_regions ?? [])).size;
+  const controlCount = new Set(contracts.flatMap((entry) => entry.expected_controls ?? [])).size;
+
+  return page(
+    pageEntry.title,
+    renderDesignSystemLayout(
+      model,
+      "patterns",
+      `
+          ${renderDesignSystemHero(pageEntry)}
+          ${renderDesignSystemMetrics([
+            {
+              label: "Specimens",
+              value: specimens.length,
+              detail: "Rendered from current contracts.",
+            },
+            {
+              label: "Regions",
+              value: regionCount,
+              detail: "Required regions across patterns.",
+            },
+            {
+              label: "Controls",
+              value: controlCount,
+              detail: "Expected control families across patterns.",
+            },
+          ])}
+          <section class="design-system-section" aria-labelledby="usage">
+            <h2 id="usage">Usage</h2>
+            <p class="note">Use surface patterns after the activity and surface type are clear. A pattern names the regions, controls, completion behavior, and disclosure boundary the interface must support.</p>
+          </section>
+          <section class="design-system-section" aria-labelledby="specimens">
+            <h2 id="specimens">Specimens</h2>
+            <p class="note">Each specimen pairs a rendered miniature surface with required regions, expected controls, completion behavior, and source evidence from the current contract.</p>
+            ${renderPatternSpecimenList(specimens)}
+          </section>
+          <section class="design-system-section" aria-labelledby="surface-patterns">
+            <h2 id="surface-patterns">Surface patterns</h2>
+            ${renderDesignSystemTable({
+              caption: "Surface pattern contracts",
+              columns: [
+                {
+                  key: "id",
+                  label: "Pattern",
+                  render: (row) => `<code>${escapeHtml(row.id)}</code><br>${escapeHtml(row.label)}`,
+                },
+                {
+                  key: "purpose",
+                  label: "Purpose",
+                },
+                {
+                  key: "required_regions",
+                  label: "Regions",
+                  render: (row) => escapeHtml((row.required_regions ?? []).join(", ")),
+                },
+                {
+                  key: "expected_controls",
+                  label: "Controls",
+                  render: (row) => escapeHtml((row.expected_controls ?? []).join(", ")),
+                },
+              ],
+              rows: contracts,
+              rowAttributes: (row) => `data-pattern-contract="${escapeHtml(row.id)}" data-surface-type="${escapeHtml(row.surface_type)}"`,
+            })}
+          </section>
+          <section class="design-system-section" aria-labelledby="review-checks">
+            <h2 id="review-checks">Review checks</h2>
+            ${renderDesignSystemRuleList([
+              "The selected pattern must match the chosen surface type.",
+              "Required regions and expected controls need evidence in the generated interface.",
+              "Completion or handoff behavior must leave a result, reason, or next action.",
+              "Disclosure boundaries still control whether diagnostic detail belongs on the surface.",
+            ])}
+          </section>
+          <section class="design-system-section" aria-labelledby="accessibility">
+            <h2 id="accessibility">Accessibility</h2>
+            ${renderDesignSystemRuleList([
+              "Patterns with charts, media, or visual status need text alternatives and non-color cues.",
+              "Multi-region layouts need keyboard order that preserves the work sequence.",
+              "Dense workbenches and dashboards need responsive no-overflow evidence.",
+            ])}
+          </section>
+          ${renderDesignSystemExamples(pageEntry)}
+        `,
+    ),
+  );
+}
+
+function renderDesignSystemAccessibilityPage(model) {
+  const pageEntry = designSystemPageById(model, "accessibility");
+  const policy = model.accessibility_policy;
+  const contracts = Object.entries(policy.contracts ?? {}).map(([id, entry]) => ({
+    id,
+    label: entry.label ?? id,
+    evidence: entry.evidence ?? [],
+    requirements: entry.requirements ?? [],
+  }));
+  const conditionalKeys = Object.keys(policy.conditional_evidence ?? {});
+
+  return page(
+    pageEntry.title,
+    renderDesignSystemLayout(
+      model,
+      "accessibility",
+      `
+          ${renderDesignSystemHero(pageEntry)}
+          ${renderDesignSystemMetrics([
+            {
+              label: "Baseline",
+              value: policy.standards_profile?.baseline ?? "WCAG 2.2 AA",
+              detail: "Default accessibility target.",
+            },
+            {
+              label: "Required",
+              value: policy.required_evidence.length,
+              detail: "Core evidence groups.",
+            },
+            {
+              label: "Conditional",
+              value: conditionalKeys.length,
+              detail: "Added when matching UI patterns appear.",
+            },
+          ])}
+          <section class="design-system-section" aria-labelledby="usage">
+            <h2 id="usage">Usage</h2>
+            <p class="note">Accessibility is reviewed as behavior and evidence, not as a visual style claim. Components, patterns, tokens, typography, and icons can support accessibility, but none of them replaces accessibility checks.</p>
+          </section>
+          <section class="design-system-section" aria-labelledby="baseline">
+            <h2 id="baseline">Baseline</h2>
+            ${renderDesignSystemRuleList([
+              `Normal text contrast target: ${policy.contrast_targets.normal_text_min_ratio}:1.`,
+              `Large text contrast target: ${policy.contrast_targets.large_text_min_ratio}:1.`,
+              `Non-text contrast target: ${policy.contrast_targets.non_text_min_ratio}:1.`,
+              policy.rendered_background_readability.requirement,
+            ])}
+          </section>
+          <section class="design-system-section" aria-labelledby="evidence-groups">
+            <h2 id="evidence-groups">Evidence groups</h2>
+            ${renderDesignSystemTable({
+              caption: "Accessibility evidence groups",
+              columns: [
+                {
+                  key: "id",
+                  label: "Group",
+                  render: (row) => `<code>${escapeHtml(row.id)}</code><br>${escapeHtml(row.label)}`,
+                },
+                {
+                  key: "requirements",
+                  label: "Requirements",
+                  render: (row) => escapeHtml((row.requirements ?? []).join("; ")),
+                },
+                {
+                  key: "evidence",
+                  label: "Evidence",
+                  render: (row) => escapeHtml((row.evidence ?? []).join(", ")),
+                },
+              ],
+              rows: contracts,
+              rowAttributes: (row) => `data-accessibility-contract="${escapeHtml(row.id)}"`,
+            })}
+          </section>
+          <section class="design-system-section" aria-labelledby="failure-signals">
+            <h2 id="failure-signals">Failure signals</h2>
+            ${renderDesignSystemRuleList(policy.failure_signals, "design-system-rule-list design-system-rule-list-risk")}
+          </section>
+          ${renderDesignSystemExamples(pageEntry)}
+        `,
+    ),
+  );
+}
+
+function renderDesignSystemPageMarkdown(model, pageEntry) {
+  const adapter = model.adapter;
+  const lines = [
+    `# ${pageEntry.title}`,
+    "",
+    pageEntry.summary,
+    "",
+    `HTML: ${pageEntry.path}`,
+    "",
+    "## Sections",
+    markdownList(pageEntry.sections),
+    "",
+    "## Examples",
+    ...pageEntry.examples.flatMap((example) => [
+      `- ${example.title}: ${example.use}`,
+      `- Watch for: ${example.caution}`,
+    ]),
+    "",
+  ];
+
+  if (pageEntry.id === "overview") {
+    lines.push(
+      "## Foundation Assets",
+      markdownList(
+        model.foundation_assets.map((asset) => `${asset.title}: ${asset.summary} (${asset.href})`),
+      ),
+      "",
+      "## Principles",
+      markdownList(model.principles),
+      "",
+      "## Routes",
+      markdownList(model.pages.map((entry) => `${entry.path} -> ${entry.markdown_path}`)),
+      "",
+    );
+  }
+
+  if (pageEntry.id === "tokens") {
+    lines.push(
+      "## Approach",
+      "JudgmentKit uses token roles to name visual intent before choosing brand-specific values. The CSS custom properties are portable defaults for rendering and review; repo-approved design systems can replace them after activity and workflow gates are clear.",
+      "",
+      "## Token Families",
+      markdownList(adapter.token_families.map((family) => `\`${family}\``)),
+      "",
+      "## Portable CSS Defaults",
+      "```css",
+      cssCustomPropertyBlock(adapter.css_custom_properties),
+      "```",
+      "",
+      markdownList(
+        adapter.css_custom_properties.map(
+          (entry) => `\`${entry.name}\` = \`${entry.value}\` (${entry.role}): ${entry.usage}`,
+        ),
+      ),
+      "",
+      "## Token Roles",
+      markdownRoleList(
+        adapter.token_roles,
+        (entry) =>
+          `${entry.usage}; families: ${(entry.families ?? []).join(", ")}; review: ${tokenReviewNote(entry.role)}`,
+      ),
+      "",
+      "## Accessibility",
+      markdownList([
+        "Color cannot be the only signal for status, error, risk, or completion.",
+        "Focus treatment must remain visible for keyboard users.",
+        "Status, risk, disabled, and receipt states need visible text or nearby context.",
+      ]),
+      "",
+    );
+  }
+
+  if (pageEntry.id === "fonts") {
+    lines.push(
+      "## Font Roles",
+      markdownRoleList(
+        adapter.font_roles,
+        (entry) => `${entry.usage}; stack: \`${entry.stack}\``,
+      ),
+      "",
+      "## Accessibility",
+      markdownList([
+        "Respect browser text scaling and avoid viewport-based font sizing.",
+        "Use heading roles for hierarchy, not just larger text.",
+        "Keep diagnostic monospace secondary unless source inspection is the task.",
+      ]),
+      "",
+    );
+  }
+
+  if (pageEntry.id === "icons") {
+    lines.push(
+      "## Source",
+      `- ${adapter.icon_catalog.package}@${adapter.icon_catalog.version}`,
+      `- Icon count: ${adapter.icon_catalog.icon_count}`,
+      `- License: ${adapter.icon_catalog.license}`,
+      "",
+      "## Usage",
+      markdownList([
+        "Choose the icon by the meaning a person needs to recognize.",
+        "Use one Lucide icon family for coherent line weight and proportions.",
+        "Prefer adjacent visible text for meaningful icons.",
+      ]),
+      "",
+      "## Icon Examples",
+      markdownList(
+        model.icon_scenarios.map(
+          (scenario) => `${scenario.label}: \`${scenario.selected_icon_id}\``,
+        ),
+      ),
+      "",
+      "## Icon Index",
+      `- ${model.icon_index.length} Lucide icon IDs are included in the HTML icon index.`,
+      "- Full visual regression proof: `/examples/lucide-icon-catalog-smoke.html`.",
+      "",
+    );
+  }
+
+  if (pageEntry.id === "components") {
+    lines.push(
+      "## Specimens",
+      markdownList(
+        model.component_specimens.map(
+          (entry) =>
+            `\`${entry.id}\`: rendered from \`${entry.contract_id}\`; states: ${entry.covered_states.join(", ")}; output: \`${entry.output_hash}\``,
+        ),
+      ),
+      "",
+      "## Component Contracts",
+      markdownList(
+        model.component_contracts.map(
+          (entry) =>
+            `\`${entry.id}\`: ${entry.purpose}; states: ${(entry.required_states ?? []).join(", ")}; review: ${(entry.review_checks ?? []).join("; ")}`,
+        ),
+      ),
+      "",
+      "## Review Checks",
+      markdownList([
+        "Use only known component contract ids.",
+        "Provide required state evidence for each used component.",
+        "Do not use renderer compliance as activity, workflow, accessibility, or browser-QA evidence.",
+      ]),
+      "",
+    );
+  }
+
+  if (pageEntry.id === "patterns") {
+    lines.push(
+      "## Specimens",
+      markdownList(
+        model.pattern_specimens.map(
+          (entry) =>
+            `\`${entry.id}\`: rendered from \`${entry.contract_id}\`; regions: ${entry.covered_regions.join(", ")}; controls: ${entry.covered_controls.join(", ")}; output: \`${entry.output_hash}\``,
+        ),
+      ),
+      "",
+      "## Surface Pattern Contracts",
+      markdownList(
+        model.pattern_contracts.map(
+          (entry) =>
+            `\`${entry.id}\` (${entry.surface_type}): ${entry.purpose}; regions: ${(entry.required_regions ?? []).join(", ")}; controls: ${(entry.expected_controls ?? []).join(", ")}`,
+        ),
+      ),
+      "",
+      "## Review Checks",
+      markdownList([
+        "The selected pattern must match the selected surface type.",
+        "Required regions and expected controls need evidence.",
+        "Completion or handoff behavior must leave a result, reason, or next action.",
+      ]),
+      "",
+    );
+  }
+
+  if (pageEntry.id === "accessibility") {
+    lines.push(
+      "## Baseline",
+      `- ${model.accessibility_policy.standards_profile?.baseline ?? "WCAG 2.2 AA"}`,
+      `- Normal text: ${model.accessibility_policy.contrast_targets.normal_text_min_ratio}:1`,
+      `- Large text: ${model.accessibility_policy.contrast_targets.large_text_min_ratio}:1`,
+      `- Non-text: ${model.accessibility_policy.contrast_targets.non_text_min_ratio}:1`,
+      "",
+      "## Evidence Groups",
+      markdownList(
+        Object.entries(model.accessibility_policy.contracts ?? {}).map(
+          ([id, entry]) => `\`${id}\`: ${(entry.evidence ?? []).join(", ")}`,
+        ),
+      ),
+      "",
+      "## Failure Signals",
+      markdownList(model.accessibility_policy.failure_signals),
+      "",
+    );
+  }
+
+  return `${lines.join("\n").trim()}\n`;
+}
+
+function renderDesignSystemLlms(model) {
+  return `${[
+    "# JudgmentKit Design System",
+    "",
+    "Canonical human reference for JudgmentKit foundation assets.",
+    "",
+    "## Read first",
+    "- /design-system/",
+    "- /design-system/index.html.md",
+    "- /design-system/manifest.json",
+    "",
+    "## Asset pages",
+    ...model.pages.map((pageEntry) => `- ${pageEntry.title}: ${pageEntry.markdown_path}`),
+    "",
+    "## JSON exports",
+    "- /design-system/visual-token-adapter.json",
+    "- /design-system/component-contracts.json",
+    "- /design-system/pattern-contracts.json",
+    "- /design-system/component-specimens.json",
+    "- /design-system/pattern-specimens.json",
+    "- /design-system/specimen-provenance.json",
+    "- /design-system/accessibility-policy.json",
+    "- /design-system/icon-scenarios.json",
+    "",
+    "## Icon proof",
+    "- /examples/lucide-icon-catalog-smoke.html",
+    "",
+  ].join("\n").trim()}\n`;
+}
+
+function renderDesignSystemLlmsFull(model) {
+  return `${[
+    renderDesignSystemLlms(model).trim(),
+    "",
+    "## Principles",
+    markdownList(model.principles),
+    "",
+    ...model.pages.map((pageEntry) => renderDesignSystemPageMarkdown(model, pageEntry).trim()),
+    "",
+  ].join("\n\n").trim()}\n`;
+}
+
+function jsonExport(value) {
+  return `${JSON.stringify(value, null, 2)}\n`;
 }
 
 async function valuePage() {
@@ -2753,7 +5737,7 @@ curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></p
 examples/ai-native-design-system/canonical-examples.json</code></pre>
             <p><strong>Loop:</strong> create the implementation contract, review the failing candidate, read <code>next_agent_action</code> and grouped <code>repair_instructions</code>, repair the candidate, then resubmit and expect <code>accept</code>.</p>
             <p><strong>Canonical cases:</strong> setup/onboarding, operational dashboard, and high-stakes review/refund workflow. Each case includes the activity model, implementation contract input, failing candidate, repaired candidate, and proof expectation.</p>
-            <p><strong>Renderer boundary:</strong> <code>visual_token_adapter</code> remains boundary-only metadata for semantic tokens, portable system font stacks, and embedded SVG icon defaults. The default renderer/component package starts only after the first-use loop and asset boundary stay stable.</p>
+            <p><strong>Renderer boundary:</strong> <code>visual_token_adapter</code> remains boundary-only metadata for semantic tokens, portable system font stacks, and Lucide icon catalog policy. The default renderer/component package starts only after the first-use loop and asset boundary stay stable.</p>
           </section>
           <section class="doc-section" id="planning-examples">
             <h2>Planning Mode Examples</h2>
@@ -2782,9 +5766,6 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
           <section class="doc-section" id="system-map" data-system-map-flow-section>
             <h2>System Map</h2>
             <p>Use JudgmentKit before generation and across iterations. It is the contract and review layer around the LLM or agent, not the final UI renderer.</p>
-            <div class="system-map-toolbar">
-              <p class="note">Scroll the page normally. Drag to pan the map; use controls or pinch/ctrl-wheel to zoom.</p>
-            </div>
             ${systemMapShell("system-map-svg-title", "system-map-svg-desc")}
             <div class="system-map-summary" aria-label="System map text summary">
               <p><strong>MCP boundary:</strong> agents call JudgmentKit tools through MCP; MCP is access and transport, not the LLM.</p>
@@ -2793,7 +5774,7 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
               <p><strong>Surface type:</strong> <code>recommend_surface_types</code> classifies activity purpose as marketing, workbench, operator review, form flow, dashboard monitor, content/report, setup/debug tool, or conversation before frontend implementation guidance.</p>
               <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
               <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies approved primitives, required states, static checks, browser QA expectations, visual asset policy, and accessibility evidence expectations before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract.</p>
-              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions, semantic token roles, system font stacks, and embedded SVG icon defaults without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
+              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions, semantic token roles, system font stacks, and Lucide icon catalog policy without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
               <p><strong>Iteration:</strong> draft review produces updated context that re-enters source/activity review rather than becoming only a longer prompt.</p>
             </div>
             <p class="system-branch"><strong>Blocked path:</strong> if activity, workflow, or handoff is not ready, resolve targeted questions or leakage details before generating UI.</p>
@@ -3367,7 +6348,15 @@ async function examplesPage() {
             </article>
             <article>
               <h3>Renderer boundary</h3>
-              <p>Tokens, system font stacks, and embedded SVG icons remain governed metadata. They cannot bypass primitives, states, action boundaries, data visibility, accessibility, static checks, or browser QA.</p>
+              <p>Tokens, system font stacks, and Lucide icon catalog policy remain governed metadata. They cannot bypass primitives, states, action boundaries, data visibility, accessibility, static checks, or browser QA.</p>
+            </article>
+            <article>
+              <h3>Lucide icon smoke proof</h3>
+              <p>Search, retrieve, and render every committed Lucide icon through the MCP catalog tools. The design-system icon page is the reference surface; this HTML remains the deterministic regression proof.</p>
+              <div class="link-row">
+                <a class="pill-link" href="/design-system/icons/">Open icon system</a>
+                <a class="pill-link" href="/examples/lucide-icon-catalog-smoke.html">Open icon smoke HTML</a>
+              </div>
             </article>
           </div>
         </div>
@@ -4061,9 +7050,18 @@ async function buildSystemMapFlowAssets(outDir) {
 }
 
 export async function buildSite(outDir = DEFAULT_OUT_DIR) {
+  const designSystemModel = buildDesignSystemContentModel();
+
   await fs.rm(outDir, { recursive: true, force: true });
   await fs.mkdir(path.join(outDir, "assets"), { recursive: true });
   await fs.mkdir(path.join(outDir, "docs"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "design-system"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "design-system", "tokens"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "design-system", "fonts"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "design-system", "icons"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "design-system", "components"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "design-system", "patterns"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "design-system", "accessibility"), { recursive: true });
   await fs.mkdir(path.join(outDir, "evals"), { recursive: true });
   await fs.mkdir(path.join(outDir, "evals", "judgmentkit-mcp"), { recursive: true });
   await fs.mkdir(path.join(outDir, "examples"), { recursive: true });
@@ -4088,6 +7086,61 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.writeFile(path.join(outDir, "robots.txt"), "User-agent: *\nAllow: /\n");
   await fs.writeFile(path.join(outDir, "value", "index.html"), await valuePage());
   await fs.writeFile(path.join(outDir, "docs", "index.html"), docsPage());
+  await fs.writeFile(path.join(outDir, "design-system", "index.html"), renderDesignSystemOverviewPage(designSystemModel));
+  await fs.writeFile(path.join(outDir, "design-system", "tokens", "index.html"), renderDesignSystemTokensPage(designSystemModel));
+  await fs.writeFile(path.join(outDir, "design-system", "fonts", "index.html"), renderDesignSystemFontsPage(designSystemModel));
+  await fs.writeFile(path.join(outDir, "design-system", "icons", "index.html"), renderDesignSystemIconsPage(designSystemModel));
+  await fs.writeFile(path.join(outDir, "design-system", "components", "index.html"), renderDesignSystemComponentsPage(designSystemModel));
+  await fs.writeFile(path.join(outDir, "design-system", "patterns", "index.html"), renderDesignSystemPatternsPage(designSystemModel));
+  await fs.writeFile(path.join(outDir, "design-system", "accessibility", "index.html"), renderDesignSystemAccessibilityPage(designSystemModel));
+  await fs.writeFile(
+    path.join(outDir, "design-system", "manifest.json"),
+    jsonExport(designSystemModel.exports.manifest),
+  );
+  await fs.writeFile(
+    path.join(outDir, "design-system", "visual-token-adapter.json"),
+    jsonExport(designSystemModel.exports.visualTokenAdapter),
+  );
+  await fs.writeFile(
+    path.join(outDir, "design-system", "component-contracts.json"),
+    jsonExport(designSystemModel.exports.componentContracts),
+  );
+  await fs.writeFile(
+    path.join(outDir, "design-system", "pattern-contracts.json"),
+    jsonExport(designSystemModel.exports.patternContracts),
+  );
+  await fs.writeFile(
+    path.join(outDir, "design-system", "component-specimens.json"),
+    jsonExport(designSystemModel.exports.componentSpecimens),
+  );
+  await fs.writeFile(
+    path.join(outDir, "design-system", "pattern-specimens.json"),
+    jsonExport(designSystemModel.exports.patternSpecimens),
+  );
+  await fs.writeFile(
+    path.join(outDir, "design-system", "specimen-provenance.json"),
+    jsonExport(designSystemModel.exports.specimenProvenance),
+  );
+  await fs.writeFile(
+    path.join(outDir, "design-system", "accessibility-policy.json"),
+    jsonExport(designSystemModel.exports.accessibilityPolicy),
+  );
+  await fs.writeFile(
+    path.join(outDir, "design-system", "icon-scenarios.json"),
+    jsonExport(designSystemModel.exports.iconScenarios),
+  );
+  await fs.writeFile(path.join(outDir, "design-system", "llms.txt"), renderDesignSystemLlms(designSystemModel));
+  await fs.writeFile(
+    path.join(outDir, "design-system", "llms-full.txt"),
+    renderDesignSystemLlmsFull(designSystemModel),
+  );
+  for (const pageEntry of designSystemModel.pages) {
+    const markdownPath = pageEntry.markdown_path.replace(/^\/design-system\/?/, "");
+    await fs.writeFile(
+      path.join(outDir, "design-system", markdownPath),
+      renderDesignSystemPageMarkdown(designSystemModel, pageEntry),
+    );
+  }
   await fs.writeFile(path.join(outDir, "examples", "index.html"), await examplesPage());
   await fs.writeFile(path.join(outDir, "install"), await bootstrapScript(), { mode: 0o755 });
   await fs.writeFile(
@@ -4099,6 +7152,8 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
       "",
       "- /value/",
       "- /docs/",
+      "- /design-system/",
+      "- /design-system/llms.txt",
       "- /examples/",
       "- /evals/",
       "- /evals/judgmentkit-mcp/",
@@ -4115,6 +7170,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await copyIfExists("examples/comparison/music/version-a.html", path.join(outDir, "examples", "comparison", "music", "version-a.html"));
   await copyIfExists("examples/comparison/music/version-b.html", path.join(outDir, "examples", "comparison", "music", "version-b.html"));
   await copyIfExists("examples/comparison/music/facilitator-scorecard.md", path.join(outDir, "examples", "comparison", "music", "facilitator-scorecard.md"));
+  await copyIfExists("examples/lucide-icon-catalog-smoke.html", path.join(outDir, "examples", "lucide-icon-catalog-smoke.html"));
   await copyDirectoryIfExists("examples/ai-native-design-system", path.join(outDir, "examples", "ai-native-design-system"));
   await copyDirectoryIfExists("evals/reports", path.join(outDir, "evals"));
   await copyDirectoryIfExists("evals/reports", path.join(outDir, "examples", "evals"));
@@ -4128,7 +7184,17 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
 
   return {
     out_dir: outDir,
-    routes: ["/", "/value/", "/docs/", "/examples/", "/evals/", "/evals/judgmentkit-mcp/", "/install", "/mcp"],
+    routes: [
+      "/",
+      "/value/",
+      "/docs/",
+      ...DESIGN_SYSTEM_ROUTES,
+      "/examples/",
+      "/evals/",
+      "/evals/judgmentkit-mcp/",
+      "/install",
+      "/mcp",
+    ],
   };
 }
 

@@ -110,8 +110,54 @@ try {
       "create_ui_generation_handoff",
       "create_frontend_generation_context",
       "create_frontend_implementation_skill_context",
+      "list_icon_catalog",
+      "search_icon_catalog",
+      "get_icon_svg",
     ],
   );
+
+  const iconListResponse = await withTimeout(
+    client.callTool({
+      name: "list_icon_catalog",
+      arguments: { limit: 2 },
+    }),
+    5_000,
+  );
+
+  assert.equal(iconListResponse.isError, undefined);
+  assert.ok(
+    assertPlanningCard(
+      iconListResponse,
+      "## JudgmentKit Icon Catalog",
+      "Ready",
+    ).includes("Lucide"),
+  );
+  assert.equal(iconListResponse.structuredContent.icons.length, 2);
+  assert.ok(iconListResponse.structuredContent.total_count > 1000);
+  assert.equal("svg" in iconListResponse.structuredContent.icons[0], false);
+
+  const iconSearchResponse = await withTimeout(
+    client.callTool({
+      name: "search_icon_catalog",
+      arguments: { query: "receipt text", limit: 3 },
+    }),
+    5_000,
+  );
+
+  assert.equal(iconSearchResponse.isError, undefined);
+  assert.equal(iconSearchResponse.structuredContent.icons[0].id, "receipt-text");
+
+  const iconSvgResponse = await withTimeout(
+    client.callTool({
+      name: "get_icon_svg",
+      arguments: { id: "check" },
+    }),
+    5_000,
+  );
+
+  assert.equal(iconSvgResponse.isError, undefined);
+  assert.equal(iconSvgResponse.structuredContent.id, "check");
+  assert.ok(iconSvgResponse.structuredContent.inline_svg.includes("<svg"));
 
   const analyzeResponse = await withTimeout(
     client.callTool({
@@ -467,8 +513,28 @@ try {
   );
   assert.ok(
     implementationContractResponse.structuredContent.implementation_contract
-      .visual_token_adapter.icon_registry.some(
-        (entry) => entry.id === "status-check" && entry.paths.length > 0,
+      .visual_token_adapter.css_custom_properties.some(
+        (entry) => entry.name === "--jk-color-surface" && entry.value === "#ffffff",
+      ),
+  );
+  assert.ok(
+    implementationContractResponse.structuredContent.implementation_contract
+      .visual_token_adapter.icon_catalog.icon_count > 1000,
+  );
+  assert.ok(
+    implementationContractResponse.structuredContent.implementation_contract
+      .visual_token_adapter.icon_catalog.mcp_tools.includes("search_icon_catalog"),
+  );
+  assert.ok(
+    implementationContractResponse.structuredContent.implementation_contract
+      .default_ai_native_design_system.component_contracts.some(
+        (entry) => entry.id === "action_button",
+      ),
+  );
+  assert.ok(
+    implementationContractResponse.structuredContent.implementation_contract
+      .default_ai_native_design_system.pattern_contracts.some(
+        (entry) => entry.id === "workbench",
       ),
   );
 
@@ -511,6 +577,14 @@ try {
   );
   assert.equal(
     implementationReviewResponse.structuredContent.checks.visual_tokens.status,
+    "pass",
+  );
+  assert.equal(
+    implementationReviewResponse.structuredContent.checks.component_contracts.status,
+    "pass",
+  );
+  assert.equal(
+    implementationReviewResponse.structuredContent.checks.pattern_contracts.status,
     "pass",
   );
 
@@ -641,7 +715,7 @@ try {
       frontendSkillContextResponse,
       "## JudgmentKit Frontend Skill Context",
       "Frontend skill context ready",
-    ).includes("Embedded icons"),
+    ).includes("Icon catalog"),
   );
   assert.equal(
     frontendSkillContextResponse.structuredContent.skill_context_status,
@@ -662,9 +736,27 @@ try {
     ),
   );
   assert.ok(
-    frontendSkillContextResponse.structuredContent.icon_guidance.icon_registry.some(
-      (entry) => entry.id === "status-check" && entry.viewBox === "0 0 24 24",
+    frontendSkillContextResponse.structuredContent.token_guidance.css_custom_properties.some(
+      (entry) => entry.name === "--jk-color-surface" && entry.value === "#ffffff",
     ),
+  );
+  assert.ok(
+    frontendSkillContextResponse.structuredContent.component_contracts.some(
+      (entry) => entry.id === "action_button",
+    ),
+  );
+  assert.ok(
+    frontendSkillContextResponse.structuredContent.pattern_contracts.some(
+      (entry) => entry.id === "workbench",
+    ),
+  );
+  assert.ok(
+    frontendSkillContextResponse.structuredContent.icon_guidance.icon_catalog
+      .icon_count > 1000,
+  );
+  assert.ok(
+    frontendSkillContextResponse.structuredContent.icon_guidance.icon_catalog
+      .mcp_tools.includes("get_icon_svg"),
   );
   assert.ok(
     frontendSkillContextResponse.structuredContent.accessibility_policy.required_evidence.includes(

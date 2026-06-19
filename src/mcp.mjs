@@ -9,11 +9,14 @@ import {
   createFrontendImplementationSkillContext,
   createUiImplementationContract,
   createUiGenerationHandoff,
+  getIconSvg,
+  listIconCatalog,
   recommendSurfaceTypes,
   recommendUiWorkflowProfiles,
   reviewActivityModelCandidate,
   reviewUiImplementationCandidate,
   reviewUiWorkflowCandidate,
+  searchIconCatalog,
 } from "./index.mjs";
 
 const MCP_SERVER_NAME = "JudgmentKit";
@@ -246,7 +249,7 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
       visual_token_adapter: {
         type: "object",
         description:
-          "Optional boundary-only token, font, and icon adapter metadata. It defines token families, semantic token roles, portable font roles, embedded SVG icon metadata, and evidence expectations but does not select a renderer or component package.",
+          "Optional boundary-only token, font, and icon adapter metadata. It defines token families, semantic token roles, portable font roles, Lucide icon catalog policy, and evidence expectations but does not select a renderer or component package.",
       },
     },
     additionalProperties: false,
@@ -345,6 +348,86 @@ const FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL = {
         type: "string",
         description:
           "Optional instruction format. Supported values: structured_markdown or markdown.",
+      },
+    },
+    additionalProperties: false,
+  },
+};
+
+const LIST_ICON_CATALOG_TOOL = {
+  name: "list_icon_catalog",
+  description:
+    "Page through the committed Lucide icon catalog metadata. Set include_svg true only when a page needs SVG-ready data.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      limit: {
+        type: "number",
+        description:
+          "Optional page size. Defaults to 50 and is capped at 100.",
+      },
+      cursor: {
+        type: "string",
+        description:
+          "Optional non-negative integer offset returned as next_cursor.",
+      },
+      category: {
+        type: "string",
+        description:
+          "Optional category filter when category metadata is available.",
+      },
+      include_svg: {
+        type: "boolean",
+        description:
+          "When true, include full SVG-ready elements, paths, and inline SVG for each returned icon.",
+      },
+    },
+    additionalProperties: false,
+  },
+};
+
+const SEARCH_ICON_CATALOG_TOOL = {
+  name: "search_icon_catalog",
+  description:
+    "Search the committed Lucide icon catalog by id, name, alias, tag, or tokenized terms and return ranked matches.",
+  inputSchema: {
+    type: "object",
+    required: ["query"],
+    properties: {
+      query: {
+        type: "string",
+        minLength: 1,
+        description:
+          "Icon meaning or Lucide source name to search, such as check, send, handoff, filter, receipt text, or chevron right.",
+      },
+      limit: {
+        type: "number",
+        description:
+          "Optional result limit. Defaults to 24 and is capped at 100.",
+      },
+      include_svg: {
+        type: "boolean",
+        description:
+          "When true, include full SVG-ready elements, paths, and inline SVG for each match.",
+      },
+    },
+    additionalProperties: false,
+  },
+};
+
+const GET_ICON_SVG_TOOL = {
+  name: "get_icon_svg",
+  description:
+    "Return the full generated Lucide icon record and inline SVG for one canonical icon id.",
+  inputSchema: {
+    type: "object",
+    required: ["id"],
+    properties: {
+      id: {
+        type: "string",
+        minLength: 1,
+        description:
+          "Canonical Lucide icon id, such as check, info, chevron-right, list-filter, send, or receipt-text.",
       },
     },
     additionalProperties: false,
@@ -452,6 +535,20 @@ function roleSummaryList(values, formatter, limit = 4) {
     .map(compactText)
     .filter(Boolean)
     .slice(0, limit);
+}
+
+function iconCatalogSummary(iconCatalog) {
+  if (!iconCatalog || typeof iconCatalog !== "object") {
+    return "";
+  }
+
+  return [
+    compactText(iconCatalog.library),
+    compactText(iconCatalog.version),
+    iconCatalog.icon_count ? `${iconCatalog.icon_count} icons` : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 }
 
 function planningStatus(result) {
@@ -759,13 +856,8 @@ function formatImplementationContractCard(result) {
       ),
     ),
     listLine("Icon roles", visualTokenAdapter.icon_roles),
-    listLine(
-      "Embedded icons",
-      roleSummaryList(
-        visualTokenAdapter.icon_registry,
-        (entry) => `${entry.id} (${entry.role})`,
-      ),
-    ),
+    firstLine("Icon catalog", iconCatalogSummary(visualTokenAdapter.icon_catalog)),
+    listLine("Icon tools", visualTokenAdapter.icon_catalog?.mcp_tools),
     listLine(
       "Conditional evidence",
       Object.keys(accessibilityPolicy.conditional_evidence ?? {}).map(
@@ -915,13 +1007,8 @@ function formatFrontendSkillContextCard(result) {
       ),
     ),
     listLine("Icon roles", result.icon_guidance?.icon_roles),
-    listLine(
-      "Embedded icons",
-      roleSummaryList(
-        result.icon_guidance?.icon_registry,
-        (entry) => `${entry.id} (${entry.role})`,
-      ),
-    ),
+    firstLine("Icon catalog", iconCatalogSummary(result.icon_guidance?.icon_catalog)),
+    listLine("Icon tools", result.icon_guidance?.icon_catalog?.mcp_tools),
     listLine(
       "Conditional accessibility evidence",
       Object.keys(result.accessibility_policy?.conditional_evidence ?? {}).map(
@@ -962,6 +1049,37 @@ function formatProfileRecommendationCard(result) {
     firstLine("Trigger matches", `${summary.trigger_match_count ?? 0} of ${summary.trigger_threshold ?? 0}`),
     listLine("Matched triggers", summary.matched_triggers),
     listLine("Matched exclusions", summary.matched_exclusions),
+  ]);
+
+  return lines.join("\n");
+}
+
+function formatIconCatalogCard(result) {
+  const lines = [
+    "## JudgmentKit Icon Catalog",
+    "**Status:** Ready",
+    result.id
+      ? "**Next step:** Render the returned inline SVG with an accessible name or adjacent visible text when it carries meaning."
+      : "**Next step:** Use search_icon_catalog to choose a canonical Lucide id, then get_icon_svg for SVG-ready data.",
+  ];
+  const icons = Array.isArray(result.icons) ? result.icons : result.icon ? [result.icon] : [];
+
+  addSection(lines, "Catalog", [
+    firstLine("Source", iconCatalogSummary(result.source)),
+    firstLine("Query", result.query),
+    firstLine("Requested icon", result.id),
+    firstLine("Total icons", String(result.total_count ?? result.source?.icon_count ?? "")),
+    firstLine("Returned icons", icons.length ? String(icons.length) : ""),
+    firstLine("Next cursor", result.next_cursor),
+    listLine(
+      "Icons",
+      icons.map((icon) => [icon.id, icon.name].filter(Boolean).join(": ")),
+    ),
+  ]);
+  addSection(lines, "License", [
+    firstLine("License", result.license_summary?.license),
+    firstLine("Notice", result.license_summary?.notice),
+    firstLine("Notices file", result.license_summary?.notices_file),
   ]);
 
   return lines.join("\n");
@@ -1032,6 +1150,10 @@ function formatPlanningCard(result) {
     return formatProfileRecommendationCard(result);
   }
 
+  if (result?.icon_catalog_status) {
+    return formatIconCatalogCard(result);
+  }
+
   if (result?.ui_brief) {
     return formatAnalysisCard(result);
   }
@@ -1056,6 +1178,9 @@ export function listTools() {
     UI_GENERATION_HANDOFF_TOOL,
     FRONTEND_GENERATION_CONTEXT_TOOL,
     FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL,
+    LIST_ICON_CATALOG_TOOL,
+    SEARCH_ICON_CATALOG_TOOL,
+    GET_ICON_SVG_TOOL,
   ];
 }
 
@@ -1085,6 +1210,9 @@ export async function handleToolCall(name, args = {}) {
       UI_GENERATION_HANDOFF_TOOL.name,
       FRONTEND_GENERATION_CONTEXT_TOOL.name,
       FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL.name,
+      LIST_ICON_CATALOG_TOOL.name,
+      SEARCH_ICON_CATALOG_TOOL.name,
+      GET_ICON_SVG_TOOL.name,
     ].includes(name)
   ) {
     return createError(
@@ -1094,6 +1222,27 @@ export async function handleToolCall(name, args = {}) {
   }
 
   try {
+    if (name === GET_ICON_SVG_TOOL.name) {
+      return getIconSvg({ id: args.id });
+    }
+
+    if (name === SEARCH_ICON_CATALOG_TOOL.name) {
+      return searchIconCatalog({
+        query: args.query,
+        limit: args.limit,
+        include_svg: args.include_svg,
+      });
+    }
+
+    if (name === LIST_ICON_CATALOG_TOOL.name) {
+      return listIconCatalog({
+        limit: args.limit,
+        cursor: args.cursor,
+        category: args.category,
+        include_svg: args.include_svg,
+      });
+    }
+
     if (name === FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL.name) {
       return createFrontendImplementationSkillContext({
         frontend_generation_context: args.frontend_generation_context,
@@ -1362,6 +1511,47 @@ export function createJudgmentKitMcpServer() {
       createToolResult(
         await handleToolCall(FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL.name, args),
       ),
+  );
+
+  server.registerTool(
+    LIST_ICON_CATALOG_TOOL.name,
+    {
+      description: LIST_ICON_CATALOG_TOOL.description,
+      inputSchema: {
+        limit: z.number().optional(),
+        cursor: z.string().optional(),
+        category: z.string().optional(),
+        include_svg: z.boolean().optional(),
+      },
+    },
+    async (args) =>
+      createToolResult(await handleToolCall(LIST_ICON_CATALOG_TOOL.name, args)),
+  );
+
+  server.registerTool(
+    SEARCH_ICON_CATALOG_TOOL.name,
+    {
+      description: SEARCH_ICON_CATALOG_TOOL.description,
+      inputSchema: {
+        query: z.string(),
+        limit: z.number().optional(),
+        include_svg: z.boolean().optional(),
+      },
+    },
+    async (args) =>
+      createToolResult(await handleToolCall(SEARCH_ICON_CATALOG_TOOL.name, args)),
+  );
+
+  server.registerTool(
+    GET_ICON_SVG_TOOL.name,
+    {
+      description: GET_ICON_SVG_TOOL.description,
+      inputSchema: {
+        id: z.string(),
+      },
+    },
+    async (args) =>
+      createToolResult(await handleToolCall(GET_ICON_SVG_TOOL.name, args)),
   );
 
   return server;

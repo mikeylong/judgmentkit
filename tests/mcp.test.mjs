@@ -31,6 +31,9 @@ assert.deepEqual(
     "create_ui_generation_handoff",
     "create_frontend_generation_context",
     "create_frontend_implementation_skill_context",
+    "list_icon_catalog",
+    "search_icon_catalog",
+    "get_icon_svg",
   ],
 );
 assert.equal(metadata.name, "JudgmentKit");
@@ -90,6 +93,36 @@ assert.equal(tools[8].inputSchema.required.includes("workflow_review"), true);
 assert.equal(tools[8].inputSchema.required.includes("implementation_contract"), true);
 assert.equal(tools[9].inputSchema.required.includes("ui_generation_handoff"), true);
 assert.equal(tools[10].inputSchema.required.includes("frontend_generation_context"), true);
+assert.equal(tools[11].inputSchema.properties.include_svg.type, "boolean");
+assert.equal(tools[12].inputSchema.required.includes("query"), true);
+assert.equal(tools[13].inputSchema.required.includes("id"), true);
+
+const iconList = await handleToolCall("list_icon_catalog", { limit: 2 });
+assert.equal("error" in iconList, false);
+assert.equal(iconList.icons.length, 2);
+assert.ok(iconList.total_count > 1000);
+assert.equal(iconList.include_svg, false);
+assert.equal("svg" in iconList.icons[0], false);
+assert.equal(iconList.source.library, "lucide");
+
+const iconSearch = await handleToolCall("search_icon_catalog", {
+  query: "receipt text",
+  limit: 3,
+});
+assert.equal("error" in iconSearch, false);
+assert.equal(iconSearch.icons[0].id, "receipt-text");
+assert.ok(iconSearch.icons[0].score > 0);
+
+const iconSvg = await handleToolCall("get_icon_svg", { id: "check" });
+assert.equal("error" in iconSvg, false);
+assert.equal(iconSvg.id, "check");
+assert.ok(iconSvg.inline_svg.includes("<svg"));
+assert.ok(iconSvg.icon.elements.length > 0);
+
+const unsupportedIcon = await handleToolCall("get_icon_svg", {
+  id: "not-a-lucide-icon",
+});
+assert.equal("error" in unsupportedIcon, true);
 
 const refundTriageCandidate = {
   activity_model: {
@@ -368,6 +401,14 @@ function coreAccessibilityEvidence() {
     implementationContract.implementation_contract.default_ai_native_design_system.mode,
     "contract_defaults",
   );
+  assert.ok(
+    implementationContract.implementation_contract.default_ai_native_design_system
+      .component_contracts.some((entry) => entry.id === "action_button"),
+  );
+  assert.ok(
+    implementationContract.implementation_contract.default_ai_native_design_system
+      .pattern_contracts.some((entry) => entry.id === "workbench"),
+  );
   assert.equal(
     implementationContract.implementation_contract.iteration_policy.default_max_attempts,
     3,
@@ -387,12 +428,21 @@ function coreAccessibilityEvidence() {
     ),
   );
   assert.ok(
-    implementationContract.implementation_contract.visual_token_adapter.icon_registry.some(
-      (entry) =>
-        entry.id === "status-check" &&
-        entry.viewBox === "0 0 24 24" &&
-        entry.paths.length > 0,
+    implementationContract.implementation_contract.visual_token_adapter.css_custom_properties.some(
+      (entry) => entry.name === "--jk-color-surface" && entry.value === "#ffffff",
     ),
+  );
+  assert.ok(
+    implementationContract.implementation_contract.visual_token_adapter.icon_catalog
+      .icon_count > 1000,
+  );
+  assert.ok(
+    implementationContract.implementation_contract.visual_token_adapter.icon_catalog
+      .mcp_tools.includes("get_icon_svg"),
+  );
+  assert.equal(
+    "icon_registry" in implementationContract.implementation_contract.visual_token_adapter,
+    false,
   );
 
   const implementationReview = await handleToolCall("review_ui_implementation_candidate", {
@@ -411,6 +461,10 @@ function coreAccessibilityEvidence() {
   assert.equal(implementationReview.next_agent_action, "accept");
   assert.equal(implementationReview.autofix_loop.status, "passed");
   assert.equal(implementationReview.checks.visual_tokens.status, "pass");
+  assert.equal(implementationReview.checks.component_contracts.status, "pass");
+  assert.equal(implementationReview.checks.component_contracts.reviewed, false);
+  assert.equal(implementationReview.checks.pattern_contracts.status, "pass");
+  assert.equal(implementationReview.checks.pattern_contracts.reviewed, false);
 
   const repairReview = await handleToolCall("review_ui_implementation_candidate", {
     implementation_contract: implementationContract,
@@ -522,18 +576,16 @@ function coreAccessibilityEvidence() {
       },
       icon_guidance: {
         icon_roles: ["status", "action"],
-        icon_registry: [
-          {
-            id: "mui-check",
-            role: "status",
-            label: "Check",
-            viewBox: "0 0 24 24",
-            paths: ["M20 6 9 17l-5-5"],
-            svg_attributes: { fill: "none", stroke: "currentColor" },
-            accessibility_guidance: "Pair with status text.",
-            allowed_usage: ["status"],
-          },
-        ],
+        icon_catalog: {
+          source: "adapter_override",
+          library: "mui-icons-material",
+          package: "@mui/icons-material",
+          version: "repo-approved",
+          icon_count: 2000,
+          license: "MIT",
+          notice: "Repo-approved Material UI icon adapter.",
+          mcp_tools: ["search_icon_catalog", "get_icon_svg"],
+        },
       },
       constraint:
         "Material UI changes the renderer layer only; it does not supply activity fit.",
@@ -548,13 +600,27 @@ function coreAccessibilityEvidence() {
   assert.ok(skillContext.design_system_policy.renderer_components.includes("Button"));
   assert.deepEqual(skillContext.token_guidance.token_families, ["color", "type"]);
   assert.ok(
+    skillContext.token_guidance.css_custom_properties.some(
+      (entry) => entry.name === "--jk-color-surface" && entry.value === "#ffffff",
+    ),
+  );
+  assert.ok(skillContext.component_contracts.some((entry) => entry.id === "action_button"));
+  assert.ok(skillContext.pattern_contracts.some((entry) => entry.id === "workbench"));
+  assert.ok(
+    skillContext.instruction_markdown.includes("Component contracts"),
+  );
+  assert.ok(
+    skillContext.instruction_markdown.includes("Pattern contracts"),
+  );
+  assert.ok(
     skillContext.font_guidance.font_roles.some(
       (entry) => entry.role === "body" && entry.stack === "var(--mui-font-family)",
     ),
   );
-  assert.equal(skillContext.icon_guidance.icon_registry[0].id, "mui-check");
+  assert.equal(skillContext.icon_guidance.icon_catalog.library, "mui-icons-material");
   assert.ok(skillContext.instruction_markdown.includes("Font roles"));
-  assert.ok(skillContext.instruction_markdown.includes("Embedded icons"));
+  assert.ok(skillContext.instruction_markdown.includes("--jk-color-surface"));
+  assert.ok(skillContext.instruction_markdown.includes("Icon catalog"));
   assert.ok(skillContext.visual_requirements.includes("substantive product image"));
   assert.ok(
     skillContext.visual_asset_policy.preferred_paths.some((rule) =>
