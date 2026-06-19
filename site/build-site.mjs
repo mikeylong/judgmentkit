@@ -434,6 +434,14 @@ function platformNavigationScript() {
             backdrop: nav.querySelector("[data-surfaces-system-menu-backdrop]"),
           });
         }
+
+        for (const sectionMenu of document.querySelectorAll("[data-design-system-section-menu]")) {
+          bindMenu({
+            button: sectionMenu.querySelector("[data-design-system-section-menu-button]"),
+            menu: sectionMenu.querySelector("[data-design-system-section-menu-list]"),
+            backdrop: sectionMenu.querySelector("[data-design-system-section-menu-backdrop]"),
+          });
+        }
       })();
     </script>`;
 }
@@ -659,6 +667,7 @@ html {
 }
 body {
   margin: 0;
+  padding-top: 56px;
   background: var(--bg);
   color: var(--ink);
   overflow-x: hidden;
@@ -674,8 +683,11 @@ a {
   height: 56px;
   background-color: rgba(255, 255, 255, 0.98);
   border-bottom: 1px solid #e5e5e5;
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
   z-index: 50;
   backdrop-filter: blur(8px);
 }
@@ -904,6 +916,13 @@ a {
   align-items: center;
   min-height: 78vh;
 }
+.homepage-hero {
+  display: block;
+  min-height: clamp(420px, 60vh, 640px);
+}
+.homepage-hero > div {
+  max-width: 780px;
+}
 .eyebrow {
   color: var(--accent-strong);
   font-weight: 700;
@@ -991,6 +1010,54 @@ h2 {
   overflow: hidden;
   box-shadow: 0 18px 36px rgba(23, 23, 23, 0.08);
 }
+.evaluation-panel {
+  display: grid;
+}
+.evaluation-step {
+  display: grid;
+  gap: 8px;
+  padding: clamp(17px, 2.4vw, 24px);
+  border-top: 1px solid var(--line);
+}
+.evaluation-step:first-child {
+  border-top: 0;
+}
+.evaluation-step span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.evaluation-step strong {
+  color: var(--accent-strong);
+  font-size: clamp(19px, 2vw, 24px);
+  line-height: 1.12;
+}
+.evaluation-step p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+.evaluation-step-status {
+  background: rgba(46, 107, 72, 0.06);
+}
+.homepage-preview {
+  display: grid;
+  gap: clamp(18px, 4vw, 30px);
+}
+.homepage-preview > div:first-child {
+  max-width: 860px;
+}
+.homepage-preview .evaluation-panel {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.homepage-preview .evaluation-step {
+  border-top: 0;
+  border-left: 1px solid var(--line);
+}
+.homepage-preview .evaluation-step:first-child {
+  border-left: 0;
+}
 .proof-step {
   display: grid;
   grid-template-columns: 134px minmax(0, 1fr);
@@ -1065,16 +1132,63 @@ pre {
 .section {
   border-top: 1px solid var(--line);
 }
+.homepage-failure,
+.proof-paths,
+.adoption-paths {
+  display: grid;
+  gap: clamp(18px, 4vw, 30px);
+}
+.homepage-failure > div:first-child,
+.proof-paths > div:first-child,
+.adoption-paths > div:first-child {
+  max-width: 900px;
+}
+.failure-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+.failure-grid article {
+  padding: 0 18px 0 0;
+  border-right: 1px solid var(--line);
+}
+.failure-grid article:last-child {
+  padding-right: 0;
+  border-right: 0;
+}
+.failure-grid h3 {
+  margin-bottom: 8px;
+}
+.failure-grid p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
 .route-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
 }
 .route-grid article {
+  display: grid;
+  align-content: start;
+  gap: 10px;
   padding: 18px;
 }
 .route-grid h3 {
-  margin-bottom: 8px;
+  margin-bottom: 0;
+}
+.route-grid p {
+  margin-bottom: 0;
+}
+.route-grid .pill-link {
+  margin-top: 4px;
+  width: fit-content;
+}
+.route-grid-proof article {
+  border-color: rgba(36, 95, 115, 0.18);
+}
+.route-grid-adoption article {
+  border-color: rgba(46, 107, 72, 0.18);
 }
 .system-diagram {
   margin-top: 18px;
@@ -1465,10 +1579,89 @@ pre {
   padding-top: clamp(36px, 5vw, 62px);
 }
 .design-system-layout {
+  grid-template-columns: 160px minmax(0, 1fr);
+  gap: 28px;
   max-width: 1220px;
   margin: 0 auto;
 }
+.design-system-section-menu {
+  display: none;
+  position: relative;
+  margin-bottom: 24px;
+}
+.design-system-section-menu-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 40px;
+  width: min(280px, 100%);
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 750;
+}
+.design-system-section-menu-button:hover,
+.design-system-section-menu-button:focus-visible {
+  border-color: var(--accent);
+  outline: 0;
+}
+.design-system-section-menu-button:focus-visible {
+  box-shadow: 0 0 0 2px rgba(36, 95, 115, 0.18);
+}
+.design-system-section-menu-button svg {
+  flex: 0 0 auto;
+}
+.design-system-section-menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+}
+.design-system-section-menu-list {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  z-index: 40;
+  width: min(320px, calc(100vw - 48px));
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--panel);
+  box-shadow: 0 18px 40px rgba(23, 23, 23, 0.12);
+  animation: surfaces-menu-enter 0.12s linear;
+}
+.design-system-section-menu-backdrop[hidden],
+.design-system-section-menu-list[hidden] {
+  display: none;
+}
+.design-system-section-menu-list a {
+  display: block;
+  padding: 11px 12px;
+  border-radius: 4px;
+  color: var(--accent-strong);
+  font-weight: 700;
+  text-decoration: underline;
+}
+.design-system-section-menu-list a:hover,
+.design-system-section-menu-list a:focus-visible {
+  background: #f8f7f2;
+  outline: 0;
+}
+.design-system-nav {
+  position: fixed;
+  top: 88px;
+  left: max(24px, calc((100vw - 1220px) / 2));
+  width: min(160px, calc(100vw - 48px));
+  max-height: calc(100vh - 112px);
+  overflow-y: auto;
+  z-index: 10;
+}
 .design-system-content {
+  grid-column: 2;
   min-width: 0;
 }
 .design-system-content h1 {
@@ -1662,8 +1855,7 @@ pre {
   gap: 14px;
 }
 .design-system-role-card,
-.design-icon-scenario,
-.design-icon-tile {
+.design-icon-scenario {
   min-width: 0;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -2131,42 +2323,31 @@ pre {
 }
 .design-icon-scenario {
   display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
-  gap: 12px;
-  align-items: start;
-  min-height: 178px;
-  padding: 14px;
-}
-.design-icon-scenario h3,
-.design-icon-scenario p {
-  margin: 0;
-}
-.design-icon-scenario p {
-  margin-bottom: 12px;
-}
-.design-icon-tile {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
-  gap: 8px;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 10px;
   align-items: center;
-  min-height: 46px;
-  padding: 9px;
+  padding: 12px;
 }
-.design-icon-tile span {
-  min-width: 0;
-  overflow-wrap: anywhere;
+.design-icon-id {
+  display: block;
+  width: fit-content;
+  max-width: 100%;
+  color: var(--ink);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
   font-size: 12px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 .design-icon-symbol {
   display: grid;
-  width: 28px;
-  min-height: 28px;
+  width: 24px;
+  min-height: 24px;
   place-items: center;
-  color: var(--accent);
+  color: inherit;
 }
 .design-icon-symbol svg {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   fill: none;
   stroke: currentColor;
   stroke-width: 2;
@@ -2214,26 +2395,18 @@ pre {
 }
 .design-icon-index-list {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-items: start;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
-.design-icon-index-list li {
-  display: grid;
-  gap: 2px;
-  min-width: 0;
-  padding: 9px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: var(--panel);
+.design-icon-index-card {
+  list-style: none;
 }
-.design-icon-index-list code,
-.design-icon-index-list span {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-.design-icon-index-list span {
-  color: var(--muted);
-  font-size: 12px;
+.design-icon-index-card[hidden] {
+  display: none;
 }
 .examples-page {
   padding-top: clamp(36px, 5vw, 62px);
@@ -3265,6 +3438,20 @@ pre {
     gap: 24px;
   }
 }
+@media (max-width: 1120px) {
+  .design-system-layout {
+    display: block;
+  }
+  .design-system-section-menu {
+    display: block;
+  }
+  .design-system-nav {
+    display: none;
+  }
+  .design-system-content {
+    grid-column: auto;
+  }
+}
 @media (max-width: 820px) {
   .hero {
     align-items: start;
@@ -3279,6 +3466,31 @@ pre {
   }
   .doc-nav {
     position: static;
+  }
+  .design-system-content {
+    grid-column: auto;
+  }
+  .homepage-preview .evaluation-panel {
+    grid-template-columns: 1fr;
+  }
+  .homepage-preview .evaluation-step {
+    border-top: 1px solid var(--line);
+    border-left: 0;
+  }
+  .homepage-preview .evaluation-step:first-child {
+    border-top: 0;
+  }
+  .failure-grid {
+    grid-template-columns: 1fr;
+  }
+  .failure-grid article {
+    padding: 0 0 16px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .failure-grid article:last-child {
+    padding-bottom: 0;
+    border-bottom: 0;
   }
   .route-grid {
     grid-template-columns: 1fr;
@@ -3436,88 +3648,116 @@ function homepage() {
   return page(
     "JudgmentKit",
     `
-    <section class="hero">
+    <section class="hero homepage-hero">
       <div>
         <p class="eyebrow">Activity-first judgment for AI agents</p>
         <h1>Judgment before generation.</h1>
-        <p class="lede">JudgmentKit catches when AI-generated UI turns implementation mechanics into UX, then gives the agent repair instructions before the work ships.</p>
+        <p class="lede">JudgmentKit catches implementation-shaped UI before it ships, then gives the agent a repair path grounded in the user's real work.</p>
         <div class="hero-actions" aria-label="Primary proof paths">
           <a class="hero-action hero-action-primary" data-hero-action="primary" href="/value/">What it prevents</a>
           <a class="hero-action hero-action-secondary" data-hero-action="secondary" href="/examples/">Examples</a>
           <a class="hero-action hero-action-secondary" data-hero-action="evidence" href="/evals/">Evals</a>
         </div>
       </div>
-      <div class="proof-panel" aria-label="JudgmentKit proof path">
-        <div class="proof-step">
-          <strong>Prompt</strong>
-          <div class="prompt-evidence-block">
-            <code>A <span class="prompt-evidence" title="Participant">support operations manager</span> is <span class="prompt-evidence" title="Objective and activity">reviewing refund escalation cases</span>. The request says to build from the <span class="prompt-evidence prompt-evidence-diagnostic" title="Diagnostic implementation detail">refund_case data model, database fields, JSON schema, prompt template, tool call results, resource id, API endpoint status, and CRUD</span>. The activity is deciding whether an escalation should be <span class="prompt-evidence" title="Decision">approved, sent to policy review, or returned for missing evidence</span>. The outcome is a <span class="prompt-evidence" title="Outcome">clear handoff with the next action and reason</span>.</code>
-            <div class="prompt-evidence-key" aria-label="Prompt evidence color key">
-              <span class="status prompt-evidence-pill prompt-evidence-pill-activity">activity evidence</span>
-              <span class="status prompt-evidence-pill prompt-evidence-pill-diagnostic">implementation detail</span>
-            </div>
-          </div>
+    </section>
+    <section class="section homepage-preview" aria-labelledby="repair-preview-title">
+      <div>
+        <p class="eyebrow">Failure-to-repair preview</p>
+        <h2 id="repair-preview-title">First drafts should start from the work, not from available internals.</h2>
+      </div>
+      <div class="proof-panel evaluation-panel" aria-label="JudgmentKit repair preview">
+        <div class="evaluation-step">
+          <span>Failure</span>
+          <strong>The screen follows the system, not the work.</strong>
+          <p>Generated interfaces often mirror available internals instead of the activity a person is trying to complete.</p>
         </div>
-        <div class="proof-step">
-          <strong>Judgment</strong>
-          <p>Identify the support lead, refund review activity, bounded decision, evidence boundary, and diagnostic terms that should stay out of the primary surface.</p>
+        <div class="evaluation-step">
+          <span>Judgment</span>
+          <strong>The activity is named before the UI.</strong>
+          <p>JudgmentKit asks what the user is doing, what decision matters, what evidence belongs nearby, and what should stay diagnostic.</p>
         </div>
-        <div class="proof-step">
-          <strong>Handoff</strong>
-          <p>Generate a workflow brief for reviewing evidence, choosing an outcome, and leaving a receipt for the next owner.</p>
+        <div class="evaluation-step">
+          <span>Repair</span>
+          <strong>The agent gets a ready handoff.</strong>
+          <p>The next generation pass receives product-language responsibilities, approved states, and a disclosure boundary.</p>
         </div>
-        <div class="proof-step">
-          <strong>State</strong>
-          <span class="status">ready for generation</span>
+        <div class="evaluation-step evaluation-step-status">
+          <span>Result</span>
+          <strong>Better first drafts. Less cleanup theater.</strong>
+          <p>Use the proof paths below to inspect the contract loop before installing anything.</p>
         </div>
       </div>
     </section>
-    <section class="section">
-      <h2>How agents use it</h2>
-      <div class="route-grid">
+    <section class="section homepage-failure" aria-labelledby="failure-title">
+      <div>
+        <p class="eyebrow">Failure recognition</p>
+        <h2 id="failure-title">The problem is not ugly UI. It is the wrong concept of the work.</h2>
+      </div>
+      <div class="failure-grid">
         <article>
-          <h3>Review the activity</h3>
-          <p>Name the participant, objective, decision, outcome, vocabulary, and disclosure boundary before screen structure.</p>
+          <h3>Before judgment</h3>
+          <p>The agent sees available structure and turns it into labels, navigation, and actions. The user has to translate the system back into their own work.</p>
         </article>
         <article>
-          <h3>Check the workflow</h3>
-          <p>Review a proposed UI workflow for grounding, action support, completion clarity, and leakage before implementation.</p>
+          <h3>With JudgmentKit</h3>
+          <p>The agent must name the activity, participant, decision, outcome, and disclosure boundary before it treats a workflow as ready.</p>
         </article>
         <article>
-          <h3>Hand off cleanly</h3>
-          <p>Pass only a ready handoff to the next generation step, with diagnostics kept separate from the product surface.</p>
+          <h3>After repair</h3>
+          <p>The interface can be generated from a product-language handoff that makes evidence, decisions, and completion states explicit.</p>
         </article>
       </div>
     </section>
-    <section class="section" id="system-map" aria-labelledby="generation-loop-title" data-system-map-flow-section>
-      <h2 id="generation-loop-title">System map</h2>
-      <p class="lede system-diagram-intro">JudgmentKit sits before generation and stays in the loop across iterations. It is the judgment layer around LLM UI generation, not the final renderer.</p>
-      ${systemMapShell("homepage-system-map-svg-title", "homepage-system-map-svg-desc")}
-      <div class="system-map-summary" aria-label="System map text summary">
-        <p><strong>MCP boundary:</strong> agents call JudgmentKit tools through MCP; MCP is access and transport, not the LLM.</p>
-        <p><strong>JudgmentKit kernel:</strong> deterministic review, candidate review, disclosure rules, targeted questions, and the handoff gate decide whether UI generation is ready.</p>
-        <p><strong>LLM / provider seam:</strong> a model may propose activity or workflow candidates, but JudgmentKit reviews those candidates before trusting them.</p>
-              <p><strong>Surface type:</strong> <code>recommend_surface_types</code> classifies activity purpose before workflow or frontend implementation guidance.</p>
-              <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
-              <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies approved primitives, required states, static checks, browser QA expectations, visual asset policy, and accessibility evidence expectations before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract.</p>
-              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions, semantic token roles, system font stacks, and Lucide icon catalog policy without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
-        <p><strong>Iteration:</strong> draft review produces updated context that re-enters source/activity review rather than becoming only a longer prompt.</p>
+    <section class="section proof-paths" aria-labelledby="proof-paths-title">
+      <div>
+        <p class="eyebrow">Proof paths</p>
+        <h2 id="proof-paths-title">Inspect the loop from product value to repeatable evidence.</h2>
       </div>
-      <p class="system-branch"><strong>Blocked path:</strong> if activity, workflow, or handoff is not ready, resolve targeted questions or leakage details before generating UI.</p>
+      <div class="route-grid route-grid-proof">
+        <article>
+          <h3>What it prevents</h3>
+          <p>See before-and-after cases for implementation-language leakage, unsafe action boundaries, and missing evidence.</p>
+          <a class="pill-link" href="/value/">Open value examples</a>
+        </article>
+        <article>
+          <h3>Replayable examples</h3>
+          <p>Review generated artifacts, comparison harnesses, and first-use fixtures that show the repair loop in context.</p>
+          <a class="pill-link" href="/examples/">Open examples</a>
+        </article>
+        <article>
+          <h3>Evaluation evidence</h3>
+          <p>Read the bounded reports and model matrices. The reports are audit material, not broad benchmark claims.</p>
+          <a class="pill-link" href="/evals/">Open eval evidence</a>
+        </article>
+      </div>
     </section>
-    <section class="section">
-      <h2>Install for Codex, Claude Code, or Cursor</h2>
-      <p class="lede">The installer configures a hosted Streamable HTTP MCP server named <code>judgmentkit</code> and verifies the current tool catalog before finishing.</p>
-      <code class="command">curl -fsSL https://judgmentkit.ai/install | bash</code>
-      <code class="command">curl -fsSL https://judgmentkit.ai/install | bash -s -- --client claude</code>
-      <code class="command">curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code>
-      <p class="note">Codex is the default when no client is provided. Hosted installs do not clone <a href="https://github.com/mikeylong/judgmentkit">the repo</a> or require npm.</p>
+    <section class="section adoption-paths" aria-labelledby="adoption-title">
+      <div>
+        <p class="eyebrow">Adoption paths</p>
+        <h2 id="adoption-title">Choose the next surface for the work you are doing.</h2>
+      </div>
+      <div class="route-grid route-grid-adoption">
+        <article>
+          <h3>Read the docs</h3>
+          <p>Use the setup and planning guide when you are ready to connect JudgmentKit to an agent workflow.</p>
+          <a class="pill-link" href="/docs/">Open docs</a>
+        </article>
+        <article>
+          <h3>Review the design-system assets</h3>
+          <p>Inspect token roles, typography, icons, component contracts, patterns, and accessibility policy.</p>
+          <a class="pill-link" href="/design-system/">Open design system</a>
+        </article>
+        <article>
+          <h3>Start installation</h3>
+          <p>Go straight to the hosted installer when the product fit and proof are clear enough.</p>
+          <a class="pill-link" href="/install">Open install route</a>
+        </article>
+      </div>
     </section>
   `,
     {
       description:
         "JudgmentKit helps AI agents review activity, workflow, disclosure, and handoff quality before generating product UI.",
-      headExtra: systemMapFlowAssets(),
       path: "/",
     },
   );
@@ -4137,7 +4377,10 @@ function designSystemExports(model) {
   };
 }
 
-function buildDesignSystemIconIndex() {
+function buildDesignSystemIconIndex(scenarios) {
+  const scenariosByIconId = new Map(
+    scenarios.map((scenario) => [scenario.selected_icon_id, scenario]),
+  );
   const icons = [];
   let cursor;
 
@@ -4152,12 +4395,18 @@ function buildDesignSystemIconIndex() {
   } while (cursor);
 
   return icons.map((icon) => ({
+    ...(scenariosByIconId.has(icon.id)
+      ? {
+          scenario_id: scenariosByIconId.get(icon.id).id,
+        }
+      : {}),
     id: icon.id,
     name: icon.name,
     aliases: icon.aliases ?? [],
     categories: icon.categories ?? [],
     tags: icon.tags ?? [],
     search_terms: icon.search_terms ?? [],
+    inline_svg: getIconSvg({ id: icon.id }).inline_svg,
   }));
 }
 
@@ -4171,7 +4420,7 @@ function buildDesignSystemContentModel() {
   const componentSpecimens = buildComponentSpecimens(componentContracts, specimenContext);
   const patternSpecimens = buildPatternSpecimens(patternContracts, specimenContext);
   const iconScenarios = buildDesignSystemIconScenarios();
-  const iconIndex = buildDesignSystemIconIndex();
+  const iconIndex = buildDesignSystemIconIndex(iconScenarios);
   const pages = [
     {
       id: "overview",
@@ -4249,20 +4498,9 @@ function buildDesignSystemContentModel() {
       heading: "Icons",
       eyebrow: "Foundations",
       summary:
-        "A complete Lucide icon catalog with one coherent 24px outline style, plus common examples for interface meaning.",
-      sections: ["Usage", "Icon examples", "Icon index", "Accessibility", "Source"],
-      examples: [
-        {
-          title: "Meaningful icon",
-          use: "Pair the icon with visible text when it communicates status, navigation, or action meaning.",
-          caution: "Do not make an icon-only control depend on visual recognition alone.",
-        },
-        {
-          title: "Consistent family",
-          use: "Choose from the committed Lucide catalog so line weight, caps, joins, and proportions stay consistent.",
-          caution: "Do not mix unrelated icon packs in the same interface.",
-        },
-      ],
+        "A complete Lucide icon catalog with one coherent 24px outline style, searchable names, and scenario groupings.",
+      sections: ["Usage", "Icon index", "Accessibility", "Source"],
+      examples: [],
     },
     {
       id: "components",
@@ -4429,6 +4667,36 @@ function renderDesignSystemNav(model, activeId) {
         </aside>`;
 }
 
+function renderDesignSystemSectionMenu(model, activeId) {
+  const activePage = model.pages.find((pageEntry) => pageEntry.id === activeId) ?? model.pages[0];
+  const menuId = `design-system-section-menu-${activeId}`;
+
+  return `<div class="design-system-section-menu" data-design-system-section-menu>
+          <button
+            class="design-system-section-menu-button"
+            type="button"
+            aria-expanded="false"
+            aria-controls="${escapeHtml(menuId)}"
+            aria-haspopup="menu"
+            data-design-system-section-menu-button
+          >
+            <span>${escapeHtml(activePage.nav_label)}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m6 9 6 6 6-6"></path>
+            </svg>
+          </button>
+          <div class="design-system-section-menu-backdrop" hidden data-design-system-section-menu-backdrop></div>
+          <div class="design-system-section-menu-list" id="${escapeHtml(menuId)}" role="menu" hidden data-design-system-section-menu-list>
+            ${model.pages
+              .map(
+                (pageEntry) =>
+                  `<a href="${pageEntry.path}" role="menuitem"${pageEntry.id === activeId ? ' aria-current="page"' : ""}>${escapeHtml(pageEntry.nav_label)}</a>`,
+              )
+              .join("\n            ")}
+          </div>
+        </div>`;
+}
+
 function renderDesignSystemOnThisPage(pageEntry) {
   return `<nav class="design-system-on-this-page" aria-label="On this page">
             <span>On this page</span>
@@ -4442,6 +4710,7 @@ function renderDesignSystemLayout(model, activeId, content) {
   return `
     <section class="section design-system-page" data-design-system-page="${escapeHtml(activeId)}">
       <div class="doc-layout design-system-layout">
+        ${renderDesignSystemSectionMenu(model, activeId)}
         ${renderDesignSystemNav(model, activeId)}
         <div class="design-system-content">
           ${content}
@@ -4954,17 +5223,17 @@ function buildDesignSystemIconScenarios() {
   });
 }
 
-function renderDesignSystemIconScenario(scenario) {
-  return `<article class="design-icon-scenario" data-icon-example="${escapeHtml(scenario.id)}" data-selected-icon-id="${escapeHtml(scenario.selected_icon_id)}">
-            <div class="design-icon-symbol" aria-hidden="true">${scenario.inline_svg}</div>
+function renderDesignSystemIconIndexCard(icon) {
+  const scenarioAttribute = icon.scenario_id
+    ? ` data-icon-scenario="${escapeHtml(icon.scenario_id)}"`
+    : "";
+
+  return `<li class="design-icon-scenario design-icon-index-card" data-icon-id="${escapeHtml(icon.id)}" data-icon-name="${escapeHtml(icon.name)}"${scenarioAttribute}>
+            <div class="design-icon-symbol" aria-hidden="true">${icon.inline_svg}</div>
             <div>
-              <h3>${escapeHtml(scenario.label)}</h3>
-              <p>${escapeHtml(scenario.intent)}</p>
-              <dl>
-                <div><dt>Icon</dt><dd><code>${escapeHtml(scenario.selected_icon_id)}</code></dd></div>
-              </dl>
+              <code class="design-icon-id" aria-label="Icon ID ${escapeHtml(icon.id)}">${escapeHtml(icon.id)}</code>
             </div>
-          </article>`;
+          </li>`;
 }
 
 function renderDesignSystemIconIndex(icons) {
@@ -4980,12 +5249,7 @@ function renderDesignSystemIconIndex(icons) {
           </search>
           <ul class="design-icon-index-list" data-design-icon-results>
             ${icons
-              .map(
-                (icon) => `<li data-icon-id="${escapeHtml(icon.id)}">
-              <code>${escapeHtml(icon.id)}</code>
-              <span>${escapeHtml(icon.name)}</span>
-            </li>`,
-              )
+              .map((icon) => renderDesignSystemIconIndexCard(icon))
               .join("\n            ")}
           </ul>`;
 }
@@ -5025,7 +5289,6 @@ function renderDesignSystemIconSearchScript() {
 
 function renderDesignSystemIconsPage(model) {
   const adapter = model.adapter;
-  const scenarios = model.icon_scenarios;
   const source = adapter.icon_catalog;
   const totalCount = source.icon_count;
   const pageEntry = designSystemPageById(model, "icons");
@@ -5062,16 +5325,9 @@ function renderDesignSystemIconsPage(model) {
               "Prefer adjacent visible text for meaningful icons and reserve icon-only controls for familiar, named actions.",
             ])}
           </section>
-          <section class="design-system-section" aria-labelledby="icon-examples">
-            <h2 id="icon-examples">Icon examples</h2>
-            <p class="note">These examples show common interface meanings with stable Lucide icon IDs.</p>
-            <div class="design-icon-scenario-grid">
-              ${scenarios.map(renderDesignSystemIconScenario).join("\n              ")}
-            </div>
-          </section>
           <section class="design-system-section" aria-labelledby="icon-index">
             <h2 id="icon-index">Icon index</h2>
-            <p class="note">Search the committed Lucide IDs and names without loading the full SVG grid into this reference page.</p>
+            <p class="note">Search the committed Lucide IDs and names. Every catalog entry uses the same icon and ID card format.</p>
             ${renderDesignSystemIconIndex(model.icon_index)}
           </section>
           <section class="design-system-section" aria-labelledby="accessibility">
@@ -5087,7 +5343,6 @@ function renderDesignSystemIconsPage(model) {
             <p class="note">The catalog is generated from the committed ${escapeHtml(source.package)} package at version ${escapeHtml(source.version)}. The complete visual smoke proof remains available for regression review.</p>
             <a class="pill-link" href="/examples/lucide-icon-catalog-smoke.html">Open full catalog smoke proof</a>
           </section>
-          ${renderDesignSystemExamples(pageEntry)}
           ${renderDesignSystemIconSearchScript()}
         `,
     ),
@@ -5470,15 +5725,9 @@ function renderDesignSystemPageMarkdown(model, pageEntry) {
         "Prefer adjacent visible text for meaningful icons.",
       ]),
       "",
-      "## Icon Examples",
-      markdownList(
-        model.icon_scenarios.map(
-          (scenario) => `${scenario.label}: \`${scenario.selected_icon_id}\``,
-        ),
-      ),
-      "",
       "## Icon Index",
       `- ${model.icon_index.length} Lucide icon IDs are included in the HTML icon index.`,
+      "- Common interface meanings such as status, navigation, filtering, scheduling, handoff, and risk are grouped into their matching icon index cards.",
       "- Full visual regression proof: `/examples/lucide-icon-catalog-smoke.html`.",
       "",
     );
@@ -6857,6 +7106,135 @@ async function judgmentKitMcpReportPage() {
   );
 }
 
+function siteRebuildLogPage(designSystemModel) {
+  const designSystemSource = designSystemModel.exports.manifest.source;
+  const tokenRoleCount = designSystemModel.adapter.token_roles.length;
+  const componentContractCount = designSystemModel.component_contracts.length;
+  const patternContractCount = designSystemModel.pattern_contracts.length;
+  const iconCount = designSystemModel.adapter.icon_catalog.icon_count;
+
+  return page(
+    "JudgmentKit Site Rebuild Log",
+    `
+    <section class="section report-page">
+      <div class="report-heading">
+        <p class="eyebrow">Rebuild evidence</p>
+        <h1>Site rebuild log</h1>
+        <p class="lede">This page records how the current judgmentkit.ai site was rebuilt, what counts as evidence, and where the design-system connection is enforced.</p>
+      </div>
+      <div class="report-shell">
+        <nav class="report-toc" aria-label="Site rebuild log sections">
+          <a href="#what-changed">What changed</a>
+          <a href="#dogfood-path">Dogfood path</a>
+          <a href="#design-system-evidence">Design-system evidence</a>
+          <a href="#source-and-tests">Source and tests</a>
+          <a href="#review-notes">Review notes</a>
+        </nav>
+        <article class="report-article">
+          <section id="what-changed">
+            <h2>What changed</h2>
+            <p>The rebuild changed the public site from a system-map-heavy homepage into an evidence-first product surface. The homepage now explains the failure JudgmentKit prevents, shows the repair path, and routes visitors into value examples, replayable examples, eval evidence, docs, install, and design-system review.</p>
+            <div class="report-capability-grid">
+              <article>
+                <h3>New homepage structure</h3>
+                <p>The homepage uses product-language sections for failure recognition, proof paths, and adoption paths instead of leading with protocol or tool detail.</p>
+              </article>
+              <article>
+                <h3>Disclosure boundary</h3>
+                <p>Raw setup and tool language stays out of the homepage main content. Diagnostic detail moves to docs, evals, install, and this rebuild log.</p>
+              </article>
+              <article>
+                <h3>Proof route</h3>
+                <p>The evals section now includes this log so the rebuild can be inspected as an artifact instead of inferred from chat history.</p>
+              </article>
+            </div>
+          </section>
+          <section id="dogfood-path">
+            <h2>Dogfood path</h2>
+            <p>The rebuild used JudgmentKit as the planning and review gate before accepting the implementation. The useful signal was not visual taste; it was whether the activity, surface type, disclosure policy, handoff, and implementation evidence were ready.</p>
+            <figure class="report-system-figure">
+              <figcaption>Rebuild sequence, June 19, 2026.</figcaption>
+              <ol>
+                <li><strong>Activity model review</strong><span>The brief was reviewed as a public product-site rebuild for AI-agent users and evaluators.</span></li>
+                <li><strong>Candidate repair</strong><span>An early activity-model candidate exposed raw implementation vocabulary. It was revised before it was trusted.</span></li>
+                <li><strong>Surface selection</strong><span>The homepage was treated as a marketing surface with proof and adoption paths, not a setup/debug tool.</span></li>
+                <li><strong>Workflow review</strong><span>The accepted workflow made value, proof, docs, design-system review, examples, evals, install, and MCP setup separate surfaces.</span></li>
+                <li><strong>Implementation contract</strong><span>The generator stayed static and deterministic, with source-controlled routes, semantic HTML, responsive behavior, and explicit tests.</span></li>
+                <li><strong>Implementation review</strong><span>The final implementation evidence passed after the review evidence was cleaned up and resubmitted.</span></li>
+              </ol>
+            </figure>
+          </section>
+          <section id="design-system-evidence">
+            <h2>Design-system evidence</h2>
+            <p>The strongest evidence is in the build and test contract: the same static site generator builds the product pages and the JudgmentKit design-system pages, then exports the manifest, token adapter, component contracts, pattern contracts, specimens, provenance, accessibility policy, and icon scenarios.</p>
+            <dl class="report-summary" aria-label="JudgmentKit design-system evidence">
+              ${renderMetricCard("Design-system source", designSystemSource.design_system_contract_id)}
+              ${renderMetricCard("Token roles", tokenRoleCount)}
+              ${renderMetricCard("Component contracts", componentContractCount)}
+              ${renderMetricCard("Surface patterns", patternContractCount)}
+              ${renderMetricCard("Icon catalog", `${iconCount} Lucide icons`)}
+              ${renderMetricCard("Renderer", DESIGN_SYSTEM_SPECIMEN_RENDERER.id)}
+            </dl>
+            <div class="report-run-links">
+              <a class="pill-link" href="/design-system/">Design-system overview</a>
+              <a class="pill-link" href="/design-system/tokens/">Tokens</a>
+              <a class="pill-link" href="/design-system/components/">Components</a>
+              <a class="pill-link" href="/design-system/patterns/">Patterns</a>
+              <a class="pill-link" href="/design-system/manifest.json">Manifest JSON</a>
+              <a class="pill-link" href="/design-system/specimen-provenance.json">Specimen provenance</a>
+            </div>
+            <p class="note">This page should not be read as a claim that every visual rule on the homepage is mechanically generated from exported token JSON. The defensible claim is narrower: the rebuild is in the same source-controlled static generator, routes users into the JudgmentKit design-system surface, emits the design-system assets in the same build, and has tests that verify those assets, contracts, specimens, and provenance.</p>
+          </section>
+          <section id="source-and-tests">
+            <h2>Source and tests</h2>
+            <p>The rebuild is inspectable in source and in deterministic checks. These are the files and commands that prove what changed.</p>
+            <div class="report-run-links">
+              <a class="pill-link" href="/evals/judgmentkit-mcp/">JudgmentKit MCP report</a>
+              <a class="pill-link" href="/evals/">Eval index</a>
+              <a class="pill-link" href="/docs/#system-map">System map in docs</a>
+            </div>
+            <pre><code>Changed files:
+site/build-site.mjs
+tests/site.test.mjs
+
+Verification:
+npm run site:build
+node tests/site.test.mjs
+npm test
+Playwright desktop and mobile review
+JudgmentKit review_ui_implementation_candidate: passed</code></pre>
+            <div class="report-capability-grid">
+              <article>
+                <h3>Homepage rebuild checks</h3>
+                <p>Tests assert the new headline, proof paths, repair preview, failure grid, adoption paths, and absence of raw setup terms in homepage main content.</p>
+              </article>
+              <article>
+                <h3>Design-system checks</h3>
+                <p>Tests assert the manifest, token adapter, component contracts, pattern contracts, specimens, provenance hashes, accessibility policy, and Lucide icon catalog.</p>
+              </article>
+              <article>
+                <h3>Browser checks</h3>
+                <p>Desktop and mobile review checked no horizontal overflow, visible next-section hint, working menus, and contrast ratios.</p>
+              </article>
+            </div>
+          </section>
+          <section id="review-notes">
+            <h2>Review notes</h2>
+            <p>If you are reviewing whether this is a real rebuild, start with the source diff and tests. If you are reviewing whether it uses the JudgmentKit design system, start with the design-system route, JSON exports, specimen provenance, and the tests that hash those outputs.</p>
+            <p>The remaining judgment call is product-level: whether the public story should expose more of this evidence earlier, or keep the homepage focused on the offer and leave this page in evals.</p>
+          </section>
+        </article>
+      </div>
+    </section>
+  `,
+    {
+      description:
+        "Audit log for the judgmentkit.ai rebuild, including dogfood steps, design-system evidence, source files, and verification commands.",
+      path: "/evals/site-rebuild-log/",
+    },
+  );
+}
+
 function renderEvalRunRows(runs) {
   return runs
     .map(
@@ -6920,6 +7298,7 @@ async function evalsPage() {
       <p class="note">${escapeHtml(benchmarkPolicy)}</p>
       <div class="evals-actions" aria-label="Eval report links">
         <a class="pill-link" href="/evals/judgmentkit-mcp/">JudgmentKit MCP report</a>
+        <a class="pill-link" href="/evals/site-rebuild-log/">Site rebuild log</a>
         <a class="pill-link" href="${escapeHtml(evalReportPath(latest.html_report))}">Latest HTML report</a>
         <a class="pill-link" href="${escapeHtml(evalReportPath(latest.json_report))}">Latest JSON report</a>
         <a class="pill-link" href="/evals/index.json">Catalog JSON</a>
@@ -7064,6 +7443,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.mkdir(path.join(outDir, "design-system", "accessibility"), { recursive: true });
   await fs.mkdir(path.join(outDir, "evals"), { recursive: true });
   await fs.mkdir(path.join(outDir, "evals", "judgmentkit-mcp"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "evals", "site-rebuild-log"), { recursive: true });
   await fs.mkdir(path.join(outDir, "examples"), { recursive: true });
   await fs.mkdir(path.join(outDir, "value"), { recursive: true });
 
@@ -7157,6 +7537,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
       "- /examples/",
       "- /evals/",
       "- /evals/judgmentkit-mcp/",
+      "- /evals/site-rebuild-log/",
       "- /install",
       "- /mcp",
       "",
@@ -7179,6 +7560,10 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
     path.join(outDir, "evals", "judgmentkit-mcp", "index.html"),
     await judgmentKitMcpReportPage(),
   );
+  await fs.writeFile(
+    path.join(outDir, "evals", "site-rebuild-log", "index.html"),
+    siteRebuildLogPage(designSystemModel),
+  );
   await copyDirectoryIfExists("examples/model-ui", path.join(outDir, "examples", "model-ui"));
   await copyDirectoryIfExists("experiments", path.join(outDir, "experiments"));
 
@@ -7192,6 +7577,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
       "/examples/",
       "/evals/",
       "/evals/judgmentkit-mcp/",
+      "/evals/site-rebuild-log/",
       "/install",
       "/mcp",
     ],

@@ -96,6 +96,7 @@ assert.deepEqual(result.routes, [
   "/examples/",
   "/evals/",
   "/evals/judgmentkit-mcp/",
+  "/evals/site-rebuild-log/",
   "/install",
   "/mcp",
 ]);
@@ -116,6 +117,7 @@ const systemMapFlowSource = fs.readFileSync(new URL("../site/system-map-flow.jsx
 const platformNavMarkup =
   homepage.match(/<nav class="surfaces-navigation" aria-label="Surfaces platform" data-surfaces-navigation>[\s\S]*?<\/nav>/)
     ?.[0] ?? "";
+const homepageMain = homepage.match(/<main>([\s\S]*)<\/main>/)?.[1] ?? "";
 assert.ok(systemMapFlowJs.includes("MCP boundary"));
 assert.ok(systemMapFlowJs.includes("JudgmentKit React Flow system design map"));
 assert.ok(systemMapFlowJs.includes("Source brief + product context"));
@@ -182,6 +184,14 @@ assert.ok(platformNavMarkup.includes("Embedded MCP judgment for live design deci
 assert.equal(platformNavMarkup.includes("target="), false);
 assert.equal(platformNavMarkup.includes("rel="), false);
 assert.equal(platformNavMarkup.includes("pop-out"), false);
+const platformNavCss = siteCss.match(/\.surfaces-navigation \{[^}]*\}/)?.[0] ?? "";
+assert.ok(siteCss.includes("body {\n  margin: 0;\n  padding-top: 56px;"));
+assert.ok(
+  siteCss.includes(
+    ".surfaces-navigation {\n  height: 56px;\n  background-color: rgba(255, 255, 255, 0.98);\n  border-bottom: 1px solid #e5e5e5;\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  width: 100%;",
+  ),
+);
+assert.equal(platformNavCss.includes("position: sticky;"), false);
 assert.ok(siteCss.includes(".surfaces-primary-menu"));
 assert.ok(siteCss.includes(".surfaces-primary-menu-button"));
 assert.ok(siteCss.includes(".surfaces-primary-menu-list"));
@@ -190,46 +200,78 @@ assert.ok(siteCss.includes("@media (max-width: 767px)"));
 assert.ok(siteCss.includes(".surfaces-navigation-sections {\n    display: none;"));
 assert.ok(siteCss.includes(".surfaces-primary-menu {\n    display: block;"));
 assert.ok(siteCss.includes("@media (max-width: 359px)"));
+assert.ok(siteCss.includes(".design-system-nav {\n  position: fixed;\n  top: 88px;"));
+assert.ok(siteCss.includes(".design-system-layout {\n  grid-template-columns: 160px minmax(0, 1fr);\n  gap: 28px;"));
+assert.ok(siteCss.includes("left: max(24px, calc((100vw - 1220px) / 2));"));
+assert.ok(siteCss.includes("width: min(160px, calc(100vw - 48px));"));
+assert.ok(siteCss.includes("max-height: calc(100vh - 112px);"));
+assert.ok(siteCss.includes(".design-system-content {\n  grid-column: 2;"));
+assert.ok(siteCss.includes(".design-system-section-menu {\n  display: none;"));
+assert.ok(siteCss.includes(".design-system-section-menu-button"));
+assert.ok(siteCss.includes(".design-system-section-menu-list"));
+assert.ok(siteCss.includes("@media (max-width: 1120px) {\n  .design-system-layout {\n    display: block;"));
+assert.ok(siteCss.includes(".design-system-section-menu {\n    display: block;"));
+assert.ok(siteCss.includes(".design-system-nav {\n    display: none;"));
+assert.ok(siteCss.includes(".design-system-content {\n    grid-column: auto;"));
+assert.ok(homepage.includes("[data-design-system-section-menu]"));
 assert.ok(homepage.includes("[data-surfaces-primary-menu-button]"));
 assert.ok(homepage.includes("[data-surfaces-system-menu-button]"));
 assert.ok(homepage.includes("Judgment before generation."));
-assert.ok(homepage.includes("JudgmentKit catches when AI-generated UI turns implementation mechanics into UX"));
+assert.ok(homepage.includes("JudgmentKit catches implementation-shaped UI before it ships"));
 assert.ok(homepage.includes('href="/value/"'));
 assert.ok(homepage.includes('href="/evals/"'));
 assert.ok(homepage.includes('class="hero-actions" aria-label="Primary proof paths"'));
 assert.ok(homepage.includes('class="hero-action hero-action-primary" data-hero-action="primary" href="/value/"'));
 assert.ok(homepage.includes('class="hero-action hero-action-secondary" data-hero-action="secondary" href="/examples/"'));
 assert.ok(homepage.includes('data-hero-action="evidence" href="/evals/"'));
-assert.ok(homepage.includes("Prompt"));
-assert.ok(homepage.includes('class="prompt-evidence" title="Participant"'));
-assert.ok(homepage.includes('class="prompt-evidence" title="Objective and activity"'));
-assert.ok(homepage.includes('class="prompt-evidence prompt-evidence-diagnostic" title="Diagnostic implementation detail"'));
-assert.ok(homepage.includes('class="prompt-evidence" title="Decision"'));
-assert.ok(homepage.includes('class="prompt-evidence" title="Outcome"'));
-assert.ok(siteCss.includes("background: rgba(36, 95, 115, 0.07);"));
-assert.ok(siteCss.includes("background: rgba(138, 90, 22, 0.08);"));
-assert.ok(siteCss.includes("-webkit-box-decoration-break: clone;"));
+assert.ok(homepage.includes('class="proof-panel evaluation-panel" aria-label="JudgmentKit repair preview"'));
+assert.ok(homepage.includes("The screen follows the system, not the work."));
+assert.ok(homepage.includes("The activity is named before the UI."));
+assert.ok(homepage.includes("The agent gets a ready handoff."));
+assert.ok(homepage.includes("Better first drafts. Less cleanup theater."));
+assert.ok(homepage.includes('class="section homepage-failure" aria-labelledby="failure-title"'));
+assert.ok(homepage.includes("The problem is not ugly UI. It is the wrong concept of the work."));
+assert.ok(homepage.includes("Before judgment"));
+assert.ok(homepage.includes("With JudgmentKit"));
+assert.ok(homepage.includes("After repair"));
+assert.ok(homepage.includes('class="section proof-paths" aria-labelledby="proof-paths-title"'));
+assert.ok(homepage.includes("Inspect the loop from product value to repeatable evidence."));
+assert.ok(homepage.includes("What it prevents"));
+assert.ok(homepage.includes("Replayable examples"));
+assert.ok(homepage.includes("Evaluation evidence"));
+assert.ok(homepage.includes('class="section adoption-paths" aria-labelledby="adoption-title"'));
+assert.ok(homepage.includes("Choose the next surface for the work you are doing."));
+assert.ok(homepage.includes("Read the docs"));
+assert.ok(homepage.includes("Review the design-system assets"));
+assert.ok(homepage.includes("Start installation"));
+assert.ok(homepage.includes('href="/docs/"'));
+assert.ok(homepage.includes('href="/design-system/"'));
+assert.ok(homepage.includes('href="/install"'));
+assert.ok(siteCss.includes(".evaluation-panel"));
+assert.ok(siteCss.includes(".failure-grid"));
+assert.ok(siteCss.includes(".route-grid-proof"));
+assert.ok(siteCss.includes(".route-grid-adoption"));
 assert.equal(siteCss.includes("text-decoration-line: underline;"), false);
-assert.ok(homepage.includes('aria-label="Prompt evidence color key"'));
-assert.ok(homepage.includes("activity evidence"));
-assert.ok(homepage.includes("implementation detail"));
-assert.ok(homepage.includes("support operations manager"));
-assert.ok(homepage.includes("refund escalation cases"));
-assert.ok(homepage.includes("JSON schema"));
-assert.ok(homepage.includes("approved, sent to policy review, or returned"));
-assert.ok(homepage.includes("clear handoff"));
-assert.ok(homepage.includes("Judgment"));
-assert.ok(homepage.includes("Handoff"));
-assert.ok(homepage.includes("ready for generation"));
-assert.ok(homepage.includes("System map"));
-assert.ok(homepage.includes('id="system-map"'));
-assert.ok(homepage.includes('href="/assets/system-map-flow.css?v=judgmentkit-flow-controls-bottom-left"'));
-assert.ok(homepage.includes('src="/assets/system-map-flow.js?v=judgmentkit-flow-controls-bottom-left"'));
-assert.ok(homepage.includes('data-system-map-flow-section'));
-assert.ok(homepage.includes('data-system-map-flow-viewer'));
-assert.ok(homepage.includes('data-system-map-flow-root'));
-assert.ok(homepage.includes('data-system-map-fallback'));
-assert.ok(homepage.includes('data-system-map-svg-fallback'));
+assert.equal(homepageMain.includes("Prompt"), false);
+assert.equal(homepageMain.includes("JSON schema"), false);
+assert.equal(homepageMain.includes("prompt template"), false);
+assert.equal(homepageMain.includes("tool call"), false);
+assert.equal(homepageMain.includes("resource id"), false);
+assert.equal(homepageMain.includes("API endpoint"), false);
+assert.equal(homepageMain.includes("MCP boundary"), false);
+assert.equal(homepageMain.includes("recommend_surface_types"), false);
+assert.equal(homepageMain.includes("create_ui_implementation_contract"), false);
+assert.equal(homepageMain.includes("create_frontend_generation_context"), false);
+assert.equal(homepageMain.includes("create_frontend_implementation_skill_context"), false);
+assert.equal(homepage.includes("System map"), false);
+assert.equal(homepage.includes('id="system-map"'), false);
+assert.equal(homepage.includes('href="/assets/system-map-flow.css?v=judgmentkit-flow-controls-bottom-left"'), false);
+assert.equal(homepage.includes('src="/assets/system-map-flow.js?v=judgmentkit-flow-controls-bottom-left"'), false);
+assert.equal(homepage.includes('data-system-map-flow-section'), false);
+assert.equal(homepage.includes('data-system-map-flow-viewer'), false);
+assert.equal(homepage.includes('data-system-map-flow-root'), false);
+assert.equal(homepage.includes('data-system-map-fallback'), false);
+assert.equal(homepage.includes('data-system-map-svg-fallback'), false);
 assert.equal(homepage.includes("Scroll the page normally. Drag to pan the map; use controls or pinch/ctrl-wheel to zoom."), false);
 assert.equal(homepage.includes("trackpad wheel to zoom"), false);
 assert.equal(homepage.includes('data-system-map-viewer'), false);
@@ -237,29 +279,14 @@ assert.equal(homepage.includes('data-system-map-canvas'), false);
 assert.equal(homepage.includes('data-system-map-zoom-in'), false);
 assert.equal(homepage.includes('data-system-map-zoom-out'), false);
 assert.equal(homepage.includes('data-system-map-reset'), false);
-assert.ok(homepage.includes("JudgmentKit system design map"));
-assert.ok(homepage.includes("MCP boundary"));
-assert.ok(homepage.includes("JudgmentKit kernel"));
-assert.ok(homepage.includes("LLM / provider seam"));
-assert.ok(homepage.includes("Surface type"));
-assert.ok(homepage.includes("Frontend adapter"));
-assert.ok(homepage.includes("recommend_surface_types"));
-assert.ok(homepage.includes("create_ui_implementation_contract"));
-assert.ok(homepage.includes("review_ui_implementation_candidate"));
-assert.ok(homepage.includes("create_frontend_generation_context"));
-assert.ok(homepage.includes("create_frontend_implementation_skill_context"));
-assert.ok(homepage.includes("Source brief + product context"));
-assert.ok(homepage.includes("Material UI adapter"));
-assert.ok(homepage.includes("selected surface type"));
-assert.ok(homepage.includes("Design-system compliance is not a substitute for activity fit"));
-assert.ok(homepage.includes("without design system"));
-assert.ok(homepage.includes("updated context"));
-assert.ok(homepage.includes("source/activity review"));
-assert.ok(homepage.includes("resolve targeted questions or leakage details before generating UI"));
+assert.equal(homepage.includes("JudgmentKit system design map"), false);
+assert.equal(homepage.includes("MCP boundary"), false);
+assert.equal(homepage.includes("JudgmentKit kernel"), false);
+assert.equal(homepage.includes("LLM / provider seam"), false);
+assert.equal(homepage.includes("Frontend adapter"), false);
 assert.equal(homepage.includes("optional styling path"), false);
 assert.equal(homepage.includes("Open system map"), false);
-assert.ok(homepage.includes("stays in the loop across iterations"));
-assert.ok(homepage.includes("not the final renderer"));
+assert.equal(homepage.includes("not the final renderer"), false);
 assert.ok(homepage.includes('rel="canonical" href="https://judgmentkit.ai/"'));
 assert.ok(homepage.includes('rel="icon" href="/favicon.svg"'));
 assert.ok(homepage.includes('rel="image_src" href="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20260611.png"'));
@@ -273,6 +300,7 @@ assert.ok(homepage.includes('name="twitter:card" content="summary_large_image"')
 assert.ok(homepage.includes('name="twitter:image" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20260611.png"'));
 assert.ok(homepage.includes('name="twitter:image:alt" content="JudgmentKit. Before the UI."'));
 assert.ok(llms.includes("- /evals/judgmentkit-mcp/"));
+assert.ok(llms.includes("- /evals/site-rebuild-log/"));
 assert.ok(llms.includes("- /value/"));
 assert.ok(llms.includes("- /design-system/"));
 assert.ok(llms.includes("- /design-system/llms.txt"));
@@ -559,15 +587,51 @@ assert.ok(designSystemIcons.includes("A complete Lucide icon catalog"));
 assert.ok(designSystemIcons.includes("lucide-static@1.21.0"));
 assert.ok(designSystemIcons.includes("1737"));
 assert.ok(designSystemIcons.includes("Usage"));
-assert.ok(designSystemIcons.includes("Icon examples"));
 assert.ok(designSystemIcons.includes("Icon index"));
 assert.ok(designSystemIcons.includes("Accessibility"));
 assert.ok(designSystemIcons.includes("Source"));
 assert.ok(designSystemIcons.includes("Choose the icon by the meaning"));
 assert.ok(designSystemIcons.includes('data-design-icon-search'));
-assert.ok(designSystemIcons.includes('data-icon-example="status-success"'));
-assert.ok(designSystemIcons.includes('data-selected-icon-id="check"'));
+assert.ok(designSystemIcons.includes('class="design-system-section-menu" data-design-system-section-menu'));
+assert.ok(designSystemIcons.includes('class="design-system-section-menu-button"'));
+assert.ok(designSystemIcons.includes('aria-controls="design-system-section-menu-icons"'));
+assert.ok(designSystemIcons.includes('data-design-system-section-menu-button'));
+assert.ok(designSystemIcons.includes('data-design-system-section-menu-backdrop'));
+assert.ok(designSystemIcons.includes('id="design-system-section-menu-icons" role="menu"'));
+assert.ok(designSystemIcons.includes('data-design-system-section-menu-list'));
+assert.ok(designSystemIcons.includes('<a href="/design-system/icons/" role="menuitem" aria-current="page">Icons</a>'));
+const iconIndexCards = designSystemIcons.match(
+  /<li class="design-icon-scenario design-icon-index-card"[\s\S]*?<\/li>/g,
+) ?? [];
+assert.equal(designSystemIcons.includes("Icon examples"), false);
+assert.equal(designSystemIcons.includes('id="icon-examples"'), false);
+assert.equal(designSystemIcons.includes('href="#icon-examples"'), false);
+assert.equal(designSystemIcons.includes('data-icon-example='), false);
+assert.equal(designSystemIcons.includes("data-selected-icon-id"), false);
+assert.ok(designSystemIcons.includes('data-icon-scenario="status-success"'));
+assert.ok(designSystemIcons.includes('data-icon-id="check"'));
+assert.equal(designSystemIcons.includes("<h3>Status success</h3>"), false);
+assert.equal(designSystemIcons.includes("<h3>A Arrow Down</h3>"), false);
+assert.equal(designSystemIcons.includes("Show a completed status beside a visible result label."), false);
 assert.ok(designSystemIcons.includes('data-icon-id="receipt-text"'));
+assert.ok(designSystemIcons.includes('data-icon-name="Receipt Text"'));
+assert.ok(designSystemIcons.includes("Every catalog entry uses the same icon and ID card format."));
+assert.equal(
+  designSystemIcons.includes("Every catalog entry uses the same icon, label, and ID card format."),
+  false,
+);
+assert.equal(
+  designSystemIcons.includes("Every catalog entry uses the same icon, label, meaning, and ID card format."),
+  false,
+);
+assert.equal(
+  designSystemIcons.includes(
+    "Lucide catalog icon available for JudgmentKit interface states, actions, navigation, and objects.",
+  ),
+  false,
+);
+assert.equal(designSystemIcons.includes("<dt>Icon</dt>"), false);
+assert.ok(designSystemIcons.includes('<code class="design-icon-id" aria-label="Icon ID check">check</code>'));
 assert.equal(designSystemIcons.includes("list_icon_catalog"), false);
 assert.equal(designSystemIcons.includes("search_icon_catalog"), false);
 assert.equal(designSystemIcons.includes("get_icon_svg"), false);
@@ -575,10 +639,24 @@ assert.ok(designSystemIcons.includes("/examples/lucide-icon-catalog-smoke.html")
 assert.equal(designSystemIcons.includes("data-catalog-icon"), false);
 assert.ok(designSystemIcons.includes("<svg"));
 assert.ok(designSystemIcons.includes('viewBox="0 0 24 24"'));
-assert.equal((designSystemIcons.match(/data-icon-example=/g) ?? []).length, 16);
+assert.equal(iconIndexCards.length, 1737);
+assert.equal(iconIndexCards.some((card) => card.includes("<h3>")), false);
+assert.equal(iconIndexCards.some((card) => card.includes("<p>")), false);
+assert.equal((designSystemIcons.match(/data-icon-scenario=/g) ?? []).length, 16);
 assert.equal((designSystemIcons.match(/data-icon-id=/g) ?? []).length, 1737);
+assert.equal((designSystemIcons.match(/class="design-icon-id"/g) ?? []).length, 1737);
 assert.equal((designSystemIcons.match(/data-catalog-icon=/g) ?? []).length, 0);
-assert.ok(Buffer.byteLength(designSystemIcons, "utf8") < 350_000);
+assert.equal((designSystemIcons.match(/class="design-icon-scenario(?:\s|")/g) ?? []).length, 1737);
+assert.equal(designSystemIcons.includes("without loading the full SVG grid"), false);
+assert.equal(siteCss.includes(".design-icon-tile"), false);
+assert.equal(siteCss.includes(".design-icon-scenario h3"), false);
+assert.equal(siteCss.includes(".design-icon-scenario p"), false);
+assert.equal(siteCss.includes("min-height: 178px;"), false);
+assert.ok(siteCss.includes(".design-icon-symbol {\n  display: grid;\n  width: 24px;\n  min-height: 24px;\n  place-items: center;\n  color: inherit;\n}"));
+assert.ok(siteCss.includes("grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));"));
+assert.ok(siteCss.includes(".design-icon-index-list {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));\n  align-items: start;"));
+assert.ok(siteCss.includes(".design-icon-index-card[hidden] {\n  display: none;\n}"));
+assert.ok(Buffer.byteLength(designSystemIcons, "utf8") < 2_500_000);
 assert.ok(designSystemComponents.includes("<h1>Components</h1>"));
 assert.ok(designSystemComponents.includes("Core UI component contracts"));
 assert.ok(designSystemComponents.includes("<h2 id=\"specimens\">Specimens</h2>"));
@@ -623,6 +701,7 @@ assert.ok(siteCss.includes(".design-system-example-grid"));
 assert.ok(siteCss.includes(".design-system-specimen-list"));
 assert.ok(siteCss.includes(".jk-specimen-preview"));
 assert.ok(siteCss.includes(".design-icon-index-list"));
+assert.ok(siteCss.includes(".design-icon-index-card"));
 assert.ok(siteCss.includes(".design-icon-symbol svg"));
 assert.ok(designSystemLlms.includes("# JudgmentKit Design System"));
 assert.ok(designSystemLlms.includes("/design-system/"));
@@ -636,7 +715,8 @@ assert.ok(designSystemLlms.includes("/design-system/specimen-provenance.json"));
 assert.ok(designSystemLlms.includes("/design-system/accessibility-policy.json"));
 assert.ok(designSystemLlms.includes("/examples/lucide-icon-catalog-smoke.html"));
 assert.ok(designSystemLlmsFull.includes("## Principles"));
-assert.ok(designSystemLlmsFull.includes("## Icon Examples"));
+assert.equal(designSystemLlmsFull.includes("## Icon Examples"), false);
+assert.ok(designSystemLlmsFull.includes("Common interface meanings such as status"));
 assert.ok(designSystemLlmsFull.includes("## Specimens"));
 assert.ok(designSystemLlmsFull.includes("## Component Contracts"));
 assert.ok(designSystemLlmsFull.includes("## Surface Pattern Contracts"));
@@ -789,6 +869,11 @@ assert.equal(iconScenariosExport.source.version, "1.21.0");
 assert.equal(iconScenariosExport.source.icon_count, 1737);
 assert.equal(iconScenariosExport.scenarios.length, 16);
 assert.equal(iconScenariosExport.scenarios.some((scenario) => "inline_svg" in scenario), false);
+assert.ok(
+  iconScenariosExport.scenarios.some(
+    (scenario) => scenario.intent === "Show a completed status beside a visible result label.",
+  ),
+);
 assert.ok(iconScenariosExport.scenarios.some((scenario) => scenario.selected_icon_id === "receipt-text"));
 
 const value = fs.readFileSync(path.join(tempDir, "value", "index.html"), "utf8");
@@ -1058,6 +1143,7 @@ assert.ok(evals.includes("Latest run"));
 assert.ok(evals.includes("Claim level"));
 assert.ok(evals.includes("statistically powered benchmark"));
 assert.ok(evals.includes("/evals/judgmentkit-mcp/"));
+assert.ok(evals.includes("/evals/site-rebuild-log/"));
 assert.ok(evals.includes("/evals/index.json"));
 assert.ok(evals.includes(`/evals/${evalCatalog.latest.html_report}`));
 assert.ok(evals.includes(`/evals/${evalCatalog.latest.json_report}`));
@@ -1157,6 +1243,51 @@ assert.ok(siteCss.includes(".report-video"));
 assert.ok(siteCss.includes(".report-score-chart"));
 assert.ok(siteCss.includes(".report-context-matrix"));
 
+const siteRebuildLogPath = path.join(tempDir, "evals", "site-rebuild-log", "index.html");
+assert.equal(fs.existsSync(siteRebuildLogPath), true, "expected site rebuild log route");
+const siteRebuildLog = fs.readFileSync(siteRebuildLogPath, "utf8");
+assertAnalyticsBootstrap(siteRebuildLog, "site rebuild log");
+assert.ok(siteRebuildLog.includes("Site rebuild log"));
+assert.ok(siteRebuildLog.includes('rel="canonical" href="https://judgmentkit.ai/evals/site-rebuild-log/"'));
+assert.ok(siteRebuildLog.includes("This page records how the current judgmentkit.ai site was rebuilt"));
+assert.ok(siteRebuildLog.includes('class="report-toc" aria-label="Site rebuild log sections"'));
+assert.ok(siteRebuildLog.includes('href="#what-changed"'));
+assert.ok(siteRebuildLog.includes('href="#dogfood-path"'));
+assert.ok(siteRebuildLog.includes('href="#design-system-evidence"'));
+assert.ok(siteRebuildLog.includes('href="#source-and-tests"'));
+assert.ok(siteRebuildLog.includes("The rebuild changed the public site from a system-map-heavy homepage"));
+assert.ok(siteRebuildLog.includes("New homepage structure"));
+assert.ok(siteRebuildLog.includes("Disclosure boundary"));
+assert.ok(siteRebuildLog.includes("Proof route"));
+assert.ok(siteRebuildLog.includes("Activity model review"));
+assert.ok(siteRebuildLog.includes("Candidate repair"));
+assert.ok(siteRebuildLog.includes("Surface selection"));
+assert.ok(siteRebuildLog.includes("Workflow review"));
+assert.ok(siteRebuildLog.includes("Implementation contract"));
+assert.ok(siteRebuildLog.includes("Implementation review"));
+assert.ok(siteRebuildLog.includes("review_ui_implementation_candidate: passed"));
+assert.ok(siteRebuildLog.includes("Design-system source"));
+assert.ok(siteRebuildLog.includes("judgmentkit.ai-native-default.contract-v1"));
+assert.ok(siteRebuildLog.includes("Token roles"));
+assert.ok(siteRebuildLog.includes("Component contracts"));
+assert.ok(siteRebuildLog.includes("Surface patterns"));
+assert.ok(siteRebuildLog.includes("1737 Lucide icons"));
+assert.ok(siteRebuildLog.includes("judgmentkit-static-specimens"));
+assert.ok(siteRebuildLog.includes("/design-system/manifest.json"));
+assert.ok(siteRebuildLog.includes("/design-system/specimen-provenance.json"));
+assert.ok(siteRebuildLog.includes("same source-controlled static generator"));
+assert.ok(siteRebuildLog.includes("tests that verify those assets, contracts, specimens, and provenance"));
+assert.ok(siteRebuildLog.includes("site/build-site.mjs"));
+assert.ok(siteRebuildLog.includes("tests/site.test.mjs"));
+assert.ok(siteRebuildLog.includes("npm run site:build"));
+assert.ok(siteRebuildLog.includes("node tests/site.test.mjs"));
+assert.ok(siteRebuildLog.includes("npm test"));
+assert.ok(siteRebuildLog.includes("Playwright desktop and mobile review"));
+assert.ok(siteRebuildLog.includes("Homepage rebuild checks"));
+assert.ok(siteRebuildLog.includes("Design-system checks"));
+assert.ok(siteRebuildLog.includes("Browser checks"));
+assert.equal(siteRebuildLog.includes("judgmentkit2"), false);
+
 for (const copiedExamplePath of [
   ["examples", "one-shot-demo.html"],
   ["examples", "lucide-icon-catalog-smoke.html"],
@@ -1219,6 +1350,7 @@ for (const copiedExamplePath of [
   ["examples", "comparison", "music", "facilitator-scorecard.md"],
   ["evals", "index.html"],
   ["evals", "judgmentkit-mcp", "index.html"],
+  ["evals", "site-rebuild-log", "index.html"],
   ["evals", "index.json"],
   ["evals", ...evalCatalog.latest.html_report.split("/")],
   ["evals", ...evalCatalog.latest.json_report.split("/")],
