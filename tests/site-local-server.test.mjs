@@ -158,6 +158,12 @@ try {
   for (const route of [
     "/design-system/manifest.json",
     "/design-system/visual-token-adapter.json",
+    "/design-system/component-contracts.json",
+    "/design-system/pattern-contracts.json",
+    "/design-system/component-specimens.json",
+    "/design-system/pattern-specimens.json",
+    "/design-system/specimen-provenance.json",
+    "/design-system/accessibility-policy.json",
     "/design-system/icon-scenarios.json",
   ]) {
     const response = await fetchRoute(url, route);
@@ -173,6 +179,9 @@ try {
     "/design-system/tokens/index.html.md",
     "/design-system/fonts/index.html.md",
     "/design-system/icons/index.html.md",
+    "/design-system/components/index.html.md",
+    "/design-system/patterns/index.html.md",
+    "/design-system/accessibility/index.html.md",
   ]) {
     const response = await fetchRoute(url, route);
     const body = await response.text();
