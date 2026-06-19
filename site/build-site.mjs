@@ -22,7 +22,7 @@ const ROOT = path.resolve(__dirname, "..");
 const DEFAULT_OUT_DIR = path.join(__dirname, "dist");
 const require = createRequire(import.meta.url);
 const ANALYTICS_SDK_VERSION = require("@vercel/analytics/package.json").version;
-const SYSTEM_MAP_FLOW_ASSET_VERSION = "judgmentkit-flow-aligned";
+const SYSTEM_MAP_FLOW_ASSET_VERSION = "judgmentkit-flow-controls-bottom-left";
 const SITE_ORIGIN = "https://judgmentkit.ai";
 const SOCIAL_THUMBNAIL_SOURCE_FILENAME = "judgmentkit-social-thumbnail.png";
 const SOCIAL_THUMBNAIL_FILENAME = "judgmentkit-social-thumbnail-20260611.png";
@@ -1174,9 +1174,6 @@ pre {
   border-left: 3px solid rgba(138, 90, 22, 0.35);
   background: rgba(138, 90, 22, 0.06);
   color: #684310;
-}
-.system-map-toolbar {
-  margin: 18px 0 10px;
 }
 .system-map-canvas {
   aspect-ratio: 1760 / 1040;
@@ -3495,9 +3492,6 @@ function homepage() {
     <section class="section" id="system-map" aria-labelledby="generation-loop-title" data-system-map-flow-section>
       <h2 id="generation-loop-title">System map</h2>
       <p class="lede system-diagram-intro">JudgmentKit sits before generation and stays in the loop across iterations. It is the judgment layer around LLM UI generation, not the final renderer.</p>
-      <div class="system-map-toolbar">
-        <p class="note">Scroll the page normally. Drag to pan the map; use controls or pinch/ctrl-wheel to zoom.</p>
-      </div>
       ${systemMapShell("homepage-system-map-svg-title", "homepage-system-map-svg-desc")}
       <div class="system-map-summary" aria-label="System map text summary">
         <p><strong>MCP boundary:</strong> agents call JudgmentKit tools through MCP; MCP is access and transport, not the LLM.</p>
@@ -5772,9 +5766,6 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
           <section class="doc-section" id="system-map" data-system-map-flow-section>
             <h2>System Map</h2>
             <p>Use JudgmentKit before generation and across iterations. It is the contract and review layer around the LLM or agent, not the final UI renderer.</p>
-            <div class="system-map-toolbar">
-              <p class="note">Scroll the page normally. Drag to pan the map; use controls or pinch/ctrl-wheel to zoom.</p>
-            </div>
             ${systemMapShell("system-map-svg-title", "system-map-svg-desc")}
             <div class="system-map-summary" aria-label="System map text summary">
               <p><strong>MCP boundary:</strong> agents call JudgmentKit tools through MCP; MCP is access and transport, not the LLM.</p>

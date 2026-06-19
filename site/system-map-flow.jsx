@@ -547,7 +547,7 @@ function SystemMapFlow({ root }) {
       aria-label="JudgmentKit React Flow system design map"
     >
       <Background color="#e8e1d2" gap={40} size={1} />
-      <Controls showInteractive={false} position="top-left" fitViewOptions={{ padding: 0.08 }} />
+      <Controls showInteractive={false} position="bottom-left" fitViewOptions={{ padding: 0.08 }} />
     </ReactFlow>
   );
 }
