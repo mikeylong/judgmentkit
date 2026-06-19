@@ -58,6 +58,23 @@ function assertRepairLoop({ contractInput, failingCandidate, repairedCandidate, 
   assert.equal(implementationContract.iteration_policy.default_max_attempts, 3);
   assert.equal(implementationContract.visual_token_adapter.mode, "boundary_only");
   assert.equal(
+    implementationContract.visual_token_adapter.appearance_policy.default_mode,
+    "system",
+  );
+  assert.equal(
+    implementationContract.visual_token_adapter.appearance_policy.visible_toggle_default,
+    false,
+  );
+  assert.ok(
+    implementationContract.visual_token_adapter.appearance_token_sets.some(
+      (entry) =>
+        entry.mode === "dark" &&
+        entry.css_custom_properties.some(
+          (token) => token.name === "--jk-color-surface" && token.value === "#181d1b",
+        ),
+    ),
+  );
+  assert.equal(
     implementationContract.visual_token_adapter.deferred_renderer.renderer_package,
     "deferred",
   );
@@ -101,6 +118,19 @@ const canonicalExamples = readJson("examples/ai-native-design-system/canonical-e
 assert.equal(packageJson.version, "0.4.0");
 assert.equal(activityContract.version, "0.4.0");
 assert.equal(getMcpMetadata("streamable-http").version, "0.4.0");
+assert.equal(
+  activityContract.implementation_contract.visual_token_adapter.appearance_policy.default_mode,
+  "system",
+);
+assert.equal(
+  activityContract.implementation_contract.visual_token_adapter.appearance_policy.visible_toggle_default,
+  false,
+);
+assert.ok(
+  activityContract.implementation_contract.visual_token_adapter.appearance_token_sets.some(
+    (entry) => entry.mode === "dark",
+  ),
+);
 
 {
   assert.equal(firstUse.release_target, "0.4.0");
@@ -207,6 +237,19 @@ const contractPacket = createUiImplementationContract({
 assert.equal(contractPacket.version, "0.4.0");
 assert.equal(contractPacket.implementation_contract.iteration_policy.default_max_attempts, 3);
 assert.equal(contractPacket.implementation_contract.visual_token_adapter.mode, "boundary_only");
+assert.equal(
+  contractPacket.implementation_contract.visual_token_adapter.appearance_policy.default_mode,
+  "system",
+);
+assert.equal(
+  contractPacket.implementation_contract.visual_token_adapter.appearance_policy.visible_toggle_default,
+  false,
+);
+assert.ok(
+  contractPacket.implementation_contract.visual_token_adapter.appearance_token_sets.some(
+    (entry) => entry.mode === "dark",
+  ),
+);
 
 const failing = reviewUiImplementationCandidate({
   code: "renderReviewSummary({ FieldGrid })",

@@ -1734,6 +1734,10 @@ function optionalString(value) {
   return typeof value === "string" ? cleanClause(value) : "";
 }
 
+function optionalRawString(value) {
+  return typeof value === "string" ? value.trim() : "";
+}
+
 function assertCandidateShape(candidate) {
   if (!isPlainObject(candidate)) {
     throw new JudgmentKitInputError("Activity model candidate must be an object.");
@@ -4239,6 +4243,158 @@ const DEFAULT_CSS_CUSTOM_PROPERTIES = [
   },
 ];
 
+const DEFAULT_DARK_CSS_CUSTOM_PROPERTIES = [
+  {
+    name: "--jk-color-canvas",
+    role: "surface",
+    family: "color",
+    value: "#101312",
+    usage: "page canvas and application background",
+  },
+  {
+    name: "--jk-color-surface",
+    role: "surface",
+    family: "color",
+    value: "#181d1b",
+    usage: "panels, cards, overlays, and work regions",
+  },
+  {
+    name: "--jk-color-text",
+    role: "text",
+    family: "color",
+    value: "#f2f4ef",
+    usage: "primary readable text",
+  },
+  {
+    name: "--jk-color-muted",
+    role: "text",
+    family: "color",
+    value: "#b8c0bb",
+    usage: "secondary labels and supporting text",
+  },
+  {
+    name: "--jk-color-border",
+    role: "border",
+    family: "color",
+    value: "#39423f",
+    usage: "dividers, control outlines, and grouped evidence",
+  },
+  {
+    name: "--jk-color-focus",
+    role: "focus",
+    family: "color",
+    value: "#7db6c7",
+    usage: "visible focus rings and active affordances",
+  },
+  {
+    name: "--jk-color-success",
+    role: "status",
+    family: "color",
+    value: "#82c99a",
+    usage: "approved, completed, and successful states",
+  },
+  {
+    name: "--jk-color-warning",
+    role: "status",
+    family: "color",
+    value: "#e0b15d",
+    usage: "warning, waiting, and needs-attention states",
+  },
+  {
+    name: "--jk-color-risk",
+    role: "risk",
+    family: "color",
+    value: "#e37d76",
+    usage: "risk, escalation, and destructive action states",
+  },
+  {
+    name: "--jk-color-disabled",
+    role: "disabled",
+    family: "color",
+    value: "#7d8580",
+    usage: "disabled controls with visible rationale",
+  },
+  {
+    name: "--jk-color-receipt",
+    role: "receipt",
+    family: "color",
+    value: "#80cbc7",
+    usage: "handoff receipts and completion confirmation",
+  },
+  {
+    name: "--jk-space-2",
+    role: "surface",
+    family: "spacing",
+    value: "0.5rem",
+    usage: "compact gaps inside dense controls",
+  },
+  {
+    name: "--jk-space-3",
+    role: "surface",
+    family: "spacing",
+    value: "0.75rem",
+    usage: "row gaps and adjacent evidence spacing",
+  },
+  {
+    name: "--jk-space-4",
+    role: "surface",
+    family: "spacing",
+    value: "1rem",
+    usage: "panel padding and section rhythm",
+  },
+  {
+    name: "--jk-radius-control",
+    role: "border",
+    family: "radius",
+    value: "4px",
+    usage: "buttons, inputs, and compact controls",
+  },
+  {
+    name: "--jk-radius-panel",
+    role: "surface",
+    family: "radius",
+    value: "8px",
+    usage: "cards, panels, and bounded work areas",
+  },
+  {
+    name: "--jk-focus-ring",
+    role: "focus",
+    family: "semantic",
+    value: "0 0 0 3px rgba(125, 182, 199, 0.38)",
+    usage: "focus-visible outline around interactive controls",
+  },
+];
+
+const DEFAULT_APPEARANCE_POLICY = {
+  supported_modes: ["light", "dark", "system"],
+  default_mode: "system",
+  visible_toggle_default: false,
+  mode_resolution:
+    "system follows the user's operating-system or browser color-scheme preference",
+  visible_toggle_policy:
+    "Do not show an appearance toggle by default; add one only when the product activity requires a persistent user preference.",
+  persistence_policy:
+    "Do not store an appearance preference by default; system detection is the portable default.",
+  css_strategy: {
+    default_selector: ":root",
+    dark_query: "@media (prefers-color-scheme: dark)",
+    dark_selector: ":root",
+  },
+};
+
+const DEFAULT_APPEARANCE_TOKEN_SETS = [
+  {
+    mode: "light",
+    color_scheme: "light",
+    css_custom_properties: DEFAULT_CSS_CUSTOM_PROPERTIES,
+  },
+  {
+    mode: "dark",
+    color_scheme: "dark",
+    css_custom_properties: DEFAULT_DARK_CSS_CUSTOM_PROPERTIES,
+  },
+];
+
 const DEFAULT_FONT_ROLES = [
   {
     role: "body",
@@ -4349,6 +4505,8 @@ const DEFAULT_VISUAL_TOKEN_ADAPTER = {
   ],
   token_roles: DEFAULT_TOKEN_ROLES,
   css_custom_properties: DEFAULT_CSS_CUSTOM_PROPERTIES,
+  appearance_policy: DEFAULT_APPEARANCE_POLICY,
+  appearance_token_sets: DEFAULT_APPEARANCE_TOKEN_SETS,
   semantic_roles: [
     "surface",
     "text",
@@ -4801,6 +4959,100 @@ function normalizeCssCustomProperties(sourceValue, fallbackValue) {
     .filter(Boolean);
 }
 
+function normalizeAppearancePolicy(sourceValue, fallbackValue) {
+  const fallback = isPlainObject(fallbackValue)
+    ? fallbackValue
+    : DEFAULT_APPEARANCE_POLICY;
+  const source = isPlainObject(sourceValue) ? sourceValue : {};
+  const policy = mergePolicyObject(source, fallback);
+  const sourceCssStrategy = isPlainObject(source.css_strategy ?? source.cssStrategy)
+    ? source.css_strategy ?? source.cssStrategy
+    : {};
+  const fallbackCssStrategy = isPlainObject(fallback.css_strategy)
+    ? fallback.css_strategy
+    : DEFAULT_APPEARANCE_POLICY.css_strategy;
+
+  return {
+    ...policy,
+    supported_modes: normalizePrimitiveList(
+      policy.supported_modes ?? policy.supportedModes,
+      fallback.supported_modes,
+    ),
+    default_mode:
+      optionalString(policy.default_mode ?? policy.defaultMode) ||
+      fallback.default_mode,
+    visible_toggle_default:
+      typeof (policy.visible_toggle_default ?? policy.visibleToggleDefault) === "boolean"
+        ? policy.visible_toggle_default ?? policy.visibleToggleDefault
+        : fallback.visible_toggle_default,
+    mode_resolution:
+      optionalString(policy.mode_resolution ?? policy.modeResolution) ||
+      fallback.mode_resolution,
+    visible_toggle_policy:
+      optionalString(policy.visible_toggle_policy ?? policy.visibleTogglePolicy) ||
+      fallback.visible_toggle_policy,
+    persistence_policy:
+      optionalString(policy.persistence_policy ?? policy.persistencePolicy) ||
+      fallback.persistence_policy,
+    css_strategy: {
+      default_selector:
+        optionalRawString(
+          sourceCssStrategy.default_selector ?? sourceCssStrategy.defaultSelector,
+        ) || fallbackCssStrategy.default_selector,
+      dark_query:
+        optionalRawString(sourceCssStrategy.dark_query ?? sourceCssStrategy.darkQuery) ||
+        fallbackCssStrategy.dark_query,
+      dark_selector:
+        optionalRawString(
+          sourceCssStrategy.dark_selector ?? sourceCssStrategy.darkSelector,
+        ) || fallbackCssStrategy.dark_selector,
+    },
+  };
+}
+
+function normalizeAppearanceTokenSets(sourceValue, fallbackValue) {
+  const fallback = Array.isArray(fallbackValue)
+    ? fallbackValue
+    : DEFAULT_APPEARANCE_TOKEN_SETS;
+  const rawSets = Array.isArray(sourceValue) ? sourceValue : fallback;
+  const fallbackByMode = new Map(
+    fallback
+      .map((entry) => [normalizeText(entry.mode), entry])
+      .filter(([mode]) => Boolean(mode)),
+  );
+  const seen = new Set();
+
+  return rawSets
+    .map((entry) => {
+      if (!isPlainObject(entry)) {
+        return null;
+      }
+
+      const mode = optionalString(entry.mode);
+      const fallbackEntry = fallbackByMode.get(normalizeText(mode)) ?? {};
+      const normalizedMode = mode || optionalString(fallbackEntry.mode);
+      const normalizedModeKey = normalizeText(normalizedMode);
+
+      if (!normalizedModeKey || seen.has(normalizedModeKey)) {
+        return null;
+      }
+
+      seen.add(normalizedModeKey);
+      return {
+        mode: normalizedMode,
+        color_scheme:
+          optionalString(entry.color_scheme ?? entry.colorScheme) ||
+          optionalString(fallbackEntry.color_scheme) ||
+          normalizedMode,
+        css_custom_properties: normalizeCssCustomProperties(
+          firstDefined(entry.css_custom_properties, entry.cssCustomProperties),
+          fallbackEntry.css_custom_properties ?? DEFAULT_CSS_CUSTOM_PROPERTIES,
+        ),
+      };
+    })
+    .filter(Boolean);
+}
+
 function normalizeVisualTokenAdapter(sourcePolicy, fallbackPolicy) {
   const policy = mergePolicyObject(
     sourcePolicy,
@@ -4835,6 +5087,22 @@ function normalizeVisualTokenAdapter(sourcePolicy, fallbackPolicy) {
       ),
       fallback.css_custom_properties ??
         DEFAULT_VISUAL_TOKEN_ADAPTER.css_custom_properties,
+    ),
+    appearance_policy: normalizeAppearancePolicy(
+      firstDefined(
+        source.appearance_policy,
+        source.appearancePolicy,
+      ),
+      fallback.appearance_policy ??
+        DEFAULT_VISUAL_TOKEN_ADAPTER.appearance_policy,
+    ),
+    appearance_token_sets: normalizeAppearanceTokenSets(
+      firstDefined(
+        source.appearance_token_sets,
+        source.appearanceTokenSets,
+      ),
+      fallback.appearance_token_sets ??
+        DEFAULT_VISUAL_TOKEN_ADAPTER.appearance_token_sets,
     ),
     semantic_roles: normalizePrimitiveList(
       policy.semantic_roles ?? policy.semanticRoles,
@@ -8080,6 +8348,20 @@ function normalizeAdapterTokenGuidance(source, visualTokenAdapter) {
       ),
       visualTokenAdapter.css_custom_properties,
     ),
+    appearance_policy: normalizeAppearancePolicy(
+      firstDefined(
+        sourceObject.appearance_policy,
+        sourceObject.appearancePolicy,
+      ),
+      visualTokenAdapter.appearance_policy,
+    ),
+    appearance_token_sets: normalizeAppearanceTokenSets(
+      firstDefined(
+        sourceObject.appearance_token_sets,
+        sourceObject.appearanceTokenSets,
+      ),
+      visualTokenAdapter.appearance_token_sets,
+    ),
     semantic_roles: normalizePrimitiveList(
       sourceObject.semantic_roles ?? sourceObject.semanticRoles,
       visualTokenAdapter.semantic_roles,
@@ -8613,6 +8895,18 @@ function buildFrontendImplementationInstructionMarkdown({
       formatRoleEntries(
         designSystemPolicy.token_guidance?.css_custom_properties,
         (entry) => `${entry.name}: ${entry.value} (${entry.role})`,
+      ) || "none supplied"
+    }`,
+    `- Appearance default: ${designSystemPolicy.token_guidance?.appearance_policy?.default_mode || "system"}`,
+    `- Visible appearance toggle: ${
+      designSystemPolicy.token_guidance?.appearance_policy?.visible_toggle_default
+        ? "allowed by default"
+        : "not shown by default"
+    }`,
+    `- Appearance token sets: ${
+      formatRoleEntries(
+        designSystemPolicy.token_guidance?.appearance_token_sets,
+        (entry) => `${entry.mode}: ${entry.color_scheme}`,
       ) || "none supplied"
     }`,
     `- Font roles: ${

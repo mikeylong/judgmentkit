@@ -188,9 +188,12 @@ const platformNavCss = siteCss.match(/\.surfaces-navigation \{[^}]*\}/)?.[0] ?? 
 assert.ok(siteCss.includes("body {\n  margin: 0;\n  padding-top: 56px;"));
 assert.ok(
   siteCss.includes(
-    ".surfaces-navigation {\n  height: 56px;\n  background-color: rgba(255, 255, 255, 0.98);\n  border-bottom: 1px solid #e5e5e5;\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  width: 100%;",
+    ".surfaces-navigation {\n  height: 56px;\n  background-color: var(--nav-bg);\n  border-bottom: 1px solid var(--nav-border);\n  position: fixed;\n  top: 0;\n  left: 0;\n  right: 0;\n  width: 100%;",
   ),
 );
+assert.ok(siteCss.includes("color-scheme: light dark;"));
+assert.ok(siteCss.includes("@media (prefers-color-scheme: dark)"));
+assert.ok(siteCss.includes("--nav-bg: rgba(16, 19, 18, 0.96);"));
 assert.equal(platformNavCss.includes("position: sticky;"), false);
 assert.ok(siteCss.includes(".surfaces-primary-menu"));
 assert.ok(siteCss.includes(".surfaces-primary-menu-button"));
@@ -550,8 +553,14 @@ assert.ok(designSystemTokens.includes("<h1>Tokens</h1>"));
 assert.ok(designSystemTokens.includes("JudgmentKit token roles"));
 assert.ok(designSystemTokens.includes("Portable CSS custom properties"));
 assert.ok(designSystemTokens.includes("roles + CSS"));
+assert.ok(designSystemTokens.includes("<h2 id=\"appearance\">Appearance</h2>"));
+assert.ok(designSystemTokens.includes("system-detected"));
+assert.ok(designSystemTokens.includes('data-appearance-default="system"'));
+assert.ok(designSystemTokens.includes('data-visible-appearance-toggle="false"'));
 assert.ok(designSystemTokens.includes("--jk-color-surface"));
 assert.ok(designSystemTokens.includes("#ffffff"));
+assert.ok(designSystemTokens.includes("@media (prefers-color-scheme: dark)"));
+assert.ok(designSystemTokens.includes("#181d1b"));
 assert.ok(designSystemTokens.includes('data-token-value="--jk-color-surface"'));
 assert.ok(designSystemTokens.includes('data-token-swatch="--jk-color-surface"'));
 assert.ok(designSystemTokens.includes('aria-label="--jk-color-surface color swatch: #ffffff"'));
@@ -566,6 +575,10 @@ assert.ok(designSystemTokens.includes('data-token-role="focus"'));
 assert.ok(designSystemTokens.includes("<caption>JudgmentKit token roles</caption>"));
 assert.ok(designSystemTokens.includes("Accessibility"));
 assert.ok(designSystemTokens.includes("Color cannot be the only way"));
+assert.ok(designSystemTokensMarkdown.includes("## Appearance"));
+assert.ok(designSystemTokensMarkdown.includes("Default mode: `system`"));
+assert.ok(designSystemTokensMarkdown.includes("Visible appearance toggle by default: `false`"));
+assert.ok(designSystemTokensMarkdown.includes("Token sets: `light`, `dark`"));
 assert.equal(designSystemTokens.includes("Evidence Expectations"), false);
 assert.equal(designSystemTokens.includes("Failure Signals"), false);
 assert.ok(designSystemFonts.includes("<h1>Typography</h1>"));
@@ -742,6 +755,23 @@ assert.equal(designSystemManifest.source.lucide.icon_count, 1737);
 assert.ok(
   visualTokenAdapterExport.css_custom_properties.some(
     (entry) => entry.name === "--jk-color-surface" && entry.value === "#ffffff",
+  ),
+);
+assert.equal(visualTokenAdapterExport.appearance_policy.default_mode, "system");
+assert.equal(visualTokenAdapterExport.appearance_policy.visible_toggle_default, false);
+assert.deepEqual(visualTokenAdapterExport.appearance_policy.supported_modes, [
+  "light",
+  "dark",
+  "system",
+]);
+assert.ok(
+  visualTokenAdapterExport.appearance_token_sets.some(
+    (entry) =>
+      entry.mode === "dark" &&
+      entry.color_scheme === "dark" &&
+      entry.css_custom_properties.some(
+        (token) => token.name === "--jk-color-surface" && token.value === "#181d1b",
+      ),
   ),
 );
 assert.equal(componentContractsExport.source, "judgmentkit.ai-native-default.contract-v1");
@@ -952,6 +982,9 @@ assert.ok(examples.includes("/examples/ai-native-design-system/first-use.json"))
 assert.ok(examples.includes("/examples/ai-native-design-system/canonical-examples.json"));
 assert.ok(examples.includes("/design-system/icons/"));
 assert.ok(examples.includes("/examples/lucide-icon-catalog-smoke.html"));
+assert.ok(examples.includes("ED flow board MVP"));
+assert.ok(examples.includes("/examples/er-flow-dashboard/"));
+assert.ok(examples.includes("room occupancy, waiting acuity, turnover, holds, and charge-team next moves"));
 assert.ok(examples.includes("Tokens, system font stacks, and Lucide icon catalog policy remain governed metadata"));
 assert.ok(examples.includes("The design-system icon page is the reference surface"));
 assert.ok(examples.includes("this HTML remains the deterministic regression proof"));
@@ -1291,6 +1324,7 @@ assert.equal(siteRebuildLog.includes("judgmentkit2"), false);
 for (const copiedExamplePath of [
   ["examples", "one-shot-demo.html"],
   ["examples", "lucide-icon-catalog-smoke.html"],
+  ["examples", "er-flow-dashboard", "index.html"],
   ["examples", "comparison", "refund", "version-a.html"],
   ["examples", "comparison", "refund", "version-b.html"],
   ["examples", "model-ui", "refund-system-map", "index.html"],

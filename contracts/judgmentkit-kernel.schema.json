@@ -380,6 +380,50 @@
         "usage": { "type": "string" }
       }
     },
+    "appearancePolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "supported_modes",
+        "default_mode",
+        "visible_toggle_default",
+        "mode_resolution",
+        "visible_toggle_policy",
+        "persistence_policy",
+        "css_strategy"
+      ],
+      "properties": {
+        "supported_modes": { "type": "array", "items": { "type": "string" } },
+        "default_mode": { "type": "string" },
+        "visible_toggle_default": { "type": "boolean" },
+        "mode_resolution": { "type": "string" },
+        "visible_toggle_policy": { "type": "string" },
+        "persistence_policy": { "type": "string" },
+        "css_strategy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["default_selector", "dark_query", "dark_selector"],
+          "properties": {
+            "default_selector": { "type": "string" },
+            "dark_query": { "type": "string" },
+            "dark_selector": { "type": "string" }
+          }
+        }
+      }
+    },
+    "appearanceTokenSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "color_scheme", "css_custom_properties"],
+      "properties": {
+        "mode": { "type": "string" },
+        "color_scheme": { "type": "string" },
+        "css_custom_properties": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/cssCustomProperty" }
+        }
+      }
+    },
     "componentContract": {
       "type": "object",
       "additionalProperties": false,
@@ -611,6 +655,8 @@
             "token_families",
             "token_roles",
             "css_custom_properties",
+            "appearance_policy",
+            "appearance_token_sets",
             "semantic_roles",
             "font_roles",
             "font_rules",
@@ -632,6 +678,11 @@
             "css_custom_properties": {
               "type": "array",
               "items": { "$ref": "#/$defs/cssCustomProperty" }
+            },
+            "appearance_policy": { "$ref": "#/$defs/appearancePolicy" },
+            "appearance_token_sets": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/appearanceTokenSet" }
             },
             "semantic_roles": { "type": "array", "items": { "type": "string" } },
             "font_roles": { "type": "array", "items": { "$ref": "#/$defs/fontRole" } },

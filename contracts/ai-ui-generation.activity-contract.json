@@ -1918,6 +1918,275 @@
         "visual token, font, or icon evidence claims to pass accessibility, action, data-visibility, static, or browser gates without the required evidence",
         "unsupported token families, font roles, or icon roles are introduced without adapter evidence",
         "renderer, component package, catalog, compiler, or A2UI work is introduced in the boundary-only slice"
+      ],
+      "appearance_policy": {
+        "supported_modes": [
+          "light",
+          "dark",
+          "system"
+        ],
+        "default_mode": "system",
+        "visible_toggle_default": false,
+        "mode_resolution": "system follows the user's operating-system or browser color-scheme preference",
+        "visible_toggle_policy": "Do not show an appearance toggle by default; add one only when the product activity requires a persistent user preference",
+        "persistence_policy": "Do not store an appearance preference by default; system detection is the portable default",
+        "css_strategy": {
+          "default_selector": ":root",
+          "dark_query": "@media (prefers-color-scheme: dark)",
+          "dark_selector": ":root"
+        }
+      },
+      "appearance_token_sets": [
+        {
+          "mode": "light",
+          "color_scheme": "light",
+          "css_custom_properties": [
+            {
+              "name": "--jk-color-canvas",
+              "role": "surface",
+              "family": "color",
+              "value": "#f8f7f2",
+              "usage": "page canvas and application background"
+            },
+            {
+              "name": "--jk-color-surface",
+              "role": "surface",
+              "family": "color",
+              "value": "#ffffff",
+              "usage": "panels, cards, overlays, and work regions"
+            },
+            {
+              "name": "--jk-color-text",
+              "role": "text",
+              "family": "color",
+              "value": "#171717",
+              "usage": "primary readable text"
+            },
+            {
+              "name": "--jk-color-muted",
+              "role": "text",
+              "family": "color",
+              "value": "#61615c",
+              "usage": "secondary labels and supporting text"
+            },
+            {
+              "name": "--jk-color-border",
+              "role": "border",
+              "family": "color",
+              "value": "#d7d3c8",
+              "usage": "dividers, control outlines, and grouped evidence"
+            },
+            {
+              "name": "--jk-color-focus",
+              "role": "focus",
+              "family": "color",
+              "value": "#245f73",
+              "usage": "visible focus rings and active affordances"
+            },
+            {
+              "name": "--jk-color-success",
+              "role": "status",
+              "family": "color",
+              "value": "#2e6b48",
+              "usage": "approved, completed, and successful states"
+            },
+            {
+              "name": "--jk-color-warning",
+              "role": "status",
+              "family": "color",
+              "value": "#8a5a16",
+              "usage": "warning, waiting, and needs-attention states"
+            },
+            {
+              "name": "--jk-color-risk",
+              "role": "risk",
+              "family": "color",
+              "value": "#8f342f",
+              "usage": "risk, escalation, and destructive action states"
+            },
+            {
+              "name": "--jk-color-disabled",
+              "role": "disabled",
+              "family": "color",
+              "value": "#8a8f93",
+              "usage": "disabled controls with visible rationale"
+            },
+            {
+              "name": "--jk-color-receipt",
+              "role": "receipt",
+              "family": "color",
+              "value": "#23615f",
+              "usage": "handoff receipts and completion confirmation"
+            },
+            {
+              "name": "--jk-space-2",
+              "role": "surface",
+              "family": "spacing",
+              "value": "0.5rem",
+              "usage": "compact gaps inside dense controls"
+            },
+            {
+              "name": "--jk-space-3",
+              "role": "surface",
+              "family": "spacing",
+              "value": "0.75rem",
+              "usage": "row gaps and adjacent evidence spacing"
+            },
+            {
+              "name": "--jk-space-4",
+              "role": "surface",
+              "family": "spacing",
+              "value": "1rem",
+              "usage": "panel padding and section rhythm"
+            },
+            {
+              "name": "--jk-radius-control",
+              "role": "border",
+              "family": "radius",
+              "value": "4px",
+              "usage": "buttons, inputs, and compact controls"
+            },
+            {
+              "name": "--jk-radius-panel",
+              "role": "surface",
+              "family": "radius",
+              "value": "8px",
+              "usage": "cards, panels, and bounded work areas"
+            },
+            {
+              "name": "--jk-focus-ring",
+              "role": "focus",
+              "family": "semantic",
+              "value": "0 0 0 3px rgba(36, 95, 115, 0.28)",
+              "usage": "focus-visible outline around interactive controls"
+            }
+          ]
+        },
+        {
+          "mode": "dark",
+          "color_scheme": "dark",
+          "css_custom_properties": [
+            {
+              "name": "--jk-color-canvas",
+              "role": "surface",
+              "family": "color",
+              "value": "#101312",
+              "usage": "page canvas and application background"
+            },
+            {
+              "name": "--jk-color-surface",
+              "role": "surface",
+              "family": "color",
+              "value": "#181d1b",
+              "usage": "panels, cards, overlays, and work regions"
+            },
+            {
+              "name": "--jk-color-text",
+              "role": "text",
+              "family": "color",
+              "value": "#f2f4ef",
+              "usage": "primary readable text"
+            },
+            {
+              "name": "--jk-color-muted",
+              "role": "text",
+              "family": "color",
+              "value": "#b8c0bb",
+              "usage": "secondary labels and supporting text"
+            },
+            {
+              "name": "--jk-color-border",
+              "role": "border",
+              "family": "color",
+              "value": "#39423f",
+              "usage": "dividers, control outlines, and grouped evidence"
+            },
+            {
+              "name": "--jk-color-focus",
+              "role": "focus",
+              "family": "color",
+              "value": "#7db6c7",
+              "usage": "visible focus rings and active affordances"
+            },
+            {
+              "name": "--jk-color-success",
+              "role": "status",
+              "family": "color",
+              "value": "#82c99a",
+              "usage": "approved, completed, and successful states"
+            },
+            {
+              "name": "--jk-color-warning",
+              "role": "status",
+              "family": "color",
+              "value": "#e0b15d",
+              "usage": "warning, waiting, and needs-attention states"
+            },
+            {
+              "name": "--jk-color-risk",
+              "role": "risk",
+              "family": "color",
+              "value": "#e37d76",
+              "usage": "risk, escalation, and destructive action states"
+            },
+            {
+              "name": "--jk-color-disabled",
+              "role": "disabled",
+              "family": "color",
+              "value": "#7d8580",
+              "usage": "disabled controls with visible rationale"
+            },
+            {
+              "name": "--jk-color-receipt",
+              "role": "receipt",
+              "family": "color",
+              "value": "#80cbc7",
+              "usage": "handoff receipts and completion confirmation"
+            },
+            {
+              "name": "--jk-space-2",
+              "role": "surface",
+              "family": "spacing",
+              "value": "0.5rem",
+              "usage": "compact gaps inside dense controls"
+            },
+            {
+              "name": "--jk-space-3",
+              "role": "surface",
+              "family": "spacing",
+              "value": "0.75rem",
+              "usage": "row gaps and adjacent evidence spacing"
+            },
+            {
+              "name": "--jk-space-4",
+              "role": "surface",
+              "family": "spacing",
+              "value": "1rem",
+              "usage": "panel padding and section rhythm"
+            },
+            {
+              "name": "--jk-radius-control",
+              "role": "border",
+              "family": "radius",
+              "value": "4px",
+              "usage": "buttons, inputs, and compact controls"
+            },
+            {
+              "name": "--jk-radius-panel",
+              "role": "surface",
+              "family": "radius",
+              "value": "8px",
+              "usage": "cards, panels, and bounded work areas"
+            },
+            {
+              "name": "--jk-focus-ring",
+              "role": "focus",
+              "family": "semantic",
+              "value": "0 0 0 3px rgba(125, 182, 199, 0.38)",
+              "usage": "focus-visible outline around interactive controls"
+            }
+          ]
+        }
       ]
     },
     "visual_asset_policy": {

@@ -647,7 +647,7 @@ function systemMapFallbackSvg(titleId, descId) {
 
 const stylesheet = `
 :root {
-  color-scheme: light;
+  color-scheme: light dark;
   --bg: #f8f7f2;
   --ink: #171717;
   --muted: #61615c;
@@ -657,7 +657,26 @@ const stylesheet = `
   --accent-strong: #133f4e;
   --ok: #2e6b48;
   --warn: #8a5a16;
+  --nav-bg: rgba(255, 255, 255, 0.98);
+  --nav-border: #e5e5e5;
+  --nav-muted: #525252;
   --eval-serif: "Source Serif 4", "Iowan Old Style", Charter, "Palatino Linotype", "Book Antiqua", Georgia, serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #101312;
+    --ink: #f2f4ef;
+    --muted: #b8c0bb;
+    --line: #39423f;
+    --panel: #181d1b;
+    --accent: #7db6c7;
+    --accent-strong: #a9d7e4;
+    --ok: #82c99a;
+    --warn: #e0b15d;
+    --nav-bg: rgba(16, 19, 18, 0.96);
+    --nav-border: #29312e;
+    --nav-muted: #b8c0bb;
+  }
 }
 * {
   box-sizing: border-box;
@@ -681,8 +700,8 @@ a {
 }
 .surfaces-navigation {
   height: 56px;
-  background-color: rgba(255, 255, 255, 0.98);
-  border-bottom: 1px solid #e5e5e5;
+  background-color: var(--nav-bg);
+  border-bottom: 1px solid var(--nav-border);
   position: fixed;
   top: 0;
   left: 0;
@@ -722,7 +741,7 @@ a {
   gap: 32px;
 }
 .surfaces-navigation-sections a {
-  color: #525252;
+  color: var(--nav-muted);
   font-family: Inter, sans-serif;
   font-size: 14px;
   font-weight: 400;
@@ -731,7 +750,7 @@ a {
 }
 .surfaces-navigation-sections a:hover,
 .surfaces-navigation-sections a:focus-visible {
-  color: #171717;
+  color: var(--ink);
 }
 .surfaces-primary-menu {
   position: relative;
@@ -743,10 +762,10 @@ a {
   gap: 6px;
   min-height: 34px;
   padding: 5px 8px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--nav-border);
   border-radius: 4px;
-  background-color: #ffffff;
-  color: #525252;
+  background-color: var(--panel);
+  color: var(--nav-muted);
   cursor: pointer;
   font-family: Inter, sans-serif;
   font-size: 14px;
@@ -754,7 +773,7 @@ a {
 }
 .surfaces-primary-menu-button:hover,
 .surfaces-primary-menu-button:focus-visible {
-  color: #171717;
+  color: var(--ink);
   outline: 0;
 }
 .surfaces-primary-menu-button:focus-visible {
@@ -3858,10 +3877,27 @@ function markdownRoleList(entries, renderDetail) {
     .join("\n");
 }
 
-function cssCustomPropertyBlock(properties) {
-  return `:root {\n${properties
+function cssCustomPropertyBlock(properties, appearancePolicy, appearanceTokenSets) {
+  const lightProperties =
+    (appearanceTokenSets ?? []).find((entry) => entry.mode === "light")
+      ?.css_custom_properties ?? properties;
+  const darkProperties =
+    (appearanceTokenSets ?? []).find((entry) => entry.mode === "dark")
+      ?.css_custom_properties ?? [];
+  const darkQuery =
+    appearancePolicy?.css_strategy?.dark_query ?? "@media (prefers-color-scheme: dark)";
+  const darkSelector = appearancePolicy?.css_strategy?.dark_selector ?? ":root";
+  const rootBlock = `:root {\n  color-scheme: light dark;\n${lightProperties
     .map((entry) => `  ${entry.name}: ${entry.value};`)
     .join("\n")}\n}`;
+
+  if (!darkProperties.length) {
+    return rootBlock;
+  }
+
+  return `${rootBlock}\n\n${darkQuery} {\n  ${darkSelector} {\n${darkProperties
+    .map((entry) => `    ${entry.name}: ${entry.value};`)
+    .join("\n")}\n  }\n}`;
 }
 
 function renderCssCustomPropertyValue(row) {
@@ -5038,15 +5074,29 @@ function renderDesignSystemTokensPage(model) {
               value: "roles + CSS",
               detail: "Portable values ship as CSS custom properties.",
             },
+            {
+              label: "Appearance",
+              value: adapter.appearance_policy.default_mode,
+              detail: "Follows system preference; no visible toggle by default.",
+            },
           ])}
           <section class="design-system-section" aria-labelledby="usage">
             <h2 id="usage">Usage</h2>
             <p class="note">Use token roles to describe what a visual choice is doing: separating a surface, marking focus, showing status, identifying risk, or recording completion. The CSS custom properties below are portable defaults for generated interfaces; repo-approved design systems can replace the values after the activity and workflow gates are clear.</p>
           </section>
+          <section class="design-system-section" aria-labelledby="appearance">
+            <h2 id="appearance">Appearance</h2>
+            <p class="note" data-appearance-default="${escapeHtml(adapter.appearance_policy.default_mode)}" data-visible-appearance-toggle="${adapter.appearance_policy.visible_toggle_default ? "true" : "false"}">JudgmentKit provides light and dark values. The default is system-detected: generated surfaces should follow the user's operating-system or browser color-scheme preference. Do not add a visible appearance toggle unless the activity specifically needs a persistent preference.</p>
+            ${renderDesignSystemRuleList([
+              "Use light values as the default token map.",
+              "Use dark values inside the system color-scheme media query.",
+              "Keep appearance controls out of the UI unless they support the activity.",
+            ])}
+          </section>
           <section class="design-system-section" aria-labelledby="values">
             <h2 id="values">Values</h2>
             <p class="note">The role-first layer exists because agents need to choose visual intent before choosing a brand palette. The values make that intent renderable and reviewable without pretending this is a full component library.</p>
-            <pre><code>${escapeHtml(cssCustomPropertyBlock(adapter.css_custom_properties))}</code></pre>
+            <pre><code>${escapeHtml(cssCustomPropertyBlock(adapter.css_custom_properties, adapter.appearance_policy, adapter.appearance_token_sets))}</code></pre>
             ${renderDesignSystemTable({
               caption: "Portable CSS custom properties",
               columns: [
@@ -5665,9 +5715,15 @@ function renderDesignSystemPageMarkdown(model, pageEntry) {
       "## Token Families",
       markdownList(adapter.token_families.map((family) => `\`${family}\``)),
       "",
+      "## Appearance",
+      `- Default mode: \`${adapter.appearance_policy.default_mode}\``,
+      `- Visible appearance toggle by default: \`${adapter.appearance_policy.visible_toggle_default ? "true" : "false"}\``,
+      `- Policy: ${adapter.appearance_policy.visible_toggle_policy}`,
+      `- Token sets: ${(adapter.appearance_token_sets ?? []).map((entry) => `\`${entry.mode}\``).join(", ")}`,
+      "",
       "## Portable CSS Defaults",
       "```css",
-      cssCustomPropertyBlock(adapter.css_custom_properties),
+      cssCustomPropertyBlock(adapter.css_custom_properties, adapter.appearance_policy, adapter.appearance_token_sets),
       "```",
       "",
       markdownList(

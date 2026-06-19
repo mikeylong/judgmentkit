@@ -368,6 +368,8 @@ assert.deepEqual(
     "token_families",
     "token_roles",
     "css_custom_properties",
+    "appearance_policy",
+    "appearance_token_sets",
     "semantic_roles",
     "font_roles",
     "font_rules",
@@ -382,6 +384,25 @@ assert.deepEqual(
   ],
   "The schema must require the visual token adapter shape.",
 );
+assert.deepEqual(
+  schema.$defs.appearancePolicy.required,
+  [
+    "supported_modes",
+    "default_mode",
+    "visible_toggle_default",
+    "mode_resolution",
+    "visible_toggle_policy",
+    "persistence_policy",
+    "css_strategy",
+  ],
+  "The schema must require the appearance policy shape.",
+);
+const appearancePolicy =
+  createUiImplementationContract().implementation_contract.visual_token_adapter
+    .appearance_policy;
+assert.equal(appearancePolicy.default_mode, "system");
+assert.equal(appearancePolicy.visible_toggle_default, false);
+assert.equal(appearancePolicy.css_strategy.dark_query, "@media (prefers-color-scheme: dark)");
 assert.deepEqual(
   schema.$defs.implementationContract.properties.accessibility_policy.required,
   [

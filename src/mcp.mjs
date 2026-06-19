@@ -841,6 +841,25 @@ function formatImplementationContractCard(result) {
     listLine("Accessibility evidence", accessibilityPolicy.required_evidence),
     firstLine("Visual token adapter", visualTokenAdapter.mode),
     listLine("Visual token families", visualTokenAdapter.token_families),
+    firstLine(
+      "Appearance default",
+      visualTokenAdapter.appearance_policy?.default_mode,
+    ),
+    firstLine(
+      "Visible appearance toggle",
+      typeof visualTokenAdapter.appearance_policy?.visible_toggle_default === "boolean"
+        ? visualTokenAdapter.appearance_policy.visible_toggle_default
+          ? "shown by default"
+          : "not shown by default"
+        : "",
+    ),
+    listLine(
+      "Appearance token sets",
+      (Array.isArray(visualTokenAdapter.appearance_token_sets)
+        ? visualTokenAdapter.appearance_token_sets
+        : []
+      ).map((entry) => [entry.mode, entry.color_scheme].filter(Boolean).join(": ")),
+    ),
     listLine(
       "Token roles",
       roleSummaryList(
