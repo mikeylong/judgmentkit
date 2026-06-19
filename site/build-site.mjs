@@ -9,6 +9,12 @@ import { build as buildWithEsbuild } from "esbuild";
 import {
   JUDGMENTKIT_MCP_TOOL_NAMES,
 } from "../scripts/install-mcp.mjs";
+import {
+  createUiImplementationContract,
+  getIconSvg,
+  listIconCatalog,
+  searchIconCatalog,
+} from "../src/index.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
@@ -152,9 +158,132 @@ const platformSites = [
 const primaryNavLinks = [
   { label: "Value", href: "/value/" },
   { label: "Docs", href: "/docs/" },
+  { label: "Design System", href: "/design-system/" },
   { label: "Examples", href: "/examples/" },
   { label: "Evals", href: "/evals/" },
   { label: "MCP", href: "/mcp" },
+];
+
+const DESIGN_SYSTEM_ROUTES = [
+  "/design-system/",
+  "/design-system/tokens/",
+  "/design-system/fonts/",
+  "/design-system/icons/",
+];
+
+const ICON_PAGE_SCENARIOS = [
+  {
+    id: "status-success",
+    label: "Status success",
+    query: "check",
+    expected_icon_id: "check",
+    intent: "Show a completed status beside a visible result label.",
+  },
+  {
+    id: "status-info",
+    label: "Information",
+    query: "info",
+    expected_icon_id: "info",
+    intent: "Mark supporting context without replacing visible text.",
+  },
+  {
+    id: "navigation-next",
+    label: "Navigate next",
+    query: "chevron right",
+    expected_icon_id: "chevron-right",
+    intent: "Indicate a drill-in or next-item affordance.",
+  },
+  {
+    id: "filter-list",
+    label: "Filter list",
+    query: "list filter",
+    expected_icon_id: "list-filter",
+    intent: "Narrow a queue or worklist with an icon-backed control.",
+  },
+  {
+    id: "send-message",
+    label: "Send handoff",
+    query: "send",
+    expected_icon_id: "send",
+    intent: "Submit or forward a completed handoff.",
+  },
+  {
+    id: "receipt-record",
+    label: "Receipt text",
+    query: "receipt text",
+    expected_icon_id: "receipt-text",
+    intent: "Represent a completion receipt or record.",
+  },
+  {
+    id: "settings",
+    label: "Settings",
+    query: "settings",
+    expected_icon_id: "settings",
+    intent: "Open bounded configuration controls.",
+  },
+  {
+    id: "calendar",
+    label: "Calendar",
+    query: "calendar",
+    expected_icon_id: "calendar",
+    intent: "Represent scheduled work or date selection.",
+  },
+  {
+    id: "search",
+    label: "Search",
+    query: "search",
+    expected_icon_id: "search",
+    intent: "Find a case, record, or catalog entry.",
+  },
+  {
+    id: "download",
+    label: "Download",
+    query: "download",
+    expected_icon_id: "download",
+    intent: "Export or save a generated artifact.",
+  },
+  {
+    id: "upload",
+    label: "Upload",
+    query: "upload",
+    expected_icon_id: "upload",
+    intent: "Import a file or handoff attachment.",
+  },
+  {
+    id: "delete",
+    label: "Delete",
+    query: "trash 2",
+    expected_icon_id: "trash-2",
+    intent: "Mark a destructive action with explicit visible text.",
+  },
+  {
+    id: "user",
+    label: "User",
+    query: "user",
+    expected_icon_id: "user",
+    intent: "Represent a person, owner, or participant.",
+  },
+  {
+    id: "notification",
+    label: "Bell",
+    query: "bell",
+    expected_icon_id: "bell",
+    intent: "Show a notification or alert entry point.",
+  },
+  {
+    id: "chart",
+    label: "Chart column",
+    query: "chart column",
+    expected_icon_id: "chart-column",
+    intent: "Represent a metric or summary visualization.",
+  },
+  {
+    id: "risk-alert",
+    label: "Circle alert",
+    query: "circle alert",
+    expected_icon_id: "circle-alert",
+    intent: "Mark risk or escalation beside a visible reason.",
+  },
 ];
 
 function renderPlatformHeader() {
@@ -1290,6 +1419,429 @@ pre {
 }
 .doc-section {
   padding-bottom: 28px;
+}
+.design-system-page {
+  padding-top: clamp(36px, 5vw, 62px);
+}
+.design-system-layout {
+  max-width: 1220px;
+  margin: 0 auto;
+}
+.design-system-content {
+  min-width: 0;
+}
+.design-system-content h1 {
+  max-width: 14ch;
+}
+.design-system-hero {
+  display: grid;
+  gap: 14px;
+}
+.design-system-on-this-page {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-top: 8px;
+}
+.design-system-on-this-page span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.design-system-on-this-page a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fbfaf6;
+  color: var(--ink);
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+}
+.design-system-nav a[aria-current="page"] {
+  color: var(--accent-strong);
+  font-weight: 900;
+}
+.design-system-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  margin: 24px 0 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-metrics div {
+  min-width: 0;
+  padding: 15px;
+  border-right: 1px solid var(--line);
+}
+.design-system-metrics div:last-child {
+  border-right: 0;
+}
+.design-system-metrics dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.design-system-metrics dd {
+  margin: 4px 0 0;
+  font-size: clamp(20px, 3vw, 30px);
+  font-weight: 900;
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+.design-system-metrics p {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.design-system-section {
+  padding-top: clamp(28px, 5vw, 48px);
+}
+.design-system-foundation-list,
+.design-system-step-list,
+.design-system-example-grid,
+.design-icon-index-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.design-system-foundation-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.design-system-foundation-list article {
+  display: grid;
+  gap: 10px;
+  min-height: 100%;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-foundation-list h3,
+.design-system-foundation-list p {
+  margin: 0;
+}
+.design-system-step-list {
+  display: grid;
+  gap: 10px;
+  counter-reset: design-system-step;
+}
+.design-system-step-list li {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-step-list li::before {
+  counter-increment: design-system-step;
+  content: counter(design-system-step);
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+}
+.design-system-review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+.design-system-review-grid article,
+.design-system-example-grid article {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-example-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.design-system-example-grid li {
+  min-width: 0;
+}
+.design-system-example-grid h3 {
+  margin-bottom: 10px;
+}
+.design-system-review-grid h2 {
+  margin-bottom: 12px;
+  font-size: clamp(22px, 2.6vw, 30px);
+}
+.design-system-example-grid dl {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+.design-system-example-grid dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.design-system-example-grid dd {
+  margin: 3px 0 0;
+}
+.design-system-agent-links {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.design-system-agent-links li {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.design-system-role-grid,
+.design-icon-scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+.design-system-role-card,
+.design-icon-scenario,
+.design-icon-tile {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-role-card {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+}
+.design-system-role-card h3,
+.design-system-role-card p {
+  margin: 0;
+}
+.design-system-role-card dl,
+.design-icon-scenario dl {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+}
+.design-system-role-card dl div,
+.design-icon-scenario dl div {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 8px;
+}
+.design-system-role-card dt,
+.design-icon-scenario dt {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.design-system-role-card dd,
+.design-icon-scenario dd {
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.design-system-role-card code,
+.design-icon-scenario code {
+  font-size: 12px;
+}
+.design-system-rule-list {
+  display: grid;
+  gap: 10px;
+  max-width: 880px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.design-system-rule-list li {
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-rule-list-risk li {
+  border-color: rgba(138, 90, 22, 0.28);
+  background: rgba(138, 90, 22, 0.06);
+}
+.design-system-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.design-system-table caption {
+  padding: 12px 14px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-align: left;
+  text-transform: uppercase;
+}
+.design-system-table th,
+.design-system-table td {
+  padding: 12px 14px;
+  border-top: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+.design-system-table th {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.font-specimen {
+  display: inline-block;
+  min-width: max-content;
+}
+.font-specimen-heading {
+  font-weight: 900;
+  font-size: 18px;
+}
+.font-specimen-label {
+  font-size: 12px;
+  font-weight: 850;
+  text-transform: uppercase;
+}
+.font-specimen-numeric {
+  font-variant-numeric: tabular-nums;
+}
+.font-specimen-diagnostic {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+}
+.design-icon-scenario {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  min-height: 178px;
+  padding: 14px;
+}
+.design-icon-scenario h3,
+.design-icon-scenario p {
+  margin: 0;
+}
+.design-icon-scenario p {
+  margin-bottom: 12px;
+}
+.design-icon-tile {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  min-height: 46px;
+  padding: 9px;
+}
+.design-icon-tile span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+.design-icon-symbol {
+  display: grid;
+  width: 28px;
+  min-height: 28px;
+  place-items: center;
+  color: var(--accent);
+}
+.design-icon-symbol svg {
+  width: 24px;
+  height: 24px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.design-system-search {
+  display: block;
+  margin: 16px 0;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-system-search form {
+  display: grid;
+  gap: 10px;
+}
+.design-system-search label {
+  font-weight: 850;
+}
+.design-system-search form > div {
+  display: flex;
+  gap: 8px;
+}
+.design-system-search input {
+  min-width: 0;
+  flex: 1;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font: inherit;
+}
+.design-system-search button {
+  min-height: 42px;
+  padding: 8px 13px;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 900;
+}
+.design-icon-index-list {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+.design-icon-index-list li {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+}
+.design-icon-index-list code,
+.design-icon-index-list span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.design-icon-index-list span {
+  color: var(--muted);
+  font-size: 12px;
 }
 .examples-page {
   padding-top: clamp(36px, 5vw, 62px);
@@ -2434,6 +2986,22 @@ pre {
   .report-summary div:last-child {
     border-bottom: 0;
   }
+  .design-system-metrics,
+  .design-system-foundation-list,
+  .design-system-review-grid,
+  .design-system-example-grid,
+  .design-system-role-grid,
+  .design-icon-scenario-grid,
+  .design-icon-index-list {
+    grid-template-columns: 1fr;
+  }
+  .design-system-metrics div {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .design-system-metrics div:last-child {
+    border-bottom: 0;
+  }
 }
 @media (max-width: 767px) {
   .surfaces-navigation-inner {
@@ -2536,7 +3104,7 @@ function homepage() {
               <p><strong>Surface type:</strong> <code>recommend_surface_types</code> classifies activity purpose before workflow or frontend implementation guidance.</p>
               <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
               <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies approved primitives, required states, static checks, browser QA expectations, visual asset policy, and accessibility evidence expectations before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract.</p>
-              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions, semantic token roles, system font stacks, and embedded SVG icon defaults without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
+              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions, semantic token roles, system font stacks, and Lucide icon catalog policy without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
         <p><strong>Iteration:</strong> draft review produces updated context that re-enters source/activity review rather than becoming only a longer prompt.</p>
       </div>
       <p class="system-branch"><strong>Blocked path:</strong> if activity, workflow, or handoff is not ready, resolve targeted questions or leakage details before generating UI.</p>
@@ -2624,6 +3192,916 @@ function renderValueEvidenceLinks(links) {
   return links
     .map((link) => `<a class="pill-link" href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>`)
     .join("\n          ");
+}
+
+function defaultVisualTokenAdapter() {
+  return createUiImplementationContract().implementation_contract.visual_token_adapter;
+}
+
+function stripIconScenarioForExport(scenario) {
+  const { inline_svg: _inlineSvg, ...exportedScenario } = scenario;
+  return exportedScenario;
+}
+
+function markdownList(items) {
+  return items.map((item) => `- ${item}`).join("\n");
+}
+
+function markdownRoleList(entries, renderDetail) {
+  return entries
+    .map((entry) => `- \`${entry.role}\`: ${renderDetail(entry)}`)
+    .join("\n");
+}
+
+function designSystemExports(model) {
+  return {
+    manifest: {
+      section: "JudgmentKit Design System",
+      purpose: "Human reference for foundation assets.",
+      routes: model.pages.map((pageEntry) => ({
+        id: pageEntry.id,
+        title: pageEntry.title,
+        html: pageEntry.path,
+        markdown: pageEntry.markdown_path,
+      })),
+      exports: {
+        manifest: "/design-system/manifest.json",
+        visual_token_adapter: "/design-system/visual-token-adapter.json",
+        icon_scenarios: "/design-system/icon-scenarios.json",
+        llms: "/design-system/llms.txt",
+        llms_full: "/design-system/llms-full.txt",
+      },
+      source: {
+        visual_token_adapter_id: model.adapter.id,
+        lucide: model.adapter.icon_catalog,
+      },
+      principles: model.principles,
+    },
+    visualTokenAdapter: model.adapter,
+    iconScenarios: {
+      source: {
+        library: model.adapter.icon_catalog.library,
+        package: model.adapter.icon_catalog.package,
+        version: model.adapter.icon_catalog.version,
+        icon_count: model.adapter.icon_catalog.icon_count,
+      },
+      mcp_tools: model.adapter.icon_catalog.mcp_tools,
+      scenarios: model.icon_scenarios.map(stripIconScenarioForExport),
+    },
+  };
+}
+
+function buildDesignSystemIconIndex() {
+  const icons = [];
+  let cursor;
+
+  do {
+    const pageResult = listIconCatalog({
+      limit: 100,
+      cursor,
+      include_svg: false,
+    });
+    icons.push(...pageResult.icons);
+    cursor = pageResult.next_cursor;
+  } while (cursor);
+
+  return icons.map((icon) => ({
+    id: icon.id,
+    name: icon.name,
+    aliases: icon.aliases ?? [],
+    categories: icon.categories ?? [],
+    tags: icon.tags ?? [],
+    search_terms: icon.search_terms ?? [],
+  }));
+}
+
+function buildDesignSystemContentModel() {
+  const adapter = defaultVisualTokenAdapter();
+  const iconScenarios = buildDesignSystemIconScenarios();
+  const iconIndex = buildDesignSystemIconIndex();
+  const pages = [
+    {
+      id: "overview",
+      title: "JudgmentKit Design System",
+      nav_label: "Overview",
+      path: "/design-system/",
+      markdown_path: "/design-system/index.html.md",
+      heading: "Foundations",
+      eyebrow: "Design system",
+      summary:
+        "Foundation assets for reviewing and building JudgmentKit interfaces: tokens, typography, and icons.",
+      sections: ["Foundation assets", "How to review", "Principles"],
+      examples: [
+        {
+          title: "Review a generated interface",
+          use: "Start with the task and workflow, then use foundations to check consistency, hierarchy, and meaning.",
+          caution: "Do not use visual polish as proof that the interface supports the right work.",
+        },
+      ],
+    },
+    {
+      id: "tokens",
+      title: "JudgmentKit Tokens",
+      nav_label: "Tokens",
+      path: "/design-system/tokens/",
+      markdown_path: "/design-system/tokens/index.html.md",
+      heading: "Tokens",
+      eyebrow: "Foundations",
+      summary:
+        "Semantic roles for color, spacing, borders, focus, status, risk, disabled states, and receipts.",
+      sections: ["Usage", "Token roles", "Examples", "Accessibility"],
+      examples: [
+        {
+          title: "Status that has visible meaning",
+          use: "Pair status color with text such as Approved, Warning, Returned, or Complete.",
+          caution: "Do not rely on color alone for decisions, errors, or progress.",
+        },
+        {
+          title: "Focus that is easy to find",
+          use: "Use focus roles for keyboard-visible controls and clear active regions.",
+          caution: "Do not remove focus styling to make a layout look cleaner.",
+        },
+      ],
+    },
+    {
+      id: "fonts",
+      title: "JudgmentKit Typography",
+      nav_label: "Typography",
+      path: "/design-system/fonts/",
+      markdown_path: "/design-system/fonts/index.html.md",
+      heading: "Typography",
+      eyebrow: "Foundations",
+      summary:
+        "System font roles for readable interface text without remote font files or bundled font assets.",
+      sections: ["Usage", "Type roles", "Examples", "Accessibility"],
+      examples: [
+        {
+          title: "Numeric values",
+          use: "Use the numeric role for counts, prices, times, and aligned values.",
+          caution: "Do not use proportional number rendering where column comparison matters.",
+        },
+        {
+          title: "Diagnostic text",
+          use: "Reserve monospace for setup, debugging, auditing, integration, or source inspection screens.",
+          caution: "Do not make technical identifiers the primary product vocabulary.",
+        },
+      ],
+    },
+    {
+      id: "icons",
+      title: "JudgmentKit Icons",
+      nav_label: "Icons",
+      path: "/design-system/icons/",
+      markdown_path: "/design-system/icons/index.html.md",
+      heading: "Icons",
+      eyebrow: "Foundations",
+      summary:
+        "A complete Lucide icon catalog with one coherent 24px outline style, plus common examples for interface meaning.",
+      sections: ["Usage", "Icon examples", "Icon index", "Accessibility", "Source"],
+      examples: [
+        {
+          title: "Meaningful icon",
+          use: "Pair the icon with visible text when it communicates status, navigation, or action meaning.",
+          caution: "Do not make an icon-only control depend on visual recognition alone.",
+        },
+        {
+          title: "Consistent family",
+          use: "Choose from the committed Lucide catalog so line weight, caps, joins, and proportions stay consistent.",
+          caution: "Do not mix unrelated icon packs in the same interface.",
+        },
+      ],
+    },
+  ];
+
+  const foundationAssets = [
+    {
+      title: "Tokens",
+      href: "/design-system/tokens/",
+      summary:
+        "Semantic roles for surfaces, text, borders, focus, statuses, decisions, risk, disabled states, and receipts.",
+      meta: `${adapter.token_roles.length} roles`,
+    },
+    {
+      title: "Typography",
+      href: "/design-system/fonts/",
+      summary:
+        "System font stacks for body, heading, label, numeric, and diagnostic text.",
+      meta: `${adapter.font_roles.length} roles`,
+    },
+    {
+      title: "Icons",
+      href: "/design-system/icons/",
+      summary:
+        "A committed Lucide catalog for selecting one consistent icon family.",
+      meta: `${adapter.icon_catalog.icon_count} icons`,
+    },
+  ];
+
+  const principles = [
+    "Start with the work the interface supports; foundations refine that work after the structure is sound.",
+    "Use visible labels, semantic HTML, and accessibility evidence when color, type, or icons carry meaning.",
+    "Keep tokens, typography, and icons consistent without turning them into a component catalog or renderer.",
+    "Use complete source details for review, but keep source mechanics out of the primary browsing path.",
+  ];
+
+  const model = {
+    id: "judgmentkit-design-system",
+    generated_from: "createUiImplementationContract.visual_token_adapter",
+    adapter,
+    icon_index: iconIndex,
+    icon_scenarios: iconScenarios,
+    foundation_assets: foundationAssets,
+    pages,
+    principles,
+  };
+
+  return {
+    ...model,
+    exports: designSystemExports(model),
+  };
+}
+
+function renderDesignSystemNav(model, activeId) {
+  return `<aside class="doc-nav design-system-nav" aria-label="Design system sections">
+          ${model.pages
+            .map(
+              (pageEntry) =>
+                `<a href="${pageEntry.path}"${pageEntry.id === activeId ? ' aria-current="page"' : ""}>${escapeHtml(pageEntry.nav_label)}</a>`,
+            )
+            .join("\n          ")}
+        </aside>`;
+}
+
+function renderDesignSystemOnThisPage(pageEntry) {
+  return `<nav class="design-system-on-this-page" aria-label="On this page">
+            <span>On this page</span>
+            ${pageEntry.sections
+              .map((label) => `<a href="#${escapeHtml(slugId(label))}">${escapeHtml(label)}</a>`)
+              .join("\n            ")}
+          </nav>`;
+}
+
+function renderDesignSystemLayout(model, activeId, content) {
+  return `
+    <section class="section design-system-page" data-design-system-page="${escapeHtml(activeId)}">
+      <div class="doc-layout design-system-layout">
+        ${renderDesignSystemNav(model, activeId)}
+        <div class="design-system-content">
+          ${content}
+        </div>
+      </div>
+    </section>`;
+}
+
+function renderDesignSystemHero(pageEntry) {
+  return `<header class="design-system-hero">
+            <p class="eyebrow">${escapeHtml(pageEntry.eyebrow)}</p>
+            <h1>${escapeHtml(pageEntry.heading)}</h1>
+            <p class="lede">${escapeHtml(pageEntry.summary)}</p>
+            ${renderDesignSystemOnThisPage(pageEntry)}
+          </header>`;
+}
+
+function renderDesignSystemMetric(label, value, detail = "") {
+  return `<div><dt>${escapeHtml(label)}</dt><dd>${escapeHtml(value)}</dd>${detail ? `<p>${escapeHtml(detail)}</p>` : ""}</div>`;
+}
+
+function renderDesignSystemMetrics(metrics) {
+  return `<dl class="design-system-metrics">
+          ${metrics.map((metric) => renderDesignSystemMetric(metric.label, metric.value, metric.detail)).join("\n          ")}
+        </dl>`;
+}
+
+function renderDesignSystemRuleList(items, className = "design-system-rule-list") {
+  return `<ul class="${className}">
+          ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("\n          ")}
+        </ul>`;
+}
+
+function renderDesignSystemExamples(pageEntry) {
+  if (!pageEntry.examples?.length) {
+    return "";
+  }
+
+  return `<section class="design-system-section" aria-labelledby="examples">
+            <h2 id="examples">Examples</h2>
+            <ul class="design-system-example-grid">
+              ${pageEntry.examples
+                .map(
+                  (example) => `<li>
+                <article>
+                  <h3>${escapeHtml(example.title)}</h3>
+                  <dl>
+                    <div><dt>Use</dt><dd>${escapeHtml(example.use)}</dd></div>
+                    <div><dt>Watch for</dt><dd>${escapeHtml(example.caution)}</dd></div>
+                  </dl>
+                </article>
+              </li>`,
+                )
+                .join("\n              ")}
+            </ul>
+          </section>`;
+}
+
+function renderDesignSystemTable({ caption, columns, rows, rowAttributes = () => "" }) {
+  return `<div class="design-system-table-wrap">
+            <table class="design-system-table">
+              <caption>${escapeHtml(caption)}</caption>
+              <thead>
+                <tr>
+                  ${columns.map((column) => `<th scope="col">${escapeHtml(column.label)}</th>`).join("")}
+                </tr>
+              </thead>
+              <tbody>
+                ${rows
+                  .map(
+                    (row) => `<tr${rowAttributes(row) ? ` ${rowAttributes(row)}` : ""}>
+                  ${columns
+                    .map((column) => {
+                      const value = column.render ? column.render(row) : escapeHtml(row[column.key] ?? "");
+                      return `<td>${value}</td>`;
+                    })
+                    .join("")}
+                </tr>`,
+                  )
+                  .join("\n                ")}
+              </tbody>
+            </table>
+          </div>`;
+}
+
+function designSystemPageById(model, id) {
+  const pageEntry = model.pages.find((entry) => entry.id === id);
+  if (!pageEntry) {
+    throw new Error(`Unknown design-system page: ${id}`);
+  }
+  return pageEntry;
+}
+
+function slugId(value) {
+  return String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function tokenReviewNote(role) {
+  const notes = {
+    surface: "Check that panels, overlays, and page regions are visually distinct without adding clutter.",
+    text: "Check readable contrast, line length, and hierarchy before decorative styling.",
+    border: "Use borders to clarify grouping, control bounds, and evidence adjacency.",
+    focus: "Keyboard focus must remain visible and easy to follow.",
+    status: "Pair status treatment with visible words and state changes.",
+    decision: "Primary and destructive actions need clear separation and labels.",
+    risk: "Escalation and destructive states need visible context, not just stronger color.",
+    disabled: "Disabled controls need an unavailable reason when the next step matters.",
+    receipt: "Completion states should leave a clear confirmation or handoff record.",
+  };
+
+  return notes[role] ?? "Check that the role supports visible work on the page.";
+}
+
+function renderDesignSystemOverviewPage(model) {
+  const adapter = model.adapter;
+  const iconCatalog = adapter.icon_catalog;
+  const pageEntry = designSystemPageById(model, "overview");
+
+  return page(
+    pageEntry.title,
+    renderDesignSystemLayout(
+      model,
+      "overview",
+      `
+          ${renderDesignSystemHero(pageEntry)}
+          ${renderDesignSystemMetrics([
+            {
+              label: "Token roles",
+              value: adapter.token_roles.length,
+              detail: "Semantic foundation roles.",
+            },
+            {
+              label: "Type roles",
+              value: adapter.font_roles.length,
+              detail: "System font stacks.",
+            },
+            {
+              label: "Icons",
+              value: iconCatalog.icon_count,
+              detail: `${iconCatalog.package}@${iconCatalog.version}`,
+            },
+          ])}
+          <section class="design-system-section" aria-labelledby="foundation-assets">
+            <h2 id="foundation-assets">Foundation assets</h2>
+            <ul class="design-system-foundation-list">
+              ${model.foundation_assets
+                .map(
+                  (asset) => `<li>
+                <article>
+                  <p class="status">${escapeHtml(asset.meta)}</p>
+                  <h3>${escapeHtml(asset.title)}</h3>
+                  <p>${escapeHtml(asset.summary)}</p>
+                  <a class="pill-link" href="${escapeHtml(asset.href)}">Open ${escapeHtml(asset.title)}</a>
+                </article>
+              </li>`,
+                )
+                .join("\n              ")}
+            </ul>
+          </section>
+          <section class="design-system-section" aria-labelledby="how-to-review">
+            <h2 id="how-to-review">How to review</h2>
+            <ol class="design-system-step-list">
+              <li>Confirm the interface supports the right task and workflow.</li>
+              <li>Use foundations to review hierarchy, meaning, consistency, and source constraints.</li>
+              <li>Check accessibility evidence when color, type, or icons communicate meaning.</li>
+              <li>Reference stable asset names when implementation or review feedback needs precision.</li>
+            </ol>
+          </section>
+          <section class="design-system-section" aria-labelledby="principles">
+            <h2 id="principles">Principles</h2>
+            ${renderDesignSystemRuleList(model.principles)}
+          </section>
+          ${renderDesignSystemExamples(pageEntry)}
+        `,
+    ),
+    {
+      description:
+        "JudgmentKit design-system foundations: tokens, typography, and icons for human review.",
+      path: "/design-system/",
+    },
+  );
+}
+
+function renderDesignSystemTokensPage(model) {
+  const adapter = model.adapter;
+  const pageEntry = designSystemPageById(model, "tokens");
+
+  return page(
+    pageEntry.title,
+    renderDesignSystemLayout(
+      model,
+      "tokens",
+      `
+          ${renderDesignSystemHero(pageEntry)}
+          ${renderDesignSystemMetrics([
+            {
+              label: "Families",
+              value: adapter.token_families.length,
+              detail: adapter.token_families.join(", "),
+            },
+            {
+              label: "Roles",
+              value: adapter.token_roles.length,
+              detail: "Named by meaning, not raw values.",
+            },
+            {
+              label: "Current scope",
+              value: "roles",
+              detail: "Concrete token values can be added later.",
+            },
+          ])}
+          <section class="design-system-section" aria-labelledby="usage">
+            <h2 id="usage">Usage</h2>
+            <p class="note">Use token roles to describe what a visual choice is doing: separating a surface, marking focus, showing status, identifying risk, or recording completion.</p>
+          </section>
+          <section class="design-system-section" aria-labelledby="token-roles">
+            <h2 id="token-roles">Token roles</h2>
+            ${renderDesignSystemTable({
+              caption: "JudgmentKit token roles",
+              columns: [
+                {
+                  key: "role",
+                  label: "Role",
+                  render: (row) => `<code>${escapeHtml(row.role)}</code>`,
+                },
+                {
+                  key: "families",
+                  label: "Families",
+                  render: (row) => escapeHtml((row.families ?? []).join(", ")),
+                },
+                {
+                  key: "usage",
+                  label: "Use",
+                },
+                {
+                  key: "review",
+                  label: "Review check",
+                  render: (row) => escapeHtml(tokenReviewNote(row.role)),
+                },
+              ],
+              rows: adapter.token_roles,
+              rowAttributes: (row) => `data-token-role="${escapeHtml(row.role)}"`,
+            })}
+          </section>
+          ${renderDesignSystemExamples(pageEntry)}
+          <section class="design-system-section" aria-labelledby="accessibility">
+            <h2 id="accessibility">Accessibility</h2>
+            ${renderDesignSystemRuleList([
+              "Color cannot be the only way a user understands status, error, risk, or completion.",
+              "Focus treatment must be visible for keyboard users and must not be hidden by surrounding layout.",
+              "Status, risk, disabled, and receipt states need visible text or nearby context.",
+            ])}
+          </section>
+        `,
+    ),
+    {
+      description:
+        "JudgmentKit token roles for design-system foundations.",
+      path: "/design-system/tokens/",
+    },
+  );
+}
+
+function renderDesignSystemFontsPage(model) {
+  const adapter = model.adapter;
+  const pageEntry = designSystemPageById(model, "fonts");
+
+  return page(
+    pageEntry.title,
+    renderDesignSystemLayout(
+      model,
+      "fonts",
+      `
+          ${renderDesignSystemHero(pageEntry)}
+          ${renderDesignSystemMetrics([
+            {
+              label: "Type roles",
+              value: adapter.font_roles.length,
+              detail: "body, heading, label, numeric, diagnostic",
+            },
+            {
+              label: "Source",
+              value: "system",
+              detail: "No font CDN or bundled font files.",
+            },
+            {
+              label: "Numeric text",
+              value: "tabular",
+              detail: "Stable comparison for aligned values.",
+            },
+          ])}
+          <section class="design-system-section" aria-labelledby="usage">
+            <h2 id="usage">Usage</h2>
+            <p class="note">Use typography roles to preserve readable hierarchy and predictable rendering across local systems.</p>
+          </section>
+          <section class="design-system-section" aria-labelledby="type-roles">
+            <h2 id="type-roles">Type roles</h2>
+            ${renderDesignSystemTable({
+              caption: "JudgmentKit typography roles",
+              columns: [
+                {
+                  key: "role",
+                  label: "Role",
+                  render: (row) => `<code>${escapeHtml(row.role)}</code>`,
+                },
+                {
+                  key: "usage",
+                  label: "Use",
+                },
+                {
+                  key: "stack",
+                  label: "Stack",
+                  render: (row) => `<code>${escapeHtml(row.stack)}</code>`,
+                },
+                {
+                  key: "specimen",
+                  label: "Specimen",
+                  render: (row) => `<span class="font-specimen font-specimen-${escapeHtml(row.role)}">${escapeHtml(row.role === "numeric" ? "12,480" : row.role === "label" ? "Status label" : row.role === "diagnostic" ? "source.id" : "Interface text")}</span>`,
+                },
+              ],
+              rows: adapter.font_roles,
+              rowAttributes: (row) => `data-font-role="${escapeHtml(row.role)}"`,
+            })}
+          </section>
+          ${renderDesignSystemExamples(pageEntry)}
+          <section class="design-system-section" aria-labelledby="accessibility">
+            <h2 id="accessibility">Accessibility</h2>
+            ${renderDesignSystemRuleList([
+              "Respect browser text scaling and avoid viewport-based font sizing.",
+              "Use heading roles for hierarchy, not just larger text.",
+              "Keep diagnostic monospace secondary unless source inspection is the task.",
+            ])}
+          </section>
+        `,
+    ),
+    {
+      description:
+        "JudgmentKit typography foundations using portable system font stacks.",
+      path: "/design-system/fonts/",
+    },
+  );
+}
+
+function buildDesignSystemIconScenarios() {
+  return ICON_PAGE_SCENARIOS.map((scenario) => {
+    const searchResult = searchIconCatalog({
+      query: scenario.query,
+      limit: 8,
+      include_svg: false,
+    });
+    const selected =
+      searchResult.icons.find((icon) => icon.id === scenario.expected_icon_id) ??
+      searchResult.icons[0];
+    const svgResult = getIconSvg({ id: selected.id });
+
+    return {
+      ...scenario,
+      selected_icon_id: selected.id,
+      search_rank: searchResult.icons.findIndex((icon) => icon.id === selected.id) + 1,
+      inline_svg: svgResult.inline_svg,
+    };
+  });
+}
+
+function renderDesignSystemIconScenario(scenario) {
+  return `<article class="design-icon-scenario" data-icon-example="${escapeHtml(scenario.id)}" data-selected-icon-id="${escapeHtml(scenario.selected_icon_id)}">
+            <div class="design-icon-symbol" aria-hidden="true">${scenario.inline_svg}</div>
+            <div>
+              <h3>${escapeHtml(scenario.label)}</h3>
+              <p>${escapeHtml(scenario.intent)}</p>
+              <dl>
+                <div><dt>Icon</dt><dd><code>${escapeHtml(scenario.selected_icon_id)}</code></dd></div>
+              </dl>
+            </div>
+          </article>`;
+}
+
+function renderDesignSystemIconIndex(icons) {
+  return `<search class="design-system-search" aria-labelledby="icon-index">
+            <form action="/design-system/icons/" method="get" role="search" data-design-icon-search-form>
+              <label for="icon-search">Search icon names</label>
+              <div>
+                <input id="icon-search" name="q" type="search" autocomplete="off" placeholder="Try receipt, calendar, alert, upload" data-design-icon-search aria-describedby="icon-search-count">
+                <button type="submit">Search</button>
+              </div>
+              <p id="icon-search-count" class="note" aria-live="polite" data-design-icon-count>${escapeHtml(icons.length)} icons shown</p>
+            </form>
+          </search>
+          <ul class="design-icon-index-list" data-design-icon-results>
+            ${icons
+              .map(
+                (icon) => `<li data-icon-id="${escapeHtml(icon.id)}">
+              <code>${escapeHtml(icon.id)}</code>
+              <span>${escapeHtml(icon.name)}</span>
+            </li>`,
+              )
+              .join("\n            ")}
+          </ul>`;
+}
+
+function renderDesignSystemIconSearchScript() {
+  return `<script>
+      (() => {
+        const input = document.querySelector("[data-design-icon-search]");
+        const count = document.querySelector("[data-design-icon-count]");
+        const items = [...document.querySelectorAll("[data-design-icon-results] [data-icon-id]")];
+        const form = document.querySelector("[data-design-icon-search-form]");
+        if (!input || !count || !items.length) return;
+
+        const render = () => {
+          const terms = input.value.toLowerCase().trim().split(/\\s+/).filter(Boolean);
+          let visible = 0;
+          for (const item of items) {
+            const text = item.textContent.toLowerCase();
+            const match = terms.every((term) => text.includes(term));
+            item.hidden = !match;
+            if (match) visible += 1;
+          }
+          count.textContent = terms.length
+            ? visible + " of " + items.length + " icons match"
+            : items.length + " icons shown";
+        };
+
+        form?.addEventListener("submit", (event) => {
+          event.preventDefault();
+          render();
+        });
+        input.addEventListener("input", render);
+        render();
+      })();
+    </script>`;
+}
+
+function renderDesignSystemIconsPage(model) {
+  const adapter = model.adapter;
+  const scenarios = model.icon_scenarios;
+  const source = adapter.icon_catalog;
+  const totalCount = source.icon_count;
+  const pageEntry = designSystemPageById(model, "icons");
+
+  return page(
+    pageEntry.title,
+    renderDesignSystemLayout(
+      model,
+      "icons",
+      `
+          ${renderDesignSystemHero(pageEntry)}
+          ${renderDesignSystemMetrics([
+            {
+              label: "Source",
+              value: `${source.package}@${source.version}`,
+              detail: source.license,
+            },
+            {
+              label: "Catalog icons",
+              value: totalCount,
+              detail: `${source.library} 24px outline style`,
+            },
+            {
+              label: "Rendering",
+              value: source.style_attributes.viewBox,
+              detail: "inline SVG, currentColor stroke",
+            },
+          ])}
+          <section class="design-system-section" aria-labelledby="usage">
+            <h2 id="usage">Usage</h2>
+            ${renderDesignSystemRuleList([
+              "Choose the icon by the meaning a person needs to recognize: status, direction, filtering, scheduling, handoff, or risk.",
+              "Use one Lucide icon family so line weight, corner style, and proportions stay coherent.",
+              "Prefer adjacent visible text for meaningful icons and reserve icon-only controls for familiar, named actions.",
+            ])}
+          </section>
+          <section class="design-system-section" aria-labelledby="icon-examples">
+            <h2 id="icon-examples">Icon examples</h2>
+            <p class="note">These examples show common interface meanings with stable Lucide icon IDs.</p>
+            <div class="design-icon-scenario-grid">
+              ${scenarios.map(renderDesignSystemIconScenario).join("\n              ")}
+            </div>
+          </section>
+          <section class="design-system-section" aria-labelledby="icon-index">
+            <h2 id="icon-index">Icon index</h2>
+            <p class="note">Search the committed Lucide IDs and names without loading the full SVG grid into this reference page.</p>
+            ${renderDesignSystemIconIndex(model.icon_index)}
+          </section>
+          <section class="design-system-section" aria-labelledby="accessibility">
+            <h2 id="accessibility">Accessibility</h2>
+            ${renderDesignSystemRuleList([
+              "Icon-only controls require accessible names, keyboard focus, and adequate target size.",
+              "Meaningful icons should have adjacent visible text whenever possible.",
+              "Icons that communicate state need non-text contrast evidence and must not replace the state label.",
+            ])}
+          </section>
+          <section class="design-system-section" aria-labelledby="source">
+            <h2 id="source">Source</h2>
+            <p class="note">The catalog is generated from the committed ${escapeHtml(source.package)} package at version ${escapeHtml(source.version)}. The complete visual smoke proof remains available for regression review.</p>
+            <a class="pill-link" href="/examples/lucide-icon-catalog-smoke.html">Open full catalog smoke proof</a>
+          </section>
+          ${renderDesignSystemExamples(pageEntry)}
+          ${renderDesignSystemIconSearchScript()}
+        `,
+    ),
+    {
+      description:
+        "JudgmentKit iconography reference using the complete Lucide catalog.",
+      path: "/design-system/icons/",
+    },
+  );
+}
+
+function renderDesignSystemPageMarkdown(model, pageEntry) {
+  const adapter = model.adapter;
+  const lines = [
+    `# ${pageEntry.title}`,
+    "",
+    pageEntry.summary,
+    "",
+    `HTML: ${pageEntry.path}`,
+    "",
+    "## Sections",
+    markdownList(pageEntry.sections),
+    "",
+    "## Examples",
+    ...pageEntry.examples.flatMap((example) => [
+      `- ${example.title}: ${example.use}`,
+      `- Watch for: ${example.caution}`,
+    ]),
+    "",
+  ];
+
+  if (pageEntry.id === "overview") {
+    lines.push(
+      "## Foundation Assets",
+      markdownList(
+        model.foundation_assets.map((asset) => `${asset.title}: ${asset.summary} (${asset.href})`),
+      ),
+      "",
+      "## Principles",
+      markdownList(model.principles),
+      "",
+      "## Routes",
+      markdownList(model.pages.map((entry) => `${entry.path} -> ${entry.markdown_path}`)),
+      "",
+    );
+  }
+
+  if (pageEntry.id === "tokens") {
+    lines.push(
+      "## Token Families",
+      markdownList(adapter.token_families.map((family) => `\`${family}\``)),
+      "",
+      "## Token Roles",
+      markdownRoleList(
+        adapter.token_roles,
+        (entry) =>
+          `${entry.usage}; families: ${(entry.families ?? []).join(", ")}; review: ${tokenReviewNote(entry.role)}`,
+      ),
+      "",
+      "## Accessibility",
+      markdownList([
+        "Color cannot be the only signal for status, error, risk, or completion.",
+        "Focus treatment must remain visible for keyboard users.",
+        "Status, risk, disabled, and receipt states need visible text or nearby context.",
+      ]),
+      "",
+    );
+  }
+
+  if (pageEntry.id === "fonts") {
+    lines.push(
+      "## Font Roles",
+      markdownRoleList(
+        adapter.font_roles,
+        (entry) => `${entry.usage}; stack: \`${entry.stack}\``,
+      ),
+      "",
+      "## Accessibility",
+      markdownList([
+        "Respect browser text scaling and avoid viewport-based font sizing.",
+        "Use heading roles for hierarchy, not just larger text.",
+        "Keep diagnostic monospace secondary unless source inspection is the task.",
+      ]),
+      "",
+    );
+  }
+
+  if (pageEntry.id === "icons") {
+    lines.push(
+      "## Source",
+      `- ${adapter.icon_catalog.package}@${adapter.icon_catalog.version}`,
+      `- Icon count: ${adapter.icon_catalog.icon_count}`,
+      `- License: ${adapter.icon_catalog.license}`,
+      "",
+      "## Usage",
+      markdownList([
+        "Choose the icon by the meaning a person needs to recognize.",
+        "Use one Lucide icon family for coherent line weight and proportions.",
+        "Prefer adjacent visible text for meaningful icons.",
+      ]),
+      "",
+      "## Icon Examples",
+      markdownList(
+        model.icon_scenarios.map(
+          (scenario) => `${scenario.label}: \`${scenario.selected_icon_id}\``,
+        ),
+      ),
+      "",
+      "## Icon Index",
+      `- ${model.icon_index.length} Lucide icon IDs are included in the HTML icon index.`,
+      "- Full visual regression proof: `/examples/lucide-icon-catalog-smoke.html`.",
+      "",
+    );
+  }
+
+  return `${lines.join("\n").trim()}\n`;
+}
+
+function renderDesignSystemLlms(model) {
+  return `${[
+    "# JudgmentKit Design System",
+    "",
+    "Canonical human reference for JudgmentKit foundation assets.",
+    "",
+    "## Read first",
+    "- /design-system/",
+    "- /design-system/index.html.md",
+    "- /design-system/manifest.json",
+    "",
+    "## Asset pages",
+    ...model.pages.map((pageEntry) => `- ${pageEntry.title}: ${pageEntry.markdown_path}`),
+    "",
+    "## JSON exports",
+    "- /design-system/visual-token-adapter.json",
+    "- /design-system/icon-scenarios.json",
+    "",
+    "## Icon proof",
+    "- /examples/lucide-icon-catalog-smoke.html",
+    "",
+  ].join("\n").trim()}\n`;
+}
+
+function renderDesignSystemLlmsFull(model) {
+  return `${[
+    renderDesignSystemLlms(model).trim(),
+    "",
+    "## Principles",
+    markdownList(model.principles),
+    "",
+    ...model.pages.map((pageEntry) => renderDesignSystemPageMarkdown(model, pageEntry).trim()),
+    "",
+  ].join("\n\n").trim()}\n`;
+}
+
+function jsonExport(value) {
+  return `${JSON.stringify(value, null, 2)}\n`;
 }
 
 async function valuePage() {
@@ -2753,7 +4231,7 @@ curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></p
 examples/ai-native-design-system/canonical-examples.json</code></pre>
             <p><strong>Loop:</strong> create the implementation contract, review the failing candidate, read <code>next_agent_action</code> and grouped <code>repair_instructions</code>, repair the candidate, then resubmit and expect <code>accept</code>.</p>
             <p><strong>Canonical cases:</strong> setup/onboarding, operational dashboard, and high-stakes review/refund workflow. Each case includes the activity model, implementation contract input, failing candidate, repaired candidate, and proof expectation.</p>
-            <p><strong>Renderer boundary:</strong> <code>visual_token_adapter</code> remains boundary-only metadata for semantic tokens, portable system font stacks, and embedded SVG icon defaults. The default renderer/component package starts only after the first-use loop and asset boundary stay stable.</p>
+            <p><strong>Renderer boundary:</strong> <code>visual_token_adapter</code> remains boundary-only metadata for semantic tokens, portable system font stacks, and Lucide icon catalog policy. The default renderer/component package starts only after the first-use loop and asset boundary stay stable.</p>
           </section>
           <section class="doc-section" id="planning-examples">
             <h2>Planning Mode Examples</h2>
@@ -2793,7 +4271,7 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
               <p><strong>Surface type:</strong> <code>recommend_surface_types</code> classifies activity purpose as marketing, workbench, operator review, form flow, dashboard monitor, content/report, setup/debug tool, or conversation before frontend implementation guidance.</p>
               <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
               <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies approved primitives, required states, static checks, browser QA expectations, visual asset policy, and accessibility evidence expectations before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract.</p>
-              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions, semantic token roles, system font stacks, and embedded SVG icon defaults without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
+              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions, semantic token roles, system font stacks, and Lucide icon catalog policy without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
               <p><strong>Iteration:</strong> draft review produces updated context that re-enters source/activity review rather than becoming only a longer prompt.</p>
             </div>
             <p class="system-branch"><strong>Blocked path:</strong> if activity, workflow, or handoff is not ready, resolve targeted questions or leakage details before generating UI.</p>
@@ -3367,7 +4845,15 @@ async function examplesPage() {
             </article>
             <article>
               <h3>Renderer boundary</h3>
-              <p>Tokens, system font stacks, and embedded SVG icons remain governed metadata. They cannot bypass primitives, states, action boundaries, data visibility, accessibility, static checks, or browser QA.</p>
+              <p>Tokens, system font stacks, and Lucide icon catalog policy remain governed metadata. They cannot bypass primitives, states, action boundaries, data visibility, accessibility, static checks, or browser QA.</p>
+            </article>
+            <article>
+              <h3>Lucide icon smoke proof</h3>
+              <p>Search, retrieve, and render every committed Lucide icon through the MCP catalog tools. The design-system icon page is the reference surface; this HTML remains the deterministic regression proof.</p>
+              <div class="link-row">
+                <a class="pill-link" href="/design-system/icons/">Open icon system</a>
+                <a class="pill-link" href="/examples/lucide-icon-catalog-smoke.html">Open icon smoke HTML</a>
+              </div>
             </article>
           </div>
         </div>
@@ -4061,9 +5547,15 @@ async function buildSystemMapFlowAssets(outDir) {
 }
 
 export async function buildSite(outDir = DEFAULT_OUT_DIR) {
+  const designSystemModel = buildDesignSystemContentModel();
+
   await fs.rm(outDir, { recursive: true, force: true });
   await fs.mkdir(path.join(outDir, "assets"), { recursive: true });
   await fs.mkdir(path.join(outDir, "docs"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "design-system"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "design-system", "tokens"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "design-system", "fonts"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "design-system", "icons"), { recursive: true });
   await fs.mkdir(path.join(outDir, "evals"), { recursive: true });
   await fs.mkdir(path.join(outDir, "evals", "judgmentkit-mcp"), { recursive: true });
   await fs.mkdir(path.join(outDir, "examples"), { recursive: true });
@@ -4088,6 +5580,34 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.writeFile(path.join(outDir, "robots.txt"), "User-agent: *\nAllow: /\n");
   await fs.writeFile(path.join(outDir, "value", "index.html"), await valuePage());
   await fs.writeFile(path.join(outDir, "docs", "index.html"), docsPage());
+  await fs.writeFile(path.join(outDir, "design-system", "index.html"), renderDesignSystemOverviewPage(designSystemModel));
+  await fs.writeFile(path.join(outDir, "design-system", "tokens", "index.html"), renderDesignSystemTokensPage(designSystemModel));
+  await fs.writeFile(path.join(outDir, "design-system", "fonts", "index.html"), renderDesignSystemFontsPage(designSystemModel));
+  await fs.writeFile(path.join(outDir, "design-system", "icons", "index.html"), renderDesignSystemIconsPage(designSystemModel));
+  await fs.writeFile(
+    path.join(outDir, "design-system", "manifest.json"),
+    jsonExport(designSystemModel.exports.manifest),
+  );
+  await fs.writeFile(
+    path.join(outDir, "design-system", "visual-token-adapter.json"),
+    jsonExport(designSystemModel.exports.visualTokenAdapter),
+  );
+  await fs.writeFile(
+    path.join(outDir, "design-system", "icon-scenarios.json"),
+    jsonExport(designSystemModel.exports.iconScenarios),
+  );
+  await fs.writeFile(path.join(outDir, "design-system", "llms.txt"), renderDesignSystemLlms(designSystemModel));
+  await fs.writeFile(
+    path.join(outDir, "design-system", "llms-full.txt"),
+    renderDesignSystemLlmsFull(designSystemModel),
+  );
+  for (const pageEntry of designSystemModel.pages) {
+    const markdownPath = pageEntry.markdown_path.replace(/^\/design-system\/?/, "");
+    await fs.writeFile(
+      path.join(outDir, "design-system", markdownPath),
+      renderDesignSystemPageMarkdown(designSystemModel, pageEntry),
+    );
+  }
   await fs.writeFile(path.join(outDir, "examples", "index.html"), await examplesPage());
   await fs.writeFile(path.join(outDir, "install"), await bootstrapScript(), { mode: 0o755 });
   await fs.writeFile(
@@ -4099,6 +5619,8 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
       "",
       "- /value/",
       "- /docs/",
+      "- /design-system/",
+      "- /design-system/llms.txt",
       "- /examples/",
       "- /evals/",
       "- /evals/judgmentkit-mcp/",
@@ -4115,6 +5637,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await copyIfExists("examples/comparison/music/version-a.html", path.join(outDir, "examples", "comparison", "music", "version-a.html"));
   await copyIfExists("examples/comparison/music/version-b.html", path.join(outDir, "examples", "comparison", "music", "version-b.html"));
   await copyIfExists("examples/comparison/music/facilitator-scorecard.md", path.join(outDir, "examples", "comparison", "music", "facilitator-scorecard.md"));
+  await copyIfExists("examples/lucide-icon-catalog-smoke.html", path.join(outDir, "examples", "lucide-icon-catalog-smoke.html"));
   await copyDirectoryIfExists("examples/ai-native-design-system", path.join(outDir, "examples", "ai-native-design-system"));
   await copyDirectoryIfExists("evals/reports", path.join(outDir, "evals"));
   await copyDirectoryIfExists("evals/reports", path.join(outDir, "examples", "evals"));
@@ -4128,7 +5651,17 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
 
   return {
     out_dir: outDir,
-    routes: ["/", "/value/", "/docs/", "/examples/", "/evals/", "/evals/judgmentkit-mcp/", "/install", "/mcp"],
+    routes: [
+      "/",
+      "/value/",
+      "/docs/",
+      ...DESIGN_SYSTEM_ROUTES,
+      "/examples/",
+      "/evals/",
+      "/evals/judgmentkit-mcp/",
+      "/install",
+      "/mcp",
+    ],
   };
 }
 

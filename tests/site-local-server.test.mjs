@@ -92,7 +92,19 @@ const { server, url } = await listenSiteLocalServer({
 });
 
 try {
-  for (const route of ["/", "/value/", "/docs/", "/docs", "/examples/", "/evals/", "/install"]) {
+  for (const route of [
+    "/",
+    "/value/",
+    "/docs/",
+    "/docs",
+    "/design-system/",
+    "/design-system/tokens/",
+    "/design-system/fonts/",
+    "/design-system/icons/",
+    "/examples/",
+    "/evals/",
+    "/install",
+  ]) {
     const response = await fetchRoute(url, route);
 
     assert.equal(response.status, 200, `${route} should return 200`);
@@ -141,6 +153,43 @@ try {
     assert.equal(response.headers.get("content-type"), "application/json; charset=utf-8");
     assert.equal(body.examples.length, 3);
     assert.equal(body.renderer_boundary.status, "deferred");
+  }
+
+  for (const route of [
+    "/design-system/manifest.json",
+    "/design-system/visual-token-adapter.json",
+    "/design-system/icon-scenarios.json",
+  ]) {
+    const response = await fetchRoute(url, route);
+    const body = await response.json();
+
+    assert.equal(response.status, 200, `${route} should return 200`);
+    assert.equal(response.headers.get("content-type"), "application/json; charset=utf-8");
+    assert.equal(typeof body, "object");
+  }
+
+  for (const route of [
+    "/design-system/index.html.md",
+    "/design-system/tokens/index.html.md",
+    "/design-system/fonts/index.html.md",
+    "/design-system/icons/index.html.md",
+  ]) {
+    const response = await fetchRoute(url, route);
+    const body = await response.text();
+
+    assert.equal(response.status, 200, `${route} should return 200`);
+    assert.equal(response.headers.get("content-type"), "text/markdown; charset=utf-8");
+    assert.ok(body.startsWith("# JudgmentKit"), `${route} should return Markdown`);
+    assert.equal(body.includes("<nav"), false, `${route} must not include site navigation`);
+  }
+
+  for (const route of ["/design-system/llms.txt", "/design-system/llms-full.txt"]) {
+    const response = await fetchRoute(url, route);
+    const body = await response.text();
+
+    assert.equal(response.status, 200, `${route} should return 200`);
+    assert.equal(response.headers.get("content-type"), "text/plain; charset=utf-8");
+    assert.ok(body.includes("JudgmentKit Design System"));
   }
 
   {

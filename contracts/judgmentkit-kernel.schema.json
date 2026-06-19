@@ -317,31 +317,55 @@
         "feature_settings": { "type": "array", "items": { "type": "string" } }
       }
     },
-    "iconRegistryEntry": {
+    "iconCatalog": {
       "type": "object",
       "additionalProperties": false,
       "required": [
-        "id",
-        "role",
-        "label",
-        "viewBox",
-        "paths",
-        "svg_attributes",
-        "accessibility_guidance",
-        "allowed_usage"
+        "source",
+        "library",
+        "package",
+        "version",
+        "icon_count",
+        "license",
+        "notice",
+        "style_system",
+        "style_attributes",
+        "mcp_tools",
+        "default_include_svg"
       ],
       "properties": {
-        "id": { "type": "string" },
-        "role": { "type": "string" },
-        "label": { "type": "string" },
-        "viewBox": { "type": "string" },
-        "paths": { "type": "array", "items": { "type": "string" } },
-        "svg_attributes": {
+        "source": { "type": "string" },
+        "library": { "type": "string" },
+        "package": { "type": "string" },
+        "version": { "type": "string" },
+        "icon_count": { "type": "number", "minimum": 1 },
+        "license": { "type": "string" },
+        "notice": { "type": "string" },
+        "style_system": { "type": "string" },
+        "style_attributes": {
           "type": "object",
           "additionalProperties": { "type": "string" }
         },
-        "accessibility_guidance": { "type": "string" },
-        "allowed_usage": { "type": "array", "items": { "type": "string" } }
+        "mcp_tools": { "type": "array", "items": { "type": "string" } },
+        "default_include_svg": { "type": "boolean" }
+      }
+    },
+    "iconSelectionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "source_library",
+        "selection_flow",
+        "semantic_guidance",
+        "accessibility_guidance",
+        "failure_signals"
+      ],
+      "properties": {
+        "source_library": { "type": "string" },
+        "selection_flow": { "type": "array", "items": { "type": "string" } },
+        "semantic_guidance": { "type": "string" },
+        "accessibility_guidance": { "type": "array", "items": { "type": "string" } },
+        "failure_signals": { "type": "array", "items": { "type": "string" } }
       }
     },
     "implementationContract": {
@@ -510,7 +534,8 @@
             "font_roles",
             "font_rules",
             "icon_roles",
-            "icon_registry",
+            "icon_catalog",
+            "icon_selection_policy",
             "icon_rules",
             "adapter_rules",
             "evidence_expectations",
@@ -527,7 +552,8 @@
             "font_roles": { "type": "array", "items": { "$ref": "#/$defs/fontRole" } },
             "font_rules": { "type": "array", "items": { "type": "string" } },
             "icon_roles": { "type": "array", "items": { "type": "string" } },
-            "icon_registry": { "type": "array", "items": { "$ref": "#/$defs/iconRegistryEntry" } },
+            "icon_catalog": { "$ref": "#/$defs/iconCatalog" },
+            "icon_selection_policy": { "$ref": "#/$defs/iconSelectionPolicy" },
             "icon_rules": { "type": "array", "items": { "type": "string" } },
             "adapter_rules": { "type": "array", "items": { "type": "string" } },
             "evidence_expectations": { "type": "array", "items": { "type": "string" } },

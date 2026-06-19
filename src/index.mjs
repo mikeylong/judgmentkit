@@ -2,6 +2,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import {
+  LUCIDE_ICON_CATALOG,
+  LUCIDE_ICON_INDEX,
+  LUCIDE_ICON_SOURCE,
+} from "./lucide-icon-catalog.generated.mjs";
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_CONTRACT_PATH = path.resolve(
   __dirname,
@@ -3831,127 +3837,53 @@ const DEFAULT_ICON_ROLES = [
   "receipt",
 ];
 
-const DEFAULT_ICON_REGISTRY = [
-  {
-    id: "status-check",
-    role: "status",
-    label: "Status check",
-    viewBox: "0 0 24 24",
-    paths: ["M20 6 9 17l-5-5"],
-    svg_attributes: {
-      fill: "none",
-      stroke: "currentColor",
-      stroke_width: "2",
-      stroke_linecap: "round",
-      stroke_linejoin: "round",
-    },
-    accessibility_guidance:
-      "Decorative when adjacent text names the status; otherwise provide an accessible name.",
-    allowed_usage: ["success state", "completed state", "confirmed receipt"],
-  },
-  {
-    id: "status-alert",
-    role: "risk",
-    label: "Status alert",
-    viewBox: "0 0 24 24",
-    paths: ["M12 3 22 20H2L12 3Z", "M12 9v4", "M12 17h.01"],
-    svg_attributes: {
-      fill: "none",
-      stroke: "currentColor",
-      stroke_width: "2",
-      stroke_linecap: "round",
-      stroke_linejoin: "round",
-    },
-    accessibility_guidance:
-      "Pair with text that names the risk, warning, or blocked reason.",
-    allowed_usage: ["risk state", "warning state", "blocked decision"],
-  },
-  {
-    id: "info-circle",
-    role: "status",
-    label: "Information",
-    viewBox: "0 0 24 24",
-    paths: ["M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z", "M12 10v6", "M12 7h.01"],
-    svg_attributes: {
-      fill: "none",
-      stroke: "currentColor",
-      stroke_width: "2",
-      stroke_linecap: "round",
-      stroke_linejoin: "round",
-    },
-    accessibility_guidance:
-      "Decorative beside explanatory text; named when it opens help or details.",
-    allowed_usage: ["information state", "help affordance", "diagnostic note"],
-  },
-  {
-    id: "chevron-right",
-    role: "navigation",
-    label: "Next",
-    viewBox: "0 0 24 24",
-    paths: ["M9 18l6-6-6-6"],
-    svg_attributes: {
-      fill: "none",
-      stroke: "currentColor",
-      stroke_width: "2",
-      stroke_linecap: "round",
-      stroke_linejoin: "round",
-    },
-    accessibility_guidance:
-      "Use for navigation or disclosure only when surrounding text names the destination or state.",
-    allowed_usage: ["next item", "drill-in", "disclosure"],
-  },
-  {
-    id: "filter",
-    role: "action",
-    label: "Filter",
-    viewBox: "0 0 24 24",
-    paths: ["M4 6h16", "M7 12h10", "M10 18h4"],
-    svg_attributes: {
-      fill: "none",
-      stroke: "currentColor",
-      stroke_width: "2",
-      stroke_linecap: "round",
-      stroke_linejoin: "round",
-    },
-    accessibility_guidance:
-      "Icon-only filter controls require an accessible name and target-size evidence.",
-    allowed_usage: ["filter action", "queue narrowing", "view refinement"],
-  },
-  {
-    id: "send",
-    role: "action",
-    label: "Send",
-    viewBox: "0 0 24 24",
-    paths: ["M22 2 11 13", "M22 2 15 22l-4-9-9-4 20-7Z"],
-    svg_attributes: {
-      fill: "none",
-      stroke: "currentColor",
-      stroke_width: "2",
-      stroke_linecap: "round",
-      stroke_linejoin: "round",
-    },
-    accessibility_guidance:
-      "Use only with explicit action text or an accessible name that states what will be sent.",
-    allowed_usage: ["send handoff", "submit message", "forward result"],
-  },
-  {
-    id: "receipt",
-    role: "receipt",
-    label: "Receipt",
-    viewBox: "0 0 24 24",
-    paths: ["M6 3h12v18l-3-2-3 2-3-2-3 2V3Z", "M9 8h6", "M9 12h6", "M9 16h4"],
-    svg_attributes: {
-      fill: "none",
-      stroke: "currentColor",
-      stroke_width: "2",
-      stroke_linecap: "round",
-      stroke_linejoin: "round",
-    },
-    accessibility_guidance:
-      "Pair with completion text that names the receipt, result, or handoff outcome.",
-    allowed_usage: ["handoff receipt", "confirmation", "completion state"],
-  },
+const ICON_CATALOG_TOOL_NAMES = [
+  "list_icon_catalog",
+  "search_icon_catalog",
+  "get_icon_svg",
 ];
+
+const DEFAULT_ICON_CATALOG = {
+  source: "committed_generated_catalog",
+  library: LUCIDE_ICON_SOURCE.library,
+  package: LUCIDE_ICON_SOURCE.package,
+  version: LUCIDE_ICON_SOURCE.version,
+  icon_count: LUCIDE_ICON_SOURCE.icon_count,
+  license: LUCIDE_ICON_SOURCE.license,
+  notice: LUCIDE_ICON_SOURCE.notice,
+  style_system: "Lucide 24px outline icons with round caps and joins",
+  style_attributes: {
+    viewBox: "0 0 24 24",
+    fill: "none",
+    stroke: "currentColor",
+    stroke_width: "2",
+    stroke_linecap: "round",
+    stroke_linejoin: "round",
+  },
+  mcp_tools: ICON_CATALOG_TOOL_NAMES,
+  default_include_svg: false,
+};
+
+const DEFAULT_ICON_SELECTION_POLICY = {
+  source_library: "lucide",
+  selection_flow: [
+    "Use search_icon_catalog to find candidate Lucide icons by activity meaning, source icon name, alias, or tag.",
+    "Use get_icon_svg for the selected canonical Lucide icon id before rendering inline SVG.",
+    "Use list_icon_catalog for pagination or category browsing; existing context tools intentionally return only this catalog summary.",
+  ],
+  semantic_guidance:
+    "JudgmentKit may recommend roles such as status icon, handoff icon, or risk icon; agents choose concrete Lucide icon ids through the catalog tools.",
+  accessibility_guidance: [
+    "Icon use never satisfies accessibility evidence by itself.",
+    "Icon-only controls require accessible names plus target-size and keyboard/focus evidence.",
+    "Meaningful icons require adjacent visible text when possible and non-text contrast evidence.",
+  ],
+  failure_signals: [
+    "selected icon ids are not canonical ids in the Lucide catalog",
+    "icons are used as a substitute for required labels, states, activity evidence, workflow evidence, accessibility evidence, or QA gates",
+    "icons are fetched from a runtime CDN or remote source instead of the committed MCP catalog",
+  ],
+};
 
 const DEFAULT_VISUAL_TOKEN_ADAPTER = {
   id: "judgmentkit.visual-token-adapter.boundary-v1",
@@ -3987,9 +3919,11 @@ const DEFAULT_VISUAL_TOKEN_ADAPTER = {
     "numeric font roles should preserve readable alignment with tabular numbers when supported",
   ],
   icon_roles: DEFAULT_ICON_ROLES,
-  icon_registry: DEFAULT_ICON_REGISTRY,
+  icon_catalog: DEFAULT_ICON_CATALOG,
+  icon_selection_policy: DEFAULT_ICON_SELECTION_POLICY,
   icon_rules: [
-    "default icons are embedded inline SVG metadata returned in MCP structured content",
+    "default icons come from the committed Lucide catalog exposed through MCP icon tools",
+    "normal implementation context includes catalog summary and policy only, not the full catalog payload",
     "icons that convey meaning require adjacent text or an accessible name",
     "icon-only controls require target-size and keyboard/focus evidence",
     "meaningful icons require non-text contrast evidence",
@@ -4004,7 +3938,7 @@ const DEFAULT_VISUAL_TOKEN_ADAPTER = {
     "name visual token families used by the candidate",
     "map token semantics to approved primitives, states, and surface patterns",
     "name font roles and confirm system stacks or repo-approved font assets",
-    "name icon roles and confirm embedded SVG or repo-approved icon assets",
+    "name icon roles and selected canonical Lucide icon ids or repo-approved icon assets",
     "include accessibility-relevant token evidence when color, motion, density, focus, or status roles affect readability or input",
   ],
   deferred_renderer: {
@@ -4205,56 +4139,71 @@ function normalizeRoleEntries(sourceValue, fallbackValue, options = {}) {
     });
 }
 
-function normalizeIconRegistryEntries(sourceValue, fallbackValue) {
-  const fallbackEntries = Array.isArray(fallbackValue)
-    ? fallbackValue.filter(isPlainObject).map(clonePolicyValue)
-    : DEFAULT_ICON_REGISTRY.map(clonePolicyValue);
-  const sourceEntries = Array.isArray(sourceValue)
-    ? sourceValue.filter(isPlainObject)
-    : [];
-  const entries = sourceEntries.length > 0 ? sourceEntries : fallbackEntries;
-  const fallbackById = new Map(
-    fallbackEntries.map((entry) => [normalizeText(entry.id), entry]),
-  );
-  const seen = new Set();
+function normalizeIconCatalog(sourceValue, fallbackValue) {
+  const fallback = isPlainObject(fallbackValue)
+    ? fallbackValue
+    : DEFAULT_ICON_CATALOG;
+  const source = isPlainObject(sourceValue) ? sourceValue : {};
+  const policy = mergePolicyObject(source, fallback);
+  const hasSource = Object.keys(source).length > 0;
 
-  return entries
-    .map((entry) => {
-      const id = optionalString(entry.id);
-      const fallbackEntry = fallbackById.get(normalizeText(id)) ?? {};
-      return {
-        ...fallbackEntry,
-        ...entry,
-        id,
-        role: optionalString(entry.role) || optionalString(fallbackEntry.role),
-        label: optionalString(entry.label) || optionalString(fallbackEntry.label),
-        viewBox:
-          optionalString(entry.viewBox ?? entry.view_box) ||
-          optionalString(fallbackEntry.viewBox ?? fallbackEntry.view_box),
-        paths: normalizePrimitiveList(entry.paths, fallbackEntry.paths),
-        svg_attributes: mergePolicyObject(
-          entry.svg_attributes ?? entry.svgAttributes,
-          fallbackEntry.svg_attributes ?? {},
-        ),
-        accessibility_guidance:
-          optionalString(entry.accessibility_guidance ?? entry.accessibilityGuidance) ||
-          optionalString(fallbackEntry.accessibility_guidance),
-        allowed_usage: normalizePrimitiveList(
-          entry.allowed_usage ?? entry.allowedUsage,
-          fallbackEntry.allowed_usage,
-        ),
-      };
-    })
-    .filter((entry) => {
-      const id = normalizeText(entry.id);
+  return {
+    ...policy,
+    source:
+      optionalString(source.source ?? policy.source) ||
+      (hasSource ? "adapter_override" : fallback.source),
+    library: optionalString(policy.library) || fallback.library,
+    package: optionalString(policy.package) || fallback.package,
+    version: optionalString(policy.version) || fallback.version,
+    icon_count: numberOrFallback(policy.icon_count ?? policy.iconCount, fallback.icon_count),
+    license: optionalString(policy.license) || fallback.license,
+    notice: optionalString(policy.notice) || fallback.notice,
+    style_system:
+      optionalString(policy.style_system ?? policy.styleSystem) ||
+      fallback.style_system,
+    style_attributes: mergePolicyObject(
+      policy.style_attributes ?? policy.styleAttributes,
+      fallback.style_attributes,
+    ),
+    mcp_tools: normalizePrimitiveList(
+      policy.mcp_tools ?? policy.mcpTools ?? policy.tools,
+      fallback.mcp_tools,
+    ),
+    default_include_svg:
+      typeof (policy.default_include_svg ?? policy.defaultIncludeSvg) === "boolean"
+        ? policy.default_include_svg ?? policy.defaultIncludeSvg
+        : fallback.default_include_svg,
+  };
+}
 
-      if (!id || seen.has(id)) {
-        return false;
-      }
+function normalizeIconSelectionPolicy(sourceValue, fallbackValue) {
+  const fallback = isPlainObject(fallbackValue)
+    ? fallbackValue
+    : DEFAULT_ICON_SELECTION_POLICY;
+  const source = isPlainObject(sourceValue) ? sourceValue : {};
+  const policy = mergePolicyObject(source, fallback);
 
-      seen.add(id);
-      return true;
-    });
+  return {
+    ...policy,
+    source_library:
+      optionalString(policy.source_library ?? policy.sourceLibrary) ||
+      fallback.source_library,
+    selection_flow: normalizePrimitiveList(
+      policy.selection_flow ?? policy.selectionFlow,
+      fallback.selection_flow,
+    ),
+    semantic_guidance:
+      optionalString(policy.semantic_guidance ?? policy.semanticGuidance) ||
+      fallback.semantic_guidance,
+    accessibility_guidance: normalizePrimitiveList(
+      policy.accessibility_guidance ?? policy.accessibilityGuidance,
+      fallback.accessibility_guidance,
+    ),
+    failure_signals: normalizePrimitiveList(
+      policy.failure_signals ?? policy.failureSignals,
+      fallback.failure_signals,
+    ),
+  };
 }
 
 function normalizeVisualTokenAdapter(sourcePolicy, fallbackPolicy) {
@@ -4303,14 +4252,24 @@ function normalizeVisualTokenAdapter(sourcePolicy, fallbackPolicy) {
       policy.icon_roles ?? policy.iconRoles,
       fallback.icon_roles ?? DEFAULT_VISUAL_TOKEN_ADAPTER.icon_roles,
     ),
-    icon_registry: normalizeIconRegistryEntries(
+    icon_catalog: normalizeIconCatalog(
       firstDefined(
-        source.icon_registry,
-        source.iconRegistry,
-        policy.icon_registry,
-        policy.iconRegistry,
+        source.icon_catalog,
+        source.iconCatalog,
+        policy.icon_catalog,
+        policy.iconCatalog,
       ),
-      fallback.icon_registry ?? DEFAULT_VISUAL_TOKEN_ADAPTER.icon_registry,
+      fallback.icon_catalog ?? DEFAULT_VISUAL_TOKEN_ADAPTER.icon_catalog,
+    ),
+    icon_selection_policy: normalizeIconSelectionPolicy(
+      firstDefined(
+        source.icon_selection_policy,
+        source.iconSelectionPolicy,
+        policy.icon_selection_policy,
+        policy.iconSelectionPolicy,
+      ),
+      fallback.icon_selection_policy ??
+        DEFAULT_VISUAL_TOKEN_ADAPTER.icon_selection_policy,
     ),
     icon_rules: normalizePrimitiveList(
       policy.icon_rules ?? policy.iconRules,
@@ -6101,8 +6060,10 @@ function collectRoleNamesFromEvidenceValue(value) {
     value.source !== undefined ||
     value.mode !== undefined ||
     value.rules !== undefined ||
-    value.icon_registry !== undefined ||
-    value.iconRegistry !== undefined
+    value.icon_catalog !== undefined ||
+    value.iconCatalog !== undefined ||
+    value.icon_selection_policy !== undefined ||
+    value.iconSelectionPolicy !== undefined
   ) {
     return [];
   }
@@ -6137,6 +6098,86 @@ function collectEvidenceRoleNames(evidence, keyNames) {
   visit(evidence);
 
   return unique(values.map(cleanClause).filter(Boolean));
+}
+
+function collectIconIdsFromEvidenceValue(value) {
+  if (Array.isArray(value)) {
+    return value.flatMap(collectIconIdsFromEvidenceValue);
+  }
+
+  if (typeof value === "string") {
+    return [cleanClause(value)];
+  }
+
+  if (!isPlainObject(value)) {
+    return [];
+  }
+
+  const directId = optionalString(
+    value.icon_id ??
+      value.iconId ??
+      value.lucide_icon_id ??
+      value.lucideIconId ??
+      value.id,
+  );
+
+  if (directId) {
+    return [directId];
+  }
+
+  return [
+    ...collectIconIdsFromEvidenceValue(value.icon_ids ?? value.iconIds),
+    ...collectIconIdsFromEvidenceValue(value.selected_icons ?? value.selectedIcons),
+    ...collectIconIdsFromEvidenceValue(value.lucide_icons ?? value.lucideIcons),
+    ...collectIconIdsFromEvidenceValue(value.catalog_icon_ids ?? value.catalogIconIds),
+  ];
+}
+
+function collectEvidenceIconIds(evidence) {
+  if (!isPlainObject(evidence)) {
+    return [];
+  }
+
+  const values = [];
+  const wantedKeys = new Set([
+    "icon_ids",
+    "iconIds",
+    "selected_icons",
+    "selectedIcons",
+    "lucide_icons",
+    "lucideIcons",
+    "catalog_icon_ids",
+    "catalogIconIds",
+  ]);
+
+  function visit(value) {
+    if (!isPlainObject(value)) {
+      return;
+    }
+
+    for (const [key, child] of Object.entries(value)) {
+      if (wantedKeys.has(key)) {
+        values.push(...collectIconIdsFromEvidenceValue(child));
+      }
+
+      if (isPlainObject(child)) {
+        const directId = optionalString(
+          child.icon_id ??
+            child.iconId ??
+            child.lucide_icon_id ??
+            child.lucideIconId,
+        );
+        if (directId) {
+          values.push(directId);
+        }
+        visit(child);
+      }
+    }
+  }
+
+  visit(evidence);
+
+  return unique(values.map((value) => value.trim()).filter(Boolean));
 }
 
 function reviewVisualTokenEvidence(candidate, implementationContract) {
@@ -6206,6 +6247,10 @@ function reviewVisualTokenEvidence(candidate, implementationContract) {
   const unsupportedIconRoles = iconRoles.filter(
     (role) => !allowedIconRoleSet.has(normalizeText(role)),
   );
+  const selectedIconIds = collectEvidenceIconIds(evidence);
+  const unsupportedIconIds = selectedIconIds.filter(
+    (id) => !LUCIDE_ICON_INDEX.has(id),
+  );
   const deferredRendererTerms = [
     "renderer package",
     "component package",
@@ -6265,6 +6310,21 @@ function reviewVisualTokenEvidence(candidate, implementationContract) {
     });
   }
 
+  if (unsupportedIconIds.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "visual_tokens",
+      message:
+        "Candidate icon evidence cites icon ids outside the committed Lucide catalog.",
+      evidence: {
+        unsupported_icon_ids: unsupportedIconIds,
+        catalog_library: adapter.icon_catalog?.library,
+        catalog_version: adapter.icon_catalog?.version,
+        catalog_tools: adapter.icon_catalog?.mcp_tools,
+      },
+    });
+  }
+
   if (deferredRendererClaims.length > 0) {
     findings.push({
       severity: "fail",
@@ -6303,9 +6363,15 @@ function reviewVisualTokenEvidence(candidate, implementationContract) {
     allowed_icon_roles: allowedIconRoles,
     icon_roles: iconRoles,
     unsupported_icon_roles: unsupportedIconRoles,
-    icon_registry: normalizeIconRegistryEntries(
-      adapter.icon_registry,
-      DEFAULT_VISUAL_TOKEN_ADAPTER.icon_registry,
+    selected_icon_ids: selectedIconIds,
+    unsupported_icon_ids: unsupportedIconIds,
+    icon_catalog: normalizeIconCatalog(
+      adapter.icon_catalog,
+      DEFAULT_VISUAL_TOKEN_ADAPTER.icon_catalog,
+    ),
+    icon_selection_policy: normalizeIconSelectionPolicy(
+      adapter.icon_selection_policy,
+      DEFAULT_VISUAL_TOKEN_ADAPTER.icon_selection_policy,
     ),
     deferred_renderer: adapter.deferred_renderer,
     findings,
@@ -6993,18 +7059,268 @@ function normalizeAdapterIconGuidance(source, visualTokenAdapter) {
       sourceObject.icon_roles ?? sourceObject.iconRoles ?? sourceObject.roles,
       visualTokenAdapter.icon_roles,
     ),
-    icon_registry: normalizeIconRegistryEntries(
+    icon_catalog: normalizeIconCatalog(
       firstDefined(
-        sourceObject.icon_registry,
-        sourceObject.iconRegistry,
-        sourceObject.registry,
+        sourceObject.icon_catalog,
+        sourceObject.iconCatalog,
+        sourceObject.catalog,
       ),
-      visualTokenAdapter.icon_registry,
+      visualTokenAdapter.icon_catalog,
+    ),
+    icon_selection_policy: normalizeIconSelectionPolicy(
+      firstDefined(
+        sourceObject.icon_selection_policy,
+        sourceObject.iconSelectionPolicy,
+        sourceObject.selection_policy,
+        sourceObject.selectionPolicy,
+      ),
+      visualTokenAdapter.icon_selection_policy,
     ),
     rules: normalizePrimitiveList(
       sourceObject.rules ?? sourceObject.icon_rules ?? sourceObject.iconRules,
       visualTokenAdapter.icon_rules,
     ),
+  };
+}
+
+const DEFAULT_ICON_CATALOG_LIST_LIMIT = 50;
+const DEFAULT_ICON_CATALOG_SEARCH_LIMIT = 24;
+const MAX_ICON_CATALOG_LIMIT = 100;
+
+function normalizeIconCatalogLimit(value, fallback) {
+  const numberValue = Number(value);
+  if (!Number.isFinite(numberValue) || numberValue <= 0) {
+    return fallback;
+  }
+  return Math.min(Math.floor(numberValue), MAX_ICON_CATALOG_LIMIT);
+}
+
+function normalizeIconCatalogCursor(cursor) {
+  if (cursor === undefined || cursor === null || cursor === "") {
+    return 0;
+  }
+
+  const offset = Number(cursor);
+  if (!Number.isInteger(offset) || offset < 0) {
+    throw new JudgmentKitInputError("cursor must be a non-negative integer offset.");
+  }
+  return offset;
+}
+
+function iconRecordForResponse(icon, includeSvg = false) {
+  if (includeSvg) {
+    return clonePolicyValue(icon);
+  }
+
+  const { svg, elements, paths, ...metadata } = icon;
+
+  return {
+    ...metadata,
+    element_count: Array.isArray(elements) ? elements.length : 0,
+    path_count: Array.isArray(paths) ? paths.length : 0,
+    has_svg: true,
+  };
+}
+
+function iconCatalogLicenseSummary() {
+  return {
+    license: LUCIDE_ICON_SOURCE.license,
+    notice: LUCIDE_ICON_SOURCE.notice,
+    feather_mit_derived_count: LUCIDE_ICON_SOURCE.feather_mit_derived_count,
+    notices_file: "THIRD_PARTY_NOTICES.md",
+  };
+}
+
+export function listIconCatalog({
+  limit,
+  cursor,
+  category,
+  include_svg: includeSvg,
+  includeSvg: includeSvgCamel,
+} = {}) {
+  const resolvedLimit = normalizeIconCatalogLimit(
+    limit,
+    DEFAULT_ICON_CATALOG_LIST_LIMIT,
+  );
+  const offset = normalizeIconCatalogCursor(cursor);
+  const normalizedCategory = normalizeText(optionalString(category));
+  const includeFullSvg = Boolean(includeSvg ?? includeSvgCamel);
+  const filteredIcons = normalizedCategory
+    ? LUCIDE_ICON_CATALOG.filter((icon) =>
+        icon.categories.some(
+          (iconCategory) => normalizeText(iconCategory) === normalizedCategory,
+        ),
+      )
+    : LUCIDE_ICON_CATALOG;
+  const page = filteredIcons.slice(offset, offset + resolvedLimit);
+  const nextOffset = offset + page.length;
+
+  return {
+    icon_catalog_status: "ready",
+    source: LUCIDE_ICON_SOURCE,
+    license_summary: iconCatalogLicenseSummary(),
+    total_count: filteredIcons.length,
+    catalog_count: LUCIDE_ICON_CATALOG.length,
+    category: optionalString(category) || null,
+    limit: resolvedLimit,
+    cursor: String(offset),
+    next_cursor: nextOffset < filteredIcons.length ? String(nextOffset) : null,
+    include_svg: includeFullSvg,
+    icons: page.map((icon) => iconRecordForResponse(icon, includeFullSvg)),
+  };
+}
+
+function iconSearchTerms(query) {
+  return unique(
+    normalizeText(query)
+      .split(/[^a-z0-9]+/g)
+      .map((term) => term.trim())
+      .filter(Boolean),
+  );
+}
+
+function scoreIconForQuery(icon, query, terms) {
+  const normalizedQuery = normalizeText(query);
+  const dashedQuery = normalizedQuery.replaceAll(" ", "-");
+  const id = normalizeText(icon.id);
+  const name = normalizeText(icon.name);
+  const aliases = toStringArray(icon.aliases).map(normalizeText);
+  const tags = toStringArray(icon.tags).map(normalizeText);
+  const searchTerms = toStringArray(icon.search_terms).map(normalizeText);
+  const categories = toStringArray(icon.categories).map(normalizeText);
+  let score = 0;
+
+  if (id === dashedQuery || id === normalizedQuery) {
+    score += 160;
+  } else if (id.startsWith(dashedQuery)) {
+    score += 90;
+  } else if (id.includes(dashedQuery)) {
+    score += 55;
+  }
+
+  if (name === normalizedQuery) {
+    score += 130;
+  } else if (name.startsWith(normalizedQuery)) {
+    score += 70;
+  } else if (name.includes(normalizedQuery)) {
+    score += 40;
+  }
+
+  for (const alias of aliases) {
+    if (alias === dashedQuery || alias === normalizedQuery) {
+      score += 120;
+    } else if (alias.includes(dashedQuery) || alias.includes(normalizedQuery)) {
+      score += 50;
+    }
+  }
+
+  for (const tag of tags) {
+    if (tag === normalizedQuery) {
+      score += 85;
+    } else if (tag.includes(normalizedQuery)) {
+      score += 32;
+    }
+  }
+
+  for (const term of terms) {
+    if (id.split("-").includes(term)) {
+      score += 35;
+    }
+    if (id.includes(term)) {
+      score += 20;
+    }
+    if (name.split(" ").includes(term)) {
+      score += 25;
+    }
+    if (aliases.some((alias) => alias.split("-").includes(term) || alias.includes(term))) {
+      score += 24;
+    }
+    if (tags.some((tag) => tag === term || tag.includes(term))) {
+      score += 22;
+    }
+    if (searchTerms.some((searchTerm) => searchTerm === term || searchTerm.includes(term))) {
+      score += 18;
+    }
+    if (categories.some((iconCategory) => iconCategory === term)) {
+      score += 10;
+    }
+  }
+
+  return score;
+}
+
+export function searchIconCatalog({
+  query,
+  limit,
+  include_svg: includeSvg,
+  includeSvg: includeSvgCamel,
+} = {}) {
+  const normalizedQuery = optionalString(query);
+  if (!normalizedQuery) {
+    throw new JudgmentKitInputError("query is required for search_icon_catalog.");
+  }
+
+  const resolvedLimit = normalizeIconCatalogLimit(
+    limit,
+    DEFAULT_ICON_CATALOG_SEARCH_LIMIT,
+  );
+  const includeFullSvg = Boolean(includeSvg ?? includeSvgCamel);
+  const terms = iconSearchTerms(normalizedQuery);
+  const matches = LUCIDE_ICON_CATALOG
+    .map((icon) => ({
+      icon,
+      score: scoreIconForQuery(icon, normalizedQuery, terms),
+    }))
+    .filter((match) => match.score > 0)
+    .sort((left, right) => {
+      if (right.score !== left.score) {
+        return right.score - left.score;
+      }
+      return left.icon.id.localeCompare(right.icon.id);
+    })
+    .slice(0, resolvedLimit);
+
+  return {
+    icon_catalog_status: "ready",
+    source: LUCIDE_ICON_SOURCE,
+    license_summary: iconCatalogLicenseSummary(),
+    query: normalizedQuery,
+    limit: resolvedLimit,
+    include_svg: includeFullSvg,
+    total_count: LUCIDE_ICON_CATALOG.length,
+    match_count: matches.length,
+    icons: matches.map((match) => ({
+      ...iconRecordForResponse(match.icon, includeFullSvg),
+      score: match.score,
+    })),
+  };
+}
+
+export function getIconSvg({ id } = {}) {
+  const normalizedId = optionalString(id);
+  if (!normalizedId) {
+    throw new JudgmentKitInputError("id is required for get_icon_svg.");
+  }
+
+  const icon = LUCIDE_ICON_INDEX.get(normalizedId);
+  if (!icon) {
+    throw new JudgmentKitInputError(`Unknown Lucide icon id: ${normalizedId}.`, {
+      details: {
+        id: normalizedId,
+        catalog_library: LUCIDE_ICON_SOURCE.library,
+        catalog_version: LUCIDE_ICON_SOURCE.version,
+        catalog_count: LUCIDE_ICON_SOURCE.icon_count,
+      },
+    });
+  }
+
+  return {
+    icon_catalog_status: "ready",
+    source: LUCIDE_ICON_SOURCE,
+    license_summary: iconCatalogLicenseSummary(),
+    id: icon.id,
+    icon: iconRecordForResponse(icon, true),
+    inline_svg: icon.svg,
   };
 }
 
@@ -7192,7 +7508,7 @@ function buildFrontendImplementationInstructionMarkdown({
     "- Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
     "- Use approved primitives and approved component families before introducing new UI helpers.",
     "- Apply any design system only as the renderer after the activity and workflow are clear.",
-    "- Use portable system font stacks and embedded inline SVG icon metadata unless a repo-approved adapter supplies replacements.",
+    "- Use portable system font stacks and the Lucide MCP icon catalog unless a repo-approved adapter supplies replacements.",
     "- Verify core accessibility evidence for semantics, landmarks/headings, name/role/value, keyboard navigation, focus order, focus-visible, responsive reflow/no-overflow, and automated checks.",
     "- Add conditional accessibility evidence for visuals, custom widgets, forms, status messages, overlays, motion, media, dense controls, and hover/focus content when those patterns appear.",
     "- For text over substantive visuals or rendered backgrounds, verify WCAG AA contrast from browser-rendered output, not screenshots alone.",
@@ -7225,12 +7541,14 @@ function buildFrontendImplementationInstructionMarkdown({
       ) || "none supplied"
     }`,
     `- Icon roles: ${toStringArray(designSystemPolicy.icon_guidance?.icon_roles).join("; ") || "none supplied"}`,
-    `- Embedded icons: ${
-      formatRoleEntries(
-        designSystemPolicy.icon_guidance?.icon_registry,
-        (entry) => `${entry.id} (${entry.role})`,
-      ) || "none supplied"
-    }`,
+    `- Icon catalog: ${[
+      designSystemPolicy.icon_guidance?.icon_catalog?.library,
+      designSystemPolicy.icon_guidance?.icon_catalog?.version,
+      designSystemPolicy.icon_guidance?.icon_catalog?.icon_count
+        ? `${designSystemPolicy.icon_guidance.icon_catalog.icon_count} icons`
+        : "",
+    ].filter(Boolean).join(" ") || "none supplied"}`,
+    `- Icon tools: ${toStringArray(designSystemPolicy.icon_guidance?.icon_catalog?.mcp_tools).join("; ") || "none supplied"}`,
     "",
     "## Visual Asset Policy",
     `- Applies when: ${toStringArray(visualAssetPolicy.applies_when).join("; ") || "no substantive visual requirements supplied"}`,
@@ -7415,7 +7733,7 @@ export function createFrontendImplementationSkillContext({
       "Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
       "Use approved primitives and approved component families before introducing new UI helpers.",
       "Apply the design system only as a renderer adapter after the activity and workflow are represented.",
-      "Use portable system font stacks and embedded inline SVG icon metadata unless a repo-approved adapter supplies replacements.",
+      "Use portable system font stacks and the Lucide MCP icon catalog unless a repo-approved adapter supplies replacements.",
       "When the spec calls for substantive visuals, use imagegen or premium Three.js/WebGL/D3-style rendering instead of rudimentary deterministic geometry.",
       "Verify core accessibility evidence: automated checks, semantic content, landmarks/headings, name-role-value, keyboard navigation, focus order, focus-visible, and responsive reflow/no-overflow.",
       "Add conditional accessibility evidence for visuals, custom widgets, forms, status messages, overlays, motion, media, dense controls, and hover/focus content when those patterns appear.",

@@ -327,7 +327,8 @@ assert.deepEqual(
     "font_roles",
     "font_rules",
     "icon_roles",
-    "icon_registry",
+    "icon_catalog",
+    "icon_selection_policy",
     "icon_rules",
     "adapter_rules",
     "evidence_expectations",
@@ -437,14 +438,18 @@ assert.ok(
   "The visual token adapter must include semantic icon roles.",
 );
 assert.ok(
-  contract.implementation_contract.visual_token_adapter.icon_registry.some(
-    (entry) =>
-      entry.id === "status-check" &&
-      entry.role === "status" &&
-      entry.viewBox === "0 0 24 24" &&
-      entry.paths.some((pathData) => pathData.includes("20 6")),
-  ),
-  "The visual token adapter must include embedded inline SVG icon defaults.",
+  contract.implementation_contract.visual_token_adapter.icon_catalog.library ===
+    "lucide" &&
+    contract.implementation_contract.visual_token_adapter.icon_catalog.icon_count > 1000 &&
+    contract.implementation_contract.visual_token_adapter.icon_catalog.mcp_tools.includes(
+      "search_icon_catalog",
+    ),
+  "The visual token adapter must include the generated Lucide icon catalog summary.",
+);
+assert.equal(
+  "icon_registry" in contract.implementation_contract.visual_token_adapter,
+  false,
+  "The seven-icon default registry must not be present.",
 );
 assert.equal(
   contract.implementation_contract.visual_token_adapter.deferred_renderer.renderer_package,
@@ -473,18 +478,16 @@ const overriddenTokenContract = createUiImplementationContract({
       },
     },
     icon_roles: ["status", "risk"],
-    icon_registry: [
-      {
-        id: "risk-alert",
-        role: "risk",
-        label: "Risk alert",
-        viewBox: "0 0 24 24",
-        paths: ["M12 3 22 20H2L12 3Z"],
-        svg_attributes: { fill: "none", stroke: "currentColor" },
-        accessibility_guidance: "Pair with text naming the risk.",
-        allowed_usage: ["risk state"],
-      },
-    ],
+    icon_catalog: {
+      source: "adapter_override",
+      library: "repo-icons",
+      package: "@repo/icons",
+      version: "2.0.0",
+      icon_count: 42,
+      license: "MIT",
+      notice: "Repo-approved icon adapter.",
+      mcp_tools: ["search_icon_catalog", "get_icon_svg"],
+    },
     evidence_expectations: ["map semantic token use to focus and status roles"],
   },
 });
@@ -512,10 +515,10 @@ assert.deepEqual(
   ["status", "risk"],
 );
 assert.equal(
-  overriddenTokenContract.implementation_contract.visual_token_adapter.icon_registry[0]
-    .id,
-  "risk-alert",
-  "createUiImplementationContract must normalize embedded icon registry overrides.",
+  overriddenTokenContract.implementation_contract.visual_token_adapter.icon_catalog
+    .library,
+  "repo-icons",
+  "createUiImplementationContract must normalize icon catalog overrides.",
 );
 assert.ok(
   contract.implementation_contract.failure_signals.some((signal) =>

@@ -23,7 +23,7 @@ Use JudgmentKit before UI generation, UI critique, implementation planning, or h
 - Treat `needs_source_context` as a prompt to gather source context or ask the packet's targeted questions.
 - Treat surface type as activity-purpose guidance, not visual styling.
 - Treat the implementation contract as the authority for allowed primitives, control semantics, states, static checks, browser QA, visual asset handling, and accessibility evidence.
-- Treat `visual_token_adapter` as adapter-layer guidance for semantic tokens, portable system font stacks, and embedded inline SVG icon defaults. Repo or design-system adapters may override these assets, but asset guidance cannot replace activity fit, primitive coverage, state coverage, accessibility evidence, static checks, or browser QA.
+- Treat `visual_token_adapter` as adapter-layer guidance for semantic tokens, portable system font stacks, and Lucide icon catalog policy. Repo or design-system adapters may override these assets, but asset guidance cannot replace activity fit, primitive coverage, state coverage, accessibility evidence, static checks, or browser QA.
 - Keep implementation terms out of product UI unless the activity is setup, debugging, auditing, integration, or explicit source inspection.
 - When a model proposes an activity model, call `review_activity_model_candidate` before trusting it.
 - When a model proposes a UI workflow, call `review_ui_workflow_candidate` before implementing it.

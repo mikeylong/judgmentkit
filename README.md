@@ -43,7 +43,7 @@ JudgmentKit keeps the core deterministic and lets model assistance enter through
 7. UI implementation contract gate: creates or accepts the repo authority for approved primitives, control semantics, required states, static checks, and browser QA.
 8. UI generation handoff gate: turns only ready workflow reviews plus an implementation contract into compact handoffs for the next UI generation pass.
 9. Frontend generation context adapter: combines a ready handoff, selected surface type, frontend context, and verification expectations without making styling or component inventory part of the kernel contract.
-10. Frontend implementation skill context: compiles repo-local frontend skill guidance into a gated MCP packet for agents that cannot read local skills directly, including adapter-layer token roles, portable system font stacks, and embedded inline SVG icon defaults.
+10. Frontend implementation skill context: compiles repo-local frontend skill guidance into a gated MCP packet for agents that cannot read local skills directly, including adapter-layer token roles, portable system font stacks, and Lucide icon catalog policy.
 11. Optional provider adapters: provider configuration and network calls stay outside the kernel and feed proposed candidates back through the same review contract.
 
 ## Structure
@@ -82,7 +82,7 @@ The canonical examples live beside it:
 
 They cover setup/onboarding, an operational dashboard, and a high-stakes review/refund workflow. The renderer package is still deferred; these examples prove the contract and repair behavior before visual rendering.
 
-The portable design defaults do not load a font CDN or external icon package. Font guidance uses system stacks, and icon guidance uses a small embedded SVG registry returned in MCP structured content. Repo-local or design-system adapters can override those defaults after the activity and workflow gates are ready.
+The portable design defaults do not load a font CDN, runtime icon CDN, or external runtime icon package. Font guidance uses system stacks, and icon guidance points to the committed Lucide catalog exposed through `list_icon_catalog`, `search_icon_catalog`, and `get_icon_svg`. Repo-local or design-system adapters can override those defaults after the activity and workflow gates are ready.
 
 The first validation command is:
 

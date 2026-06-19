@@ -24,6 +24,9 @@ const EXPECTED_TOOL_NAMES = [
   "create_ui_generation_handoff",
   "create_frontend_generation_context",
   "create_frontend_implementation_skill_context",
+  "list_icon_catalog",
+  "search_icon_catalog",
+  "get_icon_svg",
 ];
 
 const OLD_FRAMING = [
@@ -50,7 +53,20 @@ const latestMcpPilotLlmEvidencePath = new URL(
 );
 const hasLatestMcpPilotLlmEvidence = fs.existsSync(latestMcpPilotLlmEvidencePath);
 
-assert.deepEqual(result.routes, ["/", "/value/", "/docs/", "/examples/", "/evals/", "/evals/judgmentkit-mcp/", "/install", "/mcp"]);
+assert.deepEqual(result.routes, [
+  "/",
+  "/value/",
+  "/docs/",
+  "/design-system/",
+  "/design-system/tokens/",
+  "/design-system/fonts/",
+  "/design-system/icons/",
+  "/examples/",
+  "/evals/",
+  "/evals/judgmentkit-mcp/",
+  "/install",
+  "/mcp",
+]);
 
 function assertAnalyticsBootstrap(html, label) {
   assert.ok(html.includes("window.va = window.va || function"), `${label} should initialize Vercel Analytics queue`);
@@ -96,6 +112,7 @@ assert.ok(platformNavMarkup.includes('<a class="surfaces-navigation-identifier" 
 assert.ok(platformNavMarkup.includes('<div class="surfaces-navigation-sections" aria-label="Primary">'));
 assert.ok(platformNavMarkup.includes('href="/value/"'));
 assert.ok(platformNavMarkup.includes('href="/docs/"'));
+assert.ok(platformNavMarkup.includes('href="/design-system/"'));
 assert.ok(platformNavMarkup.includes('href="/examples/"'));
 assert.ok(platformNavMarkup.includes('href="/evals/"'));
 assert.ok(platformNavMarkup.includes('href="/mcp"'));
@@ -109,6 +126,7 @@ assert.ok(platformNavMarkup.includes('data-surfaces-primary-menu-list'));
 for (const [href, label] of [
   ["/value/", "Value"],
   ["/docs/", "Docs"],
+  ["/design-system/", "Design System"],
   ["/examples/", "Examples"],
   ["/evals/", "Evals"],
   ["/mcp", "MCP"],
@@ -222,6 +240,11 @@ assert.ok(homepage.includes('name="twitter:image" content="https://judgmentkit.a
 assert.ok(homepage.includes('name="twitter:image:alt" content="JudgmentKit. Before the UI."'));
 assert.ok(llms.includes("- /evals/judgmentkit-mcp/"));
 assert.ok(llms.includes("- /value/"));
+assert.ok(llms.includes("- /design-system/"));
+assert.ok(llms.includes("- /design-system/llms.txt"));
+assert.equal(llms.includes("- /design-system/tokens/"), false);
+assert.equal(llms.includes("- /design-system/fonts/"), false);
+assert.equal(llms.includes("- /design-system/icons/"), false);
 assertAnalyticsBootstrap(homepage, "homepage");
 
 for (const forbidden of OLD_FRAMING) {
@@ -309,6 +332,197 @@ assert.equal(docs.includes("optional styling path"), false);
 assert.ok(docs.includes("operator-review-ui"));
 assert.equal(docs.includes("judgmentkit2"), false);
 
+const designSystem = fs.readFileSync(path.join(tempDir, "design-system", "index.html"), "utf8");
+const designSystemTokens = fs.readFileSync(
+  path.join(tempDir, "design-system", "tokens", "index.html"),
+  "utf8",
+);
+const designSystemFonts = fs.readFileSync(
+  path.join(tempDir, "design-system", "fonts", "index.html"),
+  "utf8",
+);
+const designSystemIcons = fs.readFileSync(
+  path.join(tempDir, "design-system", "icons", "index.html"),
+  "utf8",
+);
+const designSystemMarkdown = fs.readFileSync(
+  path.join(tempDir, "design-system", "index.html.md"),
+  "utf8",
+);
+const designSystemTokensMarkdown = fs.readFileSync(
+  path.join(tempDir, "design-system", "tokens", "index.html.md"),
+  "utf8",
+);
+const designSystemFontsMarkdown = fs.readFileSync(
+  path.join(tempDir, "design-system", "fonts", "index.html.md"),
+  "utf8",
+);
+const designSystemIconsMarkdown = fs.readFileSync(
+  path.join(tempDir, "design-system", "icons", "index.html.md"),
+  "utf8",
+);
+const designSystemLlms = fs.readFileSync(
+  path.join(tempDir, "design-system", "llms.txt"),
+  "utf8",
+);
+const designSystemLlmsFull = fs.readFileSync(
+  path.join(tempDir, "design-system", "llms-full.txt"),
+  "utf8",
+);
+const designSystemManifest = JSON.parse(
+  fs.readFileSync(path.join(tempDir, "design-system", "manifest.json"), "utf8"),
+);
+const visualTokenAdapterExport = JSON.parse(
+  fs.readFileSync(path.join(tempDir, "design-system", "visual-token-adapter.json"), "utf8"),
+);
+const iconScenariosExport = JSON.parse(
+  fs.readFileSync(path.join(tempDir, "design-system", "icon-scenarios.json"), "utf8"),
+);
+for (const [label, html] of [
+  ["design system overview", designSystem],
+  ["design system tokens", designSystemTokens],
+  ["design system fonts", designSystemFonts],
+  ["design system icons", designSystemIcons],
+]) {
+  assertAnalyticsBootstrap(html, label);
+  assert.ok(html.includes("JudgmentKit"), `${label} should identify JudgmentKit`);
+  assert.equal(/googleapis|gstatic|unpkg|jsdelivr|fontawesome|icons-material/i.test(html), false);
+}
+for (const [label, markdown] of [
+  ["design system markdown", designSystemMarkdown],
+  ["design system tokens markdown", designSystemTokensMarkdown],
+  ["design system fonts markdown", designSystemFontsMarkdown],
+  ["design system icons markdown", designSystemIconsMarkdown],
+]) {
+  assert.ok(markdown.startsWith("# JudgmentKit"), `${label} should start with a title`);
+  assert.equal(markdown.includes("<nav"), false, `${label} must not include site navigation`);
+  assert.equal(markdown.includes("window.va"), false, `${label} must not include analytics`);
+  assert.equal(markdown.includes("data-catalog-icon"), false, `${label} must not embed full icon grid`);
+  assert.equal(markdown.includes("<svg"), false, `${label} must not embed SVG payloads`);
+  assert.equal(markdown.includes("Agent Consumption"), false, `${label} must not use agent-only IA`);
+  assert.equal(markdown.includes("MCP Tools"), false, `${label} must not expose tool flow as a page section`);
+}
+for (const [label, html] of [
+  ["design system overview", designSystem],
+  ["design system tokens", designSystemTokens],
+  ["design system fonts", designSystemFonts],
+  ["design system icons", designSystemIcons],
+]) {
+  assert.equal(html.includes("Agent Consumption"), false, `${label} must not expose agent-only IA`);
+  assert.equal(html.includes("Agent Search"), false, `${label} must not frame the page as an agent proof`);
+  assert.equal(html.includes("MCP tools"), false, `${label} must not expose tool flow in visible content`);
+  assert.equal(html.includes("boundary_only"), false, `${label} must not expose adapter mode`);
+  assert.equal(html.includes("adapter-layer metadata"), false, `${label} must not expose adapter metadata as UI copy`);
+  assert.equal(html.includes("llms.txt"), false, `${label} must not make machine exports visible IA`);
+  assert.equal(html.includes("data-agent-icon-card"), false, `${label} must not keep old icon proof attributes`);
+}
+assert.ok(designSystem.includes("<h1>Foundations</h1>"));
+assert.ok(designSystem.includes("Foundation assets"));
+assert.ok(designSystem.includes("How to review"));
+assert.ok(designSystem.includes("Principles"));
+assert.ok(designSystem.includes("Tokens"));
+assert.ok(designSystem.includes("Typography"));
+assert.ok(designSystem.includes("Icons"));
+assert.ok(designSystem.includes('aria-label="Design system sections"'));
+assert.ok(designSystem.includes('aria-label="On this page"'));
+assert.ok(designSystem.includes("/design-system/tokens/"));
+assert.ok(designSystem.includes("/design-system/fonts/"));
+assert.ok(designSystem.includes("/design-system/icons/"));
+assert.ok(designSystemTokens.includes("<h1>Tokens</h1>"));
+assert.ok(designSystemTokens.includes("JudgmentKit token roles"));
+assert.ok(designSystemTokens.includes("Token roles"));
+assert.ok(designSystemTokens.includes("surface"));
+assert.ok(designSystemTokens.includes("focus"));
+assert.ok(designSystemTokens.includes("receipt"));
+assert.ok(designSystemTokens.includes('data-token-role="surface"'));
+assert.ok(designSystemTokens.includes('data-token-role="focus"'));
+assert.ok(designSystemTokens.includes("<caption>JudgmentKit token roles</caption>"));
+assert.ok(designSystemTokens.includes("Accessibility"));
+assert.ok(designSystemTokens.includes("Color cannot be the only way"));
+assert.equal(designSystemTokens.includes("Evidence Expectations"), false);
+assert.equal(designSystemTokens.includes("Failure Signals"), false);
+assert.ok(designSystemFonts.includes("<h1>Typography</h1>"));
+assert.ok(designSystemFonts.includes("JudgmentKit typography roles"));
+assert.ok(designSystemFonts.includes("body"));
+assert.ok(designSystemFonts.includes("heading"));
+assert.ok(designSystemFonts.includes("label"));
+assert.ok(designSystemFonts.includes("numeric"));
+assert.ok(designSystemFonts.includes("diagnostic"));
+assert.ok(designSystemFonts.includes('data-font-role="body"'));
+assert.ok(designSystemFonts.includes('data-font-role="numeric"'));
+assert.ok(designSystemFonts.includes('data-font-role="diagnostic"'));
+assert.ok(designSystemFonts.includes("system-ui, -apple-system"));
+assert.ok(designSystemFonts.includes("ui-monospace"));
+assert.ok(designSystemFonts.includes("No font CDN or bundled font files."));
+assert.ok(designSystemFonts.includes("Respect browser text scaling"));
+assert.ok(designSystemIcons.includes("<h1>Icons</h1>"));
+assert.ok(designSystemIcons.includes("A complete Lucide icon catalog"));
+assert.ok(designSystemIcons.includes("lucide-static@1.21.0"));
+assert.ok(designSystemIcons.includes("1737"));
+assert.ok(designSystemIcons.includes("Usage"));
+assert.ok(designSystemIcons.includes("Icon examples"));
+assert.ok(designSystemIcons.includes("Icon index"));
+assert.ok(designSystemIcons.includes("Accessibility"));
+assert.ok(designSystemIcons.includes("Source"));
+assert.ok(designSystemIcons.includes("Choose the icon by the meaning"));
+assert.ok(designSystemIcons.includes('data-design-icon-search'));
+assert.ok(designSystemIcons.includes('data-icon-example="status-success"'));
+assert.ok(designSystemIcons.includes('data-selected-icon-id="check"'));
+assert.ok(designSystemIcons.includes('data-icon-id="receipt-text"'));
+assert.equal(designSystemIcons.includes("list_icon_catalog"), false);
+assert.equal(designSystemIcons.includes("search_icon_catalog"), false);
+assert.equal(designSystemIcons.includes("get_icon_svg"), false);
+assert.ok(designSystemIcons.includes("/examples/lucide-icon-catalog-smoke.html"));
+assert.equal(designSystemIcons.includes("data-catalog-icon"), false);
+assert.ok(designSystemIcons.includes("<svg"));
+assert.ok(designSystemIcons.includes('viewBox="0 0 24 24"'));
+assert.equal((designSystemIcons.match(/data-icon-example=/g) ?? []).length, 16);
+assert.equal((designSystemIcons.match(/data-icon-id=/g) ?? []).length, 1737);
+assert.equal((designSystemIcons.match(/data-catalog-icon=/g) ?? []).length, 0);
+assert.ok(Buffer.byteLength(designSystemIcons, "utf8") < 350_000);
+const lucideSmokeProof = fs.readFileSync(
+  path.join(tempDir, "examples", "lucide-icon-catalog-smoke.html"),
+  "utf8",
+);
+assert.equal((lucideSmokeProof.match(/data-catalog-icon=/g) ?? []).length, 1737);
+assert.ok(siteCss.includes(".design-system-page"));
+assert.ok(siteCss.includes(".design-system-foundation-list"));
+assert.ok(siteCss.includes(".design-system-table"));
+assert.ok(siteCss.includes(".design-system-search"));
+assert.ok(siteCss.includes(".design-system-example-grid"));
+assert.ok(siteCss.includes(".design-icon-index-list"));
+assert.ok(siteCss.includes(".design-icon-symbol svg"));
+assert.ok(designSystemLlms.includes("# JudgmentKit Design System"));
+assert.ok(designSystemLlms.includes("/design-system/"));
+assert.ok(designSystemLlms.includes("/design-system/index.html.md"));
+assert.ok(designSystemLlms.includes("/design-system/manifest.json"));
+assert.ok(designSystemLlms.includes("/examples/lucide-icon-catalog-smoke.html"));
+assert.ok(designSystemLlmsFull.includes("## Principles"));
+assert.ok(designSystemLlmsFull.includes("## Icon Examples"));
+assert.equal(designSystemLlmsFull.includes("data-catalog-icon"), false);
+assert.equal(designSystemLlmsFull.includes("Agent Consumption"), false);
+assert.equal(designSystemManifest.exports.llms, "/design-system/llms.txt");
+assert.equal(designSystemManifest.exports.visual_token_adapter, "/design-system/visual-token-adapter.json");
+assert.equal(designSystemManifest.section, "JudgmentKit Design System");
+assert.equal(designSystemManifest.purpose, "Human reference for foundation assets.");
+assert.equal(designSystemManifest.source.lucide.package, "lucide-static");
+assert.equal(designSystemManifest.source.lucide.version, "1.21.0");
+assert.equal(designSystemManifest.source.lucide.icon_count, 1737);
+assert.equal(visualTokenAdapterExport.icon_catalog.package, "lucide-static");
+assert.equal(visualTokenAdapterExport.icon_catalog.version, "1.21.0");
+assert.equal(visualTokenAdapterExport.icon_catalog.icon_count, 1737);
+assert.deepEqual(iconScenariosExport.mcp_tools, [
+  "list_icon_catalog",
+  "search_icon_catalog",
+  "get_icon_svg",
+]);
+assert.equal(iconScenariosExport.source.package, "lucide-static");
+assert.equal(iconScenariosExport.source.version, "1.21.0");
+assert.equal(iconScenariosExport.source.icon_count, 1737);
+assert.equal(iconScenariosExport.scenarios.length, 16);
+assert.equal(iconScenariosExport.scenarios.some((scenario) => "inline_svg" in scenario), false);
+assert.ok(iconScenariosExport.scenarios.some((scenario) => scenario.selected_icon_id === "receipt-text"));
+
 const value = fs.readFileSync(path.join(tempDir, "value", "index.html"), "utf8");
 const valuePrimaryStory = value
   .split('<section class="section value-page">')[1]
@@ -383,7 +597,11 @@ assert.ok(examples.includes("AI-native design system"));
 assert.ok(examples.includes("First-use loop and canonical contract cases"));
 assert.ok(examples.includes("/examples/ai-native-design-system/first-use.json"));
 assert.ok(examples.includes("/examples/ai-native-design-system/canonical-examples.json"));
-assert.ok(examples.includes("Tokens, system font stacks, and embedded SVG icons remain governed metadata"));
+assert.ok(examples.includes("/design-system/icons/"));
+assert.ok(examples.includes("/examples/lucide-icon-catalog-smoke.html"));
+assert.ok(examples.includes("Tokens, system font stacks, and Lucide icon catalog policy remain governed metadata"));
+assert.ok(examples.includes("The design-system icon page is the reference surface"));
+assert.ok(examples.includes("this HTML remains the deterministic regression proof"));
 assert.ok(examples.includes("Model UI matrix"));
 assert.ok(examples.includes("These matrix examples compare"));
 assert.ok(examples.includes('class="model-ui-use-case-select" data-use-case-select aria-label="Use case"'));
@@ -673,6 +891,7 @@ assert.ok(siteCss.includes(".report-context-matrix"));
 
 for (const copiedExamplePath of [
   ["examples", "one-shot-demo.html"],
+  ["examples", "lucide-icon-catalog-smoke.html"],
   ["examples", "comparison", "refund", "version-a.html"],
   ["examples", "comparison", "refund", "version-b.html"],
   ["examples", "model-ui", "refund-system-map", "index.html"],

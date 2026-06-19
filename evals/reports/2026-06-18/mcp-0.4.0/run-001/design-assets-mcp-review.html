@@ -182,7 +182,7 @@
       <header>
         <p class="pill">MCP 0.4.0 review artifact</p>
         <h1>Portable design assets in JudgmentKit MCP</h1>
-        <p class="lede">JudgmentKit now sends token roles, system font stacks, and a small embedded SVG icon registry through the existing implementation contract and frontend implementation skill context. These defaults are adapter-layer guidance and do not replace activity, workflow, disclosure, accessibility, static-check, or browser-QA gates.</p>
+        <p class="lede">JudgmentKit now sends token roles, system font stacks, and Lucide icon catalog policy through the existing implementation contract and frontend implementation skill context. The full generated Lucide catalog ships with MCP catalog tools and remains adapter-layer guidance, not a substitute for activity, workflow, disclosure, accessibility, static-check, or browser-QA gates.</p>
       </header>
 
       <section class="grid" aria-label="Design asset defaults">
@@ -213,45 +213,41 @@
         </article>
         <article class="panel">
           <h2>Icons</h2>
-          <p>No external icon package is required. MCP structured content includes a compact inline SVG registry with role, viewBox, path, accessibility guidance, and allowed usage metadata.</p>
+          <p>No runtime icon CDN or remote fetch is required. MCP structured content includes the Lucide catalog summary, source/version, count, policy, and tool names; SVG payloads are retrieved only through icon catalog tools.</p>
           <ul>
-            <li>Small semantic set, not a full icon library.</li>
-            <li>Callers can override with repo-local adapters.</li>
+            <li>Committed generated catalog: Lucide 1.21.0, 1,737 canonical icons.</li>
+            <li>Use <code>search_icon_catalog</code> and <code>get_icon_svg</code> to choose and retrieve concrete icons.</li>
             <li>Icon-only controls still need accessible names and non-text contrast evidence.</li>
           </ul>
         </article>
       </section>
 
       <section>
-        <h2>Embedded icon registry</h2>
-        <div class="icon-grid" aria-label="Default embedded icon registry">
+        <h2>Lucide catalog samples</h2>
+        <div class="icon-grid" aria-label="Sample Lucide icons from catalog tools">
           <div class="icon-cell">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg>
-            <span>status-check</span>
-          </div>
-          <div class="icon-cell">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 9v4"></path><path d="M12 17h.01"></path><path d="M10.3 4.3 2.6 18a2 2 0 0 0 1.7 3h15.4a2 2 0 0 0 1.7-3L13.7 4.3a2 2 0 0 0-3.4 0Z"></path></svg>
-            <span>status-alert</span>
+            <span>check</span>
           </div>
           <div class="icon-cell">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
-            <span>info-circle</span>
+            <span>info</span>
           </div>
           <div class="icon-cell">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m9 18 6-6-6-6"></path></svg>
             <span>chevron-right</span>
           </div>
           <div class="icon-cell">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 5h18"></path><path d="M6 12h12"></path><path d="M10 19h4"></path></svg>
-            <span>filter</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M2 5h20"></path><path d="M6 12h12"></path><path d="M9 19h6"></path></svg>
+            <span>list-filter</span>
           </div>
           <div class="icon-cell">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"></path><path d="M22 2 11 13"></path></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path><path d="m21.854 2.147-10.94 10.939"></path></svg>
             <span>send</span>
           </div>
           <div class="icon-cell">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"></path><path d="M9 7h6"></path><path d="M9 11h6"></path><path d="M9 15h4"></path></svg>
-            <span>receipt</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M13 16H8"></path><path d="M14 8H8"></path><path d="M16 12H8"></path><path d="M4 3a1 1 0 0 1 1-1 1.3 1.3 0 0 1 .7.2l.933.6a1.3 1.3 0 0 0 1.4 0l.934-.6a1.3 1.3 0 0 1 1.4 0l.933.6a1.3 1.3 0 0 0 1.4 0l.933-.6a1.3 1.3 0 0 1 1.4 0l.934.6a1.3 1.3 0 0 0 1.4 0l.933-.6A1.3 1.3 0 0 1 19 2a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1 1.3 1.3 0 0 1-.7-.2l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.934.6a1.3 1.3 0 0 1-1.4 0l-.933-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-1.4 0l-.934-.6a1.3 1.3 0 0 0-1.4 0l-.933.6a1.3 1.3 0 0 1-.7.2 1 1 0 0 1-1-1z"></path></svg>
+            <span>receipt-text</span>
           </div>
         </div>
       </section>
@@ -262,7 +258,7 @@
           <ul>
             <li><code>create_ui_implementation_contract</code> exposes token, font, and icon defaults.</li>
             <li><code>create_frontend_implementation_skill_context</code> includes normalized token/font/icon guidance.</li>
-            <li>MCP stdio and library tests assert system font stacks and embedded SVG icons in structured content.</li>
+            <li>MCP stdio and library tests assert system font stacks plus Lucide catalog list/search/get tool behavior.</li>
           </ul>
         </article>
         <article class="panel warning">

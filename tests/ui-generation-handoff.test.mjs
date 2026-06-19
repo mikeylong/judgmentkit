@@ -478,10 +478,8 @@ function refundOperatorImplementationCandidate(overrides = {}) {
     "visual token checks should expose portable font role defaults.",
   );
   assert.ok(
-    tokenMetadataReview.checks.visual_tokens.icon_registry.some(
-      (entry) => entry.id === "status-check" && entry.paths.length > 0,
-    ),
-    "visual token checks should expose embedded SVG icon defaults.",
+    tokenMetadataReview.checks.visual_tokens.icon_catalog.icon_count > 1000,
+    "visual token checks should expose the Lucide icon catalog summary.",
   );
 
   const fontIconMetadataReview = reviewUiImplementationCandidate(
@@ -490,7 +488,7 @@ function refundOperatorImplementationCandidate(overrides = {}) {
         token_families: ["color", "type"],
         font_roles: ["body", "numeric", "diagnostic"],
         icon_roles: ["status", "action", "receipt"],
-        icons: [{ role: "status", id: "status-check" }],
+        selected_icons: [{ role: "status", id: "check" }],
       },
     }),
     { implementation_contract: implementationContract },
@@ -502,6 +500,24 @@ function refundOperatorImplementationCandidate(overrides = {}) {
   assert.deepEqual(fontIconMetadataReview.checks.visual_tokens.unsupported_icon_roles, []);
   assert.ok(fontIconMetadataReview.checks.visual_tokens.font_roles.includes("numeric"));
   assert.ok(fontIconMetadataReview.checks.visual_tokens.icon_roles.includes("receipt"));
+  assert.ok(fontIconMetadataReview.checks.visual_tokens.selected_icon_ids.includes("check"));
+
+  const unsupportedIconIdReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      visual_token_evidence: {
+        token_families: ["color"],
+        icon_roles: ["status"],
+        selected_icons: [{ role: "status", id: "not-a-lucide-icon" }],
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(unsupportedIconIdReview.implementation_review_status, "failed");
+  assert.equal(unsupportedIconIdReview.checks.visual_tokens.status, "fail");
+  assert.deepEqual(unsupportedIconIdReview.checks.visual_tokens.unsupported_icon_ids, [
+    "not-a-lucide-icon",
+  ]);
 
   const unsupportedFontIconReview = reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({

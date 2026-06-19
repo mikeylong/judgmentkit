@@ -78,44 +78,19 @@
       "navigation",
       "receipt"
     ],
-    "icon_registry": [
-      {
-        "id": "status-check",
-        "role": "status",
-        "label": "Status check",
-        "viewBox": "0 0 24 24",
-        "paths": [
-          "M20 6 9 17l-5-5"
-        ],
-        "svg_attributes": {
-          "fill": "none",
-          "stroke": "currentColor"
-        },
-        "accessibility_guidance": "Pair with Material UI status text.",
-        "allowed_usage": [
-          "success state",
-          "completed state"
-        ]
-      },
-      {
-        "id": "receipt",
-        "role": "receipt",
-        "label": "Receipt",
-        "viewBox": "0 0 24 24",
-        "paths": [
-          "M6 3h12v18l-3-2-3 2-3-2-3 2V3Z"
-        ],
-        "svg_attributes": {
-          "fill": "none",
-          "stroke": "currentColor"
-        },
-        "accessibility_guidance": "Pair with completion or handoff text.",
-        "allowed_usage": [
-          "handoff receipt",
-          "confirmation"
-        ]
-      }
-    ]
+    "icon_catalog": {
+      "source": "adapter_override",
+      "library": "mui-icons-material",
+      "package": "@mui/icons-material",
+      "version": "repo-approved",
+      "icon_count": 2000,
+      "license": "MIT",
+      "notice": "Repo-approved Material UI icon adapter.",
+      "mcp_tools": [
+        "search_icon_catalog",
+        "get_icon_svg"
+      ]
+    }
   },
   "components": [
     "ThemeProvider",

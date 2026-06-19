@@ -639,7 +639,7 @@
     "visual_token_adapter": {
       "id": "judgmentkit.visual-token-adapter.boundary-v1",
       "mode": "boundary_only",
-      "purpose": "Define semantic visual token evidence after contract governance without selecting renderer components.",
+      "purpose": "Define semantic token, font, and icon evidence after contract governance without selecting renderer components.",
       "token_families": [
         "color",
         "type",
@@ -750,122 +750,48 @@
       "risk",
       "receipt"
     ],
-    "icon_registry": [
-      {
-        "id": "status-check",
-        "role": "status",
-        "label": "Status check",
+    "icon_catalog": {
+      "source": "committed_generated_catalog",
+      "library": "lucide",
+      "package": "lucide-static",
+      "version": "1.21.0",
+      "icon_count": 1737,
+      "license": "ISC",
+      "notice": "Some Lucide icons are derived from Feather Icons and retain the Feather MIT notice; see THIRD_PARTY_NOTICES.md.",
+      "style_system": "Lucide 24px outline icons with round caps and joins",
+      "style_attributes": {
         "viewBox": "0 0 24 24",
-        "paths": ["M20 6 9 17l-5-5"],
-        "svg_attributes": {
-          "fill": "none",
-          "stroke": "currentColor",
-          "stroke_width": "2",
-          "stroke_linecap": "round",
-          "stroke_linejoin": "round"
-        },
-        "accessibility_guidance": "Decorative when adjacent text names the status; otherwise provide an accessible name.",
-        "allowed_usage": ["success state", "completed state", "confirmed receipt"]
+        "fill": "none",
+        "stroke": "currentColor",
+        "stroke_width": "2",
+        "stroke_linecap": "round",
+        "stroke_linejoin": "round"
       },
-      {
-        "id": "status-alert",
-        "role": "risk",
-        "label": "Status alert",
-        "viewBox": "0 0 24 24",
-        "paths": ["M12 3 22 20H2L12 3Z", "M12 9v4", "M12 17h.01"],
-        "svg_attributes": {
-          "fill": "none",
-          "stroke": "currentColor",
-          "stroke_width": "2",
-          "stroke_linecap": "round",
-          "stroke_linejoin": "round"
-        },
-        "accessibility_guidance": "Pair with text that names the risk, warning, or blocked reason.",
-        "allowed_usage": ["risk state", "warning state", "blocked decision"]
-      },
-      {
-        "id": "info-circle",
-        "role": "status",
-        "label": "Information",
-        "viewBox": "0 0 24 24",
-        "paths": ["M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z", "M12 10v6", "M12 7h.01"],
-        "svg_attributes": {
-          "fill": "none",
-          "stroke": "currentColor",
-          "stroke_width": "2",
-          "stroke_linecap": "round",
-          "stroke_linejoin": "round"
-        },
-        "accessibility_guidance": "Decorative beside explanatory text; named when it opens help or details.",
-        "allowed_usage": ["information state", "help affordance", "diagnostic note"]
-      },
-      {
-        "id": "chevron-right",
-        "role": "navigation",
-        "label": "Next",
-        "viewBox": "0 0 24 24",
-        "paths": ["M9 18l6-6-6-6"],
-        "svg_attributes": {
-          "fill": "none",
-          "stroke": "currentColor",
-          "stroke_width": "2",
-          "stroke_linecap": "round",
-          "stroke_linejoin": "round"
-        },
-        "accessibility_guidance": "Use for navigation or disclosure only when surrounding text names the destination or state.",
-        "allowed_usage": ["next item", "drill-in", "disclosure"]
-      },
-      {
-        "id": "filter",
-        "role": "action",
-        "label": "Filter",
-        "viewBox": "0 0 24 24",
-        "paths": ["M4 6h16", "M7 12h10", "M10 18h4"],
-        "svg_attributes": {
-          "fill": "none",
-          "stroke": "currentColor",
-          "stroke_width": "2",
-          "stroke_linecap": "round",
-          "stroke_linejoin": "round"
-        },
-        "accessibility_guidance": "Icon-only filter controls require an accessible name and target-size evidence.",
-        "allowed_usage": ["filter action", "queue narrowing", "view refinement"]
-      },
-      {
-        "id": "send",
-        "role": "action",
-        "label": "Send",
-        "viewBox": "0 0 24 24",
-        "paths": ["M22 2 11 13", "M22 2 15 22l-4-9-9-4 20-7Z"],
-        "svg_attributes": {
-          "fill": "none",
-          "stroke": "currentColor",
-          "stroke_width": "2",
-          "stroke_linecap": "round",
-          "stroke_linejoin": "round"
-        },
-        "accessibility_guidance": "Use only with explicit action text or an accessible name that states what will be sent.",
-        "allowed_usage": ["send handoff", "submit message", "forward result"]
-      },
-      {
-        "id": "receipt",
-        "role": "receipt",
-        "label": "Receipt",
-        "viewBox": "0 0 24 24",
-        "paths": ["M6 3h12v18l-3-2-3 2-3-2-3 2V3Z", "M9 8h6", "M9 12h6", "M9 16h4"],
-        "svg_attributes": {
-          "fill": "none",
-          "stroke": "currentColor",
-          "stroke_width": "2",
-          "stroke_linecap": "round",
-          "stroke_linejoin": "round"
-        },
-        "accessibility_guidance": "Pair with completion text that names the receipt, result, or handoff outcome.",
-        "allowed_usage": ["handoff receipt", "confirmation", "completion state"]
-      }
-    ],
+      "mcp_tools": ["list_icon_catalog", "search_icon_catalog", "get_icon_svg"],
+      "default_include_svg": false
+    },
+    "icon_selection_policy": {
+      "source_library": "lucide",
+      "selection_flow": [
+        "Use search_icon_catalog to find candidate Lucide icons by activity meaning, source icon name, alias, or tag.",
+        "Use get_icon_svg for the selected canonical Lucide icon id before rendering inline SVG.",
+        "Use list_icon_catalog for pagination or category browsing; existing context tools intentionally return only this catalog summary."
+      ],
+      "semantic_guidance": "JudgmentKit may recommend roles such as status icon, handoff icon, or risk icon; agents choose concrete Lucide icon ids through the catalog tools.",
+      "accessibility_guidance": [
+        "Icon use never satisfies accessibility evidence by itself.",
+        "Icon-only controls require accessible names plus target-size and keyboard/focus evidence.",
+        "Meaningful icons require adjacent visible text when possible and non-text contrast evidence."
+      ],
+      "failure_signals": [
+        "selected icon ids are not canonical ids in the Lucide catalog",
+        "icons are used as a substitute for required labels, states, activity evidence, workflow evidence, accessibility evidence, or QA gates",
+        "icons are fetched from a runtime CDN or remote source instead of the committed MCP catalog"
+      ]
+    },
     "icon_rules": [
-      "default icons are embedded inline SVG metadata returned in MCP structured content",
+      "default icons come from the committed Lucide catalog exposed through MCP icon tools",
+      "normal implementation context includes catalog summary and policy only, not the full catalog payload",
       "icons that convey meaning require adjacent text or an accessible name",
       "icon-only controls require target-size and keyboard/focus evidence",
       "meaningful icons require non-text contrast evidence"
@@ -880,7 +806,7 @@
       "name visual token families used by the candidate",
       "map token semantics to approved primitives, states, and surface patterns",
       "name font roles and confirm system stacks or repo-approved font assets",
-      "name icon roles and confirm embedded SVG or repo-approved icon assets",
+      "name icon roles and selected canonical Lucide icon ids or repo-approved icon assets",
       "include accessibility-relevant token evidence when color, motion, density, focus, or status roles affect readability or input"
     ],
       "deferred_renderer": {
