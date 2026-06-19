@@ -73,6 +73,11 @@ assert.equal("icon_registry" in visualTokenAdapter, false);
 assert.equal(visualTokenAdapter.icon_catalog.library, "lucide");
 assert.ok(visualTokenAdapter.icon_catalog.icon_count > 1000);
 assert.ok(visualTokenAdapter.icon_catalog.mcp_tools.includes("get_icon_svg"));
+assert.ok(
+  visualTokenAdapter.css_custom_properties.some(
+    (entry) => entry.name === "--jk-color-surface" && entry.value === "#ffffff",
+  ),
+);
 
 const unsupportedIconReview = reviewUiImplementationCandidate(
   {
@@ -146,4 +151,9 @@ assert.equal(skillContext.icon_guidance.icon_catalog.library, "lucide");
 assert.ok(skillContext.icon_guidance.icon_catalog.icon_count > 1000);
 assert.equal(Array.isArray(skillContext.icon_guidance.icon_catalog.icons), false);
 assert.equal(JSON.stringify(skillContext).includes("status-check"), false);
+assert.ok(skillContext.token_guidance.css_custom_properties.length > 0);
+assert.ok(skillContext.component_contracts.some((entry) => entry.id === "action_button"));
+assert.ok(skillContext.pattern_contracts.some((entry) => entry.id === "workbench"));
 assert.ok(skillContext.instruction_markdown.includes("Icon catalog"));
+assert.ok(skillContext.instruction_markdown.includes("--jk-color-surface"));
+assert.ok(skillContext.instruction_markdown.includes("Component contracts"));

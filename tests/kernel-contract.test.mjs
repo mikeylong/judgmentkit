@@ -137,6 +137,36 @@ assert.ok(
   ),
   "The default AI-native system must include surface pattern defaults.",
 );
+assert.equal(
+  contract.implementation_contract.default_ai_native_design_system.component_contracts
+    .length,
+  17,
+  "The default AI-native system must include core UI component contracts.",
+);
+assert.ok(
+  contract.implementation_contract.default_ai_native_design_system.component_contracts.some(
+    (entry) =>
+      entry.id === "action_button" &&
+      entry.required_states.includes("focus-visible") &&
+      entry.token_bindings.includes("decision"),
+  ),
+  "The component contracts must include an actionable button contract.",
+);
+assert.equal(
+  contract.implementation_contract.default_ai_native_design_system.pattern_contracts
+    .length,
+  8,
+  "The default AI-native system must include one pattern contract per surface type.",
+);
+assert.ok(
+  contract.implementation_contract.default_ai_native_design_system.pattern_contracts.some(
+    (entry) =>
+      entry.id === "workbench" &&
+      entry.surface_type === "workbench" &&
+      entry.required_regions.includes("work queue"),
+  ),
+  "The pattern contracts must include workbench regions.",
+);
 assert.ok(
   contract.implementation_contract.default_ai_native_design_system.action_boundaries.required.some(
     (rule) => rule.includes("approval boundary"),
@@ -295,6 +325,8 @@ assert.deepEqual(
     "primitive_defaults",
     "surface_patterns",
     "state_rules",
+    "component_contracts",
+    "pattern_contracts",
     "action_boundaries",
     "data_visibility",
     "accessibility",
@@ -302,6 +334,18 @@ assert.deepEqual(
     "adapter_boundary",
   ],
   "The schema must require the default AI-native system shape.",
+);
+assert.equal(
+  schema.$defs.implementationContract.properties.default_ai_native_design_system
+    .properties.component_contracts.items.$ref,
+  "#/$defs/componentContract",
+  "The schema must type component contracts as strict componentContract entries.",
+);
+assert.equal(
+  schema.$defs.implementationContract.properties.default_ai_native_design_system
+    .properties.pattern_contracts.items.$ref,
+  "#/$defs/patternContract",
+  "The schema must type pattern contracts as strict patternContract entries.",
 );
 assert.deepEqual(
   schema.$defs.implementationContract.properties.iteration_policy.required,
@@ -323,6 +367,7 @@ assert.deepEqual(
     "purpose",
     "token_families",
     "token_roles",
+    "css_custom_properties",
     "semantic_roles",
     "font_roles",
     "font_rules",
@@ -402,6 +447,51 @@ assert.equal(
   true,
   "createUiImplementationContract must keep the default system pointing at the token adapter boundary.",
 );
+const overriddenDesignSystemContract = createUiImplementationContract({
+  default_ai_native_design_system: {
+    component_contracts: [
+      {
+        id: "repo_button",
+        label: "Repo button",
+        purpose: "Trigger a repo-approved action.",
+        use_when: ["repo action is available"],
+        avoid_when: ["action is unsupported"],
+        anatomy: ["label", "state"],
+        required_states: ["ready", "focus-visible"],
+        token_bindings: ["decision"],
+        accessibility_checks: ["accessible name"],
+        review_checks: ["action is authorized"],
+        failure_signals: ["missing label"],
+      },
+    ],
+    pattern_contracts: [
+      {
+        id: "repo_workbench",
+        label: "Repo workbench",
+        surface_type: "workbench",
+        purpose: "Support repo review work.",
+        required_regions: ["queue", "detail"],
+        expected_controls: ["select", "decide"],
+        completion_or_handoff: "review is handed off",
+        disclosure_boundary: "diagnostics stay secondary",
+        accessibility_expectations: ["focus order"],
+        failure_signals: ["no handoff"],
+      },
+    ],
+  },
+});
+assert.deepEqual(
+  overriddenDesignSystemContract.implementation_contract
+    .default_ai_native_design_system.component_contracts.map((entry) => entry.id),
+  ["repo_button"],
+  "createUiImplementationContract must normalize component contract overrides.",
+);
+assert.deepEqual(
+  overriddenDesignSystemContract.implementation_contract
+    .default_ai_native_design_system.pattern_contracts.map((entry) => entry.id),
+  ["repo_workbench"],
+  "createUiImplementationContract must normalize pattern contract overrides.",
+);
 assert.equal(
   contract.implementation_contract.visual_token_adapter.mode,
   "boundary_only",
@@ -420,6 +510,15 @@ assert.ok(
     (entry) => entry.role === "surface" && entry.families.includes("color"),
   ),
   "The visual token adapter must include semantic token roles.",
+);
+assert.ok(
+  contract.implementation_contract.visual_token_adapter.css_custom_properties.some(
+    (entry) =>
+      entry.name === "--jk-color-surface" &&
+      entry.value === "#ffffff" &&
+      entry.role === "surface",
+  ),
+  "The visual token adapter must include concrete portable CSS custom properties.",
 );
 assert.ok(
   contract.implementation_contract.visual_token_adapter.font_roles.some(
@@ -466,6 +565,15 @@ const overriddenTokenContract = createUiImplementationContract({
   visual_token_adapter: {
     token_families: ["color", "motion"],
     token_roles: [{ role: "focus", families: ["color"], usage: "focus ring" }],
+    css_custom_properties: [
+      {
+        name: "--repo-focus",
+        role: "focus",
+        family: "color",
+        value: "#005fcc",
+        usage: "repo focus ring",
+      },
+    ],
     semantic_roles: ["focus", "status"],
     font_roles: {
       body: {
@@ -503,6 +611,19 @@ assert.deepEqual(
 assert.deepEqual(
   overriddenTokenContract.implementation_contract.visual_token_adapter.token_roles,
   [{ role: "focus", families: ["color"], usage: "focus ring" }],
+);
+assert.deepEqual(
+  overriddenTokenContract.implementation_contract.visual_token_adapter
+    .css_custom_properties,
+  [
+    {
+      name: "--repo-focus",
+      role: "focus",
+      family: "color",
+      value: "#005fcc",
+      usage: "repo focus ring",
+    },
+  ],
 );
 assert.ok(
   overriddenTokenContract.implementation_contract.visual_token_adapter.font_roles.some(

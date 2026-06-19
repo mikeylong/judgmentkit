@@ -513,11 +513,29 @@ try {
   );
   assert.ok(
     implementationContractResponse.structuredContent.implementation_contract
+      .visual_token_adapter.css_custom_properties.some(
+        (entry) => entry.name === "--jk-color-surface" && entry.value === "#ffffff",
+      ),
+  );
+  assert.ok(
+    implementationContractResponse.structuredContent.implementation_contract
       .visual_token_adapter.icon_catalog.icon_count > 1000,
   );
   assert.ok(
     implementationContractResponse.structuredContent.implementation_contract
       .visual_token_adapter.icon_catalog.mcp_tools.includes("search_icon_catalog"),
+  );
+  assert.ok(
+    implementationContractResponse.structuredContent.implementation_contract
+      .default_ai_native_design_system.component_contracts.some(
+        (entry) => entry.id === "action_button",
+      ),
+  );
+  assert.ok(
+    implementationContractResponse.structuredContent.implementation_contract
+      .default_ai_native_design_system.pattern_contracts.some(
+        (entry) => entry.id === "workbench",
+      ),
   );
 
   const implementationReviewResponse = await withTimeout(
@@ -559,6 +577,14 @@ try {
   );
   assert.equal(
     implementationReviewResponse.structuredContent.checks.visual_tokens.status,
+    "pass",
+  );
+  assert.equal(
+    implementationReviewResponse.structuredContent.checks.component_contracts.status,
+    "pass",
+  );
+  assert.equal(
+    implementationReviewResponse.structuredContent.checks.pattern_contracts.status,
     "pass",
   );
 
@@ -707,6 +733,21 @@ try {
   assert.ok(
     frontendSkillContextResponse.structuredContent.font_guidance.font_roles.some(
       (entry) => entry.role === "body" && entry.stack.includes("system-ui"),
+    ),
+  );
+  assert.ok(
+    frontendSkillContextResponse.structuredContent.token_guidance.css_custom_properties.some(
+      (entry) => entry.name === "--jk-color-surface" && entry.value === "#ffffff",
+    ),
+  );
+  assert.ok(
+    frontendSkillContextResponse.structuredContent.component_contracts.some(
+      (entry) => entry.id === "action_button",
+    ),
+  );
+  assert.ok(
+    frontendSkillContextResponse.structuredContent.pattern_contracts.some(
+      (entry) => entry.id === "workbench",
     ),
   );
   assert.ok(

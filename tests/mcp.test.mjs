@@ -401,6 +401,14 @@ function coreAccessibilityEvidence() {
     implementationContract.implementation_contract.default_ai_native_design_system.mode,
     "contract_defaults",
   );
+  assert.ok(
+    implementationContract.implementation_contract.default_ai_native_design_system
+      .component_contracts.some((entry) => entry.id === "action_button"),
+  );
+  assert.ok(
+    implementationContract.implementation_contract.default_ai_native_design_system
+      .pattern_contracts.some((entry) => entry.id === "workbench"),
+  );
   assert.equal(
     implementationContract.implementation_contract.iteration_policy.default_max_attempts,
     3,
@@ -417,6 +425,11 @@ function coreAccessibilityEvidence() {
   assert.ok(
     implementationContract.implementation_contract.visual_token_adapter.font_roles.some(
       (entry) => entry.role === "body" && entry.stack.includes("system-ui"),
+    ),
+  );
+  assert.ok(
+    implementationContract.implementation_contract.visual_token_adapter.css_custom_properties.some(
+      (entry) => entry.name === "--jk-color-surface" && entry.value === "#ffffff",
     ),
   );
   assert.ok(
@@ -448,6 +461,10 @@ function coreAccessibilityEvidence() {
   assert.equal(implementationReview.next_agent_action, "accept");
   assert.equal(implementationReview.autofix_loop.status, "passed");
   assert.equal(implementationReview.checks.visual_tokens.status, "pass");
+  assert.equal(implementationReview.checks.component_contracts.status, "pass");
+  assert.equal(implementationReview.checks.component_contracts.reviewed, false);
+  assert.equal(implementationReview.checks.pattern_contracts.status, "pass");
+  assert.equal(implementationReview.checks.pattern_contracts.reviewed, false);
 
   const repairReview = await handleToolCall("review_ui_implementation_candidate", {
     implementation_contract: implementationContract,
@@ -583,12 +600,26 @@ function coreAccessibilityEvidence() {
   assert.ok(skillContext.design_system_policy.renderer_components.includes("Button"));
   assert.deepEqual(skillContext.token_guidance.token_families, ["color", "type"]);
   assert.ok(
+    skillContext.token_guidance.css_custom_properties.some(
+      (entry) => entry.name === "--jk-color-surface" && entry.value === "#ffffff",
+    ),
+  );
+  assert.ok(skillContext.component_contracts.some((entry) => entry.id === "action_button"));
+  assert.ok(skillContext.pattern_contracts.some((entry) => entry.id === "workbench"));
+  assert.ok(
+    skillContext.instruction_markdown.includes("Component contracts"),
+  );
+  assert.ok(
+    skillContext.instruction_markdown.includes("Pattern contracts"),
+  );
+  assert.ok(
     skillContext.font_guidance.font_roles.some(
       (entry) => entry.role === "body" && entry.stack === "var(--mui-font-family)",
     ),
   );
   assert.equal(skillContext.icon_guidance.icon_catalog.library, "mui-icons-material");
   assert.ok(skillContext.instruction_markdown.includes("Font roles"));
+  assert.ok(skillContext.instruction_markdown.includes("--jk-color-surface"));
   assert.ok(skillContext.instruction_markdown.includes("Icon catalog"));
   assert.ok(skillContext.visual_requirements.includes("substantive product image"));
   assert.ok(

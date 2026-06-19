@@ -368,6 +368,76 @@
         "failure_signals": { "type": "array", "items": { "type": "string" } }
       }
     },
+    "cssCustomProperty": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "role", "family", "value", "usage"],
+      "properties": {
+        "name": { "type": "string" },
+        "role": { "type": "string" },
+        "family": { "type": "string" },
+        "value": { "type": "string" },
+        "usage": { "type": "string" }
+      }
+    },
+    "componentContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "purpose",
+        "use_when",
+        "avoid_when",
+        "anatomy",
+        "required_states",
+        "token_bindings",
+        "accessibility_checks",
+        "review_checks",
+        "failure_signals"
+      ],
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "purpose": { "type": "string" },
+        "use_when": { "type": "array", "items": { "type": "string" } },
+        "avoid_when": { "type": "array", "items": { "type": "string" } },
+        "anatomy": { "type": "array", "items": { "type": "string" } },
+        "required_states": { "type": "array", "items": { "type": "string" } },
+        "token_bindings": { "type": "array", "items": { "type": "string" } },
+        "accessibility_checks": { "type": "array", "items": { "type": "string" } },
+        "review_checks": { "type": "array", "items": { "type": "string" } },
+        "failure_signals": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "patternContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "label",
+        "surface_type",
+        "purpose",
+        "required_regions",
+        "expected_controls",
+        "completion_or_handoff",
+        "disclosure_boundary",
+        "accessibility_expectations",
+        "failure_signals"
+      ],
+      "properties": {
+        "id": { "type": "string" },
+        "label": { "type": "string" },
+        "surface_type": { "type": "string" },
+        "purpose": { "type": "string" },
+        "required_regions": { "type": "array", "items": { "type": "string" } },
+        "expected_controls": { "type": "array", "items": { "type": "string" } },
+        "completion_or_handoff": { "type": "string" },
+        "disclosure_boundary": { "type": "string" },
+        "accessibility_expectations": { "type": "array", "items": { "type": "string" } },
+        "failure_signals": { "type": "array", "items": { "type": "string" } }
+      }
+    },
     "implementationContract": {
       "type": "object",
       "additionalProperties": false,
@@ -441,6 +511,8 @@
             "primitive_defaults",
             "surface_patterns",
             "state_rules",
+            "component_contracts",
+            "pattern_contracts",
             "action_boundaries",
             "data_visibility",
             "accessibility",
@@ -454,6 +526,14 @@
             "primitive_defaults": { "type": "array", "items": { "type": "string" } },
             "surface_patterns": { "type": "array", "items": { "type": "string" } },
             "state_rules": { "type": "array", "items": { "type": "string" } },
+            "component_contracts": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/componentContract" }
+            },
+            "pattern_contracts": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/patternContract" }
+            },
             "action_boundaries": {
               "type": "object",
               "additionalProperties": false,
@@ -530,6 +610,7 @@
             "purpose",
             "token_families",
             "token_roles",
+            "css_custom_properties",
             "semantic_roles",
             "font_roles",
             "font_rules",
@@ -548,6 +629,10 @@
             "purpose": { "type": "string" },
             "token_families": { "type": "array", "items": { "type": "string" } },
             "token_roles": { "type": "array", "items": { "$ref": "#/$defs/visualTokenRole" } },
+            "css_custom_properties": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/cssCustomProperty" }
+            },
             "semantic_roles": { "type": "array", "items": { "type": "string" } },
             "font_roles": { "type": "array", "items": { "$ref": "#/$defs/fontRole" } },
             "font_rules": { "type": "array", "items": { "type": "string" } },

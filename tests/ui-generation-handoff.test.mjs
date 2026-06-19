@@ -482,6 +482,202 @@ function refundOperatorImplementationCandidate(overrides = {}) {
     "visual token checks should expose the Lucide icon catalog summary.",
   );
 
+  const componentPatternReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      component_contract_evidence: {
+        components: [
+          {
+            id: "action_button",
+            states_covered: ["ready", "disabled", "focus-visible", "loading"],
+          },
+          {
+            id: "dialog",
+            states_covered: ["ready", "loading", "error", "focus-visible"],
+          },
+        ],
+      },
+      pattern_contract_evidence: {
+        pattern_id: "operator_review",
+        surface_type: "operator_review",
+        regions_present: ["produced work", "evidence", "risk", "decision", "receipt"],
+        controls_present: [
+          "approve or accept",
+          "return or request changes",
+          "handoff action",
+        ],
+        completion_or_handoff: "Review produces a decision reason and receipt.",
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(componentPatternReview.implementation_review_status, "passed");
+  assert.equal(componentPatternReview.checks.component_contracts.status, "pass");
+  assert.equal(componentPatternReview.checks.component_contracts.reviewed, true);
+  assert.equal(componentPatternReview.checks.pattern_contracts.status, "pass");
+  assert.equal(componentPatternReview.checks.pattern_contracts.reviewed, true);
+  assert.ok(
+    componentPatternReview.checks.component_contracts.allowed_component_ids.includes(
+      "action_button",
+    ),
+  );
+  assert.ok(
+    componentPatternReview.checks.pattern_contracts.allowed_pattern_ids.includes(
+      "operator_review",
+    ),
+  );
+
+  const unknownComponentReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      component_contract_evidence: {
+        components_used: ["mystery_panel"],
+        states_by_component: {
+          mystery_panel: ["ready"],
+        },
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(unknownComponentReview.implementation_review_status, "failed");
+  assert.equal(unknownComponentReview.checks.component_contracts.status, "fail");
+  assert.deepEqual(
+    unknownComponentReview.checks.component_contracts.unsupported_component_ids,
+    ["mystery_panel"],
+  );
+  assert.ok(
+    unknownComponentReview.repair_instructions.groups.component_contracts.some(
+      (instruction) => instruction.check === "component_contracts",
+    ),
+  );
+
+  const missingComponentStateReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      component_contract_evidence: {
+        components: [{ id: "action_button", states_covered: ["ready"] }],
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(missingComponentStateReview.implementation_review_status, "failed");
+  assert.equal(missingComponentStateReview.checks.component_contracts.status, "fail");
+  assert.ok(
+    missingComponentStateReview.checks.component_contracts.missing_state_evidence.some(
+      (entry) =>
+        entry.component_id === "action_button" &&
+        entry.missing_states.includes("focus-visible"),
+    ),
+  );
+
+  const componentEvidenceMisuseReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      component_contract_evidence: {
+        components: [
+          {
+            id: "action_button",
+            states_covered: ["ready", "disabled", "focus-visible", "loading"],
+          },
+        ],
+        notes: "component contracts replace accessibility evidence for this pass",
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(componentEvidenceMisuseReview.implementation_review_status, "failed");
+  assert.equal(componentEvidenceMisuseReview.checks.component_contracts.status, "fail");
+  assert.ok(
+    componentEvidenceMisuseReview.repair_instructions.groups.component_contracts.some(
+      (instruction) => instruction.check === "component_contracts",
+    ),
+  );
+
+  const patternMismatchReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      pattern_contract_evidence: {
+        pattern_id: "workbench",
+        surface_type: "dashboard_monitor",
+        regions_present: [
+          "work queue",
+          "detail workspace",
+          "evidence",
+          "decision or handoff",
+        ],
+        controls_present: [
+          "selection",
+          "filter or sort",
+          "decision action",
+          "handoff action",
+        ],
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(patternMismatchReview.implementation_review_status, "failed");
+  assert.equal(patternMismatchReview.checks.pattern_contracts.status, "fail");
+  assert.equal(
+    patternMismatchReview.checks.pattern_contracts.required_surface_type,
+    "workbench",
+  );
+
+  const missingPatternEvidenceReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      pattern_contract_evidence: {
+        pattern_id: "operator_review",
+        surface_type: "operator_review",
+        regions_present: ["produced work"],
+        controls_present: ["approve or accept"],
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(missingPatternEvidenceReview.implementation_review_status, "failed");
+  assert.equal(missingPatternEvidenceReview.checks.pattern_contracts.status, "fail");
+  assert.ok(
+    missingPatternEvidenceReview.checks.pattern_contracts.missing_regions.includes(
+      "receipt",
+    ),
+  );
+  assert.ok(
+    missingPatternEvidenceReview.checks.pattern_contracts.missing_controls.includes(
+      "handoff action",
+    ),
+  );
+
+  const componentCannotSatisfyAccessibilityReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      component_contract_evidence: {
+        components: [
+          {
+            id: "action_button",
+            states_covered: ["ready", "disabled", "focus-visible", "loading"],
+          },
+        ],
+      },
+      accessibility_evidence: {
+        keyboard_navigation: undefined,
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(
+    componentCannotSatisfyAccessibilityReview.implementation_review_status,
+    "failed",
+  );
+  assert.equal(
+    componentCannotSatisfyAccessibilityReview.checks.component_contracts.status,
+    "pass",
+  );
+  assert.equal(
+    componentCannotSatisfyAccessibilityReview.checks.accessibility_evidence
+      .keyboard_navigation.status,
+    "fail",
+  );
+
   const fontIconMetadataReview = reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       visual_token_evidence: {

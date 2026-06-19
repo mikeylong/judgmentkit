@@ -139,6 +139,18 @@ async function runMcpClient(endpoint) {
       implementationContractResponse.structuredContent.implementation_contract
         .visual_token_adapter.token_families.includes("color"),
     );
+    assert.ok(
+      implementationContractResponse.structuredContent.implementation_contract
+        .default_ai_native_design_system.component_contracts.some(
+          (entry) => entry.id === "action_button",
+        ),
+    );
+    assert.ok(
+      implementationContractResponse.structuredContent.implementation_contract
+        .default_ai_native_design_system.pattern_contracts.some(
+          (entry) => entry.id === "workbench",
+        ),
+    );
   } finally {
     await client?.close().catch(() => {});
     await transport?.close().catch(() => {});
