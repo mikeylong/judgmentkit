@@ -387,19 +387,19 @@
       <article class="matrix-row">
         <div class="matrix-heading">
           <p class="eyebrow">Generation path</p>
-          <h2>Deterministic</h2>
-          <p>Scripted renderer paths show the controlled baseline for each context combination.</p>
+          <h2>Fixture-rendered baseline</h2>
+          <p>Scripted renderer paths show the controlled fixture-rendered baseline for each context combination.</p>
         </div>
         <div class="matrix-cells">
 
         <article class="gallery-card">
-          <a class="thumbnail-link" href="artifacts/deterministic-no-judgmentkit.html" data-carousel-open="0" aria-label="Open larger view for Deterministic - Raw brief">
-            <img src="screenshots/deterministic-no-judgmentkit.png" alt="Deterministic - Raw brief screenshot" loading="eager">
+          <a class="thumbnail-link" href="artifacts/deterministic-no-judgmentkit.html" data-carousel-open="0" aria-label="Open larger view for Fixture-rendered baseline - Raw brief">
+            <img src="screenshots/deterministic-no-judgmentkit.png" alt="Fixture-rendered baseline - Raw brief screenshot" loading="eager">
           </a>
           <div class="gallery-card-copy">
             <p class="eyebrow">Raw brief</p>
-            <h2>Deterministic - Raw brief</h2>
-            <p>Deterministic receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI.</p>
+            <h2>Fixture-rendered baseline - Raw brief</h2>
+            <p>Fixture-rendered baseline receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI.</p>
             <dl>
               <div><dt>Context</dt><dd>Raw brief</dd></div>
               <div><dt>Render</dt><dd>deterministic_raw_brief_html</dd></div>
@@ -412,13 +412,13 @@
         </article>
 
         <article class="gallery-card">
-          <a class="thumbnail-link" href="artifacts/deterministic-with-judgmentkit.html" data-carousel-open="1" aria-label="Open larger view for Deterministic - JudgmentKit skill context">
-            <img src="screenshots/deterministic-with-judgmentkit.png" alt="Deterministic - JudgmentKit skill context screenshot" loading="eager">
+          <a class="thumbnail-link" href="artifacts/deterministic-with-judgmentkit.html" data-carousel-open="1" aria-label="Open larger view for Fixture-rendered baseline - JudgmentKit skill context">
+            <img src="screenshots/deterministic-with-judgmentkit.png" alt="Fixture-rendered baseline - JudgmentKit skill context screenshot" loading="eager">
           </a>
           <div class="gallery-card-copy">
             <p class="eyebrow">JudgmentKit skill context</p>
-            <h2>Deterministic - JudgmentKit skill context</h2>
-            <p>Deterministic receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.</p>
+            <h2>Fixture-rendered baseline - JudgmentKit skill context</h2>
+            <p>Fixture-rendered baseline receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.</p>
             <dl>
               <div><dt>Context</dt><dd>JudgmentKit skill context</dd></div>
               <div><dt>Render</dt><dd>deterministic_frontend_skill_html</dd></div>
@@ -431,13 +431,13 @@
         </article>
 
         <article class="gallery-card">
-          <a class="thumbnail-link" href="artifacts/deterministic-material-ui-only.html" data-carousel-open="2" aria-label="Open larger view for Deterministic - Material UI only">
-            <img src="screenshots/deterministic-material-ui-only.png" alt="Deterministic - Material UI only screenshot" loading="eager">
+          <a class="thumbnail-link" href="artifacts/deterministic-material-ui-only.html" data-carousel-open="2" aria-label="Open larger view for Fixture-rendered baseline - Material UI only">
+            <img src="screenshots/deterministic-material-ui-only.png" alt="Fixture-rendered baseline - Material UI only screenshot" loading="eager">
           </a>
           <div class="gallery-card-copy">
             <p class="eyebrow">Material UI only</p>
-            <h2>Deterministic - Material UI only</h2>
-            <p>Deterministic is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit.</p>
+            <h2>Fixture-rendered baseline - Material UI only</h2>
+            <p>Fixture-rendered baseline is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit.</p>
             <dl>
               <div><dt>Context</dt><dd>Material UI only</dd></div>
               <div><dt>Render</dt><dd>deterministic_material_ui_ssr</dd></div>
@@ -450,13 +450,13 @@
         </article>
 
         <article class="gallery-card">
-          <a class="thumbnail-link" href="artifacts/deterministic-judgmentkit-material-ui.html" data-carousel-open="3" aria-label="Open larger view for Deterministic - JudgmentKit skill + Material UI">
-            <img src="screenshots/deterministic-judgmentkit-material-ui.png" alt="Deterministic - JudgmentKit skill + Material UI screenshot" loading="eager">
+          <a class="thumbnail-link" href="artifacts/deterministic-judgmentkit-material-ui.html" data-carousel-open="3" aria-label="Open larger view for Fixture-rendered baseline - JudgmentKit skill + Material UI">
+            <img src="screenshots/deterministic-judgmentkit-material-ui.png" alt="Fixture-rendered baseline - JudgmentKit skill + Material UI screenshot" loading="eager">
           </a>
           <div class="gallery-card-copy">
             <p class="eyebrow">JudgmentKit skill + Material UI</p>
-            <h2>Deterministic - JudgmentKit skill + Material UI</h2>
-            <p>Deterministic receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path.</p>
+            <h2>Fixture-rendered baseline - JudgmentKit skill + Material UI</h2>
+            <p>Fixture-rendered baseline receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path.</p>
             <dl>
               <div><dt>Context</dt><dd>JudgmentKit skill + Material UI</dd></div>
               <div><dt>Render</dt><dd>deterministic_frontend_skill_material_ui_ssr</dd></div>
@@ -647,34 +647,34 @@
 
         <article class="details-row">
           <div>
-            <p class="eyebrow">Deterministic</p>
+            <p class="eyebrow">Fixture-rendered baseline</p>
             <h3>Raw brief</h3>
           </div>
-          <p>Rendered deterministically; no provider call.</p>
+          <p>Fixture-rendered baseline; no model generation.</p>
           <a href="artifacts/deterministic-no-judgmentkit.html">Artifact</a>
         </article>
         <article class="details-row">
           <div>
-            <p class="eyebrow">Deterministic</p>
+            <p class="eyebrow">Fixture-rendered baseline</p>
             <h3>JudgmentKit skill context</h3>
           </div>
-          <p>Rendered deterministically; no provider call.</p>
+          <p>Fixture-rendered baseline; no model generation.</p>
           <a href="artifacts/deterministic-with-judgmentkit.html">Artifact</a>
         </article>
         <article class="details-row">
           <div>
-            <p class="eyebrow">Deterministic</p>
+            <p class="eyebrow">Fixture-rendered baseline</p>
             <h3>Material UI only</h3>
           </div>
-          <p>Rendered deterministically; no provider call.</p>
+          <p>Fixture-rendered baseline; no model generation.</p>
           <a href="artifacts/deterministic-material-ui-only.html">Artifact</a>
         </article>
         <article class="details-row">
           <div>
-            <p class="eyebrow">Deterministic</p>
+            <p class="eyebrow">Fixture-rendered baseline</p>
             <h3>JudgmentKit skill + Material UI</h3>
           </div>
-          <p>Rendered deterministically; no provider call.</p>
+          <p>Fixture-rendered baseline; no model generation.</p>
           <a href="artifacts/deterministic-judgmentkit-material-ui.html">Artifact</a>
         </article>
         <article class="details-row">
@@ -780,9 +780,9 @@
     <script type="application/json" id="model-ui-gallery-data">[
   {
     "id": "deterministic-no-judgmentkit",
-    "title": "Deterministic - Raw brief",
-    "caption": "Deterministic receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI.",
-    "model_label": "Deterministic",
+    "title": "Fixture-rendered baseline - Raw brief",
+    "caption": "Fixture-rendered baseline receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI.",
+    "model_label": "Fixture-rendered baseline",
     "column_label": "Raw brief",
     "render_source": "deterministic_raw_brief_html",
     "provenance": "captured",
@@ -793,9 +793,9 @@
   },
   {
     "id": "deterministic-with-judgmentkit",
-    "title": "Deterministic - JudgmentKit skill context",
-    "caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.",
-    "model_label": "Deterministic",
+    "title": "Fixture-rendered baseline - JudgmentKit skill context",
+    "caption": "Fixture-rendered baseline receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.",
+    "model_label": "Fixture-rendered baseline",
     "column_label": "JudgmentKit skill context",
     "render_source": "deterministic_frontend_skill_html",
     "provenance": "captured",
@@ -806,9 +806,9 @@
   },
   {
     "id": "deterministic-material-ui-only",
-    "title": "Deterministic - Material UI only",
-    "caption": "Deterministic is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit.",
-    "model_label": "Deterministic",
+    "title": "Fixture-rendered baseline - Material UI only",
+    "caption": "Fixture-rendered baseline is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit.",
+    "model_label": "Fixture-rendered baseline",
     "column_label": "Material UI only",
     "render_source": "deterministic_material_ui_ssr",
     "provenance": "captured",
@@ -819,9 +819,9 @@
   },
   {
     "id": "deterministic-judgmentkit-material-ui",
-    "title": "Deterministic - JudgmentKit skill + Material UI",
-    "caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path.",
-    "model_label": "Deterministic",
+    "title": "Fixture-rendered baseline - JudgmentKit skill + Material UI",
+    "caption": "Fixture-rendered baseline receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path.",
+    "model_label": "Fixture-rendered baseline",
     "column_label": "JudgmentKit skill + Material UI",
     "render_source": "deterministic_frontend_skill_material_ui_ssr",
     "provenance": "captured",
@@ -951,13 +951,13 @@
   "comparison_rows": [
     {
       "id": "deterministic",
-      "label": "Deterministic",
-      "model_label": "Deterministic renderer",
+      "label": "Fixture-rendered baseline",
+      "model_label": "Scripted fixture renderer",
       "generation_source": "deterministic",
       "provider": "none",
       "model": "none",
       "reasoning_effort": null,
-      "summary": "Scripted renderer paths show the controlled baseline for each context combination.",
+      "summary": "Scripted renderer paths show the controlled fixture-rendered baseline for each context combination.",
       "artifact_ids": [
         "deterministic-no-judgmentkit",
         "deterministic-with-judgmentkit",
@@ -972,11 +972,11 @@
           "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
           "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
           "row_id": "deterministic",
-          "row_label": "Deterministic",
+          "row_label": "Fixture-rendered baseline",
           "column_id": "no-judgmentkit",
           "column_label": "Raw brief",
-          "title": "Deterministic - Raw brief",
-          "model_label": "Deterministic renderer",
+          "title": "Fixture-rendered baseline - Raw brief",
+          "model_label": "Scripted fixture renderer",
           "generation_source": "deterministic",
           "provider": "none",
           "model": "none",
@@ -1001,7 +1001,7 @@
           "capture_file": null,
           "capture_provenance": {
             "status": "captured",
-            "capture_type": "deterministic-renderer",
+            "capture_type": "fixture-rendered-baseline",
             "captured_at": "2026-05-13",
             "runner": "scripts/demo-model-ui-matrix.mjs",
             "provider": "none",
@@ -1011,7 +1011,7 @@
             "frontend_context_status": null,
             "frontend_skill_context_status": null,
             "capture_quality": null,
-            "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+            "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
           },
           "lms_context": null,
           "capture_quality": null,
@@ -1026,8 +1026,8 @@
           "render_source": "deterministic_raw_brief_html",
           "visible_render_source": "deterministic_raw_brief_html",
           "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
-          "approach_title": "Deterministic - Raw brief",
-          "approach_caption": "Deterministic receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+          "approach_title": "Fixture-rendered baseline - Raw brief",
+          "approach_caption": "Fixture-rendered baseline receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
         },
         {
           "id": "deterministic-with-judgmentkit",
@@ -1036,11 +1036,11 @@
           "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
           "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
           "row_id": "deterministic",
-          "row_label": "Deterministic",
+          "row_label": "Fixture-rendered baseline",
           "column_id": "with-judgmentkit",
           "column_label": "JudgmentKit skill context",
-          "title": "Deterministic - JudgmentKit skill context",
-          "model_label": "Deterministic renderer",
+          "title": "Fixture-rendered baseline - JudgmentKit skill context",
+          "model_label": "Scripted fixture renderer",
           "generation_source": "deterministic",
           "provider": "none",
           "model": "none",
@@ -1065,7 +1065,7 @@
           "capture_file": null,
           "capture_provenance": {
             "status": "captured",
-            "capture_type": "deterministic-renderer",
+            "capture_type": "fixture-rendered-baseline",
             "captured_at": "2026-05-13",
             "runner": "scripts/demo-model-ui-matrix.mjs",
             "provider": "none",
@@ -1075,12 +1075,12 @@
             "frontend_context_status": "ready_for_frontend_implementation",
             "frontend_skill_context_status": "ready",
             "capture_quality": null,
-            "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+            "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
           },
           "lms_context": null,
           "capture_quality": null,
           "prompt_sha256": null,
-          "source_context_sha256": "24bc757432ec41a147547de104dc661e206dd6265bf1258af74832b3d272c6be",
+          "source_context_sha256": "2afea00e8b754c89ccdbea70e40e5feacc4055594b5c40fe044b514edcb69df5",
           "raw_response_sha256": null,
           "frontend_context_status": "ready_for_frontend_implementation",
           "frontend_skill_context_status": "ready",
@@ -1134,8 +1134,8 @@
           "render_source": "deterministic_frontend_skill_html",
           "visible_render_source": "deterministic_frontend_skill_html",
           "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
-          "approach_title": "Deterministic - JudgmentKit skill context",
-          "approach_caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
+          "approach_title": "Fixture-rendered baseline - JudgmentKit skill context",
+          "approach_caption": "Fixture-rendered baseline receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
         },
         {
           "id": "deterministic-material-ui-only",
@@ -1144,11 +1144,11 @@
           "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
           "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
           "row_id": "deterministic",
-          "row_label": "Deterministic",
+          "row_label": "Fixture-rendered baseline",
           "column_id": "material-ui-only",
           "column_label": "Material UI only",
-          "title": "Deterministic - Material UI only",
-          "model_label": "Deterministic renderer",
+          "title": "Fixture-rendered baseline - Material UI only",
+          "model_label": "Scripted fixture renderer",
           "generation_source": "deterministic",
           "provider": "none",
           "model": "none",
@@ -1173,7 +1173,7 @@
           "capture_file": null,
           "capture_provenance": {
             "status": "captured",
-            "capture_type": "deterministic-renderer",
+            "capture_type": "fixture-rendered-baseline",
             "captured_at": "2026-05-13",
             "runner": "scripts/demo-model-ui-matrix.mjs",
             "provider": "none",
@@ -1183,7 +1183,7 @@
             "frontend_context_status": null,
             "frontend_skill_context_status": null,
             "capture_quality": null,
-            "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+            "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
           },
           "lms_context": null,
           "capture_quality": null,
@@ -1198,8 +1198,8 @@
           "render_source": "deterministic_material_ui_ssr",
           "visible_render_source": "deterministic_material_ui_ssr",
           "rendering_policy": "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.",
-          "approach_title": "Deterministic - Material UI only",
-          "approach_caption": "Deterministic is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit."
+          "approach_title": "Fixture-rendered baseline - Material UI only",
+          "approach_caption": "Fixture-rendered baseline is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit."
         },
         {
           "id": "deterministic-judgmentkit-material-ui",
@@ -1208,11 +1208,11 @@
           "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
           "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
           "row_id": "deterministic",
-          "row_label": "Deterministic",
+          "row_label": "Fixture-rendered baseline",
           "column_id": "judgmentkit-material-ui",
           "column_label": "JudgmentKit skill + Material UI",
-          "title": "Deterministic - JudgmentKit skill + Material UI",
-          "model_label": "Deterministic renderer",
+          "title": "Fixture-rendered baseline - JudgmentKit skill + Material UI",
+          "model_label": "Scripted fixture renderer",
           "generation_source": "deterministic",
           "provider": "none",
           "model": "none",
@@ -1237,7 +1237,7 @@
           "capture_file": null,
           "capture_provenance": {
             "status": "captured",
-            "capture_type": "deterministic-renderer",
+            "capture_type": "fixture-rendered-baseline",
             "captured_at": "2026-05-13",
             "runner": "scripts/demo-model-ui-matrix.mjs",
             "provider": "none",
@@ -1247,12 +1247,12 @@
             "frontend_context_status": "ready_for_frontend_implementation",
             "frontend_skill_context_status": "ready",
             "capture_quality": null,
-            "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+            "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
           },
           "lms_context": null,
           "capture_quality": null,
           "prompt_sha256": null,
-          "source_context_sha256": "fecacb074298a46d099df2b89a1dfaee5b984be533f4b253c85c845da4f87475",
+          "source_context_sha256": "bac391e806829e7f543ac98b3a9e41c7c112ec0228d53a6bdcd6b514fa21f5bf",
           "raw_response_sha256": null,
           "frontend_context_status": "ready_for_frontend_implementation",
           "frontend_skill_context_status": "ready",
@@ -1306,8 +1306,8 @@
           "render_source": "deterministic_frontend_skill_material_ui_ssr",
           "visible_render_source": "deterministic_frontend_skill_material_ui_ssr",
           "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed handoff plus compiled frontend skill context.",
-          "approach_title": "Deterministic - JudgmentKit skill + Material UI",
-          "approach_caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path."
+          "approach_title": "Fixture-rendered baseline - JudgmentKit skill + Material UI",
+          "approach_caption": "Fixture-rendered baseline receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path."
         }
       ]
     },
@@ -2338,7 +2338,7 @@
   ],
   "legacy_aliases": [],
   "model_labels": [
-    "Deterministic renderer",
+    "Scripted fixture renderer",
     "Gemma 4 (local LLM)",
     "GPT-5.5"
   ],
@@ -2350,11 +2350,11 @@
       "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
       "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
       "row_id": "deterministic",
-      "row_label": "Deterministic",
+      "row_label": "Fixture-rendered baseline",
       "column_id": "no-judgmentkit",
       "column_label": "Raw brief",
-      "title": "Deterministic - Raw brief",
-      "model_label": "Deterministic renderer",
+      "title": "Fixture-rendered baseline - Raw brief",
+      "model_label": "Scripted fixture renderer",
       "generation_source": "deterministic",
       "provider": "none",
       "model": "none",
@@ -2379,7 +2379,7 @@
       "capture_file": null,
       "capture_provenance": {
         "status": "captured",
-        "capture_type": "deterministic-renderer",
+        "capture_type": "fixture-rendered-baseline",
         "captured_at": "2026-05-13",
         "runner": "scripts/demo-model-ui-matrix.mjs",
         "provider": "none",
@@ -2389,7 +2389,7 @@
         "frontend_context_status": null,
         "frontend_skill_context_status": null,
         "capture_quality": null,
-        "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+        "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
       },
       "lms_context": null,
       "capture_quality": null,
@@ -2404,8 +2404,8 @@
       "render_source": "deterministic_raw_brief_html",
       "visible_render_source": "deterministic_raw_brief_html",
       "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
-      "approach_title": "Deterministic - Raw brief",
-      "approach_caption": "Deterministic receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+      "approach_title": "Fixture-rendered baseline - Raw brief",
+      "approach_caption": "Fixture-rendered baseline receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
     },
     {
       "id": "deterministic-with-judgmentkit",
@@ -2414,11 +2414,11 @@
       "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
       "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
       "row_id": "deterministic",
-      "row_label": "Deterministic",
+      "row_label": "Fixture-rendered baseline",
       "column_id": "with-judgmentkit",
       "column_label": "JudgmentKit skill context",
-      "title": "Deterministic - JudgmentKit skill context",
-      "model_label": "Deterministic renderer",
+      "title": "Fixture-rendered baseline - JudgmentKit skill context",
+      "model_label": "Scripted fixture renderer",
       "generation_source": "deterministic",
       "provider": "none",
       "model": "none",
@@ -2443,7 +2443,7 @@
       "capture_file": null,
       "capture_provenance": {
         "status": "captured",
-        "capture_type": "deterministic-renderer",
+        "capture_type": "fixture-rendered-baseline",
         "captured_at": "2026-05-13",
         "runner": "scripts/demo-model-ui-matrix.mjs",
         "provider": "none",
@@ -2453,12 +2453,12 @@
         "frontend_context_status": "ready_for_frontend_implementation",
         "frontend_skill_context_status": "ready",
         "capture_quality": null,
-        "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+        "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
       },
       "lms_context": null,
       "capture_quality": null,
       "prompt_sha256": null,
-      "source_context_sha256": "24bc757432ec41a147547de104dc661e206dd6265bf1258af74832b3d272c6be",
+      "source_context_sha256": "2afea00e8b754c89ccdbea70e40e5feacc4055594b5c40fe044b514edcb69df5",
       "raw_response_sha256": null,
       "frontend_context_status": "ready_for_frontend_implementation",
       "frontend_skill_context_status": "ready",
@@ -2512,8 +2512,8 @@
       "render_source": "deterministic_frontend_skill_html",
       "visible_render_source": "deterministic_frontend_skill_html",
       "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
-      "approach_title": "Deterministic - JudgmentKit skill context",
-      "approach_caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
+      "approach_title": "Fixture-rendered baseline - JudgmentKit skill context",
+      "approach_caption": "Fixture-rendered baseline receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
     },
     {
       "id": "deterministic-material-ui-only",
@@ -2522,11 +2522,11 @@
       "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
       "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
       "row_id": "deterministic",
-      "row_label": "Deterministic",
+      "row_label": "Fixture-rendered baseline",
       "column_id": "material-ui-only",
       "column_label": "Material UI only",
-      "title": "Deterministic - Material UI only",
-      "model_label": "Deterministic renderer",
+      "title": "Fixture-rendered baseline - Material UI only",
+      "model_label": "Scripted fixture renderer",
       "generation_source": "deterministic",
       "provider": "none",
       "model": "none",
@@ -2551,7 +2551,7 @@
       "capture_file": null,
       "capture_provenance": {
         "status": "captured",
-        "capture_type": "deterministic-renderer",
+        "capture_type": "fixture-rendered-baseline",
         "captured_at": "2026-05-13",
         "runner": "scripts/demo-model-ui-matrix.mjs",
         "provider": "none",
@@ -2561,7 +2561,7 @@
         "frontend_context_status": null,
         "frontend_skill_context_status": null,
         "capture_quality": null,
-        "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+        "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
       },
       "lms_context": null,
       "capture_quality": null,
@@ -2576,8 +2576,8 @@
       "render_source": "deterministic_material_ui_ssr",
       "visible_render_source": "deterministic_material_ui_ssr",
       "rendering_policy": "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.",
-      "approach_title": "Deterministic - Material UI only",
-      "approach_caption": "Deterministic is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit."
+      "approach_title": "Fixture-rendered baseline - Material UI only",
+      "approach_caption": "Fixture-rendered baseline is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit."
     },
     {
       "id": "deterministic-judgmentkit-material-ui",
@@ -2586,11 +2586,11 @@
       "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
       "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
       "row_id": "deterministic",
-      "row_label": "Deterministic",
+      "row_label": "Fixture-rendered baseline",
       "column_id": "judgmentkit-material-ui",
       "column_label": "JudgmentKit skill + Material UI",
-      "title": "Deterministic - JudgmentKit skill + Material UI",
-      "model_label": "Deterministic renderer",
+      "title": "Fixture-rendered baseline - JudgmentKit skill + Material UI",
+      "model_label": "Scripted fixture renderer",
       "generation_source": "deterministic",
       "provider": "none",
       "model": "none",
@@ -2615,7 +2615,7 @@
       "capture_file": null,
       "capture_provenance": {
         "status": "captured",
-        "capture_type": "deterministic-renderer",
+        "capture_type": "fixture-rendered-baseline",
         "captured_at": "2026-05-13",
         "runner": "scripts/demo-model-ui-matrix.mjs",
         "provider": "none",
@@ -2625,12 +2625,12 @@
         "frontend_context_status": "ready_for_frontend_implementation",
         "frontend_skill_context_status": "ready",
         "capture_quality": null,
-        "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+        "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
       },
       "lms_context": null,
       "capture_quality": null,
       "prompt_sha256": null,
-      "source_context_sha256": "fecacb074298a46d099df2b89a1dfaee5b984be533f4b253c85c845da4f87475",
+      "source_context_sha256": "bac391e806829e7f543ac98b3a9e41c7c112ec0228d53a6bdcd6b514fa21f5bf",
       "raw_response_sha256": null,
       "frontend_context_status": "ready_for_frontend_implementation",
       "frontend_skill_context_status": "ready",
@@ -2684,8 +2684,8 @@
       "render_source": "deterministic_frontend_skill_material_ui_ssr",
       "visible_render_source": "deterministic_frontend_skill_material_ui_ssr",
       "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed handoff plus compiled frontend skill context.",
-      "approach_title": "Deterministic - JudgmentKit skill + Material UI",
-      "approach_caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path."
+      "approach_title": "Fixture-rendered baseline - JudgmentKit skill + Material UI",
+      "approach_caption": "Fixture-rendered baseline receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path."
     },
     {
       "id": "gemma4-lms-no-judgmentkit",

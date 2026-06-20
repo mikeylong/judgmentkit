@@ -55,6 +55,7 @@ for (const requiredText of [
   "implementation leakage findings",
   "create_activity_model_review",
   "review_ui_workflow_candidate",
+  "review_cognitive_dimensions_candidate",
   "create_ui_generation_handoff",
   "MCP review was skipped",
 ]) {
@@ -83,6 +84,7 @@ for (const requiredText of [
   "create_activity_model_review",
   "recommend_surface_types",
   "review_ui_workflow_candidate",
+  "review_cognitive_dimensions_candidate",
   "create_ui_implementation_contract",
   "create_ui_generation_handoff",
   "review_ui_implementation_candidate",

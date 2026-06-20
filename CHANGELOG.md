@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 0.5.0 - 2026-06-20
+
+- Added `review_cognitive_dimensions_candidate` as a library and MCP tool for reviewing UI workflow or implementation candidates against activity mapping, evidence visibility, hidden dependencies, premature commitment, progressive evaluation, change cost, mental operations, role expressiveness, and disclosure discipline.
+- Added an optional Cognitive Dimensions gate to `create_ui_generation_handoff`; if supplied, the review must be `ready_for_review` before generation handoff proceeds.
+- Expanded the MCP pilot case set, deterministic eval harness, and model UI evidence with Cognitive Dimensions scenarios.
+- Updated frontend and eval skills so agents use Cognitive Dimensions findings as diagnostic review guidance without copying those terms into product UI.
+- Strengthened the design-system site dark-mode implementation and browser QA, including nav/menu/report/map/modal surfaces and step marker contrast.
+- Added the ED flow board example and regression coverage for the current release surface.
+
 ## 0.3.0 - 2026-06-15
 
 - Released the first shippable AI-native contract package with package, contract, MCP metadata, and MCP pilot required version sources aligned to `0.3.0`.

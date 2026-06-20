@@ -3165,6 +3165,795 @@ export function reviewUiWorkflowCandidate(input, candidate, options = {}) {
   );
 }
 
+const COGNITIVE_DIMENSION_DEFINITIONS = [
+  {
+    id: "closeness_of_mapping",
+    label: "Closeness of mapping",
+    requirement:
+      "Primary terms and workflow structure should match the user's domain work instead of source mechanics.",
+  },
+  {
+    id: "visibility_juxtaposability",
+    label: "Visibility and juxtaposability",
+    requirement:
+      "Decision, work object, evidence, and action should be visible or persistently linked together.",
+  },
+  {
+    id: "hidden_dependencies",
+    label: "Hidden dependencies",
+    requirement:
+      "Decision-changing policy, freshness, consent, risk, or model evidence should not be hidden from the user.",
+  },
+  {
+    id: "premature_commitment",
+    label: "Premature commitment",
+    requirement:
+      "Risky or final actions should not be available before evidence, reason, review, confirmation, or receipt.",
+  },
+  {
+    id: "progressive_evaluation",
+    label: "Progressive evaluation",
+    requirement:
+      "Users should be able to inspect partial state, validation, preview, or follow-up before final action.",
+  },
+  {
+    id: "viscosity",
+    label: "Viscosity",
+    requirement:
+      "Likely corrections or repeated comparisons should not require disconnected repeated edits.",
+  },
+  {
+    id: "hard_mental_operations",
+    label: "Hard mental operations",
+    requirement:
+      "The UI should not force users to remember, transpose, or reconstruct key context across surfaces.",
+  },
+  {
+    id: "role_expressiveness",
+    label: "Role-expressiveness",
+    requirement:
+      "Sections, controls, and states should make their purpose in the work legible.",
+  },
+  {
+    id: "disclosure_discipline",
+    label: "Disclosure discipline",
+    requirement:
+      "Implementation machinery belongs in diagnostics unless setup, debugging, audit, or integration is the activity.",
+  },
+];
+
+const COGNITIVE_DIMENSION_IDS = COGNITIVE_DIMENSION_DEFINITIONS.map(
+  (dimension) => dimension.id,
+);
+
+function fieldText(value) {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(fieldText).filter(Boolean).join(" ");
+  }
+
+  if (isPlainObject(value)) {
+    return Object.values(value).map(fieldText).filter(Boolean).join(" ");
+  }
+
+  return "";
+}
+
+function cognitiveCandidatePayload(candidate) {
+  if (isPlainObject(candidate?.candidate)) {
+    return candidate.candidate;
+  }
+
+  return candidate;
+}
+
+function cognitivePrimaryPayload(candidate) {
+  const payload = cognitiveCandidatePayload(candidate);
+
+  if (isPlainObject(payload?.workflow)) {
+    return uiWorkflowPrimaryFields(payload);
+  }
+
+  if (isPlainObject(payload)) {
+    return {
+      visible_text: payload.visible_text,
+      actions: payload.actions,
+      primitives_used: payload.primitives_used,
+      states_covered: payload.states_covered ?? payload.covered_states,
+      surface_evidence: payload.surface_evidence,
+      action_boundary_evidence: payload.action_boundary_evidence,
+      data_visibility_evidence: payload.data_visibility_evidence,
+      browser_qa: payload.browser_qa,
+    };
+  }
+
+  return payload;
+}
+
+function workflowSurfaceSetFromCognitiveCandidate(candidate) {
+  const payload = cognitiveCandidatePayload(candidate);
+  return toSurfaceSetArray(payload?.surface_set);
+}
+
+function cognitiveActivityReview(input, candidate, options) {
+  if (isPlainObject(options.activity_review)) {
+    return options.activity_review;
+  }
+
+  if (isPlainObject(candidate?.activity_review)) {
+    return candidate.activity_review;
+  }
+
+  return createActivityModelReview(input, options);
+}
+
+function cognitiveSurfaceType(candidate, options = {}) {
+  return optionalString(
+    options.surface_type ??
+      options.surfaceType ??
+      candidate?.surface_type ??
+      candidate?.surface_guidance?.recommended_surface_type,
+  );
+}
+
+function isSetupDiagnosticContext(text, surfaceType) {
+  if (surfaceType === "setup_debug_tool") {
+    return true;
+  }
+
+  return /\b(?:setup|debug|debugging|audit|auditing|integration|configure|configuration|troubleshoot|troubleshooting|diagnostic|inspect|test connection|webhook)\b/.test(
+    normalizeText(text),
+  );
+}
+
+function cognitiveTermPresent(text, terms) {
+  const normalized = normalizeText(text);
+  return toStringArray(terms).some((term) => {
+    const normalizedTerm = normalizeText(term);
+    return normalizedTerm.length > 2 && normalized.includes(normalizedTerm);
+  });
+}
+
+function cognitiveHasAny(text, patterns) {
+  const normalized = normalizeText(text);
+  return patterns.some((pattern) => pattern.test(normalized));
+}
+
+function cognitiveEvidenceTerms() {
+  return [
+    /\bevidence\b/,
+    /\breason\b/,
+    /\brisk\b/,
+    /\bpolicy\b/,
+    /\bcontext\b/,
+    /\bsummary\b/,
+    /\bchecklist\b/,
+    /\bvalidation\b/,
+    /\bmissing\b/,
+    /\bcomplete(?:ness)?\b/,
+    /\breceipt\b/,
+    /\bimpact\b/,
+    /\bconsent\b/,
+    /\bfresh(?:ness)?\b/,
+    /\bstatus\b/,
+    /\bexception\b/,
+  ];
+}
+
+function cognitiveDecisionSupportTerms() {
+  return [
+    /\bevidence\b/,
+    /\breason\b/,
+    /\brationale\b/,
+    /\brisk\b/,
+    /\bcontext\b/,
+    /\bsummary\b/,
+    /\bchecklist\b/,
+    /\bvalidation\b/,
+    /\bmissing\b/,
+    /\bcomplete(?:ness)?\b/,
+    /\breceipt\b/,
+    /\bimpact\b/,
+    /\bconsent\b/,
+    /\bfresh(?:ness)?\b/,
+    /\bstatus\b/,
+    /\bexception\b/,
+  ];
+}
+
+function cognitiveDecisionActionTerms() {
+  return [
+    /\bapprove\b/,
+    /\bapply\b/,
+    /\baccept\b/,
+    /\bconfirm\b/,
+    /\bsubmit\b/,
+    /\bsave\b/,
+    /\bcommit\b/,
+    /\bcomplete\b/,
+    /\bresolve\b/,
+    /\bretry\b/,
+    /\breturn\b/,
+    /\bescalate\b/,
+    /\bhandoff\b/,
+    /\bsend\b/,
+    /\broute\b/,
+    /\bblock\b/,
+  ];
+}
+
+function cognitiveCommitmentBoundaryTerms() {
+  return [
+    /\bevidence\b/,
+    /\breason\b/,
+    /\bconfirm\b/,
+    /\breview\b/,
+    /\breturn\b/,
+    /\bcancel\b/,
+    /\bundo\b/,
+    /\breceipt\b/,
+    /\bapproval boundary\b/,
+    /\bmissing\b/,
+    /\bpolicy\b/,
+    /\bcheck\b/,
+  ];
+}
+
+function cognitiveProgressTerms() {
+  return [
+    /\bpreview\b/,
+    /\bvalidate\b/,
+    /\bvalidation\b/,
+    /\bstatus\b/,
+    /\breview\b/,
+    /\bcheck\b/,
+    /\btest\b/,
+    /\bsummary\b/,
+    /\bfollow[- ]?up\b/,
+    /\bnext action\b/,
+    /\bexception\b/,
+    /\bpartial\b/,
+    /\bprogress\b/,
+  ];
+}
+
+function cognitiveGenericControlTerms() {
+  return [
+    /\bbutton\b/,
+    /\bcard\b/,
+    /\bpanel\b/,
+    /\btable\b/,
+    /\bform\b/,
+    /\bfield\b/,
+    /\bwidget\b/,
+    /\bcomponent\b/,
+  ];
+}
+
+function cognitiveDiagnosticMachineryTerms(text) {
+  const normalized = normalizeText(text);
+  const terms = [];
+
+  for (const [term, pattern] of Object.entries({
+    API: /\bapi\b/,
+    endpoint: /\bendpoint\b/,
+    "request ID": /\brequest\s+id\b/,
+    retry: /\bretry\b/,
+    webhook: /\bwebhook\b/,
+    trace: /\btrace\b/,
+    schema: /\bschema\b/,
+    server: /\bserver\b/,
+    prompt: /\bprompt\b/,
+    model: /\bmodel\b/,
+    "tool call": /\btool\s+call\b/,
+  })) {
+    if (pattern.test(normalized)) {
+      terms.push(term);
+    }
+  }
+
+  return terms;
+}
+
+function cognitiveDependencyTerms(text) {
+  const normalized = normalizeText(text);
+  const dependencies = [];
+
+  for (const [id, patterns] of Object.entries({
+    policy: [/\bpolicy\b/, /\brule\b/],
+    risk: [/\brisk\b/, /\bsafety\b/, /\bseverity\b/],
+    freshness: [/\bfresh(?:ness)?\b/, /\bstale\b/, /\bexpired\b/],
+    consent: [/\bconsent\b/, /\bauthorization\b/],
+    model: [/\bmodel\b/, /\bscore\b/, /\bconfidence\b/],
+    impact: [/\bimpact\b/, /\bcustomer visible\b/, /\bcustomer-visible\b/],
+  })) {
+    if (patterns.some((pattern) => pattern.test(normalized))) {
+      dependencies.push(id);
+    }
+  }
+
+  return dependencies;
+}
+
+function createCognitiveFinding({
+  dimension,
+  severity = "fail",
+  evidence,
+  user_cost,
+  repair_instruction,
+  acceptance_check,
+}) {
+  return {
+    dimension,
+    check: dimension,
+    severity,
+    evidence,
+    user_cost,
+    repair_instruction,
+    acceptance_check,
+    message: `${COGNITIVE_DIMENSION_DEFINITIONS.find((entry) => entry.id === dimension)?.label ?? dimension}: ${repair_instruction}`,
+  };
+}
+
+function summarizeCognitiveFindings(findings) {
+  if (findings.length === 0) {
+    return "Candidate preserves the reviewed Cognitive Dimensions constraints.";
+  }
+
+  return findings
+    .slice(0, 3)
+    .map((finding) => `${finding.dimension}: ${finding.repair_instruction}`)
+    .join(" ");
+}
+
+function cognitiveChecksFromFindings(findings) {
+  return COGNITIVE_DIMENSION_DEFINITIONS.map((dimension) => {
+    const dimensionFindings = findings.filter(
+      (finding) => finding.dimension === dimension.id,
+    );
+    const hasFail = dimensionFindings.some((finding) => finding.severity === "fail");
+    const hasWarn = dimensionFindings.some((finding) => finding.severity === "warn");
+
+    return {
+      id: dimension.id,
+      dimension: dimension.label,
+      status: hasFail ? "fail" : hasWarn ? "warn" : "pass",
+      requirement: dimension.requirement,
+      findings: dimensionFindings,
+    };
+  });
+}
+
+function buildCognitiveDimensionsTargetedQuestions(findings, activityReview) {
+  const questions = [...(activityReview.review?.targeted_questions ?? [])];
+
+  if (findings.some((finding) => finding.dimension === "visibility_juxtaposability")) {
+    questions.push(
+      "What minimum evidence must stay visible beside the critical decision controls?",
+    );
+  }
+
+  if (findings.some((finding) => finding.dimension === "hidden_dependencies")) {
+    questions.push(
+      "Which policy, risk, freshness, consent, or impact details can change the user's decision?",
+    );
+  }
+
+  if (findings.some((finding) => finding.dimension === "progressive_evaluation")) {
+    questions.push(
+      "How should the user preview, validate, or follow up before final commitment?",
+    );
+  }
+
+  return selectTargetedQuestionsFromCandidates(questions);
+}
+
+function buildCognitiveDimensionsReviewFindings({
+  brief,
+  candidate,
+  activityReview,
+  surfaceType,
+  contract,
+}) {
+  const primaryPayload = cognitivePrimaryPayload(candidate);
+  const primaryText = fieldText(primaryPayload);
+  const normalizedBrief = normalizeText(brief);
+  const normalizedPrimary = normalizeText(primaryText);
+  const setupDiagnosticContext = isSetupDiagnosticContext(
+    [brief, primaryText].join(" "),
+    surfaceType,
+  );
+  const implementationTermsDetected = detectImplementationTerms(
+    primaryText,
+    contract,
+  );
+  const diagnosticMachineryTerms = cognitiveDiagnosticMachineryTerms(primaryText);
+  const activityCandidate = activityReview.candidate ?? {};
+  const activityModel = activityCandidate.activity_model ?? {};
+  const interactionContract = activityCandidate.interaction_contract ?? {};
+  const domainTerms = unique([
+    ...toStringArray(activityModel.domain_vocabulary),
+    ...toStringArray(activityModel.participants),
+    optionalString(activityModel.activity),
+    optionalString(interactionContract.primary_decision),
+  ]).filter(Boolean);
+  const findings = [];
+
+  if (implementationTermsDetected.length > 0 && !setupDiagnosticContext) {
+    findings.push(createCognitiveFinding({
+      dimension: "closeness_of_mapping",
+      evidence: `Primary candidate text includes implementation terms: ${implementationTermsDetected.map((entry) => entry.term).join(", ")}.`,
+      user_cost:
+        "The user must translate source machinery before understanding the work.",
+      repair_instruction:
+        "Replace implementation terms in primary UI fields with domain terms from the activity and move raw mechanics to diagnostics.",
+      acceptance_check:
+        "Primary workflow, surface, action, and handoff text use domain language while diagnostics hold source mechanics.",
+    }));
+  }
+
+  if (
+    domainTerms.length > 0 &&
+    primaryText.length > 0 &&
+    !cognitiveTermPresent(primaryText, domainTerms) &&
+    !setupDiagnosticContext
+  ) {
+    findings.push(createCognitiveFinding({
+      dimension: "closeness_of_mapping",
+      severity: "warn",
+      evidence: "Primary candidate text does not reuse clear domain vocabulary from the activity review.",
+      user_cost:
+        "The UI may read as generic structure rather than the user's specific work.",
+      repair_instruction:
+        "Name the domain work object, user, or decision in the workflow and surface text.",
+      acceptance_check:
+        "A reviewer can identify the domain activity without reading diagnostics.",
+    }));
+  }
+
+  const hasDecisionAction = cognitiveHasAny(primaryText, cognitiveDecisionActionTerms());
+  const hasEvidence = cognitiveHasAny(primaryText, cognitiveDecisionSupportTerms());
+  if (hasDecisionAction && !hasEvidence) {
+    findings.push(createCognitiveFinding({
+      dimension: "visibility_juxtaposability",
+      evidence: "Candidate provides decision or handoff actions without nearby evidence, reason, risk, policy, status, or receipt language.",
+      user_cost:
+        "The user must remember or hunt for the basis of the decision before acting.",
+      repair_instruction:
+        "Keep the critical evidence summary, rationale, or completeness state adjacent to the decision controls.",
+      acceptance_check:
+        "A reviewer can see the work object, evidence, decision choices, and handoff reason together.",
+    }));
+  }
+
+  const dependencies = cognitiveDependencyTerms(brief);
+  const hiddenDependencies = dependencies.filter((dependency) => {
+    if (dependency === "model" && setupDiagnosticContext) return false;
+    if (
+      dependency === "policy" &&
+      /\bpolicy\s+(?:evidence|risk|rule|criteria|constraint|exception|status|check)\b/.test(
+        normalizedBrief,
+      )
+    ) {
+      return !/\bpolicy\s+(?:evidence|risk|rule|criteria|constraint|exception|status|check)\b/.test(
+        normalizedPrimary,
+      );
+    }
+    return !normalizeText(primaryText).includes(dependency);
+  });
+
+  if (hiddenDependencies.length > 0) {
+    findings.push(createCognitiveFinding({
+      dimension: "hidden_dependencies",
+      evidence: `Source brief names decision-changing dependencies not visible in primary candidate text: ${hiddenDependencies.join(", ")}.`,
+      user_cost:
+        "The user may make a decision without seeing a constraint that can change the outcome.",
+      repair_instruction:
+        "Surface decision-changing dependencies as domain rationale or status; keep only raw source mechanics diagnostic.",
+      acceptance_check:
+        "Policy, risk, freshness, consent, impact, or model-derived concerns that affect the decision are visible in domain language.",
+    }));
+  }
+
+  if (
+    hasDecisionAction &&
+    cognitiveHasAny(primaryText, [
+      /\bapprove\b/,
+      /\bapply\b/,
+      /\bsave\b/,
+      /\bcommit\b/,
+      /\bsubmit\b/,
+      /\bconfirm\b/,
+      /\bcomplete\b/,
+      /\bresolve\b/,
+      /\bretry\b/,
+    ]) &&
+    !cognitiveHasAny(primaryText, cognitiveCommitmentBoundaryTerms())
+  ) {
+    findings.push(createCognitiveFinding({
+      dimension: "premature_commitment",
+      evidence:
+        "Candidate exposes final or risky action language without evidence, reason, review, confirmation, return, undo, or receipt language.",
+      user_cost:
+        "The user can commit before the interface supports the judgment behind the commitment.",
+      repair_instruction:
+        "Add evidence, reason, confirmation, return path, or receipt requirements near final actions.",
+      acceptance_check:
+        "Final actions are bounded by visible evidence and a clear after-action receipt or recovery path.",
+    }));
+  }
+
+  const asksForProgressiveEvaluation =
+    /\b(?:dashboard|metric|metrics|formula|calculation|spreadsheet|import|validation|form|setup|configure|preview|partial|draft)\b/.test(
+      normalizedBrief,
+    ) ||
+    /\b(?:dashboard|metric|metrics|formula|calculation|spreadsheet|import|validation|form|setup|configure)\b/.test(
+      normalizedPrimary,
+    );
+  const hasProgressiveEvaluation = cognitiveHasAny(primaryText, cognitiveProgressTerms());
+
+  if (asksForProgressiveEvaluation && !hasProgressiveEvaluation) {
+    findings.push(createCognitiveFinding({
+      dimension: "progressive_evaluation",
+      evidence:
+        "Source or candidate implies monitoring, validation, setup, formula, import, or partial-work review without preview, validation, status, exception, or follow-up language.",
+      user_cost:
+        "The user cannot check intermediate state before committing or handing off.",
+      repair_instruction:
+        "Add preview, validation, status, exception meaning, or follow-up paths before final action.",
+      acceptance_check:
+        "The user can evaluate partial work or current status before deciding what happens next.",
+    }));
+  }
+
+  const surfaceSet = workflowSurfaceSetFromCognitiveCandidate(candidate);
+  const multiSurface = surfaceSet.length > 1 ||
+    /\b(?:map|list|detail|queue|drawer|tab|tabs|surface|surfaces|screen|screens)\b/.test(normalizedBrief);
+  const hasContextAnchor = /\b(?:selected|current|context|summary|persistent|linked|same case|same item)\b/.test(
+    normalizedPrimary,
+  );
+
+  if (multiSurface && !hasContextAnchor) {
+    findings.push(createCognitiveFinding({
+      dimension: "hard_mental_operations",
+      evidence:
+        "Candidate or source implies movement across surfaces without selected-item, current-context, summary, or relationship anchors.",
+      user_cost:
+        "The user must remember which item, decision, or evidence set they were working on across surfaces.",
+      repair_instruction:
+        "Preserve selected item, evidence summary, and decision context across coordinated surfaces.",
+      acceptance_check:
+        "Moving between surfaces keeps the same work object and decision context visible or persistently linked.",
+    }));
+  }
+
+  if (
+    /\b(?:change|correct|edit|fix|owner fixes|return|missing evidence|validation error|rework)\b/.test(
+      [normalizedBrief, normalizedPrimary].join(" "),
+    ) &&
+    !/\b(?:fix list|owner|return|batch|single place|summary|selected|inline|reason)\b/.test(
+      normalizedPrimary,
+    )
+  ) {
+    findings.push(createCognitiveFinding({
+      dimension: "viscosity",
+      severity: "warn",
+      evidence:
+        "Source implies likely corrections or rework, but candidate does not name a fix list, owner, return path, inline edit, or summary.",
+      user_cost:
+        "Small corrections may require repeated disconnected work or unclear handoff loops.",
+      repair_instruction:
+        "Add a correction path, owner, fix list, or return-for-evidence loop for likely changes.",
+      acceptance_check:
+        "Routine corrections can be made or routed from a single clear context.",
+    }));
+  }
+
+  if (
+    cognitiveHasAny(primaryText, cognitiveGenericControlTerms()) &&
+    !cognitiveHasAny(primaryText, [
+      /\bpurpose\b/,
+      /\breason\b/,
+      /\bdecision\b/,
+      /\bevidence\b/,
+      /\bhandoff\b/,
+      /\breview\b/,
+    ])
+  ) {
+    findings.push(createCognitiveFinding({
+      dimension: "role_expressiveness",
+      severity: "warn",
+      evidence:
+        "Candidate uses generic UI object language without enough activity purpose language.",
+      user_cost:
+        "A downstream agent may preserve chrome instead of making the work legible.",
+      repair_instruction:
+        "Rename sections and controls by the role they play in the user's work.",
+      acceptance_check:
+        "Sections and controls explain what they help the user decide, inspect, correct, or hand off.",
+    }));
+  }
+
+  if (implementationTermsDetected.length > 0 && !setupDiagnosticContext) {
+    findings.push(createCognitiveFinding({
+      dimension: "disclosure_discipline",
+      evidence: `Primary UI candidate text includes machinery outside a diagnostic activity: ${implementationTermsDetected.map((entry) => entry.term).join(", ")}.`,
+      user_cost:
+        "Implementation vocabulary can become the user's product vocabulary.",
+      repair_instruction:
+        "Move implementation terms to diagnostics and translate primary UI into domain language.",
+      acceptance_check:
+        "Primary user-facing fields do not expose prompts, schemas, tools, APIs, servers, traces, or model configuration.",
+    }));
+  }
+
+  if (setupDiagnosticContext && (implementationTermsDetected.length > 0 || diagnosticMachineryTerms.length > 0)) {
+    const diagnosticTerms = unique([
+      ...implementationTermsDetected.map((entry) => entry.term),
+      ...diagnosticMachineryTerms,
+    ]);
+
+    findings.push(createCognitiveFinding({
+      dimension: "disclosure_discipline",
+      severity: "warn",
+      evidence: `Implementation or diagnostic terms appear in a setup, debugging, audit, or integration activity where machinery can be task material: ${diagnosticTerms.join(", ")}.`,
+      user_cost:
+        "The user still needs remediation or next-fix framing around raw diagnostics.",
+      repair_instruction:
+        "Keep raw mechanics tied to status, cause, remediation, and next fix rather than product copy.",
+      acceptance_check:
+        "Diagnostic terms are paired with test status, cause, remediation, or audit purpose.",
+    }));
+  }
+
+  return findings;
+}
+
+function cognitiveHasRepairableSourceContext(input, candidate, activityReview) {
+  const evidence = activityReview.review?.evidence ?? {};
+  const payload = cognitiveCandidatePayload(candidate);
+  const workflow = isPlainObject(payload?.workflow) ? payload.workflow : {};
+  const primaryText = fieldText(cognitivePrimaryPayload(candidate));
+  const sourceAndCandidateText = [input, primaryText].join(" ");
+  const candidateMissingFields = activityReview.guardrails?.candidate_missing_fields ?? {};
+  const workflowCandidateReviewable = Boolean(
+    isPlainObject(workflow) &&
+      toStringArray(workflow.work_units).length > 0 &&
+      toStringArray(workflow.primary_actions).length > 0 &&
+      toStringArray(workflow.decision_points).length > 0 &&
+      (optionalString(workflow.completion_state) || isPlainObject(payload?.handoff)),
+  );
+  const candidateHasReviewableWorkflow =
+    workflowCandidateReviewable ||
+    (candidateMissingFields.activity === false &&
+      candidateMissingFields.primary_decision === false &&
+      candidateMissingFields.completion_or_outcome === false &&
+      cognitiveHasAny(primaryText, cognitiveDecisionActionTerms()));
+  const diagnosticContext = isSetupDiagnosticContext(sourceAndCandidateText, null);
+  const hasDomainContext =
+    evidence.domain_vocabulary ||
+    (diagnosticContext &&
+      cognitiveHasAny(primaryText, [
+        /\bendpoint\b/,
+        /\bstatus\b/,
+        /\bapi\b/,
+        /\brequest\b/,
+        /\bevent\b/,
+        /\berror\b/,
+        /\bfix\b/,
+        /\bretry\b/,
+        /\bwebhook\b/,
+        /\bsetup\b/,
+      ]));
+
+  return Boolean(
+    candidateHasReviewableWorkflow ||
+      (evidence.activity &&
+        hasDomainContext &&
+        evidence.decision &&
+        (evidence.outcome ||
+          cognitiveHasAny(sourceAndCandidateText, [
+            /\boutcome\b/,
+            /\bcomplete\b/,
+            /\bcompletion\b/,
+            /\bdone\b/,
+            /\bhandoff\b/,
+            /\breceipt\b/,
+            /\bsubmitted\b/,
+            /\bnext action\b/,
+            /\bnext fix\b/,
+            /\bstatus\b/,
+            /\brecorded\b/,
+            /\breturn\b/,
+            /\bapprove\b/,
+            /\bresolution\b/,
+          ]))),
+  );
+}
+
+export function reviewCognitiveDimensionsCandidate(input, candidate, options = {}) {
+  if (typeof input !== "string" || input.trim().length === 0) {
+    throw new JudgmentKitInputError(
+      "reviewCognitiveDimensionsCandidate requires non-empty brief text.",
+    );
+  }
+
+  if (
+    (typeof candidate !== "string" || candidate.trim().length === 0) &&
+    !isPlainObject(candidate)
+  ) {
+    throw new JudgmentKitInputError(
+      "reviewCognitiveDimensionsCandidate requires candidate text or an object.",
+    );
+  }
+
+  const contract = options.contract ?? loadActivityContract(options.contractPath);
+  const activityReview = cognitiveActivityReview(input, candidate, {
+    ...options,
+    contract,
+  });
+  const surfaceType = cognitiveSurfaceType(candidate, options);
+  const sourceReady =
+    activityReview.review_status === "ready_for_review" ||
+    cognitiveHasRepairableSourceContext(input, candidate, activityReview);
+  const findings = buildCognitiveDimensionsReviewFindings({
+    brief: input.trim(),
+    candidate,
+    activityReview,
+    surfaceType,
+    contract,
+  });
+  const failed = findings.some((finding) => finding.severity === "fail");
+  const status = !sourceReady
+    ? "needs_source_context"
+    : failed
+      ? "repair_required"
+      : "ready_for_review";
+  const checks = cognitiveChecksFromFindings(findings);
+  const targetedQuestions = status === "ready_for_review"
+    ? []
+    : buildCognitiveDimensionsTargetedQuestions(findings, activityReview);
+  const packet = {
+    version: contract.version,
+    contract_id: contract.id,
+    cognitive_dimensions_review_status: status,
+    status,
+    source: {
+      mode: options.proposer ? "model_assisted" : "deterministic",
+      proposer: optionalString(options.proposer) || "external_candidate",
+      input_excerpt: input.trim().slice(0, 280),
+    },
+    surface_type: surfaceType || null,
+    activity_review: activityReview,
+    cognitive_dimensions: COGNITIVE_DIMENSION_DEFINITIONS,
+    reviewed_dimensions: COGNITIVE_DIMENSION_IDS,
+    checks,
+    findings,
+    blockers: findings.filter((finding) => finding.severity === "fail"),
+    targeted_questions: targetedQuestions,
+    repair_instructions: findings.map((finding) => finding.repair_instruction),
+    review: {
+      confidence: status === "ready_for_review" ? "medium" : "low",
+      summary: summarizeCognitiveFindings(findings),
+      targeted_questions: targetedQuestions,
+      findings,
+    },
+    next_agent_action:
+      status === "ready_for_review"
+        ? "continue_to_handoff_or_implementation"
+        : status === "needs_source_context"
+          ? "resolve_source_context"
+          : "repair_and_resubmit",
+  };
+
+  assertNoStyleFields(packet);
+
+  return packet;
+}
+
 export async function createModelAssistedUiWorkflowReview(input, options = {}) {
   const { propose, profile_id: profileId, surface_review: surfaceReview, ...analysisOptions } = options;
 
@@ -3256,6 +4045,20 @@ function buildUiGenerationHandoffBlockDetails(workflowReview) {
     review_packet_leakage_terms:
       workflowReview.guardrails?.candidate_primary_meta_terms_detected ?? [],
     activity_review_status: workflowReview.guardrails?.activity_review_status,
+  };
+}
+
+function buildCognitiveDimensionsHandoffBlockDetails(cognitiveDimensionsReview) {
+  return {
+    cognitive_dimensions_review_status:
+      cognitiveDimensionsReview?.cognitive_dimensions_review_status,
+    status: cognitiveDimensionsReview?.status,
+    next_agent_action: cognitiveDimensionsReview?.next_agent_action,
+    blockers: cognitiveDimensionsReview?.blockers ?? [],
+    targeted_questions:
+      cognitiveDimensionsReview?.targeted_questions ??
+      cognitiveDimensionsReview?.review?.targeted_questions ??
+      [],
   };
 }
 
@@ -8127,6 +8930,24 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
 
   assertReadyUiWorkflowReviewShape(workflowReview);
 
+  const cognitiveDimensionsReview =
+    options.cognitive_dimensions_review ?? options.cognitiveDimensionsReview;
+
+  if (
+    isPlainObject(cognitiveDimensionsReview) &&
+    cognitiveDimensionsReview.cognitive_dimensions_review_status !== "ready_for_review"
+  ) {
+    throw new JudgmentKitInputError(
+      "UI generation handoff requires a ready_for_review Cognitive Dimensions review when one is supplied.",
+      {
+        code: "handoff_blocked",
+        details: buildCognitiveDimensionsHandoffBlockDetails(
+          cognitiveDimensionsReview,
+        ),
+      },
+    );
+  }
+
   const activityCandidate = workflowReview.activity_review.candidate;
   const workflowCandidate = workflowReview.candidate;
   const contract = options.contract ?? loadActivityContract(options.contractPath);
@@ -8211,6 +9032,18 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
           "disclosure boundary checked",
         ],
       },
+      ...(isPlainObject(cognitiveDimensionsReview)
+        ? [
+            {
+              id: "cognitive_dimensions_gate",
+              status: "passed",
+              evidence: [
+                "Cognitive Dimensions review ready",
+                "decision, evidence, commitment, dependency, and disclosure checks reviewed",
+              ],
+            },
+          ]
+        : []),
       {
         id: "implementation_gate",
         status: "required_before_final_handoff",
@@ -8223,6 +9056,17 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
     ],
     implementation_contract:
       compactImplementationContractForHandoff(implementationContract),
+    ...(isPlainObject(cognitiveDimensionsReview)
+      ? {
+          cognitive_dimensions_review: {
+            status:
+              cognitiveDimensionsReview.cognitive_dimensions_review_status,
+            findings: cognitiveDimensionsReview.findings ?? [],
+            checked_dimensions:
+              cognitiveDimensionsReview.reviewed_dimensions ?? [],
+          },
+        }
+      : {}),
   };
 
   assertNoStyleFields(handoff);

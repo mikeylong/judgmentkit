@@ -1,0 +1,48 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "cognitive-setup-debug-diagnostic-exception",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.4.0",
+  "mcp_url": "http://127.0.0.1:51642/mcp",
+  "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "review_cognitive_dimensions_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "a7719972d05df90c57aa4c470fc76c3e6d6d0342f7552a1ab83f328c11beb516",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-20T05:33:13.886Z",
+  "duration_ms": 35256,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "832c1a0c7a6f1339bafcae7e80920df24b8c0ae37a1371a2c952b96effab2366",
+  "prompt_sha256": "fc0cabcced9569babe10081b6a45e1df1acac76220d6057f4c6b332fd5b5ee39",
+  "mcp_context_sha256": "558a52a133791bc49433c41f1943c138bbaa31d3be716d51bb0b23157bc62ab6",
+  "raw_response_sha256": "dddbdd758ec8264262d2db92beb364dd66fd228316f6fbc6046dab506f7902b5",
+  "raw_response": "{\"response\":\"Trust the proposed workflow for the platform engineer debugging the billing webhook setup. It matches the source activity: check endpoint status, inspect API retry results, use request IDs, run test events, and decide the next fix. Treat the remaining issues as implementation repairs, not reasons to reject: keep the endpoint, retry result, request ID, and test event outcome visible beside the relevant actions; preserve the selected endpoint and request context while running tests, retrying delivery, copying the request ID, and sending the next fix; keep implementation-only machinery out of the primary workflow unless the engineer opens diagnostic detail.\",\"next_action\":\"Continue toward implementation as a setup debug tool. Repair the flow so Run test event, Retry API delivery, Copy request ID, and Send next fix each retain the billing webhook evidence that changes the platform engineer's decision, then verify that the next fix and rerun test status are recorded together.\",\"questions\":[],\"handoff\":\"Decision: trust; Owner: platform engineer; Action: implement the billing webhook setup debugger; Required fix: keep endpoint status, API retry result, request ID, and test event result attached to the next-fix decision; Verification: next fix and test status are recorded after rerun.\",\"rationale\":\"The candidate is aligned with the source brief's work object and decision path, so rejection is not warranted. The main risk is workflow friction if evidence is separated from remediation, plus leakage of implementation machinery into the setup debugging surface. Repair by keeping decision-changing evidence near the actions, preserving context across the retry/test/fix path, adding progressive evaluation through rerun status, and reserving machinery for diagnostic detail.\"}",
+  "parsed": {
+    "response": "Trust the proposed workflow for the platform engineer debugging the billing webhook setup. It matches the source activity: check endpoint status, inspect API retry results, use request IDs, run test events, and decide the next fix. Treat the remaining issues as implementation repairs, not reasons to reject: keep the endpoint, retry result, request ID, and test event outcome visible beside the relevant actions; preserve the selected endpoint and request context while running tests, retrying delivery, copying the request ID, and sending the next fix; keep implementation-only machinery out of the primary workflow unless the engineer opens diagnostic detail.",
+    "next_action": "Continue toward implementation as a setup debug tool. Repair the flow so Run test event, Retry API delivery, Copy request ID, and Send next fix each retain the billing webhook evidence that changes the platform engineer's decision, then verify that the next fix and rerun test status are recorded together.",
+    "questions": [],
+    "handoff": "Decision: trust; Owner: platform engineer; Action: implement the billing webhook setup debugger; Required fix: keep endpoint status, API retry result, request ID, and test event result attached to the next-fix decision; Verification: next fix and test status are recorded after rerun.",
+    "rationale": "The candidate is aligned with the source brief's work object and decision path, so rejection is not warranted. The main risk is workflow friction if evidence is separated from remediation, plus leakage of implementation machinery into the setup debugging surface. Repair by keeping decision-changing evidence near the actions, preserving context across the retry/test/fix path, adding progressive evaluation through rerun status, and reserving machinery for diagnostic detail."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "26ec058eeea5031c654d10d124f5e060831e5437a6ce6bbe20320f5afdb109f6",
+    "stderr_sha256": "e49d680ddab98218e027678feeadccf2ee6b88fc1c862d2089ecdc46500619db",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

@@ -214,6 +214,16 @@ There is no CLI command for this slice. Use MCP or the library API.
 
 ## Before Creating The UI Handoff
 
+Call `review_cognitive_dimensions_candidate` when a workflow or implementation candidate needs explicit Cognitive Dimensions review. Use it to catch domain-mapping failures, detached evidence and actions, hidden dependencies, premature commitment, missing progressive evaluation, repeated-change cost, memory-heavy transitions, and disclosure leakage.
+
+MCP call:
+
+```text
+review_cognitive_dimensions_candidate({ brief, candidate, activity_review, surface_type })
+```
+
+Use the returned `findings` and `repair_instructions` as diagnostic guidance. If a Cognitive Dimensions review is supplied to the handoff gate, it must be `ready_for_review`.
+
 Call `create_ui_implementation_contract` with repo evidence, external UI authority evidence, or JudgmentKit portable defaults. The implementation contract names approved primitives, required states, static checks, browser QA expectations, visual asset policy, and accessibility policy.
 
 MCP handoff calls should pass this packet as `implementation_contract`.

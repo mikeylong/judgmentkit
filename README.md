@@ -169,7 +169,7 @@ For the system-map model UI matrix:
 npm run demo:model-ui
 ```
 
-That command writes static 3x4 model UI matrices under `examples/model-ui/` for support refund triage, field service dispatch, clinical intake review, and B2B renewal risk review. Each use case includes deterministic, Gemma 4 local LLM, and GPT-5.5 xhigh paths across raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill plus Material UI columns. The refund route at `examples/model-ui/refund-system-map/` remains the stable compatibility path. The website build copies those committed artifacts, records provenance in each manifest, and does not call live providers.
+That command writes static 3x4 model UI matrices under `examples/model-ui/` for support refund triage, field service dispatch, clinical intake review, and B2B renewal risk review. Each use case includes a fixture-rendered baseline, Gemma 4 local LLM, and GPT-5.5 xhigh paths across raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill plus Material UI columns. The fixture-rendered baseline is scripted from fixed fixtures and local renderer code; it is not model-generated and is isolated from provider-connected captures. The refund route at `examples/model-ui/refund-system-map/` remains the stable compatibility path. The website build copies those committed artifacts, records provenance in each manifest, and does not call live providers.
 
 To refresh the committed Gemma 4 and GPT-5.5 transcripts for that matrix:
 

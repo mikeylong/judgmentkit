@@ -1,0 +1,147 @@
+{
+  "catalog_id": "judgmentkit-mcp-private-pilot-runs",
+  "latest": {
+    "date": "2026-06-20",
+    "mcp_release": "0.4.0",
+    "mcp_release_segment": "mcp-0.4.0",
+    "run_id": "run-001",
+    "run_path": "2026-06-20/mcp-0.4.0/run-001",
+    "html_report": "2026-06-20/mcp-0.4.0/run-001/mcp-pilot-report.html",
+    "json_report": "2026-06-20/mcp-0.4.0/run-001/mcp-pilot-report.json",
+    "eval_id": "judgmentkit-mcp-private-pilot-v1",
+    "summary": {
+      "cases": 6,
+      "evaluated_cases": 6,
+      "capture_required_cases": 0,
+      "passed": 4,
+      "failed": 2,
+      "calibrated_passes": 4,
+      "standard_delta_passed": 3,
+      "calibrated_only_passes": 1,
+      "calibrated_pass_reason_counts": {
+        "delta_threshold": 3,
+        "high_absolute_guided_score": 1
+      },
+      "guided_wins": 5,
+      "baseline_wins": 1,
+      "ties": 0,
+      "average_guided_delta": 10.29,
+      "invalid_outputs": 0,
+      "average_duration_ms": 33883.08,
+      "guided_critical_disclosure_leaks": 0,
+      "loop_cases": 0,
+      "converged_cases": 0,
+      "stopped_cases": 0,
+      "average_attempts_to_pass": 0,
+      "failure_category_counts": {},
+      "pilot_passed": false,
+      "pilot_status": "failed",
+      "unique_cases": 6,
+      "models": 1,
+      "per_model": {
+        "gpt-5.5-codex": {
+          "label": "GPT-5.5 Codex",
+          "cases": 6,
+          "evaluated_cases": 6,
+          "capture_required_cases": 0,
+          "passed": 4,
+          "failed": 2,
+          "calibrated_passes": 4,
+          "standard_delta_passed": 3,
+          "calibrated_only_passes": 1,
+          "calibrated_pass_reason_counts": {
+            "delta_threshold": 3,
+            "high_absolute_guided_score": 1
+          },
+          "guided_wins": 5,
+          "baseline_wins": 1,
+          "ties": 0,
+          "average_guided_delta": 10.29,
+          "invalid_outputs": 0,
+          "average_duration_ms": 33883.08,
+          "guided_critical_disclosure_leaks": 0,
+          "loop_cases": 0,
+          "converged_cases": 0,
+          "stopped_cases": 0,
+          "average_attempts_to_pass": 0,
+          "failure_category_counts": {},
+          "pilot_passed": false,
+          "pilot_status": "failed"
+        }
+      }
+    }
+  },
+  "runs": [
+    {
+      "date": "2026-06-20",
+      "mcp_release": "0.4.0",
+      "mcp_release_segment": "mcp-0.4.0",
+      "run_id": "run-001",
+      "run_path": "2026-06-20/mcp-0.4.0/run-001",
+      "html_report": "2026-06-20/mcp-0.4.0/run-001/mcp-pilot-report.html",
+      "json_report": "2026-06-20/mcp-0.4.0/run-001/mcp-pilot-report.json",
+      "eval_id": "judgmentkit-mcp-private-pilot-v1",
+      "summary": {
+        "cases": 6,
+        "evaluated_cases": 6,
+        "capture_required_cases": 0,
+        "passed": 4,
+        "failed": 2,
+        "calibrated_passes": 4,
+        "standard_delta_passed": 3,
+        "calibrated_only_passes": 1,
+        "calibrated_pass_reason_counts": {
+          "delta_threshold": 3,
+          "high_absolute_guided_score": 1
+        },
+        "guided_wins": 5,
+        "baseline_wins": 1,
+        "ties": 0,
+        "average_guided_delta": 10.29,
+        "invalid_outputs": 0,
+        "average_duration_ms": 33883.08,
+        "guided_critical_disclosure_leaks": 0,
+        "loop_cases": 0,
+        "converged_cases": 0,
+        "stopped_cases": 0,
+        "average_attempts_to_pass": 0,
+        "failure_category_counts": {},
+        "pilot_passed": false,
+        "pilot_status": "failed",
+        "unique_cases": 6,
+        "models": 1,
+        "per_model": {
+          "gpt-5.5-codex": {
+            "label": "GPT-5.5 Codex",
+            "cases": 6,
+            "evaluated_cases": 6,
+            "capture_required_cases": 0,
+            "passed": 4,
+            "failed": 2,
+            "calibrated_passes": 4,
+            "standard_delta_passed": 3,
+            "calibrated_only_passes": 1,
+            "calibrated_pass_reason_counts": {
+              "delta_threshold": 3,
+              "high_absolute_guided_score": 1
+            },
+            "guided_wins": 5,
+            "baseline_wins": 1,
+            "ties": 0,
+            "average_guided_delta": 10.29,
+            "invalid_outputs": 0,
+            "average_duration_ms": 33883.08,
+            "guided_critical_disclosure_leaks": 0,
+            "loop_cases": 0,
+            "converged_cases": 0,
+            "stopped_cases": 0,
+            "average_attempts_to_pass": 0,
+            "failure_category_counts": {},
+            "pilot_passed": false,
+            "pilot_status": "failed"
+          }
+        }
+      }
+    }
+  ]
+}

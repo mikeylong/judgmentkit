@@ -12,11 +12,12 @@ Do not use this skill directly from a raw brief. Run the JudgmentKit flow first:
 1. `create_activity_model_review`
 2. `recommend_surface_types`
 3. `review_ui_workflow_candidate`
-4. `create_ui_implementation_contract`
-5. `create_ui_generation_handoff`
-6. `create_frontend_generation_context`
-7. `create_frontend_implementation_skill_context` when the agent cannot read this local skill directly
-8. `review_ui_implementation_candidate` after implementation evidence exists
+4. `review_cognitive_dimensions_candidate` when the workflow or implementation candidate needs mapping, visibility, hidden-dependency, progressive-evaluation, change-cost, mental-operation, or disclosure diagnostics
+5. `create_ui_implementation_contract`
+6. `create_ui_generation_handoff`
+7. `create_frontend_generation_context`
+8. `create_frontend_implementation_skill_context` when the agent cannot read this local skill directly
+9. `review_ui_implementation_candidate` after implementation evidence exists
 
 ## Workflow
 
@@ -43,6 +44,7 @@ Do not use this skill directly from a raw brief. Run the JudgmentKit flow first:
 ## Guardrails
 
 - Preserve the activity and domain vocabulary from the handoff.
+- Treat Cognitive Dimensions findings as review/setup/audit guidance; do not copy that terminology into product UI.
 - Keep implementation terms out of primary UI unless `setup_debug_tool` or the disclosure policy explicitly allows them.
 - Treat surface type as activity-purpose guidance, not as a visual theme.
 - Prefer existing project primitives and patterns before introducing new ones.

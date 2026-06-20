@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JudgmentKit MCP Pilot Report</title>
+  <style>
+    body { margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; color: #17201b; background: #f7f8f5; }
+    main { max-width: 1120px; margin: 0 auto; padding: 40px 20px 64px; }
+    .hero, .case { background: #fff; border: 1px solid #d9ded7; border-radius: 8px; padding: 24px; box-shadow: 0 10px 30px rgba(23, 32, 27, 0.06); }
+    .hero { margin-bottom: 20px; }
+    h1, h2, h3, p { margin-top: 0; }
+    .lede { max-width: 780px; color: #526058; }
+    .summary, .case dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1px; background: #d9ded7; border: 1px solid #d9ded7; border-radius: 8px; overflow: hidden; }
+    .summary div, .case dl div { background: #fff; padding: 14px; }
+    .model-roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin: 18px 0; }
+    .model-roles article { border: 1px solid #d9ded7; border-radius: 8px; padding: 16px; background: #fbfffd; }
+    .model-roles article p { color: #66736b; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+    .model-roles article h2 { font-size: 1.1rem; margin-bottom: 12px; }
+    .model-roles article dl { display: grid; gap: 1px; background: #d9ded7; border: 1px solid #d9ded7; border-radius: 8px; overflow: hidden; }
+    .model-roles article dl div { background: #fff; padding: 12px; }
+    .model-roles article dd { font-size: 1rem; }
+    dt { color: #66736b; font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+    dd { margin: 4px 0 0; font-size: 1.25rem; font-weight: 800; }
+    .case { margin-top: 16px; }
+    .case header { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
+    .case header p { color: #66736b; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; }
+    .case header strong { border: 1px solid #bdc8bf; border-radius: 999px; padding: 6px 10px; white-space: nowrap; }
+    .repair-loop { margin-top: 16px; border: 1px solid #c8d8d0; border-radius: 8px; padding: 16px; background: #fbfffd; }
+    .repair-loop h3 { margin-bottom: 12px; }
+    .repair-loop p { margin: 12px 0 0; color: #526058; font-weight: 700; }
+    .variants { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 16px; }
+    .variant { border: 1px solid #d9ded7; border-radius: 8px; padding: 16px; }
+    .judgmentkit_mcp { border-color: #9ac6b4; background: #fbfffd; }
+    .score { font-size: 1.8rem; font-weight: 850; }
+    ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+    li { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid #edf0eb; padding-top: 6px; }
+    .leaks { margin-top: 12px; color: #8a2424; font-weight: 700; }
+    a { color: #245f73; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <main>
+    <section class="hero">
+      <p><a href="mcp-pilot-report.json">JSON report</a> · <a href="../../../../index.json">Catalog JSON</a></p>
+      <h1>JudgmentKit MCP Private Pilot</h1>
+      <p class="lede">Private repo-local pilot. Scores are deterministic checks against saved model captures; JudgmentKit is not used as the judge. Default mode scores existing versioned captures only. Missing or MCP-version-mismatched captures are reported as capture-required. Live capture is opt-in with --capture and reuses existing captures in the target capture directory. Repair-loop results are deterministic fixture proof of contract governance and agent-owned resubmission behavior; they do not measure visual quality or live-model repair quality. Visual-token adapter results are deterministic boundary proof that token evidence is metadata only; they do not introduce renderer packages, component libraries, A2UI, or visual-quality scoring.</p>
+
+      <dl class="summary">
+        <div><dt>Status</dt><dd>passed</dd></div>
+        <div><dt>Cases</dt><dd>6/6</dd></div>
+        <div><dt>Passed</dt><dd>6</dd></div>
+        <div><dt>Std delta passed</dt><dd>4</dd></div>
+        <div><dt>Calibrated-only</dt><dd>2</dd></div>
+        <div><dt>Average delta</dt><dd>12.25</dd></div>
+        <div><dt>Loop cases</dt><dd>0</dd></div>
+        <div><dt>Converged loops</dt><dd>0</dd></div>
+        <div><dt>Avg attempts to pass</dt><dd>0</dd></div>
+        <div><dt>Stopped loops</dt><dd>0</dd></div>
+
+
+
+        <div><dt>Cognitive Dimensions</dt><dd>6/6</dd></div>
+        <div><dt>CD report-only</dt><dd>yes</dd></div>
+
+        <div><dt>CD repair adherence</dt><dd>6/6</dd></div>
+        <div><dt>CD findings followed</dt><dd>15/15</dd></div>
+        <div><dt>Invalid outputs</dt><dd>0</dd></div>
+        <div><dt>Guided leaks</dt><dd>0</dd></div>
+        <div><dt>Run</dt><dd>run-002</dd></div>
+      </dl>
+    </section>
+
+    <section class="case">
+      <header>
+        <p>GPT-5.5 Codex · candidate_validation</p>
+        <h2>Cognitive Dimensions refund action detached</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>10.03</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+
+      <div class="repair-loop">
+        <h3>Cognitive Dimensions review</h3>
+        <dl>
+          <div><dt>Status</dt><dd>repair_required</dd></div>
+          <div><dt>Expected</dt><dd>repair_required</dd></div>
+          <div><dt>Expectation</dt><dd>passed</dd></div>
+          <div><dt>Report-only</dt><dd>no</dd></div>
+        </dl>
+        <p>Failed dimensions: visibility_juxtaposability, hidden_dependencies</p>
+        <p>Warning dimensions: none</p>
+      </div>
+
+      <div class="repair-loop">
+        <h3>Cognitive Dimensions repair adherence</h3>
+        <dl>
+          <div><dt>Status</dt><dd>passed</dd></div>
+          <div><dt>Findings</dt><dd>2/2</dd></div>
+          <div><dt>Report-only</dt><dd>yes</dd></div>
+        </dl>
+        <p>Failed finding dimensions: none</p>
+      </div>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">84.99/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>3.75</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>3.33</strong></li><li><span>rework_risk</span><strong>0</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">95.02/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>4.38</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>2.5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>GPT-5.5 Codex · candidate_validation</p>
+        <h2>Cognitive Dimensions field dispatch transition loss</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>22.53</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+
+      <div class="repair-loop">
+        <h3>Cognitive Dimensions review</h3>
+        <dl>
+          <div><dt>Status</dt><dd>repair_required</dd></div>
+          <div><dt>Expected</dt><dd>repair_required</dd></div>
+          <div><dt>Expectation</dt><dd>passed</dd></div>
+          <div><dt>Report-only</dt><dd>no</dd></div>
+        </dl>
+        <p>Failed dimensions: hidden_dependencies, hard_mental_operations</p>
+        <p>Warning dimensions: closeness_of_mapping</p>
+      </div>
+
+      <div class="repair-loop">
+        <h3>Cognitive Dimensions repair adherence</h3>
+        <dl>
+          <div><dt>Status</dt><dd>passed</dd></div>
+          <div><dt>Findings</dt><dd>3/3</dd></div>
+          <div><dt>Report-only</dt><dd>yes</dd></div>
+        </dl>
+        <p>Failed finding dimensions: none</p>
+      </div>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">73.73/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>2.81</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>3.33</strong></li><li><span>rework_risk</span><strong>2.5</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">96.26/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>4.69</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>2.5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>GPT-5.5 Codex · candidate_validation</p>
+        <h2>Cognitive Dimensions clinical hidden dependency</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>6.09</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>no</dd></div>
+        <div><dt>Calibrated reason</dt><dd>high_absolute_guided_score</dd></div>
+      </dl>
+
+
+
+
+      <div class="repair-loop">
+        <h3>Cognitive Dimensions review</h3>
+        <dl>
+          <div><dt>Status</dt><dd>repair_required</dd></div>
+          <div><dt>Expected</dt><dd>repair_required</dd></div>
+          <div><dt>Expectation</dt><dd>passed</dd></div>
+          <div><dt>Report-only</dt><dd>no</dd></div>
+        </dl>
+        <p>Failed dimensions: hidden_dependencies</p>
+        <p>Warning dimensions: closeness_of_mapping</p>
+      </div>
+
+      <div class="repair-loop">
+        <h3>Cognitive Dimensions repair adherence</h3>
+        <dl>
+          <div><dt>Status</dt><dd>passed</dd></div>
+          <div><dt>Findings</dt><dd>2/2</dd></div>
+          <div><dt>Report-only</dt><dd>yes</dd></div>
+        </dl>
+        <p>Failed finding dimensions: none</p>
+      </div>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">92.79/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>4.45</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>3.33</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">98.88/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>4.72</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>GPT-5.5 Codex · candidate_validation</p>
+        <h2>Cognitive Dimensions dashboard no follow-up</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>11.27</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+
+      <div class="repair-loop">
+        <h3>Cognitive Dimensions review</h3>
+        <dl>
+          <div><dt>Status</dt><dd>repair_required</dd></div>
+          <div><dt>Expected</dt><dd>repair_required</dd></div>
+          <div><dt>Expectation</dt><dd>passed</dd></div>
+          <div><dt>Report-only</dt><dd>no</dd></div>
+        </dl>
+        <p>Failed dimensions: hidden_dependencies, progressive_evaluation</p>
+        <p>Warning dimensions: none</p>
+      </div>
+
+      <div class="repair-loop">
+        <h3>Cognitive Dimensions repair adherence</h3>
+        <dl>
+          <div><dt>Status</dt><dd>passed</dd></div>
+          <div><dt>Findings</dt><dd>2/2</dd></div>
+          <div><dt>Report-only</dt><dd>yes</dd></div>
+        </dl>
+        <p>Failed finding dimensions: none</p>
+      </div>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">83.75/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>4.06</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>1.67</strong></li><li><span>rework_risk</span><strong>2.5</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">95.02/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>4.38</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>5</strong></li><li><span>rework_risk</span><strong>2.5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>GPT-5.5 Codex · candidate_validation</p>
+        <h2>Cognitive Dimensions setup debug diagnostic exception</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>8.59</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>no</dd></div>
+        <div><dt>Calibrated reason</dt><dd>high_absolute_guided_score</dd></div>
+      </dl>
+
+
+
+
+      <div class="repair-loop">
+        <h3>Cognitive Dimensions review</h3>
+        <dl>
+          <div><dt>Status</dt><dd>ready_for_review</dd></div>
+          <div><dt>Expected</dt><dd>ready_for_review</dd></div>
+          <div><dt>Expectation</dt><dd>passed</dd></div>
+          <div><dt>Report-only</dt><dd>no</dd></div>
+        </dl>
+        <p>Failed dimensions: none</p>
+        <p>Warning dimensions: viscosity, disclosure_discipline</p>
+      </div>
+
+      <div class="repair-loop">
+        <h3>Cognitive Dimensions repair adherence</h3>
+        <dl>
+          <div><dt>Status</dt><dd>passed</dd></div>
+          <div><dt>Findings</dt><dd>2/2</dd></div>
+          <div><dt>Report-only</dt><dd>yes</dd></div>
+        </dl>
+        <p>Failed finding dimensions: none</p>
+      </div>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">83.56/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>4.64</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>0</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">92.15/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>4.29</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>3.33</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+    <section class="case">
+      <header>
+        <p>GPT-5.5 Codex · candidate_validation</p>
+        <h2>Cognitive Dimensions spreadsheet progressive evaluation gap</h2>
+        <strong>Passed</strong>
+      </header>
+      <dl>
+        <div><dt>Winner</dt><dd>JudgmentKit MCP</dd></div>
+        <div><dt>Delta</dt><dd>14.98</dd></div>
+        <div><dt>Threshold</dt><dd>10</dd></div>
+        <div><dt>Standard pass</dt><dd>yes</dd></div>
+        <div><dt>Calibrated reason</dt><dd>delta_threshold</dd></div>
+      </dl>
+
+
+
+
+      <div class="repair-loop">
+        <h3>Cognitive Dimensions review</h3>
+        <dl>
+          <div><dt>Status</dt><dd>repair_required</dd></div>
+          <div><dt>Expected</dt><dd>repair_required</dd></div>
+          <div><dt>Expectation</dt><dd>passed</dd></div>
+          <div><dt>Report-only</dt><dd>no</dd></div>
+        </dl>
+        <p>Failed dimensions: visibility_juxtaposability, premature_commitment, progressive_evaluation</p>
+        <p>Warning dimensions: viscosity</p>
+      </div>
+
+      <div class="repair-loop">
+        <h3>Cognitive Dimensions repair adherence</h3>
+        <dl>
+          <div><dt>Status</dt><dd>passed</dd></div>
+          <div><dt>Findings</dt><dd>4/4</dd></div>
+          <div><dt>Report-only</dt><dd>yes</dd></div>
+        </dl>
+        <p>Failed finding dimensions: none</p>
+      </div>
+      <div class="variants">
+        <article class="variant baseline_no_mcp">
+          <h3>Baseline without MCP</h3>
+          <p class="score">75.01/100</p>
+          <ul><li><span>activity_fit</span><strong>2.5</strong></li><li><span>decision_support</span><strong>3.75</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>1.67</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article>
+        <article class="variant judgmentkit_mcp">
+          <h3>JudgmentKit MCP</h3>
+          <p class="score">89.99/100</p>
+          <ul><li><span>activity_fit</span><strong>5</strong></li><li><span>decision_support</span><strong>3.75</strong></li><li><span>evidence_grounding</span><strong>5</strong></li><li><span>disclosure_discipline</span><strong>5</strong></li><li><span>handoff_quality</span><strong>3.33</strong></li><li><span>rework_risk</span><strong>5</strong></li></ul>
+
+        </article></div>
+    </section>
+  </main>
+</body>
+</html>

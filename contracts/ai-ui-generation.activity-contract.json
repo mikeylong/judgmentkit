@@ -1,7 +1,7 @@
 {
   "$schema": "./judgmentkit-kernel.schema.json",
   "id": "judgmentkit.ai-ui-generation.activity-contract",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "source_model": "fresh_start",
   "quality_order": [
     "activity fit",

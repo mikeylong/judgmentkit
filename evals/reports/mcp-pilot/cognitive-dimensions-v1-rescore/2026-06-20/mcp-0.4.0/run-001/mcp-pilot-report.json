@@ -1,0 +1,1252 @@
+{
+  "eval_id": "judgmentkit-mcp-private-pilot-v1",
+  "evaluation_type": "private_saved_capture_scoring",
+  "benchmark_policy": "Private repo-local pilot. Scores are deterministic checks against saved model captures; JudgmentKit is not used as the judge.",
+  "capture_policy": "Default mode scores existing versioned captures only. Missing or MCP-version-mismatched captures are reported as capture-required. Live capture is opt-in with --capture and reuses existing captures in the target capture directory.",
+  "repair_loop_proof_policy": "Repair-loop results are deterministic fixture proof of contract governance and agent-owned resubmission behavior; they do not measure visual quality or live-model repair quality.",
+  "visual_token_adapter_proof_policy": "Visual-token adapter results are deterministic boundary proof that token evidence is metadata only; they do not introduce renderer packages, component libraries, A2UI, or visual-quality scoring.",
+  "comparison": {
+    "baseline": "baseline_no_mcp",
+    "guided": "judgmentkit_mcp",
+    "models": [
+      {
+        "id": "gpt-5.5-codex",
+        "label": "GPT-5.5 Codex",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "local": false
+      }
+    ]
+  },
+  "mcp": {
+    "required_version": "0.4.0",
+    "actual_version": "0.4.0",
+    "package_version": "0.4.0",
+    "local_metadata_sha256": "d6e5487901d54a7ae2b827df88fa5b6eac31c1ff41d4f72df0e855ce179a168a",
+    "endpoint_url": null,
+    "endpoint_metadata_sha256": null
+  },
+  "run": {
+    "date": "2026-06-20",
+    "mcp_release": "0.4.0",
+    "mcp_release_segment": "mcp-0.4.0",
+    "run_id": "run-001",
+    "run_path": "2026-06-20/mcp-0.4.0/run-001",
+    "html_report": "2026-06-20/mcp-0.4.0/run-001/mcp-pilot-report.html",
+    "json_report": "2026-06-20/mcp-0.4.0/run-001/mcp-pilot-report.json"
+  },
+  "summary": {
+    "cases": 6,
+    "evaluated_cases": 6,
+    "capture_required_cases": 0,
+    "passed": 4,
+    "failed": 2,
+    "calibrated_passes": 4,
+    "standard_delta_passed": 3,
+    "calibrated_only_passes": 1,
+    "calibrated_pass_reason_counts": {
+      "delta_threshold": 3,
+      "high_absolute_guided_score": 1
+    },
+    "guided_wins": 6,
+    "baseline_wins": 0,
+    "ties": 0,
+    "average_guided_delta": 10.13,
+    "invalid_outputs": 0,
+    "average_duration_ms": 34006.42,
+    "guided_critical_disclosure_leaks": 0,
+    "loop_cases": 0,
+    "converged_cases": 0,
+    "stopped_cases": 0,
+    "average_attempts_to_pass": 0,
+    "failure_category_counts": {},
+    "pilot_passed": false,
+    "pilot_status": "failed",
+    "unique_cases": 6,
+    "models": 1,
+    "per_model": {
+      "gpt-5.5-codex": {
+        "label": "GPT-5.5 Codex",
+        "cases": 6,
+        "evaluated_cases": 6,
+        "capture_required_cases": 0,
+        "passed": 4,
+        "failed": 2,
+        "calibrated_passes": 4,
+        "standard_delta_passed": 3,
+        "calibrated_only_passes": 1,
+        "calibrated_pass_reason_counts": {
+          "delta_threshold": 3,
+          "high_absolute_guided_score": 1
+        },
+        "guided_wins": 6,
+        "baseline_wins": 0,
+        "ties": 0,
+        "average_guided_delta": 10.13,
+        "invalid_outputs": 0,
+        "average_duration_ms": 34006.42,
+        "guided_critical_disclosure_leaks": 0,
+        "loop_cases": 0,
+        "converged_cases": 0,
+        "stopped_cases": 0,
+        "average_attempts_to_pass": 0,
+        "failure_category_counts": {},
+        "pilot_passed": false,
+        "pilot_status": "failed"
+      }
+    }
+  },
+  "metric_scale": {
+    "metric_score": "0-5",
+    "total_score": "0-100 weighted"
+  },
+  "capture_dir": "evals/mcp-pilot-captures-cognitive-dimensions-v1",
+  "results": [
+    {
+      "id": "cognitive-refund-action-detached",
+      "title": "Cognitive Dimensions refund action detached",
+      "case_type": "candidate_validation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "evaluated",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 1.69,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "reject until refund evidence and decision controls are kept together",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 86.23,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "refund review",
+                "support lead"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 4.06,
+              "present": [
+                "approve",
+                "policy review",
+                "return"
+              ],
+              "missing": [],
+              "expected_action_score": 3.13
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "policy evidence",
+                "reason"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 3.33,
+              "present": [
+                "decision",
+                "reason"
+              ],
+              "missing": [
+                "required fix"
+              ]
+            },
+            "rework_risk": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "evidence near action",
+                "decision controls together"
+              ],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.4.0/gpt-5.5-codex/cognitive-refund-action-detached/baseline_no_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.4.0",
+            "mcp_url": "http://127.0.0.1:64189/mcp",
+            "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+            "mcp_tool_sequence": [],
+            "mcp_tool_transcript_sha256": null,
+            "duration_ms": 37444,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "cfd19ee66e9c17ca26bb41b4a5f94957d66291e07f81367bb42de4dba47cdaa2",
+            "prompt_sha256": "f2eb4e56f7449f2961e426dc80009697e42563d000d67a4f6fb42df06c568be8",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 87.92,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "refund review",
+                "support lead"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 3.23,
+              "present": [
+                "policy review",
+                "return"
+              ],
+              "missing": [
+                "approve"
+              ],
+              "expected_action_score": 3.13
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "policy evidence",
+                "reason"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "decision",
+                "reason",
+                "required fix"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "evidence near action",
+                "decision controls together"
+              ],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.4.0/gpt-5.5-codex/cognitive-refund-action-detached/judgmentkit_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.4.0",
+            "mcp_url": "http://127.0.0.1:64189/mcp",
+            "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+            "mcp_tool_sequence": [
+              "review_ui_workflow_candidate",
+              "review_cognitive_dimensions_candidate"
+            ],
+            "mcp_tool_transcript_sha256": "164ddcf44626c315e17d51b6938a8e2f7c751e488130257f93fcb00011ab3f7d",
+            "duration_ms": 34037,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "cfe3143d31ea005685da80609d02586280b2f490fc46044b84b9828eb0c8e4c1",
+            "prompt_sha256": "df1a2963354017658d87ef6558f7aa1d75f24e8ff538c6d503ceeedf505ffd20",
+            "mcp_context_sha256": "617ef4bea564094b49ad7822d7b6457eebb766355bbaf959501e172840570da3"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cognitive-field-dispatch-transition-loss",
+      "title": "Cognitive Dimensions field dispatch transition loss",
+      "case_type": "candidate_validation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "evaluated",
+      "passed": true,
+      "standard_delta_passed": true,
+      "calibrated_pass_reason": "delta_threshold",
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 11.25,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "reject until selected job context persists across dispatch surfaces",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 76.27,
+          "metric_results": {
+            "activity_fit": {
+              "score": 2.5,
+              "present": [
+                "dispatcher"
+              ],
+              "missing": [
+                "field service dispatch"
+              ]
+            },
+            "decision_support": {
+              "score": 4.69,
+              "present": [
+                "assign",
+                "urgent job"
+              ],
+              "missing": [],
+              "expected_action_score": 4.38
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "technician availability",
+                "risk summary"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 1.67,
+              "present": [
+                "reason"
+              ],
+              "missing": [
+                "decision",
+                "required fix"
+              ]
+            },
+            "rework_risk": {
+              "score": 2.5,
+              "present": [
+                "selected context"
+              ],
+              "missing": [
+                "transition verification"
+              ],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.4.0/gpt-5.5-codex/cognitive-field-dispatch-transition-loss/baseline_no_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.4.0",
+            "mcp_url": "http://127.0.0.1:64189/mcp",
+            "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+            "mcp_tool_sequence": [],
+            "mcp_tool_transcript_sha256": null,
+            "duration_ms": 29258,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "4a04875b3661a4dc5c07ed026a845446e6bfc2a9b9c6f79f0761b662b3fd9379",
+            "prompt_sha256": "feab004e502fd9df52a14956ccd22ea05b9824757e5fc5e8e20454b6ea6ae875",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 87.52,
+          "metric_results": {
+            "activity_fit": {
+              "score": 2.5,
+              "present": [
+                "dispatcher"
+              ],
+              "missing": [
+                "field service dispatch"
+              ]
+            },
+            "decision_support": {
+              "score": 4.38,
+              "present": [
+                "assign",
+                "urgent job"
+              ],
+              "missing": [],
+              "expected_action_score": 3.75
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "technician availability",
+                "risk summary"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "decision",
+                "reason",
+                "required fix"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "selected context",
+                "transition verification"
+              ],
+              "missing": [],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.4.0/gpt-5.5-codex/cognitive-field-dispatch-transition-loss/judgmentkit_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.4.0",
+            "mcp_url": "http://127.0.0.1:64189/mcp",
+            "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+            "mcp_tool_sequence": [
+              "review_ui_workflow_candidate",
+              "review_cognitive_dimensions_candidate"
+            ],
+            "mcp_tool_transcript_sha256": "787c37420c501217fdaf9f7844d6af1066cba57bc505289f4ec359994ca0fabc",
+            "duration_ms": 47728,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "74ca0587cc6fcc0aa9e62241461be9d2163b46bfd198b7eb7c8cb643d278bded",
+            "prompt_sha256": "1ed252f4f1cd4e2172f5cced5ec16a6c476756b0a1c435dd2d0df1df09f98e62",
+            "mcp_context_sha256": "07f4235261a20369596b7973d5237317554f6d4cedd75045b874e7945c9cf838"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cognitive-clinical-hidden-dependency",
+      "title": "Cognitive Dimensions clinical hidden dependency",
+      "case_type": "candidate_validation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "evaluated",
+      "passed": false,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": null,
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 6.63,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "reject until stale vitals and consent status are visible before routing",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 77.81,
+          "metric_results": {
+            "activity_fit": {
+              "score": 2.5,
+              "present": [
+                "clinical intake"
+              ],
+              "missing": [
+                "nurse"
+              ]
+            },
+            "decision_support": {
+              "score": 4.45,
+              "present": [
+                "urgent review",
+                "routine review",
+                "return"
+              ],
+              "missing": [],
+              "expected_action_score": 3.89
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "stale vitals",
+                "consent status"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 1.67,
+              "present": [
+                "reason"
+              ],
+              "missing": [
+                "decision",
+                "required fix"
+              ]
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "visible before routing",
+                "stale vitals",
+                "consent status"
+              ],
+              "missing": [],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.4.0/gpt-5.5-codex/cognitive-clinical-hidden-dependency/baseline_no_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.4.0",
+            "mcp_url": "http://127.0.0.1:64189/mcp",
+            "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+            "mcp_tool_sequence": [],
+            "mcp_tool_transcript_sha256": null,
+            "duration_ms": 32870,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "e5abe7d06e793a48e413a46c448b8233e7a8798c4897687887fa052efc9d372e",
+            "prompt_sha256": "12c913dfc00ae254e8e4a8876860ecac610532cc61b96dda212ce0f93fc33dc8",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 84.44,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "clinical intake",
+                "nurse"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 2.78,
+              "present": [
+                "return"
+              ],
+              "missing": [
+                "urgent review",
+                "routine review"
+              ],
+              "expected_action_score": 3.89
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "stale vitals",
+                "consent status"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 3.33,
+              "present": [
+                "decision",
+                "required fix"
+              ],
+              "missing": [
+                "reason"
+              ]
+            },
+            "rework_risk": {
+              "score": 3.33,
+              "present": [
+                "stale vitals",
+                "consent status"
+              ],
+              "missing": [
+                "visible before routing"
+              ],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.4.0/gpt-5.5-codex/cognitive-clinical-hidden-dependency/judgmentkit_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.4.0",
+            "mcp_url": "http://127.0.0.1:64189/mcp",
+            "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+            "mcp_tool_sequence": [
+              "review_ui_workflow_candidate",
+              "review_cognitive_dimensions_candidate"
+            ],
+            "mcp_tool_transcript_sha256": "087842198401c66ddecb8a6770652a4a92bbc9b2f909ddf149ba93ae36c7906d",
+            "duration_ms": 23795,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "b6b2f355bcb6099e442c93f814f3c99dbba40bbd3672dbb5031459675a5e6a18",
+            "prompt_sha256": "b5013c56258d4fbe764b694efa8a75f473841f80db56b780a545fd6213d15915",
+            "mcp_context_sha256": "6f58831f493d7c23f0dfa08f4302be03f5e599a45d4ad053cae5f75ad2bf67a6"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cognitive-dashboard-no-follow-up",
+      "title": "Cognitive Dimensions dashboard no follow-up",
+      "case_type": "candidate_validation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "evaluated",
+      "passed": true,
+      "standard_delta_passed": true,
+      "calibrated_pass_reason": "delta_threshold",
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 23.74,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "reject until dashboard metrics explain exceptions and follow-up action",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 70.01,
+          "metric_results": {
+            "activity_fit": {
+              "score": 2.5,
+              "present": [
+                "operations lead"
+              ],
+              "missing": [
+                "fulfillment"
+              ]
+            },
+            "decision_support": {
+              "score": 3.75,
+              "present": [
+                "exception",
+                "follow-up"
+              ],
+              "missing": [],
+              "expected_action_score": 2.5
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "owner",
+                "freshness"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 1.67,
+              "present": [
+                "reason"
+              ],
+              "missing": [
+                "decision",
+                "required fix"
+              ]
+            },
+            "rework_risk": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "progressive evaluation"
+              ],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.4.0/gpt-5.5-codex/cognitive-dashboard-no-follow-up/baseline_no_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.4.0",
+            "mcp_url": "http://127.0.0.1:64189/mcp",
+            "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+            "mcp_tool_sequence": [],
+            "mcp_tool_transcript_sha256": null,
+            "duration_ms": 29834,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "f38cdc716aee774268c32eff52e7b9cc7245de03f4f242aec048a27ef515d970",
+            "prompt_sha256": "e97e0fc3fea0126529c9cd168f21e2f6b8b4caa4c3eb4bb3fc910fb9aa37d533",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 93.75,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "operations lead",
+                "fulfillment"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 4.69,
+              "present": [
+                "exception",
+                "follow-up"
+              ],
+              "missing": [],
+              "expected_action_score": 4.38
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "owner",
+                "freshness"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 3.33,
+              "present": [
+                "decision",
+                "required fix"
+              ],
+              "missing": [
+                "reason"
+              ]
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "progressive evaluation"
+              ],
+              "missing": [],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.4.0/gpt-5.5-codex/cognitive-dashboard-no-follow-up/judgmentkit_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.4.0",
+            "mcp_url": "http://127.0.0.1:64189/mcp",
+            "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+            "mcp_tool_sequence": [
+              "review_ui_workflow_candidate",
+              "review_cognitive_dimensions_candidate"
+            ],
+            "mcp_tool_transcript_sha256": "470b20895bfa98197279dd0382e7cd39394d34709ab8b557235ee38de7d139e4",
+            "duration_ms": 25594,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "30d7d7a5ca76d13eafc62e15465914558587c64762c2058716a9c9ccd483d3ad",
+            "prompt_sha256": "13089d4579d1eee7cd61be9ac9a1f0635ca173e48a951596915da66d30068d35",
+            "mcp_context_sha256": "9df6edb82f373b0ff678c2a595fc38b9ece35a43a3f66c831dfc012e404bb048"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cognitive-setup-debug-diagnostic-exception",
+      "title": "Cognitive Dimensions setup debug diagnostic exception",
+      "case_type": "candidate_validation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "evaluated",
+      "passed": true,
+      "standard_delta_passed": false,
+      "calibrated_pass_reason": "high_absolute_guided_score",
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 5.01,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "accept diagnostic machinery because setup debugging is the activity",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 88.55,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "setup debugging",
+                "platform engineer"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 4.64,
+              "present": [
+                "next fix",
+                "test status"
+              ],
+              "missing": [],
+              "expected_action_score": 4.29
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "endpoint status",
+                "request ID"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 3.33,
+              "present": [
+                "decision",
+                "next fix"
+              ],
+              "missing": [
+                "reason"
+              ]
+            },
+            "rework_risk": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "rerun test"
+              ],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.4.0/gpt-5.5-codex/cognitive-setup-debug-diagnostic-exception/baseline_no_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.4.0",
+            "mcp_url": "http://127.0.0.1:64189/mcp",
+            "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+            "mcp_tool_sequence": [],
+            "mcp_tool_transcript_sha256": null,
+            "duration_ms": 34575,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "7bc52d1d38cc7e5d54c96a4e1aadb3eeaa0ecb277b1f6b8738061c8d9a486b90",
+            "prompt_sha256": "0c9df96f644c3cdb9506544451fc1dd2ccb27efe4be86fae7199f68716d0b610",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 93.56,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "setup debugging",
+                "platform engineer"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 4.64,
+              "present": [
+                "next fix",
+                "test status"
+              ],
+              "missing": [],
+              "expected_action_score": 4.29
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "endpoint status",
+                "request ID"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 5,
+              "present": [
+                "decision",
+                "reason",
+                "next fix"
+              ],
+              "missing": []
+            },
+            "rework_risk": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "rerun test"
+              ],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.4.0/gpt-5.5-codex/cognitive-setup-debug-diagnostic-exception/judgmentkit_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.4.0",
+            "mcp_url": "http://127.0.0.1:64189/mcp",
+            "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+            "mcp_tool_sequence": [
+              "review_ui_workflow_candidate",
+              "review_cognitive_dimensions_candidate"
+            ],
+            "mcp_tool_transcript_sha256": "a7719972d05df90c57aa4c470fc76c3e6d6d0342f7552a1ab83f328c11beb516",
+            "duration_ms": 46090,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "04e2a0827cd945fb56653c3c6306c9a5a8ad8b1568e8f01085ed568c0dfc788a",
+            "prompt_sha256": "e0414ff09027f8d34b84cb26e54d76612266b6be6ff32b9979f09ae57a3f4557",
+            "mcp_context_sha256": "30bd9ad4e9dbad7453130521fb11129a13041777d7af85d3ab5127bb1fc2fe86"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cognitive-spreadsheet-progressive-evaluation-gap",
+      "title": "Cognitive Dimensions spreadsheet progressive evaluation gap",
+      "case_type": "candidate_validation",
+      "model_config_id": "gpt-5.5-codex",
+      "model_label": "GPT-5.5 Codex",
+      "model_provider": "codex",
+      "model": "gpt-5.5",
+      "status": "evaluated",
+      "passed": true,
+      "standard_delta_passed": true,
+      "calibrated_pass_reason": "delta_threshold",
+      "winner": "judgmentkit_mcp",
+      "expected_winner": "judgmentkit_mcp",
+      "score_delta": 12.46,
+      "minimum_score_delta": 10,
+      "guided_critical_disclosure_leaks": [],
+      "expected_next_action": "reject until formula changes can be previewed and checked before applying",
+      "variants": [
+        {
+          "id": "baseline_no_mcp",
+          "label": "Baseline without MCP",
+          "treatment": "baseline_no_mcp",
+          "status": "evaluated",
+          "score": 67.53,
+          "metric_results": {
+            "activity_fit": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "finance analyst",
+                "spreadsheet formula"
+              ]
+            },
+            "decision_support": {
+              "score": 4.38,
+              "present": [
+                "preview",
+                "apply"
+              ],
+              "missing": [],
+              "expected_action_score": 3.75
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "calculated results",
+                "formula errors"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 1.67,
+              "present": [
+                "reason"
+              ],
+              "missing": [
+                "decision",
+                "required fix"
+              ]
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "progressive evaluation"
+              ],
+              "missing": [],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.4.0/gpt-5.5-codex/cognitive-spreadsheet-progressive-evaluation-gap/baseline_no_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.4.0",
+            "mcp_url": "http://127.0.0.1:64189/mcp",
+            "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+            "mcp_tool_sequence": [],
+            "mcp_tool_transcript_sha256": null,
+            "duration_ms": 28034,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "3ea6b33400f4a5b2e87b6615aec14690553822ebc0b6630af6e4f32de4e3f10d",
+            "prompt_sha256": "bd87bd10f661c0d50c204c565a10b0a820e5662f1838de2c3a42fea50ebaaef9",
+            "mcp_context_sha256": null
+          }
+        },
+        {
+          "id": "judgmentkit_mcp",
+          "label": "JudgmentKit MCP",
+          "treatment": "judgmentkit_mcp",
+          "status": "evaluated",
+          "score": 79.99,
+          "metric_results": {
+            "activity_fit": {
+              "score": 2.5,
+              "present": [
+                "finance analyst"
+              ],
+              "missing": [
+                "spreadsheet formula"
+              ]
+            },
+            "decision_support": {
+              "score": 3.75,
+              "present": [
+                "preview",
+                "apply"
+              ],
+              "missing": [],
+              "expected_action_score": 2.5
+            },
+            "evidence_grounding": {
+              "score": 5,
+              "present": [
+                "calculated results",
+                "formula errors"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "leaks": [],
+              "critical_leak_count": 0
+            },
+            "handoff_quality": {
+              "score": 3.33,
+              "present": [
+                "decision",
+                "reason"
+              ],
+              "missing": [
+                "required fix"
+              ]
+            },
+            "rework_risk": {
+              "score": 5,
+              "present": [
+                "progressive evaluation"
+              ],
+              "missing": [],
+              "question_count": 0,
+              "max_questions": 1,
+              "question_penalty": 0
+            }
+          },
+          "question_count": 0,
+          "invalid_output": false,
+          "critical_disclosure_leaks": [],
+          "capture": {
+            "capture_file": "mcp-0.4.0/gpt-5.5-codex/cognitive-spreadsheet-progressive-evaluation-gap/judgmentkit_mcp.json",
+            "model_config_id": "gpt-5.5-codex",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "runtime": "codex exec",
+            "local": false,
+            "mcp_version": "0.4.0",
+            "mcp_url": "http://127.0.0.1:64189/mcp",
+            "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+            "mcp_tool_sequence": [
+              "review_ui_workflow_candidate",
+              "review_cognitive_dimensions_candidate"
+            ],
+            "mcp_tool_transcript_sha256": "1ea838fc47eafbbb7c22ecc40aeffd8c9b22ac410bbddcefc79554adf5b3fb66",
+            "duration_ms": 38818,
+            "output_valid": true,
+            "parse_error": null,
+            "usage": null,
+            "raw_response_sha256": "810e53845a438d08f9e2bf5c484d5f1a06511be93d239cf726a080984b18c15e",
+            "prompt_sha256": "d627e5858e33d7d80dc252c24bbdcdd14b3a9663c0cf49bc9492790e5362aa54",
+            "mcp_context_sha256": "961d0686fb39bbff7775ee3c38142e495a44318aba035bbdbb5298aa6885c37c"
+          }
+        }
+      ]
+    }
+  ]
+}

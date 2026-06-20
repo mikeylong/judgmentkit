@@ -19,7 +19,7 @@ const NODE_TYPES = {
 
 const ARROW = {
   type: MarkerType.ArrowClosed,
-  color: "#245f73",
+  color: "var(--rf-map-edge)",
 };
 
 function withBaseNode(node) {
@@ -346,7 +346,7 @@ const nodes = [
 ];
 
 function edge(id, source, target, options = {}) {
-  const stroke = options.stroke ?? "#245f73";
+  const stroke = options.stroke ?? "var(--rf-map-edge)";
   return {
     id,
     source,
@@ -357,8 +357,8 @@ function edge(id, source, target, options = {}) {
     label: options.label,
     labelBgPadding: [6, 4],
     labelBgBorderRadius: 4,
-    labelBgStyle: { fill: "#fbfaf6", fillOpacity: 0.88 },
-    labelStyle: { fill: "#61615c", fontSize: 12, fontWeight: 800 },
+    labelBgStyle: { fill: "var(--rf-map-label-bg)", fillOpacity: 0.92 },
+    labelStyle: { fill: "var(--rf-map-muted)", fontSize: 12, fontWeight: 800 },
     markerEnd: { ...ARROW, color: stroke },
     style: {
       stroke,
@@ -379,77 +379,77 @@ const edges = [
   edge("source-to-mcp", "source-context", "mcp-server", {
     sourceHandle: "bottom-source",
     targetHandle: "top-target",
-    stroke: "#d7d3c8",
+    stroke: "var(--rf-map-edge-muted)",
   }),
-  edge("analyze-to-activity", "analyze", "activity-review", { stroke: "#d7d3c8" }),
+  edge("analyze-to-activity", "analyze", "activity-review", { stroke: "var(--rf-map-edge-muted)" }),
   edge("activity-to-workflow", "activity-review", "workflow-review", {
     sourceHandle: "bottom-source",
     targetHandle: "top-target",
-    stroke: "#d7d3c8",
+    stroke: "var(--rf-map-edge-muted)",
   }),
-  edge("candidate-review-to-workflow", "candidate-review", "workflow-review", { stroke: "#d7d3c8" }),
+  edge("candidate-review-to-workflow", "candidate-review", "workflow-review", { stroke: "var(--rf-map-edge-muted)" }),
   edge("workflow-to-handoff", "workflow-review", "handoff", {
     sourceHandle: "bottom-source",
     targetHandle: "top-target",
-    stroke: "#d7d3c8",
+    stroke: "var(--rf-map-edge-muted)",
   }),
   edge("handoff-to-blocked", "handoff", "blocked", {
     sourceHandle: "bottom-source",
     targetHandle: "top-target",
-    stroke: "#8a5a16",
+    stroke: "var(--rf-map-edge-warning)",
     dashed: true,
   }),
   edge("blocked-to-mcp", "blocked", "mcp-server", {
     sourceHandle: "left-source",
     targetHandle: "bottom-target",
     label: "needs source context",
-    stroke: "#8a5a16",
+    stroke: "var(--rf-map-edge-warning)",
     dashed: true,
   }),
   edge("workflow-to-provider", "workflow-review", "provider", {
     label: "request candidate",
-    stroke: "#8a5a16",
+    stroke: "var(--rf-map-edge-warning)",
     dashed: true,
   }),
   edge("candidate-to-workflow", "candidate", "workflow-review", {
     sourceHandle: "left-source",
     targetHandle: "right-target",
     label: "proposed JSON returns for review",
-    stroke: "#8a5a16",
+    stroke: "var(--rf-map-edge-warning)",
     dashed: true,
   }),
   edge("handoff-to-ui-pass", "handoff", "ui-pass", {
     label: "reviewed handoff",
-    stroke: "#2e6b48",
+    stroke: "var(--rf-map-edge-output)",
     strokeWidth: 3,
   }),
   edge("ui-pass-to-renderer", "ui-pass", "renderer-choice", {
     sourceHandle: "bottom-source",
     targetHandle: "top-target",
-    stroke: "#2e6b48",
+    stroke: "var(--rf-map-edge-output)",
     strokeWidth: 3,
   }),
   edge("renderer-to-material", "renderer-choice", "material-ui-adapter", {
     sourceHandle: "bottom-source",
     targetHandle: "top-target",
     label: "with design system",
-    stroke: "#2e6b48",
+    stroke: "var(--rf-map-edge-output)",
   }),
   edge("renderer-to-without-design", "renderer-choice", "without-design-system", {
     sourceHandle: "bottom-source",
     targetHandle: "top-target",
     label: "without design system",
-    stroke: "#2e6b48",
+    stroke: "var(--rf-map-edge-output)",
   }),
   edge("material-to-draft", "material-ui-adapter", "ui-draft", {
     sourceHandle: "bottom-source",
     targetHandle: "top-target",
-    stroke: "#2e6b48",
+    stroke: "var(--rf-map-edge-output)",
   }),
   edge("without-design-to-draft", "without-design-system", "ui-draft", {
     sourceHandle: "bottom-source",
     targetHandle: "top-target",
-    stroke: "#2e6b48",
+    stroke: "var(--rf-map-edge-output)",
   }),
   edge("ui-draft-to-review", "ui-draft", "review-findings", {
     sourceHandle: "left-source",
@@ -458,7 +458,7 @@ const edges = [
     strokeWidth: 3,
   }),
   edge("review-to-updated", "review-findings", "updated-context", {
-    stroke: "#d7d3c8",
+    stroke: "var(--rf-map-edge-muted)",
   }),
   edge("updated-to-source", "updated-context", "source-context", {
     sourceHandle: "left-source",
@@ -546,7 +546,7 @@ function SystemMapFlow({ root }) {
       onInit={handleInit}
       aria-label="JudgmentKit React Flow system design map"
     >
-      <Background color="#e8e1d2" gap={40} size={1} />
+      <Background color="var(--rf-map-grid)" gap={40} size={1} />
       <Controls showInteractive={false} position="bottom-left" fitViewOptions={{ padding: 0.08 }} />
     </ReactFlow>
   );

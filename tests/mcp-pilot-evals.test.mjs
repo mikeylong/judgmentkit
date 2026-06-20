@@ -111,8 +111,8 @@ function writeJson(filePath, value) {
 
 function mockReport({ runId, mcpVersion = REQUIRED_MCP_VERSION, summary = {}, results = [] }) {
   const defaultSummary = {
-    cases: 24,
-    evaluated_cases: 24,
+    cases: 30,
+    evaluated_cases: 30,
     capture_required_cases: 0,
     passed: 17,
     failed: 3,
@@ -287,9 +287,30 @@ function repairedModalCandidate(accessibilityEvidence = {}) {
 }
 
 validateCases(cases);
-assert.equal(cases.length, 24);
+assert.equal(cases.length, 30);
 assert.equal(cases.filter((testCase) => testCase.repair_loop).length, 4);
 assert.equal(cases.filter((testCase) => testCase.visual_token_adapter_proof).length, 4);
+assert.deepEqual(
+  cases
+    .filter((testCase) => testCase.cognitive_dimensions_review?.enabled)
+    .map((testCase) => testCase.id),
+  [
+    "cognitive-refund-action-detached",
+    "cognitive-field-dispatch-transition-loss",
+    "cognitive-clinical-hidden-dependency",
+    "cognitive-dashboard-no-follow-up",
+    "cognitive-setup-debug-diagnostic-exception",
+    "cognitive-spreadsheet-progressive-evaluation-gap",
+  ],
+);
+for (const cognitiveCase of cases.filter(
+  (testCase) => testCase.cognitive_dimensions_review?.enabled,
+)) {
+  assert.ok(
+    cognitiveCase.expected_mcp_tools.includes("review_cognitive_dimensions_candidate"),
+    `${cognitiveCase.id} should route through Cognitive Dimensions review`,
+  );
+}
 
 {
   const accessibilitySchema =
@@ -592,6 +613,26 @@ for (const testCase of cases) {
         `${candidateCase.id} MCP tool sequence`,
       );
     }
+
+    const cognitiveRefundCase = cases.find(
+      (candidate) => candidate.id === "cognitive-refund-action-detached",
+    );
+    const cognitiveRefundContext = await buildMcpContextForCase(cognitiveRefundCase, mcpRuntime);
+    assert.deepEqual(cognitiveRefundContext.tool_sequence, cognitiveRefundCase.expected_mcp_tools);
+    assert.equal(cognitiveRefundContext.cognitive_dimensions_review_summary.enabled, true);
+    assert.equal(
+      cognitiveRefundContext.cognitive_dimensions_review_summary.cognitive_dimensions_review_status,
+      cognitiveRefundCase.cognitive_dimensions_review.expected_status,
+    );
+    assert.equal(
+      cognitiveRefundContext.cognitive_dimensions_review_summary.expectation_status,
+      "passed",
+    );
+    assert.ok(
+      cognitiveRefundContext.cognitive_dimensions_review_summary.failed_dimensions.includes(
+        "visibility_juxtaposability",
+      ),
+    );
 
     const missingHandoffCase = cases.find((candidate) => candidate.id === "missing-handoff-workflow");
     const missingHandoffContext = await buildMcpContextForCase(missingHandoffCase, mcpRuntime);
@@ -1237,6 +1278,81 @@ for (const testCase of cases) {
   if (uiCatalogBefore !== null) {
     assert.equal(fs.readFileSync(uiCatalogPath, "utf8"), uiCatalogBefore);
   }
+}
+
+{
+  const reportsDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-mcp-pilot-reports-"));
+  const captureDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-mcp-pilot-captures-"));
+  const selected = cases.filter((testCase) => testCase.cognitive_dimensions_review?.enabled);
+
+  for (const testCase of selected) {
+    writeJson(
+      versionedCapturePath(captureDir, testCase, "baseline_no_mcp"),
+      mockCapture(testCase, "baseline_no_mcp", {
+        response: `Generic implementation page with ${testCase.forbidden_terms.join(", ")}.`,
+        handoff: {},
+      }),
+    );
+    writeJson(
+      versionedCapturePath(captureDir, testCase, "judgmentkit_mcp"),
+      mockCapture(testCase, "judgmentkit_mcp"),
+    );
+  }
+
+  const result = await runMcpPilotEval({
+    capture: true,
+    captureDir,
+    reportsDir,
+    runDate: "2026-06-12",
+    requiredMcpVersion: REQUIRED_MCP_VERSION,
+    cases: selected.map((testCase) => testCase.id),
+  });
+
+  assert.equal(result.report.summary.cases, 6);
+  assert.equal(result.report.summary.evaluated_cases, 6);
+  assert.equal(result.report.summary.cognitive_dimensions_cases, 6);
+  assert.equal(result.report.summary.cognitive_dimensions_passed_cases, 6);
+  assert.equal(result.report.summary.cognitive_dimensions_failed_cases, 0);
+  assert.equal(result.report.summary.cognitive_dimensions_report_only, true);
+  assert.ok(
+    result.report.summary.cognitive_dimensions_dimension_counts.visibility_juxtaposability >= 1,
+  );
+  assert.ok(result.report.summary.cognitive_dimensions_dimension_counts.hidden_dependencies >= 1);
+  assert.ok(result.report.summary.cognitive_dimensions_dimension_counts.progressive_evaluation >= 1);
+  assert.ok(result.report.summary.cognitive_dimensions_dimension_counts.disclosure_discipline >= 1);
+  assert.equal(result.report.summary.visual_ui_proof_use_cases, 4);
+  assert.equal(result.report.summary.visual_ui_proof_artifacts, 12);
+  assert.equal(result.report.summary.visual_ui_proof_report_only, true);
+  assert.ok(result.report.visual_ui_proof.enabled);
+  assert.ok(
+    result.report.visual_ui_proof.use_cases.some(
+      (useCase) => useCase.use_case_id === "refund-system-map",
+    ),
+  );
+  assert.ok(
+    result.report.visual_ui_proof.use_cases.some(
+      (useCase) => useCase.use_case_id === "field-service-dispatch",
+    ),
+  );
+  assert.ok(
+    result.report.visual_ui_proof.uncovered_case_ids.includes(
+      "cognitive-spreadsheet-progressive-evaluation-gap",
+    ),
+  );
+  assert.equal(result.report.results[0].cognitive_dimensions_review.enabled, true);
+  const html = fs.readFileSync(result.runInfo.htmlReportPath, "utf8");
+  assert.match(html, /Cognitive Dimensions/);
+  assert.match(html, /Visual UI proof/);
+  assert.ok(
+    html.includes(
+      "/examples/model-ui/refund-system-map/screenshots/gemma4-lms-with-judgmentkit.png",
+    ),
+  );
+  assert.ok(
+    html.includes(
+      "/examples/model-ui/field-service-dispatch/artifacts/gemma4-lms-judgmentkit-material-ui.html",
+    ),
+  );
 }
 
 {

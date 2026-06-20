@@ -26,7 +26,7 @@ export const CATALOG_JSON_FILENAME = "index.json";
 export const CATALOG_HTML_FILENAME = "index.html";
 export const EVAL_ID = "judgmentkit-mcp-private-pilot-v1";
 export const CATALOG_ID = "judgmentkit-mcp-private-pilot-runs";
-export const REQUIRED_MCP_VERSION = "0.4.0";
+export const REQUIRED_MCP_VERSION = "0.5.0";
 export const MODEL_ID = "gpt-5.5";
 export const REASONING_EFFORT = "xhigh";
 export const CODEX_MODEL_CONFIG_ID = "gpt-5.5-codex";
@@ -71,6 +71,35 @@ export const HIDDEN_TREATMENT_TERMS = [
   "Baseline without MCP",
 ];
 
+const VISUAL_UI_PROOF_USE_CASES = [
+  {
+    use_case_id: "refund-system-map",
+    related_case_ids: ["cognitive-refund-action-detached"],
+    coverage_note: "Refund decision evidence and action adjacency.",
+  },
+  {
+    use_case_id: "field-service-dispatch",
+    related_case_ids: ["cognitive-field-dispatch-transition-loss"],
+    coverage_note: "Dispatch context persistence across coordinated surfaces.",
+  },
+  {
+    use_case_id: "clinical-intake-review",
+    related_case_ids: ["cognitive-clinical-hidden-dependency"],
+    coverage_note: "Clinical intake evidence visibility before routing.",
+  },
+  {
+    use_case_id: "b2b-renewal-risk",
+    related_case_ids: ["cognitive-dashboard-no-follow-up"],
+    coverage_note: "Operational exception review with owner, evidence, and follow-up action.",
+  },
+];
+
+const VISUAL_UI_PROOF_ARTIFACT_IDS = [
+  "gemma4-lms-no-judgmentkit",
+  "gemma4-lms-with-judgmentkit",
+  "gemma4-lms-judgmentkit-material-ui",
+];
+
 const TERM_ALIASES = new Map([
   ["block", ["reject", "failed", "blocks acceptance", "cannot accept"]],
   ["candidate evidence", ["candidate", "candidate provides", "candidate also omits"]],
@@ -91,6 +120,11 @@ const TERM_ALIASES = new Map([
   ["routing handoff", ["handoff receipt", "route"]],
   ["source brief", ["source request", "source context", "brief"]],
   ["verification", ["supply passing", "re-review"]],
+  ["visible", ["show", "shown", "surface", "present"]],
+  ["visible before routing", ["at route selection", "visible during intake review", "before route"]],
+  ["rerun test", ["retest", "rerun the test", "rerun result"]],
+  ["next fix", ["fix", "selected setup fix"]],
+  ["before applying", ["before apply", "before workbook commitment", "before committing"]],
 ]);
 
 const CAPTURE_OUTPUT_SCHEMA = {
@@ -652,8 +686,8 @@ export function validateCases(cases) {
     throw new Error("mcp pilot cases must be an array.");
   }
 
-  if (cases.length !== 24) {
-    failures.push(`expected exactly 24 cases, got ${cases.length}`);
+  if (cases.length !== 30) {
+    failures.push(`expected exactly 30 cases, got ${cases.length}`);
   }
 
   const seenIds = new Set();
@@ -757,6 +791,26 @@ export function validateCases(cases) {
       }
     }
 
+    if (testCase.cognitive_dimensions_review !== undefined) {
+      if (testCase.cognitive_dimensions_review.enabled !== true) {
+        failures.push(`${testCase.id} cognitive_dimensions_review.enabled must be true when present`);
+      }
+      if (
+        testCase.cognitive_dimensions_review.expected_status !== undefined &&
+        !["ready_for_review", "repair_required", "needs_source_context"].includes(
+          testCase.cognitive_dimensions_review.expected_status,
+        )
+      ) {
+        failures.push(`${testCase.id} cognitive_dimensions_review expected_status is invalid`);
+      }
+      if (
+        testCase.cognitive_dimensions_review.expected_dimensions !== undefined &&
+        !Array.isArray(testCase.cognitive_dimensions_review.expected_dimensions)
+      ) {
+        failures.push(`${testCase.id} cognitive_dimensions_review expected_dimensions must be an array`);
+      }
+    }
+
     const weightTotal = METRIC_IDS.reduce(
       (sum, metricId) => sum + (testCase.scoring_weights?.[metricId] ?? 0),
       0,
@@ -790,6 +844,7 @@ function summarizeToolResult(result) {
     result.handoff_status ??
     result.implementation_contract_status ??
     result.implementation_review_status ??
+    result.cognitive_dimensions_review_status ??
     result.recommendation_status ??
     result.status ??
     "ok";
@@ -992,6 +1047,199 @@ function summarizeVisualTokenAdapterProof(testCase, review) {
   };
 }
 
+function cognitiveDimensionsReviewProof(testCase, review) {
+  const proof = testCase.cognitive_dimensions_review;
+  if (!proof) return null;
+
+  const failedDimensions = [
+    ...new Set(
+      (review?.findings ?? [])
+        .filter((finding) => finding.severity === "fail")
+        .map((finding) => finding.dimension)
+        .filter(Boolean),
+    ),
+  ];
+  const warningDimensions = [
+    ...new Set(
+      (review?.findings ?? [])
+        .filter((finding) => finding.severity === "warn")
+        .map((finding) => finding.dimension)
+        .filter(Boolean),
+    ),
+  ];
+  const expectedDimensions = proof.expected_dimensions ?? [];
+  const missingExpectedDimensions = expectedDimensions.filter(
+    (dimension) => !failedDimensions.includes(dimension) && !warningDimensions.includes(dimension),
+  );
+  const expectationFailures = [];
+
+  if (
+    proof.expected_status &&
+    review?.cognitive_dimensions_review_status !== proof.expected_status
+  ) {
+    expectationFailures.push(
+      `expected status ${proof.expected_status}, got ${review?.cognitive_dimensions_review_status}`,
+    );
+  }
+  if (missingExpectedDimensions.length > 0) {
+    expectationFailures.push(
+      `missing expected dimensions ${missingExpectedDimensions.join(", ")}`,
+    );
+  }
+
+  return {
+    enabled: true,
+    proof_type: "cognitive_dimensions_review",
+    cognitive_dimensions_review_status:
+      review?.cognitive_dimensions_review_status ?? null,
+    next_agent_action: review?.next_agent_action ?? null,
+    failed_dimensions: failedDimensions,
+    warning_dimensions: warningDimensions,
+    expected_status: proof.expected_status ?? null,
+    expected_dimensions: expectedDimensions,
+    expectation_status: expectationFailures.length === 0 ? "passed" : "failed",
+    expectation_failures: expectationFailures,
+  };
+}
+
+function cognitiveDimensionsReviewFromContext(mcpContext) {
+  return mcpContext?.tool_calls?.find(
+    (call) => call.name === "review_cognitive_dimensions_candidate",
+  )?.result ?? null;
+}
+
+function cognitiveDimensionsResponseDirective(testCase, mcpContext) {
+  const review = cognitiveDimensionsReviewFromContext(mcpContext);
+  if (!review || testCase.cognitive_dimensions_review?.enabled !== true) return null;
+
+  const blocksAcceptance =
+    review.cognitive_dimensions_review_status !== "ready_for_review";
+  const findings = (review.findings ?? [])
+    .filter((finding) => blocksAcceptance && finding.severity === "fail")
+    .map((finding) => ({
+      dimension: finding.dimension,
+      severity: finding.severity,
+      evidence: finding.evidence,
+      user_cost: finding.user_cost,
+      repair_instruction: finding.repair_instruction,
+      acceptance_check: finding.acceptance_check,
+    }));
+  const warningNotes = (review.findings ?? [])
+    .filter((finding) => blocksAcceptance && finding.severity === "warn")
+    .map((finding) => ({
+      dimension: finding.dimension,
+      repair_instruction: finding.repair_instruction,
+      acceptance_check: finding.acceptance_check,
+    }));
+
+  return {
+    status: review.cognitive_dimensions_review_status,
+    next_agent_action: review.next_agent_action,
+    response_policy:
+      "Do not name Cognitive Dimensions. Convert each finding into source-domain repair language.",
+    required_response_behavior:
+      blocksAcceptance
+        ? [
+            "The response must block acceptance of the submitted candidate until the review status is ready.",
+            "The next_action must use the failed finding repair instructions as the concrete repair direction.",
+            "The handoff required fix must include the acceptance checks in domain language.",
+            "The rationale must name the user cost caused by the submitted workflow.",
+          ]
+        : [
+            "The response should trust or accept the submitted candidate when source and candidate are aligned.",
+            "Warning findings are non-blocking implementation notes; do not turn them into a reject decision.",
+          ],
+    findings,
+    ...(warningNotes.length > 0 ? { warning_notes: warningNotes } : {}),
+  };
+}
+
+function cognitiveFindingRequiredTerms(finding, testCase) {
+  const explicitTerms =
+    testCase.cognitive_dimensions_review?.adherence_terms?.[finding.dimension] ?? [];
+  if (explicitTerms.length > 0) return explicitTerms;
+
+  const dimensionTerms = {
+    closeness_of_mapping: ["domain language"],
+    visibility_juxtaposability: ["evidence", "decision controls", "together"],
+    hidden_dependencies: ["decision-changing", "visible"],
+    premature_commitment: ["confirmation", "receipt"],
+    progressive_evaluation: ["preview", "validate"],
+    viscosity: ["single context"],
+    hard_mental_operations: ["selected context", "persist"],
+    role_expressiveness: ["purpose"],
+    disclosure_discipline: ["diagnostics"],
+  };
+
+  return dimensionTerms[finding.dimension] ?? [];
+}
+
+function cognitiveFindingRepairAdherence(testCase, finding, capture) {
+  const text = captureText(capture);
+  const requiredTerms = cognitiveFindingRequiredTerms(finding, testCase);
+  const coverage = coverageScore(text, requiredTerms);
+  const repairInstructionTerms = normalizeText(finding.repair_instruction)
+    .split(" ")
+    .filter((term) => term.length > 5)
+    .slice(0, 8);
+  const acceptanceCheckTerms = normalizeText(finding.acceptance_check)
+    .split(" ")
+    .filter((term) => term.length > 5)
+    .slice(0, 8);
+  const repairCoverage = coverageScore(text, repairInstructionTerms);
+  const acceptanceCoverage = coverageScore(text, acceptanceCheckTerms);
+  const passed =
+    coverage.missing.length === 0 ||
+    (coverage.score >= 4 &&
+      (repairCoverage.score >= 2.5 || acceptanceCoverage.score >= 2.5));
+
+  return {
+    dimension: finding.dimension,
+    severity: finding.severity,
+    passed,
+    required_terms: requiredTerms,
+    present_terms: coverage.present,
+    missing_terms: coverage.missing,
+    repair_instruction_coverage: repairCoverage.score,
+    acceptance_check_coverage: acceptanceCoverage.score,
+    repair_instruction: finding.repair_instruction,
+    acceptance_check: finding.acceptance_check,
+  };
+}
+
+function cognitiveDimensionsRepairAdherenceProof(testCase, mcpContext, guidedCapture) {
+  const review = cognitiveDimensionsReviewFromContext(mcpContext);
+  if (!review || testCase.cognitive_dimensions_review?.enabled !== true || !guidedCapture) {
+    return null;
+  }
+
+  const findings = (review.findings ?? []).filter((finding) =>
+    ["fail", "warn"].includes(finding.severity),
+  );
+  const findingResults = findings.map((finding) =>
+    cognitiveFindingRepairAdherence(testCase, finding, guidedCapture),
+  );
+  const passedFindings = findingResults.filter((finding) => finding.passed).length;
+
+  return {
+    enabled: true,
+    proof_type: "cognitive_dimensions_repair_adherence",
+    report_only: true,
+    finding_count: findingResults.length,
+    passed_findings: passedFindings,
+    failed_findings: findingResults.length - passedFindings,
+    adherence_status:
+      findingResults.length === 0 || passedFindings === findingResults.length
+        ? "passed"
+        : "failed",
+    findings: findingResults,
+  };
+}
+
+function shouldRunCognitiveDimensionsReview(testCase) {
+  return testCase.cognitive_dimensions_review?.enabled === true;
+}
+
 async function recordToolCall(toolCalls, mcpRuntime, name, args) {
   if (!mcpRuntime?.client) {
     throw new Error("MCP pilot requires a localhost MCP client to build guided context.");
@@ -1031,6 +1279,7 @@ export async function buildMcpContextForCase(testCase, mcpRuntime) {
   const brief = testCase.source_context?.brief ?? "";
   let repairLoopSummary = null;
   let visualTokenAdapterProofSummary = null;
+  let cognitiveDimensionsReviewSummary = null;
 
   if (testCase.case_type === "activity_translation" || testCase.case_type === "missing_context_restraint") {
     const activityReview = await recordToolCall(toolCalls, mcpRuntime, "create_activity_model_review", { brief });
@@ -1044,13 +1293,32 @@ export async function buildMcpContextForCase(testCase, mcpRuntime) {
       testCase.candidate_kind === "activity_model"
         ? "review_activity_model_candidate"
         : "review_ui_workflow_candidate";
-    await recordToolCall(toolCalls, mcpRuntime, toolName, {
+    const review = await recordToolCall(toolCalls, mcpRuntime, toolName, {
       brief,
       candidate: testCase.candidate,
       ...(toolName === "review_ui_workflow_candidate"
         ? { profile_id: "operator-review-ui", surface_type: "workbench" }
         : {}),
     });
+    if (toolName === "review_ui_workflow_candidate" && shouldRunCognitiveDimensionsReview(testCase)) {
+      const cognitiveReview = await recordToolCall(
+        toolCalls,
+        mcpRuntime,
+        "review_cognitive_dimensions_candidate",
+        {
+          brief,
+          candidate: testCase.candidate,
+          ...(!("error" in review) && review.activity_review
+            ? { activity_review: review.activity_review }
+            : {}),
+          surface_type: testCase.cognitive_dimensions_review?.surface_type ?? "workbench",
+        },
+      );
+      cognitiveDimensionsReviewSummary = cognitiveDimensionsReviewProof(
+        testCase,
+        cognitiveReview,
+      );
+    }
   } else if (testCase.case_type === "operator_review_handoff") {
     const workflowReview = await recordToolCall(toolCalls, mcpRuntime, "review_ui_workflow_candidate", {
       brief,
@@ -1058,6 +1326,23 @@ export async function buildMcpContextForCase(testCase, mcpRuntime) {
       profile_id: "operator-review-ui",
       surface_type: "workbench",
     });
+    let cognitiveReview = null;
+    if (shouldRunCognitiveDimensionsReview(testCase)) {
+      cognitiveReview = await recordToolCall(
+        toolCalls,
+        mcpRuntime,
+        "review_cognitive_dimensions_candidate",
+        {
+          brief,
+          candidate: workflowReview,
+          surface_type: testCase.cognitive_dimensions_review?.surface_type ?? "workbench",
+        },
+      );
+      cognitiveDimensionsReviewSummary = cognitiveDimensionsReviewProof(
+        testCase,
+        cognitiveReview,
+      );
+    }
     const implementationContract = await recordToolCall(
       toolCalls,
       mcpRuntime,
@@ -1074,6 +1359,7 @@ export async function buildMcpContextForCase(testCase, mcpRuntime) {
       await recordToolCall(toolCalls, mcpRuntime, "create_ui_generation_handoff", {
         workflow_review: workflowReview,
         implementation_contract: implementationContract,
+        ...(cognitiveReview ? { cognitive_dimensions_review: cognitiveReview } : {}),
       });
     }
   } else if (testCase.case_type === "implementation_review") {
@@ -1120,6 +1406,23 @@ export async function buildMcpContextForCase(testCase, mcpRuntime) {
       testCase,
       attemptReviews.at(-1),
     );
+    if (shouldRunCognitiveDimensionsReview(testCase)) {
+      const cognitiveReview = await recordToolCall(
+        toolCalls,
+        mcpRuntime,
+        "review_cognitive_dimensions_candidate",
+        {
+          brief,
+          candidate: testCase.implementation_candidate,
+          surface_type:
+            testCase.cognitive_dimensions_review?.surface_type ?? "operator_review",
+        },
+      );
+      cognitiveDimensionsReviewSummary = cognitiveDimensionsReviewProof(
+        testCase,
+        cognitiveReview,
+      );
+    }
   } else {
     throw new Error(`${testCase.id} has unsupported case_type ${testCase.case_type}.`);
   }
@@ -1134,6 +1437,8 @@ export async function buildMcpContextForCase(testCase, mcpRuntime) {
     tool_calls: toolCalls,
     repair_loop_summary: repairLoopSummary ?? null,
     visual_token_adapter_proof_summary: visualTokenAdapterProofSummary ?? null,
+    cognitive_dimensions_review_summary:
+      cognitiveDimensionsReviewSummary ?? null,
   };
 }
 
@@ -1417,6 +1722,9 @@ function guidedCaseGuidance(testCase) {
       "Make a clear trust/reject decision against the source brief; describe mismatches with source-domain language and a concise reason.",
     );
     guidance.push(
+      "Preserve the source brief's named user, work object, and decision choices in the response, next_action, and handoff.",
+    );
+    guidance.push(
       "When the submitted fixture clearly conflicts with the source brief or exposes internal mechanics, reject it decisively, set questions to [], and make next_action the repair direction rather than another review.",
     );
   } else if (testCase.case_type === "operator_review_handoff") {
@@ -1467,6 +1775,15 @@ function guidedCaseGuidance(testCase) {
     );
   }
 
+  if (testCase.cognitive_dimensions_review?.enabled === true) {
+    guidance.push(
+      "Use Cognitive Dimensions findings as diagnostic guidance only. Do not name the dimensions. Translate each finding into concrete domain repair: keep evidence near action, preserve selected context across surfaces, surface decision-changing dependencies, add progressive evaluation, or move machinery to diagnostics.",
+    );
+    guidance.push(
+      "When Cognitive Dimensions context includes repair instructions and acceptance checks, carry them into next_action, handoff required fix, and rationale using the source domain vocabulary.",
+    );
+  }
+
   guidance.push(
     "Use handoff as one concise labeled string with decision/action/reason; add owner, evidence gap, required fix, or verification when relevant.",
   );
@@ -1492,6 +1809,8 @@ export function buildCapturePrompt(testCase, variant, mcpContext) {
           mcpContext.repair_loop_summary,
         ),
         implementation_response_directive: buildImplementationResponseDirective(testCase, mcpContext),
+        cognitive_dimensions_response_directive:
+          cognitiveDimensionsResponseDirective(testCase, mcpContext),
       }
     : null;
   const mcpPromptContext =
@@ -2449,6 +2768,70 @@ function summarizeVisualTokenAdapterProofs(results) {
   };
 }
 
+function summarizeCognitiveDimensionsReviews(results) {
+  const reviewResults = results.filter(
+    (result) => result.cognitive_dimensions_review?.enabled,
+  );
+  if (reviewResults.length === 0) return {};
+
+  const passed = reviewResults.filter(
+    (result) => result.cognitive_dimensions_review.expectation_status === "passed",
+  );
+  const failed = reviewResults.filter(
+    (result) => result.cognitive_dimensions_review.expectation_status !== "passed",
+  );
+  const dimensionCounts = {};
+
+  for (const result of reviewResults) {
+    for (const dimension of [
+      ...(result.cognitive_dimensions_review.failed_dimensions ?? []),
+      ...(result.cognitive_dimensions_review.warning_dimensions ?? []),
+    ]) {
+      incrementCount(dimensionCounts, dimension);
+    }
+  }
+
+  return {
+    cognitive_dimensions_cases: reviewResults.length,
+    cognitive_dimensions_passed_cases: passed.length,
+    cognitive_dimensions_failed_cases: failed.length,
+    cognitive_dimensions_report_only: true,
+    cognitive_dimensions_dimension_counts: dimensionCounts,
+  };
+}
+
+function summarizeCognitiveDimensionsRepairAdherence(results) {
+  const adherenceResults = results.filter(
+    (result) => result.cognitive_dimensions_repair_adherence?.enabled,
+  );
+  if (adherenceResults.length === 0) return {};
+
+  const passed = adherenceResults.filter(
+    (result) =>
+      result.cognitive_dimensions_repair_adherence.adherence_status === "passed",
+  );
+  const totalFindings = adherenceResults.reduce(
+    (sum, result) =>
+      sum + (result.cognitive_dimensions_repair_adherence.finding_count ?? 0),
+    0,
+  );
+  const passedFindings = adherenceResults.reduce(
+    (sum, result) =>
+      sum + (result.cognitive_dimensions_repair_adherence.passed_findings ?? 0),
+    0,
+  );
+
+  return {
+    cognitive_dimensions_repair_adherence_cases: adherenceResults.length,
+    cognitive_dimensions_repair_adherence_passed_cases: passed.length,
+    cognitive_dimensions_repair_adherence_failed_cases:
+      adherenceResults.length - passed.length,
+    cognitive_dimensions_repair_adherence_passed_findings: passedFindings,
+    cognitive_dimensions_repair_adherence_total_findings: totalFindings,
+    cognitive_dimensions_repair_adherence_report_only: true,
+  };
+}
+
 function summarizeResultSet(results) {
   const evaluated = results.filter((result) => result.status === "evaluated");
   const captureRequired = results.filter((result) => result.status === "capture-required");
@@ -2508,6 +2891,8 @@ function summarizeResultSet(results) {
     ...summarizeRepairLoops(results),
     ...summarizeRepairLoopObservations(results),
     ...summarizeVisualTokenAdapterProofs(results),
+    ...summarizeCognitiveDimensionsReviews(results),
+    ...summarizeCognitiveDimensionsRepairAdherence(results),
     pilot_passed: pilotPassed,
     pilot_status:
       captureRequired.length > 0 ? "capture-required" : pilotPassed ? "passed" : "failed",
@@ -2630,10 +3015,102 @@ function createRunInfo({ reportsDir, runDate, mcpVersion }) {
   };
 }
 
+function modelUiArtifactHref(useCaseId, artifactPath) {
+  return `/examples/model-ui/${useCaseId}/${artifactPath}`;
+}
+
+function loadVisualUiProof(results) {
+  const resultIds = new Set(results.map((result) => result.id));
+  const useCases = VISUAL_UI_PROOF_USE_CASES.map((proofUseCase) => {
+    const matchedCaseIds = proofUseCase.related_case_ids.filter((caseId) =>
+      resultIds.has(caseId),
+    );
+    if (matchedCaseIds.length === 0) return null;
+
+    const manifestPath = path.join(
+      ROOT_DIR,
+      "examples",
+      "model-ui",
+      proofUseCase.use_case_id,
+      "manifest.json",
+    );
+    if (!fs.existsSync(manifestPath)) return null;
+
+    const manifest = readJson(manifestPath);
+    const artifacts = VISUAL_UI_PROOF_ARTIFACT_IDS.map((artifactId) =>
+      (manifest.artifacts ?? []).find((artifact) => artifact.id === artifactId),
+    )
+      .filter(Boolean)
+      .filter((artifact) => artifact.artifact_path && artifact.screenshot_path)
+      .map((artifact) => ({
+        id: artifact.id,
+        title: artifact.title,
+        column_label: artifact.column_label,
+        model_label: artifact.model_label,
+        context_summary: artifact.context_summary,
+        render_source: artifact.render_source,
+        artifact_path: modelUiArtifactHref(proofUseCase.use_case_id, artifact.artifact_path),
+        screenshot_path: modelUiArtifactHref(
+          proofUseCase.use_case_id,
+          artifact.screenshot_path,
+        ),
+        capture_file: artifact.capture_file
+          ? modelUiArtifactHref(proofUseCase.use_case_id, artifact.capture_file)
+          : null,
+      }));
+
+    if (artifacts.length === 0) return null;
+
+    return {
+      use_case_id: proofUseCase.use_case_id,
+      label: manifest.use_case_label ?? proofUseCase.use_case_id,
+      activity_summary: manifest.activity_summary ?? "",
+      coverage_note: proofUseCase.coverage_note,
+      related_case_ids: matchedCaseIds,
+      index_path: modelUiArtifactHref(proofUseCase.use_case_id, "index.html"),
+      manifest_path: modelUiArtifactHref(proofUseCase.use_case_id, "manifest.json"),
+      proof_type: "committed_model_ui_rendering",
+      report_only: true,
+      artifacts,
+    };
+  }).filter(Boolean);
+
+  const coveredCaseIds = new Set(
+    useCases.flatMap((useCase) => useCase.related_case_ids ?? []),
+  );
+  const uncovered_case_ids = [...resultIds]
+    .filter((caseId) => caseId.startsWith("cognitive-"))
+    .filter((caseId) => !coveredCaseIds.has(caseId));
+
+  return {
+    enabled: useCases.length > 0,
+    proof_type: "visual_ui_rendering_companion",
+    report_only: true,
+    policy:
+      "Rendered UI proof comes from the committed model-UI matrix and is companion evidence for visual inspection. The MCP pilot itself scores saved agent judgment captures, not screenshot quality.",
+    use_cases: useCases,
+    covered_case_ids: [...coveredCaseIds],
+    uncovered_case_ids,
+  };
+}
+
 export function buildReport(results, runInfo, options = {}) {
   const modelConfigs = options.modelConfigs ?? [MODEL_CONFIGS[CODEX_MODEL_CONFIG_ID]];
   const primaryModelConfig = options.primaryModelConfig ?? null;
   const hasModelFraming = primaryModelConfig && modelConfigs.length > 1;
+  const visualUiProof = loadVisualUiProof(results);
+  const visualUiProofSummary = visualUiProof.enabled
+    ? {
+        visual_ui_proof_use_cases: visualUiProof.use_cases.length,
+        visual_ui_proof_artifacts: visualUiProof.use_cases.reduce(
+          (sum, useCase) => sum + (useCase.artifacts?.length ?? 0),
+          0,
+        ),
+        visual_ui_proof_covered_cases: visualUiProof.covered_case_ids.length,
+        visual_ui_proof_uncovered_cases: visualUiProof.uncovered_case_ids.length,
+        visual_ui_proof_report_only: true,
+      }
+    : {};
   const roleForModel = (modelConfig) => {
     if (!hasModelFraming) return undefined;
     return modelConfig.id === primaryModelConfig.id ? "primary" : "control";
@@ -2702,12 +3179,16 @@ export function buildReport(results, runInfo, options = {}) {
       html_report: runRelativePath(runInfo.baseReportsDir, runInfo.htmlReportPath),
       json_report: runRelativePath(runInfo.baseReportsDir, runInfo.jsonReportPath),
     },
-    summary: summarizeResults(results, { ...options, primaryModelConfig }),
+    summary: {
+      ...summarizeResults(results, { ...options, primaryModelConfig }),
+      ...visualUiProofSummary,
+    },
     metric_scale: {
       metric_score: "0-5",
       total_score: "0-100 weighted",
     },
     capture_dir: path.relative(ROOT_DIR, options.captureDir ?? DEFAULT_CAPTURE_DIR),
+    visual_ui_proof: visualUiProof,
     results,
   };
 }
@@ -2728,6 +3209,8 @@ function htmlCase(result) {
   const repairLoop = result.repair_loop;
   const repairObservation = result.repair_loop_observation;
   const visualTokenProof = result.visual_token_adapter_proof;
+  const cognitiveReview = result.cognitive_dimensions_review;
+  const cognitiveRepairAdherence = result.cognitive_dimensions_repair_adherence;
   const repairLoopHtml = repairLoop
     ? `
       <div class="repair-loop">
@@ -2776,6 +3259,32 @@ function htmlCase(result) {
         <p>Failure categories: ${escapeHtml(visualTokenProof.failure_categories?.join(", ") || "none")}</p>
       </div>`
     : "";
+  const cognitiveReviewHtml = cognitiveReview
+    ? `
+      <div class="repair-loop">
+        <h3>Cognitive Dimensions review</h3>
+        <dl>
+          <div><dt>Status</dt><dd>${escapeHtml(cognitiveReview.cognitive_dimensions_review_status)}</dd></div>
+          <div><dt>Expected</dt><dd>${escapeHtml(cognitiveReview.expected_status ?? "n/a")}</dd></div>
+          <div><dt>Expectation</dt><dd>${escapeHtml(cognitiveReview.expectation_status)}</dd></div>
+          <div><dt>Report-only</dt><dd>${escapeHtml(cognitiveReview.report_only ? "yes" : "no")}</dd></div>
+        </dl>
+        <p>Failed dimensions: ${escapeHtml(cognitiveReview.failed_dimensions?.join(", ") || "none")}</p>
+        <p>Warning dimensions: ${escapeHtml(cognitiveReview.warning_dimensions?.join(", ") || "none")}</p>
+      </div>`
+    : "";
+  const cognitiveRepairAdherenceHtml = cognitiveRepairAdherence
+    ? `
+      <div class="repair-loop">
+        <h3>Cognitive Dimensions repair adherence</h3>
+        <dl>
+          <div><dt>Status</dt><dd>${escapeHtml(cognitiveRepairAdherence.adherence_status)}</dd></div>
+          <div><dt>Findings</dt><dd>${escapeHtml(`${cognitiveRepairAdherence.passed_findings}/${cognitiveRepairAdherence.finding_count}`)}</dd></div>
+          <div><dt>Report-only</dt><dd>${escapeHtml(cognitiveRepairAdherence.report_only ? "yes" : "no")}</dd></div>
+        </dl>
+        <p>Failed finding dimensions: ${escapeHtml(cognitiveRepairAdherence.findings?.filter((finding) => !finding.passed).map((finding) => finding.dimension).join(", ") || "none")}</p>
+      </div>`
+    : "";
   const variantHtml = result.variants
     .map((variant) => {
       const metrics = METRIC_IDS.map((metricId) => {
@@ -2814,12 +3323,73 @@ function htmlCase(result) {
       ${repairLoopHtml}
       ${repairObservationHtml}
       ${visualTokenProofHtml}
+      ${cognitiveReviewHtml}
+      ${cognitiveRepairAdherenceHtml}
       <div class="variants">${variantHtml}</div>
+    </section>`;
+}
+
+function htmlVisualUiProof(report) {
+  const proof = report.visual_ui_proof;
+  if (!proof?.enabled || !Array.isArray(proof.use_cases) || proof.use_cases.length === 0) {
+    return "";
+  }
+
+  const useCasesHtml = proof.use_cases
+    .map(
+      (useCase) => `
+        <article class="visual-use-case">
+          <header>
+            <div>
+              <p>${escapeHtml(useCase.coverage_note)}</p>
+              <h3>${escapeHtml(useCase.label)}</h3>
+            </div>
+            <a href="${escapeHtml(useCase.index_path)}">Open matrix</a>
+          </header>
+          <p>${escapeHtml(useCase.activity_summary)}</p>
+          <div class="visual-shots">
+            ${(useCase.artifacts ?? [])
+              .map(
+                (artifact) => `
+                  <article class="visual-shot">
+                    <a href="${escapeHtml(artifact.artifact_path)}">
+                      <img src="${escapeHtml(artifact.screenshot_path)}" alt="${escapeHtml(artifact.title)} screenshot" loading="lazy">
+                    </a>
+                    <div>
+                      <h4>${escapeHtml(artifact.column_label ?? artifact.title)}</h4>
+                      <p>${escapeHtml(artifact.context_summary ?? artifact.model_label ?? "")}</p>
+                    </div>
+                  </article>`,
+              )
+              .join("")}
+          </div>
+        </article>`,
+    )
+    .join("");
+
+  const uncoveredHtml =
+    proof.uncovered_case_ids?.length > 0
+      ? `<p class="visual-gap">MCP-only cases without committed UI renderings in this packet: ${escapeHtml(proof.uncovered_case_ids.join(", "))}.</p>`
+      : "";
+
+  return `
+    <section class="visual-proof">
+      <header>
+        <div>
+          <p>Report-only visual evidence</p>
+          <h2>Visual UI proof</h2>
+        </div>
+        <a href="/examples/model-ui/index.json">Model UI index JSON</a>
+      </header>
+      <p class="lede">${escapeHtml(proof.policy)}</p>
+      ${uncoveredHtml}
+      <div class="visual-use-cases">${useCasesHtml}</div>
     </section>`;
 }
 
 function buildHtmlReport(report) {
   const cases = report.results.map(htmlCase).join("");
+  const visualProofHtml = htmlVisualUiProof(report);
   const observationPolicy = report.repair_loop_observation_policy
     ? ` ${report.repair_loop_observation_policy}`
     : "";
@@ -2871,6 +3441,24 @@ function buildHtmlReport(report) {
         <div><dt>Token passed</dt><dd>${escapeHtml(report.summary.visual_token_passed_cases)}</dd></div>
         <div><dt>Token failed</dt><dd>${escapeHtml(report.summary.visual_token_failed_cases)}</dd></div>`
       : "";
+  const cognitiveDimensionsSummary =
+    report.summary.cognitive_dimensions_cases !== undefined
+      ? `
+        <div><dt>Cognitive Dimensions</dt><dd>${escapeHtml(report.summary.cognitive_dimensions_passed_cases)}/${escapeHtml(report.summary.cognitive_dimensions_cases)}</dd></div>
+        <div><dt>CD report-only</dt><dd>${escapeHtml(report.summary.cognitive_dimensions_report_only ? "yes" : "no")}</dd></div>`
+      : "";
+  const cognitiveDimensionsAdherenceSummary =
+    report.summary.cognitive_dimensions_repair_adherence_cases !== undefined
+      ? `
+        <div><dt>CD repair adherence</dt><dd>${escapeHtml(report.summary.cognitive_dimensions_repair_adherence_passed_cases)}/${escapeHtml(report.summary.cognitive_dimensions_repair_adherence_cases)}</dd></div>
+        <div><dt>CD findings followed</dt><dd>${escapeHtml(report.summary.cognitive_dimensions_repair_adherence_passed_findings)}/${escapeHtml(report.summary.cognitive_dimensions_repair_adherence_total_findings)}</dd></div>`
+      : "";
+  const visualUiProofSummary =
+    report.summary.visual_ui_proof_use_cases !== undefined
+      ? `
+        <div><dt>Visual UI proof</dt><dd>${escapeHtml(report.summary.visual_ui_proof_use_cases)} cases</dd></div>
+        <div><dt>Visual artifacts</dt><dd>${escapeHtml(report.summary.visual_ui_proof_artifacts)}</dd></div>`
+      : "";
 
   return `<!doctype html>
 <html lang="en">
@@ -2903,6 +3491,19 @@ function buildHtmlReport(report) {
     .repair-loop { margin-top: 16px; border: 1px solid #c8d8d0; border-radius: 8px; padding: 16px; background: #fbfffd; }
     .repair-loop h3 { margin-bottom: 12px; }
     .repair-loop p { margin: 12px 0 0; color: #526058; font-weight: 700; }
+    .visual-proof { margin: 20px 0; background: #fff; border: 1px solid #d9ded7; border-radius: 8px; padding: 24px; box-shadow: 0 10px 30px rgba(23, 32, 27, 0.06); }
+    .visual-proof > header, .visual-use-case > header { display: flex; justify-content: space-between; align-items: start; gap: 16px; }
+    .visual-proof > header p, .visual-use-case > header p { color: #66736b; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 6px; }
+    .visual-gap { border: 1px solid #e4d3ad; border-radius: 8px; padding: 12px; background: #fff8e8; color: #604619; font-weight: 750; }
+    .visual-use-cases { display: grid; gap: 16px; margin-top: 18px; }
+    .visual-use-case { border: 1px solid #d9ded7; border-radius: 8px; padding: 16px; background: #fbfffd; }
+    .visual-shots { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 14px; }
+    .visual-shot { border: 1px solid #d9ded7; border-radius: 8px; background: #fff; overflow: hidden; }
+    .visual-shot a { display: block; background: #edf3f1; }
+    .visual-shot img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; object-position: top left; border-bottom: 1px solid #d9ded7; }
+    .visual-shot div { padding: 12px; }
+    .visual-shot h4 { margin: 0 0 6px; font-size: 1rem; }
+    .visual-shot p { margin: 0; color: #526058; font-size: 0.9rem; }
     .variants { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 16px; }
     .variant { border: 1px solid #d9ded7; border-radius: 8px; padding: 16px; }
     .judgmentkit_mcp { border-color: #9ac6b4; background: #fbfffd; }
@@ -2911,6 +3512,7 @@ function buildHtmlReport(report) {
     li { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid #edf0eb; padding-top: 6px; }
     .leaks { margin-top: 12px; color: #8a2424; font-weight: 700; }
     a { color: #245f73; font-weight: 700; }
+    @media (max-width: 840px) { .visual-shots { grid-template-columns: 1fr; } .visual-proof > header, .visual-use-case > header { display: grid; } }
   </style>
 </head>
 <body>
@@ -2933,11 +3535,15 @@ function buildHtmlReport(report) {
         <div><dt>Stopped loops</dt><dd>${escapeHtml(report.summary.stopped_cases)}</dd></div>
         ${observationSummary}
         ${visualTokenSummary}
+        ${cognitiveDimensionsSummary}
+        ${cognitiveDimensionsAdherenceSummary}
+        ${visualUiProofSummary}
         <div><dt>Invalid outputs</dt><dd>${escapeHtml(report.summary.invalid_outputs)}</dd></div>
         <div><dt>Guided leaks</dt><dd>${escapeHtml(report.summary.guided_critical_disclosure_leaks)}</dd></div>
         <div><dt>Run</dt><dd>${escapeHtml(report.run.run_id)}</dd></div>
       </dl>
     </section>
+    ${visualProofHtml}
     ${cases}
   </main>
 </body>
@@ -3113,6 +3719,8 @@ async function buildResults(cases, options) {
           repair_loop_summary: mcpContext.repair_loop_summary ?? null,
           visual_token_adapter_proof_summary:
             mcpContext.visual_token_adapter_proof_summary ?? null,
+          cognitive_dimensions_review_summary:
+            mcpContext.cognitive_dimensions_review_summary ?? null,
         };
         if (mcpContext.repair_loop_summary) {
           result.repair_loop = mcpContext.repair_loop_summary;
@@ -3120,6 +3728,20 @@ async function buildResults(cases, options) {
         if (mcpContext.visual_token_adapter_proof_summary) {
           result.visual_token_adapter_proof =
             mcpContext.visual_token_adapter_proof_summary;
+        }
+        if (mcpContext.cognitive_dimensions_review_summary) {
+          result.cognitive_dimensions_review =
+            mcpContext.cognitive_dimensions_review_summary;
+        }
+        const cognitiveDimensionsRepairAdherence =
+          cognitiveDimensionsRepairAdherenceProof(
+            testCase,
+            mcpContext,
+            capturesByVariant.judgmentkit_mcp,
+          );
+        if (cognitiveDimensionsRepairAdherence) {
+          result.cognitive_dimensions_repair_adherence =
+            cognitiveDimensionsRepairAdherence;
         }
       }
       if (repairObservationsByCase.has(testCase.id)) {

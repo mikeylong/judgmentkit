@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Clinical intake review - Deterministic - JudgmentKit skill context</title>
+    <title>Clinical intake review - Fixture-rendered baseline - JudgmentKit skill context</title>
     <style>
     :root {
       color-scheme: light;
@@ -362,7 +362,7 @@
   "artifact_id": "deterministic-with-judgmentkit",
   "row_id": "deterministic",
   "column_id": "with-judgmentkit",
-  "model_label": "Deterministic renderer",
+  "model_label": "Scripted fixture renderer",
   "generation_source": "deterministic",
   "judgmentkit_mode": "with_judgmentkit",
   "design_system_mode": "none",
@@ -432,7 +432,7 @@
   },
   "capture_provenance": {
     "status": "captured",
-    "capture_type": "deterministic-renderer",
+    "capture_type": "fixture-rendered-baseline",
     "captured_at": "2026-05-13",
     "runner": "scripts/demo-model-ui-matrix.mjs",
     "provider": "none",
@@ -442,12 +442,12 @@
     "frontend_context_status": "ready_for_frontend_implementation",
     "frontend_skill_context_status": "ready",
     "capture_quality": null,
-    "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+    "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
   },
   "artifact_path": "artifacts/deterministic-with-judgmentkit.html",
   "screenshot_path": "screenshots/deterministic-with-judgmentkit.png",
-  "approach_title": "Deterministic - JudgmentKit skill context",
-  "approach_caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
+  "approach_title": "Fixture-rendered baseline - JudgmentKit skill context",
+  "approach_caption": "Fixture-rendered baseline receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
 }</script>
   </body>
 </html>

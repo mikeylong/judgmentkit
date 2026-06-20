@@ -24,6 +24,7 @@ export const JUDGMENTKIT_MCP_TOOL_NAMES = [
   "recommend_ui_workflow_profiles",
   "review_activity_model_candidate",
   "review_ui_workflow_candidate",
+  "review_cognitive_dimensions_candidate",
   "create_ui_implementation_contract",
   "review_ui_implementation_candidate",
   "create_ui_generation_handoff",

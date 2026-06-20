@@ -21,6 +21,7 @@ const EXPECTED_TOOL_NAMES = [
   "recommend_ui_workflow_profiles",
   "review_activity_model_candidate",
   "review_ui_workflow_candidate",
+  "review_cognitive_dimensions_candidate",
   "create_ui_implementation_contract",
   "review_ui_implementation_candidate",
   "create_ui_generation_handoff",
@@ -56,6 +57,42 @@ function hashCanonical(value) {
 
 function hashText(value) {
   return `sha256:${crypto.createHash("sha256").update(String(value)).digest("hex")}`;
+}
+
+function cssCustomPropertyValues(css, name) {
+  const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return [...css.matchAll(new RegExp(`${escapedName}:\\s*([^;]+);`, "g"))].map((match) => match[1].trim());
+}
+
+function hexColorToRgb(value) {
+  const match = value.match(/^#([0-9a-f]{6})$/i);
+  assert.ok(match, `expected hex color, got ${value}`);
+  const hex = match[1];
+  return {
+    r: Number.parseInt(hex.slice(0, 2), 16),
+    g: Number.parseInt(hex.slice(2, 4), 16),
+    b: Number.parseInt(hex.slice(4, 6), 16),
+  };
+}
+
+function relativeLuminance({ r, g, b }) {
+  const toLinear = (channel) => {
+    const value = channel / 255;
+    return value <= 0.03928 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+}
+
+function contrastRatio(foreground, background) {
+  const foregroundLuminance = relativeLuminance(hexColorToRgb(foreground));
+  const backgroundLuminance = relativeLuminance(hexColorToRgb(background));
+  return (Math.max(foregroundLuminance, backgroundLuminance) + 0.05) /
+    (Math.min(foregroundLuminance, backgroundLuminance) + 0.05);
+}
+
+function assertContrastPair(label, foreground, background, minimum = 4.5) {
+  const ratio = contrastRatio(foreground, background);
+  assert.ok(ratio >= minimum, `${label} contrast ${ratio.toFixed(2)} is below ${minimum}`);
 }
 
 const OLD_FRAMING = [
@@ -129,7 +166,14 @@ assert.equal(systemMapFlowJs.includes("optional styling path"), false);
 assert.ok(systemMapFlowCss.includes(".rf-map-node"));
 assert.ok(systemMapFlowCss.includes("overflow-wrap:anywhere"));
 assert.ok(systemMapFlowCss.includes(".react-flow__controls"));
+assert.ok(systemMapFlowCss.includes("--rf-map-bg: #151a18;"));
+assert.ok(systemMapFlowCss.includes("background:var(--rf-map-bg)"));
+assert.ok(systemMapFlowCss.includes("background:var(--rf-map-node-kernel-bg)"));
+assert.ok(systemMapFlowCss.includes("color:var(--rf-map-ink)"));
+assert.ok(systemMapFlowCss.includes("color:var(--rf-map-accent)"));
 assert.ok(systemMapFlowSource.includes('position="bottom-left"'));
+assert.ok(systemMapFlowSource.includes('Background color="var(--rf-map-grid)"'));
+assert.ok(systemMapFlowSource.includes('stroke: "var(--rf-map-edge-output)"'));
 assert.equal(systemMapFlowSource.includes('position="top-left"'), false);
 assert.match(
   systemMapFlowSource,
@@ -144,7 +188,11 @@ assert.match(
   /id: "zone-generation"[\s\S]*?style: \{ width: 500, height: 640 \}/,
 );
 assert.equal(systemMapFlowSource.includes('id: "with-design-system"'), false);
-assert.ok(platformNavMarkup.includes('<a class="surfaces-navigation-identifier" href="/">JudgmentKit</a>'));
+assert.ok(
+  platformNavMarkup.includes(
+    '<a class="surfaces-navigation-identifier" href="/" aria-current="page">JudgmentKit</a>',
+  ),
+);
 assert.ok(platformNavMarkup.includes('<div class="surfaces-navigation-sections" aria-label="Primary">'));
 assert.ok(platformNavMarkup.includes('href="/value/"'));
 assert.ok(platformNavMarkup.includes('href="/docs/"'));
@@ -157,7 +205,7 @@ assert.ok(platformNavMarkup.includes('aria-label="Open primary navigation"'));
 assert.ok(platformNavMarkup.includes('aria-controls="surfaces-primary-menu"'));
 assert.ok(platformNavMarkup.includes('data-surfaces-primary-menu-button'));
 assert.ok(platformNavMarkup.includes('data-surfaces-primary-menu-backdrop'));
-assert.ok(platformNavMarkup.includes('id="surfaces-primary-menu" role="menu"'));
+assert.ok(platformNavMarkup.includes('id="surfaces-primary-menu" hidden data-surfaces-primary-menu-list'));
 assert.ok(platformNavMarkup.includes('data-surfaces-primary-menu-list'));
 for (const [href, label] of [
   ["/value/", "Value"],
@@ -167,10 +215,13 @@ for (const [href, label] of [
   ["/evals/", "Evals"],
   ["/mcp", "MCP"],
 ]) {
-  assert.ok(platformNavMarkup.includes(`<a href="${href}" role="menuitem">${label}</a>`));
+  assert.ok(platformNavMarkup.includes(`<a href="${href}">${label}</a>`));
 }
 assert.ok(platformNavMarkup.includes('class="surfaces-system-switch-button"'));
-assert.ok(platformNavMarkup.includes('aria-haspopup="menu"'));
+assert.ok(platformNavMarkup.includes('aria-haspopup="true"'));
+assert.equal(platformNavMarkup.includes('role="menu"'), false);
+assert.equal(platformNavMarkup.includes('role="menuitem"'), false);
+assert.equal(platformNavMarkup.includes('aria-haspopup="menu"'), false);
 assert.ok(platformNavMarkup.includes('data-surfaces-system-menu-button'));
 assert.ok(platformNavMarkup.includes("<span>judgmentkit.ai</span>"));
 assert.ok(platformNavMarkup.includes('href="https://surfaces.systems/"'));
@@ -178,7 +229,7 @@ assert.ok(platformNavMarkup.includes('href="https://surfaceops.ai/"'));
 assert.ok(platformNavMarkup.includes('href="https://interfacectl.com/"'));
 assert.ok(platformNavMarkup.includes('href="https://surfaces.dev/"'));
 assert.ok(
-  platformNavMarkup.includes('href="https://judgmentkit.ai/" role="menuitem" aria-current="page"'),
+  platformNavMarkup.includes('href="https://judgmentkit.ai/" aria-current="page"'),
 );
 assert.ok(platformNavMarkup.includes("Embedded MCP judgment for live design decisions"));
 assert.equal(platformNavMarkup.includes("target="), false);
@@ -194,6 +245,27 @@ assert.ok(
 assert.ok(siteCss.includes("color-scheme: light dark;"));
 assert.ok(siteCss.includes("@media (prefers-color-scheme: dark)"));
 assert.ok(siteCss.includes("--nav-bg: rgba(16, 19, 18, 0.96);"));
+assert.ok(siteCss.includes("--focus-ring: rgba(125, 182, 199, 0.38);"));
+assert.ok(siteCss.includes("--step-marker-bg: #a9d7e4;"));
+assert.ok(siteCss.includes("--step-marker-ink: #101312;"));
+assert.ok(siteCss.includes("--menu-item-bg: #181d1b;"));
+assert.ok(siteCss.includes("--report-toc-bg: rgba(24, 29, 27, 0.88);"));
+assert.ok(siteCss.includes("--report-video-bg: #141b19;"));
+assert.ok(siteCss.includes("--system-map-bg: #151a18;"));
+assert.ok(siteCss.includes("background: var(--step-marker-bg);"));
+assert.ok(siteCss.includes("color: var(--step-marker-ink);"));
+assert.ok(siteCss.includes("background-color: var(--menu-item-bg);"));
+assert.ok(siteCss.includes("background: var(--soft-surface);"));
+assert.ok(siteCss.includes("background: var(--report-toc-bg);"));
+assert.ok(siteCss.includes("background: var(--report-video-copy-bg);"));
+assert.ok(siteCss.includes("background: var(--system-map-bg);"));
+assert.ok(siteCss.includes("box-shadow: 0 0 0 2px var(--focus-ring);"));
+const stepMarkerBackgrounds = cssCustomPropertyValues(siteCss, "--step-marker-bg");
+const stepMarkerTextColors = cssCustomPropertyValues(siteCss, "--step-marker-ink");
+assert.deepEqual(stepMarkerBackgrounds, ["#245f73", "#a9d7e4"]);
+assert.deepEqual(stepMarkerTextColors, ["#ffffff", "#101312"]);
+assertContrastPair("light design-system step marker", stepMarkerTextColors[0], stepMarkerBackgrounds[0]);
+assertContrastPair("dark design-system step marker", stepMarkerTextColors[1], stepMarkerBackgrounds[1]);
 assert.equal(platformNavCss.includes("position: sticky;"), false);
 assert.ok(siteCss.includes(".surfaces-primary-menu"));
 assert.ok(siteCss.includes(".surfaces-primary-menu-button"));
@@ -322,6 +394,7 @@ for (const forbidden of OLD_FRAMING) {
 
 const docs = fs.readFileSync(path.join(tempDir, "docs", "index.html"), "utf8");
 assertAnalyticsBootstrap(docs, "docs");
+assert.ok(docs.includes('<a href="/docs/" aria-current="page">Docs</a>'));
 assert.ok(docs.includes("curl -fsSL https://judgmentkit.ai/install | bash"));
 assert.ok(docs.includes("curl -fsSL https://judgmentkit.ai/install | bash -s -- --client claude"));
 assert.ok(docs.includes("curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor"));
@@ -373,6 +446,7 @@ assert.ok(docs.includes("Use JudgmentKit before generation and across iterations
 assert.ok(docs.includes("create_activity_model_review"));
 assert.ok(docs.includes("recommend_surface_types"));
 assert.ok(docs.includes("review_ui_workflow_candidate"));
+assert.ok(docs.includes("review_cognitive_dimensions_candidate"));
 assert.ok(docs.includes("create_ui_generation_handoff"));
 assert.ok(docs.includes("create_ui_implementation_contract"));
 assert.ok(docs.includes("review_ui_implementation_candidate"));
@@ -461,6 +535,8 @@ const designSystemLlmsFull = fs.readFileSync(
 const designSystemManifest = JSON.parse(
   fs.readFileSync(path.join(tempDir, "design-system", "manifest.json"), "utf8"),
 );
+assert.ok(designSystemTokens.includes('<a href="/design-system/" aria-current="page">Design System</a>'));
+assert.ok(designSystemTokens.includes('<a href="/design-system/tokens/" aria-current="page">Tokens</a>'));
 const visualTokenAdapterExport = JSON.parse(
   fs.readFileSync(path.join(tempDir, "design-system", "visual-token-adapter.json"), "utf8"),
 );
@@ -610,9 +686,11 @@ assert.ok(designSystemIcons.includes('class="design-system-section-menu-button"'
 assert.ok(designSystemIcons.includes('aria-controls="design-system-section-menu-icons"'));
 assert.ok(designSystemIcons.includes('data-design-system-section-menu-button'));
 assert.ok(designSystemIcons.includes('data-design-system-section-menu-backdrop'));
-assert.ok(designSystemIcons.includes('id="design-system-section-menu-icons" role="menu"'));
+assert.ok(designSystemIcons.includes('id="design-system-section-menu-icons" hidden data-design-system-section-menu-list'));
 assert.ok(designSystemIcons.includes('data-design-system-section-menu-list'));
-assert.ok(designSystemIcons.includes('<a href="/design-system/icons/" role="menuitem" aria-current="page">Icons</a>'));
+assert.ok(designSystemIcons.includes('<a href="/design-system/icons/" aria-current="page">Icons</a>'));
+assert.equal(designSystemIcons.includes('id="design-system-section-menu-icons" role="menu"'), false);
+assert.equal(designSystemIcons.includes('<a href="/design-system/icons/" role="menuitem"'), false);
 const iconIndexCards = designSystemIcons.match(
   /<li class="design-icon-scenario design-icon-index-card"[\s\S]*?<\/li>/g,
 ) ?? [];
@@ -911,6 +989,7 @@ const valuePrimaryStory = value
   .split('<section class="section value-page">')[1]
   .split('<section class="value-evidence"')[0];
 assertAnalyticsBootstrap(value, "value");
+assert.ok(value.includes('<a href="/value/" aria-current="page">Value</a>'));
 assert.ok(value.includes("What JudgmentKit Prevents"));
 assert.ok(value.includes("What JudgmentKit prevents"));
 assert.ok(value.includes("JudgmentKit catches when AI-generated UI turns implementation mechanics into UX"));
@@ -1025,6 +1104,10 @@ assert.equal(examples.includes("JudgmentKit improves activity fit"), false);
 assert.equal(examples.includes("Committed screenshots"), false);
 assert.ok(examples.includes('data-example-gallery-modal'));
 assert.ok(examples.includes('role="dialog" aria-modal="true"'));
+assert.ok(examples.includes("function modalFocusable()"));
+assert.ok(examples.includes("function containModalFocus(event)"));
+assert.ok(examples.includes('event.key !== "Tab"'));
+assert.ok(examples.includes('modal.addEventListener("keydown", containModalFocus)'));
 assert.ok(examples.includes('class="example-gallery-modal-close" type="button" data-gallery-close aria-label="Close gallery">&times;</button>'));
 assert.equal(examples.includes("pill-link example-gallery-modal-close"), false);
 assert.equal(examples.includes(">Close</button>"), false);
@@ -1034,6 +1117,10 @@ assert.ok(siteCss.includes("right: 18px;"));
 assert.ok(siteCss.includes("border: 0;"));
 assert.ok(siteCss.includes("background: transparent;"));
 assert.ok(siteCss.includes("outline: 2px solid var(--accent);"));
+const exampleGalleryMetaCss =
+  siteCss.match(/\.example-gallery-meta div,\n\.example-gallery-modal-meta div \{[\s\S]*?\}/)?.[0] ?? "";
+assert.ok(exampleGalleryMetaCss.includes("background: var(--soft-surface);"));
+assert.equal(exampleGalleryMetaCss.includes("#f8f7f1"), false);
 assert.ok(examples.includes('data-gallery-open=\\"0\\"'));
 assert.ok(examples.includes('data-gallery-modal-image'));
 assert.ok(examples.includes('data-gallery-modal-context'));

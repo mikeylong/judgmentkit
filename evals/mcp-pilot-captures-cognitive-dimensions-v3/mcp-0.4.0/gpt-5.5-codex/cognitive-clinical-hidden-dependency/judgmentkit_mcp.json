@@ -1,0 +1,48 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "cognitive-clinical-hidden-dependency",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.4.0",
+  "mcp_url": "http://127.0.0.1:51642/mcp",
+  "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "review_cognitive_dimensions_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "087842198401c66ddecb8a6770652a4a92bbc9b2f909ddf149ba93ae36c7906d",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-20T05:30:36.571Z",
+  "duration_ms": 31820,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "82025281269d668bb789ad4cc5aff4bb2f67068a3ead29e40e9994de74402bf2",
+  "prompt_sha256": "b1bcf9f07df1d49aa4de39341e031a1a3d53ea5d6e15031396255bb796a7031b",
+  "mcp_context_sha256": "2f53450e30407dc2f72e8ad8c9f2d4921f19f2b8b0611a538f920732f3b1a58a",
+  "raw_response_sha256": "499193b37c20bac1956756f16527c00261c277b1d9f13102b6fd6c5ca013198a",
+  "raw_response": "{\"response\":\"Reject. The Clinical intake router should not be trusted because it lets the intake nurse route patient intake summaries to urgent review, routine review, or return for missing information without making stale vitals and consent status visible at the decision point.\",\"next_action\":\"Repair and resubmit the Clinical intake router by showing vitals freshness and consent status in domain language next to the intake summary and the route urgent, route routine, and return intake choices, with a clear rationale when either detail changes the routing decision.\",\"questions\":[],\"handoff\":\"Decision: reject; Owner: clinical intake workflow owner; Action: repair Clinical intake router; Reason: stale vitals and consent status can change urgent review, routine review, or return for missing information; Required fix/verification: the intake nurse can see freshness and consent status before saving routing.\",\"rationale\":\"The submitted workflow names the intake routing steps but omits decision-changing clinical context. That creates a user cost: the intake nurse may make a routing decision without seeing whether vitals are stale or consent is unresolved, which can change whether the patient intake summary should go to urgent review, routine review, or be returned for missing information.\"}",
+  "parsed": {
+    "response": "Reject. The Clinical intake router should not be trusted because it lets the intake nurse route patient intake summaries to urgent review, routine review, or return for missing information without making stale vitals and consent status visible at the decision point.",
+    "next_action": "Repair and resubmit the Clinical intake router by showing vitals freshness and consent status in domain language next to the intake summary and the route urgent, route routine, and return intake choices, with a clear rationale when either detail changes the routing decision.",
+    "questions": [],
+    "handoff": "Decision: reject; Owner: clinical intake workflow owner; Action: repair Clinical intake router; Reason: stale vitals and consent status can change urgent review, routine review, or return for missing information; Required fix/verification: the intake nurse can see freshness and consent status before saving routing.",
+    "rationale": "The submitted workflow names the intake routing steps but omits decision-changing clinical context. That creates a user cost: the intake nurse may make a routing decision without seeing whether vitals are stale or consent is unresolved, which can change whether the patient intake summary should go to urgent review, routine review, or be returned for missing information."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "2978493880dfef27fa5efbf163d221c2e19ca570e2e014c0ae5769b7e0d1cb74",
+    "stderr_sha256": "04bfdd57064522addb63ab2d6dd1d5cfeac76c419fb634ef9b6d04b159e39288",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

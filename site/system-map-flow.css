@@ -1,11 +1,56 @@
 .system-map-flow-root {
-  color: #171717;
+  --rf-map-bg: #fbfaf6;
+  --rf-map-panel: #ffffff;
+  --rf-map-soft-panel: rgba(255, 255, 255, 0.78);
+  --rf-map-line: #d7d3c8;
+  --rf-map-ink: #171717;
+  --rf-map-muted: #61615c;
+  --rf-map-accent: #133f4e;
+  --rf-map-grid: #e8e1d2;
+  --rf-map-edge: #245f73;
+  --rf-map-edge-muted: #d7d3c8;
+  --rf-map-edge-warning: #8a5a16;
+  --rf-map-edge-output: #2e6b48;
+  --rf-map-label-bg: #fbfaf6;
+  --rf-map-zone-kernel-bg: rgba(36, 95, 115, 0.06);
+  --rf-map-zone-llm-bg: rgba(138, 90, 22, 0.07);
+  --rf-map-zone-output-bg: rgba(46, 115, 70, 0.07);
+  --rf-map-node-kernel-bg: #eef5f3;
+  --rf-map-node-llm-bg: #fbf3e7;
+  --rf-map-node-output-bg: #f0f8f2;
+  --rf-map-node-blocked-bg: #fff7ec;
+  color: var(--rf-map-ink);
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   overflow: hidden;
 }
 
+@media (prefers-color-scheme: dark) {
+  .system-map-flow-root {
+    --rf-map-bg: #151a18;
+    --rf-map-panel: #181d1b;
+    --rf-map-soft-panel: rgba(24, 29, 27, 0.82);
+    --rf-map-line: #39423f;
+    --rf-map-ink: #f2f4ef;
+    --rf-map-muted: #b8c0bb;
+    --rf-map-accent: #a9d7e4;
+    --rf-map-grid: #29312e;
+    --rf-map-edge: #7db6c7;
+    --rf-map-edge-muted: #63716b;
+    --rf-map-edge-warning: #e0b15d;
+    --rf-map-edge-output: #82c99a;
+    --rf-map-label-bg: #151a18;
+    --rf-map-zone-kernel-bg: rgba(125, 182, 199, 0.1);
+    --rf-map-zone-llm-bg: rgba(224, 177, 93, 0.11);
+    --rf-map-zone-output-bg: rgba(130, 201, 154, 0.1);
+    --rf-map-node-kernel-bg: rgba(125, 182, 199, 0.14);
+    --rf-map-node-llm-bg: rgba(224, 177, 93, 0.14);
+    --rf-map-node-output-bg: rgba(130, 201, 154, 0.14);
+    --rf-map-node-blocked-bg: rgba(224, 177, 93, 0.18);
+  }
+}
+
 .system-map-flow-root .react-flow {
-  background: #fbfaf6;
+  background: var(--rf-map-bg);
   overflow: hidden;
 }
 
@@ -18,7 +63,7 @@
 }
 
 .system-map-flow-root .react-flow__controls {
-  border: 1px solid #d7d3c8;
+  border: 1px solid var(--rf-map-line);
   border-radius: 8px;
   box-shadow: none;
   overflow: hidden;
@@ -27,13 +72,13 @@
 .system-map-flow-root .react-flow__controls-button {
   width: 30px;
   height: 30px;
-  border-color: #d7d3c8;
-  background: #ffffff;
-  color: #133f4e;
+  border-color: var(--rf-map-line);
+  background: var(--rf-map-panel);
+  color: var(--rf-map-accent);
 }
 
 .system-map-flow-root .react-flow__controls-button:hover {
-  background: #eef5f3;
+  background: var(--rf-map-node-kernel-bg);
 }
 
 .react-flow__node.rf-zone-wrapper,
@@ -46,8 +91,8 @@
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  border: 2px solid #d7d3c8;
-  background: rgba(255, 255, 255, 0.78);
+  border: 2px solid var(--rf-map-line);
+  background: var(--rf-map-soft-panel);
 }
 
 .rf-zone-node {
@@ -58,7 +103,7 @@
 .rf-zone-node span {
   display: block;
   margin-bottom: 10px;
-  color: #61615c;
+  color: var(--rf-map-muted);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -69,7 +114,7 @@
 
 .rf-zone-node strong {
   display: block;
-  color: #133f4e;
+  color: var(--rf-map-accent);
   font-size: 22px;
   font-weight: 800;
   line-height: 1.12;
@@ -78,17 +123,17 @@
 
 .rf-zone-kernel {
   border-color: rgba(36, 95, 115, 0.34);
-  background: rgba(36, 95, 115, 0.06);
+  background: var(--rf-map-zone-kernel-bg);
 }
 
 .rf-zone-llm {
   border-color: rgba(138, 90, 22, 0.32);
-  background: rgba(138, 90, 22, 0.07);
+  background: var(--rf-map-zone-llm-bg);
 }
 
 .rf-zone-output {
   border-color: rgba(46, 115, 70, 0.32);
-  background: rgba(46, 115, 70, 0.07);
+  background: var(--rf-map-zone-output-bg);
 }
 
 .rf-map-node {
@@ -97,8 +142,8 @@
   gap: 6px;
   padding: 14px 16px;
   border-radius: 12px;
-  background: #ffffff;
-  color: #171717;
+  background: var(--rf-map-panel);
+  color: var(--rf-map-ink);
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
@@ -107,7 +152,7 @@
 .rf-map-node code {
   display: block;
   max-width: 100%;
-  color: #133f4e;
+  color: var(--rf-map-accent);
   font-size: 16px;
   font-weight: 800;
   line-height: 1.15;
@@ -123,7 +168,7 @@
 
 .rf-map-node span {
   display: block;
-  color: #171717;
+  color: var(--rf-map-ink);
   font-size: 13px;
   line-height: 1.25;
   overflow-wrap: anywhere;
@@ -131,23 +176,23 @@
 
 .rf-map-node-kernel {
   border-color: rgba(36, 95, 115, 0.34);
-  background: #eef5f3;
+  background: var(--rf-map-node-kernel-bg);
 }
 
 .rf-map-node-llm {
   border-color: rgba(138, 90, 22, 0.34);
-  background: #fbf3e7;
+  background: var(--rf-map-node-llm-bg);
 }
 
 .rf-map-node-output {
   border-color: rgba(46, 115, 70, 0.32);
-  background: #f0f8f2;
+  background: var(--rf-map-node-output-bg);
 }
 
 .rf-map-node-blocked {
   border-color: rgba(138, 90, 22, 0.42);
   border-style: dashed;
-  background: #fff7ec;
+  background: var(--rf-map-node-blocked-bg);
 }
 
 .rf-map-handle {

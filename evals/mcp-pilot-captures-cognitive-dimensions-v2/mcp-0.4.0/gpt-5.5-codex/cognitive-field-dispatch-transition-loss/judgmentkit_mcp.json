@@ -1,0 +1,48 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "cognitive-field-dispatch-transition-loss",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.4.0",
+  "mcp_url": "http://127.0.0.1:51150/mcp",
+  "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "review_cognitive_dimensions_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "787c37420c501217fdaf9f7844d6af1066cba57bc505289f4ec359994ca0fabc",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-20T05:19:53.442Z",
+  "duration_ms": 31885,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "665d306eac474c021e18ae8eb9957363fdd9ef9e067ca2dffded9fbd8336b783",
+  "prompt_sha256": "75605a915e2e197ae4a26f0e656795a0d23639fecd0accf522421f5424362121",
+  "mcp_context_sha256": "f2498ff6aac9e6447b5b953d03fcf89361355c2d505f57a52781ec28fd10c30a",
+  "raw_response_sha256": "c980af09671ad1364ff30677a9b529fd28e90567034b9653ffde46080ed20856",
+  "raw_response": "{\"response\":\"Reject the submitted workflow. It follows the broad map, queue, and detail layout, but it does not satisfy the dispatch decision: the selected urgent job, technician availability, and risk summary are not kept together as the dispatcher moves across surfaces.\",\"next_action\":\"Repair and resubmit the workflow around the dispatcher assigning the next urgent field job. Use field-dispatch language, keep the same selected job visible across map, technician queue, and job detail, place technician availability and risk rationale near the assignment action, and make surface changes preserve the current decision context.\",\"questions\":[],\"handoff\":\"Decision: reject; Owner: workflow author; Required fix: persist selected job, eligible technician availability, and risk rationale across map, queue, and detail; Verification: reviewer can identify the field dispatch assignment and see unchanged decision context while moving between surfaces.\",\"rationale\":\"The workflow asks the dispatcher to remember which job, technician, and risk evidence they were evaluating while switching screens. That creates a real assignment risk: an urgent job could be sent without the availability or risk constraint that should change the decision.\"}",
+  "parsed": {
+    "response": "Reject the submitted workflow. It follows the broad map, queue, and detail layout, but it does not satisfy the dispatch decision: the selected urgent job, technician availability, and risk summary are not kept together as the dispatcher moves across surfaces.",
+    "next_action": "Repair and resubmit the workflow around the dispatcher assigning the next urgent field job. Use field-dispatch language, keep the same selected job visible across map, technician queue, and job detail, place technician availability and risk rationale near the assignment action, and make surface changes preserve the current decision context.",
+    "questions": [],
+    "handoff": "Decision: reject; Owner: workflow author; Required fix: persist selected job, eligible technician availability, and risk rationale across map, queue, and detail; Verification: reviewer can identify the field dispatch assignment and see unchanged decision context while moving between surfaces.",
+    "rationale": "The workflow asks the dispatcher to remember which job, technician, and risk evidence they were evaluating while switching screens. That creates a real assignment risk: an urgent job could be sent without the availability or risk constraint that should change the decision."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "0b86bdd7ecd5f8464ab87be771788ddfec10251054b741f9e3f621524135f3c7",
+    "stderr_sha256": "18c85df05b84138cc4048cdcc115c776da22036c104d6d4d5898928b3f044138",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

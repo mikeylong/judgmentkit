@@ -205,6 +205,12 @@ const primaryNavLinks = [
   { label: "MCP", href: "/mcp" },
 ];
 
+function isPrimaryNavCurrent(link, pathName) {
+  if (link.href === "/") return pathName === "/";
+  if (link.href === "/mcp") return pathName === "/mcp";
+  return pathName === link.href || pathName.startsWith(link.href);
+}
+
 const DESIGN_SYSTEM_ROUTES = [
   "/design-system/",
   "/design-system/tokens/",
@@ -330,14 +336,19 @@ const ICON_PAGE_SCENARIOS = [
   },
 ];
 
-function renderPlatformHeader() {
+function renderPlatformHeader(pathName = "/") {
   return `    <nav class="surfaces-navigation" aria-label="Surfaces platform" data-surfaces-navigation>
       <div class="surfaces-navigation-inner">
         <div class="surfaces-navigation-left">
-          <a class="surfaces-navigation-identifier" href="/">JudgmentKit</a>
+          <a class="surfaces-navigation-identifier" href="/"${pathName === "/" ? ' aria-current="page"' : ""}>JudgmentKit</a>
           <div class="surfaces-navigation-sections" aria-label="Primary">
             ${primaryNavLinks
-              .map((link) => `<a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>`)
+              .map((link) => {
+                const current = isPrimaryNavCurrent(link, pathName)
+                  ? ' aria-current="page"'
+                  : "";
+                return `<a href="${escapeHtml(link.href)}"${current}>${escapeHtml(link.label)}</a>`;
+              })
               .join("\n            ")}
           </div>
           <div class="surfaces-primary-menu" data-surfaces-primary-menu-root>
@@ -347,7 +358,7 @@ function renderPlatformHeader() {
               aria-label="Open primary navigation"
               aria-expanded="false"
               aria-controls="surfaces-primary-menu"
-              aria-haspopup="menu"
+              aria-haspopup="true"
               data-surfaces-primary-menu-button
             >
               <span>Menu</span>
@@ -356,23 +367,28 @@ function renderPlatformHeader() {
               </svg>
             </button>
             <div class="surfaces-primary-menu-backdrop" hidden data-surfaces-primary-menu-backdrop></div>
-            <div class="surfaces-primary-menu-list" id="surfaces-primary-menu" role="menu" hidden data-surfaces-primary-menu-list>
+            <div class="surfaces-primary-menu-list" id="surfaces-primary-menu" hidden data-surfaces-primary-menu-list>
               ${primaryNavLinks
-                .map((link) => `<a href="${escapeHtml(link.href)}" role="menuitem">${escapeHtml(link.label)}</a>`)
+                .map((link) => {
+                  const current = isPrimaryNavCurrent(link, pathName)
+                    ? ' aria-current="page"'
+                    : "";
+                  return `<a href="${escapeHtml(link.href)}"${current}>${escapeHtml(link.label)}</a>`;
+                })
                 .join("\n              ")}
             </div>
           </div>
         </div>
         <div class="surfaces-navigation-right">
           <div class="surfaces-system-switch" data-surfaces-system-switch>
-            <button class="surfaces-system-switch-button" type="button" aria-expanded="false" aria-haspopup="menu" data-surfaces-system-menu-button>
+            <button class="surfaces-system-switch-button" type="button" aria-expanded="false" aria-haspopup="true" data-surfaces-system-menu-button>
               <span>judgmentkit.ai</span>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5"></path>
               </svg>
             </button>
             <div class="surfaces-system-switch-backdrop" hidden data-surfaces-system-menu-backdrop></div>
-            <div class="surfaces-system-switch-menu" role="menu" hidden data-surfaces-system-menu>
+            <div class="surfaces-system-switch-menu" hidden data-surfaces-system-menu>
             ${platformSites
               .map((site) => {
                 const isCurrent = site.id === "judgmentkit";
@@ -381,7 +397,7 @@ function renderPlatformHeader() {
                     ? "surfaces-system-switch-name surfaces-system-switch-name-mono"
                     : "surfaces-system-switch-name";
 
-                return `<a href="${escapeHtml(site.href)}" role="menuitem"${isCurrent ? ' aria-current="page"' : ""}>
+                return `<a href="${escapeHtml(site.href)}"${isCurrent ? ' aria-current="page"' : ""}>
               <span class="${nameClass}">${escapeHtml(site.label)}</span>
               <span class="surfaces-system-switch-description">${escapeHtml(site.description)}</span>
             </a>`;
@@ -402,10 +418,11 @@ function platformNavigationScript() {
         const bindMenu = ({ button, menu, backdrop }) => {
           if (!button || !menu || !backdrop) return;
 
-          const setOpen = (open) => {
+          const setOpen = (open, options = {}) => {
             button.setAttribute("aria-expanded", String(open));
             menu.hidden = !open;
             backdrop.hidden = !open;
+            if (!open && options.restoreFocus) button.focus();
           };
 
           button.addEventListener("click", () => {
@@ -417,7 +434,10 @@ function platformNavigationScript() {
             if (event.target.closest("a")) setOpen(false);
           });
           document.addEventListener("keydown", (event) => {
-            if (event.key === "Escape") setOpen(false);
+            if (event.key === "Escape" && button.getAttribute("aria-expanded") === "true") {
+              event.preventDefault();
+              setOpen(false, { restoreFocus: true });
+            }
           });
         };
 
@@ -485,7 +505,7 @@ ${options.headExtra ?? ""}
 ${analyticsBootstrap()}
   </head>
   <body>
-${renderPlatformHeader()}
+${renderPlatformHeader(pathName)}
     <main>${body}</main>
 ${platformNavigationScript()}
   </body>
@@ -660,6 +680,25 @@ const stylesheet = `
   --nav-bg: rgba(255, 255, 255, 0.98);
   --nav-border: #e5e5e5;
   --nav-muted: #525252;
+  --focus-ring: rgba(36, 95, 115, 0.28);
+  --step-marker-bg: #245f73;
+  --step-marker-ink: #ffffff;
+  --menu-item-bg: #ffffff;
+  --menu-item-bg-hover: #fafafa;
+  --menu-item-bg-current: #f5f5f5;
+  --soft-surface: #fbfaf6;
+  --status-success-bg: #f4fbf6;
+  --status-warning-bg: rgba(138, 90, 22, 0.09);
+  --report-toc-bg: rgba(255, 255, 255, 0.72);
+  --report-video-bg: #f3f1ea;
+  --report-video-copy-bg: rgba(255, 255, 255, 0.76);
+  --system-map-bg: #fbfaf6;
+  --system-map-zone-bg: rgba(255, 255, 255, 0.78);
+  --system-map-node-bg: #ffffff;
+  --system-map-node-kernel-bg: #eef5f3;
+  --system-map-node-llm-bg: #fbf3e7;
+  --system-map-node-output-bg: #f0f8f2;
+  --system-map-node-blocked-bg: #fff7ec;
   --eval-serif: "Source Serif 4", "Iowan Old Style", Charter, "Palatino Linotype", "Book Antiqua", Georgia, serif;
 }
 @media (prefers-color-scheme: dark) {
@@ -676,6 +715,25 @@ const stylesheet = `
     --nav-bg: rgba(16, 19, 18, 0.96);
     --nav-border: #29312e;
     --nav-muted: #b8c0bb;
+    --focus-ring: rgba(125, 182, 199, 0.38);
+    --step-marker-bg: #a9d7e4;
+    --step-marker-ink: #101312;
+    --menu-item-bg: #181d1b;
+    --menu-item-bg-hover: #202723;
+    --menu-item-bg-current: #25312d;
+    --soft-surface: #151a18;
+    --status-success-bg: rgba(130, 201, 154, 0.14);
+    --status-warning-bg: rgba(224, 177, 93, 0.16);
+    --report-toc-bg: rgba(24, 29, 27, 0.88);
+    --report-video-bg: #141b19;
+    --report-video-copy-bg: rgba(24, 29, 27, 0.88);
+    --system-map-bg: #151a18;
+    --system-map-zone-bg: rgba(24, 29, 27, 0.82);
+    --system-map-node-bg: #181d1b;
+    --system-map-node-kernel-bg: rgba(125, 182, 199, 0.14);
+    --system-map-node-llm-bg: rgba(224, 177, 93, 0.14);
+    --system-map-node-output-bg: rgba(130, 201, 154, 0.14);
+    --system-map-node-blocked-bg: rgba(224, 177, 93, 0.18);
   }
 }
 * {
@@ -728,6 +786,9 @@ a {
   min-width: 0;
 }
 .surfaces-navigation-identifier {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
   color: var(--ink);
   font-family: Inter, sans-serif;
   font-size: 14px;
@@ -741,6 +802,9 @@ a {
   gap: 32px;
 }
 .surfaces-navigation-sections a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
   color: var(--nav-muted);
   font-family: Inter, sans-serif;
   font-size: 14px;
@@ -749,8 +813,18 @@ a {
   transition: color 0.12s linear;
 }
 .surfaces-navigation-sections a:hover,
-.surfaces-navigation-sections a:focus-visible {
+.surfaces-navigation-sections a:focus-visible,
+.surfaces-navigation-sections a[aria-current="page"] {
   color: var(--ink);
+}
+.surfaces-navigation-identifier:focus-visible,
+.surfaces-navigation-sections a:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 2px var(--focus-ring);
+}
+.surfaces-navigation-identifier[aria-current="page"],
+.surfaces-navigation-sections a[aria-current="page"] {
+  font-weight: 800;
 }
 .surfaces-primary-menu {
   position: relative;
@@ -777,7 +851,7 @@ a {
   outline: 0;
 }
 .surfaces-primary-menu-button:focus-visible {
-  box-shadow: 0 0 0 2px rgba(23, 23, 23, 0.18);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 .surfaces-primary-menu-button svg {
   display: block;
@@ -795,9 +869,9 @@ a {
   width: 220px;
   max-width: calc(100vw - 48px);
   padding: 8px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--nav-border);
   border-radius: 4px;
-  background-color: #ffffff;
+  background-color: var(--menu-item-bg);
   z-index: 50;
   animation: surfaces-menu-enter 0.12s linear;
 }
@@ -809,7 +883,7 @@ a {
   display: block;
   padding: 12px;
   border-radius: 4px;
-  color: #171717;
+  color: var(--ink);
   font-family: Inter, sans-serif;
   font-size: 14px;
   font-weight: 600;
@@ -818,8 +892,12 @@ a {
 }
 .surfaces-primary-menu-list a:hover,
 .surfaces-primary-menu-list a:focus-visible {
-  background-color: #fafafa;
+  background-color: var(--menu-item-bg-hover);
   outline: 0;
+}
+.surfaces-primary-menu-list a[aria-current="page"] {
+  background-color: var(--menu-item-bg-current);
+  font-weight: 850;
 }
 .surfaces-navigation-right {
   display: flex;
@@ -836,7 +914,7 @@ a {
   padding: 4px 8px;
   border: 0;
   background-color: transparent;
-  color: #525252;
+  color: var(--nav-muted);
   cursor: pointer;
   font-family: Inter, sans-serif;
   font-size: 14px;
@@ -845,11 +923,11 @@ a {
 }
 .surfaces-system-switch-button:hover,
 .surfaces-system-switch-button:focus-visible {
-  color: #171717;
+  color: var(--ink);
   outline: 0;
 }
 .surfaces-system-switch-button:focus-visible {
-  box-shadow: 0 0 0 2px rgba(23, 23, 23, 0.18);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 .surfaces-system-switch-button svg {
   display: block;
@@ -867,9 +945,9 @@ a {
   width: 320px;
   max-width: calc(100vw - 48px);
   padding: 8px;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--nav-border);
   border-radius: 4px;
-  background-color: #ffffff;
+  background-color: var(--menu-item-bg);
   z-index: 50;
   animation: surfaces-menu-enter 0.12s linear;
 }
@@ -885,21 +963,21 @@ a {
   transition: background-color 0.12s linear;
 }
 .surfaces-system-switch-menu a[aria-current="page"] {
-  background-color: #f5f5f5;
+  background-color: var(--menu-item-bg-current);
 }
 .surfaces-system-switch-menu a:hover,
 .surfaces-system-switch-menu a:focus-visible {
-  background-color: #fafafa;
+  background-color: var(--menu-item-bg-hover);
   outline: 0;
 }
 .surfaces-system-switch-menu a[aria-current="page"]:hover,
 .surfaces-system-switch-menu a[aria-current="page"]:focus-visible {
-  background-color: #f5f5f5;
+  background-color: var(--menu-item-bg-current);
 }
 .surfaces-system-switch-name {
   display: block;
   margin-bottom: 4px;
-  color: #171717;
+  color: var(--ink);
   font-family: Inter, sans-serif;
   font-size: 14px;
   font-weight: 600;
@@ -909,7 +987,7 @@ a {
 }
 .surfaces-system-switch-description {
   display: block;
-  color: #525252;
+  color: var(--muted);
   font-family: Inter, sans-serif;
   font-size: 12px;
   font-weight: 400;
@@ -1108,8 +1186,8 @@ pre {
   padding: 0 0.08em;
 }
 .prompt-evidence-diagnostic {
-  color: #684310;
-  background: rgba(138, 90, 22, 0.08);
+  color: var(--warn);
+  background: var(--status-warning-bg);
 }
 .prompt-evidence-block {
   display: grid;
@@ -1131,7 +1209,7 @@ pre {
   font-size: 13px;
   font-weight: 700;
   color: var(--ok);
-  background: #f4fbf6;
+  background: var(--status-success-bg);
   width: fit-content;
 }
 .status.prompt-evidence-pill {
@@ -1145,8 +1223,8 @@ pre {
   background: rgba(36, 95, 115, 0.08);
 }
 .status.prompt-evidence-pill-diagnostic {
-  color: #684310;
-  background: rgba(138, 90, 22, 0.09);
+  color: var(--warn);
+  background: var(--status-warning-bg);
 }
 .section {
   border-top: 1px solid var(--line);
@@ -1305,8 +1383,8 @@ pre {
   margin-top: 14px;
   padding: 13px;
   border-left: 3px solid rgba(138, 90, 22, 0.35);
-  background: rgba(138, 90, 22, 0.06);
-  color: #684310;
+  background: var(--status-warning-bg);
+  color: var(--warn);
 }
 .system-map-canvas {
   aspect-ratio: 1760 / 1040;
@@ -1315,7 +1393,7 @@ pre {
   max-height: 760px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fbfaf6;
+  background: var(--system-map-bg);
   overflow: hidden;
 }
 .system-map-flow-root,
@@ -1345,7 +1423,7 @@ pre {
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 .system-map-svg .map-zone {
-  fill: rgba(255, 255, 255, 0.78);
+  fill: var(--system-map-zone-bg);
   stroke: var(--line);
   stroke-width: 2;
 }
@@ -1374,24 +1452,24 @@ pre {
   text-transform: uppercase;
 }
 .system-map-svg .map-node {
-  fill: #ffffff;
+  fill: var(--system-map-node-bg);
   stroke: var(--line);
   stroke-width: 2;
 }
 .system-map-svg .map-node-kernel {
-  fill: #eef5f3;
+  fill: var(--system-map-node-kernel-bg);
   stroke: rgba(36, 95, 115, 0.34);
 }
 .system-map-svg .map-node-llm {
-  fill: #fbf3e7;
+  fill: var(--system-map-node-llm-bg);
   stroke: rgba(138, 90, 22, 0.34);
 }
 .system-map-svg .map-node-output {
-  fill: #f0f8f2;
+  fill: var(--system-map-node-output-bg);
   stroke: rgba(46, 115, 70, 0.32);
 }
 .system-map-svg .map-node-blocked {
-  fill: #fff7ec;
+  fill: var(--system-map-node-blocked-bg);
   stroke: rgba(138, 90, 22, 0.42);
   stroke-dasharray: 8 6;
 }
@@ -1564,7 +1642,7 @@ pre {
   padding: clamp(18px, 4vw, 28px);
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fbfaf6;
+  background: var(--soft-surface);
 }
 .value-evidence h2 {
   margin-bottom: 0;
@@ -1574,7 +1652,7 @@ pre {
   margin: 14px 0;
   padding: 14px;
   border: 1px solid var(--line);
-  background: #f2f1eb;
+  background: var(--soft-surface);
   border-radius: 8px;
   overflow-x: auto;
 }
@@ -1630,7 +1708,7 @@ pre {
   outline: 0;
 }
 .design-system-section-menu-button:focus-visible {
-  box-shadow: 0 0 0 2px rgba(36, 95, 115, 0.18);
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 .design-system-section-menu-button svg {
   flex: 0 0 auto;
@@ -1667,7 +1745,7 @@ pre {
 }
 .design-system-section-menu-list a:hover,
 .design-system-section-menu-list a:focus-visible {
-  background: #f8f7f2;
+  background: var(--menu-item-bg-hover);
   outline: 0;
 }
 .design-system-nav {
@@ -1710,8 +1788,8 @@ pre {
   padding: 5px 9px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: #fbfaf6;
-  color: var(--ink);
+  background: var(--soft-surface);
+  color: var(--accent-strong);
   font-size: 13px;
   font-weight: 800;
   text-decoration: none;
@@ -1808,8 +1886,8 @@ pre {
   height: 28px;
   place-items: center;
   border-radius: 999px;
-  background: var(--accent);
-  color: #fff;
+  background: var(--step-marker-bg);
+  color: var(--step-marker-ink);
   font-size: 13px;
   font-weight: 900;
 }
@@ -2554,7 +2632,7 @@ pre {
   padding: clamp(14px, 2vw, 18px);
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fbfaf6;
+  background: var(--soft-surface);
 }
 .example-comparison-heading {
   display: grid;
@@ -2596,7 +2674,7 @@ pre {
 .example-matrix-column-header {
   padding: 10px 12px;
   border-bottom: 1px solid var(--line);
-  background: #f5f3ec;
+  background: var(--soft-surface);
 }
 .example-matrix-axis {
   color: var(--muted);
@@ -2630,7 +2708,7 @@ pre {
   align-content: start;
   gap: 4px;
   padding: 12px;
-  background: #fbfaf6;
+  background: var(--soft-surface);
 }
 .example-matrix-row-heading .eyebrow,
 .example-matrix-row-heading h3,
@@ -2652,7 +2730,7 @@ pre {
   gap: 8px;
   padding: 8px;
   border-left: 1px solid var(--line);
-  background: #ffffff;
+  background: var(--panel);
 }
 .example-matrix-thumb {
   display: block;
@@ -2746,7 +2824,7 @@ pre {
   padding: 9px 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #f8f7f1;
+  background: var(--soft-surface);
 }
 .example-gallery-meta dt,
 .example-gallery-modal-meta dt {
@@ -2999,7 +3077,7 @@ pre {
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--report-toc-bg);
 }
 .report-toc a {
   color: var(--muted);
@@ -3037,7 +3115,7 @@ pre {
   border-radius: 8px;
   background:
     linear-gradient(135deg, rgba(36, 95, 115, 0.16), rgba(46, 107, 72, 0.10)),
-    #f3f1ea;
+    var(--report-video-bg);
 }
 .report-video-hero {
   box-shadow: 0 18px 46px rgba(23, 23, 23, 0.12);
@@ -3094,7 +3172,7 @@ pre {
   padding: 12px 14px;
   border: 1px solid rgba(19, 63, 78, 0.18);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.76);
+  background: var(--report-video-copy-bg);
   text-align: center;
 }
 .report-video-copy strong {
@@ -3164,7 +3242,7 @@ pre {
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fbfaf6;
+  background: var(--soft-surface);
 }
 .report-system-figure li::after {
   content: "->";
@@ -4713,7 +4791,7 @@ function renderDesignSystemSectionMenu(model, activeId) {
             type="button"
             aria-expanded="false"
             aria-controls="${escapeHtml(menuId)}"
-            aria-haspopup="menu"
+            aria-haspopup="true"
             data-design-system-section-menu-button
           >
             <span>${escapeHtml(activePage.nav_label)}</span>
@@ -4722,11 +4800,11 @@ function renderDesignSystemSectionMenu(model, activeId) {
             </svg>
           </button>
           <div class="design-system-section-menu-backdrop" hidden data-design-system-section-menu-backdrop></div>
-          <div class="design-system-section-menu-list" id="${escapeHtml(menuId)}" role="menu" hidden data-design-system-section-menu-list>
+          <div class="design-system-section-menu-list" id="${escapeHtml(menuId)}" hidden data-design-system-section-menu-list>
             ${model.pages
               .map(
                 (pageEntry) =>
-                  `<a href="${pageEntry.path}" role="menuitem"${pageEntry.id === activeId ? ' aria-current="page"' : ""}>${escapeHtml(pageEntry.nav_label)}</a>`,
+                  `<a href="${pageEntry.path}"${pageEntry.id === activeId ? ' aria-current="page"' : ""}>${escapeHtml(pageEntry.nav_label)}</a>`,
               )
               .join("\n            ")}
           </div>
@@ -6092,6 +6170,10 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
             <h2>Workflow Review</h2>
             <p>Call <code>review_ui_workflow_candidate</code> before accepting an agent-proposed workflow. It checks source grounding, action support, completion or handoff clarity, and leakage containment.</p>
           </section>
+          <section class="doc-section" id="cognitive-dimensions">
+            <h2>Cognitive Dimensions Review</h2>
+            <p>Call <code>review_cognitive_dimensions_candidate</code> when a workflow or implementation candidate needs review for domain mapping, evidence near action, hidden dependencies, premature commitment, progressive evaluation, change cost, memory-heavy transitions, or disclosure leakage. Findings are diagnostic guidance for agents and reviewers; do not copy Cognitive Dimensions terminology into product UI.</p>
+          </section>
           <section class="doc-section" id="surface-type">
             <h2>Surface Type</h2>
             <p>Call <code>recommend_surface_types</code> after activity review and before workflow or frontend implementation guidance. Surface type is activity-purpose guidance, not a visual theme.</p>
@@ -6138,7 +6220,7 @@ const MODEL_UI_EXAMPLE = {
   id: "model-ui-system-map",
   title: "Model UI generation matrix",
   description:
-    "Four 3x4 comparisons across deterministic, Gemma 4 (local LLM), and GPT-5.5 xhigh paths, separating raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill plus Material UI.",
+    "Four 3x4 comparisons across fixture-rendered baseline, Gemma 4 (local LLM), and GPT-5.5 xhigh paths, separating raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill plus Material UI.",
   actions: [],
 };
 
@@ -6163,13 +6245,13 @@ function galleryProvenanceLabel(artifact) {
     return "captured model transcript";
   }
 
-  return "deterministic renderer, no provider call";
+  return "fixture-rendered baseline, no model generation";
 }
 
 function galleryRenderLabel(artifact) {
   if (artifact.design_system_mode === "material_ui") return "Material UI SSR";
   if (artifact.generation_source === "captured_model_output") return "static HTML/CSS";
-  return "deterministic HTML";
+  return "scripted fixture HTML";
 }
 
 function buildModelUiGalleryItems(manifest) {
@@ -6446,6 +6528,14 @@ function modelUiExamplesScript() {
         let activeGalleryItems = [];
         let activeGalleryIndex = 0;
         let previousFocus = null;
+        const focusableSelector = [
+          'a[href]',
+          'button:not([disabled]):not(.example-gallery-modal-backdrop)',
+          'input:not([disabled])',
+          'select:not([disabled])',
+          'textarea:not([disabled])',
+          '[tabindex]:not([tabindex="-1"])',
+        ].join(", ");
 
         function renderGalleryModal(index) {
           if (!modal || activeGalleryItems.length === 0) return;
@@ -6466,6 +6556,34 @@ function modelUiExamplesScript() {
           modalCount.textContent = String(activeGalleryIndex + 1) + " of " + String(activeGalleryItems.length);
         }
 
+        function modalFocusable() {
+          if (!modal || modal.hidden) return [];
+          return Array.from(modal.querySelectorAll(focusableSelector)).filter(
+            (element) => element.getClientRects().length > 0,
+          );
+        }
+
+        function containModalFocus(event) {
+          if (!modal || modal.hidden || event.key !== "Tab") return;
+          const focusable = modalFocusable();
+          if (focusable.length === 0) return;
+
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          const activeElement = document.activeElement;
+
+          if (!modal.contains(activeElement)) {
+            event.preventDefault();
+            first.focus();
+          } else if (event.shiftKey && activeElement === first) {
+            event.preventDefault();
+            last.focus();
+          } else if (!event.shiftKey && activeElement === last) {
+            event.preventDefault();
+            first.focus();
+          }
+        }
+
         function openGallery(items, index) {
           if (!modal || !items?.length) return;
           activeGalleryItems = items;
@@ -6474,7 +6592,7 @@ function modelUiExamplesScript() {
           modal.hidden = false;
           modal.setAttribute("aria-hidden", "false");
           document.documentElement.classList.add("example-gallery-open");
-          modalCloseButton?.focus();
+          (modalCloseButton ?? modalFocusable()[0])?.focus();
         }
 
         function closeGallery() {
@@ -6539,6 +6657,7 @@ function modelUiExamplesScript() {
           });
           modal.querySelector("[data-gallery-prev]")?.addEventListener("click", () => renderGalleryModal(activeGalleryIndex - 1));
           modal.querySelector("[data-gallery-next]")?.addEventListener("click", () => renderGalleryModal(activeGalleryIndex + 1));
+          modal.addEventListener("keydown", containModalFocus);
           document.addEventListener("keydown", (event) => {
             if (modal.hidden) return;
             if (event.key === "Escape") {
@@ -6661,6 +6780,13 @@ async function examplesPage() {
               <div class="link-row">
                 <a class="pill-link" href="/design-system/icons/">Open icon system</a>
                 <a class="pill-link" href="/examples/lucide-icon-catalog-smoke.html">Open icon smoke HTML</a>
+              </div>
+            </article>
+            <article>
+              <h3>ED flow board MVP</h3>
+              <p>A static in-situ feedback prototype for room occupancy, waiting acuity, turnover, holds, and charge-team next moves.</p>
+              <div class="link-row">
+                <a class="pill-link" href="/examples/er-flow-dashboard/">Open ED flow board</a>
               </div>
             </article>
           </div>
@@ -7608,6 +7734,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await copyIfExists("examples/comparison/music/version-b.html", path.join(outDir, "examples", "comparison", "music", "version-b.html"));
   await copyIfExists("examples/comparison/music/facilitator-scorecard.md", path.join(outDir, "examples", "comparison", "music", "facilitator-scorecard.md"));
   await copyIfExists("examples/lucide-icon-catalog-smoke.html", path.join(outDir, "examples", "lucide-icon-catalog-smoke.html"));
+  await copyDirectoryIfExists("examples/er-flow-dashboard", path.join(outDir, "examples", "er-flow-dashboard"));
   await copyDirectoryIfExists("examples/ai-native-design-system", path.join(outDir, "examples", "ai-native-design-system"));
   await copyDirectoryIfExists("evals/reports", path.join(outDir, "evals"));
   await copyDirectoryIfExists("evals/reports", path.join(outDir, "examples", "evals"));

@@ -1,0 +1,48 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "cognitive-setup-debug-diagnostic-exception",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.4.0",
+  "mcp_url": "http://127.0.0.1:51150/mcp",
+  "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "review_cognitive_dimensions_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "a7719972d05df90c57aa4c470fc76c3e6d6d0342f7552a1ab83f328c11beb516",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-20T05:22:39.002Z",
+  "duration_ms": 37102,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "d6ed27411d2659579dc87b6ac685528d688f395c1c49d572f3fa25cae40be4d2",
+  "prompt_sha256": "38fed7a6b4bcda607212cc71fe6323bd5a199912335868b13ab5670c005fa9db",
+  "mcp_context_sha256": "bce3ffcf7138a1caa5d0d354af19aed9788aaf3c31945b4f32f580d4382dc2d4",
+  "raw_response_sha256": "0f11325aadca5680e31a9198c259dcce1fcd50d77e904d61a1e69e54b40d3853",
+  "raw_response": "{\"response\":\"Trust with required repair. The submitted workflow is aligned with the billing webhook debugging activity: endpoint health, retry outcome, request identifier, test result, and next fix are the right evidence set for a platform engineer. It should be tightened into a single repair-oriented debugging context rather than left as disconnected checks and actions.\",\"next_action\":\"Revise the workflow so status, retry outcome, request identifier, test result, cause, and remediation stay together; add a clear correction path with owner, fix list, and return-for-evidence loop so routine setup fixes can be applied or routed and then retested from the same context.\",\"questions\":[],\"handoff\":\"Decision: trust with required repair; Owner: platform engineer; Fix: add one-context correction routing and pair every diagnostic value with test status, cause, remediation, or audit purpose; Verify: routine webhook setup corrections can be made or routed without leaving the diagnostic context.\",\"rationale\":\"The proposal fits the source activity, but it under-specifies the repair loop. Without an inline fix list or routing path, small webhook setup corrections can become repeated disconnected work and unclear handoffs, and raw endpoint/API/request details are less useful unless tied to why the test failed and what next fix changes the outcome.\"}",
+  "parsed": {
+    "response": "Trust with required repair. The submitted workflow is aligned with the billing webhook debugging activity: endpoint health, retry outcome, request identifier, test result, and next fix are the right evidence set for a platform engineer. It should be tightened into a single repair-oriented debugging context rather than left as disconnected checks and actions.",
+    "next_action": "Revise the workflow so status, retry outcome, request identifier, test result, cause, and remediation stay together; add a clear correction path with owner, fix list, and return-for-evidence loop so routine setup fixes can be applied or routed and then retested from the same context.",
+    "questions": [],
+    "handoff": "Decision: trust with required repair; Owner: platform engineer; Fix: add one-context correction routing and pair every diagnostic value with test status, cause, remediation, or audit purpose; Verify: routine webhook setup corrections can be made or routed without leaving the diagnostic context.",
+    "rationale": "The proposal fits the source activity, but it under-specifies the repair loop. Without an inline fix list or routing path, small webhook setup corrections can become repeated disconnected work and unclear handoffs, and raw endpoint/API/request details are less useful unless tied to why the test failed and what next fix changes the outcome."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "8d72521da4af5b31e0fa6be8fbcd016a6db2d86e362a1dcffa09d722cad9f932",
+    "stderr_sha256": "ceb889d6bb93db17f1536695b730af97cb9d9f7871d82e9fcb9106513461680e",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

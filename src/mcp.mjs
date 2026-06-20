@@ -13,6 +13,7 @@ import {
   listIconCatalog,
   recommendSurfaceTypes,
   recommendUiWorkflowProfiles,
+  reviewCognitiveDimensionsCandidate,
   reviewActivityModelCandidate,
   reviewUiImplementationCandidate,
   reviewUiWorkflowCandidate,
@@ -20,7 +21,7 @@ import {
 } from "./index.mjs";
 
 const MCP_SERVER_NAME = "JudgmentKit";
-const MCP_SERVER_VERSION = "0.4.0";
+const MCP_SERVER_VERSION = "0.5.0";
 
 const ANALYZE_TOOL = {
   name: "analyze_implementation_brief",
@@ -164,6 +165,44 @@ const REVIEW_UI_WORKFLOW_CANDIDATE_TOOL = {
   },
 };
 
+const REVIEW_COGNITIVE_DIMENSIONS_CANDIDATE_TOOL = {
+  name: "review_cognitive_dimensions_candidate",
+  description:
+    "Review a workflow or implementation candidate with Cognitive Dimensions checks for mapping, visibility, hidden dependencies, commitment, progressive evaluation, change cost, mental operations, and disclosure.",
+  inputSchema: {
+    type: "object",
+    required: ["brief", "candidate"],
+    properties: {
+      brief: {
+        type: "string",
+        minLength: 1,
+        description:
+          "Source UI brief the candidate should support.",
+      },
+      candidate: {
+        description:
+          "Workflow review packet, UI workflow candidate, implementation evidence, or visible candidate text to review.",
+      },
+      activity_review: {
+        type: "object",
+        description:
+          "Optional activity review packet returned by create_activity_model_review.",
+      },
+      surface_type: {
+        type: "string",
+        description:
+          "Optional selected surface type, such as workbench, operator_review, dashboard_monitor, or setup_debug_tool.",
+      },
+      surface_evidence: {
+        type: "object",
+        description:
+          "Optional rendered or visible surface evidence such as visible text, sections, controls, states, and navigation paths.",
+      },
+    },
+    additionalProperties: false,
+  },
+};
+
 const UI_GENERATION_HANDOFF_TOOL = {
   name: "create_ui_generation_handoff",
   description:
@@ -181,6 +220,11 @@ const UI_GENERATION_HANDOFF_TOOL = {
         type: "object",
         description:
           "UI implementation contract returned by create_ui_implementation_contract or an equivalent repo-local contract packet.",
+      },
+      cognitive_dimensions_review: {
+        type: "object",
+        description:
+          "Optional Cognitive Dimensions review packet. When supplied, it must be ready_for_review or the handoff blocks.",
       },
     },
     additionalProperties: false,
@@ -582,6 +626,18 @@ function planningStatus(result) {
     return "Ready for UI generation";
   }
 
+  if (result.cognitive_dimensions_review_status === "ready_for_review") {
+    return "Cognitive Dimensions review ready";
+  }
+
+  if (result.cognitive_dimensions_review_status === "repair_required") {
+    return "Cognitive Dimensions repair required";
+  }
+
+  if (result.cognitive_dimensions_review_status === "needs_source_context") {
+    return "Needs source context";
+  }
+
   if (result.review_status === "ready_for_review") {
     return result.candidate?.workflow ? "Ready for UI handoff" : "Ready for concept planning";
   }
@@ -936,6 +992,47 @@ function formatImplementationReviewCard(result) {
   return lines.join("\n");
 }
 
+function formatCognitiveDimensionsReviewCard(result) {
+  const failedFindings = (Array.isArray(result.findings) ? result.findings : [])
+    .filter((finding) => finding.severity === "fail")
+    .slice(0, 4);
+  const warnFindings = (Array.isArray(result.findings) ? result.findings : [])
+    .filter((finding) => finding.severity === "warn")
+    .slice(0, 3);
+  const lines = [
+    "## JudgmentKit Cognitive Dimensions Review",
+    `**Status:** ${planningStatus(result)}`,
+    result.cognitive_dimensions_review_status === "ready_for_review"
+      ? "**Next step:** Use this review as diagnostic context for handoff or implementation; do not copy Cognitive Dimensions terms into product UI."
+      : "**Next step:** Repair the candidate or resolve source context before handoff.",
+  ];
+
+  addSection(lines, "Checks", [
+    listLine(
+      "Failed dimensions",
+      failedFindings.map((finding) => finding.dimension),
+    ),
+    listLine(
+      "Warning dimensions",
+      warnFindings.map((finding) => finding.dimension),
+    ),
+    firstLine("Next action", result.next_agent_action),
+  ]);
+  addSection(
+    lines,
+    "Findings",
+    toDisplayList(
+      (Array.isArray(result.findings) ? result.findings : []).map(
+        (finding) => finding.repair_instruction,
+      ),
+      4,
+    ).map((finding) => `- ${finding}`),
+  );
+  addSection(lines, "Targeted questions", bulletList(result.targeted_questions));
+
+  return lines.join("\n");
+}
+
 function formatFrontendContextCard(result) {
   const lines = [
     "## JudgmentKit Frontend Context",
@@ -1145,6 +1242,10 @@ function formatPlanningCard(result) {
     return formatImplementationReviewCard(result);
   }
 
+  if (result?.cognitive_dimensions_review_status) {
+    return formatCognitiveDimensionsReviewCard(result);
+  }
+
   if (result?.implementation_contract_status) {
     return formatImplementationContractCard(result);
   }
@@ -1192,6 +1293,7 @@ export function listTools() {
     RECOMMEND_UI_WORKFLOW_PROFILES_TOOL,
     REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL,
     REVIEW_UI_WORKFLOW_CANDIDATE_TOOL,
+    REVIEW_COGNITIVE_DIMENSIONS_CANDIDATE_TOOL,
     UI_IMPLEMENTATION_CONTRACT_TOOL,
     REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL,
     UI_GENERATION_HANDOFF_TOOL,
@@ -1224,6 +1326,7 @@ export async function handleToolCall(name, args = {}) {
       RECOMMEND_UI_WORKFLOW_PROFILES_TOOL.name,
       REVIEW_ACTIVITY_MODEL_CANDIDATE_TOOL.name,
       REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name,
+      REVIEW_COGNITIVE_DIMENSIONS_CANDIDATE_TOOL.name,
       UI_IMPLEMENTATION_CONTRACT_TOOL.name,
       REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL.name,
       UI_GENERATION_HANDOFF_TOOL.name,
@@ -1292,6 +1395,7 @@ export async function handleToolCall(name, args = {}) {
         implementation_contract:
           args.implementation_contract?.implementation_contract ??
           args.implementation_contract,
+        cognitive_dimensions_review: args.cognitive_dimensions_review,
       });
     }
 
@@ -1312,6 +1416,14 @@ export async function handleToolCall(name, args = {}) {
 
     if (name === UI_IMPLEMENTATION_CONTRACT_TOOL.name) {
       return createUiImplementationContract(args);
+    }
+
+    if (name === REVIEW_COGNITIVE_DIMENSIONS_CANDIDATE_TOOL.name) {
+      return reviewCognitiveDimensionsCandidate(args.brief, args.candidate, {
+        activity_review: args.activity_review,
+        surface_type: args.surface_type,
+        surface_evidence: args.surface_evidence,
+      });
     }
 
     if (name === REVIEW_UI_WORKFLOW_CANDIDATE_TOOL.name) {
@@ -1449,6 +1561,24 @@ export function createJudgmentKitMcpServer() {
   );
 
   server.registerTool(
+    REVIEW_COGNITIVE_DIMENSIONS_CANDIDATE_TOOL.name,
+    {
+      description: REVIEW_COGNITIVE_DIMENSIONS_CANDIDATE_TOOL.description,
+      inputSchema: {
+        brief: z.string(),
+        candidate: z.any(),
+        activity_review: z.record(z.any()).optional(),
+        surface_type: z.string().optional(),
+        surface_evidence: z.record(z.any()).optional(),
+      },
+    },
+    async (args) =>
+      createToolResult(
+        await handleToolCall(REVIEW_COGNITIVE_DIMENSIONS_CANDIDATE_TOOL.name, args),
+      ),
+  );
+
+  server.registerTool(
     UI_IMPLEMENTATION_CONTRACT_TOOL.name,
     {
       description: UI_IMPLEMENTATION_CONTRACT_TOOL.description,
@@ -1493,6 +1623,7 @@ export function createJudgmentKitMcpServer() {
       inputSchema: {
         workflow_review: z.record(z.any()),
         implementation_contract: z.record(z.any()),
+        cognitive_dimensions_review: z.record(z.any()).optional(),
       },
     },
     async (args) =>

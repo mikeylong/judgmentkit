@@ -4,15 +4,15 @@ export const MODEL_UI_INDEX_FILE = `${MODEL_UI_ROOT}/index.json`;
 export const COMPARISON_ROWS = [
   {
     id: "deterministic",
-    label: "Deterministic",
-    model_label: "Deterministic renderer",
+    label: "Fixture-rendered baseline",
+    model_label: "Scripted fixture renderer",
     generation_source: "deterministic",
     provider: "none",
     model: "none",
     cli: null,
     reasoning_effort: null,
     summary:
-      "Scripted renderer paths show the controlled baseline for each context combination.",
+      "Scripted renderer paths show the controlled fixture-rendered baseline for each context combination.",
   },
   {
     id: "gemma4-lms",

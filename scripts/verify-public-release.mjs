@@ -449,7 +449,8 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     home.text,
     [
       "Judgment before generation.",
-      "JudgmentKit catches when AI-generated UI turns implementation mechanics into UX",
+      "JudgmentKit catches implementation-shaped UI before it ships",
+      "repair path grounded in the user's real work",
       '<link rel="canonical" href="https://judgmentkit.ai/">',
       '<link rel="icon" href="/favicon.svg"',
       '<meta property="og:site_name" content="JudgmentKit">',
@@ -471,6 +472,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "create_activity_model_review",
       "recommend_surface_types",
       "review_ui_workflow_candidate",
+      "review_cognitive_dimensions_candidate",
       "create_ui_generation_handoff",
       "create_ui_implementation_contract",
       "review_ui_implementation_candidate",
@@ -795,7 +797,7 @@ async function verifyMcpMetadata(baseUrl) {
   const toolNames = metadata.capabilities.tools.map((tool) => tool.name);
 
   assert.equal(metadata.name, "JudgmentKit");
-  assert.equal(metadata.version, "0.4.0");
+  assert.equal(metadata.version, "0.5.0");
   assert.equal(metadata.transport, "streamable-http");
   assert.equal(metadata.public_route.role, "mcp_endpoint_and_metadata");
   assert.equal(metadata.public_route.hosted_mcp_endpoint, true);

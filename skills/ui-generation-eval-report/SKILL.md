@@ -66,6 +66,7 @@ When adding or changing eval cases, rubrics, expected outcomes, or UI-generation
 
 - Call `create_activity_model_review` on the source brief or task prompt.
 - Call `review_ui_workflow_candidate` before trusting a proposed workflow or activity-fit rationale.
+- Call `review_cognitive_dimensions_candidate` when a workflow or implementation candidate needs mapping, visibility, hidden-dependency, progressive-evaluation, change-cost, mental-operation, or disclosure diagnostics.
 - Call `create_ui_generation_handoff` before treating a reviewed workflow as ready generation evidence.
 
 If JudgmentKit MCP tools are unavailable, continue the deterministic eval workflow and state that MCP review was skipped.

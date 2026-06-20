@@ -138,7 +138,7 @@ try {
 
     assert.equal(response.status, 200, "first-use fixture should return 200");
     assert.equal(response.headers.get("content-type"), "application/json; charset=utf-8");
-    assert.equal(body.release_target, "0.4.0");
+    assert.equal(body.release_target, "0.5.0");
     assert.equal(body.target_time_minutes, 10);
   }
 

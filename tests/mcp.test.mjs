@@ -26,6 +26,7 @@ assert.deepEqual(
     "recommend_ui_workflow_profiles",
     "review_activity_model_candidate",
     "review_ui_workflow_candidate",
+    "review_cognitive_dimensions_candidate",
     "create_ui_implementation_contract",
     "review_ui_implementation_candidate",
     "create_ui_generation_handoff",
@@ -37,7 +38,7 @@ assert.deepEqual(
   ],
 );
 assert.equal(metadata.name, "JudgmentKit");
-assert.equal(metadata.version, "0.4.0");
+assert.equal(metadata.version, "0.5.0");
 assert.deepEqual(metadata.capabilities.prompts, []);
 const toolsJson = JSON.stringify(tools);
 for (const legacyField of [
@@ -59,6 +60,7 @@ for (const oldToolName of OLD_TOOL_NAMES) {
     `MCP catalog must not expose old tool ${oldToolName}`,
   );
 }
+const toolByName = Object.fromEntries(tools.map((tool) => [tool.name, tool]));
 assert.equal(tools[0].inputSchema.required.includes("brief"), true);
 assert.equal(tools[0].inputSchema.properties.brief.minLength, 1);
 assert.equal(tools[1].inputSchema.required.includes("brief"), true);
@@ -71,31 +73,44 @@ assert.equal(tools[5].inputSchema.required.includes("brief"), true);
 assert.equal(tools[5].inputSchema.required.includes("candidate"), true);
 assert.equal(tools[5].inputSchema.properties.profile_id.type, "string");
 assert.equal(tools[5].inputSchema.properties.surface_type.type, "string");
-assert.equal(tools[6].inputSchema.properties.approved_primitives.type, "array");
-assert.equal(tools[6].inputSchema.properties.accessibility_policy.type, "object");
-assert.equal(tools[6].inputSchema.properties.default_ai_native_design_system.type, "object");
-assert.equal(tools[6].inputSchema.properties.iteration_policy.type, "object");
-assert.equal(tools[6].inputSchema.properties.visual_token_adapter.type, "object");
+assert.equal(
+  toolByName.review_cognitive_dimensions_candidate.inputSchema.required.includes("brief"),
+  true,
+);
+assert.equal(
+  toolByName.review_cognitive_dimensions_candidate.inputSchema.required.includes("candidate"),
+  true,
+);
+assert.equal(
+  toolByName.review_cognitive_dimensions_candidate.inputSchema.properties.surface_type.type,
+  "string",
+);
+assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.approved_primitives.type, "array");
+assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.accessibility_policy.type, "object");
+assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.default_ai_native_design_system.type, "object");
+assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.iteration_policy.type, "object");
+assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.visual_token_adapter.type, "object");
 assert.ok(
-  tools[6].inputSchema.properties.visual_token_adapter.description.includes(
+  toolByName.create_ui_implementation_contract.inputSchema.properties.visual_token_adapter.description.includes(
     "font",
   ),
 );
 assert.ok(
-  tools[10].inputSchema.properties.design_system_adapter.description.includes(
+  toolByName.create_frontend_implementation_skill_context.inputSchema.properties.design_system_adapter.description.includes(
     "icon guidance",
   ),
 );
-assert.equal(tools[7].inputSchema.required.includes("candidate"), true);
-assert.equal(tools[7].inputSchema.required.includes("implementation_contract"), true);
-assert.equal(tools[7].inputSchema.properties.iteration_context.type, "object");
-assert.equal(tools[8].inputSchema.required.includes("workflow_review"), true);
-assert.equal(tools[8].inputSchema.required.includes("implementation_contract"), true);
-assert.equal(tools[9].inputSchema.required.includes("ui_generation_handoff"), true);
-assert.equal(tools[10].inputSchema.required.includes("frontend_generation_context"), true);
-assert.equal(tools[11].inputSchema.properties.include_svg.type, "boolean");
-assert.equal(tools[12].inputSchema.required.includes("query"), true);
-assert.equal(tools[13].inputSchema.required.includes("id"), true);
+assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.required.includes("candidate"), true);
+assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.required.includes("implementation_contract"), true);
+assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.properties.iteration_context.type, "object");
+assert.equal(toolByName.create_ui_generation_handoff.inputSchema.required.includes("workflow_review"), true);
+assert.equal(toolByName.create_ui_generation_handoff.inputSchema.required.includes("implementation_contract"), true);
+assert.equal(toolByName.create_ui_generation_handoff.inputSchema.properties.cognitive_dimensions_review.type, "object");
+assert.equal(toolByName.create_frontend_generation_context.inputSchema.required.includes("ui_generation_handoff"), true);
+assert.equal(toolByName.create_frontend_implementation_skill_context.inputSchema.required.includes("frontend_generation_context"), true);
+assert.equal(toolByName.list_icon_catalog.inputSchema.properties.include_svg.type, "boolean");
+assert.equal(toolByName.search_icon_catalog.inputSchema.required.includes("query"), true);
+assert.equal(toolByName.get_icon_svg.inputSchema.required.includes("id"), true);
 
 const iconList = await handleToolCall("list_icon_catalog", { limit: 2 });
 assert.equal("error" in iconList, false);
@@ -377,6 +392,22 @@ function coreAccessibilityEvidence() {
   assert.ok(result.candidate.workflow.primary_actions.includes("Approve refund"));
   assert.deepEqual(result.guardrails.candidate_primary_terms_detected, []);
   assert.deepEqual(result.guardrails.candidate_primary_meta_terms_detected, []);
+
+  const cognitiveReview = await handleToolCall("review_cognitive_dimensions_candidate", {
+    brief:
+      "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
+    candidate: result,
+    surface_type: "workbench",
+  });
+
+  assert.equal("error" in cognitiveReview, false);
+  assert.equal(cognitiveReview.cognitive_dimensions_review_status, "ready_for_review");
+  assert.equal(cognitiveReview.next_agent_action, "continue_to_handoff_or_implementation");
+  assert.ok(
+    cognitiveReview.checks.some(
+      (check) => check.id === "visibility_juxtaposability" && check.status === "pass",
+    ),
+  );
 
   const implementationContract = await handleToolCall("create_ui_implementation_contract", {
     target_stack: "React",

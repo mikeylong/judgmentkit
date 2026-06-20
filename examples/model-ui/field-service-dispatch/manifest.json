@@ -14,13 +14,13 @@
   "comparison_rows": [
     {
       "id": "deterministic",
-      "label": "Deterministic",
-      "model_label": "Deterministic renderer",
+      "label": "Fixture-rendered baseline",
+      "model_label": "Scripted fixture renderer",
       "generation_source": "deterministic",
       "provider": "none",
       "model": "none",
       "reasoning_effort": null,
-      "summary": "Scripted renderer paths show the controlled baseline for each context combination.",
+      "summary": "Scripted renderer paths show the controlled fixture-rendered baseline for each context combination.",
       "artifact_ids": [
         "deterministic-no-judgmentkit",
         "deterministic-with-judgmentkit",
@@ -35,11 +35,11 @@
           "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
           "use_case_index_path": "examples/model-ui/field-service-dispatch/index.html",
           "row_id": "deterministic",
-          "row_label": "Deterministic",
+          "row_label": "Fixture-rendered baseline",
           "column_id": "no-judgmentkit",
           "column_label": "Raw brief",
-          "title": "Deterministic - Raw brief",
-          "model_label": "Deterministic renderer",
+          "title": "Fixture-rendered baseline - Raw brief",
+          "model_label": "Scripted fixture renderer",
           "generation_source": "deterministic",
           "provider": "none",
           "model": "none",
@@ -64,7 +64,7 @@
           "capture_file": null,
           "capture_provenance": {
             "status": "captured",
-            "capture_type": "deterministic-renderer",
+            "capture_type": "fixture-rendered-baseline",
             "captured_at": "2026-05-13",
             "runner": "scripts/demo-model-ui-matrix.mjs",
             "provider": "none",
@@ -74,7 +74,7 @@
             "frontend_context_status": null,
             "frontend_skill_context_status": null,
             "capture_quality": null,
-            "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+            "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
           },
           "lms_context": null,
           "capture_quality": null,
@@ -89,8 +89,8 @@
           "render_source": "deterministic_raw_brief_html",
           "visible_render_source": "deterministic_raw_brief_html",
           "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
-          "approach_title": "Deterministic - Raw brief",
-          "approach_caption": "Deterministic receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+          "approach_title": "Fixture-rendered baseline - Raw brief",
+          "approach_caption": "Fixture-rendered baseline receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
         },
         {
           "id": "deterministic-with-judgmentkit",
@@ -99,11 +99,11 @@
           "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
           "use_case_index_path": "examples/model-ui/field-service-dispatch/index.html",
           "row_id": "deterministic",
-          "row_label": "Deterministic",
+          "row_label": "Fixture-rendered baseline",
           "column_id": "with-judgmentkit",
           "column_label": "JudgmentKit skill context",
-          "title": "Deterministic - JudgmentKit skill context",
-          "model_label": "Deterministic renderer",
+          "title": "Fixture-rendered baseline - JudgmentKit skill context",
+          "model_label": "Scripted fixture renderer",
           "generation_source": "deterministic",
           "provider": "none",
           "model": "none",
@@ -128,7 +128,7 @@
           "capture_file": null,
           "capture_provenance": {
             "status": "captured",
-            "capture_type": "deterministic-renderer",
+            "capture_type": "fixture-rendered-baseline",
             "captured_at": "2026-05-13",
             "runner": "scripts/demo-model-ui-matrix.mjs",
             "provider": "none",
@@ -138,12 +138,12 @@
             "frontend_context_status": "ready_for_frontend_implementation",
             "frontend_skill_context_status": "ready",
             "capture_quality": null,
-            "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+            "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
           },
           "lms_context": null,
           "capture_quality": null,
           "prompt_sha256": null,
-          "source_context_sha256": "25f7c686512bba77e9d95a7f8d5eb122e4dea44bdf8a529eebecb5e17ce81526",
+          "source_context_sha256": "3ea36f25bc857453d8794804af012da626c15a0d071b0d999a16f66a64309f73",
           "raw_response_sha256": null,
           "frontend_context_status": "ready_for_frontend_implementation",
           "frontend_skill_context_status": "ready",
@@ -197,8 +197,8 @@
           "render_source": "deterministic_frontend_skill_html",
           "visible_render_source": "deterministic_frontend_skill_html",
           "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
-          "approach_title": "Deterministic - JudgmentKit skill context",
-          "approach_caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
+          "approach_title": "Fixture-rendered baseline - JudgmentKit skill context",
+          "approach_caption": "Fixture-rendered baseline receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
         },
         {
           "id": "deterministic-material-ui-only",
@@ -207,11 +207,11 @@
           "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
           "use_case_index_path": "examples/model-ui/field-service-dispatch/index.html",
           "row_id": "deterministic",
-          "row_label": "Deterministic",
+          "row_label": "Fixture-rendered baseline",
           "column_id": "material-ui-only",
           "column_label": "Material UI only",
-          "title": "Deterministic - Material UI only",
-          "model_label": "Deterministic renderer",
+          "title": "Fixture-rendered baseline - Material UI only",
+          "model_label": "Scripted fixture renderer",
           "generation_source": "deterministic",
           "provider": "none",
           "model": "none",
@@ -236,7 +236,7 @@
           "capture_file": null,
           "capture_provenance": {
             "status": "captured",
-            "capture_type": "deterministic-renderer",
+            "capture_type": "fixture-rendered-baseline",
             "captured_at": "2026-05-13",
             "runner": "scripts/demo-model-ui-matrix.mjs",
             "provider": "none",
@@ -246,7 +246,7 @@
             "frontend_context_status": null,
             "frontend_skill_context_status": null,
             "capture_quality": null,
-            "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+            "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
           },
           "lms_context": null,
           "capture_quality": null,
@@ -261,8 +261,8 @@
           "render_source": "deterministic_material_ui_ssr",
           "visible_render_source": "deterministic_material_ui_ssr",
           "rendering_policy": "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.",
-          "approach_title": "Deterministic - Material UI only",
-          "approach_caption": "Deterministic is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit."
+          "approach_title": "Fixture-rendered baseline - Material UI only",
+          "approach_caption": "Fixture-rendered baseline is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit."
         },
         {
           "id": "deterministic-judgmentkit-material-ui",
@@ -271,11 +271,11 @@
           "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
           "use_case_index_path": "examples/model-ui/field-service-dispatch/index.html",
           "row_id": "deterministic",
-          "row_label": "Deterministic",
+          "row_label": "Fixture-rendered baseline",
           "column_id": "judgmentkit-material-ui",
           "column_label": "JudgmentKit skill + Material UI",
-          "title": "Deterministic - JudgmentKit skill + Material UI",
-          "model_label": "Deterministic renderer",
+          "title": "Fixture-rendered baseline - JudgmentKit skill + Material UI",
+          "model_label": "Scripted fixture renderer",
           "generation_source": "deterministic",
           "provider": "none",
           "model": "none",
@@ -300,7 +300,7 @@
           "capture_file": null,
           "capture_provenance": {
             "status": "captured",
-            "capture_type": "deterministic-renderer",
+            "capture_type": "fixture-rendered-baseline",
             "captured_at": "2026-05-13",
             "runner": "scripts/demo-model-ui-matrix.mjs",
             "provider": "none",
@@ -310,12 +310,12 @@
             "frontend_context_status": "ready_for_frontend_implementation",
             "frontend_skill_context_status": "ready",
             "capture_quality": null,
-            "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+            "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
           },
           "lms_context": null,
           "capture_quality": null,
           "prompt_sha256": null,
-          "source_context_sha256": "2407998cea8a2bbe51b45d7a0e52d8993512e0767aa69455fc75a571e1a11d69",
+          "source_context_sha256": "0ff64438193914d07053c0d051376bb3f913b0e130a223af5958e708ffb28ec3",
           "raw_response_sha256": null,
           "frontend_context_status": "ready_for_frontend_implementation",
           "frontend_skill_context_status": "ready",
@@ -369,8 +369,8 @@
           "render_source": "deterministic_frontend_skill_material_ui_ssr",
           "visible_render_source": "deterministic_frontend_skill_material_ui_ssr",
           "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed handoff plus compiled frontend skill context.",
-          "approach_title": "Deterministic - JudgmentKit skill + Material UI",
-          "approach_caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path."
+          "approach_title": "Fixture-rendered baseline - JudgmentKit skill + Material UI",
+          "approach_caption": "Fixture-rendered baseline receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path."
         }
       ]
     },
@@ -1401,7 +1401,7 @@
   ],
   "legacy_aliases": [],
   "model_labels": [
-    "Deterministic renderer",
+    "Scripted fixture renderer",
     "Gemma 4 (local LLM)",
     "GPT-5.5"
   ],
@@ -1413,11 +1413,11 @@
       "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
       "use_case_index_path": "examples/model-ui/field-service-dispatch/index.html",
       "row_id": "deterministic",
-      "row_label": "Deterministic",
+      "row_label": "Fixture-rendered baseline",
       "column_id": "no-judgmentkit",
       "column_label": "Raw brief",
-      "title": "Deterministic - Raw brief",
-      "model_label": "Deterministic renderer",
+      "title": "Fixture-rendered baseline - Raw brief",
+      "model_label": "Scripted fixture renderer",
       "generation_source": "deterministic",
       "provider": "none",
       "model": "none",
@@ -1442,7 +1442,7 @@
       "capture_file": null,
       "capture_provenance": {
         "status": "captured",
-        "capture_type": "deterministic-renderer",
+        "capture_type": "fixture-rendered-baseline",
         "captured_at": "2026-05-13",
         "runner": "scripts/demo-model-ui-matrix.mjs",
         "provider": "none",
@@ -1452,7 +1452,7 @@
         "frontend_context_status": null,
         "frontend_skill_context_status": null,
         "capture_quality": null,
-        "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+        "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
       },
       "lms_context": null,
       "capture_quality": null,
@@ -1467,8 +1467,8 @@
       "render_source": "deterministic_raw_brief_html",
       "visible_render_source": "deterministic_raw_brief_html",
       "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
-      "approach_title": "Deterministic - Raw brief",
-      "approach_caption": "Deterministic receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+      "approach_title": "Fixture-rendered baseline - Raw brief",
+      "approach_caption": "Fixture-rendered baseline receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
     },
     {
       "id": "deterministic-with-judgmentkit",
@@ -1477,11 +1477,11 @@
       "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
       "use_case_index_path": "examples/model-ui/field-service-dispatch/index.html",
       "row_id": "deterministic",
-      "row_label": "Deterministic",
+      "row_label": "Fixture-rendered baseline",
       "column_id": "with-judgmentkit",
       "column_label": "JudgmentKit skill context",
-      "title": "Deterministic - JudgmentKit skill context",
-      "model_label": "Deterministic renderer",
+      "title": "Fixture-rendered baseline - JudgmentKit skill context",
+      "model_label": "Scripted fixture renderer",
       "generation_source": "deterministic",
       "provider": "none",
       "model": "none",
@@ -1506,7 +1506,7 @@
       "capture_file": null,
       "capture_provenance": {
         "status": "captured",
-        "capture_type": "deterministic-renderer",
+        "capture_type": "fixture-rendered-baseline",
         "captured_at": "2026-05-13",
         "runner": "scripts/demo-model-ui-matrix.mjs",
         "provider": "none",
@@ -1516,12 +1516,12 @@
         "frontend_context_status": "ready_for_frontend_implementation",
         "frontend_skill_context_status": "ready",
         "capture_quality": null,
-        "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+        "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
       },
       "lms_context": null,
       "capture_quality": null,
       "prompt_sha256": null,
-      "source_context_sha256": "25f7c686512bba77e9d95a7f8d5eb122e4dea44bdf8a529eebecb5e17ce81526",
+      "source_context_sha256": "3ea36f25bc857453d8794804af012da626c15a0d071b0d999a16f66a64309f73",
       "raw_response_sha256": null,
       "frontend_context_status": "ready_for_frontend_implementation",
       "frontend_skill_context_status": "ready",
@@ -1575,8 +1575,8 @@
       "render_source": "deterministic_frontend_skill_html",
       "visible_render_source": "deterministic_frontend_skill_html",
       "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
-      "approach_title": "Deterministic - JudgmentKit skill context",
-      "approach_caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
+      "approach_title": "Fixture-rendered baseline - JudgmentKit skill context",
+      "approach_caption": "Fixture-rendered baseline receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
     },
     {
       "id": "deterministic-material-ui-only",
@@ -1585,11 +1585,11 @@
       "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
       "use_case_index_path": "examples/model-ui/field-service-dispatch/index.html",
       "row_id": "deterministic",
-      "row_label": "Deterministic",
+      "row_label": "Fixture-rendered baseline",
       "column_id": "material-ui-only",
       "column_label": "Material UI only",
-      "title": "Deterministic - Material UI only",
-      "model_label": "Deterministic renderer",
+      "title": "Fixture-rendered baseline - Material UI only",
+      "model_label": "Scripted fixture renderer",
       "generation_source": "deterministic",
       "provider": "none",
       "model": "none",
@@ -1614,7 +1614,7 @@
       "capture_file": null,
       "capture_provenance": {
         "status": "captured",
-        "capture_type": "deterministic-renderer",
+        "capture_type": "fixture-rendered-baseline",
         "captured_at": "2026-05-13",
         "runner": "scripts/demo-model-ui-matrix.mjs",
         "provider": "none",
@@ -1624,7 +1624,7 @@
         "frontend_context_status": null,
         "frontend_skill_context_status": null,
         "capture_quality": null,
-        "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+        "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
       },
       "lms_context": null,
       "capture_quality": null,
@@ -1639,8 +1639,8 @@
       "render_source": "deterministic_material_ui_ssr",
       "visible_render_source": "deterministic_material_ui_ssr",
       "rendering_policy": "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.",
-      "approach_title": "Deterministic - Material UI only",
-      "approach_caption": "Deterministic is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit."
+      "approach_title": "Fixture-rendered baseline - Material UI only",
+      "approach_caption": "Fixture-rendered baseline is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit."
     },
     {
       "id": "deterministic-judgmentkit-material-ui",
@@ -1649,11 +1649,11 @@
       "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
       "use_case_index_path": "examples/model-ui/field-service-dispatch/index.html",
       "row_id": "deterministic",
-      "row_label": "Deterministic",
+      "row_label": "Fixture-rendered baseline",
       "column_id": "judgmentkit-material-ui",
       "column_label": "JudgmentKit skill + Material UI",
-      "title": "Deterministic - JudgmentKit skill + Material UI",
-      "model_label": "Deterministic renderer",
+      "title": "Fixture-rendered baseline - JudgmentKit skill + Material UI",
+      "model_label": "Scripted fixture renderer",
       "generation_source": "deterministic",
       "provider": "none",
       "model": "none",
@@ -1678,7 +1678,7 @@
       "capture_file": null,
       "capture_provenance": {
         "status": "captured",
-        "capture_type": "deterministic-renderer",
+        "capture_type": "fixture-rendered-baseline",
         "captured_at": "2026-05-13",
         "runner": "scripts/demo-model-ui-matrix.mjs",
         "provider": "none",
@@ -1688,12 +1688,12 @@
         "frontend_context_status": "ready_for_frontend_implementation",
         "frontend_skill_context_status": "ready",
         "capture_quality": null,
-        "notes": "Rendered deterministically from the matrix context. No provider or model call is used."
+        "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
       },
       "lms_context": null,
       "capture_quality": null,
       "prompt_sha256": null,
-      "source_context_sha256": "2407998cea8a2bbe51b45d7a0e52d8993512e0767aa69455fc75a571e1a11d69",
+      "source_context_sha256": "0ff64438193914d07053c0d051376bb3f913b0e130a223af5958e708ffb28ec3",
       "raw_response_sha256": null,
       "frontend_context_status": "ready_for_frontend_implementation",
       "frontend_skill_context_status": "ready",
@@ -1747,8 +1747,8 @@
       "render_source": "deterministic_frontend_skill_material_ui_ssr",
       "visible_render_source": "deterministic_frontend_skill_material_ui_ssr",
       "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed handoff plus compiled frontend skill context.",
-      "approach_title": "Deterministic - JudgmentKit skill + Material UI",
-      "approach_caption": "Deterministic receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path."
+      "approach_title": "Fixture-rendered baseline - JudgmentKit skill + Material UI",
+      "approach_caption": "Fixture-rendered baseline receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path."
     },
     {
       "id": "gemma4-lms-no-judgmentkit",

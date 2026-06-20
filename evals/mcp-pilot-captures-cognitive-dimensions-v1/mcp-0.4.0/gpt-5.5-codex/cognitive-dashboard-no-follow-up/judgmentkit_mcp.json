@@ -1,0 +1,48 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "cognitive-dashboard-no-follow-up",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.4.0",
+  "mcp_url": "http://127.0.0.1:64189/mcp",
+  "mcp_metadata_sha256": "8345f96bde3433fbd308cf33f1e2c4e963b9ed2d013871a91b30764c0e4662e6",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "review_cognitive_dimensions_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "470b20895bfa98197279dd0382e7cd39394d34709ab8b557235ee38de7d139e4",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-06-19T23:39:49.364Z",
+  "duration_ms": 25594,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "9c4d7b8566fad741e09d7e4615b9e1ff9291be29c1a5b41a3b93c2b9a1742717",
+  "prompt_sha256": "13089d4579d1eee7cd61be9ac9a1f0635ca173e48a951596915da66d30068d35",
+  "mcp_context_sha256": "9df6edb82f373b0ff678c2a595fc38b9ece35a43a3f66c831dfc012e404bb048",
+  "raw_response_sha256": "30d7d7a5ca76d13eafc62e15465914558587c64762c2058716a9c9ccd483d3ad",
+  "raw_response": "{\"response\":\"Reject the proposal. It turns the operations lead's work into passive metric checking and chart refresh, but the source brief asks for deciding which fulfillment exception needs follow-up today. It omits exception meaning, accountable owner, freshness, and concrete next action, so it cannot be trusted for the requested workflow.\",\"next_action\":\"Repair as an exception follow-up dashboard: rank today's exceptions, explain why each matters, show owner and freshness, keep supporting evidence beside the action, expose decision-changing dependencies as operational status, and add a validation or follow-up path before the lead commits.\",\"questions\":[],\"handoff\":\"Decision: reject; Owner: dashboard workflow designer; Required fix: replace metric-only monitoring with exception triage showing meaning, owner, freshness, dependencies, and next action; Verification: operations lead can choose and validate today's follow-up from the dashboard.\",\"rationale\":\"The source activity is exception triage, not general performance monitoring. The submitted workflow lacks follow-up mechanics, hides dependencies that could change the decision, and provides no progressive evaluation before action, making it mismatched to the operations lead's daily decision.\"}",
+  "parsed": {
+    "response": "Reject the proposal. It turns the operations lead's work into passive metric checking and chart refresh, but the source brief asks for deciding which fulfillment exception needs follow-up today. It omits exception meaning, accountable owner, freshness, and concrete next action, so it cannot be trusted for the requested workflow.",
+    "next_action": "Repair as an exception follow-up dashboard: rank today's exceptions, explain why each matters, show owner and freshness, keep supporting evidence beside the action, expose decision-changing dependencies as operational status, and add a validation or follow-up path before the lead commits.",
+    "questions": [],
+    "handoff": "Decision: reject; Owner: dashboard workflow designer; Required fix: replace metric-only monitoring with exception triage showing meaning, owner, freshness, dependencies, and next action; Verification: operations lead can choose and validate today's follow-up from the dashboard.",
+    "rationale": "The source activity is exception triage, not general performance monitoring. The submitted workflow lacks follow-up mechanics, hides dependencies that could change the decision, and provides no progressive evaluation before action, making it mismatched to the operations lead's daily decision."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "bd6536089b6956b130da3e3c91f90c4894a8099850cd35c4c1eacb96c87620e4",
+    "stderr_sha256": "0d67bbf2c37723a9592e565933ab4d11c0c5e9903aebacde085c682edb91015c",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

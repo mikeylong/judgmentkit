@@ -9,12 +9,13 @@ Use JudgmentKit before UI generation, UI critique, implementation planning, or h
 3. Use the review packet to decide whether to proceed, ask targeted questions, or review a model-proposed activity candidate.
 4. Call `recommend_surface_types` to classify the activity purpose before workflow or frontend implementation guidance.
 5. If a model or agent proposes a UI workflow, call `review_ui_workflow_candidate` before treating it as acceptable.
-6. Call `create_ui_implementation_contract` using repo evidence, external UI authority evidence, or JudgmentKit's portable defaults.
-7. Call `create_ui_generation_handoff` on the reviewed workflow with the implementation contract before generating UI.
-8. Call `create_frontend_generation_context` when frontend implementation guidance needs a selected surface type, project frontend context, and verification expectations.
-9. Call `create_frontend_implementation_skill_context` when the implementing agent needs a compiled frontend skill packet that is portable across MCP clients.
-10. Generate or critique UI from the frontend context and skill context only after the activity, decision, outcome, disclosure boundary, workflow candidate, surface type, and implementation contract are clear enough.
-11. Call `review_ui_implementation_candidate` on generated code or evidence before accepting the result.
+6. Call `review_cognitive_dimensions_candidate` when a workflow or implementation candidate needs Cognitive Dimensions review for mapping, visibility, hidden dependencies, premature commitment, progressive evaluation, change cost, mental operations, or disclosure.
+7. Call `create_ui_implementation_contract` using repo evidence, external UI authority evidence, or JudgmentKit's portable defaults.
+8. Call `create_ui_generation_handoff` on the reviewed workflow with the implementation contract before generating UI. Pass the Cognitive Dimensions review when it should block handoff until ready.
+9. Call `create_frontend_generation_context` when frontend implementation guidance needs a selected surface type, project frontend context, and verification expectations.
+10. Call `create_frontend_implementation_skill_context` when the implementing agent needs a compiled frontend skill packet that is portable across MCP clients.
+11. Generate or critique UI from the frontend context and skill context only after the activity, decision, outcome, disclosure boundary, workflow candidate, surface type, and implementation contract are clear enough.
+12. Call `review_ui_implementation_candidate` on generated code or evidence before accepting the result.
 
 ## Rules For Agents
 
@@ -27,6 +28,7 @@ Use JudgmentKit before UI generation, UI critique, implementation planning, or h
 - Keep implementation terms out of product UI unless the activity is setup, debugging, auditing, integration, or explicit source inspection.
 - When a model proposes an activity model, call `review_activity_model_candidate` before trusting it.
 - When a model proposes a UI workflow, call `review_ui_workflow_candidate` before implementing it.
+- Use Cognitive Dimensions findings as review diagnostics and repair guidance; do not copy Cognitive Dimensions terminology into product UI unless the product surface is design review, setup, debugging, auditing, or integration.
 - Do not generate UI directly from a raw workflow review packet when `create_ui_generation_handoff` is available.
 - Do not expose raw skill files through MCP; use the compiled frontend skill context after the frontend context is ready.
 - Do not emit raw form controls or invent new UI variants when an approved primitive/helper is available.

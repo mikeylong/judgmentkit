@@ -796,7 +796,7 @@ function captureProvenance(output, capture) {
   if (output.generation_source !== "captured_model_output") {
     return {
       status: "captured",
-      capture_type: "deterministic-renderer",
+      capture_type: "fixture-rendered-baseline",
       captured_at: "2026-05-13",
       runner: "scripts/demo-model-ui-matrix.mjs",
       provider: "none",
@@ -807,7 +807,7 @@ function captureProvenance(output, capture) {
       frontend_skill_context_status: frontendSkillContextStatus,
       capture_quality: null,
       notes:
-        "Rendered deterministically from the matrix context. No provider or model call is used.",
+        "Scripted from fixed fixtures and local renderer code. No model generation is used.",
     };
   }
 
@@ -1613,7 +1613,7 @@ ${cards}
 function renderDetailsRow(artifact) {
   const captureLabel = artifact.capture_file
     ? `Transcript: ${artifact.capture_file}`
-    : "Rendered deterministically; no provider call.";
+    : "Fixture-rendered baseline; no model generation.";
 
   return `
         <article class="details-row">

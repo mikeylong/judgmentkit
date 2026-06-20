@@ -1,0 +1,1165 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ED Flow Board</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%230f6b78'/%3E%3Cpath d='M4 12h16M12 4v16' stroke='white' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E">
+    <style>
+      :root {
+        color-scheme: light;
+        --canvas: #f4f2ed;
+        --surface: #ffffff;
+        --surface-strong: #fbfaf6;
+        --ink: #141414;
+        --muted: #555c60;
+        --border: #cbc7bc;
+        --focus: #0f6b78;
+        --open: #0f6f57;
+        --open-bg: #e5f4ee;
+        --occupied: #42515a;
+        --occupied-bg: #edf1f3;
+        --cleaning: #8a5a00;
+        --cleaning-bg: #fff0c7;
+        --hold: #6750a4;
+        --hold-bg: #f1ecff;
+        --critical: #9b2f2f;
+        --critical-bg: #ffe7e5;
+        --closed: #666666;
+        --closed-bg: #ececea;
+        --warning: #835400;
+        --warning-bg: #fff3d8;
+        --radius: 8px;
+        --shadow: 0 1px 2px rgba(20, 20, 20, 0.08);
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--canvas);
+        color: var(--ink);
+      }
+
+      body.privacy-on .maskable {
+        color: transparent;
+        text-shadow: 0 0 0.8rem rgba(20, 20, 20, 0.58);
+      }
+
+      button {
+        min-height: 44px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--surface);
+        color: var(--ink);
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button:hover {
+        border-color: var(--focus);
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.72;
+      }
+
+      button:focus-visible,
+      a:focus-visible {
+        outline: 3px solid rgba(15, 107, 120, 0.36);
+        outline-offset: 2px;
+      }
+
+      .app-shell {
+        display: grid;
+        min-height: 100vh;
+        grid-template-rows: auto auto 1fr;
+      }
+
+      .board-header {
+        display: grid;
+        gap: 1rem;
+        padding: 1rem 1.25rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+      }
+
+      .header-main {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .eyebrow {
+        margin: 0 0 0.25rem;
+        color: var(--muted);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 0;
+        font-size: clamp(2rem, 4vw, 3.25rem);
+        line-height: 1;
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+      }
+
+      .icon-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.45rem;
+        padding: 0.55rem 0.75rem;
+      }
+
+      .icon-button svg,
+      .panel-title svg,
+      .metric-label svg {
+        width: 1.05rem;
+        height: 1.05rem;
+        flex: 0 0 auto;
+      }
+
+      .freshness {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid #a85e00;
+        border-radius: var(--radius);
+        background: var(--warning-bg);
+        color: #3f2b00;
+        font-weight: 760;
+      }
+
+      .freshness[data-freshness="live"] {
+        border-color: #8ab6a5;
+        background: #edf8f3;
+        color: #173f33;
+      }
+
+      .freshness strong {
+        margin-right: 0.4rem;
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(8.5rem, 1fr));
+        gap: 0.65rem;
+        padding: 0.85rem 1.25rem;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface-strong);
+      }
+
+      .metric {
+        min-width: 0;
+        padding: 0.8rem;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .metric-label {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        margin-bottom: 0.35rem;
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 800;
+      }
+
+      .metric-value {
+        display: block;
+        font-variant-numeric: tabular-nums;
+        font-size: clamp(1.85rem, 3vw, 2.7rem);
+        font-weight: 860;
+        line-height: 1;
+      }
+
+      .metric-note {
+        margin: 0.35rem 0 0;
+        color: var(--muted);
+        font-size: 0.84rem;
+      }
+
+      .workspace {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(21rem, 26rem);
+        gap: 1rem;
+        padding: 1rem 1.25rem 1.25rem;
+      }
+
+      .main-column,
+      .side-column {
+        display: grid;
+        align-content: start;
+        gap: 1rem;
+        min-width: 0;
+      }
+
+      .panel {
+        min-width: 0;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--surface);
+        box-shadow: var(--shadow);
+      }
+
+      .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.95rem 1rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .panel-title {
+        display: flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin: 0;
+        font-size: 1.05rem;
+      }
+
+      .filter-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+      }
+
+      .filter-group button {
+        min-height: 38px;
+        padding: 0.35rem 0.65rem;
+        border-radius: 999px;
+        font-size: 0.86rem;
+      }
+
+      .filter-group button[aria-pressed="true"] {
+        border-color: var(--focus);
+        background: #e5f4f6;
+        color: #0a4650;
+      }
+
+      .zone-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.85rem;
+        padding: 1rem;
+      }
+
+      .zone {
+        min-width: 0;
+        padding: 0.75rem;
+        border: 1px solid #dedbd2;
+        border-radius: var(--radius);
+        background: #fdfcf8;
+      }
+
+      .zone h3 {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.65rem;
+        font-size: 1rem;
+      }
+
+      .zone-count {
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+        font-size: 0.86rem;
+        font-weight: 760;
+      }
+
+      .rooms {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(8.1rem, 1fr));
+        gap: 0.55rem;
+      }
+
+      .room-card {
+        display: grid;
+        min-height: 8.1rem;
+        align-content: space-between;
+        gap: 0.45rem;
+        padding: 0.7rem;
+        border-width: 2px;
+        text-align: left;
+      }
+
+      .room-card[aria-pressed="true"] {
+        box-shadow: 0 0 0 3px rgba(15, 107, 120, 0.24);
+      }
+
+      .room-card[hidden],
+      .queue-item[hidden] {
+        display: none;
+      }
+
+      .room-top {
+        display: flex;
+        align-items: start;
+        justify-content: space-between;
+        gap: 0.5rem;
+      }
+
+      .room-id {
+        font-size: clamp(1.4rem, 2vw, 2.15rem);
+        font-weight: 900;
+        line-height: 1;
+      }
+
+      .room-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.45rem;
+        flex-wrap: wrap;
+      }
+
+      .status-badge,
+      .acuity-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        width: fit-content;
+        border-radius: 999px;
+        padding: 0.18rem 0.48rem;
+        font-size: 0.76rem;
+        font-weight: 850;
+        line-height: 1.2;
+      }
+
+      .acuity-badge {
+        border: 1px solid currentColor;
+        background: #fff;
+      }
+
+      .state-open {
+        border-color: var(--open);
+        background: var(--open-bg);
+      }
+
+      .state-open .status-badge {
+        background: var(--open);
+        color: #fff;
+      }
+
+      .state-occupied {
+        border-color: var(--occupied);
+        background: var(--occupied-bg);
+      }
+
+      .state-occupied .status-badge {
+        background: var(--occupied);
+        color: #fff;
+      }
+
+      .state-cleaning {
+        border-color: var(--cleaning);
+        background: var(--cleaning-bg);
+      }
+
+      .state-cleaning .status-badge {
+        background: var(--cleaning);
+        color: #fff;
+      }
+
+      .state-hold {
+        border-color: var(--hold);
+        background: var(--hold-bg);
+      }
+
+      .state-hold .status-badge {
+        background: var(--hold);
+        color: #fff;
+      }
+
+      .state-critical {
+        border-color: var(--critical);
+        background: var(--critical-bg);
+      }
+
+      .state-critical .status-badge {
+        background: var(--critical);
+        color: #fff;
+      }
+
+      .state-closed {
+        border-color: var(--closed);
+        background: var(--closed-bg);
+      }
+
+      .state-closed .status-badge {
+        background: var(--closed);
+        color: #fff;
+      }
+
+      .timer {
+        color: #2c3033;
+        font-variant-numeric: tabular-nums;
+        font-weight: 820;
+      }
+
+      .legend {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(6.8rem, 1fr));
+        gap: 0.5rem;
+        padding: 0 1rem 1rem;
+      }
+
+      .legend span {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        min-width: 0;
+        font-size: 0.82rem;
+        font-weight: 780;
+      }
+
+      .legend i {
+        display: inline-block;
+        width: 0.9rem;
+        height: 0.9rem;
+        border: 2px solid currentColor;
+        border-radius: 4px;
+      }
+
+      .empty-state,
+      .error-state,
+      .loading-state {
+        margin: 1rem;
+        padding: 0.9rem;
+        border-radius: var(--radius);
+        background: #f8f7f2;
+        color: var(--muted);
+        font-weight: 760;
+      }
+
+      .empty-state[hidden],
+      .error-state[hidden],
+      .loading-state[hidden] {
+        display: none;
+      }
+
+      .attention-list,
+      .bottleneck-list,
+      .huddle-list,
+      .feedback-list,
+      .detail-list {
+        display: grid;
+        gap: 0.55rem;
+        padding: 1rem;
+        margin: 0;
+        list-style: none;
+      }
+
+      .queue-item,
+      .bottleneck-item {
+        display: grid;
+        width: 100%;
+        gap: 0.35rem;
+        padding: 0.7rem;
+        text-align: left;
+      }
+
+      .queue-item[aria-pressed="true"] {
+        border-color: var(--focus);
+        box-shadow: 0 0 0 3px rgba(15, 107, 120, 0.24);
+      }
+
+      .queue-title,
+      .bottleneck-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        font-weight: 850;
+      }
+
+      .queue-meta,
+      .bottleneck-meta {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        color: var(--muted);
+        font-size: 0.84rem;
+        font-weight: 700;
+      }
+
+      .risk-text {
+        color: var(--critical);
+        font-weight: 820;
+      }
+
+      .detail-panel {
+        position: sticky;
+        top: 1rem;
+      }
+
+      .detail-body {
+        padding: 1rem;
+      }
+
+      .detail-kicker {
+        color: var(--muted);
+        font-size: 0.82rem;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+
+      .detail-heading {
+        margin: 0.1rem 0 0.35rem;
+        font-size: clamp(1.5rem, 3vw, 2.2rem);
+      }
+
+      .detail-summary {
+        margin-bottom: 0.85rem;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .detail-list {
+        padding: 0;
+      }
+
+      .detail-list li {
+        display: grid;
+        grid-template-columns: minmax(7rem, 0.8fr) minmax(0, 1fr);
+        gap: 0.6rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e4e1d8;
+      }
+
+      .detail-list span:first-child {
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .action-group {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.5rem;
+        margin-top: 1rem;
+      }
+
+      .action-primary {
+        border-color: var(--focus);
+        background: #0f6b78;
+        color: #fff;
+      }
+
+      .action-risk {
+        border-color: var(--critical);
+        background: var(--critical);
+        color: #fff;
+      }
+
+      .status-message {
+        margin-top: 1rem;
+        padding: 0.75rem;
+        border-radius: var(--radius);
+        background: #e9f5f4;
+        color: #123f3d;
+        font-weight: 780;
+      }
+
+      .note-panel {
+        padding: 1rem;
+      }
+
+      .huddle-list,
+      .feedback-list {
+        padding: 0;
+      }
+
+      .huddle-list li,
+      .feedback-list li {
+        padding: 0.55rem 0;
+        border-bottom: 1px solid #e4e1d8;
+        font-weight: 720;
+      }
+
+      .privacy-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        min-height: 2rem;
+        padding: 0.3rem 0.55rem;
+        border-radius: 999px;
+        background: #f0f4f4;
+        color: #234247;
+        font-size: 0.82rem;
+        font-weight: 820;
+      }
+
+      @media (max-width: 1120px) {
+        .metrics {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .workspace {
+          grid-template-columns: 1fr;
+        }
+
+        .detail-panel {
+          position: static;
+        }
+      }
+
+      @media (max-width: 720px) {
+        .board-header,
+        .metrics,
+        .workspace {
+          padding-left: 0.75rem;
+          padding-right: 0.75rem;
+        }
+
+        .header-main {
+          align-items: start;
+          flex-direction: column;
+        }
+
+        .header-actions {
+          justify-content: start;
+        }
+
+        .metrics,
+        .zone-grid,
+        .legend {
+          grid-template-columns: 1fr;
+        }
+
+        .panel-header {
+          align-items: start;
+          flex-direction: column;
+        }
+
+        .rooms {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .room-card {
+          min-height: 7.4rem;
+        }
+
+        .action-group {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 420px) {
+        .rooms {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .room-card[data-changed="true"] {
+          animation: changed-pulse 900ms ease-out 1;
+        }
+      }
+
+      @keyframes changed-pulse {
+        0% {
+          transform: translateY(-1px);
+        }
+        100% {
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app-shell" data-er-flow-board>
+      <header class="board-header">
+        <div class="header-main">
+          <div>
+            <p class="eyebrow">Central ED - active shift</p>
+            <h1>ED Flow Board</h1>
+          </div>
+          <div class="header-actions" aria-label="Board controls">
+            <span class="privacy-indicator" data-privacy-label>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+                <path d="M12 8v4" />
+                <path d="M12 16h.01" />
+              </svg>
+              Privacy ready
+            </span>
+            <button class="icon-button" type="button" data-privacy-toggle aria-pressed="false">
+              Privacy mode
+            </button>
+            <button class="icon-button" type="button" data-stale-toggle aria-pressed="false">
+              Last-known view
+            </button>
+            <button class="icon-button" type="button" data-refresh>
+              <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+                <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+                <path d="M16 16h5v5" />
+              </svg>
+              Refresh sample state
+            </button>
+          </div>
+        </div>
+        <div class="freshness" data-freshness="live" role="status" aria-live="polite">
+          <span><strong data-freshness-state>Live sample</strong><span data-freshness-copy>Updated 08:42. 4 room changes in the last 15 minutes.</span></span>
+          <span>Verify in the care record before action.</span>
+        </div>
+      </header>
+
+      <section class="metrics" aria-label="Capacity summary">
+        <article class="metric" data-summary-metric="open">
+          <span class="metric-label">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M2 4v16" />
+              <path d="M2 8h18a2 2 0 0 1 2 2v10" />
+              <path d="M2 17h20" />
+              <path d="M6 8v9" />
+            </svg>
+            Open staffed rooms
+          </span>
+          <strong class="metric-value" data-metric-open>3</strong>
+          <p class="metric-note">3 ready now, 2 after turnover</p>
+        </article>
+        <article class="metric" data-summary-metric="occupied">
+          <span class="metric-label">Occupied</span>
+          <strong class="metric-value" data-metric-occupied>13</strong>
+          <p class="metric-note">6 admitted holds</p>
+        </article>
+        <article class="metric" data-summary-metric="turnover">
+          <span class="metric-label">Turnover</span>
+          <strong class="metric-value" data-metric-turnover>2</strong>
+          <p class="metric-note">1 over 20 minutes</p>
+        </article>
+        <article class="metric" data-summary-metric="critical">
+          <span class="metric-label">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+              <path d="M12 9v4" />
+              <path d="M12 17h.01" />
+            </svg>
+            Critical rooms
+          </span>
+          <strong class="metric-value" data-metric-critical>2</strong>
+          <p class="metric-note">Resus team active</p>
+        </article>
+        <article class="metric" data-summary-metric="waiting">
+          <span class="metric-label">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="10" x2="14" y1="2" y2="2" />
+              <line x1="12" x2="15" y1="14" y2="11" />
+              <circle cx="12" cy="14" r="8" />
+            </svg>
+            Waiting
+          </span>
+          <strong class="metric-value" data-metric-waiting>22</strong>
+          <p class="metric-note">3 ESI 2, longest 1h 48m</p>
+        </article>
+        <article class="metric" data-summary-metric="staff">
+          <span class="metric-label">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 21a8 8 0 0 0-16 0" />
+              <circle cx="10" cy="8" r="5" />
+              <path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3" />
+            </svg>
+            Staffed capacity
+          </span>
+          <strong class="metric-value" data-metric-staffed>31</strong>
+          <p class="metric-note">4 rooms closed or blocked</p>
+        </article>
+      </section>
+
+      <section class="workspace" aria-label="ED flow workspace">
+        <div class="main-column">
+          <section class="panel" aria-labelledby="rooms-title">
+            <div class="panel-header">
+              <h2 id="rooms-title" class="panel-title">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 4v16" />
+                  <path d="M2 8h18a2 2 0 0 1 2 2v10" />
+                  <path d="M2 17h20" />
+                  <path d="M6 8v9" />
+                </svg>
+                Zone occupancy grid
+              </h2>
+              <div class="filter-group" role="group" aria-label="Filter rooms by status">
+                <button type="button" data-filter="all" aria-pressed="true">All</button>
+                <button type="button" data-filter="open" aria-pressed="false">Open</button>
+                <button type="button" data-filter="cleaning" aria-pressed="false">Turnover</button>
+                <button type="button" data-filter="critical" aria-pressed="false">Critical</button>
+                <button type="button" data-filter="hold" aria-pressed="false">Hold</button>
+              </div>
+            </div>
+            <p class="loading-state" data-state="loading" hidden>Updating room board...</p>
+            <p class="error-state" data-state="error" hidden>Room board unavailable. Last known room state remains visible.</p>
+            <p class="empty-state" data-state="empty" hidden>No rooms match this filter.</p>
+            <div class="zone-grid" data-zone-grid></div>
+            <div class="legend" aria-label="Room status legend">
+              <span style="color: var(--open)"><i aria-hidden="true"></i> Open clean</span>
+              <span style="color: var(--occupied)"><i aria-hidden="true"></i> Occupied</span>
+              <span style="color: var(--cleaning)"><i aria-hidden="true"></i> Turnover</span>
+              <span style="color: var(--hold)"><i aria-hidden="true"></i> Hold or blocked</span>
+              <span style="color: var(--critical)"><i aria-hidden="true"></i> Critical</span>
+              <span style="color: var(--closed)"><i aria-hidden="true"></i> Closed</span>
+            </div>
+          </section>
+
+          <section class="panel" aria-labelledby="bottleneck-title">
+            <div class="panel-header">
+              <h2 id="bottleneck-title" class="panel-title">Disposition bottlenecks</h2>
+            </div>
+            <ul class="bottleneck-list">
+              <li class="bottleneck-item">
+                <span class="bottleneck-title">Admit holds <strong>6</strong></span>
+                <span class="bottleneck-meta">Longest 7h 12m - house bed pending</span>
+              </li>
+              <li class="bottleneck-item">
+                <span class="bottleneck-title">Transfer pending <strong>2</strong></span>
+                <span class="bottleneck-meta">One needs monitored transport</span>
+              </li>
+              <li class="bottleneck-item">
+                <span class="bottleneck-title">Discharge ready <strong>3</strong></span>
+                <span class="bottleneck-meta">Rooms 12, F4, OBS-3 can clear beds</span>
+              </li>
+              <li class="bottleneck-item">
+                <span class="bottleneck-title">Consult delay <strong>4</strong></span>
+                <span class="bottleneck-meta">Two blocking placement decisions</span>
+              </li>
+            </ul>
+          </section>
+        </div>
+
+        <aside class="side-column" aria-label="Attention and selected detail">
+          <section class="panel" aria-labelledby="attention-title">
+            <div class="panel-header">
+              <h2 id="attention-title" class="panel-title">
+                <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3" />
+                  <path d="M12 9v4" />
+                  <path d="M12 17h.01" />
+                </svg>
+                Needs attention
+              </h2>
+            </div>
+            <ul class="attention-list" data-attention-list></ul>
+          </section>
+
+          <section class="panel detail-panel" aria-labelledby="detail-title">
+            <div class="panel-header">
+              <h2 id="detail-title" class="panel-title">Selected detail</h2>
+            </div>
+            <div class="detail-body" data-detail-panel></div>
+          </section>
+
+          <section class="panel note-panel" aria-labelledby="huddle-title">
+            <h2 id="huddle-title" class="panel-title">Shift huddle note</h2>
+            <ul class="huddle-list">
+              <li>Pull next ESI 2 when Room 08 turns over.</li>
+              <li>Ask house supervisor about 6 admit holds.</li>
+              <li>Clear three discharge-ready rooms before next ambulance wave.</li>
+            </ul>
+            <h3>Feedback questions</h3>
+            <ul class="feedback-list">
+              <li>Which room statuses change your next move fastest?</li>
+              <li>What waiting-room flag is missing or too noisy?</li>
+              <li>What can be hidden in shared view without losing safety signal?</li>
+            </ul>
+          </section>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const zones = [
+          {
+            name: "Main ED",
+            rooms: [
+              { id: "01", state: "critical", label: "Critical", acuity: "ESI 1", time: "18m", owner: "RN Vega", summary: "Resus active", reason: "Airway team in room", next: "Check critical room" },
+              { id: "02", state: "occupied", label: "Occupied", acuity: "ESI 3", time: "1h 05m", owner: "RN Kim", summary: "Abdominal pain category", reason: "Imaging wait", next: "Track imaging/lab wait" },
+              { id: "03", state: "open", label: "Open clean", acuity: "Ready", time: "Now", owner: "Zone A", summary: "Staffed and usable", reason: "No blocker", next: "Assign open room" },
+              { id: "04", state: "hold", label: "Admit hold", acuity: "ESI 2", time: "5h 44m", owner: "RN Lewis", summary: "Monitored bed pending", reason: "House bed unavailable", next: "Prepare admission or transfer" },
+              { id: "05", state: "occupied", label: "Occupied", acuity: "ESI 3", time: "42m", owner: "RN Shah", summary: "Breathing complaint category", reason: "Provider assigned", next: "Check reassessment time" },
+              { id: "06", state: "cleaning", label: "Turnover", acuity: "Ready soon", time: "24m", owner: "EVS", summary: "EVS in progress", reason: "Over turnover threshold", next: "Prioritize turnover" },
+            ],
+          },
+          {
+            name: "Resus",
+            rooms: [
+              { id: "R1", state: "critical", label: "Critical", acuity: "ESI 1", time: "9m", owner: "Team lead", summary: "Trauma team active", reason: "Resus occupied", next: "Hold next resus space" },
+              { id: "R2", state: "open", label: "Open clean", acuity: "Ready", time: "Now", owner: "Charge", summary: "Held for incoming ambulance", reason: "High-acuity arrival expected", next: "Hold for resus" },
+              { id: "R3", state: "closed", label: "Closed", acuity: "Closed", time: "All shift", owner: "Staffing", summary: "Unstaffed space", reason: "No nurse assignment", next: "Do not count as available" },
+            ],
+          },
+          {
+            name: "Fast track",
+            rooms: [
+              { id: "F1", state: "occupied", label: "Occupied", acuity: "ESI 4", time: "38m", owner: "RN Dunn", summary: "Minor injury category", reason: "Discharge instructions pending", next: "Clear discharge-ready room" },
+              { id: "F2", state: "open", label: "Open clean", acuity: "Ready", time: "Now", owner: "Fast track", summary: "Staffed and usable", reason: "No blocker", next: "Assign open room" },
+              { id: "F3", state: "occupied", label: "Occupied", acuity: "ESI 4", time: "1h 18m", owner: "RN Dunn", summary: "Procedure bay", reason: "Procedure supplies pending", next: "Check supply blocker" },
+              { id: "F4", state: "occupied", label: "Discharge ready", acuity: "ESI 5", time: "52m", owner: "APP Chen", summary: "Discharge ready", reason: "Transport home pending", next: "Clear discharge-ready room" },
+            ],
+          },
+          {
+            name: "Behavioral health",
+            rooms: [
+              { id: "B1", state: "hold", label: "Safety setup", acuity: "ESI 2", time: "2h 02m", owner: "BH RN", summary: "Behavioral safety support", reason: "Sitter needed", next: "Escalate support need" },
+              { id: "B2", state: "occupied", label: "Occupied", acuity: "ESI 3", time: "3h 15m", owner: "BH RN", summary: "Placement review", reason: "Consult delay", next: "Select bottleneck" },
+              { id: "B3", state: "cleaning", label: "Turnover", acuity: "Ready soon", time: "12m", owner: "EVS", summary: "Room reset", reason: "Safety sweep", next: "Prioritize turnover" },
+            ],
+          },
+          {
+            name: "Observation",
+            rooms: [
+              { id: "OBS-1", state: "hold", label: "Admit hold", acuity: "ESI 3", time: "7h 12m", owner: "RN Osei", summary: "Boarding", reason: "Inpatient bed pending", next: "Escalate admit hold" },
+              { id: "OBS-2", state: "occupied", label: "Occupied", acuity: "ESI 3", time: "4h 22m", owner: "RN Osei", summary: "Serial reassessment", reason: "Lab trend pending", next: "Check reassessment time" },
+              { id: "OBS-3", state: "occupied", label: "Discharge ready", acuity: "ESI 4", time: "3h 48m", owner: "APP Ruiz", summary: "Discharge ready", reason: "Ride pending", next: "Clear discharge-ready room" },
+            ],
+          },
+        ];
+
+        const attentionItems = [
+          { id: "wait-a", type: "waiting", label: "High-acuity waiting", acuity: "ESI 2", wait: "1h 14m", summary: "Chest pain protocol", reason: "Repeat vitals due", next: "Escalate high-acuity waiting patient" },
+          { id: "wait-b", type: "waiting", label: "Longest wait", acuity: "ESI 3", wait: "1h 48m", summary: "Abdominal pain category", reason: "No room assignment yet", next: "Pull when Room 08 turns over" },
+          { id: "room-06", type: "room", roomId: "06", label: "Turnover overdue", acuity: "Ready soon", wait: "24m", summary: "EVS in progress", reason: "Open staffed room blocked by turnover", next: "Prioritize turnover" },
+          { id: "obs-1", type: "room", roomId: "OBS-1", label: "Admit hold", acuity: "ESI 3", wait: "7h 12m", summary: "Boarding", reason: "House bed pending", next: "Ask house supervisor" },
+          { id: "privacy", type: "privacy", label: "Shared-view check", acuity: "Privacy", wait: "Now", summary: "Minimum necessary details only", reason: "Wall display visible from corridor", next: "Use privacy mode in shared areas" },
+        ];
+
+        const stateClass = (state) => `state-${state}`;
+        const allRooms = () => zones.flatMap((zone) => zone.rooms.map((room) => ({ ...room, zone: zone.name })));
+        const zoneGrid = document.querySelector("[data-zone-grid]");
+        const attentionList = document.querySelector("[data-attention-list]");
+        const detailPanel = document.querySelector("[data-detail-panel]");
+        const emptyState = document.querySelector("[data-state='empty']");
+        const loadingState = document.querySelector("[data-state='loading']");
+        const errorState = document.querySelector("[data-state='error']");
+        const freshness = document.querySelector("[data-freshness]");
+        const freshnessState = document.querySelector("[data-freshness-state]");
+        const freshnessCopy = document.querySelector("[data-freshness-copy]");
+        const privacyToggle = document.querySelector("[data-privacy-toggle]");
+        const privacyLabel = document.querySelector("[data-privacy-label]");
+        const staleToggle = document.querySelector("[data-stale-toggle]");
+        const refreshButton = document.querySelector("[data-refresh]");
+        let selected = allRooms()[0];
+        let activeFilter = "all";
+        let privacyOn = false;
+        let staleOn = false;
+
+        function mask(value) {
+          return privacyOn ? "Details masked" : value;
+        }
+
+        function matchesFilter(room) {
+          if (activeFilter === "all") return true;
+          return room.state === activeFilter;
+        }
+
+        function renderMetrics() {
+          const rooms = allRooms();
+          document.querySelector("[data-metric-open]").textContent = String(rooms.filter((room) => room.state === "open").length);
+          document.querySelector("[data-metric-occupied]").textContent = String(rooms.filter((room) => ["occupied", "hold", "critical"].includes(room.state)).length);
+          document.querySelector("[data-metric-turnover]").textContent = String(rooms.filter((room) => room.state === "cleaning").length);
+          document.querySelector("[data-metric-critical]").textContent = String(rooms.filter((room) => room.state === "critical").length);
+        }
+
+        function renderZones() {
+          zoneGrid.innerHTML = "";
+          let shown = 0;
+          for (const zone of zones) {
+            const section = document.createElement("section");
+            section.className = "zone";
+            section.setAttribute("aria-labelledby", `zone-${zone.name.replaceAll(" ", "-").toLowerCase()}`);
+            const visibleRooms = zone.rooms.filter(matchesFilter);
+            shown += visibleRooms.length;
+            section.innerHTML = `
+              <h3 id="zone-${zone.name.replaceAll(" ", "-").toLowerCase()}">
+                <span>${zone.name}</span>
+                <span class="zone-count">${visibleRooms.length} shown / ${zone.rooms.length}</span>
+              </h3>
+              <div class="rooms"></div>
+            `;
+            const roomsNode = section.querySelector(".rooms");
+            for (const room of visibleRooms) {
+              const button = document.createElement("button");
+              button.type = "button";
+              button.className = `room-card ${stateClass(room.state)}`;
+              button.dataset.roomId = room.id;
+              button.dataset.status = room.state;
+              button.dataset.acuity = room.acuity;
+              button.setAttribute("aria-pressed", selected.id === room.id ? "true" : "false");
+              button.setAttribute("aria-label", `${room.id}, ${room.label}, ${room.acuity}, ${room.time}, ${room.next}`);
+              if (room.state === "closed") {
+                button.disabled = true;
+                button.setAttribute("aria-disabled", "true");
+                button.title = `${room.label}: ${room.reason}. ${room.next}.`;
+              }
+              button.innerHTML = `
+                <span class="room-top">
+                  <span class="room-id">${room.id}</span>
+                  <span class="acuity-badge">${room.acuity}</span>
+                </span>
+                <span class="status-badge">${room.label}</span>
+                <span class="room-meta">
+                  <span class="timer">${room.time}</span>
+                  <span class="maskable">${mask(room.owner)}</span>
+                </span>
+              `;
+              if (!button.disabled) {
+                button.addEventListener("click", () => {
+                  selected = { ...room, zone: zone.name };
+                  renderZones();
+                  renderDetail();
+                });
+              }
+              roomsNode.append(button);
+            }
+            zoneGrid.append(section);
+          }
+          emptyState.hidden = shown !== 0;
+        }
+
+        function renderAttention() {
+          attentionList.innerHTML = "";
+          for (const item of attentionItems) {
+            const li = document.createElement("li");
+            const button = document.createElement("button");
+            button.type = "button";
+            button.className = "queue-item";
+            button.dataset.attentionItem = item.id;
+            button.setAttribute("aria-pressed", selected.id === item.roomId || selected.id === item.id ? "true" : "false");
+            button.innerHTML = `
+              <span class="queue-title">
+                <span>${item.label}</span>
+                <span class="acuity-badge">${item.acuity}</span>
+              </span>
+              <span class="queue-meta"><span>${item.wait}</span><span>${mask(item.summary)}</span></span>
+              <span class="risk-text">${item.next}</span>
+            `;
+            button.addEventListener("click", () => {
+              const room = item.roomId ? allRooms().find((entry) => entry.id === item.roomId) : null;
+              selected = room ? room : { id: item.id, zone: "Waiting", state: "critical", label: item.label, acuity: item.acuity, time: item.wait, owner: "Triage", summary: item.summary, reason: item.reason, next: item.next };
+              renderZones();
+              renderAttention();
+              renderDetail();
+            });
+            li.append(button);
+            attentionList.append(li);
+          }
+        }
+
+        function renderDetail() {
+          const selectedType = selected.zone === "Waiting" ? "Waiting item" : `${selected.zone} room`;
+          detailPanel.innerHTML = `
+            <p class="detail-kicker">${selectedType}</p>
+            <h3 class="detail-heading">${selected.id}</h3>
+            <p class="detail-summary maskable">${mask(selected.summary)}</p>
+            <ul class="detail-list">
+              <li><span>Status</span><strong>${selected.label}</strong></li>
+              <li><span>Acuity</span><strong>${selected.acuity}</strong></li>
+              <li><span>Time</span><strong>${selected.time}</strong></li>
+              <li><span>Assignment</span><strong class="maskable">${mask(selected.owner)}</strong></li>
+              <li><span>Reason</span><strong class="maskable">${mask(selected.reason)}</strong></li>
+              <li><span>Next step</span><strong>${selected.next}</strong></li>
+            </ul>
+            <div class="action-group" aria-label="Selected item actions">
+              <button class="action-primary" type="button">Mark for huddle</button>
+              <button type="button">Discuss assignment</button>
+              <button type="button">Flag turnover</button>
+              <button class="action-risk" type="button">Flag escalation</button>
+            </div>
+            <p class="status-message" role="status">Sample state only. Confirm in the care record before changing care or assignment.</p>
+          `;
+        }
+
+        function setFreshness() {
+          freshness.dataset.freshness = staleOn ? "stale" : "live";
+          freshnessState.textContent = staleOn ? "Last known sample" : "Live sample";
+          freshnessCopy.textContent = staleOn
+            ? "Last updated 08:12. Newer changes may not be visible."
+            : "Updated 08:42. 4 room changes in the last 15 minutes.";
+          staleToggle.setAttribute("aria-pressed", staleOn ? "true" : "false");
+        }
+
+        function setPrivacy() {
+          document.body.classList.toggle("privacy-on", privacyOn);
+          privacyToggle.setAttribute("aria-pressed", privacyOn ? "true" : "false");
+          privacyLabel.lastChild.textContent = privacyOn ? " Privacy on" : " Privacy ready";
+          renderZones();
+          renderAttention();
+          renderDetail();
+        }
+
+        document.querySelectorAll("[data-filter]").forEach((button) => {
+          button.addEventListener("click", () => {
+            activeFilter = button.dataset.filter;
+            document.querySelectorAll("[data-filter]").forEach((entry) => {
+              entry.setAttribute("aria-pressed", entry === button ? "true" : "false");
+            });
+            renderZones();
+          });
+        });
+
+        privacyToggle.addEventListener("click", () => {
+          privacyOn = !privacyOn;
+          setPrivacy();
+        });
+
+        staleToggle.addEventListener("click", () => {
+          staleOn = !staleOn;
+          setFreshness();
+        });
+
+        refreshButton.addEventListener("click", () => {
+          loadingState.hidden = false;
+          errorState.hidden = true;
+          setTimeout(() => {
+            loadingState.hidden = true;
+            staleOn = false;
+            setFreshness();
+            const changedRoom = document.querySelector("[data-room-id='06']");
+            if (changedRoom) {
+              changedRoom.dataset.changed = "true";
+              setTimeout(() => changedRoom.removeAttribute("data-changed"), 1000);
+            }
+          }, 350);
+        });
+
+        renderMetrics();
+        renderZones();
+        renderAttention();
+        renderDetail();
+        setFreshness();
+      })();
+    </script>
+  </body>
+</html>
