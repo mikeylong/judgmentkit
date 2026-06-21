@@ -38,7 +38,7 @@ assert.deepEqual(
   ],
 );
 assert.equal(metadata.name, "JudgmentKit");
-assert.equal(metadata.version, "0.6.0");
+assert.equal(metadata.version, "0.6.1");
 assert.deepEqual(metadata.capabilities.prompts, []);
 const toolsJson = JSON.stringify(tools);
 for (const legacyField of [

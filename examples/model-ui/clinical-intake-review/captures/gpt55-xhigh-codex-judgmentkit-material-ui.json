@@ -33,7 +33,7 @@
     "source_skill": "frontend-ui-implementation",
     "raw_skill_exposed": false,
     "surface_type": null,
-    "design_system_mode": "adapter_after_judgment",
+    "design_system_mode": "external_design_system",
     "design_system_name": "Material UI",
     "next_recommended_tool": "review_ui_implementation_candidate",
     "verification_checklist": [
