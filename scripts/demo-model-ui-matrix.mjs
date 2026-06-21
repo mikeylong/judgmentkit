@@ -767,8 +767,21 @@ async function readCapture(output, contextHash, options = {}) {
 function captureMatchesFrontendSkillSummary(capture, contextPayload) {
   function normalizeSummary(summary) {
     if (!summary) return null;
+    const designSystemMode =
+      /^no_design_system_.*provided$/.test(summary.design_system_mode ?? "")
+        ? "judgmentkit_default"
+        : /^adapter_after_/.test(summary.design_system_mode ?? "")
+          ? "external_design_system"
+          : summary.design_system_mode;
+    const designSystemName =
+      designSystemMode === "judgmentkit_default" && !summary.design_system_name
+        ? "JudgmentKit"
+        : summary.design_system_name;
+
     return {
       ...summary,
+      design_system_mode: designSystemMode,
+      design_system_name: designSystemName,
       verification_checklist: (summary.verification_checklist ?? []).filter(
         (item) => !isDefaultAdapterGuidanceLine(item),
       ),

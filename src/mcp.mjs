@@ -21,7 +21,7 @@ import {
 } from "./index.mjs";
 
 const MCP_SERVER_NAME = "JudgmentKit";
-const MCP_SERVER_VERSION = "0.5.0";
+const MCP_SERVER_VERSION = "0.6.0";
 
 const ANALYZE_TOOL = {
   name: "analyze_implementation_brief",
@@ -234,7 +234,7 @@ const UI_GENERATION_HANDOFF_TOOL = {
 const UI_IMPLEMENTATION_CONTRACT_TOOL = {
   name: "create_ui_implementation_contract",
   description:
-    "Create an implementation contract for generated UI, using repo evidence, external UI system evidence, or JudgmentKit portable defaults.",
+    "Create an implementation contract for generated UI, using JudgmentKit design-system authority by default or a complete external design-system adapter when supplied.",
   inputSchema: {
     type: "object",
     properties: {
@@ -249,7 +249,17 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
       external_authority: {
         type: "string",
         description:
-          "Optional named UI authority when a repo already has a product UI system or primitive catalog.",
+          "Optional trace metadata for a named UI authority. It does not replace JudgmentKit defaults unless design_system_adapter is also supplied.",
+      },
+      design_system_adapter: {
+        type: "object",
+        description:
+          "Optional complete external design-system authority. Must define token, font, icon, and component authority or the contract fails with incomplete_design_system_authority.",
+      },
+      design_system_source: {
+        type: "object",
+        description:
+          "Optional normalized active design-system source when passing an already-created implementation contract shape.",
       },
       repo_evidence: {
         type: "array",
@@ -293,7 +303,7 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
       visual_token_adapter: {
         type: "object",
         description:
-          "Optional boundary-only token, font, and icon adapter metadata. It defines token families, semantic token roles, portable font roles, Lucide icon catalog policy, and evidence expectations but does not select a renderer or component package.",
+          "Optional JudgmentKit-default token, font, and icon metadata. Ignored when design_system_adapter supplies complete external authority.",
       },
     },
     additionalProperties: false,
@@ -381,7 +391,7 @@ const FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL = {
       design_system_adapter: {
         type: "object",
         description:
-          "Optional renderer adapter evidence such as UI library name, package, components, token guidance, font guidance, icon guidance, role, and constraints.",
+          "Deprecated compatibility path for complete external design-system authority. Prefer supplying design_system_adapter to create_ui_implementation_contract so the frontend context receives implementation_contract.design_system_source.",
       },
       target_client: {
         type: "string",
@@ -866,11 +876,21 @@ function formatImplementationContractCard(result) {
   const defaultSystem =
     implementationContract.default_ai_native_design_system ?? {};
   const iterationPolicy = implementationContract.iteration_policy ?? {};
+  const designSystemSource = implementationContract.design_system_source ?? {};
   const visualTokenAdapter = implementationContract.visual_token_adapter ?? {};
 
   addSection(lines, "Implementation gate", [
     firstLine("Contract", implementationContract.id),
     firstLine("Default system", defaultSystem.mode),
+    firstLine("Design system source", designSystemSource.mode),
+    firstLine(
+      "Source package",
+      [designSystemSource.name, designSystemSource.package]
+        .filter(Boolean)
+        .join(" / "),
+    ),
+    listLine("Required authorities", designSystemSource.required_authorities),
+    firstLine("Fallback policy", designSystemSource.fallback_policy),
     listLine("Approved primitives", implementationContract.approved_primitives),
     listLine("Surface patterns", defaultSystem.surface_patterns),
     listLine(
@@ -970,6 +990,14 @@ function formatImplementationReviewCard(result) {
     firstLine("Browser QA", result.checks?.browser_qa?.status),
     firstLine("Accessibility evidence", result.checks?.accessibility_evidence?.status),
     firstLine("Visual token evidence", result.checks?.visual_tokens?.status),
+    firstLine(
+      "Design-system provenance",
+      result.checks?.design_system_provenance?.status,
+    ),
+    firstLine(
+      "Design-system mode",
+      result.checks?.design_system_provenance?.mode,
+    ),
   ]);
   addSection(lines, "Agent loop", [
     firstLine("Next action", result.next_agent_action),
@@ -1066,6 +1094,17 @@ function formatFrontendContextCard(result) {
       "Accessibility evidence",
       result.implementation_guidance?.accessibility_policy?.required_evidence,
     ),
+    firstLine(
+      "Design system source",
+      result.implementation_guidance?.design_system_source?.mode,
+    ),
+    firstLine(
+      "Design source package",
+      [
+        result.implementation_guidance?.design_system_source?.name,
+        result.implementation_guidance?.design_system_source?.package,
+      ].filter(Boolean).join(" / "),
+    ),
     listLine(
       "Conditional accessibility evidence",
       Object.keys(
@@ -1125,6 +1164,13 @@ function formatFrontendSkillContextCard(result) {
     listLine("Icon roles", result.icon_guidance?.icon_roles),
     firstLine("Icon catalog", iconCatalogSummary(result.icon_guidance?.icon_catalog)),
     listLine("Icon tools", result.icon_guidance?.icon_catalog?.mcp_tools),
+    firstLine("Design system source", result.design_system_source?.mode),
+    firstLine(
+      "Design source package",
+      [result.design_system_source?.name, result.design_system_source?.package]
+        .filter(Boolean)
+        .join(" / "),
+    ),
     listLine(
       "Conditional accessibility evidence",
       Object.keys(result.accessibility_policy?.conditional_evidence ?? {}).map(
@@ -1586,6 +1632,8 @@ export function createJudgmentKitMcpServer() {
         repo_name: z.string().optional(),
         target_stack: z.string().optional(),
         external_authority: z.string().optional(),
+        design_system_adapter: z.record(z.any()).optional(),
+        design_system_source: z.record(z.any()).optional(),
         repo_evidence: z.array(z.string()).optional(),
         approved_primitives: z.array(z.string()).optional(),
         static_rules: z.array(z.string()).optional(),

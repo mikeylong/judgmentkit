@@ -5323,7 +5323,7 @@ const DEFAULT_VISUAL_TOKEN_ADAPTER = {
   ],
   font_roles: DEFAULT_FONT_ROLES,
   font_rules: [
-    "portable defaults use system font stacks and do not load remote font files",
+    "judgmentkit_design_system uses system font stacks and does not load remote font files",
     "diagnostic font roles may appear only in setup, debugging, auditing, integration, or explicit source-inspection contexts",
     "numeric font roles should preserve readable alignment with tabular numbers when supported",
   ],
@@ -5360,6 +5360,43 @@ const DEFAULT_VISUAL_TOKEN_ADAPTER = {
     "visual token, font, or icon evidence claims to pass accessibility, action, data-visibility, static, or browser gates without the required evidence",
     "unsupported token families, font roles, or icon roles are introduced without adapter evidence",
     "renderer, component package, catalog, compiler, or A2UI work is introduced in the boundary-only slice",
+  ],
+};
+
+const DESIGN_SYSTEM_REQUIRED_AUTHORITIES = [
+  "tokens",
+  "fonts",
+  "icons",
+  "components",
+];
+
+const DEFAULT_DESIGN_SYSTEM_SOURCE = {
+  id: "judgmentkit.design-system.source-v1",
+  mode: "judgmentkit_default",
+  name: "JudgmentKit",
+  package: "judgmentkit",
+  definition_point: "implementation_contract",
+  required_authorities: DESIGN_SYSTEM_REQUIRED_AUTHORITIES,
+  fallback_policy: "fail_incomplete",
+  provenance_required: true,
+  source_exports: {
+    overview: "/design-system/",
+    manifest: "/design-system/manifest.json",
+    visual_token_adapter: "/design-system/visual-token-adapter.json",
+    component_contracts: "/design-system/component-contracts.json",
+    pattern_contracts: "/design-system/pattern-contracts.json",
+    accessibility_policy: "/design-system/accessibility-policy.json",
+    icon_catalog: "/design-system/icons/",
+    icon_tools: ICON_CATALOG_TOOL_NAMES,
+  },
+  token_prefixes: ["--jk-"],
+  icon_catalog: DEFAULT_ICON_CATALOG,
+  component_contract_source:
+    "implementation_contract.default_ai_native_design_system.component_contracts",
+  provenance_rules: [
+    "visual tokens, fonts, icons, and renderer components must come from this active design-system source",
+    "local CSS may define layout and UI structure but must not become the source of visual tokens, typography, icon assets, or renderer components",
+    "external design systems must be supplied as complete contract-time adapters; missing authorities do not fall back to JudgmentKit defaults",
   ],
 };
 
@@ -5668,7 +5705,7 @@ function normalizeIconCatalog(sourceValue, fallbackValue) {
     ...policy,
     source:
       optionalString(source.source ?? policy.source) ||
-      (hasSource ? "adapter_override" : fallback.source),
+      (hasSource ? "external_design_system" : fallback.source),
     library: optionalString(policy.library) || fallback.library,
     package: optionalString(policy.package) || fallback.package,
     version: optionalString(policy.version) || fallback.version,
@@ -5869,12 +5906,17 @@ function normalizeVisualTokenAdapter(sourcePolicy, fallbackPolicy) {
   return {
     ...policy,
     id: optionalString(policy.id) || DEFAULT_VISUAL_TOKEN_ADAPTER.id,
-    mode: optionalString(policy.mode) || DEFAULT_VISUAL_TOKEN_ADAPTER.mode,
+    mode:
+      optionalString(policy.mode) ||
+      optionalString(fallback.mode) ||
+      DEFAULT_VISUAL_TOKEN_ADAPTER.mode,
     purpose:
-      optionalString(policy.purpose) || DEFAULT_VISUAL_TOKEN_ADAPTER.purpose,
+      optionalString(policy.purpose) ||
+      optionalString(fallback.purpose) ||
+      DEFAULT_VISUAL_TOKEN_ADAPTER.purpose,
     token_families: normalizePrimitiveList(
       policy.token_families ?? policy.tokenFamilies,
-      DEFAULT_VISUAL_TOKEN_ADAPTER.token_families,
+      fallback.token_families ?? DEFAULT_VISUAL_TOKEN_ADAPTER.token_families,
     ),
     token_roles: normalizeRoleEntries(
       firstDefined(source.token_roles, source.tokenRoles, policy.token_roles, policy.tokenRoles),
@@ -5909,7 +5951,7 @@ function normalizeVisualTokenAdapter(sourcePolicy, fallbackPolicy) {
     ),
     semantic_roles: normalizePrimitiveList(
       policy.semantic_roles ?? policy.semanticRoles,
-      DEFAULT_VISUAL_TOKEN_ADAPTER.semantic_roles,
+      fallback.semantic_roles ?? DEFAULT_VISUAL_TOKEN_ADAPTER.semantic_roles,
     ),
     font_roles: normalizeRoleEntries(
       firstDefined(source.font_roles, source.fontRoles, policy.font_roles, policy.fontRoles),
@@ -5953,11 +5995,12 @@ function normalizeVisualTokenAdapter(sourcePolicy, fallbackPolicy) {
     ),
     adapter_rules: normalizePrimitiveList(
       policy.adapter_rules ?? policy.adapterRules,
-      DEFAULT_VISUAL_TOKEN_ADAPTER.adapter_rules,
+      fallback.adapter_rules ?? DEFAULT_VISUAL_TOKEN_ADAPTER.adapter_rules,
     ),
     evidence_expectations: normalizePrimitiveList(
       policy.evidence_expectations ?? policy.evidenceExpectations,
-      DEFAULT_VISUAL_TOKEN_ADAPTER.evidence_expectations,
+      fallback.evidence_expectations ??
+        DEFAULT_VISUAL_TOKEN_ADAPTER.evidence_expectations,
     ),
     deferred_renderer: mergePolicyObject(
       policy.deferred_renderer ?? policy.deferredRenderer,
@@ -5965,8 +6008,498 @@ function normalizeVisualTokenAdapter(sourcePolicy, fallbackPolicy) {
     ),
     failure_signals: normalizePrimitiveList(
       policy.failure_signals ?? policy.failureSignals,
-      DEFAULT_VISUAL_TOKEN_ADAPTER.failure_signals,
+      fallback.failure_signals ?? DEFAULT_VISUAL_TOKEN_ADAPTER.failure_signals,
     ),
+  };
+}
+
+function designSystemAdapterFromInput(source) {
+  return isPlainObject(source)
+    ? source.design_system_adapter ?? source.designSystemAdapter
+    : null;
+}
+
+function externalAdapterName(adapter) {
+  return optionalDesignSystemName(
+    adapter.design_system_name,
+    adapter.designSystemName,
+    adapter.name,
+  );
+}
+
+function externalAdapterPackage(adapter) {
+  return optionalString(
+    adapter.design_system_package ?? adapter.designSystemPackage ?? adapter.package,
+  );
+}
+
+function externalAdapterTokenSource(adapter) {
+  return isPlainObject(adapter)
+    ? firstDefined(adapter.token_guidance, adapter.tokenGuidance, adapter.tokens)
+    : null;
+}
+
+function externalAdapterFontSource(adapter) {
+  return isPlainObject(adapter)
+    ? firstDefined(
+        adapter.font_guidance,
+        adapter.fontGuidance,
+        adapter.fonts,
+        adapter.typography,
+      )
+    : null;
+}
+
+function externalAdapterIconSource(adapter) {
+  return isPlainObject(adapter)
+    ? firstDefined(adapter.icon_guidance, adapter.iconGuidance, adapter.icons)
+    : null;
+}
+
+function externalAdapterComponentSource(adapter) {
+  return isPlainObject(adapter)
+    ? firstDefined(
+        adapter.component_contracts,
+        adapter.componentContracts,
+        adapter.components,
+        adapter.approved_component_families,
+      )
+    : null;
+}
+
+function hasTokenAuthority(source) {
+  if (!isPlainObject(source)) {
+    return false;
+  }
+
+  return (
+    normalizePrimitiveList(source.token_families ?? source.tokenFamilies).length > 0 ||
+    normalizeRoleEntries(source.token_roles ?? source.tokenRoles, [], {
+      arrayKeys: ["families"],
+      stringKeys: ["usage"],
+    }).length > 0 ||
+    normalizeCssCustomProperties(
+      source.css_custom_properties ?? source.cssCustomProperties,
+      [],
+    ).length > 0
+  );
+}
+
+function hasFontAuthority(source) {
+  if (!isPlainObject(source)) {
+    return false;
+  }
+
+  return (
+    normalizeRoleEntries(
+      firstDefined(source.font_roles, source.fontRoles, source.roles, source),
+      [],
+      {
+        valueKey: "stack",
+        arrayKeys: ["feature_settings"],
+        stringKeys: ["stack", "usage"],
+      },
+    ).length > 0
+  );
+}
+
+function hasIconAuthority(source) {
+  if (!isPlainObject(source)) {
+    return false;
+  }
+
+  const catalog = firstDefined(
+    source.icon_catalog,
+    source.iconCatalog,
+    source.catalog,
+  );
+
+  return (
+    normalizePrimitiveList(source.icon_roles ?? source.iconRoles ?? source.roles)
+      .length > 0 &&
+    isPlainObject(catalog) &&
+    optionalString(catalog.library).length > 0 &&
+    optionalString(catalog.package).length > 0
+  );
+}
+
+function hasComponentAuthority(source) {
+  if (Array.isArray(source)) {
+    return source.length > 0;
+  }
+
+  if (isPlainObject(source)) {
+    return Object.keys(source).length > 0;
+  }
+
+  return false;
+}
+
+function validateExternalDesignSystemAdapter(adapter) {
+  if (!isPlainObject(adapter)) {
+    return null;
+  }
+
+  const tokenSource = externalAdapterTokenSource(adapter);
+  const fontSource = externalAdapterFontSource(adapter);
+  const iconSource = externalAdapterIconSource(adapter);
+  const componentSource = externalAdapterComponentSource(adapter);
+  const missingAuthorities = [
+    !hasTokenAuthority(tokenSource) ? "tokens" : "",
+    !hasFontAuthority(fontSource) ? "fonts" : "",
+    !hasIconAuthority(iconSource) ? "icons" : "",
+    !hasComponentAuthority(componentSource) ? "components" : "",
+  ].filter(Boolean);
+
+  if (missingAuthorities.length > 0) {
+    throw new JudgmentKitInputError(
+      "External design-system adapters must define complete token, font, icon, and component authority.",
+      {
+        code: "incomplete_design_system_authority",
+        details: {
+          missing_authorities: missingAuthorities,
+          fallback_policy: "fail_incomplete",
+        },
+      },
+    );
+  }
+
+  return {
+    tokenSource,
+    fontSource,
+    iconSource,
+    componentSource,
+  };
+}
+
+function externalComponentContractsFromAdapter(adapter, componentSource) {
+  const explicitContracts =
+    adapter.component_contracts ?? adapter.componentContracts;
+
+  if (hasComponentAuthority(explicitContracts)) {
+    return normalizeComponentContracts(explicitContracts, []);
+  }
+
+  return toStringArray(componentSource).map((component) => ({
+    id: component,
+    label: component,
+    purpose: `Use ${component} from the active external design system.`,
+    use_when: ["the external design system defines this renderer component"],
+    avoid_when: ["the component is not available in the active external design system"],
+    anatomy: ["as defined by the active external design system"],
+    required_states: ["ready", "disabled", "focus-visible", "loading"],
+    token_bindings: ["external_design_system"],
+    accessibility_checks: ["accessible name", "keyboard and focus behavior"],
+    review_checks: ["component is imported from the active design-system package"],
+    failure_signals: [
+      "component is reimplemented locally instead of sourced from the active design system",
+    ],
+  }));
+}
+
+function externalVisualTokenAdapterFallback(adapter, iconSource) {
+  const iconCatalog = firstDefined(
+    iconSource.icon_catalog,
+    iconSource.iconCatalog,
+    iconSource.catalog,
+  ) ?? {};
+  const iconLibrary = optionalString(iconCatalog.library);
+
+  return {
+    id: "external.visual-token-adapter",
+    mode: "external_design_system",
+    purpose:
+      "Define token, font, and icon evidence from the active external design system.",
+    token_families: [],
+    token_roles: [],
+    css_custom_properties: [],
+    appearance_policy: DEFAULT_APPEARANCE_POLICY,
+    appearance_token_sets: [],
+    semantic_roles: [],
+    font_roles: [],
+    font_rules: [
+      "font roles must come from the active external design system",
+    ],
+    icon_roles: [],
+    icon_catalog: {
+      source: "external_design_system",
+      library: iconLibrary || "external-design-system",
+      package: optionalString(iconCatalog.package) || externalAdapterPackage(adapter),
+      version: optionalString(iconCatalog.version) || "repo-approved",
+      icon_count: numberOrFallback(iconCatalog.icon_count ?? iconCatalog.iconCount, 1),
+      license: optionalString(iconCatalog.license) || "repo-approved",
+      notice:
+        optionalString(iconCatalog.notice) ||
+        "Icon assets are governed by the active external design system.",
+      style_system:
+        optionalString(iconCatalog.style_system ?? iconCatalog.styleSystem) ||
+        "Active external design-system icons",
+      style_attributes: isPlainObject(
+        iconCatalog.style_attributes ?? iconCatalog.styleAttributes,
+      )
+        ? iconCatalog.style_attributes ?? iconCatalog.styleAttributes
+        : {},
+      mcp_tools: normalizePrimitiveList(
+        iconCatalog.mcp_tools ?? iconCatalog.mcpTools ?? iconCatalog.tools,
+        [],
+      ),
+      default_include_svg:
+        typeof (iconCatalog.default_include_svg ?? iconCatalog.defaultIncludeSvg) ===
+        "boolean"
+          ? iconCatalog.default_include_svg ?? iconCatalog.defaultIncludeSvg
+          : false,
+    },
+    icon_selection_policy: {
+      source_library: iconLibrary || "external-design-system",
+      selection_flow: [
+        "Use icon assets from the active external design system.",
+      ],
+      semantic_guidance:
+        "JudgmentKit may name icon roles, but concrete icon assets must come from the active external design system.",
+      accessibility_guidance:
+        DEFAULT_ICON_SELECTION_POLICY.accessibility_guidance,
+      failure_signals: [
+        "icons bypass the active external design-system source",
+        "icons are mixed with JudgmentKit defaults without explicit external authority",
+      ],
+    },
+    icon_rules: [
+      "default JudgmentKit icon assets are not used while an external design system is active",
+      "meaningful icons still require adjacent text or an accessible name",
+    ],
+    adapter_rules: [
+      "external design-system evidence cannot replace activity, workflow, disclosure, state, accessibility, static, or browser-QA gates",
+      "token, font, icon, and component provenance must point to the active external design system",
+    ],
+    evidence_expectations: [
+      "name the active external design system token, font, icon, and component source",
+      "confirm no JudgmentKit default assets are mixed into the rendered UI unless the external adapter explicitly provides them",
+    ],
+    deferred_renderer: {
+      renderer_package: externalAdapterPackage(adapter) || "external_design_system",
+      component_package: externalAdapterPackage(adapter) || "external_design_system",
+      catalog_compiler: "external_design_system",
+    },
+    failure_signals: [
+      "local CSS or icon packages replace active external design-system assets",
+      "JudgmentKit default tokens, fonts, icons, or components appear under external mode without explicit adapter authority",
+    ],
+  };
+}
+
+function externalVisualTokenAdapterFromAdapter(adapter, sources) {
+  const tokenSource = isPlainObject(sources.tokenSource) ? sources.tokenSource : {};
+  const fontSource = isPlainObject(sources.fontSource) ? sources.fontSource : {};
+  const iconSource = isPlainObject(sources.iconSource) ? sources.iconSource : {};
+
+  return normalizeVisualTokenAdapter(
+    {
+      id:
+        optionalString(adapter.visual_token_adapter?.id) ||
+        `${normalizeText(externalAdapterName(adapter) || "external").replaceAll(" ", "-")}.visual-token-adapter`,
+      mode: "external_design_system",
+      purpose:
+        optionalString(adapter.purpose) ||
+        "Define token, font, and icon evidence from the active external design system.",
+      token_families: tokenSource.token_families ?? tokenSource.tokenFamilies,
+      token_roles: tokenSource.token_roles ?? tokenSource.tokenRoles,
+      css_custom_properties:
+        tokenSource.css_custom_properties ?? tokenSource.cssCustomProperties,
+      appearance_policy: tokenSource.appearance_policy ?? tokenSource.appearancePolicy,
+      appearance_token_sets:
+        tokenSource.appearance_token_sets ?? tokenSource.appearanceTokenSets,
+      semantic_roles: tokenSource.semantic_roles ?? tokenSource.semanticRoles,
+      adapter_rules:
+        tokenSource.rules ?? tokenSource.adapter_rules ?? tokenSource.adapterRules,
+      font_roles: firstDefined(
+        fontSource.font_roles,
+        fontSource.fontRoles,
+        fontSource.roles,
+        fontSource,
+      ),
+      font_rules: fontSource.rules ?? fontSource.font_rules ?? fontSource.fontRules,
+      icon_roles: iconSource.icon_roles ?? iconSource.iconRoles ?? iconSource.roles,
+      icon_catalog: firstDefined(
+        iconSource.icon_catalog,
+        iconSource.iconCatalog,
+        iconSource.catalog,
+      ),
+      icon_selection_policy: firstDefined(
+        iconSource.icon_selection_policy,
+        iconSource.iconSelectionPolicy,
+        iconSource.selection_policy,
+        iconSource.selectionPolicy,
+      ),
+      icon_rules: iconSource.rules ?? iconSource.icon_rules ?? iconSource.iconRules,
+    },
+    externalVisualTokenAdapterFallback(adapter, iconSource),
+  );
+}
+
+function tokenPrefixesFromCssProperties(cssCustomProperties) {
+  return unique(
+    (Array.isArray(cssCustomProperties) ? cssCustomProperties : [])
+      .map((entry) => optionalString(entry.name))
+      .map((name) => name.match(/^--[a-z0-9]+-/i)?.[0])
+      .filter(Boolean),
+  );
+}
+
+function normalizeDesignSystemSource(sourceValue, context = {}) {
+  const source = isPlainObject(sourceValue) ? sourceValue : {};
+  const fallback = DEFAULT_DESIGN_SYSTEM_SOURCE;
+  const visualTokenAdapter =
+    context.visualTokenAdapter ?? DEFAULT_VISUAL_TOKEN_ADAPTER;
+  const componentContracts =
+    context.componentContracts ?? DEFAULT_COMPONENT_CONTRACTS;
+  const mode =
+    optionalString(source.mode) ||
+    optionalString(context.mode) ||
+    fallback.mode;
+  const tokenPrefixes = unique([
+    ...normalizePrimitiveList(source.token_prefixes ?? source.tokenPrefixes),
+    ...tokenPrefixesFromCssProperties(visualTokenAdapter.css_custom_properties),
+    ...(mode === "judgmentkit_default" ? fallback.token_prefixes : []),
+  ]);
+
+  return {
+    id: optionalString(source.id) || fallback.id,
+    mode,
+    name:
+      optionalString(source.name) ||
+      (mode === "judgmentkit_default" ? fallback.name : ""),
+    package:
+      optionalString(source.package) ||
+      (mode === "judgmentkit_default" ? fallback.package : ""),
+    definition_point:
+      optionalString(source.definition_point ?? source.definitionPoint) ||
+      fallback.definition_point,
+    required_authorities: normalizePrimitiveList(
+      source.required_authorities ?? source.requiredAuthorities,
+      DESIGN_SYSTEM_REQUIRED_AUTHORITIES,
+    ),
+    fallback_policy:
+      optionalString(source.fallback_policy ?? source.fallbackPolicy) ||
+      "fail_incomplete",
+    provenance_required:
+      typeof (source.provenance_required ?? source.provenanceRequired) === "boolean"
+        ? source.provenance_required ?? source.provenanceRequired
+        : true,
+    source_exports: mergePolicyObject(
+      source.source_exports ?? source.sourceExports,
+      mode === "judgmentkit_default" ? fallback.source_exports : {},
+    ),
+    token_prefixes: tokenPrefixes,
+    icon_catalog: normalizeIconCatalog(
+      source.icon_catalog ?? source.iconCatalog,
+      visualTokenAdapter.icon_catalog ?? fallback.icon_catalog,
+    ),
+    renderer_components: normalizePrimitiveList(
+      source.renderer_components ?? source.rendererComponents,
+      componentContracts.map((contract) => contract.id),
+    ),
+    component_contract_source:
+      optionalString(
+        source.component_contract_source ?? source.componentContractSource,
+      ) || fallback.component_contract_source,
+    provenance_rules: normalizePrimitiveList(
+      source.provenance_rules ?? source.provenanceRules,
+      fallback.provenance_rules,
+    ),
+  };
+}
+
+function externalDesignSystemFromAdapter(adapter, baseDesignSystem) {
+  const sources = validateExternalDesignSystemAdapter(adapter);
+  const visualTokenAdapter = externalVisualTokenAdapterFromAdapter(adapter, sources);
+  const componentContracts = externalComponentContractsFromAdapter(
+    adapter,
+    sources.componentSource,
+  );
+  const explicitPatternContracts =
+    adapter.pattern_contracts ?? adapter.patternContracts;
+  const defaultDesignSystem = normalizeDefaultAiNativeDesignSystem(
+    {
+      component_contracts: componentContracts,
+      ...(hasComponentAuthority(explicitPatternContracts)
+        ? { pattern_contracts: explicitPatternContracts }
+        : {}),
+    },
+    baseDesignSystem,
+  );
+  const name = externalAdapterName(adapter);
+  const packageName = externalAdapterPackage(adapter);
+  const source = normalizeDesignSystemSource(
+    {
+      id:
+        optionalString(adapter.id) ||
+        `${normalizeText(name || "external").replaceAll(" ", "-")}.design-system.source-v1`,
+      mode: "external_design_system",
+      name,
+      package: packageName,
+      definition_point: "implementation_contract.design_system_adapter",
+      source_exports: adapter.source_exports ?? adapter.sourceExports ?? {},
+      token_prefixes: adapter.token_prefixes ?? adapter.tokenPrefixes,
+      icon_catalog: visualTokenAdapter.icon_catalog,
+      renderer_components: componentContracts.map((contract) => contract.id),
+      component_contract_source: hasComponentAuthority(
+        adapter.component_contracts ?? adapter.componentContracts,
+      )
+        ? "implementation_contract.design_system_adapter.component_contracts"
+        : "implementation_contract.design_system_adapter.components",
+      provenance_rules: [
+        "visual tokens, fonts, icons, and components must come from the active external design system",
+        "JudgmentKit default assets must not be mixed in unless the external adapter explicitly names them",
+        "local CSS may define layout and structure but not the visual token source",
+      ],
+    },
+    {
+      mode: "external_design_system",
+      visualTokenAdapter,
+      componentContracts,
+    },
+  );
+
+  return {
+    defaultDesignSystem,
+    visualTokenAdapter,
+    designSystemSource: source,
+  };
+}
+
+function resolveImplementationDesignSystem(source, base) {
+  const sourceDefaultDesignSystem = normalizeDefaultAiNativeDesignSystem(
+    source.default_ai_native_design_system ??
+      source.defaultAiNativeDesignSystem,
+    base.default_ai_native_design_system,
+  );
+  const designSystemAdapter = designSystemAdapterFromInput(source);
+
+  if (isPlainObject(designSystemAdapter)) {
+    return externalDesignSystemFromAdapter(
+      designSystemAdapter,
+      sourceDefaultDesignSystem,
+    );
+  }
+
+  const visualTokenAdapter = normalizeVisualTokenAdapter(
+    source.visual_token_adapter ?? source.visualTokenAdapter,
+    base.visual_token_adapter,
+  );
+  const designSystemSource = normalizeDesignSystemSource(
+    source.design_system_source ??
+      source.designSystemSource ??
+      base.design_system_source,
+    {
+      visualTokenAdapter,
+      componentContracts: sourceDefaultDesignSystem.component_contracts,
+    },
+  );
+
+  return {
+    defaultDesignSystem: sourceDefaultDesignSystem,
+    visualTokenAdapter,
+    designSystemSource,
   };
 }
 
@@ -6121,6 +6654,11 @@ function normalizeUiImplementationContract(input = {}, options = {}) {
     : Array.isArray(base.primitive_rules)
       ? base.primitive_rules
       : [];
+  const {
+    defaultDesignSystem,
+    visualTokenAdapter,
+    designSystemSource,
+  } = resolveImplementationDesignSystem(source, base);
 
   return {
     id: optionalString(source.id) || optionalString(base.id) || "judgmentkit.ui-implementation-contract.portable",
@@ -6156,19 +6694,13 @@ function normalizeUiImplementationContract(input = {}, options = {}) {
             : true,
       checks: browserQaChecks,
     },
-    default_ai_native_design_system: normalizeDefaultAiNativeDesignSystem(
-      source.default_ai_native_design_system ??
-        source.defaultAiNativeDesignSystem,
-      base.default_ai_native_design_system,
-    ),
+    default_ai_native_design_system: defaultDesignSystem,
     iteration_policy: normalizeIterationPolicy(
       source.iteration_policy ?? source.iterationPolicy,
       base.iteration_policy,
     ),
-    visual_token_adapter: normalizeVisualTokenAdapter(
-      source.visual_token_adapter ?? source.visualTokenAdapter,
-      base.visual_token_adapter,
-    ),
+    design_system_source: designSystemSource,
+    visual_token_adapter: visualTokenAdapter,
     visual_asset_policy: normalizeVisualAssetPolicy(
       source.visual_asset_policy ?? source.visualAssetPolicy,
       base.visual_asset_policy,
@@ -6189,6 +6721,10 @@ function normalizeUiImplementationContract(input = {}, options = {}) {
 }
 
 function implementationContractSource(input = {}) {
+  if (isPlainObject(input) && isPlainObject(designSystemAdapterFromInput(input))) {
+    return "external_design_system";
+  }
+
   if (isPlainObject(input) && toStringArray(input.repo_evidence).length > 0) {
     return "repo_evidence";
   }
@@ -6201,7 +6737,7 @@ function implementationContractSource(input = {}) {
     return "external_authority";
   }
 
-  return "portable_defaults";
+  return "judgmentkit_default";
 }
 
 export function createUiImplementationContract(input = {}, options = {}) {
@@ -7924,9 +8460,16 @@ function reviewVisualTokenEvidence(candidate, implementationContract) {
     (role) => !allowedIconRoleSet.has(normalizeText(role)),
   );
   const selectedIconIds = collectEvidenceIconIds(evidence);
-  const unsupportedIconIds = selectedIconIds.filter(
-    (id) => !LUCIDE_ICON_INDEX.has(id),
+  const normalizedIconCatalog = normalizeIconCatalog(
+    adapter.icon_catalog,
+    DEFAULT_VISUAL_TOKEN_ADAPTER.icon_catalog,
   );
+  const validatesAgainstLucideCatalog =
+    normalizeText(normalizedIconCatalog.library) === "lucide" ||
+    normalizeText(normalizedIconCatalog.source).includes("lucide");
+  const unsupportedIconIds = validatesAgainstLucideCatalog
+    ? selectedIconIds.filter((id) => !LUCIDE_ICON_INDEX.has(id))
+    : [];
   const deferredRendererTerms = [
     "renderer package",
     "component package",
@@ -8042,7 +8585,7 @@ function reviewVisualTokenEvidence(candidate, implementationContract) {
     selected_icon_ids: selectedIconIds,
     unsupported_icon_ids: unsupportedIconIds,
     icon_catalog: normalizeIconCatalog(
-      adapter.icon_catalog,
+      normalizedIconCatalog,
       DEFAULT_VISUAL_TOKEN_ADAPTER.icon_catalog,
     ),
     icon_selection_policy: normalizeIconSelectionPolicy(
@@ -8050,6 +8593,285 @@ function reviewVisualTokenEvidence(candidate, implementationContract) {
       DEFAULT_VISUAL_TOKEN_ADAPTER.icon_selection_policy,
     ),
     deferred_renderer: adapter.deferred_renderer,
+    findings,
+  };
+}
+
+function candidateDesignSystemProvenance(candidate) {
+  if (!isPlainObject(candidate)) {
+    return null;
+  }
+
+  return (
+    candidate.design_system_provenance ??
+    candidate.designSystemProvenance ??
+    candidate.design_system_evidence ??
+    candidate.designSystemEvidence ??
+    candidate.provenance ??
+    null
+  );
+}
+
+function collectImportedPackages(text) {
+  const packages = [];
+  const patterns = [
+    /\bfrom\s+["']([^"']+)["']/g,
+    /\bimport\s*\(\s*["']([^"']+)["']\s*\)/g,
+    /\brequire\s*\(\s*["']([^"']+)["']\s*\)/g,
+  ];
+
+  for (const pattern of patterns) {
+    for (const match of text.matchAll(pattern)) {
+      const packageName = optionalString(match[1]);
+
+      if (
+        packageName &&
+        !packageName.startsWith(".") &&
+        !packageName.startsWith("/") &&
+        !packageName.startsWith("#")
+      ) {
+        packages.push(packageName);
+      }
+    }
+  }
+
+  return unique(packages);
+}
+
+function packageMatchesAuthority(packageName, authorityPackage) {
+  const name = optionalString(packageName);
+  const authority = optionalString(authorityPackage);
+
+  return Boolean(
+    name &&
+      authority &&
+      (name === authority || name.startsWith(`${authority}/`)),
+  );
+}
+
+function activeDesignSystemPackages(source, adapter) {
+  const iconCatalog = normalizeIconCatalog(
+    adapter.icon_catalog,
+    DEFAULT_VISUAL_TOKEN_ADAPTER.icon_catalog,
+  );
+  const renderer = adapter.deferred_renderer ?? {};
+
+  return unique([
+    source.package,
+    iconCatalog.package,
+    renderer.renderer_package,
+    renderer.component_package,
+  ].map(optionalString));
+}
+
+function extractCssCustomPropertyNames(text) {
+  return unique(
+    [...text.matchAll(/--[a-z0-9][a-z0-9-]*/gi)].map((match) => match[0]),
+  );
+}
+
+function isVisualTokenName(name) {
+  return /surfaceops|mui|color|surface|canvas|text|muted|border|focus|success|warning|risk|disabled|receipt|space|gap|radius|shadow|font|type|brand|accent|status|density/i.test(
+    name,
+  );
+}
+
+function allowedDesignSystemTokenPrefixes(source, adapter) {
+  return unique([
+    ...normalizePrimitiveList(source.token_prefixes ?? source.tokenPrefixes),
+    ...tokenPrefixesFromCssProperties(adapter.css_custom_properties),
+  ]);
+}
+
+function tokenAllowedByPrefix(name, prefixes) {
+  return prefixes.some((prefix) => name.startsWith(prefix));
+}
+
+function usesJudgmentKitIconTools(text) {
+  return ICON_CATALOG_TOOL_NAMES.some((tool) =>
+    new RegExp(`\\b${escapeRegExp(tool)}\\b`).test(text),
+  );
+}
+
+function reviewDesignSystemProvenance(candidate, implementationContract, text) {
+  const visualTokenAdapter = normalizeVisualTokenAdapter(
+    implementationContract.visual_token_adapter,
+    DEFAULT_VISUAL_TOKEN_ADAPTER,
+  );
+  const designSystemContract = normalizeDefaultAiNativeDesignSystem(
+    implementationContract.default_ai_native_design_system,
+    DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
+  );
+  const source = normalizeDesignSystemSource(
+    implementationContract.design_system_source,
+    {
+      visualTokenAdapter,
+      componentContracts: designSystemContract.component_contracts,
+    },
+  );
+  const provenanceEvidence = candidateDesignSystemProvenance(candidate);
+  const evidenceText = evidenceToText(provenanceEvidence);
+  const searchableText = `${text}\n${evidenceText}`.toLowerCase();
+  const imports = collectImportedPackages(text);
+  const allowedPackages = activeDesignSystemPackages(source, visualTokenAdapter);
+  const disallowedDesignImports = imports.filter((packageName) => {
+    const normalizedPackage = normalizeText(packageName);
+    const isDesignPackage =
+      normalizedPackage === "lucide-react" ||
+      normalizedPackage.startsWith("@mui/material") ||
+      normalizedPackage.startsWith("@mui/icons-material") ||
+      normalizedPackage.startsWith("@fortawesome/") ||
+      normalizedPackage.startsWith("react-icons") ||
+      normalizedPackage.startsWith("@fontsource/");
+
+    if (!isDesignPackage) {
+      return false;
+    }
+
+    if (source.mode === "judgmentkit_default") {
+      return true;
+    }
+
+    return !allowedPackages.some((authorityPackage) =>
+      packageMatchesAuthority(packageName, authorityPackage),
+    );
+  });
+  const remoteFontOrIconSources = unique(
+    [
+      /fonts\.googleapis\.com/i.test(searchableText) ? "fonts.googleapis.com" : "",
+      /fonts\.gstatic\.com/i.test(searchableText) ? "fonts.gstatic.com" : "",
+      /use\.typekit\.net/i.test(searchableText) ? "use.typekit.net" : "",
+      /kit\.fontawesome\.com/i.test(searchableText) ? "kit.fontawesome.com" : "",
+      /@font-face/i.test(searchableText) ? "@font-face" : "",
+      /(unpkg\.com|cdn\.jsdelivr\.net).{0,80}(lucide|fontawesome|@mui|icons?)/i.test(
+        searchableText,
+      )
+        ? "remote icon CDN"
+        : "",
+    ],
+  );
+  const cssCustomProperties = extractCssCustomPropertyNames(searchableText);
+  const allowedPrefixes = allowedDesignSystemTokenPrefixes(
+    source,
+    visualTokenAdapter,
+  );
+  const disallowedLocalVisualTokens = cssCustomProperties.filter(
+    (name) =>
+      isVisualTokenName(name) && !tokenAllowedByPrefix(name, allowedPrefixes),
+  );
+  const explicitJudgmentKitTokens = cssCustomProperties.filter((name) =>
+    name.startsWith("--jk-"),
+  );
+  const externalAllowsJudgmentKitTokens = allowedPrefixes.some((prefix) =>
+    "--jk-".startsWith(prefix) || prefix.startsWith("--jk-"),
+  );
+  const iconCatalog = normalizeIconCatalog(
+    visualTokenAdapter.icon_catalog,
+    DEFAULT_VISUAL_TOKEN_ADAPTER.icon_catalog,
+  );
+  const externalAllowsJudgmentKitIconAssets =
+    source.mode === "external_design_system" &&
+    (normalizeText(iconCatalog.library) === "lucide" ||
+      normalizeText(iconCatalog.package) === "lucide-react" ||
+      normalizeText(iconCatalog.source).includes("lucide"));
+  const judgmentKitIconAssetUse =
+    source.mode === "external_design_system" &&
+    !externalAllowsJudgmentKitIconAssets &&
+    (imports.includes("lucide-react") || usesJudgmentKitIconTools(searchableText));
+  const findings = [];
+
+  if (disallowedDesignImports.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "design_system_provenance",
+      message:
+        "Candidate imports visual, icon, typography, or component packages outside the active design-system source.",
+      evidence: {
+        imports: disallowedDesignImports,
+        active_source: {
+          mode: source.mode,
+          name: source.name,
+          package: source.package,
+          allowed_packages: allowedPackages,
+        },
+      },
+    });
+  }
+
+  if (remoteFontOrIconSources.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "design_system_provenance",
+      message:
+        "Candidate uses remote font or icon sources instead of the active design-system authority.",
+      evidence: {
+        remote_sources: remoteFontOrIconSources,
+        active_source: source.mode,
+      },
+    });
+  }
+
+  if (disallowedLocalVisualTokens.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "design_system_provenance",
+      message:
+        "Candidate defines or uses local visual token namespaces outside the active design-system source.",
+      evidence: {
+        custom_properties: disallowedLocalVisualTokens,
+        allowed_prefixes: allowedPrefixes,
+      },
+    });
+  }
+
+  if (
+    source.mode === "external_design_system" &&
+    explicitJudgmentKitTokens.length > 0 &&
+    !externalAllowsJudgmentKitTokens
+  ) {
+    findings.push({
+      severity: "fail",
+      check: "design_system_provenance",
+      message:
+        "External design-system mode cannot mix in JudgmentKit visual tokens unless the external adapter explicitly names them.",
+      evidence: {
+        judgmentkit_custom_properties: explicitJudgmentKitTokens,
+        token_prefixes: allowedPrefixes,
+      },
+    });
+  }
+
+  if (judgmentKitIconAssetUse) {
+    findings.push({
+      severity: "fail",
+      check: "design_system_provenance",
+      message:
+        "External design-system mode cannot use JudgmentKit/Lucide icon assets unless the external adapter explicitly names that icon source.",
+      evidence: {
+        active_icon_catalog: iconCatalog,
+        imports,
+        judgmentkit_icon_tools: ICON_CATALOG_TOOL_NAMES,
+      },
+    });
+  }
+
+  return {
+    status: findings.length > 0 ? "fail" : "pass",
+    reviewed:
+      source.provenance_required ||
+      evidenceHasAnyValue(provenanceEvidence) ||
+      imports.length > 0 ||
+      cssCustomProperties.length > 0,
+    mode: source.mode,
+    name: source.name,
+    package: source.package,
+    required_authorities: source.required_authorities,
+    fallback_policy: source.fallback_policy,
+    provenance_required: source.provenance_required,
+    allowed_packages: allowedPackages,
+    token_prefixes: allowedPrefixes,
+    detected_imports: imports,
+    detected_visual_tokens: cssCustomProperties,
     findings,
   };
 }
@@ -8529,6 +9351,11 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
     candidate,
     implementationContract,
   );
+  const designSystemProvenance = reviewDesignSystemProvenance(
+    candidate,
+    implementationContract,
+    text,
+  );
   const componentContracts = reviewComponentContractEvidence(
     candidate,
     implementationContract,
@@ -8602,6 +9429,7 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
   findings.push(...actionBoundaries.findings);
   findings.push(...dataVisibility.findings);
   findings.push(...visualTokenEvidence.findings);
+  findings.push(...designSystemProvenance.findings);
   findings.push(...componentContracts.findings);
   findings.push(...patternContracts.findings);
 
@@ -8639,6 +9467,7 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
     data_visibility: dataVisibility,
     accessibility_evidence: accessibilityEvidence,
     visual_tokens: visualTokenEvidence,
+    design_system_provenance: designSystemProvenance,
     component_contracts: componentContracts,
     pattern_contracts: patternContracts,
     findings,
@@ -8701,6 +9530,10 @@ function findingContractArea(check) {
     return "visual_tokens";
   }
 
+  if (check === "design_system_provenance") {
+    return "design_system_source";
+  }
+
   if (check === "component_contracts") {
     return "component_contracts";
   }
@@ -8753,6 +9586,10 @@ function repairInstructionForFinding(finding, implementationContract) {
 
   if (check === "visual_tokens") {
     return "Keep visual token evidence boundary-only: use supported token families, avoid renderer/component/catalog/compiler work, and do not use tokens as a substitute for required implementation gates.";
+  }
+
+  if (check === "design_system_provenance") {
+    return "Use implementation_contract.design_system_source as the source for visual tokens, typography, icon assets, and renderer components; remove local visual token namespaces, remote font/icon sources, and direct packages outside the active source.";
   }
 
   if (check === "component_contracts") {
@@ -8874,6 +9711,7 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
       data_visibility: checks.data_visibility,
       accessibility_evidence: checks.accessibility_evidence,
       visual_tokens: checks.visual_tokens,
+      design_system_provenance: checks.design_system_provenance,
       component_contracts: checks.component_contracts,
       pattern_contracts: checks.pattern_contracts,
     },
@@ -8898,6 +9736,7 @@ function compactImplementationContractForHandoff(implementationContract) {
     default_ai_native_design_system:
       implementationContract.default_ai_native_design_system,
     iteration_policy: implementationContract.iteration_policy,
+    design_system_source: implementationContract.design_system_source,
     visual_token_adapter: implementationContract.visual_token_adapter,
     visual_asset_policy: implementationContract.visual_asset_policy,
     accessibility_policy: implementationContract.accessibility_policy,
@@ -9170,12 +10009,24 @@ function formatRoleEntries(entries, formatter) {
     .join("; ");
 }
 
-function normalizeAdapterTokenGuidance(source, visualTokenAdapter) {
+function guidanceSourceName(hasSource, designSystemMode) {
+  if (designSystemMode === "external_design_system" || hasSource) {
+    return "external_design_system";
+  }
+
+  return "judgmentkit_design_system";
+}
+
+function normalizeAdapterTokenGuidance(
+  source,
+  visualTokenAdapter,
+  designSystemMode = "judgmentkit_default",
+) {
   const hasSource = hasDesignGuidanceValue(source);
   const sourceObject = isPlainObject(source) ? source : {};
 
   return {
-    source: hasSource ? "adapter_override" : "portable_defaults",
+    source: guidanceSourceName(hasSource, designSystemMode),
     token_families: normalizePrimitiveList(
       sourceObject.token_families ?? sourceObject.tokenFamilies,
       visualTokenAdapter.token_families,
@@ -9217,12 +10068,16 @@ function normalizeAdapterTokenGuidance(source, visualTokenAdapter) {
   };
 }
 
-function normalizeAdapterFontGuidance(source, visualTokenAdapter) {
+function normalizeAdapterFontGuidance(
+  source,
+  visualTokenAdapter,
+  designSystemMode = "judgmentkit_default",
+) {
   const hasSource = hasDesignGuidanceValue(source);
   const sourceObject = isPlainObject(source) ? source : {};
 
   return {
-    source: hasSource ? "adapter_override" : "portable_defaults",
+    source: guidanceSourceName(hasSource, designSystemMode),
     font_roles: normalizeRoleEntries(
       firstDefined(
         sourceObject.font_roles,
@@ -9244,12 +10099,16 @@ function normalizeAdapterFontGuidance(source, visualTokenAdapter) {
   };
 }
 
-function normalizeAdapterIconGuidance(source, visualTokenAdapter) {
+function normalizeAdapterIconGuidance(
+  source,
+  visualTokenAdapter,
+  designSystemMode = "judgmentkit_default",
+) {
   const hasSource = hasDesignGuidanceValue(source);
   const sourceObject = isPlainObject(source) ? source : {};
 
   return {
-    source: hasSource ? "adapter_override" : "portable_defaults",
+    source: guidanceSourceName(hasSource, designSystemMode),
     icon_roles: normalizePrimitiveList(
       sourceObject.icon_roles ?? sourceObject.iconRoles ?? sourceObject.roles,
       visualTokenAdapter.icon_roles,
@@ -9634,6 +10493,9 @@ export function createFrontendGenerationContext({
       disclosure_implications: surfaceGuidance.disclosure_implications,
       frontend_posture: surfaceGuidance.frontend_posture,
       implementation_contract: uiGenerationHandoff.implementation_contract,
+      design_system_source:
+        uiGenerationHandoff.implementation_contract?.design_system_source ??
+        DEFAULT_DESIGN_SYSTEM_SOURCE,
       visual_asset_policy:
         uiGenerationHandoff.implementation_contract?.visual_asset_policy ??
         DEFAULT_VISUAL_ASSET_POLICY,
@@ -9661,6 +10523,9 @@ export function createFrontendGenerationContext({
         uiGenerationHandoff.disclosure_reminders?.diagnostic_contexts ?? [],
       approved_primitives:
         uiGenerationHandoff.implementation_contract?.approved_primitives ?? [],
+      design_system_source:
+        uiGenerationHandoff.implementation_contract?.design_system_source ??
+        DEFAULT_DESIGN_SYSTEM_SOURCE,
     },
   };
 }
@@ -9708,8 +10573,8 @@ function buildFrontendImplementationInstructionMarkdown({
     "- Shape the interface around the selected surface type and surface set before choosing section layout.",
     "- Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
     "- Use approved primitives and approved component families before introducing new UI helpers.",
-    "- Apply any design system only as the renderer after the activity and workflow are clear.",
-    "- Use portable system font stacks and the Lucide MCP icon catalog unless a repo-approved adapter supplies replacements.",
+    "- Use implementation_contract.design_system_source as the active source for visual tokens, typography, icon assets, and renderer components.",
+    "- Use JudgmentKit design-system exports by default; when external_design_system is active, do not mix in JudgmentKit default assets unless the external adapter explicitly names them.",
     "- Verify core accessibility evidence for semantics, landmarks/headings, name/role/value, keyboard navigation, focus order, focus-visible, responsive reflow/no-overflow, and automated checks.",
     "- Add conditional accessibility evidence for visuals, custom widgets, forms, status messages, overlays, motion, media, dense controls, and hover/focus content when those patterns appear.",
     "- For text over substantive visuals or rendered backgrounds, verify WCAG AA contrast from browser-rendered output, not screenshots alone.",
@@ -9726,6 +10591,8 @@ function buildFrontendImplementationInstructionMarkdown({
     "",
     "## Design System Policy",
     `- Mode: ${designSystemPolicy.mode}`,
+    `- Source: ${[designSystemPolicy.name, designSystemPolicy.package].filter(Boolean).join(" / ") || "unspecified"}`,
+    `- Definition point: ${designSystemPolicy.definition_point || "implementation_contract"}`,
     `- Authority: ${designSystemPolicy.authority}`,
     `- Constraint: ${designSystemPolicy.constraint}`,
     `- Token families: ${toStringArray(designSystemPolicy.token_guidance?.token_families).join("; ") || "none supplied"}`,
@@ -9855,32 +10722,48 @@ export function createFrontendImplementationSkillContext({
     implementationGuidance.accessibility_policy ??
     implementationContract.accessibility_policy ??
     DEFAULT_ACCESSIBILITY_POLICY;
-  const visualTokenAdapter = normalizeVisualTokenAdapter(
+  let visualTokenAdapter = normalizeVisualTokenAdapter(
     implementationContract.visual_token_adapter ?? {},
     DEFAULT_VISUAL_TOKEN_ADAPTER,
   );
-  const designSystemContract = normalizeDefaultAiNativeDesignSystem(
+  let designSystemContract = normalizeDefaultAiNativeDesignSystem(
     implementationContract.default_ai_native_design_system,
     DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
   );
+  let designSystemSource = normalizeDesignSystemSource(
+    implementationContract.design_system_source ??
+      implementationGuidance.design_system_source,
+    {
+      visualTokenAdapter,
+      componentContracts: designSystemContract.component_contracts,
+    },
+  );
+
+  if (hasDesignGuidanceValue(normalizedDesignSystemAdapter)) {
+    const externalDesignSystem = externalDesignSystemFromAdapter(
+      normalizedDesignSystemAdapter,
+      designSystemContract,
+    );
+    visualTokenAdapter = externalDesignSystem.visualTokenAdapter;
+    designSystemContract = externalDesignSystem.defaultDesignSystem;
+    designSystemSource = {
+      ...externalDesignSystem.designSystemSource,
+      definition_point: "frontend_skill_context.design_system_adapter_compat",
+    };
+  }
+
   const designSystemName = optionalDesignSystemName(
-    normalizedDesignSystemAdapter.design_system_name ??
-      normalizedDesignSystemAdapter.name ??
-      frontendContext.ui_library,
+    designSystemSource.name,
+    frontendContext.ui_library,
   );
-  const designSystemPackage = optionalString(
-    normalizedDesignSystemAdapter.design_system_package ??
-      normalizedDesignSystemAdapter.package,
-  );
-  const designSystemComponents = toStringArray(
-    normalizedDesignSystemAdapter.components ??
-      normalizedDesignSystemAdapter.approved_component_families,
-  );
+  const designSystemPackage = optionalString(designSystemSource.package);
+  const designSystemComponents = toStringArray(designSystemSource.renderer_components);
   const tokenGuidance = normalizeAdapterTokenGuidance(
     normalizedDesignSystemAdapter.token_guidance ??
       normalizedDesignSystemAdapter.tokenGuidance ??
       normalizedDesignSystemAdapter.tokens,
     visualTokenAdapter,
+    designSystemSource.mode,
   );
   const fontGuidance = normalizeAdapterFontGuidance(
     normalizedDesignSystemAdapter.font_guidance ??
@@ -9888,31 +10771,39 @@ export function createFrontendImplementationSkillContext({
       normalizedDesignSystemAdapter.fonts ??
       normalizedDesignSystemAdapter.typography,
     visualTokenAdapter,
+    designSystemSource.mode,
   );
   const iconGuidance = normalizeAdapterIconGuidance(
     normalizedDesignSystemAdapter.icon_guidance ??
       normalizedDesignSystemAdapter.iconGuidance ??
       normalizedDesignSystemAdapter.icons,
     visualTokenAdapter,
+    designSystemSource.mode,
   );
   const designSystemPolicy = {
-    mode: designSystemName
-      ? "adapter_after_judgment"
-      : "no_design_system_adapter_provided",
+    mode: designSystemSource.mode,
     name: designSystemName,
     package: designSystemPackage,
+    id: designSystemSource.id,
+    definition_point: designSystemSource.definition_point,
+    required_authorities: designSystemSource.required_authorities,
+    fallback_policy: designSystemSource.fallback_policy,
+    provenance_required: designSystemSource.provenance_required,
+    source_exports: designSystemSource.source_exports,
     role:
       optionalString(normalizedDesignSystemAdapter.role) ||
-      "renderer after activity and workflow judgment",
+      "active design-system implementation authority",
     authority:
-      "The ready handoff and implementation contract remain authoritative; renderer choices cannot replace activity fit.",
+      "The implementation contract design_system_source is authoritative for visual tokens, typography, icon assets, and renderer components.",
     renderer_components: designSystemComponents,
     constraint:
       optionalString(normalizedDesignSystemAdapter.constraint) ||
-      "Design-system compliance refines the rendered UI only after activity, workflow, disclosure, and implementation gates are ready.",
+      "Local CSS may define structure and layout, but visual tokens, typography, icon assets, and renderer components must come from the active design-system source.",
     token_guidance: tokenGuidance,
     font_guidance: fontGuidance,
     icon_guidance: iconGuidance,
+    token_prefixes: designSystemSource.token_prefixes,
+    provenance_rules: designSystemSource.provenance_rules,
     component_contracts: designSystemContract.component_contracts,
     pattern_contracts: designSystemContract.pattern_contracts,
   };
@@ -9969,8 +10860,8 @@ export function createFrontendImplementationSkillContext({
       "Map the selected surface type to the surface set, required sections, controls, density, navigation, and responsive expectations.",
       "Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
       "Use approved primitives and approved component families before introducing new UI helpers.",
-      "Apply the design system only as a renderer adapter after the activity and workflow are represented.",
-      "Use portable system font stacks and the Lucide MCP icon catalog unless a repo-approved adapter supplies replacements.",
+      "Use implementation_contract.design_system_source as the active source for visual tokens, typography, icon assets, and renderer components.",
+      "Use JudgmentKit design-system exports by default; when external_design_system is active, do not mix in JudgmentKit default assets unless the external adapter explicitly names them.",
       "When the spec calls for substantive visuals, use imagegen or premium Three.js/WebGL/D3-style rendering instead of rudimentary deterministic geometry.",
       "Verify core accessibility evidence: automated checks, semantic content, landmarks/headings, name-role-value, keyboard navigation, focus order, focus-visible, and responsive reflow/no-overflow.",
       "Add conditional accessibility evidence for visuals, custom widgets, forms, status messages, overlays, motion, media, dense controls, and hover/focus content when those patterns appear.",
@@ -10001,6 +10892,7 @@ export function createFrontendImplementationSkillContext({
     ),
     visual_asset_policy: visualAssetPolicy,
     accessibility_policy: accessibilityPolicy,
+    design_system_source: designSystemSource,
     visual_token_adapter: visualTokenAdapter,
     design_system_policy: designSystemPolicy,
     token_guidance: tokenGuidance,
@@ -10014,7 +10906,9 @@ export function createFrontendImplementationSkillContext({
       requires_ready_frontend_context: true,
       activity_first: true,
       raw_skill_dump: false,
-      design_system_is_adapter: true,
+      design_system_is_adapter: false,
+      design_system_contract_first: true,
+      design_system_source: designSystemSource,
       visual_asset_policy: visualAssetPolicy,
       accessibility_policy: accessibilityPolicy,
       product_ui_rule:

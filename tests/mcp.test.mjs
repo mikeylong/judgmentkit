@@ -38,7 +38,7 @@ assert.deepEqual(
   ],
 );
 assert.equal(metadata.name, "JudgmentKit");
-assert.equal(metadata.version, "0.5.0");
+assert.equal(metadata.version, "0.6.0");
 assert.deepEqual(metadata.capabilities.prompts, []);
 const toolsJson = JSON.stringify(tools);
 for (const legacyField of [
@@ -89,6 +89,8 @@ assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.accessibility_policy.type, "object");
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.default_ai_native_design_system.type, "object");
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.iteration_policy.type, "object");
+assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.design_system_adapter.type, "object");
+assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.design_system_source.type, "object");
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.visual_token_adapter.type, "object");
 assert.ok(
   toolByName.create_ui_implementation_contract.inputSchema.properties.visual_token_adapter.description.includes(
@@ -97,7 +99,7 @@ assert.ok(
 );
 assert.ok(
   toolByName.create_frontend_implementation_skill_context.inputSchema.properties.design_system_adapter.description.includes(
-    "icon guidance",
+    "Deprecated compatibility path",
   ),
 );
 assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.required.includes("candidate"), true);
@@ -448,6 +450,14 @@ function coreAccessibilityEvidence() {
     implementationContract.implementation_contract.visual_token_adapter.mode,
     "boundary_only",
   );
+  assert.equal(
+    implementationContract.implementation_contract.design_system_source.mode,
+    "judgmentkit_default",
+  );
+  assert.equal(
+    implementationContract.implementation_contract.design_system_source.fallback_policy,
+    "fail_incomplete",
+  );
   assert.ok(
     implementationContract.implementation_contract.visual_token_adapter.token_families.includes(
       "color",
@@ -492,6 +502,7 @@ function coreAccessibilityEvidence() {
   assert.equal(implementationReview.next_agent_action, "accept");
   assert.equal(implementationReview.autofix_loop.status, "passed");
   assert.equal(implementationReview.checks.visual_tokens.status, "pass");
+  assert.equal(implementationReview.checks.design_system_provenance.status, "pass");
   assert.equal(implementationReview.checks.component_contracts.status, "pass");
   assert.equal(implementationReview.checks.component_contracts.reviewed, false);
   assert.equal(implementationReview.checks.pattern_contracts.status, "pass");
@@ -595,6 +606,22 @@ function coreAccessibilityEvidence() {
       components: ["Stack", "Button"],
       token_guidance: {
         token_families: ["color", "type"],
+        css_custom_properties: [
+          {
+            name: "--mui-palette-background-paper",
+            role: "surface",
+            family: "color",
+            value: "theme.palette.background.paper",
+            usage: "Material UI Paper surfaces",
+          },
+          {
+            name: "--mui-font-family",
+            role: "text",
+            family: "type",
+            value: "theme.typography.fontFamily",
+            usage: "Material UI Typography",
+          },
+        ],
       },
       font_guidance: {
         font_roles: {
@@ -608,14 +635,14 @@ function coreAccessibilityEvidence() {
       icon_guidance: {
         icon_roles: ["status", "action"],
         icon_catalog: {
-          source: "adapter_override",
+          source: "external_design_system",
           library: "mui-icons-material",
           package: "@mui/icons-material",
           version: "repo-approved",
           icon_count: 2000,
           license: "MIT",
           notice: "Repo-approved Material UI icon adapter.",
-          mcp_tools: ["search_icon_catalog", "get_icon_svg"],
+          mcp_tools: [],
         },
       },
       constraint:
@@ -627,15 +654,23 @@ function coreAccessibilityEvidence() {
   assert.equal(skillContext.skill_context_status, "ready");
   assert.equal(skillContext.source_skill.name, "frontend-ui-implementation");
   assert.equal(skillContext.source_skill.raw_skill_exposed, false);
-  assert.equal(skillContext.design_system_policy.mode, "adapter_after_judgment");
+  assert.equal(skillContext.design_system_policy.mode, "external_design_system");
   assert.ok(skillContext.design_system_policy.renderer_components.includes("Button"));
   assert.deepEqual(skillContext.token_guidance.token_families, ["color", "type"]);
   assert.ok(
     skillContext.token_guidance.css_custom_properties.some(
-      (entry) => entry.name === "--jk-color-surface" && entry.value === "#ffffff",
+      (entry) =>
+        entry.name === "--mui-palette-background-paper" &&
+        entry.value === "theme.palette.background.paper",
     ),
   );
-  assert.ok(skillContext.component_contracts.some((entry) => entry.id === "action_button"));
+  assert.equal(
+    skillContext.token_guidance.css_custom_properties.some(
+      (entry) => entry.name === "--jk-color-surface",
+    ),
+    false,
+  );
+  assert.ok(skillContext.component_contracts.some((entry) => entry.id === "Button"));
   assert.ok(skillContext.pattern_contracts.some((entry) => entry.id === "workbench"));
   assert.ok(
     skillContext.instruction_markdown.includes("Component contracts"),
@@ -650,7 +685,7 @@ function coreAccessibilityEvidence() {
   );
   assert.equal(skillContext.icon_guidance.icon_catalog.library, "mui-icons-material");
   assert.ok(skillContext.instruction_markdown.includes("Font roles"));
-  assert.ok(skillContext.instruction_markdown.includes("--jk-color-surface"));
+  assert.ok(skillContext.instruction_markdown.includes("--mui-palette-background-paper"));
   assert.ok(skillContext.instruction_markdown.includes("Icon catalog"));
   assert.ok(skillContext.visual_requirements.includes("substantive product image"));
   assert.ok(

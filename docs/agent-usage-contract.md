@@ -10,7 +10,7 @@ Use JudgmentKit before UI generation, UI critique, implementation planning, or h
 4. Call `recommend_surface_types` to classify the activity purpose before workflow or frontend implementation guidance.
 5. If a model or agent proposes a UI workflow, call `review_ui_workflow_candidate` before treating it as acceptable.
 6. Call `review_cognitive_dimensions_candidate` when a workflow or implementation candidate needs Cognitive Dimensions review for mapping, visibility, hidden dependencies, premature commitment, progressive evaluation, change cost, mental operations, or disclosure.
-7. Call `create_ui_implementation_contract` using repo evidence, external UI authority evidence, or JudgmentKit's portable defaults.
+7. Call `create_ui_implementation_contract`. Use the default JudgmentKit design-system source, or pass a complete `design_system_adapter` when an external design system should own tokens, typography, icons, and renderer components.
 8. Call `create_ui_generation_handoff` on the reviewed workflow with the implementation contract before generating UI. Pass the Cognitive Dimensions review when it should block handoff until ready.
 9. Call `create_frontend_generation_context` when frontend implementation guidance needs a selected surface type, project frontend context, and verification expectations.
 10. Call `create_frontend_implementation_skill_context` when the implementing agent needs a compiled frontend skill packet that is portable across MCP clients.
@@ -24,7 +24,8 @@ Use JudgmentKit before UI generation, UI critique, implementation planning, or h
 - Treat `needs_source_context` as a prompt to gather source context or ask the packet's targeted questions.
 - Treat surface type as activity-purpose guidance, not visual styling.
 - Treat the implementation contract as the authority for allowed primitives, control semantics, states, static checks, browser QA, visual asset handling, and accessibility evidence.
-- Treat `visual_token_adapter` as adapter-layer guidance for semantic tokens, portable system font stacks, and Lucide icon catalog policy. Repo or design-system adapters may override these assets, but asset guidance cannot replace activity fit, primitive coverage, state coverage, accessibility evidence, static checks, or browser QA.
+- Treat `implementation_contract.design_system_source` as the active authority for visual tokens, typography, icon assets, and renderer components. `judgmentkit_default` uses JudgmentKit `/design-system/` exports; `external_design_system` requires a complete adapter and has no implicit JudgmentKit fallback. `external_authority` is trace metadata unless paired with `design_system_adapter`.
+- Treat `visual_token_adapter` as the token/font/icon evidence envelope for the active design-system source. Asset guidance cannot replace activity fit, primitive coverage, state coverage, accessibility evidence, static checks, or browser QA.
 - Keep implementation terms out of product UI unless the activity is setup, debugging, auditing, integration, or explicit source inspection.
 - When a model proposes an activity model, call `review_activity_model_candidate` before trusting it.
 - When a model proposes a UI workflow, call `review_ui_workflow_candidate` before implementing it.
@@ -52,7 +53,7 @@ Before handing off UI work, confirm:
 - implementation terms contained in disclosure, evidence, or guardrails
 - workflow topology, work units, surface set, primary actions, decision support, and handoff are named
 - implementation contract names approved primitives and required states
-- token, font, and icon guidance comes from the implementation contract or a repo-approved adapter, with no implied font CDN or external icon package
+- token, font, icon, and renderer component guidance comes from `implementation_contract.design_system_source`, with no implied font CDN, remote icon package, or fallback from external systems to JudgmentKit defaults
 - substantive visual requirements have an image-generation, premium 3D/rendering, or high-quality visualization path when present
 - static checks, browser QA, core accessibility evidence, and any conditional visual-background contrast, non-text contrast, forced-colors, target-size, focus-not-obscured, no-keyboard-trap, reduced-motion, pause/stop/hide, form/error/status, media alternative, or semantic fallback evidence are specified when required
 - review-packet terms are not copied into the product UI

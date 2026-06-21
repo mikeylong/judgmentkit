@@ -309,6 +309,50 @@ function stagedFormCandidate() {
       design_system_package: "@mui/material",
       role: "visual renderer after context selection",
       components: ["Stack", "Button", "Alert"],
+      token_guidance: {
+        token_families: ["color", "type"],
+        css_custom_properties: [
+          {
+            name: "--mui-palette-background-paper",
+            role: "surface",
+            family: "color",
+            value: "theme.palette.background.paper",
+            usage: "Material UI Paper surfaces",
+          },
+          {
+            name: "--mui-font-family",
+            role: "text",
+            family: "type",
+            value: "theme.typography.fontFamily",
+            usage: "Material UI Typography",
+          },
+        ],
+      },
+      font_guidance: {
+        font_roles: {
+          body: {
+            stack: "var(--mui-font-family)",
+            usage: "Material UI body typography",
+          },
+          heading: {
+            stack: "var(--mui-font-family)",
+            usage: "Material UI headings",
+          },
+        },
+      },
+      icon_guidance: {
+        icon_roles: ["status", "action"],
+        icon_catalog: {
+          source: "external_design_system",
+          library: "mui-icons-material",
+          package: "@mui/icons-material",
+          version: "repo-approved",
+          icon_count: 2000,
+          license: "MIT",
+          notice: "Repo-approved Material UI icon adapter.",
+          mcp_tools: [],
+        },
+      },
       constraint:
         "Material UI changes the visual/component layer only; it does not supply activity fit.",
     },
@@ -318,7 +362,7 @@ function stagedFormCandidate() {
   assert.equal(skillContext.source_skill.name, "frontend-ui-implementation");
   assert.equal(skillContext.source_skill.raw_skill_exposed, false);
   assert.equal(skillContext.source.target_client, "codex");
-  assert.equal(skillContext.design_system_policy.mode, "adapter_after_judgment");
+  assert.equal(skillContext.design_system_policy.mode, "external_design_system");
   assert.equal(skillContext.design_system_policy.name, "Material UI");
   assert.ok(skillContext.design_system_policy.renderer_components.includes("Button"));
   assert.equal(skillContext.surface_type_guidance.workflow_topology, "workspace");

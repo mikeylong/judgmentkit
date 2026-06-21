@@ -482,6 +482,71 @@
         "failure_signals": { "type": "array", "items": { "type": "string" } }
       }
     },
+    "designSystemSource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "mode",
+        "name",
+        "package",
+        "definition_point",
+        "required_authorities",
+        "fallback_policy",
+        "provenance_required",
+        "source_exports",
+        "token_prefixes",
+        "icon_catalog",
+        "renderer_components",
+        "component_contract_source",
+        "provenance_rules"
+      ],
+      "properties": {
+        "id": { "type": "string" },
+        "mode": {
+          "type": "string",
+          "enum": ["judgmentkit_default", "external_design_system"]
+        },
+        "name": { "type": "string" },
+        "package": { "type": "string" },
+        "definition_point": { "type": "string" },
+        "required_authorities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["tokens", "fonts", "icons", "components"]
+          }
+        },
+        "fallback_policy": {
+          "type": "string",
+          "const": "fail_incomplete"
+        },
+        "provenance_required": { "type": "boolean" },
+        "source_exports": {
+          "type": "object",
+          "additionalProperties": {
+            "oneOf": [
+              { "type": "string" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          }
+        },
+        "token_prefixes": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "icon_catalog": { "$ref": "#/$defs/iconCatalog" },
+        "renderer_components": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "component_contract_source": { "type": "string" },
+        "provenance_rules": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
     "implementationContract": {
       "type": "object",
       "additionalProperties": false,
@@ -496,6 +561,7 @@
         "browser_qa",
         "default_ai_native_design_system",
         "iteration_policy",
+        "design_system_source",
         "visual_token_adapter",
         "visual_asset_policy",
         "accessibility_policy",
@@ -645,6 +711,7 @@
             "judgmentkit_role": { "type": "string" }
           }
         },
+        "design_system_source": { "$ref": "#/$defs/designSystemSource" },
         "visual_token_adapter": {
           "type": "object",
           "additionalProperties": false,

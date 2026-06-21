@@ -42,6 +42,70 @@ const implementationContractPacket = createUiImplementationContract({
 });
 const implementationContract = implementationContractPacket.implementation_contract;
 
+function completeMaterialDesignSystemAdapter() {
+  return {
+    design_system_name: "Material UI",
+    design_system_package: "@mui/material",
+    token_guidance: {
+      token_families: ["color", "type", "spacing", "radius"],
+      token_roles: [
+        {
+          role: "surface",
+          families: ["color"],
+          usage: "Material UI Paper and surface colors",
+        },
+        {
+          role: "decision",
+          families: ["color"],
+          usage: "Material UI Button states",
+        },
+      ],
+      css_custom_properties: [
+        {
+          name: "--mui-palette-background-paper",
+          role: "surface",
+          family: "color",
+          value: "theme.palette.background.paper",
+          usage: "Material UI Paper surfaces",
+        },
+        {
+          name: "--mui-font-family",
+          role: "text",
+          family: "type",
+          value: "theme.typography.fontFamily",
+          usage: "Material UI Typography",
+        },
+      ],
+    },
+    font_guidance: {
+      font_roles: {
+        body: {
+          stack: "var(--mui-font-family)",
+          usage: "Material UI body typography",
+        },
+        heading: {
+          stack: "var(--mui-font-family)",
+          usage: "Material UI headings",
+        },
+      },
+    },
+    icon_guidance: {
+      icon_roles: ["status", "action"],
+      icon_catalog: {
+        source: "external_design_system",
+        library: "mui-icons-material",
+        package: "@mui/icons-material",
+        version: "repo-approved",
+        icon_count: 2000,
+        license: "MIT",
+        notice: "Repo-approved Material UI icon adapter.",
+        mcp_tools: [],
+      },
+    },
+    components: ["Stack", "Button", "Alert"],
+  };
+}
+
 function refundWorkflowCandidate() {
   return {
     workflow: {
@@ -387,6 +451,10 @@ function refundOperatorImplementationCandidate(overrides = {}) {
     ["activity_gate", "implementation_gate"],
   );
   assert.ok(handoff.implementation_contract.approved_primitives.includes("CheckboxGroup"));
+  assert.equal(
+    handoff.implementation_contract.design_system_source.mode,
+    "judgmentkit_default",
+  );
   assertNoForbiddenHandoffKeys(handoff);
 }
 
@@ -697,6 +765,155 @@ function refundOperatorImplementationCandidate(overrides = {}) {
   assert.ok(fontIconMetadataReview.checks.visual_tokens.font_roles.includes("numeric"));
   assert.ok(fontIconMetadataReview.checks.visual_tokens.icon_roles.includes("receipt"));
   assert.ok(fontIconMetadataReview.checks.visual_tokens.selected_icon_ids.includes("check"));
+
+  const defaultProvenanceFailureReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      code: `
+        import { Check } from "lucide-react";
+        export function Review() {
+          return <section style={{ color: "var(--surfaceops-text)" }}><Check />Decision</section>;
+        }
+      `,
+      visual_token_evidence: {
+        token_families: ["color"],
+        icon_roles: ["status"],
+        selected_icons: [{ role: "status", id: "check" }],
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(defaultProvenanceFailureReview.implementation_review_status, "failed");
+  assert.equal(
+    defaultProvenanceFailureReview.checks.design_system_provenance.status,
+    "fail",
+  );
+  assert.ok(
+    defaultProvenanceFailureReview.checks.design_system_provenance.findings.some(
+      (finding) => finding.evidence.imports?.includes("lucide-react"),
+    ),
+  );
+  assert.ok(
+    defaultProvenanceFailureReview.checks.design_system_provenance.findings.some(
+      (finding) =>
+        finding.evidence.custom_properties?.includes("--surfaceops-text"),
+    ),
+  );
+
+  const defaultProvenancePassReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      code: `
+        export function Review() {
+          return <section style={{ color: "var(--jk-color-text)" }}>Decision</section>;
+        }
+      `,
+      visual_token_evidence: {
+        token_families: ["color"],
+        font_roles: ["body"],
+        icon_roles: ["status"],
+        selected_icons: [{ role: "status", id: "check" }],
+      },
+      design_system_provenance: {
+        source: "judgmentkit_default",
+        token_source: "/design-system/visual-token-adapter.json",
+        icon_source: "get_icon_svg('check') from the JudgmentKit icon catalog",
+      },
+      accessibility_evidence: {
+        forced_colors: {
+          status: "pass",
+          method: "forced-colors emulation",
+          notes: "JudgmentKit custom properties preserve visible text and focus.",
+        },
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(defaultProvenancePassReview.implementation_review_status, "passed");
+  assert.equal(
+    defaultProvenancePassReview.checks.design_system_provenance.status,
+    "pass",
+  );
+  assert.equal(
+    defaultProvenancePassReview.checks.design_system_provenance.mode,
+    "judgmentkit_default",
+  );
+
+  const materialImplementationContract = createUiImplementationContract({
+    design_system_adapter: completeMaterialDesignSystemAdapter(),
+  }).implementation_contract;
+  const externalMaterialReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      code: `
+        import { Stack, Button } from "@mui/material";
+        import CheckCircle from "@mui/icons-material/CheckCircle";
+        export function Review() {
+          return <Stack sx={{ color: "var(--mui-palette-background-paper)" }}><Button startIcon={<CheckCircle />}>Send handoff</Button></Stack>;
+        }
+      `,
+      visual_token_evidence: {
+        token_families: ["color", "type"],
+        font_roles: ["body"],
+        icon_roles: ["status", "action"],
+        selected_icons: [{ role: "status", id: "CheckCircle" }],
+      },
+      component_contract_evidence: {
+        components: [
+          {
+            id: "Stack",
+            states_covered: ["ready", "disabled", "focus-visible", "loading"],
+          },
+          {
+            id: "Button",
+            states_covered: ["ready", "disabled", "focus-visible", "loading"],
+          },
+        ],
+      },
+      accessibility_evidence: {
+        forced_colors: {
+          status: "pass",
+          method: "forced-colors emulation",
+          notes: "Material UI theme variables preserve visible text and focus.",
+        },
+      },
+    }),
+    { implementation_contract: materialImplementationContract },
+  );
+
+  assert.equal(externalMaterialReview.implementation_review_status, "passed");
+  assert.equal(
+    externalMaterialReview.checks.design_system_provenance.mode,
+    "external_design_system",
+  );
+  assert.equal(externalMaterialReview.checks.design_system_provenance.status, "pass");
+  assert.deepEqual(externalMaterialReview.checks.visual_tokens.unsupported_icon_ids, []);
+
+  const mixedExternalReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      code: `
+        import { Stack } from "@mui/material";
+        export function Review() {
+          get_icon_svg("check");
+          return <Stack sx={{ color: "var(--jk-color-surface)" }}>Decision</Stack>;
+        }
+      `,
+      visual_token_evidence: {
+        token_families: ["color"],
+        font_roles: ["body"],
+        icon_roles: ["status"],
+        selected_icons: [{ role: "status", id: "CheckCircle" }],
+      },
+    }),
+    { implementation_contract: materialImplementationContract },
+  );
+
+  assert.equal(mixedExternalReview.implementation_review_status, "failed");
+  assert.equal(mixedExternalReview.checks.design_system_provenance.status, "fail");
+  assert.ok(
+    mixedExternalReview.findings.some(
+      (finding) => finding.check === "design_system_provenance",
+    ),
+  );
 
   const unsupportedIconIdReview = reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({

@@ -69,6 +69,10 @@ assert.ok(getResult.icon.source.feather_mit_derived);
 const implementationContract = createUiImplementationContract();
 const visualTokenAdapter =
   implementationContract.implementation_contract.visual_token_adapter;
+const designSystemSource =
+  implementationContract.implementation_contract.design_system_source;
+assert.equal(designSystemSource.mode, "judgmentkit_default");
+assert.ok(designSystemSource.source_exports.icon_tools.includes("get_icon_svg"));
 assert.equal("icon_registry" in visualTokenAdapter, false);
 assert.equal(visualTokenAdapter.icon_catalog.library, "lucide");
 assert.ok(visualTokenAdapter.icon_catalog.icon_count > 1000);

@@ -185,6 +185,36 @@ function materialUiAdapter(id, name) {
           usage: "Material UI Alert and Chip states",
         },
       ],
+      css_custom_properties: [
+        {
+          name: "--mui-palette-background-paper",
+          role: "surface",
+          family: "color",
+          value: "theme.palette.background.paper",
+          usage: "Material UI Paper, Card, and work-surface backgrounds",
+        },
+        {
+          name: "--mui-palette-primary-main",
+          role: "decision",
+          family: "color",
+          value: "theme.palette.primary.main",
+          usage: "Material UI primary Button and selected states",
+        },
+        {
+          name: "--mui-font-family",
+          role: "text",
+          family: "type",
+          value: "theme.typography.fontFamily",
+          usage: "Material UI Typography",
+        },
+        {
+          name: "--mui-shape-border-radius",
+          role: "surface",
+          family: "radius",
+          value: "theme.shape.borderRadius",
+          usage: "Material UI surface and control radius",
+        },
+      ],
     },
     font_guidance: {
       font_roles: {
@@ -205,14 +235,14 @@ function materialUiAdapter(id, name) {
     icon_guidance: {
       icon_roles: ["status", "action", "navigation", "receipt"],
       icon_catalog: {
-        source: "adapter_override",
+        source: "external_design_system",
         library: "mui-icons-material",
         package: "@mui/icons-material",
         version: "repo-approved",
         icon_count: 2000,
         license: "MIT",
         notice: "Repo-approved Material UI icon adapter.",
-        mcp_tools: ["search_icon_catalog", "get_icon_svg"],
+        mcp_tools: [],
       },
     },
     components: COMMON_COMPONENTS,

@@ -3,7 +3,10 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { createUiImplementationContract } from "../src/index.mjs";
+import {
+  JudgmentKitInputError,
+  createUiImplementationContract,
+} from "../src/index.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -20,6 +23,70 @@ const contract = readJson("contracts/ai-ui-generation.activity-contract.json");
 const schema = readJson("contracts/judgmentkit-kernel.schema.json");
 const contractText = JSON.stringify(contract);
 const schemaText = JSON.stringify(schema);
+
+function completeMaterialDesignSystemAdapter() {
+  return {
+    design_system_name: "Material UI",
+    design_system_package: "@mui/material",
+    token_guidance: {
+      token_families: ["color", "type", "spacing", "radius"],
+      token_roles: [
+        {
+          role: "surface",
+          families: ["color"],
+          usage: "Material UI Paper and surface colors",
+        },
+        {
+          role: "decision",
+          families: ["color"],
+          usage: "Material UI Button states",
+        },
+      ],
+      css_custom_properties: [
+        {
+          name: "--mui-palette-background-paper",
+          role: "surface",
+          family: "color",
+          value: "theme.palette.background.paper",
+          usage: "Material UI Paper surfaces",
+        },
+        {
+          name: "--mui-font-family",
+          role: "text",
+          family: "type",
+          value: "theme.typography.fontFamily",
+          usage: "Material UI Typography",
+        },
+      ],
+    },
+    font_guidance: {
+      font_roles: {
+        body: {
+          stack: "var(--mui-font-family)",
+          usage: "Material UI body typography",
+        },
+        heading: {
+          stack: "var(--mui-font-family)",
+          usage: "Material UI headings",
+        },
+      },
+    },
+    icon_guidance: {
+      icon_roles: ["status", "action"],
+      icon_catalog: {
+        source: "external_design_system",
+        library: "mui-icons-material",
+        package: "@mui/icons-material",
+        version: "repo-approved",
+        icon_count: 2000,
+        license: "MIT",
+        notice: "Repo-approved Material UI icon adapter.",
+        mcp_tools: [],
+      },
+    },
+    components: ["Stack", "Button", "Alert"],
+  };
+}
 
 for (const legacyField of [
   "primary_ui",
@@ -316,6 +383,10 @@ assert.ok(
   schema.$defs.implementationContract.required.includes("visual_token_adapter"),
   "The schema must require implementation_contract.visual_token_adapter.",
 );
+assert.ok(
+  schema.$defs.implementationContract.required.includes("design_system_source"),
+  "The schema must require implementation_contract.design_system_source.",
+);
 assert.deepEqual(
   schema.$defs.implementationContract.properties.default_ai_native_design_system.required,
   [
@@ -358,6 +429,26 @@ assert.deepEqual(
     "judgmentkit_role",
   ],
   "The schema must require the iteration policy shape.",
+);
+assert.deepEqual(
+  schema.$defs.designSystemSource.required,
+  [
+    "id",
+    "mode",
+    "name",
+    "package",
+    "definition_point",
+    "required_authorities",
+    "fallback_policy",
+    "provenance_required",
+    "source_exports",
+    "token_prefixes",
+    "icon_catalog",
+    "renderer_components",
+    "component_contract_source",
+    "provenance_rules",
+  ],
+  "The schema must require the active design-system source shape.",
 );
 assert.deepEqual(
   schema.$defs.implementationContract.properties.visual_token_adapter.required,
@@ -403,6 +494,89 @@ const appearancePolicy =
 assert.equal(appearancePolicy.default_mode, "system");
 assert.equal(appearancePolicy.visible_toggle_default, false);
 assert.equal(appearancePolicy.css_strategy.dark_query, "@media (prefers-color-scheme: dark)");
+const defaultDesignSystemSource =
+  createUiImplementationContract().implementation_contract.design_system_source;
+assert.equal(defaultDesignSystemSource.mode, "judgmentkit_default");
+assert.equal(defaultDesignSystemSource.name, "JudgmentKit");
+assert.deepEqual(defaultDesignSystemSource.required_authorities, [
+  "tokens",
+  "fonts",
+  "icons",
+  "components",
+]);
+assert.equal(defaultDesignSystemSource.fallback_policy, "fail_incomplete");
+assert.equal(defaultDesignSystemSource.provenance_required, true);
+assert.ok(defaultDesignSystemSource.token_prefixes.includes("--jk-"));
+assert.ok(defaultDesignSystemSource.source_exports.icon_tools.includes("get_icon_svg"));
+assert.ok(defaultDesignSystemSource.renderer_components.includes("action_button"));
+
+const externalTraceOnlyContract = createUiImplementationContract({
+  external_authority: "Material UI",
+});
+assert.equal(
+  externalTraceOnlyContract.implementation_contract.design_system_source.mode,
+  "judgmentkit_default",
+  "external_authority is trace metadata only without a complete design_system_adapter.",
+);
+
+const externalDesignSystemContract = createUiImplementationContract({
+  design_system_adapter: completeMaterialDesignSystemAdapter(),
+});
+assert.equal(
+  externalDesignSystemContract.source.mode,
+  "external_design_system",
+  "A complete adapter must make the packet source external_design_system.",
+);
+assert.equal(
+  externalDesignSystemContract.implementation_contract.design_system_source.mode,
+  "external_design_system",
+);
+assert.equal(
+  externalDesignSystemContract.implementation_contract.design_system_source.name,
+  "Material UI",
+);
+assert.equal(
+  externalDesignSystemContract.implementation_contract.design_system_source.package,
+  "@mui/material",
+);
+assert.ok(
+  externalDesignSystemContract.implementation_contract.design_system_source
+    .token_prefixes.includes("--mui-"),
+);
+assert.deepEqual(
+  externalDesignSystemContract.implementation_contract.default_ai_native_design_system
+    .component_contracts.map((entry) => entry.id),
+  ["Stack", "Button", "Alert"],
+  "A complete external adapter replaces component contract authority.",
+);
+assert.equal(
+  externalDesignSystemContract.implementation_contract.visual_token_adapter.icon_catalog
+    .library,
+  "mui-icons-material",
+);
+assert.equal(
+  externalDesignSystemContract.implementation_contract.visual_token_adapter
+    .css_custom_properties.some((entry) => entry.name === "--jk-color-surface"),
+  false,
+  "External mode must not silently fall back to JudgmentKit default tokens.",
+);
+assert.throws(
+  () =>
+    createUiImplementationContract({
+      design_system_adapter: {
+        design_system_name: "Material UI",
+        design_system_package: "@mui/material",
+        components: ["Button"],
+      },
+    }),
+  (error) =>
+    error instanceof JudgmentKitInputError &&
+    error.code === "incomplete_design_system_authority" &&
+    error.details.missing_authorities.includes("tokens") &&
+    error.details.missing_authorities.includes("fonts") &&
+    error.details.missing_authorities.includes("icons"),
+  "Incomplete external design-system adapters must fail instead of falling back.",
+);
 assert.deepEqual(
   schema.$defs.implementationContract.properties.accessibility_policy.required,
   [
@@ -608,7 +782,7 @@ const overriddenTokenContract = createUiImplementationContract({
     },
     icon_roles: ["status", "risk"],
     icon_catalog: {
-      source: "adapter_override",
+      source: "external_design_system",
       library: "repo-icons",
       package: "@repo/icons",
       version: "2.0.0",

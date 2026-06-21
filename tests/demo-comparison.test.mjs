@@ -117,7 +117,7 @@ assert.equal(versionBMetadata.frontend_skill_context.source_skill, "frontend-ui-
 assert.equal(versionBMetadata.frontend_skill_context.raw_skill_exposed, false);
 assert.equal(
   versionBMetadata.frontend_skill_context.design_system_mode,
-  "no_design_system_adapter_provided",
+  "judgmentkit_default",
 );
 assert.equal(
   versionBMetadata.frontend_skill_context.next_recommended_tool,

@@ -502,6 +502,11 @@ try {
       .visual_token_adapter.mode,
     "boundary_only",
   );
+  assert.equal(
+    implementationContractResponse.structuredContent.implementation_contract
+      .design_system_source.mode,
+    "judgmentkit_default",
+  );
   assert.ok(
     implementationContractResponse.structuredContent.implementation_contract
       .visual_token_adapter.token_families.includes("color"),
@@ -688,6 +693,50 @@ try {
           design_system_package: "@mui/material",
           role: "visual renderer after context selection",
           components: ["Stack", "Button"],
+          token_guidance: {
+            token_families: ["color", "type"],
+            css_custom_properties: [
+              {
+                name: "--mui-palette-background-paper",
+                role: "surface",
+                family: "color",
+                value: "theme.palette.background.paper",
+                usage: "Material UI Paper surfaces",
+              },
+              {
+                name: "--mui-font-family",
+                role: "text",
+                family: "type",
+                value: "theme.typography.fontFamily",
+                usage: "Material UI Typography",
+              },
+            ],
+          },
+          font_guidance: {
+            font_roles: {
+              body: {
+                stack: "var(--mui-font-family)",
+                usage: "Material UI body typography",
+              },
+              heading: {
+                stack: "var(--mui-font-family)",
+                usage: "Material UI headings",
+              },
+            },
+          },
+          icon_guidance: {
+            icon_roles: ["status", "action"],
+            icon_catalog: {
+              source: "external_design_system",
+              library: "mui-icons-material",
+              package: "@mui/icons-material",
+              version: "repo-approved",
+              icon_count: 2000,
+              license: "MIT",
+              notice: "Repo-approved Material UI icon adapter.",
+              mcp_tools: [],
+            },
+          },
           constraint:
             "Material UI changes the renderer layer only; it does not supply activity fit.",
         },
@@ -733,17 +782,19 @@ try {
   );
   assert.ok(
     frontendSkillContextResponse.structuredContent.font_guidance.font_roles.some(
-      (entry) => entry.role === "body" && entry.stack.includes("system-ui"),
+      (entry) => entry.role === "body" && entry.stack === "var(--mui-font-family)",
     ),
   );
   assert.ok(
     frontendSkillContextResponse.structuredContent.token_guidance.css_custom_properties.some(
-      (entry) => entry.name === "--jk-color-surface" && entry.value === "#ffffff",
+      (entry) =>
+        entry.name === "--mui-palette-background-paper" &&
+        entry.value === "theme.palette.background.paper",
     ),
   );
   assert.ok(
     frontendSkillContextResponse.structuredContent.component_contracts.some(
-      (entry) => entry.id === "action_button",
+      (entry) => entry.id === "Button",
     ),
   );
   assert.ok(
@@ -755,9 +806,10 @@ try {
     frontendSkillContextResponse.structuredContent.icon_guidance.icon_catalog
       .icon_count > 1000,
   );
-  assert.ok(
+  assert.deepEqual(
     frontendSkillContextResponse.structuredContent.icon_guidance.icon_catalog
-      .mcp_tools.includes("get_icon_svg"),
+      .mcp_tools,
+    [],
   );
   assert.ok(
     frontendSkillContextResponse.structuredContent.accessibility_policy.required_evidence.includes(

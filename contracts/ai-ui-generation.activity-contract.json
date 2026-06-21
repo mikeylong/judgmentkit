@@ -1,7 +1,7 @@
 {
   "$schema": "./judgmentkit-kernel.schema.json",
   "id": "judgmentkit.ai-ui-generation.activity-contract",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "source_model": "fresh_start",
   "quality_order": [
     "activity fit",
@@ -1581,6 +1581,88 @@
       ],
       "judgmentkit_role": "review generated UI evidence and return structured failures; do not mutate files or call a provider model"
     },
+    "design_system_source": {
+      "id": "judgmentkit.design-system.source-v1",
+      "mode": "judgmentkit_default",
+      "name": "JudgmentKit",
+      "package": "judgmentkit",
+      "definition_point": "implementation_contract",
+      "required_authorities": [
+        "tokens",
+        "fonts",
+        "icons",
+        "components"
+      ],
+      "fallback_policy": "fail_incomplete",
+      "provenance_required": true,
+      "source_exports": {
+        "overview": "/design-system/",
+        "manifest": "/design-system/manifest.json",
+        "visual_token_adapter": "/design-system/visual-token-adapter.json",
+        "component_contracts": "/design-system/component-contracts.json",
+        "pattern_contracts": "/design-system/pattern-contracts.json",
+        "accessibility_policy": "/design-system/accessibility-policy.json",
+        "icon_catalog": "/design-system/icons/",
+        "icon_tools": [
+          "list_icon_catalog",
+          "search_icon_catalog",
+          "get_icon_svg"
+        ]
+      },
+      "token_prefixes": [
+        "--jk-"
+      ],
+      "icon_catalog": {
+        "source": "committed_generated_catalog",
+        "library": "lucide",
+        "package": "lucide-static",
+        "version": "1.21.0",
+        "icon_count": 1737,
+        "license": "ISC",
+        "notice": "Some Lucide icons are derived from Feather Icons and retain the Feather MIT notice; see THIRD_PARTY_NOTICES.md.",
+        "style_system": "Lucide 24px outline icons with round caps and joins",
+        "style_attributes": {
+          "viewBox": "0 0 24 24",
+          "fill": "none",
+          "stroke": "currentColor",
+          "stroke_width": "2",
+          "stroke_linecap": "round",
+          "stroke_linejoin": "round",
+          "size": "24"
+        },
+        "mcp_tools": [
+          "list_icon_catalog",
+          "search_icon_catalog",
+          "get_icon_svg"
+        ],
+        "default_include_svg": false
+      },
+      "renderer_components": [
+        "action_button",
+        "segmented_control",
+        "checkbox",
+        "toggle_switch",
+        "text_input",
+        "select_menu",
+        "tabs",
+        "dialog",
+        "status_badge",
+        "inline_alert",
+        "data_table",
+        "summary_metric",
+        "filter_bar",
+        "search_field",
+        "progress_steps",
+        "toast",
+        "empty_state"
+      ],
+      "component_contract_source": "implementation_contract.default_ai_native_design_system.component_contracts",
+      "provenance_rules": [
+        "visual tokens, fonts, icons, and renderer components must come from this active design-system source",
+        "local CSS may define layout and UI structure but must not become the source of visual tokens, typography, icon assets, or renderer components",
+        "external design systems must be supplied as complete contract-time adapters; missing authorities do not fall back to JudgmentKit defaults"
+      ]
+    },
     "visual_token_adapter": {
       "id": "judgmentkit.visual-token-adapter.boundary-v1",
       "mode": "boundary_only",
@@ -1832,7 +1914,7 @@
         }
       ],
       "font_rules": [
-        "portable defaults use system font stacks and do not load remote font files",
+        "judgmentkit_design_system uses system font stacks and does not load remote font files",
         "diagnostic font roles may appear only in setup, debugging, auditing, integration, or explicit source-inspection contexts",
         "numeric font roles should preserve readable alignment with tabular numbers when supported"
       ],

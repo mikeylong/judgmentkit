@@ -38,6 +38,25 @@ function visibleText(html) {
   return html.replace(/<script[\s\S]*?<\/script>/g, " ").replace(/<[^>]+>/g, " ");
 }
 
+function normalizeFrontendSkillSummary(summary) {
+  if (!summary) return summary;
+  const designSystemMode =
+    /^no_design_system_.*provided$/.test(summary.design_system_mode ?? "")
+      ? "judgmentkit_default"
+      : /^adapter_after_/.test(summary.design_system_mode ?? "")
+        ? "external_design_system"
+        : summary.design_system_mode;
+
+  return {
+    ...summary,
+    design_system_mode: designSystemMode,
+    design_system_name:
+      designSystemMode === "judgmentkit_default" && !summary.design_system_name
+        ? "JudgmentKit"
+        : summary.design_system_name,
+  };
+}
+
 function compactText(value) {
   return String(value).replace(/\s+/g, " ").trim();
 }
@@ -240,11 +259,11 @@ for (const useCase of MODEL_UI_USE_CASES) {
         assert.equal(entry.frontend_skill_context.raw_skill_exposed, false);
         assert.equal(entry.frontend_skill_context.next_recommended_tool, "review_ui_implementation_candidate");
         if (column.design_system_mode === "material_ui") {
-          assert.equal(entry.frontend_skill_context.design_system_mode, "adapter_after_judgment");
+          assert.equal(entry.frontend_skill_context.design_system_mode, "external_design_system");
           assert.equal(entry.frontend_skill_context.design_system_name, "Material UI");
         } else {
-          assert.equal(entry.frontend_skill_context.design_system_mode, "no_design_system_adapter_provided");
-          assert.equal(entry.frontend_skill_context.design_system_name, "");
+          assert.equal(entry.frontend_skill_context.design_system_mode, "judgmentkit_default");
+          assert.equal(entry.frontend_skill_context.design_system_name, "JudgmentKit");
         }
       } else {
         assert.equal(entry.reviewed_handoff_file, null);
@@ -280,7 +299,10 @@ for (const useCase of MODEL_UI_USE_CASES) {
         assert.deepEqual(capture.context_included, entry.context_included);
         assert.equal(capture.frontend_context_status, entry.frontend_context_status);
         assert.equal(capture.frontend_skill_context_status, entry.frontend_skill_context_status);
-        assert.deepEqual(capture.frontend_skill_context, entry.frontend_skill_context);
+        assert.deepEqual(
+          normalizeFrontendSkillSummary(capture.frontend_skill_context),
+          entry.frontend_skill_context,
+        );
         assert.deepEqual(capture.lms_context ?? null, entry.lms_context);
         assert.deepEqual(capture.capture_quality ?? null, entry.capture_quality);
         assert.deepEqual(entry.capture_provenance.lms_context ?? null, entry.lms_context);
