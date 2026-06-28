@@ -123,13 +123,6 @@ assert.deepEqual(result.routes, [
   "/",
   "/value/",
   "/docs/",
-  "/design-system/",
-  "/design-system/tokens/",
-  "/design-system/fonts/",
-  "/design-system/icons/",
-  "/design-system/components/",
-  "/design-system/patterns/",
-  "/design-system/accessibility/",
   "/examples/",
   "/evals/",
   "/evals/judgmentkit-mcp/",
@@ -143,6 +136,23 @@ function assertAnalyticsBootstrap(html, label) {
   assert.ok(html.includes('src="/_vercel/insights/script.js"'), `${label} should load Vercel Analytics script`);
   assert.ok(html.includes('data-sdkn="@vercel/analytics"'), `${label} should name the analytics SDK`);
   assert.ok(html.includes('data-sdkv="2.0.1"'), `${label} should include the analytics SDK version`);
+}
+
+function collectTextFiles(dir) {
+  const textExtensions = new Set([".html", ".json", ".md", ".txt"]);
+  const files = [];
+
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const entryPath = path.join(dir, entry.name);
+
+    if (entry.isDirectory()) {
+      files.push(...collectTextFiles(entryPath));
+    } else if (entry.isFile() && textExtensions.has(path.extname(entry.name))) {
+      files.push(entryPath);
+    }
+  }
+
+  return files;
 }
 
 const homepage = fs.readFileSync(path.join(tempDir, "index.html"), "utf8");
@@ -196,7 +206,7 @@ assert.ok(
 assert.ok(platformNavMarkup.includes('<div class="surfaces-navigation-sections" aria-label="Primary">'));
 assert.ok(platformNavMarkup.includes('href="/value/"'));
 assert.ok(platformNavMarkup.includes('href="/docs/"'));
-assert.ok(platformNavMarkup.includes('href="/design-system/"'));
+assert.equal(platformNavMarkup.includes('href="/design-system/"'), false);
 assert.ok(platformNavMarkup.includes('href="/examples/"'));
 assert.ok(platformNavMarkup.includes('href="/evals/"'));
 assert.ok(platformNavMarkup.includes('href="/mcp"'));
@@ -210,7 +220,6 @@ assert.ok(platformNavMarkup.includes('data-surfaces-primary-menu-list'));
 for (const [href, label] of [
   ["/value/", "Value"],
   ["/docs/", "Docs"],
-  ["/design-system/", "Design System"],
   ["/examples/", "Examples"],
   ["/evals/", "Evals"],
   ["/mcp", "MCP"],
@@ -346,10 +355,11 @@ assert.ok(homepage.includes("Evaluation evidence"));
 assert.ok(homepage.includes('class="section adoption-paths" aria-labelledby="adoption-title"'));
 assert.ok(homepage.includes("Choose the next surface for the work you are doing."));
 assert.ok(homepage.includes("Read the docs"));
-assert.ok(homepage.includes("Review the design-system assets"));
+assert.ok(homepage.includes("Review the active design source"));
 assert.ok(homepage.includes("Start installation"));
 assert.ok(homepage.includes('href="/docs/"'));
-assert.ok(homepage.includes('href="/design-system/"'));
+assert.ok(homepage.includes('href="https://surfaces.systems/design-system"'));
+assert.equal(homepage.includes('href="/design-system/"'), false);
 assert.ok(homepage.includes('href="/install"'));
 assert.ok(siteCss.includes(".evaluation-panel"));
 assert.ok(siteCss.includes(".failure-grid"));
@@ -406,8 +416,8 @@ assert.ok(homepage.includes('name="twitter:image:alt" content="JudgmentKit. Befo
 assert.ok(llms.includes("- /evals/judgmentkit-mcp/"));
 assert.ok(llms.includes("- /evals/site-rebuild-log/"));
 assert.ok(llms.includes("- /value/"));
-assert.ok(llms.includes("- /design-system/"));
-assert.ok(llms.includes("- /design-system/llms.txt"));
+assert.equal(llms.includes("- /design-system/"), false);
+assert.equal(llms.includes("- /design-system/llms.txt"), false);
 assert.equal(llms.includes("- /design-system/tokens/"), false);
 assert.equal(llms.includes("- /design-system/fonts/"), false);
 assert.equal(llms.includes("- /design-system/icons/"), false);
@@ -520,520 +530,42 @@ assert.equal(docs.includes("optional styling path"), false);
 assert.ok(docs.includes("operator-review-ui"));
 assert.equal(docs.includes("judgmentkit2"), false);
 
-const designSystem = fs.readFileSync(path.join(tempDir, "design-system", "index.html"), "utf8");
-const designSystemTokens = fs.readFileSync(
-  path.join(tempDir, "design-system", "tokens", "index.html"),
-  "utf8",
+const retiredDesignSystemDir = path.join(tempDir, "design-system");
+assert.equal(
+  fs.existsSync(retiredDesignSystemDir),
+  false,
+  "site build must not emit a public JudgmentKit design-system directory.",
 );
-const designSystemFonts = fs.readFileSync(
-  path.join(tempDir, "design-system", "fonts", "index.html"),
-  "utf8",
-);
-const designSystemIcons = fs.readFileSync(
-  path.join(tempDir, "design-system", "icons", "index.html"),
-  "utf8",
-);
-const designSystemComponents = fs.readFileSync(
-  path.join(tempDir, "design-system", "components", "index.html"),
-  "utf8",
-);
-const designSystemPatterns = fs.readFileSync(
-  path.join(tempDir, "design-system", "patterns", "index.html"),
-  "utf8",
-);
-const designSystemAccessibility = fs.readFileSync(
-  path.join(tempDir, "design-system", "accessibility", "index.html"),
-  "utf8",
-);
-const designSystemMarkdown = fs.readFileSync(
-  path.join(tempDir, "design-system", "index.html.md"),
-  "utf8",
-);
-const designSystemTokensMarkdown = fs.readFileSync(
-  path.join(tempDir, "design-system", "tokens", "index.html.md"),
-  "utf8",
-);
-const designSystemFontsMarkdown = fs.readFileSync(
-  path.join(tempDir, "design-system", "fonts", "index.html.md"),
-  "utf8",
-);
-const designSystemIconsMarkdown = fs.readFileSync(
-  path.join(tempDir, "design-system", "icons", "index.html.md"),
-  "utf8",
-);
-const designSystemComponentsMarkdown = fs.readFileSync(
-  path.join(tempDir, "design-system", "components", "index.html.md"),
-  "utf8",
-);
-const designSystemPatternsMarkdown = fs.readFileSync(
-  path.join(tempDir, "design-system", "patterns", "index.html.md"),
-  "utf8",
-);
-const designSystemAccessibilityMarkdown = fs.readFileSync(
-  path.join(tempDir, "design-system", "accessibility", "index.html.md"),
-  "utf8",
-);
-const designSystemLlms = fs.readFileSync(
-  path.join(tempDir, "design-system", "llms.txt"),
-  "utf8",
-);
-const designSystemLlmsFull = fs.readFileSync(
-  path.join(tempDir, "design-system", "llms-full.txt"),
-  "utf8",
-);
-const designSystemManifest = JSON.parse(
-  fs.readFileSync(path.join(tempDir, "design-system", "manifest.json"), "utf8"),
-);
-assert.ok(designSystemTokens.includes('<a href="/design-system/" aria-current="page">Design System</a>'));
-assert.ok(designSystemTokens.includes('<a href="/design-system/tokens/" data-section-rail-link aria-current="page">Tokens</a>'));
-const visualTokenAdapterExport = JSON.parse(
-  fs.readFileSync(path.join(tempDir, "design-system", "visual-token-adapter.json"), "utf8"),
-);
-const componentContractsExport = JSON.parse(
-  fs.readFileSync(path.join(tempDir, "design-system", "component-contracts.json"), "utf8"),
-);
-const patternContractsExport = JSON.parse(
-  fs.readFileSync(path.join(tempDir, "design-system", "pattern-contracts.json"), "utf8"),
-);
-const componentSpecimensExport = JSON.parse(
-  fs.readFileSync(path.join(tempDir, "design-system", "component-specimens.json"), "utf8"),
-);
-const patternSpecimensExport = JSON.parse(
-  fs.readFileSync(path.join(tempDir, "design-system", "pattern-specimens.json"), "utf8"),
-);
-const specimenProvenanceExport = JSON.parse(
-  fs.readFileSync(path.join(tempDir, "design-system", "specimen-provenance.json"), "utf8"),
-);
-const accessibilityPolicyExport = JSON.parse(
-  fs.readFileSync(path.join(tempDir, "design-system", "accessibility-policy.json"), "utf8"),
-);
-const iconScenariosExport = JSON.parse(
-  fs.readFileSync(path.join(tempDir, "design-system", "icon-scenarios.json"), "utf8"),
-);
+for (const artifact of [
+  "manifest.json",
+  "visual-token-adapter.json",
+  "component-contracts.json",
+  "pattern-contracts.json",
+  "component-specimens.json",
+  "pattern-specimens.json",
+  "specimen-provenance.json",
+  "accessibility-policy.json",
+  "icon-scenarios.json",
+]) {
+  assert.equal(
+    fs.existsSync(path.join(retiredDesignSystemDir, artifact)),
+    false,
+    `site build must not emit stale JudgmentKit design-system JSON: ${artifact}`,
+  );
+}
 const implementationContract = createUiImplementationContract().implementation_contract;
 const defaultDesignSystem = implementationContract.default_ai_native_design_system;
-for (const [label, html] of [
-  ["design system overview", designSystem],
-  ["design system tokens", designSystemTokens],
-  ["design system fonts", designSystemFonts],
-  ["design system icons", designSystemIcons],
-  ["design system components", designSystemComponents],
-  ["design system patterns", designSystemPatterns],
-  ["design system accessibility", designSystemAccessibility],
-]) {
-  assertAnalyticsBootstrap(html, label);
-  assert.ok(html.includes("JudgmentKit"), `${label} should identify JudgmentKit`);
-  assert.equal(/googleapis|gstatic|unpkg|jsdelivr|fontawesome|icons-material/i.test(html), false);
-}
-for (const [label, markdown] of [
-  ["design system markdown", designSystemMarkdown],
-  ["design system tokens markdown", designSystemTokensMarkdown],
-  ["design system fonts markdown", designSystemFontsMarkdown],
-  ["design system icons markdown", designSystemIconsMarkdown],
-  ["design system components markdown", designSystemComponentsMarkdown],
-  ["design system patterns markdown", designSystemPatternsMarkdown],
-  ["design system accessibility markdown", designSystemAccessibilityMarkdown],
-]) {
-  assert.ok(markdown.startsWith("# JudgmentKit"), `${label} should start with a title`);
-  assert.equal(markdown.includes("<nav"), false, `${label} must not include site navigation`);
-  assert.equal(markdown.includes("window.va"), false, `${label} must not include analytics`);
-  assert.equal(markdown.includes("data-catalog-icon"), false, `${label} must not embed full icon grid`);
-  assert.equal(markdown.includes("<svg"), false, `${label} must not embed SVG payloads`);
-  assert.equal(markdown.includes("Agent Consumption"), false, `${label} must not use agent-only IA`);
-  assert.equal(markdown.includes("MCP Tools"), false, `${label} must not expose tool flow as a page section`);
-}
-for (const [label, html] of [
-  ["design system overview", designSystem],
-  ["design system tokens", designSystemTokens],
-  ["design system fonts", designSystemFonts],
-  ["design system icons", designSystemIcons],
-  ["design system components", designSystemComponents],
-  ["design system patterns", designSystemPatterns],
-  ["design system accessibility", designSystemAccessibility],
-]) {
-  assert.equal(html.includes("Agent Consumption"), false, `${label} must not expose agent-only IA`);
-  assert.equal(html.includes("Agent Search"), false, `${label} must not frame the page as an agent proof`);
-  assert.equal(html.includes("MCP tools"), false, `${label} must not expose tool flow in visible content`);
-  assert.equal(html.includes("boundary_only"), false, `${label} must not expose adapter mode`);
-  assert.equal(html.includes("adapter-layer metadata"), false, `${label} must not expose adapter metadata as UI copy`);
-  assert.equal(html.includes("llms.txt"), false, `${label} must not make machine exports visible IA`);
-  assert.equal(html.includes("data-agent-icon-card"), false, `${label} must not keep old icon proof attributes`);
-}
-assert.ok(designSystem.includes("<h1>Foundations</h1>"));
-assert.ok(designSystem.includes("Foundation assets"));
-assert.ok(designSystem.includes("How to review"));
-assert.ok(designSystem.includes("Principles"));
-assert.ok(designSystem.includes("Tokens"));
-assert.ok(designSystem.includes("Typography"));
-assert.ok(designSystem.includes("Icons"));
-assert.ok(designSystem.includes('aria-label="Design system sections"'));
-assert.ok(designSystem.includes('aria-label="On this page"'));
-assert.ok(designSystem.includes("/design-system/tokens/"));
-assert.ok(designSystem.includes("/design-system/fonts/"));
-assert.ok(designSystem.includes("/design-system/icons/"));
-assert.ok(designSystem.includes("/design-system/components/"));
-assert.ok(designSystem.includes("/design-system/patterns/"));
-assert.ok(designSystem.includes("/design-system/accessibility/"));
-assert.ok(designSystemTokens.includes("<h1>Tokens</h1>"));
-assert.ok(designSystemTokens.includes("JudgmentKit token roles"));
-assert.ok(designSystemTokens.includes("Portable CSS custom properties"));
-assert.ok(designSystemTokens.includes("roles + CSS"));
-assert.ok(designSystemTokens.includes("<h2 id=\"appearance\">Appearance</h2>"));
-assert.ok(designSystemTokens.includes("system-detected"));
-assert.ok(designSystemTokens.includes('data-appearance-default="system"'));
-assert.ok(designSystemTokens.includes('data-visible-appearance-toggle="false"'));
-assert.ok(designSystemTokens.includes("--jk-color-surface"));
-assert.ok(designSystemTokens.includes("#ffffff"));
-assert.ok(designSystemTokens.includes("@media (prefers-color-scheme: dark)"));
-assert.ok(designSystemTokens.includes("#181d1b"));
-assert.ok(designSystemTokens.includes('data-token-value="--jk-color-surface"'));
-assert.ok(designSystemTokens.includes('data-token-swatch="--jk-color-surface"'));
-assert.ok(designSystemTokens.includes('aria-label="--jk-color-surface color swatch: #ffffff"'));
-assert.ok(designSystemTokens.includes("token-value-with-swatch"));
-assert.ok(designSystemTokens.includes("role-first layer"));
-assert.ok(designSystemTokens.includes("Token roles"));
-assert.ok(designSystemTokens.includes("surface"));
-assert.ok(designSystemTokens.includes("focus"));
-assert.ok(designSystemTokens.includes("receipt"));
-assert.ok(designSystemTokens.includes('data-token-role="surface"'));
-assert.ok(designSystemTokens.includes('data-token-role="focus"'));
-assert.ok(designSystemTokens.includes("<caption>JudgmentKit token roles</caption>"));
-assert.ok(designSystemTokens.includes("Accessibility"));
-assert.ok(designSystemTokens.includes("Color cannot be the only way"));
-assert.ok(designSystemTokensMarkdown.includes("## Appearance"));
-assert.ok(designSystemTokensMarkdown.includes("Default mode: `system`"));
-assert.ok(designSystemTokensMarkdown.includes("Visible appearance toggle by default: `false`"));
-assert.ok(designSystemTokensMarkdown.includes("Token sets: `light`, `dark`"));
-assert.equal(designSystemTokens.includes("Evidence Expectations"), false);
-assert.equal(designSystemTokens.includes("Failure Signals"), false);
-assert.ok(designSystemFonts.includes("<h1>Typography</h1>"));
-assert.ok(designSystemFonts.includes("JudgmentKit typography roles"));
-assert.ok(designSystemFonts.includes("body"));
-assert.ok(designSystemFonts.includes("heading"));
-assert.ok(designSystemFonts.includes("label"));
-assert.ok(designSystemFonts.includes("numeric"));
-assert.ok(designSystemFonts.includes("diagnostic"));
-assert.ok(designSystemFonts.includes('data-font-role="body"'));
-assert.ok(designSystemFonts.includes('data-font-role="numeric"'));
-assert.ok(designSystemFonts.includes('data-font-role="diagnostic"'));
-assert.ok(designSystemFonts.includes("system-ui, -apple-system"));
-assert.ok(designSystemFonts.includes("ui-monospace"));
-assert.ok(designSystemFonts.includes("No font CDN or bundled font files."));
-assert.ok(designSystemFonts.includes("Respect browser text scaling"));
-assert.ok(designSystemIcons.includes("<h1>Icons</h1>"));
-assert.ok(designSystemIcons.includes("A complete Lucide icon catalog"));
-assert.ok(designSystemIcons.includes("lucide-static@1.21.0"));
-assert.ok(designSystemIcons.includes("1737"));
-assert.ok(designSystemIcons.includes("Usage"));
-assert.ok(designSystemIcons.includes("Icon index"));
-assert.ok(designSystemIcons.includes("Accessibility"));
-assert.ok(designSystemIcons.includes("Source"));
-assert.ok(designSystemIcons.includes("Choose the icon by the meaning"));
-assert.ok(designSystemIcons.includes('data-design-icon-search'));
-assert.ok(designSystemIcons.includes('class="site-shell doc-layout design-system-layout"'));
-assert.ok(designSystemIcons.includes('class="section-rail-menu design-system-section-menu" data-section-rail-menu'));
-assert.ok(designSystemIcons.includes('class="section-rail-menu-button"'));
-assert.ok(designSystemIcons.includes('aria-controls="design-system-section-menu-icons"'));
-assert.ok(designSystemIcons.includes('data-section-rail-menu-button'));
-assert.ok(designSystemIcons.includes('data-section-rail-menu-backdrop'));
-assert.ok(designSystemIcons.includes('id="design-system-section-menu-icons" hidden data-section-rail-menu-list aria-label="Design system sections"'));
-assert.ok(designSystemIcons.includes('data-section-rail-menu-list'));
-assert.ok(designSystemIcons.includes('class="section-rail-nav design-system-nav" aria-label="Design system sections"'));
-assert.ok(designSystemIcons.includes('<a href="/design-system/icons/" data-section-rail-link aria-current="page">Icons</a>'));
-assert.equal(designSystemIcons.includes('id="design-system-section-menu-icons" role="menu"'), false);
-assert.equal(designSystemIcons.includes('<a href="/design-system/icons/" role="menuitem"'), false);
-const iconIndexCards = designSystemIcons.match(
-  /<li class="design-icon-scenario design-icon-index-card"[\s\S]*?<\/li>/g,
-) ?? [];
-assert.equal(designSystemIcons.includes("Icon examples"), false);
-assert.equal(designSystemIcons.includes('id="icon-examples"'), false);
-assert.equal(designSystemIcons.includes('href="#icon-examples"'), false);
-assert.equal(designSystemIcons.includes('data-icon-example='), false);
-assert.equal(designSystemIcons.includes("data-selected-icon-id"), false);
-assert.ok(designSystemIcons.includes('data-icon-scenario="status-success"'));
-assert.ok(designSystemIcons.includes('data-icon-id="check"'));
-assert.equal(designSystemIcons.includes("<h3>Status success</h3>"), false);
-assert.equal(designSystemIcons.includes("<h3>A Arrow Down</h3>"), false);
-assert.equal(designSystemIcons.includes("Show a completed status beside a visible result label."), false);
-assert.ok(designSystemIcons.includes('data-icon-id="receipt-text"'));
-assert.ok(designSystemIcons.includes('data-icon-name="Receipt Text"'));
-assert.ok(designSystemIcons.includes("Every catalog entry uses the same icon and ID card format."));
-assert.equal(
-  designSystemIcons.includes("Every catalog entry uses the same icon, label, and ID card format."),
-  false,
-);
-assert.equal(
-  designSystemIcons.includes("Every catalog entry uses the same icon, label, meaning, and ID card format."),
-  false,
-);
-assert.equal(
-  designSystemIcons.includes(
-    "Lucide catalog icon available for JudgmentKit interface states, actions, navigation, and objects.",
-  ),
-  false,
-);
-assert.equal(designSystemIcons.includes("<dt>Icon</dt>"), false);
-assert.ok(designSystemIcons.includes('<code class="design-icon-id" aria-label="Icon ID check">check</code>'));
-assert.equal(designSystemIcons.includes("list_icon_catalog"), false);
-assert.equal(designSystemIcons.includes("search_icon_catalog"), false);
-assert.equal(designSystemIcons.includes("get_icon_svg"), false);
-assert.ok(designSystemIcons.includes("/examples/lucide-icon-catalog-smoke.html"));
-assert.equal(designSystemIcons.includes("data-catalog-icon"), false);
-assert.ok(designSystemIcons.includes("<svg"));
-assert.ok(designSystemIcons.includes('viewBox="0 0 24 24"'));
-assert.equal(iconIndexCards.length, 1737);
-assert.equal(iconIndexCards.some((card) => card.includes("<h3>")), false);
-assert.equal(iconIndexCards.some((card) => card.includes("<p>")), false);
-assert.equal((designSystemIcons.match(/data-icon-scenario=/g) ?? []).length, 16);
-assert.equal((designSystemIcons.match(/data-icon-id=/g) ?? []).length, 1737);
-assert.equal((designSystemIcons.match(/class="design-icon-id"/g) ?? []).length, 1737);
-assert.equal((designSystemIcons.match(/data-catalog-icon=/g) ?? []).length, 0);
-assert.equal((designSystemIcons.match(/class="design-icon-scenario(?:\s|")/g) ?? []).length, 1737);
-assert.equal(designSystemIcons.includes("without loading the full SVG grid"), false);
-assert.equal(siteCss.includes(".design-icon-tile"), false);
-assert.equal(siteCss.includes(".design-icon-scenario h3"), false);
-assert.equal(siteCss.includes(".design-icon-scenario p"), false);
-assert.equal(siteCss.includes("min-height: 178px;"), false);
-assert.ok(siteCss.includes(".design-icon-symbol {\n  display: grid;\n  width: 24px;\n  min-height: 24px;\n  place-items: center;\n  color: inherit;\n}"));
-assert.ok(siteCss.includes("grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));"));
-assert.ok(siteCss.includes(".design-icon-index-list {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));\n  align-items: start;"));
-assert.ok(siteCss.includes(".design-icon-index-card[hidden] {\n  display: none;\n}"));
-assert.ok(Buffer.byteLength(designSystemIcons, "utf8") < 2_500_000);
-assert.ok(designSystemComponents.includes("<h1>Components</h1>"));
-assert.ok(designSystemComponents.includes("Core UI component contracts"));
-assert.ok(designSystemComponents.includes("<h2 id=\"specimens\">Specimens</h2>"));
-assert.ok(designSystemComponents.includes('data-specimen-id="component.action_button"'));
-assert.ok(designSystemComponents.includes('data-contract-hash="sha256:'));
-assert.ok(designSystemComponents.includes('data-component-state="focus-visible"'));
-assert.ok(designSystemComponents.includes('data-component-anatomy="visible-label"'));
-assert.ok(designSystemComponents.includes('data-token-role="decision"'));
-assert.ok(designSystemComponents.includes("Contract hash"));
-assert.ok(designSystemComponents.includes("Output hash"));
-assert.ok(designSystemComponents.includes('data-component-contract="action_button"'));
-assert.ok(designSystemComponents.includes('data-component-contract="dialog"'));
-assert.ok(designSystemComponents.includes("required state coverage"));
-assert.ok(designSystemPatterns.includes("<h1>Patterns</h1>"));
-assert.ok(designSystemPatterns.includes("Surface pattern contracts"));
-assert.ok(designSystemPatterns.includes("<h2 id=\"specimens\">Specimens</h2>"));
-assert.ok(designSystemPatterns.includes('data-specimen-id="pattern.workbench"'));
-assert.ok(designSystemPatterns.includes('data-pattern-region="work-queue"'));
-assert.ok(designSystemPatterns.includes('data-pattern-control="decision-action"'));
-assert.ok(designSystemPatterns.includes('data-pattern-contract="workbench"'));
-assert.ok(designSystemPatterns.includes('data-surface-type="operator_review"'));
-assert.ok(designSystemPatterns.includes("required regions"));
-assert.ok(designSystemAccessibility.includes("<h1>Accessibility</h1>"));
-assert.ok(designSystemAccessibility.includes("WCAG 2.2 AA"));
-assert.ok(designSystemAccessibility.includes("Normal text contrast target: 4.5:1."));
-assert.ok(designSystemAccessibility.includes('data-accessibility-contract="keyboard_and_focus"'));
-assert.ok(designSystemComponentsMarkdown.includes("## Component Contracts"));
-assert.ok(designSystemPatternsMarkdown.includes("## Surface Pattern Contracts"));
-assert.ok(designSystemAccessibilityMarkdown.includes("## Evidence Groups"));
-assert.ok(designSystemComponentsMarkdown.includes("## Specimens"));
-assert.ok(designSystemPatternsMarkdown.includes("## Specimens"));
+assert.equal(implementationContract.design_system_source.mode, "judgmentkit_default");
+assert.ok(defaultDesignSystem.component_contracts.length > 0);
+assert.ok(defaultDesignSystem.pattern_contracts.length > 0);
 const lucideSmokeProof = fs.readFileSync(
   path.join(tempDir, "examples", "lucide-icon-catalog-smoke.html"),
   "utf8",
 );
 assert.equal((lucideSmokeProof.match(/data-catalog-icon=/g) ?? []).length, 1737);
-assert.ok(siteCss.includes(".design-system-page"));
-assert.ok(siteCss.includes(".design-system-foundation-list"));
-assert.ok(siteCss.includes(".design-system-table"));
-assert.ok(siteCss.includes(".design-system-search"));
-assert.ok(siteCss.includes(".design-system-example-grid"));
-assert.ok(siteCss.includes(".design-system-specimen-list"));
-assert.ok(siteCss.includes(".jk-specimen-preview"));
 assert.ok(siteCss.includes(".design-icon-index-list"));
 assert.ok(siteCss.includes(".design-icon-index-card"));
 assert.ok(siteCss.includes(".design-icon-symbol svg"));
-assert.ok(designSystemLlms.includes("# JudgmentKit Design System"));
-assert.ok(designSystemLlms.includes("/design-system/"));
-assert.ok(designSystemLlms.includes("/design-system/index.html.md"));
-assert.ok(designSystemLlms.includes("/design-system/manifest.json"));
-assert.ok(designSystemLlms.includes("/design-system/component-contracts.json"));
-assert.ok(designSystemLlms.includes("/design-system/pattern-contracts.json"));
-assert.ok(designSystemLlms.includes("/design-system/component-specimens.json"));
-assert.ok(designSystemLlms.includes("/design-system/pattern-specimens.json"));
-assert.ok(designSystemLlms.includes("/design-system/specimen-provenance.json"));
-assert.ok(designSystemLlms.includes("/design-system/accessibility-policy.json"));
-assert.ok(designSystemLlms.includes("/examples/lucide-icon-catalog-smoke.html"));
-assert.ok(designSystemLlmsFull.includes("## Principles"));
-assert.equal(designSystemLlmsFull.includes("## Icon Examples"), false);
-assert.ok(designSystemLlmsFull.includes("Common interface meanings such as status"));
-assert.ok(designSystemLlmsFull.includes("## Specimens"));
-assert.ok(designSystemLlmsFull.includes("## Component Contracts"));
-assert.ok(designSystemLlmsFull.includes("## Surface Pattern Contracts"));
-assert.equal(designSystemLlmsFull.includes("data-catalog-icon"), false);
-assert.equal(designSystemLlmsFull.includes("Agent Consumption"), false);
-assert.equal(designSystemManifest.exports.llms, "/design-system/llms.txt");
-assert.equal(designSystemManifest.exports.visual_token_adapter, "/design-system/visual-token-adapter.json");
-assert.equal(designSystemManifest.exports.component_contracts, "/design-system/component-contracts.json");
-assert.equal(designSystemManifest.exports.pattern_contracts, "/design-system/pattern-contracts.json");
-assert.equal(designSystemManifest.exports.component_specimens, "/design-system/component-specimens.json");
-assert.equal(designSystemManifest.exports.pattern_specimens, "/design-system/pattern-specimens.json");
-assert.equal(designSystemManifest.exports.specimen_provenance, "/design-system/specimen-provenance.json");
-assert.equal(designSystemManifest.exports.accessibility_policy, "/design-system/accessibility-policy.json");
-assert.equal(designSystemManifest.section, "JudgmentKit Design System");
-assert.equal(designSystemManifest.purpose, "Human reference for foundation assets.");
-assert.equal(
-  designSystemManifest.source.design_system_contract_id,
-  "judgmentkit.ai-native-default.contract-v1",
-);
-assert.equal(designSystemManifest.source.lucide.package, "lucide-static");
-assert.equal(designSystemManifest.source.lucide.version, "1.21.0");
-assert.equal(designSystemManifest.source.lucide.icon_count, 1737);
-assert.ok(
-  visualTokenAdapterExport.css_custom_properties.some(
-    (entry) => entry.name === "--jk-color-surface" && entry.value === "#ffffff",
-  ),
-);
-assert.equal(visualTokenAdapterExport.appearance_policy.default_mode, "system");
-assert.equal(visualTokenAdapterExport.appearance_policy.visible_toggle_default, false);
-assert.deepEqual(visualTokenAdapterExport.appearance_policy.supported_modes, [
-  "light",
-  "dark",
-  "system",
-]);
-assert.ok(
-  visualTokenAdapterExport.appearance_token_sets.some(
-    (entry) =>
-      entry.mode === "dark" &&
-      entry.color_scheme === "dark" &&
-      entry.css_custom_properties.some(
-        (token) => token.name === "--jk-color-surface" && token.value === "#181d1b",
-      ),
-  ),
-);
-assert.equal(componentContractsExport.source, "judgmentkit.ai-native-default.contract-v1");
-assert.equal(componentContractsExport.contracts.length, 17);
-assert.ok(componentContractsExport.contracts.some((entry) => entry.id === "action_button"));
-assert.ok(
-  componentContractsExport.contracts
-    .find((entry) => entry.id === "dialog")
-    .accessibility_checks.includes("focus management"),
-);
-assert.equal(patternContractsExport.source, "judgmentkit.ai-native-default.contract-v1");
-assert.equal(patternContractsExport.contracts.length, 8);
-assert.ok(patternContractsExport.contracts.some((entry) => entry.id === "workbench"));
-assert.equal(
-  patternContractsExport.contracts.find((entry) => entry.id === "operator_review")
-    .surface_type,
-  "operator_review",
-);
-assert.equal(componentSpecimensExport.source, "judgmentkit.ai-native-default.contract-v1");
-assert.equal(componentSpecimensExport.renderer.id, "judgmentkit-static-specimens");
-assert.equal(componentSpecimensExport.specimens.length, componentContractsExport.contracts.length);
-assert.equal(patternSpecimensExport.source, "judgmentkit.ai-native-default.contract-v1");
-assert.equal(patternSpecimensExport.renderer.id, "judgmentkit-static-specimens");
-assert.equal(patternSpecimensExport.specimens.length, patternContractsExport.contracts.length);
-assert.equal(specimenProvenanceExport.source, "judgmentkit.ai-native-default.contract-v1");
-assert.equal(
-  specimenProvenanceExport.design_system_contract_hash,
-  hashCanonical(defaultDesignSystem),
-);
-assert.equal(
-  specimenProvenanceExport.token_hash,
-  hashCanonical(visualTokenAdapterExport.css_custom_properties),
-);
-assert.equal(
-  specimenProvenanceExport.icon_catalog_hash,
-  hashCanonical(visualTokenAdapterExport.icon_catalog),
-);
-
-for (const contract of componentContractsExport.contracts) {
-  const specimen = componentSpecimensExport.specimens.find(
-    (entry) => entry.contract_id === contract.id,
-  );
-  assert.ok(specimen, `${contract.id} should have a component specimen`);
-  assert.equal(specimen.contract_hash, hashCanonical(contract));
-  assert.equal(specimen.output_hash, hashText(specimen.rendered_html));
-  assert.equal(
-    specimen.selectors.root,
-    `[data-specimen-id="component.${contract.id}"]`,
-  );
-  assert.ok(
-    designSystemComponents.includes(`data-specimen-id="component.${contract.id}"`),
-    `${contract.id} specimen root should render`,
-  );
-  for (const state of contract.required_states) {
-    assert.ok(specimen.covered_states.includes(state), `${contract.id} should cover ${state}`);
-    assert.ok(specimen.selectors.states[state], `${contract.id} should expose selector for ${state}`);
-    assert.ok(
-      specimen.rendered_html.includes(`data-component-state="${state}"`),
-      `${contract.id} should render ${state}`,
-    );
-  }
-  for (const anatomy of contract.anatomy) {
-    assert.ok(
-      specimen.rendered_html.includes(`data-component-anatomy="${anatomy.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase()}"`),
-      `${contract.id} should render anatomy ${anatomy}`,
-    );
-  }
-}
-
-for (const contract of patternContractsExport.contracts) {
-  const specimen = patternSpecimensExport.specimens.find(
-    (entry) => entry.contract_id === contract.id,
-  );
-  assert.ok(specimen, `${contract.id} should have a pattern specimen`);
-  assert.equal(specimen.contract_hash, hashCanonical(contract));
-  assert.equal(specimen.output_hash, hashText(specimen.rendered_html));
-  assert.equal(
-    specimen.selectors.root,
-    `[data-specimen-id="pattern.${contract.id}"]`,
-  );
-  assert.ok(
-    designSystemPatterns.includes(`data-specimen-id="pattern.${contract.id}"`),
-    `${contract.id} specimen root should render`,
-  );
-  assert.equal(specimen.surface_type, contract.surface_type);
-  for (const region of contract.required_regions) {
-    assert.ok(specimen.covered_regions.includes(region), `${contract.id} should cover ${region}`);
-    assert.ok(specimen.selectors.regions[region], `${contract.id} should expose selector for ${region}`);
-    assert.ok(
-      specimen.rendered_html.includes(`data-pattern-region="${region.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase()}"`),
-      `${contract.id} should render region ${region}`,
-    );
-  }
-  for (const control of contract.expected_controls) {
-    assert.ok(specimen.covered_controls.includes(control), `${contract.id} should cover ${control}`);
-    assert.ok(specimen.selectors.controls[control], `${contract.id} should expose selector for ${control}`);
-    assert.ok(
-      specimen.rendered_html.includes(`data-pattern-control="${control.replace(/[^a-z0-9]+/gi, "-").replace(/^-+|-+$/g, "").toLowerCase()}"`),
-      `${contract.id} should render control ${control}`,
-    );
-  }
-}
-
-assert.deepEqual(
-  specimenProvenanceExport.component_specimens.map((entry) => entry.id),
-  componentSpecimensExport.specimens.map((entry) => entry.id),
-);
-assert.deepEqual(
-  specimenProvenanceExport.pattern_specimens.map((entry) => entry.id),
-  patternSpecimensExport.specimens.map((entry) => entry.id),
-);
-assert.ok(specimenProvenanceExport.proof_scope.includes("do not replace"));
-assert.equal(accessibilityPolicyExport.standards_profile.baseline, "WCAG 2.2 AA");
-assert.equal(accessibilityPolicyExport.contrast_targets.normal_text_min_ratio, 4.5);
-assert.equal(visualTokenAdapterExport.icon_catalog.package, "lucide-static");
-assert.equal(visualTokenAdapterExport.icon_catalog.version, "1.21.0");
-assert.equal(visualTokenAdapterExport.icon_catalog.icon_count, 1737);
-assert.deepEqual(iconScenariosExport.mcp_tools, [
-  "list_icon_catalog",
-  "search_icon_catalog",
-  "get_icon_svg",
-]);
-assert.equal(iconScenariosExport.source.package, "lucide-static");
-assert.equal(iconScenariosExport.source.version, "1.21.0");
-assert.equal(iconScenariosExport.source.icon_count, 1737);
-assert.equal(iconScenariosExport.scenarios.length, 16);
-assert.equal(iconScenariosExport.scenarios.some((scenario) => "inline_svg" in scenario), false);
-assert.ok(
-  iconScenariosExport.scenarios.some(
-    (scenario) => scenario.intent === "Show a completed status beside a visible result label.",
-  ),
-);
-assert.ok(iconScenariosExport.scenarios.some((scenario) => scenario.selected_icon_id === "receipt-text"));
 
 const value = fs.readFileSync(path.join(tempDir, "value", "index.html"), "utf8");
 const valuePrimaryStory = value
@@ -1114,14 +646,14 @@ assert.ok(examples.includes("AI-native design system"));
 assert.ok(examples.includes("First-use loop and canonical contract cases"));
 assert.ok(examples.includes("/examples/ai-native-design-system/first-use.json"));
 assert.ok(examples.includes("/examples/ai-native-design-system/canonical-examples.json"));
-assert.ok(examples.includes("/design-system/icons/"));
+assert.equal(examples.includes("/design-system/icons/"), false);
 assert.ok(examples.includes("/examples/lucide-icon-catalog-smoke.html"));
 assert.ok(examples.includes("ED flow board MVP"));
 assert.ok(examples.includes("/examples/er-flow-dashboard/"));
 assert.ok(examples.includes("room occupancy, waiting acuity, turnover, holds, and charge-team next moves"));
 assert.ok(examples.includes("Tokens, system font stacks, and Lucide icon catalog policy remain governed metadata"));
-assert.ok(examples.includes("The design-system icon page is the reference surface"));
-assert.ok(examples.includes("this HTML remains the deterministic regression proof"));
+assert.equal(examples.includes("The design-system icon page is the reference surface"), false);
+assert.ok(examples.includes("This HTML remains the deterministic regression proof"));
 assert.ok(examples.includes("Model UI matrix"));
 assert.ok(examples.includes("These matrix examples compare"));
 assert.ok(examples.includes('class="model-ui-use-case-select" data-use-case-select aria-label="Use case"'));
@@ -1446,17 +978,20 @@ assert.ok(siteRebuildLog.includes("Workflow review"));
 assert.ok(siteRebuildLog.includes("Implementation contract"));
 assert.ok(siteRebuildLog.includes("Implementation review"));
 assert.ok(siteRebuildLog.includes("review_ui_implementation_candidate: passed"));
-assert.ok(siteRebuildLog.includes("Design-system source"));
+assert.ok(siteRebuildLog.includes("Design-source evidence"));
 assert.ok(siteRebuildLog.includes("judgmentkit.ai-native-default.contract-v1"));
 assert.ok(siteRebuildLog.includes("Token roles"));
 assert.ok(siteRebuildLog.includes("Component contracts"));
 assert.ok(siteRebuildLog.includes("Surface patterns"));
 assert.ok(siteRebuildLog.includes("1737 Lucide icons"));
 assert.ok(siteRebuildLog.includes("judgmentkit-static-specimens"));
-assert.ok(siteRebuildLog.includes("/design-system/manifest.json"));
-assert.ok(siteRebuildLog.includes("/design-system/specimen-provenance.json"));
+assert.ok(siteRebuildLog.includes("https://surfaces.systems/design-system"));
+assert.equal(siteRebuildLog.includes("/design-system/manifest.json"), false);
+assert.equal(siteRebuildLog.includes("/design-system/specimen-provenance.json"), false);
 assert.ok(siteRebuildLog.includes("same source-controlled static generator"));
-assert.ok(siteRebuildLog.includes("tests that verify those assets, contracts, specimens, and provenance"));
+assert.ok(siteRebuildLog.includes("JudgmentKit keeps a package-default design-system contract"));
+assert.ok(siteRebuildLog.includes("public JudgmentKit design-system routes are no longer the source of truth"));
+assert.ok(siteRebuildLog.includes("package-default source metadata"));
 assert.ok(siteRebuildLog.includes("site/build-site.mjs"));
 assert.ok(siteRebuildLog.includes("tests/site.test.mjs"));
 assert.ok(siteRebuildLog.includes("npm run site:build"));
@@ -1465,6 +1000,9 @@ assert.ok(siteRebuildLog.includes("npm test"));
 assert.ok(siteRebuildLog.includes("Playwright desktop and mobile review"));
 assert.ok(siteRebuildLog.includes("Homepage rebuild checks"));
 assert.ok(siteRebuildLog.includes("Design-system checks"));
+assert.ok(siteRebuildLog.includes("package-default source metadata"));
+assert.ok(siteRebuildLog.includes("complete external-source validation"));
+assert.ok(siteRebuildLog.includes("retired public routes"));
 assert.ok(siteRebuildLog.includes("Browser checks"));
 assert.equal(siteRebuildLog.includes("judgmentkit2"), false);
 
@@ -1554,6 +1092,24 @@ for (const copiedExamplePath of [
     assertAnalyticsBootstrap(
       fs.readFileSync(artifactPath, "utf8"),
       copiedExamplePath.join("/"),
+    );
+  }
+}
+
+for (const filePath of collectTextFiles(path.join(tempDir, "examples", "model-ui"))) {
+  const text = fs.readFileSync(filePath, "utf8");
+  const relativePath = path.relative(tempDir, filePath);
+
+  for (const forbiddenTerm of [
+    "internal_fixture",
+    "JudgmentKit fixture",
+    "fixture://judgmentkit",
+    "fixture_design_system",
+  ]) {
+    assert.equal(
+      text.includes(forbiddenTerm),
+      false,
+      `built artifact ${relativePath} must not include retired design-system term ${forbiddenTerm}`,
     );
   }
 }

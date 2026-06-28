@@ -97,10 +97,6 @@ try {
     "/value/",
     "/docs/",
     "/docs",
-    "/design-system/",
-    "/design-system/tokens/",
-    "/design-system/fonts/",
-    "/design-system/icons/",
     "/examples/",
     "/evals/",
     "/install",
@@ -108,6 +104,47 @@ try {
     const response = await fetchRoute(url, route);
 
     assert.equal(response.status, 200, `${route} should return 200`);
+  }
+
+  for (const route of [
+    "/design-system/",
+    "/design-system",
+    "/design-system/index.html",
+    "/design-system/index.html.md",
+    "/design-system/llms.txt",
+    "/design-system/llms-full.txt",
+    "/design-system/tokens/",
+    "/design-system/tokens",
+    "/design-system/tokens/index.html",
+    "/design-system/tokens/index.html.md",
+    "/design-system/fonts",
+    "/design-system/fonts/",
+    "/design-system/fonts/index.html",
+    "/design-system/fonts/index.html.md",
+    "/design-system/icons",
+    "/design-system/icons/",
+    "/design-system/icons/index.html",
+    "/design-system/icons/index.html.md",
+    "/design-system/components",
+    "/design-system/components/",
+    "/design-system/components/index.html",
+    "/design-system/components/index.html.md",
+    "/design-system/patterns",
+    "/design-system/patterns/",
+    "/design-system/patterns/index.html",
+    "/design-system/patterns/index.html.md",
+    "/design-system/accessibility",
+    "/design-system/accessibility/",
+    "/design-system/accessibility/index.html",
+    "/design-system/accessibility/index.html.md",
+  ]) {
+    const response = await fetchRoute(url, route, { redirect: "manual" });
+
+    assert.equal(response.status, 308, `${route} should redirect to Surfaces`);
+    assert.equal(
+      response.headers.get("location"),
+      "https://surfaces.systems/design-system",
+    );
   }
 
   {
@@ -169,36 +206,43 @@ try {
     const response = await fetchRoute(url, route);
     const body = await response.json();
 
-    assert.equal(response.status, 200, `${route} should return 200`);
+    assert.equal(response.status, 410, `${route} should return 410`);
     assert.equal(response.headers.get("content-type"), "application/json; charset=utf-8");
-    assert.equal(typeof body, "object");
+    assert.equal(body.code, "judgmentkit_design_system_retired");
+    assert.equal(body.canonicalUrl, "https://surfaces.systems/design-system");
+    assert.equal(body.requestedPath, route);
   }
 
-  for (const route of [
-    "/design-system/index.html.md",
-    "/design-system/tokens/index.html.md",
-    "/design-system/fonts/index.html.md",
-    "/design-system/icons/index.html.md",
-    "/design-system/components/index.html.md",
-    "/design-system/patterns/index.html.md",
-    "/design-system/accessibility/index.html.md",
-  ]) {
-    const response = await fetchRoute(url, route);
-    const body = await response.text();
+  {
+    const response = await fetchRoute(url, "/design-system/manifest.json", {
+      method: "HEAD",
+    });
 
-    assert.equal(response.status, 200, `${route} should return 200`);
-    assert.equal(response.headers.get("content-type"), "text/markdown; charset=utf-8");
-    assert.ok(body.startsWith("# JudgmentKit"), `${route} should return Markdown`);
-    assert.equal(body.includes("<nav"), false, `${route} must not include site navigation`);
+    assert.equal(response.status, 410, "HEAD on retired JSON should return 410");
+    assert.equal(await response.text(), "");
   }
 
-  for (const route of ["/design-system/llms.txt", "/design-system/llms-full.txt"]) {
-    const response = await fetchRoute(url, route);
-    const body = await response.text();
+  {
+    const response = await fetchRoute(url, "/design-system/manifest.json", {
+      method: "POST",
+    });
 
-    assert.equal(response.status, 200, `${route} should return 200`);
-    assert.equal(response.headers.get("content-type"), "text/plain; charset=utf-8");
-    assert.ok(body.includes("JudgmentKit Design System"));
+    assert.equal(response.status, 405, "POST on retired JSON should return 405");
+    assert.equal(response.headers.get("allow"), "GET, HEAD");
+  }
+
+  {
+    const response = await fetchRoute(url, "/design-system/unknown.json");
+    const body = await response.json();
+
+    assert.equal(response.status, 410, "unknown design-system JSON should return 410");
+    assert.equal(body.requestedPath, "/design-system/unknown.json");
+  }
+
+  {
+    const response = await fetchRoute(url, "/design-system/unknown/");
+
+    assert.equal(response.status, 404, "unknown non-JSON child routes should stay 404");
   }
 
   {

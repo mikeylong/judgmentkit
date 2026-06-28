@@ -136,6 +136,11 @@ async function runMcpClient(endpoint) {
         .visual_token_adapter.mode,
       "boundary_only",
     );
+    assert.equal(
+      implementationContractResponse.structuredContent.implementation_contract
+        .design_system_source.mode,
+      "judgmentkit_default",
+    );
     assert.ok(
       implementationContractResponse.structuredContent.implementation_contract
         .visual_token_adapter.token_families.includes("color"),

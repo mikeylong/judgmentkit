@@ -224,7 +224,7 @@ review_cognitive_dimensions_candidate({ brief, candidate, activity_review, surfa
 
 Use the returned `findings` and `repair_instructions` as diagnostic guidance. If a Cognitive Dimensions review is supplied to the handoff gate, it must be `ready_for_review`.
 
-Call `create_ui_implementation_contract` with the default JudgmentKit design-system source, or with a complete `design_system_adapter` when an external design system should own tokens, typography, icons, and renderer components. `external_authority` is trace metadata unless it is paired with a complete adapter. The implementation contract names approved primitives, required states, static checks, browser QA expectations, `design_system_source`, visual asset policy, and accessibility policy.
+Call `create_ui_implementation_contract`. Omit design-system fields to use the JudgmentKit package default, or pass a complete `design_system_source` or `design_system_adapter` when an external design system should own tokens, typography, icons, and renderer components. `external_authority` is trace metadata unless it is paired with a source or complete adapter. The implementation contract names approved primitives, required states, static checks, browser QA expectations, `design_system_source`, visual asset policy, and accessibility policy.
 
 MCP handoff calls should pass this packet as `implementation_contract`.
 
@@ -241,6 +241,7 @@ Library equivalent:
 ```js
 const workflowReview = reviewUiWorkflowCandidate(brief, workflowCandidate);
 const implementationContract = createUiImplementationContract({
+  design_system_source: optionalCompleteExternalDesignSystemSource,
   design_system_adapter: optionalCompleteExternalDesignSystemAdapter,
 });
 const handoff = createUiGenerationHandoff(workflowReview, {
@@ -276,7 +277,7 @@ create_frontend_implementation_skill_context({
 
 The skill context compiles the local frontend implementation workflow into structured instructions, approved primitives, approved component families, active design-system policy, visual asset policy, accessibility policy, verification checklist, and disclosure guardrails. It requires a ready frontend context and does not expose raw `SKILL.md` contents. The legacy `design_system_adapter` argument is a compatibility path only; prefer passing the adapter to `create_ui_implementation_contract`.
 
-The JudgmentKit default source includes semantic token roles, system font stacks for body, heading, label, numeric, and diagnostic text, and a committed Lucide icon catalog exposed through `list_icon_catalog`, `search_icon_catalog`, and `get_icon_svg`. Normal implementation context returns only the catalog summary, policy, count, source/version, and tool names; it does not embed the full catalog. These defaults do not load a font CDN, ship font files, use a runtime icon CDN, or mix with an external design system unless the external adapter explicitly names those assets.
+JudgmentKit still exposes icon catalog tools for review and examples, and the package default remains the active design-system source when no external source is supplied. Normal implementation context returns only the active source metadata, catalog summary, policy, count, source/version, and tool names; it does not embed a full catalog or imply a fallback from external systems to JudgmentKit assets.
 
 When a frontend spec calls for substantive visuals, the implementation path should use `imagegen`, premium Three.js/WebGL rendering, or D3-style data visualization. Deterministic CSS, SVG, and JavaScript remain appropriate for layout, exact text, UI chrome, icons, state indicators, simple diagrams, and accessible fallback structure.
 

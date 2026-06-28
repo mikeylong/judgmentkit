@@ -12,6 +12,41 @@ const ROOT = path.resolve(__dirname, "..");
 const DEFAULT_SITE_DIR = path.join(ROOT, "site", "dist");
 const DEFAULT_HOST = "127.0.0.1";
 const DEFAULT_PORT = 4173;
+const CANONICAL_SURFACES_DESIGN_SYSTEM_URL =
+  "https://surfaces.systems/design-system";
+const DESIGN_SYSTEM_MIGRATION_CODE = "judgmentkit_design_system_retired";
+const RETIRED_DESIGN_SYSTEM_REDIRECT_PATHS = new Set([
+  "/design-system",
+  "/design-system/",
+  "/design-system/index.html",
+  "/design-system/index.html.md",
+  "/design-system/llms.txt",
+  "/design-system/llms-full.txt",
+  "/design-system/tokens",
+  "/design-system/tokens/",
+  "/design-system/tokens/index.html",
+  "/design-system/tokens/index.html.md",
+  "/design-system/fonts",
+  "/design-system/fonts/",
+  "/design-system/fonts/index.html",
+  "/design-system/fonts/index.html.md",
+  "/design-system/icons",
+  "/design-system/icons/",
+  "/design-system/icons/index.html",
+  "/design-system/icons/index.html.md",
+  "/design-system/components",
+  "/design-system/components/",
+  "/design-system/components/index.html",
+  "/design-system/components/index.html.md",
+  "/design-system/patterns",
+  "/design-system/patterns/",
+  "/design-system/patterns/index.html",
+  "/design-system/patterns/index.html.md",
+  "/design-system/accessibility",
+  "/design-system/accessibility/",
+  "/design-system/accessibility/index.html",
+  "/design-system/accessibility/index.html.md",
+]);
 
 const CONTENT_TYPES = new Map([
   [".css", "text/css; charset=utf-8"],
@@ -96,6 +131,60 @@ function isMcpPath(pathname) {
 
 function isLocalAnalyticsScriptPath(pathname) {
   return pathname === "/_vercel/insights/script.js";
+}
+
+function isRetiredDesignSystemPath(pathname) {
+  return RETIRED_DESIGN_SYSTEM_REDIRECT_PATHS.has(pathname);
+}
+
+function isRetiredDesignSystemJsonPath(pathname) {
+  return (
+    pathname.startsWith("/design-system/") &&
+    pathname.endsWith(".json") &&
+    !pathname.includes("//")
+  );
+}
+
+function designSystemRetiredPayload(pathname) {
+  return {
+    code: DESIGN_SYSTEM_MIGRATION_CODE,
+    message:
+      "judgmentkit.ai/design-system is retired. Use the canonical Surfaces design-system contract.",
+    canonicalUrl: CANONICAL_SURFACES_DESIGN_SYSTEM_URL,
+    requestedPath: pathname,
+  };
+}
+
+function sendDesignSystemRetiredJson(req, res, pathname) {
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    sendMethodNotAllowed(res, ["GET", "HEAD"]);
+    return;
+  }
+
+  const body = `${JSON.stringify(designSystemRetiredPayload(pathname), null, 2)}\n`;
+  res.statusCode = 410;
+  res.setHeader("Content-Type", "application/json; charset=utf-8");
+  res.setHeader("Cache-Control", "public, max-age=300");
+  res.setHeader("Content-Length", Buffer.byteLength(body));
+
+  if (req.method === "HEAD") {
+    res.end();
+    return;
+  }
+
+  res.end(body);
+}
+
+function sendDesignSystemRedirect(req, res) {
+  if (req.method !== "GET" && req.method !== "HEAD") {
+    sendMethodNotAllowed(res, ["GET", "HEAD"]);
+    return;
+  }
+
+  res.statusCode = 308;
+  res.setHeader("Location", CANONICAL_SURFACES_DESIGN_SYSTEM_URL);
+  res.setHeader("Cache-Control", "public, max-age=300");
+  res.end();
 }
 
 function serveLocalAnalyticsScript(req, res) {
@@ -282,6 +371,16 @@ export function createSiteLocalServer(options = {}) {
 
     if (isLocalAnalyticsScriptPath(requestUrl.pathname)) {
       serveLocalAnalyticsScript(req, res);
+      return;
+    }
+
+    if (isRetiredDesignSystemJsonPath(requestUrl.pathname)) {
+      sendDesignSystemRetiredJson(req, res, requestUrl.pathname);
+      return;
+    }
+
+    if (isRetiredDesignSystemPath(requestUrl.pathname)) {
+      sendDesignSystemRedirect(req, res);
       return;
     }
 

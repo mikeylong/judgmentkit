@@ -234,7 +234,7 @@ const UI_GENERATION_HANDOFF_TOOL = {
 const UI_IMPLEMENTATION_CONTRACT_TOOL = {
   name: "create_ui_implementation_contract",
   description:
-    "Create an implementation contract for generated UI, using JudgmentKit design-system authority by default or a complete external design-system adapter when supplied.",
+    "Create an implementation contract for generated UI. When no design system is supplied, JudgmentKit uses its package default; explicit design_system_source and design_system_adapter inputs must be complete.",
   inputSchema: {
     type: "object",
     properties: {
@@ -249,17 +249,17 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
       external_authority: {
         type: "string",
         description:
-          "Optional trace metadata for a named UI authority. It does not replace JudgmentKit defaults unless design_system_adapter is also supplied.",
+          "Optional trace metadata for a named UI authority. It does not replace the JudgmentKit package default unless design_system_source or design_system_adapter is also supplied.",
       },
       design_system_adapter: {
         type: "object",
         description:
-          "Optional complete external design-system authority. Must define token, font, icon, and component authority or the contract fails with incomplete_design_system_authority.",
+          "Complete external design-system authority. Must define token, font, icon, and component authority or the contract fails with incomplete_design_system_authority.",
       },
       design_system_source: {
         type: "object",
         description:
-          "Optional normalized active design-system source when passing an already-created implementation contract shape.",
+          "Complete normalized active design-system source. Omit this field to use the JudgmentKit package default.",
       },
       repo_evidence: {
         type: "array",
@@ -303,7 +303,7 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
       visual_token_adapter: {
         type: "object",
         description:
-          "Optional JudgmentKit-default token, font, and icon metadata. Ignored when design_system_adapter supplies complete external authority.",
+          "Optional token, font, and icon metadata for the active source. Ignored when design_system_adapter supplies complete external authority.",
       },
     },
     additionalProperties: false,

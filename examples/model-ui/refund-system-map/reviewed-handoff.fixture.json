@@ -1340,7 +1340,7 @@
       "mode": "judgmentkit_default",
       "name": "JudgmentKit",
       "package": "judgmentkit",
-      "definition_point": "implementation_contract",
+      "definition_point": "package_default",
       "required_authorities": [
         "tokens",
         "fonts",
@@ -1350,13 +1350,13 @@
       "fallback_policy": "fail_incomplete",
       "provenance_required": true,
       "source_exports": {
-        "overview": "/design-system/",
-        "manifest": "/design-system/manifest.json",
-        "visual_token_adapter": "/design-system/visual-token-adapter.json",
-        "component_contracts": "/design-system/component-contracts.json",
-        "pattern_contracts": "/design-system/pattern-contracts.json",
-        "accessibility_policy": "/design-system/accessibility-policy.json",
-        "icon_catalog": "/design-system/icons/",
+        "overview": "package://judgmentkit/design-system/",
+        "manifest": "package://judgmentkit/design-system/manifest.json",
+        "visual_token_adapter": "package://judgmentkit/design-system/visual-token-adapter.json",
+        "component_contracts": "package://judgmentkit/design-system/component-contracts.json",
+        "pattern_contracts": "package://judgmentkit/design-system/pattern-contracts.json",
+        "accessibility_policy": "package://judgmentkit/design-system/accessibility-policy.json",
+        "icon_catalog": "package://judgmentkit/design-system/icons/",
         "icon_tools": [
           "list_icon_catalog",
           "search_icon_catalog",
@@ -1412,9 +1412,9 @@
       ],
       "component_contract_source": "implementation_contract.default_ai_native_design_system.component_contracts",
       "provenance_rules": [
-        "visual tokens, fonts, icons, and renderer components must come from this active design-system source",
+        "visual tokens, fonts, icons, and renderer components come from the JudgmentKit package default when no design system is supplied",
         "local CSS may define layout and UI structure but must not become the source of visual tokens, typography, icon assets, or renderer components",
-        "external design systems must be supplied as complete contract-time adapters; missing authorities do not fall back to JudgmentKit defaults"
+        "external design systems must be supplied as complete contract-time adapters or complete design-system sources; missing authorities do not fall back to JudgmentKit defaults"
       ]
     },
     "visual_token_adapter": {

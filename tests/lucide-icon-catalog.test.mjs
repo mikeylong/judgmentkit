@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 
 import {
+  JudgmentKitInputError,
   createFrontendGenerationContext,
   createFrontendImplementationSkillContext,
   createUiGenerationHandoff,
@@ -161,3 +162,32 @@ assert.ok(skillContext.pattern_contracts.some((entry) => entry.id === "workbench
 assert.ok(skillContext.instruction_markdown.includes("Icon catalog"));
 assert.ok(skillContext.instruction_markdown.includes("--jk-color-surface"));
 assert.ok(skillContext.instruction_markdown.includes("Component contracts"));
+
+const legacyHandoffWithoutSource = {
+  ...handoff,
+  implementation_contract: {
+    ...handoff.implementation_contract,
+    design_system_source: undefined,
+  },
+};
+delete legacyHandoffWithoutSource.implementation_contract.design_system_source;
+
+const defaultedFrontendContext = createFrontendGenerationContext({
+  ui_generation_handoff: legacyHandoffWithoutSource,
+});
+assert.equal(
+  defaultedFrontendContext.implementation_contract.design_system_source.mode,
+  "judgmentkit_default",
+);
+
+assert.throws(
+  () =>
+    createFrontendImplementationSkillContext({
+      frontend_generation_context: defaultedFrontendContext,
+      design_system_adapter: {},
+    }),
+  (error) =>
+    error instanceof JudgmentKitInputError &&
+    error.code === "incomplete_design_system_authority",
+  "An explicitly supplied empty frontend design_system_adapter must fail.",
+);

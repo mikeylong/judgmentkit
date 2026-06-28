@@ -82,7 +82,7 @@ The canonical examples live beside it:
 
 They cover setup/onboarding, an operational dashboard, and a high-stakes review/refund workflow. The renderer package is still deferred; these examples prove the contract and repair behavior before visual rendering.
 
-By default, `implementation_contract.design_system_source.mode` is `judgmentkit_default`: tokens, font roles, icon catalog policy, and component contracts come from JudgmentKit `/design-system/` exports. If a complete `design_system_adapter` is supplied to `create_ui_implementation_contract`, the mode becomes `external_design_system` and that adapter owns tokens, typography, icons, and renderer components. Incomplete external adapters fail instead of falling back to JudgmentKit defaults.
+By default, `implementation_contract.design_system_source.mode` is `judgmentkit_default`: tokens, font roles, icon catalog policy, and component contracts come from the JudgmentKit package default. Public `/design-system/` routes are retired and are not the source of truth for this default. If a complete `design_system_source` or `design_system_adapter` is supplied to `create_ui_implementation_contract`, the mode becomes `external_design_system` and that source owns tokens, typography, icons, and renderer components. Incomplete external sources or adapters fail instead of falling back to JudgmentKit defaults.
 
 The JudgmentKit default source does not load a font CDN, runtime icon CDN, or external runtime icon package. Font guidance uses system stacks, and icon guidance points to the committed Lucide catalog exposed through `list_icon_catalog`, `search_icon_catalog`, and `get_icon_svg`.
 

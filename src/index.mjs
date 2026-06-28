@@ -5370,23 +5370,30 @@ const DESIGN_SYSTEM_REQUIRED_AUTHORITIES = [
   "components",
 ];
 
+const CANONICAL_SURFACES_DESIGN_SYSTEM_URL =
+  "https://surfaces.systems/design-system";
+
 const DEFAULT_DESIGN_SYSTEM_SOURCE = {
   id: "judgmentkit.design-system.source-v1",
   mode: "judgmentkit_default",
   name: "JudgmentKit",
   package: "judgmentkit",
-  definition_point: "implementation_contract",
+  definition_point: "package_default",
   required_authorities: DESIGN_SYSTEM_REQUIRED_AUTHORITIES,
   fallback_policy: "fail_incomplete",
   provenance_required: true,
   source_exports: {
-    overview: "/design-system/",
-    manifest: "/design-system/manifest.json",
-    visual_token_adapter: "/design-system/visual-token-adapter.json",
-    component_contracts: "/design-system/component-contracts.json",
-    pattern_contracts: "/design-system/pattern-contracts.json",
-    accessibility_policy: "/design-system/accessibility-policy.json",
-    icon_catalog: "/design-system/icons/",
+    overview: "package://judgmentkit/design-system/",
+    manifest: "package://judgmentkit/design-system/manifest.json",
+    visual_token_adapter:
+      "package://judgmentkit/design-system/visual-token-adapter.json",
+    component_contracts:
+      "package://judgmentkit/design-system/component-contracts.json",
+    pattern_contracts:
+      "package://judgmentkit/design-system/pattern-contracts.json",
+    accessibility_policy:
+      "package://judgmentkit/design-system/accessibility-policy.json",
+    icon_catalog: "package://judgmentkit/design-system/icons/",
     icon_tools: ICON_CATALOG_TOOL_NAMES,
   },
   token_prefixes: ["--jk-"],
@@ -5394,11 +5401,20 @@ const DEFAULT_DESIGN_SYSTEM_SOURCE = {
   component_contract_source:
     "implementation_contract.default_ai_native_design_system.component_contracts",
   provenance_rules: [
-    "visual tokens, fonts, icons, and renderer components must come from this active design-system source",
+    "visual tokens, fonts, icons, and renderer components come from the JudgmentKit package default when no design system is supplied",
     "local CSS may define layout and UI structure but must not become the source of visual tokens, typography, icon assets, or renderer components",
-    "external design systems must be supplied as complete contract-time adapters; missing authorities do not fall back to JudgmentKit defaults",
+    "external design systems must be supplied as complete contract-time adapters or complete design-system sources; missing authorities do not fall back to JudgmentKit defaults",
   ],
 };
+
+function designSystemSourceValidationDetails(missing = []) {
+  return {
+    code: "invalid_design_system_source",
+    canonical_surfaces_url: CANONICAL_SURFACES_DESIGN_SYSTEM_URL,
+    missing,
+    valid_modes: ["judgmentkit_default", "external_design_system"],
+  };
+}
 
 const DEFAULT_ITERATION_POLICY = {
   owner: "agent",
@@ -6019,6 +6035,190 @@ function designSystemAdapterFromInput(source) {
     : null;
 }
 
+function designSystemSourceFromInput(source) {
+  return isPlainObject(source)
+    ? source.design_system_source ?? source.designSystemSource
+    : null;
+}
+
+function hasDesignSystemSourceInput(source) {
+  return (
+    isPlainObject(source) &&
+    ("design_system_source" in source || "designSystemSource" in source)
+  );
+}
+
+function usesJudgmentKitDefaultDesignSystem(source) {
+  if (!isPlainObject(source)) {
+    return false;
+  }
+
+  const designSystemSource = designSystemSourceFromInput(source);
+
+  return (
+    source.fixture_design_system === true ||
+    source.fixtureDesignSystem === true ||
+    designSystemSource?.mode === "judgmentkit_default"
+  );
+}
+
+function validateExplicitDesignSystemSource(sourceValue) {
+  if (sourceValue === undefined || sourceValue === null) {
+    return;
+  }
+
+  if (!isPlainObject(sourceValue)) {
+    throw new JudgmentKitInputError(
+      "design_system_source must be an object when provided.",
+      {
+        code: "invalid_design_system_source",
+        details: designSystemSourceValidationDetails(["object"]),
+      },
+    );
+  }
+
+  const missing = [];
+  for (const field of ["id", "mode", "name", "package", "definition_point"]) {
+    if (!optionalString(sourceValue[field]).length) {
+      missing.push(field);
+    }
+  }
+
+  const mode = optionalString(sourceValue.mode);
+  if (
+    mode.length > 0 &&
+    !["judgmentkit_default", "external_design_system"].includes(mode)
+  ) {
+    missing.push("mode:judgmentkit_default|external_design_system");
+  }
+
+  if (
+    normalizePrimitiveList(
+      sourceValue.required_authorities ?? sourceValue.requiredAuthorities,
+    ).length < DESIGN_SYSTEM_REQUIRED_AUTHORITIES.length
+  ) {
+    missing.push("required_authorities");
+  }
+
+  if (
+    optionalString(sourceValue.fallback_policy ?? sourceValue.fallbackPolicy) !==
+    "fail_incomplete"
+  ) {
+    missing.push("fallback_policy");
+  }
+
+  if (
+    typeof (sourceValue.provenance_required ??
+      sourceValue.provenanceRequired) !== "boolean"
+  ) {
+    missing.push("provenance_required");
+  }
+
+  if (
+    !isPlainObject(sourceValue.source_exports ?? sourceValue.sourceExports) ||
+    Object.keys(sourceValue.source_exports ?? sourceValue.sourceExports).length === 0
+  ) {
+    missing.push("source_exports");
+  }
+
+  if (
+    normalizePrimitiveList(sourceValue.token_prefixes ?? sourceValue.tokenPrefixes)
+      .length === 0
+  ) {
+    missing.push("token_prefixes");
+  }
+
+  const iconCatalog = sourceValue.icon_catalog ?? sourceValue.iconCatalog;
+  if (!isPlainObject(iconCatalog)) {
+    missing.push("icon_catalog");
+  } else {
+    for (const field of [
+      "source",
+      "library",
+      "package",
+      "version",
+      "license",
+      "notice",
+      "style_system",
+    ]) {
+      if (!optionalString(iconCatalog[field]).length) {
+        missing.push(`icon_catalog.${field}`);
+      }
+    }
+
+    if (numberOrFallback(iconCatalog.icon_count ?? iconCatalog.iconCount, 0) < 1) {
+      missing.push("icon_catalog.icon_count");
+    }
+
+    if (
+      !isPlainObject(iconCatalog.style_attributes ?? iconCatalog.styleAttributes) ||
+      Object.keys(iconCatalog.style_attributes ?? iconCatalog.styleAttributes).length === 0
+    ) {
+      missing.push("icon_catalog.style_attributes");
+    }
+
+    if (
+      normalizePrimitiveList(
+        iconCatalog.mcp_tools ?? iconCatalog.mcpTools ?? iconCatalog.tools,
+      ).length === 0
+    ) {
+      missing.push("icon_catalog.mcp_tools");
+    }
+
+    if (
+      typeof (iconCatalog.default_include_svg ??
+        iconCatalog.defaultIncludeSvg) !== "boolean"
+    ) {
+      missing.push("icon_catalog.default_include_svg");
+    }
+  }
+
+  if (
+    normalizePrimitiveList(
+      sourceValue.renderer_components ?? sourceValue.rendererComponents,
+    ).length === 0
+  ) {
+    missing.push("renderer_components");
+  }
+
+  if (
+    !optionalString(
+      sourceValue.component_contract_source ??
+        sourceValue.componentContractSource,
+    ).length
+  ) {
+    missing.push("component_contract_source");
+  }
+
+  if (
+    normalizePrimitiveList(
+      sourceValue.provenance_rules ?? sourceValue.provenanceRules,
+    ).length === 0
+  ) {
+    missing.push("provenance_rules");
+  }
+
+  if (missing.length > 0) {
+    throw new JudgmentKitInputError(
+      "design_system_source must be complete when provided. Omit it to use the JudgmentKit package default.",
+      {
+        code: "invalid_design_system_source",
+        details: designSystemSourceValidationDetails(missing),
+      },
+    );
+  }
+}
+
+function assertValidDesignSystemInputs(source) {
+  if (!isPlainObject(source)) {
+    return;
+  }
+
+  if (hasDesignSystemSourceInput(source)) {
+    validateExplicitDesignSystemSource(designSystemSourceFromInput(source));
+  }
+}
+
 function externalAdapterName(adapter) {
   return optionalDesignSystemName(
     adapter.design_system_name,
@@ -6260,11 +6460,11 @@ function externalVisualTokenAdapterFallback(adapter, iconSource) {
         DEFAULT_ICON_SELECTION_POLICY.accessibility_guidance,
       failure_signals: [
         "icons bypass the active external design-system source",
-        "icons are mixed with JudgmentKit defaults without explicit external authority",
+      "icons are mixed with JudgmentKit default assets without explicit external authority",
       ],
     },
     icon_rules: [
-      "default JudgmentKit icon assets are not used while an external design system is active",
+      "JudgmentKit default icon assets are not used while an external design system is active",
       "meaningful icons still require adjacent text or an accessible name",
     ],
     adapter_rules: [
@@ -6486,10 +6686,14 @@ function resolveImplementationDesignSystem(source, base) {
     source.visual_token_adapter ?? source.visualTokenAdapter,
     base.visual_token_adapter,
   );
+  const explicitDesignSystemSource = designSystemSourceFromInput(source);
+  const designSystemSourceValue = usesJudgmentKitDefaultDesignSystem(source)
+    ? isPlainObject(explicitDesignSystemSource)
+      ? explicitDesignSystemSource
+      : DEFAULT_DESIGN_SYSTEM_SOURCE
+    : explicitDesignSystemSource;
   const designSystemSource = normalizeDesignSystemSource(
-    source.design_system_source ??
-      source.designSystemSource ??
-      base.design_system_source,
+    designSystemSourceValue,
     {
       visualTokenAdapter,
       componentContracts: sourceDefaultDesignSystem.component_contracts,
@@ -6725,6 +6929,17 @@ function implementationContractSource(input = {}) {
     return "external_design_system";
   }
 
+  if (isPlainObject(input) && usesJudgmentKitDefaultDesignSystem(input)) {
+    return "judgmentkit_default";
+  }
+
+  if (isPlainObject(input) && isPlainObject(designSystemSourceFromInput(input))) {
+    return (
+      optionalString(designSystemSourceFromInput(input).mode) ||
+      "explicit_design_system_source"
+    );
+  }
+
   if (isPlainObject(input) && toStringArray(input.repo_evidence).length > 0) {
     return "repo_evidence";
   }
@@ -6747,6 +6962,7 @@ export function createUiImplementationContract(input = {}, options = {}) {
     );
   }
 
+  assertValidDesignSystemInputs(input ?? {});
   const contract = options.contract ?? loadActivityContract(options.contractPath);
   const normalized = normalizeUiImplementationContract(input ?? {}, { contract });
   const packet = {
@@ -9790,10 +10006,13 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
   const activityCandidate = workflowReview.activity_review.candidate;
   const workflowCandidate = workflowReview.candidate;
   const contract = options.contract ?? loadActivityContract(options.contractPath);
-  const implementationContract = normalizeUiImplementationContract(
+  const implementationContractInput =
     options.implementation_contract ??
-      options.ui_implementation_contract ??
-      contract.implementation_contract,
+    options.ui_implementation_contract ??
+    contract.implementation_contract;
+  assertValidDesignSystemInputs(implementationContractInput);
+  const implementationContract = normalizeUiImplementationContract(
+    implementationContractInput,
     { contract },
   );
   const workflowSurfaceSet = toSurfaceSetArray(workflowCandidate.surface_set);
@@ -10014,7 +10233,11 @@ function guidanceSourceName(hasSource, designSystemMode) {
     return "external_design_system";
   }
 
-  return "judgmentkit_design_system";
+  if (designSystemMode === "judgmentkit_default") {
+    return "judgmentkit_design_system";
+  }
+
+  return "explicit_design_system_source";
 }
 
 function normalizeAdapterTokenGuidance(
@@ -10442,8 +10665,18 @@ export function createFrontendGenerationContext({
   const normalizedVerification = normalizeVerificationContext(verification);
   const requiredSurfaces = toSurfaceSetArray(uiGenerationHandoff.surface_set);
   const requiredSurfaceAggregate = aggregateSurfaceSet(requiredSurfaces);
+  const sourceImplementationContract = isPlainObject(
+    uiGenerationHandoff.implementation_contract,
+  )
+    ? uiGenerationHandoff.implementation_contract
+    : {};
+  assertValidDesignSystemInputs(sourceImplementationContract);
+  const implementationContract = normalizeUiImplementationContract(
+    sourceImplementationContract,
+    { contract: resolvedContract },
+  );
   const designSystemContract = normalizeDefaultAiNativeDesignSystem(
-    uiGenerationHandoff.implementation_contract?.default_ai_native_design_system,
+    implementationContract.default_ai_native_design_system,
     DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
   );
 
@@ -10468,7 +10701,7 @@ export function createFrontendGenerationContext({
     surface_set: requiredSurfaces,
     product_terms: toStringArray(uiGenerationHandoff.product_terms),
     handoff: uiGenerationHandoff.handoff,
-    implementation_contract: uiGenerationHandoff.implementation_contract,
+    implementation_contract: implementationContract,
     disclosure_reminders: uiGenerationHandoff.disclosure_reminders,
     frontend_context: {
       target_runtime: optionalString(normalizedFrontendContext.target_runtime),
@@ -10492,15 +10725,13 @@ export function createFrontendGenerationContext({
       interaction_implications: surfaceGuidance.interaction_implications,
       disclosure_implications: surfaceGuidance.disclosure_implications,
       frontend_posture: surfaceGuidance.frontend_posture,
-      implementation_contract: uiGenerationHandoff.implementation_contract,
-      design_system_source:
-        uiGenerationHandoff.implementation_contract?.design_system_source ??
-        DEFAULT_DESIGN_SYSTEM_SOURCE,
+      implementation_contract: implementationContract,
+      design_system_source: implementationContract.design_system_source,
       visual_asset_policy:
-        uiGenerationHandoff.implementation_contract?.visual_asset_policy ??
+        implementationContract.visual_asset_policy ??
         DEFAULT_VISUAL_ASSET_POLICY,
       accessibility_policy:
-        uiGenerationHandoff.implementation_contract?.accessibility_policy ??
+        implementationContract.accessibility_policy ??
         DEFAULT_ACCESSIBILITY_POLICY,
       component_contracts: designSystemContract.component_contracts,
       pattern_contracts: designSystemContract.pattern_contracts,
@@ -10521,11 +10752,8 @@ export function createFrontendGenerationContext({
         uiGenerationHandoff.disclosure_reminders?.terms_to_keep_out_of_product_ui ?? [],
       diagnostic_contexts:
         uiGenerationHandoff.disclosure_reminders?.diagnostic_contexts ?? [],
-      approved_primitives:
-        uiGenerationHandoff.implementation_contract?.approved_primitives ?? [],
-      design_system_source:
-        uiGenerationHandoff.implementation_contract?.design_system_source ??
-        DEFAULT_DESIGN_SYSTEM_SOURCE,
+      approved_primitives: implementationContract.approved_primitives ?? [],
+      design_system_source: implementationContract.design_system_source,
     },
   };
 }
@@ -10574,7 +10802,7 @@ function buildFrontendImplementationInstructionMarkdown({
     "- Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
     "- Use approved primitives and approved component families before introducing new UI helpers.",
     "- Use implementation_contract.design_system_source as the active source for visual tokens, typography, icon assets, and renderer components.",
-    "- Use JudgmentKit design-system exports by default; when external_design_system is active, do not mix in JudgmentKit default assets unless the external adapter explicitly names them.",
+    "- Do not mix assets from another design system unless the active source or adapter explicitly grants that authority.",
     "- Verify core accessibility evidence for semantics, landmarks/headings, name/role/value, keyboard navigation, focus order, focus-visible, responsive reflow/no-overflow, and automated checks.",
     "- Add conditional accessibility evidence for visuals, custom widgets, forms, status messages, overlays, motion, media, dense controls, and hover/focus content when those patterns appear.",
     "- For text over substantive visuals or rendered backgrounds, verify WCAG AA contrast from browser-rendered output, not screenshots alone.",
@@ -10702,6 +10930,8 @@ export function createFrontendImplementationSkillContext({
     );
   }
 
+  const designSystemAdapterWasProvided =
+    designSystemAdapter !== undefined && designSystemAdapter !== null;
   const normalizedDesignSystemAdapter = normalizeDesignSystemAdapter(designSystemAdapter);
   const normalizedTargetClient = optionalString(targetClient);
   const normalizedInstructionFormat = normalizeInstructionFormat(instructionFormat);
@@ -10730,6 +10960,12 @@ export function createFrontendImplementationSkillContext({
     implementationContract.default_ai_native_design_system,
     DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
   );
+  if (
+    designSystemAdapterWasProvided &&
+    !hasDesignGuidanceValue(normalizedDesignSystemAdapter)
+  ) {
+    validateExternalDesignSystemAdapter(normalizedDesignSystemAdapter);
+  }
   let designSystemSource = normalizeDesignSystemSource(
     implementationContract.design_system_source ??
       implementationGuidance.design_system_source,
@@ -10861,7 +11097,7 @@ export function createFrontendImplementationSkillContext({
       "Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
       "Use approved primitives and approved component families before introducing new UI helpers.",
       "Use implementation_contract.design_system_source as the active source for visual tokens, typography, icon assets, and renderer components.",
-      "Use JudgmentKit design-system exports by default; when external_design_system is active, do not mix in JudgmentKit default assets unless the external adapter explicitly names them.",
+      "Do not mix assets from another design system unless the active source or adapter explicitly grants that authority.",
       "When the spec calls for substantive visuals, use imagegen or premium Three.js/WebGL/D3-style rendering instead of rudimentary deterministic geometry.",
       "Verify core accessibility evidence: automated checks, semantic content, landmarks/headings, name-role-value, keyboard navigation, focus order, focus-visible, and responsive reflow/no-overflow.",
       "Add conditional accessibility evidence for visuals, custom widgets, forms, status messages, overlays, motion, media, dense controls, and hover/focus content when those patterns appear.",

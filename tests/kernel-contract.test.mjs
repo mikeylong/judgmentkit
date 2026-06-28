@@ -508,7 +508,70 @@ assert.equal(defaultDesignSystemSource.fallback_policy, "fail_incomplete");
 assert.equal(defaultDesignSystemSource.provenance_required, true);
 assert.ok(defaultDesignSystemSource.token_prefixes.includes("--jk-"));
 assert.ok(defaultDesignSystemSource.source_exports.icon_tools.includes("get_icon_svg"));
+assert.equal(
+  defaultDesignSystemSource.source_exports.manifest,
+  "package://judgmentkit/design-system/manifest.json",
+);
 assert.ok(defaultDesignSystemSource.renderer_components.includes("action_button"));
+
+const surfacesSourceContract = createUiImplementationContract({
+  design_system_source: {
+    id: "surfaces.design-contract.v1",
+    mode: "external_design_system",
+    name: "Surfaces",
+    package: "@surfaces/ui",
+    definition_point: "implementation_contract.design_system_source",
+    source_exports: {
+      overview: "https://surfaces.systems/design-system",
+      manifest: "https://surfaces.systems/design-system/manifest.json",
+      visual_token_adapter:
+        "https://surfaces.systems/design-system/visual-token-adapter.json",
+      component_contracts:
+        "https://surfaces.systems/design-system/component-contracts.json",
+      pattern_contracts:
+        "https://surfaces.systems/design-system/pattern-contracts.json",
+      accessibility_policy:
+        "https://surfaces.systems/design-system/accessibility-policy.json",
+      icon_catalog: "https://surfaces.systems/design-system/icons/",
+    },
+    required_authorities: ["tokens", "fonts", "icons", "components"],
+    fallback_policy: "fail_incomplete",
+    provenance_required: true,
+    token_prefixes: ["--surfaces-"],
+      icon_catalog: {
+        source: "external_contract",
+        library: "surfaces",
+        package: "@surfaces/icons",
+        version: "1.0.0",
+        icon_count: 1,
+        license: "repo-approved",
+        notice: "Surfaces icon metadata is governed by the external contract.",
+        style_system: "Surfaces outline icons",
+        style_attributes: {
+          viewBox: "0 0 24 24",
+          fill: "none",
+          stroke: "currentColor",
+        },
+        mcp_tools: ["surfaces.list_icons"],
+        default_include_svg: false,
+      },
+    renderer_components: ["action_button"],
+    component_contract_source:
+      "https://surfaces.systems/design-system/component-contracts.json",
+    provenance_rules: [
+      "visual tokens, fonts, icons, and components must come from Surfaces",
+    ],
+  },
+});
+assert.equal(
+  surfacesSourceContract.implementation_contract.design_system_source.id,
+  "surfaces.design-contract.v1",
+);
+assert.equal(
+  surfacesSourceContract.implementation_contract.design_system_source.source_exports
+    .manifest,
+  "https://surfaces.systems/design-system/manifest.json",
+);
 
 const externalTraceOnlyContract = createUiImplementationContract({
   external_authority: "Material UI",
@@ -517,6 +580,32 @@ assert.equal(
   externalTraceOnlyContract.implementation_contract.design_system_source.mode,
   "judgmentkit_default",
   "external_authority is trace metadata only without a complete design_system_adapter.",
+);
+
+assert.throws(
+  () =>
+    createUiImplementationContract({
+      design_system_source: {},
+    }),
+  (error) =>
+    error instanceof JudgmentKitInputError &&
+    error.code === "invalid_design_system_source",
+  "An empty explicit design_system_source must fail instead of falling back.",
+);
+
+assert.throws(
+  () =>
+    createUiImplementationContract({
+      design_system_source: {
+        ...surfacesSourceContract.implementation_contract.design_system_source,
+        icon_catalog: {},
+      },
+    }),
+  (error) =>
+    error instanceof JudgmentKitInputError &&
+    error.code === "invalid_design_system_source" &&
+    error.details.missing.includes("icon_catalog.library"),
+  "An explicit design_system_source with an empty icon catalog must fail.",
 );
 
 const externalDesignSystemContract = createUiImplementationContract({
