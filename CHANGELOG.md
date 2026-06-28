@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Preserved no-config UI implementation contracts with the JudgmentKit package-default design-system source while validating malformed explicit `design_system_source` values as failures.
+- Retired public `/design-system` pages in favor of the canonical Surfaces contract without removing JudgmentKit's built-in package default.
+
 ## 0.5.0 - 2026-06-20
 
 - Added `review_cognitive_dimensions_candidate` as a library and MCP tool for reviewing UI workflow or implementation candidates against activity mapping, evidence visibility, hidden dependencies, premature commitment, progressive evaluation, change cost, mental operations, role expressiveness, and disclosure discipline.

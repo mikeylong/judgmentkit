@@ -41,7 +41,9 @@ function visibleText(html) {
 function normalizeFrontendSkillSummary(summary) {
   if (!summary) return summary;
   const designSystemMode =
-    /^no_design_system_.*provided$/.test(summary.design_system_mode ?? "")
+    summary.design_system_mode === "judgmentkit_default"
+      ? "judgmentkit_default"
+      : /^no_design_system_.*provided$/.test(summary.design_system_mode ?? "")
       ? "judgmentkit_default"
       : /^adapter_after_/.test(summary.design_system_mode ?? "")
         ? "external_design_system"
@@ -51,7 +53,8 @@ function normalizeFrontendSkillSummary(summary) {
     ...summary,
     design_system_mode: designSystemMode,
     design_system_name:
-      designSystemMode === "judgmentkit_default" && !summary.design_system_name
+      designSystemMode === "judgmentkit_default" &&
+      (!summary.design_system_name || summary.design_system_name === "JudgmentKit")
         ? "JudgmentKit"
         : summary.design_system_name,
   };

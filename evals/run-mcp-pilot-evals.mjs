@@ -1367,7 +1367,9 @@ export async function buildMcpContextForCase(testCase, mcpRuntime) {
       toolCalls,
       mcpRuntime,
       "create_ui_implementation_contract",
-      testCase.implementation_contract_args ?? {},
+      {
+        ...(testCase.implementation_contract_args ?? {}),
+      },
     );
     const repairAttempts = testCase.repair_loop?.attempts ?? null;
     const attemptReviews = [];

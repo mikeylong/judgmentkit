@@ -99,7 +99,14 @@ function completeMaterialDesignSystemAdapter() {
         icon_count: 2000,
         license: "MIT",
         notice: "Repo-approved Material UI icon adapter.",
+        style_system: "Material Symbols-compatible outline icons",
+        style_attributes: {
+          viewBox: "0 0 24 24",
+          fill: "none",
+          stroke: "currentColor",
+        },
         mcp_tools: [],
+        default_include_svg: false,
       },
     },
     components: ["Stack", "Button", "Alert"],
@@ -456,6 +463,26 @@ function refundOperatorImplementationCandidate(overrides = {}) {
     "judgmentkit_default",
   );
   assertNoForbiddenHandoffKeys(handoff);
+
+  const defaultHandoff = createUiGenerationHandoff(workflowReview);
+  assert.equal(
+    defaultHandoff.implementation_contract.design_system_source.mode,
+    "judgmentkit_default",
+    "Omitting implementation_contract should keep the JudgmentKit default design system working.",
+  );
+
+  assert.throws(
+    () =>
+      createUiGenerationHandoff(workflowReview, {
+        implementation_contract: {
+          design_system_source: {},
+        },
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "invalid_design_system_source",
+    "Explicit malformed design_system_source must fail before handoff creation.",
+  );
 }
 
 {
@@ -815,8 +842,9 @@ function refundOperatorImplementationCandidate(overrides = {}) {
       },
       design_system_provenance: {
         source: "judgmentkit_default",
-        token_source: "/design-system/visual-token-adapter.json",
-        icon_source: "get_icon_svg('check') from the JudgmentKit icon catalog",
+        token_source:
+          "package://judgmentkit/design-system/visual-token-adapter.json",
+        icon_source: "get_icon_svg('check') from the JudgmentKit default catalog",
       },
       accessibility_evidence: {
         forced_colors: {

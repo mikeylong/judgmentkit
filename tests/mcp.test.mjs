@@ -91,6 +91,10 @@ assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.iteration_policy.type, "object");
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.design_system_adapter.type, "object");
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.design_system_source.type, "object");
+assert.equal(
+  "fixture_design_system" in toolByName.create_ui_implementation_contract.inputSchema.properties,
+  false,
+);
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.visual_token_adapter.type, "object");
 assert.ok(
   toolByName.create_ui_implementation_contract.inputSchema.properties.visual_token_adapter.description.includes(

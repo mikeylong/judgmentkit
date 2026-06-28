@@ -768,13 +768,16 @@ function captureMatchesFrontendSkillSummary(capture, contextPayload) {
   function normalizeSummary(summary) {
     if (!summary) return null;
     const designSystemMode =
-      /^no_design_system_.*provided$/.test(summary.design_system_mode ?? "")
+      summary.design_system_mode === "judgmentkit_default"
+        ? "judgmentkit_default"
+        : /^no_design_system_.*provided$/.test(summary.design_system_mode ?? "")
         ? "judgmentkit_default"
         : /^adapter_after_/.test(summary.design_system_mode ?? "")
           ? "external_design_system"
           : summary.design_system_mode;
     const designSystemName =
-      designSystemMode === "judgmentkit_default" && !summary.design_system_name
+      designSystemMode === "judgmentkit_default" &&
+      (!summary.design_system_name || summary.design_system_name === "JudgmentKit")
         ? "JudgmentKit"
         : summary.design_system_name;
 

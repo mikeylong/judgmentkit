@@ -17,6 +17,10 @@
     {
       "source": "/mcp",
       "destination": "/api/mcp"
+    },
+    {
+      "source": "/design-system/(.*).json",
+      "destination": "/api/design-system-retired?requestedPath=/design-system/$1.json"
     }
   ],
   "redirects": [
@@ -62,6 +66,156 @@
         }
       ],
       "destination": "https://judgmentkit.ai/$1",
+      "permanent": true
+    },
+    {
+      "source": "/design-system",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/index.html",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/index.html.md",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/llms.txt",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/llms-full.txt",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/tokens",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/tokens/",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/tokens/index.html",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/tokens/index.html.md",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/fonts",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/fonts/",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/fonts/index.html",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/fonts/index.html.md",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/icons",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/icons/",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/icons/index.html",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/icons/index.html.md",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/components",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/components/",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/components/index.html",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/components/index.html.md",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/patterns",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/patterns/",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/patterns/index.html",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/patterns/index.html.md",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/accessibility",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/accessibility/",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/accessibility/index.html",
+      "destination": "https://surfaces.systems/design-system",
+      "permanent": true
+    },
+    {
+      "source": "/design-system/accessibility/index.html.md",
+      "destination": "https://surfaces.systems/design-system",
       "permanent": true
     }
   ]

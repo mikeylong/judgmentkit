@@ -199,7 +199,6 @@ const platformSites = [
 const primaryNavLinks = [
   { label: "Value", href: "/value/" },
   { label: "Docs", href: "/docs/" },
-  { label: "Design System", href: "/design-system/" },
   { label: "Examples", href: "/examples/" },
   { label: "Evals", href: "/evals/" },
   { label: "MCP", href: "/mcp" },
@@ -211,15 +210,7 @@ function isPrimaryNavCurrent(link, pathName) {
   return pathName === link.href || pathName.startsWith(link.href);
 }
 
-const DESIGN_SYSTEM_ROUTES = [
-  "/design-system/",
-  "/design-system/tokens/",
-  "/design-system/fonts/",
-  "/design-system/icons/",
-  "/design-system/components/",
-  "/design-system/patterns/",
-  "/design-system/accessibility/",
-];
+const DESIGN_SYSTEM_ROUTES = [];
 
 const ICON_PAGE_SCENARIOS = [
   {
@@ -4054,9 +4045,9 @@ function homepage() {
             <a class="pill-link" href="/docs/">Open docs</a>
           </article>
           <article>
-            <h3>Review the design-system assets</h3>
-            <p>Inspect token roles, typography, icons, component contracts, patterns, and accessibility policy.</p>
-            <a class="pill-link" href="/design-system/">Open design system</a>
+            <h3>Review the active design source</h3>
+            <p>Use JudgmentKit's package default when no external system is supplied, or bring a complete external contract such as Surfaces.</p>
+            <a class="pill-link" href="https://surfaces.systems/design-system">Open Surfaces contract</a>
           </article>
           <article>
             <h3>Start installation</h3>
@@ -4143,16 +4134,18 @@ function renderValueEvidenceLinks(links) {
 }
 
 function defaultVisualTokenAdapter() {
-  return createUiImplementationContract().implementation_contract.visual_token_adapter;
+  return createUiImplementationContract({
+  }).implementation_contract.visual_token_adapter;
 }
 
 function defaultDesignSystemContract() {
-  return createUiImplementationContract().implementation_contract
-    .default_ai_native_design_system;
+  return createUiImplementationContract({
+  }).implementation_contract.default_ai_native_design_system;
 }
 
 function defaultAccessibilityPolicy() {
-  return createUiImplementationContract().implementation_contract.accessibility_policy;
+  return createUiImplementationContract({
+  }).implementation_contract.accessibility_policy;
 }
 
 function stripIconScenarioForExport(scenario) {
@@ -7040,9 +7033,8 @@ async function examplesPage() {
             </article>
             <article>
               <h3>Lucide icon smoke proof</h3>
-              <p>Search, retrieve, and render every committed Lucide icon through the MCP catalog tools. The design-system icon page is the reference surface; this HTML remains the deterministic regression proof.</p>
+              <p>Search, retrieve, and render every committed Lucide icon through the MCP catalog tools. This HTML remains the deterministic regression proof.</p>
               <div class="link-row">
-                <a class="pill-link" href="/design-system/icons/">Open icon system</a>
                 <a class="pill-link" href="/examples/lucide-icon-catalog-smoke.html">Open icon smoke HTML</a>
               </div>
             </article>
@@ -7585,7 +7577,7 @@ function siteRebuildLogPage(designSystemModel) {
         <article class="report-article">
           <section id="what-changed">
             <h2>What changed</h2>
-            <p>The rebuild changed the public site from a system-map-heavy homepage into an evidence-first product surface. The homepage now explains the failure JudgmentKit prevents, shows the repair path, and routes visitors into value examples, replayable examples, eval evidence, docs, install, and design-system review.</p>
+            <p>The rebuild changed the public site from a system-map-heavy homepage into an evidence-first product surface. The homepage now explains the failure JudgmentKit prevents, shows the repair path, and routes visitors into value examples, replayable examples, eval evidence, docs, and install.</p>
             <div class="report-capability-grid">
               <article>
                 <h3>New homepage structure</h3>
@@ -7610,16 +7602,16 @@ function siteRebuildLogPage(designSystemModel) {
                 <li><strong>Activity model review</strong><span>The brief was reviewed as a public product-site rebuild for AI-agent users and evaluators.</span></li>
                 <li><strong>Candidate repair</strong><span>An early activity-model candidate exposed raw implementation vocabulary. It was revised before it was trusted.</span></li>
                 <li><strong>Surface selection</strong><span>The homepage was treated as a marketing surface with proof and adoption paths, not a setup/debug tool.</span></li>
-                <li><strong>Workflow review</strong><span>The accepted workflow made value, proof, docs, design-system review, examples, evals, install, and MCP setup separate surfaces.</span></li>
+                <li><strong>Workflow review</strong><span>The accepted workflow made value, proof, docs, examples, evals, install, and MCP setup separate surfaces.</span></li>
                 <li><strong>Implementation contract</strong><span>The generator stayed static and deterministic, with source-controlled routes, semantic HTML, responsive behavior, and explicit tests.</span></li>
                 <li><strong>Implementation review</strong><span>The final implementation evidence passed after the review evidence was cleaned up and resubmitted.</span></li>
               </ol>
             </figure>
           </section>
           <section id="design-system-evidence">
-            <h2>Design-system evidence</h2>
-            <p>The strongest evidence is in the build and test contract: the same static site generator builds the product pages and the JudgmentKit design-system pages, then exports the manifest, token adapter, component contracts, pattern contracts, specimens, provenance, accessibility policy, and icon scenarios.</p>
-            <dl class="report-summary" aria-label="JudgmentKit design-system evidence">
+            <h2>Design-source evidence</h2>
+            <p>JudgmentKit keeps a package-default design-system contract for no-config use. Complete external sources such as Surfaces can replace that authority, while public JudgmentKit design-system routes are no longer the source of truth.</p>
+            <dl class="report-summary" aria-label="JudgmentKit design-source evidence">
               ${renderMetricCard("Design-system source", designSystemSource.design_system_contract_id)}
               ${renderMetricCard("Token roles", tokenRoleCount)}
               ${renderMetricCard("Component contracts", componentContractCount)}
@@ -7628,14 +7620,11 @@ function siteRebuildLogPage(designSystemModel) {
               ${renderMetricCard("Renderer", DESIGN_SYSTEM_SPECIMEN_RENDERER.id)}
             </dl>
             <div class="report-run-links">
-              <a class="pill-link" href="/design-system/">Design-system overview</a>
-              <a class="pill-link" href="/design-system/tokens/">Tokens</a>
-              <a class="pill-link" href="/design-system/components/">Components</a>
-              <a class="pill-link" href="/design-system/patterns/">Patterns</a>
-              <a class="pill-link" href="/design-system/manifest.json">Manifest JSON</a>
-              <a class="pill-link" href="/design-system/specimen-provenance.json">Specimen provenance</a>
+              <a class="pill-link" href="https://surfaces.systems/design-system">Canonical Surfaces contract</a>
+              <a class="pill-link" href="/docs/">JudgmentKit docs</a>
+              <a class="pill-link" href="/examples/">Replayable examples</a>
             </div>
-            <p class="note">This page should not be read as a claim that every visual rule on the homepage is mechanically generated from exported token JSON. The defensible claim is narrower: the rebuild is in the same source-controlled static generator, routes users into the JudgmentKit design-system surface, emits the design-system assets in the same build, and has tests that verify those assets, contracts, specimens, and provenance.</p>
+            <p class="note">This page should not be read as a claim that every visual rule on the homepage is mechanically generated from exported token JSON. The defensible claim is narrower: the rebuild is in the same source-controlled static generator, and JudgmentKit records the active design-system source in implementation contracts.</p>
           </section>
           <section id="source-and-tests">
             <h2>Source and tests</h2>
@@ -7662,7 +7651,7 @@ JudgmentKit review_ui_implementation_candidate: passed</code></pre>
               </article>
               <article>
                 <h3>Design-system checks</h3>
-                <p>Tests assert the manifest, token adapter, component contracts, pattern contracts, specimens, provenance hashes, accessibility policy, and Lucide icon catalog.</p>
+                <p>Tests assert the package-default source metadata, complete external-source validation, retired public routes, and Lucide icon catalog behavior.</p>
               </article>
               <article>
                 <h3>Browser checks</h3>
@@ -7672,7 +7661,7 @@ JudgmentKit review_ui_implementation_candidate: passed</code></pre>
           </section>
           <section id="review-notes">
             <h2>Review notes</h2>
-            <p>If you are reviewing whether this is a real rebuild, start with the source diff and tests. If you are reviewing whether it uses the JudgmentKit design system, start with the design-system route, JSON exports, specimen provenance, and the tests that hash those outputs.</p>
+            <p>If you are reviewing whether this is a real rebuild, start with the source diff and tests. If you are reviewing design-system authority, start with the package-default source metadata, any supplied external contract, and the tests that preserve those boundaries.</p>
             <p>The remaining judgment call is product-level: whether the public story should expose more of this evidence earlier, or keep the homepage focused on the offer and leave this page in evals.</p>
           </section>
         </article>
@@ -7891,13 +7880,6 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.rm(outDir, { recursive: true, force: true });
   await fs.mkdir(path.join(outDir, "assets"), { recursive: true });
   await fs.mkdir(path.join(outDir, "docs"), { recursive: true });
-  await fs.mkdir(path.join(outDir, "design-system"), { recursive: true });
-  await fs.mkdir(path.join(outDir, "design-system", "tokens"), { recursive: true });
-  await fs.mkdir(path.join(outDir, "design-system", "fonts"), { recursive: true });
-  await fs.mkdir(path.join(outDir, "design-system", "icons"), { recursive: true });
-  await fs.mkdir(path.join(outDir, "design-system", "components"), { recursive: true });
-  await fs.mkdir(path.join(outDir, "design-system", "patterns"), { recursive: true });
-  await fs.mkdir(path.join(outDir, "design-system", "accessibility"), { recursive: true });
   await fs.mkdir(path.join(outDir, "evals"), { recursive: true });
   await fs.mkdir(path.join(outDir, "evals", "judgmentkit-mcp"), { recursive: true });
   await fs.mkdir(path.join(outDir, "evals", "site-rebuild-log"), { recursive: true });
@@ -7923,61 +7905,6 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.writeFile(path.join(outDir, "robots.txt"), "User-agent: *\nAllow: /\n");
   await fs.writeFile(path.join(outDir, "value", "index.html"), await valuePage());
   await fs.writeFile(path.join(outDir, "docs", "index.html"), docsPage());
-  await fs.writeFile(path.join(outDir, "design-system", "index.html"), renderDesignSystemOverviewPage(designSystemModel));
-  await fs.writeFile(path.join(outDir, "design-system", "tokens", "index.html"), renderDesignSystemTokensPage(designSystemModel));
-  await fs.writeFile(path.join(outDir, "design-system", "fonts", "index.html"), renderDesignSystemFontsPage(designSystemModel));
-  await fs.writeFile(path.join(outDir, "design-system", "icons", "index.html"), renderDesignSystemIconsPage(designSystemModel));
-  await fs.writeFile(path.join(outDir, "design-system", "components", "index.html"), renderDesignSystemComponentsPage(designSystemModel));
-  await fs.writeFile(path.join(outDir, "design-system", "patterns", "index.html"), renderDesignSystemPatternsPage(designSystemModel));
-  await fs.writeFile(path.join(outDir, "design-system", "accessibility", "index.html"), renderDesignSystemAccessibilityPage(designSystemModel));
-  await fs.writeFile(
-    path.join(outDir, "design-system", "manifest.json"),
-    jsonExport(designSystemModel.exports.manifest),
-  );
-  await fs.writeFile(
-    path.join(outDir, "design-system", "visual-token-adapter.json"),
-    jsonExport(designSystemModel.exports.visualTokenAdapter),
-  );
-  await fs.writeFile(
-    path.join(outDir, "design-system", "component-contracts.json"),
-    jsonExport(designSystemModel.exports.componentContracts),
-  );
-  await fs.writeFile(
-    path.join(outDir, "design-system", "pattern-contracts.json"),
-    jsonExport(designSystemModel.exports.patternContracts),
-  );
-  await fs.writeFile(
-    path.join(outDir, "design-system", "component-specimens.json"),
-    jsonExport(designSystemModel.exports.componentSpecimens),
-  );
-  await fs.writeFile(
-    path.join(outDir, "design-system", "pattern-specimens.json"),
-    jsonExport(designSystemModel.exports.patternSpecimens),
-  );
-  await fs.writeFile(
-    path.join(outDir, "design-system", "specimen-provenance.json"),
-    jsonExport(designSystemModel.exports.specimenProvenance),
-  );
-  await fs.writeFile(
-    path.join(outDir, "design-system", "accessibility-policy.json"),
-    jsonExport(designSystemModel.exports.accessibilityPolicy),
-  );
-  await fs.writeFile(
-    path.join(outDir, "design-system", "icon-scenarios.json"),
-    jsonExport(designSystemModel.exports.iconScenarios),
-  );
-  await fs.writeFile(path.join(outDir, "design-system", "llms.txt"), renderDesignSystemLlms(designSystemModel));
-  await fs.writeFile(
-    path.join(outDir, "design-system", "llms-full.txt"),
-    renderDesignSystemLlmsFull(designSystemModel),
-  );
-  for (const pageEntry of designSystemModel.pages) {
-    const markdownPath = pageEntry.markdown_path.replace(/^\/design-system\/?/, "");
-    await fs.writeFile(
-      path.join(outDir, "design-system", markdownPath),
-      renderDesignSystemPageMarkdown(designSystemModel, pageEntry),
-    );
-  }
   await fs.writeFile(path.join(outDir, "examples", "index.html"), await examplesPage());
   await fs.writeFile(path.join(outDir, "install"), await bootstrapScript(), { mode: 0o755 });
   await fs.writeFile(
@@ -7989,8 +7916,6 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
       "",
       "- /value/",
       "- /docs/",
-      "- /design-system/",
-      "- /design-system/llms.txt",
       "- /examples/",
       "- /evals/",
       "- /evals/judgmentkit-mcp/",
