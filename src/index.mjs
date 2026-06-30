@@ -6482,16 +6482,62 @@ function hasIconAuthority(source) {
   );
 }
 
+function componentAuthorityEntries(source) {
+  const rawEntries = Array.isArray(source)
+    ? source.map((entry) => {
+        if (typeof entry === "string") {
+          return { id: entry, label: entry };
+        }
+
+        if (isPlainObject(entry)) {
+          return entry;
+        }
+
+        return {};
+      })
+    : isPlainObject(source)
+      ? Object.entries(source).map(([id, entry]) => {
+          if (isPlainObject(entry)) {
+            return {
+              ...entry,
+              id: optionalString(entry.id) || id,
+            };
+          }
+
+          const label = optionalString(entry);
+
+          return {
+            id,
+            ...(label ? { label } : {}),
+          };
+        })
+      : [];
+  const seen = new Set();
+
+  return rawEntries
+    .map((entry) => {
+      const id = optionalString(entry.id);
+
+      return {
+        ...entry,
+        id,
+        label: optionalString(entry.label ?? entry.name) || id,
+      };
+    })
+    .filter((entry) => {
+      const id = normalizeText(entry.id);
+
+      if (!id || seen.has(id)) {
+        return false;
+      }
+
+      seen.add(id);
+      return true;
+    });
+}
+
 function hasComponentAuthority(source) {
-  if (Array.isArray(source)) {
-    return source.length > 0;
-  }
-
-  if (isPlainObject(source)) {
-    return Object.keys(source).length > 0;
-  }
-
-  return false;
+  return componentAuthorityEntries(source).length > 0;
 }
 
 function validateExternalDesignSystemAdapter(adapter) {
@@ -6536,23 +6582,55 @@ function externalComponentContractsFromAdapter(adapter, componentSource) {
     adapter.component_contracts ?? adapter.componentContracts;
 
   if (hasComponentAuthority(explicitContracts)) {
-    return normalizeComponentContracts(explicitContracts, []);
+    const normalizedExplicitContracts = normalizeComponentContracts(
+      explicitContracts,
+      [],
+    );
+
+    if (normalizedExplicitContracts.length > 0) {
+      return normalizedExplicitContracts;
+    }
   }
 
-  return toStringArray(componentSource).map((component) => ({
-    id: component,
-    label: component,
-    purpose: `Use ${component} from the active external design system.`,
-    use_when: ["the external design system defines this renderer component"],
-    avoid_when: ["the component is not available in the active external design system"],
-    anatomy: ["as defined by the active external design system"],
-    required_states: ["ready", "disabled", "focus-visible", "loading"],
-    token_bindings: ["external_design_system"],
-    accessibility_checks: ["accessible name", "keyboard and focus behavior"],
-    review_checks: ["component is imported from the active design-system package"],
-    failure_signals: [
-      "component is reimplemented locally instead of sourced from the active design system",
-    ],
+  return componentAuthorityEntries(componentSource).map((component) => ({
+    id: component.id,
+    label: component.label,
+    purpose:
+      optionalString(component.purpose) ||
+      `Use ${component.label} from the active external design system.`,
+    use_when: normalizePrimitiveList(
+      component.use_when ?? component.useWhen,
+      ["the external design system defines this renderer component"],
+    ),
+    avoid_when: normalizePrimitiveList(
+      component.avoid_when ?? component.avoidWhen,
+      ["the component is not available in the active external design system"],
+    ),
+    anatomy: normalizePrimitiveList(component.anatomy, [
+      "as defined by the active external design system",
+    ]),
+    required_states: normalizePrimitiveList(
+      component.required_states ?? component.requiredStates,
+      ["ready", "disabled", "focus-visible", "loading"],
+    ),
+    token_bindings: normalizePrimitiveList(
+      component.token_bindings ?? component.tokenBindings,
+      ["external_design_system"],
+    ),
+    accessibility_checks: normalizePrimitiveList(
+      component.accessibility_checks ?? component.accessibilityChecks,
+      ["accessible name", "keyboard and focus behavior"],
+    ),
+    review_checks: normalizePrimitiveList(
+      component.review_checks ?? component.reviewChecks,
+      ["component is imported from the active design-system package"],
+    ),
+    failure_signals: normalizePrimitiveList(
+      component.failure_signals ?? component.failureSignals,
+      [
+        "component is reimplemented locally instead of sourced from the active design system",
+      ],
+    ),
   }));
 }
 
@@ -10194,12 +10272,107 @@ function classSelectorTokenAppearsInSource(family, sourceText) {
     return false;
   }
 
-  const classAttributePattern = new RegExp(
-    `class(?:Name)?\\s*=\\s*(?:"[^"]*(?:^|\\s)${escapeRegExp(className)}(?:\\s|$)[^"]*"|'[^']*(?:^|\\s)${escapeRegExp(className)}(?:\\s|$)[^']*')`,
+  const classAttributePattern = /class(?:Name)?\s*=\s*(?:"([^"]*)"|'([^']*)')/gi;
+  let match;
+
+  while ((match = classAttributePattern.exec(sourceText)) !== null) {
+    const classTokens = optionalString(match[1] ?? match[2])
+      .split(/\s+/)
+      .map((token) => token.toLowerCase())
+      .filter(Boolean);
+
+    if (classTokens.includes(className.toLowerCase())) {
+      return true;
+    }
+  }
+
+  const selectorPattern = new RegExp(
+    `(^|[^a-z0-9_-])\\.${escapeRegExp(className)}([^a-z0-9_-]|$)`,
     "i",
   );
 
-  return classAttributePattern.test(sourceText);
+  return (
+    selectorPattern.test(sourceText) ||
+    cssModuleClassReferenceAppears(className, sourceText)
+  );
+}
+
+function cssModuleBindingNames(sourceText) {
+  const bindings = new Set();
+  const defaultImportPattern =
+    /\bimport\s+([$A-Z_a-z][$\w]*)\s+from\s*["'][^"']+\.module\.(?:css|scss|sass|less)["']/g;
+  const requirePattern =
+    /\b(?:const|let|var)\s+([$A-Z_a-z][$\w]*)\s*=\s*require\(\s*["'][^"']+\.module\.(?:css|scss|sass|less)["']\s*\)/g;
+
+  for (const pattern of [defaultImportPattern, requirePattern]) {
+    let match;
+
+    while ((match = pattern.exec(sourceText)) !== null) {
+      bindings.add(match[1]);
+    }
+  }
+
+  return [...bindings];
+}
+
+function cssModuleClassReferenceAppears(className, sourceText) {
+  for (const binding of cssModuleBindingNames(sourceText)) {
+    const propertyAccessPattern = new RegExp(
+      `\\b${escapeRegExp(binding)}\\.${escapeRegExp(className)}\\b`,
+    );
+    const bracketAccessPattern = new RegExp(
+      `\\b${escapeRegExp(binding)}\\[\\s*["']${escapeRegExp(className)}["']\\s*\\]`,
+    );
+
+    if (
+      propertyAccessPattern.test(sourceText) ||
+      bracketAccessPattern.test(sourceText)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function compoundClassFamilyAppearsInSource(family, sourceText) {
+  const text = optionalString(family);
+
+  if (!text.includes(".") || text.startsWith(".")) {
+    return false;
+  }
+
+  const tokens = text
+    .split(".")
+    .map(cleanClause)
+    .filter(Boolean);
+
+  if (tokens.length < 2) {
+    return false;
+  }
+
+  const classAttributePattern = /class(?:Name)?\s*=\s*(?:"([^"]*)"|'([^']*)')/gi;
+  let match;
+
+  while ((match = classAttributePattern.exec(sourceText)) !== null) {
+    const classTokens = new Set(
+      optionalString(match[1] ?? match[2])
+        .split(/\s+/)
+        .map(cleanClause)
+        .filter(Boolean),
+    );
+
+    if (tokens.every((token) => classTokens.has(token))) {
+      return true;
+    }
+  }
+
+  const selectorPattern = new RegExp(
+    `(^|[^a-z0-9_-])${escapeRegExp(text)}([^a-z0-9_-]|$)`,
+    "i",
+  );
+
+  return selectorPattern.test(sourceText);
 }
 
 function localFamilyIsInherited(family, inheritedFamilies, sourceText) {
@@ -10207,7 +10380,6 @@ function localFamilyIsInherited(family, inheritedFamilies, sourceText) {
   const normalizedInherited = inheritedFamilies.map((entry) =>
     optionalString(entry).toLowerCase(),
   );
-  const searchableSource = optionalString(sourceText).toLowerCase();
   const explicitEvidenceMatches = familyTextVariants(familyText).some((variant) =>
     normalizedInherited.includes(variant),
   );
@@ -10220,9 +10392,11 @@ function localFamilyIsInherited(family, inheritedFamilies, sourceText) {
     return classSelectorTokenAppearsInSource(familyText, sourceText);
   }
 
-  return familyTextVariants(familyText).some(
-    (variant) => variant && searchableSource.includes(variant),
-  );
+  if (!familyText.includes(".")) {
+    return classSelectorTokenAppearsInSource(`.${familyText}`, sourceText);
+  }
+
+  return compoundClassFamilyAppearsInSource(familyText, sourceText);
 }
 
 function computedStyleEvidenceIsPassing(evidence) {
@@ -11615,6 +11789,16 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
       contract.implementation_contract,
     { contract },
   );
+  if (
+    !hasCompleteExternalImplementationAuthority({
+      designSystemSource: implementationContract.design_system_source,
+      visualTokenAdapter: implementationContract.visual_token_adapter,
+      designSystemContract:
+        implementationContract.default_ai_native_design_system,
+    })
+  ) {
+    throwIncompleteDesignSystemAuthority();
+  }
   const selectedSurfaceType =
     selectedSurfaceTypeFromImplementationReviewOptions(options);
   const checks = buildImplementationCandidateChecks(
@@ -11987,11 +12171,40 @@ function hasCompleteExternalImplementationAuthority({
     optionalString(iconCatalog.source) === "external_design_system" ||
     (optionalString(iconCatalog.package) &&
       optionalString(iconCatalog.package) !== DEFAULT_ICON_CATALOG.package);
+  const componentContractSource = optionalString(
+    designSystemSource.component_contract_source,
+  );
+  const externalComponentContracts = normalizeComponentContracts(
+    designSystemContract.component_contracts,
+    [],
+  );
+  const externalComponentIds = externalComponentContracts
+    .map((contract) => normalizeText(contract.id))
+    .filter(Boolean);
+  const externalComponentIdSet = new Set(externalComponentIds);
+  const defaultComponentIds = normalizeComponentContracts(
+    DEFAULT_COMPONENT_CONTRACTS,
+    [],
+  )
+    .map((contract) => normalizeText(contract.id))
+    .filter(Boolean);
+  const usesOnlyDefaultComponentContracts =
+    externalComponentIds.length === defaultComponentIds.length &&
+    externalComponentIds.every((id) => defaultComponentIds.includes(id));
+  const rendererComponentIds = toStringArray(
+    designSystemSource.renderer_components,
+  )
+    .map(normalizeText)
+    .filter(Boolean);
+  const rendererComponentsMatchContracts =
+    rendererComponentIds.length > 0 &&
+    rendererComponentIds.every((id) => externalComponentIdSet.has(id));
   const hasExternalComponentAuthority =
-    normalizeComponentContracts(
-      designSystemContract.component_contracts,
-      [],
-    ).length > 0 && toStringArray(designSystemSource.renderer_components).length > 0;
+    componentContractSource.includes("design_system_adapter") &&
+    componentContractSource !== DEFAULT_DESIGN_SYSTEM_SOURCE.component_contract_source &&
+    externalComponentContracts.length > 0 &&
+    rendererComponentsMatchContracts &&
+    !usesOnlyDefaultComponentContracts;
 
   return (
     definitionPoint.includes("design_system_adapter") &&

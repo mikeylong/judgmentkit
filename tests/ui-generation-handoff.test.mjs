@@ -106,6 +106,29 @@ function completeMaterialDesignSystemAdapter() {
   };
 }
 
+function completeMaterialDesignSystemObjectComponentsAdapter() {
+  return {
+    ...completeMaterialDesignSystemAdapter(),
+    components: {
+      Stack: {
+        label: "Stack",
+        purpose: "Use Material UI Stack for external layout composition.",
+        required_states: ["ready", "disabled", "focus-visible", "loading"],
+      },
+      Button: {
+        label: "Button",
+        purpose: "Use Material UI Button for external action controls.",
+        required_states: ["ready", "disabled", "focus-visible", "loading"],
+      },
+      Alert: {
+        label: "Alert",
+        purpose: "Use Material UI Alert for external status messaging.",
+        required_states: ["ready", "disabled", "focus-visible", "loading"],
+      },
+    },
+  };
+}
+
 function refundWorkflowCandidate() {
   return {
     workflow: {
@@ -1248,6 +1271,82 @@ function repairedSessionsButtonCandidate(contract) {
     "judgmentkit_default",
   );
 
+  const incompleteExternalReviewContract = {
+    ...implementationContract,
+    design_system_source: {
+      ...implementationContract.design_system_source,
+      mode: "external_design_system",
+      definition_point: "implementation_contract.design_system_source",
+    },
+  };
+
+  assert.throws(
+    () =>
+      reviewUiImplementationCandidate(refundOperatorImplementationCandidate(), {
+        implementation_contract: incompleteExternalReviewContract,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "incomplete_design_system_authority",
+    "review flow should reject external_design_system mode without complete external authority.",
+  );
+
+  const acmeIconCatalog = {
+    source: "external_design_system",
+    library: "acme-icons",
+    package: "@acme/icons",
+    version: "repo-approved",
+    icon_count: 120,
+    license: "MIT",
+    notice: "Repo-approved Acme icon adapter.",
+    mcp_tools: [],
+  };
+  const externalTokenAdapterWithDefaultComponents = {
+    ...implementationContract.visual_token_adapter,
+    mode: "external_design_system",
+    token_families: ["color"],
+    css_custom_properties: [
+      {
+        name: "--acme-color-text",
+        role: "text",
+        family: "color",
+        value: "theme.colors.text",
+        usage: "Acme text color",
+      },
+    ],
+    icon_catalog: acmeIconCatalog,
+  };
+  const misleadingDefaultComponentExternalContract = {
+    ...implementationContract,
+    visual_token_adapter: externalTokenAdapterWithDefaultComponents,
+    design_system_source: {
+      ...implementationContract.design_system_source,
+      mode: "external_design_system",
+      name: "Acme UI",
+      package: "@acme/ui",
+      definition_point: "implementation_contract.design_system_adapter",
+      token_prefixes: ["--acme-"],
+      icon_catalog: acmeIconCatalog,
+      renderer_components:
+        implementationContract.default_ai_native_design_system.component_contracts.map(
+          (component) => component.id,
+        ),
+      component_contract_source:
+        "implementation_contract.design_system_adapter.components",
+    },
+  };
+
+  assert.throws(
+    () =>
+      reviewUiImplementationCandidate(refundOperatorImplementationCandidate(), {
+        implementation_contract: misleadingDefaultComponentExternalContract,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "incomplete_design_system_authority",
+    "review flow should reject external_design_system contracts that still point at default component contracts.",
+  );
+
   const materialImplementationContract = createUiImplementationContract({
     design_system_adapter: completeMaterialDesignSystemAdapter(),
   }).implementation_contract;
@@ -1296,6 +1395,76 @@ function repairedSessionsButtonCandidate(contract) {
   );
   assert.equal(externalMaterialReview.checks.design_system_provenance.status, "pass");
   assert.deepEqual(externalMaterialReview.checks.visual_tokens.unsupported_icon_ids, []);
+
+  const objectComponentsMaterialImplementationContract =
+    createUiImplementationContract({
+      design_system_adapter:
+        completeMaterialDesignSystemObjectComponentsAdapter(),
+    }).implementation_contract;
+  const objectComponentIds =
+    objectComponentsMaterialImplementationContract.default_ai_native_design_system
+      .component_contracts.map((contract) => contract.id);
+
+  assert.deepEqual(objectComponentIds, ["Stack", "Button", "Alert"]);
+  assert.deepEqual(
+    objectComponentsMaterialImplementationContract.design_system_source
+      .renderer_components,
+    ["Stack", "Button", "Alert"],
+  );
+  assert.equal(
+    objectComponentsMaterialImplementationContract.design_system_source
+      .component_contract_source,
+    "implementation_contract.design_system_adapter.components",
+  );
+
+  const objectComponentsExternalReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      code: `
+        import { Stack, Button } from "@mui/material";
+        import CheckCircle from "@mui/icons-material/CheckCircle";
+        export function Review() {
+          return <Stack sx={{ color: "var(--mui-palette-background-paper)" }}><Button startIcon={<CheckCircle />}>Send handoff</Button></Stack>;
+        }
+      `,
+      visual_token_evidence: {
+        token_families: ["color", "type"],
+        font_roles: ["body"],
+        icon_roles: ["status", "action"],
+        selected_icons: [{ role: "status", id: "CheckCircle" }],
+      },
+      component_contract_evidence: {
+        components: [
+          {
+            id: "Stack",
+            states_covered: ["ready", "disabled", "focus-visible", "loading"],
+          },
+          {
+            id: "Button",
+            states_covered: ["ready", "disabled", "focus-visible", "loading"],
+          },
+        ],
+      },
+      accessibility_evidence: {
+        forced_colors: {
+          status: "pass",
+          method: "forced-colors emulation",
+          notes: "Material UI theme variables preserve visible text and focus.",
+        },
+      },
+    }),
+    {
+      implementation_contract: objectComponentsMaterialImplementationContract,
+    },
+  );
+
+  assert.equal(
+    objectComponentsExternalReview.implementation_review_status,
+    "passed",
+  );
+  assert.deepEqual(
+    objectComponentsExternalReview.checks.component_contracts.allowed_component_ids,
+    ["Stack", "Button", "Alert"],
+  );
 
   const mixedExternalReview = reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
@@ -2130,6 +2299,246 @@ function repairedSessionsButtonCandidate(contract) {
       .missing_inherited_families,
     [".button"],
     "sessions-button must not satisfy a contract-level .button family requirement.",
+  );
+
+  const buttonClassCssModuleReview = reviewUiImplementationCandidate(
+    sessionsButtonCandidate(buttonClassContract, {
+      code: `
+        import styles from "./button.module.css";
+
+        export function SessionsButton({ count }) {
+          return <button className={styles.button}>Sessions ({count})</button>;
+        }
+
+        .sessions-button {
+          display: inline-flex;
+          max-inline-size: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      `,
+      component_contract_evidence: { components: [] },
+      local_component_authority_evidence: {
+        component: "SessionsButton",
+        inherited_families: [],
+        computed_style_evidence: {
+          status: "pass",
+          method: "browser computed-style comparison",
+          compared_to: ".button",
+        },
+        component_specific_selectors: [
+          {
+            selector: ".sessions-button",
+            rule_categories: ["layout", "overflow"],
+            visual_identity_declarations: [],
+          },
+        ],
+      },
+    }),
+    { implementation_contract: buttonClassContract },
+  );
+
+  assert.equal(
+    buttonClassCssModuleReview.checks.local_component_authority.status,
+    "pass",
+    "CSS-module property access should satisfy an exact local class family.",
+  );
+
+  const buttonClassUnrelatedPropertyReview = reviewUiImplementationCandidate(
+    sessionsButtonCandidate(buttonClassContract, {
+      code: `
+        const tone = theme.button;
+
+        export function SessionsButton({ count }) {
+          return <button className="sessions-button">Sessions ({count})</button>;
+        }
+
+        .sessions-button {
+          display: inline-flex;
+          max-inline-size: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      `,
+      component_contract_evidence: { components: [] },
+      local_component_authority_evidence: {
+        component: "SessionsButton",
+        inherited_families: [],
+        computed_style_evidence: {
+          status: "pass",
+          method: "browser computed-style comparison",
+          compared_to: ".button",
+        },
+        component_specific_selectors: [
+          {
+            selector: ".sessions-button",
+            rule_categories: ["layout", "overflow"],
+            visual_identity_declarations: [],
+          },
+        ],
+      },
+    }),
+    { implementation_contract: buttonClassContract },
+  );
+
+  assert.equal(
+    buttonClassUnrelatedPropertyReview.checks.local_component_authority.status,
+    "fail",
+    "unrelated object property access must not satisfy an exact local class family.",
+  );
+
+  const bareButtonFamilyContract = createUiImplementationContract({
+    repo_name: "Sessions",
+    target_stack: "React",
+    repo_evidence: ["app/components/button.css", "app/components/SessionsButton.tsx"],
+    local_component_authority: {
+      required: true,
+      component: "SessionsButton",
+      required_family: "button",
+      accepted_family_selectors: ["button"],
+      component_specific_selector: ".sessions-button",
+      evidence_field: "local_component_authority_evidence",
+    },
+    approved_primitives: ["button"],
+    required_states: ["ready", "disabled", "focus-visible"],
+    static_rules: ["npm run check"],
+    browser_qa_checks: ["desktop viewport", "mobile viewport"],
+  }).implementation_contract;
+  const bareButtonImplicitSourceReview = reviewUiImplementationCandidate(
+    sessionsButtonCandidate(bareButtonFamilyContract, {
+      code: `
+        export function SessionsButton({ count }) {
+          return <button className="sessions-button">Sessions ({count})</button>;
+        }
+
+        .sessions-button {
+          display: inline-flex;
+          max-inline-size: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      `,
+      component_contract_evidence: { components: [] },
+      local_component_authority_evidence: {
+        component: "SessionsButton",
+        inherited_families: [],
+        computed_style_evidence: {
+          status: "pass",
+          method: "browser computed-style comparison",
+          compared_to: "button",
+        },
+        component_specific_selectors: [
+          {
+            selector: ".sessions-button",
+            rule_categories: ["layout", "overflow"],
+            visual_identity_declarations: [],
+          },
+        ],
+      },
+    }),
+    { implementation_contract: bareButtonFamilyContract },
+  );
+
+  assert.equal(
+    bareButtonImplicitSourceReview.checks.local_component_authority.status,
+    "fail",
+  );
+  assert.deepEqual(
+    bareButtonImplicitSourceReview.checks.local_component_authority
+      .missing_inherited_families,
+    ["button"],
+    "a bare local family should not be inferred from a <button> element or sessions-button class token.",
+  );
+
+  const bareButtonExactClassTokenReview = reviewUiImplementationCandidate(
+    sessionsButtonCandidate(bareButtonFamilyContract, {
+      code: `
+        export function SessionsButton({ count }) {
+          return <button className="button sessions-button">Sessions ({count})</button>;
+        }
+
+        .sessions-button {
+          display: inline-flex;
+          max-inline-size: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      `,
+      component_contract_evidence: { components: [] },
+      local_component_authority_evidence: {
+        component: "SessionsButton",
+        inherited_families: [],
+        computed_style_evidence: {
+          status: "pass",
+          method: "browser computed-style comparison",
+          compared_to: "button",
+        },
+        component_specific_selectors: [
+          {
+            selector: ".sessions-button",
+            rule_categories: ["layout", "overflow"],
+            visual_identity_declarations: [],
+          },
+        ],
+      },
+    }),
+    { implementation_contract: bareButtonFamilyContract },
+  );
+
+  assert.equal(
+    bareButtonExactClassTokenReview.checks.local_component_authority.status,
+    "pass",
+    "an exact class token should satisfy a bare local family without relying on tag-name matching.",
+  );
+
+  const bareButtonExplicitEvidenceReview = reviewUiImplementationCandidate(
+    sessionsButtonCandidate(bareButtonFamilyContract, {
+      code: `
+        export function SessionsButton({ count }) {
+          return <button className="sessions-button">Sessions ({count})</button>;
+        }
+
+        .sessions-button {
+          display: inline-flex;
+          max-inline-size: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      `,
+      component_contract_evidence: { components: [] },
+      local_component_authority_evidence: {
+        component: "SessionsButton",
+        inherited_families: ["button"],
+        computed_style_evidence: {
+          status: "pass",
+          method: "browser computed-style comparison",
+          compared_to: "button",
+        },
+        component_specific_selectors: [
+          {
+            selector: ".sessions-button",
+            rule_categories: ["layout", "overflow"],
+            visual_identity_declarations: [],
+          },
+        ],
+      },
+    }),
+    { implementation_contract: bareButtonFamilyContract },
+  );
+
+  assert.equal(
+    bareButtonExplicitEvidenceReview.checks.local_component_authority.status,
+    "pass",
+  );
+  assert.deepEqual(
+    bareButtonExplicitEvidenceReview.checks.local_component_authority
+      .missing_inherited_families,
+    [],
   );
 
   const arbitraryVisualOverrideReview = reviewUiImplementationCandidate(
