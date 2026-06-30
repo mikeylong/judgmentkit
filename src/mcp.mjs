@@ -84,6 +84,11 @@ const RECOMMEND_SURFACE_TYPES_TOOL = {
         description:
           "Optional activity review packet returned by create_activity_model_review.",
       },
+      activityReview: {
+        type: "object",
+        description:
+          "Compatibility alias for activity_review. If both are provided, activity_review wins.",
+      },
     },
     additionalProperties: false,
   },
@@ -1814,6 +1819,7 @@ export async function handleToolCall(name, args = {}) {
     if (name === RECOMMEND_SURFACE_TYPES_TOOL.name) {
       return recommendSurfaceTypes(args.brief, {
         activity_review: args.activity_review,
+        activityReview: args.activityReview,
       });
     }
 
@@ -1882,6 +1888,7 @@ export function createJudgmentKitMcpServer() {
       inputSchema: {
         brief: z.string(),
         activity_review: z.record(z.any()).optional(),
+        activityReview: z.record(z.any()).optional(),
       },
     },
     async (args) =>

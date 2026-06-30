@@ -67,6 +67,12 @@ assert.equal(tools[0].inputSchema.properties.brief.minLength, 1);
 assert.equal(tools[1].inputSchema.required.includes("brief"), true);
 assert.equal(tools[1].inputSchema.properties.brief.minLength, 1);
 assert.equal(tools[2].inputSchema.required.includes("brief"), true);
+assert.equal(toolByName.recommend_surface_types.inputSchema.properties.activity_review.type, "object");
+assert.equal(toolByName.recommend_surface_types.inputSchema.properties.activityReview.type, "object");
+assert.equal(
+  toolByName.recommend_surface_types.inputSchema.required.includes("activityReview"),
+  false,
+);
 assert.equal(tools[3].inputSchema.required.includes("brief"), true);
 assert.equal(tools[4].inputSchema.required.includes("brief"), true);
 assert.equal(tools[4].inputSchema.required.includes("candidate"), true);
@@ -189,6 +195,38 @@ const refundTriageCandidate = {
     diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
   },
 };
+
+const formFlowCandidate = {
+  activity_model: {
+    activity: "Support manager updates billing settings.",
+    participants: ["support manager"],
+    objective:
+      "Enter required billing information, resolve validation errors, and submit saved settings.",
+    outcomes: ["Saved settings confirmation."],
+    domain_vocabulary: ["billing information", "settings"],
+  },
+  interaction_contract: {
+    primary_decision:
+      "Decide whether required billing information is complete enough to submit.",
+    next_actions: ["Save settings", "Submit change"],
+    completion: "Saved settings confirmation.",
+  },
+  disclosure_policy: {
+    terms_to_use: ["billing information", "settings"],
+  },
+};
+
+function readyActivityReview(candidate) {
+  return {
+    review_status: "ready_for_review",
+    candidate,
+    guardrails: {
+      source_missing_evidence: {
+        decision: false,
+      },
+    },
+  };
+}
 
 const refundWorkflowCandidate = {
   workflow: {
@@ -365,6 +403,31 @@ function assertReviewEvidenceFieldsVisible(text, label) {
   assert.equal(result.recommended_surface_type, "workbench");
   assert.equal(result.frontend_posture.density, "operational");
   assert.ok(result.interaction_implications.primary_structure.includes("Item selection"));
+}
+
+{
+  const result = await handleToolCall("recommend_surface_types", {
+    brief: "Build the provided surface.",
+    activityReview: readyActivityReview(refundTriageCandidate),
+  });
+
+  assert.equal("error" in result, false);
+  assert.equal(result.recommended_surface_type, "workbench");
+  assert.equal("activityReview" in result, false);
+  assert.equal("blockedSurfaceTypes" in result, false);
+  assert.ok(Array.isArray(result.blocked_surface_types));
+}
+
+{
+  const result = await handleToolCall("recommend_surface_types", {
+    brief: "Build the provided surface.",
+    activity_review: readyActivityReview(formFlowCandidate),
+    activityReview: readyActivityReview(refundTriageCandidate),
+  });
+
+  assert.equal("error" in result, false);
+  assert.equal(result.recommended_surface_type, "form_flow");
+  assert.equal("activityReview" in result, false);
 }
 
 {

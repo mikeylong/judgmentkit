@@ -116,6 +116,13 @@ try {
       "get_icon_svg",
     ],
   );
+  const recommendSurfaceTool = toolsResponse.tools.find(
+    (tool) => tool.name === "recommend_surface_types",
+  );
+
+  assert.ok(recommendSurfaceTool);
+  assert.equal(recommendSurfaceTool.inputSchema.properties.activity_review.type, "object");
+  assert.equal(recommendSurfaceTool.inputSchema.properties.activityReview.type, "object");
 
   const iconListResponse = await withTimeout(
     client.callTool({
@@ -237,6 +244,29 @@ try {
       "case should be approved",
     ),
   );
+
+  const aliasSurfaceResponse = await withTimeout(
+    client.callTool({
+      name: "recommend_surface_types",
+      arguments: {
+        brief: "Build the provided surface.",
+        activityReview: reviewResponse.structuredContent,
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(aliasSurfaceResponse.isError, undefined);
+  assert.ok(
+    assertPlanningCard(
+      aliasSurfaceResponse,
+      "## JudgmentKit Surface Recommendation",
+      "Ready for surface guidance",
+    ).includes('surface_type "workbench"'),
+  );
+  assert.equal(aliasSurfaceResponse.structuredContent.recommended_surface_type, "workbench");
+  assert.equal("activityReview" in aliasSurfaceResponse.structuredContent, false);
+  assert.ok(Array.isArray(aliasSurfaceResponse.structuredContent.blocked_surface_types));
 
   const surfaceResponse = await withTimeout(
     client.callTool({

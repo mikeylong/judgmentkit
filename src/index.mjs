@@ -602,6 +602,12 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
   const hasDecision = hasAffirmedAny(text, [
     /\b(?:decision|decide|decides|deciding|choose|chooses|choosing|compare|compares|comparing|approve|block|blocking|return|handoff|prioritize|resolve|submit|complete)\b/,
   ]);
+  const hasBoundedDecisionAction = hasAffirmedAny(text, [
+    /\b(?:decision|decide|decides|deciding|choose|chooses|choosing|approve|block|blocking|return|handoff|prioritize|resolve|submit|complete|save|saving)\b/,
+  ]);
+  const hasNoDecisionRequired =
+    /\bno (?:operational |active |bounded |human |user )?decision(?:\s+(?:is|are))?\s+(?:required|needed|necessary|expected)\b/.test(text) ||
+    /\b(?:without|requires no|needs no) (?:operational |active |bounded |human |user )?decision\b/.test(text);
   const hasMarketing = hasAffirmedAny(text, [
     /\b(?:marketing|landing page|homepage|home page|campaign|pricing|signup|sign up|trial|demo|conversion|convert|prospect|visitor|buyer|offer|value prop|value proposition|positioning)\b/,
     /\b(?:lead capture|lead form|lead gen|lead generation|qualified lead|sales lead)\b/,
@@ -623,7 +629,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
     hasFormDataEntryIntent && hasFormValidationIntent;
   const hasSpecificWorkbenchItems =
     hasAffirmedAny(text, [
-      /\b(?:queue|multiple|several|cases|requests|findings|workstreams|candidates|exceptions|visits|selected visit|route impact|decision state|handoff owner|next-action receipt|cohorts)\b/,
+      /\b(?:queue|multiple|several|cases|requests|findings|workstreams|candidates|exceptions|visits|selected visit|route impact|decision state|handoff owner|next-action receipt|cohorts|playlists?|tracks?|songs?|sequence)\b/,
     ]);
   const hasGenericWorkbenchItems =
     hasAffirmedAny(text, [/\b(?:list|items|records)\b/]);
@@ -635,7 +641,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
     ]);
   const hasEvidenceComparison =
     hasAffirmedAny(text, [
-      /\b(?:evidence|compare|compares|comparing|context|risk|reason|documents?|route impact|selected|policy|cohorts)\b/,
+      /\b(?:evidence|compare|compares|comparing|context|risk|reason|documents?|route impact|selected|policy|cohorts|conflicts?|constraints?|sequence|energy flow|guest preference|dinner mood|genre balance)\b/,
     ]);
   const hasFormPrimary =
     hasStructuredFormFlow ||
@@ -650,11 +656,23 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       /\b(?:internal|admin|operations|crm|record|settings|profile|application|intake|checkout|purchase|shipping|payment)\b/,
     ]);
   const hasRawSetupDebugIntent = hasAffirmedAny(text, [
-    /\b(?:setup|configure|configuration|debug|debugging|diagnostic|troubleshoot|test connection|integration setup|audit integration|safe to ship|release risk|schema change|prompt template|api endpoint|tool call trace|raw system mechanics|mcp server)\b/,
+    /\b(?:setup|configure|configuration|debug|debugging|troubleshoot|test connection|integration setup|audit integration|safe to ship|release risk|diagnostic (?:console|status|evidence|handoff)|run diagnostics)\b/,
   ]);
+  const hasSetupDebugActivityContext = hasAffirmedAny(text, [
+    /\b(?:setup|configure|configuration|configured|debug|debugging|troubleshoot|troubleshooting|test connection|integration setup|integration (?:test|testing|diagnostics?|troubleshooting|configuration)|audit integration|audit|auditing|safe to ship|release risk|diagnostic (?:console|status|evidence|handoff)|run diagnostics)\b/,
+  ]);
+  const hasImplementationMachineryCue =
+    implementationTermsDetected.length > 0 ||
+    hasAffirmedAny(text, [
+      /\b(?:schema change|prompt template|api endpoint|tool call trace|raw system mechanics|mcp server|json schema)\b/,
+    ]);
   const hasConversationPrimary = hasAffirmedAny(text, [
     /\b(?:chat|conversation|thread|message composer|assistant exchange|live chat|open-ended|open ended|reply|respond|back and forth)\b/,
   ]);
+  const hasReadingOrReportPrimary =
+    hasAffirmedAny(text, [
+      /\b(?:content page|report|memo|article|doc|docs|documentation|guide|read|reads|reading|understand|understanding|learn|cite|citing|share|sharing|reference|summary|narrative)\b/,
+    ]) && (!hasBoundedDecisionAction || hasNoDecisionRequired);
   const hasWorkbenchWorkShape =
     (hasExplicitWorkbench &&
       hasAffirmedAny(text, [
@@ -670,7 +688,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
     (hasOperationalActor && hasReviewDecision && hasEvidenceComparison && !hasFormPrimary);
   const hasSetupDebug =
     hasRawSetupDebugIntent ||
-    implementationTermsDetected.length > 0;
+    (hasSetupDebugActivityContext && hasImplementationMachineryCue);
   const hasConversation =
     hasAffirmedAny(text, [
       /\b(?:chat|conversation|thread|message composer|assistant exchange|live chat|open-ended|open ended)\b/,
@@ -766,6 +784,12 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
         "Monitoring or dashboard language appears without decision work.",
       ),
       surfaceEvidence(
+        "reading_or_report_primary",
+        "Reading, citing, or sharing a report should not become a workbench.",
+        hasReadingOrReportPrimary,
+        "Report, documentation, reading, citing, sharing, or narrative language is primary without bounded action.",
+      ),
+      surfaceEvidence(
         "structured_form_flow",
         "Structured form and validation work should stay a form flow.",
         hasFormPrimary &&
@@ -810,7 +834,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "validation_or_required_inputs",
         "Completion depends on validation or required inputs.",
-        hasFormValidationIntent,
+        hasFormValidationIntent && hasFormDataEntryIntent,
         "Looked for validation, required inputs, save, confirm, or input language.",
       ),
     ];
@@ -836,17 +860,25 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
   }
 
   if (surfaceType === "dashboard_monitor") {
+    const hasDashboardMonitoringContext = hasAffirmedAny(text, [
+      /\b(?:dashboard|monitor|monitoring|metrics|status|trend|trends|health|kpi|alert|alerts|overview|analytics|tracking|watch)\b/,
+    ]);
+    const hasPassiveOrPeriodicRead =
+      hasAffirmedAny(text, [
+        /\b(?:passive|overview|at a glance|tracking|watch|weekly|daily status)\b/,
+      ]) ||
+      (hasDashboardMonitoringContext && /\bno decision\b/.test(text));
     const triggers = [
       surfaceEvidence(
         "monitor_status_or_trends",
         "The surface tracks status, exceptions, trends, or operational health.",
-        /\b(?:dashboard|monitor|monitoring|metrics|status|trend|trends|health|kpi|alert|alerts|overview|analytics)\b/.test(text),
+        hasDashboardMonitoringContext,
         "Looked for dashboard, monitor, metrics, status, trends, health, alerts, overview, or analytics language.",
       ),
       surfaceEvidence(
         "passive_or_periodic_read",
         "The surface is used for passive or periodic status reading.",
-        /\b(?:passive|overview|at a glance|track|tracking|watch|weekly|daily status|no decision)\b/.test(text),
+        hasPassiveOrPeriodicRead,
         "Looked for passive, overview, tracking, watching, or no-decision language.",
       ),
     ];
@@ -889,7 +921,9 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "active_decision_work",
         "Active decisions should not become reading-only content.",
-        hasDecision && !/\b(?:report decision|share decision|decision memo)\b/.test(text),
+        hasBoundedDecisionAction &&
+          !hasNoDecisionRequired &&
+          !/\b(?:report decision|share decision|decision memo)\b/.test(text),
         "Decision, comparison, approval, or handoff language is present.",
       ),
       surfaceEvidence(
@@ -905,7 +939,8 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
 
   if (surfaceType === "setup_debug_tool") {
     const rawMechanicsPrimary =
-      hasRawSetupDebugIntent;
+      hasRawSetupDebugIntent ||
+      (hasSetupDebugActivityContext && hasImplementationMachineryCue);
     const triggers = [
       surfaceEvidence(
         "configure_inspect_test_or_troubleshoot",
@@ -916,7 +951,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "implementation_terms_are_task_material",
         "Implementation details are part of the task material.",
-        implementationTermsDetected.length > 0,
+        implementationTermsDetected.length > 0 && rawMechanicsPrimary,
         implementationTermsDetected.length > 0
           ? "Implementation terms were detected in the source."
           : "No implementation terms were detected.",

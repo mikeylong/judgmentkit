@@ -13,6 +13,13 @@ const versionAPath = path.join(outputDir, "version-a.html");
 const versionBPath = path.join(outputDir, "version-b.html");
 const manifestPath = path.join(outputDir, "manifest.json");
 const scorecardPath = path.join(outputDir, "facilitator-scorecard.md");
+const generatedArtifactPaths = [
+  briefPath,
+  versionAPath,
+  versionBPath,
+  manifestPath,
+  scorecardPath,
+];
 
 const IMPLEMENTATION_TERMS = [
   "data model",
@@ -60,6 +67,13 @@ function readMetadata(html) {
   assert.ok(match, "Missing comparison metadata script.");
   return JSON.parse(match[1]);
 }
+
+const generatedArtifactSnapshots = new Map(
+  generatedArtifactPaths.map((artifactPath) => [
+    artifactPath,
+    fs.readFileSync(artifactPath, "utf8"),
+  ]),
+);
 
 const result = spawnSync(process.execPath, [scriptPath], {
   encoding: "utf8",
@@ -181,6 +195,7 @@ assert.equal(versionAMetadata.treatment, "raw_brief_baseline");
 assert.equal(versionBMetadata.treatment, "judgmentkit_handoff");
 assert.equal(versionBMetadata.generation_source.handoff_status, "ready_for_generation");
 assert.equal(versionBMetadata.generation_source.workflow_review_status, "ready_for_review");
+assert.equal(versionBMetadata.generation_source.surface_type, "workbench");
 assert.equal(
   versionBMetadata.generation_source.frontend_context_status,
   "ready_for_frontend_implementation",
@@ -188,6 +203,7 @@ assert.equal(
 assert.equal(versionBMetadata.generation_source.frontend_skill_context_status, "ready");
 assert.equal(versionBMetadata.frontend_skill_context.source_skill, "frontend-ui-implementation");
 assert.equal(versionBMetadata.frontend_skill_context.raw_skill_exposed, false);
+assert.equal(versionBMetadata.frontend_skill_context.surface_type, "workbench");
 assert.equal(
   versionBMetadata.frontend_skill_context.design_system_mode,
   "judgmentkit_default",
@@ -287,6 +303,21 @@ for (const trackTitle of [
   assert.ok(
     versionBPrimary.includes(trackTitle),
     `music comparison should include suggested track: ${trackTitle}`,
+  );
+}
+
+const idempotenceResult = spawnSync(process.execPath, [scriptPath], {
+  encoding: "utf8",
+});
+
+assert.equal(idempotenceResult.status, 0, idempotenceResult.stderr);
+assert.equal(idempotenceResult.stderr, "");
+
+for (const [artifactPath, snapshot] of generatedArtifactSnapshots) {
+  assert.equal(
+    fs.readFileSync(artifactPath, "utf8"),
+    snapshot,
+    `music generated artifact should be idempotent: ${path.relative(root, artifactPath)}`,
   );
 }
 

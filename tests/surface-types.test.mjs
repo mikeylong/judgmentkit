@@ -243,6 +243,58 @@ const INTERNAL_SALES_LEAD_RECORD_FORM_FLOW_BRIEF = `
   the change, and seeing a saved record confirmation.
 `;
 
+const READ_ONLY_REQUIRED_FIELDS_REPORT_BRIEF = `
+  A policy reader uses a read-only reference report. The activity is reading a
+  narrative summary of required fields and validation rules for a separate
+  compliance process, then sharing the reference with stakeholders. The surface
+  has no data entry, editing, or submission.
+`;
+
+const BARE_NO_DECISION_REPORT_BRIEF = `
+  An executive reads a narrative quarterly report. The activity is understanding
+  the summary, citing reference sections, and sharing the report with
+  stakeholders. No decision is required on this surface.
+`;
+
+const IMPLEMENTATION_TERMS_REPORT_BRIEF = `
+  A policy analyst reads an implementation appendix report that mentions JSON
+  schema, prompt template, resource id, and API endpoint as source labels. The
+  activity is reading the narrative, citing references, and sharing the report
+  with stakeholders. This is not setup, debugging, auditing, or integration work.
+`;
+
+const DIAGNOSTIC_SOURCE_LABELS_REPORT_BRIEF = `
+  A policy analyst reads a diagnostic report that mentions JSON schema and API
+  endpoint as source labels. The activity is reading the narrative, citing
+  references, and sharing the report with stakeholders.
+`;
+
+const DIAGNOSTIC_INTEGRATION_SOURCE_LABELS_REPORT_BRIEF = `
+  A policy analyst reads a diagnostic report for an integration that mentions
+  JSON schema and API endpoint as source labels. The activity is reading the
+  narrative, citing references, and sharing the report with stakeholders. This
+  is not setup, debugging, auditing, or integration work.
+`;
+
+const PLAYLIST_COMPARISON_WORKBENCH_BRIEF = `
+  A host is curating a 10-song dinner playlist for friends. The activity is
+  comparing suggested tracks, deciding which songs belong, shaping the sequence,
+  resolving explicit-track and disliked-artist conflicts, and saving a playlist
+  with a sequence note.
+`;
+
+const NO_FINAL_DECISION_WORKBENCH_BRIEF = `
+  A support lead reviews case evidence in a workbench. No final decision is made
+  until evidence is compared, then the lead decides whether to approve, return,
+  or hand off the case.
+`;
+
+const MUSIC_SEQUENCE_REPORT_BRIEF = `
+  A music editor reads a narrative report comparing song sequence choices for
+  last week's dinner playlist. The activity is reading the summary, citing
+  reference sections, and sharing the report; no decision is required.
+`;
+
 const REFUND_TRIAGE_BRIEF = `
   A support lead is reviewing refund requests during the daily triage workflow.
   The activity is deciding whether a case should be approved, sent to policy review,
@@ -611,11 +663,181 @@ function assertSurfaceRecommendation({
       brief: INTERNAL_SALES_LEAD_RECORD_FORM_FLOW_BRIEF,
       surfaceType: "form_flow",
     },
+    {
+      label: "read-only required fields report",
+      brief: READ_ONLY_REQUIRED_FIELDS_REPORT_BRIEF,
+      surfaceType: "content_report",
+    },
+    {
+      label: "bare no-decision report",
+      brief: BARE_NO_DECISION_REPORT_BRIEF,
+      surfaceType: "content_report",
+    },
+    {
+      label: "implementation terms report",
+      brief: IMPLEMENTATION_TERMS_REPORT_BRIEF,
+      surfaceType: "content_report",
+    },
+    {
+      label: "diagnostic source labels report",
+      brief: DIAGNOSTIC_SOURCE_LABELS_REPORT_BRIEF,
+      surfaceType: "content_report",
+    },
+    {
+      label: "diagnostic integration source labels report",
+      brief: DIAGNOSTIC_INTEGRATION_SOURCE_LABELS_REPORT_BRIEF,
+      surfaceType: "content_report",
+    },
+    {
+      label: "playlist comparison workbench",
+      brief: PLAYLIST_COMPARISON_WORKBENCH_BRIEF,
+      surfaceType: "workbench",
+    },
+    {
+      label: "no final decision workbench",
+      brief: NO_FINAL_DECISION_WORKBENCH_BRIEF,
+      surfaceType: "workbench",
+    },
+    {
+      label: "music sequence report",
+      brief: MUSIC_SEQUENCE_REPORT_BRIEF,
+      surfaceType: "content_report",
+    },
   ];
 
   for (const surfaceCase of surfaceRecommendationSmokeCases) {
     assertSurfaceRecommendation(surfaceCase);
   }
+}
+
+{
+  const requiredFieldsReport = recommendSurfaceTypes(READ_ONLY_REQUIRED_FIELDS_REPORT_BRIEF);
+  const formFlowScore = surfaceTypeScore(requiredFieldsReport, "form_flow");
+
+  assert.equal(requiredFieldsReport.recommended_surface_type, "content_report");
+  assert.ok(formFlowScore);
+  assert.equal(
+    formFlowScore.matched_triggers.includes("validation_or_required_inputs"),
+    false,
+  );
+}
+
+{
+  const bareNoDecisionReport = recommendSurfaceTypes(BARE_NO_DECISION_REPORT_BRIEF);
+  const dashboardScore = surfaceTypeScore(bareNoDecisionReport, "dashboard_monitor");
+
+  assert.equal(bareNoDecisionReport.recommended_surface_type, "content_report");
+  assert.ok(dashboardScore);
+  assert.equal(
+    dashboardScore.matched_triggers.includes("passive_or_periodic_read"),
+    false,
+  );
+}
+
+{
+  const noDecisionDashboard = recommendSurfaceTypes(
+    "An operations lead uses a health dashboard to monitor incident status and alerts. No decision is required on this surface.",
+  );
+  const dashboardScore = surfaceTypeScore(noDecisionDashboard, "dashboard_monitor");
+
+  assert.equal(noDecisionDashboard.recommended_surface_type, "dashboard_monitor");
+  assert.ok(dashboardScore);
+  assert.ok(dashboardScore.matched_triggers.includes("passive_or_periodic_read"));
+}
+
+{
+  const implementationTermsReport = recommendSurfaceTypes(IMPLEMENTATION_TERMS_REPORT_BRIEF);
+  const setupScore = surfaceTypeScore(implementationTermsReport, "setup_debug_tool");
+
+  assert.equal(implementationTermsReport.recommended_surface_type, "content_report");
+  assert.ok(
+    implementationTermsReport.evidence.implementation_terms_detected.length > 0,
+  );
+  assert.ok(setupScore);
+  assert.equal(
+    setupScore.matched_triggers.includes("implementation_terms_are_task_material"),
+    false,
+  );
+}
+
+{
+  const diagnosticReport = recommendSurfaceTypes(DIAGNOSTIC_SOURCE_LABELS_REPORT_BRIEF);
+  const setupScore = surfaceTypeScore(diagnosticReport, "setup_debug_tool");
+
+  assert.equal(diagnosticReport.recommended_surface_type, "content_report");
+  assert.ok(diagnosticReport.evidence.implementation_terms_detected.length > 0);
+  assert.ok(setupScore);
+  assert.equal(
+    setupScore.matched_triggers.includes("implementation_terms_are_task_material"),
+    false,
+  );
+}
+
+{
+  const diagnosticIntegrationReport = recommendSurfaceTypes(
+    DIAGNOSTIC_INTEGRATION_SOURCE_LABELS_REPORT_BRIEF,
+  );
+  const setupScore = surfaceTypeScore(
+    diagnosticIntegrationReport,
+    "setup_debug_tool",
+  );
+
+  assert.equal(
+    diagnosticIntegrationReport.recommended_surface_type,
+    "content_report",
+  );
+  assert.ok(
+    diagnosticIntegrationReport.evidence.implementation_terms_detected.length > 0,
+  );
+  assert.ok(setupScore);
+  assert.equal(
+    setupScore.matched_triggers.includes("implementation_terms_are_task_material"),
+    false,
+  );
+}
+
+{
+  const playlistWorkbench = recommendSurfaceTypes(PLAYLIST_COMPARISON_WORKBENCH_BRIEF);
+  const workbenchScore = surfaceTypeScore(playlistWorkbench, "workbench");
+  const formFlowScore = surfaceTypeScore(playlistWorkbench, "form_flow");
+
+  assert.equal(playlistWorkbench.recommended_surface_type, "workbench");
+  assert.ok(workbenchScore);
+  assert.ok(workbenchScore.matched_triggers.includes("repeated_work_items"));
+  assert.ok(formFlowScore);
+  assert.ok(
+    formFlowScore.score < workbenchScore.score,
+    `expected form_flow score ${formFlowScore.score} to be below workbench score ${workbenchScore.score}`,
+  );
+}
+
+{
+  const noFinalDecisionWorkbench = recommendSurfaceTypes(
+    NO_FINAL_DECISION_WORKBENCH_BRIEF,
+  );
+  const workbenchScore = surfaceTypeScore(noFinalDecisionWorkbench, "workbench");
+  const contentScore = surfaceTypeScore(noFinalDecisionWorkbench, "content_report");
+
+  assert.equal(noFinalDecisionWorkbench.recommended_surface_type, "workbench");
+  assert.ok(workbenchScore);
+  assert.equal(
+    workbenchScore.matched_exclusions.includes("reading_or_report_primary"),
+    false,
+  );
+  assert.ok(contentScore);
+  assert.ok(
+    workbenchScore.score > contentScore.score,
+    `expected workbench score ${workbenchScore.score} to exceed content score ${contentScore.score}`,
+  );
+}
+
+{
+  const musicReport = recommendSurfaceTypes(MUSIC_SEQUENCE_REPORT_BRIEF);
+  const workbenchScore = surfaceTypeScore(musicReport, "workbench");
+
+  assert.equal(musicReport.recommended_surface_type, "content_report");
+  assert.ok(workbenchScore);
+  assert.ok(workbenchScore.matched_exclusions.includes("reading_or_report_primary"));
 }
 
 {
