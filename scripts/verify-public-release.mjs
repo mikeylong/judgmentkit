@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import { spawn } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
@@ -16,6 +16,8 @@ import { COMPARISON_COLUMNS, COMPARISON_ROWS } from "./model-ui-use-cases.mjs";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, "..");
 const DEFAULT_BASE_URL = "https://judgmentkit.ai";
+const PUBLIC_MCP_ROUTES = ["/mcp", "/mcp/"];
+const PUBLIC_MCP_MAX_POST_BODY_BYTES = 128 * 1024;
 const REDIRECT_HOSTS = [
   ["judgmentkit.design", "https://judgmentkit.design/docs/"],
   ["www.judgmentkit.design", "https://www.judgmentkit.design/examples/"],
@@ -35,7 +37,7 @@ const OLD_FRAMING = [
 ];
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const options = {
     baseUrl: DEFAULT_BASE_URL,
     skipInstall: false,
@@ -79,7 +81,7 @@ function printUsage() {
       "Usage:",
       "  node scripts/verify-public-release.mjs [--base-url <url>] [--skip-install] [--skip-redirects] [--skip-analytics-script] [--expect-metadata-only]",
       "",
-      "By default the verifier expects /mcp to work as a hosted MCP Streamable HTTP endpoint.",
+      "By default the verifier expects /mcp and /mcp/ to work as hosted MCP Streamable HTTP endpoints.",
       "",
     ].join("\n"),
   );
@@ -930,7 +932,7 @@ async function verifyMcpMetadata(baseUrl, expectedVersion) {
   const routes = [];
   let firstResult;
 
-  for (const route of ["/mcp", "/mcp/"]) {
+  for (const route of PUBLIC_MCP_ROUTES) {
     const result = await verifyMcpMetadataRoute(baseUrl, route, expectedVersion);
     firstResult ??= result;
     routes.push({
@@ -1005,6 +1007,13 @@ async function probeRemoteMcpRoute(baseUrl, route) {
     body: initializeBody,
   });
   const postText = await postResponse.text();
+  let postBody;
+
+  try {
+    postBody = JSON.parse(postText);
+  } catch {
+    postBody = null;
+  }
 
   let transport;
   let client;
@@ -1054,6 +1063,9 @@ async function probeRemoteMcpRoute(baseUrl, route) {
       status: postResponse.status,
       ok: postResponse.ok,
       content_type: postResponse.headers.get("content-type"),
+      jsonrpc: postBody?.jsonrpc,
+      server_name: postBody?.result?.serverInfo?.name,
+      server_version: postBody?.result?.serverInfo?.version,
       body_preview: postText.slice(0, 200),
     },
     sdk: {
@@ -1065,40 +1077,43 @@ async function probeRemoteMcpRoute(baseUrl, route) {
   };
 }
 
-async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
+export async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
+  if (!expectRemoteMcp) {
+    return {
+      expected_remote_mcp: false,
+      skipped: true,
+      reason: "metadata_only",
+      routes: PUBLIC_MCP_ROUTES,
+      supported: false,
+      tools: [],
+    };
+  }
+
   const routes = [];
 
-  for (const route of ["/mcp", "/mcp/"]) {
+  for (const route of PUBLIC_MCP_ROUTES) {
     routes.push(await probeRemoteMcpRoute(baseUrl, route));
   }
 
-  if (expectRemoteMcp) {
-    for (const routeResult of routes) {
-      assert.equal(
-        routeResult.raw_post.ok,
-        true,
-        `${routeResult.route} JSON-RPC POST should succeed, got ${routeResult.raw_post.status}`,
-      );
-      assert.equal(
-        routeResult.sdk.supported,
-        true,
-        `Expected ${routeResult.endpoint} to work as a remote MCP endpoint: ${routeResult.sdk.error}`,
-      );
-      assert.deepEqual(routeResult.sdk.tools, JUDGMENTKIT_MCP_TOOL_NAMES);
-      assert.equal(routeResult.sdk.review_status, "ready_for_review");
-    }
-  } else {
-    for (const routeResult of routes) {
-      assert.equal(
-        routeResult.sdk.supported,
-        false,
-        `${routeResult.endpoint} unexpectedly worked as a hosted MCP endpoint.`,
-      );
-      assert.ok(
-        routeResult.raw_post.status >= 400,
-        `${routeResult.route} JSON-RPC POST should not succeed, got ${routeResult.raw_post.status}`,
-      );
-    }
+  for (const routeResult of routes) {
+    assert.equal(
+      routeResult.raw_post.ok,
+      true,
+      `${routeResult.route} JSON-RPC POST should succeed, got ${routeResult.raw_post.status}`,
+    );
+    assert.equal(routeResult.raw_post.jsonrpc, "2.0", `${routeResult.route} should return JSON-RPC`);
+    assert.equal(
+      routeResult.raw_post.server_name,
+      "JudgmentKit",
+      `${routeResult.route} raw initialize should return JudgmentKit server info`,
+    );
+    assert.equal(
+      routeResult.sdk.supported,
+      true,
+      `Expected ${routeResult.endpoint} to work as a remote MCP endpoint: ${routeResult.sdk.error}`,
+    );
+    assert.deepEqual(routeResult.sdk.tools, JUDGMENTKIT_MCP_TOOL_NAMES);
+    assert.equal(routeResult.sdk.review_status, "ready_for_review");
   }
 
   const firstSupportedRoute = routes.find((routeResult) => routeResult.sdk.supported);
@@ -1108,6 +1123,116 @@ async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
     supported: routes.every((routeResult) => routeResult.sdk.supported),
     routes,
     tools: firstSupportedRoute?.sdk.tools ?? [],
+  };
+}
+
+async function fetchJsonProbe(endpointUrl, options = {}) {
+  const response = await fetch(endpointUrl, {
+    method: options.method ?? "GET",
+    headers: options.headers,
+    body: options.body,
+  });
+  const text = await response.text();
+  let body;
+
+  try {
+    body = JSON.parse(text);
+  } catch {
+    body = null;
+  }
+
+  return {
+    response,
+    body,
+    text,
+  };
+}
+
+async function verifyMcpAppGuardRoute(baseUrl, route) {
+  const endpointUrl = urlFor(baseUrl, route);
+  const optionsResponse = await fetch(endpointUrl, { method: "OPTIONS" });
+
+  assert.equal(optionsResponse.status, 204, `${route} OPTIONS should return 204`);
+  assert.equal(
+    optionsResponse.headers.get("access-control-allow-methods"),
+    "GET, POST, DELETE, OPTIONS",
+    `${route} OPTIONS should advertise MCP methods`,
+  );
+
+  const unsupportedMedia = await fetchJsonProbe(endpointUrl, {
+    method: "POST",
+    headers: {
+      "content-type": "text/plain",
+    },
+    body: "{}",
+  });
+
+  assert.equal(
+    unsupportedMedia.response.status,
+    415,
+    `${route} non-JSON POST should return 415`,
+  );
+  assert.equal(
+    unsupportedMedia.body?.error?.message,
+    "Unsupported media type: POST /mcp requires application/json.",
+    `${route} non-JSON POST should return the app guard message`,
+  );
+
+  const oversized = await fetchJsonProbe(endpointUrl, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ value: "x".repeat(PUBLIC_MCP_MAX_POST_BODY_BYTES) }),
+  });
+
+  assert.equal(oversized.response.status, 413, `${route} oversized POST should return 413`);
+  assert.equal(
+    oversized.body?.error?.message,
+    "Request body too large: POST /mcp is limited to 128KB.",
+    `${route} oversized POST should return the app guard message`,
+  );
+
+  const malformed = await fetchJsonProbe(endpointUrl, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: "{",
+  });
+
+  assert.equal(malformed.response.status, 400, `${route} malformed JSON should return 400`);
+  assert.equal(malformed.body?.error?.code, -32700, `${route} malformed JSON should be a parse error`);
+
+  return {
+    route,
+    endpoint: endpointUrl,
+    options_status: optionsResponse.status,
+    non_json_status: unsupportedMedia.response.status,
+    oversized_status: oversized.response.status,
+    malformed_json_status: malformed.response.status,
+    malformed_json_error_code: malformed.body?.error?.code,
+  };
+}
+
+async function verifyMcpAppGuards(baseUrl, expectRemoteMcp) {
+  if (!expectRemoteMcp) {
+    return {
+      skipped: true,
+      reason: "metadata_only",
+      routes: PUBLIC_MCP_ROUTES,
+    };
+  }
+
+  const routes = [];
+
+  for (const route of PUBLIC_MCP_ROUTES) {
+    routes.push(await verifyMcpAppGuardRoute(baseUrl, route));
+  }
+
+  return {
+    skipped: false,
+    routes,
   };
 }
 
@@ -1260,6 +1385,7 @@ async function main() {
       skipAnalyticsScript: options.skipAnalyticsScript,
     }),
     mcp_metadata: await verifyMcpMetadata(baseUrl.toString(), packageVersion),
+    mcp_app_guards: await verifyMcpAppGuards(baseUrl.toString(), options.expectRemoteMcp),
     public_mcp_endpoint_probe: await probeRemoteMcpEndpoint(
       baseUrl.toString(),
       options.expectRemoteMcp,
@@ -1271,8 +1397,10 @@ async function main() {
   process.stdout.write(`${JSON.stringify({ ok: true, ...report }, null, 2)}\n`);
 }
 
-main().catch((error) => {
-  const message = error instanceof Error ? error.stack ?? error.message : String(error);
-  process.stderr.write(`Public release verification failed:\n${message}\n`);
-  process.exitCode = 1;
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    const message = error instanceof Error ? error.stack ?? error.message : String(error);
+    process.stderr.write(`Public release verification failed:\n${message}\n`);
+    process.exitCode = 1;
+  });
+}

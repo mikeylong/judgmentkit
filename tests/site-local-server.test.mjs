@@ -9,10 +9,13 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 
 import { JUDGMENTKIT_MCP_TOOL_NAMES } from "../scripts/install-mcp.mjs";
 import { listenSiteLocalServer } from "../scripts/site-local-server.mjs";
+import { probeRemoteMcpEndpoint } from "../scripts/verify-public-release.mjs";
 import { buildSite } from "../site/build-site.mjs";
+import { MAX_MCP_POST_BODY_BYTES } from "../src/mcp-http.mjs";
 
 const REVIEW_BRIEF =
   "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.";
+const PUBLIC_MCP_ROUTES = ["/mcp", "/mcp/"];
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
 
@@ -120,6 +123,74 @@ async function postRawInitialize(endpoint) {
   assert.equal(body.jsonrpc, "2.0", `${endpoint} raw initialize should return JSON-RPC`);
   assert.equal(body.result.serverInfo.name, "JudgmentKit");
   assert.equal(body.result.serverInfo.version, EXPECTED_RELEASE_VERSION);
+}
+
+async function assertPublicMcpMetadata(baseUrl, route) {
+  const response = await fetchRoute(baseUrl, route, {
+    headers: {
+      accept: "application/json",
+    },
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 200, `${route} should return metadata`);
+  assert.equal(body.transport, "streamable-http");
+  assert.equal(body.public_route.hosted_mcp_endpoint, true);
+  assert.deepEqual(
+    body.capabilities.tools.map((tool) => tool.name),
+    JUDGMENTKIT_MCP_TOOL_NAMES,
+  );
+}
+
+async function assertPublicMcpOptions(baseUrl, route) {
+  const response = await fetchRoute(baseUrl, route, { method: "OPTIONS" });
+
+  assert.equal(response.status, 204, `${route} OPTIONS should return 204`);
+  assert.equal(response.headers.get("access-control-allow-methods"), "GET, POST, DELETE, OPTIONS");
+}
+
+async function assertPublicMcpAppGuards(baseUrl, route) {
+  const unsupportedMediaResponse = await fetchRoute(baseUrl, route, {
+    method: "POST",
+    headers: {
+      "content-type": "text/plain",
+    },
+    body: "{}",
+  });
+  const unsupportedMediaBody = await unsupportedMediaResponse.json();
+
+  assert.equal(unsupportedMediaResponse.status, 415, `${route} non-JSON POST should return 415`);
+  assert.equal(
+    unsupportedMediaBody.error.message,
+    "Unsupported media type: POST /mcp requires application/json.",
+  );
+
+  const oversizedResponse = await fetchRoute(baseUrl, route, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ value: "x".repeat(MAX_MCP_POST_BODY_BYTES) }),
+  });
+  const oversizedBody = await oversizedResponse.json();
+
+  assert.equal(oversizedResponse.status, 413, `${route} oversized POST should return 413`);
+  assert.equal(
+    oversizedBody.error.message,
+    "Request body too large: POST /mcp is limited to 128KB.",
+  );
+
+  const parseErrorResponse = await fetchRoute(baseUrl, route, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: "{",
+  });
+  const parseErrorBody = await parseErrorResponse.json();
+
+  assert.equal(parseErrorResponse.status, 400, `${route} malformed JSON should return 400`);
+  assert.equal(parseErrorBody.error.code, -32700);
 }
 
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-local-site-"));
@@ -253,7 +324,14 @@ try {
     assert.ok(body.includes("window.va"), "local analytics shim should initialize Vercel queue");
   }
 
-  for (const route of ["/mcp", "/mcp/", "/api/mcp"]) {
+  for (const route of PUBLIC_MCP_ROUTES) {
+    await assertPublicMcpMetadata(url, route);
+    await assertPublicMcpOptions(url, route);
+    await assertPublicMcpAppGuards(url, route);
+  }
+
+  {
+    const route = "/api/mcp";
     const response = await fetchRoute(url, route, {
       headers: {
         accept: "application/json",
@@ -307,11 +385,17 @@ try {
     assert.equal(response.status, 404, `${traversalRoute} should not escape site root`);
   }
 
-  for (const route of ["/mcp", "/mcp/"]) {
+  for (const route of PUBLIC_MCP_ROUTES) {
     const endpoint = new URL(route, url).toString();
     await postRawInitialize(endpoint);
     await runMcpClient(endpoint);
   }
+
+  const metadataOnlyProbe = await probeRemoteMcpEndpoint(url, false);
+
+  assert.equal(metadataOnlyProbe.skipped, true);
+  assert.equal(metadataOnlyProbe.reason, "metadata_only");
+  assert.deepEqual(metadataOnlyProbe.routes, PUBLIC_MCP_ROUTES);
 } finally {
   await closeServer(server);
 }

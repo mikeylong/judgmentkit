@@ -194,7 +194,7 @@ For the replacement website build:
 npm run site:build
 ```
 
-That command writes static routes for `/`, `/docs/`, `/examples/`, and `/install` under `site/dist/`. The public `/mcp` route is served by the hosted Streamable HTTP MCP function and returns metadata for browser GET requests.
+That command writes static routes for `/`, `/docs/`, `/examples/`, and `/install` under `site/dist/`. The public `/mcp` and `/mcp/` routes are served by the hosted Streamable HTTP MCP function and return metadata for browser GET requests.
 
 For local site review with the same `/mcp` behavior:
 
@@ -202,4 +202,4 @@ For local site review with the same `/mcp` behavior:
 npm run site:dev -- --host 127.0.0.1 --port 4173
 ```
 
-That command rebuilds `site/dist`, serves static routes locally, and routes localhost `/mcp` through the same Streamable HTTP handler used in production.
+That command rebuilds `site/dist`, serves static routes locally, and routes localhost `/mcp` and `/mcp/` through the same Streamable HTTP handler used in production.

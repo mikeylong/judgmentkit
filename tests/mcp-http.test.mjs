@@ -31,6 +31,7 @@ const EXPECTED_TOOL_NAMES = [
 
 const REVIEW_BRIEF =
   "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.";
+const PUBLIC_MCP_ROUTES = ["/mcp", "/mcp/"];
 
 function textContent(response) {
   return response.content.find((entry) => entry.type === "text")?.text ?? "";
@@ -195,6 +196,70 @@ async function postRawInitialize(endpoint) {
   assert.equal(body.result.serverInfo.name, "JudgmentKit");
 }
 
+async function assertMcpMetadata(endpoint) {
+  const metadataResponse = await fetch(endpoint, {
+    headers: {
+      accept: "application/json",
+    },
+  });
+  const metadataBody = await metadataResponse.json();
+
+  assert.equal(metadataResponse.status, 200, `${endpoint} GET should return metadata`);
+  assert.equal(metadataResponse.headers.get("access-control-allow-origin"), "*");
+  assert.equal(metadataBody.transport, "streamable-http");
+  assert.equal(metadataBody.public_route.hosted_mcp_endpoint, true);
+  assert.deepEqual(
+    metadataBody.capabilities.tools.map((tool) => tool.name),
+    EXPECTED_TOOL_NAMES,
+  );
+}
+
+async function assertMcpOptions(endpoint) {
+  const optionsResponse = await fetch(endpoint, { method: "OPTIONS" });
+
+  assert.equal(optionsResponse.status, 204, `${endpoint} OPTIONS should return 204`);
+  assert.equal(
+    optionsResponse.headers.get("access-control-allow-methods"),
+    "GET, POST, DELETE, OPTIONS",
+  );
+}
+
+async function assertMcpAppGuards(endpoint) {
+  const unsupportedMediaResponse = await postRaw(endpoint, "{}", {
+    "content-type": "text/plain",
+  });
+  const unsupportedMediaBody = await unsupportedMediaResponse.json();
+
+  assert.equal(unsupportedMediaResponse.status, 415, `${endpoint} non-JSON POST should return 415`);
+  assert.equal(
+    unsupportedMediaBody.error.message,
+    "Unsupported media type: POST /mcp requires application/json.",
+  );
+
+  const oversizedResponse = await postRaw(
+    endpoint,
+    JSON.stringify({ value: "x".repeat(MAX_MCP_POST_BODY_BYTES) }),
+    {
+      "content-type": "application/json",
+    },
+  );
+  const oversizedBody = await oversizedResponse.json();
+
+  assert.equal(oversizedResponse.status, 413, `${endpoint} oversized POST should return 413`);
+  assert.equal(
+    oversizedBody.error.message,
+    "Request body too large: POST /mcp is limited to 128KB.",
+  );
+
+  const parseErrorResponse = await postRaw(endpoint, "{", {
+    "content-type": "application/json",
+  });
+  const parseErrorBody = await parseErrorResponse.json();
+
+  assert.equal(parseErrorResponse.status, 400, `${endpoint} malformed JSON should return 400`);
+  assert.equal(parseErrorBody.error.code, -32700);
+}
+
 const metadata = getHostedMcpMetadata();
 
 assert.equal(metadata.name, "JudgmentKit");
@@ -237,68 +302,13 @@ await withTestServer(
     });
   },
   async (endpoint) => {
-    const metadataResponse = await fetch(endpoint, {
-      headers: {
-        accept: "application/json",
-      },
-    });
-    const metadataBody = await metadataResponse.json();
-
-    assert.equal(metadataResponse.status, 200);
-    assert.equal(metadataResponse.headers.get("access-control-allow-origin"), "*");
-    assert.equal(metadataBody.transport, "streamable-http");
-    assert.equal(metadataBody.public_route.hosted_mcp_endpoint, true);
-    assert.deepEqual(
-      metadataBody.capabilities.tools.map((tool) => tool.name),
-      EXPECTED_TOOL_NAMES,
-    );
-
-    const optionsResponse = await fetch(endpoint, { method: "OPTIONS" });
-
-    assert.equal(optionsResponse.status, 204);
-    assert.equal(
-      optionsResponse.headers.get("access-control-allow-methods"),
-      "GET, POST, DELETE, OPTIONS",
-    );
-
-    const unsupportedMediaResponse = await postRaw(endpoint, "{}", {
-      "content-type": "text/plain",
-    });
-    const unsupportedMediaBody = await unsupportedMediaResponse.json();
-
-    assert.equal(unsupportedMediaResponse.status, 415);
-    assert.equal(
-      unsupportedMediaBody.error.message,
-      "Unsupported media type: POST /mcp requires application/json.",
-    );
-
-    const oversizedResponse = await postRaw(
-      endpoint,
-      JSON.stringify({ value: "x".repeat(MAX_MCP_POST_BODY_BYTES) }),
-      {
-        "content-type": "application/json",
-      },
-    );
-    const oversizedBody = await oversizedResponse.json();
-
-    assert.equal(oversizedResponse.status, 413);
-    assert.equal(
-      oversizedBody.error.message,
-      "Request body too large: POST /mcp is limited to 128KB.",
-    );
-
-    const parseErrorResponse = await postRaw(endpoint, "{", {
-      "content-type": "application/json",
-    });
-    const parseErrorBody = await parseErrorResponse.json();
-
-    assert.equal(parseErrorResponse.status, 400);
-    assert.equal(parseErrorBody.error.code, -32700);
-
     const baseUrl = endpoint.replace(/\/mcp$/, "");
 
-    for (const route of ["/mcp", "/mcp/"]) {
+    for (const route of PUBLIC_MCP_ROUTES) {
       const routeEndpoint = `${baseUrl}${route}`;
+      await assertMcpMetadata(routeEndpoint);
+      await assertMcpOptions(routeEndpoint);
+      await assertMcpAppGuards(routeEndpoint);
       await postRawInitialize(routeEndpoint);
       await runMcpClient(routeEndpoint);
     }
