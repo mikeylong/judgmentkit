@@ -3,6 +3,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import Ajv2020 from "ajv/dist/2020.js";
+
 import {
   JudgmentKitInputError,
   createUiImplementationContract,
@@ -23,6 +25,46 @@ const contract = readJson("contracts/ai-ui-generation.activity-contract.json");
 const schema = readJson("contracts/judgmentkit-kernel.schema.json");
 const contractText = JSON.stringify(contract);
 const schemaText = JSON.stringify(schema);
+const ajv = new Ajv2020({ allErrors: true });
+const validateKernelContract = ajv.compile(schema);
+
+function assertValidKernelContract(value, message) {
+  assert.equal(
+    validateKernelContract(value),
+    true,
+    `${message}: ${ajv.errorsText(validateKernelContract.errors)}`,
+  );
+}
+
+assertValidKernelContract(
+  contract,
+  "Current AI UI generation activity contract must validate against the kernel schema",
+);
+
+const legacyImplementationContract = structuredClone(contract);
+delete legacyImplementationContract.implementation_contract.local_component_authority;
+assertValidKernelContract(
+  legacyImplementationContract,
+  "Kernel schema must preserve patch-release compatibility for contracts without local_component_authority",
+);
+
+const malformedLocalAuthorityContract = structuredClone(contract);
+malformedLocalAuthorityContract.implementation_contract.local_component_authority = {
+  mode: "repo_local",
+};
+assert.equal(
+  validateKernelContract(malformedLocalAuthorityContract),
+  false,
+  "Kernel schema must still reject malformed local_component_authority when the field is present.",
+);
+assert.ok(
+  (validateKernelContract.errors ?? []).some((error) =>
+    error.instancePath.includes(
+      "/implementation_contract/local_component_authority",
+    ),
+  ),
+  "Malformed local_component_authority errors should point at the local authority field.",
+);
 
 function completeMaterialDesignSystemAdapter() {
   return {
@@ -257,6 +299,17 @@ assert.equal(
   "createUiImplementationContract must preserve the local-component token boundary rule exactly.",
 );
 assert.equal(
+  contract.implementation_contract.local_component_authority.mode,
+  "none",
+  "The canonical activity contract must still emit default local-component authority.",
+);
+assert.equal(
+  createUiImplementationContract().implementation_contract.local_component_authority
+    .mode,
+  "none",
+  "createUiImplementationContract must still emit default local-component authority.",
+);
+assert.equal(
   contract.implementation_contract.iteration_policy.owner,
   "agent",
   "The iteration policy must be agent-owned.",
@@ -392,6 +445,15 @@ assert.ok(
 assert.ok(
   schema.$defs.implementationContract.required.includes("design_system_source"),
   "The schema must require implementation_contract.design_system_source.",
+);
+assert.equal(
+  schema.$defs.implementationContract.required.includes("local_component_authority"),
+  false,
+  "The schema must not require implementation_contract.local_component_authority in a patch release.",
+);
+assert.ok(
+  schema.$defs.implementationContract.properties.local_component_authority,
+  "The schema must still define implementation_contract.local_component_authority when present.",
 );
 assert.deepEqual(
   schema.$defs.implementationContract.properties.default_ai_native_design_system.required,

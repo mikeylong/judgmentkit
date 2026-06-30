@@ -562,7 +562,6 @@
         "default_ai_native_design_system",
         "iteration_policy",
         "design_system_source",
-        "local_component_authority",
         "visual_token_adapter",
         "visual_asset_policy",
         "accessibility_policy",
