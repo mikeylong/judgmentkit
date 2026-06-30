@@ -550,40 +550,52 @@ function refundOperatorImplementationCandidate(overrides = {}) {
     "visual token checks should expose the Lucide icon catalog summary.",
   );
 
+  const componentPatternCandidate = refundOperatorImplementationCandidate({
+    component_contract_evidence: {
+      components: [
+        {
+          id: "action_button",
+          states_covered: ["ready", "disabled", "focus-visible", "loading"],
+        },
+        {
+          id: "dialog",
+          states_covered: ["ready", "loading", "error", "focus-visible"],
+        },
+      ],
+    },
+    pattern_contract_evidence: {
+      pattern_id: "operator_review",
+      surface_type: "operator_review",
+      regions_present: ["produced work", "evidence", "risk", "decision", "receipt"],
+      controls_present: [
+        "approve or accept",
+        "return or request changes",
+        "handoff action",
+      ],
+      completion_or_handoff: "Review produces a decision reason and receipt.",
+    },
+  });
   const componentPatternReview = reviewUiImplementationCandidate(
-    refundOperatorImplementationCandidate({
-      component_contract_evidence: {
-        components: [
-          {
-            id: "action_button",
-            states_covered: ["ready", "disabled", "focus-visible", "loading"],
-          },
-          {
-            id: "dialog",
-            states_covered: ["ready", "loading", "error", "focus-visible"],
-          },
-        ],
-      },
-      pattern_contract_evidence: {
-        pattern_id: "operator_review",
-        surface_type: "operator_review",
-        regions_present: ["produced work", "evidence", "risk", "decision", "receipt"],
-        controls_present: [
-          "approve or accept",
-          "return or request changes",
-          "handoff action",
-        ],
-        completion_or_handoff: "Review produces a decision reason and receipt.",
-      },
-    }),
+    componentPatternCandidate,
     { implementation_contract: implementationContract },
   );
 
   assert.equal(componentPatternReview.implementation_review_status, "passed");
+  assert.equal(componentPatternReview.checks.approved_primitives.status, "pass");
+  assert.equal(componentPatternCandidate.primitives_used.includes("action_button"), false);
+  assert.equal(
+    componentPatternReview.checks.approved_primitives.used.includes("action_button"),
+    false,
+  );
   assert.equal(componentPatternReview.checks.component_contracts.status, "pass");
   assert.equal(componentPatternReview.checks.component_contracts.reviewed, true);
   assert.equal(componentPatternReview.checks.pattern_contracts.status, "pass");
   assert.equal(componentPatternReview.checks.pattern_contracts.reviewed, true);
+  assert.ok(
+    componentPatternReview.checks.component_contracts.used_component_ids.includes(
+      "action_button",
+    ),
+  );
   assert.ok(
     componentPatternReview.checks.component_contracts.allowed_component_ids.includes(
       "action_button",
@@ -594,6 +606,127 @@ function refundOperatorImplementationCandidate(overrides = {}) {
       "operator_review",
     ),
   );
+
+  const componentIdInPrimitivesReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      primitives_used: [
+        "FormField",
+        "CheckboxGroup",
+        "CheckboxOption",
+        "ModalActions",
+        "action_button",
+      ],
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(componentIdInPrimitivesReview.implementation_review_status, "failed");
+  assert.equal(
+    componentIdInPrimitivesReview.checks.approved_primitives.status,
+    "fail",
+  );
+  assert.ok(
+    componentIdInPrimitivesReview.checks.approved_primitives.invented.includes(
+      "action_button",
+    ),
+  );
+  const knownComponentPrimitiveDiagnostics =
+    componentIdInPrimitivesReview.checks.approved_primitives
+      .known_component_ids_in_primitives_used ??
+    componentIdInPrimitivesReview.checks.approved_primitives
+      .known_component_contract_ids_in_primitives_used ??
+    componentIdInPrimitivesReview.checks.approved_primitives
+      .component_contract_ids_in_primitives_used ??
+    componentIdInPrimitivesReview.checks.approved_primitives
+      .component_ids_in_primitives_used ??
+    componentIdInPrimitivesReview.checks.approved_primitives.known_component_ids;
+  assert.ok(
+    Array.isArray(knownComponentPrimitiveDiagnostics),
+    "approved_primitives should expose known component ids used as primitives.",
+  );
+  assert.ok(knownComponentPrimitiveDiagnostics.includes("action_button"));
+  const componentPrimitiveFinding = componentIdInPrimitivesReview.findings.find(
+    (finding) => finding.check === "approved_primitives",
+  );
+  assert.ok(componentPrimitiveFinding);
+  assert.deepEqual(componentPrimitiveFinding.evidence, ["action_button"]);
+  assert.deepEqual(
+    componentPrimitiveFinding.routing_diagnostics.invalid_primitives,
+    ["action_button"],
+  );
+  assert.ok(
+    componentPrimitiveFinding.routing_diagnostics.known_component_contract_ids.includes(
+      "action_button",
+    ),
+  );
+  assert.ok(
+    componentPrimitiveFinding.routing_diagnostics.allowed_approved_primitives.includes(
+      "FormField",
+    ),
+  );
+  assert.ok(
+    componentPrimitiveFinding.routing_diagnostics.evidence_field_routing
+      .component_contract_ids.includes(
+        "component_contract_evidence.components[].id",
+      ),
+  );
+  const primitiveRepairText = JSON.stringify(
+    componentIdInPrimitivesReview.repair_instructions.groups.primitive_defaults,
+  );
+  assert.ok(primitiveRepairText.includes("component_contract_evidence.components[].id"));
+  assert.ok(primitiveRepairText.includes("states_covered"));
+  assert.match(primitiveRepairText, /move|route|put|place/i);
+
+  const patternIdInPrimitivesReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      primitives_used: [
+        "FormField",
+        "CheckboxGroup",
+        "CheckboxOption",
+        "ModalActions",
+        "operator_review",
+      ],
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(patternIdInPrimitivesReview.implementation_review_status, "failed");
+  assert.equal(
+    patternIdInPrimitivesReview.checks.approved_primitives.status,
+    "fail",
+  );
+  assert.ok(
+    patternIdInPrimitivesReview.checks.approved_primitives.invented.includes(
+      "operator_review",
+    ),
+  );
+  assert.ok(
+    patternIdInPrimitivesReview.checks.approved_primitives
+      .known_pattern_ids_in_primitives_used.includes("operator_review"),
+  );
+  const patternPrimitiveFinding = patternIdInPrimitivesReview.findings.find(
+    (finding) => finding.check === "approved_primitives",
+  );
+  assert.ok(patternPrimitiveFinding);
+  assert.deepEqual(patternPrimitiveFinding.evidence, ["operator_review"]);
+  assert.deepEqual(
+    patternPrimitiveFinding.routing_diagnostics.invalid_primitives,
+    ["operator_review"],
+  );
+  assert.ok(
+    patternPrimitiveFinding.routing_diagnostics.known_pattern_contract_ids.includes(
+      "operator_review",
+    ),
+  );
+  assert.ok(
+    patternPrimitiveFinding.routing_diagnostics.evidence_field_routing
+      .pattern_contract_ids.includes("pattern_contract_evidence.pattern_id"),
+  );
+  const patternPrimitiveRepairText = JSON.stringify(
+    patternIdInPrimitivesReview.repair_instructions.groups.primitive_defaults,
+  );
+  assert.ok(patternPrimitiveRepairText.includes("pattern_contract_evidence.pattern_id"));
+  assert.match(patternPrimitiveRepairText, /move|route|put|place/i);
 
   const unknownComponentReview = reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
@@ -687,6 +820,30 @@ function refundOperatorImplementationCandidate(overrides = {}) {
   assert.equal(patternMismatchReview.checks.pattern_contracts.status, "fail");
   assert.equal(
     patternMismatchReview.checks.pattern_contracts.required_surface_type,
+    "workbench",
+  );
+
+  const topLevelPatternMismatchReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      pattern_id: "workbench",
+      surface_type: "operator_review",
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(topLevelPatternMismatchReview.implementation_review_status, "failed");
+  assert.equal(topLevelPatternMismatchReview.checks.pattern_contracts.status, "fail");
+  assert.equal(topLevelPatternMismatchReview.checks.pattern_contracts.reviewed, true);
+  assert.equal(
+    topLevelPatternMismatchReview.checks.pattern_contracts.selected_pattern_id,
+    "workbench",
+  );
+  assert.equal(
+    topLevelPatternMismatchReview.checks.pattern_contracts.selected_surface_type,
+    "operator_review",
+  );
+  assert.equal(
+    topLevelPatternMismatchReview.checks.pattern_contracts.required_surface_type,
     "workbench",
   );
 

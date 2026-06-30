@@ -594,6 +594,48 @@ try {
     "pass",
   );
 
+  const invalidPrimitiveResponse = await withTimeout(
+    client.callTool({
+      name: "review_ui_implementation_candidate",
+      arguments: {
+        implementation_contract: implementationContractResponse.structuredContent,
+        candidate: {
+          primitives_used: ["queue", "action_button"],
+          states_covered:
+            implementationContractResponse.structuredContent.implementation_contract
+              .state_coverage.required_states,
+          static_checks: ["npm test"],
+          browser_qa: { desktop: "passed", mobile: "passed" },
+          accessibility_evidence: coreAccessibilityEvidence(),
+        },
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(invalidPrimitiveResponse.isError, undefined);
+  const invalidPrimitiveText = assertPlanningCard(
+    invalidPrimitiveResponse,
+    "## JudgmentKit Implementation Review",
+    "Implementation gate failed",
+  );
+  const approvedPrimitiveFinding =
+    invalidPrimitiveResponse.structuredContent.findings.find(
+      (finding) => finding.check === "approved_primitives",
+    );
+
+  assert.ok(approvedPrimitiveFinding);
+  assert.ok(Array.isArray(approvedPrimitiveFinding.evidence));
+  assert.ok(approvedPrimitiveFinding.evidence.includes("action_button"));
+  assert.ok(
+    [
+      JSON.stringify(approvedPrimitiveFinding.routing_diagnostics ?? {}),
+      invalidPrimitiveText,
+    ].some((entry) =>
+      entry.includes("component_contract_evidence.components[].id"),
+    ),
+  );
+
   const handoffResponse = await withTimeout(
     client.callTool({
       name: "create_ui_generation_handoff",

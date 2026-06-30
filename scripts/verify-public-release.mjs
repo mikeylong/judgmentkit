@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
@@ -12,6 +13,8 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 import { JUDGMENTKIT_MCP_TOOL_NAMES } from "./install-mcp.mjs";
 import { COMPARISON_COLUMNS, COMPARISON_ROWS } from "./model-ui-use-cases.mjs";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PROJECT_ROOT = path.resolve(__dirname, "..");
 const DEFAULT_BASE_URL = "https://judgmentkit.ai";
 const REDIRECT_HOSTS = [
   ["judgmentkit.design", "https://judgmentkit.design/docs/"],
@@ -84,6 +87,17 @@ function printUsage() {
 
 function urlFor(baseUrl, route) {
   return new URL(route, baseUrl).toString();
+}
+
+async function readPackageVersion() {
+  const packageJson = JSON.parse(
+    await fs.readFile(path.join(PROJECT_ROOT, "package.json"), "utf8"),
+  );
+
+  assert.equal(typeof packageJson.version, "string", "package.json must declare a version");
+  assert.match(packageJson.version, /^\d+\.\d+\.\d+$/, "package.json version must be semver");
+
+  return packageJson.version;
 }
 
 async function fetchText(baseUrl, route, options = {}) {
@@ -791,14 +805,14 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   };
 }
 
-async function verifyMcpMetadata(baseUrl) {
-  const { text } = await fetchText(baseUrl, "/mcp");
+async function verifyMcpMetadataRoute(baseUrl, route, expectedVersion) {
+  const { text } = await fetchText(baseUrl, route);
   const metadata = JSON.parse(text);
   const toolNames = metadata.capabilities.tools.map((tool) => tool.name);
 
-  assert.equal(metadata.name, "JudgmentKit");
-  assert.equal(metadata.version, "0.6.1");
-  assert.equal(metadata.transport, "streamable-http");
+  assert.equal(metadata.name, "JudgmentKit", `${route} should report the MCP server name`);
+  assert.equal(metadata.version, expectedVersion, `${route} should report the package version`);
+  assert.equal(metadata.transport, "streamable-http", `${route} should report the hosted transport`);
   assert.equal(metadata.public_route.role, "mcp_endpoint_and_metadata");
   assert.equal(metadata.public_route.hosted_mcp_endpoint, true);
   assert.deepEqual(toolNames, JUDGMENTKIT_MCP_TOOL_NAMES);
@@ -812,14 +826,33 @@ async function verifyMcpMetadata(baseUrl) {
     "get_example",
     "resolve_related",
   ]) {
-    assert.equal(toolNames.includes(oldToolName), false, `/mcp must not expose ${oldToolName}`);
+    assert.equal(toolNames.includes(oldToolName), false, `${route} must not expose ${oldToolName}`);
+  }
+
+  return { metadata, toolNames };
+}
+
+async function verifyMcpMetadata(baseUrl, expectedVersion) {
+  const routes = [];
+  let firstResult;
+
+  for (const route of ["/mcp", "/mcp/"]) {
+    const result = await verifyMcpMetadataRoute(baseUrl, route, expectedVersion);
+    firstResult ??= result;
+    routes.push({
+      route,
+      version: result.metadata.version,
+      hosted_mcp_endpoint: result.metadata.public_route.hosted_mcp_endpoint,
+    });
   }
 
   return {
-    name: metadata.name,
-    transport: metadata.transport,
-    hosted_mcp_endpoint: metadata.public_route.hosted_mcp_endpoint,
-    tools: toolNames,
+    name: firstResult.metadata.name,
+    version: firstResult.metadata.version,
+    transport: firstResult.metadata.transport,
+    hosted_mcp_endpoint: firstResult.metadata.public_route.hosted_mcp_endpoint,
+    tools: firstResult.toolNames,
+    routes,
   };
 }
 
@@ -1085,12 +1118,14 @@ async function main() {
   }
 
   const baseUrl = new URL(options.baseUrl);
+  const packageVersion = await readPackageVersion();
   const report = {
     base_url: baseUrl.toString(),
+    package_version: packageVersion,
     routes: await verifyPublicRoutes(baseUrl.toString(), {
       skipAnalyticsScript: options.skipAnalyticsScript,
     }),
-    mcp_metadata: await verifyMcpMetadata(baseUrl.toString()),
+    mcp_metadata: await verifyMcpMetadata(baseUrl.toString(), packageVersion),
     public_mcp_endpoint_probe: await probeRemoteMcpEndpoint(
       baseUrl.toString(),
       options.expectRemoteMcp,

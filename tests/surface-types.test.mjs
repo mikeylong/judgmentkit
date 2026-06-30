@@ -38,6 +38,31 @@ const OPERATOR_REVIEW_BRIEF = `
   The outcome is an audit receipt with the selected next action.
 `;
 
+const SYSTEM_RECOMMENDATIONS_OPERATOR_REVIEW_BRIEF = `
+  A release lead reviews system recommendations before deployment. The activity is
+  comparing evidence and risk, then deciding whether each recommendation should be
+  approved, blocked, returned, or handed off. The outcome is an audit receipt with
+  the selected next action.
+`;
+
+const HUMAN_CANDIDATE_WORKBENCH_BRIEF = `
+  A recruiting coordinator reviews human candidates in a hiring queue. The activity
+  is comparing interview evidence, deciding whether each candidate advances, is held,
+  or is rejected, and leaving a hiring handoff.
+`;
+
+const DESIGN_SYSTEM_RECOMMENDATIONS_WORKBENCH_BRIEF = `
+  A design system lead reviews design system recommendations for component usage.
+  The activity is comparing adoption evidence, deciding which recommendations to
+  accept, return, or hand off, and leaving an implementation handoff.
+`;
+
+const HYPHENATED_DESIGN_SYSTEM_RECOMMENDATIONS_WORKBENCH_BRIEF = `
+  A design-system lead reviews design-system-generated recommendations for component
+  usage. The activity is comparing adoption evidence, deciding which recommendations
+  to accept, return, or hand off, and leaving an implementation handoff.
+`;
+
 const SETUP_DEBUG_BRIEF = `
   A platform engineer is auditing an integration setup workflow. The activity is
   deciding whether a JSON schema change, prompt template update, and API endpoint
@@ -50,6 +75,32 @@ const FORM_FLOW_BRIEF = `
   settings are complete enough to submit. The outcome is saved settings and a confirmation.
   The billing information review produces a submitted change, validation decision,
   and confirmation for the support team.
+`;
+
+const SETTINGS_WORKSPACE_FORM_FLOW_BRIEF = `
+  A support manager uses an account settings workspace. The activity is entering
+  required billing information, resolving validation errors, and deciding whether
+  the account settings are complete enough to submit. The outcome is saved settings
+  and a confirmation.
+`;
+
+const SETTINGS_WORKSPACE_FIELD_LIST_FORM_FLOW_BRIEF = `
+  A support manager uses an account settings workspace while reviewing a list of
+  required billing fields. The activity is entering billing information, resolving
+  validation errors, and deciding whether the account settings are complete enough
+  to submit. The outcome is saved settings and a confirmation.
+`;
+
+const FIELD_SERVICE_DISPATCH_WORKBENCH_BRIEF = `
+# Minimal Brief
+
+Create a standalone HTML prototype for a same-day field-service dispatch workbench. A dispatcher is reviewing repair exceptions and needs to decide whether to reassign a technician, hold for parts, or escalate to customer care. Keep the selected visit, evidence, route impact, handoff owner, decision state, and next-action receipt visible together.
+
+# Experiment Constraint
+
+No design-system token, CSS variable, component rule, icon rule, or visual styling detail was manually added to the brief.
+
+MCP endpoint: http://127.0.0.1:3333/mcp
 `;
 
 const CONVERSATION_BRIEF = `
@@ -171,6 +222,12 @@ function stagedFormCandidate() {
   };
 }
 
+function surfaceTypeScore(surfaceReview, surfaceType) {
+  return surfaceReview.evidence.surface_type_scores.find(
+    (entry) => entry.surface_type === surfaceType,
+  );
+}
+
 {
   const marketing = recommendSurfaceTypes(PRODUCT_ANALYTICS_MARKETING);
   const workbench = recommendSurfaceTypes(PRODUCT_ANALYTICS_WORKBENCH);
@@ -196,6 +253,61 @@ function stagedFormCandidate() {
   assert.equal(operatorReview.confidence, "high");
   assert.equal(operatorReview.disclosure_implications.reveal_implementation_terms, false);
   assert.ok(operatorReview.evidence.implementation_terms_detected.some((entry) => entry.term === "tool call"));
+
+  const systemRecommendations = recommendSurfaceTypes(
+    SYSTEM_RECOMMENDATIONS_OPERATOR_REVIEW_BRIEF,
+  );
+  const systemRecommendationScore = surfaceTypeScore(
+    systemRecommendations,
+    "operator_review",
+  );
+
+  assert.equal(systemRecommendations.recommended_surface_type, "operator_review");
+  assert.equal(systemRecommendationScore.profile_status, "recommended");
+  assert.ok(
+    systemRecommendationScore.matched_triggers.includes(
+      "human_review_before_advance",
+    ),
+  );
+
+  const humanCandidateWorkbench = recommendSurfaceTypes(
+    HUMAN_CANDIDATE_WORKBENCH_BRIEF,
+  );
+  const humanCandidateOperatorScore = surfaceTypeScore(
+    humanCandidateWorkbench,
+    "operator_review",
+  );
+
+  assert.equal(humanCandidateWorkbench.recommended_surface_type, "workbench");
+  assert.notEqual(humanCandidateOperatorScore.profile_status, "recommended");
+
+  const designSystemRecommendations = recommendSurfaceTypes(
+    DESIGN_SYSTEM_RECOMMENDATIONS_WORKBENCH_BRIEF,
+  );
+  const designSystemOperatorScore = surfaceTypeScore(
+    designSystemRecommendations,
+    "operator_review",
+  );
+
+  assert.equal(designSystemRecommendations.recommended_surface_type, "workbench");
+  assert.notEqual(designSystemOperatorScore.profile_status, "recommended");
+
+  const hyphenatedDesignSystemRecommendations = recommendSurfaceTypes(
+    HYPHENATED_DESIGN_SYSTEM_RECOMMENDATIONS_WORKBENCH_BRIEF,
+  );
+  const hyphenatedDesignSystemOperatorScore = surfaceTypeScore(
+    hyphenatedDesignSystemRecommendations,
+    "operator_review",
+  );
+
+  assert.equal(
+    hyphenatedDesignSystemRecommendations.recommended_surface_type,
+    "workbench",
+  );
+  assert.notEqual(
+    hyphenatedDesignSystemOperatorScore.profile_status,
+    "recommended",
+  );
 }
 
 {
@@ -209,7 +321,46 @@ function stagedFormCandidate() {
 
 {
   assert.equal(recommendSurfaceTypes(FORM_FLOW_BRIEF).recommended_surface_type, "form_flow");
+  const settingsWorkspace = recommendSurfaceTypes(SETTINGS_WORKSPACE_FORM_FLOW_BRIEF);
+  const settingsWorkbenchScore = surfaceTypeScore(settingsWorkspace, "workbench");
+
+  assert.equal(settingsWorkspace.recommended_surface_type, "form_flow");
+  assert.ok(
+    settingsWorkbenchScore.matched_exclusions.includes("structured_form_flow"),
+  );
+  const settingsFieldList = recommendSurfaceTypes(
+    SETTINGS_WORKSPACE_FIELD_LIST_FORM_FLOW_BRIEF,
+  );
+  const settingsFieldListWorkbenchScore = surfaceTypeScore(
+    settingsFieldList,
+    "workbench",
+  );
+
+  assert.equal(settingsFieldList.recommended_surface_type, "form_flow");
+  assert.ok(
+    settingsFieldListWorkbenchScore.matched_exclusions.includes(
+      "structured_form_flow",
+    ),
+  );
   assert.equal(recommendSurfaceTypes(CONVERSATION_BRIEF).recommended_surface_type, "conversation");
+}
+
+{
+  const surfaceReview = recommendSurfaceTypes(FIELD_SERVICE_DISPATCH_WORKBENCH_BRIEF);
+  const workbenchScore = surfaceTypeScore(surfaceReview, "workbench");
+  const formFlowScore = surfaceTypeScore(surfaceReview, "form_flow");
+
+  assert.equal(surfaceReview.recommended_surface_type, "workbench");
+  assert.equal(surfaceReview.blocked_surface_types.includes("workbench"), false);
+  assert.ok(workbenchScore);
+  assert.ok(workbenchScore.matched_triggers.includes("inspect_compare_decide_act"));
+  assert.ok(workbenchScore.matched_triggers.includes("repeated_work_items"));
+  assert.equal(workbenchScore.matched_exclusions.includes("structured_form_flow"), false);
+  assert.ok(formFlowScore);
+  assert.ok(
+    formFlowScore.score < workbenchScore.score,
+    `expected form_flow score ${formFlowScore.score} to be below workbench score ${workbenchScore.score}`,
+  );
 }
 
 {
@@ -300,6 +451,22 @@ function stagedFormCandidate() {
   assert.ok(frontendContext.implementation_guidance.required_sections.includes("Evidence checklist"));
   assert.ok(frontendContext.implementation_guidance.required_surfaces.length > 0);
   assert.ok(frontendContext.implementation_guidance.verification_expectations.commands.includes("npm test"));
+  assert.equal(
+    frontendContext.implementation_guidance.evidence_field_mapping
+      .pattern_contract_evidence.selected_pattern_contract.id,
+    "workbench",
+  );
+  assert.equal(
+    frontendContext.implementation_guidance.evidence_field_mapping
+      .pattern_contract_evidence.selected_pattern_evidence_template.pattern_id,
+    "workbench",
+  );
+  assert.ok(
+    frontendContext.implementation_guidance.evidence_field_mapping
+      .pattern_contract_evidence.selected_pattern_evidence_template.regions_present.includes(
+        "evidence",
+      ),
+  );
 
   const skillContext = createFrontendImplementationSkillContext({
     frontend_generation_context: frontendContext,
@@ -372,6 +539,11 @@ function stagedFormCandidate() {
   assert.ok(skillContext.approved_component_families.includes("queue"));
   assert.ok(skillContext.visual_requirements.includes("case evidence hero image"));
   assert.ok(skillContext.approved_visual_asset_sources.includes("imagegen"));
+  assert.equal(
+    skillContext.evidence_field_mapping.pattern_contract_evidence
+      .selected_pattern_contract.id,
+    "workbench",
+  );
   assert.ok(
     skillContext.visual_asset_policy.preferred_paths.some((rule) =>
       rule.includes("imagegen"),

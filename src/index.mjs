@@ -299,12 +299,24 @@ function matchedEvidence(id, label, matched, reason) {
   };
 }
 
+function hasOperatorReviewProducedWork(text) {
+  return (
+    /\b(?:ai|model|agent)[- ](?:generated|produced)\b/.test(text) ||
+    /\b(?:ai|model)\s+(?:generated\s+)?(?:outputs?|workstreams?|candidates?|findings?|recommendations?|work)\b/.test(text) ||
+    /\bai agents?\s+(?:outputs?|findings?|recommendations?|work)\b/.test(text) ||
+    /\bagent (?:outputs?|findings?|recommendations?)\b/.test(text) ||
+    /(?<!design[- ])\bsystem[- ](?:produced|generated)\b/.test(text) ||
+    /(?<!design[- ])\bsystem\s+(?:outputs?|work|findings?|recommendations?)\b/.test(text) ||
+    /\b(?:produced|generated) by (?:the )?(?:system|ai|model|agent)\b/.test(text)
+  );
+}
+
 function buildOperatorReviewTriggerEvidence(input, contract) {
   const normalized = normalizeText(input);
   const implementationTermsDetected = detectImplementationTerms(input, contract);
   const hasReviewActor = /\b(?:human|operator|reviewer|lead|manager|approver)\b/.test(normalized) ||
     /\b(?:review|reviews|reviewing|approve|approval|authorize|authorization)\b/.test(normalized);
-  const hasProducedWork = /\b(?:ai|system|model|generated|output|workstream|candidate|finding|agent finding|agent output|ai agent)\b/.test(normalized);
+  const hasProducedWork = hasOperatorReviewProducedWork(normalized);
   const hasDecision = /\b(?:decision|decide|deciding|approve|block|defer|tighten|handoff|authorize|return|escalate)\b/.test(normalized);
   const hasEvidenceOrRisk = /\b(?:evidence|risk|compare|comparing|confidence|finding|reason|policy|source)\b/.test(normalized);
   const hasAdvancementAction = /\b(?:approve(?:d)?|block(?:ed)?|defer(?:red)?|tighten(?:ed)?|handoff|handed off|return(?:ed)?|escalate(?:d)?|authorize(?:d)?)\b/.test(normalized);
@@ -364,8 +376,20 @@ function buildOperatorReviewTriggerEvidence(input, contract) {
 function buildOperatorReviewExclusionEvidence(input) {
   const normalized = normalizeText(input);
   const hasDecisionOrReview = /\b(?:review|reviewing|decision|decide|approve|block|handoff|authorize)\b/.test(normalized);
+  const hasProducedWork = hasOperatorReviewProducedWork(normalized);
+  const hasOperationalWorkbenchShape =
+    (/\b(?:workbench|workspace)\b/.test(normalized) &&
+      /\b(?:review|reviews|reviewing|decide|deciding|handoff|assign|reassign|escalate|triage|compare|comparing)\b/.test(normalized)) ||
+    (/\b(?:dispatcher|dispatch|field-service|field service|exceptions?|visits?|selected visit)\b/.test(normalized) &&
+      /\b(?:review|reviews|reviewing|decide|deciding|handoff|assign|reassign|escalate)\b/.test(normalized));
 
   return [
+    matchedEvidence(
+      "operational_workbench_shape",
+      "Explicit operational workbench activity should use workbench unless produced AI/system work is the object.",
+      hasOperationalWorkbenchShape && !hasProducedWork,
+      "Looked for workbench, dispatch, exceptions, visits, selected visit, and operational decision language.",
+    ),
     matchedEvidence(
       "simple_single_action_form",
       "Simple single-action forms should not use operator-review.",
@@ -422,10 +446,13 @@ export function recommendUiWorkflowProfiles(input, options = {}) {
   const exclusions = buildOperatorReviewExclusionEvidence(input);
   const matchedTriggers = triggerEvidence.triggers.filter((entry) => entry.matched);
   const matchedExclusions = exclusions.filter((entry) => entry.matched);
+  const hasProducedWorkReview = triggerEvidence.triggers.some(
+    (entry) => entry.id === "human_review_before_advance" && entry.matched,
+  );
   const triggerThreshold = Math.floor(triggerEvidence.triggers.length / 2) + 1;
   const status = matchedExclusions.length > 0
     ? "blocked"
-    : matchedTriggers.length >= triggerThreshold
+    : hasProducedWorkReview && matchedTriggers.length >= triggerThreshold
       ? "recommended"
       : "not_recommended";
   const profileSummary = {
@@ -514,9 +541,26 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
     /\b(?:decision|decide|deciding|choose|compare|approve|block|return|handoff|prioritize|resolve)\b/.test(text);
   const hasMarketing =
     /\b(?:marketing|landing page|homepage|home page|campaign|pricing|signup|sign up|trial|demo|conversion|convert|lead|prospect|visitor|buyer|offer|value prop|value proposition|positioning|launch)\b/.test(text);
+  const hasFormDataEntryIntent =
+    /\b(?:form|submit|submission|intake|application|onboarding|settings|profile|checkout|edit|update|enter|collect|structured information)\b/.test(text) ||
+    /\bcreate (?:a |an )?(?:account|profile|application|intake|request|record|case|ticket|entry)\b/.test(text);
+  const hasFormValidationIntent =
+    /\b(?:validation|required|invalid|input|error state|save changes|confirm|confirmation|saved settings)\b/.test(text) ||
+    /\b(?:required|form|input) fields?\b/.test(text);
   const hasStructuredFormFlow =
-    /\b(?:form|submit|submission|intake|application|onboarding|settings|profile|checkout|edit|update|create|enter|collect|structured information)\b/.test(text) &&
-    /\b(?:validation|required|invalid|input|field|error state|save changes|confirm|confirmation|saved settings)\b/.test(text);
+    hasFormDataEntryIntent && hasFormValidationIntent;
+  const hasSpecificWorkbenchItems =
+    /\b(?:queue|multiple|several|cases|requests|findings|workstreams|candidates|exceptions|visits|selected visit|route impact|decision state|handoff owner|next-action receipt)\b/.test(text);
+  const hasGenericWorkbenchItems =
+    /\b(?:list|items|records)\b/.test(text);
+  const hasWorkbenchWorkShape =
+    (/\b(?:workbench|workspace)\b/.test(text) &&
+      /\b(?:review|reviewing|compare|comparing|triage|prioritize|decide|deciding|handoff|assign|reassign|escalate)\b/.test(text) &&
+      (hasSpecificWorkbenchItems ||
+        (hasGenericWorkbenchItems && !hasStructuredFormFlow))) ||
+    (/\b(?:review|reviewing|compare|comparing|triage|prioritize)\b/.test(text) &&
+      (hasSpecificWorkbenchItems ||
+        (hasGenericWorkbenchItems && !hasStructuredFormFlow)));
   const hasSetupDebug =
     /\b(?:setup|configure|configuration|debug|debugging|diagnostic|troubleshoot|test connection|integration setup|audit integration|safe to ship|schema change|prompt template|api endpoint|tool call trace|raw system mechanics)\b/.test(text) ||
     implementationTermsDetected.length > 0;
@@ -575,13 +619,13 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "repeated_work_items",
         "The surface supports repeated work across items.",
-        /\b(?:queue|list|multiple|several|cases|items|records|requests|findings|workstreams|candidates|workspace|workbench)\b/.test(text),
-        "Looked for queues, lists, cases, requests, findings, workstreams, or workbench language.",
+        /\b(?:queue|list|multiple|several|cases|items|records|requests|findings|workstreams|candidates|exceptions|visits|selected visit|workspace|workbench)\b/.test(text),
+        "Looked for queues, lists, cases, requests, findings, workstreams, exceptions, visits, or workbench language.",
       ),
       surfaceEvidence(
         "domain_operator",
         "A domain operator, analyst, manager, lead, or team uses the surface.",
-        /\b(?:operator|analyst|manager|lead|reviewer|team|support|operations|planner)\b/.test(text),
+        /\b(?:operator|analyst|manager|lead|reviewer|team|support|operations|planner|dispatcher)\b/.test(text),
         "Looked for operational participant language.",
       ),
     ];
@@ -608,7 +652,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
         "structured_form_flow",
         "Structured form and validation work should stay a form flow.",
         hasStructuredFormFlow &&
-          !/\b(?:queue|list|multiple|several|cases|items|records|requests|findings|workstreams|candidates)\b/.test(text),
+          !hasWorkbenchWorkShape,
         "Form, validation, required input, submit, or confirmation language is primary.",
       ),
     ];
@@ -648,13 +692,13 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "collect_or_change_structured_information",
         "The surface collects or changes structured information.",
-        /\b(?:form|submit|intake|application|onboarding|settings|profile|checkout|edit|update|create|enter|collect|structured information)\b/.test(text),
-        "Looked for form, submit, intake, onboarding, settings, profile, edit, update, or collect language.",
+        hasFormDataEntryIntent,
+        "Looked for form, submit, intake, onboarding, settings, profile, edit, update, explicit create-record, or collect language.",
       ),
       surfaceEvidence(
         "validation_or_required_inputs",
         "Completion depends on validation or required inputs.",
-        /\b(?:validation|required|invalid|input|field|error state|save changes|confirm)\b/.test(text),
+        hasFormValidationIntent,
         "Looked for validation, required inputs, save, confirm, or input language.",
       ),
     ];
@@ -5517,7 +5561,12 @@ function normalizeContractEntryList(sourceValue, fallbackValue, fieldSpecs) {
 
       for (const field of fieldSpecs.stringFields ?? []) {
         normalized[field] =
-          optionalString(normalized[field]) || optionalString(fallbackEntry[field]);
+          optionalString(
+            normalized[field] ??
+              normalized[field.replace(/_([a-z])/g, (_, letter) =>
+                letter.toUpperCase(),
+              )],
+          ) || optionalString(fallbackEntry[field]);
       }
 
       for (const field of fieldSpecs.arrayFields ?? []) {
@@ -6197,6 +6246,53 @@ function externalComponentContractsFromAdapter(adapter, componentSource) {
   }));
 }
 
+function validateExternalPatternContracts(explicitPatternContracts, baseDesignSystem) {
+  if (!hasComponentAuthority(explicitPatternContracts)) {
+    return;
+  }
+
+  const canonicalById = new Map(
+    normalizePatternContracts(
+      baseDesignSystem?.pattern_contracts,
+      DEFAULT_PATTERN_CONTRACTS,
+    ).map((contract) => [normalizeText(contract.id), contract]),
+  );
+  const conflicts = normalizePatternContracts(explicitPatternContracts, [])
+    .map((contract) => {
+      const canonical = canonicalById.get(normalizeText(contract.id));
+      const surfaceType = optionalString(contract.surface_type);
+
+      if (
+        !canonical ||
+        !surfaceType ||
+        normalizeText(surfaceType) === normalizeText(canonical.surface_type)
+      ) {
+        return null;
+      }
+
+      return {
+        id: contract.id,
+        selected_surface_type: surfaceType,
+        required_surface_type: canonical.surface_type,
+      };
+    })
+    .filter(Boolean);
+
+  if (conflicts.length > 0) {
+    throw new JudgmentKitInputError(
+      "External design-system pattern contracts cannot redefine known pattern ids with conflicting surface types.",
+      {
+        code: "invalid_input",
+        details: {
+          conflicts,
+          repair:
+            "Use a new pattern id for external patterns, or keep the canonical surface_type for known JudgmentKit pattern ids.",
+        },
+      },
+    );
+  }
+}
+
 function externalVisualTokenAdapterFallback(adapter, iconSource) {
   const iconCatalog = firstDefined(
     iconSource.icon_catalog,
@@ -6418,6 +6514,7 @@ function externalDesignSystemFromAdapter(adapter, baseDesignSystem) {
   );
   const explicitPatternContracts =
     adapter.pattern_contracts ?? adapter.patternContracts;
+  validateExternalPatternContracts(explicitPatternContracts, baseDesignSystem);
   const defaultDesignSystem = normalizeDefaultAiNativeDesignSystem(
     {
       component_contracts: componentContracts,
@@ -9156,23 +9253,27 @@ function reviewPatternContractEvidence(candidate, implementationContract) {
   const contracts = normalizePatternContracts(system.pattern_contracts);
   const evidence = candidatePatternContractEvidence(candidate);
   const evidenceText = evidenceToText(evidence).toLowerCase();
-  const reviewed = evidenceHasAnyValue(evidence);
   const contractById = new Map(
     contracts.map((contract) => [normalizeText(contract.id), contract]),
+  );
+  const topLevelPatternId = optionalString(
+    candidate?.pattern_id ?? candidate?.patternId,
   );
   const patternId = optionalString(
     evidence?.pattern_id ??
       evidence?.patternId ??
       evidence?.id ??
-      candidate?.pattern_id ??
-      candidate?.patternId,
+      topLevelPatternId,
+  );
+  const topLevelSurfaceType = optionalString(
+    candidate?.surface_type ?? candidate?.surfaceType,
   );
   const selectedSurfaceType = optionalString(
     evidence?.surface_type ??
       evidence?.surfaceType ??
-      candidate?.surface_type ??
-      candidate?.surfaceType,
+      topLevelSurfaceType,
   );
+  const reviewed = evidenceHasAnyValue(evidence) || Boolean(topLevelPatternId);
   const pattern = contractById.get(normalizeText(patternId));
   const regionsPresent = unique([
     ...normalizeCandidateList(evidence, [
@@ -9303,6 +9404,277 @@ function reviewPatternContractEvidence(candidate, implementationContract) {
   };
 }
 
+function contractIds(sourceContracts) {
+  return normalizePrimitiveList(
+    sourceContracts.map((contract) => contract.id),
+  );
+}
+
+function contractIdsEqual(leftContracts, rightContracts) {
+  const leftIds = contractIds(leftContracts);
+  const rightIds = contractIds(rightContracts);
+
+  return (
+    leftIds.length === rightIds.length &&
+    leftIds.every((id, index) => id === rightIds[index])
+  );
+}
+
+function componentContractSourcePath(designSystemSource) {
+  const sourcePath =
+    optionalString(designSystemSource.component_contract_source) ||
+    DEFAULT_DESIGN_SYSTEM_SOURCE.component_contract_source;
+
+  if (
+    designSystemSource.definition_point ===
+      "frontend_skill_context.design_system_adapter_compat" &&
+    sourcePath.startsWith("implementation_contract.design_system_adapter")
+  ) {
+    return sourcePath.replace(
+      "implementation_contract.design_system_adapter",
+      "frontend_skill_context.design_system_adapter_compat",
+    );
+  }
+
+  return sourcePath;
+}
+
+function patternContractSourcePath(designSystemSource, patternContracts) {
+  const defaultSourcePath =
+    "implementation_contract.default_ai_native_design_system.pattern_contracts";
+  const usesDefaultPatternContracts = contractIdsEqual(
+    patternContracts,
+    DEFAULT_PATTERN_CONTRACTS,
+  );
+
+  if (usesDefaultPatternContracts) {
+    return defaultSourcePath;
+  }
+
+  if (
+    designSystemSource.definition_point ===
+    "frontend_skill_context.design_system_adapter_compat"
+  ) {
+    return "frontend_skill_context.design_system_adapter_compat.pattern_contracts";
+  }
+
+  if (designSystemSource.mode === "external_design_system") {
+    return "implementation_contract.design_system_adapter.pattern_contracts";
+  }
+
+  return defaultSourcePath;
+}
+
+function selectedPatternContractForSurface(patternContracts, selectedSurfaceType) {
+  const normalizedSurfaceType = normalizeText(optionalString(selectedSurfaceType));
+
+  if (!normalizedSurfaceType) {
+    return null;
+  }
+
+  return (
+    patternContracts.find(
+      (contract) => normalizeText(contract.surface_type) === normalizedSurfaceType,
+    ) ?? null
+  );
+}
+
+function reviewEvidenceFieldMapping(
+  implementationContract = {},
+  designSystemContractInput,
+  {
+    designSystemSource: designSystemSourceOverride,
+    visualTokenAdapter: visualTokenAdapterOverride,
+    selectedSurfaceType,
+  } = {},
+) {
+  const sourceContract = isPlainObject(implementationContract)
+    ? implementationContract
+    : {};
+  const visualTokenAdapter = normalizeVisualTokenAdapter(
+    visualTokenAdapterOverride ?? sourceContract.visual_token_adapter,
+    DEFAULT_VISUAL_TOKEN_ADAPTER,
+  );
+  const designSystemContract = normalizeDefaultAiNativeDesignSystem(
+    designSystemContractInput ?? sourceContract.default_ai_native_design_system,
+    DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
+  );
+  const componentContracts = normalizeComponentContracts(
+    designSystemContract.component_contracts,
+  );
+  const patternContracts = normalizePatternContracts(
+    designSystemContract.pattern_contracts,
+  );
+  const designSystemSource = normalizeDesignSystemSource(
+    designSystemSourceOverride ?? sourceContract.design_system_source,
+    {
+      visualTokenAdapter,
+      componentContracts,
+    },
+  );
+  const componentSourcePath = componentContractSourcePath(designSystemSource);
+  const patternSourcePath = patternContractSourcePath(
+    designSystemSource,
+    patternContracts,
+  );
+  const selectedPatternContract = selectedPatternContractForSurface(
+    patternContracts,
+    selectedSurfaceType,
+  );
+
+  return {
+    purpose:
+      "Route implementation-review evidence to the field reviewed by review_ui_implementation_candidate without weakening approved primitive validation.",
+    strict_boundary:
+      "primitives_used may contain only implementation_contract.approved_primitives. Design-system component ids, pattern ids, token/font/icon proof, renderer proof, imports, and package provenance are not approved primitives.",
+    route_summary: [
+      "implementation_contract.approved_primitives -> primitives_used",
+      "design-system component contract ids -> component_contract_evidence.components[].id with component_contract_evidence.components[].states_covered",
+      "design-system pattern contract ids -> pattern_contract_evidence.pattern_id",
+      "token family, font role, icon role, and catalog icon-id boundary proof -> visual_token_evidence",
+      "visual-token, typography, icon asset, renderer component, import, package, and source-export proof -> design_system_provenance",
+    ],
+    primitives_used: {
+      field: "primitives_used",
+      reviewed_by: "checks.approved_primitives",
+      source_path: "implementation_contract.approved_primitives",
+      accepts: "Only ids from implementation_contract.approved_primitives.",
+      allowed_values: toStringArray(sourceContract.approved_primitives),
+      rejects:
+        "Design-system component contract ids and pattern contract ids still fail when listed as primitives.",
+    },
+    component_contract_evidence: {
+      field: "component_contract_evidence",
+      id_field: "component_contract_evidence.components[].id",
+      state_field: "component_contract_evidence.components[].states_covered",
+      reviewed_by: "checks.component_contracts",
+      source_path:
+        componentSourcePath,
+      accepts:
+        "Design-system component contract ids with state coverage for each used component.",
+      allowed_component_ids: componentContracts.map((contract) => contract.id),
+      required_state_source:
+        `${componentSourcePath}[].required_states`,
+    },
+    pattern_contract_evidence: {
+      field: "pattern_contract_evidence",
+      id_field: "pattern_contract_evidence.pattern_id",
+      reviewed_by: "checks.pattern_contracts",
+      source_path: patternSourcePath,
+      accepts:
+        "One design-system pattern contract id, plus surface type, required regions, expected controls, and handoff evidence.",
+      allowed_pattern_ids: patternContracts.map((contract) => contract.id),
+      selected_pattern_contract: selectedPatternContract
+        ? {
+            id: selectedPatternContract.id,
+            surface_type: selectedPatternContract.surface_type,
+            required_regions: selectedPatternContract.required_regions ?? [],
+            expected_controls: selectedPatternContract.expected_controls ?? [],
+            completion_or_handoff:
+              selectedPatternContract.completion_or_handoff ?? "",
+          }
+        : null,
+      selected_pattern_evidence_template: selectedPatternContract
+        ? {
+            pattern_id: selectedPatternContract.id,
+            surface_type: selectedPatternContract.surface_type,
+            regions_present: selectedPatternContract.required_regions ?? [],
+            controls_present: selectedPatternContract.expected_controls ?? [],
+            completion_or_handoff:
+              selectedPatternContract.completion_or_handoff ?? "",
+          }
+        : null,
+      required_region_source:
+        `${patternSourcePath}[].required_regions`,
+      expected_control_source:
+        `${patternSourcePath}[].expected_controls`,
+    },
+    visual_token_evidence: {
+      field: "visual_token_evidence",
+      reviewed_by: "checks.visual_tokens",
+      source_path: "implementation_contract.visual_token_adapter",
+      accepts:
+        "Boundary proof for token families, token roles, font roles, icon roles, and catalog icon ids from implementation_contract.visual_token_adapter.",
+      allowed_token_families: normalizePrimitiveList(
+        visualTokenAdapter.token_families,
+        DEFAULT_VISUAL_TOKEN_ADAPTER.token_families,
+      ),
+      allowed_font_roles: normalizeRoleEntries(
+        visualTokenAdapter.font_roles,
+        DEFAULT_VISUAL_TOKEN_ADAPTER.font_roles,
+      ).map((entry) => entry.role),
+      allowed_icon_roles: normalizePrimitiveList(
+        visualTokenAdapter.icon_roles,
+        DEFAULT_VISUAL_TOKEN_ADAPTER.icon_roles,
+      ),
+      icon_catalog: normalizeIconCatalog(
+        visualTokenAdapter.icon_catalog,
+        DEFAULT_VISUAL_TOKEN_ADAPTER.icon_catalog,
+      ),
+      not_for:
+        "Do not use visual_token_evidence as proof of approved primitives, component ids, pattern ids, imports, packages, renderer authority, static checks, browser QA, or accessibility.",
+    },
+    design_system_provenance: {
+      field: "design_system_provenance",
+      reviewed_by: "checks.design_system_provenance",
+      source_path: "implementation_contract.design_system_source",
+      accepts:
+        "Source proof for visual tokens, typography, icon assets, renderer components, imports, packages, token prefixes, and design-system source exports.",
+      active_source: {
+        mode: designSystemSource.mode,
+        name: designSystemSource.name,
+        package: designSystemSource.package,
+        definition_point: designSystemSource.definition_point,
+        token_prefixes: designSystemSource.token_prefixes,
+        renderer_components: designSystemSource.renderer_components,
+        required_authorities: designSystemSource.required_authorities,
+      },
+      source_export_fields: Object.keys(designSystemSource.source_exports ?? {}),
+    },
+  };
+}
+
+function primitiveRoutingDiagnostics(inventedPrimitives, implementationContract) {
+  const system = normalizeDefaultAiNativeDesignSystem(
+    implementationContract.default_ai_native_design_system,
+    DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
+  );
+  const componentById = new Map(
+    normalizeComponentContracts(system.component_contracts).map((contract) => [
+      normalizeText(contract.id),
+      contract.id,
+    ]),
+  );
+  const patternById = new Map(
+    normalizePatternContracts(system.pattern_contracts).map((contract) => [
+      normalizeText(contract.id),
+      contract.id,
+    ]),
+  );
+  const componentContractIds = unique(
+    inventedPrimitives
+      .filter((primitive) => componentById.has(normalizeText(primitive)))
+      .map((primitive) => componentById.get(normalizeText(primitive))),
+  );
+  const patternContractIds = unique(
+    inventedPrimitives
+      .filter((primitive) => patternById.has(normalizeText(primitive)))
+      .map((primitive) => patternById.get(normalizeText(primitive))),
+  );
+  const componentSet = new Set(componentContractIds.map(normalizeText));
+  const patternSet = new Set(patternContractIds.map(normalizeText));
+
+  return {
+    invalid_primitives: inventedPrimitives,
+    known_component_contract_ids: componentContractIds,
+    known_pattern_contract_ids: patternContractIds,
+    other_invented_primitives: inventedPrimitives.filter((primitive) => {
+      const normalized = normalizeText(primitive);
+      return !componentSet.has(normalized) && !patternSet.has(normalized);
+    }),
+  };
+}
+
 function buildImplementationCandidateChecks(candidate, implementationContract) {
   const text = candidateText(candidate);
   const rawControls = detectRawControls(text);
@@ -9314,6 +9686,10 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
   const approvedPrimitives = new Set(implementationContract.approved_primitives);
   const inventedPrimitives = primitivesUsed.filter(
     (primitive) => !approvedPrimitives.has(primitive),
+  );
+  const primitiveRouting = primitiveRoutingDiagnostics(
+    inventedPrimitives,
+    implementationContract,
   );
   const statesCovered = normalizeCandidateList(candidate, [
     "states_covered",
@@ -9380,8 +9756,24 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
     findings.push({
       severity: "fail",
       check: "approved_primitives",
-      message: "Candidate uses primitives that are not in the implementation contract.",
+      message:
+        primitiveRouting.known_component_contract_ids.length > 0 ||
+        primitiveRouting.known_pattern_contract_ids.length > 0
+          ? "Candidate lists design-system component or pattern contract ids as approved primitives. They remain invalid in primitives_used and must move to their review evidence fields."
+          : "Candidate uses primitives that are not in the implementation contract.",
       evidence: inventedPrimitives,
+      routing_diagnostics: {
+        ...primitiveRouting,
+        allowed_approved_primitives: implementationContract.approved_primitives,
+        evidence_field_routing: {
+          primitives_used:
+            "Only implementation_contract.approved_primitives belong here.",
+          component_contract_ids:
+            "Move design-system component ids to component_contract_evidence.components[].id and provide component_contract_evidence.components[].states_covered.",
+          pattern_contract_ids:
+            "Move design-system pattern ids to pattern_contract_evidence.pattern_id.",
+        },
+      },
     });
   }
 
@@ -9442,6 +9834,27 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
       status: inventedPrimitives.length === 0 ? "pass" : "fail",
       used: primitivesUsed,
       invented: inventedPrimitives,
+      known_component_contract_ids:
+        primitiveRouting.known_component_contract_ids,
+      known_component_ids: primitiveRouting.known_component_contract_ids,
+      known_component_ids_in_primitives_used:
+        primitiveRouting.known_component_contract_ids,
+      known_component_contract_ids_in_primitives_used:
+        primitiveRouting.known_component_contract_ids,
+      component_contract_ids_in_primitives_used:
+        primitiveRouting.known_component_contract_ids,
+      component_ids_in_primitives_used:
+        primitiveRouting.known_component_contract_ids,
+      known_pattern_contract_ids: primitiveRouting.known_pattern_contract_ids,
+      known_pattern_ids: primitiveRouting.known_pattern_contract_ids,
+      known_pattern_ids_in_primitives_used:
+        primitiveRouting.known_pattern_contract_ids,
+      known_pattern_contract_ids_in_primitives_used:
+        primitiveRouting.known_pattern_contract_ids,
+      pattern_contract_ids_in_primitives_used:
+        primitiveRouting.known_pattern_contract_ids,
+      pattern_ids_in_primitives_used: primitiveRouting.known_pattern_contract_ids,
+      other_invented_primitives: primitiveRouting.other_invented_primitives,
     },
     state_coverage: {
       status: missingStates.length === 0 ? "pass" : "fail",
@@ -9553,7 +9966,29 @@ function repairInstructionForFinding(finding, implementationContract) {
   }
 
   if (check === "approved_primitives") {
-    return `Use only approved primitives: ${implementationContract.approved_primitives.join(", ")}.`;
+    const evidence = isPlainObject(finding.routing_diagnostics)
+      ? finding.routing_diagnostics
+      : isPlainObject(finding.evidence)
+        ? finding.evidence
+        : {};
+    const misroutedComponentIds = toStringArray(
+      evidence.known_component_contract_ids,
+    );
+    const misroutedPatternIds = toStringArray(
+      evidence.known_pattern_contract_ids,
+    );
+    const reroutes = [
+      misroutedComponentIds.length > 0
+        ? `Move design-system component ids (${misroutedComponentIds.join(", ")}) to component_contract_evidence.components[].id with component_contract_evidence.components[].states_covered`
+        : "",
+      misroutedPatternIds.length > 0
+        ? `Move pattern ids (${misroutedPatternIds.join(", ")}) to pattern_contract_evidence.pattern_id`
+        : "",
+    ].filter(Boolean);
+    const routeInstruction =
+      reroutes.length > 0 ? ` ${reroutes.join("; ")}.` : "";
+
+    return `Use only approved primitives in primitives_used: ${implementationContract.approved_primitives.join(", ")}.${routeInstruction}`;
   }
 
   if (check === "state_coverage") {
@@ -10446,6 +10881,11 @@ export function createFrontendGenerationContext({
     uiGenerationHandoff.implementation_contract?.default_ai_native_design_system,
     DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
   );
+  const evidenceFieldMapping = reviewEvidenceFieldMapping(
+    uiGenerationHandoff.implementation_contract,
+    designSystemContract,
+    { selectedSurfaceType: surfaceGuidance.recommended_surface_type },
+  );
 
   return {
     version: uiGenerationHandoff.version,
@@ -10502,6 +10942,7 @@ export function createFrontendGenerationContext({
       accessibility_policy:
         uiGenerationHandoff.implementation_contract?.accessibility_policy ??
         DEFAULT_ACCESSIBILITY_POLICY,
+      evidence_field_mapping: evidenceFieldMapping,
       component_contracts: designSystemContract.component_contracts,
       pattern_contracts: designSystemContract.pattern_contracts,
       required_surfaces: requiredSurfaces,
@@ -10534,8 +10975,20 @@ function buildFrontendImplementationInstructionMarkdown({
   frontendGenerationContext,
   designSystemPolicy,
   targetClient,
+  evidenceFieldMapping,
 }) {
   const implementationGuidance = frontendGenerationContext.implementation_guidance ?? {};
+  const reviewEvidenceMapping =
+    evidenceFieldMapping ?? implementationGuidance.evidence_field_mapping ?? {};
+  const primitiveEvidenceMapping = reviewEvidenceMapping.primitives_used ?? {};
+  const componentEvidenceMapping =
+    reviewEvidenceMapping.component_contract_evidence ?? {};
+  const patternEvidenceMapping =
+    reviewEvidenceMapping.pattern_contract_evidence ?? {};
+  const visualTokenEvidenceMapping =
+    reviewEvidenceMapping.visual_token_evidence ?? {};
+  const provenanceEvidenceMapping =
+    reviewEvidenceMapping.design_system_provenance ?? {};
   const verification = implementationGuidance.verification_expectations ?? {};
   const frontendContext = frontendGenerationContext.frontend_context ?? {};
   const workflow = frontendGenerationContext.workflow ?? {};
@@ -10572,14 +11025,27 @@ function buildFrontendImplementationInstructionMarkdown({
     "- Confirm the activity, primary decision, workflow topology, work units, coordinated surfaces, and handoff are represented.",
     "- Shape the interface around the selected surface type and surface set before choosing section layout.",
     "- Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
-    "- Use approved primitives and approved component families before introducing new UI helpers.",
-    "- Use implementation_contract.design_system_source as the active source for visual tokens, typography, icon assets, and renderer components.",
+    "- Put only implementation_contract.approved_primitives in primitives_used; put design-system component ids in component_contract_evidence.components[].id with states_covered, and pattern ids in pattern_contract_evidence.pattern_id.",
+    "- Use approved component families and documented design-system component contracts before introducing new UI helpers.",
+    "- Use implementation_contract.design_system_source as the active source for visual tokens, typography, icon assets, renderer components, imports, and packages.",
+    "- Put token/font/icon role and catalog-id boundary proof in visual_token_evidence; put renderer, import, package, source-export, and token-prefix provenance in design_system_provenance.",
     "- Use JudgmentKit design-system exports by default; when external_design_system is active, do not mix in JudgmentKit default assets unless the external adapter explicitly names them.",
     "- Verify core accessibility evidence for semantics, landmarks/headings, name/role/value, keyboard navigation, focus order, focus-visible, responsive reflow/no-overflow, and automated checks.",
     "- Add conditional accessibility evidence for visuals, custom widgets, forms, status messages, overlays, motion, media, dense controls, and hover/focus content when those patterns appear.",
     "- For text over substantive visuals or rendered backgrounds, verify WCAG AA contrast from browser-rendered output, not screenshots alone.",
     "- Verify required states, static checks, browser checks, accessibility evidence, and disclosure boundaries.",
     "- Review generated code or evidence with review_ui_implementation_candidate before final handoff.",
+    "",
+    "## Review Evidence Fields",
+    `- ${primitiveEvidenceMapping.field || "primitives_used"}: only implementation_contract.approved_primitives. Allowed values: ${toStringArray(primitiveEvidenceMapping.allowed_values).join("; ") || "none supplied"}`,
+    `- ${componentEvidenceMapping.id_field || "component_contract_evidence.components[].id"}: design-system component contract ids. Include ${componentEvidenceMapping.state_field || "component_contract_evidence.components[].states_covered"} for each used component. Allowed ids: ${toStringArray(componentEvidenceMapping.allowed_component_ids).join("; ") || "none supplied"}`,
+    `- ${patternEvidenceMapping.id_field || "pattern_contract_evidence.pattern_id"}: selected design-system pattern contract id. Include matching surface type, regions_present, controls_present, and handoff evidence. Allowed ids: ${toStringArray(patternEvidenceMapping.allowed_pattern_ids).join("; ") || "none supplied"}`,
+    `- ${visualTokenEvidenceMapping.field || "visual_token_evidence"}: token families, token roles, font roles, icon roles, and catalog icon ids from implementation_contract.visual_token_adapter. This is boundary proof only, not primitive, component, pattern, renderer, static, browser, or accessibility proof.`,
+    `- ${provenanceEvidenceMapping.field || "design_system_provenance"}: source proof for visual tokens, typography, icon assets, renderer components, imports, packages, token prefixes, and design-system exports. Active source: ${[
+      provenanceEvidenceMapping.active_source?.mode,
+      provenanceEvidenceMapping.active_source?.name,
+      provenanceEvidenceMapping.active_source?.package,
+    ].filter(Boolean).join(" / ") || "unspecified"}`,
     "",
     "## Required Surface",
     `- Topology: ${workflow.topology || "workspace"}`,
@@ -10807,6 +11273,15 @@ export function createFrontendImplementationSkillContext({
     component_contracts: designSystemContract.component_contracts,
     pattern_contracts: designSystemContract.pattern_contracts,
   };
+  const evidenceFieldMapping = reviewEvidenceFieldMapping(
+    implementationContract,
+    designSystemContract,
+    {
+      designSystemSource,
+      visualTokenAdapter,
+      selectedSurfaceType: frontendGenerationContext.surface_type,
+    },
+  );
   const verificationChecklist = unique([
     ...toStringArray(verificationExpectations.commands).map(
       (command) => `Run ${command}`,
@@ -10854,13 +11329,16 @@ export function createFrontendImplementationSkillContext({
       frontendGenerationContext,
       designSystemPolicy,
       targetClient: normalizedTargetClient,
+      evidenceFieldMapping,
     }),
     implementation_sequence: [
       "Confirm the activity, primary decision, workflow topology, work units, coordinated surfaces, and handoff from the ready frontend context.",
       "Map the selected surface type to the surface set, required sections, controls, density, navigation, and responsive expectations.",
       "Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
-      "Use approved primitives and approved component families before introducing new UI helpers.",
-      "Use implementation_contract.design_system_source as the active source for visual tokens, typography, icon assets, and renderer components.",
+      "Put only implementation_contract.approved_primitives in primitives_used; put design-system component ids in component_contract_evidence.components[].id with states_covered, and pattern ids in pattern_contract_evidence.pattern_id.",
+      "Use approved component families and documented design-system component contracts before introducing new UI helpers.",
+      "Use implementation_contract.design_system_source as the active source for visual tokens, typography, icon assets, renderer components, imports, and packages.",
+      "Put token/font/icon role and catalog-id boundary proof in visual_token_evidence; put renderer, import, package, source-export, and token-prefix provenance in design_system_provenance.",
       "Use JudgmentKit design-system exports by default; when external_design_system is active, do not mix in JudgmentKit default assets unless the external adapter explicitly names them.",
       "When the spec calls for substantive visuals, use imagegen or premium Three.js/WebGL/D3-style rendering instead of rudimentary deterministic geometry.",
       "Verify core accessibility evidence: automated checks, semantic content, landmarks/headings, name-role-value, keyboard navigation, focus order, focus-visible, and responsive reflow/no-overflow.",
@@ -10895,6 +11373,7 @@ export function createFrontendImplementationSkillContext({
     design_system_source: designSystemSource,
     visual_token_adapter: visualTokenAdapter,
     design_system_policy: designSystemPolicy,
+    evidence_field_mapping: evidenceFieldMapping,
     token_guidance: tokenGuidance,
     font_guidance: fontGuidance,
     icon_guidance: iconGuidance,

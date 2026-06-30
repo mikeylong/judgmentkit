@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
@@ -12,6 +13,16 @@ import { buildSite } from "../site/build-site.mjs";
 
 const REVIEW_BRIEF =
   "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(__dirname, "..");
+
+function readJson(relativePath) {
+  return JSON.parse(fs.readFileSync(path.join(root, relativePath), "utf8"));
+}
+
+const packageJson = readJson("package.json");
+const vercelConfig = readJson("vercel.json");
+const EXPECTED_RELEASE_VERSION = packageJson.version;
 
 function withTimeout(promise, timeoutMs) {
   return Promise.race([
@@ -138,7 +149,7 @@ try {
 
     assert.equal(response.status, 200, "first-use fixture should return 200");
     assert.equal(response.headers.get("content-type"), "application/json; charset=utf-8");
-    assert.equal(body.release_target, "0.6.1");
+    assert.equal(body.release_target, EXPECTED_RELEASE_VERSION);
     assert.equal(body.target_time_minutes, 10);
   }
 
@@ -227,6 +238,20 @@ try {
     assert.deepEqual(
       body.capabilities.tools.map((tool) => tool.name),
       JUDGMENTKIT_MCP_TOOL_NAMES,
+    );
+  }
+
+  {
+    const rewrites = vercelConfig.rewrites ?? [];
+    const mcpRewrites = rewrites.filter((rewrite) => rewrite.destination === "/api/mcp");
+
+    assert.ok(
+      mcpRewrites.some((rewrite) => rewrite.source === "/mcp"),
+      "vercel.json should route /mcp to /api/mcp",
+    );
+    assert.ok(
+      mcpRewrites.some((rewrite) => rewrite.source === "/mcp/"),
+      "vercel.json should route /mcp/ to /api/mcp",
     );
   }
 
