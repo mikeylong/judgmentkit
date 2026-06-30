@@ -866,6 +866,27 @@ function assertSurfaceRecommendation({
         "evidence",
       ),
   );
+  const rawExternalFrontendContext = {
+    ...frontendContext,
+    implementation_contract: {
+      ...frontendContext.implementation_contract,
+      design_system_source: {
+        ...frontendContext.implementation_contract.design_system_source,
+        mode: "external_design_system",
+        definition_point: "implementation_contract.design_system_adapter",
+      },
+    },
+  };
+  assert.throws(
+    () =>
+      createFrontendImplementationSkillContext({
+        frontend_generation_context: rawExternalFrontendContext,
+      }),
+    (error) =>
+      error instanceof JudgmentKitInputError &&
+      error.code === "incomplete_design_system_authority",
+    "Frontend skill context must not accept raw external_design_system mode without a complete adapter.",
+  );
 
   const skillContext = createFrontendImplementationSkillContext({
     frontend_generation_context: frontendContext,

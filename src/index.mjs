@@ -6288,11 +6288,20 @@ function requestedRawExternalDesignSystemSource(source) {
     return false;
   }
 
-  const definitionPoint = optionalString(
-    designSystemSource.definition_point ?? designSystemSource.definitionPoint,
-  );
+  return true;
+}
 
-  return !definitionPoint.includes("design_system_adapter");
+function throwIncompleteDesignSystemAuthority() {
+  throw new JudgmentKitInputError(
+    "external_design_system mode requires a complete design_system_adapter.",
+    {
+      code: "incomplete_design_system_authority",
+      details: {
+        missing_authorities: DESIGN_SYSTEM_REQUIRED_AUTHORITIES,
+        fallback_policy: "fail_incomplete",
+      },
+    },
+  );
 }
 
 function externalAdapterName(adapter) {
@@ -7224,16 +7233,7 @@ export function createUiImplementationContract(input = {}, options = {}) {
   }
 
   if (requestedRawExternalDesignSystemSource(input ?? {})) {
-    throw new JudgmentKitInputError(
-      "external_design_system mode requires a complete design_system_adapter.",
-      {
-        code: "incomplete_design_system_authority",
-        details: {
-          missing_authorities: DESIGN_SYSTEM_REQUIRED_AUTHORITIES,
-          fallback_policy: "fail_incomplete",
-        },
-      },
-    );
+    throwIncompleteDesignSystemAuthority();
   }
 
   const contract = options.contract ?? loadActivityContract(options.contractPath);
@@ -9531,14 +9531,56 @@ const DEFAULT_COMPONENT_SELECTOR_TERMS = [
   "tooltip",
 ];
 
+function selectorContainsClassOrId(selector) {
+  const selectorWithoutAttributeValues = optionalString(selector).replace(
+    /\[[^\]]*\]/g,
+    (attributeSelector) => attributeSelector.replace(/(["']).*?\1/g, ""),
+  );
+
+  return (
+    /(?:^|[^\w-])(?:\.|#)-?[_a-zA-Z][\w-]*/.test(
+      selectorWithoutAttributeValues,
+    ) ||
+    /(?:^|[\s>+~,(])[a-zA-Z][\w-]*(?:\.|#)-?[_a-zA-Z][\w-]*/.test(
+      selectorWithoutAttributeValues,
+    )
+  );
+}
+
+function selectorIsGlobalRootSelector(selector) {
+  const selectorParts = optionalString(selector)
+    .split(",")
+    .map((part) => part.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (selectorParts.length === 0) {
+    return false;
+  }
+
+  return selectorParts.every((part) => {
+    if (["html", "body", ":root", "*"].includes(part)) {
+      return true;
+    }
+
+    return /^(?:html|body|:root)(?:(?:[.#][\w-]+)|(?:\[[^\]]+\])|(?::[\w-]+(?:\([^)]*\))?))*$/.test(
+      part,
+    );
+  });
+}
+
 function selectorIsComponentSpecific(selector, authority) {
   const normalizedSelector = optionalString(selector).toLowerCase();
 
-  if (
-    !normalizedSelector ||
-    /^(?:html|body|:root|\*)\b/.test(normalizedSelector)
-  ) {
+  if (!normalizedSelector) {
     return false;
+  }
+
+  if (selectorIsGlobalRootSelector(selector)) {
+    return false;
+  }
+
+  if (selectorContainsClassOrId(selector)) {
+    return true;
   }
 
   if (/\[(?:data-component|data-ui|data-slot|data-part)\b/.test(normalizedSelector)) {
@@ -9653,6 +9695,12 @@ function localAuthorityEvidenceValues(evidence, keys) {
 }
 
 function expectedLocalAuthorityFamilies(evidence, authority) {
+  const contractFamilies = toStringArray(authority.families);
+
+  if (contractFamilies.length > 0) {
+    return contractFamilies;
+  }
+
   const evidenceFamilies = localAuthorityEvidenceValues(evidence, [
     "required_family",
     "requiredFamily",
@@ -9664,9 +9712,7 @@ function expectedLocalAuthorityFamilies(evidence, authority) {
     "familyId",
   ]);
 
-  return evidenceFamilies.length > 0
-    ? evidenceFamilies
-    : toStringArray(authority.families);
+  return authority.enforcement === "optional" ? evidenceFamilies : [];
 }
 
 function inheritedLocalAuthorityFamilies(evidence) {
@@ -11434,6 +11480,44 @@ function hasDesignGuidanceValue(value) {
   return isPlainObject(value) && Object.keys(value).length > 0;
 }
 
+function hasCompleteExternalImplementationAuthority({
+  designSystemSource,
+  visualTokenAdapter,
+  designSystemContract,
+}) {
+  if (designSystemSource?.mode !== "external_design_system") {
+    return true;
+  }
+
+  const definitionPoint = optionalString(designSystemSource.definition_point);
+  const iconCatalog = isPlainObject(visualTokenAdapter.icon_catalog)
+    ? visualTokenAdapter.icon_catalog
+    : {};
+  const tokenPrefixes = toStringArray(designSystemSource.token_prefixes);
+  const hasExternalTokenAuthority =
+    visualTokenAdapter.mode === "external_design_system" &&
+    (normalizePrimitiveList(visualTokenAdapter.token_families).length > 0 ||
+      normalizeCssCustomProperties(visualTokenAdapter.css_custom_properties, [])
+        .length > 0 ||
+      tokenPrefixes.some((prefix) => prefix && prefix !== "--jk-"));
+  const hasExternalIconAuthority =
+    optionalString(iconCatalog.source) === "external_design_system" ||
+    (optionalString(iconCatalog.package) &&
+      optionalString(iconCatalog.package) !== DEFAULT_ICON_CATALOG.package);
+  const hasExternalComponentAuthority =
+    normalizeComponentContracts(
+      designSystemContract.component_contracts,
+      [],
+    ).length > 0 && toStringArray(designSystemSource.renderer_components).length > 0;
+
+  return (
+    definitionPoint.includes("design_system_adapter") &&
+    hasExternalTokenAuthority &&
+    hasExternalIconAuthority &&
+    hasExternalComponentAuthority
+  );
+}
+
 function formatRoleEntries(entries, formatter) {
   return (Array.isArray(entries) ? entries : [])
     .map(formatter)
@@ -12250,8 +12334,23 @@ export function createFrontendImplementationSkillContext({
       componentContracts: designSystemContract.component_contracts,
     },
   );
+  const hasInlineDesignSystemAdapter = hasDesignGuidanceValue(
+    normalizedDesignSystemAdapter,
+  );
 
-  if (hasDesignGuidanceValue(normalizedDesignSystemAdapter)) {
+  if (
+    designSystemSource.mode === "external_design_system" &&
+    !hasInlineDesignSystemAdapter &&
+    !hasCompleteExternalImplementationAuthority({
+      designSystemSource,
+      visualTokenAdapter,
+      designSystemContract,
+    })
+  ) {
+    throwIncompleteDesignSystemAuthority();
+  }
+
+  if (hasInlineDesignSystemAdapter) {
     const externalDesignSystem = externalDesignSystemFromAdapter(
       normalizedDesignSystemAdapter,
       designSystemContract,

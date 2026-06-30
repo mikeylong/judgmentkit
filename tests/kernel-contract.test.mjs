@@ -532,6 +532,32 @@ assert.throws(
     error.details.missing_authorities.includes("components"),
   "Raw external_design_system mode requires a complete design_system_adapter.",
 );
+assert.throws(
+  () =>
+    createUiImplementationContract({
+      design_system_source: {
+        mode: "external_design_system",
+        definition_point: "implementation_contract.design_system_adapter",
+      },
+    }),
+  (error) =>
+    error instanceof JudgmentKitInputError &&
+    error.code === "incomplete_design_system_authority",
+  "Raw external_design_system mode with a design_system_adapter definition point still requires a complete adapter.",
+);
+assert.throws(
+  () =>
+    createUiImplementationContract({
+      designSystemSource: {
+        mode: "external_design_system",
+        definitionPoint: "implementation_contract.design_system_adapter",
+      },
+    }),
+  (error) =>
+    error instanceof JudgmentKitInputError &&
+    error.code === "incomplete_design_system_authority",
+  "CamelCase raw external_design_system mode still requires a complete designSystemAdapter.",
+);
 
 const externalDesignSystemContract = createUiImplementationContract({
   design_system_adapter: completeMaterialDesignSystemAdapter(),
