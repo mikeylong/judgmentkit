@@ -174,6 +174,42 @@ function normalizeText(value) {
   return value.toLowerCase().replace(/\s+/g, " ").trim();
 }
 
+function toGlobalPattern(pattern) {
+  return pattern.flags.includes("g")
+    ? pattern
+    : new RegExp(pattern.source, `${pattern.flags}g`);
+}
+
+function isNegatedMatch(text, start, end) {
+  const prefix = text.slice(Math.max(0, start - 72), start);
+  const suffix = text.slice(end, Math.min(text.length, end + 56));
+
+  if (/\bnot\s+only[\s/,-]+$/.test(prefix)) {
+    return false;
+  }
+
+  return (
+    /(?:^|[\s([{:;,.!?/-])(?:no|not(?!\s+only\b)|without|never|avoid|avoids|avoiding|exclude|excludes|excluding|do not(?!\s+only\b)|does not(?!\s+only\b)|don't(?!\s+only\b)|doesn't(?!\s+only\b)|did not(?!\s+only\b)|should not|shouldn't|must not|cannot|can't|won't|no need to|need not|not required to)(?:[\s/,-]+\w+){0,6}(?:[\s/,-]+(?:or|and))?[\s/,-]*$/.test(prefix) ||
+    /^[\s/,-]+(?:(?:is|are|was|were|be|being|to be|should be|must be|can be|remain|remains)[\s/,-]+)?(?:not required|not needed|never required|never needed|unneeded|unnecessary|optional|absent|disabled|excluded|not included|not present|not part of|not the primary)\b/.test(suffix)
+  );
+}
+
+function hasAffirmedPattern(text, pattern) {
+  const globalPattern = toGlobalPattern(pattern);
+
+  for (const match of text.matchAll(globalPattern)) {
+    if (!isNegatedMatch(text, match.index, match.index + match[0].length)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function hasAffirmedAny(text, patterns) {
+  return patterns.some((pattern) => hasAffirmedPattern(text, pattern));
+}
+
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -300,27 +336,39 @@ function matchedEvidence(id, label, matched, reason) {
 }
 
 function hasOperatorReviewProducedWork(text) {
-  return (
-    /\b(?:ai|model|agent)[- ](?:generated|produced)\b/.test(text) ||
-    /\b(?:ai|model)\s+(?:generated\s+)?(?:outputs?|workstreams?|candidates?|findings?|recommendations?|work)\b/.test(text) ||
-    /\bai agents?\s+(?:outputs?|findings?|recommendations?|work)\b/.test(text) ||
-    /\bagent (?:outputs?|findings?|recommendations?)\b/.test(text) ||
-    /(?<!design[- ])\bsystem[- ](?:produced|generated)\b/.test(text) ||
-    /(?<!design[- ])\bsystem\s+(?:outputs?|work|findings?|recommendations?)\b/.test(text) ||
-    /\b(?:produced|generated) by (?:the )?(?:system|ai|model|agent)\b/.test(text)
-  );
+  return hasAffirmedAny(text, [
+    /\b(?:ai|model|agent)[- ](?:generated|produced)\b/,
+    /\b(?:ai|model)\s+(?:generated\s+)?(?:outputs?|workstreams?|candidates?|findings?|recommendations?|artifacts?|variants?|responses?|drafts?|work)\b/,
+    /\bai agents?\s+(?:outputs?|findings?|recommendations?|artifacts?|variants?|responses?|drafts?|work)\b/,
+    /\bagent (?:outputs?|findings?|recommendations?)\b/,
+    /(?<!design[- ])\bsystem[- ](?:produced|generated)\b/,
+    /(?<!design[- ])\bsystem\s+(?:outputs?|work|findings?|recommendations?|artifacts?|variants?|responses?|drafts?)\b/,
+    /\b(?:ai|model|agent|system)[- ](?:generated|produced)\s+(?:artifacts?|variants?|responses?|drafts?)\b/,
+    /\b(?:artifacts?|variants?|responses?|drafts?)\s+(?:generated|produced) by (?:the )?(?:system|ai|model|agent)\b/,
+    /\b(?:produced|generated) by (?:the )?(?:system|ai|model|agent)\b/,
+  ]);
 }
 
 function buildOperatorReviewTriggerEvidence(input, contract) {
   const normalized = normalizeText(input);
   const implementationTermsDetected = detectImplementationTerms(input, contract);
-  const hasReviewActor = /\b(?:human|operator|reviewer|lead|manager|approver)\b/.test(normalized) ||
-    /\b(?:review|reviews|reviewing|approve|approval|authorize|authorization)\b/.test(normalized);
+  const hasReviewActor = hasAffirmedAny(normalized, [
+    /\b(?:human|operator|reviewer|lead|manager|approver)\b/,
+    /\b(?:review|reviews|reviewing|approve|approval|authorize|authorization)\b/,
+  ]);
   const hasProducedWork = hasOperatorReviewProducedWork(normalized);
-  const hasDecision = /\b(?:decision|decide|deciding|approve|block|defer|tighten|handoff|authorize|return|escalate)\b/.test(normalized);
-  const hasEvidenceOrRisk = /\b(?:evidence|risk|compare|comparing|confidence|finding|reason|policy|source)\b/.test(normalized);
-  const hasAdvancementAction = /\b(?:approve(?:d)?|block(?:ed)?|defer(?:red)?|tighten(?:ed)?|handoff|handed off|return(?:ed)?|escalate(?:d)?|authorize(?:d)?)\b/.test(normalized);
-  const hasClosure = /\b(?:handoff|receipt|audit|closure|closed|complete|completion|done|accepted|rejected)\b/.test(normalized);
+  const hasDecision = hasAffirmedAny(normalized, [
+    /\b(?:decision|decide|decides|deciding|choose|chooses|choosing|approve|block|blocking|defer|tighten|handoff|authorize|return|escalate|accept|reject)\b/,
+  ]);
+  const hasEvidenceOrRisk = hasAffirmedAny(normalized, [
+    /\b(?:evidence|risk|compare|compares|comparing|confidence|finding|reason|policy|source|artifact|artifacts|variant|variants|response|responses|draft|drafts)\b/,
+  ]);
+  const hasAdvancementAction = hasAffirmedAny(normalized, [
+    /\b(?:approve(?:d|s|ing)?|block(?:ed|s|ing)?|defer(?:red|s|ring)?|tighten(?:ed|s|ing)?|handoff|hand off|handed off|return(?:ed|s|ing)?|escalat(?:e|ed|es|ing)|authoriz(?:e|ed|es|ing)|accept(?:ed|s|ing)?|reject(?:ed|s|ing)?)\b/,
+  ]);
+  const hasClosure = hasAffirmedAny(normalized, [
+    /\b(?:handoff|receipt|audit|closure|closed|complete|completion|done|accepted|rejected)\b/,
+  ]);
   const hasRawMechanics = implementationTermsDetected.length > 0 ||
     /\b(?:raw system|internal mechanics|system mechanics|trace|prompt|schema|tool call|resource id|api endpoint|model configuration)\b/.test(normalized);
 
@@ -338,7 +386,10 @@ function buildOperatorReviewTriggerEvidence(input, contract) {
       matchedEvidence(
         "competing_work_items",
         "Multiple work items, agents, workstreams, candidates, or findings compete for attention.",
-        /\b(?:multiple|several|queue|list|items|cases|agents|workstreams|candidates|findings)\b/.test(normalized),
+        hasAffirmedAny(normalized, [
+          /\b(?:multiple|several|queue|list|items|cases|agents|workstreams|candidates|findings|artifacts|variants|responses|drafts|outputs)\b/,
+          /\b(?:two|three|four|five|\d+)\s+(?:artifacts?|variants?|responses?|drafts?|outputs?|findings?|candidates?|items?)\b/,
+        ]),
         "Looked for competing items, agents, workstreams, candidates, findings, queues, or lists.",
       ),
       matchedEvidence(
@@ -375,7 +426,9 @@ function buildOperatorReviewTriggerEvidence(input, contract) {
 
 function buildOperatorReviewExclusionEvidence(input) {
   const normalized = normalizeText(input);
-  const hasDecisionOrReview = /\b(?:review|reviewing|decision|decide|approve|block|handoff|authorize)\b/.test(normalized);
+  const hasDecisionOrReview = hasAffirmedAny(normalized, [
+    /\b(?:review|reviewing|decision|decide|approve|block|handoff|authorize)\b/,
+  ]);
   const hasProducedWork = hasOperatorReviewProducedWork(normalized);
   const hasOperationalWorkbenchShape =
     (/\b(?:workbench|workspace)\b/.test(normalized) &&
@@ -400,7 +453,7 @@ function buildOperatorReviewExclusionEvidence(input) {
       "passive_dashboard_no_decision",
       "Passive dashboards with no decision should not use operator-review.",
       /\bpassive dashboard\b/.test(normalized) ||
-        /\bno decision\b/.test(normalized) ||
+        /\bno (?:\w+\s+){0,3}decision\b/.test(normalized) ||
         (/\bdashboard\b/.test(normalized) && !hasDecisionOrReview),
       "Looked for passive dashboard or dashboard language without review or decision work.",
     ),
@@ -487,21 +540,29 @@ function surfaceEvidence(id, label, matched, reason) {
   return matchedEvidence(id, label, matched, reason);
 }
 
-function buildSurfaceTypeInputs(input, activityReview, contract) {
+function buildSurfaceTypeInputs(input, activityReview, contract, options = {}) {
   const reviewCandidate = activityReview?.candidate ?? {};
   const activityModel = reviewCandidate.activity_model ?? {};
   const interactionContract = reviewCandidate.interaction_contract ?? {};
   const disclosurePolicy = reviewCandidate.disclosure_policy ?? {};
+  const sourceMissingEvidence =
+    activityReview?.guardrails?.source_missing_evidence ?? {};
+  const hasAffirmedSourceDecision = hasAffirmedAny(normalizeText(input), [
+    /\b(?:decision|decide|decides|deciding|choose|chooses|choosing|compare|compares|comparing|approve|block|blocking|return|handoff|prioritize|resolve|submit|complete)\b/,
+  ]);
+  const hasSourceDecision =
+    sourceMissingEvidence.decision === false &&
+    (hasAffirmedSourceDecision || options.hasExplicitActivityReview);
   const sourceText = [
     input,
     activityModel.activity,
-    activityModel.objective,
+    hasSourceDecision ? activityModel.objective : "",
     ...(toStringArray(activityModel.participants)),
-    ...(toStringArray(activityModel.outcomes)),
+    ...(hasSourceDecision ? toStringArray(activityModel.outcomes) : []),
     ...(toStringArray(activityModel.domain_vocabulary)),
-    interactionContract.primary_decision,
-    ...(toStringArray(interactionContract.next_actions)),
-    interactionContract.completion,
+    hasSourceDecision ? interactionContract.primary_decision : "",
+    ...(hasSourceDecision ? toStringArray(interactionContract.next_actions) : []),
+    hasSourceDecision ? interactionContract.completion : "",
     ...(toStringArray(disclosurePolicy.terms_to_use)),
   ].filter(Boolean).join(" ");
   const implementationTermsDetected = detectImplementationTerms(sourceText, contract);
@@ -535,37 +596,85 @@ function makeSurfaceScore(surfaceType, triggers, exclusions, definition) {
 function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
   const text = inputContext.normalized;
   const implementationTermsDetected = inputContext.implementation_terms_detected;
-  const hasReviewDecision =
-    /\b(?:review|reviewing|compare|comparing|decide|deciding|approve|approval|block|handoff|triage|prioritize)\b/.test(text);
-  const hasDecision =
-    /\b(?:decision|decide|deciding|choose|compare|approve|block|return|handoff|prioritize|resolve)\b/.test(text);
-  const hasMarketing =
-    /\b(?:marketing|landing page|homepage|home page|campaign|pricing|signup|sign up|trial|demo|conversion|convert|lead|prospect|visitor|buyer|offer|value prop|value proposition|positioning|launch)\b/.test(text);
+  const hasReviewDecision = hasAffirmedAny(text, [
+    /\b(?:review|reviews|reviewing|compare|compares|comparing|decide|decides|deciding|approve|approval|block|blocking|handoff|prioritize|return|escalate)\b/,
+  ]);
+  const hasDecision = hasAffirmedAny(text, [
+    /\b(?:decision|decide|decides|deciding|choose|chooses|choosing|compare|compares|comparing|approve|block|blocking|return|handoff|prioritize|resolve|submit|complete)\b/,
+  ]);
+  const hasMarketing = hasAffirmedAny(text, [
+    /\b(?:marketing|landing page|homepage|home page|campaign|pricing|signup|sign up|trial|demo|conversion|convert|prospect|visitor|buyer|offer|value prop|value proposition|positioning)\b/,
+    /\b(?:lead capture|lead form|lead gen|lead generation|qualified lead|sales lead)\b/,
+    /\b(?:launch campaign|launch page|go-to-market|go to market|product launch page)\b/,
+  ]);
   const hasFormDataEntryIntent =
-    /\b(?:form|submit|submission|intake|application|onboarding|settings|profile|checkout|edit|update|enter|collect|structured information)\b/.test(text) ||
-    /\bcreate (?:a |an )?(?:account|profile|application|intake|request|record|case|ticket|entry)\b/.test(text);
+    hasAffirmedAny(text, [
+      /\b(?:form|submit|submission|intake|application|onboarding|settings|profile|checkout|edit|update|enter|collect|structured information)\b/,
+      /\b(?:submits|submitting|edits|editing|updates|updating|enters|entering|collects|collecting)\b/,
+      /\bcreate (?:a |an )?(?:account|profile|application|intake|request|record|case|ticket|entry)\b/,
+    ]);
   const hasFormValidationIntent =
-    /\b(?:validation|required|invalid|input|error state|save changes|confirm|confirmation|saved settings)\b/.test(text) ||
-    /\b(?:required|form|input) fields?\b/.test(text);
+    hasAffirmedAny(text, [
+      /\b(?:validation|invalid|input|error state|save changes|confirm|confirmation|saved settings)\b/,
+      /\b(?:required|form|input) fields?\b/,
+      /\brequired (?:\w+\s+){0,3}(?:information|details|data|fields?|inputs?|documents?)\b/,
+    ]);
   const hasStructuredFormFlow =
     hasFormDataEntryIntent && hasFormValidationIntent;
   const hasSpecificWorkbenchItems =
-    /\b(?:queue|multiple|several|cases|requests|findings|workstreams|candidates|exceptions|visits|selected visit|route impact|decision state|handoff owner|next-action receipt)\b/.test(text);
+    hasAffirmedAny(text, [
+      /\b(?:queue|multiple|several|cases|requests|findings|workstreams|candidates|exceptions|visits|selected visit|route impact|decision state|handoff owner|next-action receipt|cohorts)\b/,
+    ]);
   const hasGenericWorkbenchItems =
-    /\b(?:list|items|records)\b/.test(text);
+    hasAffirmedAny(text, [/\b(?:list|items|records)\b/]);
+  const hasExplicitWorkbench =
+    hasAffirmedAny(text, [/\b(?:workbench|workspace|queue)\b/]);
+  const hasOperationalActor =
+    hasAffirmedAny(text, [
+      /\b(?:operator|analyst|manager|lead|reviewer|team|support|operations|planner|dispatcher|officer|coordinator)\b/,
+    ]);
+  const hasEvidenceComparison =
+    hasAffirmedAny(text, [
+      /\b(?:evidence|compare|compares|comparing|context|risk|reason|documents?|route impact|selected|policy|cohorts)\b/,
+    ]);
+  const hasFormPrimary =
+    hasStructuredFormFlow ||
+    (hasFormDataEntryIntent &&
+      hasAffirmedAny(text, [
+        /\b(?:submit|submission|enter|collect|update|edit|onboarding|settings|profile|checkout|intake|required|validation|input|save changes|confirmation)\b/,
+        /\b(?:submits|submitting|edits|editing|updates|updating|enters|entering|collects|collecting)\b/,
+      ]));
+  const hasInternalFormContext =
+    hasFormPrimary &&
+    hasAffirmedAny(text, [
+      /\b(?:internal|admin|operations|crm|record|settings|profile|application|intake|checkout|purchase|shipping|payment)\b/,
+    ]);
+  const hasRawSetupDebugIntent = hasAffirmedAny(text, [
+    /\b(?:setup|configure|configuration|debug|debugging|diagnostic|troubleshoot|test connection|integration setup|audit integration|safe to ship|release risk|schema change|prompt template|api endpoint|tool call trace|raw system mechanics|mcp server)\b/,
+  ]);
+  const hasConversationPrimary = hasAffirmedAny(text, [
+    /\b(?:chat|conversation|thread|message composer|assistant exchange|live chat|open-ended|open ended|reply|respond|back and forth)\b/,
+  ]);
   const hasWorkbenchWorkShape =
-    (/\b(?:workbench|workspace)\b/.test(text) &&
-      /\b(?:review|reviewing|compare|comparing|triage|prioritize|decide|deciding|handoff|assign|reassign|escalate)\b/.test(text) &&
+    (hasExplicitWorkbench &&
+      hasAffirmedAny(text, [
+        /\b(?:review|reviews|reviewing|compare|compares|comparing|triage|prioritize|decide|decides|deciding|handoff|assign|reassign|escalate)\b/,
+      ]) &&
       (hasSpecificWorkbenchItems ||
-        (hasGenericWorkbenchItems && !hasStructuredFormFlow))) ||
-    (/\b(?:review|reviewing|compare|comparing|triage|prioritize)\b/.test(text) &&
+        (hasGenericWorkbenchItems && !hasFormPrimary))) ||
+    (hasAffirmedAny(text, [
+      /\b(?:review|reviews|reviewing|compare|compares|comparing|triage|prioritize)\b/,
+    ]) &&
       (hasSpecificWorkbenchItems ||
-        (hasGenericWorkbenchItems && !hasStructuredFormFlow)));
+        (hasGenericWorkbenchItems && !hasFormPrimary))) ||
+    (hasOperationalActor && hasReviewDecision && hasEvidenceComparison && !hasFormPrimary);
   const hasSetupDebug =
-    /\b(?:setup|configure|configuration|debug|debugging|diagnostic|troubleshoot|test connection|integration setup|audit integration|safe to ship|schema change|prompt template|api endpoint|tool call trace|raw system mechanics)\b/.test(text) ||
+    hasRawSetupDebugIntent ||
     implementationTermsDetected.length > 0;
   const hasConversation =
-    /\b(?:chat|conversation|thread|message composer|assistant exchange|live chat|open-ended|open ended)\b/.test(text);
+    hasAffirmedAny(text, [
+      /\b(?:chat|conversation|thread|message composer|assistant exchange|live chat|open-ended|open ended)\b/,
+    ]);
   const definitions = getSurfaceTypes(contract);
   const definition = definitions[surfaceType] ?? {};
 
@@ -580,13 +689,18 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "public_audience",
         "The audience is a visitor, prospect, buyer, or public reader.",
-        /\b(?:visitor|prospect|buyer|public audience|new customer|lead)\b/.test(text),
+        hasAffirmedAny(text, [
+          /\b(?:visitor|prospect|buyer|public audience|new customer)\b/,
+          /\b(?:lead capture|lead form|lead gen|lead generation|qualified lead|sales lead)\b/,
+        ]),
         "Looked for external audience language.",
       ),
       surfaceEvidence(
         "offer_proof_action",
         "The work needs message, proof, and a primary call to action.",
-        /\b(?:benefit|proof|testimonial|case study|cta|call to action|signup|sign up|book a demo|get started)\b/.test(text),
+        hasAffirmedAny(text, [
+          /\b(?:benefit|proof|testimonial|case study|cta|call to action|signup|sign up|book a demo|get started)\b/,
+        ]),
         "Looked for offer, proof, and call-to-action language.",
       ),
     ];
@@ -594,7 +708,9 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "bounded_work_decision",
         "Workbench decision work should not be treated as marketing.",
-        /\b(?:review|reviewing|compare|comparing|approve|approval|block|handoff|triage|queue|workbench|workspace)\b/.test(text),
+        hasAffirmedAny(text, [
+          /\b(?:review|reviews|reviewing|compare|compares|comparing|approve|approval|block|blocking|handoff|triaging|queue|workbench|workspace)\b/,
+        ]),
         "Review, comparison, approval, triage, queue, or handoff language implies work support.",
       ),
       surfaceEvidence(
@@ -619,13 +735,13 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "repeated_work_items",
         "The surface supports repeated work across items.",
-        /\b(?:queue|list|multiple|several|cases|items|records|requests|findings|workstreams|candidates|exceptions|visits|selected visit|workspace|workbench)\b/.test(text),
+        hasSpecificWorkbenchItems || hasGenericWorkbenchItems,
         "Looked for queues, lists, cases, requests, findings, workstreams, exceptions, visits, or workbench language.",
       ),
       surfaceEvidence(
         "domain_operator",
         "A domain operator, analyst, manager, lead, or team uses the surface.",
-        /\b(?:operator|analyst|manager|lead|reviewer|team|support|operations|planner|dispatcher)\b/.test(text),
+        hasOperationalActor && hasReviewDecision,
         "Looked for operational participant language.",
       ),
     ];
@@ -639,7 +755,8 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "conversation_primary",
         "Open-ended conversation should not become a workbench.",
-        hasConversation && !hasReviewDecision,
+        hasConversationPrimary &&
+          (!hasWorkbenchWorkShape || !hasSpecificWorkbenchItems),
         "Conversation or chat is the primary activity.",
       ),
       surfaceEvidence(
@@ -651,8 +768,8 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "structured_form_flow",
         "Structured form and validation work should stay a form flow.",
-        hasStructuredFormFlow &&
-          !hasWorkbenchWorkShape,
+        hasFormPrimary &&
+          !(hasSpecificWorkbenchItems && hasReviewDecision && hasEvidenceComparison),
         "Form, validation, required input, submit, or confirmation language is primary.",
       ),
     ];
@@ -676,12 +793,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
 
     return {
       ...score,
-      score:
-        profile.status === "recommended"
-          ? Math.max(score.score, 4)
-          : profile.status === "blocked"
-            ? 0
-            : Math.min(score.score, 1),
+      score: profile.status === "recommended" ? Math.max(score.score, 4) : 0,
       profile_id: OPERATOR_REVIEW_PROFILE_ID,
       profile_status: profile.status,
     };
@@ -706,13 +818,16 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "multi_item_review",
         "Multi-item review belongs in a workbench or operator review surface.",
-        /\b(?:queue|multiple|several|compare|review findings|triage)\b/.test(text),
+        hasAffirmedAny(text, [
+          /\b(?:queue|multiple|several|compare|review findings|triage)\b/,
+        ]) && !hasFormPrimary,
         "Reviewing multiple items is not primarily a form flow.",
       ),
       surfaceEvidence(
         "marketing_primary",
         "Marketing pages may contain forms but are not primarily form flows.",
-        hasMarketing && !/\b(?:settings|profile|application|intake)\b/.test(text),
+        hasMarketing &&
+          !hasInternalFormContext,
         "Marketing conversion language is dominant.",
       ),
     ];
@@ -739,7 +854,9 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "bounded_decision_work",
         "Bounded review decisions should not be reduced to a dashboard.",
-        /\b(?:approve|block|return|handoff|decide whether|triage)\b/.test(text),
+        hasAffirmedAny(text, [
+          /\b(?:approve|block|return|handoff|decide whether|triaging)\b/,
+        ]),
         "Approval, blocking, return, handoff, or triage language implies work support.",
       ),
       surfaceEvidence(
@@ -758,7 +875,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "read_understand_or_share",
         "The surface is for reading, understanding, citing, or sharing information.",
-        /\b(?:content page|report|article|doc|docs|documentation|guide|read|learn|cite|share|publish|reference|case study)\b/.test(text),
+        /\b(?:content page|report|memo|article|doc|docs|documentation|guide|read|reads|reading|understand|understanding|learn|cite|citing|share|sharing|publish|reference|case study)\b/.test(text),
         "Looked for report, article, docs, guide, reading, citing, sharing, publishing, reference, or case-study language.",
       ),
       surfaceEvidence(
@@ -772,7 +889,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "active_decision_work",
         "Active decisions should not become reading-only content.",
-        hasDecision && !/\b(?:report decision|share decision)\b/.test(text),
+        hasDecision && !/\b(?:report decision|share decision|decision memo)\b/.test(text),
         "Decision, comparison, approval, or handoff language is present.",
       ),
       surfaceEvidence(
@@ -788,7 +905,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
 
   if (surfaceType === "setup_debug_tool") {
     const rawMechanicsPrimary =
-      /\b(?:setup|configure|configuration|debug|debugging|diagnostic|troubleshoot|test connection|integration setup|audit integration|safe to ship|release risk|schema change|prompt template|api endpoint|tool call|trace|mcp server)\b/.test(text);
+      hasRawSetupDebugIntent;
     const triggers = [
       surfaceEvidence(
         "configure_inspect_test_or_troubleshoot",
@@ -843,7 +960,9 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "bounded_completion",
         "Bounded decision and handoff work should not become conversation-first.",
-        /\b(?:approve|block|handoff|submit|complete|completion state|decide whether)\b/.test(text),
+        hasAffirmedAny(text, [
+          /\b(?:approve|block|handoff|submit|complete|completion state|decide whether)\b/,
+        ]),
         "Bounded decision, completion, or handoff language is present.",
       ),
       surfaceEvidence(
@@ -875,6 +994,23 @@ function chooseSurfaceType(scores) {
   return [...scores].sort((left, right) => {
     if (right.score !== left.score) {
       return right.score - left.score;
+    }
+
+    if (right.score > 0) {
+      const leftCoverage = left.triggers?.length
+        ? left.trigger_match_count / left.triggers.length
+        : 0;
+      const rightCoverage = right.triggers?.length
+        ? right.trigger_match_count / right.triggers.length
+        : 0;
+
+      if (rightCoverage !== leftCoverage) {
+        return rightCoverage - leftCoverage;
+      }
+
+      if (right.exclusion_match_count !== left.exclusion_match_count) {
+        return left.exclusion_match_count - right.exclusion_match_count;
+      }
     }
 
     return priority.indexOf(left.surface_type) - priority.indexOf(right.surface_type);
@@ -1077,7 +1213,11 @@ export function recommendSurfaceTypes(input, options = {}) {
     : isPlainObject(options.activityReview)
       ? options.activityReview
       : createActivityModelReview(input, options);
-  const inputContext = buildSurfaceTypeInputs(input.trim(), activityReview, contract);
+  const hasExplicitActivityReview =
+    isPlainObject(options.activity_review) || isPlainObject(options.activityReview);
+  const inputContext = buildSurfaceTypeInputs(input.trim(), activityReview, contract, {
+    hasExplicitActivityReview,
+  });
   const scores = SURFACE_TYPE_IDS.map((surfaceType) =>
     buildSurfaceTypeScore(surfaceType, inputContext, contract),
   );

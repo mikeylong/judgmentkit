@@ -91,6 +91,39 @@ const SETTINGS_WORKSPACE_FIELD_LIST_FORM_FLOW_BRIEF = `
   to submit. The outcome is saved settings and a confirmation.
 `;
 
+const TRIAL_SIGNUP_CONVERSION_BRIEF = `
+  A growth marketer is creating a public trial signup page for prospects.
+  The activity is orienting visitors to the offer, proof, and plan fit, then
+  capturing a qualified lead through a short signup form. The outcome is a
+  completed trial request and follow-up path for sales.
+`;
+
+const ONBOARDING_SETTINGS_FORM_FLOW_BRIEF = `
+  A customer success admin completes an onboarding settings form for a new
+  account. The activity is entering required company details, resolving validation
+  errors, reviewing completeness, and submitting the onboarding record. The
+  outcome is a saved setup confirmation.
+`;
+
+const CHECKOUT_SUBMISSION_FORM_FLOW_BRIEF = `
+  A shopper completes a checkout form. The activity is entering shipping and
+  payment inputs, seeing required field validation, confirming totals, and
+  submitting the order. The outcome is an order confirmation.
+`;
+
+const CASE_INTAKE_FORM_FLOW_BRIEF = `
+  An intake coordinator completes a case intake form. The activity collects
+  structured information, checks required fields and validation errors, then
+  submits the case for confirmation. The outcome is an accepted case record.
+`;
+
+const OPERATIONAL_LEAD_MONITOR_BRIEF = `
+  An operations lead monitors service health and alerts on an operational
+  dashboard. The activity is tracking status, trends, and incident health at a
+  glance; no operational decision is required on the surface. The outcome is
+  awareness of whether follow-up is needed.
+`;
+
 const FIELD_SERVICE_DISPATCH_WORKBENCH_BRIEF = `
 # Minimal Brief
 
@@ -103,10 +136,111 @@ No design-system token, CSS variable, component rule, icon rule, or visual styli
 MCP endpoint: http://127.0.0.1:3333/mcp
 `;
 
+const MANUAL_APPLICATION_WORKBENCH_BRIEF = `
+  A loan officer reviews a mortgage application. The activity is comparing
+  borrower evidence, deciding whether the application advances, returns for
+  missing documents, or escalates, and leaving a handoff receipt for the
+  applicant.
+`;
+
+const CONTENT_REPORT_BRIEF = `
+  A policy reader uses an internal compliance report. The activity is reading
+  the report, understanding the summary, citing reference sections, and sharing
+  a briefing with stakeholders. The outcome is a cited report and shared
+  briefing.
+`;
+
+const RESEARCH_MEMO_CONTENT_REPORT_BRIEF = `
+  A policy analyst reads an internal research memo report. The activity is
+  reading a narrative summary, understanding evidence, citing references, and
+  sharing a brief with stakeholders. The outcome is a cited memo summary.
+`;
+
+const PUBLIC_GUIDE_WITH_NEGATED_CTA_CONTENT_REPORT_BRIEF = `
+  A public reader uses a product guide that explicitly has no signup, demo,
+  pricing, or conversion CTA. The activity is reading explanatory documentation,
+  learning concepts through a narrative explanation, following reference
+  sections, and sharing the guide. The outcome is understanding, not lead
+  capture.
+`;
+
+const CHARTED_REPORT_NO_OPERATIONAL_DECISION_BRIEF = `
+  An executive reads a charted quarterly report. The activity is reading chart
+  annotations, understanding the narrative summary, and sharing the report with
+  stakeholders. No operational decision is required.
+`;
+
+const CONFIGURATION_WIZARD_SETUP_DEBUG_BRIEF = `
+  A platform admin uses a configuration wizard for an SSO integration. The
+  activity is configuring connection details, testing the API endpoint, resolving
+  setup errors, and saving a validated configuration. The outcome is a working
+  integration and diagnostic status.
+`;
+
+const SAFE_TO_SHIP_AUDIT_CHECKLIST_BRIEF = `
+  A platform engineer uses a safe-to-ship audit checklist. The activity is
+  inspecting a JSON schema change, prompt template update, and API endpoint
+  behavior, testing release risk, and recording whether the integration is safe
+  to ship. The outcome is a diagnostic handoff for the next fix.
+`;
+
 const CONVERSATION_BRIEF = `
   A support agent handles an open-ended live chat. The activity is continuing a
   customer conversation, replying with context, and recovering from failed sends.
   The outcome is a thread the agent can continue or close.
+`;
+
+const LAUNCH_TEAM_THREAD_CONVERSATION_BRIEF = `
+  A product team uses a launch thread. The activity is an open-ended
+  conversation where teammates ask questions, reply with context, and keep the
+  thread active. The outcome is a continuing team thread.
+`;
+
+const TRIAGE_CHAT_CONVERSATION_BRIEF = `
+  A service specialist uses a triage chat during an incident. The activity is an
+  open-ended chat where people ask questions, respond, and share context while
+  the thread stays active. The outcome is a continuing conversation.
+`;
+
+const SIGNUP_DEMO_CHAT_MARKETING_BRIEF = `
+  A prospect uses a signup and demo chat on a public trial page. The activity is
+  asking conversion questions, seeing proof, and choosing whether to start a
+  trial or book a demo. The outcome is captured lead details for follow-up.
+`;
+
+const AI_ARTIFACT_COMPARISON_OPERATOR_REVIEW_BRIEF = `
+  A human reviewer compares several AI-generated artifacts before release. The
+  activity is reviewing evidence and risk, deciding whether each artifact is
+  approved, blocked, returned, or handed off, and leaving an audit receipt.
+`;
+
+const HUMAN_ARTIFACT_COMPARISON_WORKBENCH_BRIEF = `
+  A studio lead reviews human-produced artifacts in an editorial queue. The activity
+  is reviewing evidence and deciding which artifact advances, returns for
+  revision, or is handed off, with a project receipt.
+`;
+
+const SUPPORT_AGENT_DRAFT_WORKBENCH_BRIEF = `
+  A support lead reviews support agent draft responses in a service queue. The
+  activity is comparing policy evidence, deciding which response advances or
+  returns for revision, and leaving a coaching handoff receipt.
+`;
+
+const NOT_ONLY_AI_ARTIFACT_OPERATOR_REVIEW_BRIEF = `
+  A lead does not only review AI-generated artifacts; they compare evidence and
+  approve or reject each artifact with an audit receipt.
+`;
+
+const SALES_OPERATIONS_FORM_FLOW_BRIEF = `
+  A sales operations admin updates a CRM lead record. The activity is entering
+  required company fields, resolving validation errors, submitting the change,
+  and seeing a saved record confirmation.
+`;
+
+const INTERNAL_SALES_LEAD_RECORD_FORM_FLOW_BRIEF = `
+  An internal sales operations admin updates a sales lead record. The activity
+  is entering required company fields, resolving validation errors, submitting
+  the change, and seeing a saved record confirmation.
 `;
 
 const REFUND_TRIAGE_BRIEF = `
@@ -222,10 +356,275 @@ function stagedFormCandidate() {
   };
 }
 
+function readyWorkbenchActivityReview() {
+  return {
+    review_status: "ready_for_review",
+    candidate: {
+      activity_model: {
+        activity: "Reviewing refund requests during daily triage.",
+        participants: ["support lead"],
+        objective: "Resolve refund cases with evidence.",
+        outcomes: ["approved, returned, or handed off refund cases"],
+        domain_vocabulary: ["refund request", "support lead"],
+      },
+      interaction_contract: {
+        primary_decision:
+          "Decide whether each refund case should be approved, returned for evidence, or handed off.",
+        next_actions: ["Approve refund", "Return for evidence", "Send handoff"],
+        completion:
+          "A handoff receipt records the selected next action and reason.",
+      },
+      disclosure_policy: {
+        terms_to_use: ["refund request", "handoff receipt"],
+      },
+    },
+    guardrails: {
+      source_missing_evidence: {
+        decision: false,
+      },
+    },
+  };
+}
+
 function surfaceTypeScore(surfaceReview, surfaceType) {
   return surfaceReview.evidence.surface_type_scores.find(
     (entry) => entry.surface_type === surfaceType,
   );
+}
+
+function assertSurfaceRecommendation({
+  label,
+  brief,
+  surfaceType,
+  operatorProfileNotRecommended = surfaceType !== "operator_review",
+  operatorProfileRecommended = surfaceType === "operator_review",
+}) {
+  const surfaceReview = recommendSurfaceTypes(brief);
+  const selectedScore = surfaceTypeScore(surfaceReview, surfaceType);
+
+  assert.equal(
+    surfaceReview.recommended_surface_type,
+    surfaceType,
+    `${label} should recommend ${surfaceType}`,
+  );
+  assert.ok(selectedScore, `${label} should include selected surface score`);
+  assert.ok(
+    selectedScore.score > 0,
+    `${label} should have positive score for ${surfaceType}`,
+  );
+
+  const operatorScore = surfaceTypeScore(surfaceReview, "operator_review");
+  assert.ok(operatorScore, `${label} should include operator_review score`);
+
+  if (operatorProfileNotRecommended) {
+    assert.notEqual(
+      operatorScore?.profile_status,
+      "recommended",
+      `${label} should not recommend operator_review profile`,
+    );
+  }
+
+  if (operatorProfileRecommended) {
+    assert.equal(
+      operatorScore?.profile_status,
+      "recommended",
+      `${label} should recommend operator_review profile`,
+    );
+  }
+
+  return surfaceReview;
+}
+
+{
+  const nonOperatorSurfaceCases = [
+    {
+      label: "marketing offer",
+      surfaceType: "marketing",
+      brief: PRODUCT_ANALYTICS_MARKETING,
+      trigger: "persuade_or_convert",
+    },
+    {
+      label: "operational workbench",
+      surfaceType: "workbench",
+      brief: PRODUCT_ANALYTICS_WORKBENCH,
+      trigger: "inspect_compare_decide_act",
+    },
+    {
+      label: "manual single-application review",
+      surfaceType: "workbench",
+      brief: MANUAL_APPLICATION_WORKBENCH_BRIEF,
+      trigger: "inspect_compare_decide_act",
+    },
+    {
+      label: "form flow",
+      surfaceType: "form_flow",
+      brief: FORM_FLOW_BRIEF,
+      trigger: "collect_or_change_structured_information",
+    },
+    {
+      label: "dashboard monitor",
+      surfaceType: "dashboard_monitor",
+      brief: PRODUCT_ANALYTICS_DASHBOARD,
+      trigger: "monitor_status_or_trends",
+    },
+    {
+      label: "content report",
+      surfaceType: "content_report",
+      brief: CONTENT_REPORT_BRIEF,
+      trigger: "read_understand_or_share",
+    },
+    {
+      label: "setup debug tool",
+      surfaceType: "setup_debug_tool",
+      brief: SETUP_DEBUG_BRIEF,
+      trigger: "configure_inspect_test_or_troubleshoot",
+    },
+    {
+      label: "conversation",
+      surfaceType: "conversation",
+      brief: CONVERSATION_BRIEF,
+      trigger: "open_ended_exchange",
+    },
+  ];
+
+  for (const { label, surfaceType, brief, trigger } of nonOperatorSurfaceCases) {
+    const surfaceReview = recommendSurfaceTypes(brief);
+    const selectedScore = surfaceTypeScore(surfaceReview, surfaceType);
+    const operatorScore = surfaceTypeScore(surfaceReview, "operator_review");
+
+    assert.equal(
+      surfaceReview.recommended_surface_type,
+      surfaceType,
+      `${label} should recommend ${surfaceType}`,
+    );
+    assert.ok(selectedScore, `${label} should include selected surface score`);
+    assert.ok(
+      selectedScore.score > 0,
+      `${label} should have positive score for ${surfaceType}`,
+    );
+    assert.ok(
+      selectedScore.matched_triggers.includes(trigger),
+      `${label} should match ${trigger}`,
+    );
+    assert.notEqual(
+      operatorScore?.profile_status,
+      "recommended",
+      `${label} should not recommend operator_review profile`,
+    );
+  }
+}
+
+{
+  const surfaceRecommendationSmokeCases = [
+    {
+      label: "trial/signup conversion",
+      brief: TRIAL_SIGNUP_CONVERSION_BRIEF,
+      surfaceType: "marketing",
+    },
+    {
+      label: "onboarding/settings form",
+      brief: ONBOARDING_SETTINGS_FORM_FLOW_BRIEF,
+      surfaceType: "form_flow",
+    },
+    {
+      label: "checkout submission",
+      brief: CHECKOUT_SUBMISSION_FORM_FLOW_BRIEF,
+      surfaceType: "form_flow",
+    },
+    {
+      label: "case intake",
+      brief: CASE_INTAKE_FORM_FLOW_BRIEF,
+      surfaceType: "form_flow",
+    },
+    {
+      label: "operational lead health monitor",
+      brief: OPERATIONAL_LEAD_MONITOR_BRIEF,
+      surfaceType: "dashboard_monitor",
+    },
+    {
+      label: "research memo",
+      brief: RESEARCH_MEMO_CONTENT_REPORT_BRIEF,
+      surfaceType: "content_report",
+    },
+    {
+      label: "public guide with negated conversion CTA",
+      brief: PUBLIC_GUIDE_WITH_NEGATED_CTA_CONTENT_REPORT_BRIEF,
+      surfaceType: "content_report",
+    },
+    {
+      label: "charted report with no operational decision",
+      brief: CHARTED_REPORT_NO_OPERATIONAL_DECISION_BRIEF,
+      surfaceType: "content_report",
+    },
+    {
+      label: "configuration wizard",
+      brief: CONFIGURATION_WIZARD_SETUP_DEBUG_BRIEF,
+      surfaceType: "setup_debug_tool",
+    },
+    {
+      label: "safe-to-ship audit checklist",
+      brief: SAFE_TO_SHIP_AUDIT_CHECKLIST_BRIEF,
+      surfaceType: "setup_debug_tool",
+    },
+    {
+      label: "launch team thread",
+      brief: LAUNCH_TEAM_THREAD_CONVERSATION_BRIEF,
+      surfaceType: "conversation",
+    },
+    {
+      label: "triage chat",
+      brief: TRIAGE_CHAT_CONVERSATION_BRIEF,
+      surfaceType: "conversation",
+    },
+    {
+      label: "signup/demo chat",
+      brief: SIGNUP_DEMO_CHAT_MARKETING_BRIEF,
+      surfaceType: "marketing",
+    },
+    {
+      label: "AI artifact comparison",
+      brief: AI_ARTIFACT_COMPARISON_OPERATOR_REVIEW_BRIEF,
+      surfaceType: "operator_review",
+    },
+    {
+      label: "human artifact comparison",
+      brief: HUMAN_ARTIFACT_COMPARISON_WORKBENCH_BRIEF,
+      surfaceType: "workbench",
+    },
+    {
+      label: "support agent draft response review",
+      brief: SUPPORT_AGENT_DRAFT_WORKBENCH_BRIEF,
+      surfaceType: "workbench",
+    },
+    {
+      label: "not-only AI artifact review",
+      brief: NOT_ONLY_AI_ARTIFACT_OPERATOR_REVIEW_BRIEF,
+      surfaceType: "operator_review",
+    },
+    {
+      label: "sales operations data entry",
+      brief: SALES_OPERATIONS_FORM_FLOW_BRIEF,
+      surfaceType: "form_flow",
+    },
+    {
+      label: "internal sales lead record data entry",
+      brief: INTERNAL_SALES_LEAD_RECORD_FORM_FLOW_BRIEF,
+      surfaceType: "form_flow",
+    },
+  ];
+
+  for (const surfaceCase of surfaceRecommendationSmokeCases) {
+    assertSurfaceRecommendation(surfaceCase);
+  }
+}
+
+{
+  const surfaceReview = recommendSurfaceTypes("Build the provided surface.", {
+    activity_review: readyWorkbenchActivityReview(),
+  });
+
+  assert.equal(surfaceReview.recommended_surface_type, "workbench");
+  assert.equal(surfaceReview.confidence, "high");
 }
 
 {
