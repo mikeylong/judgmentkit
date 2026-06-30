@@ -111,6 +111,18 @@ assert.ok(
 );
 assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.required.includes("candidate"), true);
 assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.required.includes("implementation_contract"), true);
+assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.properties.surface_type.type, "string");
+assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.properties.surfaceType.type, "string");
+assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.properties.surface_review.type, "object");
+assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.properties.surfaceReview.type, "object");
+assert.equal(
+  toolByName.review_ui_implementation_candidate.inputSchema.properties.frontend_generation_context.type,
+  "object",
+);
+assert.equal(
+  toolByName.review_ui_implementation_candidate.inputSchema.properties.frontendGenerationContext.type,
+  "object",
+);
 assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.properties.iteration_context.type, "object");
 const reviewImplementationCandidateHelp = JSON.stringify(
   toolByName.review_ui_implementation_candidate,
@@ -647,6 +659,45 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
   assert.equal(implementationReview.checks.component_contracts.reviewed, false);
   assert.equal(implementationReview.checks.pattern_contracts.status, "pass");
   assert.equal(implementationReview.checks.pattern_contracts.reviewed, false);
+
+  const selectedSurfaceImplementationReview = await handleToolCall("review_ui_implementation_candidate", {
+    implementation_contract: implementationContract,
+    surface_type: "operator_review",
+    candidate: {
+      primitives_used: ["queue", "detail panel", "decision controls", "handoff receipt"],
+      states_covered: implementationContract.implementation_contract.state_coverage.required_states,
+      static_checks: ["npm test"],
+      browser_qa: { desktop: "passed", mobile: "passed" },
+      accessibility_evidence: coreAccessibilityEvidence(),
+      pattern_contract_evidence: {
+        pattern_id: "workbench",
+        regions_present: [
+          "work queue",
+          "detail workspace",
+          "evidence",
+          "decision or handoff",
+        ],
+        controls_present: [
+          "selection",
+          "filter or sort",
+          "decision action",
+          "handoff action",
+        ],
+      },
+    },
+  });
+
+  assert.equal("error" in selectedSurfaceImplementationReview, false);
+  assert.equal(selectedSurfaceImplementationReview.implementation_review_status, "failed");
+  assert.equal(selectedSurfaceImplementationReview.checks.pattern_contracts.status, "fail");
+  assert.equal(
+    selectedSurfaceImplementationReview.checks.pattern_contracts.selected_surface_type,
+    "operator_review",
+  );
+  assert.equal(
+    selectedSurfaceImplementationReview.checks.pattern_contracts.required_surface_type,
+    "workbench",
+  );
 
   const repairReview = await handleToolCall("review_ui_implementation_candidate", {
     implementation_contract: implementationContract,

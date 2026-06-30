@@ -932,6 +932,31 @@ function assertSurfaceRecommendation({
 }
 
 {
+  const neutralFallback = recommendSurfaceTypes("Surface.", {
+    activity_review: {
+      review_status: "ready_for_review",
+      guardrails: {
+        source_missing_evidence: { decision: true },
+      },
+      candidate: {
+        activity_model: {},
+        interaction_contract: {},
+        disclosure_policy: {},
+      },
+    },
+  });
+
+  assert.equal(neutralFallback.recommended_surface_type, "workbench");
+  assert.equal(neutralFallback.confidence, "low");
+  assert.ok(
+    neutralFallback.evidence.surface_type_scores.every(
+      (entry) => entry.score === 0,
+    ),
+  );
+  assert.equal(surfaceTypeScore(neutralFallback, "setup_debug_tool").score, 0);
+}
+
+{
   const setupDebug = recommendSurfaceTypes(SETUP_DEBUG_BRIEF);
 
   assert.equal(setupDebug.recommended_surface_type, "setup_debug_tool");

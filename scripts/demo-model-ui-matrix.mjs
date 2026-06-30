@@ -34,6 +34,7 @@ import {
   createFrontendGenerationContext,
   createFrontendImplementationSkillContext,
   createUiGenerationHandoff,
+  recommendSurfaceTypes,
   reviewUiWorkflowCandidate,
 } from "../src/index.mjs";
 import {
@@ -48,6 +49,9 @@ import {
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, "..");
+const CLI_ARGS = process.argv.slice(2);
+const CHECK_MODE = CLI_ARGS.includes("--check");
+const USE_CASE_ARGS = CLI_ARGS.filter((arg) => arg !== "--check");
 
 let activeUseCase;
 let OUTPUT_DIR;
@@ -169,15 +173,44 @@ function jsonForScript(value) {
   return JSON.stringify(value, null, 2).replace(/</g, "\\u003c");
 }
 
+function readArtifactProvenance(html) {
+  const match = String(html).match(
+    /<script type="application\/json" id="model-ui-provenance">([\s\S]*?)<\/script>/,
+  );
+
+  if (!match) {
+    throw new Error("Missing model-ui-provenance script in generated artifact.");
+  }
+
+  return JSON.parse(match[1]);
+}
+
 function kebab(value) {
   return String(value).replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase();
 }
 
 async function ensureSourceBriefFile() {
   if (!activeUseCase?.source_brief_text) return;
+  if (CHECK_MODE) return;
   const filePath = path.join(ROOT_DIR, activeUseCase.source_brief_file);
   await fs.mkdir(path.dirname(filePath), { recursive: true });
   await fs.writeFile(filePath, `${activeUseCase.source_brief_text}\n`);
+}
+
+async function writeOrCheckFile(filePath, content) {
+  if (!CHECK_MODE) {
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
+    await fs.writeFile(filePath, content);
+    return;
+  }
+
+  const existing = await fs.readFile(filePath, "utf8");
+
+  if (existing !== content) {
+    throw new Error(
+      `Generated model UI file is stale: ${path.relative(ROOT_DIR, filePath)}`,
+    );
+  }
 }
 
 function cloneJson(value) {
@@ -369,6 +402,7 @@ function compactFrontendSkillContext(frontendSkillContext) {
     approved_primitives: frontendSkillContext.approved_primitives,
     approved_component_families: frontendSkillContext.approved_component_families,
     files_or_entrypoints: frontendSkillContext.files_or_entrypoints,
+    surface_type_guidance: frontendSkillContext.surface_type_guidance,
     design_system_policy: frontendSkillContext.design_system_policy,
     verification_checklist: frontendSkillContext.verification_checklist,
     guardrails: frontendSkillContext.guardrails,
@@ -555,13 +589,20 @@ function buildUiWorkflowCandidate() {
 
 function buildReviewedHandoff(brief) {
   const activityReview = createActivityModelReview(brief);
-  const workflowReview = reviewUiWorkflowCandidate(brief, buildUiWorkflowCandidate());
+  const surfaceReview = recommendSurfaceTypes(brief, {
+    activity_review: activityReview,
+  });
+  const workflowReview = reviewUiWorkflowCandidate(brief, buildUiWorkflowCandidate(), {
+    activity_review: activityReview,
+    surface_review: surfaceReview,
+  });
   const handoff = createUiGenerationHandoff(workflowReview);
 
   return {
     ...handoff,
     source_brief_file: SOURCE_BRIEF_FILE,
     activity_review_status: activityReview.review_status,
+    surface_review_status: surfaceReview.status,
     workflow_review_status: workflowReview.review_status,
   };
 }
@@ -764,6 +805,87 @@ async function readCapture(output, contextHash, options = {}) {
   }
 }
 
+function sourceContextStatus({ capture, currentContextHash, acceptedContextHash }) {
+  if (!capture) return "missing";
+  return capture.source_context_sha256 === currentContextHash &&
+    acceptedContextHash === currentContextHash
+    ? "current"
+    : "legacy_accepted";
+}
+
+function sourceContextNotes(status) {
+  if (status === "current") {
+    return "Capture transcript source context matches the current generated matrix context.";
+  }
+  if (status === "legacy_accepted") {
+    return "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.";
+  }
+  return "Capture transcript is missing or stale for this matrix cell. Run npm run capture:model-ui.";
+}
+
+function annotateCaptureSourceContext(capture, metadata) {
+  if (!capture) return null;
+  let frontendSkillContext = capture.frontend_skill_context;
+
+  if (
+    frontendSkillContext &&
+    metadata.frontendSkillContext?.surface_type &&
+    !frontendSkillContext.surface_type
+  ) {
+    frontendSkillContext = {
+      ...frontendSkillContext,
+      surface_type: metadata.frontendSkillContext.surface_type,
+    };
+  }
+
+  return {
+    ...capture,
+    frontend_skill_context: frontendSkillContext,
+    source_context_status: metadata.status,
+    current_source_context_sha256: metadata.currentContextHash,
+    accepted_source_context_sha256: metadata.acceptedContextHash,
+    source_context_notes: sourceContextNotes(metadata.status),
+  };
+}
+
+async function writeCaptureSourceContextMetadata(output, metadata) {
+  if (CHECK_MODE) return;
+  if (!output.capture_file || output.generation_source !== "captured_model_output") return;
+
+  const capturePath = path.join(OUTPUT_DIR, output.capture_file);
+  let capture;
+
+  try {
+    capture = JSON.parse(await fs.readFile(capturePath, "utf8"));
+  } catch (error) {
+    if (error.code === "ENOENT") return;
+    throw error;
+  }
+
+  const nextCapture = {
+    ...capture,
+    source_context_status: metadata.status,
+    current_source_context_sha256: metadata.currentContextHash,
+    accepted_source_context_sha256: metadata.acceptedContextHash,
+    source_context_notes: sourceContextNotes(metadata.status),
+  };
+
+  if (
+    nextCapture.frontend_skill_context &&
+    metadata.frontendSkillContext?.surface_type &&
+    !nextCapture.frontend_skill_context.surface_type
+  ) {
+    nextCapture.frontend_skill_context = {
+      ...nextCapture.frontend_skill_context,
+      surface_type: metadata.frontendSkillContext.surface_type,
+    };
+  }
+
+  if (JSON.stringify(nextCapture) !== JSON.stringify(capture)) {
+    await fs.writeFile(capturePath, `${JSON.stringify(nextCapture, null, 2)}\n`);
+  }
+}
+
 function captureMatchesFrontendSkillSummary(capture, contextPayload) {
   function normalizeSummary(summary) {
     if (!summary) return null;
@@ -788,10 +910,18 @@ function captureMatchesFrontendSkillSummary(capture, contextPayload) {
     };
   }
 
-  const captureSummary = normalizeSummary(capture?.frontend_skill_context);
   const contextSummary = normalizeSummary(
     summarizeFrontendSkillContext(contextPayload.frontend_skill_context),
   );
+  const captureSummary = normalizeSummary(capture?.frontend_skill_context);
+
+  if (
+    captureSummary &&
+    contextSummary?.surface_type &&
+    !captureSummary.surface_type
+  ) {
+    captureSummary.surface_type = contextSummary.surface_type;
+  }
 
   return JSON.stringify(captureSummary) === JSON.stringify(contextSummary);
 }
@@ -819,6 +949,11 @@ function captureProvenance(output, capture) {
       frontend_context_status: frontendContextStatus,
       frontend_skill_context_status: frontendSkillContextStatus,
       capture_quality: null,
+      source_context_status: "current",
+      current_source_context_sha256: output.current_source_context_sha256 ?? output.source_context_sha256 ?? null,
+      accepted_source_context_sha256: output.source_context_sha256 ?? null,
+      captured_source_context_sha256: null,
+      source_context_notes: sourceContextNotes("current"),
       notes:
         "Scripted from fixed fixtures and local renderer code. No model generation is used.",
     };
@@ -837,10 +972,24 @@ function captureProvenance(output, capture) {
       frontend_context_status: frontendContextStatus,
       frontend_skill_context_status: frontendSkillContextStatus,
       capture_quality: null,
+      source_context_status: "missing",
+      current_source_context_sha256: output.current_source_context_sha256 ?? output.source_context_sha256 ?? null,
+      accepted_source_context_sha256: output.source_context_sha256 ?? null,
+      captured_source_context_sha256: null,
+      source_context_notes: sourceContextNotes("missing"),
       notes:
         "Capture transcript is missing or stale for this matrix cell. Run npm run capture:model-ui.",
     };
   }
+
+  const status =
+    output.source_context_status ??
+    capture.source_context_status ??
+    sourceContextStatus({
+      capture,
+      currentContextHash: output.current_source_context_sha256 ?? output.source_context_sha256,
+      acceptedContextHash: output.source_context_sha256,
+    });
 
   return {
     status: "captured",
@@ -858,12 +1007,28 @@ function captureProvenance(output, capture) {
     context_included: capture.context_included,
     frontend_context_status: frontendContextStatus,
     frontend_skill_context_status: frontendSkillContextStatus,
-      design_system_name: capture.design_system_name ?? null,
-      design_system_package: capture.design_system_package ?? null,
-      design_system_render_mode: capture.design_system_render_mode ?? null,
-      lms_context: capture.lms_context ?? null,
-      capture_quality: capture.capture_quality ?? null,
-      notes: capture.notes,
+    design_system_name: capture.design_system_name ?? null,
+    design_system_package: capture.design_system_package ?? null,
+    design_system_render_mode: capture.design_system_render_mode ?? null,
+    lms_context: capture.lms_context ?? null,
+    capture_quality: capture.capture_quality ?? null,
+    source_context_status: status,
+    current_source_context_sha256:
+      output.current_source_context_sha256 ??
+      capture.current_source_context_sha256 ??
+      output.source_context_sha256 ??
+      null,
+    accepted_source_context_sha256:
+      output.source_context_sha256 ??
+      capture.accepted_source_context_sha256 ??
+      capture.source_context_sha256 ??
+      null,
+    captured_source_context_sha256: capture.source_context_sha256,
+    source_context_notes: sourceContextNotes(status),
+    notes:
+      status === "legacy_accepted"
+        ? `${capture.notes} ${sourceContextNotes(status)}`
+        : capture.notes,
   };
 }
 
@@ -1535,6 +1700,9 @@ function renderArtifact(output, manifestEntry) {
       ? DESIGN_SYSTEM_FILE
       : null,
     capture_file: output.capture_file ?? null,
+    source_context_sha256: manifestEntry.source_context_sha256,
+    current_source_context_sha256: manifestEntry.current_source_context_sha256,
+    source_context_status: manifestEntry.source_context_status,
     model_response_summary: output.capture?.parsed?.summary ?? null,
     frontend_context_status: manifestEntry.frontend_context_status,
     frontend_skill_context_status: manifestEntry.frontend_skill_context_status,
@@ -1575,6 +1743,27 @@ ${modelCss}${styleTags}
   </body>
 </html>
 `);
+}
+
+function renderLegacyAliasArtifact(html, alias, canonical) {
+  const provenance = {
+    ...readArtifactProvenance(html),
+    artifact_id: alias.id,
+    canonical_artifact_id: canonical.id,
+    compatibility_alias: true,
+    artifact_path: alias.artifact_path,
+    screenshot_path: alias.screenshot_path,
+  };
+
+  return String(html)
+    .replace(
+      /\bdata-artifact-id="[^"]*"/,
+      `data-artifact-id="${escapeHtml(alias.id)}"`,
+    )
+    .replace(
+      /<script type="application\/json" id="model-ui-provenance">[\s\S]*?<\/script>/,
+      `<script type="application/json" id="model-ui-provenance">${jsonForScript(provenance)}</script>`,
+    );
 }
 
 function galleryPhaseLabel(artifact) {
@@ -2194,6 +2383,8 @@ function buildManifestArtifact(output, capture, contextHash) {
   const designSystem = output.design_system_mode === "material_ui";
   const frontendSkillContext =
     output.frontend_skill_context ?? capture?.frontend_skill_context ?? null;
+  const currentSourceContextHash = output.current_source_context_sha256 ?? contextHash;
+  const sourceContext = output.source_context_status ?? "current";
   return {
     id: output.id,
     use_case_id: activeUseCase.id,
@@ -2227,6 +2418,8 @@ function buildManifestArtifact(output, capture, contextHash) {
     capture_quality: capture?.capture_quality ?? null,
     prompt_sha256: capture?.prompt_sha256 ?? null,
     source_context_sha256: contextHash,
+    current_source_context_sha256: currentSourceContextHash,
+    source_context_status: sourceContext,
     raw_response_sha256: capture?.raw_response_sha256 ?? null,
     frontend_context_status:
       output.frontend_generation_context?.frontend_context_status ??
@@ -2270,19 +2463,38 @@ async function copyLegacyAliases(manifestArtifacts) {
     const canonical = byId.get(alias.canonical_id);
     if (!canonical) throw new Error(`Missing canonical artifact for legacy alias ${alias.id}`);
     const html = await fs.readFile(path.join(OUTPUT_DIR, canonical.artifact_path), "utf8");
-    await fs.writeFile(path.join(OUTPUT_DIR, alias.artifact_path), html);
+    await writeOrCheckFile(
+      path.join(OUTPUT_DIR, alias.artifact_path),
+      renderLegacyAliasArtifact(html, alias, canonical),
+    );
+
+    if (alias.capture_file && canonical.capture_file) {
+      const canonicalCapture = JSON.parse(
+        await fs.readFile(path.join(OUTPUT_DIR, canonical.capture_file), "utf8"),
+      );
+      const aliasCapture = {
+        ...canonicalCapture,
+        artifact_id: alias.id,
+        canonical_artifact_id: canonicalCapture.artifact_id,
+        compatibility_alias: true,
+        notes: `${canonicalCapture.notes ?? ""} Compatibility alias for the previous six-artifact matrix URL.`.trim(),
+      };
+      await writeOrCheckFile(
+        path.join(OUTPUT_DIR, alias.capture_file),
+        `${JSON.stringify(aliasCapture, null, 2)}\n`,
+      );
+    }
   }
 }
 
 async function main() {
-  const requestedUseCases = modelUiUseCasesForArgs(process.argv.slice(2));
+  const requestedUseCases = modelUiUseCasesForArgs(USE_CASE_ARGS);
   for (const useCase of requestedUseCases) {
     await generateUseCase(useCase);
   }
 
   const index = modelUiUseCaseIndex();
-  await fs.mkdir(path.dirname(path.join(ROOT_DIR, MODEL_UI_INDEX_FILE)), { recursive: true });
-  await fs.writeFile(
+  await writeOrCheckFile(
     path.join(ROOT_DIR, MODEL_UI_INDEX_FILE),
     `${JSON.stringify(index, null, 2)}\n`,
   );
@@ -2298,14 +2510,17 @@ async function generateUseCase(useCase) {
   const reviewedHandoff = buildReviewedHandoff(brief);
   const outputs = buildOutputs();
 
-  await fs.mkdir(ARTIFACTS_DIR, { recursive: true });
-  await fs.mkdir(SCREENSHOTS_DIR, { recursive: true });
-  await fs.mkdir(path.join(OUTPUT_DIR, "captures"), { recursive: true });
+  if (!CHECK_MODE) {
+    await fs.mkdir(ARTIFACTS_DIR, { recursive: true });
+    await fs.mkdir(SCREENSHOTS_DIR, { recursive: true });
+    await fs.mkdir(path.join(OUTPUT_DIR, "captures"), { recursive: true });
+  }
 
   const artifacts = await Promise.all(
     outputs.map(async (output) => {
       const contextPayload = buildContextPayload({ output, brief, reviewedHandoff });
-      let contextHash = hash(JSON.stringify(contextPayload, null, 2));
+      const currentContextHash = hash(JSON.stringify(contextPayload, null, 2));
+      let contextHash = currentContextHash;
       let effectiveContextPayload = contextPayload;
       let capture = await readCapture(output, contextHash);
 
@@ -2343,11 +2558,33 @@ async function generateUseCase(useCase) {
         }
       }
 
+      const captureContextStatus =
+        output.generation_source === "captured_model_output"
+          ? sourceContextStatus({
+              capture,
+              currentContextHash,
+              acceptedContextHash: contextHash,
+            })
+          : "current";
+      const captureContextMetadata = {
+        status: captureContextStatus,
+        currentContextHash,
+        acceptedContextHash: contextHash,
+        frontendSkillContext: summarizeFrontendSkillContext(
+          effectiveContextPayload.frontend_skill_context,
+        ),
+      };
+      capture = annotateCaptureSourceContext(capture, captureContextMetadata);
+      await writeCaptureSourceContextMetadata(output, captureContextMetadata);
+
       const outputWithContext = {
         ...output,
         frontend_generation_context:
           effectiveContextPayload.frontend_generation_context,
         frontend_skill_context: effectiveContextPayload.frontend_skill_context,
+        current_source_context_sha256: currentContextHash,
+        source_context_sha256: contextHash,
+        source_context_status: captureContextStatus,
       };
       return {
         ...outputWithContext,
@@ -2384,15 +2621,15 @@ async function generateUseCase(useCase) {
       "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model. The 3x4 matrix separates raw brief context, JudgmentKit reviewed handoff plus compiled frontend skill context, Material UI rendering, and the combined JudgmentKit skill plus Material UI path.",
   };
 
-  await fs.writeFile(
+  await writeOrCheckFile(
     path.join(OUTPUT_DIR, "reviewed-handoff.fixture.json"),
     `${JSON.stringify(reviewedHandoff, null, 2)}\n`,
   );
-  await fs.writeFile(
+  await writeOrCheckFile(
     path.join(OUTPUT_DIR, "design-system-adapter.json"),
     `${JSON.stringify(DESIGN_SYSTEM_ADAPTER, null, 2)}\n`,
   );
-  await fs.writeFile(
+  await writeOrCheckFile(
     path.join(OUTPUT_DIR, "manifest.json"),
     `${JSON.stringify(manifest, null, 2)}\n`,
   );
@@ -2400,11 +2637,11 @@ async function generateUseCase(useCase) {
   for (const artifact of artifacts) {
     const manifestEntry = manifestArtifacts.find((entry) => entry.id === artifact.id);
     const html = renderArtifact(artifact, manifestEntry);
-    await fs.writeFile(path.join(OUTPUT_DIR, manifestEntry.artifact_path), html);
+    await writeOrCheckFile(path.join(OUTPUT_DIR, manifestEntry.artifact_path), html);
   }
 
   await copyLegacyAliases(manifestArtifacts);
-  await fs.writeFile(path.join(OUTPUT_DIR, "index.html"), renderMatrixIndex(manifest));
+  await writeOrCheckFile(path.join(OUTPUT_DIR, "index.html"), renderMatrixIndex(manifest));
 
   process.stdout.write(`\n# ${activeUseCase.label} Model UI Matrix\n\n`);
   process.stdout.write(`Source brief: ${SOURCE_BRIEF_FILE}\n`);

@@ -1015,7 +1015,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
 }
 
 function chooseSurfaceType(scores) {
-  const priority = [
+  const positivePriority = [
     "setup_debug_tool",
     "operator_review",
     "workbench",
@@ -1024,6 +1024,16 @@ function chooseSurfaceType(scores) {
     "marketing",
     "content_report",
     "conversation",
+  ];
+  const neutralPriority = [
+    "workbench",
+    "operator_review",
+    "form_flow",
+    "dashboard_monitor",
+    "content_report",
+    "conversation",
+    "marketing",
+    "setup_debug_tool",
   ];
 
   return [...scores].sort((left, right) => {
@@ -1047,6 +1057,8 @@ function chooseSurfaceType(scores) {
         return left.exclusion_match_count - right.exclusion_match_count;
       }
     }
+
+    const priority = right.score > 0 ? positivePriority : neutralPriority;
 
     return priority.indexOf(left.surface_type) - priority.indexOf(right.surface_type);
   })[0];
@@ -1325,6 +1337,33 @@ function summarizeSurfaceReview(surfaceReview, { includeFrontendPosture = false 
   }
 
   return summary;
+}
+
+function selectedSurfaceTypeFromImplementationReviewOptions(options = {}) {
+  const surfaceReview = options.surface_review ?? options.surfaceReview;
+  const frontendGenerationContext =
+    options.frontend_generation_context ?? options.frontendGenerationContext;
+  const candidates = [
+    options.surface_type,
+    options.surfaceType,
+    surfaceReview?.recommended_surface_type,
+    surfaceReview?.recommendedSurfaceType,
+    surfaceReview?.surface_type,
+    surfaceReview?.surfaceType,
+    frontendGenerationContext?.surface_type,
+    frontendGenerationContext?.surfaceType,
+    frontendGenerationContext?.surface_guidance?.recommended_surface_type,
+    frontendGenerationContext?.surfaceGuidance?.recommendedSurfaceType,
+    frontendGenerationContext?.implementation_guidance?.surface_type,
+    frontendGenerationContext?.implementationGuidance?.surfaceType,
+    frontendGenerationContext?.surface_review?.recommended_surface_type,
+    frontendGenerationContext?.surfaceReview?.recommendedSurfaceType,
+  ];
+  const selected = candidates.find(
+    (candidate) => typeof candidate === "string" && candidate.trim().length > 0,
+  );
+
+  return selected ? normalizeOptionalSurfaceType(selected) : null;
 }
 
 function inferActivityEvidence(input) {
@@ -5747,7 +5786,7 @@ function mergePolicyObject(sourceValue, fallbackValue) {
   }
 
   if (typeof fallbackValue === "string") {
-    return optionalString(sourceValue) || fallbackValue;
+    return optionalRawString(sourceValue) || fallbackValue;
   }
 
   if (isPlainObject(fallbackValue)) {
@@ -7110,8 +7149,8 @@ function normalizeLocalComponentAuthority(sourcePolicy, fallbackPolicy) {
         fallback.token_boundary?.layout_token_exceptions,
       ),
       rule:
-        optionalString(tokenBoundarySource.rule) ||
-        optionalString(fallback.token_boundary?.rule),
+        optionalRawString(tokenBoundarySource.rule) ||
+        optionalRawString(fallback.token_boundary?.rule),
     },
     computed_style_evidence: {
       required_when:
@@ -9689,12 +9728,18 @@ function declarationRecreatesVisualIdentity(declaration, authority) {
   return declarationMatchesPrefix(declaration.property, blockedPrefixes);
 }
 
-function directLocalTokensInDeclaration(declaration, authority) {
+function localAuthorityDirectTokenPrefixes(authority) {
   const tokenBoundary = authority.token_boundary ?? {};
-  const prefixes = normalizePrimitiveList(
+
+  return normalizePrimitiveList(
     tokenBoundary.direct_token_prefixes ?? tokenBoundary.directTokenPrefixes,
     DEFAULT_LOCAL_COMPONENT_AUTHORITY.token_boundary.direct_token_prefixes,
   );
+}
+
+function directLocalTokensInDeclaration(declaration, authority) {
+  const tokenBoundary = authority.token_boundary ?? {};
+  const prefixes = localAuthorityDirectTokenPrefixes(authority);
   const layoutExceptions = normalizePrimitiveList(
     tokenBoundary.layout_token_exceptions ?? tokenBoundary.layoutTokenExceptions,
     DEFAULT_LOCAL_COMPONENT_AUTHORITY.token_boundary.layout_token_exceptions,
@@ -9718,6 +9763,20 @@ function directLocalTokensInDeclaration(declaration, authority) {
   return isLayoutOnlyTokenUse ? [] : tokenNames;
 }
 
+function localAuthorityEvidenceValue(evidence, keys) {
+  if (!isPlainObject(evidence)) {
+    return undefined;
+  }
+
+  for (const key of keys) {
+    if (evidence[key] !== undefined) {
+      return evidence[key];
+    }
+  }
+
+  return undefined;
+}
+
 function localAuthorityEvidenceValues(evidence, keys) {
   if (!isPlainObject(evidence)) {
     return [];
@@ -9727,6 +9786,344 @@ function localAuthorityEvidenceValues(evidence, keys) {
     ...keys.flatMap((key) => collectStrings(evidence[key])),
     ...collectEvidenceValuesByKeys(evidence, keys),
   ]);
+}
+
+function structuredSelectorEntryHasRuleShape(value) {
+  return (
+    isPlainObject(value) &&
+    [
+      "selector",
+      "css_selector",
+      "cssSelector",
+      "component_selector",
+      "componentSelector",
+      "declarations",
+      "css_declarations",
+      "cssDeclarations",
+      "properties",
+      "visual_identity_declarations",
+      "visualIdentityDeclarations",
+      "direct_token_uses",
+      "directTokenUses",
+      "rule_categories",
+      "ruleCategories",
+    ].some((key) => value[key] !== undefined)
+  );
+}
+
+function normalizeStructuredSelectorEvidenceEntries(value) {
+  if (value === undefined || value === null) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap(normalizeStructuredSelectorEvidenceEntries);
+  }
+
+  if (typeof value === "string") {
+    const selector = optionalString(value);
+
+    return selector ? [{ selector }] : [];
+  }
+
+  if (!isPlainObject(value)) {
+    return [];
+  }
+
+  if (structuredSelectorEntryHasRuleShape(value)) {
+    return [value];
+  }
+
+  return Object.entries(value).flatMap(([selector, child]) => {
+    const normalizedSelector = optionalString(selector);
+
+    if (!normalizedSelector) {
+      return [];
+    }
+
+    if (isPlainObject(child)) {
+      return structuredSelectorEntryHasRuleShape(child)
+        ? [{ selector: normalizedSelector, ...child }]
+        : [{ selector: normalizedSelector, declarations: child }];
+    }
+
+    return [{ selector: normalizedSelector, declarations: child }];
+  });
+}
+
+function structuredSelectorDeclarationHasShape(value) {
+  return (
+    isPlainObject(value) &&
+    [
+      "declaration",
+      "css_declaration",
+      "cssDeclaration",
+      "property",
+      "property_name",
+      "propertyName",
+      "css_property",
+      "cssProperty",
+      "name",
+      "value",
+      "css_value",
+      "cssValue",
+      "custom_properties",
+      "customProperties",
+      "tokens",
+      "token",
+    ].some((key) => value[key] !== undefined)
+  );
+}
+
+function collectStructuredSelectorDeclarationInputs(value) {
+  if (value === undefined || value === null) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap(collectStructuredSelectorDeclarationInputs);
+  }
+
+  if (typeof value === "string") {
+    return [value];
+  }
+
+  if (!isPlainObject(value)) {
+    return [];
+  }
+
+  if (structuredSelectorDeclarationHasShape(value)) {
+    return [value];
+  }
+
+  return Object.entries(value).flatMap(([property, child]) => {
+    const normalizedProperty = optionalString(property);
+
+    if (!normalizedProperty) {
+      return collectStructuredSelectorDeclarationInputs(child);
+    }
+
+    if (typeof child === "string") {
+      return [`${normalizedProperty}: ${child}`];
+    }
+
+    if (Array.isArray(child)) {
+      return child.flatMap((entry) =>
+        typeof entry === "string"
+          ? [`${normalizedProperty}: ${entry}`]
+          : isPlainObject(entry)
+            ? collectStructuredSelectorDeclarationInputs({
+                property: normalizedProperty,
+                ...entry,
+              })
+            : collectStructuredSelectorDeclarationInputs(entry),
+      );
+    }
+
+    if (isPlainObject(child)) {
+      return collectStructuredSelectorDeclarationInputs({
+        property: normalizedProperty,
+        ...child,
+      });
+    }
+
+    return [normalizedProperty];
+  });
+}
+
+function normalizeStructuredSelectorDeclaration(value) {
+  if (typeof value === "string") {
+    const text = optionalString(value);
+
+    if (!text || /^(?:none|n\/a|not applicable)$/i.test(text)) {
+      return null;
+    }
+
+    const separator = text.indexOf(":");
+
+    if (separator !== -1) {
+      const property = text.slice(0, separator).trim().toLowerCase();
+      const declarationValue = text.slice(separator + 1).trim();
+
+      return property || declarationValue
+        ? { property, value: declarationValue, raw: text, explicit_tokens: [] }
+        : null;
+    }
+
+    const propertyLike =
+      /^--[a-z0-9][a-z0-9-]*$/i.test(text) ||
+      /^[a-z][a-z0-9-]*$/i.test(text);
+
+    return {
+      property: propertyLike ? text.toLowerCase() : "",
+      value: propertyLike ? "" : text,
+      raw: text,
+      explicit_tokens: [],
+    };
+  }
+
+  if (!isPlainObject(value)) {
+    return null;
+  }
+
+  const declarationText = optionalString(
+    value.declaration ?? value.css_declaration ?? value.cssDeclaration,
+  );
+  const explicitTokens = unique([
+    ...collectStrings(
+      value.custom_properties ??
+        value.customProperties ??
+        value.tokens ??
+        value.token,
+    ),
+  ]);
+
+  if (declarationText) {
+    const declaration = normalizeStructuredSelectorDeclaration(declarationText);
+
+    return declaration
+      ? {
+          ...declaration,
+          explicit_tokens: unique([
+            ...(declaration.explicit_tokens ?? []),
+            ...explicitTokens,
+          ]),
+        }
+      : null;
+  }
+
+  const property = optionalString(
+    value.property ??
+      value.property_name ??
+      value.propertyName ??
+      value.css_property ??
+      value.cssProperty ??
+      value.name,
+  ).toLowerCase();
+  const declarationValue = optionalString(
+    value.value ?? value.css_value ?? value.cssValue,
+  );
+
+  if (!property && !declarationValue && explicitTokens.length === 0) {
+    return null;
+  }
+
+  return {
+    property,
+    value: declarationValue || explicitTokens.join(" "),
+    raw:
+      property && declarationValue
+        ? `${property}: ${declarationValue}`
+        : property || declarationValue || explicitTokens.join(" "),
+    explicit_tokens: explicitTokens,
+  };
+}
+
+function structuredSelectorDeclarations(entry, keys) {
+  return unique(
+    keys
+      .flatMap((key) =>
+        collectStructuredSelectorDeclarationInputs(
+          localAuthorityEvidenceValue(entry, [key]),
+        ),
+      )
+      .map(normalizeStructuredSelectorDeclaration)
+      .filter(Boolean),
+  );
+}
+
+function localAuthorityDeclarationText(declaration) {
+  const property = optionalString(declaration.property).toLowerCase();
+  const value = optionalString(declaration.value);
+
+  if (property && value) {
+    return `${property}: ${value}`;
+  }
+
+  return property || value || optionalString(declaration.raw);
+}
+
+function directLocalTokensInStructuredDeclaration(declaration, authority) {
+  const prefixes = localAuthorityDirectTokenPrefixes(authority);
+  const explicitTokens = toStringArray(declaration.explicit_tokens).filter((name) =>
+    prefixes.some((prefix) => name.startsWith(prefix)),
+  );
+
+  return unique([
+    ...directLocalTokensInDeclaration(declaration, authority),
+    ...explicitTokens,
+  ]);
+}
+
+function structuredLocalComponentSelectorEvidence(evidence, authority) {
+  const selectorEvidence = localAuthorityEvidenceValue(evidence, [
+    "component_specific_selectors",
+    "componentSpecificSelectors",
+  ]);
+
+  return normalizeStructuredSelectorEvidenceEntries(selectorEvidence)
+    .map((entry) => {
+      const selector = optionalString(
+        entry.selector ??
+          entry.css_selector ??
+          entry.cssSelector ??
+          entry.component_selector ??
+          entry.componentSelector,
+      );
+
+      if (!selector || selectorIsGlobalRootSelector(selector)) {
+        return null;
+      }
+
+      const declarations = structuredSelectorDeclarations(entry, [
+        "declarations",
+        "css_declarations",
+        "cssDeclarations",
+        "properties",
+        "component_declarations",
+        "componentDeclarations",
+      ]);
+      const explicitVisualDeclarations = structuredSelectorDeclarations(entry, [
+        "visual_identity_declarations",
+        "visualIdentityDeclarations",
+        "visual_declarations",
+        "visualDeclarations",
+        "visual_identity_overrides",
+        "visualIdentityOverrides",
+      ]);
+      const tokenCandidateDeclarations = [
+        ...declarations,
+        ...explicitVisualDeclarations,
+        ...structuredSelectorDeclarations(entry, [
+          "direct_token_uses",
+          "directTokenUses",
+          "direct_tokens",
+          "directTokens",
+          "token_uses",
+          "tokenUses",
+        ]),
+      ];
+      const visualDeclarations = unique([
+        ...declarations.filter((declaration) =>
+          declarationRecreatesVisualIdentity(declaration, authority),
+        ),
+        ...explicitVisualDeclarations,
+      ]);
+      const tokenDeclarations = tokenCandidateDeclarations
+        .map((declaration) => ({
+          declaration,
+          tokens: directLocalTokensInStructuredDeclaration(declaration, authority),
+        }))
+        .filter((entry) => entry.tokens.length > 0);
+
+      return {
+        selector,
+        declarations,
+        visual_declarations: visualDeclarations,
+        token_declarations: tokenDeclarations,
+      };
+    })
+    .filter(Boolean);
 }
 
 function expectedLocalAuthorityFamilies(evidence, authority) {
@@ -9857,6 +10254,9 @@ function reviewLocalComponentAuthority(candidate, implementationContract) {
   const componentRules = active
     ? cssRules.filter((rule) => selectorIsComponentSpecific(rule.selector, authority))
     : [];
+  const structuredComponentSelectors = active
+    ? structuredLocalComponentSelectorEvidence(evidence, authority)
+    : [];
   const expectedFamilies = active
     ? expectedLocalAuthorityFamilies(evidence, authority)
     : [];
@@ -9883,6 +10283,7 @@ function reviewLocalComponentAuthority(candidate, implementationContract) {
     if (visualDeclarations.length > 0) {
       visualIdentityRecreations.push({
         selector: rule.selector,
+        source: "parsed_css",
         declarations: visualDeclarations.map(
           (declaration) => `${declaration.property}: ${declaration.value}`,
         ),
@@ -9892,10 +10293,35 @@ function reviewLocalComponentAuthority(candidate, implementationContract) {
     if (tokenDeclarations.length > 0) {
       directTokenUses.push({
         selector: rule.selector,
+        source: "parsed_css",
         declarations: tokenDeclarations.map((entry) => ({
           property: entry.declaration.property,
           value: entry.declaration.value,
           custom_properties: entry.tokens,
+        })),
+      });
+    }
+  }
+
+  for (const entry of structuredComponentSelectors) {
+    if (entry.visual_declarations.length > 0) {
+      visualIdentityRecreations.push({
+        selector: entry.selector,
+        source:
+          "local_component_authority_evidence.component_specific_selectors",
+        declarations: entry.visual_declarations.map(localAuthorityDeclarationText),
+      });
+    }
+
+    if (entry.token_declarations.length > 0) {
+      directTokenUses.push({
+        selector: entry.selector,
+        source:
+          "local_component_authority_evidence.component_specific_selectors",
+        declarations: entry.token_declarations.map((tokenDeclaration) => ({
+          property: tokenDeclaration.declaration.property,
+          value: tokenDeclaration.declaration.value,
+          custom_properties: tokenDeclaration.tokens,
         })),
       });
     }
@@ -9982,7 +10408,13 @@ function reviewLocalComponentAuthority(candidate, implementationContract) {
     computed_style_evidence_passing: computedStyleEvidencePassing,
     scanned_rules: cssRules.length,
     component_specific_selectors: unique(
-      componentRules.map((rule) => rule.selector),
+      [
+        ...componentRules.map((rule) => rule.selector),
+        ...structuredComponentSelectors.map((entry) => entry.selector),
+      ],
+    ),
+    structured_component_specific_selectors: unique(
+      structuredComponentSelectors.map((entry) => entry.selector),
     ),
     visual_identity_recreations: visualIdentityRecreations,
     direct_token_uses: directTokenUses,
@@ -10262,7 +10694,11 @@ function reviewComponentContractEvidence(candidate, implementationContract) {
   };
 }
 
-function reviewPatternContractEvidence(candidate, implementationContract) {
+function reviewPatternContractEvidence(
+  candidate,
+  implementationContract,
+  { selectedSurfaceType: selectedSurfaceTypeOverride } = {},
+) {
   const system = normalizeDefaultAiNativeDesignSystem(
     implementationContract.default_ai_native_design_system,
     DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
@@ -10286,7 +10722,8 @@ function reviewPatternContractEvidence(candidate, implementationContract) {
     candidate?.surface_type ?? candidate?.surfaceType,
   );
   const selectedSurfaceType = optionalString(
-    evidence?.surface_type ??
+    selectedSurfaceTypeOverride ??
+      evidence?.surface_type ??
       evidence?.surfaceType ??
       topLevelSurfaceType,
   );
@@ -10715,7 +11152,11 @@ function primitiveRoutingDiagnostics(inventedPrimitives, implementationContract)
   };
 }
 
-function buildImplementationCandidateChecks(candidate, implementationContract) {
+function buildImplementationCandidateChecks(
+  candidate,
+  implementationContract,
+  { selectedSurfaceType } = {},
+) {
   const text = candidateText(candidate);
   const rawControls = detectRawControls(text);
   const primitivesUsed = normalizeCandidateList(candidate, [
@@ -10783,6 +11224,7 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
   const patternContracts = reviewPatternContractEvidence(
     candidate,
     implementationContract,
+    { selectedSurfaceType },
   );
   const findings = [];
 
@@ -11173,7 +11615,13 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
       contract.implementation_contract,
     { contract },
   );
-  const checks = buildImplementationCandidateChecks(candidate, implementationContract);
+  const selectedSurfaceType =
+    selectedSurfaceTypeFromImplementationReviewOptions(options);
+  const checks = buildImplementationCandidateChecks(
+    candidate,
+    implementationContract,
+    { selectedSurfaceType },
+  );
   const failed = checks.findings.some((finding) => finding.severity === "fail");
   const iterationPolicy = implementationContract.iteration_policy;
   const iterationContext = normalizeIterationContext(

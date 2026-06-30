@@ -93,6 +93,35 @@ async function runMcpClient(endpoint) {
   }
 }
 
+async function postRawInitialize(endpoint) {
+  const response = await fetch(endpoint, {
+    method: "POST",
+    headers: {
+      accept: "application/json, text/event-stream",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-06-18",
+        capabilities: {},
+        clientInfo: {
+          name: "judgmentkit-local-site-raw-post-test",
+          version: "1.0.0",
+        },
+      },
+    }),
+  });
+  const body = await response.json();
+
+  assert.equal(response.status, 200, `${endpoint} raw initialize POST should return 200`);
+  assert.equal(body.jsonrpc, "2.0", `${endpoint} raw initialize should return JSON-RPC`);
+  assert.equal(body.result.serverInfo.name, "JudgmentKit");
+  assert.equal(body.result.serverInfo.version, EXPECTED_RELEASE_VERSION);
+}
+
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-local-site-"));
 await buildSite(tempDir);
 
@@ -278,7 +307,11 @@ try {
     assert.equal(response.status, 404, `${traversalRoute} should not escape site root`);
   }
 
-  await runMcpClient(`${url}/mcp`);
+  for (const route of ["/mcp", "/mcp/"]) {
+    const endpoint = new URL(route, url).toString();
+    await postRawInitialize(endpoint);
+    await runMcpClient(endpoint);
+  }
 } finally {
   await closeServer(server);
 }

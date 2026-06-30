@@ -7,6 +7,7 @@
     "proposer": "external_candidate",
     "input_excerpt": "A field operations manager is reviewing same-day repair visits before dispatch. The request says to build from the repair_visit data model, route matrix, parts inventory API status, technician calendar fields, JSON schema, prompt template, "
   },
+  "surface_type": "workbench",
   "activity_model": {
     "activity": "Deciding whether the visit should be assigned to the nearest qualified technician, rescheduled for parts, or escalated for SLA risk",
     "participants": [],
@@ -50,13 +51,13 @@
       "allowed": false,
       "requested": false,
       "blocked": false,
-      "surface_type": "",
+      "surface_type": "workbench",
       "reason": "No staged-flow intent detected; use topology, work units, and coordinated surfaces instead.",
       "evidence": {
         "explicit_staged_request": false,
         "staged_dependency_order": false,
         "form_or_setup_sequence": false,
-        "blocked_surface_type": false
+        "blocked_surface_type": true
       }
     },
     "primary_actions": [
@@ -272,7 +273,7 @@
     "default_ai_native_design_system": {
       "id": "judgmentkit.ai-native-default.contract-v1",
       "mode": "contract_defaults",
-      "purpose": "Govern agent-generated UI at the contract layer before any adapter-layer renderer choices",
+      "purpose": "Govern agent-generated UI at the contract layer before any adapter-layer renderer choices.",
       "primitive_defaults": [
         "use only approved implementation primitives or documented repo-local equivalents",
         "new primitives require contract evidence before use",
@@ -1452,7 +1453,7 @@
         "layout_token_exceptions": [
           "--jk-space-"
         ],
-        "rule": "One-off component selectors must not consume JudgmentKit visual tokens directly; use repo-local components or the active design-system source"
+        "rule": "One-off component selectors must not consume JudgmentKit visual tokens directly; use repo-local components or the active design-system source."
       },
       "computed_style_evidence": {
         "required_when": "mode is repo_local or enforcement is required and component-specific visual styling changes",
@@ -2445,5 +2446,6 @@
   },
   "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
   "activity_review_status": "ready_for_review",
+  "surface_review_status": "ready",
   "workflow_review_status": "ready_for_review"
 }

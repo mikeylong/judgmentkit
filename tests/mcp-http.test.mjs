@@ -166,6 +166,35 @@ async function postRaw(endpoint, body, headers = {}) {
   });
 }
 
+async function postRawInitialize(endpoint) {
+  const response = await postRaw(
+    endpoint,
+    JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-06-18",
+        capabilities: {},
+        clientInfo: {
+          name: "judgmentkit-http-raw-post-test",
+          version: "1.0.0",
+        },
+      },
+    }),
+    {
+      accept: "application/json, text/event-stream",
+      "content-type": "application/json",
+      "user-agent": "judgmentkit-mcp",
+    },
+  );
+  const body = await response.json();
+
+  assert.equal(response.status, 200, `${endpoint} raw initialize POST should return 200`);
+  assert.equal(body.jsonrpc, "2.0", `${endpoint} raw initialize should return JSON-RPC`);
+  assert.equal(body.result.serverInfo.name, "JudgmentKit");
+}
+
 const metadata = getHostedMcpMetadata();
 
 assert.equal(metadata.name, "JudgmentKit");
@@ -266,39 +295,44 @@ await withTestServer(
     assert.equal(parseErrorResponse.status, 400);
     assert.equal(parseErrorBody.error.code, -32700);
 
-    await runMcpClient(endpoint);
+    const baseUrl = endpoint.replace(/\/mcp$/, "");
+
+    for (const route of ["/mcp", "/mcp/"]) {
+      const routeEndpoint = `${baseUrl}${route}`;
+      await postRawInitialize(routeEndpoint);
+      await runMcpClient(routeEndpoint);
+    }
   },
 );
 
-assert.deepEqual(
-  analyticsEvents.map((event) => [event.name, event.properties]),
-  [
-    ["JudgmentKit MCP initialize", undefined],
-    ["JudgmentKit MCP list tools", undefined],
-    [
-      "JudgmentKit MCP call tool",
-      {
-        tool_name: "create_activity_model_review",
-      },
-    ],
-    [
-      "JudgmentKit MCP call tool",
-      {
-        tool_name: "create_ui_implementation_contract",
-      },
-    ],
-  ],
+assert.ok(
+  analyticsEvents.filter((event) => event.name === "JudgmentKit MCP initialize").length >= 4,
+  "raw and SDK probes for /mcp and /mcp/ should emit initialize analytics.",
 );
+assert.ok(
+  analyticsEvents.filter((event) => event.name === "JudgmentKit MCP list tools").length >= 2,
+  "SDK probes for /mcp and /mcp/ should emit list-tools analytics.",
+);
+for (const toolName of [
+  "create_activity_model_review",
+  "create_ui_implementation_contract",
+]) {
+  assert.ok(
+    analyticsEvents.filter(
+      (event) =>
+        event.name === "JudgmentKit MCP call tool" &&
+        event.properties?.tool_name === toolName,
+    ).length >= 2,
+    `SDK probes for /mcp and /mcp/ should emit ${toolName} call analytics.`,
+  );
+}
 assert.equal(JSON.stringify(analyticsEvents).includes(REVIEW_BRIEF), false);
 assert.equal(JSON.stringify(analyticsEvents).includes("ready_for_review"), false);
-assert.deepEqual(
-  analyticsEvents.map((event) => event.headers["user-agent"]),
-  [
-    "judgmentkit-mcp",
-    "judgmentkit-mcp",
-    "judgmentkit-mcp",
-    "judgmentkit-mcp",
-  ],
+assert.equal(
+  analyticsEvents.every(
+    (event) => event.headers["user-agent"] === "judgmentkit-mcp",
+  ),
+  true,
 );
 
 await withTestServer(

@@ -32,7 +32,7 @@
   "frontend_skill_context": {
     "source_skill": "frontend-ui-implementation",
     "raw_skill_exposed": false,
-    "surface_type": null,
+    "surface_type": "workbench",
     "design_system_mode": "external_design_system",
     "design_system_name": "Material UI",
     "next_recommended_tool": "review_ui_implementation_candidate",
@@ -150,6 +150,10 @@
     "stdout_sha256": "9aedaf3a1226c478d551ddd501ef812bf59d62e55e2b4bfb8fad6f929783e4b2",
     "stderr_sha256": "73b93cec4e799368efb07725d0f31e70bdef130b750c4565663dd7ff7641f4d2"
   },
+  "source_context_status": "legacy_accepted",
+  "current_source_context_sha256": "fc3a3d559b46576958b7f3105ff34880b00081631af857f281b0f8872f3b13e1",
+  "accepted_source_context_sha256": "5ad2fd84f91850b16be0a4100df01bec39ae3046ccdcdc4f9b7413b3b685a807",
+  "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
   "canonical_artifact_id": "gpt55-xhigh-codex-judgmentkit-material-ui",
   "compatibility_alias": true
 }

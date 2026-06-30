@@ -7,6 +7,7 @@
     "proposer": "external_candidate",
     "input_excerpt": "A clinic intake coordinator is reviewing administrative readiness for a new appointment request. The request says to build from the intake_packet data model, eligibility API status, document fields, JSON schema, prompt template, tool call r"
   },
+  "surface_type": "form_flow",
   "activity_model": {
     "activity": "Deciding whether the packet is ready to schedule, should be returned for missing consent, or needs insurance verification escalation",
     "participants": [],
@@ -46,15 +47,15 @@
     ],
     "stepper_eligibility": {
       "policy": "strong_intent",
-      "allowed": false,
+      "allowed": true,
       "requested": false,
       "blocked": false,
-      "surface_type": "",
-      "reason": "No staged-flow intent detected; use topology, work units, and coordinated surfaces instead.",
+      "surface_type": "form_flow",
+      "reason": "Source evidence supports staged progression.",
       "evidence": {
         "explicit_staged_request": false,
         "staged_dependency_order": false,
-        "form_or_setup_sequence": false,
+        "form_or_setup_sequence": true,
         "blocked_surface_type": false
       }
     },
@@ -263,7 +264,7 @@
     "default_ai_native_design_system": {
       "id": "judgmentkit.ai-native-default.contract-v1",
       "mode": "contract_defaults",
-      "purpose": "Govern agent-generated UI at the contract layer before any adapter-layer renderer choices",
+      "purpose": "Govern agent-generated UI at the contract layer before any adapter-layer renderer choices.",
       "primitive_defaults": [
         "use only approved implementation primitives or documented repo-local equivalents",
         "new primitives require contract evidence before use",
@@ -1443,7 +1444,7 @@
         "layout_token_exceptions": [
           "--jk-space-"
         ],
-        "rule": "One-off component selectors must not consume JudgmentKit visual tokens directly; use repo-local components or the active design-system source"
+        "rule": "One-off component selectors must not consume JudgmentKit visual tokens directly; use repo-local components or the active design-system source."
       },
       "computed_style_evidence": {
         "required_when": "mode is repo_local or enforcement is required and component-specific visual styling changes",
@@ -2436,5 +2437,6 @@
   },
   "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
   "activity_review_status": "ready_for_review",
+  "surface_review_status": "ready",
   "workflow_review_status": "ready_for_review"
 }

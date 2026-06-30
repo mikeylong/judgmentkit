@@ -251,6 +251,12 @@ assert.ok(
   "The default AI-native system must point to the visual token adapter boundary.",
 );
 assert.equal(
+  createUiImplementationContract().implementation_contract.local_component_authority
+    .token_boundary.rule,
+  contract.implementation_contract.local_component_authority.token_boundary.rule,
+  "createUiImplementationContract must preserve the local-component token boundary rule exactly.",
+);
+assert.equal(
   contract.implementation_contract.iteration_policy.owner,
   "agent",
   "The iteration policy must be agent-owned.",

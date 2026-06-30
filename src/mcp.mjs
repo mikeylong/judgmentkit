@@ -339,6 +339,36 @@ const REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL = {
         description:
           "Implementation contract returned by create_ui_implementation_contract or equivalent repo-local packet.",
       },
+      surface_type: {
+        type: "string",
+        description:
+          "Optional selected surface type from recommend_surface_types, review_ui_workflow_candidate, or create_frontend_generation_context. Used to validate pattern_contract_evidence against the active surface.",
+      },
+      surfaceType: {
+        type: "string",
+        description:
+          "CamelCase alias for surface_type.",
+      },
+      surface_review: {
+        type: "object",
+        description:
+          "Optional recommend_surface_types result. recommended_surface_type is used to validate pattern_contract_evidence against the active surface.",
+      },
+      surfaceReview: {
+        type: "object",
+        description:
+          "CamelCase alias for surface_review.",
+      },
+      frontend_generation_context: {
+        type: "object",
+        description:
+          "Optional frontend generation context whose surface_type is used to validate pattern_contract_evidence against the active surface.",
+      },
+      frontendGenerationContext: {
+        type: "object",
+        description:
+          "CamelCase alias for frontend_generation_context.",
+      },
       iteration_context: {
         type: "object",
         description:
@@ -1784,6 +1814,12 @@ export async function handleToolCall(name, args = {}) {
         implementation_contract:
           args.implementation_contract?.implementation_contract ??
           args.implementation_contract,
+        surface_type: args.surface_type,
+        surfaceType: args.surfaceType,
+        surface_review: args.surface_review,
+        surfaceReview: args.surfaceReview,
+        frontend_generation_context: args.frontend_generation_context,
+        frontendGenerationContext: args.frontendGenerationContext,
         iteration_context: args.iteration_context,
       });
     }
@@ -1991,6 +2027,12 @@ export function createJudgmentKitMcpServer() {
           .union([z.string(), z.record(z.any())])
           .describe(REVIEW_UI_IMPLEMENTATION_CANDIDATE_INPUT_DESCRIPTION),
         implementation_contract: z.record(z.any()),
+        surface_type: z.string().optional(),
+        surfaceType: z.string().optional(),
+        surface_review: z.record(z.any()).optional(),
+        surfaceReview: z.record(z.any()).optional(),
+        frontend_generation_context: z.record(z.any()).optional(),
+        frontendGenerationContext: z.record(z.any()).optional(),
         iteration_context: z.record(z.any()).optional(),
       },
     },

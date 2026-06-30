@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import {
   COMPARISON_COLUMNS,
   COMPARISON_ROWS,
+  LEGACY_ALIASES,
   MODEL_UI_INDEX_FILE,
   MODEL_UI_USE_CASES,
 } from "../scripts/model-ui-use-cases.mjs";
@@ -14,7 +15,13 @@ import {
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
 const scriptPath = path.join(root, "scripts/demo-model-ui-matrix.mjs");
+const captureScriptPath = path.join(root, "scripts/capture-model-ui-matrix.mjs");
 const pngSignature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+const activityContract = readJson(
+  path.join(root, "contracts/ai-ui-generation.activity-contract.json"),
+);
+const EXPECTED_TOKEN_BOUNDARY_RULE =
+  activityContract.implementation_contract.local_component_authority.token_boundary.rule;
 
 const MODEL_ROWS = COMPARISON_ROWS.filter(
   (row) => row.generation_source === "captured_model_output",
@@ -99,7 +106,7 @@ function assertPng(filePath) {
   );
 }
 
-const result = spawnSync(process.execPath, [scriptPath], {
+const result = spawnSync(process.execPath, [scriptPath, "--check"], {
   encoding: "utf8",
 });
 
@@ -107,6 +114,11 @@ assert.equal(result.status, 0, result.stderr);
 assert.equal(result.stderr, "");
 assert.ok(result.stdout.includes("# JudgmentKit Model UI Matrices"));
 assert.ok(result.stdout.includes(`Index: ${MODEL_UI_INDEX_FILE}`));
+assert.match(
+  fs.readFileSync(captureScriptPath, "utf8"),
+  /surface_type_guidance:\s*frontendSkillContext\.surface_type_guidance/,
+  "capture script should preserve surface_type_guidance so fresh captures record surface_type.",
+);
 
 const indexPath = path.join(root, MODEL_UI_INDEX_FILE);
 assert.equal(fs.existsSync(indexPath), true);
@@ -158,6 +170,10 @@ for (const useCase of MODEL_UI_USE_CASES) {
     useCase.id === "refund-system-map" ? 6 : 0,
   );
   assert.equal(handoff.handoff_status, "ready_for_generation");
+  assert.equal(
+    handoff.implementation_contract.local_component_authority.token_boundary.rule,
+    EXPECTED_TOKEN_BOUNDARY_RULE,
+  );
   assert.equal(designSystem.scope, "example-only");
   assert.equal(designSystem.design_system_name, "Material UI");
   assert.equal(designSystem.design_system_package, "@mui/material");
@@ -227,6 +243,11 @@ for (const useCase of MODEL_UI_USE_CASES) {
       assert.equal(entry.context_included.source_brief, true);
       assert.equal(entry.context_included.sample_case, true);
       assert.ok(entry.source_context_sha256);
+      assert.ok(entry.current_source_context_sha256);
+      assert.ok(
+        ["current", "legacy_accepted", "missing"].includes(entry.source_context_status),
+        `${useCase.id}/${id} should record source context freshness`,
+      );
       assert.ok(entry.render_source);
       assert.ok(entry.approach_title.includes(column.label));
       assert.ok(entry.approach_caption.includes(entry.row_label));
@@ -257,6 +278,15 @@ for (const useCase of MODEL_UI_USE_CASES) {
         assert.equal(entry.frontend_skill_context_status, "ready");
         assert.equal(entry.frontend_skill_context.source_skill, "frontend-ui-implementation");
         assert.equal(entry.frontend_skill_context.raw_skill_exposed, false);
+        assert.ok(
+          handoff.surface_type,
+          `${useCase.id} reviewed handoff should carry the selected surface type`,
+        );
+        assert.equal(
+          entry.frontend_skill_context.surface_type,
+          handoff.surface_type,
+          `${useCase.id}/${id} frontend skill context should preserve the selected surface type`,
+        );
         assert.equal(entry.frontend_skill_context.next_recommended_tool, "review_ui_implementation_candidate");
         if (column.design_system_mode === "material_ui") {
           assert.equal(entry.frontend_skill_context.design_system_mode, "external_design_system");
@@ -283,6 +313,19 @@ for (const useCase of MODEL_UI_USE_CASES) {
         assert.ok(entry.capture_provenance.raw_response_sha256);
         assert.ok(entry.capture_provenance.source_context_sha256);
         assert.equal(entry.raw_response_sha256, entry.capture_provenance.raw_response_sha256);
+        assert.equal(entry.capture_provenance.source_context_status, entry.source_context_status);
+        assert.equal(
+          entry.capture_provenance.current_source_context_sha256,
+          entry.current_source_context_sha256,
+        );
+        assert.equal(
+          entry.capture_provenance.accepted_source_context_sha256,
+          entry.source_context_sha256,
+        );
+        assert.ok(
+          ["current", "legacy_accepted"].includes(entry.capture_provenance.source_context_status),
+          `${useCase.id}/${id} captured model output should be current or explicitly legacy`,
+        );
 
         const capturePath = path.join(outputDir, entry.capture_file);
         assert.equal(fs.existsSync(capturePath), true, `missing capture transcript for ${useCase.id}/${id}`);
@@ -308,6 +351,29 @@ for (const useCase of MODEL_UI_USE_CASES) {
         assert.deepEqual(entry.capture_provenance.lms_context ?? null, entry.lms_context);
         assert.deepEqual(entry.capture_provenance.capture_quality, entry.capture_quality);
         assert.equal(capture.source_context_sha256, entry.source_context_sha256);
+        assert.equal(
+          capture.source_context_status,
+          entry.source_context_status,
+          `${useCase.id}/${id} capture should record the same context freshness`,
+        );
+        assert.equal(capture.current_source_context_sha256, entry.current_source_context_sha256);
+        assert.equal(capture.accepted_source_context_sha256, entry.source_context_sha256);
+        assert.equal(
+          entry.capture_provenance.captured_source_context_sha256,
+          capture.source_context_sha256,
+        );
+        if (entry.source_context_status === "legacy_accepted") {
+          assert.notEqual(
+            entry.current_source_context_sha256,
+            entry.source_context_sha256,
+            `${useCase.id}/${id} legacy capture should distinguish current and accepted contexts`,
+          );
+          assert.match(capture.source_context_notes, /legacy capture/i);
+          assert.match(entry.capture_provenance.source_context_notes, /legacy capture/i);
+        } else {
+          assert.equal(entry.current_source_context_sha256, entry.source_context_sha256);
+          assert.match(capture.source_context_notes, /current generated matrix context/i);
+        }
         assert.equal(capture.prompt_sha256, entry.prompt_sha256);
         assert.equal(capture.raw_response_sha256, entry.raw_response_sha256);
         assert.ok(capture.raw_response);
@@ -348,6 +414,9 @@ for (const useCase of MODEL_UI_USE_CASES) {
       } else {
         assert.equal(entry.capture_file, null);
         assert.equal(entry.capture_provenance.status, "captured");
+        assert.equal(entry.source_context_status, "current");
+        assert.equal(entry.current_source_context_sha256, entry.source_context_sha256);
+        assert.equal(entry.capture_provenance.source_context_status, "current");
         assert.equal(entry.prompt_sha256, null);
         assert.equal(entry.raw_response_sha256, null);
       }
@@ -372,6 +441,12 @@ for (const useCase of MODEL_UI_USE_CASES) {
       assert.equal(provenance.render_source, entry.render_source);
       assert.equal(provenance.reasoning_effort, row.reasoning_effort);
       assert.deepEqual(provenance.context_included, entry.context_included);
+      assert.equal(provenance.source_context_sha256, entry.source_context_sha256);
+      assert.equal(
+        provenance.current_source_context_sha256,
+        entry.current_source_context_sha256,
+      );
+      assert.equal(provenance.source_context_status, entry.source_context_status);
       assert.deepEqual(provenance.capture_provenance, entry.capture_provenance);
       assert.equal(provenance.frontend_context_status, entry.frontend_context_status);
       assert.equal(provenance.frontend_skill_context_status, entry.frontend_skill_context_status);
@@ -462,6 +537,51 @@ for (const legacyCapture of [
   const capture = readJson(path.join(refundDir, legacyCapture));
   assert.equal(capture.compatibility_alias, true, `${legacyCapture} should be marked as an alias`);
   assert.ok(capture.canonical_artifact_id);
+}
+
+const refundManifest = readJson(path.join(refundDir, "manifest.json"));
+const refundArtifactById = new Map(
+  refundManifest.artifacts.map((artifact) => [artifact.id, artifact]),
+);
+for (const alias of LEGACY_ALIASES) {
+  const canonical = refundArtifactById.get(alias.canonical_id);
+  assert.ok(canonical, `missing canonical manifest entry for ${alias.id}`);
+
+  const aliasHtml = fs.readFileSync(path.join(refundDir, alias.artifact_path), "utf8");
+  const aliasProvenance = readProvenance(aliasHtml);
+  assert.equal(aliasProvenance.artifact_id, alias.id);
+  assert.equal(aliasProvenance.canonical_artifact_id, alias.canonical_id);
+  assert.equal(aliasProvenance.compatibility_alias, true);
+  assert.equal(aliasProvenance.artifact_path, alias.artifact_path);
+  assert.equal(aliasProvenance.screenshot_path, alias.screenshot_path);
+  assert.equal(aliasProvenance.source_context_sha256, canonical.source_context_sha256);
+  assert.equal(
+    aliasProvenance.current_source_context_sha256,
+    canonical.current_source_context_sha256,
+  );
+  assert.equal(aliasProvenance.source_context_status, canonical.source_context_status);
+
+  if (alias.capture_file) {
+    const aliasCapture = readJson(path.join(refundDir, alias.capture_file));
+    const canonicalCapture = readJson(path.join(refundDir, canonical.capture_file));
+    assert.equal(aliasCapture.artifact_id, alias.id);
+    assert.equal(aliasCapture.canonical_artifact_id, alias.canonical_id);
+    assert.equal(aliasCapture.compatibility_alias, true);
+    assert.equal(aliasCapture.source_context_sha256, canonicalCapture.source_context_sha256);
+    assert.equal(
+      aliasCapture.current_source_context_sha256,
+      canonicalCapture.current_source_context_sha256,
+    );
+    assert.equal(
+      aliasCapture.accepted_source_context_sha256,
+      canonicalCapture.accepted_source_context_sha256,
+    );
+    assert.equal(aliasCapture.source_context_status, canonicalCapture.source_context_status);
+    assert.deepEqual(
+      aliasCapture.frontend_skill_context,
+      canonicalCapture.frontend_skill_context,
+    );
+  }
 }
 
 assert.equal(canonicalArtifacts, 48);

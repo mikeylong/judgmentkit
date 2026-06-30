@@ -397,6 +397,53 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
       assert.equal(capture.frontend_skill_context_status, artifact.frontend_skill_context_status);
       assert.deepEqual(capture.frontend_skill_context, artifact.frontend_skill_context);
       assert.equal(capture.source_context_sha256, artifact.capture_provenance.source_context_sha256);
+      assert.ok(
+        ["current", "legacy_accepted"].includes(artifact.capture_provenance.source_context_status),
+        `${artifact.id} capture provenance should record source context freshness`,
+      );
+      assert.equal(
+        artifact.source_context_status,
+        artifact.capture_provenance.source_context_status,
+        `${artifact.id} manifest should mirror capture provenance context status`,
+      );
+      assert.equal(
+        artifact.capture_provenance.captured_source_context_sha256,
+        capture.source_context_sha256,
+        `${artifact.id} should record the captured source context hash`,
+      );
+      assert.equal(
+        artifact.capture_provenance.accepted_source_context_sha256,
+        artifact.source_context_sha256,
+        `${artifact.id} should record the accepted source context hash`,
+      );
+      assert.equal(
+        capture.accepted_source_context_sha256 ?? capture.source_context_sha256,
+        artifact.source_context_sha256,
+        `${artifact.id} capture should record accepted source context hash`,
+      );
+      assert.equal(
+        capture.current_source_context_sha256 ?? artifact.current_source_context_sha256,
+        artifact.current_source_context_sha256,
+        `${artifact.id} capture should record current source context hash`,
+      );
+      if (artifact.capture_provenance.source_context_status === "legacy_accepted") {
+        assert.notEqual(
+          artifact.current_source_context_sha256,
+          artifact.source_context_sha256,
+          `${artifact.id} legacy capture should distinguish current and accepted context hashes`,
+        );
+        assert.match(
+          artifact.capture_provenance.source_context_notes,
+          /legacy capture/i,
+          `${artifact.id} legacy capture should explain the context status`,
+        );
+      } else {
+        assert.equal(
+          artifact.current_source_context_sha256,
+          artifact.source_context_sha256,
+          `${artifact.id} current capture should use the current context hash`,
+        );
+      }
       assert.ok(capture.prompt_sha256, `${artifact.id} capture should include prompt_sha256`);
       assert.ok(capture.raw_response_sha256, `${artifact.id} capture should include raw_response_sha256`);
       if (artifact.row_id === "gpt55-xhigh-codex") {
@@ -696,6 +743,53 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     assert.equal(capture.frontend_skill_context_status, artifact.frontend_skill_context_status);
     assert.deepEqual(capture.frontend_skill_context, artifact.frontend_skill_context);
     assert.equal(capture.source_context_sha256, artifact.capture_provenance.source_context_sha256);
+    assert.ok(
+      ["current", "legacy_accepted"].includes(artifact.capture_provenance.source_context_status),
+      `${artifact.id} capture provenance should record source context freshness`,
+    );
+    assert.equal(
+      artifact.source_context_status,
+      artifact.capture_provenance.source_context_status,
+      `${artifact.id} manifest should mirror capture provenance context status`,
+    );
+    assert.equal(
+      artifact.capture_provenance.captured_source_context_sha256,
+      capture.source_context_sha256,
+      `${artifact.id} should record the captured source context hash`,
+    );
+    assert.equal(
+      artifact.capture_provenance.accepted_source_context_sha256,
+      artifact.source_context_sha256,
+      `${artifact.id} should record the accepted source context hash`,
+    );
+    assert.equal(
+      capture.accepted_source_context_sha256 ?? capture.source_context_sha256,
+      artifact.source_context_sha256,
+      `${artifact.id} capture should record accepted source context hash`,
+    );
+    assert.equal(
+      capture.current_source_context_sha256 ?? artifact.current_source_context_sha256,
+      artifact.current_source_context_sha256,
+      `${artifact.id} capture should record current source context hash`,
+    );
+    if (artifact.capture_provenance.source_context_status === "legacy_accepted") {
+      assert.notEqual(
+        artifact.current_source_context_sha256,
+        artifact.source_context_sha256,
+        `${artifact.id} legacy capture should distinguish current and accepted context hashes`,
+      );
+      assert.match(
+        artifact.capture_provenance.source_context_notes,
+        /legacy capture/i,
+        `${artifact.id} legacy capture should explain the context status`,
+      );
+    } else {
+      assert.equal(
+        artifact.current_source_context_sha256,
+        artifact.source_context_sha256,
+        `${artifact.id} current capture should use the current context hash`,
+      );
+    }
     assert.ok(capture.prompt_sha256, `${artifact.id} capture should include prompt_sha256`);
     assert.ok(capture.raw_response_sha256, `${artifact.id} capture should include raw_response_sha256`);
     if (artifact.row_id === "gpt55-xhigh-codex") {
@@ -887,8 +981,8 @@ function withTimeout(promise, timeoutMs, label) {
   ]);
 }
 
-async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
-  const endpointUrl = urlFor(baseUrl, "/mcp");
+async function probeRemoteMcpRoute(baseUrl, route) {
+  const endpointUrl = urlFor(baseUrl, route);
   const initializeBody = JSON.stringify({
     jsonrpc: "2.0",
     id: 1,
@@ -910,10 +1004,11 @@ async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
     },
     body: initializeBody,
   });
+  const postText = await postResponse.text();
 
   let transport;
   let client;
-  let supported = false;
+  let sdkSupported = false;
   let tools = [];
   let reviewStatus;
   let errorMessage = "";
@@ -940,7 +1035,7 @@ async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
       "public MCP tool call",
     );
     reviewStatus = reviewResponse.structuredContent?.review_status;
-    supported = true;
+    sdkSupported = true;
   } catch (error) {
     errorMessage = error instanceof Error ? error.message : String(error);
   } finally {
@@ -952,28 +1047,67 @@ async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
     }
   }
 
-  if (expectRemoteMcp) {
-    assert.equal(postResponse.ok, true, `/mcp JSON-RPC POST should succeed, got ${postResponse.status}`);
-    assert.equal(supported, true, `Expected ${endpointUrl} to work as a remote MCP endpoint: ${errorMessage}`);
-    assert.deepEqual(tools, JUDGMENTKIT_MCP_TOOL_NAMES);
-    assert.equal(reviewStatus, "ready_for_review");
-  } else {
-    assert.equal(
-      supported,
-      false,
-      `${endpointUrl} unexpectedly worked as a hosted MCP endpoint.`,
-    );
-    assert.ok(postResponse.status >= 400, `/mcp JSON-RPC POST should not succeed, got ${postResponse.status}`);
+  return {
+    route,
+    endpoint: endpointUrl,
+    raw_post: {
+      status: postResponse.status,
+      ok: postResponse.ok,
+      content_type: postResponse.headers.get("content-type"),
+      body_preview: postText.slice(0, 200),
+    },
+    sdk: {
+      supported: sdkSupported,
+      error: errorMessage,
+      review_status: reviewStatus,
+      tools,
+    },
+  };
+}
+
+async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
+  const routes = [];
+
+  for (const route of ["/mcp", "/mcp/"]) {
+    routes.push(await probeRemoteMcpRoute(baseUrl, route));
   }
 
+  if (expectRemoteMcp) {
+    for (const routeResult of routes) {
+      assert.equal(
+        routeResult.raw_post.ok,
+        true,
+        `${routeResult.route} JSON-RPC POST should succeed, got ${routeResult.raw_post.status}`,
+      );
+      assert.equal(
+        routeResult.sdk.supported,
+        true,
+        `Expected ${routeResult.endpoint} to work as a remote MCP endpoint: ${routeResult.sdk.error}`,
+      );
+      assert.deepEqual(routeResult.sdk.tools, JUDGMENTKIT_MCP_TOOL_NAMES);
+      assert.equal(routeResult.sdk.review_status, "ready_for_review");
+    }
+  } else {
+    for (const routeResult of routes) {
+      assert.equal(
+        routeResult.sdk.supported,
+        false,
+        `${routeResult.endpoint} unexpectedly worked as a hosted MCP endpoint.`,
+      );
+      assert.ok(
+        routeResult.raw_post.status >= 400,
+        `${routeResult.route} JSON-RPC POST should not succeed, got ${routeResult.raw_post.status}`,
+      );
+    }
+  }
+
+  const firstSupportedRoute = routes.find((routeResult) => routeResult.sdk.supported);
+
   return {
-    endpoint: endpointUrl,
     expected_remote_mcp: expectRemoteMcp,
-    supported,
-    post_status: postResponse.status,
-    sdk_error: errorMessage,
-    review_status: reviewStatus,
-    tools,
+    supported: routes.every((routeResult) => routeResult.sdk.supported),
+    routes,
+    tools: firstSupportedRoute?.sdk.tools ?? [],
   };
 }
 

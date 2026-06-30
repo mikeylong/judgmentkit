@@ -65,5 +65,9 @@
     "status": 0,
     "stdout_sha256": "4994f59501954a7c34b5782e8047078b771ee2afda5ecf0ba5ef58aef768afba",
     "stderr_sha256": "5c382e45a82ef80d1e50364175ccdac7b83404fd5014ac0386c9e2bb476215f3"
-  }
+  },
+  "source_context_status": "current",
+  "current_source_context_sha256": "2a9c11bbe27096d4431853bfdf3a896b0b078b731402a0f984cd1b22d1623af9",
+  "accepted_source_context_sha256": "2a9c11bbe27096d4431853bfdf3a896b0b078b731402a0f984cd1b22d1623af9",
+  "source_context_notes": "Capture transcript source context matches the current generated matrix context."
 }
