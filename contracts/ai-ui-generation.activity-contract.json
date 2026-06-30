@@ -1663,6 +1663,66 @@
         "external design systems must be supplied as complete contract-time adapters; missing authorities do not fall back to JudgmentKit defaults"
       ]
     },
+    "local_component_authority": {
+      "mode": "none",
+      "enforcement": "optional",
+      "families": [],
+      "selector_boundary": {
+        "allowed": [
+          "layout-only selectors may arrange approved primitives and repo-local components",
+          "component-specific selectors must not recreate visual identity"
+        ],
+        "component_selector_examples": [
+          ".card",
+          ".panel",
+          ".button",
+          "[data-component]"
+        ],
+        "layout_only_declarations": [
+          "display",
+          "grid",
+          "flex",
+          "gap",
+          "margin",
+          "width",
+          "height",
+          "position",
+          "overflow",
+          "align",
+          "justify"
+        ],
+        "blocked_visual_identity_declarations": [
+          "color",
+          "background",
+          "border",
+          "box-shadow",
+          "font",
+          "padding",
+          "text-transform",
+          "letter-spacing",
+          "outline",
+          "fill",
+          "stroke"
+        ]
+      },
+      "token_boundary": {
+        "direct_token_prefixes": [
+          "--jk-"
+        ],
+        "layout_token_exceptions": [
+          "--jk-space-"
+        ],
+        "rule": "One-off component selectors must not consume JudgmentKit visual tokens directly; use repo-local components or the active design-system source."
+      },
+      "computed_style_evidence": {
+        "required_when": "mode is repo_local or enforcement is required and component-specific visual styling changes",
+        "expectations": [
+          "name the local component family or selector being verified",
+          "include computed style evidence for visual identity supplied by repo-local authority",
+          "cover affected states and desktop/mobile viewports when selectors alter component presentation"
+        ]
+      }
+    },
     "visual_token_adapter": {
       "id": "judgmentkit.visual-token-adapter.boundary-v1",
       "mode": "boundary_only",

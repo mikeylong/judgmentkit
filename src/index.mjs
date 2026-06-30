@@ -5444,6 +5444,65 @@ const DEFAULT_DESIGN_SYSTEM_SOURCE = {
   ],
 };
 
+const DEFAULT_LOCAL_COMPONENT_AUTHORITY = {
+  mode: "none",
+  enforcement: "optional",
+  families: [],
+  selector_boundary: {
+    allowed: [
+      "layout-only selectors may arrange approved primitives and repo-local components",
+      "component-specific selectors must not recreate visual identity",
+    ],
+    component_selector_examples: [
+      ".card",
+      ".panel",
+      ".button",
+      "[data-component]",
+    ],
+    layout_only_declarations: [
+      "display",
+      "grid",
+      "flex",
+      "gap",
+      "margin",
+      "width",
+      "height",
+      "position",
+      "overflow",
+      "align",
+      "justify",
+    ],
+    blocked_visual_identity_declarations: [
+      "color",
+      "background",
+      "border",
+      "box-shadow",
+      "font",
+      "padding",
+      "text-transform",
+      "letter-spacing",
+      "outline",
+      "fill",
+      "stroke",
+    ],
+  },
+  token_boundary: {
+    direct_token_prefixes: ["--jk-"],
+    layout_token_exceptions: ["--jk-space-"],
+    rule:
+      "One-off component selectors must not consume JudgmentKit visual tokens directly; use repo-local components or the active design-system source.",
+  },
+  computed_style_evidence: {
+    required_when:
+      "mode is repo_local or enforcement is required and component-specific visual styling changes",
+    expectations: [
+      "name the local component family or selector being verified",
+      "include computed style evidence for visual identity supplied by repo-local authority",
+      "cover affected states and desktop/mobile viewports when selectors alter component presentation",
+    ],
+  },
+};
+
 const DEFAULT_ITERATION_POLICY = {
   owner: "agent",
   default_max_attempts: 3,
@@ -5638,8 +5697,11 @@ function normalizeDefaultAiNativeDesignSystem(sourcePolicy, fallbackPolicy) {
   delete sourceForMerge.componentContracts;
   delete sourceForMerge.pattern_contracts;
   delete sourceForMerge.patternContracts;
+  delete sourceForMerge.local_component_authority;
+  delete sourceForMerge.localComponentAuthority;
   delete fallbackForMerge.component_contracts;
   delete fallbackForMerge.pattern_contracts;
+  delete fallbackForMerge.local_component_authority;
   const merged = mergePolicyObject(
     sourceForMerge,
     fallbackForMerge,
@@ -6068,6 +6130,31 @@ function designSystemAdapterFromInput(source) {
     : null;
 }
 
+function requestedRawExternalDesignSystemSource(source) {
+  if (!isPlainObject(source) || isPlainObject(designSystemAdapterFromInput(source))) {
+    return false;
+  }
+
+  const designSystemSource =
+    source.design_system_source ?? source.designSystemSource;
+
+  if (!isPlainObject(designSystemSource)) {
+    return false;
+  }
+
+  const mode = optionalString(designSystemSource.mode);
+
+  if (mode !== "external_design_system") {
+    return false;
+  }
+
+  const definitionPoint = optionalString(
+    designSystemSource.definition_point ?? designSystemSource.definitionPoint,
+  );
+
+  return !definitionPoint.includes("design_system_adapter");
+}
+
 function externalAdapterName(adapter) {
   return optionalDesignSystemName(
     adapter.design_system_name,
@@ -6448,10 +6535,15 @@ function normalizeDesignSystemSource(sourceValue, context = {}) {
     context.visualTokenAdapter ?? DEFAULT_VISUAL_TOKEN_ADAPTER;
   const componentContracts =
     context.componentContracts ?? DEFAULT_COMPONENT_CONTRACTS;
-  const mode =
+  const requestedMode =
     optionalString(source.mode) ||
     optionalString(context.mode) ||
     fallback.mode;
+  const mode = ["judgmentkit_default", "external_design_system"].includes(
+    requestedMode,
+  )
+    ? requestedMode
+    : fallback.mode;
   const tokenPrefixes = unique([
     ...normalizePrimitiveList(source.token_prefixes ?? source.tokenPrefixes),
     ...tokenPrefixesFromCssProperties(visualTokenAdapter.css_custom_properties),
@@ -6722,6 +6814,144 @@ function normalizeAccessibilityPolicy(sourcePolicy, fallbackPolicy) {
   };
 }
 
+function normalizeLocalComponentAuthority(sourcePolicy, fallbackPolicy) {
+  const fallback = isPlainObject(fallbackPolicy)
+    ? fallbackPolicy
+    : DEFAULT_LOCAL_COMPONENT_AUTHORITY;
+  const source = isPlainObject(sourcePolicy) ? sourcePolicy : {};
+  const legacyRequired = source.required === true;
+  const legacyAuthorityPresent = Boolean(
+    legacyRequired ||
+      optionalString(source.component) ||
+      optionalString(source.required_family ?? source.requiredFamily) ||
+      optionalString(
+        source.component_specific_selector ?? source.componentSpecificSelector,
+      ) ||
+      toStringArray(
+        source.accepted_family_selectors ?? source.acceptedFamilySelectors,
+      ).length > 0,
+  );
+  const sourceMode = optionalString(source.mode);
+  const sourceEnforcement = optionalString(source.enforcement);
+  const sourceFamilies = toStringArray(source.families);
+  const legacyRequiredFamily = optionalString(
+    source.required_family ?? source.requiredFamily,
+  );
+  const legacyFamilySelectors = toStringArray(
+    source.accepted_family_selectors ?? source.acceptedFamilySelectors,
+  );
+  const familyEntries = unique([
+    ...sourceFamilies,
+    ...toStringArray(fallback.families),
+    ...(legacyRequiredFamily ? [legacyRequiredFamily] : []),
+    ...legacyFamilySelectors,
+  ]);
+  const legacySelectorExamples = normalizePrimitiveList([
+    source.component_specific_selector ?? source.componentSpecificSelector,
+    ...legacyFamilySelectors,
+  ]);
+  const selectorBoundarySource = mergePolicyObject(
+    source.selector_boundary ?? source.selectorBoundary,
+    {
+      ...fallback.selector_boundary,
+      ...(legacySelectorExamples.length > 0
+        ? { component_selector_examples: legacySelectorExamples }
+        : {}),
+      ...(toStringArray(
+        source.forbidden_component_specific_visual_identity ??
+          source.forbiddenComponentSpecificVisualIdentity,
+      ).length > 0
+        ? {
+            blocked_visual_identity_declarations: toStringArray(
+              source.forbidden_component_specific_visual_identity ??
+                source.forbiddenComponentSpecificVisualIdentity,
+            ),
+          }
+        : {}),
+    },
+  );
+  const tokenBoundarySource = mergePolicyObject(
+    source.token_boundary ?? source.tokenBoundary,
+    fallback.token_boundary,
+  );
+  const computedStyleEvidenceSource = mergePolicyObject(
+    source.computed_style_evidence ??
+      source.computedStyleEvidence ??
+      fallback.computed_style_evidence,
+    fallback.computed_style_evidence,
+  );
+
+  return {
+    mode: ["none", "repo_local"].includes(sourceMode)
+      ? sourceMode
+      : legacyAuthorityPresent
+        ? "repo_local"
+        : fallback.mode,
+    enforcement: ["optional", "required"].includes(sourceEnforcement)
+      ? sourceEnforcement
+      : legacyRequired
+        ? "required"
+      : fallback.enforcement,
+    families: familyEntries,
+    selector_boundary: {
+      allowed: normalizePrimitiveList(
+        selectorBoundarySource.allowed,
+        fallback.selector_boundary?.allowed,
+      ),
+      component_selector_examples: normalizePrimitiveList(
+        selectorBoundarySource.component_selector_examples ??
+          selectorBoundarySource.componentSelectorExamples,
+        fallback.selector_boundary?.component_selector_examples,
+      ),
+      layout_only_declarations: normalizePrimitiveList(
+        selectorBoundarySource.layout_only_declarations ??
+          selectorBoundarySource.layoutOnlyDeclarations,
+        fallback.selector_boundary?.layout_only_declarations,
+      ),
+      blocked_visual_identity_declarations: normalizePrimitiveList(
+        selectorBoundarySource.blocked_visual_identity_declarations ??
+          selectorBoundarySource.blockedVisualIdentityDeclarations,
+        fallback.selector_boundary?.blocked_visual_identity_declarations,
+      ),
+    },
+    token_boundary: {
+      direct_token_prefixes: normalizePrimitiveList(
+        tokenBoundarySource.direct_token_prefixes ??
+          tokenBoundarySource.directTokenPrefixes,
+        fallback.token_boundary?.direct_token_prefixes,
+      ),
+      layout_token_exceptions: normalizePrimitiveList(
+        tokenBoundarySource.layout_token_exceptions ??
+          tokenBoundarySource.layoutTokenExceptions,
+        fallback.token_boundary?.layout_token_exceptions,
+      ),
+      rule:
+        optionalString(tokenBoundarySource.rule) ||
+        optionalString(fallback.token_boundary?.rule),
+    },
+    computed_style_evidence: {
+      required_when:
+        optionalString(
+          computedStyleEvidenceSource.required_when ??
+            computedStyleEvidenceSource.requiredWhen,
+        ) || optionalString(fallback.computed_style_evidence?.required_when),
+      expectations: normalizePrimitiveList(
+        computedStyleEvidenceSource.expectations,
+        fallback.computed_style_evidence?.expectations,
+      ),
+    },
+  };
+}
+
+function localComponentAuthorityIsActive(authority) {
+  const policy = normalizeLocalComponentAuthority(
+    authority,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY,
+  );
+
+  return policy.mode === "repo_local" || policy.enforcement === "required";
+}
+
 function normalizeUiImplementationContract(input = {}, options = {}) {
   const contract = options.contract ?? loadActivityContract(options.contractPath);
   const base = getContractUiImplementationContract(contract);
@@ -6797,6 +7027,15 @@ function normalizeUiImplementationContract(input = {}, options = {}) {
       base.iteration_policy,
     ),
     design_system_source: designSystemSource,
+    local_component_authority: normalizeLocalComponentAuthority(
+      source.local_component_authority ??
+        source.localComponentAuthority ??
+        source.default_ai_native_design_system?.local_component_authority ??
+        source.default_ai_native_design_system?.localComponentAuthority ??
+        source.defaultAiNativeDesignSystem?.local_component_authority ??
+        source.defaultAiNativeDesignSystem?.localComponentAuthority,
+      base.local_component_authority,
+    ),
     visual_token_adapter: visualTokenAdapter,
     visual_asset_policy: normalizeVisualAssetPolicy(
       source.visual_asset_policy ?? source.visualAssetPolicy,
@@ -6844,6 +7083,19 @@ export function createUiImplementationContract(input = {}, options = {}) {
     );
   }
 
+  if (requestedRawExternalDesignSystemSource(input ?? {})) {
+    throw new JudgmentKitInputError(
+      "external_design_system mode requires a complete design_system_adapter.",
+      {
+        code: "incomplete_design_system_authority",
+        details: {
+          missing_authorities: DESIGN_SYSTEM_REQUIRED_AUTHORITIES,
+          fallback_policy: "fail_incomplete",
+        },
+      },
+    );
+  }
+
   const contract = options.contract ?? loadActivityContract(options.contractPath);
   const normalized = normalizeUiImplementationContract(input ?? {}, { contract });
   const packet = {
@@ -6881,6 +7133,7 @@ export function createUiImplementationContract(input = {}, options = {}) {
           "static enforcement",
           "browser QA",
           "accessibility evidence",
+          "local component authority",
         ],
       },
     ],
@@ -6911,6 +7164,80 @@ function candidateText(value) {
   ]
     .filter((entry) => typeof entry === "string")
     .join("\n");
+}
+
+function candidateImplementationSourceText(value) {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (!isPlainObject(value)) {
+    return "";
+  }
+
+  const sourceKeys = new Set([
+    "code",
+    "content",
+    "contents",
+    "css",
+    "cssText",
+    "css_text",
+    "diff",
+    "markup",
+    "newText",
+    "new_text",
+    "patch",
+    "renderedMarkup",
+    "rendered_markup",
+    "source",
+    "style",
+    "styleText",
+    "style_text",
+    "stylesheet",
+    "styles",
+    "text",
+  ]);
+  const containerKeys = new Set([
+    "changes",
+    "cssFiles",
+    "css_files",
+    "files",
+    "sourceFiles",
+    "source_files",
+    "stylesheets",
+  ]);
+
+  function collectSourceEntries(entry, depth = 0) {
+    if (typeof entry === "string") {
+      return [entry];
+    }
+
+    if (depth > 4 || !entry) {
+      return [];
+    }
+
+    if (Array.isArray(entry)) {
+      return entry.flatMap((child) => collectSourceEntries(child, depth + 1));
+    }
+
+    if (!isPlainObject(entry)) {
+      return [];
+    }
+
+    const values = [];
+
+    for (const [key, child] of Object.entries(entry)) {
+      if (sourceKeys.has(key)) {
+        values.push(...collectSourceEntries(child, depth + 1));
+      } else if (containerKeys.has(key)) {
+        values.push(...collectSourceEntries(child, depth + 1));
+      }
+    }
+
+    return values;
+  }
+
+  return unique(collectSourceEntries(value)).join("\n");
 }
 
 function normalizeCandidateList(candidate, keys) {
@@ -8973,6 +9300,475 @@ function reviewDesignSystemProvenance(candidate, implementationContract, text) {
   };
 }
 
+function candidateLocalComponentAuthorityEvidence(candidate) {
+  if (!isPlainObject(candidate)) {
+    return null;
+  }
+
+  return (
+    candidate.local_component_authority_evidence ??
+    candidate.localComponentAuthorityEvidence ??
+    candidate.local_component_evidence ??
+    candidate.localComponentEvidence ??
+    null
+  );
+}
+
+function stripCssComments(text) {
+  return text.replace(/\/\*[\s\S]*?\*\//g, "");
+}
+
+function parseCssDeclarations(body) {
+  return body
+    .split(";")
+    .map((entry) => {
+      const separator = entry.indexOf(":");
+
+      if (separator === -1) {
+        return null;
+      }
+
+      const property = entry.slice(0, separator).trim().toLowerCase();
+      const value = entry.slice(separator + 1).trim();
+
+      return property && value ? { property, value } : null;
+    })
+    .filter(Boolean);
+}
+
+function scanCssRules(text) {
+  const source = stripCssComments(optionalString(text));
+  const rules = [];
+  const pattern = /([^{}]+)\{([^{}]*)\}/g;
+  let match;
+
+  while ((match = pattern.exec(source)) !== null) {
+    const selector = match[1].trim();
+    const body = match[2].trim();
+
+    if (
+      !selector ||
+      selector.startsWith("@") ||
+      /(?:^|,)\s*(?:from|to|\d+%)\s*(?:,|$)/i.test(selector)
+    ) {
+      continue;
+    }
+
+    const declarations = parseCssDeclarations(body);
+
+    if (declarations.length > 0) {
+      rules.push({ selector, declarations });
+    }
+  }
+
+  return rules;
+}
+
+const DEFAULT_COMPONENT_SELECTOR_TERMS = [
+  "action",
+  "alert",
+  "badge",
+  "button",
+  "btn",
+  "card",
+  "checkbox",
+  "chip",
+  "dialog",
+  "field",
+  "input",
+  "menu",
+  "modal",
+  "panel",
+  "popover",
+  "radio",
+  "select",
+  "status",
+  "summary",
+  "tab",
+  "table",
+  "toast",
+  "toggle",
+  "tooltip",
+];
+
+function selectorIsComponentSpecific(selector, authority) {
+  const normalizedSelector = optionalString(selector).toLowerCase();
+
+  if (
+    !normalizedSelector ||
+    /^(?:html|body|:root|\*)\b/.test(normalizedSelector)
+  ) {
+    return false;
+  }
+
+  if (/\[(?:data-component|data-ui|data-slot|data-part)\b/.test(normalizedSelector)) {
+    return true;
+  }
+
+  if (
+    /\[(?:aria-[a-z-]+|data-state|data-status|data-variant|role|type)\b/.test(
+      normalizedSelector,
+    )
+  ) {
+    return true;
+  }
+
+  const selectorExamples = toStringArray(
+    authority.selector_boundary?.component_selector_examples,
+  );
+  if (
+    selectorExamples.some((example) => {
+      const normalizedExample = optionalString(example).toLowerCase();
+
+      return (
+        normalizedExample &&
+        (normalizedSelector === normalizedExample ||
+          normalizedSelector.includes(normalizedExample))
+      );
+    })
+  ) {
+    return true;
+  }
+
+  const familyTerms = unique([
+    ...toStringArray(authority.families),
+    ...DEFAULT_COMPONENT_SELECTOR_TERMS,
+  ])
+    .map(normalizeText)
+    .filter(Boolean);
+
+  if (familyTerms.length === 0) {
+    return /(?:^|[\s>+~,])(?:\.|#)[a-z][a-z0-9_-]*(?:[a-z][A-Z]|__[a-z]|--[a-z])/i.test(
+      selector,
+    );
+  }
+
+  return familyTerms.some((term) => {
+    const escaped = escapeRegExp(term).replaceAll(" ", "[-_\\s]");
+    const boundary = "[\\s>+~,.#_:\\[\\]\\(\\)=-]";
+
+    return new RegExp(
+      `(?:^|${boundary})${escaped}(?:$|${boundary})`,
+      "i",
+    ).test(selector);
+  });
+}
+
+function localAuthorityBlockedVisualDeclarations(authority) {
+  return normalizePrimitiveList(
+    authority.selector_boundary?.blocked_visual_identity_declarations,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY.selector_boundary
+      .blocked_visual_identity_declarations,
+  );
+}
+
+function declarationMatchesPrefix(property, prefixes) {
+  return prefixes.some((prefix) => property === prefix || property.startsWith(prefix));
+}
+
+function declarationRecreatesVisualIdentity(declaration, authority) {
+  const blockedPrefixes = localAuthorityBlockedVisualDeclarations(authority);
+
+  return declarationMatchesPrefix(declaration.property, blockedPrefixes);
+}
+
+function directLocalTokensInDeclaration(declaration, authority) {
+  const tokenBoundary = authority.token_boundary ?? {};
+  const prefixes = normalizePrimitiveList(
+    tokenBoundary.direct_token_prefixes ?? tokenBoundary.directTokenPrefixes,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY.token_boundary.direct_token_prefixes,
+  );
+  const layoutExceptions = normalizePrimitiveList(
+    tokenBoundary.layout_token_exceptions ?? tokenBoundary.layoutTokenExceptions,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY.token_boundary.layout_token_exceptions,
+  );
+  const tokenNames = extractCssCustomPropertyNames(
+    `${declaration.property}: ${declaration.value}`,
+  ).filter((name) => prefixes.some((prefix) => name.startsWith(prefix)));
+  const isLayoutOnlyTokenUse =
+    declarationMatchesPrefix(
+      declaration.property,
+      normalizePrimitiveList(
+        authority.selector_boundary?.layout_only_declarations,
+        DEFAULT_LOCAL_COMPONENT_AUTHORITY.selector_boundary
+          .layout_only_declarations,
+      ),
+    ) &&
+    tokenNames.every((name) =>
+      layoutExceptions.some((prefix) => name.startsWith(prefix)),
+    );
+
+  return isLayoutOnlyTokenUse ? [] : tokenNames;
+}
+
+function localAuthorityEvidenceValues(evidence, keys) {
+  if (!isPlainObject(evidence)) {
+    return [];
+  }
+
+  return unique([
+    ...keys.flatMap((key) => collectStrings(evidence[key])),
+    ...collectEvidenceValuesByKeys(evidence, keys),
+  ]);
+}
+
+function expectedLocalAuthorityFamilies(evidence, authority) {
+  const evidenceFamilies = localAuthorityEvidenceValues(evidence, [
+    "required_family",
+    "requiredFamily",
+    "expected_family",
+    "expectedFamily",
+    "local_family",
+    "localFamily",
+    "family_id",
+    "familyId",
+  ]);
+
+  return evidenceFamilies.length > 0
+    ? evidenceFamilies
+    : toStringArray(authority.families);
+}
+
+function inheritedLocalAuthorityFamilies(evidence) {
+  return localAuthorityEvidenceValues(evidence, [
+    "inherited_families",
+    "inheritedFamilies",
+    "inherited_family",
+    "inheritedFamily",
+    "applied_families",
+    "appliedFamilies",
+    "applied_family",
+    "appliedFamily",
+  ]);
+}
+
+function familyTextVariants(family) {
+  const text = optionalString(family);
+
+  if (!text) {
+    return [];
+  }
+
+  const withoutLeadingDot = text.replace(/^\./, "");
+
+  const variants = text.startsWith(".")
+    ? [text]
+    : [
+        text,
+        withoutLeadingDot,
+        text.replaceAll(".", " "),
+        withoutLeadingDot.replaceAll(".", " "),
+      ];
+
+  return unique(variants).map((entry) => entry.toLowerCase());
+}
+
+function classSelectorTokenAppearsInSource(family, sourceText) {
+  const text = optionalString(family);
+
+  if (!text.startsWith(".")) {
+    return false;
+  }
+
+  const className = text.slice(1);
+
+  if (!className) {
+    return false;
+  }
+
+  const classAttributePattern = new RegExp(
+    `class(?:Name)?\\s*=\\s*(?:"[^"]*(?:^|\\s)${escapeRegExp(className)}(?:\\s|$)[^"]*"|'[^']*(?:^|\\s)${escapeRegExp(className)}(?:\\s|$)[^']*')`,
+    "i",
+  );
+
+  return classAttributePattern.test(sourceText);
+}
+
+function localFamilyIsInherited(family, inheritedFamilies, sourceText) {
+  const familyText = optionalString(family);
+  const normalizedInherited = inheritedFamilies.map((entry) =>
+    optionalString(entry).toLowerCase(),
+  );
+  const searchableSource = optionalString(sourceText).toLowerCase();
+  const explicitEvidenceMatches = familyTextVariants(familyText).some((variant) =>
+    normalizedInherited.includes(variant),
+  );
+
+  if (explicitEvidenceMatches) {
+    return true;
+  }
+
+  if (familyText.startsWith(".")) {
+    return classSelectorTokenAppearsInSource(familyText, sourceText);
+  }
+
+  return familyTextVariants(familyText).some(
+    (variant) => variant && searchableSource.includes(variant),
+  );
+}
+
+function computedStyleEvidenceIsPassing(evidence) {
+  if (!evidenceHasAnyValue(evidence)) {
+    return false;
+  }
+
+  if (evidenceHasExplicitFailure(evidence)) {
+    return false;
+  }
+
+  return evidenceHasPositiveSignal(evidence);
+}
+
+function reviewLocalComponentAuthority(candidate, implementationContract) {
+  const authority = normalizeLocalComponentAuthority(
+    implementationContract.local_component_authority,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY,
+  );
+  const evidence = candidateLocalComponentAuthorityEvidence(candidate);
+  const computedStyleEvidence = evidenceValue(
+    evidence,
+    "computed_style_evidence",
+    "computedStyleEvidence",
+  );
+  const sourceText = candidateImplementationSourceText(candidate);
+  const cssRules = scanCssRules(sourceText);
+  const active = localComponentAuthorityIsActive(authority);
+  const componentRules = active
+    ? cssRules.filter((rule) => selectorIsComponentSpecific(rule.selector, authority))
+    : [];
+  const expectedFamilies = active
+    ? expectedLocalAuthorityFamilies(evidence, authority)
+    : [];
+  const inheritedFamilies = inheritedLocalAuthorityFamilies(evidence);
+  const missingInheritedFamilies = expectedFamilies.filter(
+    (family) => !localFamilyIsInherited(family, inheritedFamilies, sourceText),
+  );
+  const computedStyleEvidencePassing =
+    computedStyleEvidenceIsPassing(computedStyleEvidence);
+  const visualIdentityRecreations = [];
+  const directTokenUses = [];
+
+  for (const rule of componentRules) {
+    const visualDeclarations = rule.declarations.filter((declaration) =>
+      declarationRecreatesVisualIdentity(declaration, authority),
+    );
+    const tokenDeclarations = rule.declarations
+      .map((declaration) => ({
+        declaration,
+        tokens: directLocalTokensInDeclaration(declaration, authority),
+      }))
+      .filter((entry) => entry.tokens.length > 0);
+
+    if (visualDeclarations.length > 0) {
+      visualIdentityRecreations.push({
+        selector: rule.selector,
+        declarations: visualDeclarations.map(
+          (declaration) => `${declaration.property}: ${declaration.value}`,
+        ),
+      });
+    }
+
+    if (tokenDeclarations.length > 0) {
+      directTokenUses.push({
+        selector: rule.selector,
+        declarations: tokenDeclarations.map((entry) => ({
+          property: entry.declaration.property,
+          value: entry.declaration.value,
+          custom_properties: entry.tokens,
+        })),
+      });
+    }
+  }
+
+  const findings = [];
+
+  if (
+    active &&
+    authority.enforcement === "required" &&
+    expectedFamilies.length > 0 &&
+    missingInheritedFamilies.length === expectedFamilies.length
+  ) {
+    findings.push({
+      severity: "fail",
+      check: "local_component_authority",
+      message:
+        "Candidate does not show that the target control inherits the required local component family.",
+      evidence: {
+        expected_families: expectedFamilies,
+        inherited_families: inheritedFamilies,
+        evidence_field: "local_component_authority_evidence.inherited_families",
+      },
+    });
+  }
+
+  if (
+    active &&
+    authority.enforcement === "required" &&
+    !computedStyleEvidencePassing
+  ) {
+    findings.push({
+      severity: "fail",
+      check: "local_component_authority",
+      message:
+        "Required local component authority needs passing computed-style evidence against a representative local primitive.",
+      evidence: {
+        expected: authority.computed_style_evidence,
+        evidence_field: "local_component_authority_evidence.computed_style_evidence",
+        supplied_status: evidenceDeclaredStatus(computedStyleEvidence),
+      },
+    });
+  }
+
+  if (active && visualIdentityRecreations.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "local_component_authority",
+      message:
+        "Component-specific selectors recreate visual identity outside local component authority.",
+      evidence: {
+        selectors: visualIdentityRecreations,
+        selector_boundary: authority.selector_boundary,
+      },
+    });
+  }
+
+  if (active && directTokenUses.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "local_component_authority",
+      message:
+        "Component-specific selectors use direct JudgmentKit tokens instead of repo-local component authority.",
+      evidence: {
+        selectors: directTokenUses,
+        token_boundary: authority.token_boundary,
+      },
+    });
+  }
+
+  return {
+    status: findings.length > 0 ? "fail" : "pass",
+    reviewed: active || evidenceHasAnyValue(evidence) || cssRules.length > 0,
+    mode: authority.mode,
+    enforcement: authority.enforcement,
+    families: authority.families,
+    expected_families: expectedFamilies,
+    inherited_families: inheritedFamilies,
+    missing_inherited_families: missingInheritedFamilies,
+    selector_boundary: authority.selector_boundary,
+    token_boundary: authority.token_boundary,
+    computed_style_evidence_expected: authority.computed_style_evidence,
+    computed_style_evidence_present: evidenceHasAnyValue(computedStyleEvidence),
+    computed_style_evidence_passing: computedStyleEvidencePassing,
+    scanned_rules: cssRules.length,
+    component_specific_selectors: unique(
+      componentRules.map((rule) => rule.selector),
+    ),
+    visual_identity_recreations: visualIdentityRecreations,
+    direct_token_uses: directTokenUses,
+    findings,
+  };
+}
+
 function candidateComponentContractEvidence(candidate) {
   if (!isPlainObject(candidate)) {
     return null;
@@ -9512,6 +10308,10 @@ function reviewEvidenceFieldMapping(
       componentContracts,
     },
   );
+  const localComponentAuthority = normalizeLocalComponentAuthority(
+    sourceContract.local_component_authority,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY,
+  );
   const componentSourcePath = componentContractSourcePath(designSystemSource);
   const patternSourcePath = patternContractSourcePath(
     designSystemSource,
@@ -9533,6 +10333,7 @@ function reviewEvidenceFieldMapping(
       "design-system pattern contract ids -> pattern_contract_evidence.pattern_id",
       "token family, font role, icon role, and catalog icon-id boundary proof -> visual_token_evidence",
       "visual-token, typography, icon asset, renderer component, import, package, and source-export proof -> design_system_provenance",
+      "repo-local component selector and computed-style proof -> local_component_authority_evidence",
     ],
     primitives_used: {
       field: "primitives_used",
@@ -9630,6 +10431,24 @@ function reviewEvidenceFieldMapping(
         required_authorities: designSystemSource.required_authorities,
       },
       source_export_fields: Object.keys(designSystemSource.source_exports ?? {}),
+    },
+    local_component_authority_evidence: {
+      field: "local_component_authority_evidence",
+      reviewed_by: "checks.local_component_authority",
+      source_path: "implementation_contract.local_component_authority",
+      accepts:
+        "Repo-local component family, selector-boundary, token-boundary, and computed-style evidence when local component authority is active.",
+      active_authority: {
+        mode: localComponentAuthority.mode,
+        enforcement: localComponentAuthority.enforcement,
+        families: localComponentAuthority.families,
+      },
+      selector_boundary: localComponentAuthority.selector_boundary,
+      token_boundary: localComponentAuthority.token_boundary,
+      computed_style_evidence_expected:
+        localComponentAuthority.computed_style_evidence,
+      not_for:
+        "Do not use local_component_authority_evidence as component contract evidence, approved primitive evidence, accessibility evidence, static evidence, or browser QA evidence.",
     },
   };
 }
@@ -9732,6 +10551,10 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
     implementationContract,
     text,
   );
+  const localComponentAuthority = reviewLocalComponentAuthority(
+    candidate,
+    implementationContract,
+  );
   const componentContracts = reviewComponentContractEvidence(
     candidate,
     implementationContract,
@@ -9822,6 +10645,7 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
   findings.push(...dataVisibility.findings);
   findings.push(...visualTokenEvidence.findings);
   findings.push(...designSystemProvenance.findings);
+  findings.push(...localComponentAuthority.findings);
   findings.push(...componentContracts.findings);
   findings.push(...patternContracts.findings);
 
@@ -9881,6 +10705,7 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
     accessibility_evidence: accessibilityEvidence,
     visual_tokens: visualTokenEvidence,
     design_system_provenance: designSystemProvenance,
+    local_component_authority: localComponentAuthority,
     component_contracts: componentContracts,
     pattern_contracts: patternContracts,
     findings,
@@ -9945,6 +10770,10 @@ function findingContractArea(check) {
 
   if (check === "design_system_provenance") {
     return "design_system_source";
+  }
+
+  if (check === "local_component_authority") {
+    return "local_component_authority";
   }
 
   if (check === "component_contracts") {
@@ -10025,6 +10854,33 @@ function repairInstructionForFinding(finding, implementationContract) {
 
   if (check === "design_system_provenance") {
     return "Use implementation_contract.design_system_source as the source for visual tokens, typography, icon assets, and renderer components; remove local visual token namespaces, remote font/icon sources, and direct packages outside the active source.";
+  }
+
+  if (check === "local_component_authority") {
+    const evidence = isPlainObject(finding.evidence) ? finding.evidence : {};
+    const expectedFamilies = toStringArray(evidence.expected_families);
+    const selectorBoundary = isPlainObject(evidence.selector_boundary)
+      ? evidence.selector_boundary
+      : {};
+    const tokenBoundary = isPlainObject(evidence.token_boundary)
+      ? evidence.token_boundary
+      : {};
+    const familyText =
+      expectedFamilies.length > 0
+        ? ` inherit ${expectedFamilies.join(", ")};`
+        : "";
+    const selectorText = toStringArray(
+      selectorBoundary.component_selector_examples,
+    ).length
+      ? ` known local selectors include ${toStringArray(selectorBoundary.component_selector_examples).join(", ")};`
+      : "";
+    const tokenPrefixes = toStringArray(tokenBoundary.direct_token_prefixes);
+    const tokenText =
+      tokenPrefixes.length > 0
+        ? ` remove direct ${tokenPrefixes.join(", ")} token use from one-off selectors;`
+        : " remove direct JudgmentKit token use from one-off selectors;";
+
+    return `Use the existing local component family for the target control;${familyText}${selectorText}${tokenText} keep component-specific selectors layout/overflow only, and put computed-style proof in local_component_authority_evidence.`;
   }
 
   if (check === "component_contracts") {
@@ -10132,7 +10988,7 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
         id: "implementation_gate",
         status: failed ? "failed" : "passed",
         requirement:
-          "Generated UI must use approved primitives and provide static plus browser QA evidence.",
+          "Generated UI must use approved primitives, respect local component authority, and provide static plus browser QA evidence.",
       },
     ],
     checks: {
@@ -10147,6 +11003,7 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
       accessibility_evidence: checks.accessibility_evidence,
       visual_tokens: checks.visual_tokens,
       design_system_provenance: checks.design_system_provenance,
+      local_component_authority: checks.local_component_authority,
       component_contracts: checks.component_contracts,
       pattern_contracts: checks.pattern_contracts,
     },
@@ -10172,6 +11029,7 @@ function compactImplementationContractForHandoff(implementationContract) {
       implementationContract.default_ai_native_design_system,
     iteration_policy: implementationContract.iteration_policy,
     design_system_source: implementationContract.design_system_source,
+    local_component_authority: implementationContract.local_component_authority,
     visual_token_adapter: implementationContract.visual_token_adapter,
     visual_asset_policy: implementationContract.visual_asset_policy,
     accessibility_policy: implementationContract.accessibility_policy,
@@ -10881,6 +11739,10 @@ export function createFrontendGenerationContext({
     uiGenerationHandoff.implementation_contract?.default_ai_native_design_system,
     DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
   );
+  const localComponentAuthority = normalizeLocalComponentAuthority(
+    uiGenerationHandoff.implementation_contract?.local_component_authority,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY,
+  );
   const evidenceFieldMapping = reviewEvidenceFieldMapping(
     uiGenerationHandoff.implementation_contract,
     designSystemContract,
@@ -10936,6 +11798,8 @@ export function createFrontendGenerationContext({
       design_system_source:
         uiGenerationHandoff.implementation_contract?.design_system_source ??
         DEFAULT_DESIGN_SYSTEM_SOURCE,
+      local_component_authority:
+        localComponentAuthority,
       visual_asset_policy:
         uiGenerationHandoff.implementation_contract?.visual_asset_policy ??
         DEFAULT_VISUAL_ASSET_POLICY,
@@ -10967,6 +11831,9 @@ export function createFrontendGenerationContext({
       design_system_source:
         uiGenerationHandoff.implementation_contract?.design_system_source ??
         DEFAULT_DESIGN_SYSTEM_SOURCE,
+      ...(localComponentAuthorityIsActive(localComponentAuthority)
+        ? { local_component_authority: localComponentAuthority }
+        : {}),
     },
   };
 }
@@ -10989,6 +11856,8 @@ function buildFrontendImplementationInstructionMarkdown({
     reviewEvidenceMapping.visual_token_evidence ?? {};
   const provenanceEvidenceMapping =
     reviewEvidenceMapping.design_system_provenance ?? {};
+  const localAuthorityEvidenceMapping =
+    reviewEvidenceMapping.local_component_authority_evidence ?? {};
   const verification = implementationGuidance.verification_expectations ?? {};
   const frontendContext = frontendGenerationContext.frontend_context ?? {};
   const workflow = frontendGenerationContext.workflow ?? {};
@@ -10997,6 +11866,13 @@ function buildFrontendImplementationInstructionMarkdown({
     implementationGuidance.visual_asset_policy ?? DEFAULT_VISUAL_ASSET_POLICY;
   const accessibilityPolicy =
     implementationGuidance.accessibility_policy ?? DEFAULT_ACCESSIBILITY_POLICY;
+  const localComponentAuthority = normalizeLocalComponentAuthority(
+    implementationGuidance.local_component_authority ??
+      frontendGenerationContext.implementation_contract?.local_component_authority,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY,
+  );
+  const localComponentAuthorityActive =
+    localComponentAuthorityIsActive(localComponentAuthority);
   const contrastTargets =
     accessibilityPolicy.contrast_targets ?? DEFAULT_ACCESSIBILITY_POLICY.contrast_targets;
   const standardsProfile =
@@ -11029,6 +11905,12 @@ function buildFrontendImplementationInstructionMarkdown({
     "- Use approved component families and documented design-system component contracts before introducing new UI helpers.",
     "- Use implementation_contract.design_system_source as the active source for visual tokens, typography, icon assets, renderer components, imports, and packages.",
     "- Put token/font/icon role and catalog-id boundary proof in visual_token_evidence; put renderer, import, package, source-export, and token-prefix provenance in design_system_provenance.",
+    ...(localComponentAuthorityActive
+      ? [
+          "- When implementation_contract.local_component_authority is active, keep one-off component selectors layout-only; do not recreate visual identity or use direct --jk-* tokens in component-specific selectors.",
+          "- Put repo-local selector-boundary and computed-style proof in local_component_authority_evidence when local authority is active.",
+        ]
+      : []),
     "- Use JudgmentKit design-system exports by default; when external_design_system is active, do not mix in JudgmentKit default assets unless the external adapter explicitly names them.",
     "- Verify core accessibility evidence for semantics, landmarks/headings, name/role/value, keyboard navigation, focus order, focus-visible, responsive reflow/no-overflow, and automated checks.",
     "- Add conditional accessibility evidence for visuals, custom widgets, forms, status messages, overlays, motion, media, dense controls, and hover/focus content when those patterns appear.",
@@ -11046,6 +11928,11 @@ function buildFrontendImplementationInstructionMarkdown({
       provenanceEvidenceMapping.active_source?.name,
       provenanceEvidenceMapping.active_source?.package,
     ].filter(Boolean).join(" / ") || "unspecified"}`,
+    ...(localComponentAuthorityActive
+      ? [
+          `- ${localAuthorityEvidenceMapping.field || "local_component_authority_evidence"}: repo-local component family, selector-boundary, token-boundary, and computed-style proof. Active mode: ${localAuthorityEvidenceMapping.active_authority?.mode || localComponentAuthority.mode || "none"}`,
+        ]
+      : []),
     "",
     "## Required Surface",
     `- Topology: ${workflow.topology || "workspace"}`,
@@ -11113,6 +12000,18 @@ function buildFrontendImplementationInstructionMarkdown({
         (entry) => `${entry.id}: ${entry.surface_type}`,
       ) || "none supplied"
     }`,
+    ...(localComponentAuthorityActive
+      ? [
+          "",
+          "## Local Component Authority",
+          `- Mode: ${localComponentAuthority.mode || "none"}`,
+          `- Enforcement: ${localComponentAuthority.enforcement || "optional"}`,
+          `- Families: ${toStringArray(localComponentAuthority.families).join("; ") || "none supplied"}`,
+          `- Selector boundary: ${toStringArray(localComponentAuthority.selector_boundary?.allowed).join("; ") || "layout-only selectors allowed"}`,
+          `- Token boundary: ${localComponentAuthority.token_boundary?.rule || "direct JudgmentKit tokens stay out of one-off component selectors"}`,
+          `- Computed style evidence: ${toStringArray(localComponentAuthority.computed_style_evidence?.expectations).join("; ") || "none supplied"}`,
+        ]
+      : []),
     "",
     "## Visual Asset Policy",
     `- Applies when: ${toStringArray(visualAssetPolicy.applies_when).join("; ") || "no substantive visual requirements supplied"}`,
@@ -11188,6 +12087,13 @@ export function createFrontendImplementationSkillContext({
     implementationGuidance.accessibility_policy ??
     implementationContract.accessibility_policy ??
     DEFAULT_ACCESSIBILITY_POLICY;
+  const localComponentAuthority = normalizeLocalComponentAuthority(
+    implementationGuidance.local_component_authority ??
+      implementationContract.local_component_authority,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY,
+  );
+  const localComponentAuthorityActive =
+    localComponentAuthorityIsActive(localComponentAuthority);
   let visualTokenAdapter = normalizeVisualTokenAdapter(
     implementationContract.visual_token_adapter ?? {},
     DEFAULT_VISUAL_TOKEN_ADAPTER,
@@ -11287,6 +12193,11 @@ export function createFrontendImplementationSkillContext({
       (command) => `Run ${command}`,
     ),
     ...toStringArray(implementationContract.static_enforcement?.default_rules),
+    ...(localComponentAuthorityActive
+      ? [
+          "When local component authority is active, scan component-specific selectors for visual identity declarations and direct --jk-* token use.",
+        ]
+      : []),
     "Verify substantive visuals use imagegen or premium Three.js/WebGL/D3-style rendering when the spec calls for them.",
     "Provide browser-rendered visual-background contrast evidence for text over images, canvas, WebGL, video, gradients, or generated visuals.",
     "Verify non-text contrast for meaningful icons, charts, state indicators, custom controls, and authored focus indicators.",
@@ -11339,6 +12250,12 @@ export function createFrontendImplementationSkillContext({
       "Use approved component families and documented design-system component contracts before introducing new UI helpers.",
       "Use implementation_contract.design_system_source as the active source for visual tokens, typography, icon assets, renderer components, imports, and packages.",
       "Put token/font/icon role and catalog-id boundary proof in visual_token_evidence; put renderer, import, package, source-export, and token-prefix provenance in design_system_provenance.",
+      ...(localComponentAuthorityActive
+        ? [
+            "When implementation_contract.local_component_authority is active, keep one-off component selectors layout-only; do not recreate visual identity or use direct --jk-* tokens in component-specific selectors.",
+            "Put repo-local selector-boundary and computed-style proof in local_component_authority_evidence when local authority is active.",
+          ]
+        : []),
       "Use JudgmentKit design-system exports by default; when external_design_system is active, do not mix in JudgmentKit default assets unless the external adapter explicitly names them.",
       "When the spec calls for substantive visuals, use imagegen or premium Three.js/WebGL/D3-style rendering instead of rudimentary deterministic geometry.",
       "Verify core accessibility evidence: automated checks, semantic content, landmarks/headings, name-role-value, keyboard navigation, focus order, focus-visible, and responsive reflow/no-overflow.",
@@ -11370,6 +12287,7 @@ export function createFrontendImplementationSkillContext({
     ),
     visual_asset_policy: visualAssetPolicy,
     accessibility_policy: accessibilityPolicy,
+    local_component_authority: localComponentAuthority,
     design_system_source: designSystemSource,
     visual_token_adapter: visualTokenAdapter,
     design_system_policy: designSystemPolicy,
@@ -11388,6 +12306,9 @@ export function createFrontendImplementationSkillContext({
       design_system_is_adapter: false,
       design_system_contract_first: true,
       design_system_source: designSystemSource,
+      ...(localComponentAuthorityActive
+        ? { local_component_authority: localComponentAuthority }
+        : {}),
       visual_asset_policy: visualAssetPolicy,
       accessibility_policy: accessibilityPolicy,
       product_ui_rule:

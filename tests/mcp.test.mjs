@@ -113,6 +113,7 @@ for (const evidenceField of [
   "visual_token_evidence",
   "component_contract_evidence",
   "pattern_contract_evidence",
+  "local_component_authority_evidence",
   "design_system_provenance",
 ]) {
   assert.ok(
@@ -120,6 +121,11 @@ for (const evidenceField of [
     `review_ui_implementation_candidate help should mention ${evidenceField}`,
   );
 }
+assert.match(
+  reviewImplementationCandidateHelp,
+  /local_component_authority(?!_evidence)/,
+  "review_ui_implementation_candidate help should mention checks.local_component_authority.",
+);
 assert.match(
   reviewImplementationCandidateHelp,
   /primitives_used[^.]*only[^.]*implementation_contract\.approved_primitives/i,
@@ -278,6 +284,7 @@ function assertReviewEvidenceFieldsVisible(text, label) {
   for (const evidenceField of [
     "visual_token_evidence",
     "design_system_provenance",
+    "local_component_authority_evidence",
   ]) {
     assert.ok(
       text.includes(evidenceField),
@@ -770,6 +777,8 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
     "implementation_contract.visual_token_adapter",
     "design_system_provenance",
     "implementation_contract.design_system_source",
+    "local_component_authority_evidence",
+    "implementation_contract.local_component_authority",
   ]) {
     assert.ok(
       evidenceFieldMappingText.includes(routedField),

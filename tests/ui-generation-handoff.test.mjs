@@ -425,6 +425,195 @@ function refundOperatorImplementationCandidate(overrides = {}) {
   };
 }
 
+function sessionsButtonLocalAuthorityContract() {
+  const localComponentAuthority = {
+    required: true,
+    component: "SessionsButton",
+    required_family: "button.secondary-action",
+    accepted_family_selectors: ["button.secondary-action", ".secondary-action"],
+    component_specific_selector: ".sessions-button",
+    evidence_field: "local_component_authority_evidence",
+    allowed_component_specific_rule_categories: ["layout", "overflow"],
+    forbidden_component_specific_visual_identity: [
+      "--jk-* visual identity custom properties",
+      "background",
+      "border",
+      "border-radius",
+      "box-shadow",
+      "color",
+      "font",
+    ],
+    rules: [
+      "SessionsButton must inherit local button.secondary-action / .secondary-action visual identity.",
+      "The component-specific .sessions-button selector may keep layout and overflow rules only.",
+      "Do not declare --jk-* visual identity custom properties on .sessions-button.",
+    ],
+  };
+  const packet = createUiImplementationContract({
+    repo_name: "Sessions",
+    target_stack: "React",
+    repo_evidence: ["app/components/button.css", "app/components/SessionsButton.tsx"],
+    local_component_authority: localComponentAuthority,
+    approved_primitives: ["button"],
+    required_states: ["ready", "disabled", "focus-visible"],
+    static_rules: ["npm run check"],
+    browser_qa_checks: ["desktop viewport", "mobile viewport"],
+    default_ai_native_design_system: {
+      component_contracts: [
+        {
+          id: "button.secondary-action",
+          label: "Secondary action button",
+          purpose:
+            "Local secondary button family for lower-emphasis work actions.",
+          use_when: ["secondary action", "navigation-adjacent work action"],
+          anatomy: ["button.secondary-action", ".secondary-action"],
+          required_states: ["ready", "disabled", "focus-visible"],
+          review_checks: [
+            "component-specific selectors inherit this family instead of redefining visual identity",
+          ],
+        },
+      ],
+    },
+  });
+
+  return packet.implementation_contract;
+}
+
+function sessionsButtonCandidate(contract, overrides = {}) {
+  const baseAccessibilityEvidence = coreAccessibilityEvidence({
+    forced_colors: {
+      status: "pass",
+      method: "forced-colors browser review",
+      notes:
+        "The inherited secondary-action family preserves text, border, and focus visibility in forced-colors mode.",
+    },
+  });
+
+  return {
+    code: `
+      export function SessionsButton({ count }) {
+        return <button className="sessions-button">Sessions ({count})</button>;
+      }
+
+      .sessions-button {
+        --jk-color-surface: #ffffff;
+        --jk-color-text: #17324d;
+        --jk-color-border: #7d97b8;
+        --jk-radius-control: 999px;
+        background: var(--jk-color-surface);
+        border: 1px solid var(--jk-color-border);
+        border-radius: var(--jk-radius-control);
+        color: var(--jk-color-text);
+        display: inline-flex;
+        max-inline-size: 100%;
+        overflow: hidden;
+      }
+    `,
+    primitives_used: ["button"],
+    states_covered: contract.state_coverage.required_states,
+    static_checks: ["npm run check"],
+    browser_qa: {
+      desktop: "desktop viewport Sessions button checked",
+      mobile: "mobile viewport Sessions button checked",
+    },
+    accessibility_evidence: baseAccessibilityEvidence,
+    component_contract_evidence: {
+      components: [
+        {
+          id: "button.secondary-action",
+          states_covered: ["ready", "disabled", "focus-visible"],
+        },
+      ],
+    },
+    local_component_authority_evidence: {
+      component: "SessionsButton",
+      inherited_families: [],
+      required_family: "button.secondary-action",
+      component_specific_selectors: [
+        {
+          selector: ".sessions-button",
+          declarations: [
+            "--jk-color-surface",
+            "--jk-color-text",
+            "--jk-color-border",
+            "--jk-radius-control",
+            "background",
+            "border",
+            "border-radius",
+            "color",
+            "display",
+            "max-inline-size",
+            "overflow",
+          ],
+        },
+      ],
+    },
+    ...overrides,
+    accessibility_evidence: {
+      ...baseAccessibilityEvidence,
+      ...(overrides.accessibility_evidence ?? {}),
+    },
+  };
+}
+
+function repairedSessionsButtonCandidate(contract) {
+  return sessionsButtonCandidate(contract, {
+    code: `
+      export function SessionsButton({ count }) {
+        return (
+          <button className="button secondary-action sessions-button">
+            Sessions ({count})
+          </button>
+        );
+      }
+
+      .sessions-button {
+        display: inline-flex;
+        max-inline-size: 100%;
+        min-inline-size: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+    `,
+    local_component_authority_evidence: {
+      component: "SessionsButton",
+      inherited_families: ["button.secondary-action", ".secondary-action"],
+      required_family: "button.secondary-action",
+      computed_style_evidence: {
+        status: "pass",
+        method: "browser computed-style comparison",
+        compared_to: "button.secondary-action",
+        properties: [
+          "background",
+          "color",
+          "border",
+          "border-radius",
+          "padding",
+          "font-weight",
+          "focus ring",
+          "height",
+        ],
+      },
+      component_specific_selectors: [
+        {
+          selector: ".sessions-button",
+          rule_categories: ["layout", "overflow"],
+          declarations: [
+            "display",
+            "max-inline-size",
+            "min-inline-size",
+            "overflow",
+            "text-overflow",
+            "white-space",
+          ],
+          visual_identity_declarations: [],
+        },
+      ],
+    },
+  });
+}
+
 {
   const workflowReview = reviewUiWorkflowCandidate(
     REFUND_TRIAGE_BRIEF,
@@ -1519,6 +1708,308 @@ function refundOperatorImplementationCandidate(overrides = {}) {
   assert.equal(
     denseControlMissingTargetReview.checks.accessibility_evidence.target_size.status,
     "fail",
+  );
+}
+
+{
+  const contract = sessionsButtonLocalAuthorityContract();
+  const tokenIslandReview = reviewUiImplementationCandidate(
+    sessionsButtonCandidate(contract),
+    { implementation_contract: contract },
+  );
+
+  assert.equal(tokenIslandReview.implementation_review_status, "failed");
+  assert.equal(tokenIslandReview.checks.approved_primitives.status, "pass");
+  assert.deepEqual(tokenIslandReview.checks.approved_primitives.used, ["button"]);
+  assert.equal(
+    tokenIslandReview.checks.approved_primitives.used.includes(
+      "button.secondary-action",
+    ),
+    false,
+  );
+  assert.equal(tokenIslandReview.checks.component_contracts.status, "pass");
+  assert.ok(
+    tokenIslandReview.checks.component_contracts.used_component_ids.includes(
+      "button.secondary-action",
+    ),
+  );
+  assert.ok(
+    tokenIslandReview.checks.local_component_authority,
+    "review should include checks.local_component_authority.",
+  );
+  assert.equal(tokenIslandReview.checks.local_component_authority.status, "fail");
+  assert.ok(
+    tokenIslandReview.findings.some(
+      (finding) => finding.check === "local_component_authority",
+    ),
+  );
+  const localAuthorityRepairText = JSON.stringify(
+    tokenIslandReview.repair_instructions.groups.local_component_authority,
+  );
+  assert.ok(localAuthorityRepairText.includes("button.secondary-action"));
+  assert.ok(localAuthorityRepairText.includes(".secondary-action"));
+  assert.ok(localAuthorityRepairText.includes("local_component_authority_evidence"));
+  assert.match(localAuthorityRepairText, /--jk-\*|--jk-/);
+  assert.match(localAuthorityRepairText, /layout|overflow/);
+  assert.ok(
+    tokenIslandReview.repair_instructions.groups.local_component_authority.some(
+      (instruction) =>
+        instruction.required_change.includes("button.secondary-action") &&
+        instruction.required_change.includes("local_component_authority_evidence"),
+    ),
+  );
+
+  const isolatedTokenIslandReview = reviewUiImplementationCandidate(
+    sessionsButtonCandidate(contract, {
+      code: `
+        export function SessionsButton({ count }) {
+          return (
+            <button
+              aria-expanded="false"
+              className="button secondary-action sessions-button"
+            >
+              Sessions ({count})
+            </button>
+          );
+        }
+
+        .sessions-button {
+          --jk-color-surface: #ffffff;
+          --jk-color-text: #17324d;
+          --jk-color-border: #7d97b8;
+          --jk-radius-control: 999px;
+          background: var(--jk-color-surface);
+          border: 1px solid var(--jk-color-border);
+          border-radius: var(--jk-radius-control);
+          color: var(--jk-color-text);
+        }
+
+        [aria-expanded="false"] {
+          background: var(--jk-color-surface);
+        }
+      `,
+      local_component_authority_evidence: {
+        component: "SessionsButton",
+        inherited_families: ["button.secondary-action", ".secondary-action"],
+        required_family: "button.secondary-action",
+        computed_style_evidence: {
+          status: "pass",
+          method: "browser computed-style comparison",
+          compared_to: "button.secondary-action",
+        },
+        component_specific_selectors: [
+          {
+            selector: ".sessions-button",
+            declarations: [
+              "--jk-color-surface",
+              "--jk-color-text",
+              "--jk-color-border",
+              "--jk-radius-control",
+              "background",
+              "border",
+              "border-radius",
+              "color",
+            ],
+          },
+        ],
+      },
+    }),
+    { implementation_contract: contract },
+  );
+
+  assert.equal(isolatedTokenIslandReview.implementation_review_status, "failed");
+  assert.equal(
+    isolatedTokenIslandReview.checks.local_component_authority.status,
+    "fail",
+  );
+  assert.deepEqual(
+    isolatedTokenIslandReview.checks.local_component_authority
+      .missing_inherited_families,
+    [],
+  );
+  assert.equal(
+    isolatedTokenIslandReview.checks.local_component_authority
+      .computed_style_evidence_passing,
+    true,
+  );
+  assert.ok(
+    isolatedTokenIslandReview.checks.local_component_authority
+      .direct_token_uses.length > 0,
+  );
+  assert.ok(
+    isolatedTokenIslandReview.checks.local_component_authority
+      .visual_identity_recreations.length > 0,
+  );
+  assert.ok(
+    isolatedTokenIslandReview.checks.local_component_authority
+      .component_specific_selectors.includes('[aria-expanded="false"]'),
+  );
+
+  const noInheritanceReview = reviewUiImplementationCandidate(
+    sessionsButtonCandidate(contract, {
+      code: `
+        export function SessionsButton({ count }) {
+          return <button className="sessions-button">Sessions ({count})</button>;
+        }
+
+        .sessions-button {
+          display: inline-flex;
+          max-inline-size: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      `,
+      local_component_authority_evidence: {
+        component: "SessionsButton",
+        inherited_families: [],
+        required_family: "button.secondary-action",
+        computed_style_evidence: {
+          status: "pass",
+          method: "browser computed-style comparison",
+          compared_to: "button.secondary-action",
+        },
+        component_specific_selectors: [
+          {
+            selector: ".sessions-button",
+            rule_categories: ["layout", "overflow"],
+            visual_identity_declarations: [],
+          },
+        ],
+      },
+    }),
+    { implementation_contract: contract },
+  );
+
+  assert.equal(noInheritanceReview.implementation_review_status, "failed");
+  assert.equal(noInheritanceReview.checks.local_component_authority.status, "fail");
+  assert.deepEqual(
+    noInheritanceReview.checks.local_component_authority.missing_inherited_families,
+    ["button.secondary-action"],
+  );
+  assert.ok(
+    noInheritanceReview.findings.some(
+      (finding) =>
+        finding.check === "local_component_authority" &&
+        finding.message.includes("inherits the required local component family"),
+    ),
+  );
+
+  const dottedClassFalsePositiveReview = reviewUiImplementationCandidate(
+    sessionsButtonCandidate(contract, {
+      code: `
+        export function SessionsButton({ count }) {
+          return <button className="sessions-button">Sessions ({count})</button>;
+        }
+
+        .sessions-button {
+          display: inline-flex;
+          max-inline-size: 100%;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      `,
+      local_component_authority_evidence: {
+        component: "SessionsButton",
+        inherited_families: [],
+        required_family: ".button",
+        computed_style_evidence: {
+          status: "pass",
+          method: "browser computed-style comparison",
+          compared_to: ".button",
+        },
+        component_specific_selectors: [
+          {
+            selector: ".sessions-button",
+            rule_categories: ["layout", "overflow"],
+            visual_identity_declarations: [],
+          },
+        ],
+      },
+    }),
+    { implementation_contract: contract },
+  );
+
+  assert.equal(
+    dottedClassFalsePositiveReview.checks.local_component_authority.status,
+    "fail",
+  );
+  assert.deepEqual(
+    dottedClassFalsePositiveReview.checks.local_component_authority
+      .missing_inherited_families,
+    [".button"],
+  );
+
+  const failedComputedStyleCandidate = repairedSessionsButtonCandidate(contract);
+  failedComputedStyleCandidate.local_component_authority_evidence = {
+    ...failedComputedStyleCandidate.local_component_authority_evidence,
+    computed_style_evidence: {
+      status: "fail",
+      method: "browser computed-style comparison",
+      compared_to: "button.secondary-action",
+      differences: ["background differs from representative secondary action"],
+    },
+  };
+  const failedComputedStyleReview = reviewUiImplementationCandidate(
+    failedComputedStyleCandidate,
+    { implementation_contract: contract },
+  );
+
+  assert.equal(failedComputedStyleReview.implementation_review_status, "failed");
+  assert.equal(
+    failedComputedStyleReview.checks.local_component_authority.status,
+    "fail",
+  );
+  assert.equal(
+    failedComputedStyleReview.checks.local_component_authority
+      .computed_style_evidence_present,
+    true,
+  );
+  assert.equal(
+    failedComputedStyleReview.checks.local_component_authority
+      .computed_style_evidence_passing,
+    false,
+  );
+  assert.ok(
+    failedComputedStyleReview.findings.some(
+      (finding) =>
+        finding.check === "local_component_authority" &&
+        finding.message.includes("passing computed-style evidence"),
+    ),
+  );
+
+  const repairedReview = reviewUiImplementationCandidate(
+    repairedSessionsButtonCandidate(contract),
+    { implementation_contract: contract },
+  );
+
+  assert.equal(repairedReview.implementation_review_status, "passed");
+  assert.ok(
+    repairedReview.checks.local_component_authority,
+    "review should include checks.local_component_authority.",
+  );
+  assert.equal(repairedReview.checks.local_component_authority.status, "pass");
+  assert.equal(repairedReview.checks.local_component_authority.reviewed, true);
+  assert.equal(repairedReview.checks.approved_primitives.status, "pass");
+  assert.deepEqual(repairedReview.checks.approved_primitives.used, ["button"]);
+  assert.equal(
+    repairedReview.checks.approved_primitives.used.includes(
+      "button.secondary-action",
+    ),
+    false,
+  );
+  assert.equal(repairedReview.checks.component_contracts.status, "pass");
+  assert.ok(
+    repairedReview.checks.component_contracts.used_component_ids.includes(
+      "button.secondary-action",
+    ),
+  );
+  assert.equal(
+    repairedReview.findings.some(
+      (finding) => finding.check === "local_component_authority",
+    ),
+    false,
   );
 }
 

@@ -562,6 +562,7 @@
         "default_ai_native_design_system",
         "iteration_policy",
         "design_system_source",
+        "local_component_authority",
         "visual_token_adapter",
         "visual_asset_policy",
         "accessibility_policy",
@@ -712,6 +713,71 @@
           }
         },
         "design_system_source": { "$ref": "#/$defs/designSystemSource" },
+        "local_component_authority": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "mode",
+            "enforcement",
+            "families",
+            "selector_boundary",
+            "token_boundary",
+            "computed_style_evidence"
+          ],
+          "properties": {
+            "mode": {
+              "type": "string",
+              "enum": ["none", "repo_local"]
+            },
+            "enforcement": {
+              "type": "string",
+              "enum": ["optional", "required"]
+            },
+            "families": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "selector_boundary": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "allowed",
+                "component_selector_examples",
+                "layout_only_declarations",
+                "blocked_visual_identity_declarations"
+              ],
+              "properties": {
+                "allowed": { "type": "array", "items": { "type": "string" } },
+                "component_selector_examples": { "type": "array", "items": { "type": "string" } },
+                "layout_only_declarations": { "type": "array", "items": { "type": "string" } },
+                "blocked_visual_identity_declarations": { "type": "array", "items": { "type": "string" } }
+              }
+            },
+            "token_boundary": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "direct_token_prefixes",
+                "layout_token_exceptions",
+                "rule"
+              ],
+              "properties": {
+                "direct_token_prefixes": { "type": "array", "items": { "type": "string" } },
+                "layout_token_exceptions": { "type": "array", "items": { "type": "string" } },
+                "rule": { "type": "string" }
+              }
+            },
+            "computed_style_evidence": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["required_when", "expectations"],
+              "properties": {
+                "required_when": { "type": "string" },
+                "expectations": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          }
+        },
         "visual_token_adapter": {
           "type": "object",
           "additionalProperties": false,

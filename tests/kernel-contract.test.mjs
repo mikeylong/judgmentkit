@@ -518,6 +518,20 @@ assert.equal(
   "judgmentkit_default",
   "external_authority is trace metadata only without a complete design_system_adapter.",
 );
+assert.throws(
+  () =>
+    createUiImplementationContract({
+      design_system_source: { mode: "external_design_system" },
+    }),
+  (error) =>
+    error instanceof JudgmentKitInputError &&
+    error.code === "incomplete_design_system_authority" &&
+    error.details.missing_authorities.includes("tokens") &&
+    error.details.missing_authorities.includes("fonts") &&
+    error.details.missing_authorities.includes("icons") &&
+    error.details.missing_authorities.includes("components"),
+  "Raw external_design_system mode requires a complete design_system_adapter.",
+);
 
 const externalDesignSystemContract = createUiImplementationContract({
   design_system_adapter: completeMaterialDesignSystemAdapter(),

@@ -25,7 +25,7 @@ const MCP_SERVER_VERSION = "0.6.2";
 const APPROVED_PRIMITIVES_INPUT_DESCRIPTION =
   "Optional allowed implementation primitives for generated UI evidence. These are implementation primitives only; do not list design-system component contract ids here. Defaults to the portable no-system primitive set.";
 const REVIEW_UI_IMPLEMENTATION_CANDIDATE_INPUT_DESCRIPTION =
-  "Generated UI candidate as code text or structured evidence containing primitives_used, states_covered or covered_states, static_checks or static_evidence, browser_qa, accessibility_evidence for core and condition-specific accessibility gates, optional visual_token_evidence metadata, component_contract_evidence, pattern_contract_evidence, and design_system_provenance. primitives_used may contain only implementation_contract.approved_primitives; place design-system component ids in component_contract_evidence.components[].id and pattern ids in pattern_contract_evidence.pattern_id.";
+  "Generated UI candidate as code text or structured evidence containing primitives_used, states_covered or covered_states, static_checks or static_evidence, browser_qa, accessibility_evidence for core and condition-specific accessibility gates, optional visual_token_evidence metadata, component_contract_evidence, pattern_contract_evidence, design_system_provenance, and local_component_authority_evidence reviewed by checks.local_component_authority. primitives_used may contain only implementation_contract.approved_primitives; place design-system component ids in component_contract_evidence.components[].id and pattern ids in pattern_contract_evidence.pattern_id.";
 
 const ANALYZE_TOOL = {
   name: "analyze_implementation_brief",
@@ -238,7 +238,7 @@ const UI_GENERATION_HANDOFF_TOOL = {
 const UI_IMPLEMENTATION_CONTRACT_TOOL = {
   name: "create_ui_implementation_contract",
   description:
-    "Create an implementation contract for generated UI, using JudgmentKit design-system authority by default or a complete external design-system adapter when supplied.",
+    "Create an implementation contract for generated UI, using JudgmentKit design-system authority by default, optional repo-local component authority, or a complete external design-system adapter when supplied.",
   inputSchema: {
     type: "object",
     properties: {
@@ -264,6 +264,11 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
         type: "object",
         description:
           "Optional normalized active design-system source when passing an already-created implementation contract shape.",
+      },
+      local_component_authority: {
+        type: "object",
+        description:
+          "Optional repo-local component authority with mode none or repo_local, enforcement optional or required, families, selector_boundary, token_boundary, and computed_style_evidence expectations.",
       },
       repo_evidence: {
         type: "array",
@@ -316,7 +321,7 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
 const REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL = {
   name: "review_ui_implementation_candidate",
   description:
-    "Review generated UI or code evidence against an active UI implementation contract.",
+    "Review generated UI or code evidence against an active UI implementation contract, including local_component_authority_evidence when repo-local component authority is active.",
   inputSchema: {
     type: "object",
     required: ["candidate", "implementation_contract"],
@@ -612,6 +617,8 @@ function evidenceFieldLabel(key) {
     pattern_contracts: "Pattern contracts",
     visual_token_evidence: "Visual token evidence",
     design_system_provenance: "Design-system provenance",
+    local_component_authority_evidence: "Local component authority",
+    local_component_authority: "Local component authority",
   };
 
   return labels[key] ?? displayLabelFromKey(key);
@@ -724,6 +731,8 @@ function contractEvidenceFieldMapping(implementationContract) {
     : [];
   const visualTokenAdapter = implementationContract.visual_token_adapter ?? {};
   const designSystemSource = implementationContract.design_system_source ?? {};
+  const localComponentAuthority =
+    implementationContract.local_component_authority ?? {};
 
   return {
     primitives_used: {
@@ -769,6 +778,17 @@ function contractEvidenceFieldMapping(implementationContract) {
         package: designSystemSource.package,
       },
     },
+    local_component_authority_evidence: {
+      field: "local_component_authority_evidence",
+      source_path: "implementation_contract.local_component_authority",
+      accepts:
+        "Repo-local component family, selector-boundary, token-boundary, and computed-style evidence when local component authority is active.",
+      active_authority: {
+        mode: localComponentAuthority.mode,
+        enforcement: localComponentAuthority.enforcement,
+        families: localComponentAuthority.families,
+      },
+    },
   };
 }
 
@@ -787,6 +807,7 @@ function evidenceFieldMappingEntries(result) {
   const criticalKeys = [
     "visual_token_evidence",
     "design_system_provenance",
+    "local_component_authority_evidence",
   ];
   const preferredKeys = [
     "primitives_used",
@@ -1156,6 +1177,8 @@ function formatImplementationContractCard(result) {
     implementationContract.default_ai_native_design_system ?? {};
   const iterationPolicy = implementationContract.iteration_policy ?? {};
   const designSystemSource = implementationContract.design_system_source ?? {};
+  const localComponentAuthority =
+    implementationContract.local_component_authority ?? {};
   const visualTokenAdapter = implementationContract.visual_token_adapter ?? {};
 
   addSection(lines, "Implementation gate", [
@@ -1171,6 +1194,9 @@ function formatImplementationContractCard(result) {
     listLine("Required authorities", designSystemSource.required_authorities),
     firstLine("Fallback policy", designSystemSource.fallback_policy),
     listLine("Approved primitives", implementationContract.approved_primitives),
+    firstLine("Local component authority", localComponentAuthority.mode),
+    firstLine("Local enforcement", localComponentAuthority.enforcement),
+    listLine("Local families", localComponentAuthority.families),
     listLine("Surface patterns", defaultSystem.surface_patterns),
     listLine(
       "Required states",
@@ -1273,6 +1299,10 @@ function formatImplementationReviewCard(result) {
     firstLine(
       "Design-system provenance",
       result.checks?.design_system_provenance?.status,
+    ),
+    firstLine(
+      "Local component authority",
+      result.checks?.local_component_authority?.status,
     ),
     firstLine(
       "Design-system mode",
@@ -1385,6 +1415,10 @@ function formatFrontendContextCard(result) {
       result.implementation_guidance?.design_system_source?.mode,
     ),
     firstLine(
+      "Local component authority",
+      result.implementation_guidance?.local_component_authority?.mode,
+    ),
+    firstLine(
       "Design source package",
       [
         result.implementation_guidance?.design_system_source?.name,
@@ -1452,6 +1486,7 @@ function formatFrontendSkillContextCard(result) {
     firstLine("Icon catalog", iconCatalogSummary(result.icon_guidance?.icon_catalog)),
     listLine("Icon tools", result.icon_guidance?.icon_catalog?.mcp_tools),
     firstLine("Design system source", result.design_system_source?.mode),
+    firstLine("Local component authority", result.local_component_authority?.mode),
     firstLine(
       "Design source package",
       [result.design_system_source?.name, result.design_system_source?.package]
@@ -1922,6 +1957,7 @@ export function createJudgmentKitMcpServer() {
         external_authority: z.string().optional(),
         design_system_adapter: z.record(z.any()).optional(),
         design_system_source: z.record(z.any()).optional(),
+        local_component_authority: z.record(z.any()).optional(),
         repo_evidence: z.array(z.string()).optional(),
         approved_primitives: z
           .array(z.string())
