@@ -210,6 +210,60 @@ function hasAffirmedAny(text, patterns) {
   return patterns.some((pattern) => hasAffirmedPattern(text, pattern));
 }
 
+function hasDiagnosticMachineryAbsence(text) {
+  const diagnosticTerm = /\b(?:diagnostics?|test runs?|connection tests?|traces?|trace logs?|ack\/nack|integration diagnostics?|tool-call traces?|schema failures?|auth scope)\b/g;
+
+  for (const match of text.matchAll(diagnosticTerm)) {
+    if (isNegatedMatch(text, match.index, match.index + match[0].length)) {
+      return true;
+    }
+  }
+
+  return /\b(?:there (?:are|is) no|no|without)\b[^.]{0,180}\b(?:diagnostics?|test runs?|connection tests?|traces?|trace logs?|ack\/nack|integration diagnostics?|tool-call traces?|schema failures?|auth scope)\b/.test(text);
+}
+
+function hasSecondaryDiagnosticBoundary(text) {
+  return hasAffirmedAny(text, [
+    /\b(?:diagnostics?|traces?|tool-call traces?|prompt versions?|root-cause notes?|raw mechanics)\s+(?:are|stay|remain)\s+(?:secondary|diagnostic only|evidence only|only evidence|evidence)\b/,
+    /\b(?:diagnostics?|traces?|tool-call traces?|prompt versions?|root-cause notes?|raw mechanics)\s+(?:provide|provides|give|gives|supply|supplies)\s+context (?:for|to)\s+(?:review|approval|risk review|artifact review)\b/,
+    /\b(?:secondary|diagnostic only|diagnostics? only|evidence only|only evidence)\s+(?:diagnostics?|traces?|tool-call traces?|prompt versions?|root-cause notes?|raw mechanics|context)\b/,
+    /\bdiagnostic context (?:for|to)\s+(?:review|approval|risk review|artifact review)\b/,
+    /\bnot (?:the )?primary\b/,
+    /\bnot debugging (?:the )?(?:run )?machinery\b/,
+  ]);
+}
+
+function hasProducedWorkApprovalContext(text) {
+  return hasOperatorReviewProducedWork(text) &&
+    hasAffirmedAny(text, [
+      /\b(?:review|reviews|reviewing|approve|approval|approved|block|blocked|return|returned|defer|deferred|handoff|release|before release|advance|advances|before it advances)\b/,
+    ]);
+}
+
+function hasPrimaryDebuggingMechanics(text) {
+  const hasRunOrMachineryTarget = hasAffirmedAny(text, [
+    /\b(?:failed ai-agent|failed agent|failed tool runs?|tool-call traces?|prompt\/tool-call traces?|json schema validation|schema failures?|auth scope|api failures?|retry logs|model configuration|resource ids?|replay(?:ing)? the failing step|next configuration change|run machinery|agent run|tool runs?|integration|configuration|setup machinery)\b/,
+  ]);
+  const hasDebugIntent = hasAffirmedAny(text, [
+    /\b(?:debug|debugging|troubleshoot|troubleshooting|investigat(?:e|es|ing)|replay(?:ing)? the failing step|find(?:ing)? root cause|record(?:ing)? the next fix|next fix|next configuration change)\b/,
+    /\b(?:debug|debugging|troubleshoot|troubleshooting|investigat(?:e|es|ing)) (?:the )?(?:machinery|agent run|tool runs?|run machinery|integration|configuration|setup)\b/,
+  ]);
+  const hasExplicitPrimaryDebug = hasAffirmedAny(text, [
+    /\b(?:only|primarily|primary activity is|activity is) (?:to )?(?:debug|debugging|troubleshoot|troubleshooting|investigate|investigating)\b/,
+    /\b(?:raw system mechanics|system mechanics|debugging|diagnostic console|debug console) (?:are|is) (?:the )?primary\b/,
+  ]);
+
+  if (
+    hasProducedWorkApprovalContext(text) &&
+    (!hasExplicitPrimaryDebug || hasSecondaryDiagnosticBoundary(text))
+  ) {
+    return false;
+  }
+
+  return hasExplicitPrimaryDebug ||
+    (hasRunOrMachineryTarget && hasDebugIntent);
+}
+
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -480,7 +534,7 @@ function buildOperatorReviewExclusionEvidence(input) {
     matchedEvidence(
       "debugging_primary_mechanics",
       "Debugging tools where raw system mechanics are primary should not use operator-review.",
-      /\b(?:debugging tool|debug console|raw system mechanics are the primary|system mechanics are the primary|diagnostic console)\b/.test(normalized),
+      hasPrimaryDebuggingMechanics(normalized),
       "Looked for debugging-primary or raw-mechanics-primary language.",
     ),
   ];
@@ -566,11 +620,149 @@ function buildSurfaceTypeInputs(input, activityReview, contract, options = {}) {
     ...(toStringArray(disclosurePolicy.terms_to_use)),
   ].filter(Boolean).join(" ");
   const implementationTermsDetected = detectImplementationTerms(sourceText, contract);
+  const purposeEvidence = buildSurfacePurposeEvidence(
+    sourceText,
+    implementationTermsDetected,
+  );
 
   return {
     source_text: sourceText,
     normalized: normalizeText(sourceText),
     implementation_terms_detected: implementationTermsDetected,
+    purpose_evidence: purposeEvidence,
+  };
+}
+
+function buildSurfacePurposeEvidence(input, implementationTermsDetected = []) {
+  const text = normalizeText(input);
+  const diagnosticMachineryAbsent = hasDiagnosticMachineryAbsence(text);
+  const hasMarketingAudience = hasAffirmedAny(text, [
+    /\b(?:visitor|visitors|prospect|prospects|buyer|buyers|public|campaign|landing page|homepage)\b/,
+  ]);
+  const hasOfferConversion = hasAffirmedAny(text, [
+    /\b(?:offer|value|proof|testimonial|pricing|plan fit|cta|call to action|book (?:a )?demo|start (?:a )?trial|request (?:a )?quote|join (?:a )?waitlist|inquiry|conversion)\b/,
+  ]);
+  const hasLeadCapture = hasAffirmedAny(text, [
+    /\b(?:lead capture|lead form|qualified lead|request-a-quote|request a quote|join-waitlist|join waitlist|waitlist form|demo request|trial request)\b/,
+  ]);
+  const hasStructuredUserRecord = hasAffirmedAny(text, [
+    /\b(?:account|application|membership|checkout|payment|shipping|settings|profile|record|intake|case|ticket|permit|authorization)\b/,
+  ]);
+  const hasFormMechanics = hasAffirmedAny(text, [
+    /\b(?:form|fields?|required|validation|validates?|submit|submits|submitting|confirmation|enter|enters|entering|input|inputs|save|saved)\b/,
+  ]);
+  const hasMonitorStatus = hasAffirmedAny(text, [
+    /\b(?:dashboard|monitor|monitoring|metrics|status|trend|trends|health|kpi|alert|alerts|exceptions?|overview|tracking|thresholds?|downtime|faults?|capacity|sla-risk|forecast variance|runway|stale-data|stale data)\b/,
+  ]);
+  const hasAwarenessCompletion = hasAffirmedAny(text, [
+    /\b(?:completion is knowing|knowing (?:current )?(?:state|status)|knows? current (?:state|status|health)|whether follow-up is needed|if (?:the )?(?:business|service|fleet|operation) is on track|awareness of whether)\b/,
+  ]);
+  const hasDownstreamWorkOrder = hasAffirmedAny(text, [
+    /\b(?:may open|can open|drill(?:s)? into|drill-in|downstream|external)\s+(?:the )?(?:work[- ]order|ticket|case|incident)\b/,
+    /\b(?:work[- ]order|ticket|case|incident)\s+(?:details?|records?|system)?\s*(?:are|is)?\s*(?:downstream|drill-in|drill in)\b/,
+    /\b(?:related|linked|associated)\s+(?:work[- ]order|ticket|case|incident)\s+(?:details?|records?)\s+(?:are\s+)?context only\b/,
+    /\b(?:review|reviews|reviewing)\s+(?:related|linked|associated)?\s*(?:work[- ]order|ticket|case|incident)\s+(?:details?|records?)\s+as context\b/,
+    /\bwork[- ]order system\b/,
+  ]);
+  const hasDirectWorkAction = hasAffirmedAny(text, [
+    /\b(?:assign|assigns|assignment|prioritize|prioritizes|prioritization|close|closes|closing|approve|block|return|handoff|edit|record editing)\b/,
+  ]);
+  const hasReportArtifact = hasAffirmedAny(text, [
+    /\b(?:report|briefing|narrative|summary|cite|citing|citation|export|share|sharing|publish|pdf|reference sections?)\b/,
+  ]);
+  const hasSecondaryReportControl = hasAffirmedAny(text, [
+    /\b(?:export|share|cite|snapshot)\s+(?:control|controls|action|actions)\s+(?:are|is)\s+(?:secondary|optional|context only)\b/,
+    /\b(?:secondary|optional)\s+(?:export|share|cite|snapshot)\s+(?:control|controls|action|actions)\b/,
+    /\b(?:export|share|cite)\s+(?:is|are)\s+(?:only|just)\s+(?:a )?(?:secondary|optional)?\s*(?:control|snapshot|context)\b/,
+  ]);
+  const hasReportProductionAction = hasReportArtifact && !hasSecondaryReportControl && hasAffirmedAny(text, [
+    /\b(?:write|writes|writing|prepare|prepares|preparing|draft|drafts|drafting|export|exports|exporting|cite|cites|citing|share|shares|sharing|publish|publishing|fixed material)\b/,
+  ]);
+  const hasKpiSourceForUpdate = hasAffirmedAny(text, [
+    /\b(?:kpi|arr|pipeline|churn|burn|forecast variance|runway|stale-data|stale data|deltas?)\b/,
+  ]) && hasAffirmedAny(text, [
+    /\bbefore (?:an? )?(?:executive )?(?:update|briefing)\b/,
+    /\bfor (?:an? )?(?:executive )?(?:update|briefing)\b/,
+  ]);
+  const hasSetupMachinery = !diagnosticMachineryAbsent && (hasAffirmedAny(text, [
+    /\b(?:integration|feed|api|protocol|endpoint|webhook|hl7|sso|oauth|auth|authentication|schema|tool runs?|request\/response|ack\/nack|ack|nack|sandbox|signature secret)\b/,
+  ]) || implementationTermsDetected.length > 0);
+  const hasConfigureTest = !diagnosticMachineryAbsent && hasAffirmedAny(text, [
+    /\b(?:configure|configuring|configuration|map|maps|mapping|test|tests|testing|inspect|inspects|validates? (?:a )?(?:sample|payload|message)|send(?:s)? test|endpoint check|schema change|prompt template update|safe to ship|troubleshoot|debug|debugging|diagnostic|trace|traces?|replay|root cause)\b/,
+  ]);
+  const hasAiDebugMechanics = !diagnosticMachineryAbsent && hasPrimaryDebuggingMechanics(text) && hasAffirmedAny(text, [
+    /\b(?:failed ai-agent|failed agent|failed tool runs?|tool runs?|tool-call trace|prompt\/tool-call trace|json schema validation|auth scope|api failures?|retry logs?|model configuration|resource ids?|replay the failing step)\b/,
+  ]);
+
+  const formRole =
+    hasLeadCapture && hasMarketingAudience && hasOfferConversion
+      ? "secondary_conversion"
+      : hasFormMechanics && hasSetupMachinery && hasConfigureTest
+          ? "configuration_controls"
+          : hasFormMechanics && hasStructuredUserRecord
+            ? "primary_structured_completion"
+          : hasFormMechanics
+            ? "ambiguous"
+            : "none";
+  const monitorRole =
+    hasMonitorStatus && hasAwarenessCompletion
+      ? "primary_status_awareness"
+      : hasMonitorStatus
+        ? "status_context"
+        : "none";
+  const reportRole =
+    hasKpiSourceForUpdate && hasMonitorStatus && !hasReportProductionAction
+      ? "downstream_update_context"
+      : hasReportArtifact
+        ? "primary_reading_artifact"
+        : "none";
+  const mechanicsRole =
+    hasAiDebugMechanics
+        ? "primary_debugging"
+        : hasSetupMachinery && hasConfigureTest
+          ? "primary_setup_debug"
+          : hasSetupMachinery
+            ? "technical_context"
+            : "none";
+  const primaryCompletionKind =
+    mechanicsRole === "primary_setup_debug" || mechanicsRole === "primary_debugging"
+      ? "valid_setup_or_next_fix"
+      : monitorRole === "primary_status_awareness"
+        ? "status_awareness"
+        : formRole === "primary_structured_completion"
+          ? "structured_submission"
+          : formRole === "secondary_conversion"
+            ? "conversion_action"
+            : reportRole === "primary_reading_artifact"
+              ? "understand_cite_or_share"
+              : "unknown";
+  const primaryActivityObject =
+    primaryCompletionKind === "valid_setup_or_next_fix"
+      ? "machinery"
+      : primaryCompletionKind === "status_awareness"
+        ? "status_monitor"
+        : primaryCompletionKind === "structured_submission"
+          ? "structured_record"
+          : primaryCompletionKind === "conversion_action"
+            ? "offer"
+            : primaryCompletionKind === "understand_cite_or_share"
+              ? "report"
+              : "unknown";
+  const secondarySurfaceElements = [
+    formRole === "secondary_conversion" ? "lead_capture_form" : null,
+    formRole === "configuration_controls" ? "configuration_fields" : null,
+    hasDownstreamWorkOrder && !hasDirectWorkAction ? "downstream_work_order_drillout" : null,
+    reportRole === "downstream_update_context" ? "executive_update_context" : null,
+  ].filter(Boolean);
+
+  return {
+    primary_completion_kind: primaryCompletionKind,
+    primary_activity_object: primaryActivityObject,
+    secondary_surface_elements: secondarySurfaceElements,
+    form_role: formRole,
+    monitor_role: monitorRole,
+    report_role: reportRole,
+    mechanics_role: mechanicsRole,
   };
 }
 
@@ -596,6 +788,8 @@ function makeSurfaceScore(surfaceType, triggers, exclusions, definition) {
 function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
   const text = inputContext.normalized;
   const implementationTermsDetected = inputContext.implementation_terms_detected;
+  const purposeEvidence = inputContext.purpose_evidence ?? {};
+  const diagnosticMachineryAbsent = hasDiagnosticMachineryAbsence(text);
   const hasReviewDecision = hasAffirmedAny(text, [
     /\b(?:review|reviews|reviewing|compare|compares|comparing|decide|decides|deciding|approve|approval|block|blocking|handoff|prioritize|return|escalate)\b/,
   ]);
@@ -615,8 +809,9 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
   ]);
   const hasFormDataEntryIntent =
     hasAffirmedAny(text, [
-      /\b(?:form|submit|submission|intake|application|onboarding|settings|profile|checkout|edit|update|enter|collect|structured information)\b/,
-      /\b(?:submits|submitting|edits|editing|updates|updating|enters|entering|collects|collecting)\b/,
+      /\b(?:form|submit|submission|intake|application|onboarding|settings|profile|checkout|enter|collect|structured information)\b/,
+      /\b(?:submits|submitting|enters|entering|collects|collecting)\b/,
+      /\b(?:edit|edits|editing|update|updates|updating)\s+(?:a |an |the )?(?:account|settings|profile|record|case|ticket|application|membership|checkout|payment|shipping|permit|authorization|company fields?|billing information|crm|lead record)\b/,
       /\bcreate (?:a |an )?(?:account|profile|application|intake|request|record|case|ticket|entry)\b/,
     ]);
   const hasFormValidationIntent =
@@ -647,25 +842,27 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
     hasStructuredFormFlow ||
     (hasFormDataEntryIntent &&
       hasAffirmedAny(text, [
-        /\b(?:submit|submission|enter|collect|update|edit|onboarding|settings|profile|checkout|intake|required|validation|input|save changes|confirmation)\b/,
-        /\b(?:submits|submitting|edits|editing|updates|updating|enters|entering|collects|collecting)\b/,
+        /\b(?:submit|submission|enter|collect|onboarding|settings|profile|checkout|intake|required|validation|input|save changes|confirmation)\b/,
+        /\b(?:submits|submitting|enters|entering|collects|collecting)\b/,
+        /\b(?:edit|edits|editing|update|updates|updating)\s+(?:a |an |the )?(?:account|settings|profile|record|case|ticket|application|membership|checkout|payment|shipping|permit|authorization|company fields?|billing information|crm|lead record)\b/,
       ]));
   const hasInternalFormContext =
     hasFormPrimary &&
     hasAffirmedAny(text, [
       /\b(?:internal|admin|operations|crm|record|settings|profile|application|intake|checkout|purchase|shipping|payment)\b/,
     ]);
-  const hasRawSetupDebugIntent = hasAffirmedAny(text, [
-    /\b(?:setup|configure|configuration|debug|debugging|troubleshoot|test connection|integration setup|audit integration|safe to ship|release risk|diagnostic (?:console|status|evidence|handoff)|run diagnostics)\b/,
+  const hasRawSetupDebugIntent = !diagnosticMachineryAbsent && hasAffirmedAny(text, [
+    /\b(?:setup|configure|configures|configuring|configuration|map|maps|mapping|inspect|inspects|inspecting|validate|validates|validating|debug|debugging|troubleshoot|test connection|connection tests?|integration setup|audit integration|safe to ship|release risk|trace logs?|ack\/nack|diagnostic (?:console|status|evidence|handoff)|run diagnostics)\b/,
   ]);
-  const hasSetupDebugActivityContext = hasAffirmedAny(text, [
-    /\b(?:setup|configure|configuration|configured|debug|debugging|troubleshoot|troubleshooting|test connection|integration setup|integration (?:test|testing|diagnostics?|troubleshooting|configuration)|audit integration|audit|auditing|safe to ship|release risk|diagnostic (?:console|status|evidence|handoff)|run diagnostics)\b/,
+  const hasSetupDebugActivityContext = !diagnosticMachineryAbsent && hasAffirmedAny(text, [
+    /\b(?:setup|configure|configures|configuring|configuration|configured|map|maps|mapping|inspect|inspects|inspecting|validate|validates|validating|debug|debugging|troubleshoot|troubleshooting|test connection|connection tests?|integration setup|integration (?:test|testing|diagnostics?|troubleshooting|configuration)|audit integration|audit|auditing|safe to ship|release risk|trace logs?|ack\/nack|diagnostic (?:console|status|evidence|handoff)|run diagnostics)\b/,
   ]);
   const hasImplementationMachineryCue =
-    implementationTermsDetected.length > 0 ||
-    hasAffirmedAny(text, [
-      /\b(?:schema change|prompt template|api endpoint|tool call trace|raw system mechanics|mcp server|json schema)\b/,
-    ]);
+    !diagnosticMachineryAbsent &&
+    (implementationTermsDetected.length > 0 ||
+      hasAffirmedAny(text, [
+        /\b(?:schema change|prompt template|api endpoint|tool call trace|raw system mechanics|mcp server|json schema)\b/,
+      ]));
   const hasConversationPrimary = hasAffirmedAny(text, [
     /\b(?:chat|conversation|thread|message composer|assistant exchange|live chat|open-ended|open ended|reply|respond|back and forth)\b/,
   ]);
@@ -721,6 +918,12 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
         ]),
         "Looked for offer, proof, and call-to-action language.",
       ),
+      surfaceEvidence(
+        "lead_capture_secondary_to_offer",
+        "Lead capture is a conversion step inside a marketing activity.",
+        purposeEvidence.form_role === "secondary_conversion",
+        "Looked for public audience, offer/proof, and quote/demo/waitlist capture as the next action.",
+      ),
     ];
     const exclusions = [
       surfaceEvidence(
@@ -736,6 +939,12 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
         "Setup and debugging tools should not be treated as marketing.",
         hasSetupDebug && !hasMarketing,
         "Setup, debugging, integration, or implementation mechanics are primary.",
+      ),
+      surfaceEvidence(
+        "structured_submission_primary",
+        "Structured application or record completion should not be treated as marketing.",
+        purposeEvidence.form_role === "primary_structured_completion",
+        "The user is completing a structured record with validation and confirmation.",
       ),
     ];
 
@@ -796,6 +1005,15 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
           !(hasSpecificWorkbenchItems && hasReviewDecision && hasEvidenceComparison),
         "Form, validation, required input, submit, or confirmation language is primary.",
       ),
+      surfaceEvidence(
+        "downstream_work_orders_only",
+        "Status monitors may link to downstream work orders without becoming a workbench.",
+        ["primary_status_awareness", "status_context"].includes(
+          purposeEvidence.monitor_role,
+        ) &&
+          purposeEvidence.secondary_surface_elements?.includes("downstream_work_order_drillout"),
+        "Work-order language appears as a downstream drill-out, not direct assignment or prioritization.",
+      ),
     ];
 
     return makeSurfaceScore(surfaceType, triggers, exclusions, definition);
@@ -854,6 +1072,21 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
           !hasInternalFormContext,
         "Marketing conversion language is dominant.",
       ),
+      surfaceEvidence(
+        "lead_capture_secondary_to_marketing",
+        "Lead capture fields are secondary to offer conversion.",
+        purposeEvidence.form_role === "secondary_conversion",
+        "The page is public marketing and the form is a CTA, not the product task.",
+      ),
+      surfaceEvidence(
+        "configuration_controls_not_user_data",
+        "Configuration controls and validation belong to setup/debug when machinery checks are primary.",
+        purposeEvidence.form_role === "configuration_controls" &&
+          ["primary_setup_debug", "primary_debugging"].includes(
+            purposeEvidence.mechanics_role,
+          ),
+        "Fields configure technical machinery and completion is a valid setup, failed check, or next fix.",
+      ),
     ];
 
     return makeSurfaceScore(surfaceType, triggers, exclusions, definition);
@@ -880,6 +1113,16 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
         "The surface is used for passive or periodic status reading.",
         hasPassiveOrPeriodicRead,
         "Looked for passive, overview, tracking, watching, or no-decision language.",
+      ),
+      surfaceEvidence(
+        "status_awareness_with_followup",
+        "Completion is knowing current state and whether follow-up is needed.",
+        purposeEvidence.primary_completion_kind === "status_awareness" ||
+          (purposeEvidence.monitor_role === "status_context" &&
+            purposeEvidence.secondary_surface_elements?.includes(
+              "downstream_work_order_drillout",
+            )),
+        "Looked for monitor/status evidence paired with knowing current state, health, or whether follow-up is needed.",
       ),
     ];
     const exclusions = [
@@ -927,6 +1170,12 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
         "Decision, comparison, approval, or handoff language is present.",
       ),
       surfaceEvidence(
+        "kpi_source_not_report_artifact",
+        "KPI data that informs an update remains a monitor unless reading/exporting is primary.",
+        purposeEvidence.report_role === "downstream_update_context",
+        "Executive update or briefing language appears as context for KPI monitoring, not as the report artifact.",
+      ),
+      surfaceEvidence(
         "marketing_primary",
         "Marketing persuasion should use marketing guidance rather than a generic report.",
         hasMarketing,
@@ -955,6 +1204,18 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
         implementationTermsDetected.length > 0
           ? "Implementation terms were detected in the source."
           : "No implementation terms were detected.",
+      ),
+      surfaceEvidence(
+        "machinery_setup_validation",
+        "The user configures or validates technical machinery.",
+        purposeEvidence.mechanics_role === "primary_setup_debug",
+        "Looked for technical machinery and configuration/testing evidence.",
+      ),
+      surfaceEvidence(
+        "debugging_primary_mechanics",
+        "The user is debugging failed machinery rather than reviewing produced work.",
+        purposeEvidence.mechanics_role === "primary_debugging",
+        "Looked for failed runs, traces, replay, root cause, reproducible failure, or next configuration change.",
       ),
     ];
     const exclusions = [
@@ -1287,6 +1548,7 @@ export function recommendSurfaceTypes(input, options = {}) {
       activity_review_status: activityReview.review_status,
       input_excerpt: input.trim().slice(0, 240),
       implementation_terms_detected: inputContext.implementation_terms_detected,
+      purpose_evidence: inputContext.purpose_evidence,
       surface_type_scores: scores.map((entry) => ({
         surface_type: entry.surface_type,
         label: entry.label,
