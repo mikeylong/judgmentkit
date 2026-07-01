@@ -120,7 +120,7 @@ const firstUse = readJson("examples/ai-native-design-system/first-use.json");
 const canonicalExamples = readJson("examples/ai-native-design-system/canonical-examples.json");
 const EXPECTED_RELEASE_VERSION = packageJson.version;
 
-assert.equal(packageJson.version, "0.6.2");
+assert.equal(packageJson.version, "0.6.3");
 assert.equal(activityContract.version, EXPECTED_RELEASE_VERSION);
 assert.equal(getMcpMetadata("streamable-http").version, EXPECTED_RELEASE_VERSION);
 assert.equal(

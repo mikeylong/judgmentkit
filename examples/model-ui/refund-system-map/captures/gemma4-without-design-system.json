@@ -104,7 +104,7 @@
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
   },
   "source_context_status": "legacy_accepted",
-  "current_source_context_sha256": "7165a5813886f2a0e88efda6276410e30cf576ae5d80386d9ddd8602eb875590",
+  "current_source_context_sha256": "295c4bc1382dfe3dd4a51ae8552c5da9b9cbe148c2e24d72d4ec1d69a372f32b",
   "accepted_source_context_sha256": "61230da7c0d2ff5655e04513a3565f2c1a070abe21b80568036ea1b702466385",
   "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
   "canonical_artifact_id": "gemma4-lms-with-judgmentkit",
