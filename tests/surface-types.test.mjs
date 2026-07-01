@@ -368,12 +368,164 @@ const ACTIVE_ALERT_DETAIL_WORKBENCH_BRIEF = `
   shipment.
 `;
 
+const ROUTE_SHIPMENT_DRILLIN_WORKBENCH_BRIEF = `
+  A cold-chain coordinator opens shipment alert drill-in details for active
+  exceptions. The activity is comparing temperature evidence, carrier context,
+  promise windows, and lane constraints, then deciding whether to route the
+  shipment to another lane. Completion is a selected route action and reason.
+`;
+
+const FREEZE_ACCOUNT_DRILLIN_WORKBENCH_BRIEF = `
+  A fraud operations analyst opens account alert drill-in details for active
+  exceptions. The activity is comparing device evidence, policy context, recent
+  transactions, and customer risk, then deciding whether to freeze the account.
+  Completion is a selected action and reason.
+`;
+
+const REQUEST_DOCUMENTS_DRILLIN_WORKBENCH_BRIEF = `
+  A loan coordinator opens application alert drill-in details for active
+  applications. The activity is comparing applicant evidence, policy context,
+  and missing proof, then deciding whether to request missing documents.
+  Completion is a selected action and reason.
+`;
+
+const ROUTE_SHIPMENT_DIRECT_ACTION_WORKBENCH_BRIEF = `
+  A cold-chain coordinator opens shipment alert drill-in details for active
+  exceptions. The coordinator compares temperature evidence, carrier context,
+  promise windows, and lane constraints, then routes the shipment to another lane.
+  Completion is the selected route action and reason.
+`;
+
+const FREEZE_ACCOUNT_DIRECT_ACTION_WORKBENCH_BRIEF = `
+  A fraud operations analyst opens account alert drill-in details for active
+  exceptions. The analyst compares device evidence, policy context, recent
+  transactions, and customer risk, then freezes the account. Completion is the
+  selected action and reason.
+`;
+
+const REQUEST_DOCUMENTS_DIRECT_ACTION_WORKBENCH_BRIEF = `
+  A loan coordinator opens application alert drill-in details for active
+  applications. The coordinator compares applicant evidence, policy context,
+  and missing proof, then requests missing documents. Completion is the selected
+  action and reason.
+`;
+
+const DISPATCH_ALERT_DASHBOARD_WORKBENCH_BRIEF = `
+  A field service coordinator reviews a repair alert dashboard showing open
+  alerts, technician status, and equipment health. The activity is comparing
+  evidence and deciding whether to dispatch a technician for each alert.
+  Completion is a dispatch decision and reason.
+`;
+
 const APPROVAL_RATE_DASHBOARD_BRIEF = `
   A pharmacy operations lead monitors an approval rate dashboard showing
   authorization approval rates, denial trends, SLA status, stale-data warnings,
   and exception alerts. No operational decision is required on this surface;
   completion is knowing status and whether follow-up is needed.
 `;
+
+const CLOSE_RESOLVE_METRIC_DASHBOARD_BRIEFS = [
+  {
+    label: "case close rate dashboard",
+    brief: `
+      A service operations lead monitors a case close rate dashboard showing
+      close rate, backlog trends, SLA status, exception alerts, and weekly
+      health. Completion is knowing current status and whether follow-up is
+      needed.
+    `,
+  },
+  {
+    label: "alert resolve time dashboard",
+    brief: `
+      A support operations lead monitors an alert resolve time dashboard showing
+      resolve time, sensor fault trends, SLA status, exception alerts, and
+      service health. Completion is knowing current status and whether follow-up
+      is needed.
+    `,
+  },
+  {
+    label: "reroute rate dashboard",
+    brief: `
+      A logistics operations lead monitors a reroute rate dashboard showing
+      reroute rates, shipment status, exception alerts, and weekly health.
+      Completion is knowing current status and whether follow-up is needed.
+    `,
+  },
+  {
+    label: "route shipment rate dashboard",
+    brief: `
+      A logistics operations lead monitors a route shipment rate dashboard
+      showing route shipment rates, shipment status, exception alerts, and
+      weekly health. Completion is knowing current status and whether follow-up
+      is needed.
+    `,
+  },
+  {
+    label: "freeze account rate dashboard",
+    brief: `
+      A fraud operations lead monitors a freeze account rate dashboard showing
+      freeze account rates, risk status, exception alerts, and weekly health.
+      Completion is knowing current status and whether follow-up is needed.
+    `,
+  },
+  {
+    label: "request documentation rate dashboard",
+    brief: `
+      A loan operations lead monitors a request documentation rate dashboard
+      showing request documentation rates, application status, exception alerts,
+      and weekly health. Completion is knowing current status and whether
+      follow-up is needed.
+    `,
+  },
+];
+
+const PLAIN_DASHBOARD_CONTEXT_BRIEFS = [
+  {
+    label: "plain shipment dashboard",
+    brief: `
+      A cold-chain operations lead reviews a shipment dashboard showing current
+      shipments, alerts, sensor readings, temperature trends, route exceptions,
+      and custody status.
+    `,
+  },
+  {
+    label: "plain alert dashboard",
+    brief: `
+      A service operations manager reviews an alert dashboard showing open
+      alerts, severity trends, incident status, sensor faults, and response
+      health.
+    `,
+  },
+  {
+    label: "plain sensor dashboard",
+    brief: `
+      A plant operations lead uses a sensor dashboard showing sensor readings,
+      fault alerts, temperature trends, equipment status, and threshold breaches.
+    `,
+  },
+  {
+    label: "dashboard workspace",
+    brief: `
+      A support lead uses a dashboard workspace showing open alerts, severity
+      trends, and incident status.
+    `,
+  },
+  {
+    label: "queue health dashboard",
+    brief: `
+      A support operations lead uses a queue dashboard showing queue depth, SLA
+      trends, backlog health, open alerts, and aging by team.
+    `,
+  },
+  {
+    label: "follow-up decision dashboard",
+    brief: `
+      A service operations lead monitors an alert dashboard showing status,
+      trends, exception health, and aging by team. Completion is deciding
+      whether follow-up is needed.
+    `,
+  },
+];
 
 const METRIC_NOUN_DASHBOARD_BRIEFS = [
   {
@@ -510,6 +662,17 @@ const REFUND_TRIAGE_BRIEF = `
   The activity is deciding whether a case should be approved, sent to policy review,
   or returned to the agent for missing evidence. The outcome is a clear handoff
   with the next action and the reason for the decision.
+`;
+
+const REFUND_IMPLEMENTATION_HEAVY_TRIAGE_BRIEF = `
+  A support operations manager is reviewing customer refund escalation cases.
+  The request says to build the surface from the refund_case data model, expose
+  every database table field, show JSON schema validation errors, show prompt
+  template version, show tool call results, include resource id and API endpoint
+  status, and make it CRUD. The activity is deciding whether an escalation
+  should be approved, sent to policy review, or returned to the support agent
+  for missing evidence. The outcome is a clear handoff with the next action and
+  reason for the decision.
 `;
 
 function refundWorkflowCandidate() {
@@ -961,6 +1124,11 @@ function assertSurfaceRecommendation({
       surfaceType: "workbench",
     },
     {
+      label: "implementation-heavy refund triage workbench",
+      brief: REFUND_IMPLEMENTATION_HEAVY_TRIAGE_BRIEF,
+      surfaceType: "workbench",
+    },
+    {
       label: "no final decision workbench",
       brief: NO_FINAL_DECISION_WORKBENCH_BRIEF,
       surfaceType: "workbench",
@@ -1194,6 +1362,56 @@ function assertSurfaceRecommendation({
     ).matched_exclusions.includes("bounded_decision_work"),
   );
 
+  for (const { label, brief } of [
+    {
+      label: "route shipment drill-in workbench",
+      brief: ROUTE_SHIPMENT_DRILLIN_WORKBENCH_BRIEF,
+    },
+    {
+      label: "freeze account drill-in workbench",
+      brief: FREEZE_ACCOUNT_DRILLIN_WORKBENCH_BRIEF,
+    },
+    {
+      label: "request documents drill-in workbench",
+      brief: REQUEST_DOCUMENTS_DRILLIN_WORKBENCH_BRIEF,
+    },
+    {
+      label: "route shipment direct-action workbench",
+      brief: ROUTE_SHIPMENT_DIRECT_ACTION_WORKBENCH_BRIEF,
+    },
+    {
+      label: "freeze account direct-action workbench",
+      brief: FREEZE_ACCOUNT_DIRECT_ACTION_WORKBENCH_BRIEF,
+    },
+    {
+      label: "request documents direct-action workbench",
+      brief: REQUEST_DOCUMENTS_DIRECT_ACTION_WORKBENCH_BRIEF,
+    },
+    {
+      label: "dispatch alert dashboard workbench",
+      brief: DISPATCH_ALERT_DASHBOARD_WORKBENCH_BRIEF,
+    },
+  ]) {
+    const drillInWorkbench = recommendSurfaceTypes(brief);
+
+    assert.equal(drillInWorkbench.recommended_surface_type, "workbench");
+    assertSurfaceBeats(drillInWorkbench, "workbench", "dashboard_monitor", label);
+    assert.ok(
+      surfaceTypeScore(
+        drillInWorkbench,
+        "workbench",
+      ).matched_triggers.includes("inspect_compare_decide_act"),
+      `${label} should preserve the direct work action`,
+    );
+    assert.ok(
+      surfaceTypeScore(
+        drillInWorkbench,
+        "dashboard_monitor",
+      ).matched_exclusions.includes("bounded_decision_work"),
+      `${label} should not collapse active drill-in work into dashboard monitoring`,
+    );
+  }
+
   const approvalRateDashboard = recommendSurfaceTypes(
     APPROVAL_RATE_DASHBOARD_BRIEF,
   );
@@ -1211,6 +1429,43 @@ function assertSurfaceRecommendation({
     ).matched_exclusions.includes("bounded_decision_work"),
       false,
   );
+
+  for (const { label, brief } of CLOSE_RESOLVE_METRIC_DASHBOARD_BRIEFS) {
+    const metricDashboard = recommendSurfaceTypes(brief);
+
+    assert.equal(metricDashboard.recommended_surface_type, "dashboard_monitor");
+    assertSurfaceBeats(metricDashboard, "dashboard_monitor", "workbench", label);
+    assert.equal(
+      surfaceTypeScore(
+        metricDashboard,
+        "dashboard_monitor",
+      ).matched_exclusions.includes("bounded_decision_work"),
+      false,
+      `${label} should not treat close/resolve metric labels as bounded work`,
+    );
+  }
+
+  for (const { label, brief } of PLAIN_DASHBOARD_CONTEXT_BRIEFS) {
+    const plainDashboard = recommendSurfaceTypes(brief);
+
+    assert.equal(plainDashboard.recommended_surface_type, "dashboard_monitor");
+    assertSurfaceBeats(plainDashboard, "dashboard_monitor", "workbench", label);
+    assert.ok(
+      surfaceTypeScore(
+        plainDashboard,
+        "dashboard_monitor",
+      ).matched_triggers.includes("passive_or_periodic_read"),
+      `${label} should count plain dashboard context as passive monitoring`,
+    );
+    assert.equal(
+      surfaceTypeScore(
+        plainDashboard,
+        "dashboard_monitor",
+      ).matched_exclusions.includes("bounded_decision_work"),
+      false,
+      `${label} should not treat passive dashboard context as bounded work`,
+    );
+  }
 
   for (const { label, brief } of METRIC_NOUN_DASHBOARD_BRIEFS) {
     const metricDashboard = recommendSurfaceTypes(brief);

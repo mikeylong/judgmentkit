@@ -269,15 +269,21 @@ function hasDirectWorkbenchAction(text) {
     /\b(?:assign|assigns|assigning|reassign|reassigns|reassigning|prioritize|prioritizes|prioritizing)\b/,
     /\b(?:approve|approves|approving|block|blocks|blocking|edit|edits|editing|record editing)\b/,
     /\breturns?\s+(?:for|to|the\s+)?(?:evidence|case|request|item|recommendation|shipment|load|alert|exception|finding|candidate)\b/,
-    /\b(?:close|closes|closing|resolve|resolves|resolving)\b/,
-    /\b(?:reroute|re-route|reroutes|re-routes|rerouting|re-routing)\b/,
+    /\b(?:close|closes|closing|resolve|resolves|resolving)\s+(?:an?\s+|the\s+|this\s+|that\s+|each\s+|selected\s+|affected\s+|open\s+)?(?:cases?|requests?|items?|recommendations?|shipments?|loads?|alerts?|exceptions?|findings?|candidates?|tickets?|incidents?|orders?|work[- ]orders?|repairs?|applications?|accounts?|claims?|issues?|tasks?)\b(?!\s+(?:rates?|trends?|times?|latency|counts?|volumes?|metrics?|dashboard))/,
+    /\b(?:mark|marks|marking)\s+(?:an?\s+|the\s+|this\s+|that\s+|each\s+|selected\s+|affected\s+|open\s+)?(?:cases?|requests?|items?|shipments?|loads?|alerts?|exceptions?|tickets?|incidents?|orders?|work[- ]orders?|repairs?|applications?|accounts?|claims?|issues?|tasks?)\s+(?:closed|resolved|complete|done)\b(?!\s+(?:rates?|trends?|times?|latency|counts?|volumes?|metrics?|dashboard))/,
+    /\b(?:reroute|re-route|reroutes|re-routes|rerouting|re-routing)\s+(?:an?\s+|the\s+|this\s+|that\s+|each\s+|selected\s+|affected\s+)?(?:shipments?|loads?|deliveries?|orders?|drivers?|crews?|technicians?|cases?|requests?|tickets?|incidents?|claims?|applications?)\b(?!\s+(?:rates?|trends?|times?|latency|counts?|volumes?|metrics?|dashboard))/,
+    /\b(?:route|routes|routing)\s+(?:an?\s+|the\s+|this\s+|that\s+|each\s+|selected\s+|affected\s+)?(?:shipments?|loads?|deliveries?|orders?|drivers?|crews?|technicians?|cases?|requests?|tickets?|incidents?|claims?|applications?)\b(?!\s+(?:rates?|trends?|times?|latency|counts?|volumes?|metrics?|dashboard))/,
+    /\b(?:route|routes|routing)\s+(?:an?\s+|the\s+|this\s+|that\s+|each\s+|selected\s+|affected\s+)?(?:alerts?|exceptions?)\s+(?:to|for)\b/,
+    /\b(?:freeze|freezes|freezing)\s+(?:an?\s+|the\s+|this\s+|that\s+|each\s+|selected\s+|affected\s+)?(?:accounts?|cards?|payments?|shipments?|loads?|inventory|orders?|requests?|cases?|claims?|applications?|transactions?|assets?|records?)\b(?!\s+(?:rates?|trends?|times?|latency|counts?|volumes?|metrics?|dashboard))/,
+    /\b(?:request|requests|requesting)\s+(?:additional\s+|missing\s+|required\s+|supporting\s+|updated\s+)?(?:documents?|docs?|documentation|evidence|paperwork)\b(?!\s+(?:rates?|trends?|times?|latency|counts?|volumes?|metrics?|dashboard))/,
+    /\b(?:send|sends|sending)\s+(?:an?\s+)?(?:document|docs?|documentation|evidence|paperwork)\s+request\b(?!\s+(?:rates?|trends?|times?|latency|counts?|volumes?|metrics?|dashboard))/,
     /\b(?:place|places|placing|put|puts|putting)\s+(?:a\s+)?hold\b/,
     /\bhold\s+(?:the\s+)?(?:shipment|load|inventory|order|delivery)\b/,
     /\b(?:quarantine|quarantines|quarantining)\s+(?:inventory|shipment|load|product|dose|doses|vaccine|vaccines?)\b/,
     /\brelease(?:s|d|ing)?\s+(?:the\s+)?(?:shipment|load|inventory|order|delivery|product|dose|doses|vaccine|vaccines?)\b/,
     /\b(?:triage|triages|triaging)\s+(?:queue|cases|requests|findings|workstreams|visits|work[- ]orders?|tickets?|incidents?|alerts?|exceptions?|shipments?|loads?|deliveries?|sensors?|sensor readings?|repairs?)\b/,
     /\bescalat(?:e|es|ing)\s+(?:cases|requests|findings|workstreams|visits|work[- ]orders?|tickets?|incidents?|alerts?|exceptions?|shipments?|loads?|deliveries?|repairs?)\b/,
-    /\b(?:dispatch|dispatches|dispatching)\s+(?:technicians?|drivers?|crews?|shipments?|loads?|orders?|repairs?)\b/,
+    /\b(?:dispatch|dispatches|dispatching)\s+(?:an?\s+|the\s+|this\s+|that\s+|each\s+|selected\s+|affected\s+)?(?:technicians?|drivers?|crews?|shipments?|loads?|orders?|repairs?)\b/,
     /\b(?:handoff|handoffs|handing off)\s+(?:cases|requests|findings|workstreams|visits|work[- ]orders?|tickets?|incidents?|alerts?|exceptions?|shipments?|loads?|deliveries?|repairs?|items?|to)\b/,
     /\b(?:leave|leaves|leaving|left)\s+(?:a\s+)?handoff\b/,
     /\bhandoff\s+(?:receipt|note|reason|owner)\b/,
@@ -874,9 +880,30 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
     /\b(?:decision|decide|decides|deciding|choose|chooses|choosing|approve|block|blocking|return|handoff|prioritize|resolve|submit|complete|save|saving)\b/,
   ]);
   const hasDirectWorkAction = hasDirectWorkbenchAction(directActionText);
+  const hasDashboardMonitoringContext = hasAffirmedAny(text, [
+    /\b(?:dashboard|monitor|monitoring|metrics|status|trend|trends|health|kpi|alert|alerts|exceptions?|shipments?|sensors?|sensor readings?|temperature|cold[- ]chain|overview|analytics|tracking|watch)\b/,
+  ]);
   const hasNoDecisionRequired =
     /\bno (?:operational |active |bounded |human |user )?decision(?:\s+(?:is|are))?\s+(?:required|needed|necessary|expected)\b/.test(text) ||
     /\b(?:without|requires no|needs no) (?:operational |active |bounded |human |user )?decision\b/.test(text);
+  const hasBoundedWorkDecisionCue =
+    hasDirectWorkAction ||
+    hasAffirmedAny(directActionText, [
+      /\b(?:decid(?:e|es|ing)|choose|chooses|choosing)\s+whether\s+(?:an?\s+|the\s+|this\s+|that\s+|each\s+|selected\s+|affected\s+|open\s+)?(?:cases?|requests?|items?|recommendations?|shipments?|loads?|alerts?|exceptions?|escalations?|findings?|candidates?|tickets?|incidents?|orders?|work[- ]orders?|repairs?|applications?|accounts?|claims?|issues?|tasks?|transactions?|artifacts?)\s+(?:should|must|can|will|is|are)\s+(?:(?:be|get)\s+)?(?:approved|blocked|returned|sent|routed|rerouted|re-routed|frozen|requested|closed|resolved|assigned|reassigned|prioritized|escalated|dispatched|held|rejected|deferred|tightened|advanced|submitted|completed|saved)\b/,
+      /\b(?:decid(?:e|es|ing)|choose|chooses|choosing)\s+whether to\s+(?:approve|block|return|handoff|assign|reassign|prioritize|resolve|close|edit|escalate|route|reroute|freeze|request|dispatch)\b/,
+      /\b(?:approve|approves|approving|block|blocks|blocking|assign|assigns|assigning|reassign|reassigns|reassigning|prioritize|prioritizes|prioritizing|escalate|escalates|escalating)\b/,
+    ]);
+  const hasPassiveDashboardContext =
+    hasDashboardMonitoringContext &&
+    !hasBoundedWorkDecisionCue &&
+    ![
+      "structured_submission",
+      "valid_setup_or_next_fix",
+      "conversion_action",
+      "understand_cite_or_share",
+    ].includes(purposeEvidence.primary_completion_kind) &&
+    purposeEvidence.report_role !== "primary_reading_artifact" &&
+    !/\bworkbench\b/.test(text);
   const hasActiveReviewDecision =
     (hasReviewDecision || hasDirectWorkAction) && !hasNoDecisionRequired;
   const hasMarketing = hasAffirmedAny(text, [
@@ -1066,7 +1093,8 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "passive_monitoring",
         "Passive monitoring should stay a dashboard monitor.",
-        /\b(?:passive dashboard|monitor|monitoring|status overview|trend dashboard|health dashboard)\b/.test(text) && !hasActiveReviewDecision,
+        hasPassiveDashboardContext ||
+          (/\b(?:passive dashboard|monitor|monitoring|status overview|trend dashboard|health dashboard)\b/.test(text) && !hasActiveReviewDecision),
         "Monitoring or dashboard language appears without decision work.",
       ),
       surfaceEvidence(
@@ -1179,14 +1207,12 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
   }
 
   if (surfaceType === "dashboard_monitor") {
-    const hasDashboardMonitoringContext = hasAffirmedAny(text, [
-      /\b(?:dashboard|monitor|monitoring|metrics|status|trend|trends|health|kpi|alert|alerts|exceptions?|shipments?|sensors?|sensor readings?|temperature|cold[- ]chain|overview|analytics|tracking|watch)\b/,
-    ]);
     const hasPassiveOrPeriodicRead =
       hasAffirmedAny(text, [
         /\b(?:passive|overview|at a glance|tracking|watch|weekly|daily status)\b/,
       ]) ||
-      (hasDashboardMonitoringContext && /\bno decision\b/.test(text));
+      (hasDashboardMonitoringContext &&
+        (hasPassiveDashboardContext || /\bno decision\b/.test(text)));
     const triggers = [
       surfaceEvidence(
         "monitor_status_or_trends",
@@ -1217,10 +1243,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "bounded_decision_work",
         "Bounded review decisions should not be reduced to a dashboard.",
-        hasDirectWorkAction ||
-          hasAffirmedAny(directActionText, [
-            /\bdecide whether to\s+(?:approve|block|return|handoff|assign|reassign|prioritize|resolve|close|edit|escalate)\b/,
-          ]),
+        hasBoundedWorkDecisionCue,
         "Approval, blocking, return, handoff, or triage language implies work support.",
       ),
       surfaceEvidence(

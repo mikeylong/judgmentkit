@@ -156,7 +156,7 @@ function requireTools(toolNames) {
 }
 
 function summarizeScore(surfaceReview, surfaceType) {
-  const score = surfaceReview?.diagnostics?.surface_type_scores?.find(
+  const score = surfaceReview?.evidence?.surface_type_scores?.find(
     (entry) => entry.surface_type === surfaceType,
   );
 
