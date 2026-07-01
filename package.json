@@ -1,6 +1,6 @@
 {
   "name": "judgmentkit",
-  "version": "0.6.1",
+  "version": "0.6.2",
   "private": true,
   "type": "module",
   "bin": {
@@ -51,6 +51,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "ajv": "^8.20.0",
     "lucide-static": "^1.21.0"
   }
 }

@@ -32,7 +32,7 @@
   "frontend_skill_context": {
     "source_skill": "frontend-ui-implementation",
     "raw_skill_exposed": false,
-    "surface_type": null,
+    "surface_type": "workbench",
     "design_system_mode": "judgmentkit_default",
     "design_system_name": "JudgmentKit",
     "next_recommended_tool": "review_ui_implementation_candidate",
@@ -96,5 +96,9 @@
     "status": 0,
     "stdout_sha256": "8a5cc28d8d576d7b495bf621cad9ee9df9c4c6c6264dea3260848d2281a5cf3d",
     "stderr_sha256": "6468c57b1ba30d668a84a9393508ae0b2902641a2fa75c4125d93c9064d963f6"
-  }
+  },
+  "source_context_status": "legacy_accepted",
+  "current_source_context_sha256": "fb95e9a5937d185a3e6709a2ee415f2cbdc6aa4f742d908af69f880726b8c0f6",
+  "accepted_source_context_sha256": "84d7adc5190f3796a3fc4e61f40b3987ead81206cb9dc750b4098c36873bbacd",
+  "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
 }

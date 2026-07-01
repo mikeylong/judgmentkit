@@ -21,7 +21,11 @@ import {
 } from "./index.mjs";
 
 const MCP_SERVER_NAME = "JudgmentKit";
-const MCP_SERVER_VERSION = "0.6.1";
+const MCP_SERVER_VERSION = "0.6.2";
+const APPROVED_PRIMITIVES_INPUT_DESCRIPTION =
+  "Optional allowed implementation primitives for generated UI evidence. These are implementation primitives only; do not list design-system component contract ids here. Defaults to the portable no-system primitive set.";
+const REVIEW_UI_IMPLEMENTATION_CANDIDATE_INPUT_DESCRIPTION =
+  "Generated UI candidate as code text or structured evidence containing primitives_used, states_covered or covered_states, static_checks or static_evidence, browser_qa, accessibility_evidence for core and condition-specific accessibility gates, optional visual_token_evidence metadata, component_contract_evidence, pattern_contract_evidence, design_system_provenance, and local_component_authority_evidence reviewed by checks.local_component_authority. primitives_used may contain only implementation_contract.approved_primitives; place design-system component ids in component_contract_evidence.components[].id and pattern ids in pattern_contract_evidence.pattern_id.";
 
 const ANALYZE_TOOL = {
   name: "analyze_implementation_brief",
@@ -79,6 +83,11 @@ const RECOMMEND_SURFACE_TYPES_TOOL = {
         type: "object",
         description:
           "Optional activity review packet returned by create_activity_model_review.",
+      },
+      activityReview: {
+        type: "object",
+        description:
+          "Compatibility alias for activity_review. If both are provided, activity_review wins.",
       },
     },
     additionalProperties: false,
@@ -234,7 +243,7 @@ const UI_GENERATION_HANDOFF_TOOL = {
 const UI_IMPLEMENTATION_CONTRACT_TOOL = {
   name: "create_ui_implementation_contract",
   description:
-    "Create an implementation contract for generated UI, using JudgmentKit design-system authority by default or a complete external design-system adapter when supplied.",
+    "Create an implementation contract for generated UI, using JudgmentKit design-system authority by default, optional repo-local component authority, or a complete external design-system adapter when supplied.",
   inputSchema: {
     type: "object",
     properties: {
@@ -261,6 +270,11 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
         description:
           "Optional normalized active design-system source when passing an already-created implementation contract shape.",
       },
+      local_component_authority: {
+        type: "object",
+        description:
+          "Optional repo-local component authority with mode none or repo_local, enforcement optional or required, families, selector_boundary, token_boundary, and computed_style_evidence expectations.",
+      },
       repo_evidence: {
         type: "array",
         items: { type: "string" },
@@ -270,8 +284,7 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
       approved_primitives: {
         type: "array",
         items: { type: "string" },
-        description:
-          "Optional allowed primitives. Defaults to the portable no-system primitive set.",
+        description: APPROVED_PRIMITIVES_INPUT_DESCRIPTION,
       },
       static_rules: {
         type: "array",
@@ -313,19 +326,48 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
 const REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL = {
   name: "review_ui_implementation_candidate",
   description:
-    "Review generated UI or code evidence against an active UI implementation contract.",
+    "Review generated UI or code evidence against an active UI implementation contract, including local_component_authority_evidence when repo-local component authority is active.",
   inputSchema: {
     type: "object",
     required: ["candidate", "implementation_contract"],
     properties: {
       candidate: {
-        description:
-          "Generated UI candidate as code text or structured evidence containing primitives_used, states_covered or covered_states, static_checks or static_evidence, browser_qa, accessibility_evidence for core and condition-specific accessibility gates, and optional visual_token_evidence metadata.",
+        description: REVIEW_UI_IMPLEMENTATION_CANDIDATE_INPUT_DESCRIPTION,
       },
       implementation_contract: {
         type: "object",
         description:
           "Implementation contract returned by create_ui_implementation_contract or equivalent repo-local packet.",
+      },
+      surface_type: {
+        type: "string",
+        description:
+          "Optional selected surface type from recommend_surface_types, review_ui_workflow_candidate, or create_frontend_generation_context. Used to validate pattern_contract_evidence against the active surface.",
+      },
+      surfaceType: {
+        type: "string",
+        description:
+          "CamelCase alias for surface_type.",
+      },
+      surface_review: {
+        type: "object",
+        description:
+          "Optional recommend_surface_types result. recommended_surface_type is used to validate pattern_contract_evidence against the active surface.",
+      },
+      surfaceReview: {
+        type: "object",
+        description:
+          "CamelCase alias for surface_review.",
+      },
+      frontend_generation_context: {
+        type: "object",
+        description:
+          "Optional frontend generation context whose surface_type is used to validate pattern_contract_evidence against the active surface.",
+      },
+      frontendGenerationContext: {
+        type: "object",
+        description:
+          "CamelCase alias for frontend_generation_context.",
       },
       iteration_context: {
         type: "object",
@@ -589,6 +631,299 @@ function roleSummaryList(values, formatter, limit = 4) {
     .map(compactText)
     .filter(Boolean)
     .slice(0, limit);
+}
+
+function displayLabelFromKey(key) {
+  return compactText(key)
+    .split("_")
+    .filter(Boolean)
+    .map((part) => `${part.charAt(0).toUpperCase()}${part.slice(1)}`)
+    .join(" ");
+}
+
+function evidenceFieldLabel(key) {
+  const labels = {
+    primitives_used: "Primitives used",
+    approved_primitives: "Implementation primitives",
+    implementation_primitives: "Implementation primitives",
+    component_contract_evidence: "Component contracts",
+    component_contracts: "Component contracts",
+    pattern_contract_evidence: "Pattern contracts",
+    pattern_contracts: "Pattern contracts",
+    visual_token_evidence: "Visual token evidence",
+    design_system_provenance: "Design-system provenance",
+    local_component_authority_evidence: "Local component authority",
+    local_component_authority: "Local component authority",
+  };
+
+  return labels[key] ?? displayLabelFromKey(key);
+}
+
+function evidenceMappingListValue(value) {
+  if (!Array.isArray(value)) {
+    return "";
+  }
+
+  return value
+    .map((entry) => {
+      if (typeof entry === "string") {
+        return compactText(entry);
+      }
+
+      if (entry === null || entry === undefined) {
+        return "";
+      }
+
+      if (isRecord(entry)) {
+        return evidenceFieldMappingValue(entry);
+      }
+
+      return compactText(String(entry));
+    })
+    .filter(Boolean)
+    .slice(0, 3)
+    .join(", ");
+}
+
+function evidenceFieldMappingValue(value) {
+  if (typeof value === "string") {
+    return compactText(value);
+  }
+
+  if (typeof value === "number" || typeof value === "boolean") {
+    return String(value);
+  }
+
+  if (Array.isArray(value)) {
+    return evidenceMappingListValue(value);
+  }
+
+  if (!isRecord(value)) {
+    return "";
+  }
+
+  const field = compactText(
+    value.candidate_field ??
+      value.candidate_path ??
+      value.evidence_field ??
+      value.field ??
+      value.path ??
+      "",
+  );
+  const source = compactText(
+    value.source ??
+      value.source_field ??
+      value.source_path ??
+      value.allowed_source ??
+      value.allowed_values_source ??
+      "",
+  );
+  const allowed = evidenceMappingListValue(
+    value.allowed_values ?? value.values ?? value.examples,
+  );
+  const note = compactText(
+    value.note ??
+      value.description ??
+      value.constraint ??
+      value.rule ??
+      value.accepts ??
+      "",
+  );
+  const directSummary = [
+    field,
+    source ? `source ${source}` : "",
+    allowed ? `allowed ${allowed}` : "",
+    note,
+  ].filter(Boolean);
+
+  if (directSummary.length > 0) {
+    return directSummary.join("; ");
+  }
+
+  return Object.entries(value)
+    .map(([nestedKey, nestedValue]) => {
+      const nestedText = evidenceFieldMappingValue(nestedValue);
+
+      return nestedText ? `${displayLabelFromKey(nestedKey)} ${nestedText}` : "";
+    })
+    .filter(Boolean)
+    .slice(0, 3)
+    .join("; ");
+}
+
+function contractEvidenceFieldMapping(implementationContract) {
+  if (!isRecord(implementationContract)) {
+    return null;
+  }
+
+  const defaultSystem =
+    implementationContract.default_ai_native_design_system ?? {};
+  const componentContracts = Array.isArray(defaultSystem.component_contracts)
+    ? defaultSystem.component_contracts
+    : [];
+  const patternContracts = Array.isArray(defaultSystem.pattern_contracts)
+    ? defaultSystem.pattern_contracts
+    : [];
+  const visualTokenAdapter = implementationContract.visual_token_adapter ?? {};
+  const designSystemSource = implementationContract.design_system_source ?? {};
+  const localComponentAuthority =
+    implementationContract.local_component_authority ?? {};
+
+  return {
+    primitives_used: {
+      field: "primitives_used",
+      source_path: "implementation_contract.approved_primitives",
+      accepts: "Only ids from implementation_contract.approved_primitives.",
+      allowed_values: implementationContract.approved_primitives,
+    },
+    component_contract_evidence: {
+      field: "component_contract_evidence",
+      source_path:
+        "implementation_contract.default_ai_native_design_system.component_contracts",
+      id_field: "component_contract_evidence.components[].id",
+      state_field: "component_contract_evidence.components[].states_covered",
+      accepts:
+        "Design-system component contract ids with state coverage for each used component.",
+      allowed_component_ids: componentContracts.map((contract) => contract.id),
+    },
+    pattern_contract_evidence: {
+      field: "pattern_contract_evidence",
+      source_path:
+        "implementation_contract.default_ai_native_design_system.pattern_contracts",
+      id_field: "pattern_contract_evidence.pattern_id",
+      accepts:
+        "One design-system pattern contract id with matching surface evidence.",
+      allowed_pattern_ids: patternContracts.map((contract) => contract.id),
+    },
+    visual_token_evidence: {
+      field: "visual_token_evidence",
+      source_path: "implementation_contract.visual_token_adapter",
+      accepts:
+        "Boundary proof for token families, font roles, icon roles, and catalog icon ids.",
+      allowed_values: visualTokenAdapter.token_families,
+    },
+    design_system_provenance: {
+      field: "design_system_provenance",
+      source_path: "implementation_contract.design_system_source",
+      accepts:
+        "Source proof for visual tokens, typography, icon assets, renderer components, imports, packages, token prefixes, and design-system exports.",
+      active_source: {
+        mode: designSystemSource.mode,
+        name: designSystemSource.name,
+        package: designSystemSource.package,
+      },
+    },
+    local_component_authority_evidence: {
+      field: "local_component_authority_evidence",
+      source_path: "implementation_contract.local_component_authority",
+      accepts:
+        "Repo-local component family, selector-boundary, token-boundary, and computed-style evidence when local component authority is active.",
+      active_authority: {
+        mode: localComponentAuthority.mode,
+        enforcement: localComponentAuthority.enforcement,
+        families: localComponentAuthority.families,
+      },
+    },
+  };
+}
+
+function evidenceFieldMappingEntries(result) {
+  const mapping =
+    result?.evidence_field_mapping ??
+    result?.implementation_guidance?.evidence_field_mapping ??
+    result?.implementation_contract?.evidence_field_mapping ??
+    result?.design_system_policy?.evidence_field_mapping ??
+    contractEvidenceFieldMapping(result?.implementation_contract);
+
+  if (!isRecord(mapping)) {
+    return [];
+  }
+
+  const criticalKeys = [
+    "visual_token_evidence",
+    "design_system_provenance",
+    "local_component_authority_evidence",
+  ];
+  const preferredKeys = [
+    "primitives_used",
+    "approved_primitives",
+    "implementation_primitives",
+    "component_contract_evidence",
+    "component_contracts",
+    "pattern_contract_evidence",
+    "pattern_contracts",
+    ...criticalKeys,
+  ];
+  const orderedKeys = [
+    ...preferredKeys.filter((key) =>
+      Object.prototype.hasOwnProperty.call(mapping, key),
+    ),
+    ...Object.keys(mapping).filter((key) => !preferredKeys.includes(key)),
+  ];
+  const keys = [];
+
+  for (const key of orderedKeys) {
+    if (
+      keys.length < 6 ||
+      criticalKeys.includes(key)
+    ) {
+      keys.push(key);
+    }
+  }
+
+  return keys
+    .map((key) =>
+      firstLine(evidenceFieldLabel(key), evidenceFieldMappingValue(mapping[key])),
+    )
+    .filter(Boolean);
+}
+
+function approvedPrimitiveRouteHint(approvedPrimitiveCheck) {
+  if (!isRecord(approvedPrimitiveCheck)) {
+    return "";
+  }
+
+  const explicitHint = compactText(
+    approvedPrimitiveCheck.route_hint ??
+      approvedPrimitiveCheck.repair_route_hint ??
+      approvedPrimitiveCheck.component_contract_route_hint ??
+      "",
+  );
+
+  if (explicitHint) {
+    return explicitHint;
+  }
+
+  const knownComponentIds = [
+    approvedPrimitiveCheck.known_component_ids_in_primitives_used,
+    approvedPrimitiveCheck.known_component_ids_used_as_primitives,
+    approvedPrimitiveCheck.component_contract_ids_in_primitives_used,
+    approvedPrimitiveCheck.component_ids_in_primitives_used,
+    approvedPrimitiveCheck.known_component_ids,
+  ].find((value) => Array.isArray(value) && value.length > 0);
+  const componentIds = evidenceMappingListValue(knownComponentIds);
+
+  const knownPatternIds = [
+    approvedPrimitiveCheck.known_pattern_ids_in_primitives_used,
+    approvedPrimitiveCheck.known_pattern_ids_used_as_primitives,
+    approvedPrimitiveCheck.pattern_contract_ids_in_primitives_used,
+    approvedPrimitiveCheck.pattern_ids_in_primitives_used,
+    approvedPrimitiveCheck.known_pattern_ids,
+  ].find((value) => Array.isArray(value) && value.length > 0);
+  const patternIds = evidenceMappingListValue(knownPatternIds);
+
+  const routeHints = [
+    componentIds
+      ? `Move ${componentIds} out of primitives_used and into component_contract_evidence.components[].id.`
+      : "",
+    patternIds
+      ? `Move ${patternIds} out of primitives_used and into pattern_contract_evidence.pattern_id.`
+      : "",
+  ].filter(Boolean);
+
+  return routeHints.length > 0
+    ? `${routeHints.join(" ")} primitives_used may contain only implementation_contract.approved_primitives.`
+    : "";
 }
 
 function iconCatalogSummary(iconCatalog) {
@@ -877,6 +1212,8 @@ function formatImplementationContractCard(result) {
     implementationContract.default_ai_native_design_system ?? {};
   const iterationPolicy = implementationContract.iteration_policy ?? {};
   const designSystemSource = implementationContract.design_system_source ?? {};
+  const localComponentAuthority =
+    implementationContract.local_component_authority ?? {};
   const visualTokenAdapter = implementationContract.visual_token_adapter ?? {};
 
   addSection(lines, "Implementation gate", [
@@ -892,6 +1229,9 @@ function formatImplementationContractCard(result) {
     listLine("Required authorities", designSystemSource.required_authorities),
     firstLine("Fallback policy", designSystemSource.fallback_policy),
     listLine("Approved primitives", implementationContract.approved_primitives),
+    firstLine("Local component authority", localComponentAuthority.mode),
+    firstLine("Local enforcement", localComponentAuthority.enforcement),
+    listLine("Local families", localComponentAuthority.families),
     listLine("Surface patterns", defaultSystem.surface_patterns),
     listLine(
       "Required states",
@@ -966,6 +1306,7 @@ function formatImplementationContractCard(result) {
         : "",
     ),
   ]);
+  addSection(lines, "Review evidence fields", evidenceFieldMappingEntries(result));
   addSection(lines, "Failure signals", bulletList(implementationContract.failure_signals));
 
   return lines.join("\n");
@@ -995,8 +1336,18 @@ function formatImplementationReviewCard(result) {
       result.checks?.design_system_provenance?.status,
     ),
     firstLine(
+      "Local component authority",
+      result.checks?.local_component_authority?.status,
+    ),
+    firstLine(
       "Design-system mode",
       result.checks?.design_system_provenance?.mode,
+    ),
+    firstLine("Component contracts", result.checks?.component_contracts?.status),
+    firstLine("Pattern contracts", result.checks?.pattern_contracts?.status),
+    firstLine(
+      "Primitive route hint",
+      approvedPrimitiveRouteHint(result.checks?.approved_primitives),
     ),
   ]);
   addSection(lines, "Agent loop", [
@@ -1099,6 +1450,10 @@ function formatFrontendContextCard(result) {
       result.implementation_guidance?.design_system_source?.mode,
     ),
     firstLine(
+      "Local component authority",
+      result.implementation_guidance?.local_component_authority?.mode,
+    ),
+    firstLine(
       "Design source package",
       [
         result.implementation_guidance?.design_system_source?.name,
@@ -1116,6 +1471,7 @@ function formatFrontendContextCard(result) {
       result.implementation_guidance?.frontend_posture?.responsive_expectations,
     ),
   ]);
+  addSection(lines, "Review evidence fields", evidenceFieldMappingEntries(result));
   addSection(lines, "Diagnostics", [
     listLine("Terms to keep out", result.guardrails?.terms_to_keep_out_of_product_ui),
   ]);
@@ -1165,6 +1521,7 @@ function formatFrontendSkillContextCard(result) {
     firstLine("Icon catalog", iconCatalogSummary(result.icon_guidance?.icon_catalog)),
     listLine("Icon tools", result.icon_guidance?.icon_catalog?.mcp_tools),
     firstLine("Design system source", result.design_system_source?.mode),
+    firstLine("Local component authority", result.local_component_authority?.mode),
     firstLine(
       "Design source package",
       [result.design_system_source?.name, result.design_system_source?.package]
@@ -1180,6 +1537,7 @@ function formatFrontendSkillContextCard(result) {
     firstLine("Design system mode", result.design_system_policy?.mode),
     listLine("Verification", result.verification_checklist),
   ]);
+  addSection(lines, "Review evidence fields", evidenceFieldMappingEntries(result));
   addSection(lines, "Guardrails", [
     firstLine("Raw skill exposed", String(result.source_skill?.raw_skill_exposed)),
     firstLine("Next recommended tool", result.next_recommended_tool),
@@ -1271,7 +1629,7 @@ function formatErrorCard(result) {
   return lines.join("\n");
 }
 
-function formatPlanningCard(result) {
+export function formatPlanningCard(result) {
   if (result?.error) {
     return formatErrorCard(result);
   }
@@ -1456,6 +1814,12 @@ export async function handleToolCall(name, args = {}) {
         implementation_contract:
           args.implementation_contract?.implementation_contract ??
           args.implementation_contract,
+        surface_type: args.surface_type,
+        surfaceType: args.surfaceType,
+        surface_review: args.surface_review,
+        surfaceReview: args.surfaceReview,
+        frontend_generation_context: args.frontend_generation_context,
+        frontendGenerationContext: args.frontendGenerationContext,
         iteration_context: args.iteration_context,
       });
     }
@@ -1491,6 +1855,7 @@ export async function handleToolCall(name, args = {}) {
     if (name === RECOMMEND_SURFACE_TYPES_TOOL.name) {
       return recommendSurfaceTypes(args.brief, {
         activity_review: args.activity_review,
+        activityReview: args.activityReview,
       });
     }
 
@@ -1559,6 +1924,7 @@ export function createJudgmentKitMcpServer() {
       inputSchema: {
         brief: z.string(),
         activity_review: z.record(z.any()).optional(),
+        activityReview: z.record(z.any()).optional(),
       },
     },
     async (args) =>
@@ -1634,8 +2000,12 @@ export function createJudgmentKitMcpServer() {
         external_authority: z.string().optional(),
         design_system_adapter: z.record(z.any()).optional(),
         design_system_source: z.record(z.any()).optional(),
+        local_component_authority: z.record(z.any()).optional(),
         repo_evidence: z.array(z.string()).optional(),
-        approved_primitives: z.array(z.string()).optional(),
+        approved_primitives: z
+          .array(z.string())
+          .optional()
+          .describe(APPROVED_PRIMITIVES_INPUT_DESCRIPTION),
         static_rules: z.array(z.string()).optional(),
         browser_qa_checks: z.array(z.string()).optional(),
         accessibility_policy: z.record(z.any()).optional(),
@@ -1653,8 +2023,16 @@ export function createJudgmentKitMcpServer() {
     {
       description: REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL.description,
       inputSchema: {
-        candidate: z.union([z.string(), z.record(z.any())]),
+        candidate: z
+          .union([z.string(), z.record(z.any())])
+          .describe(REVIEW_UI_IMPLEMENTATION_CANDIDATE_INPUT_DESCRIPTION),
         implementation_contract: z.record(z.any()),
+        surface_type: z.string().optional(),
+        surfaceType: z.string().optional(),
+        surface_review: z.record(z.any()).optional(),
+        surfaceReview: z.record(z.any()).optional(),
+        frontend_generation_context: z.record(z.any()).optional(),
+        frontendGenerationContext: z.record(z.any()).optional(),
         iteration_context: z.record(z.any()).optional(),
       },
     },

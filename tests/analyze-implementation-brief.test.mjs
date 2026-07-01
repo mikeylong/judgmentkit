@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 import {
   JudgmentKitInputError,
@@ -30,6 +33,11 @@ const FORBIDDEN_FIELD_NAMES = [
   "layout_polish",
   "design_system",
 ];
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const root = path.resolve(__dirname, "..");
+const expectedContractVersion = JSON.parse(
+  fs.readFileSync(path.join(root, "contracts/ai-ui-generation.activity-contract.json"), "utf8"),
+).version;
 
 function terms(packet) {
   return packet.implementation_terms_detected.map((entry) => entry.term);
@@ -97,7 +105,7 @@ function assertTextIncludes(value, expectedValue) {
     Make it CRUD so the agent can expose tools/list diagnostics.
   `);
 
-  assert.equal(packet.version, "0.6.1");
+  assert.equal(packet.version, expectedContractVersion);
   assert.equal(packet.contract_id, "judgmentkit.ai-ui-generation.activity-contract");
   assert.equal(packet.status, "needs_review");
   assert.ok(terms(packet).includes("JSON schema"));

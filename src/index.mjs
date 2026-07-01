@@ -174,6 +174,42 @@ function normalizeText(value) {
   return value.toLowerCase().replace(/\s+/g, " ").trim();
 }
 
+function toGlobalPattern(pattern) {
+  return pattern.flags.includes("g")
+    ? pattern
+    : new RegExp(pattern.source, `${pattern.flags}g`);
+}
+
+function isNegatedMatch(text, start, end) {
+  const prefix = text.slice(Math.max(0, start - 72), start);
+  const suffix = text.slice(end, Math.min(text.length, end + 56));
+
+  if (/\bnot\s+only[\s/,-]+$/.test(prefix)) {
+    return false;
+  }
+
+  return (
+    /(?:^|[\s([{:;,.!?/-])(?:no|not(?!\s+only\b)|without|never|avoid|avoids|avoiding|exclude|excludes|excluding|do not(?!\s+only\b)|does not(?!\s+only\b)|don't(?!\s+only\b)|doesn't(?!\s+only\b)|did not(?!\s+only\b)|should not|shouldn't|must not|cannot|can't|won't|no need to|need not|not required to)(?:[\s/,-]+\w+){0,6}(?:[\s/,-]+(?:or|and))?[\s/,-]*$/.test(prefix) ||
+    /^[\s/,-]+(?:(?:is|are|was|were|be|being|to be|should be|must be|can be|remain|remains)[\s/,-]+)?(?:not required|not needed|never required|never needed|unneeded|unnecessary|optional|absent|disabled|excluded|not included|not present|not part of|not the primary)\b/.test(suffix)
+  );
+}
+
+function hasAffirmedPattern(text, pattern) {
+  const globalPattern = toGlobalPattern(pattern);
+
+  for (const match of text.matchAll(globalPattern)) {
+    if (!isNegatedMatch(text, match.index, match.index + match[0].length)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function hasAffirmedAny(text, patterns) {
+  return patterns.some((pattern) => hasAffirmedPattern(text, pattern));
+}
+
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -299,16 +335,40 @@ function matchedEvidence(id, label, matched, reason) {
   };
 }
 
+function hasOperatorReviewProducedWork(text) {
+  return hasAffirmedAny(text, [
+    /\b(?:ai|model|agent)[- ](?:generated|produced)\b/,
+    /\b(?:ai|model)\s+(?:generated\s+)?(?:outputs?|workstreams?|candidates?|findings?|recommendations?|artifacts?|variants?|responses?|drafts?|work)\b/,
+    /\bai agents?\s+(?:outputs?|findings?|recommendations?|artifacts?|variants?|responses?|drafts?|work)\b/,
+    /\bagent (?:outputs?|findings?|recommendations?)\b/,
+    /(?<!design[- ])\bsystem[- ](?:produced|generated)\b/,
+    /(?<!design[- ])\bsystem\s+(?:outputs?|work|findings?|recommendations?|artifacts?|variants?|responses?|drafts?)\b/,
+    /\b(?:ai|model|agent|system)[- ](?:generated|produced)\s+(?:artifacts?|variants?|responses?|drafts?)\b/,
+    /\b(?:artifacts?|variants?|responses?|drafts?)\s+(?:generated|produced) by (?:the )?(?:system|ai|model|agent)\b/,
+    /\b(?:produced|generated) by (?:the )?(?:system|ai|model|agent)\b/,
+  ]);
+}
+
 function buildOperatorReviewTriggerEvidence(input, contract) {
   const normalized = normalizeText(input);
   const implementationTermsDetected = detectImplementationTerms(input, contract);
-  const hasReviewActor = /\b(?:human|operator|reviewer|lead|manager|approver)\b/.test(normalized) ||
-    /\b(?:review|reviews|reviewing|approve|approval|authorize|authorization)\b/.test(normalized);
-  const hasProducedWork = /\b(?:ai|system|model|generated|output|workstream|candidate|finding|agent finding|agent output|ai agent)\b/.test(normalized);
-  const hasDecision = /\b(?:decision|decide|deciding|approve|block|defer|tighten|handoff|authorize|return|escalate)\b/.test(normalized);
-  const hasEvidenceOrRisk = /\b(?:evidence|risk|compare|comparing|confidence|finding|reason|policy|source)\b/.test(normalized);
-  const hasAdvancementAction = /\b(?:approve(?:d)?|block(?:ed)?|defer(?:red)?|tighten(?:ed)?|handoff|handed off|return(?:ed)?|escalate(?:d)?|authorize(?:d)?)\b/.test(normalized);
-  const hasClosure = /\b(?:handoff|receipt|audit|closure|closed|complete|completion|done|accepted|rejected)\b/.test(normalized);
+  const hasReviewActor = hasAffirmedAny(normalized, [
+    /\b(?:human|operator|reviewer|lead|manager|approver)\b/,
+    /\b(?:review|reviews|reviewing|approve|approval|authorize|authorization)\b/,
+  ]);
+  const hasProducedWork = hasOperatorReviewProducedWork(normalized);
+  const hasDecision = hasAffirmedAny(normalized, [
+    /\b(?:decision|decide|decides|deciding|choose|chooses|choosing|approve|block|blocking|defer|tighten|handoff|authorize|return|escalate|accept|reject)\b/,
+  ]);
+  const hasEvidenceOrRisk = hasAffirmedAny(normalized, [
+    /\b(?:evidence|risk|compare|compares|comparing|confidence|finding|reason|policy|source|artifact|artifacts|variant|variants|response|responses|draft|drafts)\b/,
+  ]);
+  const hasAdvancementAction = hasAffirmedAny(normalized, [
+    /\b(?:approve(?:d|s|ing)?|block(?:ed|s|ing)?|defer(?:red|s|ring)?|tighten(?:ed|s|ing)?|handoff|hand off|handed off|return(?:ed|s|ing)?|escalat(?:e|ed|es|ing)|authoriz(?:e|ed|es|ing)|accept(?:ed|s|ing)?|reject(?:ed|s|ing)?)\b/,
+  ]);
+  const hasClosure = hasAffirmedAny(normalized, [
+    /\b(?:handoff|receipt|audit|closure|closed|complete|completion|done|accepted|rejected)\b/,
+  ]);
   const hasRawMechanics = implementationTermsDetected.length > 0 ||
     /\b(?:raw system|internal mechanics|system mechanics|trace|prompt|schema|tool call|resource id|api endpoint|model configuration)\b/.test(normalized);
 
@@ -326,7 +386,10 @@ function buildOperatorReviewTriggerEvidence(input, contract) {
       matchedEvidence(
         "competing_work_items",
         "Multiple work items, agents, workstreams, candidates, or findings compete for attention.",
-        /\b(?:multiple|several|queue|list|items|cases|agents|workstreams|candidates|findings)\b/.test(normalized),
+        hasAffirmedAny(normalized, [
+          /\b(?:multiple|several|queue|list|items|cases|agents|workstreams|candidates|findings|artifacts|variants|responses|drafts|outputs)\b/,
+          /\b(?:two|three|four|five|\d+)\s+(?:artifacts?|variants?|responses?|drafts?|outputs?|findings?|candidates?|items?)\b/,
+        ]),
         "Looked for competing items, agents, workstreams, candidates, findings, queues, or lists.",
       ),
       matchedEvidence(
@@ -363,9 +426,23 @@ function buildOperatorReviewTriggerEvidence(input, contract) {
 
 function buildOperatorReviewExclusionEvidence(input) {
   const normalized = normalizeText(input);
-  const hasDecisionOrReview = /\b(?:review|reviewing|decision|decide|approve|block|handoff|authorize)\b/.test(normalized);
+  const hasDecisionOrReview = hasAffirmedAny(normalized, [
+    /\b(?:review|reviewing|decision|decide|approve|block|handoff|authorize)\b/,
+  ]);
+  const hasProducedWork = hasOperatorReviewProducedWork(normalized);
+  const hasOperationalWorkbenchShape =
+    (/\b(?:workbench|workspace)\b/.test(normalized) &&
+      /\b(?:review|reviews|reviewing|decide|deciding|handoff|assign|reassign|escalate|triage|compare|comparing)\b/.test(normalized)) ||
+    (/\b(?:dispatcher|dispatch|field-service|field service|exceptions?|visits?|selected visit)\b/.test(normalized) &&
+      /\b(?:review|reviews|reviewing|decide|deciding|handoff|assign|reassign|escalate)\b/.test(normalized));
 
   return [
+    matchedEvidence(
+      "operational_workbench_shape",
+      "Explicit operational workbench activity should use workbench unless produced AI/system work is the object.",
+      hasOperationalWorkbenchShape && !hasProducedWork,
+      "Looked for workbench, dispatch, exceptions, visits, selected visit, and operational decision language.",
+    ),
     matchedEvidence(
       "simple_single_action_form",
       "Simple single-action forms should not use operator-review.",
@@ -376,7 +453,7 @@ function buildOperatorReviewExclusionEvidence(input) {
       "passive_dashboard_no_decision",
       "Passive dashboards with no decision should not use operator-review.",
       /\bpassive dashboard\b/.test(normalized) ||
-        /\bno decision\b/.test(normalized) ||
+        /\bno (?:\w+\s+){0,3}decision\b/.test(normalized) ||
         (/\bdashboard\b/.test(normalized) && !hasDecisionOrReview),
       "Looked for passive dashboard or dashboard language without review or decision work.",
     ),
@@ -422,10 +499,13 @@ export function recommendUiWorkflowProfiles(input, options = {}) {
   const exclusions = buildOperatorReviewExclusionEvidence(input);
   const matchedTriggers = triggerEvidence.triggers.filter((entry) => entry.matched);
   const matchedExclusions = exclusions.filter((entry) => entry.matched);
+  const hasProducedWorkReview = triggerEvidence.triggers.some(
+    (entry) => entry.id === "human_review_before_advance" && entry.matched,
+  );
   const triggerThreshold = Math.floor(triggerEvidence.triggers.length / 2) + 1;
   const status = matchedExclusions.length > 0
     ? "blocked"
-    : matchedTriggers.length >= triggerThreshold
+    : hasProducedWorkReview && matchedTriggers.length >= triggerThreshold
       ? "recommended"
       : "not_recommended";
   const profileSummary = {
@@ -460,21 +540,29 @@ function surfaceEvidence(id, label, matched, reason) {
   return matchedEvidence(id, label, matched, reason);
 }
 
-function buildSurfaceTypeInputs(input, activityReview, contract) {
+function buildSurfaceTypeInputs(input, activityReview, contract, options = {}) {
   const reviewCandidate = activityReview?.candidate ?? {};
   const activityModel = reviewCandidate.activity_model ?? {};
   const interactionContract = reviewCandidate.interaction_contract ?? {};
   const disclosurePolicy = reviewCandidate.disclosure_policy ?? {};
+  const sourceMissingEvidence =
+    activityReview?.guardrails?.source_missing_evidence ?? {};
+  const hasAffirmedSourceDecision = hasAffirmedAny(normalizeText(input), [
+    /\b(?:decision|decide|decides|deciding|choose|chooses|choosing|compare|compares|comparing|approve|block|blocking|return|handoff|prioritize|resolve|submit|complete)\b/,
+  ]);
+  const hasSourceDecision =
+    sourceMissingEvidence.decision === false &&
+    (hasAffirmedSourceDecision || options.hasExplicitActivityReview);
   const sourceText = [
     input,
     activityModel.activity,
-    activityModel.objective,
+    hasSourceDecision ? activityModel.objective : "",
     ...(toStringArray(activityModel.participants)),
-    ...(toStringArray(activityModel.outcomes)),
+    ...(hasSourceDecision ? toStringArray(activityModel.outcomes) : []),
     ...(toStringArray(activityModel.domain_vocabulary)),
-    interactionContract.primary_decision,
-    ...(toStringArray(interactionContract.next_actions)),
-    interactionContract.completion,
+    hasSourceDecision ? interactionContract.primary_decision : "",
+    ...(hasSourceDecision ? toStringArray(interactionContract.next_actions) : []),
+    hasSourceDecision ? interactionContract.completion : "",
     ...(toStringArray(disclosurePolicy.terms_to_use)),
   ].filter(Boolean).join(" ");
   const implementationTermsDetected = detectImplementationTerms(sourceText, contract);
@@ -508,20 +596,103 @@ function makeSurfaceScore(surfaceType, triggers, exclusions, definition) {
 function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
   const text = inputContext.normalized;
   const implementationTermsDetected = inputContext.implementation_terms_detected;
-  const hasReviewDecision =
-    /\b(?:review|reviewing|compare|comparing|decide|deciding|approve|approval|block|handoff|triage|prioritize)\b/.test(text);
-  const hasDecision =
-    /\b(?:decision|decide|deciding|choose|compare|approve|block|return|handoff|prioritize|resolve)\b/.test(text);
-  const hasMarketing =
-    /\b(?:marketing|landing page|homepage|home page|campaign|pricing|signup|sign up|trial|demo|conversion|convert|lead|prospect|visitor|buyer|offer|value prop|value proposition|positioning|launch)\b/.test(text);
+  const hasReviewDecision = hasAffirmedAny(text, [
+    /\b(?:review|reviews|reviewing|compare|compares|comparing|decide|decides|deciding|approve|approval|block|blocking|handoff|prioritize|return|escalate)\b/,
+  ]);
+  const hasDecision = hasAffirmedAny(text, [
+    /\b(?:decision|decide|decides|deciding|choose|chooses|choosing|compare|compares|comparing|approve|block|blocking|return|handoff|prioritize|resolve|submit|complete)\b/,
+  ]);
+  const hasBoundedDecisionAction = hasAffirmedAny(text, [
+    /\b(?:decision|decide|decides|deciding|choose|chooses|choosing|approve|block|blocking|return|handoff|prioritize|resolve|submit|complete|save|saving)\b/,
+  ]);
+  const hasNoDecisionRequired =
+    /\bno (?:operational |active |bounded |human |user )?decision(?:\s+(?:is|are))?\s+(?:required|needed|necessary|expected)\b/.test(text) ||
+    /\b(?:without|requires no|needs no) (?:operational |active |bounded |human |user )?decision\b/.test(text);
+  const hasMarketing = hasAffirmedAny(text, [
+    /\b(?:marketing|landing page|homepage|home page|campaign|pricing|signup|sign up|trial|demo|conversion|convert|prospect|visitor|buyer|offer|value prop|value proposition|positioning)\b/,
+    /\b(?:lead capture|lead form|lead gen|lead generation|qualified lead|sales lead)\b/,
+    /\b(?:launch campaign|launch page|go-to-market|go to market|product launch page)\b/,
+  ]);
+  const hasFormDataEntryIntent =
+    hasAffirmedAny(text, [
+      /\b(?:form|submit|submission|intake|application|onboarding|settings|profile|checkout|edit|update|enter|collect|structured information)\b/,
+      /\b(?:submits|submitting|edits|editing|updates|updating|enters|entering|collects|collecting)\b/,
+      /\bcreate (?:a |an )?(?:account|profile|application|intake|request|record|case|ticket|entry)\b/,
+    ]);
+  const hasFormValidationIntent =
+    hasAffirmedAny(text, [
+      /\b(?:validation|invalid|input|error state|save changes|confirm|confirmation|saved settings)\b/,
+      /\b(?:required|form|input) fields?\b/,
+      /\brequired (?:\w+\s+){0,3}(?:information|details|data|fields?|inputs?|documents?)\b/,
+    ]);
   const hasStructuredFormFlow =
-    /\b(?:form|submit|submission|intake|application|onboarding|settings|profile|checkout|edit|update|create|enter|collect|structured information)\b/.test(text) &&
-    /\b(?:validation|required|invalid|input|field|error state|save changes|confirm|confirmation|saved settings)\b/.test(text);
+    hasFormDataEntryIntent && hasFormValidationIntent;
+  const hasSpecificWorkbenchItems =
+    hasAffirmedAny(text, [
+      /\b(?:queue|multiple|several|cases|requests|findings|workstreams|candidates|exceptions|visits|selected visit|route impact|decision state|handoff owner|next-action receipt|cohorts|playlists?|tracks?|songs?|sequence)\b/,
+    ]);
+  const hasGenericWorkbenchItems =
+    hasAffirmedAny(text, [/\b(?:list|items|records)\b/]);
+  const hasExplicitWorkbench =
+    hasAffirmedAny(text, [/\b(?:workbench|workspace|queue)\b/]);
+  const hasOperationalActor =
+    hasAffirmedAny(text, [
+      /\b(?:operator|analyst|manager|lead|reviewer|team|support|operations|planner|dispatcher|officer|coordinator)\b/,
+    ]);
+  const hasEvidenceComparison =
+    hasAffirmedAny(text, [
+      /\b(?:evidence|compare|compares|comparing|context|risk|reason|documents?|route impact|selected|policy|cohorts|conflicts?|constraints?|sequence|energy flow|guest preference|dinner mood|genre balance)\b/,
+    ]);
+  const hasFormPrimary =
+    hasStructuredFormFlow ||
+    (hasFormDataEntryIntent &&
+      hasAffirmedAny(text, [
+        /\b(?:submit|submission|enter|collect|update|edit|onboarding|settings|profile|checkout|intake|required|validation|input|save changes|confirmation)\b/,
+        /\b(?:submits|submitting|edits|editing|updates|updating|enters|entering|collects|collecting)\b/,
+      ]));
+  const hasInternalFormContext =
+    hasFormPrimary &&
+    hasAffirmedAny(text, [
+      /\b(?:internal|admin|operations|crm|record|settings|profile|application|intake|checkout|purchase|shipping|payment)\b/,
+    ]);
+  const hasRawSetupDebugIntent = hasAffirmedAny(text, [
+    /\b(?:setup|configure|configuration|debug|debugging|troubleshoot|test connection|integration setup|audit integration|safe to ship|release risk|diagnostic (?:console|status|evidence|handoff)|run diagnostics)\b/,
+  ]);
+  const hasSetupDebugActivityContext = hasAffirmedAny(text, [
+    /\b(?:setup|configure|configuration|configured|debug|debugging|troubleshoot|troubleshooting|test connection|integration setup|integration (?:test|testing|diagnostics?|troubleshooting|configuration)|audit integration|audit|auditing|safe to ship|release risk|diagnostic (?:console|status|evidence|handoff)|run diagnostics)\b/,
+  ]);
+  const hasImplementationMachineryCue =
+    implementationTermsDetected.length > 0 ||
+    hasAffirmedAny(text, [
+      /\b(?:schema change|prompt template|api endpoint|tool call trace|raw system mechanics|mcp server|json schema)\b/,
+    ]);
+  const hasConversationPrimary = hasAffirmedAny(text, [
+    /\b(?:chat|conversation|thread|message composer|assistant exchange|live chat|open-ended|open ended|reply|respond|back and forth)\b/,
+  ]);
+  const hasReadingOrReportPrimary =
+    hasAffirmedAny(text, [
+      /\b(?:content page|report|memo|article|doc|docs|documentation|guide|read|reads|reading|understand|understanding|learn|cite|citing|share|sharing|reference|summary|narrative)\b/,
+    ]) && (!hasBoundedDecisionAction || hasNoDecisionRequired);
+  const hasWorkbenchWorkShape =
+    (hasExplicitWorkbench &&
+      hasAffirmedAny(text, [
+        /\b(?:review|reviews|reviewing|compare|compares|comparing|triage|prioritize|decide|decides|deciding|handoff|assign|reassign|escalate)\b/,
+      ]) &&
+      (hasSpecificWorkbenchItems ||
+        (hasGenericWorkbenchItems && !hasFormPrimary))) ||
+    (hasAffirmedAny(text, [
+      /\b(?:review|reviews|reviewing|compare|compares|comparing|triage|prioritize)\b/,
+    ]) &&
+      (hasSpecificWorkbenchItems ||
+        (hasGenericWorkbenchItems && !hasFormPrimary))) ||
+    (hasOperationalActor && hasReviewDecision && hasEvidenceComparison && !hasFormPrimary);
   const hasSetupDebug =
-    /\b(?:setup|configure|configuration|debug|debugging|diagnostic|troubleshoot|test connection|integration setup|audit integration|safe to ship|schema change|prompt template|api endpoint|tool call trace|raw system mechanics)\b/.test(text) ||
-    implementationTermsDetected.length > 0;
+    hasRawSetupDebugIntent ||
+    (hasSetupDebugActivityContext && hasImplementationMachineryCue);
   const hasConversation =
-    /\b(?:chat|conversation|thread|message composer|assistant exchange|live chat|open-ended|open ended)\b/.test(text);
+    hasAffirmedAny(text, [
+      /\b(?:chat|conversation|thread|message composer|assistant exchange|live chat|open-ended|open ended)\b/,
+    ]);
   const definitions = getSurfaceTypes(contract);
   const definition = definitions[surfaceType] ?? {};
 
@@ -536,13 +707,18 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "public_audience",
         "The audience is a visitor, prospect, buyer, or public reader.",
-        /\b(?:visitor|prospect|buyer|public audience|new customer|lead)\b/.test(text),
+        hasAffirmedAny(text, [
+          /\b(?:visitor|prospect|buyer|public audience|new customer)\b/,
+          /\b(?:lead capture|lead form|lead gen|lead generation|qualified lead|sales lead)\b/,
+        ]),
         "Looked for external audience language.",
       ),
       surfaceEvidence(
         "offer_proof_action",
         "The work needs message, proof, and a primary call to action.",
-        /\b(?:benefit|proof|testimonial|case study|cta|call to action|signup|sign up|book a demo|get started)\b/.test(text),
+        hasAffirmedAny(text, [
+          /\b(?:benefit|proof|testimonial|case study|cta|call to action|signup|sign up|book a demo|get started)\b/,
+        ]),
         "Looked for offer, proof, and call-to-action language.",
       ),
     ];
@@ -550,7 +726,9 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "bounded_work_decision",
         "Workbench decision work should not be treated as marketing.",
-        /\b(?:review|reviewing|compare|comparing|approve|approval|block|handoff|triage|queue|workbench|workspace)\b/.test(text),
+        hasAffirmedAny(text, [
+          /\b(?:review|reviews|reviewing|compare|compares|comparing|approve|approval|block|blocking|handoff|triaging|queue|workbench|workspace)\b/,
+        ]),
         "Review, comparison, approval, triage, queue, or handoff language implies work support.",
       ),
       surfaceEvidence(
@@ -575,13 +753,13 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "repeated_work_items",
         "The surface supports repeated work across items.",
-        /\b(?:queue|list|multiple|several|cases|items|records|requests|findings|workstreams|candidates|workspace|workbench)\b/.test(text),
-        "Looked for queues, lists, cases, requests, findings, workstreams, or workbench language.",
+        hasSpecificWorkbenchItems || hasGenericWorkbenchItems,
+        "Looked for queues, lists, cases, requests, findings, workstreams, exceptions, visits, or workbench language.",
       ),
       surfaceEvidence(
         "domain_operator",
         "A domain operator, analyst, manager, lead, or team uses the surface.",
-        /\b(?:operator|analyst|manager|lead|reviewer|team|support|operations|planner)\b/.test(text),
+        hasOperationalActor && hasReviewDecision,
         "Looked for operational participant language.",
       ),
     ];
@@ -595,7 +773,8 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "conversation_primary",
         "Open-ended conversation should not become a workbench.",
-        hasConversation && !hasReviewDecision,
+        hasConversationPrimary &&
+          (!hasWorkbenchWorkShape || !hasSpecificWorkbenchItems),
         "Conversation or chat is the primary activity.",
       ),
       surfaceEvidence(
@@ -605,10 +784,16 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
         "Monitoring or dashboard language appears without decision work.",
       ),
       surfaceEvidence(
+        "reading_or_report_primary",
+        "Reading, citing, or sharing a report should not become a workbench.",
+        hasReadingOrReportPrimary,
+        "Report, documentation, reading, citing, sharing, or narrative language is primary without bounded action.",
+      ),
+      surfaceEvidence(
         "structured_form_flow",
         "Structured form and validation work should stay a form flow.",
-        hasStructuredFormFlow &&
-          !/\b(?:queue|list|multiple|several|cases|items|records|requests|findings|workstreams|candidates)\b/.test(text),
+        hasFormPrimary &&
+          !(hasSpecificWorkbenchItems && hasReviewDecision && hasEvidenceComparison),
         "Form, validation, required input, submit, or confirmation language is primary.",
       ),
     ];
@@ -632,12 +817,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
 
     return {
       ...score,
-      score:
-        profile.status === "recommended"
-          ? Math.max(score.score, 4)
-          : profile.status === "blocked"
-            ? 0
-            : Math.min(score.score, 1),
+      score: profile.status === "recommended" ? Math.max(score.score, 4) : 0,
       profile_id: OPERATOR_REVIEW_PROFILE_ID,
       profile_status: profile.status,
     };
@@ -648,13 +828,13 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "collect_or_change_structured_information",
         "The surface collects or changes structured information.",
-        /\b(?:form|submit|intake|application|onboarding|settings|profile|checkout|edit|update|create|enter|collect|structured information)\b/.test(text),
-        "Looked for form, submit, intake, onboarding, settings, profile, edit, update, or collect language.",
+        hasFormDataEntryIntent,
+        "Looked for form, submit, intake, onboarding, settings, profile, edit, update, explicit create-record, or collect language.",
       ),
       surfaceEvidence(
         "validation_or_required_inputs",
         "Completion depends on validation or required inputs.",
-        /\b(?:validation|required|invalid|input|field|error state|save changes|confirm)\b/.test(text),
+        hasFormValidationIntent && hasFormDataEntryIntent,
         "Looked for validation, required inputs, save, confirm, or input language.",
       ),
     ];
@@ -662,13 +842,16 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "multi_item_review",
         "Multi-item review belongs in a workbench or operator review surface.",
-        /\b(?:queue|multiple|several|compare|review findings|triage)\b/.test(text),
+        hasAffirmedAny(text, [
+          /\b(?:queue|multiple|several|compare|review findings|triage)\b/,
+        ]) && !hasFormPrimary,
         "Reviewing multiple items is not primarily a form flow.",
       ),
       surfaceEvidence(
         "marketing_primary",
         "Marketing pages may contain forms but are not primarily form flows.",
-        hasMarketing && !/\b(?:settings|profile|application|intake)\b/.test(text),
+        hasMarketing &&
+          !hasInternalFormContext,
         "Marketing conversion language is dominant.",
       ),
     ];
@@ -677,17 +860,25 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
   }
 
   if (surfaceType === "dashboard_monitor") {
+    const hasDashboardMonitoringContext = hasAffirmedAny(text, [
+      /\b(?:dashboard|monitor|monitoring|metrics|status|trend|trends|health|kpi|alert|alerts|overview|analytics|tracking|watch)\b/,
+    ]);
+    const hasPassiveOrPeriodicRead =
+      hasAffirmedAny(text, [
+        /\b(?:passive|overview|at a glance|tracking|watch|weekly|daily status)\b/,
+      ]) ||
+      (hasDashboardMonitoringContext && /\bno decision\b/.test(text));
     const triggers = [
       surfaceEvidence(
         "monitor_status_or_trends",
         "The surface tracks status, exceptions, trends, or operational health.",
-        /\b(?:dashboard|monitor|monitoring|metrics|status|trend|trends|health|kpi|alert|alerts|overview|analytics)\b/.test(text),
+        hasDashboardMonitoringContext,
         "Looked for dashboard, monitor, metrics, status, trends, health, alerts, overview, or analytics language.",
       ),
       surfaceEvidence(
         "passive_or_periodic_read",
         "The surface is used for passive or periodic status reading.",
-        /\b(?:passive|overview|at a glance|track|tracking|watch|weekly|daily status|no decision)\b/.test(text),
+        hasPassiveOrPeriodicRead,
         "Looked for passive, overview, tracking, watching, or no-decision language.",
       ),
     ];
@@ -695,7 +886,9 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "bounded_decision_work",
         "Bounded review decisions should not be reduced to a dashboard.",
-        /\b(?:approve|block|return|handoff|decide whether|triage)\b/.test(text),
+        hasAffirmedAny(text, [
+          /\b(?:approve|block|return|handoff|decide whether|triaging)\b/,
+        ]),
         "Approval, blocking, return, handoff, or triage language implies work support.",
       ),
       surfaceEvidence(
@@ -714,7 +907,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "read_understand_or_share",
         "The surface is for reading, understanding, citing, or sharing information.",
-        /\b(?:content page|report|article|doc|docs|documentation|guide|read|learn|cite|share|publish|reference|case study)\b/.test(text),
+        /\b(?:content page|report|memo|article|doc|docs|documentation|guide|read|reads|reading|understand|understanding|learn|cite|citing|share|sharing|publish|reference|case study)\b/.test(text),
         "Looked for report, article, docs, guide, reading, citing, sharing, publishing, reference, or case-study language.",
       ),
       surfaceEvidence(
@@ -728,7 +921,9 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "active_decision_work",
         "Active decisions should not become reading-only content.",
-        hasDecision && !/\b(?:report decision|share decision)\b/.test(text),
+        hasBoundedDecisionAction &&
+          !hasNoDecisionRequired &&
+          !/\b(?:report decision|share decision|decision memo)\b/.test(text),
         "Decision, comparison, approval, or handoff language is present.",
       ),
       surfaceEvidence(
@@ -744,7 +939,8 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
 
   if (surfaceType === "setup_debug_tool") {
     const rawMechanicsPrimary =
-      /\b(?:setup|configure|configuration|debug|debugging|diagnostic|troubleshoot|test connection|integration setup|audit integration|safe to ship|release risk|schema change|prompt template|api endpoint|tool call|trace|mcp server)\b/.test(text);
+      hasRawSetupDebugIntent ||
+      (hasSetupDebugActivityContext && hasImplementationMachineryCue);
     const triggers = [
       surfaceEvidence(
         "configure_inspect_test_or_troubleshoot",
@@ -755,7 +951,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "implementation_terms_are_task_material",
         "Implementation details are part of the task material.",
-        implementationTermsDetected.length > 0,
+        implementationTermsDetected.length > 0 && rawMechanicsPrimary,
         implementationTermsDetected.length > 0
           ? "Implementation terms were detected in the source."
           : "No implementation terms were detected.",
@@ -799,7 +995,9 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "bounded_completion",
         "Bounded decision and handoff work should not become conversation-first.",
-        /\b(?:approve|block|handoff|submit|complete|completion state|decide whether)\b/.test(text),
+        hasAffirmedAny(text, [
+          /\b(?:approve|block|handoff|submit|complete|completion state|decide whether)\b/,
+        ]),
         "Bounded decision, completion, or handoff language is present.",
       ),
       surfaceEvidence(
@@ -817,7 +1015,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
 }
 
 function chooseSurfaceType(scores) {
-  const priority = [
+  const positivePriority = [
     "setup_debug_tool",
     "operator_review",
     "workbench",
@@ -827,11 +1025,40 @@ function chooseSurfaceType(scores) {
     "content_report",
     "conversation",
   ];
+  const neutralPriority = [
+    "workbench",
+    "operator_review",
+    "form_flow",
+    "dashboard_monitor",
+    "content_report",
+    "conversation",
+    "marketing",
+    "setup_debug_tool",
+  ];
 
   return [...scores].sort((left, right) => {
     if (right.score !== left.score) {
       return right.score - left.score;
     }
+
+    if (right.score > 0) {
+      const leftCoverage = left.triggers?.length
+        ? left.trigger_match_count / left.triggers.length
+        : 0;
+      const rightCoverage = right.triggers?.length
+        ? right.trigger_match_count / right.triggers.length
+        : 0;
+
+      if (rightCoverage !== leftCoverage) {
+        return rightCoverage - leftCoverage;
+      }
+
+      if (right.exclusion_match_count !== left.exclusion_match_count) {
+        return left.exclusion_match_count - right.exclusion_match_count;
+      }
+    }
+
+    const priority = right.score > 0 ? positivePriority : neutralPriority;
 
     return priority.indexOf(left.surface_type) - priority.indexOf(right.surface_type);
   })[0];
@@ -1033,7 +1260,11 @@ export function recommendSurfaceTypes(input, options = {}) {
     : isPlainObject(options.activityReview)
       ? options.activityReview
       : createActivityModelReview(input, options);
-  const inputContext = buildSurfaceTypeInputs(input.trim(), activityReview, contract);
+  const hasExplicitActivityReview =
+    isPlainObject(options.activity_review) || isPlainObject(options.activityReview);
+  const inputContext = buildSurfaceTypeInputs(input.trim(), activityReview, contract, {
+    hasExplicitActivityReview,
+  });
   const scores = SURFACE_TYPE_IDS.map((surfaceType) =>
     buildSurfaceTypeScore(surfaceType, inputContext, contract),
   );
@@ -1106,6 +1337,33 @@ function summarizeSurfaceReview(surfaceReview, { includeFrontendPosture = false 
   }
 
   return summary;
+}
+
+function selectedSurfaceTypeFromImplementationReviewOptions(options = {}) {
+  const surfaceReview = options.surface_review ?? options.surfaceReview;
+  const frontendGenerationContext =
+    options.frontend_generation_context ?? options.frontendGenerationContext;
+  const candidates = [
+    options.surface_type,
+    options.surfaceType,
+    surfaceReview?.recommended_surface_type,
+    surfaceReview?.recommendedSurfaceType,
+    surfaceReview?.surface_type,
+    surfaceReview?.surfaceType,
+    frontendGenerationContext?.surface_type,
+    frontendGenerationContext?.surfaceType,
+    frontendGenerationContext?.surface_guidance?.recommended_surface_type,
+    frontendGenerationContext?.surfaceGuidance?.recommendedSurfaceType,
+    frontendGenerationContext?.implementation_guidance?.surface_type,
+    frontendGenerationContext?.implementationGuidance?.surfaceType,
+    frontendGenerationContext?.surface_review?.recommended_surface_type,
+    frontendGenerationContext?.surfaceReview?.recommendedSurfaceType,
+  ];
+  const selected = candidates.find(
+    (candidate) => typeof candidate === "string" && candidate.trim().length > 0,
+  );
+
+  return selected ? normalizeOptionalSurfaceType(selected) : null;
 }
 
 function inferActivityEvidence(input) {
@@ -5400,6 +5658,65 @@ const DEFAULT_DESIGN_SYSTEM_SOURCE = {
   ],
 };
 
+const DEFAULT_LOCAL_COMPONENT_AUTHORITY = {
+  mode: "none",
+  enforcement: "optional",
+  families: [],
+  selector_boundary: {
+    allowed: [
+      "layout-only selectors may arrange approved primitives and repo-local components",
+      "component-specific selectors must not recreate visual identity",
+    ],
+    component_selector_examples: [
+      ".card",
+      ".panel",
+      ".button",
+      "[data-component]",
+    ],
+    layout_only_declarations: [
+      "display",
+      "grid",
+      "flex",
+      "gap",
+      "margin",
+      "width",
+      "height",
+      "position",
+      "overflow",
+      "align",
+      "justify",
+    ],
+    blocked_visual_identity_declarations: [
+      "color",
+      "background",
+      "border",
+      "box-shadow",
+      "font",
+      "padding",
+      "text-transform",
+      "letter-spacing",
+      "outline",
+      "fill",
+      "stroke",
+    ],
+  },
+  token_boundary: {
+    direct_token_prefixes: ["--jk-"],
+    layout_token_exceptions: ["--jk-space-"],
+    rule:
+      "One-off component selectors must not consume JudgmentKit visual tokens directly; use repo-local components or the active design-system source.",
+  },
+  computed_style_evidence: {
+    required_when:
+      "mode is repo_local or enforcement is required and component-specific visual styling changes",
+    expectations: [
+      "name the local component family or selector being verified",
+      "include computed style evidence for visual identity supplied by repo-local authority",
+      "cover affected states and desktop/mobile viewports when selectors alter component presentation",
+    ],
+  },
+};
+
 const DEFAULT_ITERATION_POLICY = {
   owner: "agent",
   default_max_attempts: 3,
@@ -5469,7 +5786,7 @@ function mergePolicyObject(sourceValue, fallbackValue) {
   }
 
   if (typeof fallbackValue === "string") {
-    return optionalString(sourceValue) || fallbackValue;
+    return optionalRawString(sourceValue) || fallbackValue;
   }
 
   if (isPlainObject(fallbackValue)) {
@@ -5517,7 +5834,12 @@ function normalizeContractEntryList(sourceValue, fallbackValue, fieldSpecs) {
 
       for (const field of fieldSpecs.stringFields ?? []) {
         normalized[field] =
-          optionalString(normalized[field]) || optionalString(fallbackEntry[field]);
+          optionalString(
+            normalized[field] ??
+              normalized[field.replace(/_([a-z])/g, (_, letter) =>
+                letter.toUpperCase(),
+              )],
+          ) || optionalString(fallbackEntry[field]);
       }
 
       for (const field of fieldSpecs.arrayFields ?? []) {
@@ -5589,8 +5911,11 @@ function normalizeDefaultAiNativeDesignSystem(sourcePolicy, fallbackPolicy) {
   delete sourceForMerge.componentContracts;
   delete sourceForMerge.pattern_contracts;
   delete sourceForMerge.patternContracts;
+  delete sourceForMerge.local_component_authority;
+  delete sourceForMerge.localComponentAuthority;
   delete fallbackForMerge.component_contracts;
   delete fallbackForMerge.pattern_contracts;
+  delete fallbackForMerge.local_component_authority;
   const merged = mergePolicyObject(
     sourceForMerge,
     fallbackForMerge,
@@ -6019,6 +6344,40 @@ function designSystemAdapterFromInput(source) {
     : null;
 }
 
+function requestedRawExternalDesignSystemSource(source) {
+  if (!isPlainObject(source) || isPlainObject(designSystemAdapterFromInput(source))) {
+    return false;
+  }
+
+  const designSystemSource =
+    source.design_system_source ?? source.designSystemSource;
+
+  if (!isPlainObject(designSystemSource)) {
+    return false;
+  }
+
+  const mode = optionalString(designSystemSource.mode);
+
+  if (mode !== "external_design_system") {
+    return false;
+  }
+
+  return true;
+}
+
+function throwIncompleteDesignSystemAuthority() {
+  throw new JudgmentKitInputError(
+    "external_design_system mode requires a complete design_system_adapter.",
+    {
+      code: "incomplete_design_system_authority",
+      details: {
+        missing_authorities: DESIGN_SYSTEM_REQUIRED_AUTHORITIES,
+        fallback_policy: "fail_incomplete",
+      },
+    },
+  );
+}
+
 function externalAdapterName(adapter) {
   return optionalDesignSystemName(
     adapter.design_system_name,
@@ -6123,16 +6482,62 @@ function hasIconAuthority(source) {
   );
 }
 
+function componentAuthorityEntries(source) {
+  const rawEntries = Array.isArray(source)
+    ? source.map((entry) => {
+        if (typeof entry === "string") {
+          return { id: entry, label: entry };
+        }
+
+        if (isPlainObject(entry)) {
+          return entry;
+        }
+
+        return {};
+      })
+    : isPlainObject(source)
+      ? Object.entries(source).map(([id, entry]) => {
+          if (isPlainObject(entry)) {
+            return {
+              ...entry,
+              id: optionalString(entry.id) || id,
+            };
+          }
+
+          const label = optionalString(entry);
+
+          return {
+            id,
+            ...(label ? { label } : {}),
+          };
+        })
+      : [];
+  const seen = new Set();
+
+  return rawEntries
+    .map((entry) => {
+      const id = optionalString(entry.id);
+
+      return {
+        ...entry,
+        id,
+        label: optionalString(entry.label ?? entry.name) || id,
+      };
+    })
+    .filter((entry) => {
+      const id = normalizeText(entry.id);
+
+      if (!id || seen.has(id)) {
+        return false;
+      }
+
+      seen.add(id);
+      return true;
+    });
+}
+
 function hasComponentAuthority(source) {
-  if (Array.isArray(source)) {
-    return source.length > 0;
-  }
-
-  if (isPlainObject(source)) {
-    return Object.keys(source).length > 0;
-  }
-
-  return false;
+  return componentAuthorityEntries(source).length > 0;
 }
 
 function validateExternalDesignSystemAdapter(adapter) {
@@ -6177,24 +6582,103 @@ function externalComponentContractsFromAdapter(adapter, componentSource) {
     adapter.component_contracts ?? adapter.componentContracts;
 
   if (hasComponentAuthority(explicitContracts)) {
-    return normalizeComponentContracts(explicitContracts, []);
+    const normalizedExplicitContracts = normalizeComponentContracts(
+      explicitContracts,
+      [],
+    );
+
+    if (normalizedExplicitContracts.length > 0) {
+      return normalizedExplicitContracts;
+    }
   }
 
-  return toStringArray(componentSource).map((component) => ({
-    id: component,
-    label: component,
-    purpose: `Use ${component} from the active external design system.`,
-    use_when: ["the external design system defines this renderer component"],
-    avoid_when: ["the component is not available in the active external design system"],
-    anatomy: ["as defined by the active external design system"],
-    required_states: ["ready", "disabled", "focus-visible", "loading"],
-    token_bindings: ["external_design_system"],
-    accessibility_checks: ["accessible name", "keyboard and focus behavior"],
-    review_checks: ["component is imported from the active design-system package"],
-    failure_signals: [
-      "component is reimplemented locally instead of sourced from the active design system",
-    ],
+  return componentAuthorityEntries(componentSource).map((component) => ({
+    id: component.id,
+    label: component.label,
+    purpose:
+      optionalString(component.purpose) ||
+      `Use ${component.label} from the active external design system.`,
+    use_when: normalizePrimitiveList(
+      component.use_when ?? component.useWhen,
+      ["the external design system defines this renderer component"],
+    ),
+    avoid_when: normalizePrimitiveList(
+      component.avoid_when ?? component.avoidWhen,
+      ["the component is not available in the active external design system"],
+    ),
+    anatomy: normalizePrimitiveList(component.anatomy, [
+      "as defined by the active external design system",
+    ]),
+    required_states: normalizePrimitiveList(
+      component.required_states ?? component.requiredStates,
+      ["ready", "disabled", "focus-visible", "loading"],
+    ),
+    token_bindings: normalizePrimitiveList(
+      component.token_bindings ?? component.tokenBindings,
+      ["external_design_system"],
+    ),
+    accessibility_checks: normalizePrimitiveList(
+      component.accessibility_checks ?? component.accessibilityChecks,
+      ["accessible name", "keyboard and focus behavior"],
+    ),
+    review_checks: normalizePrimitiveList(
+      component.review_checks ?? component.reviewChecks,
+      ["component is imported from the active design-system package"],
+    ),
+    failure_signals: normalizePrimitiveList(
+      component.failure_signals ?? component.failureSignals,
+      [
+        "component is reimplemented locally instead of sourced from the active design system",
+      ],
+    ),
   }));
+}
+
+function validateExternalPatternContracts(explicitPatternContracts, baseDesignSystem) {
+  if (!hasComponentAuthority(explicitPatternContracts)) {
+    return;
+  }
+
+  const canonicalById = new Map(
+    normalizePatternContracts(
+      baseDesignSystem?.pattern_contracts,
+      DEFAULT_PATTERN_CONTRACTS,
+    ).map((contract) => [normalizeText(contract.id), contract]),
+  );
+  const conflicts = normalizePatternContracts(explicitPatternContracts, [])
+    .map((contract) => {
+      const canonical = canonicalById.get(normalizeText(contract.id));
+      const surfaceType = optionalString(contract.surface_type);
+
+      if (
+        !canonical ||
+        !surfaceType ||
+        normalizeText(surfaceType) === normalizeText(canonical.surface_type)
+      ) {
+        return null;
+      }
+
+      return {
+        id: contract.id,
+        selected_surface_type: surfaceType,
+        required_surface_type: canonical.surface_type,
+      };
+    })
+    .filter(Boolean);
+
+  if (conflicts.length > 0) {
+    throw new JudgmentKitInputError(
+      "External design-system pattern contracts cannot redefine known pattern ids with conflicting surface types.",
+      {
+        code: "invalid_input",
+        details: {
+          conflicts,
+          repair:
+            "Use a new pattern id for external patterns, or keep the canonical surface_type for known JudgmentKit pattern ids.",
+        },
+      },
+    );
+  }
 }
 
 function externalVisualTokenAdapterFallback(adapter, iconSource) {
@@ -6352,10 +6836,15 @@ function normalizeDesignSystemSource(sourceValue, context = {}) {
     context.visualTokenAdapter ?? DEFAULT_VISUAL_TOKEN_ADAPTER;
   const componentContracts =
     context.componentContracts ?? DEFAULT_COMPONENT_CONTRACTS;
-  const mode =
+  const requestedMode =
     optionalString(source.mode) ||
     optionalString(context.mode) ||
     fallback.mode;
+  const mode = ["judgmentkit_default", "external_design_system"].includes(
+    requestedMode,
+  )
+    ? requestedMode
+    : fallback.mode;
   const tokenPrefixes = unique([
     ...normalizePrimitiveList(source.token_prefixes ?? source.tokenPrefixes),
     ...tokenPrefixesFromCssProperties(visualTokenAdapter.css_custom_properties),
@@ -6418,6 +6907,7 @@ function externalDesignSystemFromAdapter(adapter, baseDesignSystem) {
   );
   const explicitPatternContracts =
     adapter.pattern_contracts ?? adapter.patternContracts;
+  validateExternalPatternContracts(explicitPatternContracts, baseDesignSystem);
   const defaultDesignSystem = normalizeDefaultAiNativeDesignSystem(
     {
       component_contracts: componentContracts,
@@ -6625,6 +7115,144 @@ function normalizeAccessibilityPolicy(sourcePolicy, fallbackPolicy) {
   };
 }
 
+function normalizeLocalComponentAuthority(sourcePolicy, fallbackPolicy) {
+  const fallback = isPlainObject(fallbackPolicy)
+    ? fallbackPolicy
+    : DEFAULT_LOCAL_COMPONENT_AUTHORITY;
+  const source = isPlainObject(sourcePolicy) ? sourcePolicy : {};
+  const legacyRequired = source.required === true;
+  const legacyAuthorityPresent = Boolean(
+    legacyRequired ||
+      optionalString(source.component) ||
+      optionalString(source.required_family ?? source.requiredFamily) ||
+      optionalString(
+        source.component_specific_selector ?? source.componentSpecificSelector,
+      ) ||
+      toStringArray(
+        source.accepted_family_selectors ?? source.acceptedFamilySelectors,
+      ).length > 0,
+  );
+  const sourceMode = optionalString(source.mode);
+  const sourceEnforcement = optionalString(source.enforcement);
+  const sourceFamilies = toStringArray(source.families);
+  const legacyRequiredFamily = optionalString(
+    source.required_family ?? source.requiredFamily,
+  );
+  const legacyFamilySelectors = toStringArray(
+    source.accepted_family_selectors ?? source.acceptedFamilySelectors,
+  );
+  const familyEntries = unique([
+    ...sourceFamilies,
+    ...toStringArray(fallback.families),
+    ...(legacyRequiredFamily ? [legacyRequiredFamily] : []),
+    ...legacyFamilySelectors,
+  ]);
+  const legacySelectorExamples = normalizePrimitiveList([
+    source.component_specific_selector ?? source.componentSpecificSelector,
+    ...legacyFamilySelectors,
+  ]);
+  const selectorBoundarySource = mergePolicyObject(
+    source.selector_boundary ?? source.selectorBoundary,
+    {
+      ...fallback.selector_boundary,
+      ...(legacySelectorExamples.length > 0
+        ? { component_selector_examples: legacySelectorExamples }
+        : {}),
+      ...(toStringArray(
+        source.forbidden_component_specific_visual_identity ??
+          source.forbiddenComponentSpecificVisualIdentity,
+      ).length > 0
+        ? {
+            blocked_visual_identity_declarations: toStringArray(
+              source.forbidden_component_specific_visual_identity ??
+                source.forbiddenComponentSpecificVisualIdentity,
+            ),
+          }
+        : {}),
+    },
+  );
+  const tokenBoundarySource = mergePolicyObject(
+    source.token_boundary ?? source.tokenBoundary,
+    fallback.token_boundary,
+  );
+  const computedStyleEvidenceSource = mergePolicyObject(
+    source.computed_style_evidence ??
+      source.computedStyleEvidence ??
+      fallback.computed_style_evidence,
+    fallback.computed_style_evidence,
+  );
+
+  return {
+    mode: ["none", "repo_local"].includes(sourceMode)
+      ? sourceMode
+      : legacyAuthorityPresent
+        ? "repo_local"
+        : fallback.mode,
+    enforcement: ["optional", "required"].includes(sourceEnforcement)
+      ? sourceEnforcement
+      : legacyRequired
+        ? "required"
+      : fallback.enforcement,
+    families: familyEntries,
+    selector_boundary: {
+      allowed: normalizePrimitiveList(
+        selectorBoundarySource.allowed,
+        fallback.selector_boundary?.allowed,
+      ),
+      component_selector_examples: normalizePrimitiveList(
+        selectorBoundarySource.component_selector_examples ??
+          selectorBoundarySource.componentSelectorExamples,
+        fallback.selector_boundary?.component_selector_examples,
+      ),
+      layout_only_declarations: normalizePrimitiveList(
+        selectorBoundarySource.layout_only_declarations ??
+          selectorBoundarySource.layoutOnlyDeclarations,
+        fallback.selector_boundary?.layout_only_declarations,
+      ),
+      blocked_visual_identity_declarations: normalizePrimitiveList(
+        selectorBoundarySource.blocked_visual_identity_declarations ??
+          selectorBoundarySource.blockedVisualIdentityDeclarations,
+        fallback.selector_boundary?.blocked_visual_identity_declarations,
+      ),
+    },
+    token_boundary: {
+      direct_token_prefixes: normalizePrimitiveList(
+        tokenBoundarySource.direct_token_prefixes ??
+          tokenBoundarySource.directTokenPrefixes,
+        fallback.token_boundary?.direct_token_prefixes,
+      ),
+      layout_token_exceptions: normalizePrimitiveList(
+        tokenBoundarySource.layout_token_exceptions ??
+          tokenBoundarySource.layoutTokenExceptions,
+        fallback.token_boundary?.layout_token_exceptions,
+      ),
+      rule:
+        optionalRawString(tokenBoundarySource.rule) ||
+        optionalRawString(fallback.token_boundary?.rule),
+    },
+    computed_style_evidence: {
+      required_when:
+        optionalString(
+          computedStyleEvidenceSource.required_when ??
+            computedStyleEvidenceSource.requiredWhen,
+        ) || optionalString(fallback.computed_style_evidence?.required_when),
+      expectations: normalizePrimitiveList(
+        computedStyleEvidenceSource.expectations,
+        fallback.computed_style_evidence?.expectations,
+      ),
+    },
+  };
+}
+
+function localComponentAuthorityIsActive(authority) {
+  const policy = normalizeLocalComponentAuthority(
+    authority,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY,
+  );
+
+  return policy.mode === "repo_local" || policy.enforcement === "required";
+}
+
 function normalizeUiImplementationContract(input = {}, options = {}) {
   const contract = options.contract ?? loadActivityContract(options.contractPath);
   const base = getContractUiImplementationContract(contract);
@@ -6700,6 +7328,15 @@ function normalizeUiImplementationContract(input = {}, options = {}) {
       base.iteration_policy,
     ),
     design_system_source: designSystemSource,
+    local_component_authority: normalizeLocalComponentAuthority(
+      source.local_component_authority ??
+        source.localComponentAuthority ??
+        source.default_ai_native_design_system?.local_component_authority ??
+        source.default_ai_native_design_system?.localComponentAuthority ??
+        source.defaultAiNativeDesignSystem?.local_component_authority ??
+        source.defaultAiNativeDesignSystem?.localComponentAuthority,
+      base.local_component_authority,
+    ),
     visual_token_adapter: visualTokenAdapter,
     visual_asset_policy: normalizeVisualAssetPolicy(
       source.visual_asset_policy ?? source.visualAssetPolicy,
@@ -6747,6 +7384,10 @@ export function createUiImplementationContract(input = {}, options = {}) {
     );
   }
 
+  if (requestedRawExternalDesignSystemSource(input ?? {})) {
+    throwIncompleteDesignSystemAuthority();
+  }
+
   const contract = options.contract ?? loadActivityContract(options.contractPath);
   const normalized = normalizeUiImplementationContract(input ?? {}, { contract });
   const packet = {
@@ -6784,6 +7425,7 @@ export function createUiImplementationContract(input = {}, options = {}) {
           "static enforcement",
           "browser QA",
           "accessibility evidence",
+          "local component authority",
         ],
       },
     ],
@@ -6814,6 +7456,80 @@ function candidateText(value) {
   ]
     .filter((entry) => typeof entry === "string")
     .join("\n");
+}
+
+function candidateImplementationSourceText(value) {
+  if (typeof value === "string") {
+    return value;
+  }
+
+  if (!isPlainObject(value)) {
+    return "";
+  }
+
+  const sourceKeys = new Set([
+    "code",
+    "content",
+    "contents",
+    "css",
+    "cssText",
+    "css_text",
+    "diff",
+    "markup",
+    "newText",
+    "new_text",
+    "patch",
+    "renderedMarkup",
+    "rendered_markup",
+    "source",
+    "style",
+    "styleText",
+    "style_text",
+    "stylesheet",
+    "styles",
+    "text",
+  ]);
+  const containerKeys = new Set([
+    "changes",
+    "cssFiles",
+    "css_files",
+    "files",
+    "sourceFiles",
+    "source_files",
+    "stylesheets",
+  ]);
+
+  function collectSourceEntries(entry, depth = 0) {
+    if (typeof entry === "string") {
+      return [entry];
+    }
+
+    if (depth > 4 || !entry) {
+      return [];
+    }
+
+    if (Array.isArray(entry)) {
+      return entry.flatMap((child) => collectSourceEntries(child, depth + 1));
+    }
+
+    if (!isPlainObject(entry)) {
+      return [];
+    }
+
+    const values = [];
+
+    for (const [key, child] of Object.entries(entry)) {
+      if (sourceKeys.has(key)) {
+        values.push(...collectSourceEntries(child, depth + 1));
+      } else if (containerKeys.has(key)) {
+        values.push(...collectSourceEntries(child, depth + 1));
+      }
+    }
+
+    return values;
+  }
+
+  return unique(collectSourceEntries(value)).join("\n");
 }
 
 function normalizeCandidateList(candidate, keys) {
@@ -8876,6 +9592,1010 @@ function reviewDesignSystemProvenance(candidate, implementationContract, text) {
   };
 }
 
+function candidateLocalComponentAuthorityEvidence(candidate) {
+  if (!isPlainObject(candidate)) {
+    return null;
+  }
+
+  return (
+    candidate.local_component_authority_evidence ??
+    candidate.localComponentAuthorityEvidence ??
+    candidate.local_component_evidence ??
+    candidate.localComponentEvidence ??
+    null
+  );
+}
+
+function stripCssComments(text) {
+  return text.replace(/\/\*[\s\S]*?\*\//g, "");
+}
+
+function parseCssDeclarations(body) {
+  return body
+    .split(";")
+    .map((entry) => {
+      const separator = entry.indexOf(":");
+
+      if (separator === -1) {
+        return null;
+      }
+
+      const property = entry.slice(0, separator).trim().toLowerCase();
+      const value = entry.slice(separator + 1).trim();
+
+      return property && value ? { property, value } : null;
+    })
+    .filter(Boolean);
+}
+
+function scanCssRules(text) {
+  const source = stripCssComments(optionalString(text));
+  const rules = [];
+  const pattern = /([^{}]+)\{([^{}]*)\}/g;
+  let match;
+
+  while ((match = pattern.exec(source)) !== null) {
+    const selector = match[1].trim();
+    const body = match[2].trim();
+
+    if (
+      !selector ||
+      selector.startsWith("@") ||
+      /(?:^|,)\s*(?:from|to|\d+%)\s*(?:,|$)/i.test(selector)
+    ) {
+      continue;
+    }
+
+    const declarations = parseCssDeclarations(body);
+
+    if (declarations.length > 0) {
+      rules.push({ selector, declarations });
+    }
+  }
+
+  return rules;
+}
+
+const DEFAULT_COMPONENT_SELECTOR_TERMS = [
+  "action",
+  "alert",
+  "badge",
+  "button",
+  "btn",
+  "card",
+  "checkbox",
+  "chip",
+  "dialog",
+  "field",
+  "input",
+  "menu",
+  "modal",
+  "panel",
+  "popover",
+  "radio",
+  "select",
+  "status",
+  "summary",
+  "tab",
+  "table",
+  "toast",
+  "toggle",
+  "tooltip",
+];
+
+function selectorContainsClassOrId(selector) {
+  const selectorWithoutAttributeValues = optionalString(selector).replace(
+    /\[[^\]]*\]/g,
+    (attributeSelector) => attributeSelector.replace(/(["']).*?\1/g, ""),
+  );
+
+  return (
+    /(?:^|[^\w-])(?:\.|#)-?[_a-zA-Z][\w-]*/.test(
+      selectorWithoutAttributeValues,
+    ) ||
+    /(?:^|[\s>+~,(])[a-zA-Z][\w-]*(?:\.|#)-?[_a-zA-Z][\w-]*/.test(
+      selectorWithoutAttributeValues,
+    )
+  );
+}
+
+function selectorIsGlobalRootSelector(selector) {
+  const selectorParts = optionalString(selector)
+    .split(",")
+    .map((part) => part.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (selectorParts.length === 0) {
+    return false;
+  }
+
+  return selectorParts.every((part) => {
+    if (["html", "body", ":root", "*"].includes(part)) {
+      return true;
+    }
+
+    return /^(?:html|body|:root)(?:(?:[.#][\w-]+)|(?:\[[^\]]+\])|(?::[\w-]+(?:\([^)]*\))?))*$/.test(
+      part,
+    );
+  });
+}
+
+function selectorIsComponentSpecific(selector, authority) {
+  const normalizedSelector = optionalString(selector).toLowerCase();
+
+  if (!normalizedSelector) {
+    return false;
+  }
+
+  if (selectorIsGlobalRootSelector(selector)) {
+    return false;
+  }
+
+  if (selectorContainsClassOrId(selector)) {
+    return true;
+  }
+
+  if (/\[(?:data-component|data-ui|data-slot|data-part)\b/.test(normalizedSelector)) {
+    return true;
+  }
+
+  if (
+    /\[(?:aria-[a-z-]+|data-state|data-status|data-variant|role|type)\b/.test(
+      normalizedSelector,
+    )
+  ) {
+    return true;
+  }
+
+  const selectorExamples = toStringArray(
+    authority.selector_boundary?.component_selector_examples,
+  );
+  if (
+    selectorExamples.some((example) => {
+      const normalizedExample = optionalString(example).toLowerCase();
+
+      return (
+        normalizedExample &&
+        (normalizedSelector === normalizedExample ||
+          normalizedSelector.includes(normalizedExample))
+      );
+    })
+  ) {
+    return true;
+  }
+
+  const familyTerms = unique([
+    ...toStringArray(authority.families),
+    ...DEFAULT_COMPONENT_SELECTOR_TERMS,
+  ])
+    .map(normalizeText)
+    .filter(Boolean);
+
+  if (familyTerms.length === 0) {
+    return /(?:^|[\s>+~,])(?:\.|#)[a-z][a-z0-9_-]*(?:[a-z][A-Z]|__[a-z]|--[a-z])/i.test(
+      selector,
+    );
+  }
+
+  return familyTerms.some((term) => {
+    const escaped = escapeRegExp(term).replaceAll(" ", "[-_\\s]");
+    const boundary = "[\\s>+~,.#_:\\[\\]\\(\\)=-]";
+
+    return new RegExp(
+      `(?:^|${boundary})${escaped}(?:$|${boundary})`,
+      "i",
+    ).test(selector);
+  });
+}
+
+function localAuthorityBlockedVisualDeclarations(authority) {
+  return normalizePrimitiveList(
+    authority.selector_boundary?.blocked_visual_identity_declarations,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY.selector_boundary
+      .blocked_visual_identity_declarations,
+  );
+}
+
+function declarationMatchesPrefix(property, prefixes) {
+  return prefixes.some((prefix) => property === prefix || property.startsWith(prefix));
+}
+
+function declarationRecreatesVisualIdentity(declaration, authority) {
+  const blockedPrefixes = localAuthorityBlockedVisualDeclarations(authority);
+
+  return declarationMatchesPrefix(declaration.property, blockedPrefixes);
+}
+
+function localAuthorityDirectTokenPrefixes(authority) {
+  const tokenBoundary = authority.token_boundary ?? {};
+
+  return normalizePrimitiveList(
+    tokenBoundary.direct_token_prefixes ?? tokenBoundary.directTokenPrefixes,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY.token_boundary.direct_token_prefixes,
+  );
+}
+
+function directLocalTokensInDeclaration(declaration, authority) {
+  const tokenBoundary = authority.token_boundary ?? {};
+  const prefixes = localAuthorityDirectTokenPrefixes(authority);
+  const layoutExceptions = normalizePrimitiveList(
+    tokenBoundary.layout_token_exceptions ?? tokenBoundary.layoutTokenExceptions,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY.token_boundary.layout_token_exceptions,
+  );
+  const tokenNames = extractCssCustomPropertyNames(
+    `${declaration.property}: ${declaration.value}`,
+  ).filter((name) => prefixes.some((prefix) => name.startsWith(prefix)));
+  const isLayoutOnlyTokenUse =
+    declarationMatchesPrefix(
+      declaration.property,
+      normalizePrimitiveList(
+        authority.selector_boundary?.layout_only_declarations,
+        DEFAULT_LOCAL_COMPONENT_AUTHORITY.selector_boundary
+          .layout_only_declarations,
+      ),
+    ) &&
+    tokenNames.every((name) =>
+      layoutExceptions.some((prefix) => name.startsWith(prefix)),
+    );
+
+  return isLayoutOnlyTokenUse ? [] : tokenNames;
+}
+
+function localAuthorityEvidenceValue(evidence, keys) {
+  if (!isPlainObject(evidence)) {
+    return undefined;
+  }
+
+  for (const key of keys) {
+    if (evidence[key] !== undefined) {
+      return evidence[key];
+    }
+  }
+
+  return undefined;
+}
+
+function localAuthorityEvidenceValues(evidence, keys) {
+  if (!isPlainObject(evidence)) {
+    return [];
+  }
+
+  return unique([
+    ...keys.flatMap((key) => collectStrings(evidence[key])),
+    ...collectEvidenceValuesByKeys(evidence, keys),
+  ]);
+}
+
+function structuredSelectorEntryHasRuleShape(value) {
+  return (
+    isPlainObject(value) &&
+    [
+      "selector",
+      "css_selector",
+      "cssSelector",
+      "component_selector",
+      "componentSelector",
+      "declarations",
+      "css_declarations",
+      "cssDeclarations",
+      "properties",
+      "visual_identity_declarations",
+      "visualIdentityDeclarations",
+      "direct_token_uses",
+      "directTokenUses",
+      "rule_categories",
+      "ruleCategories",
+    ].some((key) => value[key] !== undefined)
+  );
+}
+
+function normalizeStructuredSelectorEvidenceEntries(value) {
+  if (value === undefined || value === null) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap(normalizeStructuredSelectorEvidenceEntries);
+  }
+
+  if (typeof value === "string") {
+    const selector = optionalString(value);
+
+    return selector ? [{ selector }] : [];
+  }
+
+  if (!isPlainObject(value)) {
+    return [];
+  }
+
+  if (structuredSelectorEntryHasRuleShape(value)) {
+    return [value];
+  }
+
+  return Object.entries(value).flatMap(([selector, child]) => {
+    const normalizedSelector = optionalString(selector);
+
+    if (!normalizedSelector) {
+      return [];
+    }
+
+    if (isPlainObject(child)) {
+      return structuredSelectorEntryHasRuleShape(child)
+        ? [{ selector: normalizedSelector, ...child }]
+        : [{ selector: normalizedSelector, declarations: child }];
+    }
+
+    return [{ selector: normalizedSelector, declarations: child }];
+  });
+}
+
+function structuredSelectorDeclarationHasShape(value) {
+  return (
+    isPlainObject(value) &&
+    [
+      "declaration",
+      "css_declaration",
+      "cssDeclaration",
+      "property",
+      "property_name",
+      "propertyName",
+      "css_property",
+      "cssProperty",
+      "name",
+      "value",
+      "css_value",
+      "cssValue",
+      "custom_properties",
+      "customProperties",
+      "tokens",
+      "token",
+    ].some((key) => value[key] !== undefined)
+  );
+}
+
+function collectStructuredSelectorDeclarationInputs(value) {
+  if (value === undefined || value === null) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap(collectStructuredSelectorDeclarationInputs);
+  }
+
+  if (typeof value === "string") {
+    return [value];
+  }
+
+  if (!isPlainObject(value)) {
+    return [];
+  }
+
+  if (structuredSelectorDeclarationHasShape(value)) {
+    return [value];
+  }
+
+  return Object.entries(value).flatMap(([property, child]) => {
+    const normalizedProperty = optionalString(property);
+
+    if (!normalizedProperty) {
+      return collectStructuredSelectorDeclarationInputs(child);
+    }
+
+    if (typeof child === "string") {
+      return [`${normalizedProperty}: ${child}`];
+    }
+
+    if (Array.isArray(child)) {
+      return child.flatMap((entry) =>
+        typeof entry === "string"
+          ? [`${normalizedProperty}: ${entry}`]
+          : isPlainObject(entry)
+            ? collectStructuredSelectorDeclarationInputs({
+                property: normalizedProperty,
+                ...entry,
+              })
+            : collectStructuredSelectorDeclarationInputs(entry),
+      );
+    }
+
+    if (isPlainObject(child)) {
+      return collectStructuredSelectorDeclarationInputs({
+        property: normalizedProperty,
+        ...child,
+      });
+    }
+
+    return [normalizedProperty];
+  });
+}
+
+function normalizeStructuredSelectorDeclaration(value) {
+  if (typeof value === "string") {
+    const text = optionalString(value);
+
+    if (!text || /^(?:none|n\/a|not applicable)$/i.test(text)) {
+      return null;
+    }
+
+    const separator = text.indexOf(":");
+
+    if (separator !== -1) {
+      const property = text.slice(0, separator).trim().toLowerCase();
+      const declarationValue = text.slice(separator + 1).trim();
+
+      return property || declarationValue
+        ? { property, value: declarationValue, raw: text, explicit_tokens: [] }
+        : null;
+    }
+
+    const propertyLike =
+      /^--[a-z0-9][a-z0-9-]*$/i.test(text) ||
+      /^[a-z][a-z0-9-]*$/i.test(text);
+
+    return {
+      property: propertyLike ? text.toLowerCase() : "",
+      value: propertyLike ? "" : text,
+      raw: text,
+      explicit_tokens: [],
+    };
+  }
+
+  if (!isPlainObject(value)) {
+    return null;
+  }
+
+  const declarationText = optionalString(
+    value.declaration ?? value.css_declaration ?? value.cssDeclaration,
+  );
+  const explicitTokens = unique([
+    ...collectStrings(
+      value.custom_properties ??
+        value.customProperties ??
+        value.tokens ??
+        value.token,
+    ),
+  ]);
+
+  if (declarationText) {
+    const declaration = normalizeStructuredSelectorDeclaration(declarationText);
+
+    return declaration
+      ? {
+          ...declaration,
+          explicit_tokens: unique([
+            ...(declaration.explicit_tokens ?? []),
+            ...explicitTokens,
+          ]),
+        }
+      : null;
+  }
+
+  const property = optionalString(
+    value.property ??
+      value.property_name ??
+      value.propertyName ??
+      value.css_property ??
+      value.cssProperty ??
+      value.name,
+  ).toLowerCase();
+  const declarationValue = optionalString(
+    value.value ?? value.css_value ?? value.cssValue,
+  );
+
+  if (!property && !declarationValue && explicitTokens.length === 0) {
+    return null;
+  }
+
+  return {
+    property,
+    value: declarationValue || explicitTokens.join(" "),
+    raw:
+      property && declarationValue
+        ? `${property}: ${declarationValue}`
+        : property || declarationValue || explicitTokens.join(" "),
+    explicit_tokens: explicitTokens,
+  };
+}
+
+function structuredSelectorDeclarations(entry, keys) {
+  return unique(
+    keys
+      .flatMap((key) =>
+        collectStructuredSelectorDeclarationInputs(
+          localAuthorityEvidenceValue(entry, [key]),
+        ),
+      )
+      .map(normalizeStructuredSelectorDeclaration)
+      .filter(Boolean),
+  );
+}
+
+function localAuthorityDeclarationText(declaration) {
+  const property = optionalString(declaration.property).toLowerCase();
+  const value = optionalString(declaration.value);
+
+  if (property && value) {
+    return `${property}: ${value}`;
+  }
+
+  return property || value || optionalString(declaration.raw);
+}
+
+function directLocalTokensInStructuredDeclaration(declaration, authority) {
+  const prefixes = localAuthorityDirectTokenPrefixes(authority);
+  const explicitTokens = toStringArray(declaration.explicit_tokens).filter((name) =>
+    prefixes.some((prefix) => name.startsWith(prefix)),
+  );
+
+  return unique([
+    ...directLocalTokensInDeclaration(declaration, authority),
+    ...explicitTokens,
+  ]);
+}
+
+function structuredLocalComponentSelectorEvidence(evidence, authority) {
+  const selectorEvidence = localAuthorityEvidenceValue(evidence, [
+    "component_specific_selectors",
+    "componentSpecificSelectors",
+  ]);
+
+  return normalizeStructuredSelectorEvidenceEntries(selectorEvidence)
+    .map((entry) => {
+      const selector = optionalString(
+        entry.selector ??
+          entry.css_selector ??
+          entry.cssSelector ??
+          entry.component_selector ??
+          entry.componentSelector,
+      );
+
+      if (!selector || selectorIsGlobalRootSelector(selector)) {
+        return null;
+      }
+
+      const declarations = structuredSelectorDeclarations(entry, [
+        "declarations",
+        "css_declarations",
+        "cssDeclarations",
+        "properties",
+        "component_declarations",
+        "componentDeclarations",
+      ]);
+      const explicitVisualDeclarations = structuredSelectorDeclarations(entry, [
+        "visual_identity_declarations",
+        "visualIdentityDeclarations",
+        "visual_declarations",
+        "visualDeclarations",
+        "visual_identity_overrides",
+        "visualIdentityOverrides",
+      ]);
+      const tokenCandidateDeclarations = [
+        ...declarations,
+        ...explicitVisualDeclarations,
+        ...structuredSelectorDeclarations(entry, [
+          "direct_token_uses",
+          "directTokenUses",
+          "direct_tokens",
+          "directTokens",
+          "token_uses",
+          "tokenUses",
+        ]),
+      ];
+      const visualDeclarations = unique([
+        ...declarations.filter((declaration) =>
+          declarationRecreatesVisualIdentity(declaration, authority),
+        ),
+        ...explicitVisualDeclarations,
+      ]);
+      const tokenDeclarations = tokenCandidateDeclarations
+        .map((declaration) => ({
+          declaration,
+          tokens: directLocalTokensInStructuredDeclaration(declaration, authority),
+        }))
+        .filter((entry) => entry.tokens.length > 0);
+
+      return {
+        selector,
+        declarations,
+        visual_declarations: visualDeclarations,
+        token_declarations: tokenDeclarations,
+      };
+    })
+    .filter(Boolean);
+}
+
+function expectedLocalAuthorityFamilies(evidence, authority) {
+  const contractFamilies = toStringArray(authority.families);
+
+  if (contractFamilies.length > 0) {
+    return contractFamilies;
+  }
+
+  const evidenceFamilies = localAuthorityEvidenceValues(evidence, [
+    "required_family",
+    "requiredFamily",
+    "expected_family",
+    "expectedFamily",
+    "local_family",
+    "localFamily",
+    "family_id",
+    "familyId",
+  ]);
+
+  return authority.enforcement === "optional" ? evidenceFamilies : [];
+}
+
+function inheritedLocalAuthorityFamilies(evidence) {
+  return localAuthorityEvidenceValues(evidence, [
+    "inherited_families",
+    "inheritedFamilies",
+    "inherited_family",
+    "inheritedFamily",
+    "applied_families",
+    "appliedFamilies",
+    "applied_family",
+    "appliedFamily",
+  ]);
+}
+
+function familyTextVariants(family) {
+  const text = optionalString(family);
+
+  if (!text) {
+    return [];
+  }
+
+  const withoutLeadingDot = text.replace(/^\./, "");
+
+  const variants = text.startsWith(".")
+    ? [text]
+    : [
+        text,
+        withoutLeadingDot,
+        text.replaceAll(".", " "),
+        withoutLeadingDot.replaceAll(".", " "),
+      ];
+
+  return unique(variants).map((entry) => entry.toLowerCase());
+}
+
+function classSelectorTokenAppearsInSource(family, sourceText) {
+  const text = optionalString(family);
+
+  if (!text.startsWith(".")) {
+    return false;
+  }
+
+  const className = text.slice(1);
+
+  if (!className) {
+    return false;
+  }
+
+  const classAttributePattern = /class(?:Name)?\s*=\s*(?:"([^"]*)"|'([^']*)')/gi;
+  let match;
+
+  while ((match = classAttributePattern.exec(sourceText)) !== null) {
+    const classTokens = optionalString(match[1] ?? match[2])
+      .split(/\s+/)
+      .map((token) => token.toLowerCase())
+      .filter(Boolean);
+
+    if (classTokens.includes(className.toLowerCase())) {
+      return true;
+    }
+  }
+
+  const selectorPattern = new RegExp(
+    `(^|[^a-z0-9_-])\\.${escapeRegExp(className)}([^a-z0-9_-]|$)`,
+    "i",
+  );
+
+  return (
+    selectorPattern.test(sourceText) ||
+    cssModuleClassReferenceAppears(className, sourceText)
+  );
+}
+
+function cssModuleBindingNames(sourceText) {
+  const bindings = new Set();
+  const defaultImportPattern =
+    /\bimport\s+([$A-Z_a-z][$\w]*)\s+from\s*["'][^"']+\.module\.(?:css|scss|sass|less)["']/g;
+  const requirePattern =
+    /\b(?:const|let|var)\s+([$A-Z_a-z][$\w]*)\s*=\s*require\(\s*["'][^"']+\.module\.(?:css|scss|sass|less)["']\s*\)/g;
+
+  for (const pattern of [defaultImportPattern, requirePattern]) {
+    let match;
+
+    while ((match = pattern.exec(sourceText)) !== null) {
+      bindings.add(match[1]);
+    }
+  }
+
+  return [...bindings];
+}
+
+function cssModuleClassReferenceAppears(className, sourceText) {
+  for (const binding of cssModuleBindingNames(sourceText)) {
+    const propertyAccessPattern = new RegExp(
+      `\\b${escapeRegExp(binding)}\\.${escapeRegExp(className)}\\b`,
+    );
+    const bracketAccessPattern = new RegExp(
+      `\\b${escapeRegExp(binding)}\\[\\s*["']${escapeRegExp(className)}["']\\s*\\]`,
+    );
+
+    if (
+      propertyAccessPattern.test(sourceText) ||
+      bracketAccessPattern.test(sourceText)
+    ) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function compoundClassFamilyAppearsInSource(family, sourceText) {
+  const text = optionalString(family);
+
+  if (!text.includes(".") || text.startsWith(".")) {
+    return false;
+  }
+
+  const tokens = text
+    .split(".")
+    .map(cleanClause)
+    .filter(Boolean);
+
+  if (tokens.length < 2) {
+    return false;
+  }
+
+  const classAttributePattern = /class(?:Name)?\s*=\s*(?:"([^"]*)"|'([^']*)')/gi;
+  let match;
+
+  while ((match = classAttributePattern.exec(sourceText)) !== null) {
+    const classTokens = new Set(
+      optionalString(match[1] ?? match[2])
+        .split(/\s+/)
+        .map(cleanClause)
+        .filter(Boolean),
+    );
+
+    if (tokens.every((token) => classTokens.has(token))) {
+      return true;
+    }
+  }
+
+  const selectorPattern = new RegExp(
+    `(^|[^a-z0-9_-])${escapeRegExp(text)}([^a-z0-9_-]|$)`,
+    "i",
+  );
+
+  return selectorPattern.test(sourceText);
+}
+
+function localFamilyIsInherited(family, inheritedFamilies, sourceText) {
+  const familyText = optionalString(family);
+  const normalizedInherited = inheritedFamilies.map((entry) =>
+    optionalString(entry).toLowerCase(),
+  );
+  const explicitEvidenceMatches = familyTextVariants(familyText).some((variant) =>
+    normalizedInherited.includes(variant),
+  );
+
+  if (explicitEvidenceMatches) {
+    return true;
+  }
+
+  if (familyText.startsWith(".")) {
+    return classSelectorTokenAppearsInSource(familyText, sourceText);
+  }
+
+  if (!familyText.includes(".")) {
+    return classSelectorTokenAppearsInSource(`.${familyText}`, sourceText);
+  }
+
+  return compoundClassFamilyAppearsInSource(familyText, sourceText);
+}
+
+function computedStyleEvidenceIsPassing(evidence) {
+  if (!evidenceHasAnyValue(evidence)) {
+    return false;
+  }
+
+  if (evidenceHasExplicitFailure(evidence)) {
+    return false;
+  }
+
+  return evidenceHasPositiveSignal(evidence);
+}
+
+function reviewLocalComponentAuthority(candidate, implementationContract) {
+  const authority = normalizeLocalComponentAuthority(
+    implementationContract.local_component_authority,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY,
+  );
+  const evidence = candidateLocalComponentAuthorityEvidence(candidate);
+  const computedStyleEvidence = evidenceValue(
+    evidence,
+    "computed_style_evidence",
+    "computedStyleEvidence",
+  );
+  const sourceText = candidateImplementationSourceText(candidate);
+  const cssRules = scanCssRules(sourceText);
+  const active = localComponentAuthorityIsActive(authority);
+  const componentRules = active
+    ? cssRules.filter((rule) => selectorIsComponentSpecific(rule.selector, authority))
+    : [];
+  const structuredComponentSelectors = active
+    ? structuredLocalComponentSelectorEvidence(evidence, authority)
+    : [];
+  const expectedFamilies = active
+    ? expectedLocalAuthorityFamilies(evidence, authority)
+    : [];
+  const inheritedFamilies = inheritedLocalAuthorityFamilies(evidence);
+  const missingInheritedFamilies = expectedFamilies.filter(
+    (family) => !localFamilyIsInherited(family, inheritedFamilies, sourceText),
+  );
+  const computedStyleEvidencePassing =
+    computedStyleEvidenceIsPassing(computedStyleEvidence);
+  const visualIdentityRecreations = [];
+  const directTokenUses = [];
+
+  for (const rule of componentRules) {
+    const visualDeclarations = rule.declarations.filter((declaration) =>
+      declarationRecreatesVisualIdentity(declaration, authority),
+    );
+    const tokenDeclarations = rule.declarations
+      .map((declaration) => ({
+        declaration,
+        tokens: directLocalTokensInDeclaration(declaration, authority),
+      }))
+      .filter((entry) => entry.tokens.length > 0);
+
+    if (visualDeclarations.length > 0) {
+      visualIdentityRecreations.push({
+        selector: rule.selector,
+        source: "parsed_css",
+        declarations: visualDeclarations.map(
+          (declaration) => `${declaration.property}: ${declaration.value}`,
+        ),
+      });
+    }
+
+    if (tokenDeclarations.length > 0) {
+      directTokenUses.push({
+        selector: rule.selector,
+        source: "parsed_css",
+        declarations: tokenDeclarations.map((entry) => ({
+          property: entry.declaration.property,
+          value: entry.declaration.value,
+          custom_properties: entry.tokens,
+        })),
+      });
+    }
+  }
+
+  for (const entry of structuredComponentSelectors) {
+    if (entry.visual_declarations.length > 0) {
+      visualIdentityRecreations.push({
+        selector: entry.selector,
+        source:
+          "local_component_authority_evidence.component_specific_selectors",
+        declarations: entry.visual_declarations.map(localAuthorityDeclarationText),
+      });
+    }
+
+    if (entry.token_declarations.length > 0) {
+      directTokenUses.push({
+        selector: entry.selector,
+        source:
+          "local_component_authority_evidence.component_specific_selectors",
+        declarations: entry.token_declarations.map((tokenDeclaration) => ({
+          property: tokenDeclaration.declaration.property,
+          value: tokenDeclaration.declaration.value,
+          custom_properties: tokenDeclaration.tokens,
+        })),
+      });
+    }
+  }
+
+  const findings = [];
+
+  if (
+    active &&
+    authority.enforcement === "required" &&
+    expectedFamilies.length > 0 &&
+    missingInheritedFamilies.length === expectedFamilies.length
+  ) {
+    findings.push({
+      severity: "fail",
+      check: "local_component_authority",
+      message:
+        "Candidate does not show that the target control inherits the required local component family.",
+      evidence: {
+        expected_families: expectedFamilies,
+        inherited_families: inheritedFamilies,
+        evidence_field: "local_component_authority_evidence.inherited_families",
+      },
+    });
+  }
+
+  if (
+    active &&
+    authority.enforcement === "required" &&
+    !computedStyleEvidencePassing
+  ) {
+    findings.push({
+      severity: "fail",
+      check: "local_component_authority",
+      message:
+        "Required local component authority needs passing computed-style evidence against a representative local primitive.",
+      evidence: {
+        expected: authority.computed_style_evidence,
+        evidence_field: "local_component_authority_evidence.computed_style_evidence",
+        supplied_status: evidenceDeclaredStatus(computedStyleEvidence),
+      },
+    });
+  }
+
+  if (active && visualIdentityRecreations.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "local_component_authority",
+      message:
+        "Component-specific selectors recreate visual identity outside local component authority.",
+      evidence: {
+        selectors: visualIdentityRecreations,
+        selector_boundary: authority.selector_boundary,
+      },
+    });
+  }
+
+  if (active && directTokenUses.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "local_component_authority",
+      message:
+        "Component-specific selectors use direct JudgmentKit tokens instead of repo-local component authority.",
+      evidence: {
+        selectors: directTokenUses,
+        token_boundary: authority.token_boundary,
+      },
+    });
+  }
+
+  return {
+    status: findings.length > 0 ? "fail" : "pass",
+    reviewed: active || evidenceHasAnyValue(evidence) || cssRules.length > 0,
+    mode: authority.mode,
+    enforcement: authority.enforcement,
+    families: authority.families,
+    expected_families: expectedFamilies,
+    inherited_families: inheritedFamilies,
+    missing_inherited_families: missingInheritedFamilies,
+    selector_boundary: authority.selector_boundary,
+    token_boundary: authority.token_boundary,
+    computed_style_evidence_expected: authority.computed_style_evidence,
+    computed_style_evidence_present: evidenceHasAnyValue(computedStyleEvidence),
+    computed_style_evidence_passing: computedStyleEvidencePassing,
+    scanned_rules: cssRules.length,
+    component_specific_selectors: unique(
+      [
+        ...componentRules.map((rule) => rule.selector),
+        ...structuredComponentSelectors.map((entry) => entry.selector),
+      ],
+    ),
+    structured_component_specific_selectors: unique(
+      structuredComponentSelectors.map((entry) => entry.selector),
+    ),
+    visual_identity_recreations: visualIdentityRecreations,
+    direct_token_uses: directTokenUses,
+    findings,
+  };
+}
+
 function candidateComponentContractEvidence(candidate) {
   if (!isPlainObject(candidate)) {
     return null;
@@ -9148,7 +10868,11 @@ function reviewComponentContractEvidence(candidate, implementationContract) {
   };
 }
 
-function reviewPatternContractEvidence(candidate, implementationContract) {
+function reviewPatternContractEvidence(
+  candidate,
+  implementationContract,
+  { selectedSurfaceType: selectedSurfaceTypeOverride } = {},
+) {
   const system = normalizeDefaultAiNativeDesignSystem(
     implementationContract.default_ai_native_design_system,
     DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
@@ -9156,23 +10880,28 @@ function reviewPatternContractEvidence(candidate, implementationContract) {
   const contracts = normalizePatternContracts(system.pattern_contracts);
   const evidence = candidatePatternContractEvidence(candidate);
   const evidenceText = evidenceToText(evidence).toLowerCase();
-  const reviewed = evidenceHasAnyValue(evidence);
   const contractById = new Map(
     contracts.map((contract) => [normalizeText(contract.id), contract]),
+  );
+  const topLevelPatternId = optionalString(
+    candidate?.pattern_id ?? candidate?.patternId,
   );
   const patternId = optionalString(
     evidence?.pattern_id ??
       evidence?.patternId ??
       evidence?.id ??
-      candidate?.pattern_id ??
-      candidate?.patternId,
+      topLevelPatternId,
+  );
+  const topLevelSurfaceType = optionalString(
+    candidate?.surface_type ?? candidate?.surfaceType,
   );
   const selectedSurfaceType = optionalString(
-    evidence?.surface_type ??
+    selectedSurfaceTypeOverride ??
+      evidence?.surface_type ??
       evidence?.surfaceType ??
-      candidate?.surface_type ??
-      candidate?.surfaceType,
+      topLevelSurfaceType,
   );
+  const reviewed = evidenceHasAnyValue(evidence) || Boolean(topLevelPatternId);
   const pattern = contractById.get(normalizeText(patternId));
   const regionsPresent = unique([
     ...normalizeCandidateList(evidence, [
@@ -9303,7 +11032,305 @@ function reviewPatternContractEvidence(candidate, implementationContract) {
   };
 }
 
-function buildImplementationCandidateChecks(candidate, implementationContract) {
+function contractIds(sourceContracts) {
+  return normalizePrimitiveList(
+    sourceContracts.map((contract) => contract.id),
+  );
+}
+
+function contractIdsEqual(leftContracts, rightContracts) {
+  const leftIds = contractIds(leftContracts);
+  const rightIds = contractIds(rightContracts);
+
+  return (
+    leftIds.length === rightIds.length &&
+    leftIds.every((id, index) => id === rightIds[index])
+  );
+}
+
+function componentContractSourcePath(designSystemSource) {
+  const sourcePath =
+    optionalString(designSystemSource.component_contract_source) ||
+    DEFAULT_DESIGN_SYSTEM_SOURCE.component_contract_source;
+
+  if (
+    designSystemSource.definition_point ===
+      "frontend_skill_context.design_system_adapter_compat" &&
+    sourcePath.startsWith("implementation_contract.design_system_adapter")
+  ) {
+    return sourcePath.replace(
+      "implementation_contract.design_system_adapter",
+      "frontend_skill_context.design_system_adapter_compat",
+    );
+  }
+
+  return sourcePath;
+}
+
+function patternContractSourcePath(designSystemSource, patternContracts) {
+  const defaultSourcePath =
+    "implementation_contract.default_ai_native_design_system.pattern_contracts";
+  const usesDefaultPatternContracts = contractIdsEqual(
+    patternContracts,
+    DEFAULT_PATTERN_CONTRACTS,
+  );
+
+  if (usesDefaultPatternContracts) {
+    return defaultSourcePath;
+  }
+
+  if (
+    designSystemSource.definition_point ===
+    "frontend_skill_context.design_system_adapter_compat"
+  ) {
+    return "frontend_skill_context.design_system_adapter_compat.pattern_contracts";
+  }
+
+  if (designSystemSource.mode === "external_design_system") {
+    return "implementation_contract.design_system_adapter.pattern_contracts";
+  }
+
+  return defaultSourcePath;
+}
+
+function selectedPatternContractForSurface(patternContracts, selectedSurfaceType) {
+  const normalizedSurfaceType = normalizeText(optionalString(selectedSurfaceType));
+
+  if (!normalizedSurfaceType) {
+    return null;
+  }
+
+  return (
+    patternContracts.find(
+      (contract) => normalizeText(contract.surface_type) === normalizedSurfaceType,
+    ) ?? null
+  );
+}
+
+function reviewEvidenceFieldMapping(
+  implementationContract = {},
+  designSystemContractInput,
+  {
+    designSystemSource: designSystemSourceOverride,
+    visualTokenAdapter: visualTokenAdapterOverride,
+    selectedSurfaceType,
+  } = {},
+) {
+  const sourceContract = isPlainObject(implementationContract)
+    ? implementationContract
+    : {};
+  const visualTokenAdapter = normalizeVisualTokenAdapter(
+    visualTokenAdapterOverride ?? sourceContract.visual_token_adapter,
+    DEFAULT_VISUAL_TOKEN_ADAPTER,
+  );
+  const designSystemContract = normalizeDefaultAiNativeDesignSystem(
+    designSystemContractInput ?? sourceContract.default_ai_native_design_system,
+    DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
+  );
+  const componentContracts = normalizeComponentContracts(
+    designSystemContract.component_contracts,
+  );
+  const patternContracts = normalizePatternContracts(
+    designSystemContract.pattern_contracts,
+  );
+  const designSystemSource = normalizeDesignSystemSource(
+    designSystemSourceOverride ?? sourceContract.design_system_source,
+    {
+      visualTokenAdapter,
+      componentContracts,
+    },
+  );
+  const localComponentAuthority = normalizeLocalComponentAuthority(
+    sourceContract.local_component_authority,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY,
+  );
+  const componentSourcePath = componentContractSourcePath(designSystemSource);
+  const patternSourcePath = patternContractSourcePath(
+    designSystemSource,
+    patternContracts,
+  );
+  const selectedPatternContract = selectedPatternContractForSurface(
+    patternContracts,
+    selectedSurfaceType,
+  );
+
+  return {
+    purpose:
+      "Route implementation-review evidence to the field reviewed by review_ui_implementation_candidate without weakening approved primitive validation.",
+    strict_boundary:
+      "primitives_used may contain only implementation_contract.approved_primitives. Design-system component ids, pattern ids, token/font/icon proof, renderer proof, imports, and package provenance are not approved primitives.",
+    route_summary: [
+      "implementation_contract.approved_primitives -> primitives_used",
+      "design-system component contract ids -> component_contract_evidence.components[].id with component_contract_evidence.components[].states_covered",
+      "design-system pattern contract ids -> pattern_contract_evidence.pattern_id",
+      "token family, font role, icon role, and catalog icon-id boundary proof -> visual_token_evidence",
+      "visual-token, typography, icon asset, renderer component, import, package, and source-export proof -> design_system_provenance",
+      "repo-local component selector and computed-style proof -> local_component_authority_evidence",
+    ],
+    primitives_used: {
+      field: "primitives_used",
+      reviewed_by: "checks.approved_primitives",
+      source_path: "implementation_contract.approved_primitives",
+      accepts: "Only ids from implementation_contract.approved_primitives.",
+      allowed_values: toStringArray(sourceContract.approved_primitives),
+      rejects:
+        "Design-system component contract ids and pattern contract ids still fail when listed as primitives.",
+    },
+    component_contract_evidence: {
+      field: "component_contract_evidence",
+      id_field: "component_contract_evidence.components[].id",
+      state_field: "component_contract_evidence.components[].states_covered",
+      reviewed_by: "checks.component_contracts",
+      source_path:
+        componentSourcePath,
+      accepts:
+        "Design-system component contract ids with state coverage for each used component.",
+      allowed_component_ids: componentContracts.map((contract) => contract.id),
+      required_state_source:
+        `${componentSourcePath}[].required_states`,
+    },
+    pattern_contract_evidence: {
+      field: "pattern_contract_evidence",
+      id_field: "pattern_contract_evidence.pattern_id",
+      reviewed_by: "checks.pattern_contracts",
+      source_path: patternSourcePath,
+      accepts:
+        "One design-system pattern contract id, plus surface type, required regions, expected controls, and handoff evidence.",
+      allowed_pattern_ids: patternContracts.map((contract) => contract.id),
+      selected_pattern_contract: selectedPatternContract
+        ? {
+            id: selectedPatternContract.id,
+            surface_type: selectedPatternContract.surface_type,
+            required_regions: selectedPatternContract.required_regions ?? [],
+            expected_controls: selectedPatternContract.expected_controls ?? [],
+            completion_or_handoff:
+              selectedPatternContract.completion_or_handoff ?? "",
+          }
+        : null,
+      selected_pattern_evidence_template: selectedPatternContract
+        ? {
+            pattern_id: selectedPatternContract.id,
+            surface_type: selectedPatternContract.surface_type,
+            regions_present: selectedPatternContract.required_regions ?? [],
+            controls_present: selectedPatternContract.expected_controls ?? [],
+            completion_or_handoff:
+              selectedPatternContract.completion_or_handoff ?? "",
+          }
+        : null,
+      required_region_source:
+        `${patternSourcePath}[].required_regions`,
+      expected_control_source:
+        `${patternSourcePath}[].expected_controls`,
+    },
+    visual_token_evidence: {
+      field: "visual_token_evidence",
+      reviewed_by: "checks.visual_tokens",
+      source_path: "implementation_contract.visual_token_adapter",
+      accepts:
+        "Boundary proof for token families, token roles, font roles, icon roles, and catalog icon ids from implementation_contract.visual_token_adapter.",
+      allowed_token_families: normalizePrimitiveList(
+        visualTokenAdapter.token_families,
+        DEFAULT_VISUAL_TOKEN_ADAPTER.token_families,
+      ),
+      allowed_font_roles: normalizeRoleEntries(
+        visualTokenAdapter.font_roles,
+        DEFAULT_VISUAL_TOKEN_ADAPTER.font_roles,
+      ).map((entry) => entry.role),
+      allowed_icon_roles: normalizePrimitiveList(
+        visualTokenAdapter.icon_roles,
+        DEFAULT_VISUAL_TOKEN_ADAPTER.icon_roles,
+      ),
+      icon_catalog: normalizeIconCatalog(
+        visualTokenAdapter.icon_catalog,
+        DEFAULT_VISUAL_TOKEN_ADAPTER.icon_catalog,
+      ),
+      not_for:
+        "Do not use visual_token_evidence as proof of approved primitives, component ids, pattern ids, imports, packages, renderer authority, static checks, browser QA, or accessibility.",
+    },
+    design_system_provenance: {
+      field: "design_system_provenance",
+      reviewed_by: "checks.design_system_provenance",
+      source_path: "implementation_contract.design_system_source",
+      accepts:
+        "Source proof for visual tokens, typography, icon assets, renderer components, imports, packages, token prefixes, and design-system source exports.",
+      active_source: {
+        mode: designSystemSource.mode,
+        name: designSystemSource.name,
+        package: designSystemSource.package,
+        definition_point: designSystemSource.definition_point,
+        token_prefixes: designSystemSource.token_prefixes,
+        renderer_components: designSystemSource.renderer_components,
+        required_authorities: designSystemSource.required_authorities,
+      },
+      source_export_fields: Object.keys(designSystemSource.source_exports ?? {}),
+    },
+    local_component_authority_evidence: {
+      field: "local_component_authority_evidence",
+      reviewed_by: "checks.local_component_authority",
+      source_path: "implementation_contract.local_component_authority",
+      accepts:
+        "Repo-local component family, selector-boundary, token-boundary, and computed-style evidence when local component authority is active.",
+      active_authority: {
+        mode: localComponentAuthority.mode,
+        enforcement: localComponentAuthority.enforcement,
+        families: localComponentAuthority.families,
+      },
+      selector_boundary: localComponentAuthority.selector_boundary,
+      token_boundary: localComponentAuthority.token_boundary,
+      computed_style_evidence_expected:
+        localComponentAuthority.computed_style_evidence,
+      not_for:
+        "Do not use local_component_authority_evidence as component contract evidence, approved primitive evidence, accessibility evidence, static evidence, or browser QA evidence.",
+    },
+  };
+}
+
+function primitiveRoutingDiagnostics(inventedPrimitives, implementationContract) {
+  const system = normalizeDefaultAiNativeDesignSystem(
+    implementationContract.default_ai_native_design_system,
+    DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
+  );
+  const componentById = new Map(
+    normalizeComponentContracts(system.component_contracts).map((contract) => [
+      normalizeText(contract.id),
+      contract.id,
+    ]),
+  );
+  const patternById = new Map(
+    normalizePatternContracts(system.pattern_contracts).map((contract) => [
+      normalizeText(contract.id),
+      contract.id,
+    ]),
+  );
+  const componentContractIds = unique(
+    inventedPrimitives
+      .filter((primitive) => componentById.has(normalizeText(primitive)))
+      .map((primitive) => componentById.get(normalizeText(primitive))),
+  );
+  const patternContractIds = unique(
+    inventedPrimitives
+      .filter((primitive) => patternById.has(normalizeText(primitive)))
+      .map((primitive) => patternById.get(normalizeText(primitive))),
+  );
+  const componentSet = new Set(componentContractIds.map(normalizeText));
+  const patternSet = new Set(patternContractIds.map(normalizeText));
+
+  return {
+    invalid_primitives: inventedPrimitives,
+    known_component_contract_ids: componentContractIds,
+    known_pattern_contract_ids: patternContractIds,
+    other_invented_primitives: inventedPrimitives.filter((primitive) => {
+      const normalized = normalizeText(primitive);
+      return !componentSet.has(normalized) && !patternSet.has(normalized);
+    }),
+  };
+}
+
+function buildImplementationCandidateChecks(
+  candidate,
+  implementationContract,
+  { selectedSurfaceType } = {},
+) {
   const text = candidateText(candidate);
   const rawControls = detectRawControls(text);
   const primitivesUsed = normalizeCandidateList(candidate, [
@@ -9314,6 +11341,10 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
   const approvedPrimitives = new Set(implementationContract.approved_primitives);
   const inventedPrimitives = primitivesUsed.filter(
     (primitive) => !approvedPrimitives.has(primitive),
+  );
+  const primitiveRouting = primitiveRoutingDiagnostics(
+    inventedPrimitives,
+    implementationContract,
   );
   const statesCovered = normalizeCandidateList(candidate, [
     "states_covered",
@@ -9356,6 +11387,10 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
     implementationContract,
     text,
   );
+  const localComponentAuthority = reviewLocalComponentAuthority(
+    candidate,
+    implementationContract,
+  );
   const componentContracts = reviewComponentContractEvidence(
     candidate,
     implementationContract,
@@ -9363,6 +11398,7 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
   const patternContracts = reviewPatternContractEvidence(
     candidate,
     implementationContract,
+    { selectedSurfaceType },
   );
   const findings = [];
 
@@ -9380,8 +11416,24 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
     findings.push({
       severity: "fail",
       check: "approved_primitives",
-      message: "Candidate uses primitives that are not in the implementation contract.",
+      message:
+        primitiveRouting.known_component_contract_ids.length > 0 ||
+        primitiveRouting.known_pattern_contract_ids.length > 0
+          ? "Candidate lists design-system component or pattern contract ids as approved primitives. They remain invalid in primitives_used and must move to their review evidence fields."
+          : "Candidate uses primitives that are not in the implementation contract.",
       evidence: inventedPrimitives,
+      routing_diagnostics: {
+        ...primitiveRouting,
+        allowed_approved_primitives: implementationContract.approved_primitives,
+        evidence_field_routing: {
+          primitives_used:
+            "Only implementation_contract.approved_primitives belong here.",
+          component_contract_ids:
+            "Move design-system component ids to component_contract_evidence.components[].id and provide component_contract_evidence.components[].states_covered.",
+          pattern_contract_ids:
+            "Move design-system pattern ids to pattern_contract_evidence.pattern_id.",
+        },
+      },
     });
   }
 
@@ -9430,6 +11482,7 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
   findings.push(...dataVisibility.findings);
   findings.push(...visualTokenEvidence.findings);
   findings.push(...designSystemProvenance.findings);
+  findings.push(...localComponentAuthority.findings);
   findings.push(...componentContracts.findings);
   findings.push(...patternContracts.findings);
 
@@ -9442,6 +11495,27 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
       status: inventedPrimitives.length === 0 ? "pass" : "fail",
       used: primitivesUsed,
       invented: inventedPrimitives,
+      known_component_contract_ids:
+        primitiveRouting.known_component_contract_ids,
+      known_component_ids: primitiveRouting.known_component_contract_ids,
+      known_component_ids_in_primitives_used:
+        primitiveRouting.known_component_contract_ids,
+      known_component_contract_ids_in_primitives_used:
+        primitiveRouting.known_component_contract_ids,
+      component_contract_ids_in_primitives_used:
+        primitiveRouting.known_component_contract_ids,
+      component_ids_in_primitives_used:
+        primitiveRouting.known_component_contract_ids,
+      known_pattern_contract_ids: primitiveRouting.known_pattern_contract_ids,
+      known_pattern_ids: primitiveRouting.known_pattern_contract_ids,
+      known_pattern_ids_in_primitives_used:
+        primitiveRouting.known_pattern_contract_ids,
+      known_pattern_contract_ids_in_primitives_used:
+        primitiveRouting.known_pattern_contract_ids,
+      pattern_contract_ids_in_primitives_used:
+        primitiveRouting.known_pattern_contract_ids,
+      pattern_ids_in_primitives_used: primitiveRouting.known_pattern_contract_ids,
+      other_invented_primitives: primitiveRouting.other_invented_primitives,
     },
     state_coverage: {
       status: missingStates.length === 0 ? "pass" : "fail",
@@ -9468,6 +11542,7 @@ function buildImplementationCandidateChecks(candidate, implementationContract) {
     accessibility_evidence: accessibilityEvidence,
     visual_tokens: visualTokenEvidence,
     design_system_provenance: designSystemProvenance,
+    local_component_authority: localComponentAuthority,
     component_contracts: componentContracts,
     pattern_contracts: patternContracts,
     findings,
@@ -9534,6 +11609,10 @@ function findingContractArea(check) {
     return "design_system_source";
   }
 
+  if (check === "local_component_authority") {
+    return "local_component_authority";
+  }
+
   if (check === "component_contracts") {
     return "component_contracts";
   }
@@ -9553,7 +11632,29 @@ function repairInstructionForFinding(finding, implementationContract) {
   }
 
   if (check === "approved_primitives") {
-    return `Use only approved primitives: ${implementationContract.approved_primitives.join(", ")}.`;
+    const evidence = isPlainObject(finding.routing_diagnostics)
+      ? finding.routing_diagnostics
+      : isPlainObject(finding.evidence)
+        ? finding.evidence
+        : {};
+    const misroutedComponentIds = toStringArray(
+      evidence.known_component_contract_ids,
+    );
+    const misroutedPatternIds = toStringArray(
+      evidence.known_pattern_contract_ids,
+    );
+    const reroutes = [
+      misroutedComponentIds.length > 0
+        ? `Move design-system component ids (${misroutedComponentIds.join(", ")}) to component_contract_evidence.components[].id with component_contract_evidence.components[].states_covered`
+        : "",
+      misroutedPatternIds.length > 0
+        ? `Move pattern ids (${misroutedPatternIds.join(", ")}) to pattern_contract_evidence.pattern_id`
+        : "",
+    ].filter(Boolean);
+    const routeInstruction =
+      reroutes.length > 0 ? ` ${reroutes.join("; ")}.` : "";
+
+    return `Use only approved primitives in primitives_used: ${implementationContract.approved_primitives.join(", ")}.${routeInstruction}`;
   }
 
   if (check === "state_coverage") {
@@ -9590,6 +11691,33 @@ function repairInstructionForFinding(finding, implementationContract) {
 
   if (check === "design_system_provenance") {
     return "Use implementation_contract.design_system_source as the source for visual tokens, typography, icon assets, and renderer components; remove local visual token namespaces, remote font/icon sources, and direct packages outside the active source.";
+  }
+
+  if (check === "local_component_authority") {
+    const evidence = isPlainObject(finding.evidence) ? finding.evidence : {};
+    const expectedFamilies = toStringArray(evidence.expected_families);
+    const selectorBoundary = isPlainObject(evidence.selector_boundary)
+      ? evidence.selector_boundary
+      : {};
+    const tokenBoundary = isPlainObject(evidence.token_boundary)
+      ? evidence.token_boundary
+      : {};
+    const familyText =
+      expectedFamilies.length > 0
+        ? ` inherit ${expectedFamilies.join(", ")};`
+        : "";
+    const selectorText = toStringArray(
+      selectorBoundary.component_selector_examples,
+    ).length
+      ? ` known local selectors include ${toStringArray(selectorBoundary.component_selector_examples).join(", ")};`
+      : "";
+    const tokenPrefixes = toStringArray(tokenBoundary.direct_token_prefixes);
+    const tokenText =
+      tokenPrefixes.length > 0
+        ? ` remove direct ${tokenPrefixes.join(", ")} token use from one-off selectors;`
+        : " remove direct JudgmentKit token use from one-off selectors;";
+
+    return `Use the existing local component family for the target control;${familyText}${selectorText}${tokenText} keep component-specific selectors layout/overflow only, and put computed-style proof in local_component_authority_evidence.`;
   }
 
   if (check === "component_contracts") {
@@ -9661,7 +11789,23 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
       contract.implementation_contract,
     { contract },
   );
-  const checks = buildImplementationCandidateChecks(candidate, implementationContract);
+  if (
+    !hasCompleteExternalImplementationAuthority({
+      designSystemSource: implementationContract.design_system_source,
+      visualTokenAdapter: implementationContract.visual_token_adapter,
+      designSystemContract:
+        implementationContract.default_ai_native_design_system,
+    })
+  ) {
+    throwIncompleteDesignSystemAuthority();
+  }
+  const selectedSurfaceType =
+    selectedSurfaceTypeFromImplementationReviewOptions(options);
+  const checks = buildImplementationCandidateChecks(
+    candidate,
+    implementationContract,
+    { selectedSurfaceType },
+  );
   const failed = checks.findings.some((finding) => finding.severity === "fail");
   const iterationPolicy = implementationContract.iteration_policy;
   const iterationContext = normalizeIterationContext(
@@ -9697,7 +11841,7 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
         id: "implementation_gate",
         status: failed ? "failed" : "passed",
         requirement:
-          "Generated UI must use approved primitives and provide static plus browser QA evidence.",
+          "Generated UI must use approved primitives, respect local component authority, and provide static plus browser QA evidence.",
       },
     ],
     checks: {
@@ -9712,6 +11856,7 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
       accessibility_evidence: checks.accessibility_evidence,
       visual_tokens: checks.visual_tokens,
       design_system_provenance: checks.design_system_provenance,
+      local_component_authority: checks.local_component_authority,
       component_contracts: checks.component_contracts,
       pattern_contracts: checks.pattern_contracts,
     },
@@ -9737,6 +11882,7 @@ function compactImplementationContractForHandoff(implementationContract) {
       implementationContract.default_ai_native_design_system,
     iteration_policy: implementationContract.iteration_policy,
     design_system_source: implementationContract.design_system_source,
+    local_component_authority: implementationContract.local_component_authority,
     visual_token_adapter: implementationContract.visual_token_adapter,
     visual_asset_policy: implementationContract.visual_asset_policy,
     accessibility_policy: implementationContract.accessibility_policy,
@@ -9999,6 +12145,73 @@ function hasDesignGuidanceValue(value) {
   }
 
   return isPlainObject(value) && Object.keys(value).length > 0;
+}
+
+function hasCompleteExternalImplementationAuthority({
+  designSystemSource,
+  visualTokenAdapter,
+  designSystemContract,
+}) {
+  if (designSystemSource?.mode !== "external_design_system") {
+    return true;
+  }
+
+  const definitionPoint = optionalString(designSystemSource.definition_point);
+  const iconCatalog = isPlainObject(visualTokenAdapter.icon_catalog)
+    ? visualTokenAdapter.icon_catalog
+    : {};
+  const tokenPrefixes = toStringArray(designSystemSource.token_prefixes);
+  const hasExternalTokenAuthority =
+    visualTokenAdapter.mode === "external_design_system" &&
+    (normalizePrimitiveList(visualTokenAdapter.token_families).length > 0 ||
+      normalizeCssCustomProperties(visualTokenAdapter.css_custom_properties, [])
+        .length > 0 ||
+      tokenPrefixes.some((prefix) => prefix && prefix !== "--jk-"));
+  const hasExternalIconAuthority =
+    optionalString(iconCatalog.source) === "external_design_system" ||
+    (optionalString(iconCatalog.package) &&
+      optionalString(iconCatalog.package) !== DEFAULT_ICON_CATALOG.package);
+  const componentContractSource = optionalString(
+    designSystemSource.component_contract_source,
+  );
+  const externalComponentContracts = normalizeComponentContracts(
+    designSystemContract.component_contracts,
+    [],
+  );
+  const externalComponentIds = externalComponentContracts
+    .map((contract) => normalizeText(contract.id))
+    .filter(Boolean);
+  const externalComponentIdSet = new Set(externalComponentIds);
+  const defaultComponentIds = normalizeComponentContracts(
+    DEFAULT_COMPONENT_CONTRACTS,
+    [],
+  )
+    .map((contract) => normalizeText(contract.id))
+    .filter(Boolean);
+  const usesOnlyDefaultComponentContracts =
+    externalComponentIds.length === defaultComponentIds.length &&
+    externalComponentIds.every((id) => defaultComponentIds.includes(id));
+  const rendererComponentIds = toStringArray(
+    designSystemSource.renderer_components,
+  )
+    .map(normalizeText)
+    .filter(Boolean);
+  const rendererComponentsMatchContracts =
+    rendererComponentIds.length > 0 &&
+    rendererComponentIds.every((id) => externalComponentIdSet.has(id));
+  const hasExternalComponentAuthority =
+    componentContractSource.includes("design_system_adapter") &&
+    componentContractSource !== DEFAULT_DESIGN_SYSTEM_SOURCE.component_contract_source &&
+    externalComponentContracts.length > 0 &&
+    rendererComponentsMatchContracts &&
+    !usesOnlyDefaultComponentContracts;
+
+  return (
+    definitionPoint.includes("design_system_adapter") &&
+    hasExternalTokenAuthority &&
+    hasExternalIconAuthority &&
+    hasExternalComponentAuthority
+  );
 }
 
 function formatRoleEntries(entries, formatter) {
@@ -10446,6 +12659,15 @@ export function createFrontendGenerationContext({
     uiGenerationHandoff.implementation_contract?.default_ai_native_design_system,
     DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
   );
+  const localComponentAuthority = normalizeLocalComponentAuthority(
+    uiGenerationHandoff.implementation_contract?.local_component_authority,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY,
+  );
+  const evidenceFieldMapping = reviewEvidenceFieldMapping(
+    uiGenerationHandoff.implementation_contract,
+    designSystemContract,
+    { selectedSurfaceType: surfaceGuidance.recommended_surface_type },
+  );
 
   return {
     version: uiGenerationHandoff.version,
@@ -10496,12 +12718,15 @@ export function createFrontendGenerationContext({
       design_system_source:
         uiGenerationHandoff.implementation_contract?.design_system_source ??
         DEFAULT_DESIGN_SYSTEM_SOURCE,
+      local_component_authority:
+        localComponentAuthority,
       visual_asset_policy:
         uiGenerationHandoff.implementation_contract?.visual_asset_policy ??
         DEFAULT_VISUAL_ASSET_POLICY,
       accessibility_policy:
         uiGenerationHandoff.implementation_contract?.accessibility_policy ??
         DEFAULT_ACCESSIBILITY_POLICY,
+      evidence_field_mapping: evidenceFieldMapping,
       component_contracts: designSystemContract.component_contracts,
       pattern_contracts: designSystemContract.pattern_contracts,
       required_surfaces: requiredSurfaces,
@@ -10526,6 +12751,9 @@ export function createFrontendGenerationContext({
       design_system_source:
         uiGenerationHandoff.implementation_contract?.design_system_source ??
         DEFAULT_DESIGN_SYSTEM_SOURCE,
+      ...(localComponentAuthorityIsActive(localComponentAuthority)
+        ? { local_component_authority: localComponentAuthority }
+        : {}),
     },
   };
 }
@@ -10534,8 +12762,22 @@ function buildFrontendImplementationInstructionMarkdown({
   frontendGenerationContext,
   designSystemPolicy,
   targetClient,
+  evidenceFieldMapping,
 }) {
   const implementationGuidance = frontendGenerationContext.implementation_guidance ?? {};
+  const reviewEvidenceMapping =
+    evidenceFieldMapping ?? implementationGuidance.evidence_field_mapping ?? {};
+  const primitiveEvidenceMapping = reviewEvidenceMapping.primitives_used ?? {};
+  const componentEvidenceMapping =
+    reviewEvidenceMapping.component_contract_evidence ?? {};
+  const patternEvidenceMapping =
+    reviewEvidenceMapping.pattern_contract_evidence ?? {};
+  const visualTokenEvidenceMapping =
+    reviewEvidenceMapping.visual_token_evidence ?? {};
+  const provenanceEvidenceMapping =
+    reviewEvidenceMapping.design_system_provenance ?? {};
+  const localAuthorityEvidenceMapping =
+    reviewEvidenceMapping.local_component_authority_evidence ?? {};
   const verification = implementationGuidance.verification_expectations ?? {};
   const frontendContext = frontendGenerationContext.frontend_context ?? {};
   const workflow = frontendGenerationContext.workflow ?? {};
@@ -10544,6 +12786,13 @@ function buildFrontendImplementationInstructionMarkdown({
     implementationGuidance.visual_asset_policy ?? DEFAULT_VISUAL_ASSET_POLICY;
   const accessibilityPolicy =
     implementationGuidance.accessibility_policy ?? DEFAULT_ACCESSIBILITY_POLICY;
+  const localComponentAuthority = normalizeLocalComponentAuthority(
+    implementationGuidance.local_component_authority ??
+      frontendGenerationContext.implementation_contract?.local_component_authority,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY,
+  );
+  const localComponentAuthorityActive =
+    localComponentAuthorityIsActive(localComponentAuthority);
   const contrastTargets =
     accessibilityPolicy.contrast_targets ?? DEFAULT_ACCESSIBILITY_POLICY.contrast_targets;
   const standardsProfile =
@@ -10572,14 +12821,38 @@ function buildFrontendImplementationInstructionMarkdown({
     "- Confirm the activity, primary decision, workflow topology, work units, coordinated surfaces, and handoff are represented.",
     "- Shape the interface around the selected surface type and surface set before choosing section layout.",
     "- Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
-    "- Use approved primitives and approved component families before introducing new UI helpers.",
-    "- Use implementation_contract.design_system_source as the active source for visual tokens, typography, icon assets, and renderer components.",
+    "- Put only implementation_contract.approved_primitives in primitives_used; put design-system component ids in component_contract_evidence.components[].id with states_covered, and pattern ids in pattern_contract_evidence.pattern_id.",
+    "- Use approved component families and documented design-system component contracts before introducing new UI helpers.",
+    "- Use implementation_contract.design_system_source as the active source for visual tokens, typography, icon assets, renderer components, imports, and packages.",
+    "- Put token/font/icon role and catalog-id boundary proof in visual_token_evidence; put renderer, import, package, source-export, and token-prefix provenance in design_system_provenance.",
+    ...(localComponentAuthorityActive
+      ? [
+          "- When implementation_contract.local_component_authority is active, keep one-off component selectors layout-only; do not recreate visual identity or use direct --jk-* tokens in component-specific selectors.",
+          "- Put repo-local selector-boundary and computed-style proof in local_component_authority_evidence when local authority is active.",
+        ]
+      : []),
     "- Use JudgmentKit design-system exports by default; when external_design_system is active, do not mix in JudgmentKit default assets unless the external adapter explicitly names them.",
     "- Verify core accessibility evidence for semantics, landmarks/headings, name/role/value, keyboard navigation, focus order, focus-visible, responsive reflow/no-overflow, and automated checks.",
     "- Add conditional accessibility evidence for visuals, custom widgets, forms, status messages, overlays, motion, media, dense controls, and hover/focus content when those patterns appear.",
     "- For text over substantive visuals or rendered backgrounds, verify WCAG AA contrast from browser-rendered output, not screenshots alone.",
     "- Verify required states, static checks, browser checks, accessibility evidence, and disclosure boundaries.",
     "- Review generated code or evidence with review_ui_implementation_candidate before final handoff.",
+    "",
+    "## Review Evidence Fields",
+    `- ${primitiveEvidenceMapping.field || "primitives_used"}: only implementation_contract.approved_primitives. Allowed values: ${toStringArray(primitiveEvidenceMapping.allowed_values).join("; ") || "none supplied"}`,
+    `- ${componentEvidenceMapping.id_field || "component_contract_evidence.components[].id"}: design-system component contract ids. Include ${componentEvidenceMapping.state_field || "component_contract_evidence.components[].states_covered"} for each used component. Allowed ids: ${toStringArray(componentEvidenceMapping.allowed_component_ids).join("; ") || "none supplied"}`,
+    `- ${patternEvidenceMapping.id_field || "pattern_contract_evidence.pattern_id"}: selected design-system pattern contract id. Include matching surface type, regions_present, controls_present, and handoff evidence. Allowed ids: ${toStringArray(patternEvidenceMapping.allowed_pattern_ids).join("; ") || "none supplied"}`,
+    `- ${visualTokenEvidenceMapping.field || "visual_token_evidence"}: token families, token roles, font roles, icon roles, and catalog icon ids from implementation_contract.visual_token_adapter. This is boundary proof only, not primitive, component, pattern, renderer, static, browser, or accessibility proof.`,
+    `- ${provenanceEvidenceMapping.field || "design_system_provenance"}: source proof for visual tokens, typography, icon assets, renderer components, imports, packages, token prefixes, and design-system exports. Active source: ${[
+      provenanceEvidenceMapping.active_source?.mode,
+      provenanceEvidenceMapping.active_source?.name,
+      provenanceEvidenceMapping.active_source?.package,
+    ].filter(Boolean).join(" / ") || "unspecified"}`,
+    ...(localComponentAuthorityActive
+      ? [
+          `- ${localAuthorityEvidenceMapping.field || "local_component_authority_evidence"}: repo-local component family, selector-boundary, token-boundary, and computed-style proof. Active mode: ${localAuthorityEvidenceMapping.active_authority?.mode || localComponentAuthority.mode || "none"}`,
+        ]
+      : []),
     "",
     "## Required Surface",
     `- Topology: ${workflow.topology || "workspace"}`,
@@ -10647,6 +12920,18 @@ function buildFrontendImplementationInstructionMarkdown({
         (entry) => `${entry.id}: ${entry.surface_type}`,
       ) || "none supplied"
     }`,
+    ...(localComponentAuthorityActive
+      ? [
+          "",
+          "## Local Component Authority",
+          `- Mode: ${localComponentAuthority.mode || "none"}`,
+          `- Enforcement: ${localComponentAuthority.enforcement || "optional"}`,
+          `- Families: ${toStringArray(localComponentAuthority.families).join("; ") || "none supplied"}`,
+          `- Selector boundary: ${toStringArray(localComponentAuthority.selector_boundary?.allowed).join("; ") || "layout-only selectors allowed"}`,
+          `- Token boundary: ${localComponentAuthority.token_boundary?.rule || "direct JudgmentKit tokens stay out of one-off component selectors"}`,
+          `- Computed style evidence: ${toStringArray(localComponentAuthority.computed_style_evidence?.expectations).join("; ") || "none supplied"}`,
+        ]
+      : []),
     "",
     "## Visual Asset Policy",
     `- Applies when: ${toStringArray(visualAssetPolicy.applies_when).join("; ") || "no substantive visual requirements supplied"}`,
@@ -10722,6 +13007,13 @@ export function createFrontendImplementationSkillContext({
     implementationGuidance.accessibility_policy ??
     implementationContract.accessibility_policy ??
     DEFAULT_ACCESSIBILITY_POLICY;
+  const localComponentAuthority = normalizeLocalComponentAuthority(
+    implementationGuidance.local_component_authority ??
+      implementationContract.local_component_authority,
+    DEFAULT_LOCAL_COMPONENT_AUTHORITY,
+  );
+  const localComponentAuthorityActive =
+    localComponentAuthorityIsActive(localComponentAuthority);
   let visualTokenAdapter = normalizeVisualTokenAdapter(
     implementationContract.visual_token_adapter ?? {},
     DEFAULT_VISUAL_TOKEN_ADAPTER,
@@ -10738,8 +13030,23 @@ export function createFrontendImplementationSkillContext({
       componentContracts: designSystemContract.component_contracts,
     },
   );
+  const hasInlineDesignSystemAdapter = hasDesignGuidanceValue(
+    normalizedDesignSystemAdapter,
+  );
 
-  if (hasDesignGuidanceValue(normalizedDesignSystemAdapter)) {
+  if (
+    designSystemSource.mode === "external_design_system" &&
+    !hasInlineDesignSystemAdapter &&
+    !hasCompleteExternalImplementationAuthority({
+      designSystemSource,
+      visualTokenAdapter,
+      designSystemContract,
+    })
+  ) {
+    throwIncompleteDesignSystemAuthority();
+  }
+
+  if (hasInlineDesignSystemAdapter) {
     const externalDesignSystem = externalDesignSystemFromAdapter(
       normalizedDesignSystemAdapter,
       designSystemContract,
@@ -10807,11 +13114,25 @@ export function createFrontendImplementationSkillContext({
     component_contracts: designSystemContract.component_contracts,
     pattern_contracts: designSystemContract.pattern_contracts,
   };
+  const evidenceFieldMapping = reviewEvidenceFieldMapping(
+    implementationContract,
+    designSystemContract,
+    {
+      designSystemSource,
+      visualTokenAdapter,
+      selectedSurfaceType: frontendGenerationContext.surface_type,
+    },
+  );
   const verificationChecklist = unique([
     ...toStringArray(verificationExpectations.commands).map(
       (command) => `Run ${command}`,
     ),
     ...toStringArray(implementationContract.static_enforcement?.default_rules),
+    ...(localComponentAuthorityActive
+      ? [
+          "When local component authority is active, scan component-specific selectors for visual identity declarations and direct --jk-* token use.",
+        ]
+      : []),
     "Verify substantive visuals use imagegen or premium Three.js/WebGL/D3-style rendering when the spec calls for them.",
     "Provide browser-rendered visual-background contrast evidence for text over images, canvas, WebGL, video, gradients, or generated visuals.",
     "Verify non-text contrast for meaningful icons, charts, state indicators, custom controls, and authored focus indicators.",
@@ -10854,13 +13175,22 @@ export function createFrontendImplementationSkillContext({
       frontendGenerationContext,
       designSystemPolicy,
       targetClient: normalizedTargetClient,
+      evidenceFieldMapping,
     }),
     implementation_sequence: [
       "Confirm the activity, primary decision, workflow topology, work units, coordinated surfaces, and handoff from the ready frontend context.",
       "Map the selected surface type to the surface set, required sections, controls, density, navigation, and responsive expectations.",
       "Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
-      "Use approved primitives and approved component families before introducing new UI helpers.",
-      "Use implementation_contract.design_system_source as the active source for visual tokens, typography, icon assets, and renderer components.",
+      "Put only implementation_contract.approved_primitives in primitives_used; put design-system component ids in component_contract_evidence.components[].id with states_covered, and pattern ids in pattern_contract_evidence.pattern_id.",
+      "Use approved component families and documented design-system component contracts before introducing new UI helpers.",
+      "Use implementation_contract.design_system_source as the active source for visual tokens, typography, icon assets, renderer components, imports, and packages.",
+      "Put token/font/icon role and catalog-id boundary proof in visual_token_evidence; put renderer, import, package, source-export, and token-prefix provenance in design_system_provenance.",
+      ...(localComponentAuthorityActive
+        ? [
+            "When implementation_contract.local_component_authority is active, keep one-off component selectors layout-only; do not recreate visual identity or use direct --jk-* tokens in component-specific selectors.",
+            "Put repo-local selector-boundary and computed-style proof in local_component_authority_evidence when local authority is active.",
+          ]
+        : []),
       "Use JudgmentKit design-system exports by default; when external_design_system is active, do not mix in JudgmentKit default assets unless the external adapter explicitly names them.",
       "When the spec calls for substantive visuals, use imagegen or premium Three.js/WebGL/D3-style rendering instead of rudimentary deterministic geometry.",
       "Verify core accessibility evidence: automated checks, semantic content, landmarks/headings, name-role-value, keyboard navigation, focus order, focus-visible, and responsive reflow/no-overflow.",
@@ -10892,9 +13222,11 @@ export function createFrontendImplementationSkillContext({
     ),
     visual_asset_policy: visualAssetPolicy,
     accessibility_policy: accessibilityPolicy,
+    local_component_authority: localComponentAuthority,
     design_system_source: designSystemSource,
     visual_token_adapter: visualTokenAdapter,
     design_system_policy: designSystemPolicy,
+    evidence_field_mapping: evidenceFieldMapping,
     token_guidance: tokenGuidance,
     font_guidance: fontGuidance,
     icon_guidance: iconGuidance,
@@ -10909,6 +13241,9 @@ export function createFrontendImplementationSkillContext({
       design_system_is_adapter: false,
       design_system_contract_first: true,
       design_system_source: designSystemSource,
+      ...(localComponentAuthorityActive
+        ? { local_component_authority: localComponentAuthority }
+        : {}),
       visual_asset_policy: visualAssetPolicy,
       accessibility_policy: accessibilityPolicy,
       product_ui_rule:

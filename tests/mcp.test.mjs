@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 
 import {
+  formatPlanningCard,
   getMcpMetadata,
   handleToolCall,
   listTools,
@@ -38,7 +39,7 @@ assert.deepEqual(
   ],
 );
 assert.equal(metadata.name, "JudgmentKit");
-assert.equal(metadata.version, "0.6.1");
+assert.equal(metadata.version, "0.6.2");
 assert.deepEqual(metadata.capabilities.prompts, []);
 const toolsJson = JSON.stringify(tools);
 for (const legacyField of [
@@ -66,6 +67,12 @@ assert.equal(tools[0].inputSchema.properties.brief.minLength, 1);
 assert.equal(tools[1].inputSchema.required.includes("brief"), true);
 assert.equal(tools[1].inputSchema.properties.brief.minLength, 1);
 assert.equal(tools[2].inputSchema.required.includes("brief"), true);
+assert.equal(toolByName.recommend_surface_types.inputSchema.properties.activity_review.type, "object");
+assert.equal(toolByName.recommend_surface_types.inputSchema.properties.activityReview.type, "object");
+assert.equal(
+  toolByName.recommend_surface_types.inputSchema.required.includes("activityReview"),
+  false,
+);
 assert.equal(tools[3].inputSchema.required.includes("brief"), true);
 assert.equal(tools[4].inputSchema.required.includes("brief"), true);
 assert.equal(tools[4].inputSchema.required.includes("candidate"), true);
@@ -104,7 +111,43 @@ assert.ok(
 );
 assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.required.includes("candidate"), true);
 assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.required.includes("implementation_contract"), true);
+assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.properties.surface_type.type, "string");
+assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.properties.surfaceType.type, "string");
+assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.properties.surface_review.type, "object");
+assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.properties.surfaceReview.type, "object");
+assert.equal(
+  toolByName.review_ui_implementation_candidate.inputSchema.properties.frontend_generation_context.type,
+  "object",
+);
+assert.equal(
+  toolByName.review_ui_implementation_candidate.inputSchema.properties.frontendGenerationContext.type,
+  "object",
+);
 assert.equal(toolByName.review_ui_implementation_candidate.inputSchema.properties.iteration_context.type, "object");
+const reviewImplementationCandidateHelp = JSON.stringify(
+  toolByName.review_ui_implementation_candidate,
+);
+for (const evidenceField of [
+  "visual_token_evidence",
+  "component_contract_evidence",
+  "pattern_contract_evidence",
+  "local_component_authority_evidence",
+  "design_system_provenance",
+]) {
+  assert.ok(
+    reviewImplementationCandidateHelp.includes(evidenceField),
+    `review_ui_implementation_candidate help should mention ${evidenceField}`,
+  );
+}
+assert.match(
+  reviewImplementationCandidateHelp,
+  /local_component_authority(?!_evidence)/,
+  "review_ui_implementation_candidate help should mention checks.local_component_authority.",
+);
+assert.match(
+  reviewImplementationCandidateHelp,
+  /primitives_used[^.]*only[^.]*implementation_contract\.approved_primitives/i,
+);
 assert.equal(toolByName.create_ui_generation_handoff.inputSchema.required.includes("workflow_review"), true);
 assert.equal(toolByName.create_ui_generation_handoff.inputSchema.required.includes("implementation_contract"), true);
 assert.equal(toolByName.create_ui_generation_handoff.inputSchema.properties.cognitive_dimensions_review.type, "object");
@@ -164,6 +207,38 @@ const refundTriageCandidate = {
     diagnostic_contexts: ["setup", "debugging", "auditing", "integration"],
   },
 };
+
+const formFlowCandidate = {
+  activity_model: {
+    activity: "Support manager updates billing settings.",
+    participants: ["support manager"],
+    objective:
+      "Enter required billing information, resolve validation errors, and submit saved settings.",
+    outcomes: ["Saved settings confirmation."],
+    domain_vocabulary: ["billing information", "settings"],
+  },
+  interaction_contract: {
+    primary_decision:
+      "Decide whether required billing information is complete enough to submit.",
+    next_actions: ["Save settings", "Submit change"],
+    completion: "Saved settings confirmation.",
+  },
+  disclosure_policy: {
+    terms_to_use: ["billing information", "settings"],
+  },
+};
+
+function readyActivityReview(candidate) {
+  return {
+    review_status: "ready_for_review",
+    candidate,
+    guardrails: {
+      source_missing_evidence: {
+        decision: false,
+      },
+    },
+  };
+}
 
 const refundWorkflowCandidate = {
   workflow: {
@@ -250,6 +325,24 @@ function coreAccessibilityEvidence() {
   };
 }
 
+function assertReviewEvidenceFieldsVisible(text, label) {
+  assert.ok(
+    text.includes("Review evidence fields"),
+    `${label} should show review evidence fields`,
+  );
+
+  for (const evidenceField of [
+    "visual_token_evidence",
+    "design_system_provenance",
+    "local_component_authority_evidence",
+  ]) {
+    assert.ok(
+      text.includes(evidenceField),
+      `${label} should show ${evidenceField}`,
+    );
+  }
+}
+
 {
   const result = await handleToolCall("analyze_implementation_brief", {
     brief:
@@ -322,6 +415,61 @@ function coreAccessibilityEvidence() {
   assert.equal(result.recommended_surface_type, "workbench");
   assert.equal(result.frontend_posture.density, "operational");
   assert.ok(result.interaction_implications.primary_structure.includes("Item selection"));
+}
+
+{
+  const result = await handleToolCall("recommend_surface_types", {
+    brief: "Build the provided surface.",
+    activityReview: readyActivityReview(refundTriageCandidate),
+  });
+
+  assert.equal("error" in result, false);
+  assert.equal(result.recommended_surface_type, "workbench");
+  assert.equal("activityReview" in result, false);
+  assert.equal("blockedSurfaceTypes" in result, false);
+  assert.ok(Array.isArray(result.blocked_surface_types));
+}
+
+{
+  const result = await handleToolCall("recommend_surface_types", {
+    brief: "Build the provided surface.",
+    activity_review: readyActivityReview(formFlowCandidate),
+    activityReview: readyActivityReview(refundTriageCandidate),
+  });
+
+  assert.equal("error" in result, false);
+  assert.equal(result.recommended_surface_type, "form_flow");
+  assert.equal("activityReview" in result, false);
+}
+
+{
+  const brief = `# Minimal Brief
+
+Create a standalone HTML prototype for a same-day field-service dispatch workbench. A dispatcher is reviewing repair exceptions and needs to decide whether to reassign a technician, hold for parts, or escalate to customer care. Keep the selected visit, evidence, route impact, handoff owner, decision state, and next-action receipt visible together.
+
+# Experiment Constraint
+
+No design-system token, CSS variable, component rule, icon rule, or visual styling detail was manually added to the brief.
+
+MCP endpoint: http://127.0.0.1:3333/mcp`;
+
+  const result = await handleToolCall("recommend_surface_types", { brief });
+
+  assert.equal("error" in result, false);
+  assert.equal(result.recommended_surface_type, "workbench");
+  assert.equal(result.frontend_posture.density, "operational");
+  assert.ok(result.frontend_posture.navigation_shape.includes("queue-detail"));
+  assert.equal(result.blocked_surface_types.includes("workbench"), false);
+
+  const formattedText = formatPlanningCard(result);
+
+  assert.ok(formattedText.includes('surface_type "workbench"'));
+  assert.equal(
+    /\b(?:use|pass|set|choose)\s+(?:the\s+)?surface_type\s+"form_flow"\b/i.test(
+      formattedText,
+    ),
+    false,
+  );
 }
 
 {
@@ -485,6 +633,10 @@ function coreAccessibilityEvidence() {
     "icon_registry" in implementationContract.implementation_contract.visual_token_adapter,
     false,
   );
+  assertReviewEvidenceFieldsVisible(
+    formatPlanningCard(implementationContract),
+    "implementation contract card",
+  );
 
   const implementationReview = await handleToolCall("review_ui_implementation_candidate", {
     implementation_contract: implementationContract,
@@ -507,6 +659,45 @@ function coreAccessibilityEvidence() {
   assert.equal(implementationReview.checks.component_contracts.reviewed, false);
   assert.equal(implementationReview.checks.pattern_contracts.status, "pass");
   assert.equal(implementationReview.checks.pattern_contracts.reviewed, false);
+
+  const selectedSurfaceImplementationReview = await handleToolCall("review_ui_implementation_candidate", {
+    implementation_contract: implementationContract,
+    surface_type: "operator_review",
+    candidate: {
+      primitives_used: ["queue", "detail panel", "decision controls", "handoff receipt"],
+      states_covered: implementationContract.implementation_contract.state_coverage.required_states,
+      static_checks: ["npm test"],
+      browser_qa: { desktop: "passed", mobile: "passed" },
+      accessibility_evidence: coreAccessibilityEvidence(),
+      pattern_contract_evidence: {
+        pattern_id: "workbench",
+        regions_present: [
+          "work queue",
+          "detail workspace",
+          "evidence",
+          "decision or handoff",
+        ],
+        controls_present: [
+          "selection",
+          "filter or sort",
+          "decision action",
+          "handoff action",
+        ],
+      },
+    },
+  });
+
+  assert.equal("error" in selectedSurfaceImplementationReview, false);
+  assert.equal(selectedSurfaceImplementationReview.implementation_review_status, "failed");
+  assert.equal(selectedSurfaceImplementationReview.checks.pattern_contracts.status, "fail");
+  assert.equal(
+    selectedSurfaceImplementationReview.checks.pattern_contracts.selected_surface_type,
+    "operator_review",
+  );
+  assert.equal(
+    selectedSurfaceImplementationReview.checks.pattern_contracts.required_surface_type,
+    "workbench",
+  );
 
   const repairReview = await handleToolCall("review_ui_implementation_candidate", {
     implementation_contract: implementationContract,
@@ -595,6 +786,10 @@ function coreAccessibilityEvidence() {
         .visual_background_contrast,
     ),
   );
+  assertReviewEvidenceFieldsVisible(
+    formatPlanningCard(frontendContext),
+    "frontend context card",
+  );
 
   const skillContext = await handleToolCall("create_frontend_implementation_skill_context", {
     frontend_generation_context: frontendContext,
@@ -647,6 +842,13 @@ function coreAccessibilityEvidence() {
       },
       constraint:
         "Material UI changes the renderer layer only; it does not supply activity fit.",
+      pattern_contracts: [
+        {
+          id: "workbench",
+          surface_type: "workbench",
+          purpose: "Material UI workbench shell for review tasks.",
+        },
+      ],
     },
   });
 
@@ -673,10 +875,53 @@ function coreAccessibilityEvidence() {
   assert.ok(skillContext.component_contracts.some((entry) => entry.id === "Button"));
   assert.ok(skillContext.pattern_contracts.some((entry) => entry.id === "workbench"));
   assert.ok(
+    skillContext.evidence_field_mapping &&
+      typeof skillContext.evidence_field_mapping === "object",
+  );
+  const evidenceFieldMappingText = JSON.stringify(
+    skillContext.evidence_field_mapping,
+  );
+  for (const routedField of [
+    "primitives_used",
+    "implementation_contract.approved_primitives",
+    "component_contract_evidence.components[].id",
+    "component_contract_evidence.components[].states_covered",
+    "pattern_contract_evidence.pattern_id",
+    "visual_token_evidence",
+    "implementation_contract.visual_token_adapter",
+    "design_system_provenance",
+    "implementation_contract.design_system_source",
+    "local_component_authority_evidence",
+    "implementation_contract.local_component_authority",
+  ]) {
+    assert.ok(
+      evidenceFieldMappingText.includes(routedField),
+      `frontend skill evidence_field_mapping should route ${routedField}`,
+    );
+  }
+  assert.equal(
+    skillContext.evidence_field_mapping.component_contract_evidence.source_path,
+    "frontend_skill_context.design_system_adapter_compat.components",
+  );
+  assert.equal(
+    skillContext.evidence_field_mapping.pattern_contract_evidence.source_path,
+    "frontend_skill_context.design_system_adapter_compat.pattern_contracts",
+  );
+  assert.ok(
     skillContext.instruction_markdown.includes("Component contracts"),
   );
   assert.ok(
     skillContext.instruction_markdown.includes("Pattern contracts"),
+  );
+  assert.ok(
+    skillContext.instruction_markdown.includes(
+      "component_contract_evidence.components[].id",
+    ),
+  );
+  assert.ok(
+    skillContext.implementation_sequence.some((instruction) =>
+      instruction.includes("component_contract_evidence.components[].id"),
+    ),
   );
   assert.ok(
     skillContext.font_guidance.font_roles.some(
@@ -684,6 +929,10 @@ function coreAccessibilityEvidence() {
     ),
   );
   assert.equal(skillContext.icon_guidance.icon_catalog.library, "mui-icons-material");
+  assertReviewEvidenceFieldsVisible(
+    formatPlanningCard(skillContext),
+    "frontend skill context card",
+  );
   assert.ok(skillContext.instruction_markdown.includes("Font roles"));
   assert.ok(skillContext.instruction_markdown.includes("--mui-palette-background-paper"));
   assert.ok(skillContext.instruction_markdown.includes("Icon catalog"));
@@ -703,6 +952,90 @@ function coreAccessibilityEvidence() {
   assert.ok(skillContext.instruction_markdown.includes("browser-rendered contrast"));
   assert.ok(skillContext.instruction_markdown.includes("Frontend Implementation Skill Context"));
   assert.equal(skillContext.next_recommended_tool, "review_ui_implementation_candidate");
+
+  const conflictingPatternSkillContext = await handleToolCall(
+    "create_frontend_implementation_skill_context",
+    {
+      frontend_generation_context: frontendContext,
+      target_client: "codex",
+      design_system_adapter: {
+        design_system_name: "Material UI",
+        design_system_package: "@mui/material",
+        components: ["Stack"],
+        token_guidance: {
+          token_families: ["color"],
+        },
+        font_guidance: {
+          font_roles: {
+            body: "var(--mui-font-family)",
+          },
+        },
+        icon_guidance: {
+          icon_roles: ["status"],
+          icon_catalog: {
+            library: "mui-icons-material",
+            package: "@mui/icons-material",
+          },
+        },
+        pattern_contracts: [
+          {
+            id: "workbench",
+            surface_type: "operator_review",
+            purpose: "Conflicting external workbench contract.",
+          },
+        ],
+      },
+    },
+  );
+
+  assert.equal("error" in conflictingPatternSkillContext, true);
+  assert.equal(conflictingPatternSkillContext.error.code, "invalid_input");
+  assert.match(
+    conflictingPatternSkillContext.error.message,
+    /pattern contracts cannot redefine known pattern ids/i,
+  );
+
+  const conflictingCamelCasePatternSkillContext = await handleToolCall(
+    "create_frontend_implementation_skill_context",
+    {
+      frontend_generation_context: frontendContext,
+      target_client: "codex",
+      design_system_adapter: {
+        design_system_name: "Material UI",
+        design_system_package: "@mui/material",
+        components: ["Stack"],
+        token_guidance: {
+          token_families: ["color"],
+        },
+        font_guidance: {
+          font_roles: {
+            body: "var(--mui-font-family)",
+          },
+        },
+        icon_guidance: {
+          icon_roles: ["status"],
+          icon_catalog: {
+            library: "mui-icons-material",
+            package: "@mui/icons-material",
+          },
+        },
+        pattern_contracts: [
+          {
+            id: "workbench",
+            surfaceType: "operator_review",
+            purpose: "Conflicting external workbench contract.",
+          },
+        ],
+      },
+    },
+  );
+
+  assert.equal("error" in conflictingCamelCasePatternSkillContext, true);
+  assert.equal(conflictingCamelCasePatternSkillContext.error.code, "invalid_input");
+  assert.match(
+    conflictingCamelCasePatternSkillContext.error.message,
+    /pattern contracts cannot redefine known pattern ids/i,
+  );
 }
 
 {

@@ -246,7 +246,7 @@
     <style data-model-css>body{font-family:sans-serif;background:#f4f7fa;margin:0;padding:20px}.main-layout{display:grid;grid-template-columns:1fr;gap:20px;max-width:1600px;margin:auto}.header{background:#fff;padding:20px;border-radius:8px;box-shadow:0 2px 4px rgba(0,0,0,0.05)}.case-detail{background:#fff;padding:20px;border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,0.1);}.evidence-list li{padding:8px 0;border-bottom:1px solid #eee}.policy-box{background:#eef4ff;border-left:4px solid #6c757d;padding:15px;margin:15px 0;border-radius:4px}.decision-group{display:flex;gap:10px;margin-top:20px}.btn{padding:10px 15px;border:none;border-radius:4px;cursor:pointer;font-weight:600}.btn-approve{background:#28a745;color:#fff}.btn-policy{background:#ffc107;color:#333}.btn-evidence{background:#007bff;color:#fff}.handoff{background:#fff3cd;border:1px solid #ffeeba;padding:15px;border-radius:6px;margin-top:25px}.handoff strong{display:block;margin-bottom:5px}.handoff p{margin:0}.responsive-layout{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}.@media(min-width:992px){.main-layout{grid-template-columns:2fr 1fr;}}.</style>
 
   </head>
-  <body data-artifact-id="gemma4-lms-with-judgmentkit" data-row-id="gemma4-lms" data-column-id="with-judgmentkit" data-judgmentkit-mode="with_judgmentkit" data-design-system-mode="none">
+  <body data-artifact-id="gemma4-without-design-system" data-row-id="gemma4-lms" data-column-id="with-judgmentkit" data-judgmentkit-mode="with_judgmentkit" data-design-system-mode="none">
     <main data-primary-surface class="main-layout raw-model-candidate"><div class="header"><h1>Refund Review Workspace</h1><p>Status: Evidence incomplete</p><div class="info"><span>Plan: Pro annual</span><span>Review state: Evidence incomplete</span></div></div><section class="case-detail"><h2>Case R-1842</h2><p>Customer: Nora Diaz | Amount: $184.20</p><p>Request: Subscription renewal disputed after agent escalation.</p><div class="evidence-list"><h3>Evidence</h3><ul><li>Renewal date confirmed in purchase history.</li><li>Support note captures the customer's refund reason.</li><li>Receipt photo is missing before manager approval.</li></ul></div><div class="policy-box"><h4>Policy Context: Exception window</h4><p>Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</p</div></section><section class="decision-controls"><h3>Choose next action</h3><div class="decision-group"><button class="btn btn-approve">Approve refund</button><button class="btn btn-policy">Send to policy review</button><button class="btn btn-evidence">Return for evidence</button></div></section><section class="handoff"><h3>Handoff</h3><strong>Reason:</strong> Receipt photo is missing. Ask the customer to attach proof before approval.<button style="background:#dc3545;color:#fff;padding:8px 12px;border:none;border-radius:4px;cursor:pointer;">Send handoff</button></section></main>
     <aside class="provenance" aria-label="Artifact provenance">
       <strong>Provenance:</strong>
@@ -263,7 +263,7 @@
   "use_case_id": "refund-system-map",
   "use_case_label": "Support refund triage",
   "activity_summary": "A support operations manager reviews refund escalation cases and decides approve, policy review, or missing evidence.",
-  "artifact_id": "gemma4-lms-with-judgmentkit",
+  "artifact_id": "gemma4-without-design-system",
   "row_id": "gemma4-lms",
   "column_id": "with-judgmentkit",
   "model_label": "Gemma 4 (local LLM)",
@@ -286,13 +286,16 @@
   "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
   "design_system_adapter_file": null,
   "capture_file": "captures/gemma4-lms-with-judgmentkit.json",
+  "source_context_sha256": "61230da7c0d2ff5655e04513a3565f2c1a070abe21b80568036ea1b702466385",
+  "current_source_context_sha256": "7165a5813886f2a0e88efda6276410e30cf576ae5d80386d9ddd8602eb875590",
+  "source_context_status": "legacy_accepted",
   "model_response_summary": "A support operations manager's workspace for reviewing refund escalation cases. Displays selected case details, evidence status, policy context, decision controls (Approve, Policy Review, Return for Evidence), and a final handoff section for missing data. Designed for desktop visibility and responsiveness.",
   "frontend_context_status": "ready_for_frontend_implementation",
   "frontend_skill_context_status": "ready",
   "frontend_skill_context": {
     "source_skill": "frontend-ui-implementation",
     "raw_skill_exposed": false,
-    "surface_type": null,
+    "surface_type": "workbench",
     "design_system_mode": "judgmentkit_default",
     "design_system_name": "JudgmentKit",
     "next_recommended_tool": "review_ui_implementation_candidate",
@@ -372,12 +375,19 @@
       "failures": [],
       "status": "passed"
     },
-    "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
+    "source_context_status": "legacy_accepted",
+    "current_source_context_sha256": "7165a5813886f2a0e88efda6276410e30cf576ae5d80386d9ddd8602eb875590",
+    "accepted_source_context_sha256": "61230da7c0d2ff5655e04513a3565f2c1a070abe21b80568036ea1b702466385",
+    "captured_source_context_sha256": "61230da7c0d2ff5655e04513a3565f2c1a070abe21b80568036ea1b702466385",
+    "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
+    "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
   },
-  "artifact_path": "artifacts/gemma4-lms-with-judgmentkit.html",
-  "screenshot_path": "screenshots/gemma4-lms-with-judgmentkit.png",
+  "artifact_path": "artifacts/gemma4-without-design-system.html",
+  "screenshot_path": "screenshots/gemma4-without-design-system.png",
   "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit skill context",
-  "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
+  "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.",
+  "canonical_artifact_id": "gemma4-lms-with-judgmentkit",
+  "compatibility_alias": true
 }</script>
   </body>
 </html>

@@ -31,6 +31,7 @@ const EXPECTED_TOOL_NAMES = [
 
 const REVIEW_BRIEF =
   "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.";
+const PUBLIC_MCP_ROUTES = ["/mcp", "/mcp/"];
 
 function textContent(response) {
   return response.content.find((entry) => entry.type === "text")?.text ?? "";
@@ -166,6 +167,99 @@ async function postRaw(endpoint, body, headers = {}) {
   });
 }
 
+async function postRawInitialize(endpoint) {
+  const response = await postRaw(
+    endpoint,
+    JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "initialize",
+      params: {
+        protocolVersion: "2025-06-18",
+        capabilities: {},
+        clientInfo: {
+          name: "judgmentkit-http-raw-post-test",
+          version: "1.0.0",
+        },
+      },
+    }),
+    {
+      accept: "application/json, text/event-stream",
+      "content-type": "application/json",
+      "user-agent": "judgmentkit-mcp",
+    },
+  );
+  const body = await response.json();
+
+  assert.equal(response.status, 200, `${endpoint} raw initialize POST should return 200`);
+  assert.equal(body.jsonrpc, "2.0", `${endpoint} raw initialize should return JSON-RPC`);
+  assert.equal(body.result.serverInfo.name, "JudgmentKit");
+}
+
+async function assertMcpMetadata(endpoint) {
+  const metadataResponse = await fetch(endpoint, {
+    headers: {
+      accept: "application/json",
+    },
+  });
+  const metadataBody = await metadataResponse.json();
+
+  assert.equal(metadataResponse.status, 200, `${endpoint} GET should return metadata`);
+  assert.equal(metadataResponse.headers.get("access-control-allow-origin"), "*");
+  assert.equal(metadataBody.transport, "streamable-http");
+  assert.equal(metadataBody.public_route.hosted_mcp_endpoint, true);
+  assert.deepEqual(
+    metadataBody.capabilities.tools.map((tool) => tool.name),
+    EXPECTED_TOOL_NAMES,
+  );
+}
+
+async function assertMcpOptions(endpoint) {
+  const optionsResponse = await fetch(endpoint, { method: "OPTIONS" });
+
+  assert.equal(optionsResponse.status, 204, `${endpoint} OPTIONS should return 204`);
+  assert.equal(
+    optionsResponse.headers.get("access-control-allow-methods"),
+    "GET, POST, DELETE, OPTIONS",
+  );
+}
+
+async function assertMcpAppGuards(endpoint) {
+  const unsupportedMediaResponse = await postRaw(endpoint, "{}", {
+    "content-type": "text/plain",
+  });
+  const unsupportedMediaBody = await unsupportedMediaResponse.json();
+
+  assert.equal(unsupportedMediaResponse.status, 415, `${endpoint} non-JSON POST should return 415`);
+  assert.equal(
+    unsupportedMediaBody.error.message,
+    "Unsupported media type: POST /mcp requires application/json.",
+  );
+
+  const oversizedResponse = await postRaw(
+    endpoint,
+    JSON.stringify({ value: "x".repeat(MAX_MCP_POST_BODY_BYTES) }),
+    {
+      "content-type": "application/json",
+    },
+  );
+  const oversizedBody = await oversizedResponse.json();
+
+  assert.equal(oversizedResponse.status, 413, `${endpoint} oversized POST should return 413`);
+  assert.equal(
+    oversizedBody.error.message,
+    "Request body too large: POST /mcp is limited to 128KB.",
+  );
+
+  const parseErrorResponse = await postRaw(endpoint, "{", {
+    "content-type": "application/json",
+  });
+  const parseErrorBody = await parseErrorResponse.json();
+
+  assert.equal(parseErrorResponse.status, 400, `${endpoint} malformed JSON should return 400`);
+  assert.equal(parseErrorBody.error.code, -32700);
+}
+
 const metadata = getHostedMcpMetadata();
 
 assert.equal(metadata.name, "JudgmentKit");
@@ -208,97 +302,47 @@ await withTestServer(
     });
   },
   async (endpoint) => {
-    const metadataResponse = await fetch(endpoint, {
-      headers: {
-        accept: "application/json",
-      },
-    });
-    const metadataBody = await metadataResponse.json();
+    const baseUrl = endpoint.replace(/\/mcp$/, "");
 
-    assert.equal(metadataResponse.status, 200);
-    assert.equal(metadataResponse.headers.get("access-control-allow-origin"), "*");
-    assert.equal(metadataBody.transport, "streamable-http");
-    assert.equal(metadataBody.public_route.hosted_mcp_endpoint, true);
-    assert.deepEqual(
-      metadataBody.capabilities.tools.map((tool) => tool.name),
-      EXPECTED_TOOL_NAMES,
-    );
-
-    const optionsResponse = await fetch(endpoint, { method: "OPTIONS" });
-
-    assert.equal(optionsResponse.status, 204);
-    assert.equal(
-      optionsResponse.headers.get("access-control-allow-methods"),
-      "GET, POST, DELETE, OPTIONS",
-    );
-
-    const unsupportedMediaResponse = await postRaw(endpoint, "{}", {
-      "content-type": "text/plain",
-    });
-    const unsupportedMediaBody = await unsupportedMediaResponse.json();
-
-    assert.equal(unsupportedMediaResponse.status, 415);
-    assert.equal(
-      unsupportedMediaBody.error.message,
-      "Unsupported media type: POST /mcp requires application/json.",
-    );
-
-    const oversizedResponse = await postRaw(
-      endpoint,
-      JSON.stringify({ value: "x".repeat(MAX_MCP_POST_BODY_BYTES) }),
-      {
-        "content-type": "application/json",
-      },
-    );
-    const oversizedBody = await oversizedResponse.json();
-
-    assert.equal(oversizedResponse.status, 413);
-    assert.equal(
-      oversizedBody.error.message,
-      "Request body too large: POST /mcp is limited to 128KB.",
-    );
-
-    const parseErrorResponse = await postRaw(endpoint, "{", {
-      "content-type": "application/json",
-    });
-    const parseErrorBody = await parseErrorResponse.json();
-
-    assert.equal(parseErrorResponse.status, 400);
-    assert.equal(parseErrorBody.error.code, -32700);
-
-    await runMcpClient(endpoint);
+    for (const route of PUBLIC_MCP_ROUTES) {
+      const routeEndpoint = `${baseUrl}${route}`;
+      await assertMcpMetadata(routeEndpoint);
+      await assertMcpOptions(routeEndpoint);
+      await assertMcpAppGuards(routeEndpoint);
+      await postRawInitialize(routeEndpoint);
+      await runMcpClient(routeEndpoint);
+    }
   },
 );
 
-assert.deepEqual(
-  analyticsEvents.map((event) => [event.name, event.properties]),
-  [
-    ["JudgmentKit MCP initialize", undefined],
-    ["JudgmentKit MCP list tools", undefined],
-    [
-      "JudgmentKit MCP call tool",
-      {
-        tool_name: "create_activity_model_review",
-      },
-    ],
-    [
-      "JudgmentKit MCP call tool",
-      {
-        tool_name: "create_ui_implementation_contract",
-      },
-    ],
-  ],
+assert.ok(
+  analyticsEvents.filter((event) => event.name === "JudgmentKit MCP initialize").length >= 4,
+  "raw and SDK probes for /mcp and /mcp/ should emit initialize analytics.",
 );
+assert.ok(
+  analyticsEvents.filter((event) => event.name === "JudgmentKit MCP list tools").length >= 2,
+  "SDK probes for /mcp and /mcp/ should emit list-tools analytics.",
+);
+for (const toolName of [
+  "create_activity_model_review",
+  "create_ui_implementation_contract",
+]) {
+  assert.ok(
+    analyticsEvents.filter(
+      (event) =>
+        event.name === "JudgmentKit MCP call tool" &&
+        event.properties?.tool_name === toolName,
+    ).length >= 2,
+    `SDK probes for /mcp and /mcp/ should emit ${toolName} call analytics.`,
+  );
+}
 assert.equal(JSON.stringify(analyticsEvents).includes(REVIEW_BRIEF), false);
 assert.equal(JSON.stringify(analyticsEvents).includes("ready_for_review"), false);
-assert.deepEqual(
-  analyticsEvents.map((event) => event.headers["user-agent"]),
-  [
-    "judgmentkit-mcp",
-    "judgmentkit-mcp",
-    "judgmentkit-mcp",
-    "judgmentkit-mcp",
-  ],
+assert.equal(
+  analyticsEvents.every(
+    (event) => event.headers["user-agent"] === "judgmentkit-mcp",
+  ),
+  true,
 );
 
 await withTestServer(

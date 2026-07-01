@@ -32,7 +32,7 @@
   "frontend_skill_context": {
     "source_skill": "frontend-ui-implementation",
     "raw_skill_exposed": false,
-    "surface_type": null,
+    "surface_type": "form_flow",
     "design_system_mode": "external_design_system",
     "design_system_name": "Material UI",
     "next_recommended_tool": "review_ui_implementation_candidate",
@@ -152,5 +152,9 @@
     "status": 0,
     "stdout_sha256": "d8d494b6e0a22d4b33167afe0f14ae05deb5af00142741e5ff0d90c758596bf0",
     "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
-  }
+  },
+  "source_context_status": "legacy_accepted",
+  "current_source_context_sha256": "5202576c83ebf055875f3d8fd2409762d01f2108d64a4bc28e8c4c06204754a4",
+  "accepted_source_context_sha256": "427d6cfcfc237d754bded9f86484085a018c60dfdeec52fd60966d25bb87abd8",
+  "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
 }

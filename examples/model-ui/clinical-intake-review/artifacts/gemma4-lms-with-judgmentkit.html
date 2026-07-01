@@ -286,13 +286,16 @@
   "handoff_source": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
   "design_system_adapter_file": null,
   "capture_file": "captures/gemma4-lms-with-judgmentkit.json",
+  "source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
+  "current_source_context_sha256": "c6b1f32240706d875b17a6aa5b517078f3ce9e4287cd6e70ce4cb74856f4698f",
+  "source_context_status": "legacy_accepted",
   "model_response_summary": "A clinical intake review interface displaying a selected case, queue status, supporting evidence, policy context, and decision controls for an intake coordinator. The UI emphasizes clarity of missing information (consent form) and provides clear paths for resolution or escalation.",
   "frontend_context_status": "ready_for_frontend_implementation",
   "frontend_skill_context_status": "ready",
   "frontend_skill_context": {
     "source_skill": "frontend-ui-implementation",
     "raw_skill_exposed": false,
-    "surface_type": null,
+    "surface_type": "form_flow",
     "design_system_mode": "judgmentkit_default",
     "design_system_name": "JudgmentKit",
     "next_recommended_tool": "review_ui_implementation_candidate",
@@ -372,7 +375,12 @@
       "failures": [],
       "status": "passed"
     },
-    "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
+    "source_context_status": "legacy_accepted",
+    "current_source_context_sha256": "c6b1f32240706d875b17a6aa5b517078f3ce9e4287cd6e70ce4cb74856f4698f",
+    "accepted_source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
+    "captured_source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
+    "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
+    "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
   },
   "artifact_path": "artifacts/gemma4-lms-with-judgmentkit.html",
   "screenshot_path": "screenshots/gemma4-lms-with-judgmentkit.png",

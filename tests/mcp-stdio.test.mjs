@@ -116,6 +116,24 @@ try {
       "get_icon_svg",
     ],
   );
+  const recommendSurfaceTool = toolsResponse.tools.find(
+    (tool) => tool.name === "recommend_surface_types",
+  );
+
+  assert.ok(recommendSurfaceTool);
+  assert.equal(recommendSurfaceTool.inputSchema.properties.activity_review.type, "object");
+  assert.equal(recommendSurfaceTool.inputSchema.properties.activityReview.type, "object");
+  const reviewImplementationTool = toolsResponse.tools.find(
+    (tool) => tool.name === "review_ui_implementation_candidate",
+  );
+
+  assert.ok(reviewImplementationTool);
+  assert.equal(reviewImplementationTool.inputSchema.properties.surface_type.type, "string");
+  assert.equal(reviewImplementationTool.inputSchema.properties.surface_review.type, "object");
+  assert.equal(
+    reviewImplementationTool.inputSchema.properties.frontend_generation_context.type,
+    "object",
+  );
 
   const iconListResponse = await withTimeout(
     client.callTool({
@@ -237,6 +255,29 @@ try {
       "case should be approved",
     ),
   );
+
+  const aliasSurfaceResponse = await withTimeout(
+    client.callTool({
+      name: "recommend_surface_types",
+      arguments: {
+        brief: "Build the provided surface.",
+        activityReview: reviewResponse.structuredContent,
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(aliasSurfaceResponse.isError, undefined);
+  assert.ok(
+    assertPlanningCard(
+      aliasSurfaceResponse,
+      "## JudgmentKit Surface Recommendation",
+      "Ready for surface guidance",
+    ).includes('surface_type "workbench"'),
+  );
+  assert.equal(aliasSurfaceResponse.structuredContent.recommended_surface_type, "workbench");
+  assert.equal("activityReview" in aliasSurfaceResponse.structuredContent, false);
+  assert.ok(Array.isArray(aliasSurfaceResponse.structuredContent.blocked_surface_types));
 
   const surfaceResponse = await withTimeout(
     client.callTool({
@@ -592,6 +633,103 @@ try {
   assert.equal(
     implementationReviewResponse.structuredContent.checks.pattern_contracts.status,
     "pass",
+  );
+
+  const selectedSurfaceReviewResponse = await withTimeout(
+    client.callTool({
+      name: "review_ui_implementation_candidate",
+      arguments: {
+        implementation_contract: implementationContractResponse.structuredContent,
+        surface_type: "operator_review",
+        candidate: {
+          primitives_used: ["queue", "detail panel", "decision controls", "handoff receipt"],
+          states_covered:
+            implementationContractResponse.structuredContent.implementation_contract
+              .state_coverage.required_states,
+          static_checks: ["npm test"],
+          browser_qa: { desktop: "passed", mobile: "passed" },
+          accessibility_evidence: coreAccessibilityEvidence(),
+          pattern_contract_evidence: {
+            pattern_id: "workbench",
+            regions_present: [
+              "work queue",
+              "detail workspace",
+              "evidence",
+              "decision or handoff",
+            ],
+            controls_present: [
+              "selection",
+              "filter or sort",
+              "decision action",
+              "handoff action",
+            ],
+          },
+        },
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(selectedSurfaceReviewResponse.isError, undefined);
+  assert.equal(
+    selectedSurfaceReviewResponse.structuredContent.implementation_review_status,
+    "failed",
+  );
+  assert.equal(
+    selectedSurfaceReviewResponse.structuredContent.checks.pattern_contracts.status,
+    "fail",
+  );
+  assert.equal(
+    selectedSurfaceReviewResponse.structuredContent.checks.pattern_contracts
+      .selected_surface_type,
+    "operator_review",
+  );
+  assert.equal(
+    selectedSurfaceReviewResponse.structuredContent.checks.pattern_contracts
+      .required_surface_type,
+    "workbench",
+  );
+
+  const invalidPrimitiveResponse = await withTimeout(
+    client.callTool({
+      name: "review_ui_implementation_candidate",
+      arguments: {
+        implementation_contract: implementationContractResponse.structuredContent,
+        candidate: {
+          primitives_used: ["queue", "action_button"],
+          states_covered:
+            implementationContractResponse.structuredContent.implementation_contract
+              .state_coverage.required_states,
+          static_checks: ["npm test"],
+          browser_qa: { desktop: "passed", mobile: "passed" },
+          accessibility_evidence: coreAccessibilityEvidence(),
+        },
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(invalidPrimitiveResponse.isError, undefined);
+  const invalidPrimitiveText = assertPlanningCard(
+    invalidPrimitiveResponse,
+    "## JudgmentKit Implementation Review",
+    "Implementation gate failed",
+  );
+  const approvedPrimitiveFinding =
+    invalidPrimitiveResponse.structuredContent.findings.find(
+      (finding) => finding.check === "approved_primitives",
+    );
+
+  assert.ok(approvedPrimitiveFinding);
+  assert.ok(Array.isArray(approvedPrimitiveFinding.evidence));
+  assert.ok(approvedPrimitiveFinding.evidence.includes("action_button"));
+  assert.ok(
+    [
+      JSON.stringify(approvedPrimitiveFinding.routing_diagnostics ?? {}),
+      invalidPrimitiveText,
+    ].some((entry) =>
+      entry.includes("component_contract_evidence.components[].id"),
+    ),
   );
 
   const handoffResponse = await withTimeout(

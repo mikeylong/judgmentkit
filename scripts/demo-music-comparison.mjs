@@ -7,6 +7,7 @@ import {
   createFrontendGenerationContext,
   createFrontendImplementationSkillContext,
   createUiGenerationHandoff,
+  recommendSurfaceTypes,
   reviewUiWorkflowCandidate,
 } from "../src/index.mjs";
 
@@ -325,10 +326,15 @@ function buildUiWorkflowCandidate() {
 
 function buildHandoff(brief) {
   const activityReview = createActivityModelReview(brief);
-  const workflowReview = reviewUiWorkflowCandidate(brief, buildUiWorkflowCandidate());
+  const surfaceReview = recommendSurfaceTypes(brief, { activity_review: activityReview });
+  const workflowReview = reviewUiWorkflowCandidate(brief, buildUiWorkflowCandidate(), {
+    surface_review: surfaceReview,
+  });
   const handoff = createUiGenerationHandoff(workflowReview);
   const frontendContext = createFrontendGenerationContext({
     ui_generation_handoff: handoff,
+    surface_review: surfaceReview,
+    surface_type: surfaceReview.recommended_surface_type,
     frontend_context: {
       target_runtime: "standalone HTML/CSS",
       ui_library: "none",
@@ -353,6 +359,7 @@ function buildHandoff(brief) {
 
   return {
     activityReview,
+    surfaceReview,
     workflowReview,
     handoff,
     frontendContext,
@@ -1114,8 +1121,14 @@ function main() {
   writeText(BRIEF_PATH, `${SOURCE_BRIEF}\n`);
 
   const brief = readBrief();
-  const { activityReview, workflowReview, handoff, frontendContext, frontendSkillContext } =
-    buildHandoff(brief);
+  const {
+    activityReview,
+    surfaceReview,
+    workflowReview,
+    handoff,
+    frontendContext,
+    frontendSkillContext,
+  } = buildHandoff(brief);
 
   const baselineMetadata = {
     comparison_id: COMPARISON_ID,
@@ -1137,6 +1150,7 @@ function main() {
       handoff_status: handoff.handoff_status,
       activity_review_status: activityReview.review_status,
       workflow_review_status: workflowReview.review_status,
+      surface_type: surfaceReview.recommended_surface_type,
       surface_name: handoff.workflow.surface_name,
       frontend_context_status: frontendContext.frontend_context_status,
       frontend_skill_context_status: frontendSkillContext.skill_context_status,

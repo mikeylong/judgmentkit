@@ -286,13 +286,16 @@
   "handoff_source": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
   "design_system_adapter_file": null,
   "capture_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
+  "source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
+  "current_source_context_sha256": "49f2d80e986f5edd79e463384d1d0f1c522d22b58ad7c3dcca84c7236308068d",
+  "source_context_status": "legacy_accepted",
   "model_response_summary": "Static operator review surface for administrative intake readiness that centers the selected packet, consent gap, decision path, and handoff.",
   "frontend_context_status": "ready_for_frontend_implementation",
   "frontend_skill_context_status": "ready",
   "frontend_skill_context": {
     "source_skill": "frontend-ui-implementation",
     "raw_skill_exposed": false,
-    "surface_type": null,
+    "surface_type": "form_flow",
     "design_system_mode": "judgmentkit_default",
     "design_system_name": "JudgmentKit",
     "next_recommended_tool": "review_ui_implementation_candidate",
@@ -366,7 +369,12 @@
       "failures": [],
       "status": "passed"
     },
-    "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
+    "source_context_status": "legacy_accepted",
+    "current_source_context_sha256": "49f2d80e986f5edd79e463384d1d0f1c522d22b58ad7c3dcca84c7236308068d",
+    "accepted_source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
+    "captured_source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
+    "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
+    "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
   },
   "artifact_path": "artifacts/gpt55-xhigh-codex-with-judgmentkit.html",
   "screenshot_path": "screenshots/gpt55-xhigh-codex-with-judgmentkit.png",

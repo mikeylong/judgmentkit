@@ -245,7 +245,7 @@
   </style>
 
   </head>
-  <body data-artifact-id="deterministic-with-judgmentkit" data-row-id="deterministic" data-column-id="with-judgmentkit" data-judgmentkit-mode="with_judgmentkit" data-design-system-mode="none">
+  <body data-artifact-id="deterministic-without-design-system" data-row-id="deterministic" data-column-id="with-judgmentkit" data-judgmentkit-mode="with_judgmentkit" data-design-system-mode="none">
 
     <main class="app-shell reviewed-candidate" data-primary-surface>
       <header class="app-header">
@@ -359,7 +359,7 @@
   "use_case_id": "refund-system-map",
   "use_case_label": "Support refund triage",
   "activity_summary": "A support operations manager reviews refund escalation cases and decides approve, policy review, or missing evidence.",
-  "artifact_id": "deterministic-with-judgmentkit",
+  "artifact_id": "deterministic-without-design-system",
   "row_id": "deterministic",
   "column_id": "with-judgmentkit",
   "model_label": "Scripted fixture renderer",
@@ -382,13 +382,16 @@
   "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
   "design_system_adapter_file": null,
   "capture_file": null,
+  "source_context_sha256": "d309bb9be43edced5963ae93facad5017b6778628bf373e762135fc5e456219b",
+  "current_source_context_sha256": "d309bb9be43edced5963ae93facad5017b6778628bf373e762135fc5e456219b",
+  "source_context_status": "current",
   "model_response_summary": null,
   "frontend_context_status": "ready_for_frontend_implementation",
   "frontend_skill_context_status": "ready",
   "frontend_skill_context": {
     "source_skill": "frontend-ui-implementation",
     "raw_skill_exposed": false,
-    "surface_type": null,
+    "surface_type": "workbench",
     "design_system_mode": "judgmentkit_default",
     "design_system_name": "JudgmentKit",
     "next_recommended_tool": "review_ui_implementation_candidate",
@@ -442,12 +445,19 @@
     "frontend_context_status": "ready_for_frontend_implementation",
     "frontend_skill_context_status": "ready",
     "capture_quality": null,
+    "source_context_status": "current",
+    "current_source_context_sha256": "d309bb9be43edced5963ae93facad5017b6778628bf373e762135fc5e456219b",
+    "accepted_source_context_sha256": "d309bb9be43edced5963ae93facad5017b6778628bf373e762135fc5e456219b",
+    "captured_source_context_sha256": null,
+    "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
     "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
   },
-  "artifact_path": "artifacts/deterministic-with-judgmentkit.html",
-  "screenshot_path": "screenshots/deterministic-with-judgmentkit.png",
+  "artifact_path": "artifacts/deterministic-without-design-system.html",
+  "screenshot_path": "screenshots/deterministic-without-design-system.png",
   "approach_title": "Fixture-rendered baseline - JudgmentKit skill context",
-  "approach_caption": "Fixture-rendered baseline receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
+  "approach_caption": "Fixture-rendered baseline receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.",
+  "canonical_artifact_id": "deterministic-with-judgmentkit",
+  "compatibility_alias": true
 }</script>
   </body>
 </html>

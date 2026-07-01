@@ -286,13 +286,16 @@
   "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
   "design_system_adapter_file": null,
   "capture_file": "captures/gemma4-lms-with-judgmentkit.json",
+  "source_context_sha256": "61230da7c0d2ff5655e04513a3565f2c1a070abe21b80568036ea1b702466385",
+  "current_source_context_sha256": "7165a5813886f2a0e88efda6276410e30cf576ae5d80386d9ddd8602eb875590",
+  "source_context_status": "legacy_accepted",
   "model_response_summary": "A support operations manager's workspace for reviewing refund escalation cases. Displays selected case details, evidence status, policy context, decision controls (Approve, Policy Review, Return for Evidence), and a final handoff section for missing data. Designed for desktop visibility and responsiveness.",
   "frontend_context_status": "ready_for_frontend_implementation",
   "frontend_skill_context_status": "ready",
   "frontend_skill_context": {
     "source_skill": "frontend-ui-implementation",
     "raw_skill_exposed": false,
-    "surface_type": null,
+    "surface_type": "workbench",
     "design_system_mode": "judgmentkit_default",
     "design_system_name": "JudgmentKit",
     "next_recommended_tool": "review_ui_implementation_candidate",
@@ -372,7 +375,12 @@
       "failures": [],
       "status": "passed"
     },
-    "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
+    "source_context_status": "legacy_accepted",
+    "current_source_context_sha256": "7165a5813886f2a0e88efda6276410e30cf576ae5d80386d9ddd8602eb875590",
+    "accepted_source_context_sha256": "61230da7c0d2ff5655e04513a3565f2c1a070abe21b80568036ea1b702466385",
+    "captured_source_context_sha256": "61230da7c0d2ff5655e04513a3565f2c1a070abe21b80568036ea1b702466385",
+    "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
+    "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
   },
   "artifact_path": "artifacts/gemma4-lms-with-judgmentkit.html",
   "screenshot_path": "screenshots/gemma4-lms-with-judgmentkit.png",

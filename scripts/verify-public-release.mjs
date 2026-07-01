@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import { spawn } from "node:child_process";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
@@ -12,7 +13,11 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 import { JUDGMENTKIT_MCP_TOOL_NAMES } from "./install-mcp.mjs";
 import { COMPARISON_COLUMNS, COMPARISON_ROWS } from "./model-ui-use-cases.mjs";
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PROJECT_ROOT = path.resolve(__dirname, "..");
 const DEFAULT_BASE_URL = "https://judgmentkit.ai";
+const PUBLIC_MCP_ROUTES = ["/mcp", "/mcp/"];
+const PUBLIC_MCP_MAX_POST_BODY_BYTES = 128 * 1024;
 const REDIRECT_HOSTS = [
   ["judgmentkit.design", "https://judgmentkit.design/docs/"],
   ["www.judgmentkit.design", "https://www.judgmentkit.design/examples/"],
@@ -32,7 +37,7 @@ const OLD_FRAMING = [
 ];
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
-function parseArgs(argv) {
+export function parseArgs(argv) {
   const options = {
     baseUrl: DEFAULT_BASE_URL,
     skipInstall: false,
@@ -76,7 +81,7 @@ function printUsage() {
       "Usage:",
       "  node scripts/verify-public-release.mjs [--base-url <url>] [--skip-install] [--skip-redirects] [--skip-analytics-script] [--expect-metadata-only]",
       "",
-      "By default the verifier expects /mcp to work as a hosted MCP Streamable HTTP endpoint.",
+      "By default the verifier expects /mcp and /mcp/ to work as hosted MCP Streamable HTTP endpoints.",
       "",
     ].join("\n"),
   );
@@ -84,6 +89,17 @@ function printUsage() {
 
 function urlFor(baseUrl, route) {
   return new URL(route, baseUrl).toString();
+}
+
+async function readPackageVersion() {
+  const packageJson = JSON.parse(
+    await fs.readFile(path.join(PROJECT_ROOT, "package.json"), "utf8"),
+  );
+
+  assert.equal(typeof packageJson.version, "string", "package.json must declare a version");
+  assert.match(packageJson.version, /^\d+\.\d+\.\d+$/, "package.json version must be semver");
+
+  return packageJson.version;
 }
 
 async function fetchText(baseUrl, route, options = {}) {
@@ -383,6 +399,53 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
       assert.equal(capture.frontend_skill_context_status, artifact.frontend_skill_context_status);
       assert.deepEqual(capture.frontend_skill_context, artifact.frontend_skill_context);
       assert.equal(capture.source_context_sha256, artifact.capture_provenance.source_context_sha256);
+      assert.ok(
+        ["current", "legacy_accepted"].includes(artifact.capture_provenance.source_context_status),
+        `${artifact.id} capture provenance should record source context freshness`,
+      );
+      assert.equal(
+        artifact.source_context_status,
+        artifact.capture_provenance.source_context_status,
+        `${artifact.id} manifest should mirror capture provenance context status`,
+      );
+      assert.equal(
+        artifact.capture_provenance.captured_source_context_sha256,
+        capture.source_context_sha256,
+        `${artifact.id} should record the captured source context hash`,
+      );
+      assert.equal(
+        artifact.capture_provenance.accepted_source_context_sha256,
+        artifact.source_context_sha256,
+        `${artifact.id} should record the accepted source context hash`,
+      );
+      assert.equal(
+        capture.accepted_source_context_sha256 ?? capture.source_context_sha256,
+        artifact.source_context_sha256,
+        `${artifact.id} capture should record accepted source context hash`,
+      );
+      assert.equal(
+        capture.current_source_context_sha256 ?? artifact.current_source_context_sha256,
+        artifact.current_source_context_sha256,
+        `${artifact.id} capture should record current source context hash`,
+      );
+      if (artifact.capture_provenance.source_context_status === "legacy_accepted") {
+        assert.notEqual(
+          artifact.current_source_context_sha256,
+          artifact.source_context_sha256,
+          `${artifact.id} legacy capture should distinguish current and accepted context hashes`,
+        );
+        assert.match(
+          artifact.capture_provenance.source_context_notes,
+          /legacy capture/i,
+          `${artifact.id} legacy capture should explain the context status`,
+        );
+      } else {
+        assert.equal(
+          artifact.current_source_context_sha256,
+          artifact.source_context_sha256,
+          `${artifact.id} current capture should use the current context hash`,
+        );
+      }
       assert.ok(capture.prompt_sha256, `${artifact.id} capture should include prompt_sha256`);
       assert.ok(capture.raw_response_sha256, `${artifact.id} capture should include raw_response_sha256`);
       if (artifact.row_id === "gpt55-xhigh-codex") {
@@ -682,6 +745,53 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     assert.equal(capture.frontend_skill_context_status, artifact.frontend_skill_context_status);
     assert.deepEqual(capture.frontend_skill_context, artifact.frontend_skill_context);
     assert.equal(capture.source_context_sha256, artifact.capture_provenance.source_context_sha256);
+    assert.ok(
+      ["current", "legacy_accepted"].includes(artifact.capture_provenance.source_context_status),
+      `${artifact.id} capture provenance should record source context freshness`,
+    );
+    assert.equal(
+      artifact.source_context_status,
+      artifact.capture_provenance.source_context_status,
+      `${artifact.id} manifest should mirror capture provenance context status`,
+    );
+    assert.equal(
+      artifact.capture_provenance.captured_source_context_sha256,
+      capture.source_context_sha256,
+      `${artifact.id} should record the captured source context hash`,
+    );
+    assert.equal(
+      artifact.capture_provenance.accepted_source_context_sha256,
+      artifact.source_context_sha256,
+      `${artifact.id} should record the accepted source context hash`,
+    );
+    assert.equal(
+      capture.accepted_source_context_sha256 ?? capture.source_context_sha256,
+      artifact.source_context_sha256,
+      `${artifact.id} capture should record accepted source context hash`,
+    );
+    assert.equal(
+      capture.current_source_context_sha256 ?? artifact.current_source_context_sha256,
+      artifact.current_source_context_sha256,
+      `${artifact.id} capture should record current source context hash`,
+    );
+    if (artifact.capture_provenance.source_context_status === "legacy_accepted") {
+      assert.notEqual(
+        artifact.current_source_context_sha256,
+        artifact.source_context_sha256,
+        `${artifact.id} legacy capture should distinguish current and accepted context hashes`,
+      );
+      assert.match(
+        artifact.capture_provenance.source_context_notes,
+        /legacy capture/i,
+        `${artifact.id} legacy capture should explain the context status`,
+      );
+    } else {
+      assert.equal(
+        artifact.current_source_context_sha256,
+        artifact.source_context_sha256,
+        `${artifact.id} current capture should use the current context hash`,
+      );
+    }
     assert.ok(capture.prompt_sha256, `${artifact.id} capture should include prompt_sha256`);
     assert.ok(capture.raw_response_sha256, `${artifact.id} capture should include raw_response_sha256`);
     if (artifact.row_id === "gpt55-xhigh-codex") {
@@ -791,14 +901,14 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   };
 }
 
-async function verifyMcpMetadata(baseUrl) {
-  const { text } = await fetchText(baseUrl, "/mcp");
+async function verifyMcpMetadataRoute(baseUrl, route, expectedVersion) {
+  const { text } = await fetchText(baseUrl, route);
   const metadata = JSON.parse(text);
   const toolNames = metadata.capabilities.tools.map((tool) => tool.name);
 
-  assert.equal(metadata.name, "JudgmentKit");
-  assert.equal(metadata.version, "0.6.1");
-  assert.equal(metadata.transport, "streamable-http");
+  assert.equal(metadata.name, "JudgmentKit", `${route} should report the MCP server name`);
+  assert.equal(metadata.version, expectedVersion, `${route} should report the package version`);
+  assert.equal(metadata.transport, "streamable-http", `${route} should report the hosted transport`);
   assert.equal(metadata.public_route.role, "mcp_endpoint_and_metadata");
   assert.equal(metadata.public_route.hosted_mcp_endpoint, true);
   assert.deepEqual(toolNames, JUDGMENTKIT_MCP_TOOL_NAMES);
@@ -812,14 +922,33 @@ async function verifyMcpMetadata(baseUrl) {
     "get_example",
     "resolve_related",
   ]) {
-    assert.equal(toolNames.includes(oldToolName), false, `/mcp must not expose ${oldToolName}`);
+    assert.equal(toolNames.includes(oldToolName), false, `${route} must not expose ${oldToolName}`);
+  }
+
+  return { metadata, toolNames };
+}
+
+async function verifyMcpMetadata(baseUrl, expectedVersion) {
+  const routes = [];
+  let firstResult;
+
+  for (const route of PUBLIC_MCP_ROUTES) {
+    const result = await verifyMcpMetadataRoute(baseUrl, route, expectedVersion);
+    firstResult ??= result;
+    routes.push({
+      route,
+      version: result.metadata.version,
+      hosted_mcp_endpoint: result.metadata.public_route.hosted_mcp_endpoint,
+    });
   }
 
   return {
-    name: metadata.name,
-    transport: metadata.transport,
-    hosted_mcp_endpoint: metadata.public_route.hosted_mcp_endpoint,
-    tools: toolNames,
+    name: firstResult.metadata.name,
+    version: firstResult.metadata.version,
+    transport: firstResult.metadata.transport,
+    hosted_mcp_endpoint: firstResult.metadata.public_route.hosted_mcp_endpoint,
+    tools: firstResult.toolNames,
+    routes,
   };
 }
 
@@ -854,8 +983,8 @@ function withTimeout(promise, timeoutMs, label) {
   ]);
 }
 
-async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
-  const endpointUrl = urlFor(baseUrl, "/mcp");
+async function probeRemoteMcpRoute(baseUrl, route) {
+  const endpointUrl = urlFor(baseUrl, route);
   const initializeBody = JSON.stringify({
     jsonrpc: "2.0",
     id: 1,
@@ -877,10 +1006,18 @@ async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
     },
     body: initializeBody,
   });
+  const postText = await postResponse.text();
+  let postBody;
+
+  try {
+    postBody = JSON.parse(postText);
+  } catch {
+    postBody = null;
+  }
 
   let transport;
   let client;
-  let supported = false;
+  let sdkSupported = false;
   let tools = [];
   let reviewStatus;
   let errorMessage = "";
@@ -907,7 +1044,7 @@ async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
       "public MCP tool call",
     );
     reviewStatus = reviewResponse.structuredContent?.review_status;
-    supported = true;
+    sdkSupported = true;
   } catch (error) {
     errorMessage = error instanceof Error ? error.message : String(error);
   } finally {
@@ -919,28 +1056,183 @@ async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
     }
   }
 
-  if (expectRemoteMcp) {
-    assert.equal(postResponse.ok, true, `/mcp JSON-RPC POST should succeed, got ${postResponse.status}`);
-    assert.equal(supported, true, `Expected ${endpointUrl} to work as a remote MCP endpoint: ${errorMessage}`);
-    assert.deepEqual(tools, JUDGMENTKIT_MCP_TOOL_NAMES);
-    assert.equal(reviewStatus, "ready_for_review");
-  } else {
+  return {
+    route,
+    endpoint: endpointUrl,
+    raw_post: {
+      status: postResponse.status,
+      ok: postResponse.ok,
+      content_type: postResponse.headers.get("content-type"),
+      jsonrpc: postBody?.jsonrpc,
+      server_name: postBody?.result?.serverInfo?.name,
+      server_version: postBody?.result?.serverInfo?.version,
+      body_preview: postText.slice(0, 200),
+    },
+    sdk: {
+      supported: sdkSupported,
+      error: errorMessage,
+      review_status: reviewStatus,
+      tools,
+    },
+  };
+}
+
+export async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
+  if (!expectRemoteMcp) {
+    return {
+      expected_remote_mcp: false,
+      skipped: true,
+      reason: "metadata_only",
+      routes: PUBLIC_MCP_ROUTES,
+      supported: false,
+      tools: [],
+    };
+  }
+
+  const routes = [];
+
+  for (const route of PUBLIC_MCP_ROUTES) {
+    routes.push(await probeRemoteMcpRoute(baseUrl, route));
+  }
+
+  for (const routeResult of routes) {
     assert.equal(
-      supported,
-      false,
-      `${endpointUrl} unexpectedly worked as a hosted MCP endpoint.`,
+      routeResult.raw_post.ok,
+      true,
+      `${routeResult.route} JSON-RPC POST should succeed, got ${routeResult.raw_post.status}`,
     );
-    assert.ok(postResponse.status >= 400, `/mcp JSON-RPC POST should not succeed, got ${postResponse.status}`);
+    assert.equal(routeResult.raw_post.jsonrpc, "2.0", `${routeResult.route} should return JSON-RPC`);
+    assert.equal(
+      routeResult.raw_post.server_name,
+      "JudgmentKit",
+      `${routeResult.route} raw initialize should return JudgmentKit server info`,
+    );
+    assert.equal(
+      routeResult.sdk.supported,
+      true,
+      `Expected ${routeResult.endpoint} to work as a remote MCP endpoint: ${routeResult.sdk.error}`,
+    );
+    assert.deepEqual(routeResult.sdk.tools, JUDGMENTKIT_MCP_TOOL_NAMES);
+    assert.equal(routeResult.sdk.review_status, "ready_for_review");
+  }
+
+  const firstSupportedRoute = routes.find((routeResult) => routeResult.sdk.supported);
+
+  return {
+    expected_remote_mcp: expectRemoteMcp,
+    supported: routes.every((routeResult) => routeResult.sdk.supported),
+    routes,
+    tools: firstSupportedRoute?.sdk.tools ?? [],
+  };
+}
+
+async function fetchJsonProbe(endpointUrl, options = {}) {
+  const response = await fetch(endpointUrl, {
+    method: options.method ?? "GET",
+    headers: options.headers,
+    body: options.body,
+  });
+  const text = await response.text();
+  let body;
+
+  try {
+    body = JSON.parse(text);
+  } catch {
+    body = null;
   }
 
   return {
+    response,
+    body,
+    text,
+  };
+}
+
+async function verifyMcpAppGuardRoute(baseUrl, route) {
+  const endpointUrl = urlFor(baseUrl, route);
+  const optionsResponse = await fetch(endpointUrl, { method: "OPTIONS" });
+
+  assert.equal(optionsResponse.status, 204, `${route} OPTIONS should return 204`);
+  assert.equal(
+    optionsResponse.headers.get("access-control-allow-methods"),
+    "GET, POST, DELETE, OPTIONS",
+    `${route} OPTIONS should advertise MCP methods`,
+  );
+
+  const unsupportedMedia = await fetchJsonProbe(endpointUrl, {
+    method: "POST",
+    headers: {
+      "content-type": "text/plain",
+    },
+    body: "{}",
+  });
+
+  assert.equal(
+    unsupportedMedia.response.status,
+    415,
+    `${route} non-JSON POST should return 415`,
+  );
+  assert.equal(
+    unsupportedMedia.body?.error?.message,
+    "Unsupported media type: POST /mcp requires application/json.",
+    `${route} non-JSON POST should return the app guard message`,
+  );
+
+  const oversized = await fetchJsonProbe(endpointUrl, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({ value: "x".repeat(PUBLIC_MCP_MAX_POST_BODY_BYTES) }),
+  });
+
+  assert.equal(oversized.response.status, 413, `${route} oversized POST should return 413`);
+  assert.equal(
+    oversized.body?.error?.message,
+    "Request body too large: POST /mcp is limited to 128KB.",
+    `${route} oversized POST should return the app guard message`,
+  );
+
+  const malformed = await fetchJsonProbe(endpointUrl, {
+    method: "POST",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: "{",
+  });
+
+  assert.equal(malformed.response.status, 400, `${route} malformed JSON should return 400`);
+  assert.equal(malformed.body?.error?.code, -32700, `${route} malformed JSON should be a parse error`);
+
+  return {
+    route,
     endpoint: endpointUrl,
-    expected_remote_mcp: expectRemoteMcp,
-    supported,
-    post_status: postResponse.status,
-    sdk_error: errorMessage,
-    review_status: reviewStatus,
-    tools,
+    options_status: optionsResponse.status,
+    non_json_status: unsupportedMedia.response.status,
+    oversized_status: oversized.response.status,
+    malformed_json_status: malformed.response.status,
+    malformed_json_error_code: malformed.body?.error?.code,
+  };
+}
+
+async function verifyMcpAppGuards(baseUrl, expectRemoteMcp) {
+  if (!expectRemoteMcp) {
+    return {
+      skipped: true,
+      reason: "metadata_only",
+      routes: PUBLIC_MCP_ROUTES,
+    };
+  }
+
+  const routes = [];
+
+  for (const route of PUBLIC_MCP_ROUTES) {
+    routes.push(await verifyMcpAppGuardRoute(baseUrl, route));
+  }
+
+  return {
+    skipped: false,
+    routes,
   };
 }
 
@@ -1085,12 +1377,15 @@ async function main() {
   }
 
   const baseUrl = new URL(options.baseUrl);
+  const packageVersion = await readPackageVersion();
   const report = {
     base_url: baseUrl.toString(),
+    package_version: packageVersion,
     routes: await verifyPublicRoutes(baseUrl.toString(), {
       skipAnalyticsScript: options.skipAnalyticsScript,
     }),
-    mcp_metadata: await verifyMcpMetadata(baseUrl.toString()),
+    mcp_metadata: await verifyMcpMetadata(baseUrl.toString(), packageVersion),
+    mcp_app_guards: await verifyMcpAppGuards(baseUrl.toString(), options.expectRemoteMcp),
     public_mcp_endpoint_probe: await probeRemoteMcpEndpoint(
       baseUrl.toString(),
       options.expectRemoteMcp,
@@ -1102,8 +1397,10 @@ async function main() {
   process.stdout.write(`${JSON.stringify({ ok: true, ...report }, null, 2)}\n`);
 }
 
-main().catch((error) => {
-  const message = error instanceof Error ? error.stack ?? error.message : String(error);
-  process.stderr.write(`Public release verification failed:\n${message}\n`);
-  process.exitCode = 1;
-});
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  main().catch((error) => {
+    const message = error instanceof Error ? error.stack ?? error.message : String(error);
+    process.stderr.write(`Public release verification failed:\n${message}\n`);
+    process.exitCode = 1;
+  });
+}

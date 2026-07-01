@@ -4,21 +4,21 @@ JudgmentKit currently keeps the hosted MCP endpoint open and capped. The goal is
 
 ## Active Limits
 
-- Endpoint: `POST https://judgmentkit.ai/mcp`
+- Public POST endpoints: `POST https://judgmentkit.ai/mcp` and `POST https://judgmentkit.ai/mcp/`
 - Vercel project: `surfaces-platform/judgmentkit-ai`
 - WAF rule name: `Rate limit JudgmentKit MCP POST`
 - Limit: `60` requests per `60` seconds per IP
 - Action: rate-limit response with `429` when the limit is exceeded
 
-Static pages, `/install`, and `GET /mcp` metadata remain open. Vercel's CLI-backed WAF rate-limit window currently supports up to one hour, so the optional `1,000 requests/day/IP` guard is deferred unless a durable app-level quota store is added.
+Static pages, `/install`, `GET /mcp` metadata, and `GET /mcp/` metadata remain open. Vercel's CLI-backed WAF rate-limit window currently supports up to one hour, so the optional `1,000 requests/day/IP` guard is deferred unless a durable app-level quota store is added. WAF and app-level guards should cover both public hosted MCP route spellings.
 
 ## App-Level Guards
 
 The hosted MCP handler also rejects:
 
-- non-JSON `POST /mcp` requests with `415`
-- request bodies over `128KB` with `413`
-- malformed JSON with the existing JSON-RPC parse error
+- non-JSON `POST /mcp` and `POST /mcp/` requests with `415`
+- request bodies over `128KB` on `POST /mcp` and `POST /mcp/` with `413`
+- malformed JSON on `POST /mcp` and `POST /mcp/` with `400` and JSON-RPC parse error code `-32700`
 
 ## Weekly Review
 
