@@ -35,10 +35,16 @@ The follow-up improvement pass added paired regressions for the smoke-run misses
 | Close-call pair | Expected repair |
 |---|---|
 | Marketing page with a short lead form vs. true signup form | Lead capture stays `marketing` when it is only a CTA; structured application completion stays `form_flow`. |
-| Fleet health monitor with downstream work-order drill-in vs. work-order execution | Drill-in context stays `dashboard_monitor`; assignment, prioritization, closure, or handoff stays `workbench`. |
+| Monitor alert drill-in vs. workbench item processing | Drill-in that explains status, exceptions, or whether follow-up is needed stays `dashboard_monitor`; assigning, prioritizing, closing, editing, approving, routing, recording a decision, or leaving a handoff stays `workbench`. |
 | KPI monitor before an executive update vs. narrative executive update report | KPI awareness stays `dashboard_monitor`; writing, citing, exporting, or sharing a fixed artifact stays `content_report`. |
 | HL7 setup/debug wizard vs. ordinary setup form | Machinery validation, traces, root cause, or next fix stays `setup_debug_tool`; organization/contact/billing setup submission stays `form_flow`. |
 | AI-agent run debug audit vs. AI-produced work approval | Debugging prompts, tool calls, schema failures, replay, or configuration stays `setup_debug_tool`; pre-release approval of produced work stays `operator_review`. |
+
+## Hosted v0.6.3 Canary Finding
+
+The broad one-prompt-per-surface hosted smoke against `https://judgmentkit.ai/mcp` on v0.6.3 passed 7 of 8 checks. The miss was a cold-chain logistics monitor that routed to `workbench` because alert drill-in and investigation language looked like item processing while `dashboard_monitor` scored 0. Treat this as a canary finding for future prompt and regression design, not a rewrite of the historical baseline above.
+
+The checked-in `npm run mcp:smoke:hosted-surface` command is a smaller paired canary for this miss and its nearest confounders. It validates surface routing by default and reports `review_status`/`activity_review_ready` separately. A passing surface canary does not mean the brief has enough source context for product-design workflow generation; use `-- --require-ready-review` when the test should also fail on `needs_source_context`.
 
 ## Observer Rubric
 
@@ -142,10 +148,10 @@ Use these when drafting source briefs around the user's real activity. Do not fo
 | Surface type | Template |
 |---|---|
 | `marketing` | Plan a public page for [buyer/prospect audience] evaluating [offer]. The activity is orienting visitors to value, proof, pricing/plan fit, and a clear [demo/trial/purchase/inquiry] next step. If there is a quote/demo/waitlist form, it is only the CTA, not the primary structured task. |
-| `workbench` | Plan an internal workspace for [domain actor] handling repeated [cases/items/requests]. The activity is comparing [evidence/context], choosing [bounded actions], and leaving [handoff/receipt]. Status metrics can support the decision, but the completion state is action on work items. |
+| `workbench` | Plan an internal workspace for [domain actor] handling repeated [cases/items/requests]. The activity is comparing [evidence/context], choosing [bounded actions], and leaving [handoff/receipt]. Status metrics can support the decision, but the completion state is action on named work items. |
 | `operator_review` | Plan a review surface for [human operator] checking [AI/system-produced work] before it advances. The activity is comparing evidence and risk, then approving, blocking, returning, deferring, or handing off with an audit receipt. Raw mechanics are evidence, not the primary task. |
 | `form_flow` | Plan a guided [application/request/settings change] where [user] enters [structured field groups], resolves validation, reviews completeness, submits or saves, and receives confirmation. Completion is a valid submitted or saved record, not persuasion or diagnostics. |
-| `dashboard_monitor` | Plan a passive/periodic monitor for [operator] tracking status, metrics, trends, alerts, exceptions, and operational health. Completion is knowing current state and whether investigation or follow-up is needed; downstream work orders, cases, or updates are context only. |
+| `dashboard_monitor` | Plan a passive/periodic monitor for [operator] tracking status, metrics, trends, alerts, exceptions, and operational health. Completion is knowing current state and whether investigation or follow-up is needed; drill-in explains the exception while downstream work orders, cases, or updates stay context only. |
 | `content_report` | Plan a [report/guide/reference] for [reader] to understand [topic], read sections, cite sources, export/print, and share the material. Completion is understanding, citation, or sharing a fixed artifact, not live status monitoring. |
 | `setup_debug_tool` | Plan a setup/debug tool for [technical user] to configure, inspect, test, and troubleshoot [machinery]. Completion is a valid setup, failed check with cause, reproducible failure report, root cause, or next fix. Fields and wizard steps support machinery validation. |
 | `conversation` | Plan a [chat/thread] surface where [participants] exchange open-ended messages, preserve context, recover failed sends, choose the next reply, and continue or close with context intact. The thread is the primary object, not a queue, form, or approval workflow. |
@@ -155,7 +161,7 @@ Use these when drafting source briefs around the user's real activity. Do not fo
 | Miss pattern | Better prompt steering |
 |---|---|
 | Marketing page reroutes to `form_flow` because the prompt details fields and validation. | Lead with public audience, offer, proof, pricing/plan fit, and conversion. Mention quote/demo/waitlist capture only as the CTA. |
-| Dashboard monitor reroutes to `workbench` because the prompt mentions work orders or follow-up. | Lead with status, metrics, trends, alerts, exceptions, operational health, and knowing current state. State that work orders are downstream drill-in, not assignment, prioritization, closure, or editing. |
+| Dashboard monitor reroutes to `workbench` because the prompt mentions work orders, alert drill-in, investigation, or follow-up. | Lead with status, metrics, trends, alerts, exceptions, operational health, and knowing current state. State that drill-in explains the exception and that work orders are downstream context, not assignment, prioritization, closure, editing, approval, routing, decision recording, or handoff. |
 | KPI monitor reroutes to `content_report` because the prompt mentions an executive update or briefing. | Say the update is downstream context. Keep the completion state as knowing whether the business is on track unless the user is writing, exporting, citing, or sharing a report. |
 | Setup/debug wizard reroutes to `form_flow` because the prompt emphasizes fields, wizard steps, and validation. | Lead with configure, inspect, test, troubleshoot, machinery, traces, ACK/NACK, sample validation, root cause, and next fix. Treat fields as controls for machinery validation. |
 | AI-agent debug reroutes to `operator_review` because the prompt says audit or review. | Say the user is debugging the machinery: prompts, tool-call traces, schema failures, auth scope, replay, root cause, validated fix, reproducible failure, or next configuration change. Reserve approval/block/return for produced work before release. |

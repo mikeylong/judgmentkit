@@ -34,6 +34,16 @@ npm run site:dev -- --host 127.0.0.1 --port 4173
 
 This rebuilds `site/dist`, serves the static website, and routes localhost `/mcp` through the same Streamable HTTP handler used by the hosted endpoint. Do not use `python3 -m http.server` for MCP route review; it cannot emulate the `/mcp` server route.
 
+## Hosted Surface Routing Canary
+
+Use the hosted surface canary after classifier changes or when checking the deployed MCP surface-routing contract:
+
+```bash
+npm run mcp:smoke:hosted-surface -- --endpoint https://judgmentkit.ai/mcp --expected-version 0.6.4
+```
+
+This is a surface-routing smoke, not a full product-workflow readiness check. The command prints `review_status` and `activity_review_ready` for each canary, but fails by default only when metadata, tool availability, or `recommended_surface_type` is wrong. Add `--require-ready-review` when the smoke should also fail on `needs_source_context`.
+
 ## MCP Planning Cards
 
 MCP tool responses include two surfaces:
@@ -176,7 +186,8 @@ When two surfaces are plausible, steer from the user's completion state before c
 
 - If the completion state is not explicit, ask what the user should leave knowing or having done before choosing a surface.
 - If a public offer has a short quote, demo, trial, or waitlist form, treat the form as a CTA unless the activity is completing a structured application or record.
-- If a monitor links to work orders, tickets, or cases, keep it a monitor when those objects are downstream drill-in and the user is not assigning, prioritizing, closing, or editing records.
+- If a monitor links to work orders, tickets, or cases, keep it a monitor when those objects are downstream drill-in for explaining status, exceptions, or whether follow-up is needed. The primary object is still operational health, not the item.
+- Switch to workbench when the user processes named items through finite actions: assigning, prioritizing, closing, editing, approving, routing, recording a decision, or leaving a handoff/receipt.
 - If KPI data is used before an executive update, keep it a monitor unless the user is writing, exporting, citing, or sharing a fixed report artifact.
 - If fields configure an integration, feed, API, endpoint, or agent run, prefer setup/debug when the user validates machinery, inspects traces, finds root cause, or records the next fix.
 - If a human reviews AI- or system-produced work before release, prefer operator review; if the user debugs prompts, tool calls, schema failures, auth scope, replay, or configuration, prefer setup/debug.

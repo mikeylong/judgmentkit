@@ -181,7 +181,7 @@ function toGlobalPattern(pattern) {
 }
 
 function isNegatedMatch(text, start, end) {
-  const prefix = text.slice(Math.max(0, start - 72), start);
+  const prefix = text.slice(Math.max(0, start - 160), start);
   const suffix = text.slice(end, Math.min(text.length, end + 56));
 
   if (/\bnot\s+only[\s/,-]+$/.test(prefix)) {
@@ -189,7 +189,7 @@ function isNegatedMatch(text, start, end) {
   }
 
   return (
-    /(?:^|[\s([{:;,.!?/-])(?:no|not(?!\s+only\b)|without|never|avoid|avoids|avoiding|exclude|excludes|excluding|do not(?!\s+only\b)|does not(?!\s+only\b)|don't(?!\s+only\b)|doesn't(?!\s+only\b)|did not(?!\s+only\b)|should not|shouldn't|must not|cannot|can't|won't|no need to|need not|not required to)(?:[\s/,-]+\w+){0,6}(?:[\s/,-]+(?:or|and))?[\s/,-]*$/.test(prefix) ||
+    /(?:^|[\s([{:;,.!?/-])(?:no|not(?!\s+only\b)|without|never|avoid|avoids|avoiding|exclude|excludes|excluding|do not(?!\s+only\b)|does not(?!\s+only\b)|don't(?!\s+only\b)|doesn't(?!\s+only\b)|did not(?!\s+only\b)|should not|shouldn't|must not|cannot|can't|won't|no need to|need not|not required to)(?:[\s/,-]+\w+){0,12}(?:[\s/,-]+(?:or|and))?[\s/,-]*$/.test(prefix) ||
     /^[\s/,-]+(?:(?:is|are|was|were|be|being|to be|should be|must be|can be|remain|remains)[\s/,-]+)?(?:not required|not needed|never required|never needed|unneeded|unnecessary|optional|absent|disabled|excluded|not included|not present|not part of|not the primary)\b/.test(suffix)
   );
 }
@@ -262,6 +262,35 @@ function hasPrimaryDebuggingMechanics(text) {
 
   return hasExplicitPrimaryDebug ||
     (hasRunOrMachineryTarget && hasDebugIntent);
+}
+
+function hasDirectWorkbenchAction(text) {
+  return hasAffirmedAny(text, [
+    /\b(?:assign|assigns|assigning|reassign|reassigns|reassigning|prioritize|prioritizes|prioritizing)\b/,
+    /\b(?:approve|approves|approving|block|blocks|blocking|edit|edits|editing|record editing)\b/,
+    /\breturns?\s+(?:for|to|the\s+)?(?:evidence|case|request|item|recommendation|shipment|load|alert|exception|finding|candidate)\b/,
+    /\b(?:close|closes|closing|resolve|resolves|resolving)\s+(?:an?\s+|the\s+|this\s+|that\s+|each\s+|selected\s+|affected\s+|open\s+)?(?:cases?|requests?|items?|recommendations?|shipments?|loads?|alerts?|exceptions?|findings?|candidates?|tickets?|incidents?|orders?|work[- ]orders?|repairs?|applications?|accounts?|claims?|issues?|tasks?)\b(?!\s+(?:rates?|trends?|times?|latency|counts?|volumes?|metrics?|dashboard))/,
+    /\b(?:mark|marks|marking)\s+(?:an?\s+|the\s+|this\s+|that\s+|each\s+|selected\s+|affected\s+|open\s+)?(?:cases?|requests?|items?|shipments?|loads?|alerts?|exceptions?|tickets?|incidents?|orders?|work[- ]orders?|repairs?|applications?|accounts?|claims?|issues?|tasks?)\s+(?:closed|resolved|complete|done)\b(?!\s+(?:rates?|trends?|times?|latency|counts?|volumes?|metrics?|dashboard))/,
+    /\b(?:reroute|re-route|reroutes|re-routes|rerouting|re-routing)\s+(?:an?\s+|the\s+|this\s+|that\s+|each\s+|selected\s+|affected\s+)?(?:shipments?|loads?|deliveries?|orders?|drivers?|crews?|technicians?|cases?|requests?|tickets?|incidents?|claims?|applications?)\b(?!\s+(?:rates?|trends?|times?|latency|counts?|volumes?|metrics?|dashboard))/,
+    /\b(?:route|routes|routing)\s+(?:an?\s+|the\s+|this\s+|that\s+|each\s+|selected\s+|affected\s+)?(?:shipments?|loads?|deliveries?|orders?|drivers?|crews?|technicians?|cases?|requests?|tickets?|incidents?|claims?|applications?)\b(?!\s+(?:rates?|trends?|times?|latency|counts?|volumes?|metrics?|dashboard))/,
+    /\b(?:route|routes|routing)\s+(?:an?\s+|the\s+|this\s+|that\s+|each\s+|selected\s+|affected\s+)?(?:alerts?|exceptions?)\s+(?:to|for)\b/,
+    /\b(?:freeze|freezes|freezing)\s+(?:an?\s+|the\s+|this\s+|that\s+|each\s+|selected\s+|affected\s+)?(?:accounts?|cards?|payments?|shipments?|loads?|inventory|orders?|requests?|cases?|claims?|applications?|transactions?|assets?|records?)\b(?!\s+(?:rates?|trends?|times?|latency|counts?|volumes?|metrics?|dashboard))/,
+    /\b(?:request|requests|requesting)\s+(?:additional\s+|missing\s+|required\s+|supporting\s+|updated\s+)?(?:documents?|docs?|documentation|evidence|paperwork)\b(?!\s+(?:rates?|trends?|times?|latency|counts?|volumes?|metrics?|dashboard))/,
+    /\b(?:send|sends|sending)\s+(?:an?\s+)?(?:document|docs?|documentation|evidence|paperwork)\s+request\b(?!\s+(?:rates?|trends?|times?|latency|counts?|volumes?|metrics?|dashboard))/,
+    /\b(?:place|places|placing|put|puts|putting)\s+(?:a\s+)?hold\b/,
+    /\bhold\s+(?:the\s+)?(?:shipment|load|inventory|order|delivery)\b/,
+    /\b(?:quarantine|quarantines|quarantining)\s+(?:inventory|shipment|load|product|dose|doses|vaccine|vaccines?)\b/,
+    /\brelease(?:s|d|ing)?\s+(?:the\s+)?(?:shipment|load|inventory|order|delivery|product|dose|doses|vaccine|vaccines?)\b/,
+    /\b(?:triage|triages|triaging)\s+(?:queue|cases|requests|findings|workstreams|visits|work[- ]orders?|tickets?|incidents?|alerts?|exceptions?|shipments?|loads?|deliveries?|sensors?|sensor readings?|repairs?)\b/,
+    /\bescalat(?:e|es|ing)\s+(?:cases|requests|findings|workstreams|visits|work[- ]orders?|tickets?|incidents?|alerts?|exceptions?|shipments?|loads?|deliveries?|repairs?)\b/,
+    /\b(?:dispatch|dispatches|dispatching)\s+(?:an?\s+|the\s+|this\s+|that\s+|each\s+|selected\s+|affected\s+)?(?:technicians?|drivers?|crews?|shipments?|loads?|orders?|repairs?)\b/,
+    /\b(?:handoff|handoffs|handing off)\s+(?:cases|requests|findings|workstreams|visits|work[- ]orders?|tickets?|incidents?|alerts?|exceptions?|shipments?|loads?|deliveries?|repairs?|items?|to)\b/,
+    /\b(?:leave|leaves|leaving|left)\s+(?:a\s+)?handoff\b/,
+    /\bhandoff\s+(?:receipt|note|reason|owner)\b/,
+    /\b(?:record|records|recording|log|logs|logging|capture|captures|capturing)\s+(?:an?\s+|the\s+)?(?:investigation\s+)?(?:note|notes|decision|reason|owner|action|next action|resolution|disposition|receipt)\b/,
+    /\b(?:choose|chooses|choosing|select|selects|selecting)\s+(?:an?\s+|the\s+)?(?:owner|assignee|next action|action|resolution|disposition|path)\b/,
+    /\b(?:hold for parts|escalate(?:s|d|ing)? to)\b/,
+  ]);
 }
 
 function escapeRegExp(value) {
@@ -604,9 +633,19 @@ function buildSurfaceTypeInputs(input, activityReview, contract, options = {}) {
   const hasAffirmedSourceDecision = hasAffirmedAny(normalizeText(input), [
     /\b(?:decision|decide|decides|deciding|choose|chooses|choosing|compare|compares|comparing|approve|block|blocking|return|handoff|prioritize|resolve|submit|complete)\b/,
   ]);
+  const hasExplicitDecisionContract =
+    options.hasExplicitActivityReview &&
+    activityReview?.review_status === "ready_for_review" &&
+    Boolean(
+      interactionContract.primary_decision ||
+        toStringArray(interactionContract.next_actions).length > 0 ||
+        interactionContract.completion,
+    );
   const hasSourceDecision =
-    sourceMissingEvidence.decision === false &&
+    (sourceMissingEvidence.decision === false || hasExplicitDecisionContract) &&
     (hasAffirmedSourceDecision || options.hasExplicitActivityReview);
+  const includeExplicitDecisionText =
+    options.hasExplicitActivityReview && hasSourceDecision;
   const sourceText = [
     input,
     activityModel.activity,
@@ -619,22 +658,38 @@ function buildSurfaceTypeInputs(input, activityReview, contract, options = {}) {
     hasSourceDecision ? interactionContract.completion : "",
     ...(toStringArray(disclosurePolicy.terms_to_use)),
   ].filter(Boolean).join(" ");
+  const directActionSource = [
+    input,
+    includeExplicitDecisionText
+      ? interactionContract.primary_decision
+      : "",
+    ...(includeExplicitDecisionText
+      ? toStringArray(interactionContract.next_actions)
+      : []),
+    includeExplicitDecisionText
+      ? interactionContract.completion
+      : "",
+  ].filter(Boolean).join(" ");
   const implementationTermsDetected = detectImplementationTerms(sourceText, contract);
   const purposeEvidence = buildSurfacePurposeEvidence(
     sourceText,
     implementationTermsDetected,
+    { directActionSource },
   );
 
   return {
     source_text: sourceText,
+    raw_normalized: normalizeText(input),
+    direct_action_normalized: normalizeText(directActionSource),
     normalized: normalizeText(sourceText),
     implementation_terms_detected: implementationTermsDetected,
     purpose_evidence: purposeEvidence,
   };
 }
 
-function buildSurfacePurposeEvidence(input, implementationTermsDetected = []) {
+function buildSurfacePurposeEvidence(input, implementationTermsDetected = [], options = {}) {
   const text = normalizeText(input);
+  const directActionText = normalizeText(options.directActionSource ?? input);
   const diagnosticMachineryAbsent = hasDiagnosticMachineryAbsence(text);
   const hasMarketingAudience = hasAffirmedAny(text, [
     /\b(?:visitor|visitors|prospect|prospects|buyer|buyers|public|campaign|landing page|homepage)\b/,
@@ -652,21 +707,29 @@ function buildSurfacePurposeEvidence(input, implementationTermsDetected = []) {
     /\b(?:form|fields?|required|validation|validates?|submit|submits|submitting|confirmation|enter|enters|entering|input|inputs|save|saved)\b/,
   ]);
   const hasMonitorStatus = hasAffirmedAny(text, [
-    /\b(?:dashboard|monitor|monitoring|metrics|status|trend|trends|health|kpi|alert|alerts|exceptions?|overview|tracking|thresholds?|downtime|faults?|capacity|sla-risk|forecast variance|runway|stale-data|stale data)\b/,
+    /\b(?:dashboard|monitor|monitoring|metrics|status|trend|trends|health|kpi|alert|alerts|exceptions?|shipments?|sensors?|sensor readings?|temperature|cold[- ]chain|overview|tracking|thresholds?|downtime|faults?|capacity|sla-risk|forecast variance|runway|stale-data|stale data)\b/,
   ]);
   const hasAwarenessCompletion = hasAffirmedAny(text, [
     /\b(?:completion is knowing|knowing (?:current )?(?:state|status)|knows? current (?:state|status|health)|whether follow-up is needed|if (?:the )?(?:business|service|fleet|operation) is on track|awareness of whether)\b/,
+    /\bwhether (?:follow[- ]up|investigation|attention|action|escalation) is needed\b/,
+    /\b(?:what|which)\b[^.]{0,80}\b(?:needs?|requires?)\s+(?:follow[- ]up|investigation|attention|escalation)\b/,
   ]);
   const hasDownstreamWorkOrder = hasAffirmedAny(text, [
-    /\b(?:may open|can open|drill(?:s)? into|drill-in|downstream|external)\s+(?:the )?(?:work[- ]order|ticket|case|incident)\b/,
-    /\b(?:work[- ]order|ticket|case|incident)\s+(?:details?|records?|system)?\s*(?:are|is)?\s*(?:downstream|drill-in|drill in)\b/,
-    /\b(?:related|linked|associated)\s+(?:work[- ]order|ticket|case|incident)\s+(?:details?|records?)\s+(?:are\s+)?context only\b/,
-    /\b(?:review|reviews|reviewing)\s+(?:related|linked|associated)?\s*(?:work[- ]order|ticket|case|incident)\s+(?:details?|records?)\s+as context\b/,
+    /\b(?:may open|can open|drill(?:s)? into|drill-in|downstream|external)\s+(?:the )?(?:work[- ]orders?|tickets?|cases?|incidents?)\b/,
+    /\b(?:work[- ]orders?|tickets?|cases?|incidents?)\s+(?:details?|records?|system)?\s*(?:are|is)?\s*(?:downstream|drill-in|drill in)\b/,
+    /\b(?:related|linked|associated)\s+(?:work[- ]orders?|tickets?|cases?|incidents?)\s+(?:details?|records?)\s+(?:are\s+)?context only\b/,
+    /\b(?:review|reviews|reviewing)\s+(?:related|linked|associated)?\s*(?:work[- ]orders?|tickets?|cases?|incidents?)\s+(?:details?|records?)\s+as context\b/,
     /\bwork[- ]order system\b/,
   ]);
-  const hasDirectWorkAction = hasAffirmedAny(text, [
-    /\b(?:assign|assigns|assignment|prioritize|prioritizes|prioritization|close|closes|closing|approve|block|return|handoff|edit|record editing)\b/,
+  const hasContextOnlyMonitorDrillIn = hasDownstreamWorkOrder || hasAffirmedAny(text, [
+    /\b(?:may open|can open|drill(?:s)? into|drill-in|drill in|open|opens|view|views)\s+(?:the )?(?:alerts?|exceptions?|shipments?|loads?|deliveries?|sensors?|sensor readings?|temperature readings?)\s+(?:details?|records?|readings?|history|context|panels?)\b/,
+    /\b(?:alerts?|exceptions?|shipments?|loads?|deliveries?|sensors?|sensor readings?|temperature readings?)(?:\s+(?:and|or)\s+(?:alerts?|exceptions?|shipments?|loads?|deliveries?|sensors?|sensor readings?|temperature readings?)){1,4}\s+(?:details?|records?|readings?|history|context|panels?)\s+(?:are|is|as)\s+(?:downstream|drill-in|drill in|context only|for context only)\b/,
+    /\b(?:alerts?|exceptions?|shipments?|loads?|deliveries?|sensors?|sensor readings?|temperature readings?)\s+(?:details?|records?|readings?|history|context|panels?)\s+(?:are|is|as)\s+(?:downstream|drill-in|drill in|context only|for context only)\b/,
+    /\b(?:related|linked|associated)\s+(?:alerts?|exceptions?|shipments?|loads?|deliveries?|sensors?|sensor readings?|temperature readings?)\s+(?:details?|records?|readings?|history|context)?\s+(?:are\s+)?context only\b/,
+    /\b(?:review|reviews|reviewing|inspect|inspects|inspecting|view|views|open|opens)\s+(?:related|linked|associated)?\s*(?:alerts?|exceptions?|shipments?|loads?|deliveries?|sensors?|sensor readings?|temperature readings?)\s+(?:details?|records?|readings?|history|context)?\s+as context\b/,
+    /\b(?:drill-in|drill in|drilldown|drill-down)\s+(?:context|details?|panels?|views?)\b/,
   ]);
+  const hasDirectWorkAction = hasDirectWorkbenchAction(directActionText);
   const hasReportArtifact = hasAffirmedAny(text, [
     /\b(?:report|briefing|narrative|summary|cite|citing|citation|export|share|sharing|publish|pdf|reference sections?)\b/,
   ]);
@@ -752,6 +815,7 @@ function buildSurfacePurposeEvidence(input, implementationTermsDetected = []) {
     formRole === "secondary_conversion" ? "lead_capture_form" : null,
     formRole === "configuration_controls" ? "configuration_fields" : null,
     hasDownstreamWorkOrder && !hasDirectWorkAction ? "downstream_work_order_drillout" : null,
+    hasContextOnlyMonitorDrillIn && !hasDirectWorkAction ? "context_only_monitor_drillin" : null,
     reportRole === "downstream_update_context" ? "executive_update_context" : null,
   ].filter(Boolean);
 
@@ -787,11 +851,27 @@ function makeSurfaceScore(surfaceType, triggers, exclusions, definition) {
 
 function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
   const text = inputContext.normalized;
+  const directActionText =
+    inputContext.direct_action_normalized ?? inputContext.raw_normalized ?? text;
   const implementationTermsDetected = inputContext.implementation_terms_detected;
   const purposeEvidence = inputContext.purpose_evidence ?? {};
+  const secondarySurfaceElements = Array.isArray(
+    purposeEvidence.secondary_surface_elements,
+  )
+    ? purposeEvidence.secondary_surface_elements
+    : [];
+  const hasContextOnlyMonitorDrillIn =
+    secondarySurfaceElements.includes("context_only_monitor_drillin") ||
+    secondarySurfaceElements.includes("downstream_work_order_drillout");
+  const hasStatusAwarenessMonitor =
+    purposeEvidence.primary_completion_kind === "status_awareness" ||
+    (["primary_status_awareness", "status_context"].includes(
+      purposeEvidence.monitor_role,
+    ) &&
+      hasContextOnlyMonitorDrillIn);
   const diagnosticMachineryAbsent = hasDiagnosticMachineryAbsence(text);
   const hasReviewDecision = hasAffirmedAny(text, [
-    /\b(?:review|reviews|reviewing|compare|compares|comparing|decide|decides|deciding|approve|approval|block|blocking|handoff|prioritize|return|escalate)\b/,
+    /\b(?:review|reviews|reviewing|compare|compares|comparing|decide|decides|deciding|approve|approves|approving|block|blocking|handoff|prioritize|return|escalate)\b/,
   ]);
   const hasDecision = hasAffirmedAny(text, [
     /\b(?:decision|decide|decides|deciding|choose|chooses|choosing|compare|compares|comparing|approve|block|blocking|return|handoff|prioritize|resolve|submit|complete)\b/,
@@ -799,9 +879,33 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
   const hasBoundedDecisionAction = hasAffirmedAny(text, [
     /\b(?:decision|decide|decides|deciding|choose|chooses|choosing|approve|block|blocking|return|handoff|prioritize|resolve|submit|complete|save|saving)\b/,
   ]);
+  const hasDirectWorkAction = hasDirectWorkbenchAction(directActionText);
+  const hasDashboardMonitoringContext = hasAffirmedAny(text, [
+    /\b(?:dashboard|monitor|monitoring|metrics|status|trend|trends|health|kpi|alert|alerts|exceptions?|shipments?|sensors?|sensor readings?|temperature|cold[- ]chain|overview|analytics|tracking|watch)\b/,
+  ]);
   const hasNoDecisionRequired =
     /\bno (?:operational |active |bounded |human |user )?decision(?:\s+(?:is|are))?\s+(?:required|needed|necessary|expected)\b/.test(text) ||
     /\b(?:without|requires no|needs no) (?:operational |active |bounded |human |user )?decision\b/.test(text);
+  const hasBoundedWorkDecisionCue =
+    hasDirectWorkAction ||
+    hasAffirmedAny(directActionText, [
+      /\b(?:decid(?:e|es|ing)|choose|chooses|choosing)\s+whether\s+(?:an?\s+|the\s+|this\s+|that\s+|each\s+|selected\s+|affected\s+|open\s+)?(?:cases?|requests?|items?|recommendations?|shipments?|loads?|alerts?|exceptions?|escalations?|findings?|candidates?|tickets?|incidents?|orders?|work[- ]orders?|repairs?|applications?|accounts?|claims?|issues?|tasks?|transactions?|artifacts?)\s+(?:should|must|can|will|is|are)\s+(?:(?:be|get)\s+)?(?:approved|blocked|returned|sent|routed|rerouted|re-routed|frozen|requested|closed|resolved|assigned|reassigned|prioritized|escalated|dispatched|held|rejected|deferred|tightened|advanced|submitted|completed|saved)\b/,
+      /\b(?:decid(?:e|es|ing)|choose|chooses|choosing)\s+whether to\s+(?:approve|block|return|handoff|assign|reassign|prioritize|resolve|close|edit|escalate|route|reroute|freeze|request|dispatch)\b/,
+      /\b(?:approve|approves|approving|block|blocks|blocking|assign|assigns|assigning|reassign|reassigns|reassigning|prioritize|prioritizes|prioritizing|escalate|escalates|escalating)\b/,
+    ]);
+  const hasPassiveDashboardContext =
+    hasDashboardMonitoringContext &&
+    !hasBoundedWorkDecisionCue &&
+    ![
+      "structured_submission",
+      "valid_setup_or_next_fix",
+      "conversion_action",
+      "understand_cite_or_share",
+    ].includes(purposeEvidence.primary_completion_kind) &&
+    purposeEvidence.report_role !== "primary_reading_artifact" &&
+    !/\bworkbench\b/.test(text);
+  const hasActiveReviewDecision =
+    (hasReviewDecision || hasDirectWorkAction) && !hasNoDecisionRequired;
   const hasMarketing = hasAffirmedAny(text, [
     /\b(?:marketing|landing page|homepage|home page|campaign|pricing|signup|sign up|trial|demo|conversion|convert|prospect|visitor|buyer|offer|value prop|value proposition|positioning)\b/,
     /\b(?:lead capture|lead form|lead gen|lead generation|qualified lead|sales lead)\b/,
@@ -824,7 +928,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
     hasFormDataEntryIntent && hasFormValidationIntent;
   const hasSpecificWorkbenchItems =
     hasAffirmedAny(text, [
-      /\b(?:queue|multiple|several|cases|requests|findings|workstreams|candidates|exceptions|visits|selected visit|route impact|decision state|handoff owner|next-action receipt|cohorts|playlists?|tracks?|songs?|sequence)\b/,
+      /\b(?:queue|multiple|several|cases|requests|findings|workstreams|candidates|exceptions|alerts?|shipments?|loads?|deliveries?|sensors?|sensor readings?|visits|selected visit|route impact|decision state|handoff owner|next-action receipt|cohorts|playlists?|tracks?|songs?|sequence)\b/,
     ]);
   const hasGenericWorkbenchItems =
     hasAffirmedAny(text, [/\b(?:list|items|records)\b/]);
@@ -882,7 +986,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
     ]) &&
       (hasSpecificWorkbenchItems ||
         (hasGenericWorkbenchItems && !hasFormPrimary))) ||
-    (hasOperationalActor && hasReviewDecision && hasEvidenceComparison && !hasFormPrimary);
+    (hasOperationalActor && hasActiveReviewDecision && hasEvidenceComparison && !hasFormPrimary);
   const hasSetupDebug =
     hasRawSetupDebugIntent ||
     (hasSetupDebugActivityContext && hasImplementationMachineryCue);
@@ -956,7 +1060,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "inspect_compare_decide_act",
         "The user inspects, compares, decides, and acts.",
-        hasReviewDecision,
+        hasActiveReviewDecision,
         "Looked for review, compare, decision, approval, prioritization, triage, or handoff language.",
       ),
       surfaceEvidence(
@@ -968,7 +1072,7 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "domain_operator",
         "A domain operator, analyst, manager, lead, or team uses the surface.",
-        hasOperationalActor && hasReviewDecision,
+        hasOperationalActor && hasActiveReviewDecision,
         "Looked for operational participant language.",
       ),
     ];
@@ -989,7 +1093,8 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "passive_monitoring",
         "Passive monitoring should stay a dashboard monitor.",
-        /\b(?:passive dashboard|monitor|monitoring|status overview|trend dashboard|health dashboard)\b/.test(text) && !hasReviewDecision,
+        hasPassiveDashboardContext ||
+          (/\b(?:passive dashboard|monitor|monitoring|status overview|trend dashboard|health dashboard)\b/.test(text) && !hasActiveReviewDecision),
         "Monitoring or dashboard language appears without decision work.",
       ),
       surfaceEvidence(
@@ -1011,8 +1116,17 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
         ["primary_status_awareness", "status_context"].includes(
           purposeEvidence.monitor_role,
         ) &&
-          purposeEvidence.secondary_surface_elements?.includes("downstream_work_order_drillout"),
+          secondarySurfaceElements.includes("downstream_work_order_drillout"),
         "Work-order language appears as a downstream drill-out, not direct assignment or prioritization.",
+      ),
+      surfaceEvidence(
+        "context_only_monitor_drillin",
+        "Status monitors may expose context-only drill-in without becoming a workbench.",
+        ["primary_status_awareness", "status_context"].includes(
+          purposeEvidence.monitor_role,
+        ) &&
+          hasContextOnlyMonitorDrillIn,
+        "Alert, exception, shipment, sensor, or work-order details appear as context-only drill-in with no direct work action.",
       ),
     ];
 
@@ -1093,14 +1207,12 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
   }
 
   if (surfaceType === "dashboard_monitor") {
-    const hasDashboardMonitoringContext = hasAffirmedAny(text, [
-      /\b(?:dashboard|monitor|monitoring|metrics|status|trend|trends|health|kpi|alert|alerts|overview|analytics|tracking|watch)\b/,
-    ]);
     const hasPassiveOrPeriodicRead =
       hasAffirmedAny(text, [
         /\b(?:passive|overview|at a glance|tracking|watch|weekly|daily status)\b/,
       ]) ||
-      (hasDashboardMonitoringContext && /\bno decision\b/.test(text));
+      (hasDashboardMonitoringContext &&
+        (hasPassiveDashboardContext || /\bno decision\b/.test(text)));
     const triggers = [
       surfaceEvidence(
         "monitor_status_or_trends",
@@ -1117,21 +1229,21 @@ function buildSurfaceTypeScore(surfaceType, inputContext, contract) {
       surfaceEvidence(
         "status_awareness_with_followup",
         "Completion is knowing current state and whether follow-up is needed.",
-        purposeEvidence.primary_completion_kind === "status_awareness" ||
-          (purposeEvidence.monitor_role === "status_context" &&
-            purposeEvidence.secondary_surface_elements?.includes(
-              "downstream_work_order_drillout",
-            )),
+        hasStatusAwarenessMonitor,
         "Looked for monitor/status evidence paired with knowing current state, health, or whether follow-up is needed.",
+      ),
+      surfaceEvidence(
+        "context_only_monitor_drillin",
+        "The monitor exposes drill-in context without direct work action.",
+        hasStatusAwarenessMonitor && hasContextOnlyMonitorDrillIn,
+        "Looked for alert, exception, shipment, sensor, or work-order drill-in used as context rather than work execution.",
       ),
     ];
     const exclusions = [
       surfaceEvidence(
         "bounded_decision_work",
         "Bounded review decisions should not be reduced to a dashboard.",
-        hasAffirmedAny(text, [
-          /\b(?:approve|block|return|handoff|decide whether|triaging)\b/,
-        ]),
+        hasBoundedWorkDecisionCue,
         "Approval, blocking, return, handoff, or triage language implies work support.",
       ),
       surfaceEvidence(
