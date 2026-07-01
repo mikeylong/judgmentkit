@@ -21,7 +21,7 @@ import {
 } from "./index.mjs";
 
 const MCP_SERVER_NAME = "JudgmentKit";
-const MCP_SERVER_VERSION = "0.6.3";
+const MCP_SERVER_VERSION = "0.6.4";
 const APPROVED_PRIMITIVES_INPUT_DESCRIPTION =
   "Optional allowed implementation primitives for generated UI evidence. These are implementation primitives only; do not list design-system component contract ids here. Defaults to the portable no-system primitive set.";
 const REVIEW_UI_IMPLEMENTATION_CANDIDATE_INPUT_DESCRIPTION =
