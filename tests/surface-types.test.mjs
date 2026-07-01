@@ -333,6 +333,78 @@ const FLEET_HEALTH_MONITOR_RELATED_CONTEXT_BRIEF = `
   prioritization, approval, closure, or record editing.
 `;
 
+const COLD_CHAIN_MONITOR_DRILLIN_BRIEF = `
+  A cold-chain operations lead monitors a vaccine shipment dashboard showing
+  lane temperature, dwell time, trailer health, route exceptions, threshold
+  breaches, shipment alerts, custody gaps, and spoilage-risk trends. Shipment
+  and alert drill-in panels give investigation context and follow-up awareness
+  only; the primary surface is status monitoring. Completion is knowing current
+  status and whether follow-up is needed. No assignment, prioritization, closure,
+  release, quarantine, handoff, or record editing happens on this surface.
+`;
+
+const COLD_CHAIN_EXCEPTION_WORKBENCH_BRIEF = `
+  A cold-chain logistics coordinator works a shipment exception workbench with
+  a queue of shipments and alerts. The activity is comparing shipment alerts,
+  temperature evidence, custody gaps, lane capacity, spoilage risk, and carrier
+  context, then deciding whether to reroute the shipment, place a hold,
+  quarantine inventory, release the load, escalate to quality, resolve the alert,
+  or leave a handoff.
+`;
+
+const COLD_CHAIN_ACTION_DRILLIN_WORKBENCH_BRIEF = `
+  A cold-chain coordinator reviews shipment alert history for active exceptions.
+  The activity is comparing temperature traces, custody gaps, carrier notes,
+  promise windows, and lane constraints, then deciding whether to reroute the
+  shipment, place a hold, quarantine inventory, release the load, or escalate to
+  quality. Completion is a selected action and reason for each affected shipment.
+`;
+
+const ACTIVE_ALERT_DETAIL_WORKBENCH_BRIEF = `
+  A cold-chain coordinator opens alert details for active shipment exceptions.
+  The activity is comparing sensor evidence, carrier notes, and custody gaps in
+  the detail pane, then recording an investigation note and choosing an owner for
+  each alert. Completion is an owner, note, and next action for the affected
+  shipment.
+`;
+
+const APPROVAL_RATE_DASHBOARD_BRIEF = `
+  A pharmacy operations lead monitors an approval rate dashboard showing
+  authorization approval rates, denial trends, SLA status, stale-data warnings,
+  and exception alerts. No operational decision is required on this surface;
+  completion is knowing status and whether follow-up is needed.
+`;
+
+const METRIC_NOUN_DASHBOARD_BRIEFS = [
+  {
+    label: "assignment rate dashboard",
+    brief: `
+      A field operations lead monitors an assignment rate dashboard showing
+      technician assignment rates, backlog trends, SLA status, stale-data
+      warnings, and exception alerts. No operational decision is required on
+      this surface; completion is knowing status and whether follow-up is needed.
+    `,
+  },
+  {
+    label: "prioritization trend dashboard",
+    brief: `
+      A support operations lead monitors a prioritization trend dashboard showing
+      case prioritization trends, aging, SLA status, stale-data warnings, and
+      exception alerts. No operational decision is required on this surface;
+      completion is knowing status and whether follow-up is needed.
+    `,
+  },
+  {
+    label: "handoff latency dashboard",
+    brief: `
+      A care operations lead monitors a handoff latency dashboard showing
+      handoff latency, queue health, SLA status, stale-data warnings, and
+      exception alerts. No operational decision is required on this surface;
+      completion is knowing status and whether follow-up is needed.
+    `,
+  },
+];
+
 const WORK_ORDER_EXECUTION_WORKBENCH_BRIEF = `
   A dispatcher reviews open repair work orders in a workbench. The activity is
   comparing urgency, technician availability, fault evidence, SLA risk, and route
@@ -573,6 +645,51 @@ function readyWorkbenchActivityReview() {
         decision: false,
       },
     },
+  };
+}
+
+function readyColdChainActionActivityReview() {
+  return {
+    review_status: "ready_for_review",
+    candidate: {
+      activity_model: {
+        activity: "Reviewing cold-chain shipment exceptions.",
+        participants: ["cold-chain coordinator"],
+        objective: "Resolve active shipment exceptions.",
+        outcomes: ["selected shipment action and reason"],
+        domain_vocabulary: ["shipment alert", "temperature trace", "custody gap"],
+      },
+      interaction_contract: {
+        primary_decision:
+          "Decide whether to reroute, hold, quarantine, release, or escalate each shipment.",
+        next_actions: [
+          "Reroute shipment",
+          "Place hold",
+          "Quarantine inventory",
+          "Release load",
+          "Escalate to quality",
+        ],
+        completion:
+          "A selected action and reason are recorded for each affected shipment.",
+      },
+      disclosure_policy: {
+        terms_to_use: ["shipment alert", "selected action", "reason"],
+      },
+    },
+    guardrails: {
+      source_missing_evidence: {
+        decision: false,
+      },
+    },
+  };
+}
+
+function readyColdChainActionActivityReviewWithoutGuardrail() {
+  const review = readyColdChainActionActivityReview();
+
+  return {
+    review_status: review.review_status,
+    candidate: review.candidate,
   };
 }
 
@@ -959,6 +1076,156 @@ function assertSurfaceRecommendation({
       "workbench",
     ).matched_exclusions.includes("downstream_work_orders_only"),
   );
+
+  const coldChainMonitor = recommendSurfaceTypes(
+    COLD_CHAIN_MONITOR_DRILLIN_BRIEF,
+  );
+  assert.equal(coldChainMonitor.recommended_surface_type, "dashboard_monitor");
+  assertSurfaceBeats(
+    coldChainMonitor,
+    "dashboard_monitor",
+    "workbench",
+    "cold-chain monitor with shipment and alert drill-in",
+  );
+  assert.ok(
+    surfaceTypeScore(
+      coldChainMonitor,
+      "dashboard_monitor",
+    ).matched_triggers.includes("status_awareness_with_followup"),
+  );
+  assert.ok(
+    surfaceTypeScore(
+      coldChainMonitor,
+      "dashboard_monitor",
+    ).matched_triggers.includes("context_only_monitor_drillin"),
+  );
+  assert.ok(
+    surfaceTypeScore(
+      coldChainMonitor,
+      "workbench",
+    ).matched_exclusions.includes("passive_monitoring"),
+  );
+  assert.ok(
+    surfaceTypeScore(
+      coldChainMonitor,
+      "workbench",
+    ).matched_exclusions.includes("context_only_monitor_drillin"),
+  );
+  assert.equal(
+    surfaceTypeScore(
+      coldChainMonitor,
+      "dashboard_monitor",
+    ).matched_exclusions.includes("bounded_decision_work"),
+    false,
+  );
+
+  const coldChainWorkbench = recommendSurfaceTypes(
+    COLD_CHAIN_EXCEPTION_WORKBENCH_BRIEF,
+  );
+  assert.equal(coldChainWorkbench.recommended_surface_type, "workbench");
+  assertSurfaceBeats(
+    coldChainWorkbench,
+    "workbench",
+    "dashboard_monitor",
+    "cold-chain exception action workbench",
+  );
+  assert.ok(
+    surfaceTypeScore(
+      coldChainWorkbench,
+      "workbench",
+    ).matched_triggers.includes("inspect_compare_decide_act"),
+  );
+  assert.ok(
+    surfaceTypeScore(
+      coldChainWorkbench,
+      "workbench",
+    ).matched_triggers.includes("repeated_work_items"),
+  );
+  assert.ok(
+    surfaceTypeScore(
+      coldChainWorkbench,
+      "dashboard_monitor",
+    ).matched_exclusions.includes("bounded_decision_work"),
+  );
+
+  const coldChainActionDrillin = recommendSurfaceTypes(
+    COLD_CHAIN_ACTION_DRILLIN_WORKBENCH_BRIEF,
+  );
+  assert.equal(coldChainActionDrillin.recommended_surface_type, "workbench");
+  assertSurfaceBeats(
+    coldChainActionDrillin,
+    "workbench",
+    "dashboard_monitor",
+    "cold-chain action drill-in workbench",
+  );
+  assert.ok(
+    surfaceTypeScore(
+      coldChainActionDrillin,
+      "workbench",
+    ).matched_triggers.includes("inspect_compare_decide_act"),
+  );
+  assert.ok(
+    surfaceTypeScore(
+      coldChainActionDrillin,
+      "dashboard_monitor",
+    ).matched_exclusions.includes("bounded_decision_work"),
+  );
+
+  const activeAlertDetailWorkbench = recommendSurfaceTypes(
+    ACTIVE_ALERT_DETAIL_WORKBENCH_BRIEF,
+  );
+  assert.equal(activeAlertDetailWorkbench.recommended_surface_type, "workbench");
+  assertSurfaceBeats(
+    activeAlertDetailWorkbench,
+    "workbench",
+    "dashboard_monitor",
+    "active alert detail workbench",
+  );
+  assert.ok(
+    surfaceTypeScore(
+      activeAlertDetailWorkbench,
+      "workbench",
+    ).matched_triggers.includes("inspect_compare_decide_act"),
+  );
+  assert.ok(
+    surfaceTypeScore(
+      activeAlertDetailWorkbench,
+      "dashboard_monitor",
+    ).matched_exclusions.includes("bounded_decision_work"),
+  );
+
+  const approvalRateDashboard = recommendSurfaceTypes(
+    APPROVAL_RATE_DASHBOARD_BRIEF,
+  );
+  assert.equal(approvalRateDashboard.recommended_surface_type, "dashboard_monitor");
+  assertSurfaceBeats(
+    approvalRateDashboard,
+    "dashboard_monitor",
+    "workbench",
+    "approval rate dashboard",
+  );
+  assert.equal(
+    surfaceTypeScore(
+      approvalRateDashboard,
+      "dashboard_monitor",
+    ).matched_exclusions.includes("bounded_decision_work"),
+      false,
+  );
+
+  for (const { label, brief } of METRIC_NOUN_DASHBOARD_BRIEFS) {
+    const metricDashboard = recommendSurfaceTypes(brief);
+
+    assert.equal(metricDashboard.recommended_surface_type, "dashboard_monitor");
+    assertSurfaceBeats(metricDashboard, "dashboard_monitor", "workbench", label);
+    assert.equal(
+      surfaceTypeScore(
+        metricDashboard,
+        "dashboard_monitor",
+      ).matched_exclusions.includes("bounded_decision_work"),
+      false,
+      `${label} should not treat metric nouns as bounded work`,
+    );
+  }
 
   const workOrderWorkbench = recommendSurfaceTypes(
     WORK_ORDER_EXECUTION_WORKBENCH_BRIEF,
@@ -1380,6 +1647,34 @@ function assertSurfaceRecommendation({
 
   assert.equal(surfaceReview.recommended_surface_type, "workbench");
   assert.equal(surfaceReview.confidence, "high");
+}
+
+{
+  const surfaceReview = recommendSurfaceTypes("Build the provided surface.", {
+    activity_review: readyColdChainActionActivityReview(),
+  });
+
+  assert.equal(surfaceReview.recommended_surface_type, "workbench");
+  assert.ok(
+    surfaceTypeScore(
+      surfaceReview,
+      "dashboard_monitor",
+    ).matched_exclusions.includes("bounded_decision_work"),
+  );
+}
+
+{
+  const surfaceReview = recommendSurfaceTypes("Build the provided surface.", {
+    activity_review: readyColdChainActionActivityReviewWithoutGuardrail(),
+  });
+
+  assert.equal(surfaceReview.recommended_surface_type, "workbench");
+  assert.ok(
+    surfaceTypeScore(
+      surfaceReview,
+      "dashboard_monitor",
+    ).matched_exclusions.includes("bounded_decision_work"),
+  );
 }
 
 {
