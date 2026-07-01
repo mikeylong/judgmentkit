@@ -170,6 +170,19 @@ Use this to distinguish interaction purpose before any component or styling advi
 
 Surface type is activity-purpose guidance, not a visual theme. Use `frontend_posture` only after the recommended surface type is grounded in activity, decision, outcome, and disclosure evidence.
 
+### Designer Steering For Close Calls
+
+When two surfaces are plausible, steer from the user's completion state before choosing components:
+
+- If the completion state is not explicit, ask what the user should leave knowing or having done before choosing a surface.
+- If a public offer has a short quote, demo, trial, or waitlist form, treat the form as a CTA unless the activity is completing a structured application or record.
+- If a monitor links to work orders, tickets, or cases, keep it a monitor when those objects are downstream drill-in and the user is not assigning, prioritizing, closing, or editing records.
+- If KPI data is used before an executive update, keep it a monitor unless the user is writing, exporting, citing, or sharing a fixed report artifact.
+- If fields configure an integration, feed, API, endpoint, or agent run, prefer setup/debug when the user validates machinery, inspects traces, finds root cause, or records the next fix.
+- If a human reviews AI- or system-produced work before release, prefer operator review; if the user debugs prompts, tool calls, schema failures, auth scope, replay, or configuration, prefer setup/debug.
+
+For product designers, translate the surface into plain activity language. Do not expose prompts, scores, MCP tools, resource ids, schemas, or traces in primary UI unless the activity is explicitly setup, debugging, auditing, or integration work.
+
 MCP call:
 
 ```text
