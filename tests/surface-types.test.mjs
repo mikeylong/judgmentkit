@@ -295,6 +295,144 @@ const MUSIC_SEQUENCE_REPORT_BRIEF = `
   reference sections, and sharing the report; no decision is required.
 `;
 
+const MARKETING_WITH_SECONDARY_LEAD_FORM_BRIEF = `
+  Public BloomPass campaign page for parent and HR-buyer prospects. The activity
+  is explaining childcare benefits plans, proof, pricing fit, testimonials, and
+  conversion. A short quote request and waitlist lead form is only the CTA;
+  completion is a prospect starting an inquiry, not completing a structured
+  application.
+`;
+
+const TRUE_MEMBERSHIP_SIGNUP_FORM_BRIEF = `
+  A theater patron completes a membership signup application. The activity is
+  entering household contact details, accessibility preferences, billing,
+  donation amount, payment, agreement checkboxes, resolving required-field
+  validation, submitting the application, and receiving a confirmation receipt.
+`;
+
+const FLEET_HEALTH_MONITOR_DRILLIN_BRIEF = `
+  A fleet operations manager monitors vehicle health, downtime, faults, overdue
+  inspections, capacity, SLA-risk trends, route-impact exceptions, thresholds,
+  and alerts. Work-order details are downstream drill-in context only. The monitor
+  has no assignment, prioritization, approval, closure, or record editing;
+  completion is knowing current health and whether investigation is needed.
+`;
+
+const FLEET_HEALTH_MONITOR_STATUS_CONTEXT_BRIEF = `
+  A fleet operations manager uses a status monitor showing downtime, faults,
+  overdue inspections, capacity, SLA-risk trends, route-impact exceptions,
+  thresholds, alerts, and health. Work-order records are downstream drill-in
+  context only; the surface has no assignment, prioritization, approval, closure,
+  or record editing.
+`;
+
+const FLEET_HEALTH_MONITOR_RELATED_CONTEXT_BRIEF = `
+  A fleet operations manager reviews a status monitor showing downtime, faults,
+  overdue inspections, route-impact exceptions, thresholds, alerts, and health.
+  Related work-order details are context only; the surface has no assignment,
+  prioritization, approval, closure, or record editing.
+`;
+
+const WORK_ORDER_EXECUTION_WORKBENCH_BRIEF = `
+  A dispatcher reviews open repair work orders in a workbench. The activity is
+  comparing urgency, technician availability, fault evidence, SLA risk, and route
+  impact, then assigning technicians, prioritizing repairs, closing orders, or
+  leaving a handoff receipt.
+`;
+
+const KPI_MONITOR_BEFORE_EXECUTIVE_UPDATE_BRIEF = `
+  An operations lead monitors KPI status before an executive update. The activity
+  is watching weekly metrics, trends, alerts, health, exceptions, stale-data
+  warnings, and forecast variance at a glance. This is not an update form or
+  report writing surface; completion is knowing current business state and
+  whether investigation is needed.
+`;
+
+const KPI_MONITOR_BRIEFING_CONTEXT_BRIEF = `
+  An operations lead uses a KPI monitor before an executive briefing. The surface
+  shows weekly ARR, pipeline, churn, burn, runway, forecast variance, stale-data
+  warnings, deltas, exceptions, alerts, trends, and business health. It is not
+  for writing, exporting, citing, or sharing a report artifact.
+`;
+
+const KPI_MONITOR_SECONDARY_EXPORT_BRIEF = `
+  An operations lead uses a KPI monitor before an executive update. The surface
+  tracks ARR, pipeline, churn, burn, runway, forecast variance, stale-data
+  warnings, deltas, exceptions, alerts, trends, and business health. Export and
+  share controls are secondary snapshot controls; the primary activity is
+  monitoring current business state, not writing a report artifact.
+`;
+
+const NARRATIVE_EXECUTIVE_UPDATE_REPORT_BRIEF = `
+  An operations lead prepares a narrative executive update report. The activity
+  is reading KPI context, writing the summary, explaining variance, citing
+  reference sections, exporting the briefing, and sharing it with stakeholders.
+  The surface is fixed material for understanding and sharing, not live
+  operations monitoring.
+`;
+
+const HL7_SETUP_DEBUG_WIZARD_BRIEF = `
+  An integration engineer configures an HL7 ADT feed. The activity is mapping
+  endpoint and authentication settings, running connection tests, validating
+  sample messages, inspecting trace logs and ACK/NACK failures, identifying root
+  cause, and recording the next fix. Fields and wizard steps only support the
+  machinery check.
+`;
+
+const HL7_SETUP_DEBUG_WIZARD_NO_COMPLETION_BRIEF = `
+  An integration engineer configures an HL7 ADT feed. The activity is mapping
+  endpoint and authentication settings, running connection tests, validating
+  sample messages, and inspecting trace logs and ACK/NACK failures. Fields and
+  wizard steps only support the machinery check.
+`;
+
+const ORDINARY_STRUCTURED_SETUP_FORM_BRIEF = `
+  A clinic admin completes an organization setup form. The activity is entering
+  organization, contact, timezone, billing, and notification fields, resolving
+  validation errors, submitting the form, and seeing a saved confirmation. There
+  are no test runs, traces, ACK/NACK checks, debugging, root cause, or integration
+  diagnostics.
+`;
+
+const INTEGRATION_ACCOUNT_SETUP_FORM_BRIEF = `
+  A clinic admin completes an integration account setup form. The activity is
+  entering account name, integration owner, contact, billing, notification, and
+  access-request fields, resolving validation errors, submitting the form, and
+  seeing a saved confirmation. There are no diagnostics, test runs, traces,
+  ACK/NACK checks, root-cause investigation, or integration debugging.
+`;
+
+const AI_AGENT_RUN_DEBUG_AUDIT_BRIEF = `
+  A platform engineer audits an AI-agent run to debug the machinery. The activity
+  is inspecting prompt versions, tool-call traces, resource ids, API failures,
+  retry logs, model configuration, replaying the failing step, finding root
+  cause, and recording the next fix. The user is not approving produced work
+  before release.
+`;
+
+const AI_PRODUCED_WORK_APPROVAL_BRIEF = `
+  A human reviewer reviews several AI-generated artifacts before release. The
+  activity is comparing evidence and risk, deciding whether each artifact is
+  approved, blocked, returned, deferred, or handed off, and leaving an audit
+  receipt.
+`;
+
+const AI_PRODUCED_WORK_APPROVAL_WITH_TRACE_EVIDENCE_BRIEF = `
+  A human reviewer reviews AI-generated artifacts before release. The activity is
+  comparing evidence and risk from prompt versions, tool-call traces, root-cause
+  notes for content issues, and policy checks, then approving, blocking,
+  returning, deferring, or handing off each artifact with an audit receipt. These
+  diagnostics are secondary evidence, not debugging run machinery.
+`;
+
+const AI_PRODUCED_WORK_APPROVAL_DIAGNOSTIC_CONTEXT_BRIEF = `
+  A human reviewer reviews AI-generated artifacts before release. The activity is
+  comparing evidence and risk from prompt versions, tool-call traces, root-cause
+  notes for content issues, and policy checks, then approving, blocking,
+  returning, deferring, or handing off each artifact with an audit receipt.
+  Diagnostics provide context for review.
+`;
+
 const REFUND_TRIAGE_BRIEF = `
   A support lead is reviewing refund requests during the daily triage workflow.
   The activity is deciding whether a case should be approved, sent to policy review,
@@ -441,6 +579,18 @@ function readyWorkbenchActivityReview() {
 function surfaceTypeScore(surfaceReview, surfaceType) {
   return surfaceReview.evidence.surface_type_scores.find(
     (entry) => entry.surface_type === surfaceType,
+  );
+}
+
+function assertSurfaceBeats(surfaceReview, selected, competitor, label) {
+  const selectedScore = surfaceTypeScore(surfaceReview, selected);
+  const competitorScore = surfaceTypeScore(surfaceReview, competitor);
+
+  assert.ok(selectedScore, `${label} should include ${selected} score`);
+  assert.ok(competitorScore, `${label} should include ${competitor} score`);
+  assert.ok(
+    selectedScore.score > competitorScore.score,
+    `${label} expected ${selected} score ${selectedScore.score} to exceed ${competitor} score ${competitorScore.score}`,
   );
 }
 
@@ -708,6 +858,389 @@ function assertSurfaceRecommendation({
   for (const surfaceCase of surfaceRecommendationSmokeCases) {
     assertSurfaceRecommendation(surfaceCase);
   }
+}
+
+{
+  const marketingLead = recommendSurfaceTypes(
+    MARKETING_WITH_SECONDARY_LEAD_FORM_BRIEF,
+  );
+  assert.equal(marketingLead.recommended_surface_type, "marketing");
+  assertSurfaceBeats(
+    marketingLead,
+    "marketing",
+    "form_flow",
+    "marketing with secondary lead form",
+  );
+  assert.ok(
+    surfaceTypeScore(marketingLead, "marketing").matched_triggers.includes(
+      "lead_capture_secondary_to_offer",
+    ),
+  );
+  assert.ok(
+    surfaceTypeScore(marketingLead, "form_flow").matched_exclusions.includes(
+      "lead_capture_secondary_to_marketing",
+    ),
+  );
+
+  const trueSignup = recommendSurfaceTypes(TRUE_MEMBERSHIP_SIGNUP_FORM_BRIEF);
+  assert.equal(trueSignup.recommended_surface_type, "form_flow");
+  assertSurfaceBeats(
+    trueSignup,
+    "form_flow",
+    "marketing",
+    "true membership signup form",
+  );
+  assert.ok(
+    surfaceTypeScore(trueSignup, "form_flow").matched_triggers.includes(
+      "collect_or_change_structured_information",
+    ),
+  );
+  assert.ok(
+    surfaceTypeScore(trueSignup, "form_flow").matched_triggers.includes(
+      "validation_or_required_inputs",
+    ),
+  );
+
+  const fleetMonitor = recommendSurfaceTypes(FLEET_HEALTH_MONITOR_DRILLIN_BRIEF);
+  assert.equal(fleetMonitor.recommended_surface_type, "dashboard_monitor");
+  assertSurfaceBeats(
+    fleetMonitor,
+    "dashboard_monitor",
+    "workbench",
+    "fleet health monitor with downstream drill-in",
+  );
+  assert.ok(
+    surfaceTypeScore(fleetMonitor, "dashboard_monitor").matched_triggers.includes(
+      "status_awareness_with_followup",
+    ),
+  );
+  assert.ok(
+    surfaceTypeScore(fleetMonitor, "workbench").matched_exclusions.includes(
+      "downstream_work_orders_only",
+    ),
+  );
+
+  const fleetStatusContext = recommendSurfaceTypes(
+    FLEET_HEALTH_MONITOR_STATUS_CONTEXT_BRIEF,
+  );
+  assert.equal(
+    fleetStatusContext.recommended_surface_type,
+    "dashboard_monitor",
+  );
+  assertSurfaceBeats(
+    fleetStatusContext,
+    "dashboard_monitor",
+    "workbench",
+    "fleet health monitor status context",
+  );
+  assert.ok(
+    surfaceTypeScore(
+      fleetStatusContext,
+      "workbench",
+    ).matched_exclusions.includes("downstream_work_orders_only"),
+  );
+
+  const fleetRelatedContext = recommendSurfaceTypes(
+    FLEET_HEALTH_MONITOR_RELATED_CONTEXT_BRIEF,
+  );
+  assert.equal(
+    fleetRelatedContext.recommended_surface_type,
+    "dashboard_monitor",
+  );
+  assertSurfaceBeats(
+    fleetRelatedContext,
+    "dashboard_monitor",
+    "workbench",
+    "fleet health monitor with related work-order context",
+  );
+  assert.ok(
+    surfaceTypeScore(
+      fleetRelatedContext,
+      "workbench",
+    ).matched_exclusions.includes("downstream_work_orders_only"),
+  );
+
+  const workOrderWorkbench = recommendSurfaceTypes(
+    WORK_ORDER_EXECUTION_WORKBENCH_BRIEF,
+  );
+  assert.equal(workOrderWorkbench.recommended_surface_type, "workbench");
+  assertSurfaceBeats(
+    workOrderWorkbench,
+    "workbench",
+    "dashboard_monitor",
+    "work-order execution workbench",
+  );
+  assert.ok(
+    surfaceTypeScore(workOrderWorkbench, "workbench").matched_triggers.includes(
+      "inspect_compare_decide_act",
+    ),
+  );
+  assert.ok(
+    surfaceTypeScore(
+      workOrderWorkbench,
+      "dashboard_monitor",
+    ).matched_exclusions.includes("bounded_decision_work"),
+  );
+
+  const kpiMonitor = recommendSurfaceTypes(
+    KPI_MONITOR_BEFORE_EXECUTIVE_UPDATE_BRIEF,
+  );
+  assert.equal(kpiMonitor.recommended_surface_type, "dashboard_monitor");
+  assertSurfaceBeats(
+    kpiMonitor,
+    "dashboard_monitor",
+    "content_report",
+    "KPI monitor before executive update",
+  );
+  assertSurfaceBeats(
+    kpiMonitor,
+    "dashboard_monitor",
+    "form_flow",
+    "KPI monitor before executive update",
+  );
+  assert.ok(
+    surfaceTypeScore(kpiMonitor, "content_report").matched_exclusions.includes(
+      "kpi_source_not_report_artifact",
+    ),
+  );
+  assert.equal(surfaceTypeScore(kpiMonitor, "form_flow").score, 0);
+
+  const kpiBriefingContext = recommendSurfaceTypes(
+    KPI_MONITOR_BRIEFING_CONTEXT_BRIEF,
+  );
+  assert.equal(
+    kpiBriefingContext.recommended_surface_type,
+    "dashboard_monitor",
+  );
+  assertSurfaceBeats(
+    kpiBriefingContext,
+    "dashboard_monitor",
+    "content_report",
+    "KPI monitor before executive briefing",
+  );
+  assert.ok(
+    surfaceTypeScore(
+      kpiBriefingContext,
+      "content_report",
+    ).matched_exclusions.includes("kpi_source_not_report_artifact"),
+  );
+
+  const kpiSecondaryExport = recommendSurfaceTypes(
+    KPI_MONITOR_SECONDARY_EXPORT_BRIEF,
+  );
+  assert.equal(
+    kpiSecondaryExport.recommended_surface_type,
+    "dashboard_monitor",
+  );
+  assertSurfaceBeats(
+    kpiSecondaryExport,
+    "dashboard_monitor",
+    "content_report",
+    "KPI monitor with secondary export/share controls",
+  );
+  assert.ok(
+    surfaceTypeScore(
+      kpiSecondaryExport,
+      "content_report",
+    ).matched_exclusions.includes("kpi_source_not_report_artifact"),
+  );
+
+  const updateReport = recommendSurfaceTypes(
+    NARRATIVE_EXECUTIVE_UPDATE_REPORT_BRIEF,
+  );
+  assert.equal(updateReport.recommended_surface_type, "content_report");
+  assertSurfaceBeats(
+    updateReport,
+    "content_report",
+    "dashboard_monitor",
+    "narrative executive update report",
+  );
+  assertSurfaceBeats(
+    updateReport,
+    "content_report",
+    "form_flow",
+    "narrative executive update report",
+  );
+  assert.ok(
+    surfaceTypeScore(updateReport, "content_report").matched_triggers.includes(
+      "read_understand_or_share",
+    ),
+  );
+  assert.ok(
+    surfaceTypeScore(updateReport, "content_report").matched_triggers.includes(
+      "linear_narrative",
+    ),
+  );
+
+  const hl7Setup = recommendSurfaceTypes(HL7_SETUP_DEBUG_WIZARD_BRIEF);
+  assert.equal(hl7Setup.recommended_surface_type, "setup_debug_tool");
+  assertSurfaceBeats(
+    hl7Setup,
+    "setup_debug_tool",
+    "form_flow",
+    "HL7 setup/debug wizard",
+  );
+  assert.ok(
+    surfaceTypeScore(hl7Setup, "setup_debug_tool").matched_triggers.includes(
+      "machinery_setup_validation",
+    ),
+  );
+  assert.ok(
+    surfaceTypeScore(hl7Setup, "form_flow").matched_exclusions.includes(
+      "configuration_controls_not_user_data",
+    ),
+  );
+  assert.notEqual(
+    surfaceTypeScore(hl7Setup, "operator_review").profile_status,
+    "recommended",
+  );
+
+  const hl7SetupNoCompletion = recommendSurfaceTypes(
+    HL7_SETUP_DEBUG_WIZARD_NO_COMPLETION_BRIEF,
+  );
+  assert.equal(
+    hl7SetupNoCompletion.recommended_surface_type,
+    "setup_debug_tool",
+  );
+  assertSurfaceBeats(
+    hl7SetupNoCompletion,
+    "setup_debug_tool",
+    "form_flow",
+    "HL7 setup/debug wizard without explicit completion",
+  );
+  assert.ok(
+    surfaceTypeScore(
+      hl7SetupNoCompletion,
+      "form_flow",
+    ).matched_exclusions.includes("configuration_controls_not_user_data"),
+  );
+
+  const setupForm = recommendSurfaceTypes(ORDINARY_STRUCTURED_SETUP_FORM_BRIEF);
+  assert.equal(setupForm.recommended_surface_type, "form_flow");
+  assertSurfaceBeats(
+    setupForm,
+    "form_flow",
+    "setup_debug_tool",
+    "ordinary structured setup form",
+  );
+  assert.ok(
+    surfaceTypeScore(setupForm, "form_flow").matched_triggers.includes(
+      "collect_or_change_structured_information",
+    ),
+  );
+  assert.ok(
+    surfaceTypeScore(setupForm, "form_flow").matched_triggers.includes(
+      "validation_or_required_inputs",
+    ),
+  );
+
+  const aiRunDebug = recommendSurfaceTypes(AI_AGENT_RUN_DEBUG_AUDIT_BRIEF);
+  assert.equal(aiRunDebug.recommended_surface_type, "setup_debug_tool");
+  assertSurfaceBeats(
+    aiRunDebug,
+    "setup_debug_tool",
+    "operator_review",
+    "AI-agent run debug audit",
+  );
+  assert.ok(
+    surfaceTypeScore(aiRunDebug, "setup_debug_tool").matched_triggers.includes(
+      "debugging_primary_mechanics",
+    ),
+  );
+  assert.equal(
+    surfaceTypeScore(aiRunDebug, "operator_review").profile_status,
+    "blocked",
+  );
+  assert.ok(
+    surfaceTypeScore(aiRunDebug, "operator_review").matched_exclusions.includes(
+      "debugging_primary_mechanics",
+    ),
+  );
+
+  const aiApproval = recommendSurfaceTypes(AI_PRODUCED_WORK_APPROVAL_BRIEF);
+  assert.equal(aiApproval.recommended_surface_type, "operator_review");
+  assertSurfaceBeats(
+    aiApproval,
+    "operator_review",
+    "setup_debug_tool",
+    "AI-produced work approval",
+  );
+  assert.equal(
+    surfaceTypeScore(aiApproval, "operator_review").profile_status,
+    "recommended",
+  );
+  assert.ok(
+    surfaceTypeScore(aiApproval, "operator_review").matched_triggers.includes(
+      "human_review_before_advance",
+    ),
+  );
+
+  const integrationAccountSetup = recommendSurfaceTypes(
+    INTEGRATION_ACCOUNT_SETUP_FORM_BRIEF,
+  );
+  assert.equal(integrationAccountSetup.recommended_surface_type, "form_flow");
+  assertSurfaceBeats(
+    integrationAccountSetup,
+    "form_flow",
+    "setup_debug_tool",
+    "integration account setup form without diagnostics",
+  );
+  assert.equal(
+    surfaceTypeScore(
+      integrationAccountSetup,
+      "setup_debug_tool",
+    ).matched_triggers.includes("machinery_setup_validation"),
+    false,
+  );
+
+  const aiApprovalWithTraceEvidence = recommendSurfaceTypes(
+    AI_PRODUCED_WORK_APPROVAL_WITH_TRACE_EVIDENCE_BRIEF,
+  );
+  assert.equal(
+    aiApprovalWithTraceEvidence.recommended_surface_type,
+    "operator_review",
+  );
+  assertSurfaceBeats(
+    aiApprovalWithTraceEvidence,
+    "operator_review",
+    "setup_debug_tool",
+    "AI-produced work approval with trace evidence",
+  );
+  assert.equal(
+    surfaceTypeScore(
+      aiApprovalWithTraceEvidence,
+      "operator_review",
+    ).profile_status,
+    "recommended",
+  );
+  assert.equal(
+    surfaceTypeScore(
+      aiApprovalWithTraceEvidence,
+      "operator_review",
+    ).matched_exclusions.includes("debugging_primary_mechanics"),
+    false,
+  );
+
+  const aiApprovalDiagnosticContext = recommendSurfaceTypes(
+    AI_PRODUCED_WORK_APPROVAL_DIAGNOSTIC_CONTEXT_BRIEF,
+  );
+  assert.equal(
+    aiApprovalDiagnosticContext.recommended_surface_type,
+    "operator_review",
+  );
+  assertSurfaceBeats(
+    aiApprovalDiagnosticContext,
+    "operator_review",
+    "setup_debug_tool",
+    "AI-produced work approval with diagnostic context",
+  );
+  assert.equal(
+    surfaceTypeScore(
+      aiApprovalDiagnosticContext,
+      "setup_debug_tool",
+    ).matched_triggers.includes("debugging_primary_mechanics"),
+    false,
+  );
 }
 
 {
