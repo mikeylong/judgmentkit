@@ -3185,12 +3185,7 @@ async function generateUseCase(useCase) {
     design_system_render_mode: DESIGN_SYSTEM_ADAPTER.render_mode,
     comparison_rows: buildComparisonRows(manifestEntries),
     comparison_columns: COMPARISON_COLUMNS,
-    legacy_aliases:
-      activeUseCase.id === "refund-system-map"
-        ? LEGACY_ALIASES.filter((alias) =>
-            manifestArtifacts.some((artifact) => artifact.id === alias.canonical_id),
-          )
-        : [],
+    legacy_aliases: [],
     model_labels: COMPARISON_ROWS.map((row) => row.model_label),
     artifacts: manifestArtifacts,
     diagnostic_candidates: diagnosticCandidates,

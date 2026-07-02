@@ -2,7 +2,7 @@
 
 JudgmentKit is a fresh activity-first kernel for AI-generated interface work.
 
-It is not a beautifier, design-system compliance layer, prompt library, schema browser, or MCP reference surface. Those may exist later as adapters. The core job is to help an agent generate or critique UI that is relevant, succinct, and appropriate to the activity it supports.
+It is not a beautifier, generic design-system linter, prompt library, schema browser, or MCP reference surface. Design-system provenance is now enforced after activity judgment through the implementation contract; the core job remains helping an agent generate or critique UI that is relevant, succinct, and appropriate to the activity it supports.
 
 ## Product Thesis
 

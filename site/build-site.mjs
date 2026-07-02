@@ -22,7 +22,8 @@ const ROOT = path.resolve(__dirname, "..");
 const DEFAULT_OUT_DIR = path.join(__dirname, "dist");
 const require = createRequire(import.meta.url);
 const ANALYTICS_SDK_VERSION = require("@vercel/analytics/package.json").version;
-const SYSTEM_MAP_FLOW_ASSET_VERSION = "judgmentkit-flow-controls-bottom-left";
+const JUDGMENTKIT_PACKAGE_VERSION = require("../package.json").version;
+const SYSTEM_MAP_FLOW_ASSET_VERSION = "judgmentkit-flow-design-source-authority";
 const SITE_ORIGIN = "https://judgmentkit.ai";
 const SOCIAL_THUMBNAIL_SOURCE_FILENAME = "judgmentkit-social-thumbnail.png";
 const SOCIAL_THUMBNAIL_FILENAME = "judgmentkit-social-thumbnail-20260611.png";
@@ -656,7 +657,7 @@ function systemMapShell(titleId, descId) {
 function systemMapFallbackSvg(titleId, descId) {
   return `<svg class="system-map-svg system-map-fallback-svg" data-system-map-svg-fallback viewBox="0 0 1760 1120" preserveAspectRatio="xMidYMin meet" role="img" aria-labelledby="${escapeHtml(titleId)} ${escapeHtml(descId)}">
           <title id="${escapeHtml(titleId)}">JudgmentKit system design map</title>
-          <desc id="${escapeHtml(descId)}">A static fallback node and edge diagram showing source context, the MCP boundary, JudgmentKit kernel, optional LLM provider seam, UI rendering outside JudgmentKit, Material UI adapter, blocked path, and iteration with updated context returning to source and activity review.</desc>
+          <desc id="${escapeHtml(descId)}">A static fallback node and edge diagram showing source context, the MCP boundary, JudgmentKit kernel, optional LLM provider seam, UI rendering outside JudgmentKit, design-system source choices with provenance, blocked path, and iteration with updated context returning to source and activity review.</desc>
           <defs>
             <marker id="system-map-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
               <path d="M 0 0 L 10 5 L 0 10 z" fill="#245f73"></path>
@@ -732,17 +733,16 @@ function systemMapFallbackSvg(titleId, descId) {
           <text class="map-node-text" x="1258" y="596">not raw brief.</text>
           <rect class="map-node map-node-output" x="1240" y="640" width="434" height="106" rx="12"></rect>
           <text class="map-node-title" x="1258" y="672">Renderer choice after reviewed handoff</text>
-          <text class="map-node-text" x="1258" y="696">JudgmentKit does not enforce</text>
-          <text class="map-node-text" x="1258" y="720">Material UI or any design system.</text>
+          <text class="map-node-text" x="1258" y="696">Renderer may vary; active</text>
+          <text class="map-node-text" x="1258" y="720">design-system provenance is required.</text>
           <rect class="map-node map-node-output" x="1240" y="774" width="204" height="112" rx="12"></rect>
-          <text class="map-node-title" x="1258" y="806">Material UI adapter</text>
-          <text class="map-node-text" x="1258" y="830">@mui/material components</text>
-          <text class="map-node-text" x="1258" y="854">applied after judgment.</text>
+          <text class="map-node-title" x="1258" y="806">External adapter</text>
+          <text class="map-node-text" x="1258" y="830">Complete tokens, components,</text>
+          <text class="map-node-text" x="1258" y="854">patterns, and provenance.</text>
           <rect class="map-node map-node-output" x="1470" y="774" width="204" height="112" rx="12"></rect>
-          <text class="map-node-title" x="1488" y="806">without design</text>
-          <text class="map-node-title" x="1488" y="828">system</text>
-          <text class="map-node-text" x="1488" y="854">Still use the handoff;</text>
-          <text class="map-node-text" x="1488" y="876">choose simple UI primitives.</text>
+          <text class="map-node-title" x="1488" y="806">JudgmentKit default</text>
+          <text class="map-node-text" x="1488" y="830">Use /design-system/ exports;</text>
+          <text class="map-node-text" x="1488" y="854">no fallback from failed adapters.</text>
           <rect class="map-node map-node-output" x="1240" y="916" width="434" height="82" rx="12"></rect>
           <text class="map-node-title" x="1258" y="948">UI draft</text>
           <text class="map-node-text" x="1258" y="972">Reviewed by human or agent for next iteration.</text>
@@ -773,9 +773,9 @@ function systemMapFallbackSvg(titleId, descId) {
           <text class="map-edge-label" x="1124" y="546">reviewed handoff</text>
           <path class="map-edge map-edge-output" d="M 1457 612 L 1457 640"></path>
           <path class="map-edge map-edge-output" d="M 1457 746 C 1356 746 1342 774 1342 774"></path>
-          <text class="map-edge-label" x="1246" y="760">with design system</text>
+          <text class="map-edge-label" x="1246" y="760">external adapter</text>
           <path class="map-edge map-edge-output" d="M 1457 746 C 1560 746 1572 774 1572 774"></path>
-          <text class="map-edge-label" x="1500" y="760">without design system</text>
+          <text class="map-edge-label" x="1500" y="760">default source</text>
           <path class="map-edge map-edge-output" d="M 1342 886 C 1342 904 1457 904 1457 916"></path>
           <path class="map-edge map-edge-output" d="M 1572 886 C 1572 904 1457 904 1457 916"></path>
           <path class="map-edge" d="M 1240 958 C 1068 920 912 914 754 914"></path>
@@ -2961,6 +2961,32 @@ pre {
 .example-matrix-thumb:focus-visible img {
   transform: scale(1.025);
 }
+.example-matrix-diagnostic {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 16 / 10;
+  padding: 14px;
+  border: 1px dashed color-mix(in srgb, var(--warn) 58%, var(--line));
+  border-radius: 6px;
+  background:
+    linear-gradient(135deg, rgba(138, 90, 22, 0.09), rgba(255, 255, 255, 0.64)),
+    var(--soft-surface);
+  color: var(--ink);
+  text-align: center;
+}
+.example-matrix-diagnostic strong {
+  display: block;
+  color: var(--warn);
+  font-size: 12px;
+  line-height: 1.2;
+}
+.example-matrix-diagnostic span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.3;
+}
 .example-matrix-cell-copy {
   display: grid;
   gap: 4px;
@@ -3730,6 +3756,20 @@ pre {
   font-size: 12px;
   font-weight: 750;
 }
+.report-context-cell-diagnostic {
+  align-content: center;
+  min-height: 168px;
+  border-style: dashed;
+  background: #fff8eb;
+}
+.report-context-cell-diagnostic strong {
+  color: var(--warn);
+  font-size: 13px;
+}
+.report-context-cell-diagnostic code {
+  overflow-wrap: anywhere;
+  font-size: 11px;
+}
 .report-run-links {
   display: flex;
   flex-wrap: wrap;
@@ -4082,51 +4122,19 @@ async function buildValueEvidenceLinks() {
       href: "/evals/judgmentkit-mcp/",
     },
   ];
-  const mcpPilotCatalog = await readJsonIfExists("evals/reports/mcp-pilot/index.json");
-  const latestPilotRun = mcpPilotCatalog?.latest;
 
-  if (latestPilotRun?.html_report) {
+  const evalCatalog = await readJsonIfExists("evals/reports/index.json");
+  if (evalCatalog?.latest?.html_report) {
     links.push({
-      label: "Latest MCP pilot report",
-      href: `/evals/mcp-pilot/${latestPilotRun.html_report}`,
-    });
-  } else {
-    links.push({
-      label: "MCP pilot reports",
-      href: "/evals/mcp-pilot/",
+      label: "Latest committed eval report",
+      href: evalReportPath(evalCatalog.latest.html_report),
     });
   }
 
-  if (latestPilotRun?.run_path) {
-    const latestLlmEvidencePath = path.join(
-      "evals/reports/mcp-pilot",
-      latestPilotRun.run_path,
-      "mcp-pilot-llm-evidence.md",
-    );
-
-    try {
-      await fs.access(path.join(ROOT, latestLlmEvidencePath));
-      links.push({
-        label: "Latest LLM evidence",
-        href: `/evals/mcp-pilot/${latestPilotRun.run_path}/mcp-pilot-llm-evidence.md`,
-      });
-    } catch {
-      // The report is still useful when optional LLM evidence is absent.
-    }
-  }
-
-  const milestoneProofPath =
-    "evals/reports/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-evidence-packet.md";
-
-  try {
-    await fs.access(path.join(ROOT, milestoneProofPath));
-    links.push({
-      label: "Milestone proof packet",
-      href: "/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-evidence-packet.md",
-    });
-  } catch {
-    // Keep the public page buildable even when local proof packets are not present.
-  }
+  links.push({
+    label: "Eval catalog JSON",
+    href: "/evals/index.json",
+  });
 
   links.push({
     label: "One-shot demo",
@@ -4645,7 +4653,7 @@ function designSystemExports(model) {
   return {
     manifest: {
       section: "JudgmentKit Design System",
-      purpose: "Human reference for foundation assets.",
+      purpose: "Active default design-system source for implementation contracts.",
       routes: model.pages.map((pageEntry) => ({
         id: pageEntry.id,
         title: pageEntry.title,
@@ -4760,7 +4768,7 @@ function buildDesignSystemContentModel() {
       heading: "Foundations",
       eyebrow: "Design system",
       summary:
-        "Foundation assets and review contracts for building JudgmentKit interfaces: tokens, typography, icons, components, patterns, and accessibility.",
+        "Active default design-system source and review contracts for building JudgmentKit interfaces: tokens, typography, icons, components, patterns, provenance, and accessibility.",
       sections: ["Foundation assets", "How to review", "Principles"],
       examples: [
         {
@@ -5334,6 +5342,7 @@ function renderDesignSystemOverviewPage(model) {
           ])}
           <section class="design-system-section" aria-labelledby="foundation-assets">
             <h2 id="foundation-assets">Foundation assets</h2>
+            <p class="note">This route is the active design-system source for <code>implementation_contract.design_system_source.mode: "judgmentkit_default"</code>. A complete <code>design_system_adapter</code> can switch the contract to <code>external_design_system</code>; missing authorities do not fall back to JudgmentKit defaults.</p>
             <ul class="design-system-foundation-list">
               ${model.foundation_assets
                 .map(
@@ -5408,7 +5417,7 @@ function renderDesignSystemTokensPage(model) {
           ])}
           <section class="design-system-section" aria-labelledby="usage">
             <h2 id="usage">Usage</h2>
-            <p class="note">Use token roles to describe what a visual choice is doing: separating a surface, marking focus, showing status, identifying risk, or recording completion. The CSS custom properties below are portable defaults for generated interfaces; repo-approved design systems can replace the values after the activity and workflow gates are clear.</p>
+            <p class="note">Use token roles to describe what a visual choice is doing: separating a surface, marking focus, showing status, identifying risk, or recording completion. The CSS custom properties below are portable defaults for generated interfaces. Repo-approved design systems can replace them only through a complete <code>design_system_adapter</code> selected by the implementation contract; incomplete adapters fail instead of falling back to these defaults.</p>
           </section>
           <section class="design-system-section" aria-labelledby="appearance">
             <h2 id="appearance">Appearance</h2>
@@ -6020,6 +6029,8 @@ function renderDesignSystemPageMarkdown(model, pageEntry) {
   if (pageEntry.id === "overview") {
     lines.push(
       "## Foundation Assets",
+      "This route is the active design-system source for `implementation_contract.design_system_source.mode: \"judgmentkit_default\"`. A complete `design_system_adapter` can switch the contract to `external_design_system`; missing authorities do not fall back to JudgmentKit defaults.",
+      "",
       markdownList(
         model.foundation_assets.map((asset) => `${asset.title}: ${asset.summary} (${asset.href})`),
       ),
@@ -6036,7 +6047,7 @@ function renderDesignSystemPageMarkdown(model, pageEntry) {
   if (pageEntry.id === "tokens") {
     lines.push(
       "## Approach",
-      "JudgmentKit uses token roles to name visual intent before choosing brand-specific values. The CSS custom properties are portable defaults for rendering and review; repo-approved design systems can replace them after activity and workflow gates are clear.",
+      "JudgmentKit uses token roles to name visual intent before choosing brand-specific values. The CSS custom properties are portable defaults for rendering and review. Repo-approved design systems can replace them only through a complete `design_system_adapter` selected by the implementation contract; incomplete adapters fail instead of falling back to these defaults.",
       "",
       "## Token Families",
       markdownList(adapter.token_families.map((family) => `\`${family}\``)),
@@ -6199,7 +6210,7 @@ function renderDesignSystemLlms(model) {
   return `${[
     "# JudgmentKit Design System",
     "",
-    "Canonical human reference for JudgmentKit foundation assets.",
+    "Canonical active design-system source for JudgmentKit implementation contracts.",
     "",
     "## Read first",
     "- /design-system/",
@@ -6320,7 +6331,7 @@ async function valuePage() {
         <section class="value-evidence" aria-labelledby="value-evidence-title">
           <p class="eyebrow">Evidence, not the main story</p>
           <h2 id="value-evidence-title">Audit material stays available.</h2>
-          <p>The public value path above is the product story. The reports remain available for people who want the underlying deterministic proof, model matrix, and repair-loop data.</p>
+          <p>The public value path above is the product story. The current hosted MCP release is ${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}; linked reports are curated committed eval artifacts for deterministic proof, model matrix, and repair-loop data. Older pilot packets remain historical source material in the repository, not public latest-release evidence.</p>
           <div class="link-row">
             ${renderValueEvidenceLinks(evidenceLinks)}
           </div>
@@ -6344,7 +6355,11 @@ const DOCS_SECTION_ITEMS = [
   { href: "#system-map", label: "System Map" },
   { href: "#activity-review", label: "Activity Review" },
   { href: "#workflow-review", label: "Workflow Review" },
+  { href: "#cognitive-dimensions", label: "Cognitive Dimensions" },
+  { href: "#surface-type", label: "Surface Type" },
   { href: "#handoff", label: "Handoff" },
+  { href: "#implementation-contract", label: "Implementation Contract" },
+  { href: "#frontend-context", label: "Frontend Context" },
   { href: "#profiles", label: "Profiles" },
 ];
 
@@ -6383,7 +6398,7 @@ curl -fsSL https://judgmentkit.ai/install | bash -s -- --client cursor</code></p
 examples/ai-native-design-system/canonical-examples.json</code></pre>
             <p><strong>Loop:</strong> create the implementation contract, review the failing candidate, read <code>next_agent_action</code> and grouped <code>repair_instructions</code>, repair the candidate, then resubmit and expect <code>accept</code>.</p>
             <p><strong>Canonical cases:</strong> setup/onboarding, operational dashboard, and high-stakes review/refund workflow. Each case includes the activity model, implementation contract input, failing candidate, repaired candidate, and proof expectation.</p>
-            <p><strong>Renderer boundary:</strong> <code>visual_token_adapter</code> remains boundary-only metadata for semantic tokens, portable system font stacks, and Lucide icon catalog policy. The default renderer/component package starts only after the first-use loop and asset boundary stay stable.</p>
+            <p><strong>Renderer boundary:</strong> the runtime renderer/component package can remain deferred, but <code>implementation_contract.design_system_source</code>, <code>implementation_contract.local_component_authority</code>, <code>implementation_contract.visual_token_adapter</code>, and <code>implementation_contract.default_ai_native_design_system</code> are active implementation contract authorities. A complete <code>design_system_adapter</code> can select <code>external_design_system</code>; missing authorities fail instead of falling back to JudgmentKit defaults.</p>
           </section>
           <section class="doc-section" id="planning-examples">
             <h2>Planning Mode Examples</h2>
@@ -6419,8 +6434,8 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
               <p><strong>LLM / provider seam:</strong> a model may propose activity or workflow candidates, but JudgmentKit reviews those candidates before trusting them.</p>
               <p><strong>Surface type:</strong> <code>recommend_surface_types</code> classifies activity purpose as marketing, workbench, operator review, form flow, dashboard monitor, content/report, setup/debug tool, or conversation before frontend implementation guidance.</p>
               <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
-              <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies approved primitives, required states, static checks, browser QA expectations, visual asset policy, and accessibility evidence expectations before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract.</p>
-              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions, semantic token roles, system font stacks, and Lucide icon catalog policy without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
+              <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies <code>implementation_contract.design_system_source</code>, <code>implementation_contract.local_component_authority</code>, <code>implementation_contract.visual_token_adapter</code>, <code>implementation_contract.default_ai_native_design_system</code>, approved primitives, required states, static checks, browser QA expectations, <code>implementation_contract.visual_asset_policy</code>, and <code>implementation_contract.accessibility_policy</code> before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract and marks failed design-system candidates as repair-only diagnostics, not accepted artifacts.</p>
+              <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions, semantic token roles, system font stacks, Lucide icon catalog policy, design-system provenance expectations, and local component authority without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
               <p><strong>Iteration:</strong> draft review produces updated context that re-enters source/activity review rather than becoming only a longer prompt.</p>
             </div>
             <p class="system-branch"><strong>Blocked path:</strong> if activity, workflow, or handoff is not ready, resolve targeted questions or leakage details before generating UI.</p>
@@ -6447,7 +6462,7 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
           </section>
           <section class="doc-section" id="implementation-contract">
             <h2>Implementation Contract</h2>
-            <p>Call <code>create_ui_implementation_contract</code> before final handoff so generated UI has approved primitives, state coverage, static checks, browser QA expectations, visual asset policy, and accessibility policy. Call <code>review_ui_implementation_candidate</code> before accepting generated UI code or evidence. Visual-heavy pages need browser-rendered contrast/readability evidence for text over images, canvas, WebGL, video, gradients, or generated visuals.</p>
+            <p>Call <code>create_ui_implementation_contract</code> before final handoff so generated UI has approved primitives, state coverage, <code>implementation_contract.design_system_source</code>, <code>implementation_contract.local_component_authority</code>, <code>implementation_contract.visual_token_adapter</code>, <code>implementation_contract.default_ai_native_design_system</code>, static checks, browser QA expectations, <code>implementation_contract.visual_asset_policy</code>, and <code>implementation_contract.accessibility_policy</code>. Call <code>review_ui_implementation_candidate</code> before accepting generated UI code or evidence. Visual-heavy pages need browser-rendered contrast/readability evidence for text over images, canvas, WebGL, video, gradients, or generated visuals.</p>
           </section>
           <section class="doc-section" id="frontend-context">
             <h2>Frontend Context</h2>
@@ -6483,7 +6498,7 @@ const MODEL_UI_EXAMPLE = {
   id: "model-ui-system-map",
   title: "Model UI generation matrix",
   description:
-    "Four 3x4 comparisons across fixture-rendered baseline, Gemma 4 (local LLM), and GPT-5.5 xhigh paths, separating raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill plus Material UI.",
+    "Four matrix comparisons across fixture-rendered baseline, Gemma 4 (local LLM), and GPT-5.5 xhigh paths, separating raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill plus Material UI. Each use case shows accepted snapshots plus diagnostic-only failed-candidate cells.",
   actions: [],
 };
 
@@ -6538,16 +6553,44 @@ function buildModelUiGalleryItems(manifest) {
   }));
 }
 
-function buildModelUiComparisonRows(manifest, galleryItems) {
+function buildModelUiDiagnosticItems(manifest) {
+  const useCaseLabel = manifest?.use_case_label ?? "Support refund triage";
+  return (manifest?.diagnostic_candidates ?? []).map((candidate) => ({
+    id: candidate.id,
+    isDiagnostic: true,
+    useCaseId: manifest?.use_case_id ?? "refund-system-map",
+    useCaseLabel,
+    title: candidate.approach_title ?? candidate.title,
+    caption: candidate.approach_caption ?? "",
+    modelLabel: candidate.row_label ?? candidate.model_label ?? candidate.title,
+    rowLabel: `${useCaseLabel} / ${candidate.row_label ?? candidate.model_label ?? candidate.title}`,
+    columnLabel: candidate.column_label ?? "",
+    renderLabel: "Diagnostic only",
+    renderSource: candidate.render_source ?? candidate.visible_render_source ?? "",
+    promptContext: candidate.context_summary ?? "",
+    provenance: galleryProvenanceLabel(candidate),
+    nextAgentAction: candidate.next_agent_action ?? "repair_and_resubmit",
+    failedChecks: candidate.failed_checks ?? [],
+    status: candidate.release_evidence_status ?? "diagnostic_only",
+    captureHref: candidate.capture_file ? modelUiExampleHref(manifest, candidate.capture_file) : "",
+  }));
+}
+
+function buildModelUiComparisonRows(manifest, galleryItems, diagnosticItems = []) {
   const itemsById = new Map(galleryItems.map((item) => [item.id, item]));
+  const diagnosticsById = new Map(diagnosticItems.map((item) => [item.id, item]));
 
   return (manifest?.comparison_rows ?? []).map((row) => ({
     id: row.id,
     title: row.label,
     summary: row.summary,
     items: (row.cells ?? [])
-      .filter((cell) => cell.release_evidence_status === "artifact")
-      .map((cell) => itemsById.get(cell.artifact_id))
+      .map((cell) => {
+        if (cell.release_evidence_status === "diagnostic_only") {
+          return diagnosticsById.get(cell.diagnostic_candidate_id);
+        }
+        return itemsById.get(cell.artifact_id);
+      })
       .filter(Boolean),
   })).filter((row) => row.items.length);
 }
@@ -6562,13 +6605,17 @@ function buildModelUiUseCases(modelUiIndex, manifests) {
       const manifest = manifestById.get(useCase.id);
       if (!manifest) return null;
       const galleryItems = buildModelUiGalleryItems(manifest);
+      const diagnosticItems = buildModelUiDiagnosticItems(manifest);
       return {
         ...useCase,
         manifestHref: `/${useCase.manifest_path}`,
         indexHref: `/${useCase.index_path}`,
         activitySummary: manifest.activity_summary ?? useCase.activity_summary,
+        acceptedCount: manifest.artifacts?.length ?? 0,
+        diagnosticCount: manifest.diagnostic_candidates?.length ?? 0,
         galleryItems,
-        comparisonRows: buildModelUiComparisonRows(manifest, galleryItems),
+        diagnosticItems,
+        comparisonRows: buildModelUiComparisonRows(manifest, galleryItems, diagnosticItems),
       };
     })
     .filter(Boolean);
@@ -6607,6 +6654,24 @@ function renderExampleGalleryCard(item, index) {
 }
 
 function renderExampleMatrixCell(item) {
+  if (item.isDiagnostic) {
+    const failedChecks = (item.failedChecks ?? []).join(", ") || "implementation review";
+    return `
+        <article class="example-matrix-cell example-matrix-cell-diagnostic" role="cell" data-diagnostic-candidate="${escapeHtml(item.id)}">
+          <div class="example-matrix-diagnostic" aria-label="Diagnostic only candidate for ${escapeHtml(item.title)}">
+            <strong>Diagnostic only</strong>
+            <span>Failed candidate, not release evidence.</span>
+          </div>
+          <div class="example-matrix-cell-copy">
+            <p class="eyebrow">${escapeHtml(item.renderLabel)}</p>
+            <h4>${escapeHtml(item.title)}</h4>
+            <p class="note">${escapeHtml(item.columnLabel)}</p>
+            <p class="note">Next action: <code>${escapeHtml(item.nextAgentAction)}</code></p>
+            <p class="note">Failed checks: ${escapeHtml(failedChecks)}</p>
+          </div>
+        </article>`;
+  }
+
   return `
         <article class="example-matrix-cell" role="cell">
           <a class="example-matrix-thumb" href="${escapeHtml(item.artifactHref)}" data-gallery-open="${item.index}" aria-label="Open gallery view for ${escapeHtml(item.title)}">
@@ -6693,7 +6758,7 @@ function renderModelUiGalleryPreview(example) {
         <section class="model-ui-use-case-panel" data-use-case-panel="${escapeHtml(useCase.id)}" ${index === 0 ? "" : "hidden"}>
           <div class="example-gallery-intro">
             <h3>${escapeHtml(useCase.label)} 3x4 matrix</h3>
-            <p>${escapeHtml(useCase.activitySummary)} Columns separate Raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill + Material UI.</p>
+            <p>${escapeHtml(useCase.activitySummary)} Columns separate Raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill + Material UI. This use case currently shows ${escapeHtml(useCase.acceptedCount ?? 0)} accepted snapshots plus ${escapeHtml(useCase.diagnosticCount ?? 0)} diagnostic-only failed-candidate cells; diagnostic cells are not artifact links or release evidence.</p>
           </div>
           ${matrix}
         </section>`;
@@ -6725,6 +6790,7 @@ function buildModelUiExample(modelUiIndex, modelUiManifests) {
     useCase.comparisonRows = buildModelUiComparisonRows(
       modelUiManifests.find((manifest) => manifest?.use_case_id === useCase.id),
       useCase.galleryItems,
+      useCase.diagnosticItems,
     );
   }
   const modelUiGalleryItems = modelUiUseCases.flatMap((useCase) => useCase.galleryItems);
@@ -7039,7 +7105,7 @@ async function examplesPage() {
             </article>
             <article>
               <h3>Renderer boundary</h3>
-              <p>Tokens, system font stacks, and Lucide icon catalog policy remain governed metadata. They cannot bypass primitives, states, action boundaries, data visibility, accessibility, static checks, or browser QA.</p>
+              <p>The active design-system source supplies token roles, system font stacks, Lucide icon catalog policy, component contracts, and provenance expectations. Those authorities cannot bypass primitives, states, action boundaries, data visibility, accessibility, static checks, or browser QA.</p>
             </article>
             <article>
               <h3>Lucide icon smoke proof</h3>
@@ -7337,6 +7403,18 @@ function modelMatrixArtifactByColumn(row, columnId) {
   return (row?.artifacts ?? []).find((artifact) => artifact.column_id === columnId) ?? null;
 }
 
+function modelMatrixDiagnosticByColumn(manifest, row, columnId) {
+  const diagnosticCandidateId = (row?.cells ?? []).find(
+    (cell) => cell.column_id === columnId && cell.release_evidence_status === "diagnostic_only",
+  )?.diagnostic_candidate_id;
+
+  if (!diagnosticCandidateId) return null;
+
+  return (manifest?.diagnostic_candidates ?? []).find(
+    (candidate) => candidate.id === diagnosticCandidateId,
+  ) ?? null;
+}
+
 function renderContextBoundaryMatrix(manifest) {
   if (!manifest) {
     return `<p class="note">Model matrix evidence is unavailable in this checkout.</p>`;
@@ -7363,6 +7441,16 @@ function renderContextBoundaryMatrix(manifest) {
         ${columns
           .map((column) => {
             const artifact = modelMatrixArtifactByColumn(row, column.id);
+            const diagnostic = modelMatrixDiagnosticByColumn(manifest, row, column.id);
+            if (diagnostic) {
+              return `
+        <div class="report-context-cell report-context-cell-diagnostic" role="cell" data-diagnostic-candidate="${escapeHtml(diagnostic.id)}">
+          <strong>Diagnostic only</strong>
+          <span>${escapeHtml(diagnostic.approach_title ?? diagnostic.title)}</span>
+          <span>Next action: <code>${escapeHtml(diagnostic.next_agent_action ?? "repair_and_resubmit")}</code></span>
+          <span>Failed checks: ${escapeHtml((diagnostic.failed_checks ?? []).join(", ") || "implementation review")}</span>
+        </div>`;
+            }
             if (!artifact) return `<div class="report-context-cell" role="cell"></div>`;
             const artifactHref = `${baseHref}/${artifact.artifact_path}`;
             const screenshotHref = `${baseHref}/${artifact.screenshot_path}`;
@@ -7503,12 +7591,13 @@ async function judgmentKitMcpReportPage() {
           </section>
           <section id="how-the-evaluation-works">
             <h2>How the evaluation works</h2>
-            <p>The committed paired eval compares raw baseline artifacts with JudgmentKit-guided artifacts for the same UI tasks. Scores use a 0-100 weighted total with 0-5 metric scores underneath.</p>
+            <p>The committed paired eval compares raw baseline artifacts with JudgmentKit-guided artifacts for the same UI tasks. Scores use a 0-100 weighted total with 0-5 metric scores underneath. Current hosted MCP release: <strong>${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}</strong>. Historical eval MCP release: <strong>${escapeHtml(latest?.mcp_release ?? "pending")}</strong>.</p>
             <p>${escapeHtml(benchmarkPolicy)}</p>
             <p>Desktop and mobile screenshots are captured as visual evidence for review. The screenshots support inspection, but the scoring source is the committed artifact text and deterministic rubric.</p>
             <dl class="report-summary" aria-label="Latest JudgmentKit MCP report summary">
-              ${renderMetricCard("Latest run", latest ? evalRunTitle(latest) : "pending")}
-              ${renderMetricCard("MCP release", latest?.mcp_release ?? "pending")}
+              ${renderMetricCard("Latest committed eval run", latest ? evalRunTitle(latest) : "pending")}
+              ${renderMetricCard("Current hosted MCP release", JUDGMENTKIT_PACKAGE_VERSION)}
+              ${renderMetricCard("Historical eval MCP release", latest?.mcp_release ?? "pending")}
               ${renderMetricCard("Cases", cases)}
               ${renderMetricCard("Pass rate", passRate)}
               ${renderMetricCard("Guided wins", summary.guided_wins ?? 0)}
@@ -7541,8 +7630,8 @@ async function judgmentKitMcpReportPage() {
             <h2>Run data</h2>
             <p>Implementation details are listed here for audit and reproduction rather than used as primary product language above.</p>
             <div class="report-run-links">
-              <a class="pill-link" href="/evals/${escapeHtml(latest.html_report)}">Latest HTML report</a>
-              <a class="pill-link" href="/evals/${escapeHtml(latest.json_report)}">Latest JSON report</a>
+              <a class="pill-link" href="/evals/${escapeHtml(latest.html_report)}">Latest committed HTML report</a>
+              <a class="pill-link" href="/evals/${escapeHtml(latest.json_report)}">Latest committed JSON report</a>
               <a class="pill-link" href="/evals/index.json">Eval catalog JSON</a>
               <a class="pill-link" href="/examples/model-ui/index.json">Model matrix index JSON</a>
             </div>
@@ -7746,10 +7835,12 @@ async function evalsPage() {
       <div class="evals-header">
         <p class="eyebrow">Evaluation evidence</p>
         <h1>Evals</h1>
-        <p class="lede">Immutable UI generation eval runs compare raw generated interfaces with JudgmentKit-guided handoff outputs. Use these reports as evidence, not as broad benchmark claims.</p>
+        <p class="lede">Immutable UI generation eval runs compare raw generated interfaces with JudgmentKit-guided handoff outputs. Use these reports as historical committed evidence, not as broad benchmark claims or as the current hosted MCP version.</p>
       </div>
       <dl class="evals-summary" aria-label="Latest eval run summary">
-        <div class="evals-summary-primary"><dt>Latest run</dt><dd>${escapeHtml(evalRunTitle(latest))}</dd></div>
+        <div class="evals-summary-primary"><dt>Latest committed eval run</dt><dd>${escapeHtml(evalRunTitle(latest))}</dd></div>
+        <div><dt>Current hosted MCP release</dt><dd>${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}</dd></div>
+        <div><dt>Historical MCP release</dt><dd>${escapeHtml(latest.mcp_release)}</dd></div>
         <div><dt>Claim level</dt><dd>${escapeHtml(latest.claim_level)}</dd></div>
         <div><dt>Result</dt><dd>${escapeHtml(latest.summary.passed)}/${escapeHtml(latest.summary.cases)} passed</dd></div>
         <div><dt>Guided wins</dt><dd>${escapeHtml(latest.summary.guided_wins)}</dd></div>
@@ -7758,8 +7849,8 @@ async function evalsPage() {
       <div class="evals-actions" aria-label="Eval report links">
         <a class="pill-link" href="/evals/judgmentkit-mcp/">JudgmentKit MCP report</a>
         <a class="pill-link" href="/evals/site-rebuild-log/">Site rebuild log</a>
-        <a class="pill-link" href="${escapeHtml(evalReportPath(latest.html_report))}">Latest HTML report</a>
-        <a class="pill-link" href="${escapeHtml(evalReportPath(latest.json_report))}">Latest JSON report</a>
+        <a class="pill-link" href="${escapeHtml(evalReportPath(latest.html_report))}">Latest committed HTML report</a>
+        <a class="pill-link" href="${escapeHtml(evalReportPath(latest.json_report))}">Latest committed JSON report</a>
         <a class="pill-link" href="/evals/index.json">Catalog JSON</a>
       </div>
       <section>
@@ -7769,7 +7860,7 @@ async function evalsPage() {
             <thead>
               <tr>
                 <th scope="col">Date</th>
-                <th scope="col">MCP release</th>
+                <th scope="col">Historical MCP release</th>
                 <th scope="col">Run</th>
                 <th scope="col">Claim level</th>
                 <th scope="col">Result</th>
@@ -7873,6 +7964,24 @@ async function copyDirectoryIfExists(fromRelative, toPath) {
     }
 
     await copyIfExists(childFromRelative, childToPath);
+  }
+}
+
+async function copyPublicEvalReports(outDir) {
+  const catalog = await readJsonIfExists("evals/reports/index.json");
+  await copyIfExists("evals/reports/index.json", path.join(outDir, "evals", "index.json"));
+
+  const runPaths = new Set(
+    (catalog?.runs ?? [])
+      .map((run) => run.run_path)
+      .filter((runPath) => runPath && !path.isAbsolute(runPath) && !runPath.split(/[\\/]/).includes("..")),
+  );
+
+  for (const runPath of runPaths) {
+    await copyDirectoryIfExists(
+      path.join("evals/reports", runPath),
+      path.join(outDir, "evals", runPath),
+    );
   }
 }
 
@@ -8014,8 +8123,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await copyIfExists("examples/lucide-icon-catalog-smoke.html", path.join(outDir, "examples", "lucide-icon-catalog-smoke.html"));
   await copyDirectoryIfExists("examples/er-flow-dashboard", path.join(outDir, "examples", "er-flow-dashboard"));
   await copyDirectoryIfExists("examples/ai-native-design-system", path.join(outDir, "examples", "ai-native-design-system"));
-  await copyDirectoryIfExists("evals/reports", path.join(outDir, "evals"));
-  await copyDirectoryIfExists("evals/reports", path.join(outDir, "examples", "evals"));
+  await copyPublicEvalReports(outDir);
   await fs.writeFile(path.join(outDir, "evals", "index.html"), await evalsPage());
   await fs.writeFile(
     path.join(outDir, "evals", "judgmentkit-mcp", "index.html"),

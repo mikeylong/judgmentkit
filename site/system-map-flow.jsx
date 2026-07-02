@@ -260,7 +260,7 @@ const nodes = [
     position: { x: 1240, y: 640 },
     data: {
       title: "Renderer choice after reviewed handoff",
-      lines: ["JudgmentKit does not enforce", "Material UI or any design system."],
+      lines: ["Renderer may vary; active", "design-system provenance is required."],
       tone: "output",
     },
     className: "rf-map-wrapper",
@@ -268,12 +268,12 @@ const nodes = [
     zIndex: 2,
   }),
   withBaseNode({
-    id: "material-ui-adapter",
+    id: "external-design-system-adapter",
     type: "mapNode",
     position: { x: 1240, y: 774 },
     data: {
-      title: "Material UI adapter",
-      lines: ["@mui/material components", "applied after judgment."],
+      title: "External adapter",
+      lines: ["Complete tokens, components,", "patterns, and provenance."],
       tone: "output",
     },
     className: "rf-map-wrapper",
@@ -281,12 +281,12 @@ const nodes = [
     zIndex: 2,
   }),
   withBaseNode({
-    id: "without-design-system",
+    id: "judgmentkit-default-source",
     type: "mapNode",
     position: { x: 1470, y: 774 },
     data: {
-      title: "without design system",
-      lines: ["Still use the handoff;", "choose simple UI primitives."],
+      title: "JudgmentKit default source",
+      lines: ["Use /design-system/ exports;", "failed adapters do not fall back."],
       tone: "output",
     },
     className: "rf-map-wrapper",
@@ -429,24 +429,24 @@ const edges = [
     stroke: "var(--rf-map-edge-output)",
     strokeWidth: 3,
   }),
-  edge("renderer-to-material", "renderer-choice", "material-ui-adapter", {
+  edge("renderer-to-external-adapter", "renderer-choice", "external-design-system-adapter", {
     sourceHandle: "bottom-source",
     targetHandle: "top-target",
-    label: "with design system",
+    label: "external adapter",
     stroke: "var(--rf-map-edge-output)",
   }),
-  edge("renderer-to-without-design", "renderer-choice", "without-design-system", {
+  edge("renderer-to-default-source", "renderer-choice", "judgmentkit-default-source", {
     sourceHandle: "bottom-source",
     targetHandle: "top-target",
-    label: "without design system",
+    label: "default source",
     stroke: "var(--rf-map-edge-output)",
   }),
-  edge("material-to-draft", "material-ui-adapter", "ui-draft", {
+  edge("external-adapter-to-draft", "external-design-system-adapter", "ui-draft", {
     sourceHandle: "bottom-source",
     targetHandle: "top-target",
     stroke: "var(--rf-map-edge-output)",
   }),
-  edge("without-design-to-draft", "without-design-system", "ui-draft", {
+  edge("default-source-to-draft", "judgmentkit-default-source", "ui-draft", {
     sourceHandle: "bottom-source",
     targetHandle: "top-target",
     stroke: "var(--rf-map-edge-output)",

@@ -7,6 +7,8 @@ This comparison uses two static pages inspired by a familiar search-home pattern
 
 The product UI in both pages uses generic Findly branding. JudgmentKit and MCP terms appear only in this evaluation artifact.
 
+Historical note: this is saved comparison evidence from an earlier accessibility-focused MCP pass. It is useful for reviewing the shape of the accessibility checks, but it is not current release acceptance proof for JudgmentKit MCP 0.6.5 or for the active design-system provenance gate.
+
 ## Evaluation Criteria
 
 Both pages were evaluated against the same WCAG 2.2 AA and JudgmentKit accessibility evidence categories:

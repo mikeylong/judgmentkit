@@ -1366,34 +1366,7 @@
       "summary": "Reviewed handoff plus compiled frontend skill context rendered through Material UI."
     }
   ],
-  "legacy_aliases": [
-    {
-      "id": "deterministic-without-design-system",
-      "canonical_id": "deterministic-with-judgmentkit",
-      "artifact_path": "artifacts/deterministic-without-design-system.html",
-      "screenshot_path": "screenshots/deterministic-without-design-system.png"
-    },
-    {
-      "id": "deterministic-with-design-system",
-      "canonical_id": "deterministic-judgmentkit-material-ui",
-      "artifact_path": "artifacts/deterministic-with-design-system.html",
-      "screenshot_path": "screenshots/deterministic-with-design-system.png"
-    },
-    {
-      "id": "gemma4-with-design-system",
-      "canonical_id": "gemma4-lms-judgmentkit-material-ui",
-      "artifact_path": "artifacts/gemma4-with-design-system.html",
-      "screenshot_path": "screenshots/gemma4-with-design-system.png",
-      "capture_file": "captures/gemma4-with-design-system.json"
-    },
-    {
-      "id": "gpt55-with-design-system",
-      "canonical_id": "gpt55-xhigh-codex-judgmentkit-material-ui",
-      "artifact_path": "artifacts/gpt55-with-design-system.html",
-      "screenshot_path": "screenshots/gpt55-with-design-system.png",
-      "capture_file": "captures/gpt55-with-design-system.json"
-    }
-  ],
+  "legacy_aliases": [],
   "model_labels": [
     "Scripted fixture renderer",
     "Gemma 4 (local LLM)",
