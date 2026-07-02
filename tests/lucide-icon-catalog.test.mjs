@@ -99,11 +99,25 @@ const unsupportedIconReview = reviewUiImplementationCandidate(
       focus_order: { status: "pass", method: "test" },
       focus_visible: { status: "pass", method: "test" },
       responsive_no_overflow: { status: "pass", method: "test" },
+      non_text_contrast: { status: "pass", method: "test" },
+      semantic_fallbacks: { status: "pass", method: "test" },
     },
     visual_token_evidence: {
       token_families: ["color"],
       icon_roles: ["status"],
       selected_icons: ["not-a-real-lucide-icon"],
+    },
+    design_system_provenance: {
+      source: "judgmentkit_default",
+      token_source: "/design-system/visual-token-adapter.json",
+      typography_source: "/design-system/visual-token-adapter.json",
+      icon_source: "JudgmentKit icon catalog via get_icon_svg",
+      renderer_component_source:
+        "implementation_contract.default_ai_native_design_system.component_contracts",
+      import_boundary:
+        "No visual, typography, icon, or component package imports outside the active design-system source.",
+      token_prefix_source: "implementation_contract.design_system_source.token_prefixes",
+      source_exports: "implementation_contract.design_system_source.source_exports",
     },
   },
   { implementation_contract: implementationContract.implementation_contract },

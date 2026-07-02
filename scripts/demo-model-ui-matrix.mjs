@@ -38,8 +38,13 @@ import {
   reviewUiWorkflowCandidate,
 } from "../src/index.mjs";
 import {
+  analyzeStaticCaptureQuality,
+  validateParsed,
+} from "./capture-model-ui-matrix.mjs";
+import {
   COMPARISON_COLUMNS,
   COMPARISON_ROWS,
+  JUDGMENTKIT_DEFAULT_CSS_CUSTOM_PROPERTIES,
   LEGACY_ALIASES,
   MODEL_UI_INDEX_FILE,
   MODEL_UI_USE_CASES,
@@ -167,6 +172,10 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function jsonForScript(value) {
@@ -765,15 +774,66 @@ function addClassToPrimaryRoot(html, className) {
   const value = stripUnsafeModelHtml(html).trim();
   if (/^<main\b/i.test(value)) {
     const openTag = value.slice(0, value.indexOf(">") + 1);
-    if (/\bclass="/i.test(openTag)) {
-      return value.replace(/\bclass="([^"]*)"/i, (_match, classes) =>
-        `class="${escapeHtml(`${classes} ${className}`.trim())}"`,
+    if (/\bclass\s*=\s*['"]/i.test(openTag)) {
+      return value.replace(/\bclass\s*=\s*(['"])(.*?)\1/i, (_match, quote, classes) =>
+        `class=${quote}${escapeHtml(`${classes} ${className}`.trim())}${quote}`,
       );
     }
     return value.replace(/^<main\b/i, `<main class="${escapeHtml(className)}"`);
   }
 
   return `<main class="app-shell ${escapeHtml(className)}" data-primary-surface>${value}</main>`;
+}
+
+function outputAsCaptureTarget(output) {
+  return {
+    ...output,
+    artifact_id: output.artifact_id ?? output.id,
+  };
+}
+
+function validationFailedChecks(error, quality) {
+  const text = `${error?.message ?? ""} ${(quality?.failures ?? []).join(" ")}`.toLowerCase();
+  const checks = [];
+
+  if (/token|visual|literal|style|color|design-system|design system/.test(text)) {
+    checks.push("visual_tokens");
+  }
+  if (/quality|css|html|static|surface|capture/.test(text)) {
+    checks.push("static_capture_quality");
+  }
+
+  return checks.length > 0 ? [...new Set(checks)] : ["capture_validation"];
+}
+
+function currentCaptureValidation(capture, output) {
+  if (!capture) return null;
+
+  try {
+    validateParsed(capture.parsed, outputAsCaptureTarget(output));
+    return {
+      status: "passed",
+      failed_checks: [],
+      message: null,
+    };
+  } catch (error) {
+    let quality = error.capture_quality ?? null;
+
+    if (!quality) {
+      try {
+        quality = analyzeStaticCaptureQuality(capture.parsed, outputAsCaptureTarget(output));
+      } catch {
+        quality = null;
+      }
+    }
+
+    return {
+      status: "failed",
+      failed_checks: validationFailedChecks(error, quality),
+      message: error.message,
+      capture_quality: quality,
+    };
+  }
 }
 
 async function readCapture(output, contextHash, options = {}) {
@@ -791,13 +851,18 @@ async function readCapture(output, contextHash, options = {}) {
     }
     if (!options.ignoreContextHash && capture.source_context_sha256 !== contextHash) return null;
 
-    return {
+    const sanitizedCapture = {
       ...capture,
       parsed: {
         ...capture.parsed,
         html: capture.parsed?.html ? stripUnsafeModelHtml(capture.parsed.html) : undefined,
         css: capture.parsed?.css ? sanitizeModelCss(capture.parsed.css) : undefined,
       },
+    };
+
+    return {
+      ...sanitizedCapture,
+      current_validation: currentCaptureValidation(sanitizedCapture, output),
     };
   } catch (error) {
     if (error.code === "ENOENT") return null;
@@ -1405,7 +1470,10 @@ function renderModelHtmlSurface(output) {
   return {
     html: addClassToPrimaryRoot(output.capture.parsed.html, "raw-model-candidate"),
     styleTags: "",
-    modelCss: output.capture.parsed.css ?? "",
+    modelCss: normalizeJudgmentKitDefaultModelCss(
+      output,
+      output.capture.parsed.css ?? "",
+    ),
   };
 }
 
@@ -1424,7 +1492,315 @@ function renderArtifactSurface(output) {
   };
 }
 
-function artifactCss() {
+const JUDGMENTKIT_LOCAL_TOKEN_MAP = new Map([
+  ["--bg", "--jk-color-canvas"],
+  ["--canvas", "--jk-color-canvas"],
+  ["--panel", "--jk-color-surface"],
+  ["--surface", "--jk-color-surface"],
+  ["--surface-strong", "--jk-color-surface"],
+  ["--ink", "--jk-color-text"],
+  ["--text", "--jk-color-text"],
+  ["--muted", "--jk-color-muted"],
+  ["--line", "--jk-color-border"],
+  ["--line-strong", "--jk-color-border"],
+  ["--border", "--jk-color-border"],
+  ["--accent", "--jk-color-focus"],
+  ["--accent-strong", "--jk-color-receipt"],
+  ["--accent-soft", "--jk-color-focus"],
+  ["--warn", "--jk-color-warning"],
+  ["--warn-soft", "--jk-color-warning"],
+  ["--warning", "--jk-color-warning"],
+  ["--danger", "--jk-color-risk"],
+  ["--danger-soft", "--jk-color-risk"],
+  ["--risk", "--jk-color-risk"],
+  ["--success", "--jk-color-success"],
+  ["--good", "--jk-color-success"],
+  ["--good-soft", "--jk-color-success"],
+  ["--shadow", "--jk-focus-ring"],
+]);
+
+function usesJudgmentKitDefaultTokens(output) {
+  return (
+    output?.judgmentkit_mode === "with_judgmentkit" &&
+    output?.design_system_mode === "none"
+  );
+}
+
+function judgmentKitTokenDefinitionsCss() {
+  return JUDGMENTKIT_DEFAULT_CSS_CUSTOM_PROPERTIES
+    .map(([name, value]) => `      ${name}: ${value};`)
+    .join("\n");
+}
+
+function normalizeJudgmentKitDefaultModelCss(output, css) {
+  if (!usesJudgmentKitDefaultTokens(output)) {
+    return css;
+  }
+
+  let normalized = String(css ?? "");
+
+  for (const [localName, jkName] of JUDGMENTKIT_LOCAL_TOKEN_MAP) {
+    const escaped = escapeRegExp(localName);
+    normalized = normalized
+      .replace(new RegExp(`${escaped}\\s*:[^;{}]+;?`, "gi"), "")
+      .replace(new RegExp(`var\\(\\s*${escaped}\\s*\\)`, "gi"), `var(${jkName})`);
+  }
+
+  normalized = normalized.replace(/--jk-[a-z0-9-]+\s*:[^;{}]+;?/gi, "");
+
+  return `${normalized}
+    .raw-model-candidate {
+      background: var(--jk-color-canvas) !important;
+      color: var(--jk-color-text) !important;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    }
+    .raw-model-candidate :is(section, article, aside, header, footer, .panel, .card, [class*="panel"], [class*="card"], [class*="queue"], [class*="detail"]) {
+      border-color: var(--jk-color-border) !important;
+      background-color: var(--jk-color-surface) !important;
+    }
+    .raw-model-candidate :is(p, small, span, li, dd) {
+      color: var(--jk-color-muted);
+    }
+    .raw-model-candidate :is(h1, h2, h3, h4, strong, dt) {
+      color: var(--jk-color-text);
+    }
+    .raw-model-candidate button {
+      border-color: var(--jk-color-border) !important;
+      border-radius: var(--jk-radius-control) !important;
+      background: var(--jk-color-surface) !important;
+      color: var(--jk-color-text) !important;
+    }
+    .raw-model-candidate .primary {
+      border-color: var(--jk-color-focus) !important;
+      background: var(--jk-color-focus) !important;
+      color: var(--jk-color-surface) !important;
+    }`;
+}
+
+function artifactCss(output) {
+  if (usesJudgmentKitDefaultTokens(output)) {
+    return `
+    :root {
+${judgmentKitTokenDefinitionsCss()}
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--jk-color-canvas);
+      color: var(--jk-color-text);
+      font: 15px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .raw-model-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--jk-color-canvas);
+    }
+    .raw-model-candidate > section,
+    .raw-model-candidate .card,
+    .raw-model-candidate .panel {
+      margin-top: 14px;
+      padding: var(--jk-space-4);
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: var(--jk-color-surface);
+    }
+    .raw-model-candidate ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--jk-color-muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--jk-color-receipt);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .app-shell .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+      color: var(--jk-color-receipt);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: color-mix(in srgb, var(--jk-color-warning) 12%, var(--jk-color-surface));
+      color: var(--jk-color-warning);
+    }
+    .app-shell .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: var(--jk-color-surface);
+    }
+    .app-shell .queue,
+    .app-shell .detail {
+      padding: var(--jk-space-4);
+    }
+    .app-shell .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .app-shell .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: var(--jk-color-surface);
+      color: var(--jk-color-text);
+      text-align: left;
+    }
+    .app-shell .queue-item small {
+      color: var(--jk-color-muted);
+    }
+    .app-shell .queue-item.is-selected {
+      border-color: var(--jk-color-focus);
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+    }
+    .app-shell .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .app-shell .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
+      padding: 14px;
+    }
+    .app-shell .info-grid > div {
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: color-mix(in srgb, var(--jk-color-canvas) 75%, var(--jk-color-surface));
+    }
+    .app-shell .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--jk-color-muted);
+      font-size: 13px;
+    }
+    .app-shell .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .app-shell .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .app-shell .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: 999px;
+      color: var(--jk-color-receipt);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .app-shell .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-shell .actions button,
+    .app-shell .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: var(--jk-color-surface);
+      color: var(--jk-color-text);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .app-shell button:focus-visible {
+      outline: none;
+      box-shadow: var(--jk-focus-ring);
+    }
+    .app-shell button.primary {
+      border-color: var(--jk-color-focus);
+      background: var(--jk-color-focus);
+      color: var(--jk-color-surface);
+    }
+    .app-shell .handoff {
+      padding: 14px;
+      background: color-mix(in srgb, var(--jk-color-receipt) 9%, var(--jk-color-surface));
+    }
+    .reviewed-candidate .app-header {
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+      border: 1px solid color-mix(in srgb, var(--jk-color-focus) 35%, var(--jk-color-border));
+      border-radius: var(--jk-radius-panel);
+      padding: 14px;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--jk-color-muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--jk-color-text);
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
+        display: grid;
+      }
+      .app-shell .workspace,
+      .app-shell .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  `;
+  }
+
   return `
     :root {
       color-scheme: light;
@@ -1720,7 +2096,7 @@ function renderArtifact(output, manifestEntry) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${escapeHtml(activeUseCase.label)} - ${escapeHtml(output.title)}</title>
-    <style>${artifactCss()}</style>
+    <style>${artifactCss(output)}</style>
 ${modelCss}${styleTags}
   </head>
   <body data-artifact-id="${escapeHtml(output.id)}" data-row-id="${escapeHtml(output.row_id)}" data-column-id="${escapeHtml(output.column_id)}" data-judgmentkit-mode="${escapeHtml(output.judgmentkit_mode)}" data-design-system-mode="${escapeHtml(output.design_system_mode)}">
@@ -1792,11 +2168,35 @@ function renderGalleryCard(artifact, index) {
         </article>`;
 }
 
-function renderComparisonRow(row, artifactsById) {
+function renderDiagnosticCard(candidate) {
+  const failedChecks = (candidate.failed_checks ?? []).join(", ") || "review gate";
+
+  return `
+        <article class="gallery-card diagnostic-card">
+          <div class="thumb diagnostic-thumb">
+            <span>Diagnostic only</span>
+          </div>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">${escapeHtml(candidate.row_label)}</p>
+            <h2>${escapeHtml(candidate.approach_title)}</h2>
+            <p>${escapeHtml(candidate.approach_caption)}</p>
+            <dl>
+              <div><dt>Context</dt><dd>${escapeHtml(candidate.column_label)}</dd></div>
+              <div><dt>Status</dt><dd>${escapeHtml(candidate.next_agent_action)}</dd></div>
+              <div><dt>Failed checks</dt><dd>${escapeHtml(failedChecks)}</dd></div>
+            </dl>
+          </div>
+        </article>`;
+}
+
+function renderComparisonRow(row, entriesById) {
   const cards = COMPARISON_COLUMNS.map((column) => {
-    const artifact = artifactsById.get(`${row.id}-${column.id}`);
-    if (!artifact) throw new Error(`Missing artifact for ${row.id}/${column.id}`);
-    return renderGalleryCard(artifact, artifact.gallery_index);
+    const entry = entriesById.get(`${row.id}-${column.id}`);
+    if (!entry) throw new Error(`Missing matrix cell for ${row.id}/${column.id}`);
+
+    return entry.release_evidence_status === "artifact"
+      ? renderGalleryCard(entry, entry.gallery_index)
+      : renderDiagnosticCard(entry);
   }).join("\n");
 
   return `
@@ -1839,7 +2239,13 @@ function renderMatrixIndex(manifest) {
     ...artifact,
     gallery_index: index,
   }));
-  const artifactsById = new Map(artifactsWithIndex.map((artifact) => [artifact.id, artifact]));
+  const entriesById = new Map([
+    ...artifactsWithIndex.map((artifact) => [artifact.id, artifact]),
+    ...(manifest.diagnostic_candidates ?? []).map((candidate) => [
+      candidate.id,
+      candidate,
+    ]),
+  ]);
   const galleryItems = artifactsWithIndex.map((artifact) => ({
     id: artifact.id,
     title: artifact.approach_title,
@@ -1853,7 +2259,7 @@ function renderMatrixIndex(manifest) {
     image: artifact.screenshot_path,
     artifact: artifact.artifact_path,
   }));
-  const matrixRows = COMPARISON_ROWS.map((row) => renderComparisonRow(row, artifactsById)).join("");
+  const matrixRows = COMPARISON_ROWS.map((row) => renderComparisonRow(row, entriesById)).join("");
   const columnHeaders = COMPARISON_COLUMNS.map(
     (column) => `
           <div>
@@ -2018,6 +2424,15 @@ function renderMatrixIndex(manifest) {
       .thumbnail-link:focus-visible {
         outline: 3px solid var(--accent);
         outline-offset: -3px;
+      }
+      .diagnostic-thumb {
+        aspect-ratio: 16 / 10;
+        display: grid;
+        place-items: center;
+        border-bottom: 1px solid var(--line);
+        background: #f4f0e7;
+        color: #6e4d16;
+        font-weight: 800;
       }
       .gallery-card-copy {
         display: grid;
@@ -2219,7 +2634,7 @@ function renderMatrixIndex(manifest) {
         <div><span>Source brief</span><strong>${escapeHtml(manifest.source_brief_file)}</strong></div>
         <div><span>Rows</span><strong>${manifest.comparison_rows.length} generation paths</strong></div>
         <div><span>Columns</span><strong>${manifest.comparison_columns.length} context modes</strong></div>
-        <div><span>Artifacts</span><strong>${manifest.artifacts.length} canonical snapshots</strong></div>
+        <div><span>Artifacts</span><strong>${manifest.artifacts.length} accepted snapshots</strong></div>
       </div>
       <section class="column-guide" aria-label="Matrix column definitions">
 ${columnHeaders}
@@ -2229,7 +2644,7 @@ ${columnHeaders}
           <h2>3 x 4 comparison gallery</h2>
           <p>Each row uses the same generation path. Each column changes only JudgmentKit and Material UI context.</p>
         </div>
-        <a href="${escapeHtml(manifest.artifacts[0].artifact_path)}">Open first live artifact</a>
+        ${manifest.artifacts[0]?.artifact_path ? `<a href="${escapeHtml(manifest.artifacts[0].artifact_path)}">Open first live artifact</a>` : ""}
       </div>
       <section class="matrix-list" aria-label="Model UI 3 by 4 screenshot gallery">
 ${matrixRows}
@@ -2378,13 +2793,107 @@ function summarizeFrontendSkillContext(skillContext) {
   };
 }
 
+function outputReviewMetadata(output, capture) {
+  const failedChecks = Array.isArray(output.failed_checks)
+    ? [...output.failed_checks]
+    : Array.isArray(output.findings)
+      ? output.findings.map((finding) => finding.check).filter(Boolean)
+      : [];
+
+  if (output.generation_source === "captured_model_output") {
+    if (!capture) {
+      failedChecks.push("capture_missing");
+    } else if (capture.current_validation?.status === "failed") {
+      failedChecks.push(...capture.current_validation.failed_checks);
+    }
+  }
+
+  const uniqueFailedChecks = [...new Set(failedChecks)];
+  const implementationReviewStatus =
+    output.implementation_review_status ??
+    output.implementation_review?.implementation_review_status ??
+    (uniqueFailedChecks.length > 0 ? "failed" : "passed");
+  const nextAgentAction =
+    output.next_agent_action ??
+    output.implementation_review?.next_agent_action ??
+    (implementationReviewStatus === "passed" ? "accept" : "repair_and_resubmit");
+  const designSystemAcceptanceStatus =
+    output.design_system_acceptance_status ??
+    output.implementation_review?.design_system_acceptance_status ??
+    (uniqueFailedChecks.includes("design_system_provenance") ||
+    uniqueFailedChecks.includes("visual_tokens") ||
+    uniqueFailedChecks.includes("local_component_authority") ||
+    uniqueFailedChecks.includes("static_capture_quality") ||
+    uniqueFailedChecks.includes("capture_validation") ||
+    uniqueFailedChecks.includes("capture_missing")
+      ? "failed"
+      : "passed");
+  const candidateArtifactStatus =
+    output.candidate_artifact_status ??
+    output.implementation_review?.candidate_artifact_status ??
+    (implementationReviewStatus === "passed" &&
+    nextAgentAction === "accept" &&
+    designSystemAcceptanceStatus === "passed" &&
+    uniqueFailedChecks.length === 0
+      ? "accepted_artifact"
+      : "not_an_artifact");
+  const releaseEvidenceStatus =
+    implementationReviewStatus === "passed" &&
+    nextAgentAction === "accept" &&
+    candidateArtifactStatus === "accepted_artifact" &&
+    designSystemAcceptanceStatus === "passed" &&
+    uniqueFailedChecks.length === 0
+      ? "artifact"
+      : "diagnostic_only";
+
+  return {
+    release_evidence_status: releaseEvidenceStatus,
+    candidate_artifact_status: candidateArtifactStatus,
+    implementation_review_status: implementationReviewStatus,
+    design_system_acceptance_status: designSystemAcceptanceStatus,
+    next_agent_action: nextAgentAction,
+    failed_checks: uniqueFailedChecks,
+  };
+}
+
+function activeDesignSystemMetadata(output, frontendSkillContext) {
+  if (output.design_system_mode === "material_ui") {
+    return {
+      name: DESIGN_SYSTEM_ADAPTER.design_system_name,
+      package: DESIGN_SYSTEM_ADAPTER.design_system_package,
+      render_mode: DESIGN_SYSTEM_ADAPTER.render_mode,
+    };
+  }
+
+  const summary = summarizeFrontendSkillContext(frontendSkillContext);
+  if (
+    output.judgmentkit_mode === "with_judgmentkit" &&
+    summary?.design_system_mode === "judgmentkit_default"
+  ) {
+    return {
+      name: "JudgmentKit",
+      package: "judgmentkit",
+      render_mode: "static-html",
+    };
+  }
+
+  return {
+    name: null,
+    package: null,
+    render_mode: null,
+  };
+}
+
 function buildManifestArtifact(output, capture, contextHash) {
   const context = contextIncluded(output);
-  const designSystem = output.design_system_mode === "material_ui";
   const frontendSkillContext =
     output.frontend_skill_context ?? capture?.frontend_skill_context ?? null;
   const currentSourceContextHash = output.current_source_context_sha256 ?? contextHash;
   const sourceContext = output.source_context_status ?? "current";
+  const reviewMetadata = outputReviewMetadata(output, capture);
+  const acceptedArtifact = reviewMetadata.release_evidence_status === "artifact";
+  const designSystem = activeDesignSystemMetadata(output, frontendSkillContext);
+
   return {
     id: output.id,
     use_case_id: activeUseCase.id,
@@ -2406,14 +2915,16 @@ function buildManifestArtifact(output, capture, contextHash) {
     design_system_mode: output.design_system_mode,
     context_included: context,
     context_summary: contextSummary(output),
+    ...reviewMetadata,
     source_brief_file: SOURCE_BRIEF_FILE,
     reviewed_handoff_file: context.reviewed_handoff ? HANDOFF_FILE : null,
     design_system_adapter_file: context.material_ui_adapter ? DESIGN_SYSTEM_FILE : null,
-    design_system_name: designSystem ? DESIGN_SYSTEM_ADAPTER.design_system_name : null,
-    design_system_package: designSystem ? DESIGN_SYSTEM_ADAPTER.design_system_package : null,
-    design_system_render_mode: designSystem ? DESIGN_SYSTEM_ADAPTER.render_mode : null,
+    design_system_name: designSystem.name,
+    design_system_package: designSystem.package,
+    design_system_render_mode: designSystem.render_mode,
     capture_file: output.capture_file,
     capture_provenance: captureProvenance(output, capture),
+    capture_validation: capture?.current_validation ?? null,
     lms_context: capture?.lms_context ?? null,
     capture_quality: capture?.capture_quality ?? null,
     prompt_sha256: capture?.prompt_sha256 ?? null,
@@ -2430,8 +2941,8 @@ function buildManifestArtifact(output, capture, contextHash) {
       capture?.frontend_skill_context_status ??
       null,
     frontend_skill_context: summarizeFrontendSkillContext(frontendSkillContext),
-    artifact_path: artifactPath(output.id),
-    screenshot_path: screenshotPath(output.id),
+    artifact_path: acceptedArtifact ? artifactPath(output.id) : null,
+    screenshot_path: acceptedArtifact ? screenshotPath(output.id) : null,
     render_source: renderSource(output),
     visible_render_source: renderSource(output),
     rendering_policy: renderingPolicy(output),
@@ -2451,17 +2962,62 @@ function buildComparisonRows(artifacts) {
     model: row.model,
     reasoning_effort: row.reasoning_effort,
     summary: row.summary,
-    artifact_ids: COMPARISON_COLUMNS.map((column) => `${row.id}-${column.id}`),
-    artifacts: COMPARISON_COLUMNS.map((column) => byId.get(`${row.id}-${column.id}`)),
+    cells: COMPARISON_COLUMNS.map((column) => {
+      const id = `${row.id}-${column.id}`;
+      const entry = byId.get(id);
+      return {
+        id,
+        row_id: row.id,
+        column_id: column.id,
+        release_evidence_status:
+          entry?.release_evidence_status ?? "diagnostic_only",
+        artifact_id:
+          entry?.release_evidence_status === "artifact" ? id : null,
+        diagnostic_candidate_id:
+          entry?.release_evidence_status === "artifact" ? null : id,
+      };
+    }),
+    artifact_ids: COMPARISON_COLUMNS.map((column) => byId.get(`${row.id}-${column.id}`))
+      .filter((entry) => entry?.release_evidence_status === "artifact")
+      .map((entry) => entry.id),
+    diagnostic_candidate_ids: COMPARISON_COLUMNS.map((column) =>
+      byId.get(`${row.id}-${column.id}`),
+    )
+      .filter((entry) => entry?.release_evidence_status !== "artifact")
+      .map((entry) => entry.id),
+    artifacts: COMPARISON_COLUMNS.map((column) => byId.get(`${row.id}-${column.id}`))
+      .filter((entry) => entry?.release_evidence_status === "artifact"),
   }));
 }
 
-async function copyLegacyAliases(manifestArtifacts) {
+async function copyLegacyAliases(manifestArtifacts, legacyAliases) {
   if (activeUseCase.id !== "refund-system-map") return;
   const byId = new Map(manifestArtifacts.map((artifact) => [artifact.id, artifact]));
+  const activeAliasIds = new Set(legacyAliases.map((alias) => alias.id));
+
   for (const alias of LEGACY_ALIASES) {
+    if (!activeAliasIds.has(alias.id)) {
+      if (!CHECK_MODE) {
+        await fs.rm(path.join(OUTPUT_DIR, alias.artifact_path), { force: true });
+        await fs.rm(path.join(OUTPUT_DIR, alias.screenshot_path), { force: true });
+        if (alias.capture_file) {
+          await fs.rm(path.join(OUTPUT_DIR, alias.capture_file), { force: true });
+        }
+      }
+      continue;
+    }
+
     const canonical = byId.get(alias.canonical_id);
-    if (!canonical) throw new Error(`Missing canonical artifact for legacy alias ${alias.id}`);
+    if (!canonical) {
+      if (!CHECK_MODE) {
+        await fs.rm(path.join(OUTPUT_DIR, alias.artifact_path), { force: true });
+        await fs.rm(path.join(OUTPUT_DIR, alias.screenshot_path), { force: true });
+        if (alias.capture_file) {
+          await fs.rm(path.join(OUTPUT_DIR, alias.capture_file), { force: true });
+        }
+      }
+      continue;
+    }
     const html = await fs.readFile(path.join(OUTPUT_DIR, canonical.artifact_path), "utf8");
     await writeOrCheckFile(
       path.join(OUTPUT_DIR, alias.artifact_path),
@@ -2484,6 +3040,15 @@ async function copyLegacyAliases(manifestArtifacts) {
         `${JSON.stringify(aliasCapture, null, 2)}\n`,
       );
     }
+  }
+}
+
+async function removeDiagnosticArtifactFiles(diagnosticCandidates) {
+  if (CHECK_MODE) return;
+
+  for (const candidate of diagnosticCandidates) {
+    await fs.rm(path.join(OUTPUT_DIR, artifactPath(candidate.id)), { force: true });
+    await fs.rm(path.join(OUTPUT_DIR, screenshotPath(candidate.id)), { force: true });
   }
 }
 
@@ -2595,8 +3160,14 @@ async function generateUseCase(useCase) {
     }),
   );
 
-  const manifestArtifacts = artifacts.map((artifact) =>
+  const manifestEntries = artifacts.map((artifact) =>
     buildManifestArtifact(artifact, artifact.capture, artifact.source_context_sha256),
+  );
+  const manifestArtifacts = manifestEntries.filter(
+    (entry) => entry.release_evidence_status === "artifact",
+  );
+  const diagnosticCandidates = manifestEntries.filter(
+    (entry) => entry.release_evidence_status !== "artifact",
   );
 
   const manifest = {
@@ -2612,13 +3183,19 @@ async function generateUseCase(useCase) {
     design_system_name: DESIGN_SYSTEM_ADAPTER.design_system_name,
     design_system_package: DESIGN_SYSTEM_ADAPTER.design_system_package,
     design_system_render_mode: DESIGN_SYSTEM_ADAPTER.render_mode,
-    comparison_rows: buildComparisonRows(manifestArtifacts),
+    comparison_rows: buildComparisonRows(manifestEntries),
     comparison_columns: COMPARISON_COLUMNS,
-    legacy_aliases: activeUseCase.id === "refund-system-map" ? LEGACY_ALIASES : [],
+    legacy_aliases:
+      activeUseCase.id === "refund-system-map"
+        ? LEGACY_ALIASES.filter((alias) =>
+            manifestArtifacts.some((artifact) => artifact.id === alias.canonical_id),
+          )
+        : [],
     model_labels: COMPARISON_ROWS.map((row) => row.model_label),
     artifacts: manifestArtifacts,
+    diagnostic_candidates: diagnosticCandidates,
     generation_policy:
-      "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model. The 3x4 matrix separates raw brief context, JudgmentKit reviewed handoff plus compiled frontend skill context, Material UI rendering, and the combined JudgmentKit skill plus Material UI path.",
+      "Static captured-fixture pack. Website builds copy committed accepted artifacts and never call a live model. The 3x4 matrix separates raw brief context, JudgmentKit reviewed handoff plus compiled frontend skill context, Material UI rendering, and the combined JudgmentKit skill plus Material UI path. Candidates that fail implementation or design-system review stay in diagnostic_candidates and are excluded from manifest.artifacts, live artifact routes, screenshots, and release evidence.",
   };
 
   await writeOrCheckFile(
@@ -2634,13 +3211,16 @@ async function generateUseCase(useCase) {
     `${JSON.stringify(manifest, null, 2)}\n`,
   );
 
+  await removeDiagnosticArtifactFiles(diagnosticCandidates);
+
   for (const artifact of artifacts) {
     const manifestEntry = manifestArtifacts.find((entry) => entry.id === artifact.id);
+    if (!manifestEntry) continue;
     const html = renderArtifact(artifact, manifestEntry);
     await writeOrCheckFile(path.join(OUTPUT_DIR, manifestEntry.artifact_path), html);
   }
 
-  await copyLegacyAliases(manifestArtifacts);
+  await copyLegacyAliases(manifestArtifacts, manifest.legacy_aliases);
   await writeOrCheckFile(path.join(OUTPUT_DIR, "index.html"), renderMatrixIndex(manifest));
 
   process.stdout.write(`\n# ${activeUseCase.label} Model UI Matrix\n\n`);

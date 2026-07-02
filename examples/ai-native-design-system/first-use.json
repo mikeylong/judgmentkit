@@ -1,6 +1,6 @@
 {
   "id": "judgmentkit-first-use-repair-loop-v1",
-  "release_target": "0.6.4",
+  "release_target": "0.6.5",
   "target_time_minutes": 10,
   "claim": "Install JudgmentKit, review a generated UI candidate, repair the failed contract area, and resubmit to acceptance.",
   "brief": "A support lead is reviewing refund requests during the daily triage workflow. The activity is deciding whether a case should be approved, sent to policy review, or returned to the agent for missing evidence. The outcome is a clear handoff with the next action and the reason for the decision.",
@@ -125,6 +125,11 @@
         "status": "pass",
         "method": "aria-live inspection",
         "notes": "Save, loading, error, and handoff receipt updates are announced without moving focus."
+      },
+      "semantic_fallbacks": {
+        "status": "pass",
+        "method": "DOM inspection",
+        "notes": "Semantic HTML provides fallback structure for rendered content."
       }
     },
     "actions": [
@@ -162,6 +167,16 @@
         "decision options",
         "handoff receipt"
       ]
+    },
+    "design_system_provenance": {
+      "source": "judgmentkit_default",
+      "token_source": "/design-system/visual-token-adapter.json",
+      "typography_source": "/design-system/visual-token-adapter.json",
+      "icon_source": "JudgmentKit icon catalog via get_icon_svg",
+      "renderer_component_source": "implementation_contract.default_ai_native_design_system.component_contracts",
+      "import_boundary": "No visual, typography, icon, or component package imports outside the active design-system source.",
+      "token_prefix_source": "implementation_contract.design_system_source.token_prefixes",
+      "source_exports": "implementation_contract.design_system_source.source_exports"
     }
   },
   "repaired_candidate": {
@@ -264,6 +279,11 @@
         "status": "pass",
         "method": "aria-live inspection",
         "notes": "Save, loading, error, and handoff receipt updates are announced without moving focus."
+      },
+      "semantic_fallbacks": {
+        "status": "pass",
+        "method": "DOM inspection",
+        "notes": "Semantic HTML provides fallback structure for rendered content."
       }
     },
     "actions": [
@@ -302,6 +322,16 @@
         "decision options",
         "handoff receipt"
       ]
+    },
+    "design_system_provenance": {
+      "source": "judgmentkit_default",
+      "token_source": "/design-system/visual-token-adapter.json",
+      "typography_source": "/design-system/visual-token-adapter.json",
+      "icon_source": "JudgmentKit icon catalog via get_icon_svg",
+      "renderer_component_source": "implementation_contract.default_ai_native_design_system.component_contracts",
+      "import_boundary": "No visual, typography, icon, or component package imports outside the active design-system source.",
+      "token_prefix_source": "implementation_contract.design_system_source.token_prefixes",
+      "source_exports": "implementation_contract.design_system_source.source_exports"
     }
   },
   "transcript": [

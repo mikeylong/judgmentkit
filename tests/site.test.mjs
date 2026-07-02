@@ -8,6 +8,7 @@ import { buildSite } from "../site/build-site.mjs";
 import {
   COMPARISON_COLUMNS,
   COMPARISON_ROWS,
+  LEGACY_ALIASES,
   MODEL_UI_INDEX_FILE,
   MODEL_UI_USE_CASES,
 } from "../scripts/model-ui-use-cases.mjs";
@@ -1210,13 +1211,13 @@ assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/de
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-material-ui-only.png"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-judgmentkit-material-ui.png"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gemma4-lms-no-judgmentkit.png"));
-assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gemma4-lms-with-judgmentkit.png"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gemma4-lms-material-ui-only.png"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gemma4-lms-judgmentkit-material-ui.png"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gpt55-xhigh-codex-no-judgmentkit.png"));
-assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gpt55-xhigh-codex-with-judgmentkit.png"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gpt55-xhigh-codex-material-ui-only.png"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png"));
+assert.equal(examples.includes("/examples/model-ui/refund-system-map/screenshots/gemma4-lms-with-judgmentkit.png"), false);
+assert.equal(examples.includes("/examples/model-ui/refund-system-map/screenshots/gpt55-xhigh-codex-with-judgmentkit.png"), false);
 assert.equal(examples.includes("four use cases"), false);
 assert.equal(examples.includes("model-ui-use-case-tabs"), false);
 assert.equal(examples.includes("model-ui-use-case-tab"), false);
@@ -1258,12 +1259,13 @@ for (const useCase of MODEL_UI_USE_CASES) {
   assert.equal(manifest.use_case_label, useCase.label);
   assert.equal(manifest.comparison_rows.length, 3);
   assert.equal(manifest.comparison_columns.length, 4);
-  assert.equal(manifest.artifacts.length, 12);
   assert.equal(
-    manifest.artifacts.length,
+    manifest.artifacts.length + manifest.diagnostic_candidates.length,
     COMPARISON_ROWS.length * COMPARISON_COLUMNS.length,
-    `${useCase.id} should include every matrix cell`,
+    `${useCase.id} should account for every matrix cell`,
   );
+  assert.equal(manifest.artifacts.length, 10);
+  assert.equal(manifest.diagnostic_candidates.length, 2);
 
   for (const artifact of manifest.artifacts) {
     const artifactRoute = `/examples/model-ui/${useCase.id}/${artifact.artifact_path}`;
@@ -1290,8 +1292,47 @@ for (const useCase of MODEL_UI_USE_CASES) {
       );
     }
   }
-}
-assert.equal(examples.includes("/examples/comparison/music/version-a.html"), false);
+
+  for (const candidate of manifest.diagnostic_candidates) {
+    for (const diagnosticPath of [
+      ["examples", "model-ui", useCase.id, "artifacts", `${candidate.id}.html`],
+      ["examples", "model-ui", useCase.id, "screenshots", `${candidate.id}.png`],
+    ]) {
+      assert.equal(
+        fs.existsSync(path.join(tempDir, ...diagnosticPath)),
+        false,
+        `diagnostic-only model UI path should not be copied: ${diagnosticPath.join("/")}`,
+      );
+    }
+  }
+
+  if (useCase.id === "refund-system-map") {
+    const activeLegacyAliasIds = new Set(
+      (manifest.legacy_aliases ?? []).map((alias) => alias.id),
+    );
+    for (const alias of LEGACY_ALIASES) {
+      if (activeLegacyAliasIds.has(alias.id)) continue;
+      for (const inactiveAliasPath of [
+        alias.artifact_path,
+        alias.screenshot_path,
+        alias.capture_file,
+      ].filter(Boolean)) {
+        const pathParts = [
+          "examples",
+          "model-ui",
+          useCase.id,
+          ...inactiveAliasPath.split("/"),
+        ];
+        assert.equal(
+          fs.existsSync(path.join(tempDir, ...pathParts)),
+          false,
+          `inactive model UI legacy alias should not be copied: ${pathParts.join("/")}`,
+        );
+      }
+    }
+  }
+	}
+	assert.equal(examples.includes("/examples/comparison/music/version-a.html"), false);
 assert.equal(examples.includes("/examples/comparison/music/version-b.html"), false);
 assert.equal(examples.includes("/examples/comparison/music/facilitator-scorecard.md"), false);
 assert.equal(examples.includes("/examples/evals/"), false);
@@ -1483,18 +1524,14 @@ for (const copiedExamplePath of [
   ["examples", "model-ui", "refund-system-map", "artifacts", "deterministic-material-ui-only.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "deterministic-judgmentkit-material-ui.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gemma4-lms-no-judgmentkit.html"],
-  ["examples", "model-ui", "refund-system-map", "artifacts", "gemma4-lms-with-judgmentkit.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gemma4-lms-material-ui-only.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gemma4-lms-judgmentkit-material-ui.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-xhigh-codex-no-judgmentkit.html"],
-  ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-xhigh-codex-with-judgmentkit.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-xhigh-codex-material-ui-only.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-xhigh-codex-judgmentkit-material-ui.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "deterministic-without-design-system.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "deterministic-with-design-system.html"],
-  ["examples", "model-ui", "refund-system-map", "artifacts", "gemma4-without-design-system.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gemma4-with-design-system.html"],
-  ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-without-design-system.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-with-design-system.html"],
   ["examples", "model-ui", "refund-system-map", "captures", "gemma4-lms-no-judgmentkit.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gemma4-lms-with-judgmentkit.json"],
@@ -1504,27 +1541,21 @@ for (const copiedExamplePath of [
   ["examples", "model-ui", "refund-system-map", "captures", "gpt55-xhigh-codex-with-judgmentkit.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gpt55-xhigh-codex-material-ui-only.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gpt55-xhigh-codex-judgmentkit-material-ui.json"],
-  ["examples", "model-ui", "refund-system-map", "captures", "gemma4-without-design-system.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gemma4-with-design-system.json"],
-  ["examples", "model-ui", "refund-system-map", "captures", "gpt55-without-design-system.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gpt55-with-design-system.json"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-no-judgmentkit.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-with-judgmentkit.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-material-ui-only.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-judgmentkit-material-ui.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "gemma4-lms-no-judgmentkit.png"],
-  ["examples", "model-ui", "refund-system-map", "screenshots", "gemma4-lms-with-judgmentkit.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "gemma4-lms-material-ui-only.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "gemma4-lms-judgmentkit-material-ui.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "gpt55-xhigh-codex-no-judgmentkit.png"],
-  ["examples", "model-ui", "refund-system-map", "screenshots", "gpt55-xhigh-codex-with-judgmentkit.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "gpt55-xhigh-codex-material-ui-only.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "gpt55-xhigh-codex-judgmentkit-material-ui.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-without-design-system.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-with-design-system.png"],
-  ["examples", "model-ui", "refund-system-map", "screenshots", "gemma4-without-design-system.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "gemma4-with-design-system.png"],
-  ["examples", "model-ui", "refund-system-map", "screenshots", "gpt55-without-design-system.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "gpt55-with-design-system.png"],
   ["examples", "comparison", "music", "version-a.html"],
   ["examples", "comparison", "music", "version-b.html"],

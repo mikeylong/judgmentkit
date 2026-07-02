@@ -26,7 +26,7 @@ export const CATALOG_JSON_FILENAME = "index.json";
 export const CATALOG_HTML_FILENAME = "index.html";
 export const EVAL_ID = "judgmentkit-mcp-private-pilot-v1";
 export const CATALOG_ID = "judgmentkit-mcp-private-pilot-runs";
-export const REQUIRED_MCP_VERSION = "0.6.4";
+export const REQUIRED_MCP_VERSION = "0.6.5";
 export const MODEL_ID = "gpt-5.5";
 export const REASONING_EFFORT = "xhigh";
 export const CODEX_MODEL_CONFIG_ID = "gpt-5.5-codex";
@@ -214,6 +214,7 @@ export const REPAIR_CANDIDATE_OUTPUT_SCHEMA = {
         "actions",
         "action_boundary_evidence",
         "data_visibility_evidence",
+        "design_system_provenance",
         "visible_text",
       ],
       properties: {
@@ -254,6 +255,30 @@ export const REPAIR_CANDIDATE_OUTPUT_SCHEMA = {
           properties: {
             primary_language: { type: "string" },
             diagnostic_terms: { type: "string" },
+          },
+        },
+        design_system_provenance: {
+          type: "object",
+          additionalProperties: false,
+          required: [
+            "source",
+            "token_source",
+            "typography_source",
+            "icon_source",
+            "renderer_component_source",
+            "import_boundary",
+            "token_prefix_source",
+            "source_exports",
+          ],
+          properties: {
+            source: { type: "string" },
+            token_source: { type: "string" },
+            typography_source: { type: "string" },
+            icon_source: { type: "string" },
+            renderer_component_source: { type: "string" },
+            import_boundary: { type: "string" },
+            token_prefix_source: { type: "string" },
+            source_exports: { type: "string" },
           },
         },
         visible_text: { type: "array", items: { type: "string" } },
@@ -1901,7 +1926,8 @@ export function buildRepairObservationPrompt({
     "Return JSON only. Do not include Markdown fences or commentary.",
     "Shape: candidate, rationale.",
     "candidate must be the complete revised implementation_candidate object for the next review attempt.",
-    "candidate must include primitives_used, states_covered, static_checks, browser_qa, accessibility_evidence, actions, action_boundary_evidence, data_visibility_evidence, and visible_text.",
+    "candidate must include primitives_used, states_covered, static_checks, browser_qa, accessibility_evidence, actions, action_boundary_evidence, data_visibility_evidence, design_system_provenance, and visible_text.",
+    "candidate.design_system_provenance must prove visual token, typography, icon asset, renderer component, import/package, token prefix, and source-export authority from implementation_contract.design_system_source.",
     "candidate.accessibility_evidence must include every allowed accessibility key because the structured output schema is strict.",
     "Core accessibility keys require concise pass, passed, or verified evidence. Conditional accessibility keys require evidence only when the current review lists that exact key as failed or the current candidate already contains that exact pattern; otherwise set the conditional key to an empty string.",
     `Allowed accessibility_evidence keys: ${REPAIR_ACCESSIBILITY_EVIDENCE_KEYS.join(", ")}.`,

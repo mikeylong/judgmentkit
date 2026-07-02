@@ -4,10 +4,11 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   COMPARISON_COLUMNS as COLUMNS,
   COMPARISON_ROWS,
+  JUDGMENTKIT_DEFAULT_TOKEN_NAMES,
   MODEL_UI_USE_CASES,
   modelUiUseCasesForArgs,
 } from "./model-ui-use-cases.mjs";
@@ -38,6 +39,7 @@ const LMS_CONTEXT_LENGTH = Math.max(
   LMS_MIN_CONTEXT_LENGTH,
 );
 const FRESH_CAPTURE = process.argv.includes("--fresh");
+const JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET = new Set(JUDGMENTKIT_DEFAULT_TOKEN_NAMES);
 
 let activeUseCase;
 let OUTPUT_DIR;
@@ -294,7 +296,354 @@ function sanitizeHtml(html) {
     .trim();
 }
 
-function validateParsed(parsed, target) {
+function stripCssComments(value) {
+  return String(value ?? "").replace(/\/\*[\s\S]*?\*\//g, "");
+}
+
+const LOCAL_VISUAL_TOKEN_NAMES = new Set([
+  "--bg",
+  "--canvas",
+  "--panel",
+  "--surface",
+  "--surface-strong",
+  "--ink",
+  "--text",
+  "--muted",
+  "--line",
+  "--line-strong",
+  "--border",
+  "--accent",
+  "--accent-strong",
+  "--accent-soft",
+  "--warn",
+  "--warn-soft",
+  "--warning",
+  "--danger",
+  "--danger-soft",
+  "--risk",
+  "--success",
+  "--good",
+  "--good-soft",
+  "--focus",
+  "--brand",
+  "--status",
+  "--shadow",
+]);
+
+function extractCssCustomPropertyNames(text) {
+  return [...new Set([...stripCssComments(text).matchAll(/--[a-z0-9][a-z0-9-]*/gi)].map((match) => match[0]))];
+}
+
+function extractCssCustomPropertyDefinitions(text) {
+  return [
+    ...new Set(
+      [...stripCssComments(text).matchAll(/(--[a-z0-9][a-z0-9-]*)\s*:/gi)].map((match) =>
+        match[1].toLowerCase(),
+      ),
+    ),
+  ];
+}
+
+function extractCssVarReferenceNames(text) {
+  return [...stripCssComments(text).matchAll(/var\(\s*(--[a-z0-9][a-z0-9-]*)/gi)].map(
+    (match) => match[1].toLowerCase(),
+  );
+}
+
+function countMatches(value, pattern) {
+  return (String(value).match(pattern) ?? []).length;
+}
+
+const CSS_NAMED_COLOR_PATTERN = new RegExp(
+  `\\b(?:${[
+    "aliceblue",
+    "antiquewhite",
+    "aqua",
+    "aquamarine",
+    "azure",
+    "beige",
+    "bisque",
+    "black",
+    "blanchedalmond",
+    "blue",
+    "blueviolet",
+    "brown",
+    "burlywood",
+    "cadetblue",
+    "chartreuse",
+    "chocolate",
+    "coral",
+    "cornflowerblue",
+    "cornsilk",
+    "crimson",
+    "cyan",
+    "darkblue",
+    "darkcyan",
+    "darkgoldenrod",
+    "darkgray",
+    "darkgreen",
+    "darkgrey",
+    "darkkhaki",
+    "darkmagenta",
+    "darkolivegreen",
+    "darkorange",
+    "darkorchid",
+    "darkred",
+    "darksalmon",
+    "darkseagreen",
+    "darkslateblue",
+    "darkslategray",
+    "darkslategrey",
+    "darkturquoise",
+    "darkviolet",
+    "deeppink",
+    "deepskyblue",
+    "dimgray",
+    "dimgrey",
+    "dodgerblue",
+    "firebrick",
+    "floralwhite",
+    "forestgreen",
+    "fuchsia",
+    "gainsboro",
+    "ghostwhite",
+    "gold",
+    "goldenrod",
+    "gray",
+    "green",
+    "greenyellow",
+    "grey",
+    "honeydew",
+    "hotpink",
+    "indianred",
+    "indigo",
+    "ivory",
+    "khaki",
+    "lavender",
+    "lavenderblush",
+    "lawngreen",
+    "lemonchiffon",
+    "lightblue",
+    "lightcoral",
+    "lightcyan",
+    "lightgoldenrodyellow",
+    "lightgray",
+    "lightgreen",
+    "lightgrey",
+    "lightpink",
+    "lightsalmon",
+    "lightseagreen",
+    "lightskyblue",
+    "lightslategray",
+    "lightslategrey",
+    "lightsteelblue",
+    "lightyellow",
+    "lime",
+    "limegreen",
+    "linen",
+    "magenta",
+    "maroon",
+    "mediumaquamarine",
+    "mediumblue",
+    "mediumorchid",
+    "mediumpurple",
+    "mediumseagreen",
+    "mediumslateblue",
+    "mediumspringgreen",
+    "mediumturquoise",
+    "mediumvioletred",
+    "midnightblue",
+    "mintcream",
+    "mistyrose",
+    "moccasin",
+    "navajowhite",
+    "navy",
+    "oldlace",
+    "olive",
+    "olivedrab",
+    "orange",
+    "orangered",
+    "orchid",
+    "palegoldenrod",
+    "palegreen",
+    "paleturquoise",
+    "palevioletred",
+    "papayawhip",
+    "peachpuff",
+    "peru",
+    "pink",
+    "plum",
+    "powderblue",
+    "purple",
+    "rebeccapurple",
+    "red",
+    "rosybrown",
+    "royalblue",
+    "saddlebrown",
+    "salmon",
+    "sandybrown",
+    "seagreen",
+    "seashell",
+    "sienna",
+    "silver",
+    "skyblue",
+    "slateblue",
+    "slategray",
+    "slategrey",
+    "snow",
+    "springgreen",
+    "steelblue",
+    "tan",
+    "teal",
+    "thistle",
+    "tomato",
+    "turquoise",
+    "violet",
+    "wheat",
+    "white",
+    "whitesmoke",
+    "yellow",
+    "yellowgreen",
+  ].join("|")})\\b`,
+  "i",
+);
+const LITERAL_VISUAL_VALUE_PATTERN =
+  /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i;
+const MODERN_COLOR_LITERAL_PATTERN =
+  /\b(?:oklch|oklab|lab|lch|color)\s*\(|\bdisplay-p3\b|\brec2020\b|\bprophoto-rgb\b|\ba98-rgb\b/i;
+
+function parseCssDeclarations(body) {
+  return String(body ?? "")
+    .split(";")
+    .map((entry) => {
+      const separator = entry.indexOf(":");
+      if (separator === -1) return null;
+      const property = entry.slice(0, separator).trim().toLowerCase();
+      const value = entry.slice(separator + 1).trim();
+      return property && value ? { property, value } : null;
+    })
+    .filter(Boolean);
+}
+
+function extractCssDeclarations(text) {
+  const declarations = [];
+  const source = stripCssComments(text);
+  const pattern = /([^{}]+)\{([^{}]*)\}/g;
+  let match;
+
+  while ((match = pattern.exec(source)) !== null) {
+    const selector = match[1].trim();
+    if (
+      !selector ||
+      selector.startsWith("@") ||
+      /(?:^|,)\s*(?:from|to|\d+%)\s*(?:,|$)/i.test(selector)
+    ) {
+      continue;
+    }
+
+    for (const declaration of parseCssDeclarations(match[2])) {
+      declarations.push({ ...declaration, selector, source: "css" });
+    }
+  }
+
+  return declarations;
+}
+
+function extractInlineStyleAttributes(html) {
+  return [...String(html ?? "").matchAll(/\sstyle\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi)]
+    .map((match) => match[1] ?? match[2] ?? match[3] ?? "")
+    .filter(Boolean);
+}
+
+function extractInlineStyleDeclarations(html) {
+  return extractInlineStyleAttributes(html).flatMap((styleText, index) =>
+    parseCssDeclarations(styleText).map((declaration) => ({
+      ...declaration,
+      selector: `style[${index}]`,
+      source: "inline_style",
+    })),
+  );
+}
+
+const EXACT_VISUAL_STYLE_PROPERTIES = new Set([
+  "accent-color",
+  "box-shadow",
+  "caret-color",
+  "color",
+  "fill",
+  "filter",
+  "stop-color",
+  "stroke",
+  "text-shadow",
+]);
+
+function isVisualStyleProperty(property) {
+  const name = String(property ?? "").toLowerCase();
+  return (
+    name.startsWith("--") ||
+    EXACT_VISUAL_STYLE_PROPERTIES.has(name) ||
+    name.includes("color") ||
+    name.startsWith("background") ||
+    name.startsWith("border") ||
+    name.startsWith("box-shadow") ||
+    name.startsWith("column-rule") ||
+    name.startsWith("mask") ||
+    name.startsWith("outline") ||
+    name.startsWith("scrollbar") ||
+    name.startsWith("text-decoration") ||
+    name.startsWith("text-emphasis")
+  );
+}
+
+function hasLiteralVisualValue(value) {
+  const normalized = String(value ?? "").toLowerCase();
+  if (!normalized) return false;
+
+  return LITERAL_VISUAL_VALUE_PATTERN.test(normalized) ||
+    MODERN_COLOR_LITERAL_PATTERN.test(normalized) ||
+    CSS_NAMED_COLOR_PATTERN.test(normalized);
+}
+
+function literalVisualValueDeclarations(declarations) {
+  return declarations
+    .filter((declaration) => isVisualStyleProperty(declaration.property))
+    .filter((declaration) => hasLiteralVisualValue(declaration.value))
+    .map((declaration) => ({
+      source: declaration.source,
+      selector: declaration.selector,
+      property: declaration.property,
+      value: declaration.value,
+    }));
+}
+
+function isVisualCustomProperty(name) {
+  return (
+    LOCAL_VISUAL_TOKEN_NAMES.has(String(name).toLowerCase()) ||
+    /surfaceops|mui|color|surface|canvas|text|muted|border|focus|success|warning|warn|danger|good|risk|disabled|receipt|space|gap|radius|shadow|font|type|brand|accent|status|density|panel|ink|line|bg/i.test(
+      name,
+    )
+  );
+}
+
+function allowedTokenPrefixesForTarget(target) {
+  return isStrictStaticJudgmentKitTarget(target) ? ["--jk-"] : [];
+}
+
+function disallowedVisualCustomProperties(value, target) {
+  const allowedPrefixes = allowedTokenPrefixesForTarget(target);
+
+  if (allowedPrefixes.length === 0) {
+    return [];
+  }
+
+  return extractCssCustomPropertyNames(value).filter(
+    (name) =>
+      isVisualCustomProperty(name) &&
+      !allowedPrefixes.some((prefix) => name.startsWith(prefix)),
+  );
+}
+
+export function validateParsed(parsed, target) {
   if (!parsed || typeof parsed !== "object") {
     throw new Error(`${target.artifact_id} did not return a JSON object.`);
   }
@@ -319,6 +668,66 @@ function validateParsed(parsed, target) {
     throw new Error(`${target.artifact_id} did not return nonempty static CSS.`);
   }
 
+  if (isStrictStaticJudgmentKitTarget(target)) {
+    const css = stripCssComments(sanitizeCss(parsed.css));
+    const html = sanitizeHtml(parsed.html);
+    const inlineStyleAttributes = extractInlineStyleAttributes(html);
+    if (inlineStyleAttributes.length > 0) {
+      throw new Error(
+        `${target.artifact_id} JudgmentKit static HTML must not use inline style attributes; put visual styling in CSS and consume active --jk-* tokens there.`,
+      );
+    }
+    const combinedStyleText = css;
+    const forbiddenTokens = disallowedVisualCustomProperties(combinedStyleText, target);
+    const definedJkTokens = extractCssCustomPropertyDefinitions(combinedStyleText)
+      .filter((name) => name.startsWith("--jk-"));
+    const jkTokenReferences = extractCssVarReferenceNames(combinedStyleText)
+      .filter((name) => name.startsWith("--jk-"));
+    const activeJkTokenUsageCount = jkTokenReferences.filter((name) =>
+      JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET.has(name),
+    ).length;
+    const unsupportedJkTokens = [
+      ...new Set(
+        jkTokenReferences.filter((name) => !JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET.has(name)),
+      ),
+    ];
+
+    if (activeJkTokenUsageCount < 4) {
+      throw new Error(
+        `${target.artifact_id} JudgmentKit static CSS must use active --jk-* design-system tokens at least 4 times.`,
+      );
+    }
+
+    if (unsupportedJkTokens.length > 0) {
+      throw new Error(
+        `${target.artifact_id} JudgmentKit static CSS references tokens that are not provided by the active design-system source: ${unsupportedJkTokens.join(", ")}`,
+      );
+    }
+
+    if (forbiddenTokens.length > 0) {
+      throw new Error(
+        `${target.artifact_id} JudgmentKit static CSS uses local visual token names outside the active design-system source: ${forbiddenTokens.join(", ")}`,
+      );
+    }
+
+    if (definedJkTokens.length > 0) {
+      throw new Error(
+        `${target.artifact_id} JudgmentKit static CSS must consume the provided --jk-* design-system tokens, not define or override them: ${definedJkTokens.join(", ")}`,
+      );
+    }
+
+    const literalValues = literalVisualValueDeclarations([
+      ...extractCssDeclarations(css),
+      ...extractInlineStyleDeclarations(html),
+    ]);
+
+    if (literalValues.length > 0) {
+      throw new Error(
+        `${target.artifact_id} JudgmentKit static CSS must use active design-system tokens for visual values, not hard-coded visual literals: ${literalValues.map((entry) => `${entry.source}:${entry.property}=${entry.value}`).join(", ")}`,
+      );
+    }
+  }
+
   const quality = analyzeStaticCaptureQuality(parsed, target);
   if (quality.status !== "passed") {
     const error = new Error(
@@ -330,11 +739,11 @@ function validateParsed(parsed, target) {
 }
 
 function isStrictStaticJudgmentKitTarget(target) {
-  return target.render_mode === "html" && target.judgmentkit_mode === "with_judgmentkit";
-}
-
-function countMatches(value, pattern) {
-  return (String(value).match(pattern) ?? []).length;
+  return (
+    target.render_mode === "html" &&
+    target.judgmentkit_mode === "with_judgmentkit" &&
+    target.design_system_mode === "none"
+  );
 }
 
 function hasCompactTemplateSignature(css) {
@@ -350,10 +759,30 @@ function hasCompactTemplateSignature(css) {
   );
 }
 
-function analyzeStaticCaptureQuality(parsed, target) {
-  const css = sanitizeCss(parsed?.css);
+export function analyzeStaticCaptureQuality(parsed, target) {
+  const css = stripCssComments(sanitizeCss(parsed?.css));
   const html = sanitizeHtml(parsed?.html);
   const strict = isStrictStaticJudgmentKitTarget(target);
+  const inlineStyles = extractInlineStyleAttributes(html).join(";");
+  const combinedStyleText = `${css}\n${inlineStyles}`;
+  const declarations = [
+    ...extractCssDeclarations(css),
+    ...extractInlineStyleDeclarations(html),
+  ];
+  const disallowedVisualTokens = disallowedVisualCustomProperties(combinedStyleText, target);
+  const jkTokenReferences = extractCssVarReferenceNames(combinedStyleText).filter((name) =>
+    name.startsWith("--jk-"),
+  );
+  const activeJkTokenReferences = jkTokenReferences.filter((name) =>
+    JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET.has(name),
+  );
+  const unsupportedJkTokens = [
+    ...new Set(jkTokenReferences.filter((name) => !JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET.has(name))),
+  ];
+  const jkTokenDefinitions = extractCssCustomPropertyDefinitions(combinedStyleText).filter((name) =>
+    name.startsWith("--jk-"),
+  );
+  const literalVisualValues = literalVisualValueDeclarations(declarations);
   const quality = {
     profile: strict ? "judgmentkit_static_html_css" : "basic_static_html_css",
     css_characters: css.length,
@@ -370,10 +799,47 @@ function analyzeStaticCaptureQuality(parsed, target) {
     has_evidence_content: /evidence|risk|reason|signal|trend|usage|procurement|champion|issue|case|missing|blocked|check|review|permit|technician|intake|receipt|refund|renewal|account|patient|customer|site/i.test(html),
     has_handoff_content: /handoff|owner|send|next owner|meeting note|procurement date|assign|escalate|request|schedule|follow/i.test(html),
     compact_template_signature: hasCompactTemplateSignature(css),
+    has_judgmentkit_default_tokens: activeJkTokenReferences.length >= 4,
+    jk_token_usage_count: activeJkTokenReferences.length,
+    jk_token_reference_count: jkTokenReferences.length,
+    unsupported_jk_tokens: unsupportedJkTokens,
+    jk_token_definition_count: jkTokenDefinitions.length,
+    jk_token_definitions: jkTokenDefinitions,
+    disallowed_visual_tokens: disallowedVisualTokens,
+    inline_style_attribute_count: extractInlineStyleAttributes(html).length,
+    hard_coded_visual_values: literalVisualValues,
     failures: [],
   };
 
   if (strict) {
+    if (!quality.has_judgmentkit_default_tokens) {
+      quality.failures.push("CSS does not use active JudgmentKit --jk-* design-system tokens at least 4 times");
+    }
+    if (quality.unsupported_jk_tokens.length > 0) {
+      quality.failures.push(
+        `CSS references tokens that are not provided by the active JudgmentKit design-system source: ${quality.unsupported_jk_tokens.join(", ")}`,
+      );
+    }
+    if (quality.disallowed_visual_tokens.length > 0) {
+      quality.failures.push(
+        `CSS uses local visual token names outside the active design-system source: ${quality.disallowed_visual_tokens.join(", ")}`,
+      );
+    }
+    if (quality.jk_token_definitions.length > 0) {
+      quality.failures.push(
+        `CSS defines or overrides provided JudgmentKit --jk-* design-system tokens: ${quality.jk_token_definitions.join(", ")}`,
+      );
+    }
+    if (quality.inline_style_attribute_count > 0) {
+      quality.failures.push(
+        "HTML uses inline style attributes; visual styling must live in CSS and consume active JudgmentKit design-system tokens there",
+      );
+    }
+    if (quality.hard_coded_visual_values.length > 0) {
+      quality.failures.push(
+        `CSS or inline styles use hard-coded visual values instead of active JudgmentKit design-system tokens: ${quality.hard_coded_visual_values.map((entry) => `${entry.source}:${entry.property}`).join(", ")}`,
+      );
+    }
     if (quality.css_characters < 650) {
       quality.failures.push("CSS is too small for a styled JudgmentKit static capture");
     }
@@ -664,6 +1130,21 @@ function buildPromptContextPayload(contextPayload) {
   };
 }
 
+function judgmentKitStaticTokenPromptRules(target) {
+  if (!isStrictStaticJudgmentKitTarget(target)) {
+    return [];
+  }
+
+  return [
+    "- Because no external design system adapter is active, CSS must use the JudgmentKit default design-system tokens with the --jk- prefix.",
+    "- Use var(--jk-color-canvas), var(--jk-color-surface), var(--jk-color-text), var(--jk-color-muted), var(--jk-color-border), var(--jk-color-focus), var(--jk-color-warning), and related --jk-* tokens for visual styling.",
+    `- Available JudgmentKit default tokens: ${JUDGMENTKIT_DEFAULT_TOKEN_NAMES.join(", ")}.`,
+    "- Consume the provided --jk-* tokens with var(...); do not define or override --jk-* custom properties in the model CSS.",
+    "- Do not use inline style attributes; put visual styling in CSS and consume the provided --jk-* tokens there.",
+    "- Do not define or use local visual custom properties such as --bg, --canvas, --panel, --ink, --muted, --line, --accent, --warn, --danger, --good, --surface, --text, or --border.",
+  ];
+}
+
 function buildHtmlPrompt({ target, contextPayload }) {
   const usingJudgmentKit = target.judgmentkit_mode === "with_judgmentkit";
   const boundary = usingJudgmentKit
@@ -691,6 +1172,7 @@ function buildHtmlPrompt({ target, contextPayload }) {
     "- Do not include <script>, external assets, remote fonts, image URLs, or network references.",
     "- Use visible UI copy, buttons, and sections that reflect the provided context boundary.",
     "- For JudgmentKit columns, follow frontend_skill_context.instruction_markdown, implementation_sequence, guardrails, approved primitives, and verification checklist.",
+    ...judgmentKitStaticTokenPromptRules(target),
     "- Keep it readable at a 1365x900 desktop viewport.",
     "",
     "Context JSON:",
@@ -970,6 +1452,7 @@ function buildCompactRetryPrompt(target, contextPayload) {
         `Guardrail: ${skill.guardrails?.product_ui_rule}`,
         `Keep out of product UI: ${(skill.guardrails?.terms_to_keep_out_of_product_ui ?? []).join(", ")}.`,
         `Design policy: ${skill.design_system_policy?.mode}; ${skill.design_system_policy?.constraint}`,
+        ...judgmentKitStaticTokenPromptRules(target),
         `Verify: ${(skill.verification_checklist ?? []).slice(0, 6).join(" | ")}.`,
       ]
     : [];
@@ -1107,6 +1590,7 @@ function buildLmsJudgmentKitStaticPrompt(target, contextPayload, validationFailu
     "- At a 1365x900 desktop viewport, the queue/context, evidence, decision controls, and handoff should all be visible or clearly started without looking sparse.",
     "- Keep JudgmentKit terms, prompt/schema/tool names, and implementation machinery out of visible product UI.",
     "- Minify CSS and HTML strings: no comments, no indentation, no explanatory prose. Do not copy a tiny generic .panel/.actions sample; incomplete CSS or low-density HTML will be rejected.",
+    ...judgmentKitStaticTokenPromptRules(target),
     "",
     ...retryLines,
     "Context JSON:",
@@ -1352,4 +1836,6 @@ async function captureUseCase(useCase) {
   await writeLegacyCaptureAliases();
 }
 
-await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}

@@ -7802,6 +7802,16 @@ export function createUiImplementationContract(input = {}, options = {}) {
           "local component authority",
         ],
       },
+      {
+        id: "design_system_gate",
+        status: "required_for_candidate_acceptance",
+        checks: [
+          "active design-system provenance",
+          "visual token boundary",
+          "component contract evidence",
+          "pattern contract evidence",
+        ],
+      },
     ],
   };
 
@@ -9783,6 +9793,200 @@ function usesJudgmentKitIconTools(text) {
   );
 }
 
+const DESIGN_SYSTEM_PROVENANCE_REQUIRED_PROOF = [
+  {
+    id: "visual_token_source",
+    label: "visual token source",
+    keyPattern: /(?:visual_?)?token.*source|source.*(?:visual_?)?token/i,
+  },
+  {
+    id: "typography_source",
+    label: "typography source",
+    keyPattern: /typography.*source|font.*source|source.*typography|source.*font/i,
+  },
+  {
+    id: "icon_asset_source",
+    label: "icon asset source",
+    keyPattern: /icon.*source|source.*icon/i,
+  },
+  {
+    id: "renderer_component_source",
+    label: "renderer component source",
+    keyPattern:
+      /renderer.*component.*source|component.*source|source.*renderer|source.*component/i,
+  },
+  {
+    id: "import_package_boundary",
+    label: "import and package boundary",
+    keyPattern:
+      /import.*(?:boundary|package|source)|package.*(?:boundary|source)|(?:import|package)s?$/i,
+  },
+  {
+    id: "token_prefix_source",
+    label: "token-prefix proof",
+    keyPattern: /token.*prefix|prefix.*token/i,
+  },
+  {
+    id: "source_export_proof",
+    label: "source-export proof",
+    keyPattern: /source.*export|export.*source|manifest.*source/i,
+  },
+];
+
+function provenanceEvidenceEntries(value, path = []) {
+  if (Array.isArray(value)) {
+    return value.flatMap((entry, index) =>
+      provenanceEvidenceEntries(entry, [...path, String(index)]),
+    );
+  }
+
+  if (isPlainObject(value)) {
+    return Object.entries(value).flatMap(([key, entry]) =>
+      provenanceEvidenceEntries(entry, [...path, key]),
+    );
+  }
+
+  const text = optionalString(value);
+  return text.length > 0 ? [{ path: path.join("."), text }] : [];
+}
+
+function provenanceEvidenceKeysWithValues(value) {
+  return provenanceEvidenceEntries(value).map((entry) => entry.path);
+}
+
+function sourceMatchText(values) {
+  return values.map(optionalString).filter(Boolean).map(escapeRegExp).join("|");
+}
+
+function sourceExportValues(sourceExports) {
+  return Object.values(sourceExports ?? {})
+    .flatMap((value) => (Array.isArray(value) ? value : [value]))
+    .filter((value) => typeof value === "string");
+}
+
+function hasProvenanceForbiddenSource(text) {
+  return /hard.?coded|handwritten|bespoke|inline svg|app styles|not checked|unknown source|local css/i.test(
+    text,
+  );
+}
+
+function isGenericDefaultDesignSystemSource(text, source) {
+  if (source.mode !== "judgmentkit_default") {
+    return false;
+  }
+
+  return /^(?:judgmentkit|judgmentkit_default|judgmentkit default|default)$/i.test(
+    optionalString(text).trim(),
+  );
+}
+
+function designSystemProvenanceSourcePattern(requirement, context) {
+  const source = context.source;
+  const defaultMode = source.mode === "judgmentkit_default";
+  const allowedPackages = sourceMatchText(context.allowedPackages);
+  const tokenPrefixes = sourceMatchText(context.allowedPrefixes);
+  const sourceExports = sourceMatchText(sourceExportValues(source.source_exports));
+
+  if (defaultMode) {
+    if (requirement.id === "visual_token_source") {
+      return /\/design-system\/visual-token-adapter\.json|implementation_contract\.visual_token_adapter|--jk-/i;
+    }
+    if (requirement.id === "typography_source") {
+      return /\/design-system\/visual-token-adapter\.json|implementation_contract\.visual_token_adapter|system stack|font role/i;
+    }
+    if (requirement.id === "icon_asset_source") {
+      return /get_icon_svg|list_icon_catalog|search_icon_catalog|\/design-system\/icons|judgmentkit icon catalog|lucide-static/i;
+    }
+    if (requirement.id === "renderer_component_source") {
+      return /implementation_contract\.default_ai_native_design_system|implementation_contract\.design_system_source/i;
+    }
+    if (requirement.id === "import_package_boundary") {
+      return /active design-system source|outside the active|allowed packages|package boundary|import boundary/i;
+    }
+    if (requirement.id === "token_prefix_source") {
+      return /--jk-|implementation_contract\.design_system_source\.token_prefixes/i;
+    }
+    if (requirement.id === "source_export_proof") {
+      return new RegExp(
+        `/design-system/|implementation_contract\\.design_system_source\\.source_exports${
+          sourceExports ? `|${sourceExports}` : ""
+        }`,
+        "i",
+      );
+    }
+  }
+
+  const externalName = sourceMatchText([source.name, source.package]);
+  const externalCore = [
+    "implementation_contract\\.design_system_adapter",
+    "implementation_contract\\.visual_token_adapter",
+    "implementation_contract\\.design_system_source",
+    "active external",
+    externalName,
+    allowedPackages,
+  ].filter(Boolean).join("|");
+
+  if (requirement.id === "visual_token_source") {
+    return new RegExp(`${externalCore}|${tokenPrefixes}`, "i");
+  }
+  if (requirement.id === "typography_source") {
+    return new RegExp(`${externalCore}|font_guidance|typography`, "i");
+  }
+  if (requirement.id === "icon_asset_source") {
+    return new RegExp(`${externalCore}|icon_guidance|icon_catalog`, "i");
+  }
+  if (requirement.id === "renderer_component_source") {
+    return new RegExp(`${externalCore}|components|component_contracts`, "i");
+  }
+  if (requirement.id === "import_package_boundary") {
+    return new RegExp(`${externalCore}|allowed packages|outside the active`, "i");
+  }
+  if (requirement.id === "token_prefix_source") {
+    return new RegExp(`${externalCore}|${tokenPrefixes}`, "i");
+  }
+  if (requirement.id === "source_export_proof") {
+    return new RegExp(sourceExports || "$a", "i");
+  }
+
+  return /.+/;
+}
+
+function requiredDesignSystemProvenanceProof(source) {
+  const hasSourceExports = Object.keys(source.source_exports ?? {}).length > 0;
+
+  return DESIGN_SYSTEM_PROVENANCE_REQUIRED_PROOF.filter(
+    (requirement) => requirement.id !== "source_export_proof" || hasSourceExports,
+  );
+}
+
+function provenanceEntrySatisfiesRequirement(entry, requirement, context) {
+  if (!requirement.keyPattern.test(entry.path)) {
+    return false;
+  }
+
+  if (hasProvenanceForbiddenSource(entry.text)) {
+    return false;
+  }
+
+  if (isGenericDefaultDesignSystemSource(entry.text, context.source)) {
+    return false;
+  }
+
+  return designSystemProvenanceSourcePattern(requirement, context).test(entry.text);
+}
+
+function missingDesignSystemProvenanceProof(provenanceEvidence, context) {
+  const entries = provenanceEvidenceEntries(provenanceEvidence);
+  const requiredProof = requiredDesignSystemProvenanceProof(context.source);
+
+  return requiredProof.filter(
+    (requirement) =>
+      !entries.some((entry) =>
+        provenanceEntrySatisfiesRequirement(entry, requirement, context),
+      ),
+  );
+}
+
 function reviewDesignSystemProvenance(candidate, implementationContract, text) {
   const visualTokenAdapter = normalizeVisualTokenAdapter(
     implementationContract.visual_token_adapter,
@@ -9800,6 +10004,7 @@ function reviewDesignSystemProvenance(candidate, implementationContract, text) {
     },
   );
   const provenanceEvidence = candidateDesignSystemProvenance(candidate);
+  const hasProvenanceEvidence = evidenceHasAnyValue(provenanceEvidence);
   const evidenceText = evidenceToText(provenanceEvidence);
   const searchableText = `${text}\n${evidenceText}`.toLowerCase();
   const imports = collectImportedPackages(text);
@@ -9869,6 +10074,68 @@ function reviewDesignSystemProvenance(candidate, implementationContract, text) {
     !externalAllowsJudgmentKitIconAssets &&
     (imports.includes("lucide-react") || usesJudgmentKitIconTools(searchableText));
   const findings = [];
+  const provenanceContext = {
+    source,
+    visualTokenAdapter,
+    iconCatalog,
+    allowedPackages,
+    allowedPrefixes,
+  };
+  const requiredProof = requiredDesignSystemProvenanceProof(source);
+  const missingProof = hasProvenanceEvidence
+    ? missingDesignSystemProvenanceProof(provenanceEvidence, provenanceContext)
+    : requiredProof;
+
+  if (source.provenance_required && !hasProvenanceEvidence) {
+    findings.push({
+      severity: "fail",
+      check: "design_system_provenance",
+      message:
+        "Candidate is missing required design-system provenance for the active design-system source.",
+      evidence: {
+        field: "design_system_provenance",
+        active_source: {
+          mode: source.mode,
+          name: source.name,
+          package: source.package,
+          definition_point: source.definition_point,
+        },
+        required_authorities: source.required_authorities,
+        required_proof: [
+          "visual token source",
+          "typography source",
+          "icon asset source",
+          "renderer component source",
+          "import and package boundary",
+          "token-prefix proof",
+          "source-export proof",
+        ],
+      },
+    });
+  }
+
+  if (source.provenance_required && hasProvenanceEvidence && missingProof.length > 0) {
+    findings.push({
+      severity: "fail",
+      check: "design_system_provenance",
+      message:
+        "Candidate design-system provenance is incomplete for the active design-system source.",
+      evidence: {
+        field: "design_system_provenance",
+        missing_proof: missingProof.map((requirement) => requirement.id),
+        required_proof: requiredProof.map(
+          (requirement) => requirement.label,
+        ),
+        provided_paths: provenanceEvidenceKeysWithValues(provenanceEvidence),
+        active_source: {
+          mode: source.mode,
+          name: source.name,
+          package: source.package,
+          definition_point: source.definition_point,
+        },
+      },
+    });
+  }
 
   if (disallowedDesignImports.length > 0) {
     findings.push({
@@ -9958,12 +10225,23 @@ function reviewDesignSystemProvenance(candidate, implementationContract, text) {
     required_authorities: source.required_authorities,
     fallback_policy: source.fallback_policy,
     provenance_required: source.provenance_required,
+    provenance_present: hasProvenanceEvidence,
+    missing_required_proof: missingProof.map((requirement) => requirement.id),
     allowed_packages: allowedPackages,
     token_prefixes: allowedPrefixes,
     detected_imports: imports,
     detected_visual_tokens: cssCustomProperties,
     findings,
   };
+}
+
+function designSystemGateFailed(checks) {
+  return [
+    checks.visual_tokens,
+    checks.design_system_provenance,
+    checks.component_contracts,
+    checks.pattern_contracts,
+  ].some((check) => check?.status === "fail");
 }
 
 function candidateLocalComponentAuthorityEvidence(candidate) {
@@ -12064,7 +12342,7 @@ function repairInstructionForFinding(finding, implementationContract) {
   }
 
   if (check === "design_system_provenance") {
-    return "Use implementation_contract.design_system_source as the source for visual tokens, typography, icon assets, and renderer components; remove local visual token namespaces, remote font/icon sources, and direct packages outside the active source.";
+    return "Populate design_system_provenance with proof that visual tokens, typography, icon assets, renderer components, imports, packages, token prefixes, and source exports come from implementation_contract.design_system_source; remove local visual token namespaces, remote font/icon sources, and direct packages outside the active source.";
   }
 
   if (check === "local_component_authority") {
@@ -12180,6 +12458,7 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
     implementationContract,
     { selectedSurfaceType },
   );
+  const designSystemFailed = designSystemGateFailed(checks);
   const failed = checks.findings.some((finding) => finding.severity === "fail");
   const iterationPolicy = implementationContract.iteration_policy;
   const iterationContext = normalizeIterationContext(
@@ -12197,6 +12476,8 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
     contract_id: contract.id,
     workflow_id: getContractWorkflowId(contract),
     implementation_review_status: failed ? "failed" : "passed",
+    candidate_artifact_status: failed ? "not_an_artifact" : "accepted_artifact",
+    design_system_acceptance_status: designSystemFailed ? "failed" : "passed",
     implementation_contract_id: implementationContract.id,
     next_agent_action: nextAgentAction,
     autofix_loop: autofixLoop,
@@ -12216,6 +12497,12 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
         status: failed ? "failed" : "passed",
         requirement:
           "Generated UI must use approved primitives, respect local component authority, and provide static plus browser QA evidence.",
+      },
+      {
+        id: "design_system_gate",
+        status: designSystemFailed ? "failed" : "passed",
+        requirement:
+          "Generated UI must prove active design-system provenance for visual tokens, typography, icon assets, renderer components, component contracts, and pattern contracts before it can count as an artifact.",
       },
     ],
     checks: {
@@ -12410,6 +12697,15 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
           "use approved primitives",
           "run static enforcement",
           "complete desktop and mobile browser QA",
+        ],
+      },
+      {
+        id: "design_system_gate",
+        status: "required_before_final_handoff",
+        evidence: [
+          "prove active design-system provenance",
+          "use approved visual token, typography, icon, and renderer component sources",
+          "repair and resubmit candidates that fail the active design-system source",
         ],
       },
     ],

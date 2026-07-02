@@ -151,7 +151,7 @@
     "stderr_sha256": "73b93cec4e799368efb07725d0f31e70bdef130b750c4565663dd7ff7641f4d2"
   },
   "source_context_status": "legacy_accepted",
-  "current_source_context_sha256": "4939d27ac18798f8c2687e535120d5a13b80081e095edaa4bd913bd5458538a4",
+  "current_source_context_sha256": "5f6406eee5484bde60af01d7d0d84cc453df519662c6e3cd798377fc8116b00a",
   "accepted_source_context_sha256": "5ad2fd84f91850b16be0a4100df01bec39ae3046ccdcdc4f9b7413b3b685a807",
   "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
   "canonical_artifact_id": "gpt55-xhigh-codex-judgmentkit-material-ui",

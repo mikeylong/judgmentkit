@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import {
   COMPARISON_COLUMNS,
   COMPARISON_ROWS,
+  JUDGMENTKIT_DEFAULT_TOKEN_NAMES,
   LEGACY_ALIASES,
   MODEL_UI_INDEX_FILE,
   MODEL_UI_USE_CASES,
@@ -20,8 +21,15 @@ const pngSignature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a
 const activityContract = readJson(
   path.join(root, "contracts/ai-ui-generation.activity-contract.json"),
 );
+const { analyzeStaticCaptureQuality, validateParsed } = await import(
+  "../scripts/capture-model-ui-matrix.mjs"
+);
 const EXPECTED_TOKEN_BOUNDARY_RULE =
   activityContract.implementation_contract.local_component_authority.token_boundary.rule;
+const LOCAL_VISUAL_TOKEN_PATTERN =
+  /--(?:bg|canvas|panel|surface(?:-strong)?|ink|text|muted|line(?:-strong)?|border|accent(?:-strong|-soft)?|warn(?:-soft)?|warning|danger(?:-soft)?|risk|success|good(?:-soft)?|focus|brand|status|shadow)\b/i;
+const JK_TOKEN_DEFINITION_PATTERN = /--jk-[a-z0-9-]+\s*:/i;
+const JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET = new Set(JUDGMENTKIT_DEFAULT_TOKEN_NAMES);
 
 const MODEL_ROWS = COMPARISON_ROWS.filter(
   (row) => row.generation_source === "captured_model_output",
@@ -68,6 +76,45 @@ function compactText(value) {
   return String(value).replace(/\s+/g, " ").trim();
 }
 
+function assertJudgmentKitStaticTokenUsage(value, label) {
+  const text = String(value);
+
+  for (const token of [
+    "--jk-color-canvas",
+    "--jk-color-surface",
+    "--jk-color-text",
+    "--jk-color-muted",
+    "--jk-color-border",
+    "--jk-color-focus",
+  ]) {
+    assert.ok(text.includes(token), `${label} should include ${token}`);
+    assert.ok(
+      text.includes(`var(${token})`) || new RegExp(`${token}\\s*:`).test(text),
+      `${label} should define or consume ${token}`,
+    );
+  }
+
+  assert.equal(
+    LOCAL_VISUAL_TOKEN_PATTERN.test(text),
+    false,
+    `${label} should not define or consume local visual token names`,
+  );
+
+  const unsupportedJkTokens = [
+    ...new Set(
+      [...text.matchAll(/--jk-[a-z0-9-]+/gi)]
+        .map((match) => match[0].toLowerCase())
+        .filter((token) => !JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET.has(token)),
+    ),
+  ];
+
+  assert.deepEqual(
+    unsupportedJkTokens,
+    [],
+    `${label} should not reference undefined JudgmentKit token names`,
+  );
+}
+
 function assertJudgmentKitStaticCaptureQuality(capture, label) {
   assert.equal(capture.frontend_skill_context_status, "ready", `${label} should have ready frontend skill context`);
   assert.equal(capture.frontend_skill_context.raw_skill_exposed, false, `${label} should not expose raw skill text`);
@@ -86,6 +133,11 @@ function assertJudgmentKitStaticCaptureQuality(capture, label) {
   assert.equal(capture.capture_quality.has_evidence_content, true, `${label} should include evidence content`);
   assert.equal(capture.capture_quality.has_handoff_content, true, `${label} should include handoff content`);
   assert.equal(capture.capture_quality.compact_template_signature, false, `${label} should not match the rejected compact template`);
+  if (capture.source_context_status === "current") {
+    assert.equal(capture.capture_quality.has_judgmentkit_default_tokens, true, `${label} should use JudgmentKit default tokens`);
+    assert.ok(capture.capture_quality.jk_token_usage_count >= 4, `${label} should use multiple JudgmentKit token references`);
+    assert.deepEqual(capture.capture_quality.disallowed_visual_tokens, [], `${label} should not use local visual token names`);
+  }
 }
 
 function readProvenance(html) {
@@ -120,6 +172,395 @@ assert.match(
   "capture script should preserve surface_type_guidance so fresh captures record surface_type.",
 );
 
+const strictJudgmentKitTarget = {
+  artifact_id: "test-with-judgmentkit",
+  render_mode: "html",
+  judgmentkit_mode: "with_judgmentkit",
+  design_system_mode: "none",
+};
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "Uses local visual variables.",
+        css: [
+          ":root{--canvas:#fff;--panel:#fff;--ink:#111;--accent:#245f73}",
+          ".shell{display:grid;gap:12px;background:var(--canvas);color:var(--ink)}",
+          ".panel{border:1px solid var(--accent);background:var(--panel)}",
+          ".actions{display:flex;gap:8px}.actions button{padding:8px}",
+          "@media(max-width:760px){.shell{display:block}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /local visual token names|--jk-\*/,
+);
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "Uses local visual aliases mixed with JK token references.",
+        css: [
+          ".shell{display:grid;gap:var(--jk-space-4);background:var(--bg);color:var(--jk-color-text)}",
+          ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+          ".warn{color:var(--warn)}.danger{color:var(--danger)}.good{color:var(--good)}",
+          ".actions{display:flex;gap:var(--jk-space-2)}.actions button{padding:8px}",
+          "@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /local visual token names/,
+);
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "Redefines JudgmentKit tokens inside model CSS.",
+        css: [
+          ":root{--jk-color-canvas:#111827}",
+          ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text)}",
+          ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+          ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+          ".primary{background:var(--jk-color-focus);color:var(--jk-color-surface)}",
+          ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /not define or override/,
+);
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "References invented JudgmentKit token names.",
+        css: [
+          ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text)}",
+          ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+          ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+          ".shadow{box-shadow:var(--jk-shadow)}.primary{background:var(--jk-color-focus);color:var(--jk-color-surface)}",
+          ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /not provided/,
+);
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "Uses hard-coded visual values.",
+        css: [
+          ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:#dc3545}",
+          ".panel{border:1px solid rgb(10, 20, 30);background:var(--jk-color-surface)}",
+          ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+          ".primary{background:var(--jk-color-focus);color:white;box-shadow:0 2px 8px rgba(0,0,0,.2)}",
+          ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /hard-coded visual literals/,
+);
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "Uses a named CSS color literal.",
+        css: [
+          ".shell{display:grid;gap:var(--jk-space-4);background:beige;color:var(--jk-color-text)}",
+          ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+          ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+          ".primary{background:var(--jk-color-focus);color:var(--jk-color-surface)}",
+          ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /hard-coded visual literals/,
+);
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "Uses a named color inside token color mixing.",
+        css: [
+          ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text)}",
+          ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+          ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+          ".primary{background:color-mix(in srgb, var(--jk-color-focus) 80%, white);color:var(--jk-color-surface)}",
+          ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /hard-coded visual literals/,
+);
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "Uses hard-coded border longhand colors.",
+        css: [
+          ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text)}",
+          ".panel{border-top:1px solid red;border-inline-start:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+          ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+          ".primary{background:var(--jk-color-focus);color:var(--jk-color-surface)}",
+          ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /hard-coded visual literals/,
+);
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "Uses hard-coded background image colors.",
+        css: [
+          ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text)}",
+          ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+          ".notice{background-image:linear-gradient(var(--jk-color-surface), white);text-decoration-color:var(--jk-color-focus)}",
+          ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+          ".primary{background:var(--jk-color-focus);color:var(--jk-color-surface)}",
+          ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /hard-coded visual literals/,
+);
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "Uses hard-coded color longhand values.",
+        css: [
+          ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text)}",
+          ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+          ".notice{text-decoration-color:red}",
+          ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+          ".primary{background:var(--jk-color-focus);color:var(--jk-color-surface)}",
+          ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /hard-coded visual literals/,
+);
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "Uses modern CSS color literals.",
+        css: [
+          ".shell{display:grid;gap:var(--jk-space-4);background:oklch(98% 0.02 220);color:var(--jk-color-text)}",
+          ".panel{border:1px solid color(display-p3 .2 .3 .4);background:var(--jk-color-surface)}",
+          ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+          ".primary{background:color-mix(in oklch, var(--jk-color-focus) 80%, white);color:var(--jk-color-surface)}",
+          ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /hard-coded visual literals/,
+);
+assert.deepEqual(
+  analyzeStaticCaptureQuality(
+    {
+      css: [
+        ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text)}",
+        ".panel{border:1px solid var(--jk-color-border);background:color-mix(in srgb, var(--jk-color-surface) 92%, var(--jk-color-canvas))}",
+        ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+        ".primary{background:var(--jk-color-focus);color:var(--jk-color-surface)}",
+        ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+      ].join(""),
+      html:
+        '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow with enough detail for the static surface.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+    },
+    strictJudgmentKitTarget,
+  ).hard_coded_visual_values,
+  [],
+);
+assert.deepEqual(
+  analyzeStaticCaptureQuality(
+    {
+      css: [
+        ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text);font-family:'Red Hat Display', sans-serif}",
+        ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+        ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+        ".primary{background:var(--jk-color-focus);color:var(--jk-color-surface)}",
+        ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+      ].join(""),
+      html:
+        '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow with enough detail for the static surface.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+    },
+    strictJudgmentKitTarget,
+  ).hard_coded_visual_values,
+  [],
+);
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "Uses inline visual values.",
+        css: [
+          ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text)}",
+          ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+          ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+          ".primary{background:var(--jk-color-focus);color:var(--jk-color-surface)}",
+          ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel" style="color:#dc3545"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /inline style attributes/,
+);
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "Uses token-valued inline styles.",
+        css: [
+          ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text)}",
+          ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+          ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+          ".primary{background:var(--jk-color-focus);color:var(--jk-color-surface)}",
+          ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel" style="color:var(--jk-color-text)"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /inline style attributes/,
+);
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "Uses token fallback literals.",
+        css: [
+          ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text,#111)}",
+          ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+          ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+          ".primary{background:var(--jk-color-focus);color:var(--jk-color-surface, white)}",
+          ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /hard-coded visual literals/,
+);
+const strictTokenQuality = analyzeStaticCaptureQuality(
+  {
+    css: [
+      ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text)}",
+      ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+      ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+      ".primary{background:var(--jk-color-focus);color:var(--jk-color-surface)}",
+      ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+    ].join(""),
+    html:
+      '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+  },
+  strictJudgmentKitTarget,
+);
+assert.equal(strictTokenQuality.has_judgmentkit_default_tokens, true);
+assert.ok(strictTokenQuality.jk_token_usage_count >= 4);
+assert.equal(strictTokenQuality.jk_token_reference_count, strictTokenQuality.jk_token_usage_count);
+assert.deepEqual(strictTokenQuality.unsupported_jk_tokens, []);
+assert.equal(strictTokenQuality.jk_token_definition_count, 0);
+assert.deepEqual(strictTokenQuality.jk_token_definitions, []);
+assert.deepEqual(strictTokenQuality.disallowed_visual_tokens, []);
+assert.equal(strictTokenQuality.inline_style_attribute_count, 0);
+assert.deepEqual(strictTokenQuality.hard_coded_visual_values, []);
+
+const unsupportedTokenQuality = analyzeStaticCaptureQuality(
+  {
+    css: [
+      ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text)}",
+      ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+      ".shadow{box-shadow:var(--jk-shadow)}.primary{background:var(--jk-color-focus)}",
+      "@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+    ].join(""),
+    html:
+      '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+  },
+  strictJudgmentKitTarget,
+);
+assert.deepEqual(unsupportedTokenQuality.unsupported_jk_tokens, ["--jk-shadow"]);
+assert.equal(unsupportedTokenQuality.status, "failed");
+
+const inlineStyleQuality = analyzeStaticCaptureQuality(
+  {
+    css: [
+      ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text)}",
+      ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+      ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+      ".primary{background:var(--jk-color-focus);color:var(--jk-color-surface)}",
+      ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+    ].join(""),
+    html:
+      '<main data-primary-surface><section class="panel" style="color:var(--jk-color-text)"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+  },
+  strictJudgmentKitTarget,
+);
+assert.equal(inlineStyleQuality.inline_style_attribute_count, 1);
+assert.equal(inlineStyleQuality.status, "failed");
+assert.ok(
+  inlineStyleQuality.failures.some((failure) => failure.includes("inline style attributes")),
+);
+
+assert.doesNotThrow(() =>
+  validateParsed(
+    {
+      summary: "Uses an external HTML design-system namespace.",
+      css: [
+        ":root{--acme-color-canvas:#fff;--acme-color-text:#111;--acme-space-3:12px}",
+        ".shell{display:grid;gap:var(--acme-space-3);background:var(--acme-color-canvas);color:var(--acme-color-text)}",
+      ].join(""),
+      html:
+        '<main data-primary-surface><section><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button></section></main>',
+    },
+    {
+      artifact_id: "test-with-external-html-design-system",
+      render_mode: "html",
+      judgmentkit_mode: "with_judgmentkit",
+      design_system_mode: "acme",
+    },
+  ),
+);
+
 const indexPath = path.join(root, MODEL_UI_INDEX_FILE);
 assert.equal(fs.existsSync(indexPath), true);
 const useCaseIndex = readJson(indexPath);
@@ -131,6 +572,7 @@ assert.deepEqual(
 
 let canonicalArtifacts = 0;
 let canonicalScreenshots = 0;
+let diagnosticCandidates = 0;
 let modelCaptures = 0;
 
 for (const useCase of MODEL_UI_USE_CASES) {
@@ -164,10 +606,90 @@ for (const useCase of MODEL_UI_USE_CASES) {
   assert.equal(manifest.design_system_render_mode, "static-ssr");
   assert.equal(manifest.comparison_rows.length, 3);
   assert.equal(manifest.comparison_columns.length, 4);
-  assert.equal(manifest.artifacts.length, 12);
+  assert.ok(Array.isArray(manifest.artifacts));
+  assert.ok(Array.isArray(manifest.diagnostic_candidates));
+  assert.equal(
+    manifest.comparison_rows.reduce(
+      (total, row) => total + row.cells.length,
+      0,
+    ),
+    12,
+  );
+  assert.equal(manifest.artifacts.length + manifest.diagnostic_candidates.length, 12);
+  const strictStaticDiagnosticIds = new Set(
+    MODEL_ROWS.map((row) => `${row.id}-with-judgmentkit`),
+  );
+  for (const entry of manifest.artifacts) {
+    assert.equal(entry.release_evidence_status, "artifact");
+    assert.equal(entry.implementation_review_status, "passed");
+    assert.equal(entry.next_agent_action, "accept");
+    assert.equal(entry.candidate_artifact_status, "accepted_artifact");
+    assert.equal(entry.design_system_acceptance_status, "passed");
+    assert.deepEqual(entry.failed_checks, []);
+    assert.ok(entry.artifact_path);
+    assert.ok(entry.screenshot_path);
+  }
+  for (const rejected of manifest.diagnostic_candidates) {
+    diagnosticCandidates += 1;
+    assert.equal(rejected.release_evidence_status, "diagnostic_only");
+    assert.equal(
+      manifest.artifacts.some((artifact) => artifact.id === rejected.id),
+      false,
+    );
+    assert.equal(rejected.artifact_path ?? null, null);
+    assert.equal(rejected.screenshot_path ?? null, null);
+    assert.equal(rejected.next_agent_action, "repair_and_resubmit");
+    assert.ok(
+      rejected.failed_checks.some((check) =>
+        [
+          "design_system_provenance",
+          "visual_tokens",
+          "local_component_authority",
+          "static_capture_quality",
+          "capture_validation",
+          "capture_missing",
+        ].includes(check),
+      ),
+    );
+    if (strictStaticDiagnosticIds.has(rejected.id)) {
+      assert.equal(
+        rejected.generation_source,
+        "captured_model_output",
+        `${useCase.id}/${rejected.id} should be a captured model diagnostic`,
+      );
+      assert.equal(
+        rejected.capture_validation?.status,
+        "failed",
+        `${useCase.id}/${rejected.id} should record failed current capture validation`,
+      );
+      assert.ok(
+        rejected.capture_validation.failed_checks.includes("visual_tokens"),
+        `${useCase.id}/${rejected.id} should fail visual token validation`,
+      );
+      assert.ok(
+        rejected.capture_validation.failed_checks.includes("static_capture_quality"),
+        `${useCase.id}/${rejected.id} should fail static capture quality validation`,
+      );
+      assert.ok(
+        rejected.capture_validation.message.includes("JudgmentKit static"),
+        `${useCase.id}/${rejected.id} should preserve the validation error message`,
+      );
+    }
+  }
+  assert.deepEqual(
+    manifest.diagnostic_candidates
+      .filter((candidate) => strictStaticDiagnosticIds.has(candidate.id))
+      .map((candidate) => candidate.id)
+      .sort(),
+    [...strictStaticDiagnosticIds].sort(),
+    `${useCase.id} should keep invalid strict static captures diagnostic-only`,
+  );
+  const acceptedArtifactIds = new Set(manifest.artifacts.map((artifact) => artifact.id));
   assert.equal(
     manifest.legacy_aliases.length,
-    useCase.id === "refund-system-map" ? 6 : 0,
+    useCase.id === "refund-system-map"
+      ? LEGACY_ALIASES.filter((alias) => acceptedArtifactIds.has(alias.canonical_id)).length
+      : 0,
   );
   assert.equal(handoff.handoff_status, "ready_for_generation");
   assert.equal(
@@ -210,10 +732,26 @@ for (const useCase of MODEL_UI_USE_CASES) {
   for (const row of COMPARISON_ROWS) {
     const manifestRow = manifest.comparison_rows.find((entry) => entry.id === row.id);
     assert.ok(manifestRow, `missing comparison row ${row.id} for ${useCase.id}`);
-    assert.equal(manifestRow.artifact_ids.length, 4);
+    assert.equal(manifestRow.cells.length, 4);
 
     for (const column of COMPARISON_COLUMNS) {
       const id = `${row.id}-${column.id}`;
+      const cell = manifestRow.cells.find((entry) => entry.id === id);
+      assert.ok(cell, `missing matrix cell ${useCase.id}/${id}`);
+      if (row.generation_source === "captured_model_output") {
+        modelCaptures += 1;
+      }
+      if (cell.release_evidence_status === "diagnostic_only") {
+        assert.equal(cell.artifact_id, null);
+        assert.equal(cell.diagnostic_candidate_id, id);
+        assert.ok(
+          manifest.diagnostic_candidates.some((candidate) => candidate.id === id),
+        );
+        continue;
+      }
+      assert.equal(cell.release_evidence_status, "artifact");
+      assert.equal(cell.artifact_id, id);
+      assert.equal(cell.diagnostic_candidate_id, null);
       const entry = manifest.artifacts.find((artifact) => artifact.id === id);
       assert.ok(entry, `missing manifest artifact ${useCase.id}/${id}`);
       assert.equal(entry.use_case_id, useCase.id);
@@ -264,10 +802,16 @@ for (const useCase of MODEL_UI_USE_CASES) {
         assert.equal(entry.design_system_package, "@mui/material");
         assert.equal(entry.design_system_render_mode, "static-ssr");
         assert.ok(entry.render_source.includes("material_ui"));
+      } else if (column.judgmentkit_mode === "with_judgmentkit") {
+        assert.equal(entry.design_system_adapter_file, null);
+        assert.equal(entry.design_system_name, "JudgmentKit");
+        assert.equal(entry.design_system_package, "judgmentkit");
+        assert.equal(entry.design_system_render_mode, "static-html");
       } else {
         assert.equal(entry.design_system_adapter_file, null);
         assert.equal(entry.design_system_name, null);
         assert.equal(entry.design_system_package, null);
+        assert.equal(entry.design_system_render_mode, null);
       }
 
       if (column.judgmentkit_mode === "with_judgmentkit") {
@@ -305,8 +849,9 @@ for (const useCase of MODEL_UI_USE_CASES) {
       }
 
       if (row.generation_source === "captured_model_output") {
-        modelCaptures += 1;
         assert.equal(entry.capture_provenance.status, "captured");
+        assert.equal(entry.capture_validation?.status, "passed");
+        assert.deepEqual(entry.capture_validation?.failed_checks ?? [], []);
         assert.ok(entry.capture_file, `model artifact ${useCase.id}/${id} must link a transcript file`);
         assert.equal(entry.capture_provenance.transcript_file, entry.capture_file);
         assert.ok(entry.capture_provenance.prompt_sha256);
@@ -407,7 +952,10 @@ for (const useCase of MODEL_UI_USE_CASES) {
           assert.equal(capture.parsed.html.includes("<link"), false);
           assert.equal(capture.parsed.html.includes("http://"), false);
           assert.equal(capture.parsed.html.includes("https://"), false);
-          if (column.judgmentkit_mode === "with_judgmentkit") {
+          if (
+            column.judgmentkit_mode === "with_judgmentkit" &&
+            column.design_system_mode === "none"
+          ) {
             assertJudgmentKitStaticCaptureQuality(capture, `${useCase.id}/${id}`);
           }
         }
@@ -425,6 +973,7 @@ for (const useCase of MODEL_UI_USE_CASES) {
       assert.equal(fs.existsSync(artifactPath), true, `missing artifact ${useCase.id}/${id}`);
       const artifactHtml = fs.readFileSync(artifactPath, "utf8");
       const provenance = readProvenance(artifactHtml);
+      const primaryMainTag = artifactHtml.match(/<main\b[^>]*data-primary-surface[^>]*>/i)?.[0] ?? "";
       const primarySurface = visibleText(
         sectionBetween(artifactHtml, "data-primary-surface", "model-ui-provenance"),
       );
@@ -453,8 +1002,27 @@ for (const useCase of MODEL_UI_USE_CASES) {
       assert.deepEqual(provenance.frontend_skill_context, entry.frontend_skill_context);
       assert.equal(provenance.artifact_path, entry.artifact_path);
       assert.equal(provenance.screenshot_path, entry.screenshot_path);
+      assert.equal(
+        (primaryMainTag.match(/\bclass\s*=/gi) ?? []).length <= 1,
+        true,
+        `${useCase.id}/${id} should not duplicate class attributes on the primary root`,
+      );
       assert.equal(artifactHtml.includes("Capture required"), false);
       assert.ok(artifactHtml.includes(".app-shell .evidence-list li"));
+
+      if (
+        column.judgmentkit_mode === "with_judgmentkit" &&
+        column.design_system_mode === "none"
+      ) {
+        assert.ok(
+          artifactHtml.includes('data-design-system-mode="none"'),
+          `${useCase.id}/${id} should preserve the static matrix design-system column metadata`,
+        );
+        assertJudgmentKitStaticTokenUsage(
+          artifactHtml,
+          `${useCase.id}/${id} static JudgmentKit artifact`,
+        );
+      }
 
       if (column.design_system_mode === "material_ui") {
         assert.ok(artifactHtml.includes('data-emotion="mui'));
@@ -475,6 +1043,35 @@ for (const useCase of MODEL_UI_USE_CASES) {
           artifactHtml.includes("<style data-model-css>"),
           `${useCase.id}/${id} should render captured model CSS`,
         );
+        if (
+          column.judgmentkit_mode === "with_judgmentkit" &&
+          column.design_system_mode === "none"
+        ) {
+          const modelCss = sectionBetween(
+            artifactHtml,
+            '<style data-model-css>',
+            "</style>",
+          );
+          assert.equal(
+            modelCss.includes("button:first-of-type"),
+            false,
+            `${useCase.id}/${id} should not promote the first DOM button as primary`,
+          );
+          assert.ok(
+            modelCss.includes("--jk-"),
+            `${useCase.id}/${id} should normalize rendered model CSS to JudgmentKit tokens`,
+          );
+          assert.equal(
+            LOCAL_VISUAL_TOKEN_PATTERN.test(modelCss),
+            false,
+            `${useCase.id}/${id} rendered model CSS should not keep local visual token names`,
+          );
+          assert.equal(
+            JK_TOKEN_DEFINITION_PATTERN.test(modelCss),
+            false,
+            `${useCase.id}/${id} rendered model CSS should not define JudgmentKit token values`,
+          );
+        }
         assert.ok(
           compactText(primarySurface).includes(expectedCandidateText),
           `${useCase.id}/${id} should render captured model HTML`,
@@ -509,41 +1106,35 @@ for (const useCase of MODEL_UI_USE_CASES) {
 }
 
 const refundDir = path.join(root, "examples/model-ui/refund-system-map");
-for (const legacyPath of [
-  "artifacts/deterministic-without-design-system.html",
-  "artifacts/deterministic-with-design-system.html",
-  "artifacts/gemma4-without-design-system.html",
-  "artifacts/gemma4-with-design-system.html",
-  "artifacts/gpt55-without-design-system.html",
-  "artifacts/gpt55-with-design-system.html",
-  "screenshots/deterministic-without-design-system.png",
-  "screenshots/deterministic-with-design-system.png",
-  "screenshots/gemma4-without-design-system.png",
-  "screenshots/gemma4-with-design-system.png",
-  "screenshots/gpt55-without-design-system.png",
-  "screenshots/gpt55-with-design-system.png",
-]) {
-  const filePath = path.join(refundDir, legacyPath);
-  assert.equal(fs.existsSync(filePath), true, `missing refund legacy alias ${legacyPath}`);
-  if (legacyPath.endsWith(".png")) assertPng(filePath);
-}
-
-for (const legacyCapture of [
-  "captures/gemma4-without-design-system.json",
-  "captures/gemma4-with-design-system.json",
-  "captures/gpt55-without-design-system.json",
-  "captures/gpt55-with-design-system.json",
-]) {
-  const capture = readJson(path.join(refundDir, legacyCapture));
-  assert.equal(capture.compatibility_alias, true, `${legacyCapture} should be marked as an alias`);
-  assert.ok(capture.canonical_artifact_id);
-}
-
 const refundManifest = readJson(path.join(refundDir, "manifest.json"));
+for (const alias of refundManifest.legacy_aliases) {
+  assert.equal(fs.existsSync(path.join(refundDir, alias.artifact_path)), true, `missing refund legacy alias ${alias.artifact_path}`);
+  assertPng(path.join(refundDir, alias.screenshot_path));
+  if (alias.capture_file) {
+    const capture = readJson(path.join(refundDir, alias.capture_file));
+    assert.equal(capture.compatibility_alias, true, `${alias.capture_file} should be marked as an alias`);
+    assert.ok(capture.canonical_artifact_id);
+  }
+}
+
+for (const alias of LEGACY_ALIASES) {
+  if (refundManifest.legacy_aliases.some((entry) => entry.id === alias.id)) continue;
+  assert.equal(
+    fs.existsSync(path.join(refundDir, alias.artifact_path)),
+    false,
+    `diagnostic-only legacy alias should not publish ${alias.artifact_path}`,
+  );
+  assert.equal(
+    fs.existsSync(path.join(refundDir, alias.screenshot_path)),
+    false,
+    `diagnostic-only legacy alias should not publish ${alias.screenshot_path}`,
+  );
+}
+
 const refundArtifactById = new Map(
   refundManifest.artifacts.map((artifact) => [artifact.id, artifact]),
 );
-for (const alias of LEGACY_ALIASES) {
+for (const alias of refundManifest.legacy_aliases) {
   const canonical = refundArtifactById.get(alias.canonical_id);
   assert.ok(canonical, `missing canonical manifest entry for ${alias.id}`);
 
@@ -584,8 +1175,8 @@ for (const alias of LEGACY_ALIASES) {
   }
 }
 
-assert.equal(canonicalArtifacts, 48);
-assert.equal(canonicalScreenshots, 48);
+assert.equal(canonicalArtifacts + diagnosticCandidates, 48);
+assert.equal(canonicalScreenshots, canonicalArtifacts);
 assert.equal(modelCaptures, MODEL_UI_USE_CASES.length * MODEL_ROWS.length * COMPARISON_COLUMNS.length);
 
 console.log("model UI matrix checks passed.");

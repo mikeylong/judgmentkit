@@ -11,7 +11,12 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
 import { JUDGMENTKIT_MCP_TOOL_NAMES } from "./install-mcp.mjs";
-import { COMPARISON_COLUMNS, COMPARISON_ROWS } from "./model-ui-use-cases.mjs";
+import { validateParsed } from "./capture-model-ui-matrix.mjs";
+import {
+  COMPARISON_COLUMNS,
+  COMPARISON_ROWS,
+  LEGACY_ALIASES,
+} from "./model-ui-use-cases.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, "..");
@@ -36,6 +41,217 @@ const OLD_FRAMING = [
   "judgmentkit-2",
 ];
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+
+function matrixCellCount(manifest) {
+  return (manifest.comparison_rows ?? []).reduce(
+    (total, row) => total + (row.cells?.length ?? 0),
+    0,
+  );
+}
+
+function assertDiagnosticCandidatesExcluded(manifest, label) {
+  assert.ok(
+    Array.isArray(manifest.diagnostic_candidates),
+    `${label} manifest should expose diagnostic_candidates`,
+  );
+
+  for (const candidate of manifest.diagnostic_candidates) {
+    assert.equal(candidate.release_evidence_status, "diagnostic_only");
+    assert.equal(candidate.artifact_path ?? null, null);
+    assert.equal(candidate.screenshot_path ?? null, null);
+    assert.equal(candidate.next_agent_action, "repair_and_resubmit");
+    assert.equal(
+      (manifest.artifacts ?? []).some((artifact) => artifact.id === candidate.id),
+      false,
+      `${candidate.id} should not also be an accepted artifact`,
+    );
+  }
+
+  const diagnosticCellIds = (manifest.comparison_rows ?? [])
+    .flatMap((row) => row.cells ?? [])
+    .filter((cell) => cell.release_evidence_status === "diagnostic_only")
+    .map((cell) => cell.diagnostic_candidate_id)
+    .filter(Boolean)
+    .sort();
+  const diagnosticCandidateIds = (manifest.diagnostic_candidates ?? [])
+    .map((candidate) => candidate.id)
+    .sort();
+  assert.deepEqual(
+    diagnosticCandidateIds,
+    diagnosticCellIds,
+    `${label} diagnostic_candidates should exactly match diagnostic matrix cells`,
+  );
+}
+
+function assertArtifactDesignSystemMetadata(artifact, label) {
+  if (artifact.design_system_mode === "material_ui") {
+    assert.equal(artifact.design_system_name, "Material UI", `${label} should name Material UI`);
+    assert.equal(artifact.design_system_package, "@mui/material", `${label} should name @mui/material`);
+    assert.equal(artifact.design_system_render_mode, "static-ssr", `${label} should name static SSR rendering`);
+    return;
+  }
+
+  if (artifact.judgmentkit_mode === "with_judgmentkit") {
+    assert.equal(artifact.design_system_name, "JudgmentKit", `${label} should name the active JudgmentKit default source`);
+    assert.equal(artifact.design_system_package, "judgmentkit", `${label} should name the JudgmentKit package`);
+    assert.equal(artifact.design_system_render_mode, "static-html", `${label} should name static HTML rendering`);
+    return;
+  }
+
+  assert.equal(artifact.design_system_name ?? null, null, `${label} should not name a design system`);
+  assert.equal(artifact.design_system_package ?? null, null, `${label} should not name a design-system package`);
+  assert.equal(artifact.design_system_render_mode ?? null, null, `${label} should not name a design-system render mode`);
+}
+
+function assertAcceptedCapturePassesCurrentValidation(capture, artifact, label) {
+  validateParsed(capture.parsed, {
+    ...artifact,
+    artifact_id: artifact.id,
+    render_mode: capture.render_mode,
+    judgmentkit_mode: artifact.judgmentkit_mode,
+    design_system_mode: artifact.design_system_mode,
+  });
+
+  assert.equal(
+    artifact.capture_validation?.status,
+    "passed",
+    `${label} manifest should record passed current capture validation`,
+  );
+  assert.deepEqual(
+    artifact.capture_validation?.failed_checks ?? null,
+    [],
+    `${label} manifest should not record capture validation failures`,
+  );
+}
+
+function readModelUiProvenance(html, label) {
+  const match = String(html).match(
+    /<script type="application\/json" id="model-ui-provenance">([\s\S]*?)<\/script>/,
+  );
+  assert.ok(match, `${label} should include model UI provenance`);
+  return JSON.parse(match[1]);
+}
+
+async function assertRouteNotPublic(baseUrl, route, label, { bytes = false } = {}) {
+  const result = bytes
+    ? await fetchBytes(baseUrl, route, { expectOk: false })
+    : await fetchText(baseUrl, route, { expectOk: false });
+
+  assert.equal(
+    result.response.ok,
+    false,
+    `${label} should not be public at ${route}`,
+  );
+}
+
+async function assertDiagnosticRoutesNotPublic(baseUrl, useCaseBaseRoute, manifest, label) {
+  const diagnosticIds = new Set([
+    ...(manifest.diagnostic_candidates ?? []).map((candidate) => candidate.id),
+    ...(manifest.comparison_rows ?? [])
+      .flatMap((row) => row.cells ?? [])
+      .filter((cell) => cell.release_evidence_status === "diagnostic_only")
+      .map((cell) => cell.diagnostic_candidate_id)
+      .filter(Boolean),
+  ]);
+
+  for (const id of diagnosticIds) {
+    await assertRouteNotPublic(
+      baseUrl,
+      `${useCaseBaseRoute}artifacts/${id}.html`,
+      `${label}/${id} diagnostic artifact`,
+    );
+    await assertRouteNotPublic(
+      baseUrl,
+      `${useCaseBaseRoute}screenshots/${id}.png`,
+      `${label}/${id} diagnostic screenshot`,
+      { bytes: true },
+    );
+  }
+}
+
+async function assertInactiveLegacyAliasesNotPublic(baseUrl, useCaseBaseRoute, manifest) {
+  if (manifest.use_case_id !== "refund-system-map") return;
+  const activeAliasIds = new Set((manifest.legacy_aliases ?? []).map((alias) => alias.id));
+
+  for (const alias of LEGACY_ALIASES) {
+    if (activeAliasIds.has(alias.id)) continue;
+    await assertRouteNotPublic(
+      baseUrl,
+      `${useCaseBaseRoute}${alias.artifact_path}`,
+      `inactive legacy alias ${alias.id} artifact`,
+    );
+    await assertRouteNotPublic(
+      baseUrl,
+      `${useCaseBaseRoute}${alias.screenshot_path}`,
+      `inactive legacy alias ${alias.id} screenshot`,
+      { bytes: true },
+    );
+    if (alias.capture_file) {
+      await assertRouteNotPublic(
+        baseUrl,
+        `${useCaseBaseRoute}${alias.capture_file}`,
+        `inactive legacy alias ${alias.id} capture`,
+      );
+    }
+  }
+}
+
+async function verifyLegacyAlias(baseUrl, useCaseBaseRoute, manifest, alias) {
+  const canonical = (manifest.artifacts ?? []).find(
+    (artifact) => artifact.id === alias.canonical_id,
+  );
+  assert.ok(
+    canonical,
+    `${manifest.use_case_id}/${alias.id} legacy alias should point to an accepted canonical artifact`,
+  );
+
+  const artifactRoute = `${useCaseBaseRoute}${alias.artifact_path}`;
+  const aliasPage = await fetchText(baseUrl, artifactRoute);
+  const provenance = readModelUiProvenance(aliasPage.text, artifactRoute);
+  assert.equal(provenance.artifact_id, alias.id);
+  assert.equal(provenance.canonical_artifact_id, alias.canonical_id);
+  assert.equal(provenance.compatibility_alias, true);
+  assert.equal(provenance.artifact_path, alias.artifact_path);
+  assert.equal(provenance.screenshot_path, alias.screenshot_path);
+  assert.equal(provenance.source_context_sha256, canonical.source_context_sha256);
+  assert.equal(
+    provenance.current_source_context_sha256,
+    canonical.current_source_context_sha256,
+  );
+  assert.equal(provenance.source_context_status, canonical.source_context_status);
+
+  const screenshotRoute = `${useCaseBaseRoute}${alias.screenshot_path}`;
+  const screenshotResponse = await fetchBytes(baseUrl, screenshotRoute);
+  assert.equal(
+    screenshotResponse.bytes.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE),
+    true,
+    `${alias.id} legacy screenshot should be a PNG`,
+  );
+
+  let captureRoute = null;
+  if (alias.capture_file) {
+    assert.ok(canonical.capture_file, `${alias.id} alias capture should have a canonical capture`);
+    captureRoute = `${useCaseBaseRoute}${alias.capture_file}`;
+    const canonicalCaptureRoute = `${useCaseBaseRoute}${canonical.capture_file}`;
+    const aliasCapture = JSON.parse((await fetchText(baseUrl, captureRoute)).text);
+    const canonicalCapture = JSON.parse((await fetchText(baseUrl, canonicalCaptureRoute)).text);
+    assert.equal(aliasCapture.artifact_id, alias.id);
+    assert.equal(aliasCapture.canonical_artifact_id, alias.canonical_id);
+    assert.equal(aliasCapture.compatibility_alias, true);
+    assert.equal(aliasCapture.source_context_sha256, canonicalCapture.source_context_sha256);
+    assert.equal(
+      aliasCapture.current_source_context_sha256,
+      canonicalCapture.current_source_context_sha256,
+    );
+    assert.equal(
+      aliasCapture.accepted_source_context_sha256,
+      canonicalCapture.accepted_source_context_sha256,
+    );
+    assert.equal(aliasCapture.source_context_status, canonicalCapture.source_context_status);
+  }
+
+  return { artifactRoute, screenshotRoute, captureRoute };
+}
 
 export function parseArgs(argv) {
   const options = {
@@ -314,14 +530,23 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
       `${useCase.id} manifest should expose four comparison columns`,
     );
     assert.equal(
-      manifest.artifacts?.length,
+      matrixCellCount(manifest),
       COMPARISON_ROWS.length * COMPARISON_COLUMNS.length,
-      `${useCase.id} manifest should expose twelve canonical artifacts`,
+      `${useCase.id} manifest should expose twelve matrix cells`,
     );
+    assertDiagnosticCandidatesExcluded(manifest, useCase.id);
 
     const useCaseBaseRoute = manifestRoute.replace(/manifest\.json$/, "");
+    await assertDiagnosticRoutesNotPublic(baseUrl, useCaseBaseRoute, manifest, useCase.id);
+    await assertInactiveLegacyAliasesNotPublic(baseUrl, useCaseBaseRoute, manifest);
 
     for (const artifact of manifest.artifacts) {
+      assert.equal(artifact.release_evidence_status, "artifact");
+      assert.equal(artifact.implementation_review_status, "passed");
+      assert.equal(artifact.next_agent_action, "accept");
+      assert.equal(artifact.candidate_artifact_status, "accepted_artifact");
+      assert.equal(artifact.design_system_acceptance_status, "passed");
+      assert.deepEqual(artifact.failed_checks ?? [], []);
       assert.ok(artifact.screenshot_path, `${artifact.id} should include a screenshot_path`);
       assert.ok(artifact.approach_title, `${artifact.id} should include an approach_title`);
       assert.ok(artifact.approach_caption, `${artifact.id} should include an approach_caption`);
@@ -347,9 +572,8 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
         assert.equal(artifact.frontend_skill_context?.source_skill, "frontend-ui-implementation");
         assert.equal(artifact.frontend_skill_context?.raw_skill_exposed, false);
       }
+      assertArtifactDesignSystemMetadata(artifact, `${useCase.id}/${artifact.id}`);
       if (artifact.design_system_mode === "material_ui") {
-        assert.equal(artifact.design_system_name, "Material UI");
-        assert.equal(artifact.design_system_package, "@mui/material");
         assert.equal(
           artifact.context_included.material_ui_adapter,
           true,
@@ -466,24 +690,24 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
         assert.ok(capture.parsed?.css?.trim(), `${artifact.id} capture should include parsed CSS`);
       }
       assert.ok(capture.raw_response, `${artifact.id} capture should include raw_response`);
+      assertAcceptedCapturePassesCurrentValidation(
+        capture,
+        artifact,
+        `${useCase.id}/${artifact.id}`,
+      );
       captureRoutes.push(captureRoute);
     }
 
     for (const alias of manifest.legacy_aliases ?? []) {
-      const artifactRoute = `${useCaseBaseRoute}${alias.artifact_path}`;
-      const screenshotRoute = `${useCaseBaseRoute}${alias.screenshot_path}`;
-      await fetchText(baseUrl, artifactRoute);
-      const screenshotResponse = await fetchBytes(baseUrl, screenshotRoute);
-      assert.equal(
-        screenshotResponse.bytes.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE),
-        true,
-        `${alias.id} legacy screenshot should be a PNG`,
+      const { artifactRoute, screenshotRoute, captureRoute } = await verifyLegacyAlias(
+        baseUrl,
+        useCaseBaseRoute,
+        manifest,
+        alias,
       );
       checked.push(artifactRoute);
       screenshotRoutes.push(screenshotRoute);
-      if (alias.capture_file) {
-        const captureRoute = `${useCaseBaseRoute}${alias.capture_file}`;
-        await fetchText(baseUrl, captureRoute);
+      if (captureRoute) {
         captureRoutes.push(captureRoute);
       }
     }
@@ -617,24 +841,6 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     "/examples/comparison/refund/version-a.html",
     "/examples/comparison/refund/version-b.html",
     "/examples/model-ui/refund-system-map/index.html",
-    "/examples/model-ui/refund-system-map/artifacts/deterministic-no-judgmentkit.html",
-    "/examples/model-ui/refund-system-map/artifacts/deterministic-with-judgmentkit.html",
-    "/examples/model-ui/refund-system-map/artifacts/deterministic-material-ui-only.html",
-    "/examples/model-ui/refund-system-map/artifacts/deterministic-judgmentkit-material-ui.html",
-    "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-no-judgmentkit.html",
-    "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-with-judgmentkit.html",
-    "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-material-ui-only.html",
-    "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-judgmentkit-material-ui.html",
-    "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
-    "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-with-judgmentkit.html",
-    "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-material-ui-only.html",
-    "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
-    "/examples/model-ui/refund-system-map/artifacts/deterministic-without-design-system.html",
-    "/examples/model-ui/refund-system-map/artifacts/deterministic-with-design-system.html",
-    "/examples/model-ui/refund-system-map/artifacts/gemma4-without-design-system.html",
-    "/examples/model-ui/refund-system-map/artifacts/gemma4-with-design-system.html",
-    "/examples/model-ui/refund-system-map/artifacts/gpt55-without-design-system.html",
-    "/examples/model-ui/refund-system-map/artifacts/gpt55-with-design-system.html",
     "/examples/comparison/music/version-a.html",
     "/examples/comparison/music/version-b.html",
   ]) {
@@ -666,14 +872,32 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     "model UI manifest should expose four comparison columns",
   );
   assert.equal(
-    modelUiManifest.artifacts?.length,
+    matrixCellCount(modelUiManifest),
     12,
-    "model UI manifest should expose twelve canonical artifacts",
+    "model UI manifest should expose twelve matrix cells",
+  );
+  assertDiagnosticCandidatesExcluded(modelUiManifest, "model UI");
+  await assertDiagnosticRoutesNotPublic(
+    baseUrl,
+    "/examples/model-ui/refund-system-map/",
+    modelUiManifest,
+    "model UI",
+  );
+  await assertInactiveLegacyAliasesNotPublic(
+    baseUrl,
+    "/examples/model-ui/refund-system-map/",
+    modelUiManifest,
   );
   const modelUiCaptureRoutes = [];
   const modelUiScreenshotRoutes = [];
 
   for (const artifact of modelUiManifest.artifacts) {
+    assert.equal(artifact.release_evidence_status, "artifact");
+    assert.equal(artifact.implementation_review_status, "passed");
+    assert.equal(artifact.next_agent_action, "accept");
+    assert.equal(artifact.candidate_artifact_status, "accepted_artifact");
+    assert.equal(artifact.design_system_acceptance_status, "passed");
+    assert.deepEqual(artifact.failed_checks ?? [], []);
     assert.ok(artifact.screenshot_path, `${artifact.id} should include a screenshot_path`);
     assert.ok(artifact.approach_title, `${artifact.id} should include an approach_title`);
     assert.ok(artifact.approach_caption, `${artifact.id} should include an approach_caption`);
@@ -698,9 +922,8 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       assert.equal(artifact.frontend_skill_context?.source_skill, "frontend-ui-implementation");
       assert.equal(artifact.frontend_skill_context?.raw_skill_exposed, false);
     }
+    assertArtifactDesignSystemMetadata(artifact, `model UI ${artifact.id}`);
     if (artifact.design_system_mode === "material_ui") {
-      assert.equal(artifact.design_system_name, "Material UI");
-      assert.equal(artifact.design_system_package, "@mui/material");
       assert.equal(
         artifact.context_included.material_ui_adapter,
         true,
@@ -710,6 +933,10 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     if (artifact.row_id === "gpt55-xhigh-codex") {
       assert.equal(artifact.reasoning_effort, "xhigh", `${artifact.id} should record xhigh`);
     }
+
+    const artifactRoute = `/examples/model-ui/refund-system-map/${artifact.artifact_path}`;
+    const artifactPage = await fetchText(baseUrl, artifactRoute);
+    assert.equal(getAnalyticsScriptSrc(artifactPage.text, artifactRoute), analyticsScriptSrc);
 
     const screenshotRoute = `/examples/model-ui/refund-system-map/${artifact.screenshot_path}`;
     const screenshotResponse = await fetchBytes(baseUrl, screenshotRoute);
@@ -812,20 +1039,21 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       assert.ok(capture.parsed?.css?.trim(), `${artifact.id} capture should include parsed CSS`);
     }
     assert.ok(capture.raw_response, `${artifact.id} capture should include raw_response`);
+    assertAcceptedCapturePassesCurrentValidation(
+      capture,
+      artifact,
+      `model UI ${artifact.id}`,
+    );
 
     modelUiCaptureRoutes.push(captureRoute);
   }
 
   for (const alias of modelUiManifest.legacy_aliases ?? []) {
-    await fetchText(baseUrl, `/examples/model-ui/refund-system-map/${alias.artifact_path}`);
-    const screenshotResponse = await fetchBytes(
+    await verifyLegacyAlias(
       baseUrl,
-      `/examples/model-ui/refund-system-map/${alias.screenshot_path}`,
-    );
-    assert.equal(
-      screenshotResponse.bytes.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE),
-      true,
-      `${alias.id} legacy screenshot should be a PNG`,
+      "/examples/model-ui/refund-system-map/",
+      modelUiManifest,
+      alias,
     );
   }
 
@@ -861,24 +1089,9 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "/examples/model-ui/refund-system-map/manifest.json",
       "/examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
       "/examples/model-ui/refund-system-map/design-system-adapter.json",
-      "/examples/model-ui/refund-system-map/artifacts/deterministic-no-judgmentkit.html",
-      "/examples/model-ui/refund-system-map/artifacts/deterministic-with-judgmentkit.html",
-      "/examples/model-ui/refund-system-map/artifacts/deterministic-material-ui-only.html",
-      "/examples/model-ui/refund-system-map/artifacts/deterministic-judgmentkit-material-ui.html",
-      "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-no-judgmentkit.html",
-      "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-with-judgmentkit.html",
-      "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-material-ui-only.html",
-      "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-judgmentkit-material-ui.html",
-      "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
-      "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-with-judgmentkit.html",
-      "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-material-ui-only.html",
-      "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
-      "/examples/model-ui/refund-system-map/artifacts/deterministic-without-design-system.html",
-      "/examples/model-ui/refund-system-map/artifacts/deterministic-with-design-system.html",
-      "/examples/model-ui/refund-system-map/artifacts/gemma4-without-design-system.html",
-      "/examples/model-ui/refund-system-map/artifacts/gemma4-with-design-system.html",
-      "/examples/model-ui/refund-system-map/artifacts/gpt55-without-design-system.html",
-      "/examples/model-ui/refund-system-map/artifacts/gpt55-with-design-system.html",
+      ...modelUiManifest.artifacts.map(
+        (artifact) => `/examples/model-ui/refund-system-map/${artifact.artifact_path}`,
+      ),
       ...modelUiCaptureRoutes,
       ...modelUiScreenshotRoutes,
       ...modelUiArchive.checked,

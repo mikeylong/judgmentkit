@@ -6545,7 +6545,10 @@ function buildModelUiComparisonRows(manifest, galleryItems) {
     id: row.id,
     title: row.label,
     summary: row.summary,
-    items: (row.artifact_ids ?? []).map((id) => itemsById.get(id)).filter(Boolean),
+    items: (row.cells ?? [])
+      .filter((cell) => cell.release_evidence_status === "artifact")
+      .map((cell) => itemsById.get(cell.artifact_id))
+      .filter(Boolean),
   })).filter((row) => row.items.length);
 }
 

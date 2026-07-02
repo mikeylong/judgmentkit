@@ -1,5 +1,5 @@
 {
-  "version": "0.6.4",
+  "version": "0.6.5",
   "contract_id": "judgmentkit.ai-ui-generation.activity-contract",
   "handoff_status": "ready_for_generation",
   "source": {
@@ -229,6 +229,15 @@
         "use approved primitives",
         "run static enforcement",
         "complete desktop and mobile browser QA"
+      ]
+    },
+    {
+      "id": "design_system_gate",
+      "status": "required_before_final_handoff",
+      "evidence": [
+        "prove active design-system provenance",
+        "use approved visual token, typography, icon, and renderer component sources",
+        "repair and resubmit candidates that fail the active design-system source"
       ]
     }
   ],

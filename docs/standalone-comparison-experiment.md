@@ -51,6 +51,8 @@ npm run eval:ui
 
 The scorer writes immutable reports and screenshot evidence under `evals/reports/<date>/mcp-<version>/run-NNN/` and updates `evals/reports/index.json` plus `evals/reports/index.html`. It checks activity-fit terms, decision support, disclosure discipline, handoff completeness, task-success support, and confidence/rework signals. Treat the output as paired-artifact evidence, not as a statistically powered benchmark.
 
+Failed implementation or design-system reviews are diagnostic/rework evidence, not paired artifacts. Repair and re-review before scoring or publishing screenshots.
+
 Screenshot capture uses local Chrome or Chromium. If it is not on the default path, set `JUDGMENTKIT_UI_EVAL_CHROME_PATH` before running the eval.
 
 ## Evaluation Task
@@ -76,4 +78,4 @@ For the music app, also score time to playable playlist, constraint misses, host
 
 This is a qualitative calibration harness, not a statistically powered A/B test. It should show whether JudgmentKit changes the generated app toward activity fit, domain language, decision support, and disclosure discipline.
 
-Do not use this slice to judge visual polish, component quality, or design-system compliance. Those remain later adapter-layer concerns.
+Do not use this slice to judge visual polish, component quality, or design-system compliance. Those remain later adapter-layer concerns. If a design-system gate is applied and fails, the output is not a usable comparison artifact.

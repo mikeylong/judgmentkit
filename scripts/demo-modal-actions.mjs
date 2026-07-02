@@ -219,6 +219,11 @@ function buildAccessibilityEvidence() {
       method: "computed contrast check",
       samples: [{ target: "button boundary and focus indicator", contrast_ratio: 3.2 }],
     },
+    semantic_fallbacks: {
+      status: "pass",
+      method: "DOM inspection",
+      notes: "Semantic HTML provides fallback structure for rendered dialog content.",
+    },
     form_labels_instructions: {
       status: "pass",
       method: "DOM inspection",
@@ -246,6 +251,21 @@ function buildAccessibilityEvidence() {
   };
 }
 
+function buildDesignSystemProvenance() {
+  return {
+    source: "judgmentkit_default",
+    token_source: "/design-system/visual-token-adapter.json",
+    typography_source: "/design-system/visual-token-adapter.json",
+    icon_source: "JudgmentKit icon catalog via get_icon_svg",
+    renderer_component_source:
+      "implementation_contract.default_ai_native_design_system.component_contracts",
+    import_boundary:
+      "No visual, typography, icon, or component package imports outside the active design-system source.",
+    token_prefix_source: "implementation_contract.design_system_source.token_prefixes",
+    source_exports: "implementation_contract.design_system_source.source_exports",
+  };
+}
+
 function buildCandidate(scenario, implementationContract) {
   const candidate = {
     code: "renderModalActions({ primaryAction, secondaryActions })",
@@ -257,6 +277,7 @@ function buildCandidate(scenario, implementationContract) {
       mobile: "mobile viewport modal footer order checked",
     },
     accessibility_evidence: buildAccessibilityEvidence(),
+    design_system_provenance: buildDesignSystemProvenance(),
   };
 
   if (scenario.modalAction) {

@@ -39,7 +39,7 @@ assert.deepEqual(
   ],
 );
 assert.equal(metadata.name, "JudgmentKit");
-assert.equal(metadata.version, "0.6.4");
+assert.equal(metadata.version, "0.6.5");
 assert.deepEqual(metadata.capabilities.prompts, []);
 const toolsJson = JSON.stringify(tools);
 for (const legacyField of [
@@ -147,6 +147,16 @@ assert.match(
 assert.match(
   reviewImplementationCandidateHelp,
   /primitives_used[^.]*only[^.]*implementation_contract\.approved_primitives/i,
+);
+assert.match(
+  reviewImplementationCandidateHelp,
+  /failed candidates, not artifacts/i,
+  "review_ui_implementation_candidate help should state failed design-system candidates are not artifacts.",
+);
+assert.match(
+  reviewImplementationCandidateHelp,
+  /String-only code text is diagnostic/i,
+  "review_ui_implementation_candidate help should state text-only candidates cannot pass required provenance.",
 );
 assert.equal(toolByName.create_ui_generation_handoff.inputSchema.required.includes("workflow_review"), true);
 assert.equal(toolByName.create_ui_generation_handoff.inputSchema.required.includes("implementation_contract"), true);
@@ -322,6 +332,31 @@ function coreAccessibilityEvidence() {
       method: "desktop and mobile browser review",
       notes: "No responsive overflow.",
     },
+    non_text_contrast: {
+      status: "pass",
+      method: "computed contrast review",
+      notes: "Control boundaries and state indicators meet non-text contrast.",
+    },
+    semantic_fallbacks: {
+      status: "pass",
+      method: "DOM inspection",
+      notes: "Semantic HTML provides fallback structure for rendered content.",
+    },
+  };
+}
+
+function defaultDesignSystemProvenance() {
+  return {
+    source: "judgmentkit_default",
+    token_source: "/design-system/visual-token-adapter.json",
+    typography_source: "/design-system/visual-token-adapter.json",
+    icon_source: "JudgmentKit icon catalog via get_icon_svg",
+    renderer_component_source:
+      "implementation_contract.default_ai_native_design_system.component_contracts",
+    import_boundary:
+      "No visual, typography, icon, or component package imports outside the active design-system source.",
+    token_prefix_source: "implementation_contract.design_system_source.token_prefixes",
+    source_exports: "implementation_contract.design_system_source.source_exports",
   };
 }
 
@@ -638,7 +673,7 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
     "implementation contract card",
   );
 
-  const implementationReview = await handleToolCall("review_ui_implementation_candidate", {
+  const missingProvenanceReview = await handleToolCall("review_ui_implementation_candidate", {
     implementation_contract: implementationContract,
     candidate: {
       primitives_used: ["queue", "detail panel", "decision controls", "handoff receipt"],
@@ -649,8 +684,44 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
     },
   });
 
+  assert.equal("error" in missingProvenanceReview, false);
+  assert.equal(missingProvenanceReview.implementation_review_status, "failed");
+  assert.equal(missingProvenanceReview.next_agent_action, "repair_and_resubmit");
+  assert.equal(missingProvenanceReview.candidate_artifact_status, "not_an_artifact");
+  assert.equal(missingProvenanceReview.design_system_acceptance_status, "failed");
+  assert.equal(
+    missingProvenanceReview.checks.design_system_provenance.status,
+    "fail",
+  );
+  assert.equal(
+    missingProvenanceReview.checks.design_system_provenance.provenance_present,
+    false,
+  );
+  assert.ok(
+    missingProvenanceReview.repair_instructions.groups.design_system_source.some(
+      (entry) => entry.check === "design_system_provenance",
+    ),
+  );
+  assert.ok(
+    formatPlanningCard(missingProvenanceReview).includes("This is not an artifact"),
+  );
+
+  const implementationReview = await handleToolCall("review_ui_implementation_candidate", {
+    implementation_contract: implementationContract,
+    candidate: {
+      primitives_used: ["queue", "detail panel", "decision controls", "handoff receipt"],
+      states_covered: implementationContract.implementation_contract.state_coverage.required_states,
+      static_checks: ["npm test"],
+      browser_qa: { desktop: "passed", mobile: "passed" },
+      accessibility_evidence: coreAccessibilityEvidence(),
+      design_system_provenance: defaultDesignSystemProvenance(),
+    },
+  });
+
   assert.equal("error" in implementationReview, false);
   assert.equal(implementationReview.implementation_review_status, "passed");
+  assert.equal(implementationReview.candidate_artifact_status, "accepted_artifact");
+  assert.equal(implementationReview.design_system_acceptance_status, "passed");
   assert.equal(implementationReview.next_agent_action, "accept");
   assert.equal(implementationReview.autofix_loop.status, "passed");
   assert.equal(implementationReview.checks.visual_tokens.status, "pass");
@@ -669,6 +740,7 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
       static_checks: ["npm test"],
       browser_qa: { desktop: "passed", mobile: "passed" },
       accessibility_evidence: coreAccessibilityEvidence(),
+      design_system_provenance: defaultDesignSystemProvenance(),
       pattern_contract_evidence: {
         pattern_id: "workbench",
         regions_present: [
@@ -709,6 +781,7 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
       static_checks: ["npm test"],
       browser_qa: { desktop: "passed", mobile: "passed" },
       accessibility_evidence: coreAccessibilityEvidence(),
+      design_system_provenance: defaultDesignSystemProvenance(),
       actions: ["Auto approve refund"],
       action_boundary_evidence: {},
     },
@@ -730,6 +803,7 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
       static_checks: ["npm test"],
       browser_qa: { desktop: "passed", mobile: "passed" },
       accessibility_evidence: coreAccessibilityEvidence(),
+      design_system_provenance: defaultDesignSystemProvenance(),
       visible_text: ["JSON schema", "resource id"],
     },
   });

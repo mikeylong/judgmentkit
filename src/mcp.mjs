@@ -21,11 +21,11 @@ import {
 } from "./index.mjs";
 
 const MCP_SERVER_NAME = "JudgmentKit";
-const MCP_SERVER_VERSION = "0.6.4";
+const MCP_SERVER_VERSION = "0.6.5";
 const APPROVED_PRIMITIVES_INPUT_DESCRIPTION =
   "Optional allowed implementation primitives for generated UI evidence. These are implementation primitives only; do not list design-system component contract ids here. Defaults to the portable no-system primitive set.";
 const REVIEW_UI_IMPLEMENTATION_CANDIDATE_INPUT_DESCRIPTION =
-  "Generated UI candidate as code text or structured evidence containing primitives_used, states_covered or covered_states, static_checks or static_evidence, browser_qa, accessibility_evidence for core and condition-specific accessibility gates, optional visual_token_evidence metadata, component_contract_evidence, pattern_contract_evidence, design_system_provenance, and local_component_authority_evidence reviewed by checks.local_component_authority. primitives_used may contain only implementation_contract.approved_primitives; place design-system component ids in component_contract_evidence.components[].id and pattern ids in pattern_contract_evidence.pattern_id.";
+  "Generated UI candidate as code text or structured evidence containing primitives_used, states_covered or covered_states, static_checks or static_evidence, browser_qa, accessibility_evidence for core and condition-specific accessibility gates, optional visual_token_evidence metadata, component_contract_evidence, pattern_contract_evidence, required design_system_provenance for the active design-system source, and local_component_authority_evidence reviewed by checks.local_component_authority. String-only code text is diagnostic and cannot pass when the active contract requires structured provenance evidence. primitives_used may contain only implementation_contract.approved_primitives; place design-system component ids in component_contract_evidence.components[].id and pattern ids in pattern_contract_evidence.pattern_id. Candidates that fail the active design-system gate are failed candidates, not artifacts, and must be repaired and resubmitted.";
 
 const ANALYZE_TOOL = {
   name: "analyze_implementation_brief",
@@ -326,7 +326,7 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
 const REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL = {
   name: "review_ui_implementation_candidate",
   description:
-    "Review generated UI or code evidence against an active UI implementation contract, including local_component_authority_evidence when repo-local component authority is active.",
+    "Review generated UI or code evidence against an active UI implementation contract. The active design-system gate is hard: missing or failing design_system_provenance means the candidate is not an artifact and must be repaired and resubmitted. Include local_component_authority_evidence when repo-local component authority is active.",
   inputSchema: {
     type: "object",
     required: ["candidate", "implementation_contract"],
@@ -1313,15 +1313,28 @@ function formatImplementationContractCard(result) {
 }
 
 function formatImplementationReviewCard(result) {
+  const designSystemFindings = (Array.isArray(result.findings)
+    ? result.findings
+    : []
+  ).filter((finding) =>
+    [
+      "design_system_provenance",
+      "visual_tokens",
+      "component_contracts",
+      "pattern_contracts",
+    ].includes(finding.check),
+  );
   const lines = [
     "## JudgmentKit Implementation Review",
     `**Status:** ${planningStatus(result)}`,
     result.implementation_review_status === "passed"
       ? "**Next step:** The candidate passed the implementation gate; use the evidence in the final handoff."
-      : "**Next step:** Fix the implementation findings before final UI handoff.",
+      : "**Next step:** This is not an artifact. Repair the failed gates and resubmit before final UI handoff.",
   ];
 
   addSection(lines, "Checks", [
+    firstLine("Artifact status", result.candidate_artifact_status),
+    firstLine("Design-system gate", result.design_system_acceptance_status),
     firstLine("Raw controls", result.checks?.raw_controls?.status),
     firstLine("Approved primitives", result.checks?.approved_primitives?.status),
     firstLine("State coverage", result.checks?.state_coverage?.status),
@@ -1360,6 +1373,17 @@ function formatImplementationReviewCard(result) {
     ),
     firstLine("Loop status", result.autofix_loop?.status),
   ]);
+  addSection(
+    lines,
+    "Design-system gate",
+    [
+      firstLine("Status", result.design_system_acceptance_status),
+      ...toDisplayList(
+        designSystemFindings.map((finding) => finding.message),
+        4,
+      ).map((finding) => `- ${finding}`),
+    ],
+  );
   addSection(
     lines,
     "Findings",

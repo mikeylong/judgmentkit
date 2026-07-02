@@ -246,7 +246,26 @@ function passingAccessibilityEvidence(extra = {}) {
     focus_visible: "pass: visible focus indicators are present.",
     responsive_no_overflow:
       "pass: reflow verified at 375px and 200% zoom with single-axis reading and reachable controls.",
+    non_text_contrast:
+      "pass: button boundaries and state indicators meet non-text contrast.",
+    semantic_fallbacks:
+      "pass: semantic HTML provides fallback structure for rendered content.",
     ...extra,
+  };
+}
+
+function defaultDesignSystemProvenance() {
+  return {
+    source: "judgmentkit_default",
+    token_source: "/design-system/visual-token-adapter.json",
+    typography_source: "/design-system/visual-token-adapter.json",
+    icon_source: "JudgmentKit icon catalog via get_icon_svg",
+    renderer_component_source:
+      "implementation_contract.default_ai_native_design_system.component_contracts",
+    import_boundary:
+      "No visual, typography, icon, or component package imports outside the active design-system source.",
+    token_prefix_source: "implementation_contract.design_system_source.token_prefixes",
+    source_exports: "implementation_contract.design_system_source.source_exports",
   };
 }
 
@@ -282,6 +301,7 @@ function repairedModalCandidate(accessibilityEvidence = {}) {
       primary_language: "Uses policy escalation and handoff language.",
       diagnostic_terms: "No internal implementation terms are visible.",
     },
+    design_system_provenance: defaultDesignSystemProvenance(),
     visible_text: ["Policy escalation handoff", "Cancel", "Send handoff", "Handoff receipt"],
   };
 }
@@ -1321,7 +1341,7 @@ for (const testCase of cases) {
   assert.ok(result.report.summary.cognitive_dimensions_dimension_counts.progressive_evaluation >= 1);
   assert.ok(result.report.summary.cognitive_dimensions_dimension_counts.disclosure_discipline >= 1);
   assert.equal(result.report.summary.visual_ui_proof_use_cases, 4);
-  assert.equal(result.report.summary.visual_ui_proof_artifacts, 12);
+  assert.equal(result.report.summary.visual_ui_proof_artifacts, 8);
   assert.equal(result.report.summary.visual_ui_proof_report_only, true);
   assert.ok(result.report.visual_ui_proof.enabled);
   assert.ok(
@@ -1345,8 +1365,14 @@ for (const testCase of cases) {
   assert.match(html, /Visual UI proof/);
   assert.ok(
     html.includes(
+      "/examples/model-ui/refund-system-map/screenshots/gemma4-lms-no-judgmentkit.png",
+    ),
+  );
+  assert.equal(
+    html.includes(
       "/examples/model-ui/refund-system-map/screenshots/gemma4-lms-with-judgmentkit.png",
     ),
+    false,
   );
   assert.ok(
     html.includes(

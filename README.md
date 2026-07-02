@@ -86,6 +86,8 @@ By default, `implementation_contract.design_system_source.mode` is `judgmentkit_
 
 The JudgmentKit default source does not load a font CDN, runtime icon CDN, or external runtime icon package. Font guidance uses system stacks, and icon guidance points to the committed Lucide catalog exposed through `list_icon_catalog`, `search_icon_catalog`, and `get_icon_svg`.
 
+A generated UI that fails the active design-system source, visual-token, component-contract, local-component-authority, accessibility, or browser-QA gate is repair evidence only. Do not publish it as a UI artifact, gallery snapshot, screenshot artifact, or release proof until a repaired candidate passes.
+
 The first validation command is:
 
 ```bash
@@ -171,7 +173,7 @@ For the system-map model UI matrix:
 npm run demo:model-ui
 ```
 
-That command writes static 3x4 model UI matrices under `examples/model-ui/` for support refund triage, field service dispatch, clinical intake review, and B2B renewal risk review. Each use case includes a fixture-rendered baseline, Gemma 4 local LLM, and GPT-5.5 xhigh paths across raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill plus Material UI columns. The fixture-rendered baseline is scripted from fixed fixtures and local renderer code; it is not model-generated and is isolated from provider-connected captures. The refund route at `examples/model-ui/refund-system-map/` remains the stable compatibility path. The website build copies those committed artifacts, records provenance in each manifest, and does not call live providers.
+That command writes static 3x4 model UI matrices under `examples/model-ui/` for support refund triage, field service dispatch, clinical intake review, and B2B renewal risk review. Each use case includes a fixture-rendered baseline, Gemma 4 local LLM, and GPT-5.5 xhigh paths across raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill plus Material UI columns. The fixture-rendered baseline is scripted from fixed fixtures and local renderer code; it is not model-generated and is isolated from provider-connected captures. The refund route at `examples/model-ui/refund-system-map/` remains the stable compatibility path. The matrix writes accepted artifacts plus diagnostic records; design-system-failed cells stay in `diagnostic_candidates` and are excluded from `manifest.artifacts`, live artifact routes, screenshots, and release evidence. The website build copies committed accepted artifacts, records provenance in each manifest, and does not call live providers.
 
 To refresh the committed Gemma 4 and GPT-5.5 transcripts for that matrix:
 
