@@ -60,6 +60,22 @@ function hashText(value) {
   return `sha256:${crypto.createHash("sha256").update(String(value)).digest("hex")}`;
 }
 
+function listRelativeFiles(rootDir) {
+  const files = [];
+  function visit(currentDir) {
+    for (const entry of fs.readdirSync(currentDir, { withFileTypes: true })) {
+      const entryPath = path.join(currentDir, entry.name);
+      if (entry.isDirectory()) {
+        visit(entryPath);
+        continue;
+      }
+      files.push(path.relative(rootDir, entryPath).split(path.sep).join("/"));
+    }
+  }
+  visit(rootDir);
+  return files.sort();
+}
+
 function cssCustomPropertyValues(css, name) {
   const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return [...css.matchAll(new RegExp(`${escapedName}:\\s*([^;]+);`, "g"))].map((match) => match[1].trim());
@@ -110,15 +126,9 @@ const OLD_FRAMING = [
 
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-site-"));
 const result = await buildSite(tempDir);
-const mcpPilotCatalog = JSON.parse(
-  fs.readFileSync(new URL("../evals/reports/mcp-pilot/index.json", import.meta.url), "utf8"),
+const packageJson = JSON.parse(
+  fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"),
 );
-const latestMcpPilotRun = mcpPilotCatalog.latest;
-const latestMcpPilotLlmEvidencePath = new URL(
-  `../evals/reports/mcp-pilot/${latestMcpPilotRun.run_path}/mcp-pilot-llm-evidence.md`,
-  import.meta.url,
-);
-const hasLatestMcpPilotLlmEvidence = fs.existsSync(latestMcpPilotLlmEvidencePath);
 
 assert.deepEqual(result.routes, [
   "/",
@@ -160,8 +170,9 @@ assert.ok(systemMapFlowJs.includes("MCP boundary"));
 assert.ok(systemMapFlowJs.includes("JudgmentKit React Flow system design map"));
 assert.ok(systemMapFlowJs.includes("Source brief + product context"));
 assert.ok(systemMapFlowJs.includes("Renderer choice after reviewed handoff"));
-assert.ok(systemMapFlowJs.includes("Material UI adapter"));
-assert.ok(systemMapFlowJs.includes("@mui/material components"));
+assert.ok(systemMapFlowJs.includes("External adapter"));
+assert.ok(systemMapFlowJs.includes("design-system provenance is required"));
+assert.equal(systemMapFlowJs.includes("Material UI adapter"), false);
 assert.ok(systemMapFlowJs.includes("updated context returns to source/activity review"));
 assert.equal(systemMapFlowJs.includes("optional styling path"), false);
 assert.ok(systemMapFlowCss.includes(".rf-map-node"));
@@ -178,17 +189,21 @@ assert.ok(systemMapFlowSource.includes('stroke: "var(--rf-map-edge-output)"'));
 assert.equal(systemMapFlowSource.includes('position="top-left"'), false);
 assert.match(
   systemMapFlowSource,
-  /id: "material-ui-adapter"[\s\S]*?style: \{ width: 204, height: 112 \}/,
+  /id: "external-design-system-adapter"[\s\S]*?style: \{ width: 204, height: 112 \}/,
 );
 assert.match(
   systemMapFlowSource,
-  /id: "without-design-system"[\s\S]*?style: \{ width: 204, height: 112 \}/,
+  /id: "judgmentkit-default-source"[\s\S]*?style: \{ width: 204, height: 112 \}/,
 );
 assert.match(
   systemMapFlowSource,
   /id: "zone-generation"[\s\S]*?style: \{ width: 500, height: 640 \}/,
 );
 assert.equal(systemMapFlowSource.includes('id: "with-design-system"'), false);
+assert.equal(systemMapFlowSource.includes('id: "without-design-system"'), false);
+assert.equal(systemMapFlowSource.includes("without design system"), false);
+assert.ok(systemMapFlowSource.includes("active"));
+assert.ok(systemMapFlowSource.includes("design-system provenance is required"));
 assert.ok(
   platformNavMarkup.includes(
     '<a class="surfaces-navigation-identifier" href="/" aria-current="page">JudgmentKit</a>',
@@ -370,8 +385,8 @@ assert.equal(homepageMain.includes("create_frontend_generation_context"), false)
 assert.equal(homepageMain.includes("create_frontend_implementation_skill_context"), false);
 assert.equal(homepage.includes("System map"), false);
 assert.equal(homepage.includes('id="system-map"'), false);
-assert.equal(homepage.includes('href="/assets/system-map-flow.css?v=judgmentkit-flow-controls-bottom-left"'), false);
-assert.equal(homepage.includes('src="/assets/system-map-flow.js?v=judgmentkit-flow-controls-bottom-left"'), false);
+assert.equal(homepage.includes('href="/assets/system-map-flow.css?v=judgmentkit-flow-design-source-authority"'), false);
+assert.equal(homepage.includes('src="/assets/system-map-flow.js?v=judgmentkit-flow-design-source-authority"'), false);
 assert.equal(homepage.includes('data-system-map-flow-section'), false);
 assert.equal(homepage.includes('data-system-map-flow-viewer'), false);
 assert.equal(homepage.includes('data-system-map-flow-root'), false);
@@ -456,7 +471,9 @@ assert.ok(docs.includes("examples/ai-native-design-system/canonical-examples.jso
 assert.ok(docs.includes("next_agent_action"));
 assert.ok(docs.includes("repair_instructions"));
 assert.ok(docs.includes("visual_token_adapter"));
-assert.ok(docs.includes("The default renderer/component package starts only after"));
+assert.ok(docs.includes("runtime renderer/component package can remain deferred"));
+assert.ok(docs.includes("implementation_contract.design_system_source"));
+assert.ok(docs.includes("implementation_contract.local_component_authority"));
 assert.ok(docs.includes("Planning Mode Examples"));
 assert.ok(docs.includes("review whether an agent is using JudgmentKit well"));
 assert.ok(docs.includes("Plan a UI for a support lead reviewing refund requests during daily triage"));
@@ -477,8 +494,8 @@ assert.ok(docs.includes("Markdown planning card"));
 assert.ok(docs.includes("Codex-style planning chat"));
 assert.ok(docs.includes('id="system-map"'));
 assert.ok(docs.includes("System Map"));
-assert.ok(docs.includes('href="/assets/system-map-flow.css?v=judgmentkit-flow-controls-bottom-left"'));
-assert.ok(docs.includes('src="/assets/system-map-flow.js?v=judgmentkit-flow-controls-bottom-left"'));
+assert.ok(docs.includes('href="/assets/system-map-flow.css?v=judgmentkit-flow-design-source-authority"'));
+assert.ok(docs.includes('src="/assets/system-map-flow.js?v=judgmentkit-flow-design-source-authority"'));
 assert.ok(docs.includes('data-system-map-flow-section'));
 assert.ok(docs.includes('data-system-map-flow-viewer'));
 assert.ok(docs.includes('data-system-map-flow-root'));
@@ -509,10 +526,23 @@ assert.ok(docs.includes("JudgmentKit kernel"));
 assert.ok(docs.includes("Surface type"));
 assert.ok(docs.includes("Frontend adapter"));
 assert.ok(docs.includes("Source brief + product context"));
-assert.ok(docs.includes("Material UI adapter"));
+assert.ok(docs.includes("External adapter"));
+assert.ok(docs.includes("Complete tokens, components,"));
+assert.equal(docs.includes("@mui/material components"), false);
 assert.ok(docs.includes("selected surface type"));
 assert.ok(docs.includes("Design-system compliance is not a substitute for activity fit"));
-assert.ok(docs.includes("without design system"));
+assert.ok(docs.includes("design-system provenance is required"));
+assert.ok(docs.includes("implementation_contract.design_system_source"));
+assert.ok(docs.includes("implementation_contract.local_component_authority"));
+assert.ok(docs.includes("implementation_contract.visual_token_adapter"));
+assert.ok(docs.includes("implementation_contract.default_ai_native_design_system"));
+assert.ok(docs.includes("implementation_contract.visual_asset_policy"));
+assert.ok(docs.includes("implementation_contract.accessibility_policy"));
+assert.ok(docs.includes("external_design_system"));
+assert.ok(docs.includes("complete"));
+assert.ok(docs.includes("missing authorities fail"));
+assert.equal(docs.includes("without design system"), false);
+assert.equal(docs.includes("does not enforce Material UI or any design system"), false);
 assert.ok(docs.includes("updated context"));
 assert.ok(docs.includes("re-enters source/activity review rather than becoming only a longer prompt"));
 assert.ok(docs.includes("resolve targeted questions or leakage details before generating UI"));
@@ -847,6 +877,7 @@ assert.ok(siteCss.includes(".design-icon-index-list"));
 assert.ok(siteCss.includes(".design-icon-index-card"));
 assert.ok(siteCss.includes(".design-icon-symbol svg"));
 assert.ok(designSystemLlms.includes("# JudgmentKit Design System"));
+assert.ok(designSystemLlms.includes("Canonical active design-system source"));
 assert.ok(designSystemLlms.includes("/design-system/"));
 assert.ok(designSystemLlms.includes("/design-system/index.html.md"));
 assert.ok(designSystemLlms.includes("/design-system/manifest.json"));
@@ -874,7 +905,18 @@ assert.equal(designSystemManifest.exports.pattern_specimens, "/design-system/pat
 assert.equal(designSystemManifest.exports.specimen_provenance, "/design-system/specimen-provenance.json");
 assert.equal(designSystemManifest.exports.accessibility_policy, "/design-system/accessibility-policy.json");
 assert.equal(designSystemManifest.section, "JudgmentKit Design System");
-assert.equal(designSystemManifest.purpose, "Human reference for foundation assets.");
+assert.equal(
+  designSystemManifest.purpose,
+  "Active default design-system source for implementation contracts.",
+);
+assert.ok(designSystem.includes("active design-system source"));
+assert.ok(designSystem.includes("implementation_contract.design_system_source"));
+assert.ok(designSystem.includes("external_design_system"));
+assert.ok(designSystem.includes("complete"));
+assert.ok(designSystem.includes("design_system_adapter"));
+assert.ok(designSystem.includes("missing authorities do not fall back to JudgmentKit defaults"));
+assert.ok(designSystemMarkdown.includes("active design-system source"));
+assert.equal(designSystemManifest.purpose.includes("Human reference"), false);
 assert.equal(
   designSystemManifest.source.design_system_contract_id,
   "judgmentkit.ai-native-default.contract-v1",
@@ -1063,21 +1105,17 @@ assert.ok(value.includes("Repaired outcome"));
 assert.ok(value.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-no-judgmentkit.png"));
 assert.ok(value.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-with-judgmentkit.png"));
 assert.ok(value.includes("Public evaluation report"));
-assert.ok(value.includes("Latest MCP pilot report"));
-assert.ok(value.includes(`/evals/mcp-pilot/${latestMcpPilotRun.html_report}`));
-if (hasLatestMcpPilotLlmEvidence) {
-  assert.ok(value.includes("Latest LLM evidence"));
-  assert.ok(value.includes(`/evals/mcp-pilot/${latestMcpPilotRun.run_path}/mcp-pilot-llm-evidence.md`));
-} else {
-  assert.equal(value.includes("Latest LLM evidence"), false);
-  assert.equal(
-    value.includes(`/evals/mcp-pilot/${latestMcpPilotRun.run_path}/mcp-pilot-llm-evidence.md`),
-    false,
-  );
-}
-assert.ok(value.includes("Milestone proof packet"));
-assert.ok(value.includes("/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-evidence-packet.md"));
-assert.equal(value.includes("/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-report.html"), false);
+assert.ok(value.includes("Latest committed eval report"));
+assert.ok(value.includes("Eval catalog JSON"));
+assert.ok(value.includes(`current hosted MCP release is ${packageJson.version}`));
+assert.ok(value.includes("historical committed eval artifacts"));
+assert.ok(value.includes("not current release acceptance proof"));
+assert.ok(value.includes("Older pilot packets remain historical source material in the repository"));
+assert.equal(value.includes("Latest MCP pilot report"), false);
+assert.equal(value.includes("Latest LLM evidence"), false);
+assert.equal(value.includes("Milestone proof packet"), false);
+assert.equal(value.includes("/evals/mcp-pilot/"), false);
+assert.equal(value.includes("mcp-0.2.0"), false);
 assert.ok(value.includes("/examples/one-shot-demo.html"));
 assert.equal(valuePrimaryStory.includes("MCP"), false);
 assert.ok(siteCss.includes(".value-page"));
@@ -1120,7 +1158,8 @@ assert.ok(examples.includes("/examples/lucide-icon-catalog-smoke.html"));
 assert.ok(examples.includes("ED flow board MVP"));
 assert.ok(examples.includes("/examples/er-flow-dashboard/"));
 assert.ok(examples.includes("room occupancy, waiting acuity, turnover, holds, and charge-team next moves"));
-assert.ok(examples.includes("Tokens, system font stacks, and Lucide icon catalog policy remain governed metadata"));
+assert.ok(examples.includes("The active design-system source supplies token roles"));
+assert.ok(examples.includes("component contracts, and provenance expectations"));
 assert.ok(examples.includes("The design-system icon page is the reference surface"));
 assert.ok(examples.includes("this HTML remains the deterministic regression proof"));
 assert.ok(examples.includes("Model UI matrix"));
@@ -1144,11 +1183,33 @@ assert.equal(examples.includes("<iframe"), false);
 assert.equal(examples.includes("data-example-frame"), false);
 assert.equal(examples.includes("Inline preview"), false);
 assert.ok(examples.includes('class="example-preview-body" data-model-ui-preview'));
-assert.ok(examples.includes('class=\\"example-gallery\\" aria-label=\\"Model UI screenshot gallery\\"'));
-assert.ok(examples.includes('class=\\"example-matrix-table\\"'));
-assert.ok(examples.includes('class=\\"example-matrix-column-header\\"'));
-assert.ok(examples.includes('class=\\"example-matrix-cell\\"'));
-assert.ok(examples.includes('class=\\"example-matrix-thumb\\"'));
+assert.ok(examples.includes('class="example-gallery" aria-label="Model UI screenshot gallery"'));
+assert.ok(examples.includes('class="example-matrix-table"'));
+assert.ok(examples.includes('class="example-matrix-column-header"'));
+assert.ok(examples.includes('class="example-matrix-cell"'));
+assert.ok(examples.includes('class="example-matrix-thumb"'));
+assert.ok(examples.includes("Diagnostic only"));
+assert.ok(examples.includes("diagnostic-only failed-candidate cells"));
+assert.ok(examples.includes("Needs repair before evidence"));
+assert.ok(examples.includes("Token provenance failed"));
+assert.ok(examples.includes("Capture quality failed"));
+assert.equal(examples.includes("data-diagnostic-candidate"), false);
+assert.equal(examples.includes("gemma4-lms-with-judgmentkit"), false);
+assert.equal(examples.includes("gpt55-xhigh-codex-with-judgmentkit"), false);
+assert.equal(examples.includes("repair_and_resubmit"), false);
+assert.equal(examples.includes("visual_tokens"), false);
+assert.equal(examples.includes("static_capture_quality"), false);
+assert.equal(examples.includes("/artifacts/gemma4-lms-with-judgmentkit.html"), false);
+assert.equal(examples.includes("/screenshots/gemma4-lms-with-judgmentkit.png"), false);
+assert.equal(examples.includes("/artifacts/gpt55-xhigh-codex-with-judgmentkit.html"), false);
+assert.equal(examples.includes("/screenshots/gpt55-xhigh-codex-with-judgmentkit.png"), false);
+const exampleDiagnosticCell = examples.match(
+  /<article class="example-matrix-cell example-matrix-cell-diagnostic"[\s\S]*?<\/article>/,
+)?.[0] ?? "";
+assert.ok(exampleDiagnosticCell.includes("Diagnostic only"));
+assert.equal(exampleDiagnosticCell.includes("<a "), false);
+assert.equal(exampleDiagnosticCell.includes("href="), false);
+assert.equal(exampleDiagnosticCell.includes("data-gallery-open"), false);
 assert.equal(examples.includes('class=\\"example-gallery-meta\\"'), false);
 assert.equal(examples.includes("3x4 JudgmentKit and Material UI comparison across four use cases"), false);
 assert.ok(examples.includes("Raw brief"));
@@ -1177,7 +1238,7 @@ const exampleGalleryMetaCss =
   siteCss.match(/\.example-gallery-meta div,\n\.example-gallery-modal-meta div \{[\s\S]*?\}/)?.[0] ?? "";
 assert.ok(exampleGalleryMetaCss.includes("background: var(--soft-surface);"));
 assert.equal(exampleGalleryMetaCss.includes("#f8f7f1"), false);
-assert.ok(examples.includes('data-gallery-open=\\"0\\"'));
+assert.ok(examples.includes('data-gallery-open="0"'));
 assert.ok(examples.includes('data-gallery-modal-image'));
 assert.ok(examples.includes('data-gallery-modal-context'));
 assert.ok(examples.includes('data-gallery-modal-render'));
@@ -1205,7 +1266,6 @@ assert.equal(examples.includes("/examples/one-shot-demo.html"), false);
 assert.equal(examples.includes("/examples/comparison/refund/version-a.html"), false);
 assert.equal(examples.includes("/examples/comparison/refund/version-b.html"), false);
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/index.html"));
-assert.ok(examples.includes("/examples/model-ui/refund-system-map/manifest.json"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-no-judgmentkit.png"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-with-judgmentkit.png"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-material-ui-only.png"));
@@ -1246,17 +1306,21 @@ assert.equal(modelUiIndex.default_use_case_id, "refund-system-map");
 
 for (const useCase of MODEL_UI_USE_CASES) {
   const useCaseRoute = `/${useCase.index_path}`;
-  const manifestRoute = `/${useCase.manifest_path}`;
   assert.ok(examples.includes(useCase.label), `${useCase.id} label should appear in examples`);
   assert.ok(examples.includes(useCase.activity_summary), `${useCase.id} summary should appear in examples`);
   assert.ok(examples.includes(useCaseRoute), `${useCase.id} matrix route should appear`);
-  assert.ok(examples.includes(manifestRoute), `${useCase.id} manifest route should appear`);
+  assert.equal(
+    fs.existsSync(path.join(tempDir, ...useCase.manifest_path.split("/"))),
+    true,
+    `${useCase.id} manifest route should be copied`,
+  );
 
   const manifest = JSON.parse(
     fs.readFileSync(path.join(tempDir, ...useCase.manifest_path.split("/")), "utf8"),
   );
   assert.equal(manifest.use_case_id, useCase.id);
   assert.equal(manifest.use_case_label, useCase.label);
+  assert.equal(manifest.legacy_aliases.length, 0);
   assert.equal(manifest.comparison_rows.length, 3);
   assert.equal(manifest.comparison_columns.length, 4);
   assert.equal(
@@ -1297,7 +1361,10 @@ for (const useCase of MODEL_UI_USE_CASES) {
     for (const diagnosticPath of [
       ["examples", "model-ui", useCase.id, "artifacts", `${candidate.id}.html`],
       ["examples", "model-ui", useCase.id, "screenshots", `${candidate.id}.png`],
-    ]) {
+      candidate.capture_file
+        ? ["examples", "model-ui", useCase.id, ...candidate.capture_file.split("/")]
+        : null,
+    ].filter(Boolean)) {
       assert.equal(
         fs.existsSync(path.join(tempDir, ...diagnosticPath)),
         false,
@@ -1337,7 +1404,6 @@ assert.equal(examples.includes("/examples/comparison/music/version-b.html"), fal
 assert.equal(examples.includes("/examples/comparison/music/facilitator-scorecard.md"), false);
 assert.equal(examples.includes("/examples/evals/"), false);
 assert.equal(examples.includes("/examples/evals/index.json"), false);
-assert.ok(examples.includes("Gemma 4 (local LLM)"));
 assert.ok(examples.includes("GPT-5.5"));
 assert.ok(examples.includes("Gemma 4 via LM Studio lms"));
 assert.ok(examples.includes("GPT-5.5 xhigh via codex exec"));
@@ -1355,7 +1421,10 @@ const evals = fs.readFileSync(path.join(tempDir, "evals", "index.html"), "utf8")
 assertAnalyticsBootstrap(evals, "evals");
 assert.ok(evals.includes("Evaluation evidence"));
 assert.ok(evals.includes("<h1>Evals</h1>"));
-assert.ok(evals.includes("Latest run"));
+assert.ok(evals.includes("Latest committed eval run"));
+assert.ok(evals.includes("Current hosted MCP release"));
+assert.ok(evals.includes(packageJson.version));
+assert.ok(evals.includes("Historical MCP release"));
 assert.ok(evals.includes("Claim level"));
 assert.ok(evals.includes("statistically powered benchmark"));
 assert.ok(evals.includes("/evals/judgmentkit-mcp/"));
@@ -1364,6 +1433,7 @@ assert.ok(evals.includes("/evals/index.json"));
 assert.ok(evals.includes(`/evals/${evalCatalog.latest.html_report}`));
 assert.ok(evals.includes(`/evals/${evalCatalog.latest.json_report}`));
 assert.equal(evals.includes("/examples/evals/"), false);
+assert.equal(evals.includes("/evals/mcp-pilot/"), false);
 assert.ok(evals.includes('class="site-shell evals-shell"'));
 assert.ok(siteCss.includes('--eval-serif: "Source Serif 4"'));
 assert.ok(siteCss.includes(".evals-page {\n  padding-top: var(--site-page-top);\n  font-family: var(--eval-serif);"));
@@ -1395,20 +1465,72 @@ assert.equal(
   true,
   "expected latest eval screenshot to be copied",
 );
+const expectedEvalFiles = new Set([
+  "index.html",
+  "index.json",
+  "judgmentkit-mcp/index.html",
+  "site-rebuild-log/index.html",
+]);
+for (const run of evalCatalog.runs) {
+  expectedEvalFiles.add(run.html_report);
+  expectedEvalFiles.add(run.json_report);
+  const sourceReleaseReviewPath = new URL(
+    `../evals/reports/${run.run_path}/release-review.html`,
+    import.meta.url,
+  );
+  if (fs.existsSync(sourceReleaseReviewPath)) {
+    expectedEvalFiles.add(`${run.run_path}/release-review.html`);
+  }
+  const sourceReport = JSON.parse(
+    fs.readFileSync(new URL(`../evals/reports/${run.json_report}`, import.meta.url), "utf8"),
+  );
+  for (const resultEntry of sourceReport.results ?? []) {
+    for (const variant of resultEntry.variants ?? []) {
+      for (const screenshot of variant.screenshots ?? []) {
+        expectedEvalFiles.add(screenshot.path);
+      }
+    }
+  }
+}
+assert.deepEqual(
+  listRelativeFiles(path.join(tempDir, "evals")).filter((file) => !expectedEvalFiles.has(file)),
+  [],
+  "public eval archive should contain only cataloged report files, optional release reviews, and referenced screenshots",
+);
+for (const run of evalCatalog.runs) {
+  const htmlReportPath = path.join(tempDir, "evals", run.html_report);
+  const htmlReport = fs.readFileSync(htmlReportPath, "utf8");
+  assert.equal(
+    htmlReport.includes("../mcp-pilot/") || htmlReport.includes("/evals/mcp-pilot/") || htmlReport.includes("../../../mcp-pilot/"),
+    false,
+    `${run.html_report} should not link to private MCP pilot archive`,
+  );
+  const releaseReviewPath = path.join(tempDir, "evals", run.run_path, "release-review.html");
+  if (fs.existsSync(releaseReviewPath)) {
+    const releaseReview = fs.readFileSync(releaseReviewPath, "utf8");
+    assert.equal(
+      releaseReview.includes("../mcp-pilot/") ||
+        releaseReview.includes("/evals/mcp-pilot/") ||
+        releaseReview.includes("../../../mcp-pilot/"),
+      false,
+      `${run.run_path}/release-review.html should not link to private MCP pilot archive`,
+    );
+  }
+}
 assert.equal(
-  fs.existsSync(path.join(tempDir, "examples", "evals", "index.html")),
-  true,
-  "expected legacy examples eval index compatibility path",
+  fs.existsSync(path.join(tempDir, "examples", "evals")),
+  false,
+  "legacy examples eval compatibility path should not be public",
 );
 assert.equal(
-  fs.existsSync(path.join(tempDir, "examples", "evals", evalCatalog.latest.html_report)),
-  true,
-  "expected legacy examples eval report compatibility path",
+  fs.existsSync(path.join(tempDir, "evals", "mcp-pilot")),
+  false,
+  "private MCP pilot archive should not be public",
 );
 assert.equal(
-  fs.existsSync(path.join(tempDir, "examples", "evals", latestScreenshotPath)),
-  true,
-  "expected legacy examples eval screenshot compatibility path",
+  fs.existsSync(path.join(tempDir, "evals", "surface-types")),
+  false,
+  "non-cataloged surface-type archive should not be public",
 );
 
 const mcpReportPath = path.join(tempDir, "evals", "judgmentkit-mcp", "index.html");
@@ -1434,6 +1556,11 @@ assert.ok(mcpReport.includes('href="#run-data"'));
 assert.ok(mcpReport.includes("The UI generation bottleneck"));
 assert.ok(mcpReport.includes("What JudgmentKit changes"));
 assert.ok(mcpReport.includes("How the evaluation works"));
+assert.ok(mcpReport.includes("Current hosted MCP release"));
+assert.ok(mcpReport.includes(packageJson.version));
+assert.ok(mcpReport.includes("Historical eval MCP release"));
+assert.ok(mcpReport.includes(evalCatalog.latest.mcp_release));
+assert.ok(mcpReport.includes("Latest committed eval run"));
 assert.ok(mcpReport.includes("Benchmarks"));
 assert.ok(mcpReport.includes("Example evidence"));
 assert.ok(mcpReport.includes("Limitations and future work"));
@@ -1444,8 +1571,28 @@ assert.ok(mcpReport.includes('class="report-benchmark-table"'));
 assert.ok(mcpReport.includes("Raw screenshot"));
 assert.ok(mcpReport.includes("Guided screenshot"));
 assert.ok(mcpReport.includes("Context boundary matrix"));
+assert.ok(mcpReport.includes("Diagnostic only"));
+assert.ok(mcpReport.includes("report-context-cell-diagnostic"));
+assert.equal(mcpReport.includes("data-diagnostic-candidate"), false);
+assert.equal(mcpReport.includes("gemma4-lms-with-judgmentkit"), false);
+assert.equal(mcpReport.includes("gpt55-xhigh-codex-with-judgmentkit"), false);
+assert.ok(mcpReport.includes("Needs repair before evidence"));
+assert.ok(mcpReport.includes("Token provenance failed"));
+assert.ok(mcpReport.includes("Capture quality failed"));
+assert.equal(mcpReport.includes("repair_and_resubmit"), false);
+assert.equal(mcpReport.includes("visual_tokens"), false);
+assert.equal(mcpReport.includes("static_capture_quality"), false);
 assert.ok(mcpReport.includes("/examples/model-ui/refund-system-map/artifacts/deterministic-no-judgmentkit.html"));
 assert.ok(mcpReport.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-no-judgmentkit.png"));
+assert.equal(mcpReport.includes("/examples/model-ui/refund-system-map/artifacts/gemma4-lms-with-judgmentkit.html"), false);
+assert.equal(mcpReport.includes("/examples/model-ui/refund-system-map/screenshots/gemma4-lms-with-judgmentkit.png"), false);
+const reportDiagnosticCell = mcpReport.match(
+  /<div class="report-context-cell report-context-cell-diagnostic"[\s\S]*?<\/div>/,
+)?.[0] ?? "";
+assert.ok(reportDiagnosticCell.includes("Diagnostic only"));
+assert.equal(reportDiagnosticCell.includes("<a "), false);
+assert.equal(reportDiagnosticCell.includes("href="), false);
+assert.equal(reportDiagnosticCell.includes("data-gallery-open"), false);
 assert.ok(mcpReport.includes("Support refund triage"));
 assert.ok(mcpReport.includes("Field service dispatch"));
 assert.ok(mcpReport.includes("Clinical intake review"));
@@ -1462,6 +1609,7 @@ assert.ok(siteCss.includes(".report-layout {\n  display: grid;\n  gap: clamp(34p
 assert.ok(siteCss.includes(".report-video"));
 assert.ok(siteCss.includes(".report-score-chart"));
 assert.ok(siteCss.includes(".report-context-matrix"));
+assert.ok(siteCss.includes(".report-context-cell-diagnostic"));
 
 const siteRebuildLogPath = path.join(tempDir, "evals", "site-rebuild-log", "index.html");
 assert.equal(fs.existsSync(siteRebuildLogPath), true, "expected site rebuild log route");
@@ -1529,20 +1677,12 @@ for (const copiedExamplePath of [
   ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-xhigh-codex-no-judgmentkit.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-xhigh-codex-material-ui-only.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-xhigh-codex-judgmentkit-material-ui.html"],
-  ["examples", "model-ui", "refund-system-map", "artifacts", "deterministic-without-design-system.html"],
-  ["examples", "model-ui", "refund-system-map", "artifacts", "deterministic-with-design-system.html"],
-  ["examples", "model-ui", "refund-system-map", "artifacts", "gemma4-with-design-system.html"],
-  ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-with-design-system.html"],
   ["examples", "model-ui", "refund-system-map", "captures", "gemma4-lms-no-judgmentkit.json"],
-  ["examples", "model-ui", "refund-system-map", "captures", "gemma4-lms-with-judgmentkit.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gemma4-lms-material-ui-only.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gemma4-lms-judgmentkit-material-ui.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gpt55-xhigh-codex-no-judgmentkit.json"],
-  ["examples", "model-ui", "refund-system-map", "captures", "gpt55-xhigh-codex-with-judgmentkit.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gpt55-xhigh-codex-material-ui-only.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gpt55-xhigh-codex-judgmentkit-material-ui.json"],
-  ["examples", "model-ui", "refund-system-map", "captures", "gemma4-with-design-system.json"],
-  ["examples", "model-ui", "refund-system-map", "captures", "gpt55-with-design-system.json"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-no-judgmentkit.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-with-judgmentkit.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-material-ui-only.png"],
@@ -1553,10 +1693,6 @@ for (const copiedExamplePath of [
   ["examples", "model-ui", "refund-system-map", "screenshots", "gpt55-xhigh-codex-no-judgmentkit.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "gpt55-xhigh-codex-material-ui-only.png"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "gpt55-xhigh-codex-judgmentkit-material-ui.png"],
-  ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-without-design-system.png"],
-  ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-with-design-system.png"],
-  ["examples", "model-ui", "refund-system-map", "screenshots", "gemma4-with-design-system.png"],
-  ["examples", "model-ui", "refund-system-map", "screenshots", "gpt55-with-design-system.png"],
   ["examples", "comparison", "music", "version-a.html"],
   ["examples", "comparison", "music", "version-b.html"],
   ["examples", "comparison", "music", "facilitator-scorecard.md"],
@@ -1567,11 +1703,6 @@ for (const copiedExamplePath of [
   ["evals", ...evalCatalog.latest.html_report.split("/")],
   ["evals", ...evalCatalog.latest.json_report.split("/")],
   ["evals", ...latestScreenshotPath.split("/")],
-  ["examples", "evals", "index.html"],
-  ["examples", "evals", "index.json"],
-  ["examples", "evals", ...evalCatalog.latest.html_report.split("/")],
-  ["examples", "evals", ...evalCatalog.latest.json_report.split("/")],
-  ["examples", "evals", ...latestScreenshotPath.split("/")],
 ]) {
   const artifactPath = path.join(tempDir, ...copiedExamplePath);
 

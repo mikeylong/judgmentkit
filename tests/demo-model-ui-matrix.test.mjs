@@ -148,6 +148,26 @@ function readProvenance(html) {
   return JSON.parse(match[1]);
 }
 
+function assertDiagnosticBlockIsNonClickable(html, candidate) {
+  const candidateIndex = html.indexOf(candidate.approach_title);
+  assert.notEqual(candidateIndex, -1, `missing diagnostic candidate ${candidate.id}`);
+  const blockStart = html.lastIndexOf('<article class="gallery-card diagnostic-card"', candidateIndex);
+  const blockEnd = html.indexOf("</article>", candidateIndex);
+  assert.notEqual(blockStart, -1, `missing diagnostic card start for ${candidate.id}`);
+  assert.notEqual(blockEnd, -1, `missing diagnostic card end for ${candidate.id}`);
+  const block = html.slice(blockStart, blockEnd);
+  assert.equal(block.includes("<a "), false, `${candidate.id} diagnostic card must not contain links`);
+  assert.equal(block.includes("href="), false, `${candidate.id} diagnostic card must not contain href`);
+  assert.equal(block.includes("data-gallery-open"), false, `${candidate.id} diagnostic card must not open gallery`);
+  assert.ok(block.includes("Needs repair before evidence"), `${candidate.id} should translate repair status`);
+  assert.ok(block.includes("Token provenance failed"), `${candidate.id} should translate token checks`);
+  assert.ok(block.includes("Capture quality failed"), `${candidate.id} should translate capture checks`);
+  assert.equal(block.includes(candidate.next_agent_action), false, `${candidate.id} should not expose raw repair action`);
+  for (const check of candidate.failed_checks ?? []) {
+    assert.equal(block.includes(check), false, `${candidate.id} should not expose raw failed check ${check}`);
+  }
+}
+
 function assertPng(filePath) {
   assert.equal(fs.existsSync(filePath), true, `missing PNG ${filePath}`);
   const screenshot = fs.readFileSync(filePath);
@@ -171,6 +191,27 @@ assert.match(
   /surface_type_guidance:\s*frontendSkillContext\.surface_type_guidance/,
   "capture script should preserve surface_type_guidance so fresh captures record surface_type.",
 );
+
+const refundUseCase = MODEL_UI_USE_CASES.find((useCase) => useCase.id === "refund-system-map");
+assert.ok(refundUseCase, "missing refund model UI use case");
+const staleAliasPath = path.join(root, refundUseCase.output_dir, LEGACY_ALIASES[0].artifact_path);
+try {
+  fs.mkdirSync(path.dirname(staleAliasPath), { recursive: true });
+  fs.writeFileSync(staleAliasPath, "<!doctype html><title>stale alias</title>\n");
+  const staleAliasResult = spawnSync(
+    process.execPath,
+    [scriptPath, "--check", "--use-case", "refund-system-map"],
+    { encoding: "utf8" },
+  );
+  assert.notEqual(staleAliasResult.status, 0, "check mode should fail on stale removed alias files");
+  assert.match(
+    staleAliasResult.stderr,
+    /Removed model UI file is still present/,
+    "check mode should report the stale removed alias file",
+  );
+} finally {
+  fs.rmSync(staleAliasPath, { force: true });
+}
 
 const strictJudgmentKitTarget = {
   artifact_id: "test-with-judgmentkit",
@@ -684,14 +725,26 @@ for (const useCase of MODEL_UI_USE_CASES) {
     [...strictStaticDiagnosticIds].sort(),
     `${useCase.id} should keep invalid strict static captures diagnostic-only`,
   );
-  const acceptedArtifactIds = new Set(manifest.artifacts.map((artifact) => artifact.id));
   assert.equal(
     manifest.legacy_aliases.length,
-    useCase.id === "refund-system-map"
-      ? LEGACY_ALIASES.filter((alias) => acceptedArtifactIds.has(alias.canonical_id)).length
-      : 0,
+    0,
+    `${useCase.id} should not publish stale legacy alias routes`,
   );
   assert.equal(handoff.handoff_status, "ready_for_generation");
+  for (const field of [
+    "design_system_source",
+    "local_component_authority",
+    "visual_token_adapter",
+    "default_ai_native_design_system",
+    "visual_asset_policy",
+    "accessibility_policy",
+  ]) {
+    assert.ok(handoff.implementation_contract[field], `${useCase.id} should carry ${field}`);
+  }
+  assert.equal(
+    handoff.implementation_contract.design_system_source.fallback_policy,
+    "fail_incomplete",
+  );
   assert.equal(
     handoff.implementation_contract.local_component_authority.token_boundary.rule,
     EXPECTED_TOKEN_BOUNDARY_RULE,
@@ -723,11 +776,27 @@ for (const useCase of MODEL_UI_USE_CASES) {
   assert.ok(indexHtml.includes("JudgmentKit skill context"));
   assert.ok(indexHtml.includes("Material UI only"));
   assert.ok(indexHtml.includes("JudgmentKit skill + Material UI"));
+  assert.ok(indexHtml.includes("Diagnostic only"));
+  assert.ok(indexHtml.includes("diagnostic-card"));
+  assert.ok(indexHtml.includes("Needs repair before evidence"));
+  assert.equal(indexHtml.includes('id="model-ui-manifest"'), false);
   assert.ok(indexHtml.includes("Gemma 4 via LM Studio lms"));
   assert.ok(indexHtml.includes("GPT-5.5 xhigh via codex exec"));
   assert.ok(indexHtml.includes("Material UI improves visual/component consistency"));
   assert.ok(indexHtml.includes("JudgmentKit skill context improves activity fit"));
   assert.equal(indexHtml.includes("capture-required"), false);
+
+  for (const candidate of manifest.diagnostic_candidates) {
+    assert.ok(indexHtml.includes(candidate.approach_title));
+    assertDiagnosticBlockIsNonClickable(indexHtml, candidate);
+    assert.equal(indexHtml.includes(candidate.id), false);
+    assert.equal(indexHtml.includes(candidate.next_agent_action), false);
+    for (const check of candidate.failed_checks ?? []) {
+      assert.equal(indexHtml.includes(check), false);
+    }
+    assert.equal(indexHtml.includes(`artifacts/${candidate.id}.html`), false);
+    assert.equal(indexHtml.includes(`screenshots/${candidate.id}.png`), false);
+  }
 
   for (const row of COMPARISON_ROWS) {
     const manifestRow = manifest.comparison_rows.find((entry) => entry.id === row.id);
@@ -1098,79 +1167,28 @@ for (const useCase of MODEL_UI_USE_CASES) {
       }
     }
   }
-
-  for (const alias of manifest.legacy_aliases) {
-    const canonical = manifest.artifacts.find((artifact) => artifact.id === alias.canonical_id);
-    assert.ok(canonical, `legacy alias ${useCase.id}/${alias.id} should point to a canonical artifact`);
-  }
 }
 
 const refundDir = path.join(root, "examples/model-ui/refund-system-map");
 const refundManifest = readJson(path.join(refundDir, "manifest.json"));
-for (const alias of refundManifest.legacy_aliases) {
-  assert.equal(fs.existsSync(path.join(refundDir, alias.artifact_path)), true, `missing refund legacy alias ${alias.artifact_path}`);
-  assertPng(path.join(refundDir, alias.screenshot_path));
-  if (alias.capture_file) {
-    const capture = readJson(path.join(refundDir, alias.capture_file));
-    assert.equal(capture.compatibility_alias, true, `${alias.capture_file} should be marked as an alias`);
-    assert.ok(capture.canonical_artifact_id);
-  }
-}
+assert.equal(refundManifest.legacy_aliases.length, 0);
 
 for (const alias of LEGACY_ALIASES) {
-  if (refundManifest.legacy_aliases.some((entry) => entry.id === alias.id)) continue;
   assert.equal(
     fs.existsSync(path.join(refundDir, alias.artifact_path)),
     false,
-    `diagnostic-only legacy alias should not publish ${alias.artifact_path}`,
+    `stale legacy alias should not publish ${alias.artifact_path}`,
   );
   assert.equal(
     fs.existsSync(path.join(refundDir, alias.screenshot_path)),
     false,
-    `diagnostic-only legacy alias should not publish ${alias.screenshot_path}`,
+    `stale legacy alias should not publish ${alias.screenshot_path}`,
   );
-}
-
-const refundArtifactById = new Map(
-  refundManifest.artifacts.map((artifact) => [artifact.id, artifact]),
-);
-for (const alias of refundManifest.legacy_aliases) {
-  const canonical = refundArtifactById.get(alias.canonical_id);
-  assert.ok(canonical, `missing canonical manifest entry for ${alias.id}`);
-
-  const aliasHtml = fs.readFileSync(path.join(refundDir, alias.artifact_path), "utf8");
-  const aliasProvenance = readProvenance(aliasHtml);
-  assert.equal(aliasProvenance.artifact_id, alias.id);
-  assert.equal(aliasProvenance.canonical_artifact_id, alias.canonical_id);
-  assert.equal(aliasProvenance.compatibility_alias, true);
-  assert.equal(aliasProvenance.artifact_path, alias.artifact_path);
-  assert.equal(aliasProvenance.screenshot_path, alias.screenshot_path);
-  assert.equal(aliasProvenance.source_context_sha256, canonical.source_context_sha256);
-  assert.equal(
-    aliasProvenance.current_source_context_sha256,
-    canonical.current_source_context_sha256,
-  );
-  assert.equal(aliasProvenance.source_context_status, canonical.source_context_status);
-
   if (alias.capture_file) {
-    const aliasCapture = readJson(path.join(refundDir, alias.capture_file));
-    const canonicalCapture = readJson(path.join(refundDir, canonical.capture_file));
-    assert.equal(aliasCapture.artifact_id, alias.id);
-    assert.equal(aliasCapture.canonical_artifact_id, alias.canonical_id);
-    assert.equal(aliasCapture.compatibility_alias, true);
-    assert.equal(aliasCapture.source_context_sha256, canonicalCapture.source_context_sha256);
     assert.equal(
-      aliasCapture.current_source_context_sha256,
-      canonicalCapture.current_source_context_sha256,
-    );
-    assert.equal(
-      aliasCapture.accepted_source_context_sha256,
-      canonicalCapture.accepted_source_context_sha256,
-    );
-    assert.equal(aliasCapture.source_context_status, canonicalCapture.source_context_status);
-    assert.deepEqual(
-      aliasCapture.frontend_skill_context,
-      canonicalCapture.frontend_skill_context,
+      fs.existsSync(path.join(refundDir, alias.capture_file)),
+      false,
+      `stale legacy alias should not publish ${alias.capture_file}`,
     );
   }
 }

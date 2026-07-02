@@ -167,14 +167,26 @@ async function assertDiagnosticRoutesNotPublic(baseUrl, useCaseBaseRoute, manife
       { bytes: true },
     );
   }
+
+  for (const candidate of manifest.diagnostic_candidates ?? []) {
+    if (!candidate.capture_file) continue;
+    await assertRouteNotPublic(
+      baseUrl,
+      `${useCaseBaseRoute}${candidate.capture_file}`,
+      `${label}/${candidate.id} diagnostic capture`,
+    );
+  }
 }
 
 async function assertInactiveLegacyAliasesNotPublic(baseUrl, useCaseBaseRoute, manifest) {
   if (manifest.use_case_id !== "refund-system-map") return;
-  const activeAliasIds = new Set((manifest.legacy_aliases ?? []).map((alias) => alias.id));
+  assert.equal(
+    (manifest.legacy_aliases ?? []).length,
+    0,
+    "refund model UI manifest should not expose stale design-system legacy aliases",
+  );
 
   for (const alias of LEGACY_ALIASES) {
-    if (activeAliasIds.has(alias.id)) continue;
     await assertRouteNotPublic(
       baseUrl,
       `${useCaseBaseRoute}${alias.artifact_path}`,
@@ -194,63 +206,6 @@ async function assertInactiveLegacyAliasesNotPublic(baseUrl, useCaseBaseRoute, m
       );
     }
   }
-}
-
-async function verifyLegacyAlias(baseUrl, useCaseBaseRoute, manifest, alias) {
-  const canonical = (manifest.artifacts ?? []).find(
-    (artifact) => artifact.id === alias.canonical_id,
-  );
-  assert.ok(
-    canonical,
-    `${manifest.use_case_id}/${alias.id} legacy alias should point to an accepted canonical artifact`,
-  );
-
-  const artifactRoute = `${useCaseBaseRoute}${alias.artifact_path}`;
-  const aliasPage = await fetchText(baseUrl, artifactRoute);
-  const provenance = readModelUiProvenance(aliasPage.text, artifactRoute);
-  assert.equal(provenance.artifact_id, alias.id);
-  assert.equal(provenance.canonical_artifact_id, alias.canonical_id);
-  assert.equal(provenance.compatibility_alias, true);
-  assert.equal(provenance.artifact_path, alias.artifact_path);
-  assert.equal(provenance.screenshot_path, alias.screenshot_path);
-  assert.equal(provenance.source_context_sha256, canonical.source_context_sha256);
-  assert.equal(
-    provenance.current_source_context_sha256,
-    canonical.current_source_context_sha256,
-  );
-  assert.equal(provenance.source_context_status, canonical.source_context_status);
-
-  const screenshotRoute = `${useCaseBaseRoute}${alias.screenshot_path}`;
-  const screenshotResponse = await fetchBytes(baseUrl, screenshotRoute);
-  assert.equal(
-    screenshotResponse.bytes.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE),
-    true,
-    `${alias.id} legacy screenshot should be a PNG`,
-  );
-
-  let captureRoute = null;
-  if (alias.capture_file) {
-    assert.ok(canonical.capture_file, `${alias.id} alias capture should have a canonical capture`);
-    captureRoute = `${useCaseBaseRoute}${alias.capture_file}`;
-    const canonicalCaptureRoute = `${useCaseBaseRoute}${canonical.capture_file}`;
-    const aliasCapture = JSON.parse((await fetchText(baseUrl, captureRoute)).text);
-    const canonicalCapture = JSON.parse((await fetchText(baseUrl, canonicalCaptureRoute)).text);
-    assert.equal(aliasCapture.artifact_id, alias.id);
-    assert.equal(aliasCapture.canonical_artifact_id, alias.canonical_id);
-    assert.equal(aliasCapture.compatibility_alias, true);
-    assert.equal(aliasCapture.source_context_sha256, canonicalCapture.source_context_sha256);
-    assert.equal(
-      aliasCapture.current_source_context_sha256,
-      canonicalCapture.current_source_context_sha256,
-    );
-    assert.equal(
-      aliasCapture.accepted_source_context_sha256,
-      canonicalCapture.accepted_source_context_sha256,
-    );
-    assert.equal(aliasCapture.source_context_status, canonicalCapture.source_context_status);
-  }
-
-  return { artifactRoute, screenshotRoute, captureRoute };
 }
 
 export function parseArgs(argv) {
@@ -365,6 +320,10 @@ function assertExcludes(text, needles, label) {
   }
 }
 
+function evalRunTitle(run) {
+  return `${run.date} / ${run.mcp_release_segment ?? `mcp-${run.mcp_release}`} / ${run.run_id}`;
+}
+
 function getAnalyticsScriptSrc(text, label) {
   assertIncludes(
     text,
@@ -408,7 +367,7 @@ async function verifyAnalyticsScript(baseUrl, scriptSrc) {
   };
 }
 
-async function verifyEvalArchive(baseUrl, analyticsScriptSrc) {
+async function verifyEvalArchive(baseUrl, analyticsScriptSrc, expectedPackageVersion) {
   const index = await fetchText(baseUrl, "/evals/");
   assert.equal(getAnalyticsScriptSrc(index.text, "eval archive"), analyticsScriptSrc);
   assertIncludes(
@@ -416,12 +375,14 @@ async function verifyEvalArchive(baseUrl, analyticsScriptSrc) {
     [
       "Evaluation evidence",
       "<h1>Evals</h1>",
-      "Latest run",
+      "Latest committed eval run",
+      "Current hosted MCP release",
+      "Historical MCP release",
       "Catalog JSON",
     ],
     "eval archive",
   );
-  assertExcludes(index.text, ["/examples/evals/"], "eval archive");
+  assertExcludes(index.text, ["/examples/evals/", "/evals/mcp-pilot/"], "eval archive");
 
   const catalogResponse = await fetchText(baseUrl, "/evals/index.json");
   const catalog = JSON.parse(catalogResponse.text);
@@ -429,6 +390,30 @@ async function verifyEvalArchive(baseUrl, analyticsScriptSrc) {
   assert.ok(catalog.latest, "eval catalog should include latest run");
   assert.ok(Array.isArray(catalog.runs), "eval catalog should include runs");
   assert.ok(catalog.runs.length > 0, "eval catalog should include at least one run");
+  assertIncludes(
+    index.text,
+    [
+      expectedPackageVersion,
+      catalog.latest.mcp_release,
+      evalRunTitle(catalog.latest),
+    ],
+    "eval archive version labels",
+  );
+  for (const run of catalog.runs) {
+    const releaseReviewRoute = `/evals/${run.run_path}/release-review.html`;
+    const releaseReview = await fetchText(baseUrl, releaseReviewRoute, { expectOk: false });
+    if (releaseReview.response.status === 404) continue;
+    assert.equal(
+      releaseReview.response.ok,
+      true,
+      `${releaseReviewRoute} should return 2xx or 404, got ${releaseReview.response.status}`,
+    );
+    assertExcludes(
+      releaseReview.text,
+      ["../mcp-pilot/", "../../../mcp-pilot/", "/evals/mcp-pilot/"],
+      releaseReviewRoute,
+    );
+  }
 
   const latestHtmlRoute = `/evals/${catalog.latest.html_report}`;
   const latestJsonRoute = `/evals/${catalog.latest.json_report}`;
@@ -457,11 +442,23 @@ async function verifyEvalArchive(baseUrl, analyticsScriptSrc) {
   const latestScreenshotRoute = `/evals/${latestScreenshotPath}`;
   await fetchText(baseUrl, latestScreenshotRoute);
 
-  await fetchText(baseUrl, "/examples/evals/");
-  await fetchText(baseUrl, "/examples/evals/index.json");
-  await fetchText(baseUrl, `/examples/evals/${catalog.latest.html_report}`);
-  await fetchText(baseUrl, `/examples/evals/${catalog.latest.json_report}`);
-  await fetchText(baseUrl, `/examples/evals/${latestScreenshotPath}`);
+  await assertRouteNotPublic(baseUrl, "/examples/evals/", "legacy examples eval archive");
+  await assertRouteNotPublic(baseUrl, "/examples/evals/index.json", "legacy examples eval catalog");
+  await assertRouteNotPublic(baseUrl, `/examples/evals/${catalog.latest.html_report}`, "legacy examples eval HTML report");
+  await assertRouteNotPublic(baseUrl, `/examples/evals/${catalog.latest.json_report}`, "legacy examples eval JSON report");
+  await assertRouteNotPublic(baseUrl, `/examples/evals/${latestScreenshotPath}`, "legacy examples eval screenshot");
+  await assertRouteNotPublic(baseUrl, "/evals/mcp-pilot/", "private MCP pilot archive");
+  await assertRouteNotPublic(baseUrl, "/evals/mcp-pilot/index.json", "private MCP pilot catalog");
+  await assertRouteNotPublic(
+    baseUrl,
+    "/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-report.html",
+    "private MCP pilot deep report",
+  );
+  await assertRouteNotPublic(
+    baseUrl,
+    "/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-evidence-packet.md",
+    "private MCP pilot deep evidence packet",
+  );
 
   return {
     index_route: "/evals/",
@@ -469,7 +466,6 @@ async function verifyEvalArchive(baseUrl, analyticsScriptSrc) {
     latest_html_route: latestHtmlRoute,
     latest_json_route: latestJsonRoute,
     latest_screenshot_route: latestScreenshotRoute,
-    compatibility_index_route: "/examples/evals/",
   };
 }
 
@@ -698,20 +694,6 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
       captureRoutes.push(captureRoute);
     }
 
-    for (const alias of manifest.legacy_aliases ?? []) {
-      const { artifactRoute, screenshotRoute, captureRoute } = await verifyLegacyAlias(
-        baseUrl,
-        useCaseBaseRoute,
-        manifest,
-        alias,
-      );
-      checked.push(artifactRoute);
-      screenshotRoutes.push(screenshotRoute);
-      if (captureRoute) {
-        captureRoutes.push(captureRoute);
-      }
-    }
-
     await fetchText(baseUrl, `${useCaseBaseRoute}reviewed-handoff.fixture.json`);
     await fetchText(baseUrl, `${useCaseBaseRoute}design-system-adapter.json`);
     checked.push(
@@ -730,6 +712,8 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
 }
 
 async function verifyPublicRoutes(baseUrl, options = {}) {
+  const expectedPackageVersion = options.expectedPackageVersion;
+  assert.ok(expectedPackageVersion, "verifyPublicRoutes requires expectedPackageVersion");
   const home = await fetchText(baseUrl, "/");
   const analyticsScriptSrc = getAnalyticsScriptSrc(home.text, "homepage");
   assertIncludes(
@@ -778,7 +762,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "Model UI generation matrix",
       "<h1>Examples</h1>",
       "These matrix examples compare how the same activity changes across raw brief",
-      "Gemma 4 (local LLM)",
+      "Gemma 4 via LM Studio lms",
       "GPT-5.5",
       "Support refund triage",
       "Field service dispatch",
@@ -790,7 +774,6 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "useCaseId",
       "field-service-dispatch",
       "/examples/model-ui/refund-system-map/index.html",
-      "/examples/model-ui/refund-system-map/manifest.json",
     ],
     "examples",
   );
@@ -831,7 +814,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     "examples",
   );
 
-  const evalArchive = await verifyEvalArchive(baseUrl, analyticsScriptSrc);
+  const evalArchive = await verifyEvalArchive(baseUrl, analyticsScriptSrc, expectedPackageVersion);
   const modelUiArchive = await verifyModelUiUseCases(baseUrl, analyticsScriptSrc);
 
   await fetchText(baseUrl, "/favicon.svg");
@@ -1046,15 +1029,6 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     );
 
     modelUiCaptureRoutes.push(captureRoute);
-  }
-
-  for (const alias of modelUiManifest.legacy_aliases ?? []) {
-    await verifyLegacyAlias(
-      baseUrl,
-      "/examples/model-ui/refund-system-map/",
-      modelUiManifest,
-      alias,
-    );
   }
 
   await fetchText(baseUrl, "/examples/model-ui/refund-system-map/reviewed-handoff.fixture.json");
@@ -1596,6 +1570,7 @@ async function main() {
     package_version: packageVersion,
     routes: await verifyPublicRoutes(baseUrl.toString(), {
       skipAnalyticsScript: options.skipAnalyticsScript,
+      expectedPackageVersion: packageVersion,
     }),
     mcp_metadata: await verifyMcpMetadata(baseUrl.toString(), packageVersion),
     mcp_app_guards: await verifyMcpAppGuards(baseUrl.toString(), options.expectRemoteMcp),
