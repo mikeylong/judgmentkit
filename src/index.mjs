@@ -9858,9 +9858,25 @@ function sourceMatchText(values) {
   return values.map(optionalString).filter(Boolean).map(escapeRegExp).join("|");
 }
 
+function sourceExportValues(sourceExports) {
+  return Object.values(sourceExports ?? {})
+    .flatMap((value) => (Array.isArray(value) ? value : [value]))
+    .filter((value) => typeof value === "string");
+}
+
 function hasProvenanceForbiddenSource(text) {
   return /hard.?coded|handwritten|bespoke|inline svg|app styles|not checked|unknown source|local css/i.test(
     text,
+  );
+}
+
+function isGenericDefaultDesignSystemSource(text, source) {
+  if (source.mode !== "judgmentkit_default") {
+    return false;
+  }
+
+  return /^(?:judgmentkit|judgmentkit_default|judgmentkit default|default)$/i.test(
+    optionalString(text).trim(),
   );
 }
 
@@ -9869,33 +9885,30 @@ function designSystemProvenanceSourcePattern(requirement, context) {
   const defaultMode = source.mode === "judgmentkit_default";
   const allowedPackages = sourceMatchText(context.allowedPackages);
   const tokenPrefixes = sourceMatchText(context.allowedPrefixes);
-  const sourceExports = sourceMatchText([
-    ...Object.keys(source.source_exports ?? {}),
-    ...Object.values(source.source_exports ?? {}),
-  ]);
+  const sourceExports = sourceMatchText(sourceExportValues(source.source_exports));
 
   if (defaultMode) {
     if (requirement.id === "visual_token_source") {
-      return /\/design-system\/visual-token-adapter\.json|implementation_contract\.visual_token_adapter|judgmentkit|--jk-/i;
+      return /\/design-system\/visual-token-adapter\.json|implementation_contract\.visual_token_adapter|--jk-/i;
     }
     if (requirement.id === "typography_source") {
-      return /\/design-system\/visual-token-adapter\.json|implementation_contract\.visual_token_adapter|judgmentkit|system stack|font role/i;
+      return /\/design-system\/visual-token-adapter\.json|implementation_contract\.visual_token_adapter|system stack|font role/i;
     }
     if (requirement.id === "icon_asset_source") {
-      return /get_icon_svg|list_icon_catalog|search_icon_catalog|\/design-system\/icons|judgmentkit icon catalog|lucide-static|judgmentkit/i;
+      return /get_icon_svg|list_icon_catalog|search_icon_catalog|\/design-system\/icons|judgmentkit icon catalog|lucide-static/i;
     }
     if (requirement.id === "renderer_component_source") {
-      return /implementation_contract\.default_ai_native_design_system|implementation_contract\.design_system_source|judgmentkit|deferred/i;
+      return /implementation_contract\.default_ai_native_design_system|implementation_contract\.design_system_source/i;
     }
     if (requirement.id === "import_package_boundary") {
-      return /active design-system source|outside the active|allowed packages|judgmentkit|lucide-static|deferred/i;
+      return /active design-system source|outside the active|allowed packages|package boundary|import boundary/i;
     }
     if (requirement.id === "token_prefix_source") {
       return /--jk-|implementation_contract\.design_system_source\.token_prefixes/i;
     }
     if (requirement.id === "source_export_proof") {
       return new RegExp(
-        `source_exports|/design-system/|implementation_contract\\.design_system_source\\.source_exports${
+        `/design-system/|implementation_contract\\.design_system_source\\.source_exports${
           sourceExports ? `|${sourceExports}` : ""
         }`,
         "i",
@@ -9932,10 +9945,7 @@ function designSystemProvenanceSourcePattern(requirement, context) {
     return new RegExp(`${externalCore}|${tokenPrefixes}`, "i");
   }
   if (requirement.id === "source_export_proof") {
-    return new RegExp(
-      `${externalCore}|source_exports${sourceExports ? `|${sourceExports}` : ""}`,
-      "i",
-    );
+    return new RegExp(sourceExports || "$a", "i");
   }
 
   return /.+/;
@@ -9955,6 +9965,10 @@ function provenanceEntrySatisfiesRequirement(entry, requirement, context) {
   }
 
   if (hasProvenanceForbiddenSource(entry.text)) {
+    return false;
+  }
+
+  if (isGenericDefaultDesignSystemSource(entry.text, context.source)) {
     return false;
   }
 

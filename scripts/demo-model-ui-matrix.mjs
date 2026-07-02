@@ -38,6 +38,10 @@ import {
   reviewUiWorkflowCandidate,
 } from "../src/index.mjs";
 import {
+  analyzeStaticCaptureQuality,
+  validateParsed,
+} from "./capture-model-ui-matrix.mjs";
+import {
   COMPARISON_COLUMNS,
   COMPARISON_ROWS,
   JUDGMENTKIT_DEFAULT_CSS_CUSTOM_PROPERTIES,
@@ -770,15 +774,66 @@ function addClassToPrimaryRoot(html, className) {
   const value = stripUnsafeModelHtml(html).trim();
   if (/^<main\b/i.test(value)) {
     const openTag = value.slice(0, value.indexOf(">") + 1);
-    if (/\bclass="/i.test(openTag)) {
-      return value.replace(/\bclass="([^"]*)"/i, (_match, classes) =>
-        `class="${escapeHtml(`${classes} ${className}`.trim())}"`,
+    if (/\bclass\s*=\s*['"]/i.test(openTag)) {
+      return value.replace(/\bclass\s*=\s*(['"])(.*?)\1/i, (_match, quote, classes) =>
+        `class=${quote}${escapeHtml(`${classes} ${className}`.trim())}${quote}`,
       );
     }
     return value.replace(/^<main\b/i, `<main class="${escapeHtml(className)}"`);
   }
 
   return `<main class="app-shell ${escapeHtml(className)}" data-primary-surface>${value}</main>`;
+}
+
+function outputAsCaptureTarget(output) {
+  return {
+    ...output,
+    artifact_id: output.artifact_id ?? output.id,
+  };
+}
+
+function validationFailedChecks(error, quality) {
+  const text = `${error?.message ?? ""} ${(quality?.failures ?? []).join(" ")}`.toLowerCase();
+  const checks = [];
+
+  if (/token|visual|literal|style|color|design-system|design system/.test(text)) {
+    checks.push("visual_tokens");
+  }
+  if (/quality|css|html|static|surface|capture/.test(text)) {
+    checks.push("static_capture_quality");
+  }
+
+  return checks.length > 0 ? [...new Set(checks)] : ["capture_validation"];
+}
+
+function currentCaptureValidation(capture, output) {
+  if (!capture) return null;
+
+  try {
+    validateParsed(capture.parsed, outputAsCaptureTarget(output));
+    return {
+      status: "passed",
+      failed_checks: [],
+      message: null,
+    };
+  } catch (error) {
+    let quality = error.capture_quality ?? null;
+
+    if (!quality) {
+      try {
+        quality = analyzeStaticCaptureQuality(capture.parsed, outputAsCaptureTarget(output));
+      } catch {
+        quality = null;
+      }
+    }
+
+    return {
+      status: "failed",
+      failed_checks: validationFailedChecks(error, quality),
+      message: error.message,
+      capture_quality: quality,
+    };
+  }
 }
 
 async function readCapture(output, contextHash, options = {}) {
@@ -796,13 +851,18 @@ async function readCapture(output, contextHash, options = {}) {
     }
     if (!options.ignoreContextHash && capture.source_context_sha256 !== contextHash) return null;
 
-    return {
+    const sanitizedCapture = {
       ...capture,
       parsed: {
         ...capture.parsed,
         html: capture.parsed?.html ? stripUnsafeModelHtml(capture.parsed.html) : undefined,
         css: capture.parsed?.css ? sanitizeModelCss(capture.parsed.css) : undefined,
       },
+    };
+
+    return {
+      ...sanitizedCapture,
+      current_validation: currentCaptureValidation(sanitizedCapture, output),
     };
   } catch (error) {
     if (error.code === "ENOENT") return null;
@@ -1510,7 +1570,6 @@ function normalizeJudgmentKitDefaultModelCss(output, css) {
       background: var(--jk-color-surface) !important;
       color: var(--jk-color-text) !important;
     }
-    .raw-model-candidate button:first-of-type,
     .raw-model-candidate .primary {
       border-color: var(--jk-color-focus) !important;
       background: var(--jk-color-focus) !important;
@@ -2734,16 +2793,26 @@ function summarizeFrontendSkillContext(skillContext) {
   };
 }
 
-function outputReviewMetadata(output) {
+function outputReviewMetadata(output, capture) {
   const failedChecks = Array.isArray(output.failed_checks)
-    ? output.failed_checks
+    ? [...output.failed_checks]
     : Array.isArray(output.findings)
       ? output.findings.map((finding) => finding.check).filter(Boolean)
       : [];
+
+  if (output.generation_source === "captured_model_output") {
+    if (!capture) {
+      failedChecks.push("capture_missing");
+    } else if (capture.current_validation?.status === "failed") {
+      failedChecks.push(...capture.current_validation.failed_checks);
+    }
+  }
+
+  const uniqueFailedChecks = [...new Set(failedChecks)];
   const implementationReviewStatus =
     output.implementation_review_status ??
     output.implementation_review?.implementation_review_status ??
-    (failedChecks.length > 0 ? "failed" : "passed");
+    (uniqueFailedChecks.length > 0 ? "failed" : "passed");
   const nextAgentAction =
     output.next_agent_action ??
     output.implementation_review?.next_agent_action ??
@@ -2751,9 +2820,12 @@ function outputReviewMetadata(output) {
   const designSystemAcceptanceStatus =
     output.design_system_acceptance_status ??
     output.implementation_review?.design_system_acceptance_status ??
-    (failedChecks.includes("design_system_provenance") ||
-    failedChecks.includes("visual_tokens") ||
-    failedChecks.includes("local_component_authority")
+    (uniqueFailedChecks.includes("design_system_provenance") ||
+    uniqueFailedChecks.includes("visual_tokens") ||
+    uniqueFailedChecks.includes("local_component_authority") ||
+    uniqueFailedChecks.includes("static_capture_quality") ||
+    uniqueFailedChecks.includes("capture_validation") ||
+    uniqueFailedChecks.includes("capture_missing")
       ? "failed"
       : "passed");
   const candidateArtifactStatus =
@@ -2762,7 +2834,7 @@ function outputReviewMetadata(output) {
     (implementationReviewStatus === "passed" &&
     nextAgentAction === "accept" &&
     designSystemAcceptanceStatus === "passed" &&
-    failedChecks.length === 0
+    uniqueFailedChecks.length === 0
       ? "accepted_artifact"
       : "not_an_artifact");
   const releaseEvidenceStatus =
@@ -2770,7 +2842,7 @@ function outputReviewMetadata(output) {
     nextAgentAction === "accept" &&
     candidateArtifactStatus === "accepted_artifact" &&
     designSystemAcceptanceStatus === "passed" &&
-    failedChecks.length === 0
+    uniqueFailedChecks.length === 0
       ? "artifact"
       : "diagnostic_only";
 
@@ -2780,19 +2852,47 @@ function outputReviewMetadata(output) {
     implementation_review_status: implementationReviewStatus,
     design_system_acceptance_status: designSystemAcceptanceStatus,
     next_agent_action: nextAgentAction,
-    failed_checks: failedChecks,
+    failed_checks: uniqueFailedChecks,
+  };
+}
+
+function activeDesignSystemMetadata(output, frontendSkillContext) {
+  if (output.design_system_mode === "material_ui") {
+    return {
+      name: DESIGN_SYSTEM_ADAPTER.design_system_name,
+      package: DESIGN_SYSTEM_ADAPTER.design_system_package,
+      render_mode: DESIGN_SYSTEM_ADAPTER.render_mode,
+    };
+  }
+
+  const summary = summarizeFrontendSkillContext(frontendSkillContext);
+  if (
+    output.judgmentkit_mode === "with_judgmentkit" &&
+    summary?.design_system_mode === "judgmentkit_default"
+  ) {
+    return {
+      name: "JudgmentKit",
+      package: "judgmentkit",
+      render_mode: "static-html",
+    };
+  }
+
+  return {
+    name: null,
+    package: null,
+    render_mode: null,
   };
 }
 
 function buildManifestArtifact(output, capture, contextHash) {
   const context = contextIncluded(output);
-  const designSystem = output.design_system_mode === "material_ui";
   const frontendSkillContext =
     output.frontend_skill_context ?? capture?.frontend_skill_context ?? null;
   const currentSourceContextHash = output.current_source_context_sha256 ?? contextHash;
   const sourceContext = output.source_context_status ?? "current";
-  const reviewMetadata = outputReviewMetadata(output);
+  const reviewMetadata = outputReviewMetadata(output, capture);
   const acceptedArtifact = reviewMetadata.release_evidence_status === "artifact";
+  const designSystem = activeDesignSystemMetadata(output, frontendSkillContext);
 
   return {
     id: output.id,
@@ -2819,11 +2919,12 @@ function buildManifestArtifact(output, capture, contextHash) {
     source_brief_file: SOURCE_BRIEF_FILE,
     reviewed_handoff_file: context.reviewed_handoff ? HANDOFF_FILE : null,
     design_system_adapter_file: context.material_ui_adapter ? DESIGN_SYSTEM_FILE : null,
-    design_system_name: designSystem ? DESIGN_SYSTEM_ADAPTER.design_system_name : null,
-    design_system_package: designSystem ? DESIGN_SYSTEM_ADAPTER.design_system_package : null,
-    design_system_render_mode: designSystem ? DESIGN_SYSTEM_ADAPTER.render_mode : null,
+    design_system_name: designSystem.name,
+    design_system_package: designSystem.package,
+    design_system_render_mode: designSystem.render_mode,
     capture_file: output.capture_file,
     capture_provenance: captureProvenance(output, capture),
+    capture_validation: capture?.current_validation ?? null,
     lms_context: capture?.lms_context ?? null,
     capture_quality: capture?.capture_quality ?? null,
     prompt_sha256: capture?.prompt_sha256 ?? null,
@@ -2889,10 +2990,23 @@ function buildComparisonRows(artifacts) {
   }));
 }
 
-async function copyLegacyAliases(manifestArtifacts) {
+async function copyLegacyAliases(manifestArtifacts, legacyAliases) {
   if (activeUseCase.id !== "refund-system-map") return;
   const byId = new Map(manifestArtifacts.map((artifact) => [artifact.id, artifact]));
+  const activeAliasIds = new Set(legacyAliases.map((alias) => alias.id));
+
   for (const alias of LEGACY_ALIASES) {
+    if (!activeAliasIds.has(alias.id)) {
+      if (!CHECK_MODE) {
+        await fs.rm(path.join(OUTPUT_DIR, alias.artifact_path), { force: true });
+        await fs.rm(path.join(OUTPUT_DIR, alias.screenshot_path), { force: true });
+        if (alias.capture_file) {
+          await fs.rm(path.join(OUTPUT_DIR, alias.capture_file), { force: true });
+        }
+      }
+      continue;
+    }
+
     const canonical = byId.get(alias.canonical_id);
     if (!canonical) {
       if (!CHECK_MODE) {
@@ -3071,7 +3185,12 @@ async function generateUseCase(useCase) {
     design_system_render_mode: DESIGN_SYSTEM_ADAPTER.render_mode,
     comparison_rows: buildComparisonRows(manifestEntries),
     comparison_columns: COMPARISON_COLUMNS,
-    legacy_aliases: activeUseCase.id === "refund-system-map" ? LEGACY_ALIASES : [],
+    legacy_aliases:
+      activeUseCase.id === "refund-system-map"
+        ? LEGACY_ALIASES.filter((alias) =>
+            manifestArtifacts.some((artifact) => artifact.id === alias.canonical_id),
+          )
+        : [],
     model_labels: COMPARISON_ROWS.map((row) => row.model_label),
     artifacts: manifestArtifacts,
     diagnostic_candidates: diagnosticCandidates,
@@ -3101,7 +3220,7 @@ async function generateUseCase(useCase) {
     await writeOrCheckFile(path.join(OUTPUT_DIR, manifestEntry.artifact_path), html);
   }
 
-  await copyLegacyAliases(manifestArtifacts);
+  await copyLegacyAliases(manifestArtifacts, manifest.legacy_aliases);
   await writeOrCheckFile(path.join(OUTPUT_DIR, "index.html"), renderMatrixIndex(manifest));
 
   process.stdout.write(`\n# ${activeUseCase.label} Model UI Matrix\n\n`);

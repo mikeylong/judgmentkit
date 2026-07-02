@@ -122,6 +122,7 @@
             "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
             "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
           },
+          "capture_validation": null,
           "lms_context": null,
           "capture_quality": null,
           "prompt_sha256": null,
@@ -176,9 +177,9 @@
           "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
           "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
           "design_system_adapter_file": null,
-          "design_system_name": null,
-          "design_system_package": null,
-          "design_system_render_mode": null,
+          "design_system_name": "JudgmentKit",
+          "design_system_package": "judgmentkit",
+          "design_system_render_mode": "static-html",
           "capture_file": null,
           "capture_provenance": {
             "status": "captured",
@@ -199,6 +200,7 @@
             "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
             "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
           },
+          "capture_validation": null,
           "lms_context": null,
           "capture_quality": null,
           "prompt_sha256": null,
@@ -320,6 +322,7 @@
             "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
             "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
           },
+          "capture_validation": null,
           "lms_context": null,
           "capture_quality": null,
           "prompt_sha256": null,
@@ -397,6 +400,7 @@
             "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
             "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
           },
+          "capture_validation": null,
           "lms_context": null,
           "capture_quality": null,
           "prompt_sha256": null,
@@ -483,9 +487,9 @@
           "id": "gemma4-lms-with-judgmentkit",
           "row_id": "gemma4-lms",
           "column_id": "with-judgmentkit",
-          "release_evidence_status": "artifact",
-          "artifact_id": "gemma4-lms-with-judgmentkit",
-          "diagnostic_candidate_id": null
+          "release_evidence_status": "diagnostic_only",
+          "artifact_id": null,
+          "diagnostic_candidate_id": "gemma4-lms-with-judgmentkit"
         },
         {
           "id": "gemma4-lms-material-ui-only",
@@ -506,11 +510,12 @@
       ],
       "artifact_ids": [
         "gemma4-lms-no-judgmentkit",
-        "gemma4-lms-with-judgmentkit",
         "gemma4-lms-material-ui-only",
         "gemma4-lms-judgmentkit-material-ui"
       ],
-      "diagnostic_candidate_ids": [],
+      "diagnostic_candidate_ids": [
+        "gemma4-lms-with-judgmentkit"
+      ],
       "artifacts": [
         {
           "id": "gemma4-lms-no-judgmentkit",
@@ -611,6 +616,11 @@
             "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
             "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
           },
+          "capture_validation": {
+            "status": "passed",
+            "failed_checks": [],
+            "message": null
+          },
           "lms_context": {
             "model": "google/gemma-4-e2b",
             "status": "loaded",
@@ -653,177 +663,6 @@
           "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
           "approach_title": "Gemma 4 via LM Studio lms - Raw brief",
           "approach_caption": "Gemma 4 via LM Studio lms receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
-        },
-        {
-          "id": "gemma4-lms-with-judgmentkit",
-          "use_case_id": "clinical-intake-review",
-          "use_case_label": "Clinical intake review",
-          "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
-          "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
-          "row_id": "gemma4-lms",
-          "row_label": "Gemma 4 via LM Studio lms",
-          "column_id": "with-judgmentkit",
-          "column_label": "JudgmentKit skill context",
-          "title": "Gemma 4 via LM Studio lms - JudgmentKit skill context",
-          "model_label": "Gemma 4 (local LLM)",
-          "generation_source": "captured_model_output",
-          "provider": "lmstudio",
-          "model": "google/gemma-4-e2b",
-          "cli": "lms",
-          "reasoning_effort": null,
-          "judgmentkit_mode": "with_judgmentkit",
-          "design_system_mode": "none",
-          "context_included": {
-            "source_brief": true,
-            "sample_case": true,
-            "reviewed_handoff": true,
-            "material_ui_adapter": false,
-            "frontend_skill_context": true
-          },
-          "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
-          "release_evidence_status": "artifact",
-          "candidate_artifact_status": "accepted_artifact",
-          "implementation_review_status": "passed",
-          "design_system_acceptance_status": "passed",
-          "next_agent_action": "accept",
-          "failed_checks": [],
-          "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
-          "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
-          "design_system_adapter_file": null,
-          "design_system_name": null,
-          "design_system_package": null,
-          "design_system_render_mode": null,
-          "capture_file": "captures/gemma4-lms-with-judgmentkit.json",
-          "capture_provenance": {
-            "status": "captured",
-            "capture_type": "model-output-transcript",
-            "captured_at": "2026-05-15T21:37:38.454Z",
-            "runner": "scripts/capture-model-ui-matrix.mjs",
-            "provider": "lmstudio",
-            "model": "google/gemma-4-e2b",
-            "cli": "lms",
-            "transcript_file": "captures/gemma4-lms-with-judgmentkit.json",
-            "prompt_sha256": "a91777caa6325dd33080cf00ad3fd21324463b48ee1885b46b5bd1c64c68c2cf",
-            "raw_response_sha256": "8cecff6cd10655fd28c0cd880795efa5739bed1158188cddf8e6c09a09919764",
-            "source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
-            "reasoning_effort": null,
-            "context_included": {
-              "source_brief": true,
-              "sample_case": true,
-              "reviewed_handoff": true,
-              "material_ui_adapter": false,
-              "frontend_skill_context": true
-            },
-            "frontend_context_status": "ready_for_frontend_implementation",
-            "frontend_skill_context_status": "ready",
-            "design_system_name": null,
-            "design_system_package": null,
-            "design_system_render_mode": null,
-            "lms_context": {
-              "model": "google/gemma-4-e2b",
-              "status": "already_loaded",
-              "requested_context_length": 16384,
-              "actual_context_length": 16384,
-              "identifier": "google/gemma-4-e2b"
-            },
-            "capture_quality": {
-              "profile": "judgmentkit_static_html_css",
-              "css_characters": 1379,
-              "html_characters": 1484,
-              "css_rule_count": 18,
-              "class_selector_count": 14,
-              "semantic_section_count": 7,
-              "structural_block_count": 7,
-              "button_count": 4,
-              "has_responsive_css": true,
-              "has_layout_css": true,
-              "has_panel_css": true,
-              "has_control_css": true,
-              "has_evidence_content": true,
-              "has_handoff_content": true,
-              "compact_template_signature": false,
-              "failures": [],
-              "status": "passed"
-            },
-            "source_context_status": "legacy_accepted",
-            "current_source_context_sha256": "0a6d09e97816dbdf7468920cee3f935f1d5e9d83a0d47deaedb7b80fd8d04a1e",
-            "accepted_source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
-            "captured_source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
-            "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
-            "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
-          },
-          "lms_context": {
-            "model": "google/gemma-4-e2b",
-            "status": "already_loaded",
-            "requested_context_length": 16384,
-            "actual_context_length": 16384,
-            "identifier": "google/gemma-4-e2b"
-          },
-          "capture_quality": {
-            "profile": "judgmentkit_static_html_css",
-            "css_characters": 1379,
-            "html_characters": 1484,
-            "css_rule_count": 18,
-            "class_selector_count": 14,
-            "semantic_section_count": 7,
-            "structural_block_count": 7,
-            "button_count": 4,
-            "has_responsive_css": true,
-            "has_layout_css": true,
-            "has_panel_css": true,
-            "has_control_css": true,
-            "has_evidence_content": true,
-            "has_handoff_content": true,
-            "compact_template_signature": false,
-            "failures": [],
-            "status": "passed"
-          },
-          "prompt_sha256": "a91777caa6325dd33080cf00ad3fd21324463b48ee1885b46b5bd1c64c68c2cf",
-          "source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
-          "current_source_context_sha256": "0a6d09e97816dbdf7468920cee3f935f1d5e9d83a0d47deaedb7b80fd8d04a1e",
-          "source_context_status": "legacy_accepted",
-          "raw_response_sha256": "8cecff6cd10655fd28c0cd880795efa5739bed1158188cddf8e6c09a09919764",
-          "frontend_context_status": "ready_for_frontend_implementation",
-          "frontend_skill_context_status": "ready",
-          "frontend_skill_context": {
-            "source_skill": "frontend-ui-implementation",
-            "raw_skill_exposed": false,
-            "surface_type": "form_flow",
-            "design_system_mode": "judgmentkit_default",
-            "design_system_name": "JudgmentKit",
-            "next_recommended_tool": "review_ui_implementation_candidate",
-            "verification_checklist": [
-              "Run npm test",
-              "Run npm run capture:model-ui:screenshots",
-              "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
-              "new primitives or variants require updating the repo-local contract first",
-              "generated UI must include a local check command or equivalent static inspection",
-              "gemma4-lms-with-judgmentkit desktop screenshot has a styled primary work surface",
-              "gemma4-lms-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
-              "desktop viewport screenshot",
-              "mobile viewport screenshot",
-              "keyboard focus check for interactive controls",
-              "overflow check for long labels, descriptions, and values",
-              "modal or dialog footer order check when dialogs are present",
-              "disabled, empty, error, and ready state review",
-              "Verify state: selected work item is visible",
-              "Verify state: decision evidence is scannable",
-              "Verify state: primary action and handoff reason are clear",
-              "Verify required state: empty",
-              "Verify required state: ready",
-              "Verify required state: loading",
-              "Verify required state: error",
-              "Verify required state: disabled",
-              "Verify required state: focus-visible"
-            ]
-          },
-          "artifact_path": "artifacts/gemma4-lms-with-judgmentkit.html",
-          "screenshot_path": "screenshots/gemma4-lms-with-judgmentkit.png",
-          "render_source": "model_frontend_skill_static_html_css",
-          "visible_render_source": "model_frontend_skill_static_html_css",
-          "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
-          "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit skill context",
-          "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
         },
         {
           "id": "gemma4-lms-material-ui-only",
@@ -904,6 +743,11 @@
             "captured_source_context_sha256": "07e7aa2fd434ae8ba64789f6803a5f4a91bc56de6e380c93c7b138ec5fc89d12",
             "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
             "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
+          },
+          "capture_validation": {
+            "status": "passed",
+            "failed_checks": [],
+            "message": null
           },
           "lms_context": {
             "model": "google/gemma-4-e2b",
@@ -1009,6 +853,11 @@
             "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
             "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
           },
+          "capture_validation": {
+            "status": "passed",
+            "failed_checks": [],
+            "message": null
+          },
           "lms_context": {
             "model": "google/gemma-4-e2b",
             "status": "already_loaded",
@@ -1088,9 +937,9 @@
           "id": "gpt55-xhigh-codex-with-judgmentkit",
           "row_id": "gpt55-xhigh-codex",
           "column_id": "with-judgmentkit",
-          "release_evidence_status": "artifact",
-          "artifact_id": "gpt55-xhigh-codex-with-judgmentkit",
-          "diagnostic_candidate_id": null
+          "release_evidence_status": "diagnostic_only",
+          "artifact_id": null,
+          "diagnostic_candidate_id": "gpt55-xhigh-codex-with-judgmentkit"
         },
         {
           "id": "gpt55-xhigh-codex-material-ui-only",
@@ -1111,11 +960,12 @@
       ],
       "artifact_ids": [
         "gpt55-xhigh-codex-no-judgmentkit",
-        "gpt55-xhigh-codex-with-judgmentkit",
         "gpt55-xhigh-codex-material-ui-only",
         "gpt55-xhigh-codex-judgmentkit-material-ui"
       ],
-      "diagnostic_candidate_ids": [],
+      "diagnostic_candidate_ids": [
+        "gpt55-xhigh-codex-with-judgmentkit"
+      ],
       "artifacts": [
         {
           "id": "gpt55-xhigh-codex-no-judgmentkit",
@@ -1209,6 +1059,11 @@
             "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
             "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
           },
+          "capture_validation": {
+            "status": "passed",
+            "failed_checks": [],
+            "message": null
+          },
           "lms_context": null,
           "capture_quality": {
             "profile": "basic_static_html_css",
@@ -1244,165 +1099,6 @@
           "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
           "approach_title": "GPT-5.5 xhigh via codex exec - Raw brief",
           "approach_caption": "GPT-5.5 xhigh via codex exec receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
-        },
-        {
-          "id": "gpt55-xhigh-codex-with-judgmentkit",
-          "use_case_id": "clinical-intake-review",
-          "use_case_label": "Clinical intake review",
-          "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
-          "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
-          "row_id": "gpt55-xhigh-codex",
-          "row_label": "GPT-5.5 xhigh via codex exec",
-          "column_id": "with-judgmentkit",
-          "column_label": "JudgmentKit skill context",
-          "title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill context",
-          "model_label": "GPT-5.5",
-          "generation_source": "captured_model_output",
-          "provider": "codex-cli",
-          "model": "gpt-5.5",
-          "cli": "codex",
-          "reasoning_effort": "xhigh",
-          "judgmentkit_mode": "with_judgmentkit",
-          "design_system_mode": "none",
-          "context_included": {
-            "source_brief": true,
-            "sample_case": true,
-            "reviewed_handoff": true,
-            "material_ui_adapter": false,
-            "frontend_skill_context": true
-          },
-          "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
-          "release_evidence_status": "artifact",
-          "candidate_artifact_status": "accepted_artifact",
-          "implementation_review_status": "passed",
-          "design_system_acceptance_status": "passed",
-          "next_agent_action": "accept",
-          "failed_checks": [],
-          "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
-          "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
-          "design_system_adapter_file": null,
-          "design_system_name": null,
-          "design_system_package": null,
-          "design_system_render_mode": null,
-          "capture_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
-          "capture_provenance": {
-            "status": "captured",
-            "capture_type": "model-output-transcript",
-            "captured_at": "2026-05-15T21:45:20.928Z",
-            "runner": "scripts/capture-model-ui-matrix.mjs",
-            "provider": "codex-cli",
-            "model": "gpt-5.5",
-            "cli": "codex",
-            "transcript_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
-            "prompt_sha256": "b15808546b4dc9da234b29e697470794368e0deb298cf9a40582c4843572335e",
-            "raw_response_sha256": "aa03e621c0fdbe5f3b786d51100bdd815042013c1ec0693130c682c74e9c60f3",
-            "source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
-            "reasoning_effort": "xhigh",
-            "context_included": {
-              "source_brief": true,
-              "sample_case": true,
-              "reviewed_handoff": true,
-              "material_ui_adapter": false,
-              "frontend_skill_context": true
-            },
-            "frontend_context_status": "ready_for_frontend_implementation",
-            "frontend_skill_context_status": "ready",
-            "design_system_name": null,
-            "design_system_package": null,
-            "design_system_render_mode": null,
-            "lms_context": null,
-            "capture_quality": {
-              "profile": "judgmentkit_static_html_css",
-              "css_characters": 6433,
-              "html_characters": 6039,
-              "css_rule_count": 84,
-              "class_selector_count": 110,
-              "semantic_section_count": 9,
-              "structural_block_count": 38,
-              "button_count": 7,
-              "has_responsive_css": true,
-              "has_layout_css": true,
-              "has_panel_css": true,
-              "has_control_css": true,
-              "has_evidence_content": true,
-              "has_handoff_content": true,
-              "compact_template_signature": false,
-              "failures": [],
-              "status": "passed"
-            },
-            "source_context_status": "legacy_accepted",
-            "current_source_context_sha256": "ef1b944ae17c9814aa28f4871a505c2d4917c9bae11db87d4f8983eef635836f",
-            "accepted_source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
-            "captured_source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
-            "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
-            "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
-          },
-          "lms_context": null,
-          "capture_quality": {
-            "profile": "judgmentkit_static_html_css",
-            "css_characters": 6433,
-            "html_characters": 6039,
-            "css_rule_count": 84,
-            "class_selector_count": 110,
-            "semantic_section_count": 9,
-            "structural_block_count": 38,
-            "button_count": 7,
-            "has_responsive_css": true,
-            "has_layout_css": true,
-            "has_panel_css": true,
-            "has_control_css": true,
-            "has_evidence_content": true,
-            "has_handoff_content": true,
-            "compact_template_signature": false,
-            "failures": [],
-            "status": "passed"
-          },
-          "prompt_sha256": "b15808546b4dc9da234b29e697470794368e0deb298cf9a40582c4843572335e",
-          "source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
-          "current_source_context_sha256": "ef1b944ae17c9814aa28f4871a505c2d4917c9bae11db87d4f8983eef635836f",
-          "source_context_status": "legacy_accepted",
-          "raw_response_sha256": "aa03e621c0fdbe5f3b786d51100bdd815042013c1ec0693130c682c74e9c60f3",
-          "frontend_context_status": "ready_for_frontend_implementation",
-          "frontend_skill_context_status": "ready",
-          "frontend_skill_context": {
-            "source_skill": "frontend-ui-implementation",
-            "raw_skill_exposed": false,
-            "surface_type": "form_flow",
-            "design_system_mode": "judgmentkit_default",
-            "design_system_name": "JudgmentKit",
-            "next_recommended_tool": "review_ui_implementation_candidate",
-            "verification_checklist": [
-              "Run npm test",
-              "Run npm run capture:model-ui:screenshots",
-              "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
-              "new primitives or variants require updating the repo-local contract first",
-              "generated UI must include a local check command or equivalent static inspection",
-              "gpt55-xhigh-codex-with-judgmentkit desktop screenshot has a styled primary work surface",
-              "gpt55-xhigh-codex-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
-              "desktop viewport screenshot",
-              "mobile viewport screenshot",
-              "keyboard focus check for interactive controls",
-              "overflow check for long labels, descriptions, and values",
-              "modal or dialog footer order check when dialogs are present",
-              "disabled, empty, error, and ready state review",
-              "Verify state: selected work item is visible",
-              "Verify state: decision evidence is scannable",
-              "Verify state: primary action and handoff reason are clear",
-              "Verify required state: empty",
-              "Verify required state: ready",
-              "Verify required state: loading",
-              "Verify required state: error",
-              "Verify required state: disabled",
-              "Verify required state: focus-visible"
-            ]
-          },
-          "artifact_path": "artifacts/gpt55-xhigh-codex-with-judgmentkit.html",
-          "screenshot_path": "screenshots/gpt55-xhigh-codex-with-judgmentkit.png",
-          "render_source": "model_frontend_skill_static_html_css",
-          "visible_render_source": "model_frontend_skill_static_html_css",
-          "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
-          "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill context",
-          "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
         },
         {
           "id": "gpt55-xhigh-codex-material-ui-only",
@@ -1477,6 +1173,11 @@
             "captured_source_context_sha256": "46130760f0413226f73c1e6e0d1060d38edc030203fe704fe8b226db1b22ff4a",
             "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
             "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
+          },
+          "capture_validation": {
+            "status": "passed",
+            "failed_checks": [],
+            "message": null
           },
           "lms_context": null,
           "capture_quality": null,
@@ -1569,6 +1270,11 @@
             "captured_source_context_sha256": "2b52c4cc0a027463e719fab11a27679fc575d9ef48e5ed9505336d6f78582a81",
             "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
             "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
+          },
+          "capture_validation": {
+            "status": "passed",
+            "failed_checks": [],
+            "message": null
           },
           "lms_context": null,
           "capture_quality": null,
@@ -1726,6 +1432,7 @@
         "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
         "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
       },
+      "capture_validation": null,
       "lms_context": null,
       "capture_quality": null,
       "prompt_sha256": null,
@@ -1780,9 +1487,9 @@
       "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
       "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
       "design_system_adapter_file": null,
-      "design_system_name": null,
-      "design_system_package": null,
-      "design_system_render_mode": null,
+      "design_system_name": "JudgmentKit",
+      "design_system_package": "judgmentkit",
+      "design_system_render_mode": "static-html",
       "capture_file": null,
       "capture_provenance": {
         "status": "captured",
@@ -1803,6 +1510,7 @@
         "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
         "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
       },
+      "capture_validation": null,
       "lms_context": null,
       "capture_quality": null,
       "prompt_sha256": null,
@@ -1924,6 +1632,7 @@
         "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
         "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
       },
+      "capture_validation": null,
       "lms_context": null,
       "capture_quality": null,
       "prompt_sha256": null,
@@ -2001,6 +1710,7 @@
         "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
         "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
       },
+      "capture_validation": null,
       "lms_context": null,
       "capture_quality": null,
       "prompt_sha256": null,
@@ -2162,6 +1872,11 @@
         "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
         "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix."
       },
+      "capture_validation": {
+        "status": "passed",
+        "failed_checks": [],
+        "message": null
+      },
       "lms_context": {
         "model": "google/gemma-4-e2b",
         "status": "loaded",
@@ -2204,177 +1919,6 @@
       "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
       "approach_title": "Gemma 4 via LM Studio lms - Raw brief",
       "approach_caption": "Gemma 4 via LM Studio lms receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
-    },
-    {
-      "id": "gemma4-lms-with-judgmentkit",
-      "use_case_id": "clinical-intake-review",
-      "use_case_label": "Clinical intake review",
-      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
-      "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
-      "row_id": "gemma4-lms",
-      "row_label": "Gemma 4 via LM Studio lms",
-      "column_id": "with-judgmentkit",
-      "column_label": "JudgmentKit skill context",
-      "title": "Gemma 4 via LM Studio lms - JudgmentKit skill context",
-      "model_label": "Gemma 4 (local LLM)",
-      "generation_source": "captured_model_output",
-      "provider": "lmstudio",
-      "model": "google/gemma-4-e2b",
-      "cli": "lms",
-      "reasoning_effort": null,
-      "judgmentkit_mode": "with_judgmentkit",
-      "design_system_mode": "none",
-      "context_included": {
-        "source_brief": true,
-        "sample_case": true,
-        "reviewed_handoff": true,
-        "material_ui_adapter": false,
-        "frontend_skill_context": true
-      },
-      "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
-      "release_evidence_status": "artifact",
-      "candidate_artifact_status": "accepted_artifact",
-      "implementation_review_status": "passed",
-      "design_system_acceptance_status": "passed",
-      "next_agent_action": "accept",
-      "failed_checks": [],
-      "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
-      "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
-      "design_system_adapter_file": null,
-      "design_system_name": null,
-      "design_system_package": null,
-      "design_system_render_mode": null,
-      "capture_file": "captures/gemma4-lms-with-judgmentkit.json",
-      "capture_provenance": {
-        "status": "captured",
-        "capture_type": "model-output-transcript",
-        "captured_at": "2026-05-15T21:37:38.454Z",
-        "runner": "scripts/capture-model-ui-matrix.mjs",
-        "provider": "lmstudio",
-        "model": "google/gemma-4-e2b",
-        "cli": "lms",
-        "transcript_file": "captures/gemma4-lms-with-judgmentkit.json",
-        "prompt_sha256": "a91777caa6325dd33080cf00ad3fd21324463b48ee1885b46b5bd1c64c68c2cf",
-        "raw_response_sha256": "8cecff6cd10655fd28c0cd880795efa5739bed1158188cddf8e6c09a09919764",
-        "source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
-        "reasoning_effort": null,
-        "context_included": {
-          "source_brief": true,
-          "sample_case": true,
-          "reviewed_handoff": true,
-          "material_ui_adapter": false,
-          "frontend_skill_context": true
-        },
-        "frontend_context_status": "ready_for_frontend_implementation",
-        "frontend_skill_context_status": "ready",
-        "design_system_name": null,
-        "design_system_package": null,
-        "design_system_render_mode": null,
-        "lms_context": {
-          "model": "google/gemma-4-e2b",
-          "status": "already_loaded",
-          "requested_context_length": 16384,
-          "actual_context_length": 16384,
-          "identifier": "google/gemma-4-e2b"
-        },
-        "capture_quality": {
-          "profile": "judgmentkit_static_html_css",
-          "css_characters": 1379,
-          "html_characters": 1484,
-          "css_rule_count": 18,
-          "class_selector_count": 14,
-          "semantic_section_count": 7,
-          "structural_block_count": 7,
-          "button_count": 4,
-          "has_responsive_css": true,
-          "has_layout_css": true,
-          "has_panel_css": true,
-          "has_control_css": true,
-          "has_evidence_content": true,
-          "has_handoff_content": true,
-          "compact_template_signature": false,
-          "failures": [],
-          "status": "passed"
-        },
-        "source_context_status": "legacy_accepted",
-        "current_source_context_sha256": "0a6d09e97816dbdf7468920cee3f935f1d5e9d83a0d47deaedb7b80fd8d04a1e",
-        "accepted_source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
-        "captured_source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
-        "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
-        "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
-      },
-      "lms_context": {
-        "model": "google/gemma-4-e2b",
-        "status": "already_loaded",
-        "requested_context_length": 16384,
-        "actual_context_length": 16384,
-        "identifier": "google/gemma-4-e2b"
-      },
-      "capture_quality": {
-        "profile": "judgmentkit_static_html_css",
-        "css_characters": 1379,
-        "html_characters": 1484,
-        "css_rule_count": 18,
-        "class_selector_count": 14,
-        "semantic_section_count": 7,
-        "structural_block_count": 7,
-        "button_count": 4,
-        "has_responsive_css": true,
-        "has_layout_css": true,
-        "has_panel_css": true,
-        "has_control_css": true,
-        "has_evidence_content": true,
-        "has_handoff_content": true,
-        "compact_template_signature": false,
-        "failures": [],
-        "status": "passed"
-      },
-      "prompt_sha256": "a91777caa6325dd33080cf00ad3fd21324463b48ee1885b46b5bd1c64c68c2cf",
-      "source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
-      "current_source_context_sha256": "0a6d09e97816dbdf7468920cee3f935f1d5e9d83a0d47deaedb7b80fd8d04a1e",
-      "source_context_status": "legacy_accepted",
-      "raw_response_sha256": "8cecff6cd10655fd28c0cd880795efa5739bed1158188cddf8e6c09a09919764",
-      "frontend_context_status": "ready_for_frontend_implementation",
-      "frontend_skill_context_status": "ready",
-      "frontend_skill_context": {
-        "source_skill": "frontend-ui-implementation",
-        "raw_skill_exposed": false,
-        "surface_type": "form_flow",
-        "design_system_mode": "judgmentkit_default",
-        "design_system_name": "JudgmentKit",
-        "next_recommended_tool": "review_ui_implementation_candidate",
-        "verification_checklist": [
-          "Run npm test",
-          "Run npm run capture:model-ui:screenshots",
-          "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
-          "new primitives or variants require updating the repo-local contract first",
-          "generated UI must include a local check command or equivalent static inspection",
-          "gemma4-lms-with-judgmentkit desktop screenshot has a styled primary work surface",
-          "gemma4-lms-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
-          "desktop viewport screenshot",
-          "mobile viewport screenshot",
-          "keyboard focus check for interactive controls",
-          "overflow check for long labels, descriptions, and values",
-          "modal or dialog footer order check when dialogs are present",
-          "disabled, empty, error, and ready state review",
-          "Verify state: selected work item is visible",
-          "Verify state: decision evidence is scannable",
-          "Verify state: primary action and handoff reason are clear",
-          "Verify required state: empty",
-          "Verify required state: ready",
-          "Verify required state: loading",
-          "Verify required state: error",
-          "Verify required state: disabled",
-          "Verify required state: focus-visible"
-        ]
-      },
-      "artifact_path": "artifacts/gemma4-lms-with-judgmentkit.html",
-      "screenshot_path": "screenshots/gemma4-lms-with-judgmentkit.png",
-      "render_source": "model_frontend_skill_static_html_css",
-      "visible_render_source": "model_frontend_skill_static_html_css",
-      "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
-      "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit skill context",
-      "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
     },
     {
       "id": "gemma4-lms-material-ui-only",
@@ -2455,6 +1999,11 @@
         "captured_source_context_sha256": "07e7aa2fd434ae8ba64789f6803a5f4a91bc56de6e380c93c7b138ec5fc89d12",
         "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
         "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
+      },
+      "capture_validation": {
+        "status": "passed",
+        "failed_checks": [],
+        "message": null
       },
       "lms_context": {
         "model": "google/gemma-4-e2b",
@@ -2559,6 +2108,11 @@
         "captured_source_context_sha256": "427d6cfcfc237d754bded9f86484085a018c60dfdeec52fd60966d25bb87abd8",
         "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
         "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
+      },
+      "capture_validation": {
+        "status": "passed",
+        "failed_checks": [],
+        "message": null
       },
       "lms_context": {
         "model": "google/gemma-4-e2b",
@@ -2707,6 +2261,11 @@
         "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
         "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix."
       },
+      "capture_validation": {
+        "status": "passed",
+        "failed_checks": [],
+        "message": null
+      },
       "lms_context": null,
       "capture_quality": {
         "profile": "basic_static_html_css",
@@ -2742,165 +2301,6 @@
       "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
       "approach_title": "GPT-5.5 xhigh via codex exec - Raw brief",
       "approach_caption": "GPT-5.5 xhigh via codex exec receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
-    },
-    {
-      "id": "gpt55-xhigh-codex-with-judgmentkit",
-      "use_case_id": "clinical-intake-review",
-      "use_case_label": "Clinical intake review",
-      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
-      "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
-      "row_id": "gpt55-xhigh-codex",
-      "row_label": "GPT-5.5 xhigh via codex exec",
-      "column_id": "with-judgmentkit",
-      "column_label": "JudgmentKit skill context",
-      "title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill context",
-      "model_label": "GPT-5.5",
-      "generation_source": "captured_model_output",
-      "provider": "codex-cli",
-      "model": "gpt-5.5",
-      "cli": "codex",
-      "reasoning_effort": "xhigh",
-      "judgmentkit_mode": "with_judgmentkit",
-      "design_system_mode": "none",
-      "context_included": {
-        "source_brief": true,
-        "sample_case": true,
-        "reviewed_handoff": true,
-        "material_ui_adapter": false,
-        "frontend_skill_context": true
-      },
-      "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
-      "release_evidence_status": "artifact",
-      "candidate_artifact_status": "accepted_artifact",
-      "implementation_review_status": "passed",
-      "design_system_acceptance_status": "passed",
-      "next_agent_action": "accept",
-      "failed_checks": [],
-      "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
-      "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
-      "design_system_adapter_file": null,
-      "design_system_name": null,
-      "design_system_package": null,
-      "design_system_render_mode": null,
-      "capture_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
-      "capture_provenance": {
-        "status": "captured",
-        "capture_type": "model-output-transcript",
-        "captured_at": "2026-05-15T21:45:20.928Z",
-        "runner": "scripts/capture-model-ui-matrix.mjs",
-        "provider": "codex-cli",
-        "model": "gpt-5.5",
-        "cli": "codex",
-        "transcript_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
-        "prompt_sha256": "b15808546b4dc9da234b29e697470794368e0deb298cf9a40582c4843572335e",
-        "raw_response_sha256": "aa03e621c0fdbe5f3b786d51100bdd815042013c1ec0693130c682c74e9c60f3",
-        "source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
-        "reasoning_effort": "xhigh",
-        "context_included": {
-          "source_brief": true,
-          "sample_case": true,
-          "reviewed_handoff": true,
-          "material_ui_adapter": false,
-          "frontend_skill_context": true
-        },
-        "frontend_context_status": "ready_for_frontend_implementation",
-        "frontend_skill_context_status": "ready",
-        "design_system_name": null,
-        "design_system_package": null,
-        "design_system_render_mode": null,
-        "lms_context": null,
-        "capture_quality": {
-          "profile": "judgmentkit_static_html_css",
-          "css_characters": 6433,
-          "html_characters": 6039,
-          "css_rule_count": 84,
-          "class_selector_count": 110,
-          "semantic_section_count": 9,
-          "structural_block_count": 38,
-          "button_count": 7,
-          "has_responsive_css": true,
-          "has_layout_css": true,
-          "has_panel_css": true,
-          "has_control_css": true,
-          "has_evidence_content": true,
-          "has_handoff_content": true,
-          "compact_template_signature": false,
-          "failures": [],
-          "status": "passed"
-        },
-        "source_context_status": "legacy_accepted",
-        "current_source_context_sha256": "ef1b944ae17c9814aa28f4871a505c2d4917c9bae11db87d4f8983eef635836f",
-        "accepted_source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
-        "captured_source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
-        "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
-        "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
-      },
-      "lms_context": null,
-      "capture_quality": {
-        "profile": "judgmentkit_static_html_css",
-        "css_characters": 6433,
-        "html_characters": 6039,
-        "css_rule_count": 84,
-        "class_selector_count": 110,
-        "semantic_section_count": 9,
-        "structural_block_count": 38,
-        "button_count": 7,
-        "has_responsive_css": true,
-        "has_layout_css": true,
-        "has_panel_css": true,
-        "has_control_css": true,
-        "has_evidence_content": true,
-        "has_handoff_content": true,
-        "compact_template_signature": false,
-        "failures": [],
-        "status": "passed"
-      },
-      "prompt_sha256": "b15808546b4dc9da234b29e697470794368e0deb298cf9a40582c4843572335e",
-      "source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
-      "current_source_context_sha256": "ef1b944ae17c9814aa28f4871a505c2d4917c9bae11db87d4f8983eef635836f",
-      "source_context_status": "legacy_accepted",
-      "raw_response_sha256": "aa03e621c0fdbe5f3b786d51100bdd815042013c1ec0693130c682c74e9c60f3",
-      "frontend_context_status": "ready_for_frontend_implementation",
-      "frontend_skill_context_status": "ready",
-      "frontend_skill_context": {
-        "source_skill": "frontend-ui-implementation",
-        "raw_skill_exposed": false,
-        "surface_type": "form_flow",
-        "design_system_mode": "judgmentkit_default",
-        "design_system_name": "JudgmentKit",
-        "next_recommended_tool": "review_ui_implementation_candidate",
-        "verification_checklist": [
-          "Run npm test",
-          "Run npm run capture:model-ui:screenshots",
-          "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
-          "new primitives or variants require updating the repo-local contract first",
-          "generated UI must include a local check command or equivalent static inspection",
-          "gpt55-xhigh-codex-with-judgmentkit desktop screenshot has a styled primary work surface",
-          "gpt55-xhigh-codex-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
-          "desktop viewport screenshot",
-          "mobile viewport screenshot",
-          "keyboard focus check for interactive controls",
-          "overflow check for long labels, descriptions, and values",
-          "modal or dialog footer order check when dialogs are present",
-          "disabled, empty, error, and ready state review",
-          "Verify state: selected work item is visible",
-          "Verify state: decision evidence is scannable",
-          "Verify state: primary action and handoff reason are clear",
-          "Verify required state: empty",
-          "Verify required state: ready",
-          "Verify required state: loading",
-          "Verify required state: error",
-          "Verify required state: disabled",
-          "Verify required state: focus-visible"
-        ]
-      },
-      "artifact_path": "artifacts/gpt55-xhigh-codex-with-judgmentkit.html",
-      "screenshot_path": "screenshots/gpt55-xhigh-codex-with-judgmentkit.png",
-      "render_source": "model_frontend_skill_static_html_css",
-      "visible_render_source": "model_frontend_skill_static_html_css",
-      "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
-      "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill context",
-      "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
     },
     {
       "id": "gpt55-xhigh-codex-material-ui-only",
@@ -2975,6 +2375,11 @@
         "captured_source_context_sha256": "46130760f0413226f73c1e6e0d1060d38edc030203fe704fe8b226db1b22ff4a",
         "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
         "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
+      },
+      "capture_validation": {
+        "status": "passed",
+        "failed_checks": [],
+        "message": null
       },
       "lms_context": null,
       "capture_quality": null,
@@ -3068,6 +2473,11 @@
         "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
         "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
       },
+      "capture_validation": {
+        "status": "passed",
+        "failed_checks": [],
+        "message": null
+      },
       "lms_context": null,
       "capture_quality": null,
       "prompt_sha256": "e97eec0233a651abde75a913160c34f301dc9626146d82365e318fba495a52a7",
@@ -3118,6 +2528,1023 @@
       "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path."
     }
   ],
-  "diagnostic_candidates": [],
+  "diagnostic_candidates": [
+    {
+      "id": "gemma4-lms-with-judgmentkit",
+      "use_case_id": "clinical-intake-review",
+      "use_case_label": "Clinical intake review",
+      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+      "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+      "row_id": "gemma4-lms",
+      "row_label": "Gemma 4 via LM Studio lms",
+      "column_id": "with-judgmentkit",
+      "column_label": "JudgmentKit skill context",
+      "title": "Gemma 4 via LM Studio lms - JudgmentKit skill context",
+      "model_label": "Gemma 4 (local LLM)",
+      "generation_source": "captured_model_output",
+      "provider": "lmstudio",
+      "model": "google/gemma-4-e2b",
+      "cli": "lms",
+      "reasoning_effort": null,
+      "judgmentkit_mode": "with_judgmentkit",
+      "design_system_mode": "none",
+      "context_included": {
+        "source_brief": true,
+        "sample_case": true,
+        "reviewed_handoff": true,
+        "material_ui_adapter": false,
+        "frontend_skill_context": true
+      },
+      "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
+      "release_evidence_status": "diagnostic_only",
+      "candidate_artifact_status": "not_an_artifact",
+      "implementation_review_status": "failed",
+      "design_system_acceptance_status": "failed",
+      "next_agent_action": "repair_and_resubmit",
+      "failed_checks": [
+        "visual_tokens",
+        "static_capture_quality"
+      ],
+      "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": null,
+      "design_system_name": "JudgmentKit",
+      "design_system_package": "judgmentkit",
+      "design_system_render_mode": "static-html",
+      "capture_file": "captures/gemma4-lms-with-judgmentkit.json",
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "model-output-transcript",
+        "captured_at": "2026-05-15T21:37:38.454Z",
+        "runner": "scripts/capture-model-ui-matrix.mjs",
+        "provider": "lmstudio",
+        "model": "google/gemma-4-e2b",
+        "cli": "lms",
+        "transcript_file": "captures/gemma4-lms-with-judgmentkit.json",
+        "prompt_sha256": "a91777caa6325dd33080cf00ad3fd21324463b48ee1885b46b5bd1c64c68c2cf",
+        "raw_response_sha256": "8cecff6cd10655fd28c0cd880795efa5739bed1158188cddf8e6c09a09919764",
+        "source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
+        "reasoning_effort": null,
+        "context_included": {
+          "source_brief": true,
+          "sample_case": true,
+          "reviewed_handoff": true,
+          "material_ui_adapter": false,
+          "frontend_skill_context": true
+        },
+        "frontend_context_status": "ready_for_frontend_implementation",
+        "frontend_skill_context_status": "ready",
+        "design_system_name": null,
+        "design_system_package": null,
+        "design_system_render_mode": null,
+        "lms_context": {
+          "model": "google/gemma-4-e2b",
+          "status": "already_loaded",
+          "requested_context_length": 16384,
+          "actual_context_length": 16384,
+          "identifier": "google/gemma-4-e2b"
+        },
+        "capture_quality": {
+          "profile": "judgmentkit_static_html_css",
+          "css_characters": 1379,
+          "html_characters": 1484,
+          "css_rule_count": 18,
+          "class_selector_count": 14,
+          "semantic_section_count": 7,
+          "structural_block_count": 7,
+          "button_count": 4,
+          "has_responsive_css": true,
+          "has_layout_css": true,
+          "has_panel_css": true,
+          "has_control_css": true,
+          "has_evidence_content": true,
+          "has_handoff_content": true,
+          "compact_template_signature": false,
+          "failures": [],
+          "status": "passed"
+        },
+        "source_context_status": "legacy_accepted",
+        "current_source_context_sha256": "0a6d09e97816dbdf7468920cee3f935f1d5e9d83a0d47deaedb7b80fd8d04a1e",
+        "accepted_source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
+        "captured_source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
+        "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
+        "notes": "Gemma 4 (local LLM) output captured through lms for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
+      },
+      "capture_validation": {
+        "status": "failed",
+        "failed_checks": [
+          "visual_tokens",
+          "static_capture_quality"
+        ],
+        "message": "gemma4-lms-with-judgmentkit JudgmentKit static CSS must use active --jk-* design-system tokens at least 4 times.",
+        "capture_quality": {
+          "profile": "judgmentkit_static_html_css",
+          "css_characters": 1379,
+          "html_characters": 1484,
+          "css_rule_count": 18,
+          "class_selector_count": 14,
+          "semantic_section_count": 7,
+          "structural_block_count": 7,
+          "button_count": 4,
+          "has_responsive_css": true,
+          "has_layout_css": true,
+          "has_panel_css": true,
+          "has_control_css": true,
+          "has_evidence_content": true,
+          "has_handoff_content": true,
+          "compact_template_signature": false,
+          "has_judgmentkit_default_tokens": false,
+          "jk_token_usage_count": 0,
+          "jk_token_reference_count": 0,
+          "unsupported_jk_tokens": [],
+          "jk_token_definition_count": 0,
+          "jk_token_definitions": [],
+          "disallowed_visual_tokens": [],
+          "inline_style_attribute_count": 0,
+          "hard_coded_visual_values": [
+            {
+              "source": "css",
+              "selector": "body",
+              "property": "background",
+              "value": "#f4f7f9"
+            },
+            {
+              "source": "css",
+              "selector": "body",
+              "property": "color",
+              "value": "#333"
+            },
+            {
+              "source": "css",
+              "selector": "main[data-primary-surface]",
+              "property": "background",
+              "value": "#fff"
+            },
+            {
+              "source": "css",
+              "selector": "main[data-primary-surface]",
+              "property": "box-shadow",
+              "value": "0 4px 12px rgba(0,0,0,.1)"
+            },
+            {
+              "source": "css",
+              "selector": "header",
+              "property": "border-bottom",
+              "value": "2px solid#eee"
+            },
+            {
+              "source": "css",
+              "selector": "h1",
+              "property": "color",
+              "value": "#1a237e"
+            },
+            {
+              "source": "css",
+              "selector": "h2",
+              "property": "color",
+              "value": "#3949ab"
+            },
+            {
+              "source": "css",
+              "selector": "h2",
+              "property": "border-left",
+              "value": "4px solid#bbdefb"
+            },
+            {
+              "source": "css",
+              "selector": "blockquote",
+              "property": "background",
+              "value": "#fff3e0"
+            },
+            {
+              "source": "css",
+              "selector": "blockquote",
+              "property": "border-left",
+              "value": "5px solid#ff9800"
+            },
+            {
+              "source": "css",
+              "selector": "blockquote",
+              "property": "color",
+              "value": "#e65100"
+            },
+            {
+              "source": "css",
+              "selector": "nav.queue-panel",
+              "property": "background",
+              "value": "#e8eaf6"
+            },
+            {
+              "source": "css",
+              "selector": "nav.case-details",
+              "property": "background",
+              "value": "#f9f9f9"
+            },
+            {
+              "source": "css",
+              "selector": "nav.case-details",
+              "property": "border",
+              "value": "1px solid #eee"
+            },
+            {
+              "source": "css",
+              "selector": "section.evidence-panel",
+              "property": "background",
+              "value": "#fff"
+            },
+            {
+              "source": "css",
+              "selector": "section.evidence-panel",
+              "property": "box-shadow",
+              "value": "0 2px 4px rgba(0,0,0,.05)"
+            },
+            {
+              "source": "css",
+              "selector": "button.primary",
+              "property": "background",
+              "value": "#3949ab"
+            },
+            {
+              "source": "css",
+              "selector": "button.primary",
+              "property": "color",
+              "value": "#fff"
+            },
+            {
+              "source": "css",
+              "selector": "button.secondary",
+              "property": "background",
+              "value": "#e0e0e0"
+            },
+            {
+              "source": "css",
+              "selector": "button.secondary",
+              "property": "color",
+              "value": "#333"
+            }
+          ],
+          "failures": [
+            "CSS does not use active JudgmentKit --jk-* design-system tokens at least 4 times",
+            "CSS or inline styles use hard-coded visual values instead of active JudgmentKit design-system tokens: css:background, css:color, css:background, css:box-shadow, css:border-bottom, css:color, css:color, css:border-left, css:background, css:border-left, css:color, css:background, css:background, css:border, css:background, css:box-shadow, css:background, css:color, css:background, css:color"
+          ],
+          "status": "failed"
+        }
+      },
+      "lms_context": {
+        "model": "google/gemma-4-e2b",
+        "status": "already_loaded",
+        "requested_context_length": 16384,
+        "actual_context_length": 16384,
+        "identifier": "google/gemma-4-e2b"
+      },
+      "capture_quality": {
+        "profile": "judgmentkit_static_html_css",
+        "css_characters": 1379,
+        "html_characters": 1484,
+        "css_rule_count": 18,
+        "class_selector_count": 14,
+        "semantic_section_count": 7,
+        "structural_block_count": 7,
+        "button_count": 4,
+        "has_responsive_css": true,
+        "has_layout_css": true,
+        "has_panel_css": true,
+        "has_control_css": true,
+        "has_evidence_content": true,
+        "has_handoff_content": true,
+        "compact_template_signature": false,
+        "failures": [],
+        "status": "passed"
+      },
+      "prompt_sha256": "a91777caa6325dd33080cf00ad3fd21324463b48ee1885b46b5bd1c64c68c2cf",
+      "source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
+      "current_source_context_sha256": "0a6d09e97816dbdf7468920cee3f935f1d5e9d83a0d47deaedb7b80fd8d04a1e",
+      "source_context_status": "legacy_accepted",
+      "raw_response_sha256": "8cecff6cd10655fd28c0cd880795efa5739bed1158188cddf8e6c09a09919764",
+      "frontend_context_status": "ready_for_frontend_implementation",
+      "frontend_skill_context_status": "ready",
+      "frontend_skill_context": {
+        "source_skill": "frontend-ui-implementation",
+        "raw_skill_exposed": false,
+        "surface_type": "form_flow",
+        "design_system_mode": "judgmentkit_default",
+        "design_system_name": "JudgmentKit",
+        "next_recommended_tool": "review_ui_implementation_candidate",
+        "verification_checklist": [
+          "Run npm test",
+          "Run npm run capture:model-ui:screenshots",
+          "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+          "new primitives or variants require updating the repo-local contract first",
+          "generated UI must include a local check command or equivalent static inspection",
+          "gemma4-lms-with-judgmentkit desktop screenshot has a styled primary work surface",
+          "gemma4-lms-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
+          "desktop viewport screenshot",
+          "mobile viewport screenshot",
+          "keyboard focus check for interactive controls",
+          "overflow check for long labels, descriptions, and values",
+          "modal or dialog footer order check when dialogs are present",
+          "disabled, empty, error, and ready state review",
+          "Verify state: selected work item is visible",
+          "Verify state: decision evidence is scannable",
+          "Verify state: primary action and handoff reason are clear",
+          "Verify required state: empty",
+          "Verify required state: ready",
+          "Verify required state: loading",
+          "Verify required state: error",
+          "Verify required state: disabled",
+          "Verify required state: focus-visible"
+        ]
+      },
+      "artifact_path": null,
+      "screenshot_path": null,
+      "render_source": "model_frontend_skill_static_html_css",
+      "visible_render_source": "model_frontend_skill_static_html_css",
+      "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+      "approach_title": "Gemma 4 via LM Studio lms - JudgmentKit skill context",
+      "approach_caption": "Gemma 4 via LM Studio lms receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
+    },
+    {
+      "id": "gpt55-xhigh-codex-with-judgmentkit",
+      "use_case_id": "clinical-intake-review",
+      "use_case_label": "Clinical intake review",
+      "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+      "use_case_index_path": "examples/model-ui/clinical-intake-review/index.html",
+      "row_id": "gpt55-xhigh-codex",
+      "row_label": "GPT-5.5 xhigh via codex exec",
+      "column_id": "with-judgmentkit",
+      "column_label": "JudgmentKit skill context",
+      "title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill context",
+      "model_label": "GPT-5.5",
+      "generation_source": "captured_model_output",
+      "provider": "codex-cli",
+      "model": "gpt-5.5",
+      "cli": "codex",
+      "reasoning_effort": "xhigh",
+      "judgmentkit_mode": "with_judgmentkit",
+      "design_system_mode": "none",
+      "context_included": {
+        "source_brief": true,
+        "sample_case": true,
+        "reviewed_handoff": true,
+        "material_ui_adapter": false,
+        "frontend_skill_context": true
+      },
+      "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
+      "release_evidence_status": "diagnostic_only",
+      "candidate_artifact_status": "not_an_artifact",
+      "implementation_review_status": "failed",
+      "design_system_acceptance_status": "failed",
+      "next_agent_action": "repair_and_resubmit",
+      "failed_checks": [
+        "visual_tokens",
+        "static_capture_quality"
+      ],
+      "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+      "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+      "design_system_adapter_file": null,
+      "design_system_name": "JudgmentKit",
+      "design_system_package": "judgmentkit",
+      "design_system_render_mode": "static-html",
+      "capture_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
+      "capture_provenance": {
+        "status": "captured",
+        "capture_type": "model-output-transcript",
+        "captured_at": "2026-05-15T21:45:20.928Z",
+        "runner": "scripts/capture-model-ui-matrix.mjs",
+        "provider": "codex-cli",
+        "model": "gpt-5.5",
+        "cli": "codex",
+        "transcript_file": "captures/gpt55-xhigh-codex-with-judgmentkit.json",
+        "prompt_sha256": "b15808546b4dc9da234b29e697470794368e0deb298cf9a40582c4843572335e",
+        "raw_response_sha256": "aa03e621c0fdbe5f3b786d51100bdd815042013c1ec0693130c682c74e9c60f3",
+        "source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
+        "reasoning_effort": "xhigh",
+        "context_included": {
+          "source_brief": true,
+          "sample_case": true,
+          "reviewed_handoff": true,
+          "material_ui_adapter": false,
+          "frontend_skill_context": true
+        },
+        "frontend_context_status": "ready_for_frontend_implementation",
+        "frontend_skill_context_status": "ready",
+        "design_system_name": null,
+        "design_system_package": null,
+        "design_system_render_mode": null,
+        "lms_context": null,
+        "capture_quality": {
+          "profile": "judgmentkit_static_html_css",
+          "css_characters": 6433,
+          "html_characters": 6039,
+          "css_rule_count": 84,
+          "class_selector_count": 110,
+          "semantic_section_count": 9,
+          "structural_block_count": 38,
+          "button_count": 7,
+          "has_responsive_css": true,
+          "has_layout_css": true,
+          "has_panel_css": true,
+          "has_control_css": true,
+          "has_evidence_content": true,
+          "has_handoff_content": true,
+          "compact_template_signature": false,
+          "failures": [],
+          "status": "passed"
+        },
+        "source_context_status": "legacy_accepted",
+        "current_source_context_sha256": "ef1b944ae17c9814aa28f4871a505c2d4917c9bae11db87d4f8983eef635836f",
+        "accepted_source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
+        "captured_source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
+        "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
+        "notes": "GPT-5.5 output captured through codex for the JudgmentKit 3x4 model UI matrix. Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured."
+      },
+      "capture_validation": {
+        "status": "failed",
+        "failed_checks": [
+          "visual_tokens",
+          "static_capture_quality"
+        ],
+        "message": "gpt55-xhigh-codex-with-judgmentkit JudgmentKit static CSS must use active --jk-* design-system tokens at least 4 times.",
+        "capture_quality": {
+          "profile": "judgmentkit_static_html_css",
+          "css_characters": 6445,
+          "html_characters": 6085,
+          "css_rule_count": 84,
+          "class_selector_count": 110,
+          "semantic_section_count": 9,
+          "structural_block_count": 38,
+          "button_count": 7,
+          "has_responsive_css": true,
+          "has_layout_css": true,
+          "has_panel_css": true,
+          "has_control_css": true,
+          "has_evidence_content": true,
+          "has_handoff_content": true,
+          "compact_template_signature": false,
+          "has_judgmentkit_default_tokens": false,
+          "jk_token_usage_count": 0,
+          "jk_token_reference_count": 0,
+          "unsupported_jk_tokens": [],
+          "jk_token_definition_count": 0,
+          "jk_token_definitions": [],
+          "disallowed_visual_tokens": [],
+          "inline_style_attribute_count": 0,
+          "hard_coded_visual_values": [
+            {
+              "source": "css",
+              "selector": "body",
+              "property": "background",
+              "value": "#f4f6f8"
+            },
+            {
+              "source": "css",
+              "selector": "body",
+              "property": "color",
+              "value": "#17202a"
+            },
+            {
+              "source": "css",
+              "selector": ".intake-review",
+              "property": "background",
+              "value": "linear-gradient(180deg,#f8fafc 0%,#eef2f6 100%)"
+            },
+            {
+              "source": "css",
+              "selector": ".eyebrow",
+              "property": "color",
+              "value": "#476173"
+            },
+            {
+              "source": "css",
+              "selector": ".topline h1",
+              "property": "color",
+              "value": "#111827"
+            },
+            {
+              "source": "css",
+              "selector": ".subhead",
+              "property": "color",
+              "value": "#4b5563"
+            },
+            {
+              "source": "css",
+              "selector": ".top-metrics span",
+              "property": "border",
+              "value": "1px solid #d7dee8"
+            },
+            {
+              "source": "css",
+              "selector": ".top-metrics span",
+              "property": "background",
+              "value": "#fff"
+            },
+            {
+              "source": "css",
+              "selector": ".top-metrics span",
+              "property": "color",
+              "value": "#334155"
+            },
+            {
+              "source": "css",
+              "selector": ".pane",
+              "property": "background",
+              "value": "#fff"
+            },
+            {
+              "source": "css",
+              "selector": ".pane",
+              "property": "border",
+              "value": "1px solid #d8e0ea"
+            },
+            {
+              "source": "css",
+              "selector": ".pane",
+              "property": "box-shadow",
+              "value": "0 1px 2px rgba(15,23,42,.05)"
+            },
+            {
+              "source": "css",
+              "selector": ".section-block",
+              "property": "border-bottom",
+              "value": "1px solid #e5eaf0"
+            },
+            {
+              "source": "css",
+              "selector": ".section-title h2,.queue-pane h2",
+              "property": "color",
+              "value": "#111827"
+            },
+            {
+              "source": "css",
+              "selector": ".section-kicker,.queue-help",
+              "property": "color",
+              "value": "#64748b"
+            },
+            {
+              "source": "css",
+              "selector": ".queue-item",
+              "property": "border",
+              "value": "1px solid #d8e0ea"
+            },
+            {
+              "source": "css",
+              "selector": ".queue-item",
+              "property": "background",
+              "value": "#fff"
+            },
+            {
+              "source": "css",
+              "selector": ".queue-item",
+              "property": "color",
+              "value": "#17202a"
+            },
+            {
+              "source": "css",
+              "selector": ".queue-item:hover",
+              "property": "border-color",
+              "value": "#8aa3bd"
+            },
+            {
+              "source": "css",
+              "selector": ".queue-item:hover",
+              "property": "background",
+              "value": "#f9fbfd"
+            },
+            {
+              "source": "css",
+              "selector": ".queue-item.is-active",
+              "property": "border-color",
+              "value": "#2863c7"
+            },
+            {
+              "source": "css",
+              "selector": ".queue-item.is-active",
+              "property": "box-shadow",
+              "value": "inset 4px 0 0 #2863c7"
+            },
+            {
+              "source": "css",
+              "selector": ".queue-item.is-loading",
+              "property": "background",
+              "value": "#fbfbf7"
+            },
+            {
+              "source": "css",
+              "selector": ".queue-item.is-ready",
+              "property": "background",
+              "value": "#f8fcf9"
+            },
+            {
+              "source": "css",
+              "selector": ".packet-id",
+              "property": "color",
+              "value": "#111827"
+            },
+            {
+              "source": "css",
+              "selector": ".queue-meta",
+              "property": "color",
+              "value": "#475569"
+            },
+            {
+              "source": "css",
+              "selector": ".queue-action",
+              "property": "color",
+              "value": "#2454a6"
+            },
+            {
+              "source": "css",
+              "selector": ".chip.ready",
+              "property": "background",
+              "value": "#e8f5ee"
+            },
+            {
+              "source": "css",
+              "selector": ".chip.ready",
+              "property": "color",
+              "value": "#17633a"
+            },
+            {
+              "source": "css",
+              "selector": ".chip.error",
+              "property": "background",
+              "value": "#fdecea"
+            },
+            {
+              "source": "css",
+              "selector": ".chip.error",
+              "property": "color",
+              "value": "#a31610"
+            },
+            {
+              "source": "css",
+              "selector": ".chip.warning",
+              "property": "background",
+              "value": "#fff4df"
+            },
+            {
+              "source": "css",
+              "selector": ".chip.warning",
+              "property": "color",
+              "value": "#8a4b0b"
+            },
+            {
+              "source": "css",
+              "selector": ".chip.loading",
+              "property": "background",
+              "value": "#eef3ff"
+            },
+            {
+              "source": "css",
+              "selector": ".chip.loading",
+              "property": "color",
+              "value": "#244f9e"
+            },
+            {
+              "source": "css",
+              "selector": ".empty-state",
+              "property": "border",
+              "value": "1px dashed #cbd5e1"
+            },
+            {
+              "source": "css",
+              "selector": ".empty-state",
+              "property": "color",
+              "value": "#64748b"
+            },
+            {
+              "source": "css",
+              "selector": ".empty-state",
+              "property": "background",
+              "value": "#fbfcfd"
+            },
+            {
+              "source": "css",
+              "selector": ".field",
+              "property": "border",
+              "value": "1px solid #e3e8ef"
+            },
+            {
+              "source": "css",
+              "selector": ".field",
+              "property": "background",
+              "value": "#fbfcfe"
+            },
+            {
+              "source": "css",
+              "selector": ".field dt",
+              "property": "color",
+              "value": "#64748b"
+            },
+            {
+              "source": "css",
+              "selector": ".field dd",
+              "property": "color",
+              "value": "#17202a"
+            },
+            {
+              "source": "css",
+              "selector": ".evidence-row",
+              "property": "border",
+              "value": "1px solid #e3e8ef"
+            },
+            {
+              "source": "css",
+              "selector": ".evidence-row",
+              "property": "background",
+              "value": "#fff"
+            },
+            {
+              "source": "css",
+              "selector": ".status-dot",
+              "property": "background",
+              "value": "#64748b"
+            },
+            {
+              "source": "css",
+              "selector": ".status-dot.ready",
+              "property": "background",
+              "value": "#1f7a4d"
+            },
+            {
+              "source": "css",
+              "selector": ".status-dot.error",
+              "property": "background",
+              "value": "#c62828"
+            },
+            {
+              "source": "css",
+              "selector": ".status-dot.warning",
+              "property": "background",
+              "value": "#b76a19"
+            },
+            {
+              "source": "css",
+              "selector": ".evidence-row strong",
+              "property": "color",
+              "value": "#111827"
+            },
+            {
+              "source": "css",
+              "selector": ".evidence-row p",
+              "property": "color",
+              "value": "#4b5563"
+            },
+            {
+              "source": "css",
+              "selector": ".policy-list li",
+              "property": "border-left",
+              "value": "4px solid #0f766e"
+            },
+            {
+              "source": "css",
+              "selector": ".policy-list li",
+              "property": "background",
+              "value": "#f2fbf9"
+            },
+            {
+              "source": "css",
+              "selector": ".policy-list li",
+              "property": "color",
+              "value": "#23413d"
+            },
+            {
+              "source": "css",
+              "selector": ".decision-marker",
+              "property": "background",
+              "value": "#e6eef8"
+            },
+            {
+              "source": "css",
+              "selector": ".decision-marker",
+              "property": "color",
+              "value": "#2454a6"
+            },
+            {
+              "source": "css",
+              "selector": ".decision-context strong",
+              "property": "color",
+              "value": "#111827"
+            },
+            {
+              "source": "css",
+              "selector": ".decision-context p",
+              "property": "color",
+              "value": "#52606d"
+            },
+            {
+              "source": "css",
+              "selector": ".action-button",
+              "property": "border",
+              "value": "1px solid #b7c4d2"
+            },
+            {
+              "source": "css",
+              "selector": ".action-button",
+              "property": "background",
+              "value": "#fff"
+            },
+            {
+              "source": "css",
+              "selector": ".action-button",
+              "property": "color",
+              "value": "#17202a"
+            },
+            {
+              "source": "css",
+              "selector": ".action-button:hover",
+              "property": "border-color",
+              "value": "#476173"
+            },
+            {
+              "source": "css",
+              "selector": ".action-button:hover",
+              "property": "background",
+              "value": "#f8fafc"
+            },
+            {
+              "source": "css",
+              "selector": ".action-button.recommended",
+              "property": "border-color",
+              "value": "#0f766e"
+            },
+            {
+              "source": "css",
+              "selector": ".action-button.recommended",
+              "property": "background",
+              "value": "#ecfdf7"
+            },
+            {
+              "source": "css",
+              "selector": ".action-button.recommended",
+              "property": "color",
+              "value": "#115e45"
+            },
+            {
+              "source": "css",
+              "selector": ".action-button.primary",
+              "property": "border-color",
+              "value": "#0f766e"
+            },
+            {
+              "source": "css",
+              "selector": ".action-button.primary",
+              "property": "background",
+              "value": "#0f766e"
+            },
+            {
+              "source": "css",
+              "selector": ".action-button.primary",
+              "property": "color",
+              "value": "#fff"
+            },
+            {
+              "source": "css",
+              "selector": ".action-button.secondary",
+              "property": "border-color",
+              "value": "#b7c4d2"
+            },
+            {
+              "source": "css",
+              "selector": ".action-button:disabled,.action-button.is-disabled",
+              "property": "background",
+              "value": "#eef1f5"
+            },
+            {
+              "source": "css",
+              "selector": ".action-button:disabled,.action-button.is-disabled",
+              "property": "color",
+              "value": "#52606d"
+            },
+            {
+              "source": "css",
+              "selector": ".validation.is-error",
+              "property": "background",
+              "value": "#fff1ef"
+            },
+            {
+              "source": "css",
+              "selector": ".validation.is-error",
+              "property": "color",
+              "value": "#9f1d17"
+            },
+            {
+              "source": "css",
+              "selector": ".validation.is-error",
+              "property": "border",
+              "value": "1px solid #f5beb9"
+            },
+            {
+              "source": "css",
+              "selector": ".handoff-item",
+              "property": "border",
+              "value": "1px solid #e3e8ef"
+            },
+            {
+              "source": "css",
+              "selector": ".handoff-item",
+              "property": "background",
+              "value": "#fbfcfe"
+            },
+            {
+              "source": "css",
+              "selector": ".handoff-item dt",
+              "property": "color",
+              "value": "#64748b"
+            },
+            {
+              "source": "css",
+              "selector": ".handoff-item dd",
+              "property": "color",
+              "value": "#17202a"
+            },
+            {
+              "source": "css",
+              "selector": ".handoff-item dd.reason",
+              "property": "color",
+              "value": "#334155"
+            },
+            {
+              "source": "css",
+              "selector": "button:focus-visible,.queue-item:focus-visible",
+              "property": "outline",
+              "value": "3px solid #2863c7"
+            }
+          ],
+          "failures": [
+            "CSS does not use active JudgmentKit --jk-* design-system tokens at least 4 times",
+            "CSS or inline styles use hard-coded visual values instead of active JudgmentKit design-system tokens: css:background, css:color, css:background, css:color, css:color, css:color, css:border, css:background, css:color, css:background, css:border, css:box-shadow, css:border-bottom, css:color, css:color, css:border, css:background, css:color, css:border-color, css:background, css:border-color, css:box-shadow, css:background, css:background, css:color, css:color, css:color, css:background, css:color, css:background, css:color, css:background, css:color, css:background, css:color, css:border, css:color, css:background, css:border, css:background, css:color, css:color, css:border, css:background, css:background, css:background, css:background, css:background, css:color, css:color, css:border-left, css:background, css:color, css:background, css:color, css:color, css:color, css:border, css:background, css:color, css:border-color, css:background, css:border-color, css:background, css:color, css:border-color, css:background, css:color, css:border-color, css:background, css:color, css:background, css:color, css:border, css:border, css:background, css:color, css:color, css:color, css:outline"
+          ],
+          "status": "failed"
+        }
+      },
+      "lms_context": null,
+      "capture_quality": {
+        "profile": "judgmentkit_static_html_css",
+        "css_characters": 6433,
+        "html_characters": 6039,
+        "css_rule_count": 84,
+        "class_selector_count": 110,
+        "semantic_section_count": 9,
+        "structural_block_count": 38,
+        "button_count": 7,
+        "has_responsive_css": true,
+        "has_layout_css": true,
+        "has_panel_css": true,
+        "has_control_css": true,
+        "has_evidence_content": true,
+        "has_handoff_content": true,
+        "compact_template_signature": false,
+        "failures": [],
+        "status": "passed"
+      },
+      "prompt_sha256": "b15808546b4dc9da234b29e697470794368e0deb298cf9a40582c4843572335e",
+      "source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
+      "current_source_context_sha256": "ef1b944ae17c9814aa28f4871a505c2d4917c9bae11db87d4f8983eef635836f",
+      "source_context_status": "legacy_accepted",
+      "raw_response_sha256": "aa03e621c0fdbe5f3b786d51100bdd815042013c1ec0693130c682c74e9c60f3",
+      "frontend_context_status": "ready_for_frontend_implementation",
+      "frontend_skill_context_status": "ready",
+      "frontend_skill_context": {
+        "source_skill": "frontend-ui-implementation",
+        "raw_skill_exposed": false,
+        "surface_type": "form_flow",
+        "design_system_mode": "judgmentkit_default",
+        "design_system_name": "JudgmentKit",
+        "next_recommended_tool": "review_ui_implementation_candidate",
+        "verification_checklist": [
+          "Run npm test",
+          "Run npm run capture:model-ui:screenshots",
+          "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+          "new primitives or variants require updating the repo-local contract first",
+          "generated UI must include a local check command or equivalent static inspection",
+          "gpt55-xhigh-codex-with-judgmentkit desktop screenshot has a styled primary work surface",
+          "gpt55-xhigh-codex-with-judgmentkit mobile screenshot keeps the decision and handoff visible",
+          "desktop viewport screenshot",
+          "mobile viewport screenshot",
+          "keyboard focus check for interactive controls",
+          "overflow check for long labels, descriptions, and values",
+          "modal or dialog footer order check when dialogs are present",
+          "disabled, empty, error, and ready state review",
+          "Verify state: selected work item is visible",
+          "Verify state: decision evidence is scannable",
+          "Verify state: primary action and handoff reason are clear",
+          "Verify required state: empty",
+          "Verify required state: ready",
+          "Verify required state: loading",
+          "Verify required state: error",
+          "Verify required state: disabled",
+          "Verify required state: focus-visible"
+        ]
+      },
+      "artifact_path": null,
+      "screenshot_path": null,
+      "render_source": "model_frontend_skill_static_html_css",
+      "visible_render_source": "model_frontend_skill_static_html_css",
+      "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+      "approach_title": "GPT-5.5 xhigh via codex exec - JudgmentKit skill context",
+      "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
+    }
+  ],
   "generation_policy": "Static captured-fixture pack. Website builds copy committed accepted artifacts and never call a live model. The 3x4 matrix separates raw brief context, JudgmentKit reviewed handoff plus compiled frontend skill context, Material UI rendering, and the combined JudgmentKit skill plus Material UI path. Candidates that fail implementation or design-system review stay in diagnostic_candidates and are excluded from manifest.artifacts, live artifact routes, screenshots, and release evidence."
 }

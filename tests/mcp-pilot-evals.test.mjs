@@ -1341,7 +1341,7 @@ for (const testCase of cases) {
   assert.ok(result.report.summary.cognitive_dimensions_dimension_counts.progressive_evaluation >= 1);
   assert.ok(result.report.summary.cognitive_dimensions_dimension_counts.disclosure_discipline >= 1);
   assert.equal(result.report.summary.visual_ui_proof_use_cases, 4);
-  assert.equal(result.report.summary.visual_ui_proof_artifacts, 12);
+  assert.equal(result.report.summary.visual_ui_proof_artifacts, 8);
   assert.equal(result.report.summary.visual_ui_proof_report_only, true);
   assert.ok(result.report.visual_ui_proof.enabled);
   assert.ok(
@@ -1365,8 +1365,14 @@ for (const testCase of cases) {
   assert.match(html, /Visual UI proof/);
   assert.ok(
     html.includes(
+      "/examples/model-ui/refund-system-map/screenshots/gemma4-lms-no-judgmentkit.png",
+    ),
+  );
+  assert.equal(
+    html.includes(
       "/examples/model-ui/refund-system-map/screenshots/gemma4-lms-with-judgmentkit.png",
     ),
+    false,
   );
   assert.ok(
     html.includes(

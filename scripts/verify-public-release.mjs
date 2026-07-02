@@ -11,7 +11,12 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
 import { JUDGMENTKIT_MCP_TOOL_NAMES } from "./install-mcp.mjs";
-import { COMPARISON_COLUMNS, COMPARISON_ROWS } from "./model-ui-use-cases.mjs";
+import { validateParsed } from "./capture-model-ui-matrix.mjs";
+import {
+  COMPARISON_COLUMNS,
+  COMPARISON_ROWS,
+  LEGACY_ALIASES,
+} from "./model-ui-use-cases.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.resolve(__dirname, "..");
@@ -61,6 +66,191 @@ function assertDiagnosticCandidatesExcluded(manifest, label) {
       `${candidate.id} should not also be an accepted artifact`,
     );
   }
+
+  const diagnosticCellIds = (manifest.comparison_rows ?? [])
+    .flatMap((row) => row.cells ?? [])
+    .filter((cell) => cell.release_evidence_status === "diagnostic_only")
+    .map((cell) => cell.diagnostic_candidate_id)
+    .filter(Boolean)
+    .sort();
+  const diagnosticCandidateIds = (manifest.diagnostic_candidates ?? [])
+    .map((candidate) => candidate.id)
+    .sort();
+  assert.deepEqual(
+    diagnosticCandidateIds,
+    diagnosticCellIds,
+    `${label} diagnostic_candidates should exactly match diagnostic matrix cells`,
+  );
+}
+
+function assertArtifactDesignSystemMetadata(artifact, label) {
+  if (artifact.design_system_mode === "material_ui") {
+    assert.equal(artifact.design_system_name, "Material UI", `${label} should name Material UI`);
+    assert.equal(artifact.design_system_package, "@mui/material", `${label} should name @mui/material`);
+    assert.equal(artifact.design_system_render_mode, "static-ssr", `${label} should name static SSR rendering`);
+    return;
+  }
+
+  if (artifact.judgmentkit_mode === "with_judgmentkit") {
+    assert.equal(artifact.design_system_name, "JudgmentKit", `${label} should name the active JudgmentKit default source`);
+    assert.equal(artifact.design_system_package, "judgmentkit", `${label} should name the JudgmentKit package`);
+    assert.equal(artifact.design_system_render_mode, "static-html", `${label} should name static HTML rendering`);
+    return;
+  }
+
+  assert.equal(artifact.design_system_name ?? null, null, `${label} should not name a design system`);
+  assert.equal(artifact.design_system_package ?? null, null, `${label} should not name a design-system package`);
+  assert.equal(artifact.design_system_render_mode ?? null, null, `${label} should not name a design-system render mode`);
+}
+
+function assertAcceptedCapturePassesCurrentValidation(capture, artifact, label) {
+  validateParsed(capture.parsed, {
+    ...artifact,
+    artifact_id: artifact.id,
+    render_mode: capture.render_mode,
+    judgmentkit_mode: artifact.judgmentkit_mode,
+    design_system_mode: artifact.design_system_mode,
+  });
+
+  assert.equal(
+    artifact.capture_validation?.status,
+    "passed",
+    `${label} manifest should record passed current capture validation`,
+  );
+  assert.deepEqual(
+    artifact.capture_validation?.failed_checks ?? null,
+    [],
+    `${label} manifest should not record capture validation failures`,
+  );
+}
+
+function readModelUiProvenance(html, label) {
+  const match = String(html).match(
+    /<script type="application\/json" id="model-ui-provenance">([\s\S]*?)<\/script>/,
+  );
+  assert.ok(match, `${label} should include model UI provenance`);
+  return JSON.parse(match[1]);
+}
+
+async function assertRouteNotPublic(baseUrl, route, label, { bytes = false } = {}) {
+  const result = bytes
+    ? await fetchBytes(baseUrl, route, { expectOk: false })
+    : await fetchText(baseUrl, route, { expectOk: false });
+
+  assert.equal(
+    result.response.ok,
+    false,
+    `${label} should not be public at ${route}`,
+  );
+}
+
+async function assertDiagnosticRoutesNotPublic(baseUrl, useCaseBaseRoute, manifest, label) {
+  const diagnosticIds = new Set([
+    ...(manifest.diagnostic_candidates ?? []).map((candidate) => candidate.id),
+    ...(manifest.comparison_rows ?? [])
+      .flatMap((row) => row.cells ?? [])
+      .filter((cell) => cell.release_evidence_status === "diagnostic_only")
+      .map((cell) => cell.diagnostic_candidate_id)
+      .filter(Boolean),
+  ]);
+
+  for (const id of diagnosticIds) {
+    await assertRouteNotPublic(
+      baseUrl,
+      `${useCaseBaseRoute}artifacts/${id}.html`,
+      `${label}/${id} diagnostic artifact`,
+    );
+    await assertRouteNotPublic(
+      baseUrl,
+      `${useCaseBaseRoute}screenshots/${id}.png`,
+      `${label}/${id} diagnostic screenshot`,
+      { bytes: true },
+    );
+  }
+}
+
+async function assertInactiveLegacyAliasesNotPublic(baseUrl, useCaseBaseRoute, manifest) {
+  if (manifest.use_case_id !== "refund-system-map") return;
+  const activeAliasIds = new Set((manifest.legacy_aliases ?? []).map((alias) => alias.id));
+
+  for (const alias of LEGACY_ALIASES) {
+    if (activeAliasIds.has(alias.id)) continue;
+    await assertRouteNotPublic(
+      baseUrl,
+      `${useCaseBaseRoute}${alias.artifact_path}`,
+      `inactive legacy alias ${alias.id} artifact`,
+    );
+    await assertRouteNotPublic(
+      baseUrl,
+      `${useCaseBaseRoute}${alias.screenshot_path}`,
+      `inactive legacy alias ${alias.id} screenshot`,
+      { bytes: true },
+    );
+    if (alias.capture_file) {
+      await assertRouteNotPublic(
+        baseUrl,
+        `${useCaseBaseRoute}${alias.capture_file}`,
+        `inactive legacy alias ${alias.id} capture`,
+      );
+    }
+  }
+}
+
+async function verifyLegacyAlias(baseUrl, useCaseBaseRoute, manifest, alias) {
+  const canonical = (manifest.artifacts ?? []).find(
+    (artifact) => artifact.id === alias.canonical_id,
+  );
+  assert.ok(
+    canonical,
+    `${manifest.use_case_id}/${alias.id} legacy alias should point to an accepted canonical artifact`,
+  );
+
+  const artifactRoute = `${useCaseBaseRoute}${alias.artifact_path}`;
+  const aliasPage = await fetchText(baseUrl, artifactRoute);
+  const provenance = readModelUiProvenance(aliasPage.text, artifactRoute);
+  assert.equal(provenance.artifact_id, alias.id);
+  assert.equal(provenance.canonical_artifact_id, alias.canonical_id);
+  assert.equal(provenance.compatibility_alias, true);
+  assert.equal(provenance.artifact_path, alias.artifact_path);
+  assert.equal(provenance.screenshot_path, alias.screenshot_path);
+  assert.equal(provenance.source_context_sha256, canonical.source_context_sha256);
+  assert.equal(
+    provenance.current_source_context_sha256,
+    canonical.current_source_context_sha256,
+  );
+  assert.equal(provenance.source_context_status, canonical.source_context_status);
+
+  const screenshotRoute = `${useCaseBaseRoute}${alias.screenshot_path}`;
+  const screenshotResponse = await fetchBytes(baseUrl, screenshotRoute);
+  assert.equal(
+    screenshotResponse.bytes.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE),
+    true,
+    `${alias.id} legacy screenshot should be a PNG`,
+  );
+
+  let captureRoute = null;
+  if (alias.capture_file) {
+    assert.ok(canonical.capture_file, `${alias.id} alias capture should have a canonical capture`);
+    captureRoute = `${useCaseBaseRoute}${alias.capture_file}`;
+    const canonicalCaptureRoute = `${useCaseBaseRoute}${canonical.capture_file}`;
+    const aliasCapture = JSON.parse((await fetchText(baseUrl, captureRoute)).text);
+    const canonicalCapture = JSON.parse((await fetchText(baseUrl, canonicalCaptureRoute)).text);
+    assert.equal(aliasCapture.artifact_id, alias.id);
+    assert.equal(aliasCapture.canonical_artifact_id, alias.canonical_id);
+    assert.equal(aliasCapture.compatibility_alias, true);
+    assert.equal(aliasCapture.source_context_sha256, canonicalCapture.source_context_sha256);
+    assert.equal(
+      aliasCapture.current_source_context_sha256,
+      canonicalCapture.current_source_context_sha256,
+    );
+    assert.equal(
+      aliasCapture.accepted_source_context_sha256,
+      canonicalCapture.accepted_source_context_sha256,
+    );
+    assert.equal(aliasCapture.source_context_status, canonicalCapture.source_context_status);
+  }
+
+  return { artifactRoute, screenshotRoute, captureRoute };
 }
 
 export function parseArgs(argv) {
@@ -347,6 +537,8 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
     assertDiagnosticCandidatesExcluded(manifest, useCase.id);
 
     const useCaseBaseRoute = manifestRoute.replace(/manifest\.json$/, "");
+    await assertDiagnosticRoutesNotPublic(baseUrl, useCaseBaseRoute, manifest, useCase.id);
+    await assertInactiveLegacyAliasesNotPublic(baseUrl, useCaseBaseRoute, manifest);
 
     for (const artifact of manifest.artifacts) {
       assert.equal(artifact.release_evidence_status, "artifact");
@@ -380,9 +572,8 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
         assert.equal(artifact.frontend_skill_context?.source_skill, "frontend-ui-implementation");
         assert.equal(artifact.frontend_skill_context?.raw_skill_exposed, false);
       }
+      assertArtifactDesignSystemMetadata(artifact, `${useCase.id}/${artifact.id}`);
       if (artifact.design_system_mode === "material_ui") {
-        assert.equal(artifact.design_system_name, "Material UI");
-        assert.equal(artifact.design_system_package, "@mui/material");
         assert.equal(
           artifact.context_included.material_ui_adapter,
           true,
@@ -499,24 +690,24 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
         assert.ok(capture.parsed?.css?.trim(), `${artifact.id} capture should include parsed CSS`);
       }
       assert.ok(capture.raw_response, `${artifact.id} capture should include raw_response`);
+      assertAcceptedCapturePassesCurrentValidation(
+        capture,
+        artifact,
+        `${useCase.id}/${artifact.id}`,
+      );
       captureRoutes.push(captureRoute);
     }
 
     for (const alias of manifest.legacy_aliases ?? []) {
-      const artifactRoute = `${useCaseBaseRoute}${alias.artifact_path}`;
-      const screenshotRoute = `${useCaseBaseRoute}${alias.screenshot_path}`;
-      await fetchText(baseUrl, artifactRoute);
-      const screenshotResponse = await fetchBytes(baseUrl, screenshotRoute);
-      assert.equal(
-        screenshotResponse.bytes.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE),
-        true,
-        `${alias.id} legacy screenshot should be a PNG`,
+      const { artifactRoute, screenshotRoute, captureRoute } = await verifyLegacyAlias(
+        baseUrl,
+        useCaseBaseRoute,
+        manifest,
+        alias,
       );
       checked.push(artifactRoute);
       screenshotRoutes.push(screenshotRoute);
-      if (alias.capture_file) {
-        const captureRoute = `${useCaseBaseRoute}${alias.capture_file}`;
-        await fetchText(baseUrl, captureRoute);
+      if (captureRoute) {
         captureRoutes.push(captureRoute);
       }
     }
@@ -686,6 +877,17 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     "model UI manifest should expose twelve matrix cells",
   );
   assertDiagnosticCandidatesExcluded(modelUiManifest, "model UI");
+  await assertDiagnosticRoutesNotPublic(
+    baseUrl,
+    "/examples/model-ui/refund-system-map/",
+    modelUiManifest,
+    "model UI",
+  );
+  await assertInactiveLegacyAliasesNotPublic(
+    baseUrl,
+    "/examples/model-ui/refund-system-map/",
+    modelUiManifest,
+  );
   const modelUiCaptureRoutes = [];
   const modelUiScreenshotRoutes = [];
 
@@ -720,9 +922,8 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       assert.equal(artifact.frontend_skill_context?.source_skill, "frontend-ui-implementation");
       assert.equal(artifact.frontend_skill_context?.raw_skill_exposed, false);
     }
+    assertArtifactDesignSystemMetadata(artifact, `model UI ${artifact.id}`);
     if (artifact.design_system_mode === "material_ui") {
-      assert.equal(artifact.design_system_name, "Material UI");
-      assert.equal(artifact.design_system_package, "@mui/material");
       assert.equal(
         artifact.context_included.material_ui_adapter,
         true,
@@ -838,20 +1039,21 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       assert.ok(capture.parsed?.css?.trim(), `${artifact.id} capture should include parsed CSS`);
     }
     assert.ok(capture.raw_response, `${artifact.id} capture should include raw_response`);
+    assertAcceptedCapturePassesCurrentValidation(
+      capture,
+      artifact,
+      `model UI ${artifact.id}`,
+    );
 
     modelUiCaptureRoutes.push(captureRoute);
   }
 
   for (const alias of modelUiManifest.legacy_aliases ?? []) {
-    await fetchText(baseUrl, `/examples/model-ui/refund-system-map/${alias.artifact_path}`);
-    const screenshotResponse = await fetchBytes(
+    await verifyLegacyAlias(
       baseUrl,
-      `/examples/model-ui/refund-system-map/${alias.screenshot_path}`,
-    );
-    assert.equal(
-      screenshotResponse.bytes.subarray(0, PNG_SIGNATURE.length).equals(PNG_SIGNATURE),
-      true,
-      `${alias.id} legacy screenshot should be a PNG`,
+      "/examples/model-ui/refund-system-map/",
+      modelUiManifest,
+      alias,
     );
   }
 

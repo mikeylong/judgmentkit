@@ -354,6 +354,268 @@ function countMatches(value, pattern) {
   return (String(value).match(pattern) ?? []).length;
 }
 
+const CSS_NAMED_COLOR_PATTERN = new RegExp(
+  `\\b(?:${[
+    "aliceblue",
+    "antiquewhite",
+    "aqua",
+    "aquamarine",
+    "azure",
+    "beige",
+    "bisque",
+    "black",
+    "blanchedalmond",
+    "blue",
+    "blueviolet",
+    "brown",
+    "burlywood",
+    "cadetblue",
+    "chartreuse",
+    "chocolate",
+    "coral",
+    "cornflowerblue",
+    "cornsilk",
+    "crimson",
+    "cyan",
+    "darkblue",
+    "darkcyan",
+    "darkgoldenrod",
+    "darkgray",
+    "darkgreen",
+    "darkgrey",
+    "darkkhaki",
+    "darkmagenta",
+    "darkolivegreen",
+    "darkorange",
+    "darkorchid",
+    "darkred",
+    "darksalmon",
+    "darkseagreen",
+    "darkslateblue",
+    "darkslategray",
+    "darkslategrey",
+    "darkturquoise",
+    "darkviolet",
+    "deeppink",
+    "deepskyblue",
+    "dimgray",
+    "dimgrey",
+    "dodgerblue",
+    "firebrick",
+    "floralwhite",
+    "forestgreen",
+    "fuchsia",
+    "gainsboro",
+    "ghostwhite",
+    "gold",
+    "goldenrod",
+    "gray",
+    "green",
+    "greenyellow",
+    "grey",
+    "honeydew",
+    "hotpink",
+    "indianred",
+    "indigo",
+    "ivory",
+    "khaki",
+    "lavender",
+    "lavenderblush",
+    "lawngreen",
+    "lemonchiffon",
+    "lightblue",
+    "lightcoral",
+    "lightcyan",
+    "lightgoldenrodyellow",
+    "lightgray",
+    "lightgreen",
+    "lightgrey",
+    "lightpink",
+    "lightsalmon",
+    "lightseagreen",
+    "lightskyblue",
+    "lightslategray",
+    "lightslategrey",
+    "lightsteelblue",
+    "lightyellow",
+    "lime",
+    "limegreen",
+    "linen",
+    "magenta",
+    "maroon",
+    "mediumaquamarine",
+    "mediumblue",
+    "mediumorchid",
+    "mediumpurple",
+    "mediumseagreen",
+    "mediumslateblue",
+    "mediumspringgreen",
+    "mediumturquoise",
+    "mediumvioletred",
+    "midnightblue",
+    "mintcream",
+    "mistyrose",
+    "moccasin",
+    "navajowhite",
+    "navy",
+    "oldlace",
+    "olive",
+    "olivedrab",
+    "orange",
+    "orangered",
+    "orchid",
+    "palegoldenrod",
+    "palegreen",
+    "paleturquoise",
+    "palevioletred",
+    "papayawhip",
+    "peachpuff",
+    "peru",
+    "pink",
+    "plum",
+    "powderblue",
+    "purple",
+    "rebeccapurple",
+    "red",
+    "rosybrown",
+    "royalblue",
+    "saddlebrown",
+    "salmon",
+    "sandybrown",
+    "seagreen",
+    "seashell",
+    "sienna",
+    "silver",
+    "skyblue",
+    "slateblue",
+    "slategray",
+    "slategrey",
+    "snow",
+    "springgreen",
+    "steelblue",
+    "tan",
+    "teal",
+    "thistle",
+    "tomato",
+    "turquoise",
+    "violet",
+    "wheat",
+    "white",
+    "whitesmoke",
+    "yellow",
+    "yellowgreen",
+  ].join("|")})\\b`,
+  "i",
+);
+const LITERAL_VISUAL_VALUE_PATTERN =
+  /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(/i;
+const MODERN_COLOR_LITERAL_PATTERN =
+  /\b(?:oklch|oklab|lab|lch|color)\s*\(|\bdisplay-p3\b|\brec2020\b|\bprophoto-rgb\b|\ba98-rgb\b/i;
+
+function parseCssDeclarations(body) {
+  return String(body ?? "")
+    .split(";")
+    .map((entry) => {
+      const separator = entry.indexOf(":");
+      if (separator === -1) return null;
+      const property = entry.slice(0, separator).trim().toLowerCase();
+      const value = entry.slice(separator + 1).trim();
+      return property && value ? { property, value } : null;
+    })
+    .filter(Boolean);
+}
+
+function extractCssDeclarations(text) {
+  const declarations = [];
+  const source = stripCssComments(text);
+  const pattern = /([^{}]+)\{([^{}]*)\}/g;
+  let match;
+
+  while ((match = pattern.exec(source)) !== null) {
+    const selector = match[1].trim();
+    if (
+      !selector ||
+      selector.startsWith("@") ||
+      /(?:^|,)\s*(?:from|to|\d+%)\s*(?:,|$)/i.test(selector)
+    ) {
+      continue;
+    }
+
+    for (const declaration of parseCssDeclarations(match[2])) {
+      declarations.push({ ...declaration, selector, source: "css" });
+    }
+  }
+
+  return declarations;
+}
+
+function extractInlineStyleAttributes(html) {
+  return [...String(html ?? "").matchAll(/\sstyle\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/gi)]
+    .map((match) => match[1] ?? match[2] ?? match[3] ?? "")
+    .filter(Boolean);
+}
+
+function extractInlineStyleDeclarations(html) {
+  return extractInlineStyleAttributes(html).flatMap((styleText, index) =>
+    parseCssDeclarations(styleText).map((declaration) => ({
+      ...declaration,
+      selector: `style[${index}]`,
+      source: "inline_style",
+    })),
+  );
+}
+
+const EXACT_VISUAL_STYLE_PROPERTIES = new Set([
+  "accent-color",
+  "box-shadow",
+  "caret-color",
+  "color",
+  "fill",
+  "filter",
+  "stop-color",
+  "stroke",
+  "text-shadow",
+]);
+
+function isVisualStyleProperty(property) {
+  const name = String(property ?? "").toLowerCase();
+  return (
+    name.startsWith("--") ||
+    EXACT_VISUAL_STYLE_PROPERTIES.has(name) ||
+    name.includes("color") ||
+    name.startsWith("background") ||
+    name.startsWith("border") ||
+    name.startsWith("box-shadow") ||
+    name.startsWith("column-rule") ||
+    name.startsWith("mask") ||
+    name.startsWith("outline") ||
+    name.startsWith("scrollbar") ||
+    name.startsWith("text-decoration") ||
+    name.startsWith("text-emphasis")
+  );
+}
+
+function hasLiteralVisualValue(value) {
+  const normalized = String(value ?? "").toLowerCase();
+  if (!normalized) return false;
+
+  return LITERAL_VISUAL_VALUE_PATTERN.test(normalized) ||
+    MODERN_COLOR_LITERAL_PATTERN.test(normalized) ||
+    CSS_NAMED_COLOR_PATTERN.test(normalized);
+}
+
+function literalVisualValueDeclarations(declarations) {
+  return declarations
+    .filter((declaration) => isVisualStyleProperty(declaration.property))
+    .filter((declaration) => hasLiteralVisualValue(declaration.value))
+    .map((declaration) => ({
+      source: declaration.source,
+      selector: declaration.selector,
+      property: declaration.property,
+      value: declaration.value,
+    }));
+}
+
 function isVisualCustomProperty(name) {
   return (
     LOCAL_VISUAL_TOKEN_NAMES.has(String(name).toLowerCase()) ||
@@ -408,13 +670,19 @@ export function validateParsed(parsed, target) {
 
   if (isStrictStaticJudgmentKitTarget(target)) {
     const css = stripCssComments(sanitizeCss(parsed.css));
-    const forbiddenTokens = disallowedVisualCustomProperties(css, target);
-    const definedJkTokens = extractCssCustomPropertyDefinitions(css).filter((name) =>
-      name.startsWith("--jk-"),
-    );
-    const jkTokenReferences = extractCssVarReferenceNames(css).filter((name) =>
-      name.startsWith("--jk-"),
-    );
+    const html = sanitizeHtml(parsed.html);
+    const inlineStyleAttributes = extractInlineStyleAttributes(html);
+    if (inlineStyleAttributes.length > 0) {
+      throw new Error(
+        `${target.artifact_id} JudgmentKit static HTML must not use inline style attributes; put visual styling in CSS and consume active --jk-* tokens there.`,
+      );
+    }
+    const combinedStyleText = css;
+    const forbiddenTokens = disallowedVisualCustomProperties(combinedStyleText, target);
+    const definedJkTokens = extractCssCustomPropertyDefinitions(combinedStyleText)
+      .filter((name) => name.startsWith("--jk-"));
+    const jkTokenReferences = extractCssVarReferenceNames(combinedStyleText)
+      .filter((name) => name.startsWith("--jk-"));
     const activeJkTokenUsageCount = jkTokenReferences.filter((name) =>
       JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET.has(name),
     ).length;
@@ -445,6 +713,17 @@ export function validateParsed(parsed, target) {
     if (definedJkTokens.length > 0) {
       throw new Error(
         `${target.artifact_id} JudgmentKit static CSS must consume the provided --jk-* design-system tokens, not define or override them: ${definedJkTokens.join(", ")}`,
+      );
+    }
+
+    const literalValues = literalVisualValueDeclarations([
+      ...extractCssDeclarations(css),
+      ...extractInlineStyleDeclarations(html),
+    ]);
+
+    if (literalValues.length > 0) {
+      throw new Error(
+        `${target.artifact_id} JudgmentKit static CSS must use active design-system tokens for visual values, not hard-coded visual literals: ${literalValues.map((entry) => `${entry.source}:${entry.property}=${entry.value}`).join(", ")}`,
       );
     }
   }
@@ -484,8 +763,14 @@ export function analyzeStaticCaptureQuality(parsed, target) {
   const css = stripCssComments(sanitizeCss(parsed?.css));
   const html = sanitizeHtml(parsed?.html);
   const strict = isStrictStaticJudgmentKitTarget(target);
-  const disallowedVisualTokens = disallowedVisualCustomProperties(css, target);
-  const jkTokenReferences = extractCssVarReferenceNames(css).filter((name) =>
+  const inlineStyles = extractInlineStyleAttributes(html).join(";");
+  const combinedStyleText = `${css}\n${inlineStyles}`;
+  const declarations = [
+    ...extractCssDeclarations(css),
+    ...extractInlineStyleDeclarations(html),
+  ];
+  const disallowedVisualTokens = disallowedVisualCustomProperties(combinedStyleText, target);
+  const jkTokenReferences = extractCssVarReferenceNames(combinedStyleText).filter((name) =>
     name.startsWith("--jk-"),
   );
   const activeJkTokenReferences = jkTokenReferences.filter((name) =>
@@ -494,9 +779,10 @@ export function analyzeStaticCaptureQuality(parsed, target) {
   const unsupportedJkTokens = [
     ...new Set(jkTokenReferences.filter((name) => !JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET.has(name))),
   ];
-  const jkTokenDefinitions = extractCssCustomPropertyDefinitions(css).filter((name) =>
+  const jkTokenDefinitions = extractCssCustomPropertyDefinitions(combinedStyleText).filter((name) =>
     name.startsWith("--jk-"),
   );
+  const literalVisualValues = literalVisualValueDeclarations(declarations);
   const quality = {
     profile: strict ? "judgmentkit_static_html_css" : "basic_static_html_css",
     css_characters: css.length,
@@ -520,6 +806,8 @@ export function analyzeStaticCaptureQuality(parsed, target) {
     jk_token_definition_count: jkTokenDefinitions.length,
     jk_token_definitions: jkTokenDefinitions,
     disallowed_visual_tokens: disallowedVisualTokens,
+    inline_style_attribute_count: extractInlineStyleAttributes(html).length,
+    hard_coded_visual_values: literalVisualValues,
     failures: [],
   };
 
@@ -540,6 +828,16 @@ export function analyzeStaticCaptureQuality(parsed, target) {
     if (quality.jk_token_definitions.length > 0) {
       quality.failures.push(
         `CSS defines or overrides provided JudgmentKit --jk-* design-system tokens: ${quality.jk_token_definitions.join(", ")}`,
+      );
+    }
+    if (quality.inline_style_attribute_count > 0) {
+      quality.failures.push(
+        "HTML uses inline style attributes; visual styling must live in CSS and consume active JudgmentKit design-system tokens there",
+      );
+    }
+    if (quality.hard_coded_visual_values.length > 0) {
+      quality.failures.push(
+        `CSS or inline styles use hard-coded visual values instead of active JudgmentKit design-system tokens: ${quality.hard_coded_visual_values.map((entry) => `${entry.source}:${entry.property}`).join(", ")}`,
       );
     }
     if (quality.css_characters < 650) {
@@ -842,6 +1140,7 @@ function judgmentKitStaticTokenPromptRules(target) {
     "- Use var(--jk-color-canvas), var(--jk-color-surface), var(--jk-color-text), var(--jk-color-muted), var(--jk-color-border), var(--jk-color-focus), var(--jk-color-warning), and related --jk-* tokens for visual styling.",
     `- Available JudgmentKit default tokens: ${JUDGMENTKIT_DEFAULT_TOKEN_NAMES.join(", ")}.`,
     "- Consume the provided --jk-* tokens with var(...); do not define or override --jk-* custom properties in the model CSS.",
+    "- Do not use inline style attributes; put visual styling in CSS and consume the provided --jk-* tokens there.",
     "- Do not define or use local visual custom properties such as --bg, --canvas, --panel, --ink, --muted, --line, --accent, --warn, --danger, --good, --surface, --text, or --border.",
   ];
 }

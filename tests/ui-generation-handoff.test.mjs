@@ -1339,6 +1339,41 @@ function repairedSessionsButtonCandidate(contract) {
       .missing_required_proof.includes("import_package_boundary"),
   );
 
+  const genericDefaultProvenanceReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      design_system_provenance: {
+        source: "JudgmentKit",
+        token_source: "JudgmentKit",
+        typography_source: "JudgmentKit",
+        icon_source: "JudgmentKit",
+        renderer_component_source: "JudgmentKit",
+        import_boundary: "JudgmentKit",
+        token_prefix_source: "JudgmentKit",
+        source_exports: "JudgmentKit source_exports",
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(genericDefaultProvenanceReview.implementation_review_status, "failed");
+  assert.equal(
+    genericDefaultProvenanceReview.checks.design_system_provenance.status,
+    "fail",
+  );
+  for (const missingProof of [
+    "visual_token_source",
+    "typography_source",
+    "icon_asset_source",
+    "renderer_component_source",
+    "source_export_proof",
+  ]) {
+    assert.ok(
+      genericDefaultProvenanceReview.checks.design_system_provenance
+        .missing_required_proof.includes(missingProof),
+      `generic default provenance should miss ${missingProof}`,
+    );
+  }
+
   const defaultProvenanceFailureReview = reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       code: `
@@ -1544,6 +1579,165 @@ function repairedSessionsButtonCandidate(contract) {
   );
   assert.equal(externalMaterialReview.checks.design_system_provenance.status, "pass");
   assert.deepEqual(externalMaterialReview.checks.visual_tokens.unsupported_icon_ids, []);
+
+  const materialWithSourceExportsContract = createUiImplementationContract({
+    design_system_adapter: {
+      ...completeMaterialDesignSystemAdapter(),
+      source_exports: {
+        component_source:
+          "implementation_contract.design_system_adapter.components",
+      },
+    },
+  }).implementation_contract;
+  const genericExternalSourceExportsReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      code: `
+        import { Stack, Button } from "@mui/material";
+        import CheckCircle from "@mui/icons-material/CheckCircle";
+        export function Review() {
+          return <Stack sx={{ color: "var(--mui-palette-background-paper)" }}><Button startIcon={<CheckCircle />}>Send handoff</Button></Stack>;
+        }
+      `,
+      visual_token_evidence: {
+        token_families: ["color", "type"],
+        font_roles: ["body"],
+        icon_roles: ["status", "action"],
+        selected_icons: [{ role: "status", id: "CheckCircle" }],
+      },
+      design_system_provenance: materialDesignSystemProvenance(),
+      component_contract_evidence: {
+        components: [
+          {
+            id: "Stack",
+            states_covered: ["ready", "disabled", "focus-visible", "loading"],
+          },
+          {
+            id: "Button",
+            states_covered: ["ready", "disabled", "focus-visible", "loading"],
+          },
+        ],
+      },
+    }),
+    { implementation_contract: materialWithSourceExportsContract },
+  );
+
+  assert.equal(genericExternalSourceExportsReview.implementation_review_status, "failed");
+  assert.equal(
+    genericExternalSourceExportsReview.checks.design_system_provenance.status,
+    "fail",
+  );
+  assert.ok(
+    genericExternalSourceExportsReview.checks.design_system_provenance
+      .missing_required_proof.includes("source_export_proof"),
+  );
+
+  const concreteExternalSourceExportsReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      code: `
+        import { Stack, Button } from "@mui/material";
+        import CheckCircle from "@mui/icons-material/CheckCircle";
+        export function Review() {
+          return <Stack sx={{ color: "var(--mui-palette-background-paper)" }}><Button startIcon={<CheckCircle />}>Send handoff</Button></Stack>;
+        }
+      `,
+      visual_token_evidence: {
+        token_families: ["color", "type"],
+        font_roles: ["body"],
+        icon_roles: ["status", "action"],
+        selected_icons: [{ role: "status", id: "CheckCircle" }],
+      },
+      design_system_provenance: {
+        ...materialDesignSystemProvenance(),
+        source_exports:
+          "implementation_contract.design_system_adapter.components",
+      },
+      component_contract_evidence: {
+        components: [
+          {
+            id: "Stack",
+            states_covered: ["ready", "disabled", "focus-visible", "loading"],
+          },
+          {
+            id: "Button",
+            states_covered: ["ready", "disabled", "focus-visible", "loading"],
+          },
+        ],
+      },
+      accessibility_evidence: {
+        forced_colors: {
+          status: "pass",
+          method: "forced-colors emulation",
+          notes: "Material UI theme variables preserve visible text and focus.",
+        },
+      },
+    }),
+    { implementation_contract: materialWithSourceExportsContract },
+  );
+
+  assert.equal(concreteExternalSourceExportsReview.implementation_review_status, "passed");
+  assert.equal(
+    concreteExternalSourceExportsReview.checks.design_system_provenance.status,
+    "pass",
+  );
+
+  const materialWithArraySourceExportsContract = createUiImplementationContract({
+    design_system_adapter: {
+      ...completeMaterialDesignSystemAdapter(),
+      source_exports: {
+        component_sources: [
+          "implementation_contract.design_system_adapter.components",
+        ],
+      },
+    },
+  }).implementation_contract;
+  const arrayExternalSourceExportsReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      code: `
+        import { Stack, Button } from "@mui/material";
+        import CheckCircle from "@mui/icons-material/CheckCircle";
+        export function Review() {
+          return <Stack sx={{ color: "var(--mui-palette-background-paper)" }}><Button startIcon={<CheckCircle />}>Send handoff</Button></Stack>;
+        }
+      `,
+      visual_token_evidence: {
+        token_families: ["color", "type"],
+        font_roles: ["body"],
+        icon_roles: ["status", "action"],
+        selected_icons: [{ role: "status", id: "CheckCircle" }],
+      },
+      design_system_provenance: {
+        ...materialDesignSystemProvenance(),
+        source_exports:
+          "implementation_contract.design_system_adapter.components",
+      },
+      component_contract_evidence: {
+        components: [
+          {
+            id: "Stack",
+            states_covered: ["ready", "disabled", "focus-visible", "loading"],
+          },
+          {
+            id: "Button",
+            states_covered: ["ready", "disabled", "focus-visible", "loading"],
+          },
+        ],
+      },
+      accessibility_evidence: {
+        forced_colors: {
+          status: "pass",
+          method: "forced-colors emulation",
+          notes: "Material UI theme variables preserve visible text and focus.",
+        },
+      },
+    }),
+    { implementation_contract: materialWithArraySourceExportsContract },
+  );
+
+  assert.equal(arrayExternalSourceExportsReview.implementation_review_status, "passed");
+  assert.equal(
+    arrayExternalSourceExportsReview.checks.design_system_provenance.status,
+    "pass",
+  );
 
   const objectComponentsMaterialImplementationContract =
     createUiImplementationContract({
