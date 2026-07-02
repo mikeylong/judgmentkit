@@ -154,6 +154,15 @@
         outline: 3px solid var(--accent);
         outline-offset: -3px;
       }
+      .diagnostic-thumb {
+        aspect-ratio: 16 / 10;
+        display: grid;
+        place-items: center;
+        border-bottom: 1px solid var(--line);
+        background: #f4f0e7;
+        color: #6e4d16;
+        font-weight: 800;
+      }
       .gallery-card-copy {
         display: grid;
         gap: 10px;
@@ -354,7 +363,7 @@
         <div><span>Source brief</span><strong>examples/model-ui/clinical-intake-review/source-brief.txt</strong></div>
         <div><span>Rows</span><strong>3 generation paths</strong></div>
         <div><span>Columns</span><strong>4 context modes</strong></div>
-        <div><span>Artifacts</span><strong>12 canonical snapshots</strong></div>
+        <div><span>Artifacts</span><strong>12 accepted snapshots</strong></div>
       </div>
       <section class="column-guide" aria-label="Matrix column definitions">
 
@@ -958,12 +967,47 @@
       "model": "none",
       "reasoning_effort": null,
       "summary": "Scripted renderer paths show the controlled fixture-rendered baseline for each context combination.",
+      "cells": [
+        {
+          "id": "deterministic-no-judgmentkit",
+          "row_id": "deterministic",
+          "column_id": "no-judgmentkit",
+          "release_evidence_status": "artifact",
+          "artifact_id": "deterministic-no-judgmentkit",
+          "diagnostic_candidate_id": null
+        },
+        {
+          "id": "deterministic-with-judgmentkit",
+          "row_id": "deterministic",
+          "column_id": "with-judgmentkit",
+          "release_evidence_status": "artifact",
+          "artifact_id": "deterministic-with-judgmentkit",
+          "diagnostic_candidate_id": null
+        },
+        {
+          "id": "deterministic-material-ui-only",
+          "row_id": "deterministic",
+          "column_id": "material-ui-only",
+          "release_evidence_status": "artifact",
+          "artifact_id": "deterministic-material-ui-only",
+          "diagnostic_candidate_id": null
+        },
+        {
+          "id": "deterministic-judgmentkit-material-ui",
+          "row_id": "deterministic",
+          "column_id": "judgmentkit-material-ui",
+          "release_evidence_status": "artifact",
+          "artifact_id": "deterministic-judgmentkit-material-ui",
+          "diagnostic_candidate_id": null
+        }
+      ],
       "artifact_ids": [
         "deterministic-no-judgmentkit",
         "deterministic-with-judgmentkit",
         "deterministic-material-ui-only",
         "deterministic-judgmentkit-material-ui"
       ],
+      "diagnostic_candidate_ids": [],
       "artifacts": [
         {
           "id": "deterministic-no-judgmentkit",
@@ -992,6 +1036,12 @@
             "frontend_skill_context": false
           },
           "context_summary": "source brief + sample case",
+          "release_evidence_status": "artifact",
+          "candidate_artifact_status": "accepted_artifact",
+          "implementation_review_status": "passed",
+          "design_system_acceptance_status": "passed",
+          "next_agent_action": "accept",
+          "failed_checks": [],
           "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
           "reviewed_handoff_file": null,
           "design_system_adapter_file": null,
@@ -1063,6 +1113,12 @@
             "frontend_skill_context": true
           },
           "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
+          "release_evidence_status": "artifact",
+          "candidate_artifact_status": "accepted_artifact",
+          "implementation_review_status": "passed",
+          "design_system_acceptance_status": "passed",
+          "next_agent_action": "accept",
+          "failed_checks": [],
           "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
           "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
           "design_system_adapter_file": null,
@@ -1083,8 +1139,8 @@
             "frontend_skill_context_status": "ready",
             "capture_quality": null,
             "source_context_status": "current",
-            "current_source_context_sha256": "807fca342e04585b59282c1bf44055e2bfb779c6c0f60af11f023204d1ec6f5b",
-            "accepted_source_context_sha256": "807fca342e04585b59282c1bf44055e2bfb779c6c0f60af11f023204d1ec6f5b",
+            "current_source_context_sha256": "d73b294cdfadb21219a92d6378e43d7b346749026b2376edd2a00806c37b60d9",
+            "accepted_source_context_sha256": "d73b294cdfadb21219a92d6378e43d7b346749026b2376edd2a00806c37b60d9",
             "captured_source_context_sha256": null,
             "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
             "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
@@ -1092,8 +1148,8 @@
           "lms_context": null,
           "capture_quality": null,
           "prompt_sha256": null,
-          "source_context_sha256": "807fca342e04585b59282c1bf44055e2bfb779c6c0f60af11f023204d1ec6f5b",
-          "current_source_context_sha256": "807fca342e04585b59282c1bf44055e2bfb779c6c0f60af11f023204d1ec6f5b",
+          "source_context_sha256": "d73b294cdfadb21219a92d6378e43d7b346749026b2376edd2a00806c37b60d9",
+          "current_source_context_sha256": "d73b294cdfadb21219a92d6378e43d7b346749026b2376edd2a00806c37b60d9",
           "source_context_status": "current",
           "raw_response_sha256": null,
           "frontend_context_status": "ready_for_frontend_implementation",
@@ -1178,6 +1234,12 @@
             "frontend_skill_context": false
           },
           "context_summary": "source brief + sample case + Material UI adapter",
+          "release_evidence_status": "artifact",
+          "candidate_artifact_status": "accepted_artifact",
+          "implementation_review_status": "passed",
+          "design_system_acceptance_status": "passed",
+          "next_agent_action": "accept",
+          "failed_checks": [],
           "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
           "reviewed_handoff_file": null,
           "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
@@ -1249,6 +1311,12 @@
             "frontend_skill_context": true
           },
           "context_summary": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
+          "release_evidence_status": "artifact",
+          "candidate_artifact_status": "accepted_artifact",
+          "implementation_review_status": "passed",
+          "design_system_acceptance_status": "passed",
+          "next_agent_action": "accept",
+          "failed_checks": [],
           "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
           "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
           "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
@@ -1269,8 +1337,8 @@
             "frontend_skill_context_status": "ready",
             "capture_quality": null,
             "source_context_status": "current",
-            "current_source_context_sha256": "737a41fc4b9c1fdc761093139ee66530a2fc22294ba13c047b6e27aebae4250f",
-            "accepted_source_context_sha256": "737a41fc4b9c1fdc761093139ee66530a2fc22294ba13c047b6e27aebae4250f",
+            "current_source_context_sha256": "0d78bb4f70962a61d707c041c88a7f09e48aabc189fb3d8d9ef898a1ca86dd30",
+            "accepted_source_context_sha256": "0d78bb4f70962a61d707c041c88a7f09e48aabc189fb3d8d9ef898a1ca86dd30",
             "captured_source_context_sha256": null,
             "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
             "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
@@ -1278,8 +1346,8 @@
           "lms_context": null,
           "capture_quality": null,
           "prompt_sha256": null,
-          "source_context_sha256": "737a41fc4b9c1fdc761093139ee66530a2fc22294ba13c047b6e27aebae4250f",
-          "current_source_context_sha256": "737a41fc4b9c1fdc761093139ee66530a2fc22294ba13c047b6e27aebae4250f",
+          "source_context_sha256": "0d78bb4f70962a61d707c041c88a7f09e48aabc189fb3d8d9ef898a1ca86dd30",
+          "current_source_context_sha256": "0d78bb4f70962a61d707c041c88a7f09e48aabc189fb3d8d9ef898a1ca86dd30",
           "source_context_status": "current",
           "raw_response_sha256": null,
           "frontend_context_status": "ready_for_frontend_implementation",
@@ -1348,12 +1416,47 @@
       "model": "google/gemma-4-e2b",
       "reasoning_effort": null,
       "summary": "Local Gemma 4 captures show how a smaller local model responds to the same four context boundaries.",
+      "cells": [
+        {
+          "id": "gemma4-lms-no-judgmentkit",
+          "row_id": "gemma4-lms",
+          "column_id": "no-judgmentkit",
+          "release_evidence_status": "artifact",
+          "artifact_id": "gemma4-lms-no-judgmentkit",
+          "diagnostic_candidate_id": null
+        },
+        {
+          "id": "gemma4-lms-with-judgmentkit",
+          "row_id": "gemma4-lms",
+          "column_id": "with-judgmentkit",
+          "release_evidence_status": "artifact",
+          "artifact_id": "gemma4-lms-with-judgmentkit",
+          "diagnostic_candidate_id": null
+        },
+        {
+          "id": "gemma4-lms-material-ui-only",
+          "row_id": "gemma4-lms",
+          "column_id": "material-ui-only",
+          "release_evidence_status": "artifact",
+          "artifact_id": "gemma4-lms-material-ui-only",
+          "diagnostic_candidate_id": null
+        },
+        {
+          "id": "gemma4-lms-judgmentkit-material-ui",
+          "row_id": "gemma4-lms",
+          "column_id": "judgmentkit-material-ui",
+          "release_evidence_status": "artifact",
+          "artifact_id": "gemma4-lms-judgmentkit-material-ui",
+          "diagnostic_candidate_id": null
+        }
+      ],
       "artifact_ids": [
         "gemma4-lms-no-judgmentkit",
         "gemma4-lms-with-judgmentkit",
         "gemma4-lms-material-ui-only",
         "gemma4-lms-judgmentkit-material-ui"
       ],
+      "diagnostic_candidate_ids": [],
       "artifacts": [
         {
           "id": "gemma4-lms-no-judgmentkit",
@@ -1382,6 +1485,12 @@
             "frontend_skill_context": false
           },
           "context_summary": "source brief + sample case",
+          "release_evidence_status": "artifact",
+          "candidate_artifact_status": "accepted_artifact",
+          "implementation_review_status": "passed",
+          "design_system_acceptance_status": "passed",
+          "next_agent_action": "accept",
+          "failed_checks": [],
           "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
           "reviewed_handoff_file": null,
           "design_system_adapter_file": null,
@@ -1518,6 +1627,12 @@
             "frontend_skill_context": true
           },
           "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
+          "release_evidence_status": "artifact",
+          "candidate_artifact_status": "accepted_artifact",
+          "implementation_review_status": "passed",
+          "design_system_acceptance_status": "passed",
+          "next_agent_action": "accept",
+          "failed_checks": [],
           "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
           "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
           "design_system_adapter_file": null,
@@ -1577,7 +1692,7 @@
               "status": "passed"
             },
             "source_context_status": "legacy_accepted",
-            "current_source_context_sha256": "58e147fd86cc41f882a4302b532e5d3c9e1c1b3a17ea46449c60e0c643ec34e4",
+            "current_source_context_sha256": "0a6d09e97816dbdf7468920cee3f935f1d5e9d83a0d47deaedb7b80fd8d04a1e",
             "accepted_source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
             "captured_source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
             "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
@@ -1611,7 +1726,7 @@
           },
           "prompt_sha256": "a91777caa6325dd33080cf00ad3fd21324463b48ee1885b46b5bd1c64c68c2cf",
           "source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
-          "current_source_context_sha256": "58e147fd86cc41f882a4302b532e5d3c9e1c1b3a17ea46449c60e0c643ec34e4",
+          "current_source_context_sha256": "0a6d09e97816dbdf7468920cee3f935f1d5e9d83a0d47deaedb7b80fd8d04a1e",
           "source_context_status": "legacy_accepted",
           "raw_response_sha256": "8cecff6cd10655fd28c0cd880795efa5739bed1158188cddf8e6c09a09919764",
           "frontend_context_status": "ready_for_frontend_implementation",
@@ -1683,6 +1798,12 @@
             "frontend_skill_context": false
           },
           "context_summary": "source brief + sample case + Material UI adapter",
+          "release_evidence_status": "artifact",
+          "candidate_artifact_status": "accepted_artifact",
+          "implementation_review_status": "passed",
+          "design_system_acceptance_status": "passed",
+          "next_agent_action": "accept",
+          "failed_checks": [],
           "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
           "reviewed_handoff_file": null,
           "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
@@ -1781,6 +1902,12 @@
             "frontend_skill_context": true
           },
           "context_summary": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
+          "release_evidence_status": "artifact",
+          "candidate_artifact_status": "accepted_artifact",
+          "implementation_review_status": "passed",
+          "design_system_acceptance_status": "passed",
+          "next_agent_action": "accept",
+          "failed_checks": [],
           "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
           "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
           "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
@@ -1822,7 +1949,7 @@
             },
             "capture_quality": null,
             "source_context_status": "legacy_accepted",
-            "current_source_context_sha256": "154bae72e6087a9ef6e4e1306aaad8e657ff3a7858210e4ed1e924cf32aa5fc8",
+            "current_source_context_sha256": "1b50fa5137d723b19ca49493f138d27bee758dcff2910aa0d6e85d5f03907ac9",
             "accepted_source_context_sha256": "427d6cfcfc237d754bded9f86484085a018c60dfdeec52fd60966d25bb87abd8",
             "captured_source_context_sha256": "427d6cfcfc237d754bded9f86484085a018c60dfdeec52fd60966d25bb87abd8",
             "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
@@ -1838,7 +1965,7 @@
           "capture_quality": null,
           "prompt_sha256": "cad3f77b87b0404e2e9897d56b9fb7480dafb4e1dd47fae165199c45b4b01c30",
           "source_context_sha256": "427d6cfcfc237d754bded9f86484085a018c60dfdeec52fd60966d25bb87abd8",
-          "current_source_context_sha256": "154bae72e6087a9ef6e4e1306aaad8e657ff3a7858210e4ed1e924cf32aa5fc8",
+          "current_source_context_sha256": "1b50fa5137d723b19ca49493f138d27bee758dcff2910aa0d6e85d5f03907ac9",
           "source_context_status": "legacy_accepted",
           "raw_response_sha256": "79720afd4bef165ee825344d7a677a8705df7cde6218a29e3925a21344cc3b71",
           "frontend_context_status": "ready_for_frontend_implementation",
@@ -1894,12 +2021,47 @@
       "model": "gpt-5.5",
       "reasoning_effort": "xhigh",
       "summary": "GPT-5.5 captures use extra-high reasoning to show the same matrix with a stronger model path.",
+      "cells": [
+        {
+          "id": "gpt55-xhigh-codex-no-judgmentkit",
+          "row_id": "gpt55-xhigh-codex",
+          "column_id": "no-judgmentkit",
+          "release_evidence_status": "artifact",
+          "artifact_id": "gpt55-xhigh-codex-no-judgmentkit",
+          "diagnostic_candidate_id": null
+        },
+        {
+          "id": "gpt55-xhigh-codex-with-judgmentkit",
+          "row_id": "gpt55-xhigh-codex",
+          "column_id": "with-judgmentkit",
+          "release_evidence_status": "artifact",
+          "artifact_id": "gpt55-xhigh-codex-with-judgmentkit",
+          "diagnostic_candidate_id": null
+        },
+        {
+          "id": "gpt55-xhigh-codex-material-ui-only",
+          "row_id": "gpt55-xhigh-codex",
+          "column_id": "material-ui-only",
+          "release_evidence_status": "artifact",
+          "artifact_id": "gpt55-xhigh-codex-material-ui-only",
+          "diagnostic_candidate_id": null
+        },
+        {
+          "id": "gpt55-xhigh-codex-judgmentkit-material-ui",
+          "row_id": "gpt55-xhigh-codex",
+          "column_id": "judgmentkit-material-ui",
+          "release_evidence_status": "artifact",
+          "artifact_id": "gpt55-xhigh-codex-judgmentkit-material-ui",
+          "diagnostic_candidate_id": null
+        }
+      ],
       "artifact_ids": [
         "gpt55-xhigh-codex-no-judgmentkit",
         "gpt55-xhigh-codex-with-judgmentkit",
         "gpt55-xhigh-codex-material-ui-only",
         "gpt55-xhigh-codex-judgmentkit-material-ui"
       ],
+      "diagnostic_candidate_ids": [],
       "artifacts": [
         {
           "id": "gpt55-xhigh-codex-no-judgmentkit",
@@ -1928,6 +2090,12 @@
             "frontend_skill_context": false
           },
           "context_summary": "source brief + sample case",
+          "release_evidence_status": "artifact",
+          "candidate_artifact_status": "accepted_artifact",
+          "implementation_review_status": "passed",
+          "design_system_acceptance_status": "passed",
+          "next_agent_action": "accept",
+          "failed_checks": [],
           "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
           "reviewed_handoff_file": null,
           "design_system_adapter_file": null,
@@ -2050,6 +2218,12 @@
             "frontend_skill_context": true
           },
           "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
+          "release_evidence_status": "artifact",
+          "candidate_artifact_status": "accepted_artifact",
+          "implementation_review_status": "passed",
+          "design_system_acceptance_status": "passed",
+          "next_agent_action": "accept",
+          "failed_checks": [],
           "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
           "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
           "design_system_adapter_file": null,
@@ -2103,7 +2277,7 @@
               "status": "passed"
             },
             "source_context_status": "legacy_accepted",
-            "current_source_context_sha256": "de0b067f9631069e1401b4568f37b5d134eba32f5939aa608e124de095955c12",
+            "current_source_context_sha256": "ef1b944ae17c9814aa28f4871a505c2d4917c9bae11db87d4f8983eef635836f",
             "accepted_source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
             "captured_source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
             "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
@@ -2131,7 +2305,7 @@
           },
           "prompt_sha256": "b15808546b4dc9da234b29e697470794368e0deb298cf9a40582c4843572335e",
           "source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
-          "current_source_context_sha256": "de0b067f9631069e1401b4568f37b5d134eba32f5939aa608e124de095955c12",
+          "current_source_context_sha256": "ef1b944ae17c9814aa28f4871a505c2d4917c9bae11db87d4f8983eef635836f",
           "source_context_status": "legacy_accepted",
           "raw_response_sha256": "aa03e621c0fdbe5f3b786d51100bdd815042013c1ec0693130c682c74e9c60f3",
           "frontend_context_status": "ready_for_frontend_implementation",
@@ -2203,6 +2377,12 @@
             "frontend_skill_context": false
           },
           "context_summary": "source brief + sample case + Material UI adapter",
+          "release_evidence_status": "artifact",
+          "candidate_artifact_status": "accepted_artifact",
+          "implementation_review_status": "passed",
+          "design_system_acceptance_status": "passed",
+          "next_agent_action": "accept",
+          "failed_checks": [],
           "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
           "reviewed_handoff_file": null,
           "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
@@ -2289,6 +2469,12 @@
             "frontend_skill_context": true
           },
           "context_summary": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
+          "release_evidence_status": "artifact",
+          "candidate_artifact_status": "accepted_artifact",
+          "implementation_review_status": "passed",
+          "design_system_acceptance_status": "passed",
+          "next_agent_action": "accept",
+          "failed_checks": [],
           "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
           "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
           "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
@@ -2324,7 +2510,7 @@
             "lms_context": null,
             "capture_quality": null,
             "source_context_status": "legacy_accepted",
-            "current_source_context_sha256": "c170137f9198f185dc3e38570a310905050f1329f5810419c6c42db3940a8ad0",
+            "current_source_context_sha256": "000521dbe0a52779412101661ba935463fa21e0cfbc69618df9ee8e6593646a3",
             "accepted_source_context_sha256": "2b52c4cc0a027463e719fab11a27679fc575d9ef48e5ed9505336d6f78582a81",
             "captured_source_context_sha256": "2b52c4cc0a027463e719fab11a27679fc575d9ef48e5ed9505336d6f78582a81",
             "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
@@ -2334,7 +2520,7 @@
           "capture_quality": null,
           "prompt_sha256": "e97eec0233a651abde75a913160c34f301dc9626146d82365e318fba495a52a7",
           "source_context_sha256": "2b52c4cc0a027463e719fab11a27679fc575d9ef48e5ed9505336d6f78582a81",
-          "current_source_context_sha256": "c170137f9198f185dc3e38570a310905050f1329f5810419c6c42db3940a8ad0",
+          "current_source_context_sha256": "000521dbe0a52779412101661ba935463fa21e0cfbc69618df9ee8e6593646a3",
           "source_context_status": "legacy_accepted",
           "raw_response_sha256": "718847ce36f037582caeb264b28e8c6a55b8a9ea852023db4708ccd7aac37ffc",
           "frontend_context_status": "ready_for_frontend_implementation",
@@ -2454,6 +2640,12 @@
         "frontend_skill_context": false
       },
       "context_summary": "source brief + sample case",
+      "release_evidence_status": "artifact",
+      "candidate_artifact_status": "accepted_artifact",
+      "implementation_review_status": "passed",
+      "design_system_acceptance_status": "passed",
+      "next_agent_action": "accept",
+      "failed_checks": [],
       "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
       "reviewed_handoff_file": null,
       "design_system_adapter_file": null,
@@ -2525,6 +2717,12 @@
         "frontend_skill_context": true
       },
       "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
+      "release_evidence_status": "artifact",
+      "candidate_artifact_status": "accepted_artifact",
+      "implementation_review_status": "passed",
+      "design_system_acceptance_status": "passed",
+      "next_agent_action": "accept",
+      "failed_checks": [],
       "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
       "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
       "design_system_adapter_file": null,
@@ -2545,8 +2743,8 @@
         "frontend_skill_context_status": "ready",
         "capture_quality": null,
         "source_context_status": "current",
-        "current_source_context_sha256": "807fca342e04585b59282c1bf44055e2bfb779c6c0f60af11f023204d1ec6f5b",
-        "accepted_source_context_sha256": "807fca342e04585b59282c1bf44055e2bfb779c6c0f60af11f023204d1ec6f5b",
+        "current_source_context_sha256": "d73b294cdfadb21219a92d6378e43d7b346749026b2376edd2a00806c37b60d9",
+        "accepted_source_context_sha256": "d73b294cdfadb21219a92d6378e43d7b346749026b2376edd2a00806c37b60d9",
         "captured_source_context_sha256": null,
         "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
         "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
@@ -2554,8 +2752,8 @@
       "lms_context": null,
       "capture_quality": null,
       "prompt_sha256": null,
-      "source_context_sha256": "807fca342e04585b59282c1bf44055e2bfb779c6c0f60af11f023204d1ec6f5b",
-      "current_source_context_sha256": "807fca342e04585b59282c1bf44055e2bfb779c6c0f60af11f023204d1ec6f5b",
+      "source_context_sha256": "d73b294cdfadb21219a92d6378e43d7b346749026b2376edd2a00806c37b60d9",
+      "current_source_context_sha256": "d73b294cdfadb21219a92d6378e43d7b346749026b2376edd2a00806c37b60d9",
       "source_context_status": "current",
       "raw_response_sha256": null,
       "frontend_context_status": "ready_for_frontend_implementation",
@@ -2640,6 +2838,12 @@
         "frontend_skill_context": false
       },
       "context_summary": "source brief + sample case + Material UI adapter",
+      "release_evidence_status": "artifact",
+      "candidate_artifact_status": "accepted_artifact",
+      "implementation_review_status": "passed",
+      "design_system_acceptance_status": "passed",
+      "next_agent_action": "accept",
+      "failed_checks": [],
       "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
       "reviewed_handoff_file": null,
       "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
@@ -2711,6 +2915,12 @@
         "frontend_skill_context": true
       },
       "context_summary": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
+      "release_evidence_status": "artifact",
+      "candidate_artifact_status": "accepted_artifact",
+      "implementation_review_status": "passed",
+      "design_system_acceptance_status": "passed",
+      "next_agent_action": "accept",
+      "failed_checks": [],
       "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
       "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
       "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
@@ -2731,8 +2941,8 @@
         "frontend_skill_context_status": "ready",
         "capture_quality": null,
         "source_context_status": "current",
-        "current_source_context_sha256": "737a41fc4b9c1fdc761093139ee66530a2fc22294ba13c047b6e27aebae4250f",
-        "accepted_source_context_sha256": "737a41fc4b9c1fdc761093139ee66530a2fc22294ba13c047b6e27aebae4250f",
+        "current_source_context_sha256": "0d78bb4f70962a61d707c041c88a7f09e48aabc189fb3d8d9ef898a1ca86dd30",
+        "accepted_source_context_sha256": "0d78bb4f70962a61d707c041c88a7f09e48aabc189fb3d8d9ef898a1ca86dd30",
         "captured_source_context_sha256": null,
         "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
         "notes": "Scripted from fixed fixtures and local renderer code. No model generation is used."
@@ -2740,8 +2950,8 @@
       "lms_context": null,
       "capture_quality": null,
       "prompt_sha256": null,
-      "source_context_sha256": "737a41fc4b9c1fdc761093139ee66530a2fc22294ba13c047b6e27aebae4250f",
-      "current_source_context_sha256": "737a41fc4b9c1fdc761093139ee66530a2fc22294ba13c047b6e27aebae4250f",
+      "source_context_sha256": "0d78bb4f70962a61d707c041c88a7f09e48aabc189fb3d8d9ef898a1ca86dd30",
+      "current_source_context_sha256": "0d78bb4f70962a61d707c041c88a7f09e48aabc189fb3d8d9ef898a1ca86dd30",
       "source_context_status": "current",
       "raw_response_sha256": null,
       "frontend_context_status": "ready_for_frontend_implementation",
@@ -2826,6 +3036,12 @@
         "frontend_skill_context": false
       },
       "context_summary": "source brief + sample case",
+      "release_evidence_status": "artifact",
+      "candidate_artifact_status": "accepted_artifact",
+      "implementation_review_status": "passed",
+      "design_system_acceptance_status": "passed",
+      "next_agent_action": "accept",
+      "failed_checks": [],
       "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
       "reviewed_handoff_file": null,
       "design_system_adapter_file": null,
@@ -2962,6 +3178,12 @@
         "frontend_skill_context": true
       },
       "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
+      "release_evidence_status": "artifact",
+      "candidate_artifact_status": "accepted_artifact",
+      "implementation_review_status": "passed",
+      "design_system_acceptance_status": "passed",
+      "next_agent_action": "accept",
+      "failed_checks": [],
       "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
       "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
       "design_system_adapter_file": null,
@@ -3021,7 +3243,7 @@
           "status": "passed"
         },
         "source_context_status": "legacy_accepted",
-        "current_source_context_sha256": "58e147fd86cc41f882a4302b532e5d3c9e1c1b3a17ea46449c60e0c643ec34e4",
+        "current_source_context_sha256": "0a6d09e97816dbdf7468920cee3f935f1d5e9d83a0d47deaedb7b80fd8d04a1e",
         "accepted_source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
         "captured_source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
         "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
@@ -3055,7 +3277,7 @@
       },
       "prompt_sha256": "a91777caa6325dd33080cf00ad3fd21324463b48ee1885b46b5bd1c64c68c2cf",
       "source_context_sha256": "e4e80c9871678bd848afcd9b9c8201a2c5dd6584a09ccd3f8c5982503cafd8cc",
-      "current_source_context_sha256": "58e147fd86cc41f882a4302b532e5d3c9e1c1b3a17ea46449c60e0c643ec34e4",
+      "current_source_context_sha256": "0a6d09e97816dbdf7468920cee3f935f1d5e9d83a0d47deaedb7b80fd8d04a1e",
       "source_context_status": "legacy_accepted",
       "raw_response_sha256": "8cecff6cd10655fd28c0cd880795efa5739bed1158188cddf8e6c09a09919764",
       "frontend_context_status": "ready_for_frontend_implementation",
@@ -3127,6 +3349,12 @@
         "frontend_skill_context": false
       },
       "context_summary": "source brief + sample case + Material UI adapter",
+      "release_evidence_status": "artifact",
+      "candidate_artifact_status": "accepted_artifact",
+      "implementation_review_status": "passed",
+      "design_system_acceptance_status": "passed",
+      "next_agent_action": "accept",
+      "failed_checks": [],
       "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
       "reviewed_handoff_file": null,
       "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
@@ -3225,6 +3453,12 @@
         "frontend_skill_context": true
       },
       "context_summary": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
+      "release_evidence_status": "artifact",
+      "candidate_artifact_status": "accepted_artifact",
+      "implementation_review_status": "passed",
+      "design_system_acceptance_status": "passed",
+      "next_agent_action": "accept",
+      "failed_checks": [],
       "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
       "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
       "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
@@ -3266,7 +3500,7 @@
         },
         "capture_quality": null,
         "source_context_status": "legacy_accepted",
-        "current_source_context_sha256": "154bae72e6087a9ef6e4e1306aaad8e657ff3a7858210e4ed1e924cf32aa5fc8",
+        "current_source_context_sha256": "1b50fa5137d723b19ca49493f138d27bee758dcff2910aa0d6e85d5f03907ac9",
         "accepted_source_context_sha256": "427d6cfcfc237d754bded9f86484085a018c60dfdeec52fd60966d25bb87abd8",
         "captured_source_context_sha256": "427d6cfcfc237d754bded9f86484085a018c60dfdeec52fd60966d25bb87abd8",
         "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
@@ -3282,7 +3516,7 @@
       "capture_quality": null,
       "prompt_sha256": "cad3f77b87b0404e2e9897d56b9fb7480dafb4e1dd47fae165199c45b4b01c30",
       "source_context_sha256": "427d6cfcfc237d754bded9f86484085a018c60dfdeec52fd60966d25bb87abd8",
-      "current_source_context_sha256": "154bae72e6087a9ef6e4e1306aaad8e657ff3a7858210e4ed1e924cf32aa5fc8",
+      "current_source_context_sha256": "1b50fa5137d723b19ca49493f138d27bee758dcff2910aa0d6e85d5f03907ac9",
       "source_context_status": "legacy_accepted",
       "raw_response_sha256": "79720afd4bef165ee825344d7a677a8705df7cde6218a29e3925a21344cc3b71",
       "frontend_context_status": "ready_for_frontend_implementation",
@@ -3354,6 +3588,12 @@
         "frontend_skill_context": false
       },
       "context_summary": "source brief + sample case",
+      "release_evidence_status": "artifact",
+      "candidate_artifact_status": "accepted_artifact",
+      "implementation_review_status": "passed",
+      "design_system_acceptance_status": "passed",
+      "next_agent_action": "accept",
+      "failed_checks": [],
       "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
       "reviewed_handoff_file": null,
       "design_system_adapter_file": null,
@@ -3476,6 +3716,12 @@
         "frontend_skill_context": true
       },
       "context_summary": "source brief + sample case + reviewed handoff + frontend skill context",
+      "release_evidence_status": "artifact",
+      "candidate_artifact_status": "accepted_artifact",
+      "implementation_review_status": "passed",
+      "design_system_acceptance_status": "passed",
+      "next_agent_action": "accept",
+      "failed_checks": [],
       "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
       "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
       "design_system_adapter_file": null,
@@ -3529,7 +3775,7 @@
           "status": "passed"
         },
         "source_context_status": "legacy_accepted",
-        "current_source_context_sha256": "de0b067f9631069e1401b4568f37b5d134eba32f5939aa608e124de095955c12",
+        "current_source_context_sha256": "ef1b944ae17c9814aa28f4871a505c2d4917c9bae11db87d4f8983eef635836f",
         "accepted_source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
         "captured_source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
         "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
@@ -3557,7 +3803,7 @@
       },
       "prompt_sha256": "b15808546b4dc9da234b29e697470794368e0deb298cf9a40582c4843572335e",
       "source_context_sha256": "9a2b1f3d5413202e4c0493ef2b2c8f8c601882b7154faff164eb7e3a53234180",
-      "current_source_context_sha256": "de0b067f9631069e1401b4568f37b5d134eba32f5939aa608e124de095955c12",
+      "current_source_context_sha256": "ef1b944ae17c9814aa28f4871a505c2d4917c9bae11db87d4f8983eef635836f",
       "source_context_status": "legacy_accepted",
       "raw_response_sha256": "aa03e621c0fdbe5f3b786d51100bdd815042013c1ec0693130c682c74e9c60f3",
       "frontend_context_status": "ready_for_frontend_implementation",
@@ -3629,6 +3875,12 @@
         "frontend_skill_context": false
       },
       "context_summary": "source brief + sample case + Material UI adapter",
+      "release_evidence_status": "artifact",
+      "candidate_artifact_status": "accepted_artifact",
+      "implementation_review_status": "passed",
+      "design_system_acceptance_status": "passed",
+      "next_agent_action": "accept",
+      "failed_checks": [],
       "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
       "reviewed_handoff_file": null,
       "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
@@ -3715,6 +3967,12 @@
         "frontend_skill_context": true
       },
       "context_summary": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
+      "release_evidence_status": "artifact",
+      "candidate_artifact_status": "accepted_artifact",
+      "implementation_review_status": "passed",
+      "design_system_acceptance_status": "passed",
+      "next_agent_action": "accept",
+      "failed_checks": [],
       "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
       "reviewed_handoff_file": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
       "design_system_adapter_file": "examples/model-ui/clinical-intake-review/design-system-adapter.json",
@@ -3750,7 +4008,7 @@
         "lms_context": null,
         "capture_quality": null,
         "source_context_status": "legacy_accepted",
-        "current_source_context_sha256": "c170137f9198f185dc3e38570a310905050f1329f5810419c6c42db3940a8ad0",
+        "current_source_context_sha256": "000521dbe0a52779412101661ba935463fa21e0cfbc69618df9ee8e6593646a3",
         "accepted_source_context_sha256": "2b52c4cc0a027463e719fab11a27679fc575d9ef48e5ed9505336d6f78582a81",
         "captured_source_context_sha256": "2b52c4cc0a027463e719fab11a27679fc575d9ef48e5ed9505336d6f78582a81",
         "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
@@ -3760,7 +4018,7 @@
       "capture_quality": null,
       "prompt_sha256": "e97eec0233a651abde75a913160c34f301dc9626146d82365e318fba495a52a7",
       "source_context_sha256": "2b52c4cc0a027463e719fab11a27679fc575d9ef48e5ed9505336d6f78582a81",
-      "current_source_context_sha256": "c170137f9198f185dc3e38570a310905050f1329f5810419c6c42db3940a8ad0",
+      "current_source_context_sha256": "000521dbe0a52779412101661ba935463fa21e0cfbc69618df9ee8e6593646a3",
       "source_context_status": "legacy_accepted",
       "raw_response_sha256": "718847ce36f037582caeb264b28e8c6a55b8a9ea852023db4708ccd7aac37ffc",
       "frontend_context_status": "ready_for_frontend_implementation",
@@ -3806,7 +4064,8 @@
       "approach_caption": "GPT-5.5 xhigh via codex exec receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path."
     }
   ],
-  "generation_policy": "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model. The 3x4 matrix separates raw brief context, JudgmentKit reviewed handoff plus compiled frontend skill context, Material UI rendering, and the combined JudgmentKit skill plus Material UI path."
+  "diagnostic_candidates": [],
+  "generation_policy": "Static captured-fixture pack. Website builds copy committed accepted artifacts and never call a live model. The 3x4 matrix separates raw brief context, JudgmentKit reviewed handoff plus compiled frontend skill context, Material UI rendering, and the combined JudgmentKit skill plus Material UI path. Candidates that fail implementation or design-system review stay in diagnostic_candidates and are excluded from manifest.artifacts, live artifact routes, screenshots, and release evidence."
 }</script>
     <script>
       (() => {

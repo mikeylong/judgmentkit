@@ -93,8 +93,14 @@ function assertRepairLoop({ contractInput, failingCandidate, repairedCandidate, 
     "failed",
     `${label} first attempt should fail`,
   );
+  assert.equal(failingReview.candidate_artifact_status, "not_an_artifact");
   assert.equal(failingReview.next_agent_action, "repair_and_resubmit");
   assert.equal(failingReview.autofix_loop.current_attempt, 1);
+  assert.equal(
+    failingReview.generation_gates.find((gate) => gate.id === "implementation_gate")
+      ?.status,
+    "failed",
+  );
   assertGroupSet(failingReview, expectedGroups, label);
 
   const repairedReview = reviewUiImplementationCandidate(repairedCandidate, {
@@ -107,11 +113,18 @@ function assertRepairLoop({ contractInput, failingCandidate, repairedCandidate, 
     "passed",
     `${label} repaired candidate should pass: ${JSON.stringify(repairedReview.findings)}`,
   );
+  assert.equal(repairedReview.candidate_artifact_status, "accepted_artifact");
   assert.equal(repairedReview.next_agent_action, "accept");
   assert.equal(repairedReview.autofix_loop.status, "passed");
   assert.deepEqual(repairedReview.findings, []);
 
   return { failingReview, repairedReview };
+}
+
+function withoutDesignSystemProvenance(candidate) {
+  const copy = JSON.parse(JSON.stringify(candidate));
+  delete copy.design_system_provenance;
+  return copy;
 }
 
 const packageJson = readJson("package.json");
@@ -120,7 +133,7 @@ const firstUse = readJson("examples/ai-native-design-system/first-use.json");
 const canonicalExamples = readJson("examples/ai-native-design-system/canonical-examples.json");
 const EXPECTED_RELEASE_VERSION = packageJson.version;
 
-assert.equal(packageJson.version, "0.6.4");
+assert.equal(packageJson.version, "0.6.5");
 assert.equal(activityContract.version, EXPECTED_RELEASE_VERSION);
 assert.equal(getMcpMetadata("streamable-http").version, EXPECTED_RELEASE_VERSION);
 assert.equal(
@@ -157,6 +170,29 @@ assert.ok(
     failingReview.findings.some((finding) => finding.check === "data_visibility"),
     "first-use failure should be product-language leakage, not generic missing evidence",
   );
+}
+
+{
+  const { failingReview, repairedReview } = assertRepairLoop({
+    contractInput: firstUse.implementation_contract_input,
+    failingCandidate: withoutDesignSystemProvenance(firstUse.repaired_candidate),
+    repairedCandidate: firstUse.repaired_candidate,
+    expectedGroups: ["design_system_source"],
+    label: "first-use missing design-system provenance",
+  });
+
+  assert.ok(
+    failingReview.findings.some(
+      (finding) => finding.check === "design_system_provenance",
+    ),
+    "missing provenance failure should be diagnostic-only design-system repair evidence",
+  );
+  assert.equal(
+    failingReview.generation_gates.find((gate) => gate.id === "design_system_gate")
+      ?.status,
+    "failed",
+  );
+  assert.equal(repairedReview.design_system_acceptance_status, "passed");
 }
 
 {
@@ -228,7 +264,20 @@ const coreAccessibilityEvidence = {
   keyboard_navigation: { status: "pass", method: "keyboard pass", notes: "Controls can be reached and activated by keyboard." },
   focus_order: { status: "pass", method: "tab order inspection", notes: "Focus follows task order." },
   focus_visible: { status: "pass", method: "browser focus inspection", notes: "Focus remains visible." },
-  responsive_no_overflow: { status: "pass", method: "390px viewport check", notes: "Text wraps without horizontal overflow." }
+  responsive_no_overflow: { status: "pass", method: "390px viewport check", notes: "Text wraps without horizontal overflow." },
+  non_text_contrast: { status: "pass", method: "computed contrast review", notes: "Control boundaries and state indicators meet non-text contrast." },
+  semantic_fallbacks: { status: "pass", method: "DOM inspection", notes: "Semantic HTML provides fallback structure for rendered content." }
+};
+
+const defaultDesignSystemProvenance = {
+  source: "judgmentkit_default",
+  token_source: "/design-system/visual-token-adapter.json",
+  typography_source: "/design-system/visual-token-adapter.json",
+  icon_source: "JudgmentKit icon catalog via get_icon_svg",
+  renderer_component_source: "implementation_contract.default_ai_native_design_system.component_contracts",
+  import_boundary: "No visual, typography, icon, or component package imports outside the active design-system source.",
+  token_prefix_source: "implementation_contract.design_system_source.token_prefixes",
+  source_exports: "implementation_contract.design_system_source.source_exports"
 };
 
 const contractPacket = createUiImplementationContract({
@@ -265,6 +314,7 @@ const failing = reviewUiImplementationCandidate({
   static_checks: ["npm test"],
   browser_qa: { desktop: "checked", mobile: "checked" },
   accessibility_evidence: coreAccessibilityEvidence,
+  design_system_provenance: defaultDesignSystemProvenance,
   visible_text: ["JSON schema", "Ready to review"],
   data_visibility_evidence: { primary_data_roles: ["completion result or handoff receipt"] }
 }, {
@@ -282,6 +332,7 @@ const repaired = reviewUiImplementationCandidate({
   static_checks: ["npm test"],
   browser_qa: { desktop: "checked", mobile: "checked" },
   accessibility_evidence: coreAccessibilityEvidence,
+  design_system_provenance: defaultDesignSystemProvenance,
   visible_text: ["Ready to review", "Handoff receipt"],
   data_visibility_evidence: { primary_data_roles: ["completion result or handoff receipt"] }
 }, {

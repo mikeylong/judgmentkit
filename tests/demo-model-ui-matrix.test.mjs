@@ -324,6 +324,7 @@ assert.deepEqual(
 
 let canonicalArtifacts = 0;
 let canonicalScreenshots = 0;
+let diagnosticCandidates = 0;
 let modelCaptures = 0;
 
 for (const useCase of MODEL_UI_USE_CASES) {
@@ -357,7 +358,46 @@ for (const useCase of MODEL_UI_USE_CASES) {
   assert.equal(manifest.design_system_render_mode, "static-ssr");
   assert.equal(manifest.comparison_rows.length, 3);
   assert.equal(manifest.comparison_columns.length, 4);
-  assert.equal(manifest.artifacts.length, 12);
+  assert.ok(Array.isArray(manifest.artifacts));
+  assert.ok(Array.isArray(manifest.diagnostic_candidates));
+  assert.equal(
+    manifest.comparison_rows.reduce(
+      (total, row) => total + row.cells.length,
+      0,
+    ),
+    12,
+  );
+  assert.equal(manifest.artifacts.length + manifest.diagnostic_candidates.length, 12);
+  for (const entry of manifest.artifacts) {
+    assert.equal(entry.release_evidence_status, "artifact");
+    assert.equal(entry.implementation_review_status, "passed");
+    assert.equal(entry.next_agent_action, "accept");
+    assert.equal(entry.candidate_artifact_status, "accepted_artifact");
+    assert.equal(entry.design_system_acceptance_status, "passed");
+    assert.deepEqual(entry.failed_checks, []);
+    assert.ok(entry.artifact_path);
+    assert.ok(entry.screenshot_path);
+  }
+  for (const rejected of manifest.diagnostic_candidates) {
+    diagnosticCandidates += 1;
+    assert.equal(rejected.release_evidence_status, "diagnostic_only");
+    assert.equal(
+      manifest.artifacts.some((artifact) => artifact.id === rejected.id),
+      false,
+    );
+    assert.equal(rejected.artifact_path ?? null, null);
+    assert.equal(rejected.screenshot_path ?? null, null);
+    assert.equal(rejected.next_agent_action, "repair_and_resubmit");
+    assert.ok(
+      rejected.failed_checks.some((check) =>
+        [
+          "design_system_provenance",
+          "visual_tokens",
+          "local_component_authority",
+        ].includes(check),
+      ),
+    );
+  }
   assert.equal(
     manifest.legacy_aliases.length,
     useCase.id === "refund-system-map" ? 6 : 0,
@@ -403,10 +443,26 @@ for (const useCase of MODEL_UI_USE_CASES) {
   for (const row of COMPARISON_ROWS) {
     const manifestRow = manifest.comparison_rows.find((entry) => entry.id === row.id);
     assert.ok(manifestRow, `missing comparison row ${row.id} for ${useCase.id}`);
-    assert.equal(manifestRow.artifact_ids.length, 4);
+    assert.equal(manifestRow.cells.length, 4);
 
     for (const column of COMPARISON_COLUMNS) {
       const id = `${row.id}-${column.id}`;
+      const cell = manifestRow.cells.find((entry) => entry.id === id);
+      assert.ok(cell, `missing matrix cell ${useCase.id}/${id}`);
+      if (row.generation_source === "captured_model_output") {
+        modelCaptures += 1;
+      }
+      if (cell.release_evidence_status === "diagnostic_only") {
+        assert.equal(cell.artifact_id, null);
+        assert.equal(cell.diagnostic_candidate_id, id);
+        assert.ok(
+          manifest.diagnostic_candidates.some((candidate) => candidate.id === id),
+        );
+        continue;
+      }
+      assert.equal(cell.release_evidence_status, "artifact");
+      assert.equal(cell.artifact_id, id);
+      assert.equal(cell.diagnostic_candidate_id, null);
       const entry = manifest.artifacts.find((artifact) => artifact.id === id);
       assert.ok(entry, `missing manifest artifact ${useCase.id}/${id}`);
       assert.equal(entry.use_case_id, useCase.id);
@@ -498,7 +554,6 @@ for (const useCase of MODEL_UI_USE_CASES) {
       }
 
       if (row.generation_source === "captured_model_output") {
-        modelCaptures += 1;
         assert.equal(entry.capture_provenance.status, "captured");
         assert.ok(entry.capture_file, `model artifact ${useCase.id}/${id} must link a transcript file`);
         assert.equal(entry.capture_provenance.transcript_file, entry.capture_file);
@@ -818,8 +873,8 @@ for (const alias of LEGACY_ALIASES) {
   }
 }
 
-assert.equal(canonicalArtifacts, 48);
-assert.equal(canonicalScreenshots, 48);
+assert.equal(canonicalArtifacts + diagnosticCandidates, 48);
+assert.equal(canonicalScreenshots, canonicalArtifacts);
 assert.equal(modelCaptures, MODEL_UI_USE_CASES.length * MODEL_ROWS.length * COMPARISON_COLUMNS.length);
 
 console.log("model UI matrix checks passed.");

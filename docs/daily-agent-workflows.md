@@ -39,7 +39,7 @@ This rebuilds `site/dist`, serves the static website, and routes localhost `/mcp
 Use the hosted surface canary after classifier changes or when checking the deployed MCP surface-routing contract:
 
 ```bash
-npm run mcp:smoke:hosted-surface -- --endpoint https://judgmentkit.ai/mcp --expected-version 0.6.4
+npm run mcp:smoke:hosted-surface -- --endpoint https://judgmentkit.ai/mcp --expected-version 0.6.5
 ```
 
 This is a surface-routing smoke, not a full product-workflow readiness check. The command prints `review_status` and `activity_review_ready` for each canary, but fails by default only when metadata, tool availability, or `recommended_surface_type` is wrong. Add `--require-ready-review` when the smoke should also fail on `needs_source_context`.

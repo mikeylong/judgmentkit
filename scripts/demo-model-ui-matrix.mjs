@@ -2109,11 +2109,35 @@ function renderGalleryCard(artifact, index) {
         </article>`;
 }
 
-function renderComparisonRow(row, artifactsById) {
+function renderDiagnosticCard(candidate) {
+  const failedChecks = (candidate.failed_checks ?? []).join(", ") || "review gate";
+
+  return `
+        <article class="gallery-card diagnostic-card">
+          <div class="thumb diagnostic-thumb">
+            <span>Diagnostic only</span>
+          </div>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">${escapeHtml(candidate.row_label)}</p>
+            <h2>${escapeHtml(candidate.approach_title)}</h2>
+            <p>${escapeHtml(candidate.approach_caption)}</p>
+            <dl>
+              <div><dt>Context</dt><dd>${escapeHtml(candidate.column_label)}</dd></div>
+              <div><dt>Status</dt><dd>${escapeHtml(candidate.next_agent_action)}</dd></div>
+              <div><dt>Failed checks</dt><dd>${escapeHtml(failedChecks)}</dd></div>
+            </dl>
+          </div>
+        </article>`;
+}
+
+function renderComparisonRow(row, entriesById) {
   const cards = COMPARISON_COLUMNS.map((column) => {
-    const artifact = artifactsById.get(`${row.id}-${column.id}`);
-    if (!artifact) throw new Error(`Missing artifact for ${row.id}/${column.id}`);
-    return renderGalleryCard(artifact, artifact.gallery_index);
+    const entry = entriesById.get(`${row.id}-${column.id}`);
+    if (!entry) throw new Error(`Missing matrix cell for ${row.id}/${column.id}`);
+
+    return entry.release_evidence_status === "artifact"
+      ? renderGalleryCard(entry, entry.gallery_index)
+      : renderDiagnosticCard(entry);
   }).join("\n");
 
   return `
@@ -2156,7 +2180,13 @@ function renderMatrixIndex(manifest) {
     ...artifact,
     gallery_index: index,
   }));
-  const artifactsById = new Map(artifactsWithIndex.map((artifact) => [artifact.id, artifact]));
+  const entriesById = new Map([
+    ...artifactsWithIndex.map((artifact) => [artifact.id, artifact]),
+    ...(manifest.diagnostic_candidates ?? []).map((candidate) => [
+      candidate.id,
+      candidate,
+    ]),
+  ]);
   const galleryItems = artifactsWithIndex.map((artifact) => ({
     id: artifact.id,
     title: artifact.approach_title,
@@ -2170,7 +2200,7 @@ function renderMatrixIndex(manifest) {
     image: artifact.screenshot_path,
     artifact: artifact.artifact_path,
   }));
-  const matrixRows = COMPARISON_ROWS.map((row) => renderComparisonRow(row, artifactsById)).join("");
+  const matrixRows = COMPARISON_ROWS.map((row) => renderComparisonRow(row, entriesById)).join("");
   const columnHeaders = COMPARISON_COLUMNS.map(
     (column) => `
           <div>
@@ -2335,6 +2365,15 @@ function renderMatrixIndex(manifest) {
       .thumbnail-link:focus-visible {
         outline: 3px solid var(--accent);
         outline-offset: -3px;
+      }
+      .diagnostic-thumb {
+        aspect-ratio: 16 / 10;
+        display: grid;
+        place-items: center;
+        border-bottom: 1px solid var(--line);
+        background: #f4f0e7;
+        color: #6e4d16;
+        font-weight: 800;
       }
       .gallery-card-copy {
         display: grid;
@@ -2536,7 +2575,7 @@ function renderMatrixIndex(manifest) {
         <div><span>Source brief</span><strong>${escapeHtml(manifest.source_brief_file)}</strong></div>
         <div><span>Rows</span><strong>${manifest.comparison_rows.length} generation paths</strong></div>
         <div><span>Columns</span><strong>${manifest.comparison_columns.length} context modes</strong></div>
-        <div><span>Artifacts</span><strong>${manifest.artifacts.length} canonical snapshots</strong></div>
+        <div><span>Artifacts</span><strong>${manifest.artifacts.length} accepted snapshots</strong></div>
       </div>
       <section class="column-guide" aria-label="Matrix column definitions">
 ${columnHeaders}
@@ -2546,7 +2585,7 @@ ${columnHeaders}
           <h2>3 x 4 comparison gallery</h2>
           <p>Each row uses the same generation path. Each column changes only JudgmentKit and Material UI context.</p>
         </div>
-        <a href="${escapeHtml(manifest.artifacts[0].artifact_path)}">Open first live artifact</a>
+        ${manifest.artifacts[0]?.artifact_path ? `<a href="${escapeHtml(manifest.artifacts[0].artifact_path)}">Open first live artifact</a>` : ""}
       </div>
       <section class="matrix-list" aria-label="Model UI 3 by 4 screenshot gallery">
 ${matrixRows}
@@ -2695,6 +2734,56 @@ function summarizeFrontendSkillContext(skillContext) {
   };
 }
 
+function outputReviewMetadata(output) {
+  const failedChecks = Array.isArray(output.failed_checks)
+    ? output.failed_checks
+    : Array.isArray(output.findings)
+      ? output.findings.map((finding) => finding.check).filter(Boolean)
+      : [];
+  const implementationReviewStatus =
+    output.implementation_review_status ??
+    output.implementation_review?.implementation_review_status ??
+    (failedChecks.length > 0 ? "failed" : "passed");
+  const nextAgentAction =
+    output.next_agent_action ??
+    output.implementation_review?.next_agent_action ??
+    (implementationReviewStatus === "passed" ? "accept" : "repair_and_resubmit");
+  const designSystemAcceptanceStatus =
+    output.design_system_acceptance_status ??
+    output.implementation_review?.design_system_acceptance_status ??
+    (failedChecks.includes("design_system_provenance") ||
+    failedChecks.includes("visual_tokens") ||
+    failedChecks.includes("local_component_authority")
+      ? "failed"
+      : "passed");
+  const candidateArtifactStatus =
+    output.candidate_artifact_status ??
+    output.implementation_review?.candidate_artifact_status ??
+    (implementationReviewStatus === "passed" &&
+    nextAgentAction === "accept" &&
+    designSystemAcceptanceStatus === "passed" &&
+    failedChecks.length === 0
+      ? "accepted_artifact"
+      : "not_an_artifact");
+  const releaseEvidenceStatus =
+    implementationReviewStatus === "passed" &&
+    nextAgentAction === "accept" &&
+    candidateArtifactStatus === "accepted_artifact" &&
+    designSystemAcceptanceStatus === "passed" &&
+    failedChecks.length === 0
+      ? "artifact"
+      : "diagnostic_only";
+
+  return {
+    release_evidence_status: releaseEvidenceStatus,
+    candidate_artifact_status: candidateArtifactStatus,
+    implementation_review_status: implementationReviewStatus,
+    design_system_acceptance_status: designSystemAcceptanceStatus,
+    next_agent_action: nextAgentAction,
+    failed_checks: failedChecks,
+  };
+}
+
 function buildManifestArtifact(output, capture, contextHash) {
   const context = contextIncluded(output);
   const designSystem = output.design_system_mode === "material_ui";
@@ -2702,6 +2791,9 @@ function buildManifestArtifact(output, capture, contextHash) {
     output.frontend_skill_context ?? capture?.frontend_skill_context ?? null;
   const currentSourceContextHash = output.current_source_context_sha256 ?? contextHash;
   const sourceContext = output.source_context_status ?? "current";
+  const reviewMetadata = outputReviewMetadata(output);
+  const acceptedArtifact = reviewMetadata.release_evidence_status === "artifact";
+
   return {
     id: output.id,
     use_case_id: activeUseCase.id,
@@ -2723,6 +2815,7 @@ function buildManifestArtifact(output, capture, contextHash) {
     design_system_mode: output.design_system_mode,
     context_included: context,
     context_summary: contextSummary(output),
+    ...reviewMetadata,
     source_brief_file: SOURCE_BRIEF_FILE,
     reviewed_handoff_file: context.reviewed_handoff ? HANDOFF_FILE : null,
     design_system_adapter_file: context.material_ui_adapter ? DESIGN_SYSTEM_FILE : null,
@@ -2747,8 +2840,8 @@ function buildManifestArtifact(output, capture, contextHash) {
       capture?.frontend_skill_context_status ??
       null,
     frontend_skill_context: summarizeFrontendSkillContext(frontendSkillContext),
-    artifact_path: artifactPath(output.id),
-    screenshot_path: screenshotPath(output.id),
+    artifact_path: acceptedArtifact ? artifactPath(output.id) : null,
+    screenshot_path: acceptedArtifact ? screenshotPath(output.id) : null,
     render_source: renderSource(output),
     visible_render_source: renderSource(output),
     rendering_policy: renderingPolicy(output),
@@ -2768,8 +2861,31 @@ function buildComparisonRows(artifacts) {
     model: row.model,
     reasoning_effort: row.reasoning_effort,
     summary: row.summary,
-    artifact_ids: COMPARISON_COLUMNS.map((column) => `${row.id}-${column.id}`),
-    artifacts: COMPARISON_COLUMNS.map((column) => byId.get(`${row.id}-${column.id}`)),
+    cells: COMPARISON_COLUMNS.map((column) => {
+      const id = `${row.id}-${column.id}`;
+      const entry = byId.get(id);
+      return {
+        id,
+        row_id: row.id,
+        column_id: column.id,
+        release_evidence_status:
+          entry?.release_evidence_status ?? "diagnostic_only",
+        artifact_id:
+          entry?.release_evidence_status === "artifact" ? id : null,
+        diagnostic_candidate_id:
+          entry?.release_evidence_status === "artifact" ? null : id,
+      };
+    }),
+    artifact_ids: COMPARISON_COLUMNS.map((column) => byId.get(`${row.id}-${column.id}`))
+      .filter((entry) => entry?.release_evidence_status === "artifact")
+      .map((entry) => entry.id),
+    diagnostic_candidate_ids: COMPARISON_COLUMNS.map((column) =>
+      byId.get(`${row.id}-${column.id}`),
+    )
+      .filter((entry) => entry?.release_evidence_status !== "artifact")
+      .map((entry) => entry.id),
+    artifacts: COMPARISON_COLUMNS.map((column) => byId.get(`${row.id}-${column.id}`))
+      .filter((entry) => entry?.release_evidence_status === "artifact"),
   }));
 }
 
@@ -2778,7 +2894,16 @@ async function copyLegacyAliases(manifestArtifacts) {
   const byId = new Map(manifestArtifacts.map((artifact) => [artifact.id, artifact]));
   for (const alias of LEGACY_ALIASES) {
     const canonical = byId.get(alias.canonical_id);
-    if (!canonical) throw new Error(`Missing canonical artifact for legacy alias ${alias.id}`);
+    if (!canonical) {
+      if (!CHECK_MODE) {
+        await fs.rm(path.join(OUTPUT_DIR, alias.artifact_path), { force: true });
+        await fs.rm(path.join(OUTPUT_DIR, alias.screenshot_path), { force: true });
+        if (alias.capture_file) {
+          await fs.rm(path.join(OUTPUT_DIR, alias.capture_file), { force: true });
+        }
+      }
+      continue;
+    }
     const html = await fs.readFile(path.join(OUTPUT_DIR, canonical.artifact_path), "utf8");
     await writeOrCheckFile(
       path.join(OUTPUT_DIR, alias.artifact_path),
@@ -2801,6 +2926,15 @@ async function copyLegacyAliases(manifestArtifacts) {
         `${JSON.stringify(aliasCapture, null, 2)}\n`,
       );
     }
+  }
+}
+
+async function removeDiagnosticArtifactFiles(diagnosticCandidates) {
+  if (CHECK_MODE) return;
+
+  for (const candidate of diagnosticCandidates) {
+    await fs.rm(path.join(OUTPUT_DIR, artifactPath(candidate.id)), { force: true });
+    await fs.rm(path.join(OUTPUT_DIR, screenshotPath(candidate.id)), { force: true });
   }
 }
 
@@ -2912,8 +3046,14 @@ async function generateUseCase(useCase) {
     }),
   );
 
-  const manifestArtifacts = artifacts.map((artifact) =>
+  const manifestEntries = artifacts.map((artifact) =>
     buildManifestArtifact(artifact, artifact.capture, artifact.source_context_sha256),
+  );
+  const manifestArtifacts = manifestEntries.filter(
+    (entry) => entry.release_evidence_status === "artifact",
+  );
+  const diagnosticCandidates = manifestEntries.filter(
+    (entry) => entry.release_evidence_status !== "artifact",
   );
 
   const manifest = {
@@ -2929,13 +3069,14 @@ async function generateUseCase(useCase) {
     design_system_name: DESIGN_SYSTEM_ADAPTER.design_system_name,
     design_system_package: DESIGN_SYSTEM_ADAPTER.design_system_package,
     design_system_render_mode: DESIGN_SYSTEM_ADAPTER.render_mode,
-    comparison_rows: buildComparisonRows(manifestArtifacts),
+    comparison_rows: buildComparisonRows(manifestEntries),
     comparison_columns: COMPARISON_COLUMNS,
     legacy_aliases: activeUseCase.id === "refund-system-map" ? LEGACY_ALIASES : [],
     model_labels: COMPARISON_ROWS.map((row) => row.model_label),
     artifacts: manifestArtifacts,
+    diagnostic_candidates: diagnosticCandidates,
     generation_policy:
-      "Static captured-fixture pack. Website builds copy committed artifacts and never call a live model. The 3x4 matrix separates raw brief context, JudgmentKit reviewed handoff plus compiled frontend skill context, Material UI rendering, and the combined JudgmentKit skill plus Material UI path.",
+      "Static captured-fixture pack. Website builds copy committed accepted artifacts and never call a live model. The 3x4 matrix separates raw brief context, JudgmentKit reviewed handoff plus compiled frontend skill context, Material UI rendering, and the combined JudgmentKit skill plus Material UI path. Candidates that fail implementation or design-system review stay in diagnostic_candidates and are excluded from manifest.artifacts, live artifact routes, screenshots, and release evidence.",
   };
 
   await writeOrCheckFile(
@@ -2951,8 +3092,11 @@ async function generateUseCase(useCase) {
     `${JSON.stringify(manifest, null, 2)}\n`,
   );
 
+  await removeDiagnosticArtifactFiles(diagnosticCandidates);
+
   for (const artifact of artifacts) {
     const manifestEntry = manifestArtifacts.find((entry) => entry.id === artifact.id);
+    if (!manifestEntry) continue;
     const html = renderArtifact(artifact, manifestEntry);
     await writeOrCheckFile(path.join(OUTPUT_DIR, manifestEntry.artifact_path), html);
   }

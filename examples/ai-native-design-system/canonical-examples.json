@@ -1,6 +1,6 @@
 {
   "id": "judgmentkit-ai-native-design-system-canonical-examples-v1",
-  "release_target": "0.6.4",
+  "release_target": "0.6.5",
   "purpose": "Replayable examples for the contract-governed AI-native design system before renderer work.",
   "examples": [
     {
@@ -113,6 +113,16 @@
             "status": "pass",
             "method": "aria-live inspection",
             "notes": "Verification status is announced without moving focus."
+          },
+          "semantic_fallbacks": {
+            "status": "pass",
+            "method": "DOM inspection",
+            "notes": "Semantic HTML provides fallback structure for rendered content."
+          },
+          "non_text_contrast": {
+            "status": "pass",
+            "method": "computed contrast review",
+            "notes": "Control boundaries and state indicators meet non-text contrast."
           }
         },
         "visible_text": [
@@ -125,6 +135,16 @@
             "setup step",
             "verification result"
           ]
+        },
+        "design_system_provenance": {
+          "source": "judgmentkit_default",
+          "token_source": "/design-system/visual-token-adapter.json",
+          "typography_source": "/design-system/visual-token-adapter.json",
+          "icon_source": "JudgmentKit icon catalog via get_icon_svg",
+          "renderer_component_source": "implementation_contract.default_ai_native_design_system.component_contracts",
+          "import_boundary": "No visual, typography, icon, or component package imports outside the active design-system source.",
+          "token_prefix_source": "implementation_contract.design_system_source.token_prefixes",
+          "source_exports": "implementation_contract.design_system_source.source_exports"
         }
       },
       "expected_failure_groups": [
@@ -209,6 +229,16 @@
             "status": "pass",
             "method": "aria-live inspection",
             "notes": "Verification status is announced without moving focus."
+          },
+          "semantic_fallbacks": {
+            "status": "pass",
+            "method": "DOM inspection",
+            "notes": "Semantic HTML provides fallback structure for rendered content."
+          },
+          "non_text_contrast": {
+            "status": "pass",
+            "method": "computed contrast review",
+            "notes": "Control boundaries and state indicators meet non-text contrast."
           }
         },
         "visible_text": [
@@ -222,6 +252,16 @@
             "setup step",
             "verification result"
           ]
+        },
+        "design_system_provenance": {
+          "source": "judgmentkit_default",
+          "token_source": "/design-system/visual-token-adapter.json",
+          "typography_source": "/design-system/visual-token-adapter.json",
+          "icon_source": "JudgmentKit icon catalog via get_icon_svg",
+          "renderer_component_source": "implementation_contract.default_ai_native_design_system.component_contracts",
+          "import_boundary": "No visual, typography, icon, or component package imports outside the active design-system source.",
+          "token_prefix_source": "implementation_contract.design_system_source.token_prefixes",
+          "source_exports": "implementation_contract.design_system_source.source_exports"
         }
       },
       "proof": {
@@ -340,6 +380,16 @@
             "status": "pass",
             "method": "status message inspection",
             "notes": "Loading and refresh outcomes are announced."
+          },
+          "semantic_fallbacks": {
+            "status": "pass",
+            "method": "DOM inspection",
+            "notes": "Semantic HTML provides fallback structure for rendered content."
+          },
+          "non_text_contrast": {
+            "status": "pass",
+            "method": "computed contrast review",
+            "notes": "Control boundaries and state indicators meet non-text contrast."
           }
         },
         "visible_text": [
@@ -367,6 +417,16 @@
             "renderer package is ready",
             "visual tokens replace primitive and accessibility evidence"
           ]
+        },
+        "design_system_provenance": {
+          "source": "judgmentkit_default",
+          "token_source": "/design-system/visual-token-adapter.json",
+          "typography_source": "/design-system/visual-token-adapter.json",
+          "icon_source": "JudgmentKit icon catalog via get_icon_svg",
+          "renderer_component_source": "implementation_contract.default_ai_native_design_system.component_contracts",
+          "import_boundary": "No visual, typography, icon, or component package imports outside the active design-system source.",
+          "token_prefix_source": "implementation_contract.design_system_source.token_prefixes",
+          "source_exports": "implementation_contract.design_system_source.source_exports"
         }
       },
       "expected_failure_groups": [
@@ -457,6 +517,11 @@
             "status": "pass",
             "method": "status message inspection",
             "notes": "Loading and refresh outcomes are announced."
+          },
+          "semantic_fallbacks": {
+            "status": "pass",
+            "method": "DOM inspection",
+            "notes": "Semantic HTML provides fallback structure for rendered content."
           }
         },
         "visible_text": [
@@ -486,6 +551,16 @@
           "evidence_expectations": [
             "Token semantics map status and risk roles to approved primitives only."
           ]
+        },
+        "design_system_provenance": {
+          "source": "judgmentkit_default",
+          "token_source": "/design-system/visual-token-adapter.json",
+          "typography_source": "/design-system/visual-token-adapter.json",
+          "icon_source": "JudgmentKit icon catalog via get_icon_svg",
+          "renderer_component_source": "implementation_contract.default_ai_native_design_system.component_contracts",
+          "import_boundary": "No visual, typography, icon, or component package imports outside the active design-system source.",
+          "token_prefix_source": "implementation_contract.design_system_source.token_prefixes",
+          "source_exports": "implementation_contract.design_system_source.source_exports"
         }
       },
       "proof": {
@@ -628,6 +703,11 @@
             "status": "pass",
             "method": "aria-live inspection",
             "notes": "Decision save and handoff results are announced."
+          },
+          "semantic_fallbacks": {
+            "status": "pass",
+            "method": "DOM inspection",
+            "notes": "Semantic HTML provides fallback structure for rendered content."
           }
         },
         "actions": [
@@ -658,6 +738,16 @@
             "domain evidence",
             "decision options"
           ]
+        },
+        "design_system_provenance": {
+          "source": "judgmentkit_default",
+          "token_source": "/design-system/visual-token-adapter.json",
+          "typography_source": "/design-system/visual-token-adapter.json",
+          "icon_source": "JudgmentKit icon catalog via get_icon_svg",
+          "renderer_component_source": "implementation_contract.default_ai_native_design_system.component_contracts",
+          "import_boundary": "No visual, typography, icon, or component package imports outside the active design-system source.",
+          "token_prefix_source": "implementation_contract.design_system_source.token_prefixes",
+          "source_exports": "implementation_contract.design_system_source.source_exports"
         }
       },
       "expected_failure_groups": [
@@ -763,6 +853,11 @@
             "status": "pass",
             "method": "aria-live inspection",
             "notes": "Decision save and handoff results are announced."
+          },
+          "semantic_fallbacks": {
+            "status": "pass",
+            "method": "DOM inspection",
+            "notes": "Semantic HTML provides fallback structure for rendered content."
           }
         },
         "actions": [
@@ -800,6 +895,16 @@
             "decision options",
             "handoff receipt"
           ]
+        },
+        "design_system_provenance": {
+          "source": "judgmentkit_default",
+          "token_source": "/design-system/visual-token-adapter.json",
+          "typography_source": "/design-system/visual-token-adapter.json",
+          "icon_source": "JudgmentKit icon catalog via get_icon_svg",
+          "renderer_component_source": "implementation_contract.default_ai_native_design_system.component_contracts",
+          "import_boundary": "No visual, typography, icon, or component package imports outside the active design-system source.",
+          "token_prefix_source": "implementation_contract.design_system_source.token_prefixes",
+          "source_exports": "implementation_contract.design_system_source.source_exports"
         }
       },
       "proof": {

@@ -68,6 +68,31 @@ function coreAccessibilityEvidence() {
       method: "desktop and mobile browser review",
       notes: "No responsive overflow.",
     },
+    non_text_contrast: {
+      status: "pass",
+      method: "computed contrast review",
+      notes: "Control boundaries and state indicators meet non-text contrast.",
+    },
+    semantic_fallbacks: {
+      status: "pass",
+      method: "DOM inspection",
+      notes: "Semantic HTML provides fallback structure for rendered content.",
+    },
+  };
+}
+
+function defaultDesignSystemProvenance() {
+  return {
+    source: "judgmentkit_default",
+    token_source: "/design-system/visual-token-adapter.json",
+    typography_source: "/design-system/visual-token-adapter.json",
+    icon_source: "JudgmentKit icon catalog via get_icon_svg",
+    renderer_component_source:
+      "implementation_contract.default_ai_native_design_system.component_contracts",
+    import_boundary:
+      "No visual, typography, icon, or component package imports outside the active design-system source.",
+    token_prefix_source: "implementation_contract.design_system_source.token_prefixes",
+    source_exports: "implementation_contract.design_system_source.source_exports",
   };
 }
 
@@ -585,6 +610,40 @@ try {
       ),
   );
 
+  const missingProvenanceResponse = await withTimeout(
+    client.callTool({
+      name: "review_ui_implementation_candidate",
+      arguments: {
+        implementation_contract: implementationContractResponse.structuredContent,
+        candidate: {
+          primitives_used: ["queue", "detail panel", "decision controls", "handoff receipt"],
+          states_covered:
+            implementationContractResponse.structuredContent.implementation_contract
+              .state_coverage.required_states,
+          static_checks: ["npm test"],
+          browser_qa: { desktop: "passed", mobile: "passed" },
+          accessibility_evidence: coreAccessibilityEvidence(),
+        },
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(missingProvenanceResponse.isError, undefined);
+  assert.ok(textContent(missingProvenanceResponse).includes("This is not an artifact"));
+  assert.equal(
+    missingProvenanceResponse.structuredContent.implementation_review_status,
+    "failed",
+  );
+  assert.equal(
+    missingProvenanceResponse.structuredContent.design_system_acceptance_status,
+    "failed",
+  );
+  assert.equal(
+    missingProvenanceResponse.structuredContent.checks.design_system_provenance.status,
+    "fail",
+  );
+
   const implementationReviewResponse = await withTimeout(
     client.callTool({
       name: "review_ui_implementation_candidate",
@@ -599,6 +658,7 @@ try {
           static_checks: ["npm test"],
           browser_qa: { desktop: "passed", mobile: "passed" },
           accessibility_evidence: coreAccessibilityEvidence(),
+          design_system_provenance: defaultDesignSystemProvenance(),
           actions: ["Auto approve refund"],
           action_boundary_evidence: {},
         },
@@ -617,6 +677,14 @@ try {
   assert.equal(
     implementationReviewResponse.structuredContent.next_agent_action,
     "repair_and_resubmit",
+  );
+  assert.equal(
+    implementationReviewResponse.structuredContent.candidate_artifact_status,
+    "not_an_artifact",
+  );
+  assert.equal(
+    implementationReviewResponse.structuredContent.design_system_acceptance_status,
+    "passed",
   );
   assert.equal(
     implementationReviewResponse.structuredContent.checks.action_boundaries.status,
@@ -649,6 +717,7 @@ try {
           static_checks: ["npm test"],
           browser_qa: { desktop: "passed", mobile: "passed" },
           accessibility_evidence: coreAccessibilityEvidence(),
+          design_system_provenance: defaultDesignSystemProvenance(),
           pattern_contract_evidence: {
             pattern_id: "workbench",
             regions_present: [
@@ -703,6 +772,7 @@ try {
           static_checks: ["npm test"],
           browser_qa: { desktop: "passed", mobile: "passed" },
           accessibility_evidence: coreAccessibilityEvidence(),
+          design_system_provenance: defaultDesignSystemProvenance(),
         },
       },
     }),

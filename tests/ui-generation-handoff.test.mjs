@@ -129,6 +129,21 @@ function completeMaterialDesignSystemObjectComponentsAdapter() {
   };
 }
 
+function materialDesignSystemProvenance() {
+  return {
+    source: "external_design_system",
+    token_source: "implementation_contract.design_system_adapter.token_guidance",
+    typography_source: "implementation_contract.design_system_adapter.font_guidance",
+    icon_source: "implementation_contract.design_system_adapter.icon_guidance",
+    renderer_component_source:
+      "implementation_contract.design_system_adapter.components",
+    import_boundary:
+      "Material UI imports come from @mui/material and @mui/icons-material, the active external design-system packages.",
+    token_prefix_source: "implementation_contract.design_system_source.token_prefixes",
+    source_exports: "implementation_contract.design_system_source.source_exports",
+  };
+}
+
 function refundWorkflowCandidate() {
   return {
     workflow: {
@@ -256,6 +271,7 @@ function modalImplementationCandidate(modalAction) {
       mobile: "mobile viewport modal footer order checked",
     },
     accessibility_evidence: modalAccessibilityEvidence(),
+    design_system_provenance: defaultDesignSystemProvenance(),
     modal_actions: [modalAction],
   };
 }
@@ -301,6 +317,11 @@ function coreAccessibilityEvidence(overrides = {}) {
       status: "pass",
       method: "desktop and mobile browser review",
       notes: "Text reflows without overflow at desktop and mobile sizes.",
+    },
+    semantic_fallbacks: {
+      status: "pass",
+      method: "DOM inspection",
+      notes: "Semantic HTML provides fallback structure for rendered content.",
     },
     ...overrides,
   };
@@ -389,6 +410,21 @@ function visualAccessibilityEvidence(overrides = {}) {
   };
 }
 
+function defaultDesignSystemProvenance() {
+  return {
+    source: "judgmentkit_default",
+    token_source: "/design-system/visual-token-adapter.json",
+    typography_source: "/design-system/visual-token-adapter.json",
+    icon_source: "JudgmentKit icon catalog via get_icon_svg",
+    renderer_component_source:
+      "implementation_contract.default_ai_native_design_system.component_contracts",
+    import_boundary:
+      "No visual, typography, icon, or component package imports outside the active design-system source.",
+    token_prefix_source: "implementation_contract.design_system_source.token_prefixes",
+    source_exports: "implementation_contract.design_system_source.source_exports",
+  };
+}
+
 function visualHeavyStaticCandidate(overrides = {}) {
   const baseAccessibilityEvidence = visualAccessibilityEvidence();
 
@@ -403,6 +439,7 @@ function visualHeavyStaticCandidate(overrides = {}) {
       desktop: "desktop viewport screenshot checked",
       mobile: "mobile viewport screenshot checked",
     },
+    design_system_provenance: defaultDesignSystemProvenance(),
     accessibility_evidence: baseAccessibilityEvidence,
     ...overrides,
     accessibility_evidence: {
@@ -440,6 +477,7 @@ function refundOperatorImplementationCandidate(overrides = {}) {
     data_visibility_evidence: {
       primary_data_roles: ["domain evidence", "decision options", "handoff receipt"],
     },
+    design_system_provenance: defaultDesignSystemProvenance(),
     ...overrides,
     accessibility_evidence: {
       ...modalAccessibilityEvidence(),
@@ -504,6 +542,11 @@ function sessionsButtonLocalAuthorityContract() {
 
 function sessionsButtonCandidate(contract, overrides = {}) {
   const baseAccessibilityEvidence = coreAccessibilityEvidence({
+    non_text_contrast: {
+      status: "pass",
+      method: "computed contrast review",
+      samples: [{ target: "secondary-action button boundary", contrast_ratio: 3.2 }],
+    },
     forced_colors: {
       status: "pass",
       method: "forced-colors browser review",
@@ -540,6 +583,7 @@ function sessionsButtonCandidate(contract, overrides = {}) {
       mobile: "mobile viewport Sessions button checked",
     },
     accessibility_evidence: baseAccessibilityEvidence,
+    design_system_provenance: defaultDesignSystemProvenance(),
     component_contract_evidence: {
       components: [
         {
@@ -664,7 +708,7 @@ function repairedSessionsButtonCandidate(contract) {
   );
   assert.deepEqual(
     handoff.generation_gates.map((gate) => gate.id),
-    ["activity_gate", "implementation_gate"],
+    ["activity_gate", "implementation_gate", "design_system_gate"],
   );
   assert.ok(handoff.implementation_contract.approved_primitives.includes("CheckboxGroup"));
   assert.equal(
@@ -704,6 +748,7 @@ function repairedSessionsButtonCandidate(contract) {
         mobile: "mobile viewport screenshot checked",
       },
       accessibility_evidence: formAccessibilityEvidence(),
+      design_system_provenance: defaultDesignSystemProvenance(),
     },
     { implementation_contract: implementationContract },
   );
@@ -1198,6 +1243,102 @@ function repairedSessionsButtonCandidate(contract) {
   assert.ok(fontIconMetadataReview.checks.visual_tokens.icon_roles.includes("receipt"));
   assert.ok(fontIconMetadataReview.checks.visual_tokens.selected_icon_ids.includes("check"));
 
+  const missingDefaultProvenanceReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      design_system_provenance: null,
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(missingDefaultProvenanceReview.implementation_review_status, "failed");
+  assert.equal(missingDefaultProvenanceReview.candidate_artifact_status, "not_an_artifact");
+  assert.equal(
+    missingDefaultProvenanceReview.design_system_acceptance_status,
+    "failed",
+  );
+  assert.equal(
+    missingDefaultProvenanceReview.checks.design_system_provenance.status,
+    "fail",
+  );
+  assert.equal(
+    missingDefaultProvenanceReview.checks.design_system_provenance.provenance_present,
+    false,
+  );
+  assert.ok(
+    missingDefaultProvenanceReview.checks.design_system_provenance.findings.some(
+      (finding) => finding.message.includes("missing required design-system provenance"),
+    ),
+  );
+  assert.ok(
+    missingDefaultProvenanceReview.repair_instructions.groups.design_system_source.some(
+      (entry) => entry.check === "design_system_provenance",
+    ),
+  );
+  assert.ok(
+    missingDefaultProvenanceReview.generation_gates.some(
+      (gate) => gate.id === "design_system_gate" && gate.status === "failed",
+    ),
+  );
+
+  const incompleteDefaultProvenanceReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      design_system_provenance: {
+        source: "present",
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(incompleteDefaultProvenanceReview.implementation_review_status, "failed");
+  assert.equal(
+    incompleteDefaultProvenanceReview.design_system_acceptance_status,
+    "failed",
+  );
+  assert.equal(
+    incompleteDefaultProvenanceReview.checks.design_system_provenance.status,
+    "fail",
+  );
+  assert.ok(
+    incompleteDefaultProvenanceReview.checks.design_system_provenance
+      .missing_required_proof.includes("visual_token_source"),
+  );
+  assert.ok(
+    incompleteDefaultProvenanceReview.checks.design_system_provenance.findings.some(
+      (finding) => finding.evidence?.missing_proof?.includes("source_export_proof"),
+    ),
+  );
+
+  const wrongSourceProvenanceReview = reviewUiImplementationCandidate(
+    refundOperatorImplementationCandidate({
+      design_system_provenance: {
+        source: "local app stylesheet",
+        token_source: "hard-coded app styles in generated CSS",
+        typography_source: "handwritten local CSS font stack",
+        icon_source: "inline SVG copied into the component",
+        renderer_component_source: "bespoke local components",
+        import_boundary: "not checked",
+        token_prefix_source: "local --app-* variables",
+        source_exports: "not checked",
+      },
+    }),
+    { implementation_contract: implementationContract },
+  );
+
+  assert.equal(wrongSourceProvenanceReview.implementation_review_status, "failed");
+  assert.equal(wrongSourceProvenanceReview.candidate_artifact_status, "not_an_artifact");
+  assert.equal(
+    wrongSourceProvenanceReview.design_system_acceptance_status,
+    "failed",
+  );
+  assert.ok(
+    wrongSourceProvenanceReview.checks.design_system_provenance
+      .missing_required_proof.includes("visual_token_source"),
+  );
+  assert.ok(
+    wrongSourceProvenanceReview.checks.design_system_provenance
+      .missing_required_proof.includes("import_package_boundary"),
+  );
+
   const defaultProvenanceFailureReview = reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       code: `
@@ -1249,6 +1390,13 @@ function repairedSessionsButtonCandidate(contract) {
         source: "judgmentkit_default",
         token_source: "/design-system/visual-token-adapter.json",
         icon_source: "get_icon_svg('check') from the JudgmentKit icon catalog",
+        typography_source: "/design-system/visual-token-adapter.json",
+        renderer_component_source:
+          "implementation_contract.default_ai_native_design_system.component_contracts",
+        import_boundary:
+          "No visual, typography, icon, or component package imports outside the active design-system source.",
+        token_prefix_source: "implementation_contract.design_system_source.token_prefixes",
+        source_exports: "implementation_contract.design_system_source.source_exports",
       },
       accessibility_evidence: {
         forced_colors: {
@@ -1365,6 +1513,7 @@ function repairedSessionsButtonCandidate(contract) {
         icon_roles: ["status", "action"],
         selected_icons: [{ role: "status", id: "CheckCircle" }],
       },
+      design_system_provenance: materialDesignSystemProvenance(),
       component_contract_evidence: {
         components: [
           {
@@ -1432,6 +1581,7 @@ function repairedSessionsButtonCandidate(contract) {
         icon_roles: ["status", "action"],
         selected_icons: [{ role: "status", id: "CheckCircle" }],
       },
+      design_system_provenance: materialDesignSystemProvenance(),
       component_contract_evidence: {
         components: [
           {
@@ -1481,6 +1631,7 @@ function repairedSessionsButtonCandidate(contract) {
         icon_roles: ["status"],
         selected_icons: [{ role: "status", id: "CheckCircle" }],
       },
+      design_system_provenance: materialDesignSystemProvenance(),
     }),
     { implementation_contract: materialImplementationContract },
   );

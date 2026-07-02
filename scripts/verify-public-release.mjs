@@ -37,6 +37,32 @@ const OLD_FRAMING = [
 ];
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
 
+function matrixCellCount(manifest) {
+  return (manifest.comparison_rows ?? []).reduce(
+    (total, row) => total + (row.cells?.length ?? 0),
+    0,
+  );
+}
+
+function assertDiagnosticCandidatesExcluded(manifest, label) {
+  assert.ok(
+    Array.isArray(manifest.diagnostic_candidates),
+    `${label} manifest should expose diagnostic_candidates`,
+  );
+
+  for (const candidate of manifest.diagnostic_candidates) {
+    assert.equal(candidate.release_evidence_status, "diagnostic_only");
+    assert.equal(candidate.artifact_path ?? null, null);
+    assert.equal(candidate.screenshot_path ?? null, null);
+    assert.equal(candidate.next_agent_action, "repair_and_resubmit");
+    assert.equal(
+      (manifest.artifacts ?? []).some((artifact) => artifact.id === candidate.id),
+      false,
+      `${candidate.id} should not also be an accepted artifact`,
+    );
+  }
+}
+
 export function parseArgs(argv) {
   const options = {
     baseUrl: DEFAULT_BASE_URL,
@@ -314,14 +340,21 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
       `${useCase.id} manifest should expose four comparison columns`,
     );
     assert.equal(
-      manifest.artifacts?.length,
+      matrixCellCount(manifest),
       COMPARISON_ROWS.length * COMPARISON_COLUMNS.length,
-      `${useCase.id} manifest should expose twelve canonical artifacts`,
+      `${useCase.id} manifest should expose twelve matrix cells`,
     );
+    assertDiagnosticCandidatesExcluded(manifest, useCase.id);
 
     const useCaseBaseRoute = manifestRoute.replace(/manifest\.json$/, "");
 
     for (const artifact of manifest.artifacts) {
+      assert.equal(artifact.release_evidence_status, "artifact");
+      assert.equal(artifact.implementation_review_status, "passed");
+      assert.equal(artifact.next_agent_action, "accept");
+      assert.equal(artifact.candidate_artifact_status, "accepted_artifact");
+      assert.equal(artifact.design_system_acceptance_status, "passed");
+      assert.deepEqual(artifact.failed_checks ?? [], []);
       assert.ok(artifact.screenshot_path, `${artifact.id} should include a screenshot_path`);
       assert.ok(artifact.approach_title, `${artifact.id} should include an approach_title`);
       assert.ok(artifact.approach_caption, `${artifact.id} should include an approach_caption`);
@@ -617,24 +650,6 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     "/examples/comparison/refund/version-a.html",
     "/examples/comparison/refund/version-b.html",
     "/examples/model-ui/refund-system-map/index.html",
-    "/examples/model-ui/refund-system-map/artifacts/deterministic-no-judgmentkit.html",
-    "/examples/model-ui/refund-system-map/artifacts/deterministic-with-judgmentkit.html",
-    "/examples/model-ui/refund-system-map/artifacts/deterministic-material-ui-only.html",
-    "/examples/model-ui/refund-system-map/artifacts/deterministic-judgmentkit-material-ui.html",
-    "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-no-judgmentkit.html",
-    "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-with-judgmentkit.html",
-    "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-material-ui-only.html",
-    "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-judgmentkit-material-ui.html",
-    "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
-    "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-with-judgmentkit.html",
-    "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-material-ui-only.html",
-    "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
-    "/examples/model-ui/refund-system-map/artifacts/deterministic-without-design-system.html",
-    "/examples/model-ui/refund-system-map/artifacts/deterministic-with-design-system.html",
-    "/examples/model-ui/refund-system-map/artifacts/gemma4-without-design-system.html",
-    "/examples/model-ui/refund-system-map/artifacts/gemma4-with-design-system.html",
-    "/examples/model-ui/refund-system-map/artifacts/gpt55-without-design-system.html",
-    "/examples/model-ui/refund-system-map/artifacts/gpt55-with-design-system.html",
     "/examples/comparison/music/version-a.html",
     "/examples/comparison/music/version-b.html",
   ]) {
@@ -666,14 +681,21 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     "model UI manifest should expose four comparison columns",
   );
   assert.equal(
-    modelUiManifest.artifacts?.length,
+    matrixCellCount(modelUiManifest),
     12,
-    "model UI manifest should expose twelve canonical artifacts",
+    "model UI manifest should expose twelve matrix cells",
   );
+  assertDiagnosticCandidatesExcluded(modelUiManifest, "model UI");
   const modelUiCaptureRoutes = [];
   const modelUiScreenshotRoutes = [];
 
   for (const artifact of modelUiManifest.artifacts) {
+    assert.equal(artifact.release_evidence_status, "artifact");
+    assert.equal(artifact.implementation_review_status, "passed");
+    assert.equal(artifact.next_agent_action, "accept");
+    assert.equal(artifact.candidate_artifact_status, "accepted_artifact");
+    assert.equal(artifact.design_system_acceptance_status, "passed");
+    assert.deepEqual(artifact.failed_checks ?? [], []);
     assert.ok(artifact.screenshot_path, `${artifact.id} should include a screenshot_path`);
     assert.ok(artifact.approach_title, `${artifact.id} should include an approach_title`);
     assert.ok(artifact.approach_caption, `${artifact.id} should include an approach_caption`);
@@ -710,6 +732,10 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     if (artifact.row_id === "gpt55-xhigh-codex") {
       assert.equal(artifact.reasoning_effort, "xhigh", `${artifact.id} should record xhigh`);
     }
+
+    const artifactRoute = `/examples/model-ui/refund-system-map/${artifact.artifact_path}`;
+    const artifactPage = await fetchText(baseUrl, artifactRoute);
+    assert.equal(getAnalyticsScriptSrc(artifactPage.text, artifactRoute), analyticsScriptSrc);
 
     const screenshotRoute = `/examples/model-ui/refund-system-map/${artifact.screenshot_path}`;
     const screenshotResponse = await fetchBytes(baseUrl, screenshotRoute);
@@ -861,24 +887,9 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "/examples/model-ui/refund-system-map/manifest.json",
       "/examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
       "/examples/model-ui/refund-system-map/design-system-adapter.json",
-      "/examples/model-ui/refund-system-map/artifacts/deterministic-no-judgmentkit.html",
-      "/examples/model-ui/refund-system-map/artifacts/deterministic-with-judgmentkit.html",
-      "/examples/model-ui/refund-system-map/artifacts/deterministic-material-ui-only.html",
-      "/examples/model-ui/refund-system-map/artifacts/deterministic-judgmentkit-material-ui.html",
-      "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-no-judgmentkit.html",
-      "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-with-judgmentkit.html",
-      "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-material-ui-only.html",
-      "/examples/model-ui/refund-system-map/artifacts/gemma4-lms-judgmentkit-material-ui.html",
-      "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-no-judgmentkit.html",
-      "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-with-judgmentkit.html",
-      "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-material-ui-only.html",
-      "/examples/model-ui/refund-system-map/artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html",
-      "/examples/model-ui/refund-system-map/artifacts/deterministic-without-design-system.html",
-      "/examples/model-ui/refund-system-map/artifacts/deterministic-with-design-system.html",
-      "/examples/model-ui/refund-system-map/artifacts/gemma4-without-design-system.html",
-      "/examples/model-ui/refund-system-map/artifacts/gemma4-with-design-system.html",
-      "/examples/model-ui/refund-system-map/artifacts/gpt55-without-design-system.html",
-      "/examples/model-ui/refund-system-map/artifacts/gpt55-with-design-system.html",
+      ...modelUiManifest.artifacts.map(
+        (artifact) => `/examples/model-ui/refund-system-map/${artifact.artifact_path}`,
+      ),
       ...modelUiCaptureRoutes,
       ...modelUiScreenshotRoutes,
       ...modelUiArchive.checked,
