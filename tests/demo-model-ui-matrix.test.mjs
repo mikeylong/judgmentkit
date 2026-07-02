@@ -159,6 +159,13 @@ function assertDiagnosticBlockIsNonClickable(html, candidate) {
   assert.equal(block.includes("<a "), false, `${candidate.id} diagnostic card must not contain links`);
   assert.equal(block.includes("href="), false, `${candidate.id} diagnostic card must not contain href`);
   assert.equal(block.includes("data-gallery-open"), false, `${candidate.id} diagnostic card must not open gallery`);
+  assert.ok(block.includes("Needs repair before evidence"), `${candidate.id} should translate repair status`);
+  assert.ok(block.includes("Token provenance failed"), `${candidate.id} should translate token checks`);
+  assert.ok(block.includes("Capture quality failed"), `${candidate.id} should translate capture checks`);
+  assert.equal(block.includes(candidate.next_agent_action), false, `${candidate.id} should not expose raw repair action`);
+  for (const check of candidate.failed_checks ?? []) {
+    assert.equal(block.includes(check), false, `${candidate.id} should not expose raw failed check ${check}`);
+  }
 }
 
 function assertPng(filePath) {
@@ -184,6 +191,27 @@ assert.match(
   /surface_type_guidance:\s*frontendSkillContext\.surface_type_guidance/,
   "capture script should preserve surface_type_guidance so fresh captures record surface_type.",
 );
+
+const refundUseCase = MODEL_UI_USE_CASES.find((useCase) => useCase.id === "refund-system-map");
+assert.ok(refundUseCase, "missing refund model UI use case");
+const staleAliasPath = path.join(root, refundUseCase.output_dir, LEGACY_ALIASES[0].artifact_path);
+try {
+  fs.mkdirSync(path.dirname(staleAliasPath), { recursive: true });
+  fs.writeFileSync(staleAliasPath, "<!doctype html><title>stale alias</title>\n");
+  const staleAliasResult = spawnSync(
+    process.execPath,
+    [scriptPath, "--check", "--use-case", "refund-system-map"],
+    { encoding: "utf8" },
+  );
+  assert.notEqual(staleAliasResult.status, 0, "check mode should fail on stale removed alias files");
+  assert.match(
+    staleAliasResult.stderr,
+    /Removed model UI file is still present/,
+    "check mode should report the stale removed alias file",
+  );
+} finally {
+  fs.rmSync(staleAliasPath, { force: true });
+}
 
 const strictJudgmentKitTarget = {
   artifact_id: "test-with-judgmentkit",
@@ -750,7 +778,8 @@ for (const useCase of MODEL_UI_USE_CASES) {
   assert.ok(indexHtml.includes("JudgmentKit skill + Material UI"));
   assert.ok(indexHtml.includes("Diagnostic only"));
   assert.ok(indexHtml.includes("diagnostic-card"));
-  assert.ok(indexHtml.includes("repair_and_resubmit"));
+  assert.ok(indexHtml.includes("Needs repair before evidence"));
+  assert.equal(indexHtml.includes('id="model-ui-manifest"'), false);
   assert.ok(indexHtml.includes("Gemma 4 via LM Studio lms"));
   assert.ok(indexHtml.includes("GPT-5.5 xhigh via codex exec"));
   assert.ok(indexHtml.includes("Material UI improves visual/component consistency"));
@@ -759,10 +788,11 @@ for (const useCase of MODEL_UI_USE_CASES) {
 
   for (const candidate of manifest.diagnostic_candidates) {
     assert.ok(indexHtml.includes(candidate.approach_title));
-    assert.ok(indexHtml.includes(candidate.next_agent_action));
     assertDiagnosticBlockIsNonClickable(indexHtml, candidate);
-    for (const check of candidate.failed_checks) {
-      assert.ok(indexHtml.includes(check));
+    assert.equal(indexHtml.includes(candidate.id), false);
+    assert.equal(indexHtml.includes(candidate.next_agent_action), false);
+    for (const check of candidate.failed_checks ?? []) {
+      assert.equal(indexHtml.includes(check), false);
     }
     assert.equal(indexHtml.includes(`artifacts/${candidate.id}.html`), false);
     assert.equal(indexHtml.includes(`screenshots/${candidate.id}.png`), false);

@@ -222,6 +222,21 @@ async function writeOrCheckFile(filePath, content) {
   }
 }
 
+async function assertMissingInCheckMode(filePath) {
+  if (!CHECK_MODE) return;
+
+  try {
+    await fs.access(filePath);
+  } catch (error) {
+    if (error.code === "ENOENT") return;
+    throw error;
+  }
+
+  throw new Error(
+    `Removed model UI file is still present: ${path.relative(ROOT_DIR, filePath)}`,
+  );
+}
+
 function cloneJson(value) {
   return JSON.parse(JSON.stringify(value));
 }
@@ -2169,7 +2184,8 @@ function renderGalleryCard(artifact, index) {
 }
 
 function renderDiagnosticCard(candidate) {
-  const failedChecks = (candidate.failed_checks ?? []).join(", ") || "review gate";
+  const failedChecks = diagnosticChecksLabel(candidate.failed_checks);
+  const status = diagnosticActionLabel(candidate.next_agent_action);
 
   return `
         <article class="gallery-card diagnostic-card">
@@ -2182,11 +2198,34 @@ function renderDiagnosticCard(candidate) {
             <p>${escapeHtml(candidate.approach_caption)}</p>
             <dl>
               <div><dt>Context</dt><dd>${escapeHtml(candidate.column_label)}</dd></div>
-              <div><dt>Status</dt><dd>${escapeHtml(candidate.next_agent_action)}</dd></div>
+              <div><dt>Status</dt><dd>${escapeHtml(status)}</dd></div>
               <div><dt>Failed checks</dt><dd>${escapeHtml(failedChecks)}</dd></div>
             </dl>
           </div>
         </article>`;
+}
+
+function diagnosticActionLabel(action) {
+  const labels = {
+    accept: "Accepted",
+    repair_and_resubmit: "Needs repair before evidence",
+  };
+  if (!action) return "Needs review";
+  return labels[action] ?? action.replace(/[_-]+/g, " ");
+}
+
+function diagnosticCheckLabel(check) {
+  const labels = {
+    static_capture_quality: "Capture quality failed",
+    visual_tokens: "Token provenance failed",
+  };
+  if (!check) return "Review gate";
+  return labels[check] ?? check.replace(/[_-]+/g, " ");
+}
+
+function diagnosticChecksLabel(checks) {
+  const labels = (checks ?? []).map(diagnosticCheckLabel);
+  return labels.length ? labels.join(", ") : "Implementation review gate";
 }
 
 function renderComparisonRow(row, entriesById) {
@@ -2691,7 +2730,6 @@ ${detailsRows}
       </section>
     </main>
     <script type="application/json" id="model-ui-gallery-data">${jsonForScript(galleryItems)}</script>
-    <script type="application/json" id="model-ui-manifest">${jsonForScript(manifest)}</script>
     <script>
       (() => {
         const data = document.getElementById("model-ui-gallery-data");
@@ -3003,6 +3041,12 @@ async function copyLegacyAliases(manifestArtifacts, legacyAliases) {
         if (alias.capture_file) {
           await fs.rm(path.join(OUTPUT_DIR, alias.capture_file), { force: true });
         }
+      } else {
+        await assertMissingInCheckMode(path.join(OUTPUT_DIR, alias.artifact_path));
+        await assertMissingInCheckMode(path.join(OUTPUT_DIR, alias.screenshot_path));
+        if (alias.capture_file) {
+          await assertMissingInCheckMode(path.join(OUTPUT_DIR, alias.capture_file));
+        }
       }
       continue;
     }
@@ -3014,6 +3058,12 @@ async function copyLegacyAliases(manifestArtifacts, legacyAliases) {
         await fs.rm(path.join(OUTPUT_DIR, alias.screenshot_path), { force: true });
         if (alias.capture_file) {
           await fs.rm(path.join(OUTPUT_DIR, alias.capture_file), { force: true });
+        }
+      } else {
+        await assertMissingInCheckMode(path.join(OUTPUT_DIR, alias.artifact_path));
+        await assertMissingInCheckMode(path.join(OUTPUT_DIR, alias.screenshot_path));
+        if (alias.capture_file) {
+          await assertMissingInCheckMode(path.join(OUTPUT_DIR, alias.capture_file));
         }
       }
       continue;

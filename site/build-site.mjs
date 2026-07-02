@@ -6331,7 +6331,7 @@ async function valuePage() {
         <section class="value-evidence" aria-labelledby="value-evidence-title">
           <p class="eyebrow">Evidence, not the main story</p>
           <h2 id="value-evidence-title">Audit material stays available.</h2>
-          <p>The public value path above is the product story. The current hosted MCP release is ${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}; linked reports are curated committed eval artifacts for deterministic proof, model matrix, and repair-loop data. Older pilot packets remain historical source material in the repository, not public latest-release evidence.</p>
+          <p>The public value path above is the product story. The current hosted MCP release is ${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}; linked reports are historical committed eval artifacts for deterministic proof, model matrix, and repair-loop data, not current release acceptance proof. Older pilot packets remain historical source material in the repository, not public latest-release evidence.</p>
           <div class="link-row">
             ${renderValueEvidenceLinks(evidenceLinks)}
           </div>
@@ -6532,6 +6532,29 @@ function galleryRenderLabel(artifact) {
   return "scripted fixture HTML";
 }
 
+function diagnosticActionLabel(action) {
+  const labels = {
+    accept: "Accepted",
+    repair_and_resubmit: "Needs repair before evidence",
+  };
+  if (!action) return "Needs review";
+  return labels[action] ?? action.replace(/[_-]+/g, " ");
+}
+
+function diagnosticCheckLabel(check) {
+  const labels = {
+    static_capture_quality: "Capture quality failed",
+    visual_tokens: "Token provenance failed",
+  };
+  if (!check) return "Review gate";
+  return labels[check] ?? check.replace(/[_-]+/g, " ");
+}
+
+function diagnosticChecksLabel(checks) {
+  const labels = (checks ?? []).map(diagnosticCheckLabel);
+  return labels.length ? labels.join(", ") : "Implementation review gate";
+}
+
 function buildModelUiGalleryItems(manifest) {
   const useCaseLabel = manifest?.use_case_label ?? "Support refund triage";
   return (manifest?.artifacts ?? []).map((artifact) => ({
@@ -6655,9 +6678,10 @@ function renderExampleGalleryCard(item, index) {
 
 function renderExampleMatrixCell(item) {
   if (item.isDiagnostic) {
-    const failedChecks = (item.failedChecks ?? []).join(", ") || "implementation review";
+    const failedChecks = diagnosticChecksLabel(item.failedChecks);
+    const nextAction = diagnosticActionLabel(item.nextAgentAction);
     return `
-        <article class="example-matrix-cell example-matrix-cell-diagnostic" role="cell" data-diagnostic-candidate="${escapeHtml(item.id)}">
+        <article class="example-matrix-cell example-matrix-cell-diagnostic" role="cell">
           <div class="example-matrix-diagnostic" aria-label="Diagnostic only candidate for ${escapeHtml(item.title)}">
             <strong>Diagnostic only</strong>
             <span>Failed candidate, not release evidence.</span>
@@ -6666,7 +6690,7 @@ function renderExampleMatrixCell(item) {
             <p class="eyebrow">${escapeHtml(item.renderLabel)}</p>
             <h4>${escapeHtml(item.title)}</h4>
             <p class="note">${escapeHtml(item.columnLabel)}</p>
-            <p class="note">Next action: <code>${escapeHtml(item.nextAgentAction)}</code></p>
+            <p class="note">Status: ${escapeHtml(nextAction)}</p>
             <p class="note">Failed checks: ${escapeHtml(failedChecks)}</p>
           </div>
         </article>`;
@@ -6805,6 +6829,16 @@ function buildModelUiExample(modelUiIndex, modelUiManifests) {
   return {
     ...example,
     previewHtml: renderExamplePreview(example),
+  };
+}
+
+function publicModelUiExamplePayload(example) {
+  return {
+    id: example.id,
+    galleryItems: example.galleryItems,
+    useCases: (example.useCases ?? []).map((useCase) => ({
+      id: useCase.id,
+    })),
   };
 }
 
@@ -7148,7 +7182,7 @@ async function examplesPage() {
       </noscript>
       </div>
       ${renderExampleGalleryModal()}
-      <script type="application/json" id="model-ui-examples-data">${serializeJsonForHtml(modelUiExample)}</script>
+      <script type="application/json" id="model-ui-examples-data">${serializeJsonForHtml(publicModelUiExamplePayload(modelUiExample))}</script>
       ${modelUiExamplesScript()}
     </section>
   `,
@@ -7444,11 +7478,11 @@ function renderContextBoundaryMatrix(manifest) {
             const diagnostic = modelMatrixDiagnosticByColumn(manifest, row, column.id);
             if (diagnostic) {
               return `
-        <div class="report-context-cell report-context-cell-diagnostic" role="cell" data-diagnostic-candidate="${escapeHtml(diagnostic.id)}">
+        <div class="report-context-cell report-context-cell-diagnostic" role="cell">
           <strong>Diagnostic only</strong>
           <span>${escapeHtml(diagnostic.approach_title ?? diagnostic.title)}</span>
-          <span>Next action: <code>${escapeHtml(diagnostic.next_agent_action ?? "repair_and_resubmit")}</code></span>
-          <span>Failed checks: ${escapeHtml((diagnostic.failed_checks ?? []).join(", ") || "implementation review")}</span>
+          <span>Status: ${escapeHtml(diagnosticActionLabel(diagnostic.next_agent_action ?? "repair_and_resubmit"))}</span>
+          <span>Failed checks: ${escapeHtml(diagnosticChecksLabel(diagnostic.failed_checks))}</span>
         </div>`;
             }
             if (!artifact) return `<div class="report-context-cell" role="cell"></div>`;
@@ -7967,21 +8001,71 @@ async function copyDirectoryIfExists(fromRelative, toPath) {
   }
 }
 
+function isSafeRelativePath(relativePath) {
+  return (
+    typeof relativePath === "string" &&
+    relativePath.length > 0 &&
+    !path.isAbsolute(relativePath) &&
+    !relativePath.split(/[\\/]/).includes("..")
+  );
+}
+
 async function copyPublicEvalReports(outDir) {
   const catalog = await readJsonIfExists("evals/reports/index.json");
   await copyIfExists("evals/reports/index.json", path.join(outDir, "evals", "index.json"));
 
-  const runPaths = new Set(
-    (catalog?.runs ?? [])
-      .map((run) => run.run_path)
-      .filter((runPath) => runPath && !path.isAbsolute(runPath) && !runPath.split(/[\\/]/).includes("..")),
-  );
+  const publicFiles = new Set();
 
-  for (const runPath of runPaths) {
-    await copyDirectoryIfExists(
-      path.join("evals/reports", runPath),
-      path.join(outDir, "evals", runPath),
+  for (const run of catalog?.runs ?? []) {
+    for (const reportPath of [run.html_report, run.json_report]) {
+      if (isSafeRelativePath(reportPath)) {
+        publicFiles.add(reportPath);
+      }
+    }
+
+    if (isSafeRelativePath(run.run_path)) {
+      publicFiles.add(path.join(run.run_path, "release-review.html"));
+    }
+
+    if (!isSafeRelativePath(run.json_report)) continue;
+    const report = await readJsonIfExists(path.join("evals/reports", run.json_report));
+    for (const result of report?.results ?? []) {
+      for (const variant of result.variants ?? []) {
+        for (const screenshot of variant.screenshots ?? []) {
+          if (isSafeRelativePath(screenshot.path)) {
+            publicFiles.add(screenshot.path);
+          }
+        }
+      }
+    }
+  }
+
+  for (const publicFile of publicFiles) {
+    await copyIfExists(
+      path.join("evals/reports", publicFile),
+      path.join(outDir, "evals", publicFile),
     );
+  }
+}
+
+async function removePublicModelUiDiagnosticFiles(outDir) {
+  const index = await readJsonIfExists("examples/model-ui/index.json");
+  for (const useCase of index?.use_cases ?? []) {
+    if (!isSafeRelativePath(useCase.manifest_path)) continue;
+    const manifest = await readJsonIfExists(useCase.manifest_path);
+    const useCaseDir = path.join(outDir, path.dirname(useCase.manifest_path));
+
+    for (const candidate of manifest?.diagnostic_candidates ?? []) {
+      for (const relativePath of [
+        candidate.artifact_path,
+        candidate.screenshot_path,
+        candidate.capture_file,
+      ]) {
+        if (isSafeRelativePath(relativePath)) {
+          await fs.rm(path.join(useCaseDir, relativePath), { force: true });
+        }
+      }
+    }
   }
 }
 
@@ -8134,6 +8218,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
     siteRebuildLogPage(designSystemModel),
   );
   await copyDirectoryIfExists("examples/model-ui", path.join(outDir, "examples", "model-ui"));
+  await removePublicModelUiDiagnosticFiles(outDir);
   await copyDirectoryIfExists("experiments", path.join(outDir, "experiments"));
 
   return {

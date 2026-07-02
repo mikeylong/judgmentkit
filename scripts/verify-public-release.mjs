@@ -167,6 +167,15 @@ async function assertDiagnosticRoutesNotPublic(baseUrl, useCaseBaseRoute, manife
       { bytes: true },
     );
   }
+
+  for (const candidate of manifest.diagnostic_candidates ?? []) {
+    if (!candidate.capture_file) continue;
+    await assertRouteNotPublic(
+      baseUrl,
+      `${useCaseBaseRoute}${candidate.capture_file}`,
+      `${label}/${candidate.id} diagnostic capture`,
+    );
+  }
 }
 
 async function assertInactiveLegacyAliasesNotPublic(baseUrl, useCaseBaseRoute, manifest) {
@@ -753,7 +762,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "Model UI generation matrix",
       "<h1>Examples</h1>",
       "These matrix examples compare how the same activity changes across raw brief",
-      "Gemma 4 (local LLM)",
+      "Gemma 4 via LM Studio lms",
       "GPT-5.5",
       "Support refund triage",
       "Field service dispatch",
@@ -765,7 +774,6 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "useCaseId",
       "field-service-dispatch",
       "/examples/model-ui/refund-system-map/index.html",
-      "/examples/model-ui/refund-system-map/manifest.json",
     ],
     "examples",
   );

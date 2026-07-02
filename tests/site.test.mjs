@@ -60,6 +60,22 @@ function hashText(value) {
   return `sha256:${crypto.createHash("sha256").update(String(value)).digest("hex")}`;
 }
 
+function listRelativeFiles(rootDir) {
+  const files = [];
+  function visit(currentDir) {
+    for (const entry of fs.readdirSync(currentDir, { withFileTypes: true })) {
+      const entryPath = path.join(currentDir, entry.name);
+      if (entry.isDirectory()) {
+        visit(entryPath);
+        continue;
+      }
+      files.push(path.relative(rootDir, entryPath).split(path.sep).join("/"));
+    }
+  }
+  visit(rootDir);
+  return files.sort();
+}
+
 function cssCustomPropertyValues(css, name) {
   const escapedName = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   return [...css.matchAll(new RegExp(`${escapedName}:\\s*([^;]+);`, "g"))].map((match) => match[1].trim());
@@ -1092,6 +1108,8 @@ assert.ok(value.includes("Public evaluation report"));
 assert.ok(value.includes("Latest committed eval report"));
 assert.ok(value.includes("Eval catalog JSON"));
 assert.ok(value.includes(`current hosted MCP release is ${packageJson.version}`));
+assert.ok(value.includes("historical committed eval artifacts"));
+assert.ok(value.includes("not current release acceptance proof"));
 assert.ok(value.includes("Older pilot packets remain historical source material in the repository"));
 assert.equal(value.includes("Latest MCP pilot report"), false);
 assert.equal(value.includes("Latest LLM evidence"), false);
@@ -1165,17 +1183,22 @@ assert.equal(examples.includes("<iframe"), false);
 assert.equal(examples.includes("data-example-frame"), false);
 assert.equal(examples.includes("Inline preview"), false);
 assert.ok(examples.includes('class="example-preview-body" data-model-ui-preview'));
-assert.ok(examples.includes('class=\\"example-gallery\\" aria-label=\\"Model UI screenshot gallery\\"'));
-assert.ok(examples.includes('class=\\"example-matrix-table\\"'));
-assert.ok(examples.includes('class=\\"example-matrix-column-header\\"'));
-assert.ok(examples.includes('class=\\"example-matrix-cell\\"'));
-assert.ok(examples.includes('class=\\"example-matrix-thumb\\"'));
+assert.ok(examples.includes('class="example-gallery" aria-label="Model UI screenshot gallery"'));
+assert.ok(examples.includes('class="example-matrix-table"'));
+assert.ok(examples.includes('class="example-matrix-column-header"'));
+assert.ok(examples.includes('class="example-matrix-cell"'));
+assert.ok(examples.includes('class="example-matrix-thumb"'));
 assert.ok(examples.includes("Diagnostic only"));
 assert.ok(examples.includes("diagnostic-only failed-candidate cells"));
-assert.ok(examples.includes("repair_and_resubmit"));
-assert.ok(examples.includes("gemma4-lms-with-judgmentkit"));
-assert.ok(examples.includes("gpt55-xhigh-codex-with-judgmentkit"));
-assert.ok(examples.includes("visual_tokens"));
+assert.ok(examples.includes("Needs repair before evidence"));
+assert.ok(examples.includes("Token provenance failed"));
+assert.ok(examples.includes("Capture quality failed"));
+assert.equal(examples.includes("data-diagnostic-candidate"), false);
+assert.equal(examples.includes("gemma4-lms-with-judgmentkit"), false);
+assert.equal(examples.includes("gpt55-xhigh-codex-with-judgmentkit"), false);
+assert.equal(examples.includes("repair_and_resubmit"), false);
+assert.equal(examples.includes("visual_tokens"), false);
+assert.equal(examples.includes("static_capture_quality"), false);
 assert.equal(examples.includes("/artifacts/gemma4-lms-with-judgmentkit.html"), false);
 assert.equal(examples.includes("/screenshots/gemma4-lms-with-judgmentkit.png"), false);
 assert.equal(examples.includes("/artifacts/gpt55-xhigh-codex-with-judgmentkit.html"), false);
@@ -1215,7 +1238,7 @@ const exampleGalleryMetaCss =
   siteCss.match(/\.example-gallery-meta div,\n\.example-gallery-modal-meta div \{[\s\S]*?\}/)?.[0] ?? "";
 assert.ok(exampleGalleryMetaCss.includes("background: var(--soft-surface);"));
 assert.equal(exampleGalleryMetaCss.includes("#f8f7f1"), false);
-assert.ok(examples.includes('data-gallery-open=\\"0\\"'));
+assert.ok(examples.includes('data-gallery-open="0"'));
 assert.ok(examples.includes('data-gallery-modal-image'));
 assert.ok(examples.includes('data-gallery-modal-context'));
 assert.ok(examples.includes('data-gallery-modal-render'));
@@ -1243,7 +1266,6 @@ assert.equal(examples.includes("/examples/one-shot-demo.html"), false);
 assert.equal(examples.includes("/examples/comparison/refund/version-a.html"), false);
 assert.equal(examples.includes("/examples/comparison/refund/version-b.html"), false);
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/index.html"));
-assert.ok(examples.includes("/examples/model-ui/refund-system-map/manifest.json"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-no-judgmentkit.png"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-with-judgmentkit.png"));
 assert.ok(examples.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-material-ui-only.png"));
@@ -1284,11 +1306,14 @@ assert.equal(modelUiIndex.default_use_case_id, "refund-system-map");
 
 for (const useCase of MODEL_UI_USE_CASES) {
   const useCaseRoute = `/${useCase.index_path}`;
-  const manifestRoute = `/${useCase.manifest_path}`;
   assert.ok(examples.includes(useCase.label), `${useCase.id} label should appear in examples`);
   assert.ok(examples.includes(useCase.activity_summary), `${useCase.id} summary should appear in examples`);
   assert.ok(examples.includes(useCaseRoute), `${useCase.id} matrix route should appear`);
-  assert.ok(examples.includes(manifestRoute), `${useCase.id} manifest route should appear`);
+  assert.equal(
+    fs.existsSync(path.join(tempDir, ...useCase.manifest_path.split("/"))),
+    true,
+    `${useCase.id} manifest route should be copied`,
+  );
 
   const manifest = JSON.parse(
     fs.readFileSync(path.join(tempDir, ...useCase.manifest_path.split("/")), "utf8"),
@@ -1336,7 +1361,10 @@ for (const useCase of MODEL_UI_USE_CASES) {
     for (const diagnosticPath of [
       ["examples", "model-ui", useCase.id, "artifacts", `${candidate.id}.html`],
       ["examples", "model-ui", useCase.id, "screenshots", `${candidate.id}.png`],
-    ]) {
+      candidate.capture_file
+        ? ["examples", "model-ui", useCase.id, ...candidate.capture_file.split("/")]
+        : null,
+    ].filter(Boolean)) {
       assert.equal(
         fs.existsSync(path.join(tempDir, ...diagnosticPath)),
         false,
@@ -1376,7 +1404,6 @@ assert.equal(examples.includes("/examples/comparison/music/version-b.html"), fal
 assert.equal(examples.includes("/examples/comparison/music/facilitator-scorecard.md"), false);
 assert.equal(examples.includes("/examples/evals/"), false);
 assert.equal(examples.includes("/examples/evals/index.json"), false);
-assert.ok(examples.includes("Gemma 4 (local LLM)"));
 assert.ok(examples.includes("GPT-5.5"));
 assert.ok(examples.includes("Gemma 4 via LM Studio lms"));
 assert.ok(examples.includes("GPT-5.5 xhigh via codex exec"));
@@ -1437,6 +1464,38 @@ assert.equal(
   fs.existsSync(path.join(tempDir, "evals", latestScreenshotPath)),
   true,
   "expected latest eval screenshot to be copied",
+);
+const expectedEvalFiles = new Set([
+  "index.html",
+  "index.json",
+  "judgmentkit-mcp/index.html",
+  "site-rebuild-log/index.html",
+]);
+for (const run of evalCatalog.runs) {
+  expectedEvalFiles.add(run.html_report);
+  expectedEvalFiles.add(run.json_report);
+  const sourceReleaseReviewPath = new URL(
+    `../evals/reports/${run.run_path}/release-review.html`,
+    import.meta.url,
+  );
+  if (fs.existsSync(sourceReleaseReviewPath)) {
+    expectedEvalFiles.add(`${run.run_path}/release-review.html`);
+  }
+  const sourceReport = JSON.parse(
+    fs.readFileSync(new URL(`../evals/reports/${run.json_report}`, import.meta.url), "utf8"),
+  );
+  for (const resultEntry of sourceReport.results ?? []) {
+    for (const variant of resultEntry.variants ?? []) {
+      for (const screenshot of variant.screenshots ?? []) {
+        expectedEvalFiles.add(screenshot.path);
+      }
+    }
+  }
+}
+assert.deepEqual(
+  listRelativeFiles(path.join(tempDir, "evals")).filter((file) => !expectedEvalFiles.has(file)),
+  [],
+  "public eval archive should contain only cataloged report files, optional release reviews, and referenced screenshots",
 );
 for (const run of evalCatalog.runs) {
   const htmlReportPath = path.join(tempDir, "evals", run.html_report);
@@ -1514,9 +1573,15 @@ assert.ok(mcpReport.includes("Guided screenshot"));
 assert.ok(mcpReport.includes("Context boundary matrix"));
 assert.ok(mcpReport.includes("Diagnostic only"));
 assert.ok(mcpReport.includes("report-context-cell-diagnostic"));
-assert.ok(mcpReport.includes("gemma4-lms-with-judgmentkit"));
-assert.ok(mcpReport.includes("repair_and_resubmit"));
-assert.ok(mcpReport.includes("visual_tokens"));
+assert.equal(mcpReport.includes("data-diagnostic-candidate"), false);
+assert.equal(mcpReport.includes("gemma4-lms-with-judgmentkit"), false);
+assert.equal(mcpReport.includes("gpt55-xhigh-codex-with-judgmentkit"), false);
+assert.ok(mcpReport.includes("Needs repair before evidence"));
+assert.ok(mcpReport.includes("Token provenance failed"));
+assert.ok(mcpReport.includes("Capture quality failed"));
+assert.equal(mcpReport.includes("repair_and_resubmit"), false);
+assert.equal(mcpReport.includes("visual_tokens"), false);
+assert.equal(mcpReport.includes("static_capture_quality"), false);
 assert.ok(mcpReport.includes("/examples/model-ui/refund-system-map/artifacts/deterministic-no-judgmentkit.html"));
 assert.ok(mcpReport.includes("/examples/model-ui/refund-system-map/screenshots/deterministic-no-judgmentkit.png"));
 assert.equal(mcpReport.includes("/examples/model-ui/refund-system-map/artifacts/gemma4-lms-with-judgmentkit.html"), false);
@@ -1613,11 +1678,9 @@ for (const copiedExamplePath of [
   ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-xhigh-codex-material-ui-only.html"],
   ["examples", "model-ui", "refund-system-map", "artifacts", "gpt55-xhigh-codex-judgmentkit-material-ui.html"],
   ["examples", "model-ui", "refund-system-map", "captures", "gemma4-lms-no-judgmentkit.json"],
-  ["examples", "model-ui", "refund-system-map", "captures", "gemma4-lms-with-judgmentkit.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gemma4-lms-material-ui-only.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gemma4-lms-judgmentkit-material-ui.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gpt55-xhigh-codex-no-judgmentkit.json"],
-  ["examples", "model-ui", "refund-system-map", "captures", "gpt55-xhigh-codex-with-judgmentkit.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gpt55-xhigh-codex-material-ui-only.json"],
   ["examples", "model-ui", "refund-system-map", "captures", "gpt55-xhigh-codex-judgmentkit-material-ui.json"],
   ["examples", "model-ui", "refund-system-map", "screenshots", "deterministic-no-judgmentkit.png"],
