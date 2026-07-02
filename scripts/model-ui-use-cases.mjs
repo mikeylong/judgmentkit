@@ -1,6 +1,29 @@
 export const MODEL_UI_ROOT = "examples/model-ui";
 export const MODEL_UI_INDEX_FILE = `${MODEL_UI_ROOT}/index.json`;
 
+export const JUDGMENTKIT_DEFAULT_CSS_CUSTOM_PROPERTIES = [
+  ["--jk-color-canvas", "#f8f7f2"],
+  ["--jk-color-surface", "#ffffff"],
+  ["--jk-color-text", "#171717"],
+  ["--jk-color-muted", "#61615c"],
+  ["--jk-color-border", "#d7d3c8"],
+  ["--jk-color-focus", "#245f73"],
+  ["--jk-color-success", "#2e6b48"],
+  ["--jk-color-warning", "#8a5a16"],
+  ["--jk-color-risk", "#8f342f"],
+  ["--jk-color-disabled", "#8a8f93"],
+  ["--jk-color-receipt", "#23615f"],
+  ["--jk-space-2", "0.5rem"],
+  ["--jk-space-3", "0.75rem"],
+  ["--jk-space-4", "1rem"],
+  ["--jk-radius-control", "4px"],
+  ["--jk-radius-panel", "8px"],
+  ["--jk-focus-ring", "0 0 0 3px rgba(36, 95, 115, 0.28)"],
+];
+
+export const JUDGMENTKIT_DEFAULT_TOKEN_NAMES =
+  JUDGMENTKIT_DEFAULT_CSS_CUSTOM_PROPERTIES.map(([name]) => name);
+
 export const COMPARISON_ROWS = [
   {
     id: "deterministic",

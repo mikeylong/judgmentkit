@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 import {
   COMPARISON_COLUMNS,
   COMPARISON_ROWS,
+  JUDGMENTKIT_DEFAULT_TOKEN_NAMES,
   LEGACY_ALIASES,
   MODEL_UI_INDEX_FILE,
   MODEL_UI_USE_CASES,
@@ -20,8 +21,15 @@ const pngSignature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a
 const activityContract = readJson(
   path.join(root, "contracts/ai-ui-generation.activity-contract.json"),
 );
+const { analyzeStaticCaptureQuality, validateParsed } = await import(
+  "../scripts/capture-model-ui-matrix.mjs"
+);
 const EXPECTED_TOKEN_BOUNDARY_RULE =
   activityContract.implementation_contract.local_component_authority.token_boundary.rule;
+const LOCAL_VISUAL_TOKEN_PATTERN =
+  /--(?:bg|canvas|panel|surface(?:-strong)?|ink|text|muted|line(?:-strong)?|border|accent(?:-strong|-soft)?|warn(?:-soft)?|warning|danger(?:-soft)?|risk|success|good(?:-soft)?|focus|brand|status|shadow)\b/i;
+const JK_TOKEN_DEFINITION_PATTERN = /--jk-[a-z0-9-]+\s*:/i;
+const JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET = new Set(JUDGMENTKIT_DEFAULT_TOKEN_NAMES);
 
 const MODEL_ROWS = COMPARISON_ROWS.filter(
   (row) => row.generation_source === "captured_model_output",
@@ -68,6 +76,45 @@ function compactText(value) {
   return String(value).replace(/\s+/g, " ").trim();
 }
 
+function assertJudgmentKitStaticTokenUsage(value, label) {
+  const text = String(value);
+
+  for (const token of [
+    "--jk-color-canvas",
+    "--jk-color-surface",
+    "--jk-color-text",
+    "--jk-color-muted",
+    "--jk-color-border",
+    "--jk-color-focus",
+  ]) {
+    assert.ok(text.includes(token), `${label} should include ${token}`);
+    assert.ok(
+      text.includes(`var(${token})`) || new RegExp(`${token}\\s*:`).test(text),
+      `${label} should define or consume ${token}`,
+    );
+  }
+
+  assert.equal(
+    LOCAL_VISUAL_TOKEN_PATTERN.test(text),
+    false,
+    `${label} should not define or consume local visual token names`,
+  );
+
+  const unsupportedJkTokens = [
+    ...new Set(
+      [...text.matchAll(/--jk-[a-z0-9-]+/gi)]
+        .map((match) => match[0].toLowerCase())
+        .filter((token) => !JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET.has(token)),
+    ),
+  ];
+
+  assert.deepEqual(
+    unsupportedJkTokens,
+    [],
+    `${label} should not reference undefined JudgmentKit token names`,
+  );
+}
+
 function assertJudgmentKitStaticCaptureQuality(capture, label) {
   assert.equal(capture.frontend_skill_context_status, "ready", `${label} should have ready frontend skill context`);
   assert.equal(capture.frontend_skill_context.raw_skill_exposed, false, `${label} should not expose raw skill text`);
@@ -86,6 +133,11 @@ function assertJudgmentKitStaticCaptureQuality(capture, label) {
   assert.equal(capture.capture_quality.has_evidence_content, true, `${label} should include evidence content`);
   assert.equal(capture.capture_quality.has_handoff_content, true, `${label} should include handoff content`);
   assert.equal(capture.capture_quality.compact_template_signature, false, `${label} should not match the rejected compact template`);
+  if (capture.source_context_status === "current") {
+    assert.equal(capture.capture_quality.has_judgmentkit_default_tokens, true, `${label} should use JudgmentKit default tokens`);
+    assert.ok(capture.capture_quality.jk_token_usage_count >= 4, `${label} should use multiple JudgmentKit token references`);
+    assert.deepEqual(capture.capture_quality.disallowed_visual_tokens, [], `${label} should not use local visual token names`);
+  }
 }
 
 function readProvenance(html) {
@@ -118,6 +170,147 @@ assert.match(
   fs.readFileSync(captureScriptPath, "utf8"),
   /surface_type_guidance:\s*frontendSkillContext\.surface_type_guidance/,
   "capture script should preserve surface_type_guidance so fresh captures record surface_type.",
+);
+
+const strictJudgmentKitTarget = {
+  artifact_id: "test-with-judgmentkit",
+  render_mode: "html",
+  judgmentkit_mode: "with_judgmentkit",
+  design_system_mode: "none",
+};
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "Uses local visual variables.",
+        css: [
+          ":root{--canvas:#fff;--panel:#fff;--ink:#111;--accent:#245f73}",
+          ".shell{display:grid;gap:12px;background:var(--canvas);color:var(--ink)}",
+          ".panel{border:1px solid var(--accent);background:var(--panel)}",
+          ".actions{display:flex;gap:8px}.actions button{padding:8px}",
+          "@media(max-width:760px){.shell{display:block}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /local visual token names|--jk-\*/,
+);
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "Uses local visual aliases mixed with JK token references.",
+        css: [
+          ".shell{display:grid;gap:var(--jk-space-4);background:var(--bg);color:var(--jk-color-text)}",
+          ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+          ".warn{color:var(--warn)}.danger{color:var(--danger)}.good{color:var(--good)}",
+          ".actions{display:flex;gap:var(--jk-space-2)}.actions button{padding:8px}",
+          "@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /local visual token names/,
+);
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "Redefines JudgmentKit tokens inside model CSS.",
+        css: [
+          ":root{--jk-color-canvas:#111827}",
+          ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text)}",
+          ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+          ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+          ".primary{background:var(--jk-color-focus);color:var(--jk-color-surface)}",
+          ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /not define or override/,
+);
+assert.throws(
+  () =>
+    validateParsed(
+      {
+        summary: "References invented JudgmentKit token names.",
+        css: [
+          ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text)}",
+          ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+          ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+          ".shadow{box-shadow:var(--jk-shadow)}.primary{background:var(--jk-color-focus);color:var(--jk-color-surface)}",
+          ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+        ].join(""),
+        html:
+          '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+      },
+      strictJudgmentKitTarget,
+    ),
+  /not provided/,
+);
+const strictTokenQuality = analyzeStaticCaptureQuality(
+  {
+    css: [
+      ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text)}",
+      ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+      ".muted{color:var(--jk-color-muted)}.actions{display:flex;gap:var(--jk-space-2)}",
+      ".primary{background:var(--jk-color-focus);color:var(--jk-color-surface)}",
+      ".handoff{background:var(--jk-color-surface)}@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+    ].join(""),
+    html:
+      '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+  },
+  strictJudgmentKitTarget,
+);
+assert.equal(strictTokenQuality.has_judgmentkit_default_tokens, true);
+assert.ok(strictTokenQuality.jk_token_usage_count >= 4);
+assert.equal(strictTokenQuality.jk_token_reference_count, strictTokenQuality.jk_token_usage_count);
+assert.deepEqual(strictTokenQuality.unsupported_jk_tokens, []);
+assert.equal(strictTokenQuality.jk_token_definition_count, 0);
+assert.deepEqual(strictTokenQuality.jk_token_definitions, []);
+assert.deepEqual(strictTokenQuality.disallowed_visual_tokens, []);
+
+const unsupportedTokenQuality = analyzeStaticCaptureQuality(
+  {
+    css: [
+      ".shell{display:grid;gap:var(--jk-space-4);background:var(--jk-color-canvas);color:var(--jk-color-text)}",
+      ".panel{border:1px solid var(--jk-color-border);background:var(--jk-color-surface)}",
+      ".shadow{box-shadow:var(--jk-shadow)}.primary{background:var(--jk-color-focus)}",
+      "@media(max-width:760px){.shell{grid-template-columns:1fr}}",
+    ].join(""),
+    html:
+      '<main data-primary-surface><section class="panel"><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button><button>B</button><button>C</button></section><section></section><section></section></main>',
+  },
+  strictJudgmentKitTarget,
+);
+assert.deepEqual(unsupportedTokenQuality.unsupported_jk_tokens, ["--jk-shadow"]);
+assert.equal(unsupportedTokenQuality.status, "failed");
+
+assert.doesNotThrow(() =>
+  validateParsed(
+    {
+      summary: "Uses an external HTML design-system namespace.",
+      css: [
+        ":root{--acme-color-canvas:#fff;--acme-color-text:#111;--acme-space-3:12px}",
+        ".shell{display:grid;gap:var(--acme-space-3);background:var(--acme-color-canvas);color:var(--acme-color-text)}",
+      ].join(""),
+      html:
+        '<main data-primary-surface><section><h1>Review</h1><p>Evidence risk case customer account handoff owner send follow.</p><button>A</button></section></main>',
+    },
+    {
+      artifact_id: "test-with-external-html-design-system",
+      render_mode: "html",
+      judgmentkit_mode: "with_judgmentkit",
+      design_system_mode: "acme",
+    },
+  ),
 );
 
 const indexPath = path.join(root, MODEL_UI_INDEX_FILE);
@@ -407,7 +600,10 @@ for (const useCase of MODEL_UI_USE_CASES) {
           assert.equal(capture.parsed.html.includes("<link"), false);
           assert.equal(capture.parsed.html.includes("http://"), false);
           assert.equal(capture.parsed.html.includes("https://"), false);
-          if (column.judgmentkit_mode === "with_judgmentkit") {
+          if (
+            column.judgmentkit_mode === "with_judgmentkit" &&
+            column.design_system_mode === "none"
+          ) {
             assertJudgmentKitStaticCaptureQuality(capture, `${useCase.id}/${id}`);
           }
         }
@@ -456,6 +652,20 @@ for (const useCase of MODEL_UI_USE_CASES) {
       assert.equal(artifactHtml.includes("Capture required"), false);
       assert.ok(artifactHtml.includes(".app-shell .evidence-list li"));
 
+      if (
+        column.judgmentkit_mode === "with_judgmentkit" &&
+        column.design_system_mode === "none"
+      ) {
+        assert.ok(
+          artifactHtml.includes('data-design-system-mode="none"'),
+          `${useCase.id}/${id} should preserve the static matrix design-system column metadata`,
+        );
+        assertJudgmentKitStaticTokenUsage(
+          artifactHtml,
+          `${useCase.id}/${id} static JudgmentKit artifact`,
+        );
+      }
+
       if (column.design_system_mode === "material_ui") {
         assert.ok(artifactHtml.includes('data-emotion="mui'));
         assert.ok(artifactHtml.includes("MuiButton-root"));
@@ -475,6 +685,30 @@ for (const useCase of MODEL_UI_USE_CASES) {
           artifactHtml.includes("<style data-model-css>"),
           `${useCase.id}/${id} should render captured model CSS`,
         );
+        if (
+          column.judgmentkit_mode === "with_judgmentkit" &&
+          column.design_system_mode === "none"
+        ) {
+          const modelCss = sectionBetween(
+            artifactHtml,
+            '<style data-model-css>',
+            "</style>",
+          );
+          assert.ok(
+            modelCss.includes("--jk-"),
+            `${useCase.id}/${id} should normalize rendered model CSS to JudgmentKit tokens`,
+          );
+          assert.equal(
+            LOCAL_VISUAL_TOKEN_PATTERN.test(modelCss),
+            false,
+            `${useCase.id}/${id} rendered model CSS should not keep local visual token names`,
+          );
+          assert.equal(
+            JK_TOKEN_DEFINITION_PATTERN.test(modelCss),
+            false,
+            `${useCase.id}/${id} rendered model CSS should not define JudgmentKit token values`,
+          );
+        }
         assert.ok(
           compactText(primarySurface).includes(expectedCandidateText),
           `${useCase.id}/${id} should render captured model HTML`,

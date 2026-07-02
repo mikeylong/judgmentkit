@@ -4,10 +4,11 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   COMPARISON_COLUMNS as COLUMNS,
   COMPARISON_ROWS,
+  JUDGMENTKIT_DEFAULT_TOKEN_NAMES,
   MODEL_UI_USE_CASES,
   modelUiUseCasesForArgs,
 } from "./model-ui-use-cases.mjs";
@@ -38,6 +39,7 @@ const LMS_CONTEXT_LENGTH = Math.max(
   LMS_MIN_CONTEXT_LENGTH,
 );
 const FRESH_CAPTURE = process.argv.includes("--fresh");
+const JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET = new Set(JUDGMENTKIT_DEFAULT_TOKEN_NAMES);
 
 let activeUseCase;
 let OUTPUT_DIR;
@@ -294,7 +296,92 @@ function sanitizeHtml(html) {
     .trim();
 }
 
-function validateParsed(parsed, target) {
+function stripCssComments(value) {
+  return String(value ?? "").replace(/\/\*[\s\S]*?\*\//g, "");
+}
+
+const LOCAL_VISUAL_TOKEN_NAMES = new Set([
+  "--bg",
+  "--canvas",
+  "--panel",
+  "--surface",
+  "--surface-strong",
+  "--ink",
+  "--text",
+  "--muted",
+  "--line",
+  "--line-strong",
+  "--border",
+  "--accent",
+  "--accent-strong",
+  "--accent-soft",
+  "--warn",
+  "--warn-soft",
+  "--warning",
+  "--danger",
+  "--danger-soft",
+  "--risk",
+  "--success",
+  "--good",
+  "--good-soft",
+  "--focus",
+  "--brand",
+  "--status",
+  "--shadow",
+]);
+
+function extractCssCustomPropertyNames(text) {
+  return [...new Set([...stripCssComments(text).matchAll(/--[a-z0-9][a-z0-9-]*/gi)].map((match) => match[0]))];
+}
+
+function extractCssCustomPropertyDefinitions(text) {
+  return [
+    ...new Set(
+      [...stripCssComments(text).matchAll(/(--[a-z0-9][a-z0-9-]*)\s*:/gi)].map((match) =>
+        match[1].toLowerCase(),
+      ),
+    ),
+  ];
+}
+
+function extractCssVarReferenceNames(text) {
+  return [...stripCssComments(text).matchAll(/var\(\s*(--[a-z0-9][a-z0-9-]*)/gi)].map(
+    (match) => match[1].toLowerCase(),
+  );
+}
+
+function countMatches(value, pattern) {
+  return (String(value).match(pattern) ?? []).length;
+}
+
+function isVisualCustomProperty(name) {
+  return (
+    LOCAL_VISUAL_TOKEN_NAMES.has(String(name).toLowerCase()) ||
+    /surfaceops|mui|color|surface|canvas|text|muted|border|focus|success|warning|warn|danger|good|risk|disabled|receipt|space|gap|radius|shadow|font|type|brand|accent|status|density|panel|ink|line|bg/i.test(
+      name,
+    )
+  );
+}
+
+function allowedTokenPrefixesForTarget(target) {
+  return isStrictStaticJudgmentKitTarget(target) ? ["--jk-"] : [];
+}
+
+function disallowedVisualCustomProperties(value, target) {
+  const allowedPrefixes = allowedTokenPrefixesForTarget(target);
+
+  if (allowedPrefixes.length === 0) {
+    return [];
+  }
+
+  return extractCssCustomPropertyNames(value).filter(
+    (name) =>
+      isVisualCustomProperty(name) &&
+      !allowedPrefixes.some((prefix) => name.startsWith(prefix)),
+  );
+}
+
+export function validateParsed(parsed, target) {
   if (!parsed || typeof parsed !== "object") {
     throw new Error(`${target.artifact_id} did not return a JSON object.`);
   }
@@ -319,6 +406,49 @@ function validateParsed(parsed, target) {
     throw new Error(`${target.artifact_id} did not return nonempty static CSS.`);
   }
 
+  if (isStrictStaticJudgmentKitTarget(target)) {
+    const css = stripCssComments(sanitizeCss(parsed.css));
+    const forbiddenTokens = disallowedVisualCustomProperties(css, target);
+    const definedJkTokens = extractCssCustomPropertyDefinitions(css).filter((name) =>
+      name.startsWith("--jk-"),
+    );
+    const jkTokenReferences = extractCssVarReferenceNames(css).filter((name) =>
+      name.startsWith("--jk-"),
+    );
+    const activeJkTokenUsageCount = jkTokenReferences.filter((name) =>
+      JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET.has(name),
+    ).length;
+    const unsupportedJkTokens = [
+      ...new Set(
+        jkTokenReferences.filter((name) => !JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET.has(name)),
+      ),
+    ];
+
+    if (activeJkTokenUsageCount < 4) {
+      throw new Error(
+        `${target.artifact_id} JudgmentKit static CSS must use active --jk-* design-system tokens at least 4 times.`,
+      );
+    }
+
+    if (unsupportedJkTokens.length > 0) {
+      throw new Error(
+        `${target.artifact_id} JudgmentKit static CSS references tokens that are not provided by the active design-system source: ${unsupportedJkTokens.join(", ")}`,
+      );
+    }
+
+    if (forbiddenTokens.length > 0) {
+      throw new Error(
+        `${target.artifact_id} JudgmentKit static CSS uses local visual token names outside the active design-system source: ${forbiddenTokens.join(", ")}`,
+      );
+    }
+
+    if (definedJkTokens.length > 0) {
+      throw new Error(
+        `${target.artifact_id} JudgmentKit static CSS must consume the provided --jk-* design-system tokens, not define or override them: ${definedJkTokens.join(", ")}`,
+      );
+    }
+  }
+
   const quality = analyzeStaticCaptureQuality(parsed, target);
   if (quality.status !== "passed") {
     const error = new Error(
@@ -330,11 +460,11 @@ function validateParsed(parsed, target) {
 }
 
 function isStrictStaticJudgmentKitTarget(target) {
-  return target.render_mode === "html" && target.judgmentkit_mode === "with_judgmentkit";
-}
-
-function countMatches(value, pattern) {
-  return (String(value).match(pattern) ?? []).length;
+  return (
+    target.render_mode === "html" &&
+    target.judgmentkit_mode === "with_judgmentkit" &&
+    target.design_system_mode === "none"
+  );
 }
 
 function hasCompactTemplateSignature(css) {
@@ -350,10 +480,23 @@ function hasCompactTemplateSignature(css) {
   );
 }
 
-function analyzeStaticCaptureQuality(parsed, target) {
-  const css = sanitizeCss(parsed?.css);
+export function analyzeStaticCaptureQuality(parsed, target) {
+  const css = stripCssComments(sanitizeCss(parsed?.css));
   const html = sanitizeHtml(parsed?.html);
   const strict = isStrictStaticJudgmentKitTarget(target);
+  const disallowedVisualTokens = disallowedVisualCustomProperties(css, target);
+  const jkTokenReferences = extractCssVarReferenceNames(css).filter((name) =>
+    name.startsWith("--jk-"),
+  );
+  const activeJkTokenReferences = jkTokenReferences.filter((name) =>
+    JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET.has(name),
+  );
+  const unsupportedJkTokens = [
+    ...new Set(jkTokenReferences.filter((name) => !JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET.has(name))),
+  ];
+  const jkTokenDefinitions = extractCssCustomPropertyDefinitions(css).filter((name) =>
+    name.startsWith("--jk-"),
+  );
   const quality = {
     profile: strict ? "judgmentkit_static_html_css" : "basic_static_html_css",
     css_characters: css.length,
@@ -370,10 +513,35 @@ function analyzeStaticCaptureQuality(parsed, target) {
     has_evidence_content: /evidence|risk|reason|signal|trend|usage|procurement|champion|issue|case|missing|blocked|check|review|permit|technician|intake|receipt|refund|renewal|account|patient|customer|site/i.test(html),
     has_handoff_content: /handoff|owner|send|next owner|meeting note|procurement date|assign|escalate|request|schedule|follow/i.test(html),
     compact_template_signature: hasCompactTemplateSignature(css),
+    has_judgmentkit_default_tokens: activeJkTokenReferences.length >= 4,
+    jk_token_usage_count: activeJkTokenReferences.length,
+    jk_token_reference_count: jkTokenReferences.length,
+    unsupported_jk_tokens: unsupportedJkTokens,
+    jk_token_definition_count: jkTokenDefinitions.length,
+    jk_token_definitions: jkTokenDefinitions,
+    disallowed_visual_tokens: disallowedVisualTokens,
     failures: [],
   };
 
   if (strict) {
+    if (!quality.has_judgmentkit_default_tokens) {
+      quality.failures.push("CSS does not use active JudgmentKit --jk-* design-system tokens at least 4 times");
+    }
+    if (quality.unsupported_jk_tokens.length > 0) {
+      quality.failures.push(
+        `CSS references tokens that are not provided by the active JudgmentKit design-system source: ${quality.unsupported_jk_tokens.join(", ")}`,
+      );
+    }
+    if (quality.disallowed_visual_tokens.length > 0) {
+      quality.failures.push(
+        `CSS uses local visual token names outside the active design-system source: ${quality.disallowed_visual_tokens.join(", ")}`,
+      );
+    }
+    if (quality.jk_token_definitions.length > 0) {
+      quality.failures.push(
+        `CSS defines or overrides provided JudgmentKit --jk-* design-system tokens: ${quality.jk_token_definitions.join(", ")}`,
+      );
+    }
     if (quality.css_characters < 650) {
       quality.failures.push("CSS is too small for a styled JudgmentKit static capture");
     }
@@ -664,6 +832,20 @@ function buildPromptContextPayload(contextPayload) {
   };
 }
 
+function judgmentKitStaticTokenPromptRules(target) {
+  if (!isStrictStaticJudgmentKitTarget(target)) {
+    return [];
+  }
+
+  return [
+    "- Because no external design system adapter is active, CSS must use the JudgmentKit default design-system tokens with the --jk- prefix.",
+    "- Use var(--jk-color-canvas), var(--jk-color-surface), var(--jk-color-text), var(--jk-color-muted), var(--jk-color-border), var(--jk-color-focus), var(--jk-color-warning), and related --jk-* tokens for visual styling.",
+    `- Available JudgmentKit default tokens: ${JUDGMENTKIT_DEFAULT_TOKEN_NAMES.join(", ")}.`,
+    "- Consume the provided --jk-* tokens with var(...); do not define or override --jk-* custom properties in the model CSS.",
+    "- Do not define or use local visual custom properties such as --bg, --canvas, --panel, --ink, --muted, --line, --accent, --warn, --danger, --good, --surface, --text, or --border.",
+  ];
+}
+
 function buildHtmlPrompt({ target, contextPayload }) {
   const usingJudgmentKit = target.judgmentkit_mode === "with_judgmentkit";
   const boundary = usingJudgmentKit
@@ -691,6 +873,7 @@ function buildHtmlPrompt({ target, contextPayload }) {
     "- Do not include <script>, external assets, remote fonts, image URLs, or network references.",
     "- Use visible UI copy, buttons, and sections that reflect the provided context boundary.",
     "- For JudgmentKit columns, follow frontend_skill_context.instruction_markdown, implementation_sequence, guardrails, approved primitives, and verification checklist.",
+    ...judgmentKitStaticTokenPromptRules(target),
     "- Keep it readable at a 1365x900 desktop viewport.",
     "",
     "Context JSON:",
@@ -970,6 +1153,7 @@ function buildCompactRetryPrompt(target, contextPayload) {
         `Guardrail: ${skill.guardrails?.product_ui_rule}`,
         `Keep out of product UI: ${(skill.guardrails?.terms_to_keep_out_of_product_ui ?? []).join(", ")}.`,
         `Design policy: ${skill.design_system_policy?.mode}; ${skill.design_system_policy?.constraint}`,
+        ...judgmentKitStaticTokenPromptRules(target),
         `Verify: ${(skill.verification_checklist ?? []).slice(0, 6).join(" | ")}.`,
       ]
     : [];
@@ -1107,6 +1291,7 @@ function buildLmsJudgmentKitStaticPrompt(target, contextPayload, validationFailu
     "- At a 1365x900 desktop viewport, the queue/context, evidence, decision controls, and handoff should all be visible or clearly started without looking sparse.",
     "- Keep JudgmentKit terms, prompt/schema/tool names, and implementation machinery out of visible product UI.",
     "- Minify CSS and HTML strings: no comments, no indentation, no explanatory prose. Do not copy a tiny generic .panel/.actions sample; incomplete CSS or low-density HTML will be rejected.",
+    ...judgmentKitStaticTokenPromptRules(target),
     "",
     ...retryLines,
     "Context JSON:",
@@ -1352,4 +1537,6 @@ async function captureUseCase(useCase) {
   await writeLegacyCaptureAliases();
 }
 
-await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}

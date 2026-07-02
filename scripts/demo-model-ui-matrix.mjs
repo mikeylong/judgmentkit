@@ -40,6 +40,7 @@ import {
 import {
   COMPARISON_COLUMNS,
   COMPARISON_ROWS,
+  JUDGMENTKIT_DEFAULT_CSS_CUSTOM_PROPERTIES,
   LEGACY_ALIASES,
   MODEL_UI_INDEX_FILE,
   MODEL_UI_USE_CASES,
@@ -167,6 +168,10 @@ function escapeHtml(value) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
+}
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
 function jsonForScript(value) {
@@ -1405,7 +1410,10 @@ function renderModelHtmlSurface(output) {
   return {
     html: addClassToPrimaryRoot(output.capture.parsed.html, "raw-model-candidate"),
     styleTags: "",
-    modelCss: output.capture.parsed.css ?? "",
+    modelCss: normalizeJudgmentKitDefaultModelCss(
+      output,
+      output.capture.parsed.css ?? "",
+    ),
   };
 }
 
@@ -1424,7 +1432,316 @@ function renderArtifactSurface(output) {
   };
 }
 
-function artifactCss() {
+const JUDGMENTKIT_LOCAL_TOKEN_MAP = new Map([
+  ["--bg", "--jk-color-canvas"],
+  ["--canvas", "--jk-color-canvas"],
+  ["--panel", "--jk-color-surface"],
+  ["--surface", "--jk-color-surface"],
+  ["--surface-strong", "--jk-color-surface"],
+  ["--ink", "--jk-color-text"],
+  ["--text", "--jk-color-text"],
+  ["--muted", "--jk-color-muted"],
+  ["--line", "--jk-color-border"],
+  ["--line-strong", "--jk-color-border"],
+  ["--border", "--jk-color-border"],
+  ["--accent", "--jk-color-focus"],
+  ["--accent-strong", "--jk-color-receipt"],
+  ["--accent-soft", "--jk-color-focus"],
+  ["--warn", "--jk-color-warning"],
+  ["--warn-soft", "--jk-color-warning"],
+  ["--warning", "--jk-color-warning"],
+  ["--danger", "--jk-color-risk"],
+  ["--danger-soft", "--jk-color-risk"],
+  ["--risk", "--jk-color-risk"],
+  ["--success", "--jk-color-success"],
+  ["--good", "--jk-color-success"],
+  ["--good-soft", "--jk-color-success"],
+  ["--shadow", "--jk-focus-ring"],
+]);
+
+function usesJudgmentKitDefaultTokens(output) {
+  return (
+    output?.judgmentkit_mode === "with_judgmentkit" &&
+    output?.design_system_mode === "none"
+  );
+}
+
+function judgmentKitTokenDefinitionsCss() {
+  return JUDGMENTKIT_DEFAULT_CSS_CUSTOM_PROPERTIES
+    .map(([name, value]) => `      ${name}: ${value};`)
+    .join("\n");
+}
+
+function normalizeJudgmentKitDefaultModelCss(output, css) {
+  if (!usesJudgmentKitDefaultTokens(output)) {
+    return css;
+  }
+
+  let normalized = String(css ?? "");
+
+  for (const [localName, jkName] of JUDGMENTKIT_LOCAL_TOKEN_MAP) {
+    const escaped = escapeRegExp(localName);
+    normalized = normalized
+      .replace(new RegExp(`${escaped}\\s*:[^;{}]+;?`, "gi"), "")
+      .replace(new RegExp(`var\\(\\s*${escaped}\\s*\\)`, "gi"), `var(${jkName})`);
+  }
+
+  normalized = normalized.replace(/--jk-[a-z0-9-]+\s*:[^;{}]+;?/gi, "");
+
+  return `${normalized}
+    .raw-model-candidate {
+      background: var(--jk-color-canvas) !important;
+      color: var(--jk-color-text) !important;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    }
+    .raw-model-candidate :is(section, article, aside, header, footer, .panel, .card, [class*="panel"], [class*="card"], [class*="queue"], [class*="detail"]) {
+      border-color: var(--jk-color-border) !important;
+      background-color: var(--jk-color-surface) !important;
+    }
+    .raw-model-candidate :is(p, small, span, li, dd) {
+      color: var(--jk-color-muted);
+    }
+    .raw-model-candidate :is(h1, h2, h3, h4, strong, dt) {
+      color: var(--jk-color-text);
+    }
+    .raw-model-candidate button {
+      border-color: var(--jk-color-border) !important;
+      border-radius: var(--jk-radius-control) !important;
+      background: var(--jk-color-surface) !important;
+      color: var(--jk-color-text) !important;
+    }
+    .raw-model-candidate button:first-of-type,
+    .raw-model-candidate .primary {
+      border-color: var(--jk-color-focus) !important;
+      background: var(--jk-color-focus) !important;
+      color: var(--jk-color-surface) !important;
+    }`;
+}
+
+function artifactCss(output) {
+  if (usesJudgmentKitDefaultTokens(output)) {
+    return `
+    :root {
+${judgmentKitTokenDefinitionsCss()}
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--jk-color-canvas);
+      color: var(--jk-color-text);
+      font: 15px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .raw-model-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--jk-color-canvas);
+    }
+    .raw-model-candidate > section,
+    .raw-model-candidate .card,
+    .raw-model-candidate .panel {
+      margin-top: 14px;
+      padding: var(--jk-space-4);
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: var(--jk-color-surface);
+    }
+    .raw-model-candidate ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--jk-color-muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--jk-color-receipt);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .app-shell .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+      color: var(--jk-color-receipt);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: color-mix(in srgb, var(--jk-color-warning) 12%, var(--jk-color-surface));
+      color: var(--jk-color-warning);
+    }
+    .app-shell .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: var(--jk-color-surface);
+    }
+    .app-shell .queue,
+    .app-shell .detail {
+      padding: var(--jk-space-4);
+    }
+    .app-shell .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .app-shell .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: var(--jk-color-surface);
+      color: var(--jk-color-text);
+      text-align: left;
+    }
+    .app-shell .queue-item small {
+      color: var(--jk-color-muted);
+    }
+    .app-shell .queue-item.is-selected {
+      border-color: var(--jk-color-focus);
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+    }
+    .app-shell .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .app-shell .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
+      padding: 14px;
+    }
+    .app-shell .info-grid > div {
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: color-mix(in srgb, var(--jk-color-canvas) 75%, var(--jk-color-surface));
+    }
+    .app-shell .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--jk-color-muted);
+      font-size: 13px;
+    }
+    .app-shell .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .app-shell .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .app-shell .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: 999px;
+      color: var(--jk-color-receipt);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .app-shell .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-shell .actions button,
+    .app-shell .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: var(--jk-color-surface);
+      color: var(--jk-color-text);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .app-shell button:focus-visible {
+      outline: none;
+      box-shadow: var(--jk-focus-ring);
+    }
+    .app-shell button.primary {
+      border-color: var(--jk-color-focus);
+      background: var(--jk-color-focus);
+      color: var(--jk-color-surface);
+    }
+    .app-shell .handoff {
+      padding: 14px;
+      background: color-mix(in srgb, var(--jk-color-receipt) 9%, var(--jk-color-surface));
+    }
+    .reviewed-candidate .app-header {
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+      border: 1px solid color-mix(in srgb, var(--jk-color-focus) 35%, var(--jk-color-border));
+      border-radius: var(--jk-radius-panel);
+      padding: 14px;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--jk-color-muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--jk-color-text);
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
+        display: grid;
+      }
+      .app-shell .workspace,
+      .app-shell .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  `;
+  }
+
   return `
     :root {
       color-scheme: light;
@@ -1720,7 +2037,7 @@ function renderArtifact(output, manifestEntry) {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>${escapeHtml(activeUseCase.label)} - ${escapeHtml(output.title)}</title>
-    <style>${artifactCss()}</style>
+    <style>${artifactCss(output)}</style>
 ${modelCss}${styleTags}
   </head>
   <body data-artifact-id="${escapeHtml(output.id)}" data-row-id="${escapeHtml(output.row_id)}" data-column-id="${escapeHtml(output.column_id)}" data-judgmentkit-mode="${escapeHtml(output.judgmentkit_mode)}" data-design-system-mode="${escapeHtml(output.design_system_mode)}">
