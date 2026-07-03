@@ -1,0 +1,49 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "unclear-compliance-report",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.6.5",
+  "mcp_url": "http://127.0.0.1:51549/mcp",
+  "mcp_metadata_sha256": "e84fe4a9764e3a3ac1e81051537a8488280c76a4b4d51d3d1aea3a1bc6231070",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-07-03T15:00:47.998Z",
+  "duration_ms": 47310,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "009d1af91399dd1040b03855e851e1beb4b3d1cf40925d559cdfead8e4962b77",
+  "prompt_sha256": "9936fc534a116dc94adbf68a61c93ebaeb0410c64af1de537f00f57f164c1719",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "0a81369022062168af0d0a0be8d75193f6b75fd03b11d40b6472537543bbf1d9",
+  "raw_response": "{\"response\":\"Do not turn this directly into a page plan yet. The next response should frame the brief as under-specified because audience, compliance basis, findings source, and allowed actions determine what \\\"all findings\\\" and \\\"actionable\\\" mean. Ask targeted questions, then explain that once answered the page should be organized around the reader's decision workflow rather than a generic findings dump.\",\"next_action\":\"Ask the targeted questions, then proceed only after audience and reporting context are known. If the user cannot answer, document a fallback assumption and design for an internal compliance lead triaging remediation.\",\"questions\":[\"Who is the primary audience for the report: compliance lead, executive sponsor, auditor, system owner, or remediation team?\",\"Which compliance framework, policy, reporting period, and source findings should the page cover?\",\"What actions should the reader be able to take from each finding, such as assign an owner, approve an exception, request evidence, set a due date, or mark remediation complete?\"],\"handoff\":\"Owner: requester; action: confirm audience, framework/reporting period, findings source, and permitted actions; reason: actionability and evidence requirements cannot be inferred from the brief.\",\"rationale\":\"Compliance report pages depend on reader, decision, and evidence obligations. Auditors need evidence trails, executives need risk and decision summaries, and remediation owners need ownership and due dates; without that context, \\\"all findings\\\" risks becoming an undifferentiated dump or exposing the wrong level of detail.\"}",
+  "parsed": {
+    "response": "Do not turn this directly into a page plan yet. The next response should frame the brief as under-specified because audience, compliance basis, findings source, and allowed actions determine what \"all findings\" and \"actionable\" mean. Ask targeted questions, then explain that once answered the page should be organized around the reader's decision workflow rather than a generic findings dump.",
+    "next_action": "Ask the targeted questions, then proceed only after audience and reporting context are known. If the user cannot answer, document a fallback assumption and design for an internal compliance lead triaging remediation.",
+    "questions": [
+      "Who is the primary audience for the report: compliance lead, executive sponsor, auditor, system owner, or remediation team?",
+      "Which compliance framework, policy, reporting period, and source findings should the page cover?",
+      "What actions should the reader be able to take from each finding, such as assign an owner, approve an exception, request evidence, set a due date, or mark remediation complete?"
+    ],
+    "handoff": "Owner: requester; action: confirm audience, framework/reporting period, findings source, and permitted actions; reason: actionability and evidence requirements cannot be inferred from the brief.",
+    "rationale": "Compliance report pages depend on reader, decision, and evidence obligations. Auditors need evidence trails, executives need risk and decision summaries, and remediation owners need ownership and due dates; without that context, \"all findings\" risks becoming an undifferentiated dump or exposing the wrong level of detail."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "5239321a8320bb2fd8dd4a9e9332adc8c8882bab65e2be13a81ad1c4f49c16b1",
+    "stderr_sha256": "151ab0b396f617193c870e86c141eb446160e77f51fc91c60f2c4d778fe652b4",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

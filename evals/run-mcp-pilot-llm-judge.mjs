@@ -6,6 +6,8 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
+import { rewriteExistingMcpPilotReport } from "./run-mcp-pilot-evals.mjs";
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, "..");
 const CASES_PATH = path.join(__dirname, "mcp-pilot-cases.json");
@@ -89,6 +91,10 @@ function writeJson(filePath, value) {
 
 function relativePath(filePath) {
   return path.relative(ROOT_DIR, filePath).split(path.sep).join("/");
+}
+
+function relativeLink(fromDir, filePath) {
+  return path.relative(fromDir, filePath).split(path.sep).join("/");
 }
 
 function parseList(value) {
@@ -512,11 +518,34 @@ export async function buildLlmEvidenceReport(rawOptions = {}) {
     judgments,
   };
 
-  writeJson(path.join(outputDir, LLM_EVIDENCE_JSON_FILENAME), evidence);
-  fs.writeFileSync(
-    path.join(outputDir, LLM_EVIDENCE_MD_FILENAME),
-    `${renderLlmEvidenceMarkdown(evidence)}\n`,
-  );
+  const evidenceJsonPath = path.join(outputDir, LLM_EVIDENCE_JSON_FILENAME);
+  const evidenceMarkdownPath = path.join(outputDir, LLM_EVIDENCE_MD_FILENAME);
+  writeJson(evidenceJsonPath, evidence);
+  fs.writeFileSync(evidenceMarkdownPath, `${renderLlmEvidenceMarkdown(evidence)}\n`);
+
+  if (
+    report.run?.html_report &&
+    report.run?.json_report &&
+    path.resolve(outputDir) === path.dirname(reportPath)
+  ) {
+    const reportDir = path.dirname(reportPath);
+    rewriteExistingMcpPilotReport(reportPath, {
+      ...report,
+      llm_evidence: {
+        evidence_type: evidence.evidence_type,
+        policy: evidence.benchmark_policy,
+        json_report: relativeLink(reportDir, evidenceJsonPath),
+        markdown_report: relativeLink(reportDir, evidenceMarkdownPath),
+        json_report_repo_path: relativePath(evidenceJsonPath),
+        markdown_report_repo_path: relativePath(evidenceMarkdownPath),
+        model_under_test_id: evidence.model_under_test.id,
+        judge_model_id: evidence.judge.id,
+        judge_model: evidence.judge.model,
+        summary: evidence.summary,
+      },
+    });
+  }
+
   return evidence;
 }
 

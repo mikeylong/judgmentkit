@@ -1,0 +1,80 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "schema-leaking-workflow",
+  "title": "Schema-leaking workflow candidate",
+  "case_type": "candidate_validation",
+  "model_config_id": "gpt-5.5-codex",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-07-03T15:57:29.516Z",
+  "duration_ms": 44664,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "ed509a46821b13dbda91cabe83f1fd66219607a99163b50b188567e3bff09735",
+  "raw_response_sha256": "871b59597af3dbbb100ab10a93c132c1bdb6ea3a505508721b6fc5a1e03b63eb",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"medium\",\"rationale\":\"Both outputs make the correct core judgment: reject the schema-leaking candidate and restore the refund triage activity. Output B is slightly more useful for a downstream agent because it pairs rejection with clearer replacement requirements, completion criteria, and an explicit verification check. Output A is strong and a bit more restrained about missing policy/evidence details, but its handoff is less complete.\",\"decisive_differences\":[\"Output B includes a stronger handoff structure with decision, owner, action, reason, required fix, and verification.\",\"Output B makes the next move operational by specifying what the replacement workflow must show and how completion should be defined.\",\"Output A usefully notes the evidence/policy gap, but it does not include an explicit verification step.\"],\"evidence\":[{\"output\":\"output_b\",\"quote\":\"Verification: no implementation labels remain and each refund request can end in one of the three source decisions.\",\"why_it_matters\":\"This gives the downstream agent a concrete acceptance check aligned to the benchmark expectation.\"},{\"output\":\"output_b\",\"quote\":\"completion should be the refund request routed with a clear decision and any evidence gap recorded\",\"why_it_matters\":\"This translates the source activity into a usable workflow outcome without trusting the schema-leaking candidate.\"},{\"output\":\"output_a\",\"quote\":\"evidence gap: required refund evidence and policy thresholds are not specified\",\"why_it_matters\":\"This is a useful restraint signal, but it is less decisive for the next implementation step than B's verification and completion criteria.\"}],\"output_a_quality\":{\"score\":8.6,\"strengths\":[\"Correctly rejects the candidate.\",\"Grounded in the support lead refund triage activity and the three source decisions.\",\"Includes a useful evidence gap rather than inventing policy thresholds.\"],\"risks\":[\"Handoff lacks an explicit verification criterion.\",\"Slightly less operational about what the replacement surface must contain.\"]},\"output_b_quality\":{\"score\":9.1,\"strengths\":[\"Correctly rejects and discards the schema-leaking workflow.\",\"Provides a concrete replacement direction tied to evidence, policy fit, and the three decisions.\",\"Includes explicit handoff fields and verification criteria.\"],\"risks\":[\"Adds a few inferred surface details such as customer/refund context, though they are reasonable and activity-aligned.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "medium",
+    "rationale": "Both outputs make the correct core judgment: reject the schema-leaking candidate and restore the refund triage activity. Output B is slightly more useful for a downstream agent because it pairs rejection with clearer replacement requirements, completion criteria, and an explicit verification check. Output A is strong and a bit more restrained about missing policy/evidence details, but its handoff is less complete.",
+    "decisive_differences": [
+      "Output B includes a stronger handoff structure with decision, owner, action, reason, required fix, and verification.",
+      "Output B makes the next move operational by specifying what the replacement workflow must show and how completion should be defined.",
+      "Output A usefully notes the evidence/policy gap, but it does not include an explicit verification step."
+    ],
+    "evidence": [
+      {
+        "output": "output_b",
+        "quote": "Verification: no implementation labels remain and each refund request can end in one of the three source decisions.",
+        "why_it_matters": "This gives the downstream agent a concrete acceptance check aligned to the benchmark expectation."
+      },
+      {
+        "output": "output_b",
+        "quote": "completion should be the refund request routed with a clear decision and any evidence gap recorded",
+        "why_it_matters": "This translates the source activity into a usable workflow outcome without trusting the schema-leaking candidate."
+      },
+      {
+        "output": "output_a",
+        "quote": "evidence gap: required refund evidence and policy thresholds are not specified",
+        "why_it_matters": "This is a useful restraint signal, but it is less decisive for the next implementation step than B's verification and completion criteria."
+      }
+    ],
+    "output_a_quality": {
+      "score": 8.6,
+      "strengths": [
+        "Correctly rejects the candidate.",
+        "Grounded in the support lead refund triage activity and the three source decisions.",
+        "Includes a useful evidence gap rather than inventing policy thresholds."
+      ],
+      "risks": [
+        "Handoff lacks an explicit verification criterion.",
+        "Slightly less operational about what the replacement surface must contain."
+      ]
+    },
+    "output_b_quality": {
+      "score": 9.1,
+      "strengths": [
+        "Correctly rejects and discards the schema-leaking workflow.",
+        "Provides a concrete replacement direction tied to evidence, policy fit, and the three decisions.",
+        "Includes explicit handoff fields and verification criteria."
+      ],
+      "risks": [
+        "Adds a few inferred surface details such as customer/refund context, though they are reasonable and activity-aligned."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "c39cdffabca9cd7450aab207447811564a9417498a0ede26f9b3731f84eefe30",
+    "stderr_sha256": "7ba64e5157bca6a9e02bd211c0fe3cfa72d604eaffbe75ec232a5db4887baea3",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

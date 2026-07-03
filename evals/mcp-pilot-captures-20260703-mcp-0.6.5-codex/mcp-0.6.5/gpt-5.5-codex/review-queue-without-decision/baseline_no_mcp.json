@@ -1,0 +1,49 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "review-queue-without-decision",
+  "variant_id": "baseline_no_mcp",
+  "treatment": "baseline_no_mcp",
+  "mcp_version": "0.6.5",
+  "mcp_url": "http://127.0.0.1:51549/mcp",
+  "mcp_metadata_sha256": "e84fe4a9764e3a3ac1e81051537a8488280c76a4b4d51d3d1aea3a1bc6231070",
+  "mcp_tool_sequence": [],
+  "mcp_tool_transcript_sha256": null,
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-07-03T14:57:58.998Z",
+  "duration_ms": 45055,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "2fbb1a01a59d33cf583f136603bef9b88ce9b3210cb6132f6840255d89881b65",
+  "prompt_sha256": "5c2ca99448edf9e2f4c8dde5ccf85acb8e686d22982426e7d17473bf67307a49",
+  "mcp_context_sha256": null,
+  "raw_response_sha256": "6f5dab9e525365df7a1b34e298b7f6bd32966581d4cbaadbf1ef967bef3f8cf0",
+  "raw_response": "{\"response\":\"The next response should not design the queue yet. It should state that the brief gives a desired surface and scan goal, but not the review decision, reviewer role, item lifecycle, or evidence needed to act. Frame the work as a clarification step to define the activity before proposing layout or controls.\",\"next_action\":\"Ask targeted context questions about the review decision, participants, item states, and scan criteria; then use the answers to produce an activity-first queue plan centered on decisions and handoffs rather than a generic list.\",\"questions\":[\"Who reviews these work items, and what decision are they expected to make from the queue?\",\"What item states or outcomes must the queue support, such as approve, reject, assign, defer, escalate, or request more information?\",\"What signals make an item easy to scan: urgency, owner, age, status, risk, missing evidence, customer, due date, or something domain-specific?\"],\"handoff\":\"Product owner: provide reviewer role, decision outcomes, item states, and scan signals so the next agent can plan the queue around real review work instead of a generic sortable list.\",\"rationale\":\"The source brief is underspecified: scanning only matters relative to a decision and the evidence needed to make it. Without those details, a UI plan would risk optimizing visual density while missing the actual review workflow.\"}",
+  "parsed": {
+    "response": "The next response should not design the queue yet. It should state that the brief gives a desired surface and scan goal, but not the review decision, reviewer role, item lifecycle, or evidence needed to act. Frame the work as a clarification step to define the activity before proposing layout or controls.",
+    "next_action": "Ask targeted context questions about the review decision, participants, item states, and scan criteria; then use the answers to produce an activity-first queue plan centered on decisions and handoffs rather than a generic list.",
+    "questions": [
+      "Who reviews these work items, and what decision are they expected to make from the queue?",
+      "What item states or outcomes must the queue support, such as approve, reject, assign, defer, escalate, or request more information?",
+      "What signals make an item easy to scan: urgency, owner, age, status, risk, missing evidence, customer, due date, or something domain-specific?"
+    ],
+    "handoff": "Product owner: provide reviewer role, decision outcomes, item states, and scan signals so the next agent can plan the queue around real review work instead of a generic sortable list.",
+    "rationale": "The source brief is underspecified: scanning only matters relative to a decision and the evidence needed to make it. Without those details, a UI plan would risk optimizing visual density while missing the actual review workflow."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "46271e8e5651be4676d367e120929d6c7caf3565432e8e5b90ab69c9ee0490ec",
+    "stderr_sha256": "51ddc37c07d2852f84c5f1d86265dfecb177592c49e692fe176e8c1e54bdd169",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

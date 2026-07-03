@@ -1,0 +1,83 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "api-list-workflow",
+  "title": "API list workflow restraint",
+  "case_type": "missing_context_restraint",
+  "model_config_id": "gpt-5.5-codex",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-07-03T15:48:10.533Z",
+  "duration_ms": 62854,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "058bdee5068eda5668572ba9edbda10c81ecdf8002361b89ea2f460c3915b807",
+  "raw_response_sha256": "f288fe8cfff67a8989f91f706a868c1b9ff8c5cfa0dcf5dd82228dbae861e8f1",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"medium\",\"rationale\":\"Output A better matches the missing-context restraint case. It clearly refuses to design from the endpoint inventory alone, asks for workflow intent and completion outcome, and gives a complete handoff with decision, owner, action, reason, and verification. Output B is useful and more concrete about user role and item semantics, but it over-expands the clarification set and exposes HTTP operations like PATCH and DELETE in the proposed user-facing question.\",\"decisive_differences\":[\"Output A is more restrained and keeps the next move focused on activity/outcome rather than a broader CRUD checklist.\",\"Output A has a stronger operational handoff with explicit Decision, Action, Reason, and Verification fields.\",\"Output B is more activity-specific in its first question, but its third question uses implementation language and asks about detailed rules before the core activity is established.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Do not design the workflow UI from the endpoints list alone.\",\"why_it_matters\":\"This directly recognizes the source brief is insufficient and prevents unsafe acceptance of an API-shaped UI.\"},{\"output\":\"output_a\",\"quote\":\"Action: ask for workflow decision and outcome; Reason: the endpoints inventory does not define the activity\",\"why_it_matters\":\"The handoff gives a downstream agent the right next move and the reason for restraint.\"},{\"output\":\"output_b\",\"quote\":\"Are there rules, approvals, audit needs, undo behavior, or irreversible consequences around PATCH /items and DELETE /items?\",\"why_it_matters\":\"The question is relevant, but it exposes transport-level implementation language and broadens the ask before the user activity is known.\"}],\"output_a_quality\":{\"score\":8.4,\"strengths\":[\"Grounded in the limited source brief.\",\"Restrained and avoids designing from CRUD endpoints.\",\"Clear handoff with decision, owner, action, reason, and verification.\",\"Questions focus on user decision and completion outcome.\"],\"risks\":[\"Questions are slightly abstract and do not explicitly ask what an item represents or who the participant is.\",\"next_action value is less descriptive than the handoff itself.\"]},\"output_b_quality\":{\"score\":7.8,\"strengths\":[\"Explicitly asks who uses the workflow and what outcome they are trying to complete.\",\"Correctly treats the endpoints as backend capabilities rather than the workflow model.\",\"Identifies useful missing context such as item meaning, states, and action rules.\"],\"risks\":[\"Over-asks relative to the narrow expected next action.\",\"Uses endpoint/HTTP verb language in a proposed clarification question.\",\"Handoff is less complete and less structured than Output A's.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "medium",
+    "rationale": "Output A better matches the missing-context restraint case. It clearly refuses to design from the endpoint inventory alone, asks for workflow intent and completion outcome, and gives a complete handoff with decision, owner, action, reason, and verification. Output B is useful and more concrete about user role and item semantics, but it over-expands the clarification set and exposes HTTP operations like PATCH and DELETE in the proposed user-facing question.",
+    "decisive_differences": [
+      "Output A is more restrained and keeps the next move focused on activity/outcome rather than a broader CRUD checklist.",
+      "Output A has a stronger operational handoff with explicit Decision, Action, Reason, and Verification fields.",
+      "Output B is more activity-specific in its first question, but its third question uses implementation language and asks about detailed rules before the core activity is established."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Do not design the workflow UI from the endpoints list alone.",
+        "why_it_matters": "This directly recognizes the source brief is insufficient and prevents unsafe acceptance of an API-shaped UI."
+      },
+      {
+        "output": "output_a",
+        "quote": "Action: ask for workflow decision and outcome; Reason: the endpoints inventory does not define the activity",
+        "why_it_matters": "The handoff gives a downstream agent the right next move and the reason for restraint."
+      },
+      {
+        "output": "output_b",
+        "quote": "Are there rules, approvals, audit needs, undo behavior, or irreversible consequences around PATCH /items and DELETE /items?",
+        "why_it_matters": "The question is relevant, but it exposes transport-level implementation language and broadens the ask before the user activity is known."
+      }
+    ],
+    "output_a_quality": {
+      "score": 8.4,
+      "strengths": [
+        "Grounded in the limited source brief.",
+        "Restrained and avoids designing from CRUD endpoints.",
+        "Clear handoff with decision, owner, action, reason, and verification.",
+        "Questions focus on user decision and completion outcome."
+      ],
+      "risks": [
+        "Questions are slightly abstract and do not explicitly ask what an item represents or who the participant is.",
+        "next_action value is less descriptive than the handoff itself."
+      ]
+    },
+    "output_b_quality": {
+      "score": 7.8,
+      "strengths": [
+        "Explicitly asks who uses the workflow and what outcome they are trying to complete.",
+        "Correctly treats the endpoints as backend capabilities rather than the workflow model.",
+        "Identifies useful missing context such as item meaning, states, and action rules."
+      ],
+      "risks": [
+        "Over-asks relative to the narrow expected next action.",
+        "Uses endpoint/HTTP verb language in a proposed clarification question.",
+        "Handoff is less complete and less structured than Output A's."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "beb5f0ec88d8df46c8ca72ebfbb54c6b7e5eea90a9f9e3b6b0216cfde8dec040",
+    "stderr_sha256": "574d70294ba86693b519408da92f80bb791f880e32ea42260ffe267c14cba313",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

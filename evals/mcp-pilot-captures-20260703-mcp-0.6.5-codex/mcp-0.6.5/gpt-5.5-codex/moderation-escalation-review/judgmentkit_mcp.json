@@ -1,0 +1,50 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "moderation-escalation-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.6.5",
+  "mcp_url": "http://127.0.0.1:51549/mcp",
+  "mcp_metadata_sha256": "e84fe4a9764e3a3ac1e81051537a8488280c76a4b4d51d3d1aea3a1bc6231070",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract"
+  ],
+  "mcp_tool_transcript_sha256": "ef081c077f6c6c6edb21b6a097619d37f1742ed25910710a0b16a0d8f24bdfee",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-07-03T15:07:49.532Z",
+  "duration_ms": 40067,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "da17dc1c270ce6ed88098786f71affd116a72316bf37b29ce90d58878c1f0361",
+  "prompt_sha256": "55335bbdf2cd268f98056b32ae06544f339d1d58171065b1e793d83a9b416425",
+  "mcp_context_sha256": "0ea37afe826ae5e32e5010b55161ef6c629e3c6c68f04e68c5b0f2e62a6229b2",
+  "raw_response_sha256": "1efa47dc6c7bcec95cb8ed8647be8ec1c90e3c963dd5e5f150ab0d6fce4775ee",
+  "raw_response": "{\"response\":\"Plan the next response as a routing note for a trust and safety reviewer: confirm the reviewed content, summarize the policy evidence and severity in user-facing terms, identify missing user history as the only evidence gap, and choose between escalation and return for evidence rather than leaving the case ambiguous.\",\"next_action\":\"Prepare the handoff for policy review if severity and policy evidence are sufficient; otherwise return the case for the missing user history context before escalation.\",\"questions\":[\"Can the relevant user history context be attached or marked unavailable before this is routed?\"],\"handoff\":\"Owner: policy reviewer; Action: escalate for policy review or return for more evidence; Reason: severity and policy evidence may require policy review; Route options: approve, escalate for policy review, or return for more evidence; Evidence gap: missing user history context; Required fix: attach relevant history or mark it unavailable; Verification: handoff names policy reason, owner, chosen route, and unresolved evidence gap.\",\"rationale\":\"The workflow is a decision handoff, so the next response should make the route, owner, reason, and missing evidence explicit while avoiding implementation details that do not help the reviewer act.\"}",
+  "parsed": {
+    "response": "Plan the next response as a routing note for a trust and safety reviewer: confirm the reviewed content, summarize the policy evidence and severity in user-facing terms, identify missing user history as the only evidence gap, and choose between escalation and return for evidence rather than leaving the case ambiguous.",
+    "next_action": "Prepare the handoff for policy review if severity and policy evidence are sufficient; otherwise return the case for the missing user history context before escalation.",
+    "questions": [
+      "Can the relevant user history context be attached or marked unavailable before this is routed?"
+    ],
+    "handoff": "Owner: policy reviewer; Action: escalate for policy review or return for more evidence; Reason: severity and policy evidence may require policy review; Route options: approve, escalate for policy review, or return for more evidence; Evidence gap: missing user history context; Required fix: attach relevant history or mark it unavailable; Verification: handoff names policy reason, owner, chosen route, and unresolved evidence gap.",
+    "rationale": "The workflow is a decision handoff, so the next response should make the route, owner, reason, and missing evidence explicit while avoiding implementation details that do not help the reviewer act."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "805320c58a1dacf811cf9a7c2c8f3e0b5e6fd1386ea63f28b6bb825ff316636d",
+    "stderr_sha256": "c66db0685c740ff962536c47fd1f30aa7aeeaa313d638c6034b0ad008d26557a",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

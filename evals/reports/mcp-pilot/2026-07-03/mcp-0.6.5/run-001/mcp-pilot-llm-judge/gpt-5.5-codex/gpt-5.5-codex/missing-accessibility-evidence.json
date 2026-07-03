@@ -1,0 +1,83 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "missing-accessibility-evidence",
+  "title": "Missing accessibility evidence review",
+  "case_type": "implementation_review",
+  "model_config_id": "gpt-5.5-codex",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-07-03T16:06:30.587Z",
+  "duration_ms": 35172,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "b7dce48762c1b0eacfcf2edc2b563b650a3c45516b353703d6e026b30172a939",
+  "raw_response_sha256": "f75763aa5305833b3548ca8214b9aafb22eac9db80c1ed674b810a5a7285bd06",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"high\",\"rationale\":\"Output A is more useful for the downstream judgment because it makes the required decision directly: do not accept until accessibility evidence is supplied and verified. It gives a concrete evidence checklist tied to the dense operator review/custom control risk. Output B reaches the same rejection, but it invents context about a later repaired submission passing and includes unsupported workflow details, which could mislead the next agent.\",\"decisive_differences\":[\"Output A's next action is operational and evidence-specific; Output B's next action is a generic label plus a narrower checklist.\",\"Output A clearly treats missing accessibility evidence as the current release blocker; Output B adds an unsupported claim about a later repaired submission passing.\",\"Output A better separates functional/browser checks from accessibility acceptance evidence.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Do not accept the candidate yet. Return it for accessibility evidence\",\"why_it_matters\":\"This matches the expected next action: reject until accessibility evidence is supplied.\"},{\"output\":\"output_a\",\"quote\":\"keyboard-only traversal... focus order and visible focus states; semantic names, roles, and states for custom controls; screen-reader pass\",\"why_it_matters\":\"The required evidence is concrete and tailored to custom controls in a dense operator screen.\"},{\"output\":\"output_b\",\"quote\":\"even though a later repaired submission passed after the missing evidence was supplied\",\"why_it_matters\":\"This is unsupported by the source brief and introduces invented case history.\"}],\"output_a_quality\":{\"score\":9,\"strengths\":[\"Correct rejection decision\",\"Concrete next action and handoff\",\"Strong accessibility evidence coverage\",\"Grounded rationale that functional checks are insufficient\"],\"risks\":[\"Mentions queue/detail/decision/handoff controls that are plausible but not fully established by the brief\"]},\"output_b_quality\":{\"score\":6.5,\"strengths\":[\"Correctly rejects the implementation\",\"Includes decision, action, reason, required fix, and verification in handoff\",\"Identifies key accessibility evidence areas\"],\"risks\":[\"Invents a later repaired submission passing\",\"Uses some unsupported workflow details\",\"Evidence checklist is less complete than Output A's\",\"Generic next_action value is less useful to a downstream agent\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "high",
+    "rationale": "Output A is more useful for the downstream judgment because it makes the required decision directly: do not accept until accessibility evidence is supplied and verified. It gives a concrete evidence checklist tied to the dense operator review/custom control risk. Output B reaches the same rejection, but it invents context about a later repaired submission passing and includes unsupported workflow details, which could mislead the next agent.",
+    "decisive_differences": [
+      "Output A's next action is operational and evidence-specific; Output B's next action is a generic label plus a narrower checklist.",
+      "Output A clearly treats missing accessibility evidence as the current release blocker; Output B adds an unsupported claim about a later repaired submission passing.",
+      "Output A better separates functional/browser checks from accessibility acceptance evidence."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Do not accept the candidate yet. Return it for accessibility evidence",
+        "why_it_matters": "This matches the expected next action: reject until accessibility evidence is supplied."
+      },
+      {
+        "output": "output_a",
+        "quote": "keyboard-only traversal... focus order and visible focus states; semantic names, roles, and states for custom controls; screen-reader pass",
+        "why_it_matters": "The required evidence is concrete and tailored to custom controls in a dense operator screen."
+      },
+      {
+        "output": "output_b",
+        "quote": "even though a later repaired submission passed after the missing evidence was supplied",
+        "why_it_matters": "This is unsupported by the source brief and introduces invented case history."
+      }
+    ],
+    "output_a_quality": {
+      "score": 9,
+      "strengths": [
+        "Correct rejection decision",
+        "Concrete next action and handoff",
+        "Strong accessibility evidence coverage",
+        "Grounded rationale that functional checks are insufficient"
+      ],
+      "risks": [
+        "Mentions queue/detail/decision/handoff controls that are plausible but not fully established by the brief"
+      ]
+    },
+    "output_b_quality": {
+      "score": 6.5,
+      "strengths": [
+        "Correctly rejects the implementation",
+        "Includes decision, action, reason, required fix, and verification in handoff",
+        "Identifies key accessibility evidence areas"
+      ],
+      "risks": [
+        "Invents a later repaired submission passing",
+        "Uses some unsupported workflow details",
+        "Evidence checklist is less complete than Output A's",
+        "Generic next_action value is less useful to a downstream agent"
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "e9ba594e4e6a833ad6ae9daf537703b5f13c2ccf5a0c39375d0a594d7e14a43a",
+    "stderr_sha256": "1bb26fb6874ac7d8bf0e63663e8db8b398dcdccaee478fc671cd55520b3c0452",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

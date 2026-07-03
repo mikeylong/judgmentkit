@@ -1,0 +1,52 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "review-queue-without-decision",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.6.5",
+  "mcp_url": "http://127.0.0.1:51549/mcp",
+  "mcp_metadata_sha256": "e84fe4a9764e3a3ac1e81051537a8488280c76a4b4d51d3d1aea3a1bc6231070",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "4141e07a8039dbf6e7b680bf7adf03bdc699f6570493fe5289936410d12913ff",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-07-03T14:58:42.230Z",
+  "duration_ms": 43231,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "06911e5dc84e1f382ca578a425e9859a1977c272143aaba60f7d35262e362508",
+  "prompt_sha256": "c6976c3d919d11a7c0bf2f052e53a86f9192bc23970d0e9e2ce1cc4b21a267ae",
+  "mcp_context_sha256": "ee2e52cb6552e4041947f3955f750e8531bb91768fe200659b19f0cc3f66ddd1",
+  "raw_response_sha256": "f5690e5a9e2e6ebcf35e1aff800fa95eef9c5dcb1e64de2438473fbed353156c",
+  "raw_response": "{\"response\":\"Pause before designing the queue. The brief establishes a scannable review workbench, but it does not define the reviewer’s decision, allowed next actions, or completion outcome. The next response should ask for that missing context, then use the answers to plan queue grouping, item evidence, sorting, filters, and action states.\",\"next_action\":\"ask_targeted_source_questions\",\"questions\":[\"What decision or next action should each reviewed work item support?\",\"What should the reviewer leave the queue knowing or having completed?\"],\"handoff\":\"Evidence gap: Product owner must define the reviewer decision and completion outcome before design or implementation, because scan priority and item actions depend on that workflow.\",\"rationale\":\"A review queue cannot be made meaningfully scannable from density alone; the surface needs a clear decision model so the agent can distinguish useful evidence, routing, urgency, and completion state from decorative list structure.\"}",
+  "parsed": {
+    "response": "Pause before designing the queue. The brief establishes a scannable review workbench, but it does not define the reviewer’s decision, allowed next actions, or completion outcome. The next response should ask for that missing context, then use the answers to plan queue grouping, item evidence, sorting, filters, and action states.",
+    "next_action": "ask_targeted_source_questions",
+    "questions": [
+      "What decision or next action should each reviewed work item support?",
+      "What should the reviewer leave the queue knowing or having completed?"
+    ],
+    "handoff": "Evidence gap: Product owner must define the reviewer decision and completion outcome before design or implementation, because scan priority and item actions depend on that workflow.",
+    "rationale": "A review queue cannot be made meaningfully scannable from density alone; the surface needs a clear decision model so the agent can distinguish useful evidence, routing, urgency, and completion state from decorative list structure."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "aad6366189e694ec47cf8388c315d349aebaf43ad9fc2c1605c538b3e51bc44b",
+    "stderr_sha256": "6c42c3f299997df7eb39ba43d0605648389aaf8aca7ce2dd7a6a49112172826c",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

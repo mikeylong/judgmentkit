@@ -1,0 +1,87 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "cognitive-dashboard-no-follow-up",
+  "title": "Cognitive Dimensions dashboard no follow-up",
+  "case_type": "candidate_validation",
+  "model_config_id": "gpt-5.5-codex",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-07-03T16:17:03.277Z",
+  "duration_ms": 56590,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "76d809671ff1993486aec5f49bb1cb19a13e0c892671a59e18bdc59aa720509c",
+  "raw_response_sha256": "9fc1c056b5e468a01341ca0b836a79aac388684eedda71eccb725cb2b8bbd6fd",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"high\",\"rationale\":\"Output B is the better downstream aid. Both outputs correctly reject the workflow and identify the missing exception meaning, owner, freshness, and next action. B is more restrained, closer to the source brief, and gives a cleaner handoff with the revision owner, action, reason, and evidence gap. Output A is strong but adds extra status/dependency/verification requirements and muddies the handoff by naming the operations lead as the owner of the repair.\",\"decisive_differences\":[\"Output B more directly matches the expected next action: reject until the dashboard supports exception follow-up rather than passive metric review.\",\"Output B's handoff assigns the revision to the workflow author, while Output A's handoff says the owner is the operations lead, which could confuse the next move.\",\"Output A adds requirements like status/dependency verification that may be useful but are beyond the source brief; B stays tighter to the requested exception meaning, owner, freshness, and next action.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Owner: operations lead; Action: repair and resubmit\",\"why_it_matters\":\"The operations lead is the dashboard user, not clearly the person responsible for revising the proposed workflow, so the handoff is less operationally precise.\"},{\"output\":\"output_a\",\"quote\":\"what status or dependency could change the decision\",\"why_it_matters\":\"This adds detail beyond the source brief and slightly reduces restraint, even though the core rejection is correct.\"},{\"output\":\"output_b\",\"quote\":\"Return it for revision around the operations lead's daily exception decision\",\"why_it_matters\":\"This cleanly turns the judgment into the correct next move and anchors it in the source activity.\"},{\"output\":\"output_b\",\"quote\":\"evidence gap: no way to determine which exception needs follow-up today\",\"why_it_matters\":\"This is the central failure mode in the brief and gives a downstream agent a clear reason to reject.\"}],\"output_a_quality\":{\"score\":8,\"strengths\":[\"Correctly rejects the workflow.\",\"Names the key missing dashboard supports: exception meaning, owner, freshness, and next action.\",\"Provides a concrete repair direction rather than generic critique.\"],\"risks\":[\"Handoff owner is ambiguous or wrong because it names the operations lead for a repair/resubmit action.\",\"Adds status, dependency, and verification requirements beyond the brief.\",\"Slightly more verbose and less restrained than necessary.\"]},\"output_b_quality\":{\"score\":9,\"strengths\":[\"Correctly rejects and says not to trust the proposed workflow.\",\"Clearly reframes the work as daily exception follow-up triage.\",\"Includes handoff owner, action, reason, and evidence gap.\",\"Stays tightly grounded in the source brief without exposing implementation language.\"],\"risks\":[\"Mentions candidate details like refreshing metrics and completion being metrics reviewed, which are not shown in the source excerpt, though they appear consistent with the case framing.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "high",
+    "rationale": "Output B is the better downstream aid. Both outputs correctly reject the workflow and identify the missing exception meaning, owner, freshness, and next action. B is more restrained, closer to the source brief, and gives a cleaner handoff with the revision owner, action, reason, and evidence gap. Output A is strong but adds extra status/dependency/verification requirements and muddies the handoff by naming the operations lead as the owner of the repair.",
+    "decisive_differences": [
+      "Output B more directly matches the expected next action: reject until the dashboard supports exception follow-up rather than passive metric review.",
+      "Output B's handoff assigns the revision to the workflow author, while Output A's handoff says the owner is the operations lead, which could confuse the next move.",
+      "Output A adds requirements like status/dependency verification that may be useful but are beyond the source brief; B stays tighter to the requested exception meaning, owner, freshness, and next action."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Owner: operations lead; Action: repair and resubmit",
+        "why_it_matters": "The operations lead is the dashboard user, not clearly the person responsible for revising the proposed workflow, so the handoff is less operationally precise."
+      },
+      {
+        "output": "output_a",
+        "quote": "what status or dependency could change the decision",
+        "why_it_matters": "This adds detail beyond the source brief and slightly reduces restraint, even though the core rejection is correct."
+      },
+      {
+        "output": "output_b",
+        "quote": "Return it for revision around the operations lead's daily exception decision",
+        "why_it_matters": "This cleanly turns the judgment into the correct next move and anchors it in the source activity."
+      },
+      {
+        "output": "output_b",
+        "quote": "evidence gap: no way to determine which exception needs follow-up today",
+        "why_it_matters": "This is the central failure mode in the brief and gives a downstream agent a clear reason to reject."
+      }
+    ],
+    "output_a_quality": {
+      "score": 8,
+      "strengths": [
+        "Correctly rejects the workflow.",
+        "Names the key missing dashboard supports: exception meaning, owner, freshness, and next action.",
+        "Provides a concrete repair direction rather than generic critique."
+      ],
+      "risks": [
+        "Handoff owner is ambiguous or wrong because it names the operations lead for a repair/resubmit action.",
+        "Adds status, dependency, and verification requirements beyond the brief.",
+        "Slightly more verbose and less restrained than necessary."
+      ]
+    },
+    "output_b_quality": {
+      "score": 9,
+      "strengths": [
+        "Correctly rejects and says not to trust the proposed workflow.",
+        "Clearly reframes the work as daily exception follow-up triage.",
+        "Includes handoff owner, action, reason, and evidence gap.",
+        "Stays tightly grounded in the source brief without exposing implementation language."
+      ],
+      "risks": [
+        "Mentions candidate details like refreshing metrics and completion being metrics reviewed, which are not shown in the source excerpt, though they appear consistent with the case framing."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "2179cc6aa9cc4570a19b9e6c7f0365a9345b516eac0c556e2b4bff48b23f3700",
+    "stderr_sha256": "a2b07aa82e83724ef00f7241cccfb59881fc4619d58e4947bf97fe266880627f",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

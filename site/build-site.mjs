@@ -7555,13 +7555,13 @@ async function judgmentKitMcpReportPage() {
 
   if (!latestReport || benchmarkCases.length === 0) {
     return page(
-      "JudgmentKit MCP: Evidence for Activity-First UI Generation",
+      "Activity-First UI Generation Evidence",
       `
       <section class="section report-page">
         <div class="site-shell report-layout">
         <div class="report-article">
-          <p class="eyebrow">JudgmentKit MCP evidence</p>
-          <h1>JudgmentKit MCP: Evidence for Activity-First UI Generation</h1>
+          <p class="eyebrow">UI paired-artifact evidence</p>
+          <h1>Activity-First UI Generation Evidence</h1>
           ${videoPlaceholder("Report video placeholder", "Top-level overview video slot.")}
           <p class="lede">No committed paired eval report is available in this checkout. The report route is ready, but benchmark figures require the latest UI-generation eval catalog.</p>
           <p class="note">${escapeHtml(benchmarkPolicy)}</p>
@@ -7570,23 +7570,23 @@ async function judgmentKitMcpReportPage() {
       </section>`,
       {
         description:
-          "JudgmentKit MCP qualitative evaluation report for activity-first UI generation.",
+          "JudgmentKit public UI paired-artifact evaluation report for activity-first UI generation.",
         path: "/evals/judgmentkit-mcp/",
       },
     );
   }
 
   return page(
-    "JudgmentKit MCP: Evidence for Activity-First UI Generation",
+    "Activity-First UI Generation Evidence",
     `
     <section class="section report-page">
       <div class="site-shell report-layout">
       <div class="report-heading">
-        <p class="eyebrow">JudgmentKit MCP evidence</p>
-        <h1>JudgmentKit MCP: Evidence for Activity-First UI Generation</h1>
-        <p class="lede">A cautious public report on whether activity-first MCP guidance improves generated UI artifacts. The evidence is qualitative paired-artifact scoring and committed model-matrix examples, not a statistically powered benchmark.</p>
+        <p class="eyebrow">UI paired-artifact evidence</p>
+        <h1>Activity-First UI Generation Evidence</h1>
+        <p class="lede">A cautious public report on a small UI paired-artifact rerun. It compares committed baseline and JudgmentKit-guided UI artifacts; it is not an MCP pilot status page or a statistically powered benchmark.</p>
       </div>
-      ${videoPlaceholder("JudgmentKit MCP report overview", "Hero video placeholder for the benchmark report walkthrough.", "report-video-hero")}
+      ${videoPlaceholder("UI paired-artifact report overview", "Hero video placeholder for the benchmark report walkthrough.", "report-video-hero")}
       <div class="report-shell">
         <nav class="report-toc" aria-label="Report table of contents">
           <a href="#ui-generation-bottleneck">The UI generation bottleneck</a>
@@ -7633,17 +7633,17 @@ async function judgmentKitMcpReportPage() {
           </section>
           <section id="how-the-evaluation-works">
             <h2>How the evaluation works</h2>
-            <p>The committed paired eval compares raw baseline artifacts with JudgmentKit-guided artifacts for the same UI tasks. Scores use a 0-100 weighted total with 0-5 metric scores underneath. Current hosted MCP release: <strong>${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}</strong>. Historical eval MCP release: <strong>${escapeHtml(latest?.mcp_release ?? "pending")}</strong>.</p>
+            <p>The committed UI paired-artifact eval compares raw baseline artifacts with JudgmentKit-guided artifacts for the same UI tasks. Scores use a 0-100 weighted total with 0-5 metric scores underneath. Current hosted MCP release: <strong>${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}</strong>. Latest UI eval MCP release: <strong>${escapeHtml(latest?.mcp_release ?? "pending")}</strong>. These figures do not claim MCP pilot pass/fail status.</p>
             <p>${escapeHtml(benchmarkPolicy)}</p>
             <p>Desktop and mobile screenshots are captured as visual evidence for review. The screenshots support inspection, but the scoring source is the committed artifact text and deterministic rubric.</p>
-            <dl class="report-summary" aria-label="Latest JudgmentKit MCP report summary">
+            <dl class="report-summary" aria-label="Latest public UI paired-artifact eval summary">
               ${renderMetricCard("Latest committed eval run", latest ? evalRunTitle(latest) : "pending")}
               ${renderMetricCard("Current hosted MCP release", JUDGMENTKIT_PACKAGE_VERSION)}
-              ${renderMetricCard("Historical eval MCP release", latest?.mcp_release ?? "pending")}
-              ${renderMetricCard("Cases", cases)}
-              ${renderMetricCard("Pass rate", passRate)}
-              ${renderMetricCard("Guided wins", summary.guided_wins ?? 0)}
-              ${renderMetricCard("Baseline wins", summary.baseline_wins ?? 0)}
+              ${renderMetricCard("Latest UI eval MCP release", latest?.mcp_release ?? "pending")}
+              ${renderMetricCard("UI paired cases", cases)}
+              ${renderMetricCard("UI paired pass rate", passRate)}
+              ${renderMetricCard("UI guided wins", summary.guided_wins ?? 0)}
+              ${renderMetricCard("UI baseline wins", summary.baseline_wins ?? 0)}
               ${renderMetricCard("Ties", summary.ties ?? 0)}
               ${renderMetricCard("Claim level", claimLevel)}
             </dl>
@@ -7665,7 +7665,7 @@ async function judgmentKitMcpReportPage() {
           </section>
           <section id="limitations-and-future-work">
             <h2>Limitations and future work</h2>
-            <p>This report is intentionally narrow. It uses committed paired artifacts and committed model matrix captures. It does not claim broad model behavior, does not call live providers during site build, and does not treat visual polish as proof of activity fit.</p>
+            <p>This report is intentionally narrow. It uses committed paired artifacts and committed model matrix captures. It does not claim broad model behavior, does not call live providers during site build, does not claim MCP pilot pass/fail status, and does not treat visual polish as proof of activity fit.</p>
             <p>Future versions can add broader MCP impact runs, more surface types, reviewer agreement, richer interaction probes, and completed walkthrough videos without changing this page structure.</p>
           </section>
           <section id="run-data">
@@ -7685,7 +7685,7 @@ async function judgmentKitMcpReportPage() {
   `,
     {
       description:
-        "JudgmentKit MCP qualitative evaluation report for activity-first UI generation.",
+        "JudgmentKit public UI paired-artifact evaluation report for activity-first UI generation.",
       path: "/evals/judgmentkit-mcp/",
     },
   );
@@ -7775,7 +7775,7 @@ function siteRebuildLogPage(designSystemModel) {
             <h2>Source and tests</h2>
             <p>The rebuild is inspectable in source and in deterministic checks. These are the files and commands that prove what changed.</p>
             <div class="report-run-links">
-              <a class="pill-link" href="/evals/judgmentkit-mcp/">JudgmentKit MCP report</a>
+              <a class="pill-link" href="/evals/judgmentkit-mcp/">UI eval report</a>
               <a class="pill-link" href="/evals/">Eval index</a>
               <a class="pill-link" href="/docs/#system-map">System map in docs</a>
             </div>
@@ -7889,7 +7889,7 @@ async function evalsPage() {
       </dl>
       <p class="note">${escapeHtml(benchmarkPolicy)}</p>
       <div class="evals-actions" aria-label="Eval report links">
-        <a class="pill-link" href="/evals/judgmentkit-mcp/">JudgmentKit MCP report</a>
+        <a class="pill-link" href="/evals/judgmentkit-mcp/">UI eval report</a>
         <a class="pill-link" href="/evals/site-rebuild-log/">Site rebuild log</a>
         <a class="pill-link" href="${escapeHtml(evalReportPath(latest.html_report))}">Latest committed HTML report</a>
         <a class="pill-link" href="${escapeHtml(evalReportPath(latest.json_report))}">Latest committed JSON report</a>

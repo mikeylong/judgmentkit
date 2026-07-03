@@ -1,0 +1,49 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "missing-accessibility-evidence",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.6.5",
+  "mcp_url": "http://127.0.0.1:51549/mcp",
+  "mcp_metadata_sha256": "e84fe4a9764e3a3ac1e81051537a8488280c76a4b4d51d3d1aea3a1bc6231070",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "0f7336eb52495fba2ae82c2c43caaf22a0e4bdd96f797c1f7def7941b8b01575",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-07-03T15:17:48.058Z",
+  "duration_ms": 74621,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "ddc0b8582226d837ba322b0fa3f8832e7df1df28f5b040a3fbff213f57ca13b6",
+  "prompt_sha256": "2c1acfc9cfc7a1f4147762b828cfce596e991584b8479d0fb207d1cd20405b60",
+  "mcp_context_sha256": "9054bd755bbd4c203fdf7fe341c816b0cf72562710c9ed5de5e81fb26fc483a3",
+  "raw_response_sha256": "330f42fe52906ccffda91b00b3f422ee96dfd32cbb7e2ba1f4587fdf4b43a4f5",
+  "raw_response": "{\"response\":\"Reject the original implementation candidate. The dense operator review screen includes a queue, detail panel, custom controls, decision controls, and handoff receipt, but the submitted evidence does not provide the required core accessibility proof for acceptance. Repair the candidate by adding passing evidence for semantic structure, landmarks and headings, name/role/value behavior for the custom controls and decision controls, keyboard navigation, focus order, and non-text contrast, then resubmit the repaired implementation evidence.\",\"next_action\":\"repair_and_resubmit\",\"questions\":[],\"handoff\":\"Decision: reject original; Action: owner must repair and resubmit; Reason: missing core accessibility evidence for the dense operator review custom controls and decision controls; Required fix: provide passing semantic structure, landmarks/headings, name/role/value, keyboard navigation, focus order, and non-text contrast evidence; Verification: accept only after the repaired submission shows those checks passing.\",\"rationale\":\"Acceptance for this operator review requires core accessibility evidence. The original submission did not include that proof, so it should not be accepted even though a later repaired submission passed after the missing evidence was supplied.\"}",
+  "parsed": {
+    "response": "Reject the original implementation candidate. The dense operator review screen includes a queue, detail panel, custom controls, decision controls, and handoff receipt, but the submitted evidence does not provide the required core accessibility proof for acceptance. Repair the candidate by adding passing evidence for semantic structure, landmarks and headings, name/role/value behavior for the custom controls and decision controls, keyboard navigation, focus order, and non-text contrast, then resubmit the repaired implementation evidence.",
+    "next_action": "repair_and_resubmit",
+    "questions": [],
+    "handoff": "Decision: reject original; Action: owner must repair and resubmit; Reason: missing core accessibility evidence for the dense operator review custom controls and decision controls; Required fix: provide passing semantic structure, landmarks/headings, name/role/value, keyboard navigation, focus order, and non-text contrast evidence; Verification: accept only after the repaired submission shows those checks passing.",
+    "rationale": "Acceptance for this operator review requires core accessibility evidence. The original submission did not include that proof, so it should not be accepted even though a later repaired submission passed after the missing evidence was supplied."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "b5e9279e00ca82f004a1f6686a6fe88c55babb6c744487560cc6b5618d4389b1",
+    "stderr_sha256": "a0f521cf6084fd5d478553b7c62a6a158258a5e338811f0f964eefbe8ba82fc6",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}
