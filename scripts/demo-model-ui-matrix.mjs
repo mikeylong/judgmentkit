@@ -222,6 +222,21 @@ async function writeOrCheckFile(filePath, content) {
   }
 }
 
+async function assertMissingInCheckMode(filePath) {
+  if (!CHECK_MODE) return;
+
+  try {
+    await fs.access(filePath);
+  } catch (error) {
+    if (error.code === "ENOENT") return;
+    throw error;
+  }
+
+  throw new Error(
+    `Removed model UI file is still present: ${path.relative(ROOT_DIR, filePath)}`,
+  );
+}
+
 function cloneJson(value) {
   return JSON.parse(JSON.stringify(value));
 }
@@ -2169,7 +2184,8 @@ function renderGalleryCard(artifact, index) {
 }
 
 function renderDiagnosticCard(candidate) {
-  const failedChecks = (candidate.failed_checks ?? []).join(", ") || "review gate";
+  const failedChecks = diagnosticChecksLabel(candidate.failed_checks);
+  const status = diagnosticActionLabel(candidate.next_agent_action);
 
   return `
         <article class="gallery-card diagnostic-card">
@@ -2182,11 +2198,34 @@ function renderDiagnosticCard(candidate) {
             <p>${escapeHtml(candidate.approach_caption)}</p>
             <dl>
               <div><dt>Context</dt><dd>${escapeHtml(candidate.column_label)}</dd></div>
-              <div><dt>Status</dt><dd>${escapeHtml(candidate.next_agent_action)}</dd></div>
+              <div><dt>Status</dt><dd>${escapeHtml(status)}</dd></div>
               <div><dt>Failed checks</dt><dd>${escapeHtml(failedChecks)}</dd></div>
             </dl>
           </div>
         </article>`;
+}
+
+function diagnosticActionLabel(action) {
+  const labels = {
+    accept: "Accepted",
+    repair_and_resubmit: "Needs repair before evidence",
+  };
+  if (!action) return "Needs review";
+  return labels[action] ?? action.replace(/[_-]+/g, " ");
+}
+
+function diagnosticCheckLabel(check) {
+  const labels = {
+    static_capture_quality: "Capture quality failed",
+    visual_tokens: "Token provenance failed",
+  };
+  if (!check) return "Review gate";
+  return labels[check] ?? check.replace(/[_-]+/g, " ");
+}
+
+function diagnosticChecksLabel(checks) {
+  const labels = (checks ?? []).map(diagnosticCheckLabel);
+  return labels.length ? labels.join(", ") : "Implementation review gate";
 }
 
 function renderComparisonRow(row, entriesById) {
@@ -2528,7 +2567,7 @@ function renderMatrixIndex(manifest) {
         grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.7fr);
         width: min(1240px, 100%);
         max-height: min(860px, calc(100vh - 36px));
-        overflow: hidden;
+        overflow: auto;
         border: 1px solid var(--line);
         border-radius: 8px;
         background: var(--panel);
@@ -2618,6 +2657,14 @@ function renderMatrixIndex(manifest) {
         }
         .carousel-panel {
           max-height: calc(100vh - 24px);
+          align-content: start;
+        }
+        .carousel-copy {
+          grid-template-rows: auto auto auto;
+        }
+        .carousel-controls {
+          flex-wrap: wrap;
+          gap: 12px;
         }
         .details-row {
           grid-template-columns: 1fr;
@@ -2657,7 +2704,7 @@ ${detailsRows}
         </div>
       </details>
       <section class="carousel" data-carousel hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="carousel-title">
-        <button class="carousel-backdrop" type="button" data-carousel-close aria-label="Close larger screenshot view"></button>
+        <button class="carousel-backdrop" type="button" data-carousel-close tabindex="-1" aria-label="Close larger screenshot view"></button>
         <div class="carousel-panel">
           <div class="carousel-image">
             <img data-carousel-image src="" alt="">
@@ -2691,7 +2738,6 @@ ${detailsRows}
       </section>
     </main>
     <script type="application/json" id="model-ui-gallery-data">${jsonForScript(galleryItems)}</script>
-    <script type="application/json" id="model-ui-manifest">${jsonForScript(manifest)}</script>
     <script>
       (() => {
         const data = document.getElementById("model-ui-gallery-data");
@@ -2713,6 +2759,43 @@ ${detailsRows}
         const closeButton = carousel.querySelector("[data-carousel-close]:not(.carousel-backdrop)");
         let activeIndex = 0;
         let lastFocus = null;
+
+        function carouselFocusable() {
+          return Array.from(carousel.querySelectorAll("a[href], button, input, select, textarea, [tabindex]")).filter((element) => {
+            if (element.tabIndex < 0 || element.disabled) return false;
+            const style = window.getComputedStyle(element);
+            return style.display !== "none" && style.visibility !== "hidden";
+          });
+        }
+
+        function containCarouselFocus(event) {
+          if (event.key !== "Tab") return false;
+          const focusable = carouselFocusable();
+          if (!focusable.length) {
+            event.preventDefault();
+            closeButton.focus();
+            return true;
+          }
+
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          if (!carousel.contains(document.activeElement)) {
+            event.preventDefault();
+            (event.shiftKey ? last : first).focus();
+            return true;
+          }
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+            return true;
+          }
+          if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+            return true;
+          }
+          return false;
+        }
 
         function renderItem(index) {
           activeIndex = (index + items.length) % items.length;
@@ -2761,8 +2844,15 @@ ${detailsRows}
         carousel.querySelector("[data-carousel-next]").addEventListener("click", () => renderItem(activeIndex + 1));
         document.addEventListener("keydown", (event) => {
           if (carousel.hidden) return;
-          if (event.key === "Escape") close();
-          if (event.key === "ArrowLeft") renderItem(activeIndex - 1);
+          if (containCarouselFocus(event)) return;
+          if (event.key === "Escape") {
+            close();
+            return;
+          }
+          if (event.key === "ArrowLeft") {
+            renderItem(activeIndex - 1);
+            return;
+          }
           if (event.key === "ArrowRight") renderItem(activeIndex + 1);
         });
       })();
@@ -3003,6 +3093,12 @@ async function copyLegacyAliases(manifestArtifacts, legacyAliases) {
         if (alias.capture_file) {
           await fs.rm(path.join(OUTPUT_DIR, alias.capture_file), { force: true });
         }
+      } else {
+        await assertMissingInCheckMode(path.join(OUTPUT_DIR, alias.artifact_path));
+        await assertMissingInCheckMode(path.join(OUTPUT_DIR, alias.screenshot_path));
+        if (alias.capture_file) {
+          await assertMissingInCheckMode(path.join(OUTPUT_DIR, alias.capture_file));
+        }
       }
       continue;
     }
@@ -3014,6 +3110,12 @@ async function copyLegacyAliases(manifestArtifacts, legacyAliases) {
         await fs.rm(path.join(OUTPUT_DIR, alias.screenshot_path), { force: true });
         if (alias.capture_file) {
           await fs.rm(path.join(OUTPUT_DIR, alias.capture_file), { force: true });
+        }
+      } else {
+        await assertMissingInCheckMode(path.join(OUTPUT_DIR, alias.artifact_path));
+        await assertMissingInCheckMode(path.join(OUTPUT_DIR, alias.screenshot_path));
+        if (alias.capture_file) {
+          await assertMissingInCheckMode(path.join(OUTPUT_DIR, alias.capture_file));
         }
       }
       continue;
@@ -3185,12 +3287,7 @@ async function generateUseCase(useCase) {
     design_system_render_mode: DESIGN_SYSTEM_ADAPTER.render_mode,
     comparison_rows: buildComparisonRows(manifestEntries),
     comparison_columns: COMPARISON_COLUMNS,
-    legacy_aliases:
-      activeUseCase.id === "refund-system-map"
-        ? LEGACY_ALIASES.filter((alias) =>
-            manifestArtifacts.some((artifact) => artifact.id === alias.canonical_id),
-          )
-        : [],
+    legacy_aliases: [],
     model_labels: COMPARISON_ROWS.map((row) => row.model_label),
     artifacts: manifestArtifacts,
     diagnostic_candidates: diagnosticCandidates,
