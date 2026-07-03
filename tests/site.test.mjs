@@ -32,6 +32,25 @@ const EXPECTED_TOOL_NAMES = [
   "search_icon_catalog",
   "get_icon_svg",
 ];
+const PUBLIC_DIAGNOSTIC_CANDIDATE_KEYS = [
+  "approach_caption",
+  "approach_title",
+  "artifact_path",
+  "column_id",
+  "column_label",
+  "context_summary",
+  "id",
+  "model",
+  "model_label",
+  "release_evidence_status",
+  "row_id",
+  "row_label",
+  "screenshot_path",
+  "title",
+  "use_case_id",
+  "use_case_label",
+];
+const root = path.resolve(".");
 
 function canonicalizeJsonValue(value) {
   if (Array.isArray(value)) {
@@ -1110,7 +1129,19 @@ assert.ok(value.includes("Eval catalog JSON"));
 assert.ok(value.includes(`current hosted MCP release is ${packageJson.version}`));
 assert.ok(value.includes("historical committed eval artifacts"));
 assert.ok(value.includes("not current release acceptance proof"));
-assert.ok(value.includes("Older pilot packets remain historical source material in the repository"));
+assert.ok(value.includes("only the evidence intended for external audit"));
+for (const privatePilotWording of [
+  "Older pilot packets",
+  "pilot packets",
+  "pilot material",
+  "MCP pilot material",
+]) {
+  assert.equal(
+    value.includes(privatePilotWording),
+    false,
+    `/value/ should not mention private pilot archive framing: ${privatePilotWording}`,
+  );
+}
 assert.equal(value.includes("Latest MCP pilot report"), false);
 assert.equal(value.includes("Latest LLM evidence"), false);
 assert.equal(value.includes("Milestone proof packet"), false);
@@ -1318,6 +1349,12 @@ for (const useCase of MODEL_UI_USE_CASES) {
   const manifest = JSON.parse(
     fs.readFileSync(path.join(tempDir, ...useCase.manifest_path.split("/")), "utf8"),
   );
+  const sourceManifest = JSON.parse(
+    fs.readFileSync(path.join(root, ...useCase.manifest_path.split("/")), "utf8"),
+  );
+  const sourceDiagnosticCandidatesById = new Map(
+    (sourceManifest.diagnostic_candidates ?? []).map((candidate) => [candidate.id, candidate]),
+  );
   assert.equal(manifest.use_case_id, useCase.id);
   assert.equal(manifest.use_case_label, useCase.label);
   assert.equal(manifest.legacy_aliases.length, 0);
@@ -1358,13 +1395,38 @@ for (const useCase of MODEL_UI_USE_CASES) {
   }
 
   for (const candidate of manifest.diagnostic_candidates) {
+    assert.deepEqual(
+      Object.keys(candidate).sort(),
+      PUBLIC_DIAGNOSTIC_CANDIDATE_KEYS,
+      `${useCase.id}/${candidate.id} public diagnostic candidate should be scrubbed`,
+    );
+    assert.equal(candidate.release_evidence_status, "diagnostic_only");
+    assert.equal(candidate.artifact_path, null);
+    assert.equal(candidate.screenshot_path, null);
+    const candidateJson = JSON.stringify(candidate);
+    for (const privateNeedle of [
+      "repair_and_resubmit",
+      "visual_tokens",
+      "static_capture_quality",
+      "capture_file",
+      "capture_provenance",
+      "transcript_file",
+    ]) {
+      assert.equal(
+        candidateJson.includes(privateNeedle),
+        false,
+        `${useCase.id}/${candidate.id} should not expose ${privateNeedle}`,
+      );
+    }
+
+    const sourceCandidate = sourceDiagnosticCandidatesById.get(candidate.id) ?? {};
     for (const diagnosticPath of [
-      ["examples", "model-ui", useCase.id, "artifacts", `${candidate.id}.html`],
-      ["examples", "model-ui", useCase.id, "screenshots", `${candidate.id}.png`],
-      candidate.capture_file
-        ? ["examples", "model-ui", useCase.id, ...candidate.capture_file.split("/")]
-        : null,
-    ].filter(Boolean)) {
+      sourceCandidate.artifact_path ?? `artifacts/${candidate.id}.html`,
+      sourceCandidate.screenshot_path ?? `screenshots/${candidate.id}.png`,
+      sourceCandidate.capture_file ?? `captures/${candidate.id}.json`,
+    ]
+      .filter(Boolean)
+      .map((relativePath) => ["examples", "model-ui", useCase.id, ...relativePath.split("/")])) {
       assert.equal(
         fs.existsSync(path.join(tempDir, ...diagnosticPath)),
         false,
@@ -1508,6 +1570,45 @@ for (const run of evalCatalog.runs) {
   const releaseReviewPath = path.join(tempDir, "evals", run.run_path, "release-review.html");
   if (fs.existsSync(releaseReviewPath)) {
     const releaseReview = fs.readFileSync(releaseReviewPath, "utf8");
+    assert.ok(
+      releaseReview.includes("Historical archive, not an active release gate"),
+      `${run.run_path}/release-review.html should be framed as historical`,
+    );
+    assert.equal(
+      releaseReview.includes("Ready for release review"),
+      false,
+      `${run.run_path}/release-review.html should not use active release-gate status`,
+    );
+    assert.equal(
+      releaseReview.includes("Release gate summary"),
+      false,
+      `${run.run_path}/release-review.html should not label the public page as a release gate`,
+    );
+    assert.notEqual(
+      releaseReview.indexOf("not current hosted release acceptance proof"),
+      -1,
+      `${run.run_path}/release-review.html should describe historical evidence limits`,
+    );
+    for (const privatePilotEvidence of [
+      "MCP pilot cases",
+      "MCP pilot material",
+      "Older pilot packets",
+      "pilot packets",
+      "pilot material",
+      "blinded LLM judge",
+      "Blinded LLM judge",
+      "capture-required",
+      "17/20",
+      "18/20",
+      "eval:mcp-pilot",
+      "run-mcp-pilot",
+    ]) {
+      assert.equal(
+        releaseReview.includes(privatePilotEvidence),
+        false,
+        `${run.run_path}/release-review.html should not publish private pilot evidence: ${privatePilotEvidence}`,
+      );
+    }
     assert.equal(
       releaseReview.includes("../mcp-pilot/") ||
         releaseReview.includes("/evals/mcp-pilot/") ||

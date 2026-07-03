@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import http from "node:http";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,8 +10,13 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 
 import { JUDGMENTKIT_MCP_TOOL_NAMES } from "../scripts/install-mcp.mjs";
 import { listenSiteLocalServer } from "../scripts/site-local-server.mjs";
-import { probeRemoteMcpEndpoint } from "../scripts/verify-public-release.mjs";
-import { buildSite } from "../site/build-site.mjs";
+import {
+  assertRouteNotPublic,
+  diagnosticPrivatePaths,
+  modelUiPublicRoutePath,
+  probeRemoteMcpEndpoint,
+} from "../scripts/verify-public-release.mjs";
+import { buildSite, modelUiPublicPath } from "../site/build-site.mjs";
 import { MAX_MCP_POST_BODY_BYTES } from "../src/mcp-http.mjs";
 
 const REVIEW_BRIEF =
@@ -50,6 +56,100 @@ async function closeServer(server) {
       }
 
       resolve();
+    });
+  });
+}
+
+{
+  const sourceManifest = {
+    diagnostic_candidates: [
+      {
+        id: "diag-leak",
+        artifact_path: "artifacts/diag-leak.html",
+        screenshot_path: "screenshots/diag-leak.png",
+        capture_file: "captures/diag-leak.json",
+      },
+    ],
+  };
+  const publicManifest = {
+    diagnostic_candidates: [{ id: "diag-leak" }],
+  };
+
+  assert.deepEqual(diagnosticPrivatePaths(sourceManifest, publicManifest), [
+    { id: "diag-leak", privatePath: "artifacts/diag-leak.html" },
+    { id: "diag-leak", privatePath: "screenshots/diag-leak.png" },
+    { id: "diag-leak", privatePath: "captures/diag-leak.json" },
+  ]);
+  assert.throws(
+    () =>
+      diagnosticPrivatePaths(
+        {
+          diagnostic_candidates: [
+            {
+              id: "diag-leak",
+              artifact_path: "artifacts/../diag-leak.html",
+            },
+          ],
+        },
+        publicManifest,
+      ),
+    /diag-leak diagnostic artifact_path must be a safe relative path/,
+  );
+}
+
+{
+  const safeUseCase = {
+    id: "refund-system-map",
+    index_path: "examples/model-ui/refund-system-map/index.html",
+    manifest_path: "examples/model-ui/refund-system-map/manifest.json",
+  };
+
+  assert.equal(
+    modelUiPublicPath(safeUseCase, "manifest_path"),
+    "examples/model-ui/refund-system-map/manifest.json",
+  );
+  assert.equal(
+    modelUiPublicRoutePath(safeUseCase, "index_path"),
+    "/examples/model-ui/refund-system-map/index.html",
+  );
+
+  for (const [field, value] of [
+    ["manifest_path", "../manifest.json"],
+    ["manifest_path", "/examples/model-ui/refund-system-map/manifest.json"],
+    ["manifest_path", "//example.com/model-ui/manifest.json"],
+    ["manifest_path", "https://example.com/model-ui/manifest.json"],
+    ["manifest_path", "examples/model-ui/../secret/manifest.json"],
+    ["manifest_path", "examples/model-ui/refund-system-map/manifest.json?debug=1"],
+    ["manifest_path", "examples/model-ui/refund-system-map/manifest.json#debug"],
+    ["manifest_path", "examples\\model-ui\\refund-system-map\\manifest.json"],
+    ["manifest_path", "examples/other/manifest.json"],
+    ["index_path", "examples/other/index.html"],
+  ]) {
+    const useCase = { ...safeUseCase, [field]: value };
+    assert.throws(
+      () => modelUiPublicPath(useCase, field),
+      /must (be a safe relative path|stay under examples\/model-ui\/)/,
+    );
+    assert.throws(
+      () => modelUiPublicRoutePath(useCase, field),
+      /must (be a safe relative path|stay under examples\/model-ui\/)/,
+    );
+  }
+}
+
+function listenFixtureServer(handler) {
+  const server = http.createServer(handler);
+
+  return new Promise((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", () => {
+      server.off("error", reject);
+      const address = server.address();
+      assert.ok(address && typeof address === "object");
+      resolve({
+        server,
+        url: `http://127.0.0.1:${address.port}`,
+      });
     });
   });
 }
@@ -243,6 +343,45 @@ try {
   {
     const response = await fetchRoute(
       url,
+      "/examples/model-ui/refund-system-map/manifest.json",
+    );
+    const manifest = await response.json();
+    const sourceManifest = readJson("examples/model-ui/refund-system-map/manifest.json");
+    const sourceDiagnosticCandidatesById = new Map(
+      (sourceManifest.diagnostic_candidates ?? []).map((candidate) => [candidate.id, candidate]),
+    );
+    const diagnosticIds = new Set([
+      ...manifest.diagnostic_candidates.map((candidate) => candidate.id),
+      ...manifest.comparison_rows
+        .flatMap((row) => row.cells)
+        .filter((cell) => cell.release_evidence_status === "diagnostic_only")
+        .map((cell) => cell.diagnostic_candidate_id),
+    ]);
+
+    assert.equal(response.status, 200, "model UI manifest should return 200");
+    assert.equal(manifest.diagnostic_candidates.length, 2);
+    assert.equal(diagnosticIds.size, 2);
+
+    for (const id of [...diagnosticIds].sort()) {
+      const sourceCandidate = sourceDiagnosticCandidatesById.get(id) ?? {};
+      for (const privatePath of [
+        sourceCandidate.artifact_path ?? `artifacts/${id}.html`,
+        sourceCandidate.screenshot_path ?? `screenshots/${id}.png`,
+        sourceCandidate.capture_file ?? `captures/${id}.json`,
+      ].filter(Boolean)) {
+        await assertRouteNotPublic(
+          url,
+          `/examples/model-ui/refund-system-map/${privatePath}`,
+          `${id} diagnostic ${privatePath}`,
+          { bytes: privatePath.endsWith(".png") },
+        );
+      }
+    }
+  }
+
+  {
+    const response = await fetchRoute(
+      url,
       "/examples/ai-native-design-system/first-use.json",
     );
     const body = await response.json();
@@ -383,6 +522,56 @@ try {
     const response = await fetchRoute(url, traversalRoute);
 
     assert.equal(response.status, 404, `${traversalRoute} should not escape site root`);
+  }
+
+  {
+    const fixture = await listenFixtureServer((req, res) => {
+      if (req.url === "/gone") {
+        res.statusCode = 410;
+        res.end("gone");
+        return;
+      }
+
+      if (req.url === "/ok") {
+        res.statusCode = 200;
+        res.end("ok");
+        return;
+      }
+
+      if (req.url === "/redirect") {
+        res.writeHead(302, { location: "/ok" });
+        res.end("redirect");
+        return;
+      }
+
+      if (req.url === "/error") {
+        res.statusCode = 500;
+        res.end("error");
+        return;
+      }
+
+      res.statusCode = 404;
+      res.end("missing");
+    });
+
+    try {
+      await assertRouteNotPublic(fixture.url, "/missing", "missing fixture route");
+      await assertRouteNotPublic(fixture.url, "/gone", "gone fixture route");
+      await assert.rejects(
+        () => assertRouteNotPublic(fixture.url, "/ok", "ok fixture route"),
+        /ok fixture route should not be public at \/ok; expected 404\/410, got 200; Location: \(none\)/,
+      );
+      await assert.rejects(
+        () => assertRouteNotPublic(fixture.url, "/redirect", "redirect fixture route"),
+        /redirect fixture route should not be public at \/redirect; expected 404\/410, got 302; Location: \/ok/,
+      );
+      await assert.rejects(
+        () => assertRouteNotPublic(fixture.url, "/error", "error fixture route"),
+        /error fixture route should not be public at \/error; expected 404\/410, got 500; Location: \(none\)/,
+      );
+    } finally {
+      await closeServer(fixture.server);
+    }
   }
 
   for (const route of PUBLIC_MCP_ROUTES) {

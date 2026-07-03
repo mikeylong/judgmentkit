@@ -6331,7 +6331,7 @@ async function valuePage() {
         <section class="value-evidence" aria-labelledby="value-evidence-title">
           <p class="eyebrow">Evidence, not the main story</p>
           <h2 id="value-evidence-title">Audit material stays available.</h2>
-          <p>The public value path above is the product story. The current hosted MCP release is ${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}; linked reports are historical committed eval artifacts for deterministic proof, model matrix, and repair-loop data, not current release acceptance proof. Older pilot packets remain historical source material in the repository, not public latest-release evidence.</p>
+          <p>The public value path above is the product story. The current hosted MCP release is ${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}; linked reports are historical committed eval artifacts for deterministic proof, model matrix, and repair-loop data, not current release acceptance proof. The public archive includes only the evidence intended for external audit.</p>
           <div class="link-row">
             ${renderValueEvidenceLinks(evidenceLinks)}
           </div>
@@ -6492,6 +6492,14 @@ async function readJsonIfExists(relativePath) {
   } catch {
     return null;
   }
+}
+
+async function readRequiredJson(relativePath, label) {
+  const value = await readJsonIfExists(relativePath);
+  if (!value) {
+    throw new Error(`${label} must be present and valid JSON at ${relativePath}`);
+  }
+  return value;
 }
 
 const MODEL_UI_EXAMPLE = {
@@ -8006,8 +8014,45 @@ function isSafeRelativePath(relativePath) {
     typeof relativePath === "string" &&
     relativePath.length > 0 &&
     !path.isAbsolute(relativePath) &&
+    !relativePath.includes(":") &&
+    !relativePath.includes("?") &&
+    !relativePath.includes("#") &&
+    !relativePath.includes("\\") &&
     !relativePath.split(/[\\/]/).includes("..")
   );
+}
+
+function assertSafeRelativePath(relativePath, label) {
+  if (!isSafeRelativePath(relativePath)) {
+    throw new Error(`${label} must be a safe relative path, got ${JSON.stringify(relativePath)}`);
+  }
+  return relativePath;
+}
+
+export function modelUiPublicPath(useCase, field) {
+  const id = useCase?.id ?? "model UI use case";
+  const relativePath = assertSafeRelativePath(useCase?.[field], `${id} ${field}`);
+  if (!relativePath.startsWith("examples/model-ui/")) {
+    throw new Error(`${id} ${field} must stay under examples/model-ui/, got ${relativePath}`);
+  }
+  return relativePath;
+}
+
+async function readModelUiIndexForPublicBuild() {
+  const index = await readRequiredJson("examples/model-ui/index.json", "model UI index");
+  if (!Array.isArray(index.use_cases)) {
+    throw new Error("model UI index must include use_cases.");
+  }
+  for (const useCase of index.use_cases) {
+    modelUiPublicPath(useCase, "index_path");
+    modelUiPublicPath(useCase, "manifest_path");
+  }
+  return index;
+}
+
+async function readModelUiManifestForPublicBuild(useCase) {
+  const manifestPath = modelUiPublicPath(useCase, "manifest_path");
+  return readRequiredJson(manifestPath, `${useCase.id} model UI manifest`);
 }
 
 async function copyPublicEvalReports(outDir) {
@@ -8048,12 +8093,54 @@ async function copyPublicEvalReports(outDir) {
   }
 }
 
+function publicModelUiDiagnosticCandidate(candidate) {
+  return {
+    id: candidate.id,
+    use_case_id: candidate.use_case_id,
+    use_case_label: candidate.use_case_label,
+    row_id: candidate.row_id,
+    row_label: candidate.row_label,
+    column_id: candidate.column_id,
+    column_label: candidate.column_label,
+    title: candidate.title,
+    model: candidate.model,
+    model_label: candidate.model_label,
+    approach_title: candidate.approach_title,
+    approach_caption: candidate.approach_caption,
+    context_summary: candidate.context_summary,
+    release_evidence_status: candidate.release_evidence_status,
+    artifact_path: null,
+    screenshot_path: null,
+  };
+}
+
+function publicModelUiManifest(manifest) {
+  return {
+    ...manifest,
+    diagnostic_candidates: (manifest?.diagnostic_candidates ?? []).map(
+      publicModelUiDiagnosticCandidate,
+    ),
+  };
+}
+
+async function writePublicModelUiManifests(outDir) {
+  const index = await readModelUiIndexForPublicBuild();
+  for (const useCase of index.use_cases) {
+    const manifestPath = modelUiPublicPath(useCase, "manifest_path");
+    const manifest = await readModelUiManifestForPublicBuild(useCase);
+    await fs.writeFile(
+      path.join(outDir, ...manifestPath.split("/")),
+      jsonExport(publicModelUiManifest(manifest)),
+    );
+  }
+}
+
 async function removePublicModelUiDiagnosticFiles(outDir) {
-  const index = await readJsonIfExists("examples/model-ui/index.json");
-  for (const useCase of index?.use_cases ?? []) {
-    if (!isSafeRelativePath(useCase.manifest_path)) continue;
-    const manifest = await readJsonIfExists(useCase.manifest_path);
-    const useCaseDir = path.join(outDir, path.dirname(useCase.manifest_path));
+  const index = await readModelUiIndexForPublicBuild();
+  for (const useCase of index.use_cases) {
+    const manifestPath = modelUiPublicPath(useCase, "manifest_path");
+    const manifest = await readModelUiManifestForPublicBuild(useCase);
+    const useCaseDir = path.join(outDir, path.dirname(manifestPath));
 
     for (const candidate of manifest?.diagnostic_candidates ?? []) {
       for (const relativePath of [
@@ -8061,9 +8148,12 @@ async function removePublicModelUiDiagnosticFiles(outDir) {
         candidate.screenshot_path,
         candidate.capture_file,
       ]) {
-        if (isSafeRelativePath(relativePath)) {
-          await fs.rm(path.join(useCaseDir, relativePath), { force: true });
-        }
+        if (relativePath === undefined || relativePath === null) continue;
+        const safePath = assertSafeRelativePath(
+          relativePath,
+          `${useCase.id}/${candidate.id} diagnostic source path`,
+        );
+        await fs.rm(path.join(useCaseDir, safePath), { force: true });
       }
     }
   }
@@ -8218,6 +8308,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
     siteRebuildLogPage(designSystemModel),
   );
   await copyDirectoryIfExists("examples/model-ui", path.join(outDir, "examples", "model-ui"));
+  await writePublicModelUiManifests(outDir);
   await removePublicModelUiDiagnosticFiles(outDir);
   await copyDirectoryIfExists("experiments", path.join(outDir, "experiments"));
 

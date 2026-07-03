@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>JudgmentKit 0.3.0 Workflow Topology Release Review</title>
+  <title>JudgmentKit 0.3.0 Workflow Topology Historical Archive</title>
   <style>
     :root {
       color-scheme: light;
@@ -129,14 +129,18 @@
 <body>
   <main>
     <header>
-      <div class="status">Ready for release review</div>
-      <h1>JudgmentKit 0.3.0 Workflow Topology Review</h1>
+      <div class="status">Historical archive, not an active release gate</div>
+      <h1>JudgmentKit 0.3.0 Workflow Topology Archive</h1>
       <p class="lede">
-        This page summarizes the evaluated change set that removes wizard-step bias from JudgmentKit MCP by preferring workflow topology, work units, and coordinated surface sets.
+        This page summarizes the June 18, 2026 evaluated change set that removed wizard-step bias from historical JudgmentKit MCP 0.3.0 behavior by preferring workflow topology, work units, and coordinated surface sets.
       </p>
     </header>
 
-    <section class="grid" aria-label="Release gate summary">
+    <div class="callout">
+      This is a public audit copy of historical MCP <code>0.3.0</code> evidence, not current hosted release acceptance proof. It includes only the public committed eval archive material intended for external audit.
+    </div>
+
+    <section class="grid" aria-label="Historical evidence summary">
       <div class="metric">
         <strong>8/8</strong>
         <span>Deterministic eval cases passed, including the new topology regression cases.</span>
@@ -144,14 +148,6 @@
       <div class="metric">
         <strong>2/2</strong>
         <span>UI-generation eval guided wins with zero failed thresholds.</span>
-      </div>
-      <div class="metric">
-        <strong>17/20</strong>
-        <span>MCP pilot cases passed with zero capture-required or invalid outputs.</span>
-      </div>
-      <div class="metric">
-        <strong>18/20</strong>
-        <span>Blinded LLM judge preference for JudgmentKit-guided outputs.</span>
       </div>
     </section>
 
@@ -171,7 +167,7 @@
           <li><a href="ui-generation-report.html">UI-generation eval report</a></li>
         </ul>
         <div class="callout">
-          Release metadata remains <code>0.3.0</code> so the committed package, MCP metadata, and refreshed evidence paths stay aligned. MCP pilot material for this release is retained as repository-local archival evidence and is not part of the public eval archive.
+          Release metadata remains <code>0.3.0</code> so the committed package, MCP metadata, and refreshed evidence paths stay aligned.
         </div>
       </div>
     </section>
@@ -182,8 +178,6 @@
         <li><code>npm test</code> passed after the eval refresh and site-link update.</li>
         <li><code>npm run eval</code> passed with 8 deterministic cases.</li>
         <li><code>JUDGMENTKIT_UI_EVAL_RUN_DATE=2026-06-18 npm run eval:ui</code> passed.</li>
-        <li><code>npm run eval:mcp-pilot -- --capture ... --required-mcp-version 0.3.0 --strict</code> passed.</li>
-        <li><code>node evals/run-mcp-pilot-llm-judge.mjs --judge --strict</code> passed.</li>
         <li><code>npm run site:build</code> passed.</li>
         <li><code>git diff --check</code> passed.</li>
       </ul>

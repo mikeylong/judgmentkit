@@ -156,9 +156,23 @@ function assertDiagnosticBlockIsNonClickable(html, candidate) {
   assert.notEqual(blockStart, -1, `missing diagnostic card start for ${candidate.id}`);
   assert.notEqual(blockEnd, -1, `missing diagnostic card end for ${candidate.id}`);
   const block = html.slice(blockStart, blockEnd);
-  assert.equal(block.includes("<a "), false, `${candidate.id} diagnostic card must not contain links`);
-  assert.equal(block.includes("href="), false, `${candidate.id} diagnostic card must not contain href`);
-  assert.equal(block.includes("data-gallery-open"), false, `${candidate.id} diagnostic card must not open gallery`);
+  for (const interactiveMarker of [
+    "<a ",
+    "<button",
+    "<input",
+    "<select",
+    "<textarea",
+    "href=",
+    "tabindex=",
+    'role="button"',
+  ]) {
+    assert.equal(
+      block.includes(interactiveMarker),
+      false,
+      `${candidate.id} diagnostic card must not contain ${interactiveMarker}`,
+    );
+  }
+  assert.equal(block.includes("data-carousel-open"), false, `${candidate.id} diagnostic card must not open carousel`);
   assert.ok(block.includes("Needs repair before evidence"), `${candidate.id} should translate repair status`);
   assert.ok(block.includes("Token provenance failed"), `${candidate.id} should translate token checks`);
   assert.ok(block.includes("Capture quality failed"), `${candidate.id} should translate capture checks`);
@@ -166,6 +180,253 @@ function assertDiagnosticBlockIsNonClickable(html, candidate) {
   for (const check of candidate.failed_checks ?? []) {
     assert.equal(block.includes(check), false, `${candidate.id} should not expose raw failed check ${check}`);
   }
+}
+
+function assertModelUiCarouselBehavior(html, label) {
+  const dataMatch = html.match(
+    /<script type="application\/json" id="model-ui-gallery-data">([\s\S]*?)<\/script>/,
+  );
+  assert.ok(dataMatch, `${label} should include gallery data`);
+  const scriptStart = html.indexOf("<script>", dataMatch.index + dataMatch[0].length);
+  const scriptEnd = html.indexOf("</script>", scriptStart);
+  assert.notEqual(scriptStart, -1, `${label} should include carousel script`);
+  assert.notEqual(scriptEnd, -1, `${label} should close carousel script`);
+  const script = html.slice(scriptStart + "<script>".length, scriptEnd);
+
+  class FakeClassList {
+    constructor(initial = []) {
+      this.values = new Set(initial);
+    }
+
+    add(value) {
+      this.values.add(value);
+    }
+
+    remove(value) {
+      this.values.delete(value);
+    }
+
+    contains(value) {
+      return this.values.has(value);
+    }
+  }
+
+  class FakeElement {
+    constructor(name, attrs = {}) {
+      this.name = name;
+      this.attrs = { ...attrs };
+      this.children = [];
+      this.eventListeners = new Map();
+      this.classList = new FakeClassList(String(attrs.class ?? "").split(/\s+/).filter(Boolean));
+      this.hidden = Boolean(attrs.hidden);
+      this.disabled = false;
+      this.parent = null;
+      this.textContent = attrs.textContent ?? "";
+      this.tabIndex = attrs.tabindex === "-1" ? -1 : 0;
+      this.src = "";
+      this.alt = "";
+      this.href = attrs.href ?? "";
+    }
+
+    append(child) {
+      child.parent = this;
+      this.children.push(child);
+      return child;
+    }
+
+    getAttribute(name) {
+      return this.attrs[name] ?? null;
+    }
+
+    setAttribute(name, value) {
+      this.attrs[name] = String(value);
+      if (name === "tabindex") this.tabIndex = value === "-1" ? -1 : 0;
+    }
+
+    addEventListener(type, listener) {
+      const listeners = this.eventListeners.get(type) ?? [];
+      listeners.push(listener);
+      this.eventListeners.set(type, listeners);
+    }
+
+    focus() {
+      fakeDocument.activeElement = this;
+    }
+
+    contains(element) {
+      for (let current = element; current; current = current.parent) {
+        if (current === this) return true;
+      }
+      return false;
+    }
+
+    querySelector(selector) {
+      return this.querySelectorAll(selector)[0] ?? null;
+    }
+
+    querySelectorAll(selector) {
+      const all = [];
+      const visit = (element) => {
+        for (const child of element.children) {
+          all.push(child);
+          visit(child);
+        }
+      };
+      visit(this);
+
+      if (selector === "a[href], button, input, select, textarea, [tabindex]") {
+        return all.filter((element) =>
+          ["a", "button", "input", "select", "textarea"].includes(element.name) ||
+          Object.hasOwn(element.attrs, "tabindex"),
+        );
+      }
+
+      const attrMatch = selector.match(/^\[([^\]]+)\](?::not\(\.([^)]+)\))?$/);
+      if (attrMatch) {
+        const [, attr, excludedClass] = attrMatch;
+        return all.filter(
+          (element) =>
+            Object.hasOwn(element.attrs, attr) &&
+            (!excludedClass || !element.classList.contains(excludedClass)),
+        );
+      }
+
+      return [];
+    }
+  }
+
+  function dispatch(element, type, event = {}) {
+    let prevented = false;
+    const eventObject = {
+      shiftKey: false,
+      ...event,
+      preventDefault() {
+        prevented = true;
+      },
+    };
+    const listeners = element.eventListeners?.get(type) ?? element.listeners?.get(type) ?? [];
+    for (const listener of listeners) {
+      listener(eventObject);
+    }
+    return prevented;
+  }
+
+  const fakeDocument = {
+    activeElement: null,
+    documentElement: { classList: new FakeClassList() },
+    listeners: new Map(),
+    getElementById(id) {
+      return id === "model-ui-gallery-data"
+        ? { textContent: dataMatch[1] }
+        : null;
+    },
+    querySelector(selector) {
+      return selector === "[data-carousel]" ? carousel : null;
+    },
+    querySelectorAll(selector) {
+      return selector === "[data-carousel-open]" ? openers : [];
+    },
+    addEventListener(type, listener) {
+      const listeners = this.listeners.get(type) ?? [];
+      listeners.push(listener);
+      this.listeners.set(type, listeners);
+    },
+  };
+  const fakeWindow = {
+    getComputedStyle() {
+      return { display: "block", visibility: "visible" };
+    },
+  };
+
+  const carousel = new FakeElement("section", {
+    "data-carousel": "",
+    hidden: true,
+    "aria-hidden": "true",
+  });
+  carousel.append(new FakeElement("button", {
+    class: "carousel-backdrop",
+    "data-carousel-close": "",
+    tabindex: "-1",
+  }));
+  carousel.append(new FakeElement("img", { "data-carousel-image": "" }));
+  for (const attr of [
+    "data-carousel-kicker",
+    "data-carousel-title",
+    "data-carousel-caption",
+    "data-carousel-context",
+    "data-carousel-render",
+    "data-carousel-prompt",
+    "data-carousel-provenance",
+    "data-carousel-count",
+  ]) {
+    carousel.append(new FakeElement("div", { [attr]: "" }));
+  }
+  const closeButton = carousel.append(new FakeElement("button", { "data-carousel-close": "" }));
+  const artifactLink = carousel.append(new FakeElement("a", {
+    "data-carousel-artifact": "",
+    href: "",
+  }));
+  const sourceLink = carousel.append(new FakeElement("a", {
+    "data-carousel-source": "",
+    href: "",
+  }));
+  const prevButton = carousel.append(new FakeElement("button", { "data-carousel-prev": "" }));
+  const nextButton = carousel.append(new FakeElement("button", { "data-carousel-next": "" }));
+  const openers = [
+    new FakeElement("a", { "data-carousel-open": "0", href: "artifacts/0.html" }),
+  ];
+  openers[0].focus();
+
+  Function("document", "window", script)(fakeDocument, fakeWindow);
+  assert.equal(dispatch(openers[0], "click"), true, `${label} opener should prevent navigation`);
+  assert.equal(carousel.hidden, false, `${label} carousel should open`);
+  assert.equal(carousel.getAttribute("aria-hidden"), "false", `${label} carousel should be visible to AT`);
+  assert.equal(fakeDocument.activeElement, closeButton, `${label} close button should receive focus`);
+  assert.equal(
+    fakeDocument.documentElement.classList.contains("carousel-open"),
+    true,
+    `${label} should lock document scroll while open`,
+  );
+
+  assert.equal(
+    dispatch(fakeDocument, "keydown", { key: "Tab", shiftKey: true }),
+    true,
+    `${label} Shift+Tab from first control should be trapped`,
+  );
+  assert.equal(fakeDocument.activeElement, nextButton, `${label} Shift+Tab should wrap to last control`);
+  assert.equal(
+    dispatch(fakeDocument, "keydown", { key: "Tab" }),
+    true,
+    `${label} Tab from last control should be trapped`,
+  );
+  assert.equal(fakeDocument.activeElement, closeButton, `${label} Tab should wrap to first control`);
+
+  openers[0].focus();
+  assert.equal(
+    dispatch(fakeDocument, "keydown", { key: "Tab" }),
+    true,
+    `${label} Tab from outside the dialog should be trapped`,
+  );
+  assert.equal(fakeDocument.activeElement, closeButton, `${label} outside focus should move to first control`);
+
+  dispatch(fakeDocument, "keydown", { key: "ArrowRight" });
+  assert.equal(
+    carousel.querySelector("[data-carousel-count]").textContent,
+    "2 / 10",
+    `${label} ArrowRight should advance gallery item`,
+  );
+  assert.ok(artifactLink.href.includes("artifacts/"), `${label} should populate artifact link`);
+  assert.ok(sourceLink.href.includes("screenshots/"), `${label} should populate source link`);
+
+  dispatch(fakeDocument, "keydown", { key: "Escape" });
+  assert.equal(carousel.hidden, true, `${label} Escape should close carousel`);
+  assert.equal(carousel.getAttribute("aria-hidden"), "true", `${label} carousel should hide from AT`);
+  assert.equal(fakeDocument.activeElement, openers[0], `${label} Escape should restore opener focus`);
+  assert.equal(
+    fakeDocument.documentElement.classList.contains("carousel-open"),
+    false,
+    `${label} should unlock document scroll after close`,
+  );
 }
 
 function assertPng(filePath) {
@@ -780,6 +1041,7 @@ for (const useCase of MODEL_UI_USE_CASES) {
   assert.ok(indexHtml.includes("diagnostic-card"));
   assert.ok(indexHtml.includes("Needs repair before evidence"));
   assert.equal(indexHtml.includes('id="model-ui-manifest"'), false);
+  assertModelUiCarouselBehavior(indexHtml, useCase.id);
   assert.ok(indexHtml.includes("Gemma 4 via LM Studio lms"));
   assert.ok(indexHtml.includes("GPT-5.5 xhigh via codex exec"));
   assert.ok(indexHtml.includes("Material UI improves visual/component consistency"));

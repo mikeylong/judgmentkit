@@ -2567,7 +2567,7 @@ function renderMatrixIndex(manifest) {
         grid-template-columns: minmax(0, 1.6fr) minmax(300px, 0.7fr);
         width: min(1240px, 100%);
         max-height: min(860px, calc(100vh - 36px));
-        overflow: hidden;
+        overflow: auto;
         border: 1px solid var(--line);
         border-radius: 8px;
         background: var(--panel);
@@ -2657,6 +2657,14 @@ function renderMatrixIndex(manifest) {
         }
         .carousel-panel {
           max-height: calc(100vh - 24px);
+          align-content: start;
+        }
+        .carousel-copy {
+          grid-template-rows: auto auto auto;
+        }
+        .carousel-controls {
+          flex-wrap: wrap;
+          gap: 12px;
         }
         .details-row {
           grid-template-columns: 1fr;
@@ -2696,7 +2704,7 @@ ${detailsRows}
         </div>
       </details>
       <section class="carousel" data-carousel hidden aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="carousel-title">
-        <button class="carousel-backdrop" type="button" data-carousel-close aria-label="Close larger screenshot view"></button>
+        <button class="carousel-backdrop" type="button" data-carousel-close tabindex="-1" aria-label="Close larger screenshot view"></button>
         <div class="carousel-panel">
           <div class="carousel-image">
             <img data-carousel-image src="" alt="">
@@ -2752,6 +2760,43 @@ ${detailsRows}
         let activeIndex = 0;
         let lastFocus = null;
 
+        function carouselFocusable() {
+          return Array.from(carousel.querySelectorAll("a[href], button, input, select, textarea, [tabindex]")).filter((element) => {
+            if (element.tabIndex < 0 || element.disabled) return false;
+            const style = window.getComputedStyle(element);
+            return style.display !== "none" && style.visibility !== "hidden";
+          });
+        }
+
+        function containCarouselFocus(event) {
+          if (event.key !== "Tab") return false;
+          const focusable = carouselFocusable();
+          if (!focusable.length) {
+            event.preventDefault();
+            closeButton.focus();
+            return true;
+          }
+
+          const first = focusable[0];
+          const last = focusable[focusable.length - 1];
+          if (!carousel.contains(document.activeElement)) {
+            event.preventDefault();
+            (event.shiftKey ? last : first).focus();
+            return true;
+          }
+          if (event.shiftKey && document.activeElement === first) {
+            event.preventDefault();
+            last.focus();
+            return true;
+          }
+          if (!event.shiftKey && document.activeElement === last) {
+            event.preventDefault();
+            first.focus();
+            return true;
+          }
+          return false;
+        }
+
         function renderItem(index) {
           activeIndex = (index + items.length) % items.length;
           const item = items[activeIndex];
@@ -2799,8 +2844,15 @@ ${detailsRows}
         carousel.querySelector("[data-carousel-next]").addEventListener("click", () => renderItem(activeIndex + 1));
         document.addEventListener("keydown", (event) => {
           if (carousel.hidden) return;
-          if (event.key === "Escape") close();
-          if (event.key === "ArrowLeft") renderItem(activeIndex - 1);
+          if (containCarouselFocus(event)) return;
+          if (event.key === "Escape") {
+            close();
+            return;
+          }
+          if (event.key === "ArrowLeft") {
+            renderItem(activeIndex - 1);
+            return;
+          }
           if (event.key === "ArrowRight") renderItem(activeIndex + 1);
         });
       })();

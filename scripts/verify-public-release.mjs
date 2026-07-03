@@ -41,6 +41,24 @@ const OLD_FRAMING = [
   "judgmentkit-2",
 ];
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+const PUBLIC_DIAGNOSTIC_CANDIDATE_KEYS = [
+  "approach_caption",
+  "approach_title",
+  "artifact_path",
+  "column_id",
+  "column_label",
+  "context_summary",
+  "id",
+  "model",
+  "model_label",
+  "release_evidence_status",
+  "row_id",
+  "row_label",
+  "screenshot_path",
+  "title",
+  "use_case_id",
+  "use_case_label",
+];
 
 function matrixCellCount(manifest) {
   return (manifest.comparison_rows ?? []).reduce(
@@ -56,10 +74,14 @@ function assertDiagnosticCandidatesExcluded(manifest, label) {
   );
 
   for (const candidate of manifest.diagnostic_candidates) {
+    assert.deepEqual(
+      Object.keys(candidate).sort(),
+      PUBLIC_DIAGNOSTIC_CANDIDATE_KEYS,
+      `${label}/${candidate.id} diagnostic candidate should be scrubbed for public release`,
+    );
     assert.equal(candidate.release_evidence_status, "diagnostic_only");
     assert.equal(candidate.artifact_path ?? null, null);
     assert.equal(candidate.screenshot_path ?? null, null);
-    assert.equal(candidate.next_agent_action, "repair_and_resubmit");
     assert.equal(
       (manifest.artifacts ?? []).some((artifact) => artifact.id === candidate.id),
       false,
@@ -132,48 +154,73 @@ function readModelUiProvenance(html, label) {
   return JSON.parse(match[1]);
 }
 
-async function assertRouteNotPublic(baseUrl, route, label, { bytes = false } = {}) {
+export async function assertRouteNotPublic(
+  baseUrl,
+  route,
+  label,
+  { bytes = false, allowedStatuses = [404, 410] } = {},
+) {
   const result = bytes
-    ? await fetchBytes(baseUrl, route, { expectOk: false })
-    : await fetchText(baseUrl, route, { expectOk: false });
+    ? await fetchBytes(baseUrl, route, { expectOk: false, redirect: "manual" })
+    : await fetchText(baseUrl, route, { expectOk: false, redirect: "manual" });
+  const location = result.response.headers.get("location");
 
-  assert.equal(
-    result.response.ok,
-    false,
-    `${label} should not be public at ${route}`,
+  assert.ok(
+    allowedStatuses.includes(result.response.status),
+    `${label} should not be public at ${route}; expected ${allowedStatuses.join(
+      "/",
+    )}, got ${result.response.status}; Location: ${location ?? "(none)"}`,
   );
 }
 
-async function assertDiagnosticRoutesNotPublic(baseUrl, useCaseBaseRoute, manifest, label) {
+function assertSafeRelativePath(relativePath, label) {
+  assert.ok(
+    isSafeRelativePath(relativePath),
+    `${label} must be a safe relative path, got ${JSON.stringify(relativePath)}`,
+  );
+  return relativePath;
+}
+
+export function diagnosticPrivatePaths(sourceManifest, publicManifest) {
   const diagnosticIds = new Set([
-    ...(manifest.diagnostic_candidates ?? []).map((candidate) => candidate.id),
-    ...(manifest.comparison_rows ?? [])
+    ...(sourceManifest?.diagnostic_candidates ?? []).map((candidate) => candidate.id),
+    ...(publicManifest?.diagnostic_candidates ?? []).map((candidate) => candidate.id),
+    ...(publicManifest?.comparison_rows ?? [])
       .flatMap((row) => row.cells ?? [])
       .filter((cell) => cell.release_evidence_status === "diagnostic_only")
       .map((cell) => cell.diagnostic_candidate_id)
       .filter(Boolean),
   ]);
+  const candidatesById = new Map(
+    (sourceManifest?.diagnostic_candidates ?? []).map((candidate) => [candidate.id, candidate]),
+  );
 
-  for (const id of diagnosticIds) {
-    await assertRouteNotPublic(
-      baseUrl,
-      `${useCaseBaseRoute}artifacts/${id}.html`,
-      `${label}/${id} diagnostic artifact`,
-    );
-    await assertRouteNotPublic(
-      baseUrl,
-      `${useCaseBaseRoute}screenshots/${id}.png`,
-      `${label}/${id} diagnostic screenshot`,
-      { bytes: true },
-    );
-  }
+  return [...diagnosticIds].sort().flatMap((id) => {
+    const sourceCandidate = candidatesById.get(id) ?? {};
+    return [
+      ["artifact_path", sourceCandidate.artifact_path ?? `artifacts/${id}.html`],
+      ["screenshot_path", sourceCandidate.screenshot_path ?? `screenshots/${id}.png`],
+      ["capture_file", sourceCandidate.capture_file ?? `captures/${id}.json`],
+    ].map(([field, privatePath]) => ({
+      id,
+      privatePath: assertSafeRelativePath(privatePath, `${id} diagnostic ${field}`),
+    }));
+  });
+}
 
-  for (const candidate of manifest.diagnostic_candidates ?? []) {
-    if (!candidate.capture_file) continue;
+async function assertDiagnosticRoutesNotPublic(
+  baseUrl,
+  useCaseBaseRoute,
+  publicManifest,
+  label,
+  sourceManifest = publicManifest,
+) {
+  for (const { id, privatePath } of diagnosticPrivatePaths(sourceManifest, publicManifest)) {
     await assertRouteNotPublic(
       baseUrl,
-      `${useCaseBaseRoute}${candidate.capture_file}`,
-      `${label}/${candidate.id} diagnostic capture`,
+      `${useCaseBaseRoute}${privatePath}`,
+      `${label}/${id} diagnostic ${privatePath}`,
+      { bytes: privatePath.endsWith(".png") },
     );
   }
 }
@@ -273,6 +320,17 @@ async function readPackageVersion() {
   return packageJson.version;
 }
 
+async function readJsonIfExists(relativePath) {
+  try {
+    return JSON.parse(await fs.readFile(path.join(PROJECT_ROOT, relativePath), "utf8"));
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      return null;
+    }
+    throw error;
+  }
+}
+
 async function fetchText(baseUrl, route, options = {}) {
   const response = await fetch(urlFor(baseUrl, route), {
     method: options.method ?? "GET",
@@ -322,6 +380,29 @@ function assertExcludes(text, needles, label) {
 
 function evalRunTitle(run) {
   return `${run.date} / ${run.mcp_release_segment ?? `mcp-${run.mcp_release}`} / ${run.run_id}`;
+}
+
+function isSafeRelativePath(relativePath) {
+  return (
+    typeof relativePath === "string" &&
+    relativePath.length > 0 &&
+    !path.isAbsolute(relativePath) &&
+    !relativePath.includes(":") &&
+    !relativePath.includes("?") &&
+    !relativePath.includes("#") &&
+    !relativePath.includes("\\") &&
+    !relativePath.split(/[\\/]/).includes("..")
+  );
+}
+
+export function modelUiPublicRoutePath(useCase, field) {
+  const id = useCase?.id ?? "model UI use case";
+  const relativePath = assertSafeRelativePath(useCase?.[field], `${id} ${field}`);
+  assert.ok(
+    relativePath.startsWith("examples/model-ui/"),
+    `${id} ${field} must stay under examples/model-ui/, got ${relativePath}`,
+  );
+  return `/${relativePath}`;
 }
 
 function getAnalyticsScriptSrc(text, label) {
@@ -408,6 +489,34 @@ async function verifyEvalArchive(baseUrl, analyticsScriptSrc, expectedPackageVer
       true,
       `${releaseReviewRoute} should return 2xx or 404, got ${releaseReview.response.status}`,
     );
+    assertIncludes(
+      releaseReview.text,
+      [
+        "Historical archive, not an active release gate",
+        "not current hosted release acceptance proof",
+      ],
+      releaseReviewRoute,
+    );
+    assertExcludes(
+      releaseReview.text,
+      [
+        "Ready for release review",
+        "Release gate summary",
+        "MCP pilot cases",
+        "MCP pilot material",
+        "Older pilot packets",
+        "pilot packets",
+        "pilot material",
+        "blinded LLM judge",
+        "Blinded LLM judge",
+        "capture-required",
+        "17/20",
+        "18/20",
+        "eval:mcp-pilot",
+        "run-mcp-pilot",
+      ],
+      releaseReviewRoute,
+    );
     assertExcludes(
       releaseReview.text,
       ["../mcp-pilot/", "../../../mcp-pilot/", "/evals/mcp-pilot/"],
@@ -486,8 +595,8 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
     assert.ok(useCase.index_path, `${useCase.id} should include index_path`);
     assert.ok(useCase.manifest_path, `${useCase.id} should include manifest_path`);
 
-    const useCaseRoute = `/${useCase.index_path}`;
-    const manifestRoute = `/${useCase.manifest_path}`;
+    const useCaseRoute = modelUiPublicRoutePath(useCase, "index_path");
+    const manifestRoute = modelUiPublicRoutePath(useCase, "manifest_path");
     const useCasePage = await fetchText(baseUrl, useCaseRoute);
     assert.equal(getAnalyticsScriptSrc(useCasePage.text, useCaseRoute), analyticsScriptSrc);
     assertIncludes(
@@ -505,6 +614,7 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
     checked.push(useCaseRoute);
 
     const manifest = JSON.parse((await fetchText(baseUrl, manifestRoute)).text);
+    const sourceManifest = await readJsonIfExists(manifestRoute.slice(1));
     checked.push(manifestRoute);
     assert.equal(manifest.use_case_id, useCase.id);
     assert.equal(manifest.use_case_label, useCase.label);
@@ -533,7 +643,13 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
     assertDiagnosticCandidatesExcluded(manifest, useCase.id);
 
     const useCaseBaseRoute = manifestRoute.replace(/manifest\.json$/, "");
-    await assertDiagnosticRoutesNotPublic(baseUrl, useCaseBaseRoute, manifest, useCase.id);
+    await assertDiagnosticRoutesNotPublic(
+      baseUrl,
+      useCaseBaseRoute,
+      manifest,
+      useCase.id,
+      sourceManifest,
+    );
     await assertInactiveLegacyAliasesNotPublic(baseUrl, useCaseBaseRoute, manifest);
 
     for (const artifact of manifest.artifacts) {
@@ -837,6 +953,9 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     "/examples/model-ui/refund-system-map/manifest.json",
   );
   const modelUiManifest = JSON.parse(modelUiManifestResponse.text);
+  const modelUiSourceManifest = await readJsonIfExists(
+    "examples/model-ui/refund-system-map/manifest.json",
+  );
   assert.equal(modelUiManifest.design_system_name, "Material UI");
   assert.equal(modelUiManifest.design_system_package, "@mui/material");
   assert.equal(modelUiManifest.design_system_render_mode, "static-ssr");
@@ -865,6 +984,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     "/examples/model-ui/refund-system-map/",
     modelUiManifest,
     "model UI",
+    modelUiSourceManifest,
   );
   await assertInactiveLegacyAliasesNotPublic(
     baseUrl,
