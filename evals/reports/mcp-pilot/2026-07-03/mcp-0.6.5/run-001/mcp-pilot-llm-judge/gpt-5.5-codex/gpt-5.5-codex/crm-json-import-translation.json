@@ -1,0 +1,88 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "crm-json-import-translation",
+  "title": "CRM JSON import translation",
+  "case_type": "activity_translation",
+  "model_config_id": "gpt-5.5-codex",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-07-03T15:44:18.855Z",
+  "duration_ms": 63635,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "f279afc6bbdced4ac711194cc47bb00d2bdea67430ec442e32684ee66c002f2e",
+  "raw_response_sha256": "494bdc6d3535ab16c79e93903379700d5275ebe7e8ab1e56cce888c2a0abc672",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"high\",\"rationale\":\"Output B is the better guide for the downstream agent because it turns the technical import materials into the expected record acceptance review: ready records, owner-fix records, evidence per record, and the sendable summary. Output A is strong and activity-aligned, but it stays closer to an implementation-plan framing and introduces broader states like blocked records and unresolved mapping questions, which may be useful but are less directly tied to the expected next action.\",\"decisive_differences\":[\"Output B directly specifies the review artifact the next agent should produce: two record-level lists plus an import summary.\",\"Output B keeps the user-facing language operational and business-facing, while Output A uses more agent/process language such as implementation plan, fixture-specific checks, and proposing UI structure.\",\"Output A is more comprehensive about possible decision states, but some of those states go beyond the brief and could distract from the required acceptance versus owner-fix review.\"],\"evidence\":[{\"output\":\"output_b\",\"quote\":\"produce a decision summary with two lists: Ready for acceptance and Needs owner fix\",\"why_it_matters\":\"This matches the expected next action: translate import mechanics into a record acceptance review.\"},{\"output\":\"output_b\",\"quote\":\"responsible owner, plain-language validation issue, required fix, and evidence from the preview or validation result\",\"why_it_matters\":\"It gives the downstream agent concrete fields needed to make and justify the operational judgment.\"},{\"output\":\"output_a\",\"quote\":\"Write the next agent-facing response as an activity-first implementation plan\",\"why_it_matters\":\"This is directionally correct but less directly actionable than producing the acceptance review itself.\"},{\"output\":\"output_a\",\"quote\":\"blocked records, records needing owner correction, unresolved mapping questions\",\"why_it_matters\":\"These categories may be plausible, but they add states not explicitly required by the brief.\"}],\"output_a_quality\":{\"score\":8,\"strengths\":[\"Correctly identifies the account-operations activity and outcome.\",\"Grounds the work in record-level evidence from JSON, mappings, validation errors, and API preview.\",\"Includes a clear handoff with owner, action, and reason.\"],\"risks\":[\"Frames the next move as an implementation plan rather than the acceptance review itself.\",\"Introduces extra categories that may or may not exist in the source fixture.\",\"Slightly more internal/agent-facing than ideal for guiding the next response.\"]},\"output_b_quality\":{\"score\":8.8,\"strengths\":[\"Most directly matches the expected acceptance-review next action.\",\"Operationally useful: names records, owner fixes, validation evidence, and summary contents.\",\"Restrained about missing context by only asking for labels if unavailable.\",\"Keeps technical mechanics behind business-facing review language.\"],\"risks\":[\"The instruction to avoid rejected/manual-correction paths is somewhat assertive beyond the brief.\",\"Rerunning validation is a reasonable safety step but not explicitly sourced.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "high",
+    "rationale": "Output B is the better guide for the downstream agent because it turns the technical import materials into the expected record acceptance review: ready records, owner-fix records, evidence per record, and the sendable summary. Output A is strong and activity-aligned, but it stays closer to an implementation-plan framing and introduces broader states like blocked records and unresolved mapping questions, which may be useful but are less directly tied to the expected next action.",
+    "decisive_differences": [
+      "Output B directly specifies the review artifact the next agent should produce: two record-level lists plus an import summary.",
+      "Output B keeps the user-facing language operational and business-facing, while Output A uses more agent/process language such as implementation plan, fixture-specific checks, and proposing UI structure.",
+      "Output A is more comprehensive about possible decision states, but some of those states go beyond the brief and could distract from the required acceptance versus owner-fix review."
+    ],
+    "evidence": [
+      {
+        "output": "output_b",
+        "quote": "produce a decision summary with two lists: Ready for acceptance and Needs owner fix",
+        "why_it_matters": "This matches the expected next action: translate import mechanics into a record acceptance review."
+      },
+      {
+        "output": "output_b",
+        "quote": "responsible owner, plain-language validation issue, required fix, and evidence from the preview or validation result",
+        "why_it_matters": "It gives the downstream agent concrete fields needed to make and justify the operational judgment."
+      },
+      {
+        "output": "output_a",
+        "quote": "Write the next agent-facing response as an activity-first implementation plan",
+        "why_it_matters": "This is directionally correct but less directly actionable than producing the acceptance review itself."
+      },
+      {
+        "output": "output_a",
+        "quote": "blocked records, records needing owner correction, unresolved mapping questions",
+        "why_it_matters": "These categories may be plausible, but they add states not explicitly required by the brief."
+      }
+    ],
+    "output_a_quality": {
+      "score": 8,
+      "strengths": [
+        "Correctly identifies the account-operations activity and outcome.",
+        "Grounds the work in record-level evidence from JSON, mappings, validation errors, and API preview.",
+        "Includes a clear handoff with owner, action, and reason."
+      ],
+      "risks": [
+        "Frames the next move as an implementation plan rather than the acceptance review itself.",
+        "Introduces extra categories that may or may not exist in the source fixture.",
+        "Slightly more internal/agent-facing than ideal for guiding the next response."
+      ]
+    },
+    "output_b_quality": {
+      "score": 8.8,
+      "strengths": [
+        "Most directly matches the expected acceptance-review next action.",
+        "Operationally useful: names records, owner fixes, validation evidence, and summary contents.",
+        "Restrained about missing context by only asking for labels if unavailable.",
+        "Keeps technical mechanics behind business-facing review language."
+      ],
+      "risks": [
+        "The instruction to avoid rejected/manual-correction paths is somewhat assertive beyond the brief.",
+        "Rerunning validation is a reasonable safety step but not explicitly sourced."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "965d2a6dc376a180323dfc7d5685f90480bef82ec63f15ee2d055208dbc4aade",
+    "stderr_sha256": "c88b4dab8af6c1a46809cd7361cbe5548890a4363305c5ea8f1212dabf49ec80",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

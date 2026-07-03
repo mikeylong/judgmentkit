@@ -1,0 +1,48 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "visual-token-valid-metadata-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.6.5",
+  "mcp_url": "http://127.0.0.1:51549/mcp",
+  "mcp_metadata_sha256": "e84fe4a9764e3a3ac1e81051537a8488280c76a4b4d51d3d1aea3a1bc6231070",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "acf28a8ea87ec656ff85b675b67956d985b60231257e86c020ec71f51275854d",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-07-03T15:23:29.884Z",
+  "duration_ms": 62838,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "f4c55ac3de55aa8e3e8d3c94fa8455fb7948f0cd7412b8ddcddc024d3fa69198",
+  "prompt_sha256": "ba6ae2d856e0771228f7274bef503ebfed7eaec5cd5dd59196bb7d6b18ac8edc",
+  "mcp_context_sha256": "a1767036f0bb71aa9ed81c80e80d4dfc09989ae4dcecfd37b2b4ccbd404f9aa5",
+  "raw_response_sha256": "660cff3b5c04e38d1c0d3831afd96797dd79f80eae6483c6e726c17826124ad3",
+  "raw_response": "{\"response\":\"Accept the refund review workbench implementation. The candidate uses the expected queue, detail panel, decision controls, and handoff receipt; covers empty, ready, loading, error, disabled, and focus-visible states; and includes passing static, desktop/mobile, accessibility, forced-colors, reduced-motion, non-text contrast, and semantic fallback verification. The visual token evidence supports the decision-control and handoff semantics, but acceptance remains based on the implementation evidence rather than token metadata alone.\",\"next_action\":\"accept\",\"questions\":[],\"handoff\":\"Decision: accept; action: proceed with the refund review workbench; reason: required primitives, states, decision controls, handoff receipt, browser QA, and accessibility verification are present; required fix: none; verification: keep npm test plus desktop/mobile and accessibility evidence with the implementation record.\",\"rationale\":\"Token metadata does not loosen or replace the acceptance criteria. It confirms alignment for focus, status, and decision semantics, while the submitted implementation evidence already satisfies the expected operator review workflow, state coverage, checks, browser QA, and accessibility requirements.\"}",
+  "parsed": {
+    "response": "Accept the refund review workbench implementation. The candidate uses the expected queue, detail panel, decision controls, and handoff receipt; covers empty, ready, loading, error, disabled, and focus-visible states; and includes passing static, desktop/mobile, accessibility, forced-colors, reduced-motion, non-text contrast, and semantic fallback verification. The visual token evidence supports the decision-control and handoff semantics, but acceptance remains based on the implementation evidence rather than token metadata alone.",
+    "next_action": "accept",
+    "questions": [],
+    "handoff": "Decision: accept; action: proceed with the refund review workbench; reason: required primitives, states, decision controls, handoff receipt, browser QA, and accessibility verification are present; required fix: none; verification: keep npm test plus desktop/mobile and accessibility evidence with the implementation record.",
+    "rationale": "Token metadata does not loosen or replace the acceptance criteria. It confirms alignment for focus, status, and decision semantics, while the submitted implementation evidence already satisfies the expected operator review workflow, state coverage, checks, browser QA, and accessibility requirements."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "9f71903c90a4e1c282688da873c70794c09767b41891cc2a557f96fa446e3d0c",
+    "stderr_sha256": "6bdf95c2d06937895a444c4880a3f3cd26bbf89d7fb50fbc275dbf5bb145c873",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

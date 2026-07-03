@@ -1,0 +1,53 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "vague-system-dashboard",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.6.5",
+  "mcp_url": "http://127.0.0.1:51549/mcp",
+  "mcp_metadata_sha256": "e84fe4a9764e3a3ac1e81051537a8488280c76a4b4d51d3d1aea3a1bc6231070",
+  "mcp_tool_sequence": [
+    "create_activity_model_review",
+    "recommend_surface_types",
+    "recommend_ui_workflow_profiles"
+  ],
+  "mcp_tool_transcript_sha256": "13c00fc88a4fcffedbf357baaf2353bca2fab08eee02bbf05ab53d1d0e45a76c",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-07-03T14:57:13.938Z",
+  "duration_ms": 45599,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "98b104a060279361a51289254d63a912705c5232d081769cf1903bedd614491b",
+  "prompt_sha256": "fe460fa23f791a58c41ca030449c93898f9b9334c4bfe4e1af238b3d98d8ee79",
+  "mcp_context_sha256": "a7b00fb6588b1e9f58dc9acb0766c79d6b3b82a94ccef70b305d75e2d0c1dd13",
+  "raw_response_sha256": "b93f117fb058f9985a81bb201003c8a2ab450df28d2b8d8f8e9b67b9a35bc2ad",
+  "raw_response": "{\"response\":\"Pause dashboard planning until the missing activity context is known. The next response should state that the brief is too broad to plan a useful dashboard without first understanding the work it supports, then request only the minimum clarifying information needed before proposing layout, metrics, navigation, or visuals.\",\"next_action\":\"Request the missing activity, decision, and outcome context; wait for answers before proposing any dashboard structure.\",\"questions\":[\"What activity should this dashboard support?\",\"What decision or next action should it make easier for the user?\",\"What should the user leave the dashboard knowing or having done?\"],\"handoff\":\"Decision: clarify first; Owner: next agent; Action: request activity, decision, and outcome context; Reason: the current brief is too vague to plan a useful dashboard without inventing the system or workflow.\",\"rationale\":\"The brief names a dashboard but not the supported work, participant, decision, or successful outcome. A restrained clarification response keeps the plan activity-first and avoids invented metrics, roles, or surface structure.\"}",
+  "parsed": {
+    "response": "Pause dashboard planning until the missing activity context is known. The next response should state that the brief is too broad to plan a useful dashboard without first understanding the work it supports, then request only the minimum clarifying information needed before proposing layout, metrics, navigation, or visuals.",
+    "next_action": "Request the missing activity, decision, and outcome context; wait for answers before proposing any dashboard structure.",
+    "questions": [
+      "What activity should this dashboard support?",
+      "What decision or next action should it make easier for the user?",
+      "What should the user leave the dashboard knowing or having done?"
+    ],
+    "handoff": "Decision: clarify first; Owner: next agent; Action: request activity, decision, and outcome context; Reason: the current brief is too vague to plan a useful dashboard without inventing the system or workflow.",
+    "rationale": "The brief names a dashboard but not the supported work, participant, decision, or successful outcome. A restrained clarification response keeps the plan activity-first and avoids invented metrics, roles, or surface structure."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "038e623b1dfb981a9c9424ad9bdd6cc6b7c7d48acee406aac2df205c4319f965",
+    "stderr_sha256": "d4488f2e36e41e57261c4a07292ff89056333be732ca1c6c8accf7e104b1a7c6",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

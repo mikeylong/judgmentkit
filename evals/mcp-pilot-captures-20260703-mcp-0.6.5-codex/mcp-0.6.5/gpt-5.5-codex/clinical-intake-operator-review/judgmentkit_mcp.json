@@ -1,0 +1,48 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "clinical-intake-operator-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.6.5",
+  "mcp_url": "http://127.0.0.1:51549/mcp",
+  "mcp_metadata_sha256": "e84fe4a9764e3a3ac1e81051537a8488280c76a4b4d51d3d1aea3a1bc6231070",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate",
+    "create_ui_implementation_contract"
+  ],
+  "mcp_tool_transcript_sha256": "cb9e71adb2ea82360b838e41f27f6fbf043561b733d0973b00ada3bf7ada5eb2",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-07-03T15:02:59.230Z",
+  "duration_ms": 38805,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "ae200f384e33aa843f8a918f01dda832a748cef281772ff4a451cbf044cdfce2",
+  "prompt_sha256": "91ce6b9dfedf7c7486314ba5e07d9c809f65a0bfce167d8d90dc7dcd85cd53c9",
+  "mcp_context_sha256": "bcb989cef8572b136b7b4bd5fecc1d92cd4ce81a406046664f7fb13e74613107",
+  "raw_response_sha256": "3d256a93c591d6281737eba7ff4d130ea6e46e29411c51f1b26defb7bab8fe38",
+  "raw_response": "{\"response\":\"Guide the next agent to produce a concise routing-ready review response for the care coordinator: confirm the intake evidence reviewed, compare symptoms, urgency cues, and consent status, then state the selected route and any unresolved evidence gap.\",\"next_action\":\"Have the care coordinator choose one route: send to nurse review when urgency is unclear or clinically concerning, return for clarification when consent or intake evidence is missing, or mark ready for scheduling only when urgency and consent are clear.\",\"questions\":[],\"handoff\":\"Owner: care coordinator; decision/action: route to nurse review, return for clarification, or mark ready for scheduling; reason: urgency and consent must be resolved before scheduling; evidence gap: missing consent or ambiguous urgency signal; verification: handoff includes owner, route, reason, and unresolved gap.\",\"rationale\":\"The source already identifies the reviewer, route options, evidence checks, and completion state, so no clarification is needed. The response should turn the review into an actionable routing handoff while keeping internal implementation details out of the user-facing language.\"}",
+  "parsed": {
+    "response": "Guide the next agent to produce a concise routing-ready review response for the care coordinator: confirm the intake evidence reviewed, compare symptoms, urgency cues, and consent status, then state the selected route and any unresolved evidence gap.",
+    "next_action": "Have the care coordinator choose one route: send to nurse review when urgency is unclear or clinically concerning, return for clarification when consent or intake evidence is missing, or mark ready for scheduling only when urgency and consent are clear.",
+    "questions": [],
+    "handoff": "Owner: care coordinator; decision/action: route to nurse review, return for clarification, or mark ready for scheduling; reason: urgency and consent must be resolved before scheduling; evidence gap: missing consent or ambiguous urgency signal; verification: handoff includes owner, route, reason, and unresolved gap.",
+    "rationale": "The source already identifies the reviewer, route options, evidence checks, and completion state, so no clarification is needed. The response should turn the review into an actionable routing handoff while keeping internal implementation details out of the user-facing language."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "7a8eb8b597b459149e4f98d9b3aaf0ef7f9b2e479f45720b795ca918119c1643",
+    "stderr_sha256": "a7938c291d34f4cd942ff7fa813085d225136d3da4f1c431c1b4f788d5130e27",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

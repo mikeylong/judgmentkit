@@ -1,0 +1,47 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "schema-leaking-workflow",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.6.5",
+  "mcp_url": "http://127.0.0.1:51549/mcp",
+  "mcp_metadata_sha256": "e84fe4a9764e3a3ac1e81051537a8488280c76a4b4d51d3d1aea3a1bc6231070",
+  "mcp_tool_sequence": [
+    "review_ui_workflow_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "4655891ec2b319f6e0d2c06404a9e661442ce4241b0799172e009d6b9467f548",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-07-03T15:10:57.407Z",
+  "duration_ms": 41833,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "ded9e58b5d5e0cc114a04c88e79fb1ad8de9eaa45dcc3ae2bb6ddc2f25935c2a",
+  "prompt_sha256": "faad76aa370fab89c1edc55dc2418fcdd7a52a5de86465f9830c060f14d87b02",
+  "mcp_context_sha256": "a491aae8825b3f4a159de2a6271733d39d93dd8aa673f0938b077d74333a985a",
+  "raw_response_sha256": "be816e16124901896f267b7ed0b091a171f2f0cb5361e45734df7dd3a13c4b8d",
+  "raw_response": "{\"response\":\"Reject and discard the submitted workflow. It does not support a support lead reviewing refund requests during daily triage, and it replaces the decision work with implementation-facing language and save/update mechanics. The trusted replacement should center the support lead on refund request evidence, policy fit, and the three decisions: approve, policy review, or return for missing evidence.\",\"next_action\":\"Repair by creating a refund triage plan for the support lead: show the request, customer/refund context, evidence status, applicable policy cues, and decision controls for approve, policy review, or return for missing evidence. Remove implementation-facing labels and storage/update completion language; completion should be the refund request routed with a clear decision and any evidence gap recorded.\",\"questions\":[],\"handoff\":\"Decision: Reject; Owner: product/design; Action: replace with support lead refund-request triage; Reason: submitted workflow exposes implementation mechanics and misses approve, policy review, or return for missing evidence; Required fix: translate all internal mechanics into refund evidence, policy, routing, and completion language; Verification: no implementation labels remain and each refund request can end in one of the three source decisions.\",\"rationale\":\"The source brief is about daily refund triage, not configuring or saving an underlying system object. Because the candidate exposes internal mechanics and routes completion around a technical save state, it cannot be trusted as a user-facing workflow.\"}",
+  "parsed": {
+    "response": "Reject and discard the submitted workflow. It does not support a support lead reviewing refund requests during daily triage, and it replaces the decision work with implementation-facing language and save/update mechanics. The trusted replacement should center the support lead on refund request evidence, policy fit, and the three decisions: approve, policy review, or return for missing evidence.",
+    "next_action": "Repair by creating a refund triage plan for the support lead: show the request, customer/refund context, evidence status, applicable policy cues, and decision controls for approve, policy review, or return for missing evidence. Remove implementation-facing labels and storage/update completion language; completion should be the refund request routed with a clear decision and any evidence gap recorded.",
+    "questions": [],
+    "handoff": "Decision: Reject; Owner: product/design; Action: replace with support lead refund-request triage; Reason: submitted workflow exposes implementation mechanics and misses approve, policy review, or return for missing evidence; Required fix: translate all internal mechanics into refund evidence, policy, routing, and completion language; Verification: no implementation labels remain and each refund request can end in one of the three source decisions.",
+    "rationale": "The source brief is about daily refund triage, not configuring or saving an underlying system object. Because the candidate exposes internal mechanics and routes completion around a technical save state, it cannot be trusted as a user-facing workflow."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "b787d290774687179efc213a338d45f7f80327eea475be032ddd3721290ac0f7",
+    "stderr_sha256": "7be89dfd168aaaf4fb5e924c307b4a0e9480af1d2a83beac6d55baf995da81e4",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

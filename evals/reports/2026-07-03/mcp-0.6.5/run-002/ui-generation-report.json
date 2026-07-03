@@ -1,0 +1,795 @@
+{
+  "eval_id": "judgmentkit-ui-generation-paired-artifact-v1",
+  "evaluation_type": "live_provider_ui_generation_scoring",
+  "generation_policy": "Calls a live provider for each baseline and JudgmentKit-guided variant, writes dated generated HTML artifacts, then scores those artifacts.",
+  "visual_evidence": {
+    "capture_engine": "chrome_devtools_protocol",
+    "capture_policy": "Initial viewport screenshots captured from dated live-generated artifacts. Visual evidence is not used for scoring.",
+    "viewports": [
+      {
+        "id": "desktop",
+        "label": "Desktop",
+        "width": 1365,
+        "height": 900,
+        "device_scale_factor": 1,
+        "mobile": false
+      },
+      {
+        "id": "mobile",
+        "label": "Mobile",
+        "width": 390,
+        "height": 844,
+        "device_scale_factor": 1,
+        "mobile": true
+      }
+    ]
+  },
+  "benchmark_policy": "Qualitative paired-artifact evidence from live provider-generated artifacts only; not a statistically powered benchmark.",
+  "claim_level": "repeated_pair_signal",
+  "run": {
+    "date": "2026-07-03",
+    "mcp_release": "0.6.5",
+    "mcp_release_segment": "mcp-0.6.5",
+    "run_id": "run-002",
+    "run_path": "2026-07-03/mcp-0.6.5/run-002",
+    "html_report": "2026-07-03/mcp-0.6.5/run-002/ui-generation-report.html",
+    "json_report": "2026-07-03/mcp-0.6.5/run-002/ui-generation-report.json"
+  },
+  "summary": {
+    "cases": 2,
+    "passed": 2,
+    "failed": 0,
+    "guided_wins": 2,
+    "baseline_wins": 0,
+    "ties": 0,
+    "publishable": true,
+    "publishability_status": "publishable",
+    "publish_blockers": [],
+    "publishability_policy": "Conservative UI eval publication requires no failed cases, baseline wins, or ties; fixture runs are never publishable as live evidence."
+  },
+  "metric_scale": {
+    "metric_score": "0-5",
+    "total_score": "0-100 weighted"
+  },
+  "generation": {
+    "mode": "live_provider",
+    "live": true,
+    "provider": "codex",
+    "model": "gpt-5.5",
+    "model_config_id": "gpt-5-5-codex",
+    "reasoning_effort": "high",
+    "runtime": "codex exec",
+    "local": false,
+    "generated_artifacts_dir": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts",
+    "artifacts": [
+      {
+        "case_id": "refund-triage-standalone-v1",
+        "variant_id": "baseline",
+        "treatment": "raw_brief_baseline",
+        "artifact": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/baseline.html",
+        "repo_artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/baseline.html",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "generated_at": "2026-07-03T17:24:34.697Z",
+        "duration_ms": 92784,
+        "prompt_sha256": "952bfee6595f24d3f8a5c52a1e8f6cd40e18fc3d5b9640def71881ba38ae3423",
+        "raw_response_sha256": "d7958778d06eddc582aa0d3cad83dc982ac1f56b640563716c48bd7282cb21ac"
+      },
+      {
+        "case_id": "refund-triage-standalone-v1",
+        "variant_id": "guided",
+        "treatment": "judgmentkit_handoff",
+        "artifact": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/guided.html",
+        "repo_artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/guided.html",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "generated_at": "2026-07-03T17:26:07.483Z",
+        "duration_ms": 139533,
+        "prompt_sha256": "ee886720a0fc0960b038566e8379289eea789cf403e2033797390d3ae06b12b9",
+        "raw_response_sha256": "471e02e9678f3da431a31f4aa7e6a50f5e73e6c69f98b8cf7bc3629a3eccb0eb"
+      },
+      {
+        "case_id": "dinner-playlist-standalone-v1",
+        "variant_id": "baseline",
+        "treatment": "raw_brief_baseline",
+        "artifact": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/baseline.html",
+        "repo_artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/baseline.html",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "generated_at": "2026-07-03T17:28:27.031Z",
+        "duration_ms": 433457,
+        "prompt_sha256": "2517f2809485e70391260a9242552d4257e18736db836fd2d4600f79ecd8d523",
+        "raw_response_sha256": "ebf860333e9d831817a42d0cc9c02b623475b0da29fcf3e23a3af29458a23d9f"
+      },
+      {
+        "case_id": "dinner-playlist-standalone-v1",
+        "variant_id": "guided",
+        "treatment": "judgmentkit_handoff",
+        "artifact": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/guided.html",
+        "repo_artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/guided.html",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "generated_at": "2026-07-03T17:35:40.489Z",
+        "duration_ms": 139675,
+        "prompt_sha256": "1f911ff177f0628bb06abeb7cfbd626dc6f0c9cdd7dc8666d68e9890603db9d1",
+        "raw_response_sha256": "76645d7620e145b971571b0c3c43b65de05d2b3b80c51ff40a7c407b5e09ac40"
+      }
+    ]
+  },
+  "live_generation": {
+    "policy": "Calls a live provider for each baseline and JudgmentKit-guided variant, writes dated generated HTML artifacts, then scores those artifacts.",
+    "provider_metadata": {
+      "provider": "codex",
+      "model_config_id": "gpt-5-5-codex",
+      "model": "gpt-5.5",
+      "runtime": "codex exec",
+      "local": false
+    },
+    "generated_artifacts_dir": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts",
+    "artifacts": [
+      {
+        "case_id": "refund-triage-standalone-v1",
+        "variant_id": "baseline",
+        "treatment": "raw_brief_baseline",
+        "artifact": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/baseline.html",
+        "repo_artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/baseline.html",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "generated_at": "2026-07-03T17:24:34.697Z",
+        "duration_ms": 92784,
+        "prompt_sha256": "952bfee6595f24d3f8a5c52a1e8f6cd40e18fc3d5b9640def71881ba38ae3423",
+        "raw_response_sha256": "d7958778d06eddc582aa0d3cad83dc982ac1f56b640563716c48bd7282cb21ac"
+      },
+      {
+        "case_id": "refund-triage-standalone-v1",
+        "variant_id": "guided",
+        "treatment": "judgmentkit_handoff",
+        "artifact": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/guided.html",
+        "repo_artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/guided.html",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "generated_at": "2026-07-03T17:26:07.483Z",
+        "duration_ms": 139533,
+        "prompt_sha256": "ee886720a0fc0960b038566e8379289eea789cf403e2033797390d3ae06b12b9",
+        "raw_response_sha256": "471e02e9678f3da431a31f4aa7e6a50f5e73e6c69f98b8cf7bc3629a3eccb0eb"
+      },
+      {
+        "case_id": "dinner-playlist-standalone-v1",
+        "variant_id": "baseline",
+        "treatment": "raw_brief_baseline",
+        "artifact": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/baseline.html",
+        "repo_artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/baseline.html",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "generated_at": "2026-07-03T17:28:27.031Z",
+        "duration_ms": 433457,
+        "prompt_sha256": "2517f2809485e70391260a9242552d4257e18736db836fd2d4600f79ecd8d523",
+        "raw_response_sha256": "ebf860333e9d831817a42d0cc9c02b623475b0da29fcf3e23a3af29458a23d9f"
+      },
+      {
+        "case_id": "dinner-playlist-standalone-v1",
+        "variant_id": "guided",
+        "treatment": "judgmentkit_handoff",
+        "artifact": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/guided.html",
+        "repo_artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/guided.html",
+        "provider": "codex",
+        "model": "gpt-5.5",
+        "generated_at": "2026-07-03T17:35:40.489Z",
+        "duration_ms": 139675,
+        "prompt_sha256": "1f911ff177f0628bb06abeb7cfbd626dc6f0c9cdd7dc8666d68e9890603db9d1",
+        "raw_response_sha256": "76645d7620e145b971571b0c3c43b65de05d2b3b80c51ff40a7c407b5e09ac40"
+      }
+    ]
+  },
+  "provider_metadata": {
+    "provider": "codex",
+    "model_config_id": "gpt-5-5-codex",
+    "model": "gpt-5.5",
+    "runtime": "codex exec",
+    "local": false
+  },
+  "results": [
+    {
+      "id": "refund-triage-standalone-v1",
+      "title": "Refund triage handoff",
+      "task_prompt": "Review the selected refund request and prepare the next handoff.",
+      "claim_level": "single_pair_signal",
+      "expected_outcomes": [
+        "The reviewer can identify the selected case.",
+        "The reviewer can choose approve, policy review, or return for evidence.",
+        "The reviewer can complete a handoff with a reason and next owner."
+      ],
+      "winner": "judgmentkit_handoff",
+      "expected_winner": "judgmentkit_handoff",
+      "score_delta": 36.08,
+      "minimum_score_delta": 20,
+      "passed": true,
+      "variants": [
+        {
+          "id": "baseline",
+          "label": "Version A",
+          "treatment": "raw_brief_baseline",
+          "artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/baseline.html",
+          "public_artifact": null,
+          "live_generation": {
+            "mode": "live_provider",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "model_config_id": "gpt-5-5-codex",
+            "reasoning_effort": "high",
+            "generated_at": "2026-07-03T17:24:34.697Z",
+            "duration_ms": 92784,
+            "prompt_sha256": "952bfee6595f24d3f8a5c52a1e8f6cd40e18fc3d5b9640def71881ba38ae3423",
+            "raw_response_sha256": "d7958778d06eddc582aa0d3cad83dc982ac1f56b640563716c48bd7282cb21ac",
+            "artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/baseline.html",
+            "generated_artifact_path": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/baseline.html",
+            "generation_notes": [
+              "Built as a standalone support operations triage surface for case R-1842.",
+              "Included the implementation-heavy fields requested in the source brief while keeping the primary workflow centered on decision and handoff.",
+              "Preselected return for evidence because the receipt photo is missing and manager approval requires complete evidence."
+            ],
+            "execution": {
+              "runtime": "codex exec",
+              "status": 0,
+              "stdout_sha256": "5908c996704d14fafd0c5591e9b27ea50b5a9dc180a4ea683c5235a28fb5276a",
+              "stderr_sha256": "6edd6098b52e55c18f74995e84a969c4b187794527554fd38907205983c7bf58",
+              "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"high\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+            }
+          },
+          "generated_artifact_path": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/baseline.html",
+          "generated_artifact": {
+            "path": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/baseline.html",
+            "repo_path": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/baseline.html"
+          },
+          "metadata_treatment": "raw_brief_baseline",
+          "metadata_comparison_id": "refund-triage-standalone-v1",
+          "score": 55.92,
+          "metric_results": {
+            "activity_fit": {
+              "score": 1,
+              "present": [
+                "Evidence checklist"
+              ],
+              "missing": [
+                "Daily triage",
+                "Refund escalation queue",
+                "Customer refund escalation",
+                "Policy review context"
+              ]
+            },
+            "decision_support": {
+              "score": 3.75,
+              "present": [
+                "Approve refund",
+                "Send to policy review",
+                "Return for evidence"
+              ],
+              "missing": [
+                "Choose a path"
+              ]
+            },
+            "disclosure_discipline": {
+              "score": 4.25,
+              "implementation_leakage": [
+                "JSON schema"
+              ],
+              "review_packet_leakage": [],
+              "leakage_count": 1
+            },
+            "handoff_completeness": {
+              "score": 3,
+              "present": [
+                "Handoff",
+                "Next owner",
+                "Support agent"
+              ],
+              "missing": [
+                "Policy reviewer",
+                "Handoff reason"
+              ]
+            },
+            "task_success_support": {
+              "score": 1,
+              "present": [
+                "Receipt photo is missing"
+              ],
+              "missing": [
+                "Review selected case",
+                "Check evidence",
+                "Choose refund path",
+                "Prepare handoff"
+              ]
+            },
+            "confidence_rework_signals": {
+              "score": 1.67,
+              "present": [
+                "Evidence checklist"
+              ],
+              "missing": [
+                "Policy review context",
+                "missing receipt photo"
+              ]
+            }
+          },
+          "screenshots": [
+            {
+              "id": "baseline-desktop",
+              "label": "Version A Desktop",
+              "viewport": {
+                "id": "desktop",
+                "label": "Desktop",
+                "width": 1365,
+                "height": 900,
+                "device_scale_factor": 1,
+                "mobile": false
+              },
+              "path": "2026-07-03/mcp-0.6.5/run-002/screenshots/refund-triage-standalone-v1/baseline-desktop.png",
+              "artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/baseline.html"
+            },
+            {
+              "id": "baseline-mobile",
+              "label": "Version A Mobile",
+              "viewport": {
+                "id": "mobile",
+                "label": "Mobile",
+                "width": 390,
+                "height": 844,
+                "device_scale_factor": 1,
+                "mobile": true
+              },
+              "path": "2026-07-03/mcp-0.6.5/run-002/screenshots/refund-triage-standalone-v1/baseline-mobile.png",
+              "artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/baseline.html"
+            }
+          ]
+        },
+        {
+          "id": "guided",
+          "label": "Version B",
+          "treatment": "judgmentkit_handoff",
+          "artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/guided.html",
+          "public_artifact": null,
+          "live_generation": {
+            "mode": "live_provider",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "model_config_id": "gpt-5-5-codex",
+            "reasoning_effort": "high",
+            "generated_at": "2026-07-03T17:26:07.483Z",
+            "duration_ms": 139533,
+            "prompt_sha256": "ee886720a0fc0960b038566e8379289eea789cf403e2033797390d3ae06b12b9",
+            "raw_response_sha256": "471e02e9678f3da431a31f4aa7e6a50f5e73e6c69f98b8cf7bc3629a3eccb0eb",
+            "artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/guided.html",
+            "generated_artifact_path": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/guided.html",
+            "generation_notes": [
+              "Standalone artifact uses only semantic HTML and scoped CSS.",
+              "Primary surface translates the source request into refund triage language and avoids implementation details in the visible UI.",
+              "The workspace keeps queue context, selected case evidence, policy context, decision choice, and completion handoff together."
+            ],
+            "execution": {
+              "runtime": "codex exec",
+              "status": 0,
+              "stdout_sha256": "6da2519b7b51efc9b9df9eb7c298f50d7d10fa60d12b61292f10cde1c2ec8b63",
+              "stderr_sha256": "f6599b92c86d586b5e98d314305ac2f6db6a39ed4c3cd60dcf4554bf63bf07e9",
+              "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"high\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+            }
+          },
+          "generated_artifact_path": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/guided.html",
+          "generated_artifact": {
+            "path": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/guided.html",
+            "repo_path": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/guided.html"
+          },
+          "metadata_treatment": "judgmentkit_handoff",
+          "metadata_comparison_id": "refund-triage-standalone-v1",
+          "score": 92,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "Daily triage",
+                "Refund escalation queue",
+                "Customer refund escalation",
+                "Evidence checklist",
+                "Policy review context"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 5,
+              "present": [
+                "Choose a path",
+                "Approve refund",
+                "Send to policy review",
+                "Return for evidence"
+              ],
+              "missing": []
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "implementation_leakage": [],
+              "review_packet_leakage": [],
+              "leakage_count": 0
+            },
+            "handoff_completeness": {
+              "score": 4,
+              "present": [
+                "Handoff",
+                "Next owner",
+                "Support agent",
+                "Policy reviewer"
+              ],
+              "missing": [
+                "Handoff reason"
+              ]
+            },
+            "task_success_support": {
+              "score": 3,
+              "present": [
+                "Review selected case",
+                "Choose refund path",
+                "Receipt photo is missing"
+              ],
+              "missing": [
+                "Check evidence",
+                "Prepare handoff"
+              ]
+            },
+            "confidence_rework_signals": {
+              "score": 5,
+              "present": [
+                "Policy review context",
+                "Evidence checklist",
+                "missing receipt photo"
+              ],
+              "missing": []
+            }
+          },
+          "screenshots": [
+            {
+              "id": "guided-desktop",
+              "label": "Version B Desktop",
+              "viewport": {
+                "id": "desktop",
+                "label": "Desktop",
+                "width": 1365,
+                "height": 900,
+                "device_scale_factor": 1,
+                "mobile": false
+              },
+              "path": "2026-07-03/mcp-0.6.5/run-002/screenshots/refund-triage-standalone-v1/guided-desktop.png",
+              "artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/guided.html"
+            },
+            {
+              "id": "guided-mobile",
+              "label": "Version B Mobile",
+              "viewport": {
+                "id": "mobile",
+                "label": "Mobile",
+                "width": 390,
+                "height": 844,
+                "device_scale_factor": 1,
+                "mobile": true
+              },
+              "path": "2026-07-03/mcp-0.6.5/run-002/screenshots/refund-triage-standalone-v1/guided-mobile.png",
+              "artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/refund-triage-standalone-v1/guided.html"
+            }
+          ]
+        }
+      ],
+      "rationale": [
+        "JudgmentKit-guided artifact scored 36.08 points above baseline.",
+        "Implementation leakage changed from 1 baseline terms to 0 guided terms.",
+        "Activity-fit evidence changed from 1 matched terms to 5 matched terms."
+      ]
+    },
+    {
+      "id": "dinner-playlist-standalone-v1",
+      "title": "Dinner playlist builder",
+      "task_prompt": "Build a 10-song dinner playlist that starts mellow, lifts in the middle, avoids disliked artists and explicit tracks, and leaves a sequence note.",
+      "claim_level": "single_pair_signal",
+      "expected_outcomes": [
+        "The host can assemble a 10-song playlist.",
+        "The host can catch explicit and disliked-artist conflicts.",
+        "The host can explain the sequence from mellow start through lifted middle to soft close."
+      ],
+      "winner": "judgmentkit_handoff",
+      "expected_winner": "judgmentkit_handoff",
+      "score_delta": 41.65,
+      "minimum_score_delta": 20,
+      "passed": true,
+      "variants": [
+        {
+          "id": "baseline",
+          "label": "Version A",
+          "treatment": "raw_brief_baseline",
+          "artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/baseline.html",
+          "public_artifact": null,
+          "live_generation": {
+            "mode": "live_provider",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "model_config_id": "gpt-5-5-codex",
+            "reasoning_effort": "high",
+            "generated_at": "2026-07-03T17:28:27.031Z",
+            "duration_ms": 433457,
+            "prompt_sha256": "2517f2809485e70391260a9242552d4257e18736db836fd2d4600f79ecd8d523",
+            "raw_response_sha256": "ebf860333e9d831817a42d0cc9c02b623475b0da29fcf3e23a3af29458a23d9f",
+            "artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/baseline.html",
+            "generated_artifact_path": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/baseline.html",
+            "generation_notes": [
+              "Built as a standalone product surface with no external assets, scripts, imports, or hidden benchmark terms in the HTML.",
+              "Includes the source-requested implementation details while keeping the primary workflow focused on playlist selection, ordering, conflicts, save/share, and sequence note.",
+              "Uses semantic controls for playlist actions, conflict marking, filters, table review, and note editing."
+            ],
+            "execution": {
+              "runtime": "codex exec",
+              "status": 0,
+              "stdout_sha256": "309118b11245a0894a2b5d3435cd23ef75abcd4148f43fb66823d2f558d0f105",
+              "stderr_sha256": "b192f60f08662ea9a49a42424fc884ace2d48ae3000a29b2ec7ba8d4c11f59db",
+              "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"high\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+            }
+          },
+          "generated_artifact_path": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/baseline.html",
+          "generated_artifact": {
+            "path": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/baseline.html",
+            "repo_path": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/baseline.html"
+          },
+          "metadata_treatment": "raw_brief_baseline",
+          "metadata_comparison_id": "dinner-playlist-standalone-v1",
+          "score": 36.82,
+          "metric_results": {
+            "activity_fit": {
+              "score": 1.67,
+              "present": [
+                "Guest preferences",
+                "Sequence note"
+              ],
+              "missing": [
+                "Dinner brief",
+                "Suggested tracks",
+                "Playlist sequence",
+                "Conflict checks"
+              ]
+            },
+            "decision_support": {
+              "score": 2,
+              "present": [
+                "Add to playlist",
+                "Mark as conflict"
+              ],
+              "missing": [
+                "Move earlier",
+                "Move later",
+                "Remove track"
+              ]
+            },
+            "disclosure_discipline": {
+              "score": 0,
+              "implementation_leakage": [
+                "data model",
+                "track table field",
+                "JSON schema",
+                "prompt template",
+                "tool call",
+                "resource id",
+                "API endpoint",
+                "CRUD",
+                "field",
+                "model"
+              ],
+              "review_packet_leakage": [
+                "candidate"
+              ],
+              "leakage_count": 11
+            },
+            "handoff_completeness": {
+              "score": 3.75,
+              "present": [
+                "Save playlist",
+                "Share playlist",
+                "Sequence note"
+              ],
+              "missing": [
+                "10 tracks ready to play"
+              ]
+            },
+            "task_success_support": {
+              "score": 3.57,
+              "present": [
+                "explicit track",
+                "disliked artist",
+                "mellow opener",
+                "warm middle",
+                "closing track"
+              ],
+              "missing": [
+                "genre balance",
+                "energy flow"
+              ]
+            },
+            "confidence_rework_signals": {
+              "score": 0,
+              "present": [],
+              "missing": [
+                "Fits brief",
+                "Conflict checks",
+                "ready to play"
+              ]
+            }
+          },
+          "screenshots": [
+            {
+              "id": "baseline-desktop",
+              "label": "Version A Desktop",
+              "viewport": {
+                "id": "desktop",
+                "label": "Desktop",
+                "width": 1365,
+                "height": 900,
+                "device_scale_factor": 1,
+                "mobile": false
+              },
+              "path": "2026-07-03/mcp-0.6.5/run-002/screenshots/dinner-playlist-standalone-v1/baseline-desktop.png",
+              "artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/baseline.html"
+            },
+            {
+              "id": "baseline-mobile",
+              "label": "Version A Mobile",
+              "viewport": {
+                "id": "mobile",
+                "label": "Mobile",
+                "width": 390,
+                "height": 844,
+                "device_scale_factor": 1,
+                "mobile": true
+              },
+              "path": "2026-07-03/mcp-0.6.5/run-002/screenshots/dinner-playlist-standalone-v1/baseline-mobile.png",
+              "artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/baseline.html"
+            }
+          ]
+        },
+        {
+          "id": "guided",
+          "label": "Version B",
+          "treatment": "judgmentkit_handoff",
+          "artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/guided.html",
+          "public_artifact": null,
+          "live_generation": {
+            "mode": "live_provider",
+            "provider": "codex",
+            "model": "gpt-5.5",
+            "model_config_id": "gpt-5-5-codex",
+            "reasoning_effort": "high",
+            "generated_at": "2026-07-03T17:35:40.489Z",
+            "duration_ms": 139675,
+            "prompt_sha256": "1f911ff177f0628bb06abeb7cfbd626dc6f0c9cdd7dc8666d68e9890603db9d1",
+            "raw_response_sha256": "76645d7620e145b971571b0c3c43b65de05d2b3b80c51ff40a7c407b5e09ac40",
+            "artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/guided.html",
+            "generated_artifact_path": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/guided.html",
+            "generation_notes": [
+              "Domain language is used for playlist decisions, guest preferences, conflicts, ordering, and handoff actions.",
+              "The product surface keeps implementation details out of the user-facing HTML and presents conflicts as dinner-playlist evidence.",
+              "Responsive CSS keeps the workspace usable as one column on narrow screens, with visible focus states and 44px primary controls."
+            ],
+            "execution": {
+              "runtime": "codex exec",
+              "status": 0,
+              "stdout_sha256": "a1af1483f030a282a5449f6bfa7770eaab7e6816db35e7aad9d83dba8ee37218",
+              "stderr_sha256": "ca4d41380439fa05f583739bc0cce6e829f221170e215f51b152e66b9fbff50a",
+              "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"high\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+            }
+          },
+          "generated_artifact_path": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/guided.html",
+          "generated_artifact": {
+            "path": "2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/guided.html",
+            "repo_path": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/guided.html"
+          },
+          "metadata_treatment": "judgmentkit_handoff",
+          "metadata_comparison_id": "dinner-playlist-standalone-v1",
+          "score": 78.47,
+          "metric_results": {
+            "activity_fit": {
+              "score": 5,
+              "present": [
+                "Dinner brief",
+                "Guest preferences",
+                "Suggested tracks",
+                "Playlist sequence",
+                "Conflict checks",
+                "Sequence note"
+              ],
+              "missing": []
+            },
+            "decision_support": {
+              "score": 2,
+              "present": [
+                "Add to playlist",
+                "Mark as conflict"
+              ],
+              "missing": [
+                "Move earlier",
+                "Move later",
+                "Remove track"
+              ]
+            },
+            "disclosure_discipline": {
+              "score": 5,
+              "implementation_leakage": [],
+              "review_packet_leakage": [],
+              "leakage_count": 0
+            },
+            "handoff_completeness": {
+              "score": 3.75,
+              "present": [
+                "Save playlist",
+                "Share playlist",
+                "Sequence note"
+              ],
+              "missing": [
+                "10 tracks ready to play"
+              ]
+            },
+            "task_success_support": {
+              "score": 3.57,
+              "present": [
+                "explicit track",
+                "disliked artist",
+                "mellow opener",
+                "warm middle",
+                "closing track"
+              ],
+              "missing": [
+                "genre balance",
+                "energy flow"
+              ]
+            },
+            "confidence_rework_signals": {
+              "score": 3.33,
+              "present": [
+                "Conflict checks",
+                "ready to play"
+              ],
+              "missing": [
+                "Fits brief"
+              ]
+            }
+          },
+          "screenshots": [
+            {
+              "id": "guided-desktop",
+              "label": "Version B Desktop",
+              "viewport": {
+                "id": "desktop",
+                "label": "Desktop",
+                "width": 1365,
+                "height": 900,
+                "device_scale_factor": 1,
+                "mobile": false
+              },
+              "path": "2026-07-03/mcp-0.6.5/run-002/screenshots/dinner-playlist-standalone-v1/guided-desktop.png",
+              "artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/guided.html"
+            },
+            {
+              "id": "guided-mobile",
+              "label": "Version B Mobile",
+              "viewport": {
+                "id": "mobile",
+                "label": "Mobile",
+                "width": 390,
+                "height": 844,
+                "device_scale_factor": 1,
+                "mobile": true
+              },
+              "path": "2026-07-03/mcp-0.6.5/run-002/screenshots/dinner-playlist-standalone-v1/guided-mobile.png",
+              "artifact": "evals/reports/2026-07-03/mcp-0.6.5/run-002/generated-artifacts/dinner-playlist-standalone-v1/guided.html"
+            }
+          ]
+        }
+      ],
+      "rationale": [
+        "JudgmentKit-guided artifact scored 41.65 points above baseline.",
+        "Implementation leakage changed from 10 baseline terms to 0 guided terms.",
+        "Activity-fit evidence changed from 2 matched terms to 6 matched terms."
+      ]
+    }
+  ]
+}

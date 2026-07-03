@@ -382,6 +382,37 @@ function evalRunTitle(run) {
   return `${run.date} / ${run.mcp_release_segment ?? `mcp-${run.mcp_release}`} / ${run.run_id}`;
 }
 
+async function privateMcpPilotRoutesToDeny() {
+  const catalog = await readJsonIfExists("evals/reports/mcp-pilot/index.json");
+  const routes = new Set(["/evals/mcp-pilot/", "/evals/mcp-pilot/index.json"]);
+
+  for (const run of catalog?.runs ?? []) {
+    const candidatePaths = [
+      run.html_report,
+      run.json_report,
+      run.run_path ? path.posix.join(run.run_path, "mcp-pilot-report.html") : null,
+      run.run_path ? path.posix.join(run.run_path, "mcp-pilot-report.json") : null,
+      run.run_path ? path.posix.join(run.run_path, "mcp-pilot-evidence-packet.md") : null,
+      run.run_path ? path.posix.join(run.run_path, "mcp-pilot-llm-evidence.md") : null,
+      run.run_path ? path.posix.join(run.run_path, "mcp-pilot-llm-evidence.json") : null,
+    ];
+    const reportDir = run.html_report ? path.posix.dirname(run.html_report) : run.run_path;
+    if (reportDir && run.llm_evidence?.markdown_report) {
+      candidatePaths.push(path.posix.join(reportDir, run.llm_evidence.markdown_report));
+    }
+    if (reportDir && run.llm_evidence?.json_report) {
+      candidatePaths.push(path.posix.join(reportDir, run.llm_evidence.json_report));
+    }
+
+    for (const candidatePath of candidatePaths.filter(Boolean)) {
+      assertSafeRelativePath(candidatePath, "private MCP pilot deny route");
+      routes.add(`/evals/mcp-pilot/${candidatePath}`);
+    }
+  }
+
+  return [...routes];
+}
+
 function isSafeRelativePath(relativePath) {
   return (
     typeof relativePath === "string" &&
@@ -471,6 +502,11 @@ async function verifyEvalArchive(baseUrl, analyticsScriptSrc, expectedPackageVer
   assert.ok(catalog.latest, "eval catalog should include latest run");
   assert.ok(Array.isArray(catalog.runs), "eval catalog should include runs");
   assert.ok(catalog.runs.length > 0, "eval catalog should include at least one run");
+  assert.equal(
+    catalog.latest.mcp_release,
+    expectedPackageVersion,
+    "latest public UI eval should match the current hosted MCP release",
+  );
   assertIncludes(
     index.text,
     [
@@ -543,6 +579,7 @@ async function verifyEvalArchive(baseUrl, analyticsScriptSrc, expectedPackageVer
 
   const latestJson = JSON.parse((await fetchText(baseUrl, latestJsonRoute)).text);
   assert.equal(latestJson.eval_id, "judgmentkit-ui-generation-paired-artifact-v1");
+  assert.equal(latestJson.run.mcp_release, expectedPackageVersion);
   assert.equal(latestJson.run.html_report, catalog.latest.html_report);
   assert.equal(latestJson.run.json_report, catalog.latest.json_report);
   assert.equal(latestJson.visual_evidence.capture_engine, "chrome_devtools_protocol");
@@ -551,23 +588,34 @@ async function verifyEvalArchive(baseUrl, analyticsScriptSrc, expectedPackageVer
   const latestScreenshotRoute = `/evals/${latestScreenshotPath}`;
   await fetchText(baseUrl, latestScreenshotRoute);
 
+  const mcpEvidenceRoute = "/evals/judgmentkit-mcp/";
+  const mcpEvidence = await fetchText(baseUrl, mcpEvidenceRoute);
+  assert.equal(getAnalyticsScriptSrc(mcpEvidence.text, mcpEvidenceRoute), analyticsScriptSrc);
+  assertIncludes(
+    mcpEvidence.text,
+    [
+      "UI paired-artifact evidence",
+      "not an MCP pilot status page",
+      "Latest UI eval MCP release",
+      "UI paired cases",
+      "UI paired pass rate",
+    ],
+    mcpEvidenceRoute,
+  );
+  assertExcludes(
+    mcpEvidence.text,
+    ["<dt>Pass rate</dt>", "Historical eval MCP release"],
+    mcpEvidenceRoute,
+  );
+
   await assertRouteNotPublic(baseUrl, "/examples/evals/", "legacy examples eval archive");
   await assertRouteNotPublic(baseUrl, "/examples/evals/index.json", "legacy examples eval catalog");
   await assertRouteNotPublic(baseUrl, `/examples/evals/${catalog.latest.html_report}`, "legacy examples eval HTML report");
   await assertRouteNotPublic(baseUrl, `/examples/evals/${catalog.latest.json_report}`, "legacy examples eval JSON report");
   await assertRouteNotPublic(baseUrl, `/examples/evals/${latestScreenshotPath}`, "legacy examples eval screenshot");
-  await assertRouteNotPublic(baseUrl, "/evals/mcp-pilot/", "private MCP pilot archive");
-  await assertRouteNotPublic(baseUrl, "/evals/mcp-pilot/index.json", "private MCP pilot catalog");
-  await assertRouteNotPublic(
-    baseUrl,
-    "/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-report.html",
-    "private MCP pilot deep report",
-  );
-  await assertRouteNotPublic(
-    baseUrl,
-    "/evals/mcp-pilot/2026-06-15/mcp-0.2.0/run-001/mcp-pilot-evidence-packet.md",
-    "private MCP pilot deep evidence packet",
-  );
+  for (const route of await privateMcpPilotRoutesToDeny()) {
+    await assertRouteNotPublic(baseUrl, route, "private MCP pilot route");
+  }
 
   return {
     index_route: "/evals/",

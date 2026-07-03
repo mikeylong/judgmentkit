@@ -1505,6 +1505,11 @@ assert.ok(siteCss.includes(".evals-table-shell {\n  max-width: 100%;"));
 
 assert.equal(evalCatalog.catalog_id, "judgmentkit-ui-generation-eval-runs");
 assert.ok(evalCatalog.latest, "eval catalog should expose latest run");
+assert.equal(
+  evalCatalog.latest.mcp_release,
+  packageJson.version,
+  "latest public UI eval should match the current package version",
+);
 assert.ok(evalCatalog.latest.html_report.endsWith("/ui-generation-report.html"));
 assert.ok(evalCatalog.latest.json_report.endsWith("/ui-generation-report.json"));
 assert.equal(
@@ -1635,14 +1640,16 @@ assert.equal(
 );
 
 const mcpReportPath = path.join(tempDir, "evals", "judgmentkit-mcp", "index.html");
-assert.equal(fs.existsSync(mcpReportPath), true, "expected public JudgmentKit MCP report route");
+assert.equal(fs.existsSync(mcpReportPath), true, "expected public UI eval report route");
 const mcpReport = fs.readFileSync(mcpReportPath, "utf8");
 assertAnalyticsBootstrap(mcpReport, "judgmentkit mcp report");
-assert.ok(mcpReport.includes("JudgmentKit MCP: Evidence for Activity-First UI Generation"));
+assert.ok(mcpReport.includes("Activity-First UI Generation Evidence"));
 assert.ok(mcpReport.includes('rel="canonical" href="https://judgmentkit.ai/evals/judgmentkit-mcp/"'));
-assert.ok(mcpReport.includes("qualitative paired-artifact scoring"));
+assert.ok(mcpReport.includes("UI paired-artifact evidence"));
+assert.ok(mcpReport.includes("not an MCP pilot status page"));
+assert.ok(mcpReport.includes("Qualitative paired-artifact evidence"));
 assert.ok(mcpReport.includes("not a statistically powered benchmark"));
-assert.ok(mcpReport.includes("JudgmentKit MCP report overview"));
+assert.ok(mcpReport.includes("UI paired-artifact report overview"));
 assert.ok(mcpReport.includes("Raw-to-guided generation placeholder"));
 assert.ok(mcpReport.includes("Disclosure cleanup placeholder"));
 assert.ok(mcpReport.includes("Model matrix walkthrough placeholder"));
@@ -1659,7 +1666,11 @@ assert.ok(mcpReport.includes("What JudgmentKit changes"));
 assert.ok(mcpReport.includes("How the evaluation works"));
 assert.ok(mcpReport.includes("Current hosted MCP release"));
 assert.ok(mcpReport.includes(packageJson.version));
-assert.ok(mcpReport.includes("Historical eval MCP release"));
+assert.ok(mcpReport.includes("Latest UI eval MCP release"));
+assert.ok(mcpReport.includes("UI paired cases"));
+assert.ok(mcpReport.includes("UI paired pass rate"));
+assert.equal(mcpReport.includes("<dt>Pass rate</dt>"), false);
+assert.equal(mcpReport.includes("Historical eval MCP release"), false);
 assert.ok(mcpReport.includes(evalCatalog.latest.mcp_release));
 assert.ok(mcpReport.includes("Latest committed eval run"));
 assert.ok(mcpReport.includes("Benchmarks"));

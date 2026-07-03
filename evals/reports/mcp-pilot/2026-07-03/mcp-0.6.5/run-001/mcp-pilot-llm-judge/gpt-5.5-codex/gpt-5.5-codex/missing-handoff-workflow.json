@@ -1,0 +1,86 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "missing-handoff-workflow",
+  "title": "Missing handoff workflow candidate",
+  "case_type": "candidate_validation",
+  "model_config_id": "gpt-5.5-codex",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-07-03T15:59:07.465Z",
+  "duration_ms": 57548,
+  "treatment_mapping": {
+    "output_a": "baseline_no_mcp",
+    "output_b": "judgmentkit_mcp"
+  },
+  "prompt_sha256": "467af59933a5d6f9456cc780f361e190f70836f2d1cea1e9530adc0af2a55531",
+  "raw_response_sha256": "2fc4ee508217a6b6d0bd8fb09f5fe49c4e6cc30cd92816180c72a72179c6591f",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"medium\",\"rationale\":\"Both outputs correctly reject the candidate and identify the missing handoff fields. Output B is slightly better because it gives a clearer operational repair path and verification condition for completed exception reviews, while still blocking trust in the candidate. Its main weakness is a small unsupported detail about date sorting, so the margin is narrow.\",\"decisive_differences\":[\"Output B more explicitly turns the missing fields into required workflow steps: choose owner/action, record reason, identify evidence gap, and complete only when the handoff is ready.\",\"Output B includes a verification criterion for every completed exception request producing a usable handoff.\",\"Output A is well grounded and restrained, but its handoff is slightly less complete because it substitutes a generic fix instruction rather than making the evidence gap a first-class handoff field.\"],\"evidence\":[{\"output\":\"output_b\",\"quote\":\"complete only when that handoff is ready for the next owner\",\"why_it_matters\":\"This directly supports the expected next move: block completion until the handoff fields exist.\"},{\"output\":\"output_b\",\"quote\":\"choose the next owner and action, record the reason, identify the evidence gap\",\"why_it_matters\":\"It operationalizes all required source fields instead of merely naming the omission.\"},{\"output\":\"output_a\",\"quote\":\"required handoff workflow is absent\",\"why_it_matters\":\"Output A correctly identifies the core failure and rejects unsafe acceptance.\"},{\"output\":\"output_b\",\"quote\":\"date sorting\",\"why_it_matters\":\"This appears unsupported by the provided source brief, which slightly lowers confidence in B.\"}],\"output_a_quality\":{\"score\":8,\"strengths\":[\"Correctly rejects the candidate.\",\"Names all required handoff concepts.\",\"Grounded in the source brief and avoids generic questions.\"],\"risks\":[\"Less explicit about completion gating than B.\",\"Its handoff field uses a generic fix rather than clearly preserving evidence gap as a handoff field.\"]},\"output_b_quality\":{\"score\":8.5,\"strengths\":[\"Correctly rejects the candidate.\",\"Gives a concrete repair path tied to owner, action, reason, and evidence gap.\",\"Adds a useful verification condition for completed requests.\"],\"risks\":[\"Mentions date sorting, which is not grounded in the provided source brief.\",\"Slightly more elaborated than necessary.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "medium",
+    "rationale": "Both outputs correctly reject the candidate and identify the missing handoff fields. Output B is slightly better because it gives a clearer operational repair path and verification condition for completed exception reviews, while still blocking trust in the candidate. Its main weakness is a small unsupported detail about date sorting, so the margin is narrow.",
+    "decisive_differences": [
+      "Output B more explicitly turns the missing fields into required workflow steps: choose owner/action, record reason, identify evidence gap, and complete only when the handoff is ready.",
+      "Output B includes a verification criterion for every completed exception request producing a usable handoff.",
+      "Output A is well grounded and restrained, but its handoff is slightly less complete because it substitutes a generic fix instruction rather than making the evidence gap a first-class handoff field."
+    ],
+    "evidence": [
+      {
+        "output": "output_b",
+        "quote": "complete only when that handoff is ready for the next owner",
+        "why_it_matters": "This directly supports the expected next move: block completion until the handoff fields exist."
+      },
+      {
+        "output": "output_b",
+        "quote": "choose the next owner and action, record the reason, identify the evidence gap",
+        "why_it_matters": "It operationalizes all required source fields instead of merely naming the omission."
+      },
+      {
+        "output": "output_a",
+        "quote": "required handoff workflow is absent",
+        "why_it_matters": "Output A correctly identifies the core failure and rejects unsafe acceptance."
+      },
+      {
+        "output": "output_b",
+        "quote": "date sorting",
+        "why_it_matters": "This appears unsupported by the provided source brief, which slightly lowers confidence in B."
+      }
+    ],
+    "output_a_quality": {
+      "score": 8,
+      "strengths": [
+        "Correctly rejects the candidate.",
+        "Names all required handoff concepts.",
+        "Grounded in the source brief and avoids generic questions."
+      ],
+      "risks": [
+        "Less explicit about completion gating than B.",
+        "Its handoff field uses a generic fix rather than clearly preserving evidence gap as a handoff field."
+      ]
+    },
+    "output_b_quality": {
+      "score": 8.5,
+      "strengths": [
+        "Correctly rejects the candidate.",
+        "Gives a concrete repair path tied to owner, action, reason, and evidence gap.",
+        "Adds a useful verification condition for completed requests."
+      ],
+      "risks": [
+        "Mentions date sorting, which is not grounded in the provided source brief.",
+        "Slightly more elaborated than necessary."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "84879a73f8b10df270b2e6640a1577672326ee2a06fc44a0fead2d4ba6864540",
+    "stderr_sha256": "b5ee3fb5824aa9fe502a0def056faa2f31fab5f0d22d308531b4ac4f94172429",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

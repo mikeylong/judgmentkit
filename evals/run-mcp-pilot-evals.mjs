@@ -2722,6 +2722,41 @@ function average(values) {
   return round(finiteValues.reduce((sum, value) => sum + value, 0) / finiteValues.length);
 }
 
+export function mcpPilotPublicationAssessment(summary = {}) {
+  const blockers = [];
+  if ((summary.capture_required_cases ?? 0) > 0) blockers.push("capture-required");
+  if ((summary.invalid_outputs ?? 0) > 0) blockers.push("invalid-output");
+  if ((summary.guided_critical_disclosure_leaks ?? 0) > 0) {
+    blockers.push("guided-disclosure-leak");
+  }
+  if (summary.pilot_status !== "passed" || summary.pilot_passed !== true) {
+    blockers.push("pilot-status-failed");
+  }
+  if ((summary.average_guided_delta ?? 0) < 10) blockers.push("low-average-delta");
+  if ((summary.failed ?? 0) > 0) blockers.push("failed-cases");
+  if ((summary.baseline_wins ?? 0) > 0) blockers.push("baseline-wins");
+  if ((summary.ties ?? 0) > 0) blockers.push("ties");
+
+  return {
+    publishable: blockers.length === 0,
+    publishability_status: blockers.length === 0 ? "publishable" : "not-publishable",
+    publish_blockers: blockers,
+    publishability_policy:
+      "Conservative benchmark-win publication requires no pending captures, invalid outputs, guided critical disclosure leaks, failed cases, baseline wins, or ties; the pilot status must be passed and average guided delta must be at least +10.",
+  };
+}
+
+function withPublicationAssessment(summary) {
+  return {
+    ...summary,
+    ...mcpPilotPublicationAssessment(summary),
+  };
+}
+
+function stripTrailingWhitespace(text) {
+  return text.replace(/[ \t]+$/gm, "");
+}
+
 function summarizeRepairLoops(results) {
   const loopResults = results.filter((result) => result.repair_loop?.enabled);
   const converged = loopResults.filter((result) => result.repair_loop.converged);
@@ -2897,7 +2932,7 @@ function summarizeResultSet(results) {
     averageGuidedDelta >= 10 &&
     guidedCriticalDisclosureLeaks === 0;
 
-  return {
+  return withPublicationAssessment({
     cases: results.length,
     evaluated_cases: evaluated.length,
     capture_required_cases: captureRequired.length,
@@ -2922,7 +2957,7 @@ function summarizeResultSet(results) {
     pilot_passed: pilotPassed,
     pilot_status:
       captureRequired.length > 0 ? "capture-required" : pilotPassed ? "passed" : "failed",
-  };
+  });
 }
 
 function controlModelSanity(summary) {
@@ -2950,12 +2985,12 @@ function summarizeResults(results, options = {}) {
       },
     ]),
   );
-  const summary = {
+  const summary = withPublicationAssessment({
     ...rawSummary,
     unique_cases: new Set(results.map((result) => result.id)).size,
     models: modelIds.length,
     per_model: perModel,
-  };
+  });
 
   const primaryModelConfig = options.primaryModelConfig ?? null;
   if (!primaryModelConfig || modelIds.length <= 1) {
@@ -2986,7 +3021,7 @@ function summarizeResults(results, options = {}) {
         ? "control-failed"
         : "primary-failed";
 
-  return {
+  return withPublicationAssessment({
     ...summary,
     pilot_passed: matrixPassed,
     pilot_status: matrixPassed ? "passed" : matrixStatus,
@@ -3001,7 +3036,7 @@ function summarizeResults(results, options = {}) {
     matrix_status: matrixStatus,
     matrix_status_policy:
       "Multi-model headline status follows the primary proof model pass/fail plus control sanity gates. Raw aggregate scoring is preserved in raw_aggregate.",
-  };
+  });
 }
 
 function nextRunId(baseReportsDir, date, releaseSegment) {
@@ -3219,6 +3254,13 @@ export function buildReport(results, runInfo, options = {}) {
   };
 }
 
+function normalizeMcpPilotReport(report) {
+  return {
+    ...report,
+    summary: withPublicationAssessment(report.summary ?? {}),
+  };
+}
+
 function treatmentLabel(value) {
   if (value === "baseline_no_mcp") return "Baseline";
   if (value === "judgmentkit_mcp") return "JudgmentKit MCP";
@@ -3413,7 +3455,8 @@ function htmlVisualUiProof(report) {
     </section>`;
 }
 
-function buildHtmlReport(report) {
+export function buildHtmlReport(rawReport) {
+  const report = normalizeMcpPilotReport(rawReport);
   const cases = report.results.map(htmlCase).join("");
   const visualProofHtml = htmlVisualUiProof(report);
   const observationPolicy = report.repair_loop_observation_policy
@@ -3485,8 +3528,28 @@ function buildHtmlReport(report) {
         <div><dt>Visual UI proof</dt><dd>${escapeHtml(report.summary.visual_ui_proof_use_cases)} cases</dd></div>
         <div><dt>Visual artifacts</dt><dd>${escapeHtml(report.summary.visual_ui_proof_artifacts)}</dd></div>`
       : "";
+  const publishBlockers = report.summary.publish_blockers?.length
+    ? report.summary.publish_blockers.join(", ")
+    : "none";
+  const publishabilityClass = report.summary.publishable ? "claim-ok" : "claim-blocked";
+  const publishabilityLabel = report.summary.publishable
+    ? "Publishable as benchmark win"
+    : "Not publishable as benchmark win";
+  const llmEvidence = report.llm_evidence;
+  const llmEvidenceLinks = llmEvidence
+    ? ` · <a href="${escapeHtml(llmEvidence.markdown_report)}">LLM evidence Markdown</a> · <a href="${escapeHtml(llmEvidence.json_report)}">LLM evidence JSON</a>`
+    : "";
+  const llmEvidenceSummary = llmEvidence?.summary
+    ? `
+        <div><dt>LLM guided</dt><dd>${escapeHtml(llmEvidence.summary.guided_preferred ?? 0)}/${escapeHtml(llmEvidence.summary.valid_judgments ?? 0)}</dd></div>
+        <div><dt>LLM baseline</dt><dd>${escapeHtml(llmEvidence.summary.baseline_preferred ?? 0)}</dd></div>
+        <div><dt>LLM avg delta</dt><dd>${escapeHtml(llmEvidence.summary.average_guided_quality_delta ?? 0)}</dd></div>`
+    : "";
+  const llmEvidenceCallout = llmEvidence?.summary
+    ? `<p class="claim-note">LLM preference evidence attached: baseline preferred ${escapeHtml(llmEvidence.summary.baseline_preferred ?? 0)}/${escapeHtml(llmEvidence.summary.valid_judgments ?? 0)}, guided preferred ${escapeHtml(llmEvidence.summary.guided_preferred ?? 0)}/${escapeHtml(llmEvidence.summary.valid_judgments ?? 0)}, average guided quality delta ${escapeHtml(llmEvidence.summary.average_guided_quality_delta ?? 0)}. Judge ${escapeHtml(llmEvidence.judge_model_id ?? "n/a")} evaluated model ${escapeHtml(llmEvidence.model_under_test_id ?? "n/a")}.</p>`
+    : "";
 
-  return `<!doctype html>
+  return stripTrailingWhitespace(`<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -3533,6 +3596,10 @@ function buildHtmlReport(report) {
     .variants { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin-top: 16px; }
     .variant { border: 1px solid #d9ded7; border-radius: 8px; padding: 16px; }
     .judgmentkit_mcp { border-color: #9ac6b4; background: #fbfffd; }
+    .claim-blocked, .claim-ok, .claim-note { border-radius: 8px; padding: 12px; font-weight: 760; }
+    .claim-blocked { border: 1px solid #e4b8b8; background: #fff1f1; color: #7a2020; }
+    .claim-ok { border: 1px solid #aad2bd; background: #eefaf3; color: #1d5b37; }
+    .claim-note { border: 1px solid #d7dbc8; background: #fbfcf2; color: #465147; }
     .score { font-size: 1.8rem; font-weight: 850; }
     ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
     li { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid #edf0eb; padding-top: 6px; }
@@ -3544,14 +3611,20 @@ function buildHtmlReport(report) {
 <body>
   <main>
     <section class="hero">
-      <p><a href="${REPORT_JSON_FILENAME}">JSON report</a> · <a href="../../../../${CATALOG_JSON_FILENAME}">Catalog JSON</a></p>
+      <p><a href="${REPORT_JSON_FILENAME}">JSON report</a> · <a href="../../../../${CATALOG_JSON_FILENAME}">Catalog JSON</a>${llmEvidenceLinks}</p>
       <h1>JudgmentKit MCP Private Pilot</h1>
       <p class="lede">${escapeHtml(report.benchmark_policy)} ${escapeHtml(report.capture_policy)} ${escapeHtml(report.repair_loop_proof_policy ?? reportRepairLoopProofLabel())}${escapeHtml(observationPolicy)}${escapeHtml(visualTokenPolicy)}</p>
+      <p class="${publishabilityClass}">${escapeHtml(publishabilityLabel)}. Blockers: ${escapeHtml(publishBlockers)}.</p>
+      ${llmEvidenceCallout}
       ${modelFramingHtml}
       <dl class="summary">
         <div><dt>Status</dt><dd>${escapeHtml(report.summary.pilot_status)}</dd></div>
+        <div><dt>Publishable</dt><dd>${escapeHtml(report.summary.publishable ? "yes" : "no")}</dd></div>
         <div><dt>Cases</dt><dd>${escapeHtml(report.summary.evaluated_cases)}/${escapeHtml(report.summary.cases)}</dd></div>
         <div><dt>Passed</dt><dd>${escapeHtml(report.summary.passed)}</dd></div>
+        <div><dt>Failed</dt><dd>${escapeHtml(report.summary.failed)}</dd></div>
+        <div><dt>Baseline wins</dt><dd>${escapeHtml(report.summary.baseline_wins)}</dd></div>
+        <div><dt>Ties</dt><dd>${escapeHtml(report.summary.ties)}</dd></div>
         <div><dt>Std delta passed</dt><dd>${escapeHtml(report.summary.standard_delta_passed)}</dd></div>
         <div><dt>Calibrated-only</dt><dd>${escapeHtml(report.summary.calibrated_only_passes)}</dd></div>
         <div><dt>Average delta</dt><dd>${escapeHtml(report.summary.average_guided_delta)}</dd></div>
@@ -3564,6 +3637,7 @@ function buildHtmlReport(report) {
         ${cognitiveDimensionsSummary}
         ${cognitiveDimensionsAdherenceSummary}
         ${visualUiProofSummary}
+        ${llmEvidenceSummary}
         <div><dt>Invalid outputs</dt><dd>${escapeHtml(report.summary.invalid_outputs)}</dd></div>
         <div><dt>Guided leaks</dt><dd>${escapeHtml(report.summary.guided_critical_disclosure_leaks)}</dd></div>
         <div><dt>Run</dt><dd>${escapeHtml(report.run.run_id)}</dd></div>
@@ -3574,10 +3648,11 @@ function buildHtmlReport(report) {
   </main>
 </body>
 </html>
-`;
+`);
 }
 
-function catalogEntry(report) {
+export function catalogEntry(rawReport) {
+  const report = normalizeMcpPilotReport(rawReport);
   return {
     date: report.run.date,
     mcp_release: report.run.mcp_release,
@@ -3586,6 +3661,7 @@ function catalogEntry(report) {
     run_path: report.run.run_path,
     html_report: report.run.html_report,
     json_report: report.run.json_report,
+    llm_evidence: report.llm_evidence ?? null,
     eval_id: report.eval_id,
     summary: report.summary,
   };
@@ -3599,7 +3675,7 @@ function readCatalog(baseReportsDir) {
   return readJson(catalogPath);
 }
 
-function buildCatalogHtml(catalog) {
+export function buildCatalogHtml(catalog) {
   const rows = (catalog.runs ?? [])
     .map(
       (run) => `
@@ -3608,13 +3684,18 @@ function buildCatalogHtml(catalog) {
           <td>${escapeHtml(run.mcp_release)}</td>
           <td>${escapeHtml(run.run_id)}</td>
           <td>${escapeHtml(run.summary?.pilot_status)}</td>
+          <td>${escapeHtml(run.summary?.publishable ? "yes" : "no")}</td>
           <td>${escapeHtml(run.summary?.passed ?? 0)}/${escapeHtml(run.summary?.evaluated_cases ?? 0)}</td>
+          <td>${escapeHtml(run.summary?.failed ?? 0)}</td>
+          <td>${escapeHtml(run.summary?.baseline_wins ?? 0)}</td>
+          <td>${escapeHtml(run.summary?.ties ?? 0)}</td>
+          <td>${escapeHtml(run.summary?.publish_blockers?.join(", ") || "none")}</td>
           <td><a href="${escapeHtml(run.html_report)}">HTML</a> · <a href="${escapeHtml(run.json_report)}">JSON</a></td>
         </tr>`,
     )
     .join("");
 
-  return `<!doctype html>
+  return stripTrailingWhitespace(`<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -3634,16 +3715,17 @@ function buildCatalogHtml(catalog) {
     <h1>JudgmentKit MCP Pilot Runs</h1>
     <p>Private saved-capture pilot reports. This catalog is separate from the UI-generation eval catalog.</p>
     <table>
-      <thead><tr><th>Date</th><th>MCP</th><th>Run</th><th>Status</th><th>Passed</th><th>Links</th></tr></thead>
+      <thead><tr><th>Date</th><th>MCP</th><th>Run</th><th>Status</th><th>Publishable</th><th>Passed</th><th>Failed</th><th>Baseline wins</th><th>Ties</th><th>Blockers</th><th>Links</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
   </main>
 </body>
 </html>
-`;
+`);
 }
 
-function writeReport(report, runInfo) {
+export function writeReport(rawReport, runInfo) {
+  const report = normalizeMcpPilotReport(rawReport);
   fs.mkdirSync(runInfo.runPath, { recursive: true });
   writeJson(runInfo.jsonReportPath, report);
   fs.writeFileSync(runInfo.htmlReportPath, buildHtmlReport(report));
@@ -3655,6 +3737,23 @@ function writeReport(report, runInfo) {
   writeJson(path.join(runInfo.baseReportsDir, CATALOG_JSON_FILENAME), catalog);
   fs.writeFileSync(path.join(runInfo.baseReportsDir, CATALOG_HTML_FILENAME), buildCatalogHtml(catalog));
 
+  return catalog;
+}
+
+export function rewriteExistingMcpPilotReport(reportPath, rawReport) {
+  const jsonReportPath = path.resolve(ROOT_DIR, reportPath);
+  const runPath = path.dirname(jsonReportPath);
+  const baseReportsDir = path.resolve(runPath, "../../..");
+  const report = normalizeMcpPilotReport(rawReport);
+  writeJson(jsonReportPath, report);
+  fs.writeFileSync(path.join(runPath, REPORT_HTML_FILENAME), buildHtmlReport(report));
+
+  const catalog = readCatalog(baseReportsDir);
+  const entry = catalogEntry(report);
+  catalog.runs = [entry, ...(catalog.runs ?? []).filter((run) => run.run_path !== entry.run_path)];
+  catalog.latest = entry;
+  writeJson(path.join(baseReportsDir, CATALOG_JSON_FILENAME), catalog);
+  fs.writeFileSync(path.join(baseReportsDir, CATALOG_HTML_FILENAME), buildCatalogHtml(catalog));
   return catalog;
 }
 

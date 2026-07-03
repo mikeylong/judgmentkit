@@ -4,6 +4,16 @@
     "title": "Refund triage handoff",
     "task_prompt": "Review the selected refund request and prepare the next handoff.",
     "comparison_manifest": "examples/comparison/manifest.json",
+    "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+    "live_generation": {
+      "source_facts": [
+        "The selected case is R-1842 for Nora Diaz, a $184.20 subscription renewal dispute after agent escalation.",
+        "The evidence checklist includes purchase history, support agent note, and a missing receipt photo.",
+        "The policy context says the renewal is inside the exception window and manager approval is allowed when evidence is complete.",
+        "The reviewer must choose Approve refund, Send to policy review, or Return for evidence.",
+        "A useful handoff names the next owner, next action, and reason for the decision."
+      ]
+    },
     "claim_level": "single_pair_signal",
     "expected_winner": "judgmentkit_handoff",
     "minimum_score_delta": 20,
@@ -103,6 +113,16 @@
     "title": "Dinner playlist builder",
     "task_prompt": "Build a 10-song dinner playlist that starts mellow, lifts in the middle, avoids disliked artists and explicit tracks, and leaves a sequence note.",
     "comparison_manifest": "examples/comparison/music/manifest.json",
+    "source_brief_file": "examples/comparison/music/dinner-playlist-implementation-heavy.brief.txt",
+    "live_generation": {
+      "source_facts": [
+        "The playlist is DINNER-10 for a Friday dinner with friends.",
+        "Guest notes: Maya likes warm soul and avoids The Grey Glass; Jon wants a mellow opener and no explicit tracks; Priya likes light electronic textures.",
+        "The 10-song target should start mellow, lift through the middle, close softly, and include a short sequence note.",
+        "Known conflicts include Midnight Spill by DJ Cinder as explicit and Velvet Return by The Grey Glass as a disliked artist.",
+        "A useful workspace supports Add to playlist, Move earlier, Move later, Remove track, Mark as conflict, Save playlist, and Share playlist."
+      ]
+    },
     "claim_level": "single_pair_signal",
     "expected_winner": "judgmentkit_handoff",
     "minimum_score_delta": 20,

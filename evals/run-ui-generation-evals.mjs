@@ -1,11 +1,20 @@
 import fs from "node:fs";
+import crypto from "node:crypto";
 import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 
 import { getMcpMetadata } from "../src/mcp.mjs";
+import {
+  createActivityModelReview,
+  createFrontendGenerationContext,
+  createFrontendImplementationSkillContext,
+  createUiGenerationHandoff,
+  createUiImplementationContract,
+  reviewUiWorkflowCandidate,
+} from "../src/index.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT_DIR = path.resolve(__dirname, "..");
@@ -20,6 +29,14 @@ const STALE_MARKDOWN_REPORT_FILENAME = `${REPORT_BASENAME}.md`;
 
 const EVAL_ID = "judgmentkit-ui-generation-paired-artifact-v1";
 const CATALOG_ID = "judgmentkit-ui-generation-eval-runs";
+const STATIC_EVALUATION_TYPE = "deterministic_static_artifact_scoring";
+const LIVE_EVALUATION_TYPE = "live_provider_ui_generation_scoring";
+const STATIC_GENERATION_POLICY =
+  "Scores committed standalone artifacts only. Does not call providers or generate apps.";
+const LIVE_GENERATION_POLICY =
+  "Calls a live provider for each baseline and JudgmentKit-guided variant, writes dated generated HTML artifacts, then scores those artifacts.";
+const FIXTURE_GENERATION_POLICY =
+  "Test fixture mode writes deterministic generated artifacts for harness verification only. It is not live provider evidence.";
 const METRIC_IDS = [
   "activity_fit",
   "decision_support",
@@ -55,10 +72,34 @@ const SCREENSHOT_VIEWPORTS = [
 const SCREENSHOT_ENGINE = "chrome_devtools_protocol";
 const SCREENSHOT_POLICY =
   "Initial viewport screenshots captured from committed static artifacts. Visual evidence is not used for scoring.";
+const LIVE_SCREENSHOT_POLICY =
+  "Initial viewport screenshots captured from dated live-generated artifacts. Visual evidence is not used for scoring.";
 const PNG_SIGNATURE = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+const LIVE_UI_OUTPUT_SCHEMA = {
+  type: "object",
+  properties: {
+    title: { type: "string" },
+    body_html: { type: "string" },
+    css: { type: "string" },
+    generation_notes: {
+      type: "array",
+      items: { type: "string" },
+    },
+  },
+  required: ["title", "body_html", "css", "generation_notes"],
+  additionalProperties: false,
+};
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
+}
+
+function hash(value) {
+  return crypto.createHash("sha256").update(String(value)).digest("hex");
+}
+
+function compactJson(value) {
+  return JSON.stringify(value, null, 2);
 }
 
 function relativePath(filePath) {
@@ -72,6 +113,10 @@ function repoRelativeOrAbsolute(filePath) {
 
 function resolveRepoPath(repoPath) {
   return path.join(ROOT_DIR, repoPath);
+}
+
+function repoRelativePath(filePath) {
+  return relativePath(filePath).split(path.sep).join("/");
 }
 
 function delay(ms) {
@@ -446,6 +491,14 @@ function scoreVariant(testCase, variant) {
     treatment: variant.treatment,
     artifact: variant.artifact,
     public_artifact: variant.public_artifact,
+    live_generation: variant.live_generation,
+    generated_artifact_path: variant.live_generation?.generated_artifact_path,
+    generated_artifact: variant.live_generation
+      ? {
+          path: variant.live_generation.generated_artifact_path,
+          repo_path: variant.live_generation.artifact,
+        }
+      : undefined,
     metadata_treatment: metadata.treatment,
     metadata_comparison_id: metadata.comparison_id,
     score: round(weightedScore),
@@ -518,6 +571,521 @@ function validateCase(testCase) {
       throw new Error(`${testCase.id} public_artifact must start with /examples/.`);
     }
   }
+}
+
+function liveGeneratedAt() {
+  return new Date().toISOString();
+}
+
+function slug(value) {
+  return String(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
+}
+
+function arrayOrEmpty(value) {
+  return Array.isArray(value) ? value : [];
+}
+
+function readSourceBrief(testCase) {
+  if (!testCase.source_brief_file) {
+    throw new Error(`${testCase.id} must define source_brief_file for live UI generation.`);
+  }
+
+  const sourcePath = resolveRepoPath(testCase.source_brief_file);
+  if (!fs.existsSync(sourcePath)) {
+    throw new Error(`${testCase.id} source brief not found: ${testCase.source_brief_file}`);
+  }
+
+  return fs.readFileSync(sourcePath, "utf8").trim();
+}
+
+function liveModelConfig() {
+  if (liveFixtureMode()) {
+    return {
+      id: "fixture-live-ui",
+      label: "Fixture Live UI",
+      provider: "fixture",
+      model: "deterministic-test-fixture",
+      reasoning_effort: null,
+      local: true,
+      fixture: true,
+    };
+  }
+
+  const model =
+    process.env.JUDGMENTKIT_UI_EVAL_MODEL ??
+    process.env.JUDGMENTKIT_UI_LIVE_MODEL ??
+    "gpt-5.5";
+  const reasoningEffort =
+    process.env.JUDGMENTKIT_UI_EVAL_REASONING_EFFORT ??
+    process.env.JUDGMENTKIT_UI_LIVE_REASONING_EFFORT ??
+    "high";
+
+  return {
+    id: slug(`${model}-codex`) || "codex-live-ui",
+    label: `${model} Codex`,
+    provider: "codex",
+    model,
+    reasoning_effort: reasoningEffort,
+    local: false,
+    fixture: false,
+  };
+}
+
+function buildSyntheticWorkflowCandidate(testCase) {
+  const activityTerms = arrayOrEmpty(testCase.rubric_terms?.activity_fit);
+  const decisionTerms = arrayOrEmpty(testCase.rubric_terms?.decision_support);
+  const handoffTerms = arrayOrEmpty(testCase.rubric_terms?.handoff_completeness);
+  const taskTerms = arrayOrEmpty(testCase.rubric_terms?.task_success_support);
+
+  return {
+    workflow: {
+      surface_name: testCase.title,
+      topology: "workspace",
+      work_units: [...new Set([...activityTerms, ...taskTerms])].slice(0, 6),
+      primary_actions: [...new Set([...decisionTerms, ...handoffTerms])].slice(0, 7),
+      decision_points: arrayOrEmpty(testCase.expected_outcomes).slice(0, 2),
+      completion_state:
+        arrayOrEmpty(testCase.expected_outcomes).find((outcome) =>
+          outcome.toLowerCase().includes("handoff") ||
+          outcome.toLowerCase().includes("playlist"),
+        ) ?? testCase.task_prompt,
+    },
+    surface_set: [
+      {
+        name: `${testCase.title} workspace`,
+        purpose: testCase.task_prompt,
+        sections: [...new Set([...activityTerms, ...taskTerms, ...handoffTerms])].slice(0, 8),
+        controls: [...new Set([...decisionTerms, ...handoffTerms])].slice(0, 8),
+        relationship_to_workflow:
+          "Keeps domain evidence, primary decisions, and completion handoff in one review workspace.",
+      },
+    ],
+    handoff: {
+      next_owner: handoffTerms.find((term) => /owner|agent|reviewer|host/i.test(term)) ?? "Domain owner",
+      reason:
+        arrayOrEmpty(testCase.expected_outcomes)[0] ??
+        "The generated UI must support the activity outcome.",
+      next_action:
+        handoffTerms.find((term) => /handoff|save|share|ready/i.test(term)) ??
+        testCase.task_prompt,
+    },
+    diagnostics: {
+      implementation_terms: arrayOrEmpty(testCase.implementation_leakage_terms),
+      reveal_contexts: ["setup", "debugging", "auditing", "integration"],
+    },
+  };
+}
+
+function buildGuidedGenerationContext(testCase, sourceBrief) {
+  const activityReview = createActivityModelReview(sourceBrief);
+  const workflowReview = reviewUiWorkflowCandidate(
+    sourceBrief,
+    buildSyntheticWorkflowCandidate(testCase),
+    { activity_review: activityReview },
+  );
+  const handoff = createUiGenerationHandoff(workflowReview);
+  const implementationContract = createUiImplementationContract({
+    repo_name: "JudgmentKit live UI eval",
+    target_stack: "standalone HTML/CSS",
+  });
+  const frontendContext = createFrontendGenerationContext({
+    ui_generation_handoff: handoff,
+    frontend_context: {
+      target_runtime: "standalone HTML/CSS",
+      ui_library: "none",
+      approved_component_families: [
+        "queue or list",
+        "detail workspace",
+        "decision controls",
+        "handoff or completion panel",
+      ],
+      files_or_entrypoints: ["live-generated-artifact.html"],
+    },
+    verification: {
+      commands: ["npm run eval:ui:live"],
+      browser_checks: ["desktop screenshot", "mobile screenshot"],
+      states_to_verify: ["selected work item", "primary decision", "completion handoff"],
+    },
+  });
+  const frontendSkillContext = createFrontendImplementationSkillContext({
+    frontend_generation_context: frontendContext,
+    target_client: "live-ui-generation-eval",
+  });
+
+  return {
+    activity_model: handoff.activity_model,
+    interaction_contract: handoff.interaction_contract,
+    workflow: handoff.workflow,
+    surface_set: handoff.surface_set,
+    handoff: handoff.handoff,
+    disclosure_reminders: handoff.disclosure_reminders,
+    generation_gates: handoff.generation_gates,
+    implementation_contract: {
+      status: implementationContract.implementation_contract_status,
+      approved_primitives: implementationContract.implementation_contract.approved_primitives,
+      design_system_source: implementationContract.implementation_contract.design_system_source,
+      browser_qa: implementationContract.implementation_contract.browser_qa,
+      accessibility_policy: implementationContract.implementation_contract.accessibility_policy,
+    },
+    frontend_context: {
+      status: frontendContext.frontend_context_status,
+      target_runtime: frontendContext.frontend_context?.target_runtime,
+      verification: frontendContext.verification,
+    },
+    frontend_skill_context: {
+      status: frontendSkillContext.frontend_skill_context_status,
+      design_system_mode: frontendSkillContext.design_system_mode,
+      verification_checklist: frontendSkillContext.verification_checklist,
+    },
+  };
+}
+
+function liveGenerationPrompt(testCase, variant, sourceBrief, guidedContext) {
+  const hiddenTerms = arrayOrEmpty(testCase.hidden_treatment_terms);
+  const sourcePacket = {
+    task_prompt: testCase.task_prompt,
+    source_brief: sourceBrief,
+    source_facts: arrayOrEmpty(testCase.live_generation?.source_facts),
+    expected_outcomes: arrayOrEmpty(testCase.expected_outcomes),
+  };
+  const treatmentGuidance =
+    variant.treatment === "judgmentkit_handoff"
+      ? [
+          "Use the JudgmentKit handoff context below as generation constraints.",
+          "The primary UI must translate implementation details into domain language.",
+          "Primary structure should support the user's activity, decisions, evidence, and completion handoff.",
+          "Do not expose prompts, schemas, resource ids, tool calls, MCP, JudgmentKit, review packets, or benchmark language in the product surface.",
+          `JudgmentKit handoff context:\n${compactJson(guidedContext)}`,
+        ]
+      : [
+          "Follow the source request as written, including implementation-heavy framing when it appears in the source.",
+          "Do not use JudgmentKit handoff context. Work from the source brief only.",
+        ];
+
+  return [
+    "Generate one standalone product UI surface for a live UI-generation eval.",
+    "Return JSON only. Do not include Markdown fences.",
+    "Output fields: title, body_html, css, generation_notes.",
+    "body_html must be the contents that will be wrapped inside <main data-primary-surface>; do not include html, head, body, script, or style tags.",
+    "css must be scoped plain CSS for this standalone artifact; do not import fonts, packages, images, or external assets.",
+    "Use semantic HTML controls where useful. Keep all text ASCII.",
+    "Do not write benchmark commentary, treatment labels, scoring language, or evaluator notes into body_html.",
+    `Never include these hidden terms in body_html: ${hiddenTerms.join(", ")}.`,
+    "",
+    ...treatmentGuidance,
+    "",
+    `Case id: ${testCase.id}`,
+    `Case title: ${testCase.title}`,
+    `Source packet:\n${compactJson(sourcePacket)}`,
+  ].join("\n");
+}
+
+function normalizeGeneratedBodyHtml(bodyHtml) {
+  let html = String(bodyHtml ?? "");
+  const bodyMatch = html.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  if (bodyMatch) {
+    html = bodyMatch[1];
+  }
+
+  return html.replace(/<script[\s\S]*?<\/script>/gi, " ").trim();
+}
+
+function normalizeGeneratedCss(css) {
+  return String(css ?? "")
+    .replace(/<style[^>]*>/gi, "")
+    .replace(/<\/style>/gi, "")
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .trim();
+}
+
+function escapeScriptJson(value) {
+  return JSON.stringify(value, null, 2).replace(/</g, "\\u003c");
+}
+
+function buildLiveStandaloneHtml({ testCase, variant, generated, metadata }) {
+  const title = generated.title?.trim() || `${testCase.title} ${variant.label}`;
+  const bodyHtml = normalizeGeneratedBodyHtml(generated.body_html);
+  const css = normalizeGeneratedCss(generated.css);
+
+  if (!bodyHtml) {
+    throw new Error(`${testCase.id}/${variant.id} generated empty body_html.`);
+  }
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(title)}</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; }
+    button, input, select, textarea { font: inherit; }
+${css}
+  </style>
+</head>
+<body data-comparison-id="${escapeHtml(testCase.id)}" data-live-generated="true">
+  <main data-primary-surface>
+${bodyHtml}
+  </main>
+  <script type="application/json" id="comparison-metadata">${escapeScriptJson(metadata)}</script>
+</body>
+</html>
+`;
+}
+
+function fixtureGeneratedUi(testCase, variant) {
+  const guided = variant.treatment === "judgmentkit_handoff";
+  const activityTerms = arrayOrEmpty(testCase.rubric_terms?.activity_fit);
+  const decisionTerms = arrayOrEmpty(testCase.rubric_terms?.decision_support);
+  const handoffTerms = arrayOrEmpty(testCase.rubric_terms?.handoff_completeness);
+  const taskTerms = arrayOrEmpty(testCase.rubric_terms?.task_success_support);
+  const confidenceTerms = arrayOrEmpty(testCase.rubric_terms?.confidence_rework_signals);
+  const implementationTerms = arrayOrEmpty(testCase.implementation_leakage_terms).slice(0, 8);
+  const domainTerms = [...activityTerms, ...decisionTerms, ...handoffTerms, ...taskTerms, ...confidenceTerms];
+  const bodyTerms = guided ? domainTerms : implementationTerms;
+
+  return {
+    title: `${testCase.title} ${guided ? "guided" : "baseline"} fixture`,
+    body_html: `
+      <section class="fixture-shell">
+        <header>
+          <p>${guided ? "Domain workspace" : "Admin generator console"}</p>
+          <h1>${escapeHtml(testCase.title)}</h1>
+          <p>${escapeHtml(testCase.task_prompt)}</p>
+        </header>
+        <section>
+          <h2>${guided ? "Work evidence" : "Implementation record"}</h2>
+          <ul>${bodyTerms.map((term) => `<li>${escapeHtml(term)}</li>`).join("")}</ul>
+        </section>
+        <section>
+          <h2>${guided ? "Completion" : "System fields"}</h2>
+          <p>${escapeHtml(arrayOrEmpty(testCase.expected_outcomes).join(" "))}</p>
+        </section>
+      </section>
+    `,
+    css: `
+      :root { color-scheme: light; font-family: system-ui, sans-serif; color: #1d2730; background: #f6f8fa; }
+      .fixture-shell { min-height: 100vh; padding: 28px; display: grid; gap: 18px; }
+      section { border: 1px solid #cbd5df; border-radius: 8px; background: #fff; padding: 18px; }
+      header { border-bottom: 1px solid #d7dee7; padding-bottom: 18px; }
+      h1, h2, p { margin-top: 0; }
+      li { margin-top: 8px; }
+    `,
+    generation_notes: ["Deterministic fixture artifact for live harness tests."],
+  };
+}
+
+function runCodexLiveGeneration(prompt, modelConfig, outputSchemaPath, outputFilePath) {
+  const args = [
+    "exec",
+    "--model",
+    modelConfig.model,
+    "-c",
+    `model_reasoning_effort="${modelConfig.reasoning_effort}"`,
+    "--sandbox",
+    "read-only",
+    "--skip-git-repo-check",
+    "--ephemeral",
+    "--color",
+    "never",
+    "--output-schema",
+    outputSchemaPath,
+    "--output-last-message",
+    outputFilePath,
+    "-",
+  ];
+  const execution = spawnSync("codex", args, {
+    cwd: ROOT_DIR,
+    encoding: "utf8",
+    input: prompt,
+    maxBuffer: 80 * 1024 * 1024,
+    timeout: Number(process.env.JUDGMENTKIT_UI_LIVE_GENERATION_TIMEOUT_MS ?? 900_000),
+  });
+
+  if (execution.error) throw execution.error;
+  if (execution.status !== 0) {
+    throw new Error(`codex live UI generation failed with status ${execution.status}\n${execution.stderr}`);
+  }
+
+  return {
+    runtime: "codex exec",
+    status: execution.status,
+    stdout_sha256: hash(execution.stdout ?? ""),
+    stderr_sha256: hash(execution.stderr ?? ""),
+    command_display: `codex ${args
+      .map((arg) => (arg === outputSchemaPath ? "<schema>" : arg === outputFilePath ? "<output>" : arg))
+      .join(" ")}`,
+  };
+}
+
+function parseGeneratedUi(rawResponse, testCase, variant) {
+  let parsed;
+  try {
+    parsed = JSON.parse(rawResponse);
+  } catch (error) {
+    throw new Error(`${testCase.id}/${variant.id} live UI output was not JSON: ${error.message}`);
+  }
+
+  for (const field of LIVE_UI_OUTPUT_SCHEMA.required) {
+    if (parsed[field] === undefined) {
+      throw new Error(`${testCase.id}/${variant.id} live UI output missing ${field}.`);
+    }
+  }
+
+  return parsed;
+}
+
+async function generateLiveVariant(testCase, variant, sourceBrief, guidedContext, runInfo, modelConfig) {
+  const prompt = liveGenerationPrompt(testCase, variant, sourceBrief, guidedContext);
+  const startedAt = Date.now();
+  let rawResponse;
+  let execution;
+  let generated;
+
+  if (modelConfig.fixture) {
+    generated = fixtureGeneratedUi(testCase, variant);
+    rawResponse = JSON.stringify(generated);
+    execution = {
+      runtime: "fixture",
+      status: 0,
+      stdout_sha256: null,
+      stderr_sha256: null,
+      command_display: "fixture live UI generation",
+    };
+  } else {
+    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-live-ui-generation-"));
+    const outputSchemaPath = path.join(tempDir, "live-ui-output-schema.json");
+    const outputFilePath = path.join(tempDir, `${testCase.id}-${variant.id}.json`);
+    fs.writeFileSync(outputSchemaPath, JSON.stringify(LIVE_UI_OUTPUT_SCHEMA, null, 2));
+    execution = runCodexLiveGeneration(prompt, modelConfig, outputSchemaPath, outputFilePath);
+    rawResponse = fs.readFileSync(outputFilePath, "utf8");
+    generated = parseGeneratedUi(rawResponse, testCase, variant);
+    fs.rmSync(tempDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
+  }
+
+  const durationMs = Date.now() - startedAt;
+  const generatedAt = liveGeneratedAt();
+  const artifactDir = path.join(runInfo.runDir, "generated-artifacts", testCase.id);
+  fs.mkdirSync(artifactDir, { recursive: true });
+  const artifactPath = path.join(artifactDir, `${variant.id}.html`);
+  const metadata = {
+    comparison_id: testCase.id,
+    variant: variant.id,
+    treatment: variant.treatment,
+    task_prompt: testCase.task_prompt,
+    generation_source: {
+      mode: modelConfig.fixture ? "fixture" : "live_provider",
+      provider: modelConfig.provider,
+      model: modelConfig.model,
+      model_config_id: modelConfig.id,
+      reasoning_effort: modelConfig.reasoning_effort,
+      generated_at: generatedAt,
+      duration_ms: durationMs,
+      prompt_sha256: hash(prompt),
+      raw_response_sha256: hash(rawResponse),
+      runner: "evals/run-ui-generation-evals.mjs",
+    },
+  };
+
+  fs.writeFileSync(
+    artifactPath,
+    stripTrailingWhitespace(buildLiveStandaloneHtml({
+      testCase,
+      variant,
+      generated,
+      metadata,
+    })),
+  );
+
+  return {
+    artifact: repoRelativePath(artifactPath),
+    live_generation: {
+      mode: modelConfig.fixture ? "fixture" : "live_provider",
+      provider: modelConfig.provider,
+      model: modelConfig.model,
+      model_config_id: modelConfig.id,
+      reasoning_effort: modelConfig.reasoning_effort,
+      generated_at: generatedAt,
+      duration_ms: durationMs,
+      prompt_sha256: hash(prompt),
+      raw_response_sha256: hash(rawResponse),
+      artifact: repoRelativePath(artifactPath),
+      generated_artifact_path: runRelativePath(runInfo.baseReportsDir, artifactPath),
+      generation_notes: generated.generation_notes,
+      execution,
+    },
+  };
+}
+
+async function prepareLiveGeneratedCases(cases, runInfo, modelConfig) {
+  const liveArtifacts = [];
+  const preparedCases = [];
+
+  for (const testCase of cases) {
+    validateCase(testCase);
+    const sourceBrief = readSourceBrief(testCase);
+    const guidedContext = buildGuidedGenerationContext(testCase, sourceBrief);
+    const variants = [];
+
+    for (const variant of testCase.variants) {
+      const generatedVariant = await generateLiveVariant(
+        testCase,
+        variant,
+        sourceBrief,
+        guidedContext,
+        runInfo,
+        modelConfig,
+      );
+      const preparedVariant = {
+        ...variant,
+        artifact: generatedVariant.artifact,
+        public_artifact: null,
+        live_generation: generatedVariant.live_generation,
+      };
+      variants.push(preparedVariant);
+      liveArtifacts.push({
+        case_id: testCase.id,
+        variant_id: variant.id,
+        treatment: variant.treatment,
+        artifact: generatedVariant.live_generation.generated_artifact_path,
+        repo_artifact: generatedVariant.artifact,
+        provider: modelConfig.provider,
+        model: modelConfig.model,
+        generated_at: generatedVariant.live_generation.generated_at,
+        duration_ms: generatedVariant.live_generation.duration_ms,
+        prompt_sha256: generatedVariant.live_generation.prompt_sha256,
+        raw_response_sha256: generatedVariant.live_generation.raw_response_sha256,
+      });
+    }
+
+    preparedCases.push({
+      ...testCase,
+      variants,
+    });
+  }
+
+  return {
+    cases: preparedCases,
+    live_generation: {
+      enabled: true,
+      mode: modelConfig.fixture ? "fixture" : "live_provider",
+      provider: modelConfig.provider,
+      model: modelConfig.model,
+      model_config_id: modelConfig.id,
+      reasoning_effort: modelConfig.reasoning_effort,
+      runtime: modelConfig.fixture ? "fixture" : "codex exec",
+      local: modelConfig.local,
+      generated_artifacts_dir: runRelativePath(
+        runInfo.baseReportsDir,
+        path.join(runInfo.runDir, "generated-artifacts"),
+      ),
+      artifacts: liveArtifacts,
+    },
+  };
 }
 
 function evaluateCase(testCase) {
@@ -595,6 +1163,22 @@ function summarizeClaimLevel(results) {
   return "repeated_pair_signal";
 }
 
+function uiPublicationAssessment(summary, generationMode) {
+  const blockers = [];
+  if ((summary.failed ?? 0) > 0) blockers.push("failed-cases");
+  if ((summary.baseline_wins ?? 0) > 0) blockers.push("baseline-wins");
+  if ((summary.ties ?? 0) > 0) blockers.push("ties");
+  if (generationMode === "fixture") blockers.push("fixture-generation");
+
+  return {
+    publishable: blockers.length === 0,
+    publishability_status: blockers.length === 0 ? "publishable" : "not-publishable",
+    publish_blockers: blockers,
+    publishability_policy:
+      "Conservative UI eval publication requires no failed cases, baseline wins, or ties; fixture runs are never publishable as live evidence.",
+  };
+}
+
 function currentLocalDate() {
   const parts = new Intl.DateTimeFormat("en-US", {
     timeZone: process.env.TZ ?? "America/Los_Angeles",
@@ -614,6 +1198,22 @@ function runDate() {
 function reportsDir() {
   const configured = process.env.JUDGMENTKIT_UI_EVAL_REPORTS_DIR;
   return configured ? path.resolve(configured) : DEFAULT_REPORTS_DIR;
+}
+
+function evalMode() {
+  if (
+    process.argv.includes("--live") ||
+    process.argv.includes("--live-generate") ||
+    process.env.JUDGMENTKIT_UI_EVAL_MODE === "live"
+  ) {
+    return "live";
+  }
+
+  return "static";
+}
+
+function liveFixtureMode() {
+  return process.env.JUDGMENTKIT_UI_EVAL_LIVE_FIXTURE === "1";
 }
 
 function mcpReleaseVersion() {
@@ -794,25 +1394,66 @@ async function attachVisualEvidence(results, runInfo) {
   });
 }
 
-function buildReport(results, runInfo) {
+function buildReport(results, runInfo, options = {}) {
   const guidedWins = results.filter((result) => result.winner === "judgmentkit_handoff").length;
   const baselineWins = results.filter((result) => result.winner === "raw_brief_baseline").length;
   const ties = results.filter((result) => result.winner === "tie").length;
   const passed = results.filter((result) => result.passed).length;
   const failed = results.length - passed;
+  const generationMode = options.liveGeneration?.mode ?? "static";
+  const summary = {
+    cases: results.length,
+    passed,
+    failed,
+    guided_wins: guidedWins,
+    baseline_wins: baselineWins,
+    ties,
+  };
+  const generation = options.liveGeneration
+    ? {
+        mode: generationMode,
+        live: true,
+        provider: options.liveGeneration.provider,
+        model: options.liveGeneration.model,
+        model_config_id: options.liveGeneration.model_config_id,
+        reasoning_effort: options.liveGeneration.reasoning_effort,
+        runtime: options.liveGeneration.runtime,
+        local: options.liveGeneration.local,
+        generated_artifacts_dir: options.liveGeneration.generated_artifacts_dir,
+        artifacts: options.liveGeneration.artifacts,
+      }
+    : {
+        mode: "static",
+        live: false,
+        static_artifact_scoring: true,
+      };
+  const providerMetadata = options.liveGeneration
+    ? {
+        provider: options.liveGeneration.provider,
+        model_config_id: options.liveGeneration.model_config_id,
+        model: options.liveGeneration.model,
+        runtime: options.liveGeneration.runtime,
+        local: options.liveGeneration.local,
+      }
+    : null;
 
   return {
     eval_id: EVAL_ID,
-    evaluation_type: "deterministic_static_artifact_scoring",
-    generation_policy:
-      "Scores committed standalone artifacts only. Does not call providers or generate apps.",
+    evaluation_type: options.liveGeneration ? LIVE_EVALUATION_TYPE : STATIC_EVALUATION_TYPE,
+    generation_policy: options.liveGeneration
+      ? generationMode === "fixture"
+        ? FIXTURE_GENERATION_POLICY
+        : LIVE_GENERATION_POLICY
+      : STATIC_GENERATION_POLICY,
     visual_evidence: {
       capture_engine: SCREENSHOT_ENGINE,
-      capture_policy: SCREENSHOT_POLICY,
+      capture_policy: options.liveGeneration ? LIVE_SCREENSHOT_POLICY : SCREENSHOT_POLICY,
       viewports: SCREENSHOT_VIEWPORTS.map(screenshotViewportMetadata),
     },
     benchmark_policy:
-      "Qualitative paired-artifact evidence only; not a statistically powered benchmark.",
+      options.liveGeneration
+        ? "Qualitative paired-artifact evidence from live provider-generated artifacts only; not a statistically powered benchmark."
+        : "Qualitative paired-artifact evidence only; not a statistically powered benchmark.",
     claim_level: summarizeClaimLevel(results),
     run: {
       date: runInfo.date,
@@ -824,17 +1465,25 @@ function buildReport(results, runInfo) {
       json_report: runRelativePath(runInfo.baseReportsDir, runInfo.jsonReportPath),
     },
     summary: {
-      cases: results.length,
-      passed,
-      failed,
-      guided_wins: guidedWins,
-      baseline_wins: baselineWins,
-      ties,
+      ...summary,
+      ...uiPublicationAssessment(summary, generationMode),
     },
     metric_scale: {
       metric_score: "0-5",
       total_score: "0-100 weighted",
     },
+    generation,
+    ...(options.liveGeneration
+      ? {
+          live_generation: {
+            policy: generationMode === "fixture" ? FIXTURE_GENERATION_POLICY : LIVE_GENERATION_POLICY,
+            provider_metadata: providerMetadata,
+            generated_artifacts_dir: options.liveGeneration.generated_artifacts_dir,
+            artifacts: options.liveGeneration.artifacts,
+          },
+          provider_metadata: providerMetadata,
+        }
+      : {}),
     results,
   };
 }
@@ -951,7 +1600,7 @@ function htmlScreenshotCard(result, variant, screenshot, runInfo) {
   `;
 }
 
-function htmlVisualEvidence(result, runInfo) {
+function htmlVisualEvidence(result, runInfo, report) {
   const baseline = variantByTreatment(result, "raw_brief_baseline");
   const guided = variantByTreatment(result, "judgmentkit_handoff");
   const desktopScreenshots = [baseline, guided].map((variant) => ({
@@ -967,7 +1616,7 @@ function htmlVisualEvidence(result, runInfo) {
     <section class="visual-evidence" aria-label="${escapeHtml(result.title)} visual evidence">
       <div class="section-heading">
         <h3>Visual evidence</h3>
-        <p>Screenshots show the initial viewport of each committed artifact. They are archived with this run and are not scoring inputs.</p>
+        <p>${escapeHtml(report.visual_evidence.capture_policy)}</p>
       </div>
       <div class="screenshot-grid desktop-screenshots">
         ${desktopScreenshots.map(({ variant, screenshot }) => htmlScreenshotCard(result, variant, screenshot, runInfo)).join("")}
@@ -1082,7 +1731,7 @@ function htmlEvidenceSummary(result) {
   `;
 }
 
-function htmlCase(result, runInfo) {
+function htmlCase(result, runInfo, report) {
   const baseline = variantByTreatment(result, "raw_brief_baseline");
   const guided = variantByTreatment(result, "judgmentkit_handoff");
   const caseId = htmlId(result.id);
@@ -1111,7 +1760,7 @@ function htmlCase(result, runInfo) {
         </div>
         ${htmlVariantScore(guided, runInfo.runDir)}
       </div>
-      ${htmlVisualEvidence(result, runInfo)}
+      ${htmlVisualEvidence(result, runInfo, report)}
       ${htmlMetricComparison(result)}
       ${htmlEvidenceSummary(result)}
       <details class="case-notes">
@@ -1125,6 +1774,64 @@ function htmlCase(result, runInfo) {
           ${htmlList(result.rationale)}
         </div>
       </details>
+    </section>
+  `;
+}
+
+function reportLede(report) {
+  if (report.generation?.live) {
+    return "Live provider-generated paired UI evidence for dated standalone artifacts. Use this report to review winner, delta, leakage, activity-fit evidence, and generation provenance by case.";
+  }
+
+  return "Deterministic paired-artifact scoring for existing standalone comparison apps. Use this report to review winner, delta, leakage, and activity-fit evidence by case.";
+}
+
+function htmlGenerationSummary(report, runInfo) {
+  const generation = report.generation ?? {};
+  const artifacts = generation.artifacts ?? [];
+  const artifactRows = artifacts
+    .map(
+      (artifact) => `
+        <tr>
+          <td>${escapeHtml(artifact.case_id)}</td>
+          <td>${escapeHtml(treatmentLabel(artifact.treatment))}</td>
+          <td><a href="${escapeHtml(path.relative(runInfo.runDir, resolveRepoPath(artifact.repo_artifact ?? artifact.artifact)).split(path.sep).join("/"))}">${escapeHtml(artifact.artifact)}</a></td>
+          <td>${escapeHtml(artifact.generated_at)}</td>
+        </tr>
+      `,
+    )
+    .join("");
+
+  return `
+    <section class="generation-panel" aria-label="Generation provenance">
+      <div>
+        <p class="eyebrow">Generation policy</p>
+        <h2>${escapeHtml(generation.live ? "Live provider artifacts" : "Static artifact scoring")}</h2>
+        <p>${escapeHtml(report.generation_policy)}</p>
+      </div>
+      <dl class="generation-meta">
+        <div><dt>Mode</dt><dd>${escapeHtml(generation.mode ?? "static")}</dd></div>
+        <div><dt>Provider</dt><dd>${escapeHtml(generation.provider ?? "none")}</dd></div>
+        <div><dt>Model</dt><dd>${escapeHtml(generation.model ?? "none")}</dd></div>
+        <div><dt>Publishable</dt><dd>${escapeHtml(report.summary.publishability_status)}</dd></div>
+      </dl>
+      ${
+        artifacts.length > 0
+          ? `<div class="table-wrap generation-artifacts">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Case</th>
+              <th scope="col">Variant</th>
+              <th scope="col">Artifact</th>
+              <th scope="col">Generated</th>
+            </tr>
+          </thead>
+          <tbody>${artifactRows}</tbody>
+        </table>
+      </div>`
+          : ""
+      }
     </section>
   `;
 }
@@ -1243,14 +1950,37 @@ function buildHtmlReport(report, runInfo) {
     }
     .run-meta div:nth-child(3n) { border-right: 0; }
     .run-meta div:nth-last-child(-n + 3) { border-bottom: 0; }
-    .notice {
-      margin: 0;
-      padding: 12px 14px;
+	    .notice {
+	      margin: 0;
+	      padding: 12px 14px;
       border: 1px solid var(--line);
       border-radius: 8px;
       background: #fbfcfd;
-      color: var(--muted);
-    }
+	      color: var(--muted);
+	    }
+	    .generation-panel {
+	      display: grid;
+	      gap: 14px;
+	      padding: 18px;
+	      border: 1px solid var(--line);
+	      border-radius: 8px;
+	      background: var(--panel);
+	    }
+	    .generation-panel p:last-child { margin-bottom: 0; color: var(--muted); }
+	    .generation-meta {
+	      display: grid;
+	      grid-template-columns: repeat(4, minmax(0, 1fr));
+	      border: 1px solid var(--line);
+	      border-radius: 8px;
+	      overflow: hidden;
+	    }
+	    .generation-meta div {
+	      min-width: 0;
+	      padding: 12px;
+	      border-right: 1px solid var(--line);
+	    }
+	    .generation-meta div:last-child { border-right: 0; }
+	    .generation-artifacts table { min-width: 820px; }
     .case-review {
       display: grid;
       gap: 18px;
@@ -1543,8 +2273,8 @@ function buildHtmlReport(report, runInfo) {
       <div>
         <p class="eyebrow">UI generation eval report</p>
         <h1>JudgmentKit UI-Generation Eval</h1>
-        <p class="lede">Deterministic paired-artifact scoring for existing standalone comparison apps. Use this report to review winner, delta, leakage, and activity-fit evidence by case.</p>
-      </div>
+	        <p class="lede">${escapeHtml(reportLede(report))}</p>
+	      </div>
       <section class="outcome-band" aria-label="Run outcome summary">
         <div class="outcome-primary">
           <p class="eyebrow">Latest run outcome</p>
@@ -1555,15 +2285,19 @@ function buildHtmlReport(report, runInfo) {
           <div><dt>Claim level</dt><dd>${escapeHtml(report.claim_level)}</dd></div>
           <div><dt>Run date</dt><dd>${escapeHtml(report.run.date)}</dd></div>
           <div><dt>MCP release</dt><dd>${escapeHtml(report.run.mcp_release)}</dd></div>
-          <div><dt>Run</dt><dd>${escapeHtml(report.run.run_id)}</dd></div>
-          <div><dt>Eval id</dt><dd>${escapeHtml(report.eval_id)}</dd></div>
-          <div><dt>Metric scale</dt><dd>${escapeHtml(report.metric_scale.metric_score)}</dd></div>
-        </dl>
-      </section>
-      <p class="notice">${escapeHtml(report.benchmark_policy)}</p>
-    </header>
-    ${report.results.map((result) => htmlCase(result, runInfo)).join("")}
-  </main>
+	          <div><dt>Run</dt><dd>${escapeHtml(report.run.run_id)}</dd></div>
+	          <div><dt>Eval id</dt><dd>${escapeHtml(report.eval_id)}</dd></div>
+	          <div><dt>Metric scale</dt><dd>${escapeHtml(report.metric_scale.metric_score)}</dd></div>
+	          <div><dt>Generation</dt><dd>${escapeHtml(report.generation?.mode ?? "static")}</dd></div>
+	          <div><dt>Publication</dt><dd>${escapeHtml(report.summary.publishability_status)}</dd></div>
+	        </dl>
+	      </section>
+	      ${htmlGenerationSummary(report, runInfo)}
+	      <p class="notice">${escapeHtml(report.generation_policy)}</p>
+	      <p class="notice">${escapeHtml(report.benchmark_policy)}</p>
+	    </header>
+	    ${report.results.map((result) => htmlCase(result, runInfo, report)).join("")}
+	  </main>
 </body>
 </html>
 `;
@@ -1761,7 +2495,7 @@ function writeReport(report, runInfo) {
 
 async function main() {
   const cases = readJson(CASES_PATH);
-  const results = cases.map(evaluateCase);
+  const mode = evalMode();
   const baseReportsDir = reportsDir();
   const runInfo = createRunPaths({
     baseReportsDir,
@@ -1770,18 +2504,30 @@ async function main() {
   });
 
   try {
+    const modelConfig = mode === "live" ? liveModelConfig() : null;
+    const prepared = mode === "live"
+      ? await prepareLiveGeneratedCases(cases, runInfo, modelConfig)
+      : { cases, live_generation: null };
+    const results = prepared.cases.map(evaluateCase);
     await attachVisualEvidence(results, runInfo);
-    const report = buildReport(results, runInfo);
+    const report = buildReport(results, runInfo, {
+      liveGeneration: prepared.live_generation,
+    });
     const catalog = writeReport(report, runInfo);
 
     console.log("# JudgmentKit UI-Generation Eval");
+    console.log(`Mode: ${report.generation.mode}`);
+    if (report.generation.live) {
+      console.log(`Live provider: ${report.generation.provider} ${report.generation.model}`);
+      console.log(`Generated artifacts: ${repoRelativeOrAbsolute(path.join(runInfo.runDir, "generated-artifacts"))}`);
+    }
     console.log(`Report: ${repoRelativeOrAbsolute(runInfo.jsonReportPath)}`);
     console.log(`HTML: ${repoRelativeOrAbsolute(runInfo.htmlReportPath)}`);
     console.log(`Catalog: ${repoRelativeOrAbsolute(path.join(baseReportsDir, CATALOG_JSON_FILENAME))}`);
     console.log(`Catalog HTML: ${repoRelativeOrAbsolute(path.join(baseReportsDir, CATALOG_HTML_FILENAME))}`);
     console.log(`Screenshots: ${repoRelativeOrAbsolute(path.join(runInfo.runDir, "screenshots"))}`);
     console.log(
-      `Summary: ${report.summary.guided_wins}/${report.summary.cases} JudgmentKit-guided wins, ${report.summary.failed} failed thresholds, claim level ${report.claim_level}, ${runInfo.date}/${runInfo.releaseSegment}/${runInfo.runId}`,
+      `Summary: ${report.summary.guided_wins}/${report.summary.cases} JudgmentKit-guided wins, ${report.summary.failed} failed thresholds, claim level ${report.claim_level}, publication ${report.summary.publishability_status}, ${runInfo.date}/${runInfo.releaseSegment}/${runInfo.runId}`,
     );
     console.log(`Latest: ${catalog.latest?.html_report ?? "none"}`);
 

@@ -1,0 +1,88 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "visual-token-renderer-boundary-review",
+  "title": "Visual token renderer boundary review",
+  "case_type": "implementation_review",
+  "model_config_id": "gpt-5.5-codex",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-07-03T16:13:14.201Z",
+  "duration_ms": 59756,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "17a3bef9beab1ec2c8f9ddf1b94cd6b41cf6f6b6e6cca6775283f6bb56b8fcb9",
+  "raw_response_sha256": "448943c6a7ac88fe5745ee63f1b602084a457943f23d1642ae56111a47d32b1c",
+  "raw_response": "{\"winner\":\"output_b\",\"confidence\":\"medium\",\"rationale\":\"Output B is the better downstream handoff. It makes the required boundary decision directly: token evidence may validate boundary styling/provenance, but cannot authorize renderer behavior or component-package readiness. It also gives a concrete next move: return for scope correction and route any renderer/component-package claims to a separate readiness review. Output A is also directionally correct, but it invents more source-specific workflow facts and prior-review context that are not in the brief.\",\"decisive_differences\":[\"Output B separates allowed boundary evidence from forbidden renderer/component-package claims more clearly.\",\"Output B provides a more operational next move by requiring separate package-readiness contracts/tests before authorizing renderer or component work.\",\"Output A includes ungrounded details about queue/detail/handoff surfaces and a prior failed review, which weakens source discipline.\"],\"evidence\":[{\"output\":\"output_b\",\"quote\":\"Do not let token evidence introduce renderer or component package work.\",\"why_it_matters\":\"This directly matches the expected next action.\"},{\"output\":\"output_b\",\"quote\":\"Any renderer or component-package claim needs a separate package-readiness review\",\"why_it_matters\":\"This gives the downstream agent a clear boundary-preserving path forward.\"},{\"output\":\"output_a\",\"quote\":\"submitted queue, detail panel, decision controls, and handoff receipt can remain in scope\",\"why_it_matters\":\"These specifics are not in the source brief and risk inventing workflow details.\"},{\"output\":\"output_a\",\"quote\":\"The first implementation review failed on visual token scope.\",\"why_it_matters\":\"The source does not state a prior review occurred, so this adds unsupported context.\"}],\"output_a_quality\":{\"score\":7.1,\"strengths\":[\"Correctly rejects the candidate’s renderer/component-package expansion.\",\"Includes next_action, handoff, and rationale.\",\"Keeps the main fix boundary-focused.\"],\"risks\":[\"Invents workbench sub-surfaces not present in the source brief.\",\"Adds unsupported prior-review and verification-availability claims.\",\"Says to reject the whole implementation candidate rather than more precisely rejecting the out-of-bound token evidence.\"]},\"output_b_quality\":{\"score\":8.2,\"strengths\":[\"Directly rejects renderer and component-package work in token evidence.\",\"Clearly scopes valid token evidence to boundary styling and roles.\",\"Provides an actionable separate-review path for package-readiness claims.\"],\"risks\":[\"Overstates some unprovided coverage details as acceptable.\",\"Adds extra technical checks not present in the brief.\",\"Slightly dense implementation language, though appropriate for this implementation review.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_b",
+    "confidence": "medium",
+    "rationale": "Output B is the better downstream handoff. It makes the required boundary decision directly: token evidence may validate boundary styling/provenance, but cannot authorize renderer behavior or component-package readiness. It also gives a concrete next move: return for scope correction and route any renderer/component-package claims to a separate readiness review. Output A is also directionally correct, but it invents more source-specific workflow facts and prior-review context that are not in the brief.",
+    "decisive_differences": [
+      "Output B separates allowed boundary evidence from forbidden renderer/component-package claims more clearly.",
+      "Output B provides a more operational next move by requiring separate package-readiness contracts/tests before authorizing renderer or component work.",
+      "Output A includes ungrounded details about queue/detail/handoff surfaces and a prior failed review, which weakens source discipline."
+    ],
+    "evidence": [
+      {
+        "output": "output_b",
+        "quote": "Do not let token evidence introduce renderer or component package work.",
+        "why_it_matters": "This directly matches the expected next action."
+      },
+      {
+        "output": "output_b",
+        "quote": "Any renderer or component-package claim needs a separate package-readiness review",
+        "why_it_matters": "This gives the downstream agent a clear boundary-preserving path forward."
+      },
+      {
+        "output": "output_a",
+        "quote": "submitted queue, detail panel, decision controls, and handoff receipt can remain in scope",
+        "why_it_matters": "These specifics are not in the source brief and risk inventing workflow details."
+      },
+      {
+        "output": "output_a",
+        "quote": "The first implementation review failed on visual token scope.",
+        "why_it_matters": "The source does not state a prior review occurred, so this adds unsupported context."
+      }
+    ],
+    "output_a_quality": {
+      "score": 7.1,
+      "strengths": [
+        "Correctly rejects the candidate’s renderer/component-package expansion.",
+        "Includes next_action, handoff, and rationale.",
+        "Keeps the main fix boundary-focused."
+      ],
+      "risks": [
+        "Invents workbench sub-surfaces not present in the source brief.",
+        "Adds unsupported prior-review and verification-availability claims.",
+        "Says to reject the whole implementation candidate rather than more precisely rejecting the out-of-bound token evidence."
+      ]
+    },
+    "output_b_quality": {
+      "score": 8.2,
+      "strengths": [
+        "Directly rejects renderer and component-package work in token evidence.",
+        "Clearly scopes valid token evidence to boundary styling and roles.",
+        "Provides an actionable separate-review path for package-readiness claims."
+      ],
+      "risks": [
+        "Overstates some unprovided coverage details as acceptable.",
+        "Adds extra technical checks not present in the brief.",
+        "Slightly dense implementation language, though appropriate for this implementation review."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "949c31e7503e43ab56aa8eeb47172b439c81526bee8ef8ad78065a26b5a250a9",
+    "stderr_sha256": "c2f5fab9e895085ed751e59d933c6706c930b1c09f30b92cd66e6b4571f7845c",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

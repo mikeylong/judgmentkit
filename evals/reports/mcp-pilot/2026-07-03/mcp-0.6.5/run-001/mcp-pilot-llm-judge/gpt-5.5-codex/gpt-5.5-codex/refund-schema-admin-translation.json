@@ -1,0 +1,86 @@
+{
+  "capture_type": "mcp-pilot-llm-preference-judge",
+  "case_id": "refund-schema-admin-translation",
+  "title": "Refund schema admin translation",
+  "case_type": "activity_translation",
+  "model_config_id": "gpt-5.5-codex",
+  "judge_model_config_id": "gpt-5.5-codex",
+  "judge_provider": "codex",
+  "judge_model": "gpt-5.5",
+  "judge_reasoning_effort": "xhigh",
+  "captured_at": "2026-07-03T15:42:07.339Z",
+  "duration_ms": 75404,
+  "treatment_mapping": {
+    "output_a": "judgmentkit_mcp",
+    "output_b": "baseline_no_mcp"
+  },
+  "prompt_sha256": "7981854b8731e90008332d3d4bcff4d65fe862e25dd935926989ce318598ff1d",
+  "raw_response_sha256": "a55ca453cfbb4d44f82063c362016424be09a1225dfd64f36fd11d79a9f456bc",
+  "raw_response": "{\"winner\":\"output_a\",\"confidence\":\"medium\",\"rationale\":\"Both outputs correctly reframe the request around refund adjudication rather than schema-shaped administration. Output A is stronger because it more directly translates the brief into the expected refund triage handoff surface and includes a complete owner/action/reason/verification handoff. Output B is grounded and appropriately cautious, but its handoff centers artifact verification and lacks an explicit reason field there, making it slightly less useful as the next agent's response plan.\",\"decisive_differences\":[\"Output A supplies a complete handoff with owner, action, reason, and verification; Output B's handoff is mostly a verification instruction for the next agent.\",\"Output A's next action names the actual surface structure: case status, evidence review, policy signals, three decision actions, rationale capture, and routed next step.\",\"Output B's instruction to verify fields and endpoints is useful restraint, but it drifts more toward implementation preparation than the expected refund triage handoff.\"],\"evidence\":[{\"output\":\"output_a\",\"quote\":\"Frame the work as a refund adjudication workbench for a support lead, not as an admin view over internal data.\",\"why_it_matters\":\"Correctly reframes the request around the real activity and avoids exposing implementation machinery as the UI contract.\"},{\"output\":\"output_a\",\"quote\":\"Owner: Support operations; Action: build the refund decision workbench around approve, policy review, and missing-evidence return; Reason: the support lead needs evidence-backed routing\",\"why_it_matters\":\"Provides the handoff/action/reason structure the benchmark explicitly rewards.\"},{\"output\":\"output_b\",\"quote\":\"Read the fixture artifacts and produce a field-to-decision map\",\"why_it_matters\":\"This is grounded and operationally useful, but it is a preparatory step rather than the clearest direct translation into the triage handoff surface.\"},{\"output\":\"output_b\",\"quote\":\"Owner: next agent; action: verify actual table fields, schema requirements, endpoint capabilities, prompt variables, and trace evidence\",\"why_it_matters\":\"Shows appropriate caution about missing context, but the handoff is weaker because it centers verification and omits an explicit reason field.\"}],\"output_a_quality\":{\"score\":9,\"strengths\":[\"Strong activity framing around refund adjudication rather than raw admin data.\",\"Clear decision structure: approve, policy review, or return for missing evidence.\",\"Keeps internal labels and implementation details out of primary UI copy.\",\"Includes owner, action, reason, and verification in the handoff.\"],\"risks\":[\"Adds some assumed domain concepts such as prior support history that may need validation against actual artifacts.\"]},\"output_b_quality\":{\"score\":8,\"strengths\":[\"Strong activity-first framing and good restraint about verifying actual fields before committing labels or rules.\",\"Good emphasis on field-to-decision mapping, evidence sufficiency, policy fit, and audit needs.\",\"Explicitly warns against exposing prompts, schemas, resource IDs, and tool machinery in the primary UI.\"],\"risks\":[\"Handoff lacks an explicit reason field and is less complete as a downstream action package.\",\"Leans more into implementation verification than the expected user-facing refund triage handoff surface.\"]}}",
+  "output_valid": true,
+  "parse_error": null,
+  "parsed": {
+    "winner": "output_a",
+    "confidence": "medium",
+    "rationale": "Both outputs correctly reframe the request around refund adjudication rather than schema-shaped administration. Output A is stronger because it more directly translates the brief into the expected refund triage handoff surface and includes a complete owner/action/reason/verification handoff. Output B is grounded and appropriately cautious, but its handoff centers artifact verification and lacks an explicit reason field there, making it slightly less useful as the next agent's response plan.",
+    "decisive_differences": [
+      "Output A supplies a complete handoff with owner, action, reason, and verification; Output B's handoff is mostly a verification instruction for the next agent.",
+      "Output A's next action names the actual surface structure: case status, evidence review, policy signals, three decision actions, rationale capture, and routed next step.",
+      "Output B's instruction to verify fields and endpoints is useful restraint, but it drifts more toward implementation preparation than the expected refund triage handoff."
+    ],
+    "evidence": [
+      {
+        "output": "output_a",
+        "quote": "Frame the work as a refund adjudication workbench for a support lead, not as an admin view over internal data.",
+        "why_it_matters": "Correctly reframes the request around the real activity and avoids exposing implementation machinery as the UI contract."
+      },
+      {
+        "output": "output_a",
+        "quote": "Owner: Support operations; Action: build the refund decision workbench around approve, policy review, and missing-evidence return; Reason: the support lead needs evidence-backed routing",
+        "why_it_matters": "Provides the handoff/action/reason structure the benchmark explicitly rewards."
+      },
+      {
+        "output": "output_b",
+        "quote": "Read the fixture artifacts and produce a field-to-decision map",
+        "why_it_matters": "This is grounded and operationally useful, but it is a preparatory step rather than the clearest direct translation into the triage handoff surface."
+      },
+      {
+        "output": "output_b",
+        "quote": "Owner: next agent; action: verify actual table fields, schema requirements, endpoint capabilities, prompt variables, and trace evidence",
+        "why_it_matters": "Shows appropriate caution about missing context, but the handoff is weaker because it centers verification and omits an explicit reason field."
+      }
+    ],
+    "output_a_quality": {
+      "score": 9,
+      "strengths": [
+        "Strong activity framing around refund adjudication rather than raw admin data.",
+        "Clear decision structure: approve, policy review, or return for missing evidence.",
+        "Keeps internal labels and implementation details out of primary UI copy.",
+        "Includes owner, action, reason, and verification in the handoff."
+      ],
+      "risks": [
+        "Adds some assumed domain concepts such as prior support history that may need validation against actual artifacts."
+      ]
+    },
+    "output_b_quality": {
+      "score": 8,
+      "strengths": [
+        "Strong activity-first framing and good restraint about verifying actual fields before committing labels or rules.",
+        "Good emphasis on field-to-decision mapping, evidence sufficiency, policy fit, and audit needs.",
+        "Explicitly warns against exposing prompts, schemas, resource IDs, and tool machinery in the primary UI."
+      ],
+      "risks": [
+        "Handoff lacks an explicit reason field and is less complete as a downstream action package.",
+        "Leans more into implementation verification than the expected user-facing refund triage handoff surface."
+      ]
+    }
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "562fde85701ffc80472f3547cf51d79d38618f4a90a3c699dacd46259646d001",
+    "stderr_sha256": "60f52c9fbfcdcf9210e7996bdab11d3be70059f36dc052643016c03581e94ef2",
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}

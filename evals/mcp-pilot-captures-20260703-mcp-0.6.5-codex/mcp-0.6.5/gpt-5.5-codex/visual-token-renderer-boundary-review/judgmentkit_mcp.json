@@ -1,0 +1,48 @@
+{
+  "capture_type": "model-output-transcript",
+  "case_id": "visual-token-renderer-boundary-review",
+  "variant_id": "judgmentkit_mcp",
+  "treatment": "judgmentkit_mcp",
+  "mcp_version": "0.6.5",
+  "mcp_url": "http://127.0.0.1:51549/mcp",
+  "mcp_metadata_sha256": "e84fe4a9764e3a3ac1e81051537a8488280c76a4b4d51d3d1aea3a1bc6231070",
+  "mcp_tool_sequence": [
+    "create_ui_implementation_contract",
+    "review_ui_implementation_candidate"
+  ],
+  "mcp_tool_transcript_sha256": "1bb7600763e39c85715a625faa360fdc4aef2a969b58f65c7746163caec0a208",
+  "model_config_id": "gpt-5.5-codex",
+  "provider": "codex",
+  "runtime": "codex exec",
+  "local": false,
+  "model": "gpt-5.5",
+  "cli": "codex",
+  "reasoning_effort": "xhigh",
+  "runner": "evals/run-mcp-pilot-evals.mjs",
+  "captured_at": "2026-07-03T15:29:00.551Z",
+  "duration_ms": 74244,
+  "output_valid": true,
+  "parse_error": null,
+  "usage": null,
+  "source_context_sha256": "516867280d0ec5fe901bb42ae1f778ce46ff3e15ebddca32f75c1df957e9b30b",
+  "prompt_sha256": "a0ee28d3cf5af8e5496c328e62a804b2f8f5d747b11ef0324e2f15eb676abbfe",
+  "mcp_context_sha256": "126e5c180936893f5979e5f9cf21c865f713b97712137ed06fb25258ba656280",
+  "raw_response_sha256": "69903282a109359a49db020f4265f42a045529d23797290d291009486bde3afe",
+  "raw_response": "{\"response\":\"Reject the implementation candidate. The affected operator review is the refund review workbench; the submitted queue, detail panel, decision controls, and handoff receipt can remain in scope, but the token evidence crosses the boundary by claiming renderer and component-package readiness. Keep token evidence limited to supported color, type, and spacing roles for status and decision use.\",\"next_action\":\"repair_and_resubmit\",\"questions\":[],\"handoff\":\"Decision: reject; Owner: implementation agent; Action: remove renderer/component-package claims, keep the adapter boundary-only, and verify the refund review decision controls and handoff receipt still pass automated tests, desktop/mobile review, and accessibility checks.\",\"rationale\":\"The first implementation review failed on visual token scope. Passing implementation checks do not allow token evidence to introduce deferred renderer, component library, catalog, or compiler work, and the required fix and verification are already available.\"}",
+  "parsed": {
+    "response": "Reject the implementation candidate. The affected operator review is the refund review workbench; the submitted queue, detail panel, decision controls, and handoff receipt can remain in scope, but the token evidence crosses the boundary by claiming renderer and component-package readiness. Keep token evidence limited to supported color, type, and spacing roles for status and decision use.",
+    "next_action": "repair_and_resubmit",
+    "questions": [],
+    "handoff": "Decision: reject; Owner: implementation agent; Action: remove renderer/component-package claims, keep the adapter boundary-only, and verify the refund review decision controls and handoff receipt still pass automated tests, desktop/mobile review, and accessibility checks.",
+    "rationale": "The first implementation review failed on visual token scope. Passing implementation checks do not allow token evidence to introduce deferred renderer, component library, catalog, or compiler work, and the required fix and verification are already available."
+  },
+  "execution": {
+    "provider": "codex",
+    "runtime": "codex exec",
+    "status": 0,
+    "stdout_sha256": "a701eea3f5e360668ad295e6d1802ff889d2b8ea46d7ff9c04df9150693d4384",
+    "stderr_sha256": "67c2f11919f67efa437bfea782cdb7c123e4b1a16e1188a7897e8d67809e4ee1",
+    "usage": null,
+    "command_display": "codex exec --model gpt-5.5 -c model_reasoning_effort=\"xhigh\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -"
+  }
+}
