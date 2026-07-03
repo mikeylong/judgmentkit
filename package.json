@@ -23,6 +23,7 @@
     "eval": "node evals/run-evals.mjs",
     "eval:mcp-pilot": "node evals/run-mcp-pilot-evals.mjs",
     "eval:ui": "node evals/run-ui-generation-evals.mjs",
+    "eval:ui:live": "node evals/run-ui-generation-evals.mjs --live",
     "icons:check": "node scripts/generate-lucide-icon-catalog.mjs --check",
     "icons:generate": "node scripts/generate-lucide-icon-catalog.mjs",
     "install:mcp": "node scripts/install-mcp.mjs",

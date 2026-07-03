@@ -1,0 +1,698 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Refund triage handoff</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; }
+    button, input, select, textarea { font: inherit; }
+[data-primary-surface] {
+  --jk-surface: #f6f7f9;
+  --jk-panel: #ffffff;
+  --jk-panel-soft: #f0f5f7;
+  --jk-text: #172026;
+  --jk-muted: #5c6972;
+  --jk-border: #ccd5dc;
+  --jk-border-strong: #8fa1ad;
+  --jk-primary: #245b6b;
+  --jk-primary-strong: #17424f;
+  --jk-primary-soft: #e2f1f4;
+  --jk-success: #216b4f;
+  --jk-success-soft: #e4f3ec;
+  --jk-warning: #8a5a00;
+  --jk-warning-soft: #fff1cf;
+  --jk-danger: #9b2f2f;
+  --jk-danger-soft: #fde8e8;
+  --jk-focus: #0b65c2;
+  color: var(--jk-text);
+  background: var(--jk-surface);
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  line-height: 1.45;
+}
+
+[data-primary-surface] * {
+  box-sizing: border-box;
+}
+
+[data-primary-surface] .refund-workspace {
+  min-height: 100vh;
+  padding: 24px;
+}
+
+[data-primary-surface] .surface-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 1440px;
+  margin: 0 auto 18px;
+}
+
+[data-primary-surface] .eyebrow {
+  margin: 0 0 6px;
+  color: var(--jk-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+[data-primary-surface] h1,
+[data-primary-surface] h2,
+[data-primary-surface] h3,
+[data-primary-surface] p {
+  margin-top: 0;
+}
+
+[data-primary-surface] h1 {
+  margin-bottom: 8px;
+  font-size: clamp(1.7rem, 1.1rem + 1vw, 2.35rem);
+  line-height: 1.12;
+}
+
+[data-primary-surface] h2 {
+  margin-bottom: 0;
+  font-size: 1.08rem;
+  line-height: 1.25;
+}
+
+[data-primary-surface] h3 {
+  margin-bottom: 10px;
+  font-size: 0.98rem;
+  line-height: 1.3;
+}
+
+[data-primary-surface] .surface-summary {
+  max-width: 720px;
+  margin-bottom: 0;
+  color: var(--jk-muted);
+  font-size: 1rem;
+}
+
+[data-primary-surface] .triage-status,
+[data-primary-surface] .section-title-row,
+[data-primary-surface] .action-row,
+[data-primary-surface] .case-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+[data-primary-surface] .triage-status {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+[data-primary-surface] .status-pill,
+[data-primary-surface] .count-chip {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  border: 1px solid var(--jk-border);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+[data-primary-surface] .status-pill.ready {
+  color: var(--jk-success);
+  background: var(--jk-success-soft);
+  border-color: #9dc9b6;
+}
+
+[data-primary-surface] .status-pill.attention,
+[data-primary-surface] .count-chip {
+  color: var(--jk-warning);
+  background: var(--jk-warning-soft);
+  border-color: #e3c36e;
+}
+
+[data-primary-surface] .status-pill.neutral {
+  color: var(--jk-primary-strong);
+  background: var(--jk-primary-soft);
+  border-color: #a9c9d0;
+}
+
+[data-primary-surface] .workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(230px, 0.78fr) minmax(420px, 1.42fr) minmax(360px, 1fr);
+  gap: 16px;
+  max-width: 1440px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+[data-primary-surface] .queue-panel,
+[data-primary-surface] .case-panel,
+[data-primary-surface] .decision-panel {
+  background: var(--jk-panel);
+  border: 1px solid var(--jk-border);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(20, 32, 38, 0.06);
+}
+
+[data-primary-surface] .queue-panel,
+[data-primary-surface] .decision-panel {
+  padding: 16px;
+}
+
+[data-primary-surface] .case-panel {
+  padding: 18px;
+}
+
+[data-primary-surface] .panel-heading {
+  margin-bottom: 14px;
+}
+
+[data-primary-surface] .case-heading {
+  justify-content: space-between;
+  align-items: flex-start;
+  border-bottom: 1px solid var(--jk-border);
+  padding-bottom: 14px;
+}
+
+[data-primary-surface] .case-list {
+  display: grid;
+  gap: 8px;
+}
+
+[data-primary-surface] .case-row {
+  display: flex;
+  min-height: 64px;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--jk-border);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--jk-text);
+  padding: 10px 12px;
+  text-align: left;
+  cursor: pointer;
+}
+
+[data-primary-surface] .case-row strong,
+[data-primary-surface] .case-row small {
+  display: block;
+}
+
+[data-primary-surface] .case-row small,
+[data-primary-surface] .decision-option small,
+[data-primary-surface] .evidence-item span,
+[data-primary-surface] .handoff-receipt span {
+  color: var(--jk-muted);
+}
+
+[data-primary-surface] .case-row.selected {
+  border-color: var(--jk-primary);
+  background: var(--jk-primary-soft);
+  box-shadow: inset 4px 0 0 var(--jk-primary);
+}
+
+[data-primary-surface] .amount {
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+[data-primary-surface] .case-facts {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 16px 0;
+}
+
+[data-primary-surface] .case-facts div {
+  min-height: 74px;
+  border: 1px solid var(--jk-border);
+  border-radius: 8px;
+  background: var(--jk-panel-soft);
+  padding: 12px;
+}
+
+[data-primary-surface] dt {
+  color: var(--jk-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+[data-primary-surface] dd {
+  margin: 5px 0 0;
+  font-weight: 800;
+}
+
+[data-primary-surface] .review-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 14px;
+}
+
+[data-primary-surface] .evidence-section,
+[data-primary-surface] .policy-section {
+  border: 1px solid var(--jk-border);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+[data-primary-surface] .section-title-row {
+  justify-content: space-between;
+}
+
+[data-primary-surface] .evidence-list {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+[data-primary-surface] .evidence-item {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  border: 1px solid var(--jk-border);
+  border-radius: 8px;
+  padding: 10px;
+}
+
+[data-primary-surface] .evidence-item.complete {
+  border-color: #9dc9b6;
+  background: var(--jk-success-soft);
+}
+
+[data-primary-surface] .evidence-item.missing {
+  border-color: #e6a0a0;
+  background: var(--jk-danger-soft);
+}
+
+[data-primary-surface] input[type="checkbox"],
+[data-primary-surface] input[type="radio"] {
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--jk-primary);
+}
+
+[data-primary-surface] .evidence-item label,
+[data-primary-surface] .decision-option span {
+  display: grid;
+  gap: 3px;
+}
+
+[data-primary-surface] .policy-section p {
+  color: var(--jk-muted);
+}
+
+[data-primary-surface] .policy-callout {
+  display: grid;
+  gap: 4px;
+  border-left: 4px solid var(--jk-primary);
+  background: var(--jk-primary-soft);
+  padding: 12px;
+}
+
+[data-primary-surface] .handoff-form {
+  display: grid;
+  gap: 16px;
+}
+
+[data-primary-surface] .decision-group {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  margin: 0;
+  border: 0;
+  padding: 0;
+}
+
+[data-primary-surface] legend {
+  margin-bottom: 8px;
+  font-weight: 800;
+}
+
+[data-primary-surface] .decision-option {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  gap: 10px;
+  min-height: 70px;
+  align-items: start;
+  border: 1px solid var(--jk-border);
+  border-radius: 8px;
+  background: #fff;
+  padding: 12px;
+}
+
+[data-primary-surface] .decision-option.selected {
+  border-color: var(--jk-primary);
+  background: var(--jk-primary-soft);
+}
+
+[data-primary-surface] .handoff-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+[data-primary-surface] .form-control {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  font-weight: 800;
+}
+
+[data-primary-surface] select,
+[data-primary-surface] textarea {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--jk-border-strong);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--jk-text);
+  font: inherit;
+  font-weight: 500;
+  padding: 10px 12px;
+}
+
+[data-primary-surface] textarea {
+  min-height: 126px;
+  resize: vertical;
+}
+
+[data-primary-surface] .handoff-receipt {
+  display: grid;
+  gap: 4px;
+  border: 1px solid #9dc9b6;
+  border-radius: 8px;
+  background: var(--jk-success-soft);
+  padding: 12px;
+}
+
+[data-primary-surface] .action-row {
+  justify-content: flex-end;
+}
+
+[data-primary-surface] button,
+[data-primary-surface] select,
+[data-primary-surface] textarea,
+[data-primary-surface] input {
+  font: inherit;
+}
+
+[data-primary-surface] .primary-action,
+[data-primary-surface] .secondary-action {
+  min-height: 44px;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+[data-primary-surface] .primary-action {
+  border: 1px solid var(--jk-primary-strong);
+  background: var(--jk-primary);
+  color: #fff;
+}
+
+[data-primary-surface] .secondary-action {
+  border: 1px solid var(--jk-border-strong);
+  background: #fff;
+  color: var(--jk-primary-strong);
+}
+
+[data-primary-surface] button:hover,
+[data-primary-surface] .decision-option:hover {
+  border-color: var(--jk-primary);
+}
+
+[data-primary-surface] button:focus-visible,
+[data-primary-surface] select:focus-visible,
+[data-primary-surface] textarea:focus-visible,
+[data-primary-surface] input:focus-visible {
+  outline: 3px solid var(--jk-focus);
+  outline-offset: 2px;
+}
+
+@media (max-width: 1120px) {
+  [data-primary-surface] .workspace-grid {
+    grid-template-columns: minmax(220px, 0.8fr) minmax(0, 1.2fr);
+  }
+
+  [data-primary-surface] .decision-panel {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 760px) {
+  [data-primary-surface] .refund-workspace {
+    padding: 14px;
+  }
+
+  [data-primary-surface] .surface-header,
+  [data-primary-surface] .workspace-grid,
+  [data-primary-surface] .review-layout,
+  [data-primary-surface] .handoff-grid,
+  [data-primary-surface] .case-facts {
+    grid-template-columns: 1fr;
+  }
+
+  [data-primary-surface] .surface-header {
+    display: grid;
+  }
+
+  [data-primary-surface] .triage-status,
+  [data-primary-surface] .action-row,
+  [data-primary-surface] .case-heading,
+  [data-primary-surface] .section-title-row {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  [data-primary-surface] .primary-action,
+  [data-primary-surface] .secondary-action {
+    width: 100%;
+  }
+}
+
+@media (forced-colors: active) {
+  [data-primary-surface] .case-row.selected,
+  [data-primary-surface] .decision-option.selected,
+  [data-primary-surface] .policy-callout,
+  [data-primary-surface] .handoff-receipt {
+    border: 2px solid CanvasText;
+    box-shadow: none;
+  }
+}
+  </style>
+</head>
+<body data-comparison-id="refund-triage-standalone-v1" data-live-generated="true">
+  <main data-primary-surface>
+<section class="refund-workspace" aria-labelledby="surface-title">
+  <header class="surface-header">
+    <div>
+      <p class="eyebrow">Daily triage</p>
+      <h1 id="surface-title">Refund triage handoff</h1>
+      <p class="surface-summary">Review the selected refund request, choose the right path, and leave a clear handoff for the next owner.</p>
+    </div>
+    <div class="triage-status" aria-label="Triage status">
+      <span class="status-pill ready">Ready for review</span>
+      <span class="status-pill attention">Evidence missing</span>
+    </div>
+  </header>
+
+  <div class="workspace-grid">
+    <aside class="queue-panel" aria-labelledby="queue-title">
+      <div class="panel-heading">
+        <p class="eyebrow">Refund escalation queue</p>
+        <h2 id="queue-title">3 cases today</h2>
+      </div>
+      <nav class="case-list" aria-label="Refund cases">
+        <button class="case-row selected" type="button" aria-current="true">
+          <span>
+            <strong>R-1842</strong>
+            <small>Nora Diaz</small>
+          </span>
+          <span class="amount">$184.20</span>
+        </button>
+        <button class="case-row" type="button">
+          <span>
+            <strong>R-1846</strong>
+            <small>Marco Allen</small>
+          </span>
+          <span class="amount">$79.00</span>
+        </button>
+        <button class="case-row" type="button">
+          <span>
+            <strong>R-1851</strong>
+            <small>Aisha Reed</small>
+          </span>
+          <span class="amount">$231.10</span>
+        </button>
+      </nav>
+    </aside>
+
+    <section class="case-panel" aria-labelledby="case-title">
+      <div class="panel-heading case-heading">
+        <div>
+          <p class="eyebrow">Customer refund escalation</p>
+          <h2 id="case-title">R-1842: Nora Diaz</h2>
+        </div>
+        <span class="status-pill neutral">Agent escalation</span>
+      </div>
+
+      <dl class="case-facts">
+        <div>
+          <dt>Refund amount</dt>
+          <dd>$184.20</dd>
+        </div>
+        <div>
+          <dt>Dispute type</dt>
+          <dd>Subscription renewal</dd>
+        </div>
+        <div>
+          <dt>Current owner</dt>
+          <dd>Support operations manager</dd>
+        </div>
+        <div>
+          <dt>Requested outcome</dt>
+          <dd>Manager decision</dd>
+        </div>
+      </dl>
+
+      <div class="review-layout">
+        <section class="evidence-section" aria-labelledby="evidence-title">
+          <div class="section-title-row">
+            <h3 id="evidence-title">Evidence checklist</h3>
+            <span class="count-chip">2 of 3 complete</span>
+          </div>
+          <ul class="evidence-list">
+            <li class="evidence-item complete">
+              <input id="purchase-history" type="checkbox" checked disabled>
+              <label for="purchase-history">
+                <strong>Purchase history</strong>
+                <span>Renewal and charge are confirmed.</span>
+              </label>
+            </li>
+            <li class="evidence-item complete">
+              <input id="agent-note" type="checkbox" checked disabled>
+              <label for="agent-note">
+                <strong>Support agent note</strong>
+                <span>Agent escalation explains the customer dispute.</span>
+              </label>
+            </li>
+            <li class="evidence-item missing">
+              <input id="receipt-photo" type="checkbox" disabled>
+              <label for="receipt-photo">
+                <strong>Receipt photo</strong>
+                <span>Needed before direct approval.</span>
+              </label>
+            </li>
+          </ul>
+        </section>
+
+        <section class="policy-section" aria-labelledby="policy-title">
+          <h3 id="policy-title">Policy review context</h3>
+          <p>The renewal is inside the exception window. Manager approval is allowed when evidence is complete.</p>
+          <div class="policy-callout" role="note">
+            <strong>Decision cue</strong>
+            <span>Because the receipt photo is missing, return to the support agent or send to policy review if an exception is needed.</span>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <section class="decision-panel" aria-labelledby="decision-title">
+      <div class="panel-heading">
+        <p class="eyebrow">Review selected case</p>
+        <h2 id="decision-title">Choose refund path</h2>
+      </div>
+
+      <form class="handoff-form" action="#" aria-describedby="handoff-status">
+        <fieldset class="decision-group">
+          <legend>Choose a path</legend>
+          <label class="decision-option">
+            <input type="radio" name="refund-path" value="approve">
+            <span>
+              <strong>Approve refund</strong>
+              <small>Use when evidence is complete and approval is allowed.</small>
+            </span>
+          </label>
+          <label class="decision-option">
+            <input type="radio" name="refund-path" value="policy-review">
+            <span>
+              <strong>Send to policy review</strong>
+              <small>Use when an exception needs a second review.</small>
+            </span>
+          </label>
+          <label class="decision-option selected">
+            <input type="radio" name="refund-path" value="return-evidence" checked>
+            <span>
+              <strong>Return for evidence</strong>
+              <small>Ask the support agent for the missing receipt photo.</small>
+            </span>
+          </label>
+        </fieldset>
+
+        <div class="handoff-grid">
+          <label class="form-control" for="next-owner">
+            <span>Next owner</span>
+            <select id="next-owner" name="next-owner">
+              <option selected>Support agent</option>
+              <option>Policy reviewer</option>
+              <option>Support operations manager</option>
+            </select>
+          </label>
+          <label class="form-control" for="next-action">
+            <span>Next action</span>
+            <select id="next-action" name="next-action">
+              <option selected>Collect missing receipt photo</option>
+              <option>Approve refund</option>
+              <option>Review exception</option>
+            </select>
+          </label>
+        </div>
+
+        <label class="form-control" for="decision-reason">
+          <span>Reason for the decision</span>
+          <textarea id="decision-reason" name="decision-reason" rows="4">Return to the support agent because the receipt photo is missing. Purchase history and agent note are complete, and the renewal is inside the exception window.</textarea>
+        </label>
+
+        <div class="handoff-receipt" id="handoff-status" role="status">
+          <strong>Handoff ready</strong>
+          <span>Next owner: Support agent. Next action: Collect missing receipt photo.</span>
+        </div>
+
+        <div class="action-row">
+          <button class="secondary-action" type="button">Save draft</button>
+          <button class="primary-action" type="submit">Handoff</button>
+        </div>
+      </form>
+    </section>
+  </div>
+</section>
+  </main>
+  <script type="application/json" id="comparison-metadata">{
+  "comparison_id": "refund-triage-standalone-v1",
+  "variant": "guided",
+  "treatment": "judgmentkit_handoff",
+  "task_prompt": "Review the selected refund request and prepare the next handoff.",
+  "generation_source": {
+    "mode": "live_provider",
+    "provider": "codex",
+    "model": "gpt-5.5",
+    "model_config_id": "gpt-5-5-codex",
+    "reasoning_effort": "high",
+    "generated_at": "2026-07-03T17:26:07.483Z",
+    "duration_ms": 139533,
+    "prompt_sha256": "ee886720a0fc0960b038566e8379289eea789cf403e2033797390d3ae06b12b9",
+    "raw_response_sha256": "471e02e9678f3da431a31f4aa7e6a50f5e73e6c69f98b8cf7bc3629a3eccb0eb",
+    "runner": "evals/run-ui-generation-evals.mjs"
+  }
+}</script>
+</body>
+</html>

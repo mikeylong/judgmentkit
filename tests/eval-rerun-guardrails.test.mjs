@@ -44,6 +44,256 @@ function assertHasAll(value, expected, message) {
   }
 }
 
+const STATIC_UI_GENERATION_POLICY =
+  "Scores committed standalone artifacts only. Does not call providers or generate apps.";
+const DATED_RUN_PATH_PATTERN =
+  /^\d{4}-\d{2}-\d{2}\/mcp-\d+\.\d+\.\d+\/run-\d{3}(?:\/|$)/;
+const DATED_GENERATED_ARTIFACT_PATH_PATTERN =
+  /^\d{4}-\d{2}-\d{2}\/mcp-\d+\.\d+\.\d+\/run-\d{3}\/generated-artifacts\/[^/]+\/[^/]+\.html$/;
+const DATED_SCREENSHOT_PATH_PATTERN =
+  /^\d{4}-\d{2}-\d{2}\/mcp-\d+\.\d+\.\d+\/run-\d{3}\/screenshots\/[^/]+\/[^/]+\.png$/;
+
+function findReportFiles(relativeDir, predicate) {
+  const start = path.join(root, relativeDir);
+  const matches = [];
+  const pending = [start];
+
+  while (pending.length > 0) {
+    const current = pending.pop();
+    for (const entry of fs.readdirSync(current, { withFileTypes: true })) {
+      const filePath = path.join(current, entry.name);
+      if (entry.isDirectory()) {
+        pending.push(filePath);
+        continue;
+      }
+
+      const relativePath = path.relative(root, filePath);
+      if (predicate(relativePath)) {
+        matches.push(relativePath);
+      }
+    }
+  }
+
+  return matches.sort();
+}
+
+function collectForbiddenKeys(value, forbiddenKeys, trail = "report", matches = []) {
+  if (!value || typeof value !== "object") {
+    return matches;
+  }
+
+  if (Array.isArray(value)) {
+    value.forEach((item, index) => {
+      collectForbiddenKeys(item, forbiddenKeys, `${trail}[${index}]`, matches);
+    });
+    return matches;
+  }
+
+  for (const [key, nestedValue] of Object.entries(value)) {
+    const keyPath = `${trail}.${key}`;
+    if (forbiddenKeys.has(key)) {
+      matches.push(keyPath);
+    }
+    collectForbiddenKeys(nestedValue, forbiddenKeys, keyPath, matches);
+  }
+
+  return matches;
+}
+
+function assertNoLiveGenerationMetadata(report, label) {
+  const forbiddenKeys = new Set([
+    "live_generation",
+    "live_generation_policy",
+    "provider",
+    "provider_metadata",
+    "model",
+    "model_config_id",
+    "runtime",
+    "capture_dir",
+    "capture_required",
+    "generated_artifact",
+    "generated_artifact_path",
+    "generated_artifacts",
+  ]);
+  const matches = collectForbiddenKeys(report, forbiddenKeys);
+  assert.deepEqual(matches, [], `${label} should not carry live-generation metadata`);
+}
+
+function assertProviderMetadata(metadata, label) {
+  assert.equal(typeof metadata, "object", `${label} should include provider metadata`);
+  assert.equal(Array.isArray(metadata), false, `${label} provider metadata should be an object`);
+  for (const field of ["provider", "model_config_id", "model", "runtime"]) {
+    assert.equal(typeof metadata[field], "string", `${label} should include provider ${field}`);
+    assert.ok(metadata[field].length > 0, `${label} provider ${field} should not be empty`);
+  }
+  assert.equal(typeof metadata.local, "boolean", `${label} should include provider local flag`);
+}
+
+function liveGenerationPolicy(report) {
+  return report.live_generation_policy ?? report.live_generation?.policy ?? report.generation_policy;
+}
+
+function liveProviderMetadata(report) {
+  return (
+    report.provider_metadata ??
+    report.live_generation?.provider_metadata ??
+    report.live_generation?.provider
+  );
+}
+
+function generatedArtifactPathsForVariant(variant) {
+  const paths = [];
+
+  if (typeof variant.generated_artifact_path === "string") {
+    paths.push(variant.generated_artifact_path);
+  }
+  if (typeof variant.generated_artifact?.path === "string") {
+    paths.push(variant.generated_artifact.path);
+  }
+  for (const artifact of variant.generated_artifacts ?? []) {
+    if (typeof artifact === "string") {
+      paths.push(artifact);
+    } else if (typeof artifact?.path === "string") {
+      paths.push(artifact.path);
+    }
+  }
+
+  return paths;
+}
+
+function screenshotPathsForVariant(variant) {
+  return (variant.screenshots ?? [])
+    .map((screenshot) => screenshot?.path)
+    .filter((screenshotPath) => typeof screenshotPath === "string");
+}
+
+function assertLiveUiGenerationReport(report, label) {
+  assert.match(
+    report.evaluation_type,
+    /live.*ui.*generation|ui.*generation.*live/i,
+    `${label} should identify live UI generation in evaluation_type`,
+  );
+  assert.notEqual(
+    report.evaluation_type,
+    "deterministic_static_artifact_scoring",
+    `${label} must not use deterministic static artifact scoring as its evaluation type`,
+  );
+
+  const policy = liveGenerationPolicy(report);
+  assert.equal(typeof policy, "string", `${label} should include a live generation policy`);
+  assert.match(policy, /\blive\b/i, `${label} policy should name live generation`);
+  assert.match(policy, /\bprovider\b/i, `${label} policy should name provider involvement`);
+  assert.match(policy, /generated.*artifact/i, `${label} policy should name generated artifacts`);
+  assert.notEqual(policy, STATIC_UI_GENERATION_POLICY, `${label} policy should not be static policy`);
+
+  assertProviderMetadata(liveProviderMetadata(report), label);
+  assert.match(report.run?.run_path ?? "", DATED_RUN_PATH_PATTERN, `${label} should have a dated run path`);
+
+  const variants = (report.results ?? []).flatMap((result) => result.variants ?? []);
+  assert.ok(variants.length > 0, `${label} should include generated variants`);
+
+  for (const [index, variant] of variants.entries()) {
+    const variantLabel = `${label} variant ${variant.id ?? index}`;
+    const generatedArtifactPaths = generatedArtifactPathsForVariant(variant);
+    assert.ok(
+      generatedArtifactPaths.length > 0,
+      `${variantLabel} should include a generated artifact path`,
+    );
+    for (const artifactPath of generatedArtifactPaths) {
+      assert.match(
+        artifactPath,
+        DATED_GENERATED_ARTIFACT_PATH_PATTERN,
+        `${variantLabel} generated artifact path should be dated and report-local`,
+      );
+      assert.ok(
+        artifactPath.startsWith(`${report.run.run_path}/generated-artifacts/`),
+        `${variantLabel} generated artifact path should live under its report run`,
+      );
+    }
+
+    const screenshotPaths = screenshotPathsForVariant(variant);
+    assert.ok(screenshotPaths.length > 0, `${variantLabel} should include screenshot paths`);
+    for (const screenshotPath of screenshotPaths) {
+      assert.match(
+        screenshotPath,
+        DATED_SCREENSHOT_PATH_PATTERN,
+        `${variantLabel} screenshot path should be dated and report-local`,
+      );
+      assert.ok(
+        screenshotPath.startsWith(`${report.run.run_path}/screenshots/`),
+        `${variantLabel} screenshot path should live under its report run`,
+      );
+    }
+  }
+}
+
+function assertStaticUiGenerationReport(report, label) {
+  assert.equal(
+    report.evaluation_type,
+    "deterministic_static_artifact_scoring",
+    `${label} should remain deterministic static artifact scoring`,
+  );
+  assert.equal(
+    report.generation_policy,
+    STATIC_UI_GENERATION_POLICY,
+    `${label} should clearly state the non-live static policy`,
+  );
+  if (report.visual_evidence) {
+    assert.match(
+      report.visual_evidence.capture_policy ?? "",
+      /committed static artifacts/i,
+      `${label} screenshot policy should name committed static artifacts`,
+    );
+  }
+  assert.match(
+    report.benchmark_policy ?? "",
+    /not a statistically powered benchmark/i,
+    `${label} should avoid benchmark claims`,
+  );
+  assertNoLiveGenerationMetadata(report, label);
+
+  const runPath = report.run?.run_path;
+  assert.match(runPath ?? "", DATED_RUN_PATH_PATTERN, `${label} should have a dated run path`);
+
+  for (const result of report.results ?? []) {
+    for (const variant of result.variants ?? []) {
+      const variantLabel = `${label} ${result.id}/${variant.id}`;
+      assert.equal(typeof variant.artifact, "string", `${variantLabel} should keep static artifact`);
+      assert.doesNotMatch(
+        variant.artifact,
+        DATED_RUN_PATH_PATTERN,
+        `${variantLabel} static artifact should not be a dated generated artifact`,
+      );
+      assert.equal(
+        fs.existsSync(path.join(root, variant.artifact)),
+        true,
+        `${variantLabel} static artifact should exist`,
+      );
+
+      if ("screenshots" in variant) {
+        const screenshotPaths = screenshotPathsForVariant(variant);
+        assert.ok(screenshotPaths.length > 0, `${variantLabel} should include screenshot paths`);
+        for (const screenshotPath of screenshotPaths) {
+          assert.match(
+            screenshotPath,
+            DATED_SCREENSHOT_PATH_PATTERN,
+            `${variantLabel} screenshot path should be dated and report-local`,
+          );
+          assert.ok(
+            screenshotPath.startsWith(`${runPath}/screenshots/`),
+            `${variantLabel} screenshot path should live under its report run`,
+          );
+          assert.equal(
+            fs.existsSync(path.join(root, "evals/reports", screenshotPath)),
+            true,
+            `${variantLabel} screenshot should exist`,
+          );
+        }
+      }
+    }
+  }
+}
+
 const coreCases = readJson("evals/cases.json");
 const mcpCases = readJson("evals/mcp-pilot-cases.json");
 const uiCases = readJson("evals/ui-generation-cases.json");
@@ -379,6 +629,88 @@ assert.ok(
   uiCases.length < 10 && uiCases.every((testCase) => testCase.claim_level === "single_pair_signal"),
   "two static UI cases are regression evidence, not enough to support benchmark claims",
 );
+
+const liveUiGenerationReportExample = {
+  eval_id: "judgmentkit-live-ui-generation-v1",
+  evaluation_type: "live_ui_generation_provider_artifact_scoring",
+  live_generation: {
+    policy:
+      "Live UI generation eval: calls the configured provider, records provider metadata, and scores generated artifacts from the dated report run.",
+    provider_metadata: {
+      provider: "codex",
+      model_config_id: "gpt-5.5-codex",
+      model: "gpt-5.5-codex",
+      runtime: "codex_cli",
+      local: false,
+    },
+  },
+  run: {
+    date: "2026-07-03",
+    mcp_release: "0.6.5",
+    mcp_release_segment: "mcp-0.6.5",
+    run_id: "run-001",
+    run_path: "2026-07-03/mcp-0.6.5/run-001",
+  },
+  results: [
+    {
+      id: "refund-triage-live-v1",
+      variants: [
+        {
+          id: "judgmentkit_live",
+          generated_artifact: {
+            path: "2026-07-03/mcp-0.6.5/run-001/generated-artifacts/refund-triage-live-v1/judgmentkit-live.html",
+          },
+          screenshots: [
+            {
+              id: "judgmentkit-live-desktop",
+              path: "2026-07-03/mcp-0.6.5/run-001/screenshots/refund-triage-live-v1/judgmentkit-live-desktop.png",
+            },
+          ],
+        },
+      ],
+    },
+  ],
+};
+
+assertLiveUiGenerationReport(liveUiGenerationReportExample, "live UI report guardrail example");
+
+const staticScoringMasquerade = JSON.parse(JSON.stringify(liveUiGenerationReportExample));
+staticScoringMasquerade.evaluation_type = "deterministic_static_artifact_scoring";
+staticScoringMasquerade.generation_policy = STATIC_UI_GENERATION_POLICY;
+assert.throws(
+  () => assertLiveUiGenerationReport(staticScoringMasquerade, "static scoring masquerade"),
+  /should identify live UI generation|must not use deterministic static artifact scoring/,
+);
+
+const missingGeneratedArtifactPath = JSON.parse(JSON.stringify(liveUiGenerationReportExample));
+delete missingGeneratedArtifactPath.results[0].variants[0].generated_artifact;
+missingGeneratedArtifactPath.results[0].variants[0].artifact = "examples/comparison/version-b.html";
+assert.throws(
+  () => assertLiveUiGenerationReport(missingGeneratedArtifactPath, "missing generated artifact"),
+  /generated artifact path/,
+);
+
+const uiReportFiles = findReportFiles(
+  "evals/reports",
+  (relativePath) =>
+    relativePath.endsWith("ui-generation-report.json") ||
+    relativePath.endsWith("live-ui-generation-report.json"),
+);
+assert.ok(uiReportFiles.length > 0, "committed UI eval reports should be covered");
+
+for (const reportFile of uiReportFiles) {
+  const report = readJson(reportFile);
+  const isLiveUiReport =
+    /live/i.test(report.evaluation_type ?? "") ||
+    /live-ui-generation/i.test(report.eval_id ?? "") ||
+    reportFile.endsWith("live-ui-generation-report.json");
+
+  if (isLiveUiReport) {
+    assertLiveUiGenerationReport(report, reportFile);
+  } else {
+    assertStaticUiGenerationReport(report, reportFile);
+  }
+}
 
 const mcpCaseTypeCounts = mcpCases.reduce((counts, testCase) => {
   counts[testCase.case_type] = (counts[testCase.case_type] ?? 0) + 1;

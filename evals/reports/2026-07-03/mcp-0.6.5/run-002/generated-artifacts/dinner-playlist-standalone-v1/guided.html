@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dinner playlist builder</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; min-width: 320px; }
+    button, input, select, textarea { font: inherit; }
+[data-primary-surface] .dpb {
+  --dpb-bg: #f7f5f0;
+  --dpb-panel: #ffffff;
+  --dpb-ink: #211f1c;
+  --dpb-muted: #655f56;
+  --dpb-line: #d8d1c6;
+  --dpb-primary: #0f6b61;
+  --dpb-primary-dark: #084d45;
+  --dpb-plum: #6b3f63;
+  --dpb-amber: #a85f12;
+  --dpb-soft: #edf6f4;
+  --dpb-warn: #fff3df;
+  color: var(--dpb-ink);
+  background: var(--dpb-bg);
+  padding: 24px;
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;
+}
+[data-primary-surface] .dpb * { box-sizing: border-box; }
+[data-primary-surface] .dpb__header,
+[data-primary-surface] .dpb__section-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+[data-primary-surface] .dpb__header { margin-bottom: 18px; }
+[data-primary-surface] .dpb__eyebrow {
+  margin: 0 0 6px;
+  color: var(--dpb-primary-dark);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+[data-primary-surface] h1,
+[data-primary-surface] h2,
+[data-primary-surface] p { margin-top: 0; }
+[data-primary-surface] h1 { margin-bottom: 8px; font-size: clamp(1.75rem, 4vw, 2.7rem); line-height: 1.05; letter-spacing: 0; }
+[data-primary-surface] h2 { margin-bottom: 10px; font-size: 1rem; line-height: 1.2; letter-spacing: 0; }
+[data-primary-surface] .dpb__intro,
+[data-primary-surface] .dpb__section-head p,
+[data-primary-surface] .dpb__track span,
+[data-primary-surface] .dpb__sequence span,
+[data-primary-surface] dd { color: var(--dpb-muted); }
+[data-primary-surface] .dpb__intro { max-width: 760px; margin-bottom: 0; font-size: 1rem; line-height: 1.5; }
+[data-primary-surface] .dpb__actions,
+[data-primary-surface] .dpb__row-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+[data-primary-surface] button,
+[data-primary-surface] .dpb__button,
+[data-primary-surface] .dpb__select,
+[data-primary-surface] .dpb__textarea {
+  min-height: 44px;
+  border: 1px solid var(--dpb-line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--dpb-ink);
+  font: inherit;
+}
+[data-primary-surface] button,
+[data-primary-surface] .dpb__button { padding: 0 14px; font-weight: 750; cursor: pointer; }
+[data-primary-surface] button:hover { border-color: var(--dpb-primary); }
+[data-primary-surface] button:focus-visible,
+[data-primary-surface] select:focus-visible,
+[data-primary-surface] textarea:focus-visible { outline: 3px solid #f0b44d; outline-offset: 2px; }
+[data-primary-surface] button:disabled { cursor: not-allowed; color: #8a8379; background: #f0ece5; }
+[data-primary-surface] .dpb__button--primary { background: var(--dpb-primary); border-color: var(--dpb-primary); color: #fff; }
+[data-primary-surface] .dpb__button--primary:hover { background: var(--dpb-primary-dark); }
+[data-primary-surface] .dpb__grid { display: grid; grid-template-columns: minmax(240px, 330px) minmax(0, 1fr); gap: 16px; align-items: start; }
+[data-primary-surface] .dpb__side { display: grid; gap: 16px; }
+[data-primary-surface] .dpb__panel {
+  background: var(--dpb-panel);
+  border: 1px solid var(--dpb-line);
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 1px 0 rgba(33, 31, 28, 0.04);
+}
+[data-primary-surface] .dpb__panel--main { min-width: 0; }
+[data-primary-surface] .dpb__panel--alert { border-color: #e0b567; background: #fffaf0; }
+[data-primary-surface] .dpb__brief { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 0 16px; }
+[data-primary-surface] .dpb__brief div { padding: 10px; background: var(--dpb-soft); border-radius: 8px; }
+[data-primary-surface] dt { color: var(--dpb-muted); font-size: 0.78rem; font-weight: 750; }
+[data-primary-surface] dd { margin: 2px 0 0; font-weight: 800; }
+[data-primary-surface] .dpb__label { display: block; margin: 0 0 6px; font-weight: 800; }
+[data-primary-surface] .dpb__select,
+[data-primary-surface] .dpb__textarea { width: 100%; padding: 10px 12px; }
+[data-primary-surface] .dpb__textarea { resize: vertical; line-height: 1.45; }
+[data-primary-surface] .dpb__checks,
+[data-primary-surface] .dpb__conflicts { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+[data-primary-surface] .dpb__checks li { display: grid; grid-template-columns: 22px 1fr; gap: 8px; align-items: start; }
+[data-primary-surface] .dpb__check { width: 18px; height: 18px; margin-top: 2px; border-radius: 50%; background: var(--dpb-primary); position: relative; }
+[data-primary-surface] .dpb__check::after { content: ''; position: absolute; left: 5px; top: 3px; width: 5px; height: 9px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+[data-primary-surface] .dpb__status-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+[data-primary-surface] .dpb__status-grid div { padding: 10px; border-radius: 8px; background: #fff; border: 1px solid #ead9b8; }
+[data-primary-surface] .dpb__status-grid strong { display: block; font-size: 1.25rem; color: var(--dpb-primary-dark); }
+[data-primary-surface] .dpb__status-grid span { display: block; color: var(--dpb-muted); font-size: 0.78rem; }
+[data-primary-surface] .dpb__badge { display: inline-flex; align-items: center; min-height: 32px; padding: 4px 10px; border-radius: 999px; background: var(--dpb-soft); color: var(--dpb-primary-dark); border: 1px solid #b9d8d2; font-weight: 850; white-space: nowrap; }
+[data-primary-surface] .dpb__sequence { list-style: none; padding: 0; margin: 16px 0 0; display: grid; gap: 8px; }
+[data-primary-surface] .dpb__sequence li { display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 10px; border: 1px solid var(--dpb-line); border-radius: 8px; background: #fffdf9; }
+[data-primary-surface] .dpb__sequence strong,
+[data-primary-surface] .dpb__sequence span { display: block; min-width: 0; overflow-wrap: anywhere; }
+[data-primary-surface] .dpb__num { display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--dpb-plum); color: #fff; font-weight: 900; }
+[data-primary-surface] .dpb__row-actions button { min-height: 36px; padding: 0 10px; font-size: 0.86rem; }
+[data-primary-surface] .dpb__note-wrap { margin-top: 16px; }
+[data-primary-surface] .dpb__track-list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+[data-primary-surface] .dpb__track { display: grid; gap: 12px; align-content: space-between; min-height: 150px; padding: 14px; border-radius: 8px; border: 1px solid var(--dpb-line); background: #fffdf9; }
+[data-primary-surface] .dpb__track strong,
+[data-primary-surface] .dpb__track span { display: block; overflow-wrap: anywhere; }
+[data-primary-surface] .dpb__track--warn { border-color: #dfb36f; background: var(--dpb-warn); }
+[data-primary-surface] .dpb__track--warn button { border-color: var(--dpb-amber); color: #663300; }
+@media (max-width: 980px) {
+  [data-primary-surface] .dpb__grid,
+  [data-primary-surface] .dpb__track-list { grid-template-columns: 1fr; }
+  [data-primary-surface] .dpb__side { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  [data-primary-surface] .dpb { padding: 14px; }
+  [data-primary-surface] .dpb__header,
+  [data-primary-surface] .dpb__section-head { display: grid; }
+  [data-primary-surface] .dpb__actions { width: 100%; }
+  [data-primary-surface] .dpb__actions .dpb__button { flex: 1 1 150px; }
+  [data-primary-surface] .dpb__side,
+  [data-primary-surface] .dpb__status-grid,
+  [data-primary-surface] .dpb__brief { grid-template-columns: 1fr; }
+  [data-primary-surface] .dpb__sequence li { grid-template-columns: 34px minmax(0, 1fr); }
+  [data-primary-surface] .dpb__row-actions { grid-column: 1 / -1; }
+  [data-primary-surface] .dpb__row-actions button { flex: 1 1 88px; }
+}
+@media (forced-colors: active) {
+  [data-primary-surface] .dpb__button--primary,
+  [data-primary-surface] .dpb__num,
+  [data-primary-surface] .dpb__check { forced-color-adjust: none; background: ButtonText; color: ButtonFace; }
+}
+  </style>
+</head>
+<body data-comparison-id="dinner-playlist-standalone-v1" data-live-generated="true">
+  <main data-primary-surface>
+<section class='dpb' aria-labelledby='dpb-title'>
+  <header class='dpb__header'>
+    <div>
+      <p class='dpb__eyebrow'>DINNER-10 / Friday dinner</p>
+      <h1 id='dpb-title'>Dinner playlist builder</h1>
+      <p class='dpb__intro'>Choose ten songs, keep the opener mellow, let the middle warm up, and close softly without guest or content conflicts.</p>
+    </div>
+    <div class='dpb__actions' aria-label='Playlist actions'>
+      <button class='dpb__button dpb__button--primary' type='button'>Save playlist</button>
+      <button class='dpb__button' type='button'>Share playlist</button>
+    </div>
+  </header>
+
+  <div class='dpb__grid'>
+    <aside class='dpb__side' aria-label='Dinner brief and guest preferences'>
+      <section class='dpb__panel' aria-labelledby='brief-title'>
+        <h2 id='brief-title'>Dinner brief</h2>
+        <dl class='dpb__brief'>
+          <div><dt>Target</dt><dd>10 songs</dd></div>
+          <div><dt>Start</dt><dd>Mellow opener</dd></div>
+          <div><dt>Middle</dt><dd>Warm lift</dd></div>
+          <div><dt>Close</dt><dd>Soft landing</dd></div>
+        </dl>
+        <label class='dpb__label' for='mood-select'>Dinner mood</label>
+        <select class='dpb__select' id='mood-select'>
+          <option>Warm, relaxed, lightly upbeat</option>
+          <option>Quiet and intimate</option>
+          <option>Bright and social</option>
+        </select>
+      </section>
+
+      <section class='dpb__panel' aria-labelledby='guest-title'>
+        <h2 id='guest-title'>Guest preferences</h2>
+        <ul class='dpb__checks'>
+          <li><span class='dpb__check' aria-hidden='true'></span><span>Maya likes warm soul</span></li>
+          <li><span class='dpb__check' aria-hidden='true'></span><span>Avoid The Grey Glass</span></li>
+          <li><span class='dpb__check' aria-hidden='true'></span><span>Jon wants a mellow opener</span></li>
+          <li><span class='dpb__check' aria-hidden='true'></span><span>No explicit tracks</span></li>
+          <li><span class='dpb__check' aria-hidden='true'></span><span>Priya likes light electronic textures</span></li>
+        </ul>
+      </section>
+
+      <section class='dpb__panel dpb__panel--alert' aria-labelledby='conflict-title'>
+        <h2 id='conflict-title'>Conflict checks</h2>
+        <div class='dpb__status-grid'>
+          <div><strong>10/10</strong><span>Selected</span></div>
+          <div><strong>0</strong><span>Explicit selected</span></div>
+          <div><strong>0</strong><span>Disliked artists selected</span></div>
+        </div>
+        <ul class='dpb__conflicts'>
+          <li><strong>Excluded:</strong> Midnight Spill by DJ Cinder, explicit track</li>
+          <li><strong>Excluded:</strong> Velvet Return by The Grey Glass, disliked artist</li>
+        </ul>
+      </section>
+    </aside>
+
+    <section class='dpb__panel dpb__panel--main' aria-labelledby='sequence-title'>
+      <div class='dpb__section-head'>
+        <div>
+          <h2 id='sequence-title'>Playlist sequence</h2>
+          <p>Ready to play, with a gentle rise through dinner and a quiet finish.</p>
+        </div>
+        <span class='dpb__badge'>Ready to save</span>
+      </div>
+
+      <ol class='dpb__sequence'>
+        <li><span class='dpb__num'>1</span><div><strong>Blue Hours</strong><span>Nora Vale / mellow soul / opener</span></div><div class='dpb__row-actions'><button type='button' disabled>Earlier</button><button type='button'>Later</button><button type='button'>Remove</button></div></li>
+        <li><span class='dpb__num'>2</span><div><strong>Low Table Light</strong><span>Amir Sol / acoustic jazz / guest-safe</span></div><div class='dpb__row-actions'><button type='button'>Earlier</button><button type='button'>Later</button><button type='button'>Remove</button></div></li>
+        <li><span class='dpb__num'>3</span><div><strong>Apricot Windows</strong><span>The Lanes / soft pop / mellow lift</span></div><div class='dpb__row-actions'><button type='button'>Earlier</button><button type='button'>Later</button><button type='button'>Remove</button></div></li>
+        <li><span class='dpb__num'>4</span><div><strong>Honey Seat</strong><span>Marla June / warm soul / Maya fit</span></div><div class='dpb__row-actions'><button type='button'>Earlier</button><button type='button'>Later</button><button type='button'>Remove</button></div></li>
+        <li><span class='dpb__num'>5</span><div><strong>Glass of Rain</strong><span>North Arcade / light electronic / Priya fit</span></div><div class='dpb__row-actions'><button type='button'>Earlier</button><button type='button'>Later</button><button type='button'>Remove</button></div></li>
+        <li><span class='dpb__num'>6</span><div><strong>Copper Stove</strong><span>Leona Hart / soul groove / warm middle</span></div><div class='dpb__row-actions'><button type='button'>Earlier</button><button type='button'>Later</button><button type='button'>Remove</button></div></li>
+        <li><span class='dpb__num'>7</span><div><strong>Sidewalk Lanterns</strong><span>Rae &amp; Moss / indie funk / dinner lift</span></div><div class='dpb__row-actions'><button type='button'>Earlier</button><button type='button'>Later</button><button type='button'>Remove</button></div></li>
+        <li><span class='dpb__num'>8</span><div><strong>Small Kitchen Radio</strong><span>Dina Coast / relaxed pop / eases down</span></div><div class='dpb__row-actions'><button type='button'>Earlier</button><button type='button'>Later</button><button type='button'>Remove</button></div></li>
+        <li><span class='dpb__num'>9</span><div><strong>After Plates</strong><span>Juniper Row / quiet folk / soft close</span></div><div class='dpb__row-actions'><button type='button'>Earlier</button><button type='button'>Later</button><button type='button'>Remove</button></div></li>
+        <li><span class='dpb__num'>10</span><div><strong>Porch Light Fade</strong><span>Eli Ren / piano soul / closing track</span></div><div class='dpb__row-actions'><button type='button'>Earlier</button><button type='button' disabled>Later</button><button type='button'>Remove</button></div></li>
+      </ol>
+
+      <div class='dpb__note-wrap'>
+        <label class='dpb__label' for='sequence-note'>Sequence note</label>
+        <textarea class='dpb__textarea' id='sequence-note' rows='4'>Starts low and conversational, warms into soul and light electronic textures around the middle, then steps down into a calm closing track after dinner.</textarea>
+      </div>
+    </section>
+  </div>
+
+  <section class='dpb__panel' aria-labelledby='suggestions-title'>
+    <div class='dpb__section-head'>
+      <div>
+        <h2 id='suggestions-title'>Suggested tracks</h2>
+        <p>Add safer fits or mark songs that should stay out of the dinner set.</p>
+      </div>
+      <button class='dpb__button' type='button'>Review balance</button>
+    </div>
+    <div class='dpb__track-list'>
+      <article class='dpb__track'><div><strong>Warm Linen</strong><span>Asha Bell / warm soul / no known conflict</span></div><button type='button'>Add to playlist</button></article>
+      <article class='dpb__track'><div><strong>Paper Moon Table</strong><span>Still Harbor / quiet jazz / opener option</span></div><button type='button'>Add to playlist</button></article>
+      <article class='dpb__track dpb__track--warn'><div><strong>Midnight Spill</strong><span>DJ Cinder / explicit track / conflicts with Jon</span></div><button type='button'>Mark as conflict</button></article>
+      <article class='dpb__track dpb__track--warn'><div><strong>Velvet Return</strong><span>The Grey Glass / disliked artist / conflicts with Maya</span></div><button type='button'>Mark as conflict</button></article>
+    </div>
+  </section>
+</section>
+  </main>
+  <script type="application/json" id="comparison-metadata">{
+  "comparison_id": "dinner-playlist-standalone-v1",
+  "variant": "guided",
+  "treatment": "judgmentkit_handoff",
+  "task_prompt": "Build a 10-song dinner playlist that starts mellow, lifts in the middle, avoids disliked artists and explicit tracks, and leaves a sequence note.",
+  "generation_source": {
+    "mode": "live_provider",
+    "provider": "codex",
+    "model": "gpt-5.5",
+    "model_config_id": "gpt-5-5-codex",
+    "reasoning_effort": "high",
+    "generated_at": "2026-07-03T17:35:40.489Z",
+    "duration_ms": 139675,
+    "prompt_sha256": "1f911ff177f0628bb06abeb7cfbd626dc6f0c9cdd7dc8666d68e9890603db9d1",
+    "raw_response_sha256": "76645d7620e145b971571b0c3c43b65de05d2b3b80c51ff40a7c407b5e09ac40",
+    "runner": "evals/run-ui-generation-evals.mjs"
+  }
+}</script>
+</body>
+</html>

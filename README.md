@@ -167,6 +167,14 @@ npm run eval:ui
 That command writes immutable JSON and HTML reports plus archived screenshots under `evals/reports/<date>/mcp-<version>/run-NNN/` and updates the catalog at `evals/reports/index.html`. It is qualitative paired-artifact evidence, not a statistically powered benchmark.
 Screenshot capture requires local Chrome or Chromium; set `JUDGMENTKIT_UI_EVAL_CHROME_PATH` if the executable is not on the default path.
 
+To run the full live UI-generation refresh for the same paired cases:
+
+```bash
+npm run eval:ui:live
+```
+
+That command calls the configured live provider, writes dated generated HTML artifacts under the run directory, screenshots those artifacts, and reports provider/model provenance. It remains qualitative paired evidence; it is not a statistically powered benchmark.
+
 For the system-map model UI matrix:
 
 ```bash
