@@ -1,0 +1,1154 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/cb9lvh",
+    "id": "cb9lvh",
+    "slide": 4,
+    "layoutId": "7df98239-fe3a-4af2-8409-f82a0c66734e",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "1f7b05e0-4cc0-496a-a049-4c8091b458ca",
+    "masterLayoutName": "Master",
+    "backgroundColor": "bg1",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "JudgmentKit Light",
+    "colors": {
+      "accent1": "#245F73",
+      "accent2": "#23615F",
+      "accent3": "#2E6B48",
+      "accent4": "#8A5A16",
+      "accent5": "#8F342F",
+      "accent6": "#D7D3C8",
+      "bg1": "#F8F7F2",
+      "bg2": "#FFFFFF",
+      "tx1": "#171717",
+      "tx2": "#61615C",
+      "dk1": "#171717",
+      "dk2": "#61615C",
+      "lt1": "#F8F7F2",
+      "lt2": "#FFFFFF",
+      "hlink": "#245F73",
+      "folHlink": "#23615F"
+    },
+    "typefaces": [
+      "+mn-lt"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "7df98239-fe3a-4af2-8409-f82a0c66734e",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "1f7b05e0-4cc0-496a-a049-4c8091b458ca",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "1f7b05e0-4cc0-496a-a049-4c8091b458ca",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/knih4byh",
+      "id": "1",
+      "name": "judgmentkit-section-header-label",
+      "bbox": [
+        72,
+        48,
+        1136,
+        24
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.0.0"
+      },
+      "geometry": "rect",
+      "text": "EVIDENCE TABLE",
+      "textPreview": "EVIDENCE TABLE",
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "tx2",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "EVIDENCE TABLE"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "EVIDENCE TABLE",
+          "styleId": "JK.Label",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "tx2",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "EVIDENCE TABLE",
+              "fontSize": 12,
+              "color": "tx2",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/v6psfil0",
+      "id": "2",
+      "name": "judgmentkit-section-header-title",
+      "bbox": [
+        72,
+        78,
+        1136,
+        96
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.0.1"
+      },
+      "geometry": "rect",
+      "text": "Native tables should export through the adapter without helper errors",
+      "textPreview": "Native tables should export through the adapter without helper errors",
+      "resolvedFontSize": 38,
+      "resolvedTextStyle": {
+        "fontSize": 38,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Native tables should export through the adapter without helper"
+          },
+          {
+            "index": 2,
+            "text": "errors"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Native tables should export through the adapter without helper errors",
+          "styleId": "JK.SlideTitle",
+          "resolvedTextStyle": {
+            "fontSize": 38,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Native tables should export through the adapter without helper errors",
+              "fontSize": 38,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 3,
+      "kind": "table",
+      "scope": "slide",
+      "aid": "tb/7mp0bi9s",
+      "id": "3",
+      "name": "judgmentkit-evidence-table",
+      "bbox": [
+        72,
+        182,
+        1136,
+        310
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1"
+      },
+      "text": "Check | Expected | Observed\nTheme aliases | bg1/lt1 and bg2/lt2 match | Matched\nFrame export | Elements keep absolute positions | Matched\nReadability | Dense copy stays inside panels | Matched",
+      "textPreview": "Check | Expected | Observed | Theme aliases | bg1/lt1 and bg2/lt2 match | Matched | Frame export | Elements keep absolute positions | Mat...",
+      "rows": 4,
+      "cols": 3,
+      "cells": [
+        {
+          "index": 1,
+          "row": 1,
+          "column": 1,
+          "bbox": [
+            72,
+            182,
+            378.67,
+            77.5
+          ],
+          "text": "Check",
+          "textPreview": "Check",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Check",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Check"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "row": 1,
+          "column": 2,
+          "bbox": [
+            450.67,
+            182,
+            378.67,
+            77.5
+          ],
+          "text": "Expected",
+          "textPreview": "Expected",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Expected",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Expected"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "row": 1,
+          "column": 3,
+          "bbox": [
+            829.33,
+            182,
+            378.67,
+            77.5
+          ],
+          "text": "Observed",
+          "textPreview": "Observed",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Observed",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Observed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "row": 2,
+          "column": 1,
+          "bbox": [
+            72,
+            259.5,
+            378.67,
+            77.5
+          ],
+          "text": "Theme aliases",
+          "textPreview": "Theme aliases",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Theme aliases",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Theme aliases"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "row": 2,
+          "column": 2,
+          "bbox": [
+            450.67,
+            259.5,
+            378.67,
+            77.5
+          ],
+          "text": "bg1/lt1 and bg2/lt2 match",
+          "textPreview": "bg1/lt1 and bg2/lt2 match",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "bg1/lt1 and bg2/lt2 match",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "bg1/lt1 and bg2/lt2 match"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "row": 2,
+          "column": 3,
+          "bbox": [
+            829.33,
+            259.5,
+            378.67,
+            77.5
+          ],
+          "text": "Matched",
+          "textPreview": "Matched",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Matched",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Matched"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 7,
+          "row": 3,
+          "column": 1,
+          "bbox": [
+            72,
+            337,
+            378.67,
+            77.5
+          ],
+          "text": "Frame export",
+          "textPreview": "Frame export",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Frame export",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Frame export"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 8,
+          "row": 3,
+          "column": 2,
+          "bbox": [
+            450.67,
+            337,
+            378.67,
+            77.5
+          ],
+          "text": "Elements keep absolute positions",
+          "textPreview": "Elements keep absolute positions",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Elements keep absolute positions",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Elements keep absolute positions"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 9,
+          "row": 3,
+          "column": 3,
+          "bbox": [
+            829.33,
+            337,
+            378.67,
+            77.5
+          ],
+          "text": "Matched",
+          "textPreview": "Matched",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Matched",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Matched"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 10,
+          "row": 4,
+          "column": 1,
+          "bbox": [
+            72,
+            414.5,
+            378.67,
+            77.5
+          ],
+          "text": "Readability",
+          "textPreview": "Readability",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Readability",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Readability"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 11,
+          "row": 4,
+          "column": 2,
+          "bbox": [
+            450.67,
+            414.5,
+            378.67,
+            77.5
+          ],
+          "text": "Dense copy stays inside panels",
+          "textPreview": "Dense copy stays inside panels",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Dense copy stays inside panels",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Dense copy stays inside panels"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 12,
+          "row": 4,
+          "column": 3,
+          "bbox": [
+            829.33,
+            414.5,
+            378.67,
+            77.5
+          ],
+          "text": "Matched",
+          "textPreview": "Matched",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Matched",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Matched"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/d0z61032",
+      "id": "4",
+      "name": "judgmentkit-handoff-receipt-surface",
+      "bbox": [
+        72,
+        508,
+        1136,
+        124
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 5,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/kf6dcbul",
+      "id": "5",
+      "name": "judgmentkit-handoff-receipt-title",
+      "bbox": [
+        90,
+        526,
+        1100,
+        34
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.1"
+      },
+      "geometry": "rect",
+      "text": "Table outcome",
+      "textPreview": "Table outcome",
+      "resolvedFontSize": 30,
+      "resolvedTextStyle": {
+        "fontSize": 30,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Table outcome"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Table outcome",
+          "styleId": "JK.SectionHeading",
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Table outcome",
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 6,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/vu9knih4",
+      "id": "6",
+      "name": "judgmentkit-handoff-receipt-body",
+      "bbox": [
+        90,
+        574,
+        1100,
+        40
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.2"
+      },
+      "geometry": "rect",
+      "text": "This slide exercises the real artifact-tool table helper and exported PPTX import path.",
+      "textPreview": "This slide exercises the real artifact-tool table helper and exported PPTX import path.",
+      "resolvedFontSize": 18,
+      "resolvedTextStyle": {
+        "fontSize": 18,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "This slide exercises the real artifact-tool table helper and exported PPTX import path."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "This slide exercises the real artifact-tool table helper and exported PPTX import path.",
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "This slide exercises the real artifact-tool table helper and exported PPTX import path.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    }
+  ],
+  "composeRuns": [
+    {
+      "index": 1,
+      "frame": {
+        "left": 0,
+        "top": 0,
+        "width": 1280,
+        "height": 720
+      },
+      "baseUnit": 8,
+      "root": {
+        "path": "0",
+        "kind": "layers",
+        "name": "canonical-table",
+        "requestedSize": {
+          "width": {
+            "mode": "fill",
+            "value": 1
+          },
+          "height": {
+            "mode": "fill",
+            "value": 1
+          }
+        },
+        "intrinsicSize": {
+          "width": 1208,
+          "height": 632
+        },
+        "frame": {
+          "left": 0,
+          "top": 0,
+          "width": 1280,
+          "height": 720
+        },
+        "children": [
+          {
+            "path": "0.0",
+            "kind": "layers",
+            "name": "judgmentkit-section-header",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 1208,
+              "height": 174
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            },
+            "children": [
+              {
+                "path": "0.0.0",
+                "kind": "text",
+                "name": "judgmentkit-section-header-label",
+                "position": {
+                  "left": 72,
+                  "top": 48
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 1136
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 24
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 1136,
+                  "height": 24
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 48,
+                  "width": 1136,
+                  "height": 24
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 48,
+                  "width": 1136,
+                  "height": 24
+                },
+                "children": [],
+                "text": "EVIDENCE TABLE",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/knih4byh",
+                  "id": "1",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.0.1",
+                "kind": "text",
+                "name": "judgmentkit-section-header-title",
+                "position": {
+                  "left": 72,
+                  "top": 78
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 1136
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 96
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 1136,
+                  "height": 96
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 78,
+                  "width": 1136,
+                  "height": 96
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 78,
+                  "width": 1136,
+                  "height": 96
+                },
+                "children": [],
+                "text": "Native tables should export through the adapter without helper errors",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/v6psfil0",
+                  "id": "2",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            },
+            "items": [
+              {
+                "path": "0.0.0",
+                "frame": {
+                  "left": 72,
+                  "top": 48,
+                  "width": 1136,
+                  "height": 24
+                }
+              },
+              {
+                "path": "0.0.1",
+                "frame": {
+                  "left": 72,
+                  "top": 78,
+                  "width": 1136,
+                  "height": 96
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.1",
+            "kind": "table",
+            "name": "judgmentkit-evidence-table",
+            "position": {
+              "left": 72,
+              "top": 182
+            },
+            "requestedSize": {
+              "width": {
+                "mode": "fixed",
+                "value": 1136
+              },
+              "height": {
+                "mode": "fixed",
+                "value": 310
+              }
+            },
+            "intrinsicSize": {
+              "width": 1136,
+              "height": 310
+            },
+            "frame": {
+              "left": 72,
+              "top": 182,
+              "width": 1136,
+              "height": 310
+            },
+            "snappedFrame": {
+              "left": 72,
+              "top": 182,
+              "width": 1136,
+              "height": 310
+            },
+            "children": [],
+            "rows": 4,
+            "columns": 3,
+            "style": "JK.BodySmall",
+            "element": {
+              "aid": "tb/7mp0bi9s",
+              "id": "3",
+              "kind": "table"
+            }
+          },
+          {
+            "path": "0.2",
+            "kind": "layers",
+            "name": "judgmentkit-handoff-receipt",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 1208,
+              "height": 632
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            },
+            "children": [
+              {
+                "path": "0.2.0",
+                "kind": "shape",
+                "name": "judgmentkit-handoff-receipt-surface",
+                "position": {
+                  "left": 72,
+                  "top": 508
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 1136
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 124
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 1136,
+                  "height": 124
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 508,
+                  "width": 1136,
+                  "height": 124
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 508,
+                  "width": 1136,
+                  "height": 124
+                },
+                "children": [],
+                "geometry": "rect",
+                "element": {
+                  "aid": "sh/d0z61032",
+                  "id": "4",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.2.1",
+                "kind": "text",
+                "name": "judgmentkit-handoff-receipt-title",
+                "position": {
+                  "left": 90,
+                  "top": 526
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 1100
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 34
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 1100,
+                  "height": 34
+                },
+                "frame": {
+                  "left": 90,
+                  "top": 526,
+                  "width": 1100,
+                  "height": 34
+                },
+                "snappedFrame": {
+                  "left": 90,
+                  "top": 526,
+                  "width": 1100,
+                  "height": 34
+                },
+                "children": [],
+                "text": "Table outcome",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/kf6dcbul",
+                  "id": "5",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.2.2",
+                "kind": "text",
+                "name": "judgmentkit-handoff-receipt-body",
+                "position": {
+                  "left": 90,
+                  "top": 574
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 1100
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 40
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 1100,
+                  "height": 40
+                },
+                "frame": {
+                  "left": 90,
+                  "top": 574,
+                  "width": 1100,
+                  "height": 40
+                },
+                "snappedFrame": {
+                  "left": 90,
+                  "top": 574,
+                  "width": 1100,
+                  "height": 40
+                },
+                "children": [],
+                "text": "This slide exercises the real artifact-tool table helper and exported PPTX import path.",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/vu9knih4",
+                  "id": "6",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            },
+            "items": [
+              {
+                "path": "0.2.0",
+                "frame": {
+                  "left": 72,
+                  "top": 508,
+                  "width": 1136,
+                  "height": 124
+                }
+              },
+              {
+                "path": "0.2.1",
+                "frame": {
+                  "left": 90,
+                  "top": 526,
+                  "width": 1100,
+                  "height": 34
+                }
+              },
+              {
+                "path": "0.2.2",
+                "frame": {
+                  "left": 90,
+                  "top": 574,
+                  "width": 1100,
+                  "height": 40
+                }
+              }
+            ]
+          }
+        ],
+        "padding": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "alignItems": "stretch",
+        "justifyItems": "stretch",
+        "contentFrame": {
+          "left": 0,
+          "top": 0,
+          "width": 1280,
+          "height": 720
+        },
+        "items": [
+          {
+            "path": "0.0",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            }
+          },
+          {
+            "path": "0.1",
+            "frame": {
+              "left": 72,
+              "top": 182,
+              "width": 1136,
+              "height": 310
+            }
+          },
+          {
+            "path": "0.2",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

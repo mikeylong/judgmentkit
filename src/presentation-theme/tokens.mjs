@@ -119,15 +119,15 @@ export const JUDGMENTKIT_PPTX_THEME_COLOR_ROLE_MAP = deepFreeze({
   accent3: "success",
   accent4: "warning",
   accent5: "risk",
-  accent6: "disabled",
+  accent6: "border",
   bg1: "canvas",
   bg2: "surface",
   tx1: "text",
   tx2: "muted",
   dk1: "text",
   dk2: "muted",
-  lt1: "surface",
-  lt2: "border",
+  lt1: "canvas",
+  lt2: "surface",
   hlink: "focus",
   folHlink: "receipt",
 });
@@ -139,6 +139,59 @@ function createThemeColorsFromTokens(tokens) {
       tokens[JUDGMENTKIT_PPTX_THEME_COLOR_ROLE_MAP[slot]],
     ]),
   );
+}
+
+function hasOwn(object, key) {
+  return Object.prototype.hasOwnProperty.call(object ?? {}, key);
+}
+
+function normalizeThemeColorHex(value) {
+  return typeof value === "string" && /^#[0-9a-f]{6}$/i.test(value)
+    ? value.toLowerCase()
+    : value;
+}
+
+function normalizeThemeColorValues(themeColors) {
+  return Object.fromEntries(
+    Object.entries(themeColors ?? {}).map(([slot, value]) => [
+      slot,
+      normalizeThemeColorHex(value),
+    ]),
+  );
+}
+
+function syncPowerPointAliasPair(themeColors, overrides, primarySlot, aliasSlot) {
+  const primaryOverridden = hasOwn(overrides, primarySlot);
+  const aliasOverridden = hasOwn(overrides, aliasSlot);
+  const primaryOverride = normalizeThemeColorHex(overrides?.[primarySlot]);
+  const aliasOverride = normalizeThemeColorHex(overrides?.[aliasSlot]);
+
+  if (
+    primaryOverridden &&
+    aliasOverridden &&
+    typeof primaryOverride === "string" &&
+    typeof aliasOverride === "string" &&
+    primaryOverride !== aliasOverride
+  ) {
+    throw new Error(
+      `JudgmentKit PPTX theme colors must keep PowerPoint alias slots ${primarySlot} and ${aliasSlot} equal. Override one slot, or set both to the same hex color.`,
+    );
+  }
+
+  if (primaryOverridden) {
+    themeColors[aliasSlot] = themeColors[primarySlot];
+  } else if (aliasOverridden) {
+    themeColors[primarySlot] = themeColors[aliasSlot];
+  }
+}
+
+function syncPowerPointAliasSlots(themeColors, overrides) {
+  syncPowerPointAliasPair(themeColors, overrides, "bg1", "lt1");
+  syncPowerPointAliasPair(themeColors, overrides, "bg2", "lt2");
+  syncPowerPointAliasPair(themeColors, overrides, "tx1", "dk1");
+  syncPowerPointAliasPair(themeColors, overrides, "tx2", "dk2");
+
+  return themeColors;
 }
 
 export const JUDGMENTKIT_PPTX_THEME_COLORS = deepFreeze(
@@ -164,6 +217,12 @@ export const JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST = deepFreeze({
   name: "JudgmentKit PPTX Theme Adapter",
   version: "0.1.0",
   source: "src/index.mjs DEFAULT_VISUAL_TOKEN_ADAPTER",
+  visual_token_authority: {
+    module_path: "src/index.mjs",
+    symbol: "DEFAULT_VISUAL_TOKEN_ADAPTER",
+    id: "judgmentkit.visual-token-adapter.boundary-v1",
+    mode: "boundary_only",
+  },
   runtime: "@oai/artifact-tool",
   dependency_policy:
     "dependency-free adapter; callers inject Presentation or presentation",
@@ -179,6 +238,7 @@ export const JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST = deepFreeze({
     "applyJudgmentKitPptxTheme",
     "registerJudgmentKitStyles",
     "createJudgmentKitDeckKit",
+    "createJudgmentKitLayout",
     "JUDGMENTKIT_SLIDE_SIZE",
     "JUDGMENTKIT_PPTX_THEME_COLORS",
     "JUDGMENTKIT_TEXT_STYLE_CONFIGS",
@@ -231,6 +291,20 @@ export function assertCompleteThemeColors(
     );
   }
 
+  const invalidSlots = THEME_COLOR_SLOTS.filter(
+    (slot) =>
+      typeof themeColors?.[slot] !== "string" ||
+      !/^#[0-9a-f]{6}$/i.test(themeColors[slot]),
+  );
+
+  if (invalidSlots.length > 0) {
+    throw new Error(
+      `${context} must define theme colors as 6-digit hex strings. Invalid: ${invalidSlots.join(
+        ", ",
+      )}.`,
+    );
+  }
+
   return themeColors;
 }
 
@@ -247,10 +321,13 @@ export function createJudgmentKitColorScheme(options = {}) {
     normalizedOptions.colorScheme?.themeColors ??
     normalizedOptions.color_scheme?.themeColors ??
     {};
-  const themeColors = {
-    ...baseThemeColors,
-    ...cloneJudgmentKitPresentationValue(overrides),
-  };
+  const normalizedOverrides = normalizeThemeColorValues(
+    cloneJudgmentKitPresentationValue(overrides),
+  );
+  const themeColors = syncPowerPointAliasSlots({
+    ...normalizeThemeColorValues(baseThemeColors),
+    ...normalizedOverrides,
+  }, normalizedOverrides);
 
   assertCompleteThemeColors(themeColors, "JudgmentKit PPTX theme colors");
 

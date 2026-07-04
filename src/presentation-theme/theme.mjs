@@ -49,11 +49,19 @@ function createPresentationInstance(options) {
     );
   }
 
+  const presentationOptions = { ...(options.presentationOptions ?? {}) };
+  const slideSize =
+    options.slideSize ??
+    options.slide_size ??
+    presentationOptions.slideSize ??
+    presentationOptions.slide_size ??
+    JUDGMENTKIT_SLIDE_SIZE;
+
+  delete presentationOptions.slide_size;
+
   return Presentation.create({
-    ...(options.presentationOptions ?? {}),
-    slideSize: cloneJudgmentKitPresentationValue(
-      options.slideSize ?? options.slide_size ?? JUDGMENTKIT_SLIDE_SIZE,
-    ),
+    ...presentationOptions,
+    slideSize: cloneJudgmentKitPresentationValue(slideSize),
   });
 }
 

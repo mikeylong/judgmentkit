@@ -1,0 +1,8 @@
+{
+  "source": "/Users/mike/JudgmentKit2/outputs/presentation-theme-actual-tests/build-fixtures.mjs",
+  "outputs": [
+    "/Users/mike/JudgmentKit2/outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9.pptx",
+    "/Users/mike/JudgmentKit2/outputs/presentation-theme-actual-tests/jk-theme-custom-4x3.pptx",
+    "/Users/mike/JudgmentKit2/outputs/presentation-theme-actual-tests/jk-theme-compact-review.pptx"
+  ]
+}

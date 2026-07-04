@@ -25,12 +25,19 @@ function finiteNumber(value, fallback) {
   return Number.isFinite(value) ? value : fallback;
 }
 
-function withSizeAliases(frame) {
-  const width = finiteNumber(frame.width, finiteNumber(frame.w, 0));
-  const height = finiteNumber(frame.height, finiteNumber(frame.h, 0));
+export function normalizeFrame(frame = {}) {
+  const source = frame && typeof frame === "object" ? frame : {};
+  const x = finiteNumber(source.x, finiteNumber(source.left, 0));
+  const y = finiteNumber(source.y, finiteNumber(source.top, 0));
+  const width = finiteNumber(source.width, finiteNumber(source.w, 0));
+  const height = finiteNumber(source.height, finiteNumber(source.h, 0));
 
   return {
-    ...frame,
+    ...source,
+    x,
+    y,
+    left: x,
+    top: y,
     width,
     height,
     w: width,
@@ -39,7 +46,7 @@ function withSizeAliases(frame) {
 }
 
 function normalizeSlideSize(slide = SLIDE_SIZE) {
-  return withSizeAliases({
+  return normalizeFrame({
     width: finiteNumber(slide.width, finiteNumber(slide.w, SLIDE_WIDTH)),
     height: finiteNumber(slide.height, finiteNumber(slide.h, SLIDE_HEIGHT)),
   });
@@ -73,7 +80,7 @@ export function frame(x, y, width, height, extra = {}) {
   const normalizedX = finiteNumber(x, 0);
   const normalizedY = finiteNumber(y, 0);
 
-  return withSizeAliases({
+  return normalizeFrame({
     ...extra,
     x: normalizedX,
     y: normalizedY,
@@ -109,7 +116,7 @@ export function contentFrame(options = {}) {
 }
 
 export function inset(inputFrame, amount = 0, options = {}) {
-  const source = withSizeAliases(inputFrame ?? fullSlide());
+  const source = normalizeFrame(inputFrame ?? fullSlide());
   const padding = normalizeInsets(amount, normalizeInsets(options.fallback ?? 0));
 
   return frame(
@@ -125,7 +132,7 @@ export function inset(inputFrame, amount = 0, options = {}) {
 }
 
 export function columns(inputFrame, count = 2, options = {}) {
-  const source = withSizeAliases(inputFrame ?? contentFrame());
+  const source = normalizeFrame(inputFrame ?? contentFrame());
   const columnCount = Math.max(1, Math.floor(finiteNumber(count, 1)));
   const gap = Math.max(0, finiteNumber(options.gap, GRID.gap));
   const width = (source.width - gap * (columnCount - 1)) / columnCount;
@@ -141,7 +148,7 @@ export function columns(inputFrame, count = 2, options = {}) {
 }
 
 export function rows(inputFrame, count = 2, options = {}) {
-  const source = withSizeAliases(inputFrame ?? contentFrame());
+  const source = normalizeFrame(inputFrame ?? contentFrame());
   const rowCount = Math.max(1, Math.floor(finiteNumber(count, 1)));
   const gap = Math.max(0, finiteNumber(options.gap, GRID.gap));
   const height = (source.height - gap * (rowCount - 1)) / rowCount;
@@ -157,7 +164,7 @@ export function rows(inputFrame, count = 2, options = {}) {
 }
 
 export function gridSpan(inputFrame, options = {}) {
-  const source = withSizeAliases(inputFrame ?? contentFrame());
+  const source = normalizeFrame(inputFrame ?? contentFrame());
   const columnCount = Math.max(1, Math.floor(finiteNumber(options.columns, GRID.columns)));
   const gap = Math.max(0, finiteNumber(options.gap, GRID.gap));
   const start = Math.max(1, Math.floor(finiteNumber(options.start ?? options.column, 1)));
@@ -206,7 +213,7 @@ export function stack(inputFrame, count = 2, options = {}) {
 }
 
 export function split(inputFrame, ratios = [1, 1], options = {}) {
-  const source = withSizeAliases(inputFrame ?? contentFrame());
+  const source = normalizeFrame(inputFrame ?? contentFrame());
   const values = ratios.length > 0 ? ratios : [1];
   const gap = Math.max(0, finiteNumber(options.gap, GRID.gap));
   const total = values.reduce((sum, value) => sum + Math.max(0, finiteNumber(value, 0)), 0) || 1;
@@ -227,7 +234,7 @@ export function split(inputFrame, ratios = [1, 1], options = {}) {
 }
 
 export function alignWithin(containerFrame, boxSize = {}, options = {}) {
-  const source = withSizeAliases(containerFrame ?? contentFrame());
+  const source = normalizeFrame(containerFrame ?? contentFrame());
   const width = Math.min(source.width, finiteNumber(boxSize.width ?? boxSize.w, source.width));
   const height = Math.min(source.height, finiteNumber(boxSize.height ?? boxSize.h, source.height));
   const horizontal = options.horizontal ?? options.x ?? "center";
@@ -248,12 +255,81 @@ export function alignWithin(containerFrame, boxSize = {}, options = {}) {
   });
 }
 
+export function createJudgmentKitLayout(options = {}) {
+  const defaultSlide = normalizeSlideSize(
+    options.slide ?? options.slideSize ?? options.slide_size ?? options,
+  );
+  const scopedSlideSize = Object.freeze({
+    width: defaultSlide.width,
+    height: defaultSlide.height,
+    w: defaultSlide.width,
+    h: defaultSlide.height,
+    aspectRatio: defaultSlide.width / defaultSlide.height,
+  });
+
+  function scopedFullSlide(fullSlideOptions = {}) {
+    const hasExplicitSlide =
+      Boolean(fullSlideOptions.slide) ||
+      Number.isFinite(fullSlideOptions.width) ||
+      Number.isFinite(fullSlideOptions.w) ||
+      Number.isFinite(fullSlideOptions.height) ||
+      Number.isFinite(fullSlideOptions.h);
+
+    return fullSlide(
+      hasExplicitSlide
+        ? fullSlideOptions
+        : { ...fullSlideOptions, slide: scopedSlideSize },
+    );
+  }
+
+  function scopedContentFrame(contentOptions = {}) {
+    return contentFrame({
+      ...contentOptions,
+      slide: contentOptions.slide ?? scopedSlideSize,
+    });
+  }
+
+  return {
+    SLIDE_WIDTH: scopedSlideSize.width,
+    SLIDE_HEIGHT: scopedSlideSize.height,
+    SLIDE_SIZE: scopedSlideSize,
+    MARGINS,
+    GRID,
+    normalizeFrame,
+    frame,
+    fullSlide: scopedFullSlide,
+    contentFrame: scopedContentFrame,
+    inset(inputFrame, amount = 0, insetOptions = {}) {
+      return inset(inputFrame ?? scopedFullSlide(), amount, insetOptions);
+    },
+    columns(inputFrame, count = 2, columnOptions = {}) {
+      return columns(inputFrame ?? scopedContentFrame(), count, columnOptions);
+    },
+    rows(inputFrame, count = 2, rowOptions = {}) {
+      return rows(inputFrame ?? scopedContentFrame(), count, rowOptions);
+    },
+    gridSpan(inputFrame, gridOptions = {}) {
+      return gridSpan(inputFrame ?? scopedContentFrame(), gridOptions);
+    },
+    stack(inputFrame, count = 2, stackOptions = {}) {
+      return rows(inputFrame ?? scopedContentFrame(), count, stackOptions);
+    },
+    split(inputFrame, ratios = [1, 1], splitOptions = {}) {
+      return split(inputFrame ?? scopedContentFrame(), ratios, splitOptions);
+    },
+    alignWithin(containerFrame, boxSize = {}, alignOptions = {}) {
+      return alignWithin(containerFrame ?? scopedContentFrame(), boxSize, alignOptions);
+    },
+  };
+}
+
 export default {
   SLIDE_WIDTH,
   SLIDE_HEIGHT,
   SLIDE_SIZE,
   MARGINS,
   GRID,
+  normalizeFrame,
   frame,
   fullSlide,
   contentFrame,
@@ -264,4 +340,5 @@ export default {
   stack,
   split,
   alignWithin,
+  createJudgmentKitLayout,
 };

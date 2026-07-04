@@ -1,0 +1,190 @@
+{
+  "adapter": {
+    "id": "judgmentkit.presentation-theme.adapter-v1",
+    "name": "JudgmentKit PPTX Theme Adapter",
+    "version": "0.1.0",
+    "source": "src/index.mjs DEFAULT_VISUAL_TOKEN_ADAPTER",
+    "visual_token_authority": {
+      "module_path": "src/index.mjs",
+      "symbol": "DEFAULT_VISUAL_TOKEN_ADAPTER",
+      "id": "judgmentkit.visual-token-adapter.boundary-v1",
+      "mode": "boundary_only"
+    },
+    "runtime": "@oai/artifact-tool",
+    "dependency_policy": "dependency-free adapter; callers inject Presentation or presentation",
+    "slide_size": {
+      "width": 1280,
+      "height": 720
+    },
+    "theme_color_slots": [
+      "accent1",
+      "accent2",
+      "accent3",
+      "accent4",
+      "accent5",
+      "accent6",
+      "bg1",
+      "bg2",
+      "tx1",
+      "tx2",
+      "dk1",
+      "dk2",
+      "lt1",
+      "lt2",
+      "hlink",
+      "folHlink"
+    ],
+    "theme_color_role_map": {
+      "accent1": "focus",
+      "accent2": "receipt",
+      "accent3": "success",
+      "accent4": "warning",
+      "accent5": "risk",
+      "accent6": "border",
+      "bg1": "canvas",
+      "bg2": "surface",
+      "tx1": "text",
+      "tx2": "muted",
+      "dk1": "text",
+      "dk2": "muted",
+      "lt1": "canvas",
+      "lt2": "surface",
+      "hlink": "focus",
+      "folHlink": "receipt"
+    },
+    "token_sets": {
+      "light": {
+        "--jk-color-canvas": "#f8f7f2",
+        "--jk-color-surface": "#ffffff",
+        "--jk-color-text": "#171717",
+        "--jk-color-muted": "#61615c",
+        "--jk-color-border": "#d7d3c8",
+        "--jk-color-focus": "#245f73",
+        "--jk-color-success": "#2e6b48",
+        "--jk-color-warning": "#8a5a16",
+        "--jk-color-risk": "#8f342f",
+        "--jk-color-disabled": "#8a8f93",
+        "--jk-color-receipt": "#23615f"
+      },
+      "dark": {
+        "--jk-color-canvas": "#101312",
+        "--jk-color-surface": "#181d1b",
+        "--jk-color-text": "#f2f4ef",
+        "--jk-color-muted": "#b8c0bb",
+        "--jk-color-border": "#39423f",
+        "--jk-color-focus": "#7db6c7",
+        "--jk-color-success": "#82c99a",
+        "--jk-color-warning": "#e0b15d",
+        "--jk-color-risk": "#e37d76",
+        "--jk-color-disabled": "#7d8580",
+        "--jk-color-receipt": "#80cbc7"
+      }
+    },
+    "exports": [
+      "createJudgmentKitPresentation",
+      "applyJudgmentKitPptxTheme",
+      "registerJudgmentKitStyles",
+      "createJudgmentKitDeckKit",
+      "createJudgmentKitLayout",
+      "JUDGMENTKIT_SLIDE_SIZE",
+      "JUDGMENTKIT_PPTX_THEME_COLORS",
+      "JUDGMENTKIT_TEXT_STYLE_CONFIGS",
+      "JUDGMENTKIT_STYLE_NAMES",
+      "JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST",
+      "JUDGMENTKIT_PPTX_THEME_ADAPTER_MANIFEST"
+    ]
+  },
+  "artifact": {
+    "path": "/Users/mike/JudgmentKit2/outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9.pptx",
+    "kind": "pptx"
+  },
+  "source": "import fs from \"node:fs/promises\";\nimport path from \"node:path\";\nimport { fileURLToPath } from \"node:url\";\n\nimport { FileBlob, Presentation, PresentationFile, layers, shape, table, text } from \"@oai/artifact-tool\";\nimport {\n  JUDGMENTKIT_PPTX_THEME_COLORS,\n  JUDGMENTKIT_STYLE_NAMES,\n  createJudgmentKitPresentation,\n  createJudgmentKitPresentationAcceptanceEvidence,\n} from \"judgmentkit/presentation-theme\";\n\nconst __dirname = path.dirname(fileURLToPath(import.meta.url));\nconst outputDir = __dirname;\nconst previewRoot = path.join(outputDir, \"artifact-previews\");\nconst layoutRoot = path.join(outputDir, \"layouts\");\nconst importedLayoutRoot = path.join(outputDir, \"imported-layouts\");\nconst inspectRoot = path.join(outputDir, \"inspect\");\nconst evidenceRoot = path.join(outputDir, \"evidence\");\nconst helpers = { layers, shape, table, text };\n\nasync function writeBlob(filePath, blob) {\n  await fs.writeFile(filePath, new Uint8Array(await blob.arrayBuffer()));\n}\n\nasync function writeJson(filePath, value) {\n  await fs.writeFile(filePath, `${JSON.stringify(value, null, 2)}\\n`);\n}\n\nfunction composeSlide(slide, kit, name, children) {\n  slide.background.fill = \"bg1\";\n  slide.compose(layers({ name, width: \"fill\", height: \"fill\" }, children), {\n    frame: kit.layout.fullSlide(),\n    baseUnit: 8,\n  });\n}\n\nfunction frame(kit, x, y, width, height) {\n  return kit.layout.frame(x, y, width, height);\n}\n\nasync function saveDeck(name, deck, slidesEvidence) {\n  const source = await fs.readFile(new URL(import.meta.url), \"utf8\");\n  const pptxPath = path.join(outputDir, `${name}.pptx`);\n  const previewDir = path.join(previewRoot, name);\n  const layoutDir = path.join(layoutRoot, name);\n  const importedLayoutDir = path.join(importedLayoutRoot, name);\n  await fs.rm(previewDir, { recursive: true, force: true });\n  await fs.rm(layoutDir, { recursive: true, force: true });\n  await fs.rm(importedLayoutDir, { recursive: true, force: true });\n  await fs.mkdir(previewDir, { recursive: true });\n  await fs.mkdir(layoutDir, { recursive: true });\n  await fs.mkdir(importedLayoutDir, { recursive: true });\n\n  for (const [index, slide] of deck.presentation.slides.items.entries()) {\n    const stem = `slide-${String(index + 1).padStart(2, \"0\")}`;\n    await writeBlob(\n      path.join(previewDir, `${stem}.png`),\n      await deck.presentation.export({ slide, format: \"png\", scale: 1 }),\n    );\n    await fs.writeFile(\n      path.join(layoutDir, `${stem}.layout.json`),\n      await (await slide.export({ format: \"layout\" })).text(),\n    );\n  }\n\n  await writeBlob(\n    path.join(previewRoot, `${name}.webp`),\n    await deck.presentation.export({ format: \"webp\", montage: true, scale: 1 }),\n  );\n\n  const inspect = await deck.presentation.inspect({\n    kind: \"slide,textbox,shape,table,chart,layout\",\n    maxChars: 40000,\n  });\n  await fs.writeFile(path.join(inspectRoot, `${name}.ndjson`), inspect.ndjson);\n\n  await (await PresentationFile.exportPptx(deck.presentation)).save(pptxPath);\n\n  const imported = await PresentationFile.importPptx(await FileBlob.load(pptxPath));\n  for (const [index, slide] of imported.slides.items.entries()) {\n    const stem = `slide-${String(index + 1).padStart(2, \"0\")}`;\n    await fs.writeFile(\n      path.join(importedLayoutDir, `${stem}.layout.json`),\n      await (await slide.export({ format: \"layout\" })).text(),\n    );\n  }\n\n  const importedInspect = await imported.inspect({\n    kind: \"slide,textbox,shape,table,chart,layout\",\n    maxChars: 40000,\n  });\n  await fs.writeFile(path.join(inspectRoot, `${name}.imported.ndjson`), importedInspect.ndjson);\n\n  await writeJson(\n    path.join(evidenceRoot, `${name}.acceptance.json`),\n    createJudgmentKitPresentationAcceptanceEvidence({\n      source,\n      artifact: { path: pptxPath, kind: \"pptx\" },\n      theme: {\n        colorScheme: { themeColors: JUDGMENTKIT_PPTX_THEME_COLORS },\n        styleIds: Object.values(JUDGMENTKIT_STYLE_NAMES),\n      },\n      checks: {\n        actual_slide_size: deck.kit.layout.fullSlide(),\n        artifact_preview_directory: previewDir,\n        artifact_preview_pngs: deck.presentation.slides.items.length,\n        layout_json_exports: deck.presentation.slides.items.length,\n        imported_layout_json_exports: imported.slides.items.length,\n        imported_inspect_path: path.join(inspectRoot, `${name}.imported.ndjson`),\n        rendered_pptx_png_directory: path.join(outputDir, name),\n        rendered_pptx_pngs_expected: deck.presentation.slides.items.length,\n      },\n      slides: slidesEvidence,\n    }),\n  );\n\n  return pptxPath;\n}\n\nfunction buildCanonicalDeck() {\n  const deck = createJudgmentKitPresentation({\n    Presentation,\n    helpers,\n    slideSize: { width: 1280, height: 720 },\n  });\n  const { presentation, kit } = deck;\n  const c = kit.layout.contentFrame();\n\n  composeSlide(presentation.slides.add(), kit, \"canonical-cover\", [\n    kit.components.titleBlock({\n      eyebrow: \"PRESENTATION THEME ACTUAL TEST\",\n      title: \"The theme adapter gives decks a usable review structure\",\n      subtitle: \"Fixture deck for checking rendered size, component spacing, theme slots, and named text styles.\",\n      frame: c,\n    }),\n    kit.components.statusPill({\n      label: \"Ready\",\n      status: \"success\",\n      frame: frame(kit, c.x + c.width - 132, c.y, 132, 34),\n    }),\n    kit.components.metricTile({\n      name: \"canonical-metric-1\",\n      label: \"Layouts\",\n      value: \"3\",\n      detail: \"Cover, evidence, and chart slides\",\n      frame: frame(kit, c.x, c.y + 430, 300, 164),\n    }),\n    kit.components.metricTile({\n      name: \"canonical-metric-2\",\n      label: \"Theme slots\",\n      value: \"16\",\n      detail: \"PowerPoint color slots available\",\n      frame: frame(kit, c.x + 326, c.y + 430, 300, 164),\n    }),\n    kit.components.metricTile({\n      name: \"canonical-metric-3\",\n      label: \"Styles\",\n      value: \"14\",\n      detail: \"Named text styles registered\",\n      frame: frame(kit, c.x + 652, c.y + 430, 300, 164),\n    }),\n  ]);\n\n  composeSlide(presentation.slides.add(), kit, \"canonical-evidence\", [\n    kit.components.sectionHeader({\n      label: \"WHAT TO CHECK\",\n      title: \"The review components should read as deck content, not UI chrome\",\n    }),\n    kit.components.evidencePanel({\n      title: \"Evidence checked\",\n      body: [\n        \"Theme colors render without raw color literals.\",\n        \"Named text styles stay readable after export.\",\n        \"Frames stay inside the slide after PowerPoint export.\",\n      ],\n      frame: frame(kit, c.x, c.y + 140, 530, 220),\n    }),\n    kit.components.riskCallout({\n      body: [\n        \"Dense layouts can make status and small body text harder to scan.\",\n        \"Long labels should be tested against exported previews.\",\n      ],\n      frame: frame(kit, c.x + 560, c.y + 140, 576, 220),\n    }),\n    kit.components.handoffReceipt({\n      body: \"Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.\",\n      frame: frame(kit, c.x, c.y + 386, c.width, 134),\n    }),\n  ]);\n\n  const chartSlide = presentation.slides.add();\n  composeSlide(chartSlide, kit, \"canonical-chart\", [\n    kit.components.sectionHeader({\n      label: \"CHART FRAME\",\n      title: \"A native chart should sit cleanly inside an adapter media frame\",\n    }),\n    kit.components.mediaFrame({ frame: frame(kit, c.x, c.y + 126, c.width, 382) }),\n  ]);\n  chartSlide.charts.add(\"bar\", {\n    name: \"fixture-token-chart\",\n    position: { left: c.x + 56, top: c.y + 184, width: c.width - 112, height: 270 },\n    categories: [\"Theme\", \"Layout\", \"QA\"],\n    series: [{ name: \"Coverage\", values: [16, 9, 7], fill: \"accent1\" }],\n    hasLegend: false,\n    dataLabels: { showValue: true, position: \"outEnd\" },\n    yAxis: { majorGridlines: { style: \"solid\", fill: \"accent6\", width: 1 } },\n  });\n\n  composeSlide(presentation.slides.add(), kit, \"canonical-table\", [\n    kit.components.sectionHeader({\n      label: \"EVIDENCE TABLE\",\n      title: \"Native tables should export through the adapter without helper errors\",\n    }),\n    kit.components.evidenceTable({\n      rows: [\n        [\"Check\", \"Expected\", \"Observed\"],\n        [\"Theme aliases\", \"bg1/lt1 and bg2/lt2 match\", \"Matched\"],\n        [\"Frame export\", \"Elements keep absolute positions\", \"Matched\"],\n        [\"Readability\", \"Dense copy stays inside panels\", \"Matched\"],\n      ],\n      frame: frame(kit, c.x, c.y + 126, c.width, 310),\n    }),\n    kit.components.handoffReceipt({\n      title: \"Table outcome\",\n      body: \"This slide exercises the real artifact-tool table helper and exported PPTX import path.\",\n      frame: frame(kit, c.x, c.y + 452, c.width, 124),\n    }),\n  ]);\n\n  return {\n    deck,\n    slides: [\n      { title: \"The theme adapter gives decks a usable review structure\", body: \"Fixture deck for checking rendered size, component spacing, theme slots, and named text styles.\" },\n      { title: \"The review components should read as deck content, not UI chrome\", body: \"Evidence checked. Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.\" },\n      { title: \"A native chart should sit cleanly inside an adapter media frame\", body: \"Theme, layout, and QA coverage values are plotted inside the frame.\" },\n      { title: \"Native tables should export through the adapter without helper errors\", body: \"Theme aliases, frame export, and readability checks are shown in a native table.\" },\n    ],\n  };\n}\n\nfunction buildFourByThreeDeck() {\n  const deck = createJudgmentKitPresentation({\n    Presentation,\n    helpers,\n    presentationOptions: { slideSize: { width: 1024, height: 768 } },\n  });\n  const { presentation, kit } = deck;\n  const c = kit.layout.contentFrame();\n  const columns = kit.layout.columns(frame(kit, c.x, c.y + 288, c.width, 164), 3, { gap: 22 });\n\n  composeSlide(presentation.slides.add(), kit, \"four-by-three-layout\", [\n    kit.components.titleBlock({\n      eyebrow: \"CUSTOM SIZE CHECK\",\n      title: \"A 4:3 deck should not inherit widescreen component defaults\",\n      subtitle: \"Default content frames and component widths should match the 1024 by 768 canvas.\",\n      frame: frame(kit, c.x, c.y, c.width, 260),\n    }),\n    kit.components.metricTile({ label: \"Canvas\", value: \"4:3\", detail: \"1024 by 768\", frame: columns[0] }),\n    kit.components.metricTile({ label: \"Content\", value: \"880\", detail: \"Scoped frame width\", frame: columns[1] }),\n    kit.components.metricTile({ label: \"Margin\", value: \"72\", detail: \"Equal left and right\", frame: columns[2] }),\n    kit.components.evidencePanel({\n      title: \"Expected visual result\",\n      body: [\n        \"The three tiles should align within the narrower canvas.\",\n        \"The evidence panel should end before the right edge.\",\n        \"No text should wrap into adjacent elements.\",\n      ],\n      frame: frame(kit, c.x, c.y + 476, c.width, 180),\n    }),\n  ]);\n\n  return {\n    deck,\n    slides: [{ title: \"A 4:3 deck should not inherit widescreen component defaults\", body: \"Default content frames and component widths should match the 1024 by 768 canvas.\" }],\n  };\n}\n\nfunction buildCompactDeck() {\n  const deck = createJudgmentKitPresentation({\n    Presentation,\n    helpers,\n    slideSize: { width: 960, height: 540 },\n  });\n  const { presentation, kit } = deck;\n  const c = kit.layout.contentFrame();\n\n  composeSlide(presentation.slides.add(), kit, \"compact-decision-slide\", [\n    kit.components.sectionHeader({\n      label: \"COMPACT REVIEW\",\n      title: \"Compact review needs density controls\",\n      frame: frame(kit, c.x, 42, c.width, 80),\n    }),\n    kit.components.evidencePanel({\n      title: \"Decision evidence\",\n      body: [\"Primary claim is supported.\", \"Temperature trace stayed within bounds.\", \"Handoff owner is named.\"],\n      frame: frame(kit, c.x, 150, 396, 198),\n    }),\n    kit.components.riskCallout({\n      title: \"Watch\",\n      body: [\"Longer evidence copy can run close to the panel edge.\", \"Small labels become hard to read on the compact canvas.\"],\n      frame: frame(kit, c.x + 424, 150, 392, 198),\n    }),\n    kit.components.statusPill({\n      label: \"Needs readback\",\n      status: \"warning\",\n      frame: frame(kit, c.x, 374, 182, 34),\n    }),\n    kit.components.handoffReceipt({\n      title: \"Exit state\",\n      body: \"Reviewer leaves with a clear decision, a named owner, and a short evidence trail.\",\n      frame: frame(kit, c.x + 210, 366, 606, 124),\n    }),\n  ]);\n\n  return {\n    deck,\n    slides: [{ title: \"Compact review needs density controls\", body: \"Decision evidence includes a temperature trace, handoff owner, and exit state.\" }],\n  };\n}\n\nasync function main() {\n  for (const dir of [previewRoot, layoutRoot, importedLayoutRoot, inspectRoot, evidenceRoot]) {\n    await fs.mkdir(dir, { recursive: true });\n  }\n\n  const canonical = buildCanonicalDeck();\n  const fourByThree = buildFourByThreeDeck();\n  const compact = buildCompactDeck();\n  const outputs = [\n    await saveDeck(\"jk-theme-canonical-16x9\", canonical.deck, canonical.slides),\n    await saveDeck(\"jk-theme-custom-4x3\", fourByThree.deck, fourByThree.slides),\n    await saveDeck(\"jk-theme-compact-review\", compact.deck, compact.slides),\n  ];\n  await writeJson(path.join(outputDir, \"manifest.json\"), {\n    source: fileURLToPath(import.meta.url),\n    outputs,\n  });\n}\n\nmain().catch((error) => {\n  console.error(error);\n  process.exitCode = 1;\n});\n",
+  "theme": {
+    "id": "judgmentkit.presentation-theme.adapter-v1",
+    "color_scheme": {
+      "accent1": "#245f73",
+      "accent2": "#23615f",
+      "accent3": "#2e6b48",
+      "accent4": "#8a5a16",
+      "accent5": "#8f342f",
+      "accent6": "#d7d3c8",
+      "bg1": "#f8f7f2",
+      "bg2": "#ffffff",
+      "tx1": "#171717",
+      "tx2": "#61615c",
+      "dk1": "#171717",
+      "dk2": "#61615c",
+      "lt1": "#f8f7f2",
+      "lt2": "#ffffff",
+      "hlink": "#245f73",
+      "folHlink": "#23615f"
+    },
+    "style_ids": [
+      "JK.Display",
+      "JK.SlideTitle",
+      "JK.SectionHeading",
+      "JK.Subtitle",
+      "JK.Body",
+      "JK.BodySmall",
+      "JK.Label",
+      "JK.Caption",
+      "JK.Numeric",
+      "JK.Diagnostic",
+      "JK.Link",
+      "JK.Status.Success",
+      "JK.Status.Warning",
+      "JK.Status.Risk",
+      "JK.Status.Receipt"
+    ],
+    "fallback_policy": "fail_incomplete"
+  },
+  "checks": {
+    "actual_slide_size": {
+      "name": "full-slide",
+      "x": 0,
+      "y": 0,
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720,
+      "w": 1280,
+      "h": 720
+    },
+    "artifact_preview_directory": "/Users/mike/JudgmentKit2/outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9",
+    "artifact_preview_pngs": 4,
+    "layout_json_exports": 4,
+    "imported_layout_json_exports": 4,
+    "imported_inspect_path": "/Users/mike/JudgmentKit2/outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson",
+    "rendered_pptx_png_directory": "/Users/mike/JudgmentKit2/outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9",
+    "rendered_pptx_pngs_expected": 4
+  },
+  "slides": [
+    {
+      "title": "The theme adapter gives decks a usable review structure",
+      "body": "Fixture deck for checking rendered size, component spacing, theme slots, and named text styles."
+    },
+    {
+      "title": "The review components should read as deck content, not UI chrome",
+      "body": "Evidence checked. Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy."
+    },
+    {
+      "title": "A native chart should sit cleanly inside an adapter media frame",
+      "body": "Theme, layout, and QA coverage values are plotted inside the frame."
+    },
+    {
+      "title": "Native tables should export through the adapter without helper errors",
+      "body": "Theme aliases, frame export, and readability checks are shown in a native table."
+    }
+  ],
+  "review": {
+    "status": "passed",
+    "acceptance_status": "accepted",
+    "source_lint": {
+      "status": "passed",
+      "findings": []
+    },
+    "findings": []
+  },
+  "status": "passed",
+  "acceptance_status": "accepted"
+}

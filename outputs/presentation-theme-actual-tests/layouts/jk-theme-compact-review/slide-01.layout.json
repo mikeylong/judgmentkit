@@ -1,0 +1,1826 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/fbyne2",
+    "id": "fbyne2",
+    "slide": 1,
+    "layoutId": "86c5cc5d-5c2e-4320-9e64-0aac75341d6f",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "d8a44095-307f-4041-803a-2f44f3a9a10d",
+    "masterLayoutName": "Master",
+    "backgroundColor": "bg1",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 960,
+      "height": 540
+    }
+  },
+  "theme": {
+    "colorSchemeName": "JudgmentKit Light",
+    "colors": {
+      "accent1": "#245F73",
+      "accent2": "#23615F",
+      "accent3": "#2E6B48",
+      "accent4": "#8A5A16",
+      "accent5": "#8F342F",
+      "accent6": "#D7D3C8",
+      "bg1": "#F8F7F2",
+      "bg2": "#FFFFFF",
+      "tx1": "#171717",
+      "tx2": "#61615C",
+      "dk1": "#171717",
+      "dk2": "#61615C",
+      "lt1": "#F8F7F2",
+      "lt2": "#FFFFFF",
+      "hlink": "#245F73",
+      "folHlink": "#23615F"
+    },
+    "typefaces": [
+      "+mn-lt"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "86c5cc5d-5c2e-4320-9e64-0aac75341d6f",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "d8a44095-307f-4041-803a-2f44f3a9a10d",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "d8a44095-307f-4041-803a-2f44f3a9a10d",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/u9knih4b",
+      "id": "1",
+      "name": "judgmentkit-section-header-label",
+      "bbox": [
+        72,
+        42,
+        816,
+        24
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.0.0"
+      },
+      "geometry": "rect",
+      "text": "COMPACT REVIEW",
+      "textPreview": "COMPACT REVIEW",
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "tx2",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "COMPACT REVIEW"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "COMPACT REVIEW",
+          "styleId": "JK.Label",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "tx2",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "COMPACT REVIEW",
+              "fontSize": 12,
+              "color": "tx2",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/1032lszq",
+      "id": "2",
+      "name": "judgmentkit-section-header-title",
+      "bbox": [
+        72,
+        72,
+        816,
+        58
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.0.1"
+      },
+      "geometry": "rect",
+      "text": "Compact review needs density controls",
+      "textPreview": "Compact review needs density controls",
+      "resolvedFontSize": 38,
+      "resolvedTextStyle": {
+        "fontSize": 38,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Compact review needs density controls"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Compact review needs density controls",
+          "styleId": "JK.SlideTitle",
+          "resolvedTextStyle": {
+            "fontSize": 38,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Compact review needs density controls",
+              "fontSize": 38,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 3,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/cfa9w3m9",
+      "id": "3",
+      "name": "judgmentkit-evidence-panel-surface",
+      "bbox": [
+        72,
+        150,
+        396,
+        198
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/jm1cfa9w",
+      "id": "4",
+      "name": "judgmentkit-evidence-panel-title",
+      "bbox": [
+        90,
+        168,
+        360,
+        34
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1.1"
+      },
+      "geometry": "rect",
+      "text": "Decision evidence",
+      "textPreview": "Decision evidence",
+      "resolvedFontSize": 30,
+      "resolvedTextStyle": {
+        "fontSize": 30,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Decision evidence"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Decision evidence",
+          "styleId": "JK.SectionHeading",
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Decision evidence",
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 5,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/u18jqh0f",
+      "id": "5",
+      "name": "judgmentkit-evidence-panel-body",
+      "bbox": [
+        90,
+        216,
+        360,
+        114
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1.2"
+      },
+      "geometry": "rect",
+      "text": "Primary claim is supported.\nTemperature trace stayed within bounds.\nHandoff owner is named.",
+      "textPreview": "Primary claim is supported. | Temperature trace stayed within bounds. | Handoff owner is named.",
+      "resolvedFontSize": 18,
+      "resolvedTextStyle": {
+        "fontSize": 18,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Primary claim is supported."
+          },
+          {
+            "index": 2,
+            "text": "Temperature trace stayed within bounds."
+          },
+          {
+            "index": 3,
+            "text": "Handoff owner is named."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Primary claim is supported.",
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Primary claim is supported.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        },
+        {
+          "index": 2,
+          "text": "Temperature trace stayed within bounds.",
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Temperature trace stayed within bounds.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        },
+        {
+          "index": 3,
+          "text": "Handoff owner is named.",
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Handoff owner is named.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 6,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/1orytsvu",
+      "id": "6",
+      "name": "judgmentkit-risk-callout-surface",
+      "bbox": [
+        496,
+        150,
+        392,
+        198
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 7,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/c7u54zid",
+      "id": "7",
+      "name": "judgmentkit-risk-callout-title",
+      "bbox": [
+        514,
+        168,
+        356,
+        34
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.1"
+      },
+      "geometry": "rect",
+      "text": "Watch",
+      "textPreview": "Watch",
+      "resolvedFontSize": 30,
+      "resolvedTextStyle": {
+        "fontSize": 30,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Watch"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Watch",
+          "styleId": "JK.SectionHeading",
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Watch",
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 8,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/nap4r65w",
+      "id": "8",
+      "name": "judgmentkit-risk-callout-body",
+      "bbox": [
+        514,
+        216,
+        356,
+        114
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.2"
+      },
+      "geometry": "rect",
+      "text": "Longer evidence copy can run close to the panel edge.\nSmall labels become hard to read on the compact canvas.",
+      "textPreview": "Longer evidence copy can run close to the panel edge. | Small labels become hard to read on the compact canvas.",
+      "resolvedFontSize": 18,
+      "resolvedTextStyle": {
+        "fontSize": 18,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 4,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Longer evidence copy can run close to the"
+          },
+          {
+            "index": 2,
+            "text": "panel edge."
+          },
+          {
+            "index": 3,
+            "text": "Small labels become hard to read on the"
+          },
+          {
+            "index": 4,
+            "text": "compact canvas."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Longer evidence copy can run close to the panel edge.",
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Longer evidence copy can run close to the panel edge.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        },
+        {
+          "index": 2,
+          "text": "Small labels become hard to read on the compact canvas.",
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Small labels become hard to read on the compact canvas.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 9,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/upwb2hwf",
+      "id": "9",
+      "name": "judgmentkit-status-pill-surface",
+      "bbox": [
+        72,
+        374,
+        182,
+        34
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.3.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent4",
+      "lineWidth": 1
+    },
+    {
+      "order": 10,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/orytsvu9",
+      "id": "10",
+      "name": "judgmentkit-status-pill-label",
+      "bbox": [
+        84,
+        381,
+        158,
+        21
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.3.1"
+      },
+      "geometry": "rect",
+      "text": "Needs readback",
+      "textPreview": "Needs readback",
+      "resolvedFontSize": 14,
+      "resolvedTextStyle": {
+        "fontSize": 14,
+        "typeface": "+mn-lt",
+        "color": "accent4",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Needs readback"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Needs readback",
+          "styleId": "JK.Status.Warning",
+          "resolvedTextStyle": {
+            "fontSize": 14,
+            "color": "accent4",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Needs readback",
+              "fontSize": 14,
+              "color": "accent4",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 11,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/hcrmhk3q",
+      "id": "11",
+      "name": "judgmentkit-handoff-receipt-surface",
+      "bbox": [
+        282,
+        366,
+        606,
+        124
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.4.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 12,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/al87ed8b",
+      "id": "12",
+      "name": "judgmentkit-handoff-receipt-title",
+      "bbox": [
+        300,
+        384,
+        570,
+        34
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.4.1"
+      },
+      "geometry": "rect",
+      "text": "Exit state",
+      "textPreview": "Exit state",
+      "resolvedFontSize": 30,
+      "resolvedTextStyle": {
+        "fontSize": 30,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Exit state"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Exit state",
+          "styleId": "JK.SectionHeading",
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Exit state",
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 13,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/z61032ls",
+      "id": "13",
+      "name": "judgmentkit-handoff-receipt-body",
+      "bbox": [
+        300,
+        432,
+        570,
+        40
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.4.2"
+      },
+      "geometry": "rect",
+      "text": "Reviewer leaves with a clear decision, a named owner, and a short evidence trail.",
+      "textPreview": "Reviewer leaves with a clear decision, a named owner, and a short evidence trail.",
+      "resolvedFontSize": 18,
+      "resolvedTextStyle": {
+        "fontSize": 18,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Reviewer leaves with a clear decision, a named owner, and a short"
+          },
+          {
+            "index": 2,
+            "text": "evidence trail."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Reviewer leaves with a clear decision, a named owner, and a short evidence trail.",
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Reviewer leaves with a clear decision, a named owner, and a short evidence trail.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    }
+  ],
+  "composeRuns": [
+    {
+      "index": 1,
+      "frame": {
+        "left": 0,
+        "top": 0,
+        "width": 960,
+        "height": 540
+      },
+      "baseUnit": 8,
+      "root": {
+        "path": "0",
+        "kind": "layers",
+        "name": "compact-decision-slide",
+        "requestedSize": {
+          "width": {
+            "mode": "fill",
+            "value": 1
+          },
+          "height": {
+            "mode": "fill",
+            "value": 1
+          }
+        },
+        "intrinsicSize": {
+          "width": 888,
+          "height": 490
+        },
+        "frame": {
+          "left": 0,
+          "top": 0,
+          "width": 960,
+          "height": 540
+        },
+        "children": [
+          {
+            "path": "0.0",
+            "kind": "layers",
+            "name": "judgmentkit-section-header",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 888,
+              "height": 130
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "children": [
+              {
+                "path": "0.0.0",
+                "kind": "text",
+                "name": "judgmentkit-section-header-label",
+                "position": {
+                  "left": 72,
+                  "top": 42
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 816
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 24
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 816,
+                  "height": 24
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 42,
+                  "width": 816,
+                  "height": 24
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 42,
+                  "width": 816,
+                  "height": 24
+                },
+                "children": [],
+                "text": "COMPACT REVIEW",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/u9knih4b",
+                  "id": "1",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.0.1",
+                "kind": "text",
+                "name": "judgmentkit-section-header-title",
+                "position": {
+                  "left": 72,
+                  "top": 72
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 816
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 58
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 816,
+                  "height": 58
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 72,
+                  "width": 816,
+                  "height": 58
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 72,
+                  "width": 816,
+                  "height": 58
+                },
+                "children": [],
+                "text": "Compact review needs density controls",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/1032lszq",
+                  "id": "2",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "items": [
+              {
+                "path": "0.0.0",
+                "frame": {
+                  "left": 72,
+                  "top": 42,
+                  "width": 816,
+                  "height": 24
+                }
+              },
+              {
+                "path": "0.0.1",
+                "frame": {
+                  "left": 72,
+                  "top": 72,
+                  "width": 816,
+                  "height": 58
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.1",
+            "kind": "layers",
+            "name": "judgmentkit-evidence-panel",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 468,
+              "height": 348
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "children": [
+              {
+                "path": "0.1.0",
+                "kind": "shape",
+                "name": "judgmentkit-evidence-panel-surface",
+                "position": {
+                  "left": 72,
+                  "top": 150
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 396
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 198
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 396,
+                  "height": 198
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 150,
+                  "width": 396,
+                  "height": 198
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 150,
+                  "width": 396,
+                  "height": 198
+                },
+                "children": [],
+                "geometry": "rect",
+                "element": {
+                  "aid": "sh/cfa9w3m9",
+                  "id": "3",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.1.1",
+                "kind": "text",
+                "name": "judgmentkit-evidence-panel-title",
+                "position": {
+                  "left": 90,
+                  "top": 168
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 360
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 34
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 360,
+                  "height": 34
+                },
+                "frame": {
+                  "left": 90,
+                  "top": 168,
+                  "width": 360,
+                  "height": 34
+                },
+                "snappedFrame": {
+                  "left": 90,
+                  "top": 168,
+                  "width": 360,
+                  "height": 34
+                },
+                "children": [],
+                "text": "Decision evidence",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/jm1cfa9w",
+                  "id": "4",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.1.2",
+                "kind": "text",
+                "name": "judgmentkit-evidence-panel-body",
+                "position": {
+                  "left": 90,
+                  "top": 216
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 360
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 114
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 360,
+                  "height": 114
+                },
+                "frame": {
+                  "left": 90,
+                  "top": 216,
+                  "width": 360,
+                  "height": 114
+                },
+                "snappedFrame": {
+                  "left": 90,
+                  "top": 216,
+                  "width": 360,
+                  "height": 114
+                },
+                "children": [],
+                "text": "Primary claim is supported.Temperature trace stayed within bounds.Handoff owner is named.",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/u18jqh0f",
+                  "id": "5",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "items": [
+              {
+                "path": "0.1.0",
+                "frame": {
+                  "left": 72,
+                  "top": 150,
+                  "width": 396,
+                  "height": 198
+                }
+              },
+              {
+                "path": "0.1.1",
+                "frame": {
+                  "left": 90,
+                  "top": 168,
+                  "width": 360,
+                  "height": 34
+                }
+              },
+              {
+                "path": "0.1.2",
+                "frame": {
+                  "left": 90,
+                  "top": 216,
+                  "width": 360,
+                  "height": 114
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.2",
+            "kind": "layers",
+            "name": "judgmentkit-risk-callout",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 888,
+              "height": 348
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "children": [
+              {
+                "path": "0.2.0",
+                "kind": "shape",
+                "name": "judgmentkit-risk-callout-surface",
+                "position": {
+                  "left": 496,
+                  "top": 150
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 392
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 198
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 392,
+                  "height": 198
+                },
+                "frame": {
+                  "left": 496,
+                  "top": 150,
+                  "width": 392,
+                  "height": 198
+                },
+                "snappedFrame": {
+                  "left": 496,
+                  "top": 150,
+                  "width": 392,
+                  "height": 198
+                },
+                "children": [],
+                "geometry": "rect",
+                "element": {
+                  "aid": "sh/1orytsvu",
+                  "id": "6",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.2.1",
+                "kind": "text",
+                "name": "judgmentkit-risk-callout-title",
+                "position": {
+                  "left": 514,
+                  "top": 168
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 356
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 34
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 356,
+                  "height": 34
+                },
+                "frame": {
+                  "left": 514,
+                  "top": 168,
+                  "width": 356,
+                  "height": 34
+                },
+                "snappedFrame": {
+                  "left": 514,
+                  "top": 168,
+                  "width": 356,
+                  "height": 34
+                },
+                "children": [],
+                "text": "Watch",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/c7u54zid",
+                  "id": "7",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.2.2",
+                "kind": "text",
+                "name": "judgmentkit-risk-callout-body",
+                "position": {
+                  "left": 514,
+                  "top": 216
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 356
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 114
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 356,
+                  "height": 114
+                },
+                "frame": {
+                  "left": 514,
+                  "top": 216,
+                  "width": 356,
+                  "height": 114
+                },
+                "snappedFrame": {
+                  "left": 514,
+                  "top": 216,
+                  "width": 356,
+                  "height": 114
+                },
+                "children": [],
+                "text": "Longer evidence copy can run close to the panel edge.Small labels become hard to read on the compact canvas.",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/nap4r65w",
+                  "id": "8",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "items": [
+              {
+                "path": "0.2.0",
+                "frame": {
+                  "left": 496,
+                  "top": 150,
+                  "width": 392,
+                  "height": 198
+                }
+              },
+              {
+                "path": "0.2.1",
+                "frame": {
+                  "left": 514,
+                  "top": 168,
+                  "width": 356,
+                  "height": 34
+                }
+              },
+              {
+                "path": "0.2.2",
+                "frame": {
+                  "left": 514,
+                  "top": 216,
+                  "width": 356,
+                  "height": 114
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.3",
+            "kind": "layers",
+            "name": "judgmentkit-status-pill",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 254,
+              "height": 408
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "children": [
+              {
+                "path": "0.3.0",
+                "kind": "shape",
+                "name": "judgmentkit-status-pill-surface",
+                "position": {
+                  "left": 72,
+                  "top": 374
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 182
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 34
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 182,
+                  "height": 34
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 374,
+                  "width": 182,
+                  "height": 34
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 374,
+                  "width": 182,
+                  "height": 34
+                },
+                "children": [],
+                "geometry": "roundRect",
+                "element": {
+                  "aid": "sh/upwb2hwf",
+                  "id": "9",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.3.1",
+                "kind": "text",
+                "name": "judgmentkit-status-pill-label",
+                "position": {
+                  "left": 84,
+                  "top": 381
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 158
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 21
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 158,
+                  "height": 21
+                },
+                "frame": {
+                  "left": 84,
+                  "top": 381,
+                  "width": 158,
+                  "height": 21
+                },
+                "snappedFrame": {
+                  "left": 84,
+                  "top": 381,
+                  "width": 158,
+                  "height": 21
+                },
+                "children": [],
+                "text": "Needs readback",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/orytsvu9",
+                  "id": "10",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "items": [
+              {
+                "path": "0.3.0",
+                "frame": {
+                  "left": 72,
+                  "top": 374,
+                  "width": 182,
+                  "height": 34
+                }
+              },
+              {
+                "path": "0.3.1",
+                "frame": {
+                  "left": 84,
+                  "top": 381,
+                  "width": 158,
+                  "height": 21
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.4",
+            "kind": "layers",
+            "name": "judgmentkit-handoff-receipt",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 888,
+              "height": 490
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "children": [
+              {
+                "path": "0.4.0",
+                "kind": "shape",
+                "name": "judgmentkit-handoff-receipt-surface",
+                "position": {
+                  "left": 282,
+                  "top": 366
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 606
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 124
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 606,
+                  "height": 124
+                },
+                "frame": {
+                  "left": 282,
+                  "top": 366,
+                  "width": 606,
+                  "height": 124
+                },
+                "snappedFrame": {
+                  "left": 282,
+                  "top": 366,
+                  "width": 606,
+                  "height": 124
+                },
+                "children": [],
+                "geometry": "rect",
+                "element": {
+                  "aid": "sh/hcrmhk3q",
+                  "id": "11",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.4.1",
+                "kind": "text",
+                "name": "judgmentkit-handoff-receipt-title",
+                "position": {
+                  "left": 300,
+                  "top": 384
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 570
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 34
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 570,
+                  "height": 34
+                },
+                "frame": {
+                  "left": 300,
+                  "top": 384,
+                  "width": 570,
+                  "height": 34
+                },
+                "snappedFrame": {
+                  "left": 300,
+                  "top": 384,
+                  "width": 570,
+                  "height": 34
+                },
+                "children": [],
+                "text": "Exit state",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/al87ed8b",
+                  "id": "12",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.4.2",
+                "kind": "text",
+                "name": "judgmentkit-handoff-receipt-body",
+                "position": {
+                  "left": 300,
+                  "top": 432
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 570
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 40
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 570,
+                  "height": 40
+                },
+                "frame": {
+                  "left": 300,
+                  "top": 432,
+                  "width": 570,
+                  "height": 40
+                },
+                "snappedFrame": {
+                  "left": 300,
+                  "top": 432,
+                  "width": 570,
+                  "height": 40
+                },
+                "children": [],
+                "text": "Reviewer leaves with a clear decision, a named owner, and a short evidence trail.",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/z61032ls",
+                  "id": "13",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            },
+            "items": [
+              {
+                "path": "0.4.0",
+                "frame": {
+                  "left": 282,
+                  "top": 366,
+                  "width": 606,
+                  "height": 124
+                }
+              },
+              {
+                "path": "0.4.1",
+                "frame": {
+                  "left": 300,
+                  "top": 384,
+                  "width": 570,
+                  "height": 34
+                }
+              },
+              {
+                "path": "0.4.2",
+                "frame": {
+                  "left": 300,
+                  "top": 432,
+                  "width": 570,
+                  "height": 40
+                }
+              }
+            ]
+          }
+        ],
+        "padding": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "alignItems": "stretch",
+        "justifyItems": "stretch",
+        "contentFrame": {
+          "left": 0,
+          "top": 0,
+          "width": 960,
+          "height": 540
+        },
+        "items": [
+          {
+            "path": "0.0",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            }
+          },
+          {
+            "path": "0.1",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            }
+          },
+          {
+            "path": "0.2",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            }
+          },
+          {
+            "path": "0.3",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            }
+          },
+          {
+            "path": "0.4",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 960,
+              "height": 540
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

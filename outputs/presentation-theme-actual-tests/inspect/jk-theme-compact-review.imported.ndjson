@@ -1,0 +1,16 @@
+{"kind":"layout","layoutId":"/ppt/slideMasters/slideMaster1.xml","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout1.xml","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/2x4nap4r","slide":1,"title":"COMPACT REVIEW","textShapes":9}
+{"kind":"textbox","id":"sh/nap4r65w","slide":1,"name":"judgmentkit-section-header-label","text":"COMPACT REVIEW","textPreview":"COMPACT REVIEW","textChars":14,"textLines":1,"bbox":[72,42,816,24]}
+{"kind":"textbox","id":"sh/cvixczed","slide":1,"name":"judgmentkit-section-header-title","text":"Compact review needs density controls","textPreview":"Compact review needs density controls","textChars":37,"textLines":1,"bbox":[72,72,816,58]}
+{"kind":"shape","id":"sh/5gbq1ory","slide":1,"name":"judgmentkit-evidence-panel-surface","bbox":[72,150,396,198]}
+{"kind":"textbox","id":"sh/udg7adsj","slide":1,"name":"judgmentkit-evidence-panel-title","text":"Decision evidence","textPreview":"Decision evidence","textChars":17,"textLines":1,"bbox":[90,168,360,34]}
+{"kind":"textbox","id":"sh/nyd0z610","slide":1,"name":"judgmentkit-evidence-panel-body","text":"Primary claim is supported.\nTemperature trace stayed within bounds.\nHandoff owner is named.","textPreview":"Primary claim is supported. | Temperature trace stayed within bounds. | Handoff owner is named.","textChars":91,"textLines":3,"bbox":[90,216,360,114]}
+{"kind":"shape","id":"sh/cj6tovah","slide":1,"name":"judgmentkit-risk-callout-surface","bbox":[496,150,392,198]}
+{"kind":"textbox","id":"sh/54zidony","slide":1,"name":"judgmentkit-risk-callout-title","text":"Watch","textPreview":"Watch","textChars":5,"textLines":1,"bbox":[514,168,356,34]}
+{"kind":"textbox","id":"sh/u9knih4b","slide":1,"name":"judgmentkit-risk-callout-body","text":"Longer evidence copy can run close to the panel edge.\nSmall labels become hard to read on the compact canvas.","textPreview":"Longer evidence copy can run close to the panel edge. | Small labels become hard to read on the compact canvas.","textChars":109,"textLines":2,"bbox":[514,216,356,114]}
+{"kind":"shape","id":"sh/judg7ads","slide":1,"name":"judgmentkit-status-pill-surface","bbox":[72,374,182,34]}
+{"kind":"textbox","id":"sh/nyd0z610","slide":1,"name":"judgmentkit-status-pill-label","text":"Needs readback","textPreview":"Needs readback","textChars":14,"textLines":1,"bbox":[84,381,158,21]}
+{"kind":"shape","id":"sh/udg7adsj","slide":1,"name":"judgmentkit-handoff-receipt-surface","bbox":[282,366,606,124]}
+{"kind":"textbox","id":"sh/54zidony","slide":1,"name":"judgmentkit-handoff-receipt-title","text":"Exit state","textPreview":"Exit state","textChars":10,"textLines":1,"bbox":[300,384,570,34]}
+{"kind":"textbox","id":"sh/cj6tovah","slide":1,"name":"judgmentkit-handoff-receipt-body","text":"Reviewer leaves with a clear decision, a named owner, and a short evidence trail.","textPreview":"Reviewer leaves with a clear decision, a named owner, and a short evidence trail.","textChars":81,"textLines":1,"bbox":[300,432,570,40]}

@@ -1,17 +1,19 @@
 import * as layout from "./layout.mjs";
-import { JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST } from "./tokens.mjs";
+import {
+  JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST,
+  JUDGMENTKIT_SLIDE_SIZE,
+} from "./tokens.mjs";
 import { JUDGMENTKIT_STYLE_NAMES } from "./styles.mjs";
 
-function toPx(value) {
-  return typeof value === "number" ? `${value}px` : value;
-}
+const BORDER_COLOR_SLOT = "accent6";
 
 function toComposeFrame(frameValue = layout.contentFrame()) {
+  const frame = layout.normalizeFrame(frameValue);
+
   return {
-    left: toPx(frameValue.left ?? frameValue.x ?? 0),
-    top: toPx(frameValue.top ?? frameValue.y ?? 0),
-    width: toPx(frameValue.width ?? frameValue.w ?? 0),
-    height: toPx(frameValue.height ?? frameValue.h ?? 0),
+    position: { left: frame.x, top: frame.y },
+    width: frame.width,
+    height: frame.height,
   };
 }
 
@@ -31,6 +33,36 @@ function textLines(value) {
   }
 
   return value === undefined || value === null ? [] : [String(value)];
+}
+
+function estimateLineCount(lines, width, fontSize) {
+  const content = textLines(lines);
+  const charactersPerLine = Math.max(1, Math.floor(width / (fontSize * 0.54)));
+
+  return Math.max(
+    1,
+    ...content.map((line) => Math.max(1, Math.ceil(line.length / charactersPerLine))),
+  );
+}
+
+function normalizeTableRows(rows = []) {
+  const sourceRows = Array.isArray(rows) ? rows : [];
+  const values = sourceRows.map((row) => {
+    const cells = Array.isArray(row) ? row : [row];
+    return cells.map((cell) => (cell === undefined || cell === null ? "" : String(cell)));
+  });
+  const columns = Math.max(1, ...values.map((row) => row.length), 1);
+  const normalizedValues =
+    values.length > 0 ? values : [Array.from({ length: columns }, () => "")];
+
+  return {
+    rows: normalizedValues.length,
+    columns,
+    values: normalizedValues.map((row) => [
+      ...row,
+      ...Array.from({ length: columns - row.length }, () => ""),
+    ]),
+  };
 }
 
 function statusStyle(status = "receipt") {
@@ -65,24 +97,58 @@ function statusAccent(status = "receipt") {
   return "accent2";
 }
 
+function isLayoutApi(value) {
+  return Boolean(
+    value &&
+      typeof value === "object" &&
+      typeof value.contentFrame === "function" &&
+      typeof value.frame === "function" &&
+      typeof value.normalizeFrame === "function",
+  );
+}
+
+function resolveKitSlideSize(options = {}, presentation) {
+  return (
+    options.slideSize ??
+    options.slide_size ??
+    presentation?.slideSize ??
+    presentation?.slide_size ??
+    presentation?.createOptions?.slideSize ??
+    options.presentationOptions?.slideSize ??
+    options.presentationOptions?.slide_size ??
+    JUDGMENTKIT_SLIDE_SIZE
+  );
+}
+
 export function createJudgmentKitComponentFactories(options = {}) {
   const helpers = options.helpers ?? options;
+  const kitLayout =
+    (isLayoutApi(options.layout) ? options.layout : undefined) ??
+    layout.createJudgmentKitLayout({
+      slideSize: resolveKitSlideSize(options),
+    });
   const factories = {
     titleBlock({
       name = "judgmentkit-title-block",
       eyebrow,
       title,
       subtitle,
-      frame = layout.contentFrame(),
+      frame = kitLayout.contentFrame(),
     } = {}) {
       const layers = requireHelper(helpers, "layers");
       const text = requireHelper(helpers, "text");
-      const titleFrame = layout.inset(frame, { top: 42, right: 0, bottom: 0, left: 0 });
-      const subtitleFrame = layout.frame(
+      const blockFrame = kitLayout.normalizeFrame(frame);
+      const titleFrame = kitLayout.inset(blockFrame, { top: 42, right: 0, bottom: 0, left: 0 });
+      const blockBottom = blockFrame.y + blockFrame.height;
+      const titleHeight = subtitle
+        ? Math.min(150, Math.max(72, blockBottom - titleFrame.y - 120))
+        : Math.min(150, Math.max(72, blockBottom - titleFrame.y));
+      const subtitleTop = titleFrame.y + titleHeight + 20;
+      const subtitleFrame = kitLayout.frame(
         titleFrame.x,
-        titleFrame.y + 170,
+        subtitleTop,
         Math.min(680, titleFrame.width),
-        100,
+        Math.max(0, Math.min(100, blockBottom - subtitleTop)),
       );
 
       return layers({ name, width: "fill", height: "fill" }, [
@@ -90,14 +156,14 @@ export function createJudgmentKitComponentFactories(options = {}) {
           ? [
               text(textLines(eyebrow), {
                 name: `${name}-eyebrow`,
-                ...toComposeFrame(layout.frame(frame.x, frame.y, frame.width, 28)),
+                ...toComposeFrame(kitLayout.frame(blockFrame.x, blockFrame.y, blockFrame.width, 28)),
                 style: JUDGMENTKIT_STYLE_NAMES.label,
               }),
             ]
           : []),
         text(textLines(title), {
           name: `${name}-title`,
-          ...toComposeFrame(layout.frame(titleFrame.x, titleFrame.y, titleFrame.width, 150)),
+          ...toComposeFrame(kitLayout.frame(titleFrame.x, titleFrame.y, titleFrame.width, titleHeight)),
           style: JUDGMENTKIT_STYLE_NAMES.display,
         }),
         ...(subtitle
@@ -116,24 +182,43 @@ export function createJudgmentKitComponentFactories(options = {}) {
       name = "judgmentkit-section-header",
       label,
       title,
-      frame = layout.frame(72, 48, 1136, 88),
+      frame = kitLayout.frame(
+        kitLayout.contentFrame().x,
+        48,
+        kitLayout.contentFrame().width,
+        88,
+      ),
     } = {}) {
       const layers = requireHelper(helpers, "layers");
       const text = requireHelper(helpers, "text");
+      const headerFrame = kitLayout.normalizeFrame(frame);
+      const titleTop = headerFrame.y + (label ? 30 : 0);
+      const titleHeight = Math.max(
+        58,
+        estimateLineCount(title, headerFrame.width, 38) * 48,
+        headerFrame.y + headerFrame.height - titleTop,
+      );
 
       return layers({ name, width: "fill", height: "fill" }, [
         ...(label
           ? [
               text(textLines(label), {
                 name: `${name}-label`,
-                ...toComposeFrame(layout.frame(frame.x, frame.y, frame.width, 24)),
+                ...toComposeFrame(kitLayout.frame(headerFrame.x, headerFrame.y, headerFrame.width, 24)),
                 style: JUDGMENTKIT_STYLE_NAMES.label,
               }),
             ]
           : []),
         text(textLines(title), {
           name: `${name}-title`,
-          ...toComposeFrame(layout.frame(frame.x, frame.y + (label ? 30 : 0), frame.width, 58)),
+          ...toComposeFrame(
+            kitLayout.frame(
+              headerFrame.x,
+              titleTop,
+              headerFrame.width,
+              titleHeight,
+            ),
+          ),
           style: JUDGMENTKIT_STYLE_NAMES.title,
         }),
       ]);
@@ -143,32 +228,46 @@ export function createJudgmentKitComponentFactories(options = {}) {
       name = "judgmentkit-evidence-panel",
       title,
       body,
-      frame = layout.contentFrame(),
+      frame = kitLayout.contentFrame(),
     } = {}) {
       const layers = requireHelper(helpers, "layers");
       const shape = requireHelper(helpers, "shape");
       const text = requireHelper(helpers, "text");
-      const inner = layout.inset(frame, 18);
+      const panelFrame = kitLayout.normalizeFrame(frame);
+      const inner = kitLayout.inset(panelFrame, 18);
+      const titleLines = textLines(title);
+      const bodyLines = textLines(body);
+      const bodyTop = inner.y + (titleLines.length > 0 ? 48 : 0);
+      const bodyHeight = Math.max(0, inner.y + inner.height - bodyTop);
+      const shouldRenderBody = bodyLines.length > 0 && bodyHeight >= 24;
 
       return layers({ name, width: "fill", height: "fill" }, [
         shape({
           name: `${name}-surface`,
           geometry: "rect",
-          ...toComposeFrame(frame),
+          ...toComposeFrame(panelFrame),
           fill: "bg2",
-          line: { style: "solid", fill: "lt2", width: 1 },
+          line: { style: "solid", fill: BORDER_COLOR_SLOT, width: 1 },
           borderRadius: 8,
         }),
-        text(textLines(title), {
-          name: `${name}-title`,
-          ...toComposeFrame(layout.frame(inner.x, inner.y, inner.width, 34)),
-          style: JUDGMENTKIT_STYLE_NAMES.sectionTitle,
-        }),
-        text(textLines(body), {
-          name: `${name}-body`,
-          ...toComposeFrame(layout.frame(inner.x, inner.y + 48, inner.width, inner.height - 48)),
-          style: JUDGMENTKIT_STYLE_NAMES.body,
-        }),
+        ...(titleLines.length > 0
+          ? [
+              text(titleLines, {
+                name: `${name}-title`,
+                ...toComposeFrame(kitLayout.frame(inner.x, inner.y, inner.width, 34)),
+                style: JUDGMENTKIT_STYLE_NAMES.sectionTitle,
+              }),
+            ]
+          : []),
+        ...(shouldRenderBody
+          ? [
+              text(bodyLines, {
+                name: `${name}-body`,
+                ...toComposeFrame(kitLayout.frame(inner.x, bodyTop, inner.width, bodyHeight)),
+                style: JUDGMENTKIT_STYLE_NAMES.body,
+              }),
+            ]
+          : []),
       ]);
     },
 
@@ -177,37 +276,41 @@ export function createJudgmentKitComponentFactories(options = {}) {
       label,
       value,
       detail,
-      frame = layout.contentFrame(),
+      frame = kitLayout.contentFrame(),
     } = {}) {
       const layers = requireHelper(helpers, "layers");
       const shape = requireHelper(helpers, "shape");
       const text = requireHelper(helpers, "text");
-      const inner = layout.inset(frame, 16);
+      const tileFrame = kitLayout.normalizeFrame(frame);
+      const inner = kitLayout.inset(tileFrame, 16);
+      const detailLines = textLines(detail);
+      const detailTop = inner.y + 104;
+      const detailHeight = Math.max(0, inner.y + inner.height - detailTop);
 
       return layers({ name, width: "fill", height: "fill" }, [
         shape({
           name: `${name}-surface`,
           geometry: "rect",
-          ...toComposeFrame(frame),
+          ...toComposeFrame(tileFrame),
           fill: "bg2",
-          line: { style: "solid", fill: "lt2", width: 1 },
+          line: { style: "solid", fill: BORDER_COLOR_SLOT, width: 1 },
           borderRadius: 8,
         }),
         text(textLines(label), {
           name: `${name}-label`,
-          ...toComposeFrame(layout.frame(inner.x, inner.y, inner.width, 24)),
+          ...toComposeFrame(kitLayout.frame(inner.x, inner.y, inner.width, 24)),
           style: JUDGMENTKIT_STYLE_NAMES.label,
         }),
         text(textLines(value), {
           name: `${name}-value`,
-          ...toComposeFrame(layout.frame(inner.x, inner.y + 34, inner.width, 62)),
+          ...toComposeFrame(kitLayout.frame(inner.x, inner.y + 34, inner.width, 62)),
           style: JUDGMENTKIT_STYLE_NAMES.metric,
         }),
-        ...(detail
+        ...(detailLines.length > 0 && detailHeight >= 24
           ? [
-              text(textLines(detail), {
+              text(detailLines, {
                 name: `${name}-detail`,
-                ...toComposeFrame(layout.frame(inner.x, inner.y + 104, inner.width, 46)),
+                ...toComposeFrame(kitLayout.frame(inner.x, detailTop, inner.width, detailHeight)),
                 style: JUDGMENTKIT_STYLE_NAMES.bodySmall,
               }),
             ]
@@ -219,25 +322,26 @@ export function createJudgmentKitComponentFactories(options = {}) {
       name = "judgmentkit-status-pill",
       label,
       status = "receipt",
-      frame = layout.frame(0, 0, 180, 34),
+      frame = kitLayout.frame(0, 0, 180, 34),
     } = {}) {
       const layers = requireHelper(helpers, "layers");
       const shape = requireHelper(helpers, "shape");
       const text = requireHelper(helpers, "text");
       const accent = statusAccent(status);
+      const pillFrame = kitLayout.normalizeFrame(frame);
 
       return layers({ name, width: "fill", height: "fill" }, [
         shape({
           name: `${name}-surface`,
           geometry: "roundRect",
-          ...toComposeFrame(frame),
+          ...toComposeFrame(pillFrame),
           fill: "bg2",
           line: { style: "solid", fill: accent, width: 1 },
           borderRadius: 8,
         }),
         text(textLines(label), {
           name: `${name}-label`,
-          ...toComposeFrame(layout.inset(frame, { top: 7, right: 12, bottom: 6, left: 12 })),
+          ...toComposeFrame(kitLayout.inset(pillFrame, { top: 7, right: 12, bottom: 6, left: 12 })),
           style: statusStyle(status),
         }),
       ]);
@@ -264,15 +368,17 @@ export function createJudgmentKitComponentFactories(options = {}) {
     evidenceTable({
       name = "judgmentkit-evidence-table",
       rows = [],
-      frame = layout.contentFrame(),
+      frame = kitLayout.contentFrame(),
     } = {}) {
       const table = helpers.table;
+      const tableFrame = kitLayout.normalizeFrame(frame);
 
       if (typeof table === "function") {
-        return table(rows, {
+        return table({
           name,
-          ...toComposeFrame(frame),
-          textStyle: JUDGMENTKIT_STYLE_NAMES.bodySmall,
+          ...toComposeFrame(tableFrame),
+          style: JUDGMENTKIT_STYLE_NAMES.bodySmall,
+          ...normalizeTableRows(rows),
         });
       }
 
@@ -280,23 +386,24 @@ export function createJudgmentKitComponentFactories(options = {}) {
         name,
         title: "Evidence",
         body: rows.map((row) => row.join("  ")),
-        frame,
+        frame: tableFrame,
       });
     },
 
     mediaFrame({
       name = "judgmentkit-media-frame",
-      frame = layout.contentFrame(),
+      frame = kitLayout.contentFrame(),
       fill = "bg2",
     } = {}) {
       const shape = requireHelper(helpers, "shape");
+      const mediaFrameValue = kitLayout.normalizeFrame(frame);
 
       return shape({
         name,
         geometry: "rect",
-        ...toComposeFrame(frame),
+        ...toComposeFrame(mediaFrameValue),
         fill,
-        line: { style: "solid", fill: "lt2", width: 1 },
+        line: { style: "solid", fill: BORDER_COLOR_SLOT, width: 1 },
         borderRadius: 8,
       });
     },
@@ -315,14 +422,21 @@ export function createJudgmentKitDeckKit(presentationOrOptions, options = {}) {
     ? presentationOrOptions.presentation
     : presentationOrOptions;
   const normalizedOptions = objectForm ? presentationOrOptions : options;
+  const kitLayout =
+    (isLayoutApi(normalizedOptions.layout) ? normalizedOptions.layout : undefined) ??
+    layout.createJudgmentKitLayout({
+      slideSize: resolveKitSlideSize(normalizedOptions, presentation),
+    });
 
   return {
     manifest: JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST,
     presentation,
-    layout,
+    layout: kitLayout,
     styleNames: JUDGMENTKIT_STYLE_NAMES,
-    components: createJudgmentKitComponentFactories(
-      normalizedOptions.helpers ?? normalizedOptions,
-    ),
+    components: createJudgmentKitComponentFactories({
+      ...normalizedOptions,
+      helpers: normalizedOptions.helpers ?? normalizedOptions,
+      layout: kitLayout,
+    }),
   };
 }

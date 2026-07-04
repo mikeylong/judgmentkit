@@ -1,0 +1,707 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/pg3ex0nu",
+    "id": "pg3ex0nu",
+    "slide": 2,
+    "layoutId": "/ppt/slideLayouts/slideLayout1.xml",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "/ppt/slideMasters/slideMaster1.xml",
+    "masterLayoutName": "Master",
+    "backgroundColor": "bg1",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "JudgmentKit Light",
+    "colors": {
+      "accent1": "#245F73",
+      "accent2": "#23615F",
+      "accent3": "#2E6B48",
+      "accent4": "#8A5A16",
+      "accent5": "#8F342F",
+      "accent6": "#D7D3C8",
+      "dk1": "#171717",
+      "lt1": "#F8F7F2",
+      "dk2": "#61615C",
+      "lt2": "#FFFFFF",
+      "hlink": "#245F73",
+      "folHlink": "#23615F"
+    },
+    "fontScheme": {
+      "name": "Office",
+      "majorFont": {
+        "latinTypeface": "Calibri Light",
+        "eastAsianTypeface": "Calibri Light",
+        "complexScriptTypeface": "Calibri Light"
+      },
+      "minorFont": {
+        "latinTypeface": "Calibri",
+        "eastAsianTypeface": "Calibri",
+        "complexScriptTypeface": "Calibri"
+      }
+    },
+    "typefaces": [
+      "Calibri",
+      "Calibri Light"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "/ppt/slideLayouts/slideLayout1.xml",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "/ppt/slideMasters/slideMaster1.xml",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "/ppt/slideMasters/slideMaster1.xml",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/yxobm58z",
+      "id": "1",
+      "name": "judgmentkit-section-header-label",
+      "bbox": [
+        72,
+        48,
+        1136,
+        24
+      ],
+      "geometry": "rect",
+      "text": "WHAT TO CHECK",
+      "textPreview": "WHAT TO CHECK",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "WHAT TO CHECK"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "WHAT TO CHECK",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "tx2",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "WHAT TO CHECK",
+              "fontSize": 12,
+              "color": "tx2",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/5o7qpg3e",
+      "id": "2",
+      "name": "judgmentkit-section-header-title",
+      "bbox": [
+        72,
+        78,
+        1136,
+        96
+      ],
+      "geometry": "rect",
+      "text": "The review components should read as deck content, not UI chrome",
+      "textPreview": "The review components should read as deck content, not UI chrome",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "The review components should read as deck content, not UI"
+          },
+          {
+            "index": 2,
+            "text": "chrome"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "The review components should read as deck content, not UI chrome",
+          "resolvedTextStyle": {
+            "fontSize": 38,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "The review components should read as deck content, not UI chrome",
+              "fontSize": 38,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 3,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/g3ex0nux",
+      "id": "3",
+      "name": "judgmentkit-evidence-panel-surface",
+      "bbox": [
+        72,
+        196,
+        530,
+        220
+      ],
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/r65wjudg",
+      "id": "4",
+      "name": "judgmentkit-evidence-panel-title",
+      "bbox": [
+        90,
+        214,
+        494,
+        34
+      ],
+      "geometry": "rect",
+      "text": "Evidence checked",
+      "textPreview": "Evidence checked",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Evidence checked"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Evidence checked",
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Evidence checked",
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 5,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/ylc7u54z",
+      "id": "5",
+      "name": "judgmentkit-evidence-panel-body",
+      "bbox": [
+        90,
+        262,
+        494,
+        136
+      ],
+      "geometry": "rect",
+      "text": "Theme colors render without raw color literals.\nNamed text styles stay readable after export.\nFrames stay inside the slide after PowerPoint export.",
+      "textPreview": "Theme colors render without raw color literals. | Named text styles stay readable after export. | Frames stay inside the slide after Powe...",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Theme colors render without raw color literals."
+          },
+          {
+            "index": 2,
+            "text": "Named text styles stay readable after export."
+          },
+          {
+            "index": 3,
+            "text": "Frames stay inside the slide after PowerPoint export."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Theme colors render without raw color literals.",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Theme colors render without raw color literals.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        },
+        {
+          "index": 2,
+          "text": "Named text styles stay readable after export.",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Named text styles stay readable after export.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        },
+        {
+          "index": 3,
+          "text": "Frames stay inside the slide after PowerPoint export.",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Frames stay inside the slide after PowerPoint export.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 6,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/9cvixcze",
+      "id": "6",
+      "name": "judgmentkit-risk-callout-surface",
+      "bbox": [
+        632,
+        196,
+        576,
+        220
+      ],
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 7,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/gr2p8nqx",
+      "id": "7",
+      "name": "judgmentkit-risk-callout-title",
+      "bbox": [
+        650,
+        214,
+        540,
+        34
+      ],
+      "geometry": "rect",
+      "text": "Risk",
+      "textPreview": "Risk",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Risk"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Risk",
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Risk",
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 8,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/rytsvu9k",
+      "id": "8",
+      "name": "judgmentkit-risk-callout-body",
+      "bbox": [
+        650,
+        262,
+        540,
+        136
+      ],
+      "geometry": "rect",
+      "text": "Dense layouts can make status and small body text harder to scan.\nLong labels should be tested against exported previews.",
+      "textPreview": "Dense layouts can make status and small body text harder to scan. | Long labels should be tested against exported previews.",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Dense layouts can make status and small body text harder to"
+          },
+          {
+            "index": 2,
+            "text": "scan."
+          },
+          {
+            "index": 3,
+            "text": "Long labels should be tested against exported previews."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Dense layouts can make status and small body text harder to scan.",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Dense layouts can make status and small body text harder to scan.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        },
+        {
+          "index": 2,
+          "text": "Long labels should be tested against exported previews.",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Long labels should be tested against exported previews.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 9,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/yd0z6103",
+      "id": "9",
+      "name": "judgmentkit-handoff-receipt-surface",
+      "bbox": [
+        72,
+        442,
+        1136,
+        134
+      ],
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 10,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/wb2hwfyx",
+      "id": "10",
+      "name": "judgmentkit-handoff-receipt-title",
+      "bbox": [
+        90,
+        460,
+        1100,
+        34
+      ],
+      "geometry": "rect",
+      "text": "Handoff receipt",
+      "textPreview": "Handoff receipt",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Handoff receipt"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Handoff receipt",
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Handoff receipt",
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 11,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/lwval87e",
+      "id": "11",
+      "name": "judgmentkit-handoff-receipt-body",
+      "bbox": [
+        90,
+        508,
+        1100,
+        50
+      ],
+      "geometry": "rect",
+      "text": "Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.",
+      "textPreview": "Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    }
+  ],
+  "composeRuns": []
+}

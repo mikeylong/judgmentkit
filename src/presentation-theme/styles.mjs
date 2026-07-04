@@ -77,7 +77,7 @@ export const JUDGMENTKIT_TEXT_STYLE_CONFIGS = deepFreeze({
   [JUDGMENTKIT_STYLE_NAMES.bodySmall]: {
     description: "JudgmentKit small body",
     usageHint: "Dense supporting text, notes, and table copy.",
-    fontSize: 15,
+    fontSize: 16,
     bold: false,
     color: "tx1",
     alignment: "left",

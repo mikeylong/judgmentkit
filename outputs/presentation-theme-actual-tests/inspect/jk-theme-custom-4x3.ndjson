@@ -1,0 +1,21 @@
+{"kind":"layout","layoutId":"de1e4d21-7533-4c1d-8ab6-9cdf194289b6","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"386531c7-1af1-487d-84bc-8f831fe189fe","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/i5sac9","slide":1,"title":"CUSTOM SIZE CHECK","textShapes":14}
+{"kind":"textbox","id":"sh/s36hcrmh","slide":1,"name":"judgmentkit-title-block-eyebrow","text":"CUSTOM SIZE CHECK","textPreview":"CUSTOM SIZE CHECK","textChars":17,"textLines":1,"bbox":[72,56,880,28]}
+{"kind":"textbox","id":"sh/zidonyd0","slide":1,"name":"judgmentkit-title-block-title","text":"A 4:3 deck should not inherit widescreen component defaults","textPreview":"A 4:3 deck should not inherit widescreen component defaults","textChars":59,"textLines":1,"bbox":[72,98,880,98]}
+{"kind":"textbox","id":"sh/a1gvy90j","slide":1,"name":"judgmentkit-title-block-subtitle","text":"Default content frames and component widths should match the 1024 by 768 canvas.","textPreview":"Default content frames and component widths should match the 1024 by 768 canvas.","textChars":80,"textLines":1,"bbox":[72,216,680,100]}
+{"kind":"shape","id":"sh/hgn29gr2","slide":1,"name":"judgmentkit-metric-tile-surface","bbox":[72,344,278.67,164]}
+{"kind":"textbox","id":"sh/svu9knih","slide":1,"name":"judgmentkit-metric-tile-label","text":"Canvas","textPreview":"Canvas","textChars":6,"textLines":1,"bbox":[88,360,246.67,24]}
+{"kind":"textbox","id":"sh/za1gvy90","slide":1,"name":"judgmentkit-metric-tile-value","text":"4:3","textPreview":"4:3","textChars":3,"textLines":1,"bbox":[88,394,246.67,62]}
+{"kind":"textbox","id":"sh/ap4r65wj","slide":1,"name":"judgmentkit-metric-tile-detail","text":"1024 by 768","textPreview":"1024 by 768","textChars":11,"textLines":1,"bbox":[88,464,246.67,28]}
+{"kind":"shape","id":"sh/h4byhgn2","slide":1,"name":"judgmentkit-metric-tile-surface","bbox":[372.67,344,278.67,164]}
+{"kind":"textbox","id":"sh/sji5snel","slide":1,"name":"judgmentkit-metric-tile-label","text":"Content","textPreview":"Content","textChars":7,"textLines":1,"bbox":[388.67,360,246.67,24]}
+{"kind":"textbox","id":"sh/qh0fepkz","slide":1,"name":"judgmentkit-metric-tile-value","text":"880","textPreview":"880","textChars":3,"textLines":1,"bbox":[388.67,394,246.67,62]}
+{"kind":"textbox","id":"sh/j2t83itg","slide":1,"name":"judgmentkit-metric-tile-detail","text":"Scoped frame width","textPreview":"Scoped frame width","textChars":18,"textLines":1,"bbox":[388.67,464,246.67,28]}
+{"kind":"shape","id":"sh/8nqxs72x","slide":1,"name":"judgmentkit-metric-tile-surface","bbox":[673.33,344,278.67,164]}
+{"kind":"textbox","id":"sh/18jqh0fe","slide":1,"name":"judgmentkit-metric-tile-label","text":"Margin","textPreview":"Margin","textChars":6,"textLines":1,"bbox":[689.33,360,246.67,24]}
+{"kind":"textbox","id":"sh/q5o7qpg3","slide":1,"name":"judgmentkit-metric-tile-value","text":"72","textPreview":"72","textChars":2,"textLines":1,"bbox":[689.33,394,246.67,62]}
+{"kind":"textbox","id":"sh/jqh0fepk","slide":1,"name":"judgmentkit-metric-tile-detail","text":"Equal left and right","textPreview":"Equal left and right","textChars":20,"textLines":1,"bbox":[689.33,464,246.67,28]}
+{"kind":"shape","id":"sh/8bat47y1","slide":1,"name":"judgmentkit-evidence-panel-surface","bbox":[72,532,880,180]}
+{"kind":"textbox","id":"sh/1w7mp0bi","slide":1,"name":"judgmentkit-evidence-panel-title","text":"Expected visual result","textPreview":"Expected visual result","textChars":22,"textLines":1,"bbox":[90,550,844,34]}
+{"kind":"textbox","id":"sh/uxc3ylc7","slide":1,"name":"judgmentkit-evidence-panel-body","text":"The three tiles should align within the narrower canvas.\nThe evidence panel should end before the right edge.\nNo text should wrap into adjacent elements.","textPreview":"The three tiles should align within the narrower canvas. | The evidence panel should end before the right edge. | No text should wrap int...","textChars":153,"textLines":3,"bbox":[90,598,844,96]}

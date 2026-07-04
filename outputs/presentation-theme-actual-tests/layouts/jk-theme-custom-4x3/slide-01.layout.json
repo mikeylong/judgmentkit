@@ -1,0 +1,2392 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/i5sac9",
+    "id": "i5sac9",
+    "slide": 1,
+    "layoutId": "386531c7-1af1-487d-84bc-8f831fe189fe",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "de1e4d21-7533-4c1d-8ab6-9cdf194289b6",
+    "masterLayoutName": "Master",
+    "backgroundColor": "bg1",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1024,
+      "height": 768
+    }
+  },
+  "theme": {
+    "colorSchemeName": "JudgmentKit Light",
+    "colors": {
+      "accent1": "#245F73",
+      "accent2": "#23615F",
+      "accent3": "#2E6B48",
+      "accent4": "#8A5A16",
+      "accent5": "#8F342F",
+      "accent6": "#D7D3C8",
+      "bg1": "#F8F7F2",
+      "bg2": "#FFFFFF",
+      "tx1": "#171717",
+      "tx2": "#61615C",
+      "dk1": "#171717",
+      "dk2": "#61615C",
+      "lt1": "#F8F7F2",
+      "lt2": "#FFFFFF",
+      "hlink": "#245F73",
+      "folHlink": "#23615F"
+    },
+    "typefaces": [
+      "+mn-lt"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "386531c7-1af1-487d-84bc-8f831fe189fe",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "de1e4d21-7533-4c1d-8ab6-9cdf194289b6",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "de1e4d21-7533-4c1d-8ab6-9cdf194289b6",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/s36hcrmh",
+      "id": "1",
+      "name": "judgmentkit-title-block-eyebrow",
+      "bbox": [
+        72,
+        56,
+        880,
+        28
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.0.0"
+      },
+      "geometry": "rect",
+      "text": "CUSTOM SIZE CHECK",
+      "textPreview": "CUSTOM SIZE CHECK",
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "tx2",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "CUSTOM SIZE CHECK"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "CUSTOM SIZE CHECK",
+          "styleId": "JK.Label",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "tx2",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "CUSTOM SIZE CHECK",
+              "fontSize": 12,
+              "color": "tx2",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/zidonyd0",
+      "id": "2",
+      "name": "judgmentkit-title-block-title",
+      "bbox": [
+        72,
+        98,
+        880,
+        98
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.0.1"
+      },
+      "geometry": "rect",
+      "text": "A 4:3 deck should not inherit widescreen component defaults",
+      "textPreview": "A 4:3 deck should not inherit widescreen component defaults",
+      "resolvedFontSize": 52,
+      "resolvedTextStyle": {
+        "fontSize": 52,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "A 4:3 deck should not inherit"
+          },
+          {
+            "index": 2,
+            "text": "widescreen component defaults"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "A 4:3 deck should not inherit widescreen component defaults",
+          "styleId": "JK.Display",
+          "resolvedTextStyle": {
+            "fontSize": 52,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "A 4:3 deck should not inherit widescreen component defaults",
+              "fontSize": 52,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 3,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/a1gvy90j",
+      "id": "3",
+      "name": "judgmentkit-title-block-subtitle",
+      "bbox": [
+        72,
+        216,
+        680,
+        100
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.0.2"
+      },
+      "geometry": "rect",
+      "text": "Default content frames and component widths should match the 1024 by 768 canvas.",
+      "textPreview": "Default content frames and component widths should match the 1024 by 768 canvas.",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "+mn-lt",
+        "color": "tx2",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Default content frames and component widths should match"
+          },
+          {
+            "index": 2,
+            "text": "the 1024 by 768 canvas."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Default content frames and component widths should match the 1024 by 768 canvas.",
+          "styleId": "JK.Subtitle",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "tx2",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Default content frames and component widths should match the 1024 by 768 canvas.",
+              "fontSize": 24,
+              "color": "tx2",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/hgn29gr2",
+      "id": "4",
+      "name": "judgmentkit-metric-tile-surface",
+      "bbox": [
+        72,
+        344,
+        278.67,
+        164
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 5,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/svu9knih",
+      "id": "5",
+      "name": "judgmentkit-metric-tile-label",
+      "bbox": [
+        88,
+        360,
+        246.67,
+        24
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1.1"
+      },
+      "geometry": "rect",
+      "text": "Canvas",
+      "textPreview": "Canvas",
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "tx2",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Canvas"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Canvas",
+          "styleId": "JK.Label",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "tx2",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Canvas",
+              "fontSize": 12,
+              "color": "tx2",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 6,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/za1gvy90",
+      "id": "6",
+      "name": "judgmentkit-metric-tile-value",
+      "bbox": [
+        88,
+        394,
+        246.67,
+        62
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1.2"
+      },
+      "geometry": "rect",
+      "text": "4:3",
+      "textPreview": "4:3",
+      "resolvedFontSize": 42,
+      "resolvedTextStyle": {
+        "fontSize": 42,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "4:3"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "4:3",
+          "styleId": "JK.Numeric",
+          "resolvedTextStyle": {
+            "fontSize": 42,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "4:3",
+              "fontSize": 42,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 7,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/ap4r65wj",
+      "id": "7",
+      "name": "judgmentkit-metric-tile-detail",
+      "bbox": [
+        88,
+        464,
+        246.67,
+        28
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1.3"
+      },
+      "geometry": "rect",
+      "text": "1024 by 768",
+      "textPreview": "1024 by 768",
+      "resolvedFontSize": 16,
+      "resolvedTextStyle": {
+        "fontSize": 16,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "1024 by 768"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "1024 by 768",
+          "styleId": "JK.BodySmall",
+          "resolvedTextStyle": {
+            "fontSize": 16,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "1024 by 768",
+              "fontSize": 16,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 8,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/h4byhgn2",
+      "id": "8",
+      "name": "judgmentkit-metric-tile-surface",
+      "bbox": [
+        372.67,
+        344,
+        278.67,
+        164
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 9,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/sji5snel",
+      "id": "9",
+      "name": "judgmentkit-metric-tile-label",
+      "bbox": [
+        388.67,
+        360,
+        246.67,
+        24
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.1"
+      },
+      "geometry": "rect",
+      "text": "Content",
+      "textPreview": "Content",
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "tx2",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Content"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Content",
+          "styleId": "JK.Label",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "tx2",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Content",
+              "fontSize": 12,
+              "color": "tx2",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 10,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/qh0fepkz",
+      "id": "10",
+      "name": "judgmentkit-metric-tile-value",
+      "bbox": [
+        388.67,
+        394,
+        246.67,
+        62
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.2"
+      },
+      "geometry": "rect",
+      "text": "880",
+      "textPreview": "880",
+      "resolvedFontSize": 42,
+      "resolvedTextStyle": {
+        "fontSize": 42,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "880"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "880",
+          "styleId": "JK.Numeric",
+          "resolvedTextStyle": {
+            "fontSize": 42,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "880",
+              "fontSize": 42,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 11,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/j2t83itg",
+      "id": "11",
+      "name": "judgmentkit-metric-tile-detail",
+      "bbox": [
+        388.67,
+        464,
+        246.67,
+        28
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.3"
+      },
+      "geometry": "rect",
+      "text": "Scoped frame width",
+      "textPreview": "Scoped frame width",
+      "resolvedFontSize": 16,
+      "resolvedTextStyle": {
+        "fontSize": 16,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Scoped frame width"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Scoped frame width",
+          "styleId": "JK.BodySmall",
+          "resolvedTextStyle": {
+            "fontSize": 16,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Scoped frame width",
+              "fontSize": 16,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 12,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/8nqxs72x",
+      "id": "12",
+      "name": "judgmentkit-metric-tile-surface",
+      "bbox": [
+        673.33,
+        344,
+        278.67,
+        164
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.3.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 13,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/18jqh0fe",
+      "id": "13",
+      "name": "judgmentkit-metric-tile-label",
+      "bbox": [
+        689.33,
+        360,
+        246.67,
+        24
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.3.1"
+      },
+      "geometry": "rect",
+      "text": "Margin",
+      "textPreview": "Margin",
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "tx2",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Margin"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Margin",
+          "styleId": "JK.Label",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "tx2",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Margin",
+              "fontSize": 12,
+              "color": "tx2",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 14,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/q5o7qpg3",
+      "id": "14",
+      "name": "judgmentkit-metric-tile-value",
+      "bbox": [
+        689.33,
+        394,
+        246.67,
+        62
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.3.2"
+      },
+      "geometry": "rect",
+      "text": "72",
+      "textPreview": "72",
+      "resolvedFontSize": 42,
+      "resolvedTextStyle": {
+        "fontSize": 42,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "72"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "72",
+          "styleId": "JK.Numeric",
+          "resolvedTextStyle": {
+            "fontSize": 42,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "72",
+              "fontSize": 42,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 15,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/jqh0fepk",
+      "id": "15",
+      "name": "judgmentkit-metric-tile-detail",
+      "bbox": [
+        689.33,
+        464,
+        246.67,
+        28
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.3.3"
+      },
+      "geometry": "rect",
+      "text": "Equal left and right",
+      "textPreview": "Equal left and right",
+      "resolvedFontSize": 16,
+      "resolvedTextStyle": {
+        "fontSize": 16,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Equal left and right"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Equal left and right",
+          "styleId": "JK.BodySmall",
+          "resolvedTextStyle": {
+            "fontSize": 16,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Equal left and right",
+              "fontSize": 16,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 16,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/8bat47y1",
+      "id": "16",
+      "name": "judgmentkit-evidence-panel-surface",
+      "bbox": [
+        72,
+        532,
+        880,
+        180
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.4.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 17,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/1w7mp0bi",
+      "id": "17",
+      "name": "judgmentkit-evidence-panel-title",
+      "bbox": [
+        90,
+        550,
+        844,
+        34
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.4.1"
+      },
+      "geometry": "rect",
+      "text": "Expected visual result",
+      "textPreview": "Expected visual result",
+      "resolvedFontSize": 30,
+      "resolvedTextStyle": {
+        "fontSize": 30,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Expected visual result"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Expected visual result",
+          "styleId": "JK.SectionHeading",
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Expected visual result",
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 18,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/uxc3ylc7",
+      "id": "18",
+      "name": "judgmentkit-evidence-panel-body",
+      "bbox": [
+        90,
+        598,
+        844,
+        96
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.4.2"
+      },
+      "geometry": "rect",
+      "text": "The three tiles should align within the narrower canvas.\nThe evidence panel should end before the right edge.\nNo text should wrap into adjacent elements.",
+      "textPreview": "The three tiles should align within the narrower canvas. | The evidence panel should end before the right edge. | No text should wrap int...",
+      "resolvedFontSize": 18,
+      "resolvedTextStyle": {
+        "fontSize": 18,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text": "The three tiles should align within the narrower canvas."
+          },
+          {
+            "index": 2,
+            "text": "The evidence panel should end before the right edge."
+          },
+          {
+            "index": 3,
+            "text": "No text should wrap into adjacent elements."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "The three tiles should align within the narrower canvas.",
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "The three tiles should align within the narrower canvas.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        },
+        {
+          "index": 2,
+          "text": "The evidence panel should end before the right edge.",
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "The evidence panel should end before the right edge.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        },
+        {
+          "index": 3,
+          "text": "No text should wrap into adjacent elements.",
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "No text should wrap into adjacent elements.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    }
+  ],
+  "composeRuns": [
+    {
+      "index": 1,
+      "frame": {
+        "left": 0,
+        "top": 0,
+        "width": 1024,
+        "height": 768
+      },
+      "baseUnit": 8,
+      "root": {
+        "path": "0",
+        "kind": "layers",
+        "name": "four-by-three-layout",
+        "requestedSize": {
+          "width": {
+            "mode": "fill",
+            "value": 1
+          },
+          "height": {
+            "mode": "fill",
+            "value": 1
+          }
+        },
+        "intrinsicSize": {
+          "width": 952,
+          "height": 712
+        },
+        "frame": {
+          "left": 0,
+          "top": 0,
+          "width": 1024,
+          "height": 768
+        },
+        "children": [
+          {
+            "path": "0.0",
+            "kind": "layers",
+            "name": "judgmentkit-title-block",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 952,
+              "height": 316
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "children": [
+              {
+                "path": "0.0.0",
+                "kind": "text",
+                "name": "judgmentkit-title-block-eyebrow",
+                "position": {
+                  "left": 72,
+                  "top": 56
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 880
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 28
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 880,
+                  "height": 28
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 56,
+                  "width": 880,
+                  "height": 28
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 56,
+                  "width": 880,
+                  "height": 28
+                },
+                "children": [],
+                "text": "CUSTOM SIZE CHECK",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/s36hcrmh",
+                  "id": "1",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.0.1",
+                "kind": "text",
+                "name": "judgmentkit-title-block-title",
+                "position": {
+                  "left": 72,
+                  "top": 98
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 880
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 98
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 880,
+                  "height": 98
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 98,
+                  "width": 880,
+                  "height": 98
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 98,
+                  "width": 880,
+                  "height": 98
+                },
+                "children": [],
+                "text": "A 4:3 deck should not inherit widescreen component defaults",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/zidonyd0",
+                  "id": "2",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.0.2",
+                "kind": "text",
+                "name": "judgmentkit-title-block-subtitle",
+                "position": {
+                  "left": 72,
+                  "top": 216
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 680
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 100
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 680,
+                  "height": 100
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 216,
+                  "width": 680,
+                  "height": 100
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 216,
+                  "width": 680,
+                  "height": 100
+                },
+                "children": [],
+                "text": "Default content frames and component widths should match the 1024 by 768 canvas.",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/a1gvy90j",
+                  "id": "3",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "items": [
+              {
+                "path": "0.0.0",
+                "frame": {
+                  "left": 72,
+                  "top": 56,
+                  "width": 880,
+                  "height": 28
+                }
+              },
+              {
+                "path": "0.0.1",
+                "frame": {
+                  "left": 72,
+                  "top": 98,
+                  "width": 880,
+                  "height": 98
+                }
+              },
+              {
+                "path": "0.0.2",
+                "frame": {
+                  "left": 72,
+                  "top": 216,
+                  "width": 680,
+                  "height": 100
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.1",
+            "kind": "layers",
+            "name": "judgmentkit-metric-tile",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 350.67,
+              "height": 508
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "children": [
+              {
+                "path": "0.1.0",
+                "kind": "shape",
+                "name": "judgmentkit-metric-tile-surface",
+                "position": {
+                  "left": 72,
+                  "top": 344
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 278.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 164
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 278.67,
+                  "height": 164
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                },
+                "children": [],
+                "geometry": "rect",
+                "element": {
+                  "aid": "sh/hgn29gr2",
+                  "id": "4",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.1.1",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-label",
+                "position": {
+                  "left": 88,
+                  "top": 360
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 24
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 24
+                },
+                "frame": {
+                  "left": 88,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                },
+                "snappedFrame": {
+                  "left": 88,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                },
+                "children": [],
+                "text": "Canvas",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/svu9knih",
+                  "id": "5",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.1.2",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-value",
+                "position": {
+                  "left": 88,
+                  "top": 394
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 62
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 62
+                },
+                "frame": {
+                  "left": 88,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                },
+                "snappedFrame": {
+                  "left": 88,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                },
+                "children": [],
+                "text": "4:3",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/za1gvy90",
+                  "id": "6",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.1.3",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-detail",
+                "position": {
+                  "left": 88,
+                  "top": 464
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 28
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 28
+                },
+                "frame": {
+                  "left": 88,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                },
+                "snappedFrame": {
+                  "left": 88,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                },
+                "children": [],
+                "text": "1024 by 768",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/ap4r65wj",
+                  "id": "7",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "items": [
+              {
+                "path": "0.1.0",
+                "frame": {
+                  "left": 72,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                }
+              },
+              {
+                "path": "0.1.1",
+                "frame": {
+                  "left": 88,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                }
+              },
+              {
+                "path": "0.1.2",
+                "frame": {
+                  "left": 88,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                }
+              },
+              {
+                "path": "0.1.3",
+                "frame": {
+                  "left": 88,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.2",
+            "kind": "layers",
+            "name": "judgmentkit-metric-tile",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 651.33,
+              "height": 508
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "children": [
+              {
+                "path": "0.2.0",
+                "kind": "shape",
+                "name": "judgmentkit-metric-tile-surface",
+                "position": {
+                  "left": 372.67,
+                  "top": 344
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 278.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 164
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 278.67,
+                  "height": 164
+                },
+                "frame": {
+                  "left": 372.67,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                },
+                "snappedFrame": {
+                  "left": 372.67,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                },
+                "children": [],
+                "geometry": "rect",
+                "element": {
+                  "aid": "sh/h4byhgn2",
+                  "id": "8",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.2.1",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-label",
+                "position": {
+                  "left": 388.67,
+                  "top": 360
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 24
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 24
+                },
+                "frame": {
+                  "left": 388.67,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                },
+                "snappedFrame": {
+                  "left": 388.67,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                },
+                "children": [],
+                "text": "Content",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/sji5snel",
+                  "id": "9",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.2.2",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-value",
+                "position": {
+                  "left": 388.67,
+                  "top": 394
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 62
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 62
+                },
+                "frame": {
+                  "left": 388.67,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                },
+                "snappedFrame": {
+                  "left": 388.67,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                },
+                "children": [],
+                "text": "880",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/qh0fepkz",
+                  "id": "10",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.2.3",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-detail",
+                "position": {
+                  "left": 388.67,
+                  "top": 464
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 28
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 28
+                },
+                "frame": {
+                  "left": 388.67,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                },
+                "snappedFrame": {
+                  "left": 388.67,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                },
+                "children": [],
+                "text": "Scoped frame width",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/j2t83itg",
+                  "id": "11",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "items": [
+              {
+                "path": "0.2.0",
+                "frame": {
+                  "left": 372.67,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                }
+              },
+              {
+                "path": "0.2.1",
+                "frame": {
+                  "left": 388.67,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                }
+              },
+              {
+                "path": "0.2.2",
+                "frame": {
+                  "left": 388.67,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                }
+              },
+              {
+                "path": "0.2.3",
+                "frame": {
+                  "left": 388.67,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.3",
+            "kind": "layers",
+            "name": "judgmentkit-metric-tile",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 952,
+              "height": 508
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "children": [
+              {
+                "path": "0.3.0",
+                "kind": "shape",
+                "name": "judgmentkit-metric-tile-surface",
+                "position": {
+                  "left": 673.33,
+                  "top": 344
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 278.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 164
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 278.67,
+                  "height": 164
+                },
+                "frame": {
+                  "left": 673.33,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                },
+                "snappedFrame": {
+                  "left": 673.33,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                },
+                "children": [],
+                "geometry": "rect",
+                "element": {
+                  "aid": "sh/8nqxs72x",
+                  "id": "12",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.3.1",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-label",
+                "position": {
+                  "left": 689.33,
+                  "top": 360
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 24
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 24
+                },
+                "frame": {
+                  "left": 689.33,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                },
+                "snappedFrame": {
+                  "left": 689.33,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                },
+                "children": [],
+                "text": "Margin",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/18jqh0fe",
+                  "id": "13",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.3.2",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-value",
+                "position": {
+                  "left": 689.33,
+                  "top": 394
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 62
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 62
+                },
+                "frame": {
+                  "left": 689.33,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                },
+                "snappedFrame": {
+                  "left": 689.33,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                },
+                "children": [],
+                "text": "72",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/q5o7qpg3",
+                  "id": "14",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.3.3",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-detail",
+                "position": {
+                  "left": 689.33,
+                  "top": 464
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 28
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 28
+                },
+                "frame": {
+                  "left": 689.33,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                },
+                "snappedFrame": {
+                  "left": 689.33,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                },
+                "children": [],
+                "text": "Equal left and right",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/jqh0fepk",
+                  "id": "15",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "items": [
+              {
+                "path": "0.3.0",
+                "frame": {
+                  "left": 673.33,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                }
+              },
+              {
+                "path": "0.3.1",
+                "frame": {
+                  "left": 689.33,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                }
+              },
+              {
+                "path": "0.3.2",
+                "frame": {
+                  "left": 689.33,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                }
+              },
+              {
+                "path": "0.3.3",
+                "frame": {
+                  "left": 689.33,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.4",
+            "kind": "layers",
+            "name": "judgmentkit-evidence-panel",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 952,
+              "height": 712
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "children": [
+              {
+                "path": "0.4.0",
+                "kind": "shape",
+                "name": "judgmentkit-evidence-panel-surface",
+                "position": {
+                  "left": 72,
+                  "top": 532
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 880
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 180
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 880,
+                  "height": 180
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 532,
+                  "width": 880,
+                  "height": 180
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 532,
+                  "width": 880,
+                  "height": 180
+                },
+                "children": [],
+                "geometry": "rect",
+                "element": {
+                  "aid": "sh/8bat47y1",
+                  "id": "16",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.4.1",
+                "kind": "text",
+                "name": "judgmentkit-evidence-panel-title",
+                "position": {
+                  "left": 90,
+                  "top": 550
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 844
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 34
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 844,
+                  "height": 34
+                },
+                "frame": {
+                  "left": 90,
+                  "top": 550,
+                  "width": 844,
+                  "height": 34
+                },
+                "snappedFrame": {
+                  "left": 90,
+                  "top": 550,
+                  "width": 844,
+                  "height": 34
+                },
+                "children": [],
+                "text": "Expected visual result",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/1w7mp0bi",
+                  "id": "17",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.4.2",
+                "kind": "text",
+                "name": "judgmentkit-evidence-panel-body",
+                "position": {
+                  "left": 90,
+                  "top": 598
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 844
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 96
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 844,
+                  "height": 96
+                },
+                "frame": {
+                  "left": 90,
+                  "top": 598,
+                  "width": 844,
+                  "height": 96
+                },
+                "snappedFrame": {
+                  "left": 90,
+                  "top": 598,
+                  "width": 844,
+                  "height": 96
+                },
+                "children": [],
+                "text": "The three tiles should align within the narrower canvas.The evidence panel should end before the right edge.No text should wrap into adjacent elements.",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/uxc3ylc7",
+                  "id": "18",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "items": [
+              {
+                "path": "0.4.0",
+                "frame": {
+                  "left": 72,
+                  "top": 532,
+                  "width": 880,
+                  "height": 180
+                }
+              },
+              {
+                "path": "0.4.1",
+                "frame": {
+                  "left": 90,
+                  "top": 550,
+                  "width": 844,
+                  "height": 34
+                }
+              },
+              {
+                "path": "0.4.2",
+                "frame": {
+                  "left": 90,
+                  "top": 598,
+                  "width": 844,
+                  "height": 96
+                }
+              }
+            ]
+          }
+        ],
+        "padding": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "alignItems": "stretch",
+        "justifyItems": "stretch",
+        "contentFrame": {
+          "left": 0,
+          "top": 0,
+          "width": 1024,
+          "height": 768
+        },
+        "items": [
+          {
+            "path": "0.0",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            }
+          },
+          {
+            "path": "0.1",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            }
+          },
+          {
+            "path": "0.2",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            }
+          },
+          {
+            "path": "0.3",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            }
+          },
+          {
+            "path": "0.4",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

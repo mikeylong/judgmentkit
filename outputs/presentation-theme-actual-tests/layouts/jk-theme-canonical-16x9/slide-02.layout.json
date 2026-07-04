@@ -1,0 +1,1577 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/euf39x",
+    "id": "euf39x",
+    "slide": 2,
+    "layoutId": "7df98239-fe3a-4af2-8409-f82a0c66734e",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "1f7b05e0-4cc0-496a-a049-4c8091b458ca",
+    "masterLayoutName": "Master",
+    "backgroundColor": "bg1",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "JudgmentKit Light",
+    "colors": {
+      "accent1": "#245F73",
+      "accent2": "#23615F",
+      "accent3": "#2E6B48",
+      "accent4": "#8A5A16",
+      "accent5": "#8F342F",
+      "accent6": "#D7D3C8",
+      "bg1": "#F8F7F2",
+      "bg2": "#FFFFFF",
+      "tx1": "#171717",
+      "tx2": "#61615C",
+      "dk1": "#171717",
+      "dk2": "#61615C",
+      "lt1": "#F8F7F2",
+      "lt2": "#FFFFFF",
+      "hlink": "#245F73",
+      "folHlink": "#23615F"
+    },
+    "typefaces": [
+      "+mn-lt"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "7df98239-fe3a-4af2-8409-f82a0c66734e",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "1f7b05e0-4cc0-496a-a049-4c8091b458ca",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "1f7b05e0-4cc0-496a-a049-4c8091b458ca",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/a5gbq1or",
+      "id": "1",
+      "name": "judgmentkit-section-header-label",
+      "bbox": [
+        72,
+        48,
+        1136,
+        24
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.0.0"
+      },
+      "geometry": "rect",
+      "text": "WHAT TO CHECK",
+      "textPreview": "WHAT TO CHECK",
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "tx2",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "WHAT TO CHECK"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "WHAT TO CHECK",
+          "styleId": "JK.Label",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "tx2",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "WHAT TO CHECK",
+              "fontSize": 12,
+              "color": "tx2",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/lszqtcj6",
+      "id": "2",
+      "name": "judgmentkit-section-header-title",
+      "bbox": [
+        72,
+        78,
+        1136,
+        96
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.0.1"
+      },
+      "geometry": "rect",
+      "text": "The review components should read as deck content, not UI chrome",
+      "textPreview": "The review components should read as deck content, not UI chrome",
+      "resolvedFontSize": 38,
+      "resolvedTextStyle": {
+        "fontSize": 38,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "The review components should read as deck content, not UI"
+          },
+          {
+            "index": 2,
+            "text": "chrome"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "The review components should read as deck content, not UI chrome",
+          "styleId": "JK.SlideTitle",
+          "resolvedTextStyle": {
+            "fontSize": 38,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "The review components should read as deck content, not UI chrome",
+              "fontSize": 38,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 3,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/s72x4nap",
+      "id": "3",
+      "name": "judgmentkit-evidence-panel-surface",
+      "bbox": [
+        72,
+        196,
+        530,
+        220
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/3ylc7u54",
+      "id": "4",
+      "name": "judgmentkit-evidence-panel-title",
+      "bbox": [
+        90,
+        214,
+        494,
+        34
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1.1"
+      },
+      "geometry": "rect",
+      "text": "Evidence checked",
+      "textPreview": "Evidence checked",
+      "resolvedFontSize": 30,
+      "resolvedTextStyle": {
+        "fontSize": 30,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Evidence checked"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Evidence checked",
+          "styleId": "JK.SectionHeading",
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Evidence checked",
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 5,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/adsji5sn",
+      "id": "5",
+      "name": "judgmentkit-evidence-panel-body",
+      "bbox": [
+        90,
+        262,
+        494,
+        136
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1.2"
+      },
+      "geometry": "rect",
+      "text": "Theme colors render without raw color literals.\nNamed text styles stay readable after export.\nFrames stay inside the slide after PowerPoint export.",
+      "textPreview": "Theme colors render without raw color literals. | Named text styles stay readable after export. | Frames stay inside the slide after Powe...",
+      "resolvedFontSize": 18,
+      "resolvedTextStyle": {
+        "fontSize": 18,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Theme colors render without raw color literals."
+          },
+          {
+            "index": 2,
+            "text": "Named text styles stay readable after export."
+          },
+          {
+            "index": 3,
+            "text": "Frames stay inside the slide after PowerPoint export."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Theme colors render without raw color literals.",
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Theme colors render without raw color literals.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        },
+        {
+          "index": 2,
+          "text": "Named text styles stay readable after export.",
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Named text styles stay readable after export.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        },
+        {
+          "index": 3,
+          "text": "Frames stay inside the slide after PowerPoint export.",
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Frames stay inside the slide after PowerPoint export.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 6,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/h4byhgn2",
+      "id": "6",
+      "name": "judgmentkit-risk-callout-surface",
+      "bbox": [
+        632,
+        196,
+        576,
+        220
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 7,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/sji5snel",
+      "id": "7",
+      "name": "judgmentkit-risk-callout-title",
+      "bbox": [
+        650,
+        214,
+        540,
+        34
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.1"
+      },
+      "geometry": "rect",
+      "text": "Risk",
+      "textPreview": "Risk",
+      "resolvedFontSize": 30,
+      "resolvedTextStyle": {
+        "fontSize": 30,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Risk"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Risk",
+          "styleId": "JK.SectionHeading",
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Risk",
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 8,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/za1gvy90",
+      "id": "8",
+      "name": "judgmentkit-risk-callout-body",
+      "bbox": [
+        650,
+        262,
+        540,
+        136
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.2"
+      },
+      "geometry": "rect",
+      "text": "Dense layouts can make status and small body text harder to scan.\nLong labels should be tested against exported previews.",
+      "textPreview": "Dense layouts can make status and small body text harder to scan. | Long labels should be tested against exported previews.",
+      "resolvedFontSize": 18,
+      "resolvedTextStyle": {
+        "fontSize": 18,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Dense layouts can make status and small body text harder to"
+          },
+          {
+            "index": 2,
+            "text": "scan."
+          },
+          {
+            "index": 3,
+            "text": "Long labels should be tested against exported previews."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Dense layouts can make status and small body text harder to scan.",
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Dense layouts can make status and small body text harder to scan.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        },
+        {
+          "index": 2,
+          "text": "Long labels should be tested against exported previews.",
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Long labels should be tested against exported previews.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 9,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/ap4r65wj",
+      "id": "9",
+      "name": "judgmentkit-handoff-receipt-surface",
+      "bbox": [
+        72,
+        442,
+        1136,
+        134
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.3.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 10,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/0je9cvix",
+      "id": "10",
+      "name": "judgmentkit-handoff-receipt-title",
+      "bbox": [
+        90,
+        460,
+        1100,
+        34
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.3.1"
+      },
+      "geometry": "rect",
+      "text": "Handoff receipt",
+      "textPreview": "Handoff receipt",
+      "resolvedFontSize": 30,
+      "resolvedTextStyle": {
+        "fontSize": 30,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Handoff receipt"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Handoff receipt",
+          "styleId": "JK.SectionHeading",
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Handoff receipt",
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 11,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/t47y1kre",
+      "id": "11",
+      "name": "judgmentkit-handoff-receipt-body",
+      "bbox": [
+        90,
+        508,
+        1100,
+        50
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.3.2"
+      },
+      "geometry": "rect",
+      "text": "Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.",
+      "textPreview": "Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.",
+      "resolvedFontSize": 18,
+      "resolvedTextStyle": {
+        "fontSize": 18,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.",
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    }
+  ],
+  "composeRuns": [
+    {
+      "index": 1,
+      "frame": {
+        "left": 0,
+        "top": 0,
+        "width": 1280,
+        "height": 720
+      },
+      "baseUnit": 8,
+      "root": {
+        "path": "0",
+        "kind": "layers",
+        "name": "canonical-evidence",
+        "requestedSize": {
+          "width": {
+            "mode": "fill",
+            "value": 1
+          },
+          "height": {
+            "mode": "fill",
+            "value": 1
+          }
+        },
+        "intrinsicSize": {
+          "width": 1208,
+          "height": 576
+        },
+        "frame": {
+          "left": 0,
+          "top": 0,
+          "width": 1280,
+          "height": 720
+        },
+        "children": [
+          {
+            "path": "0.0",
+            "kind": "layers",
+            "name": "judgmentkit-section-header",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 1208,
+              "height": 174
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            },
+            "children": [
+              {
+                "path": "0.0.0",
+                "kind": "text",
+                "name": "judgmentkit-section-header-label",
+                "position": {
+                  "left": 72,
+                  "top": 48
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 1136
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 24
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 1136,
+                  "height": 24
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 48,
+                  "width": 1136,
+                  "height": 24
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 48,
+                  "width": 1136,
+                  "height": 24
+                },
+                "children": [],
+                "text": "WHAT TO CHECK",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/a5gbq1or",
+                  "id": "1",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.0.1",
+                "kind": "text",
+                "name": "judgmentkit-section-header-title",
+                "position": {
+                  "left": 72,
+                  "top": 78
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 1136
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 96
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 1136,
+                  "height": 96
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 78,
+                  "width": 1136,
+                  "height": 96
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 78,
+                  "width": 1136,
+                  "height": 96
+                },
+                "children": [],
+                "text": "The review components should read as deck content, not UI chrome",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/lszqtcj6",
+                  "id": "2",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            },
+            "items": [
+              {
+                "path": "0.0.0",
+                "frame": {
+                  "left": 72,
+                  "top": 48,
+                  "width": 1136,
+                  "height": 24
+                }
+              },
+              {
+                "path": "0.0.1",
+                "frame": {
+                  "left": 72,
+                  "top": 78,
+                  "width": 1136,
+                  "height": 96
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.1",
+            "kind": "layers",
+            "name": "judgmentkit-evidence-panel",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 602,
+              "height": 416
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            },
+            "children": [
+              {
+                "path": "0.1.0",
+                "kind": "shape",
+                "name": "judgmentkit-evidence-panel-surface",
+                "position": {
+                  "left": 72,
+                  "top": 196
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 530
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 220
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 530,
+                  "height": 220
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 196,
+                  "width": 530,
+                  "height": 220
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 196,
+                  "width": 530,
+                  "height": 220
+                },
+                "children": [],
+                "geometry": "rect",
+                "element": {
+                  "aid": "sh/s72x4nap",
+                  "id": "3",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.1.1",
+                "kind": "text",
+                "name": "judgmentkit-evidence-panel-title",
+                "position": {
+                  "left": 90,
+                  "top": 214
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 494
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 34
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 494,
+                  "height": 34
+                },
+                "frame": {
+                  "left": 90,
+                  "top": 214,
+                  "width": 494,
+                  "height": 34
+                },
+                "snappedFrame": {
+                  "left": 90,
+                  "top": 214,
+                  "width": 494,
+                  "height": 34
+                },
+                "children": [],
+                "text": "Evidence checked",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/3ylc7u54",
+                  "id": "4",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.1.2",
+                "kind": "text",
+                "name": "judgmentkit-evidence-panel-body",
+                "position": {
+                  "left": 90,
+                  "top": 262
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 494
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 136
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 494,
+                  "height": 136
+                },
+                "frame": {
+                  "left": 90,
+                  "top": 262,
+                  "width": 494,
+                  "height": 136
+                },
+                "snappedFrame": {
+                  "left": 90,
+                  "top": 262,
+                  "width": 494,
+                  "height": 136
+                },
+                "children": [],
+                "text": "Theme colors render without raw color literals.Named text styles stay readable after export.Frames stay inside the slide after PowerPoint export.",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/adsji5sn",
+                  "id": "5",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            },
+            "items": [
+              {
+                "path": "0.1.0",
+                "frame": {
+                  "left": 72,
+                  "top": 196,
+                  "width": 530,
+                  "height": 220
+                }
+              },
+              {
+                "path": "0.1.1",
+                "frame": {
+                  "left": 90,
+                  "top": 214,
+                  "width": 494,
+                  "height": 34
+                }
+              },
+              {
+                "path": "0.1.2",
+                "frame": {
+                  "left": 90,
+                  "top": 262,
+                  "width": 494,
+                  "height": 136
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.2",
+            "kind": "layers",
+            "name": "judgmentkit-risk-callout",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 1208,
+              "height": 416
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            },
+            "children": [
+              {
+                "path": "0.2.0",
+                "kind": "shape",
+                "name": "judgmentkit-risk-callout-surface",
+                "position": {
+                  "left": 632,
+                  "top": 196
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 576
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 220
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 576,
+                  "height": 220
+                },
+                "frame": {
+                  "left": 632,
+                  "top": 196,
+                  "width": 576,
+                  "height": 220
+                },
+                "snappedFrame": {
+                  "left": 632,
+                  "top": 196,
+                  "width": 576,
+                  "height": 220
+                },
+                "children": [],
+                "geometry": "rect",
+                "element": {
+                  "aid": "sh/h4byhgn2",
+                  "id": "6",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.2.1",
+                "kind": "text",
+                "name": "judgmentkit-risk-callout-title",
+                "position": {
+                  "left": 650,
+                  "top": 214
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 540
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 34
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 540,
+                  "height": 34
+                },
+                "frame": {
+                  "left": 650,
+                  "top": 214,
+                  "width": 540,
+                  "height": 34
+                },
+                "snappedFrame": {
+                  "left": 650,
+                  "top": 214,
+                  "width": 540,
+                  "height": 34
+                },
+                "children": [],
+                "text": "Risk",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/sji5snel",
+                  "id": "7",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.2.2",
+                "kind": "text",
+                "name": "judgmentkit-risk-callout-body",
+                "position": {
+                  "left": 650,
+                  "top": 262
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 540
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 136
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 540,
+                  "height": 136
+                },
+                "frame": {
+                  "left": 650,
+                  "top": 262,
+                  "width": 540,
+                  "height": 136
+                },
+                "snappedFrame": {
+                  "left": 650,
+                  "top": 262,
+                  "width": 540,
+                  "height": 136
+                },
+                "children": [],
+                "text": "Dense layouts can make status and small body text harder to scan.Long labels should be tested against exported previews.",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/za1gvy90",
+                  "id": "8",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            },
+            "items": [
+              {
+                "path": "0.2.0",
+                "frame": {
+                  "left": 632,
+                  "top": 196,
+                  "width": 576,
+                  "height": 220
+                }
+              },
+              {
+                "path": "0.2.1",
+                "frame": {
+                  "left": 650,
+                  "top": 214,
+                  "width": 540,
+                  "height": 34
+                }
+              },
+              {
+                "path": "0.2.2",
+                "frame": {
+                  "left": 650,
+                  "top": 262,
+                  "width": 540,
+                  "height": 136
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.3",
+            "kind": "layers",
+            "name": "judgmentkit-handoff-receipt",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 1208,
+              "height": 576
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            },
+            "children": [
+              {
+                "path": "0.3.0",
+                "kind": "shape",
+                "name": "judgmentkit-handoff-receipt-surface",
+                "position": {
+                  "left": 72,
+                  "top": 442
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 1136
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 134
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 1136,
+                  "height": 134
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 442,
+                  "width": 1136,
+                  "height": 134
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 442,
+                  "width": 1136,
+                  "height": 134
+                },
+                "children": [],
+                "geometry": "rect",
+                "element": {
+                  "aid": "sh/ap4r65wj",
+                  "id": "9",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.3.1",
+                "kind": "text",
+                "name": "judgmentkit-handoff-receipt-title",
+                "position": {
+                  "left": 90,
+                  "top": 460
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 1100
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 34
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 1100,
+                  "height": 34
+                },
+                "frame": {
+                  "left": 90,
+                  "top": 460,
+                  "width": 1100,
+                  "height": 34
+                },
+                "snappedFrame": {
+                  "left": 90,
+                  "top": 460,
+                  "width": 1100,
+                  "height": 34
+                },
+                "children": [],
+                "text": "Handoff receipt",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/0je9cvix",
+                  "id": "10",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.3.2",
+                "kind": "text",
+                "name": "judgmentkit-handoff-receipt-body",
+                "position": {
+                  "left": 90,
+                  "top": 508
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 1100
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 50
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 1100,
+                  "height": 50
+                },
+                "frame": {
+                  "left": 90,
+                  "top": 508,
+                  "width": 1100,
+                  "height": 50
+                },
+                "snappedFrame": {
+                  "left": 90,
+                  "top": 508,
+                  "width": 1100,
+                  "height": 50
+                },
+                "children": [],
+                "text": "Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.",
+                "transform": "none",
+                "element": {
+                  "aid": "sh/t47y1kre",
+                  "id": "11",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            },
+            "items": [
+              {
+                "path": "0.3.0",
+                "frame": {
+                  "left": 72,
+                  "top": 442,
+                  "width": 1136,
+                  "height": 134
+                }
+              },
+              {
+                "path": "0.3.1",
+                "frame": {
+                  "left": 90,
+                  "top": 460,
+                  "width": 1100,
+                  "height": 34
+                }
+              },
+              {
+                "path": "0.3.2",
+                "frame": {
+                  "left": 90,
+                  "top": 508,
+                  "width": 1100,
+                  "height": 50
+                }
+              }
+            ]
+          }
+        ],
+        "padding": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "alignItems": "stretch",
+        "justifyItems": "stretch",
+        "contentFrame": {
+          "left": 0,
+          "top": 0,
+          "width": 1280,
+          "height": 720
+        },
+        "items": [
+          {
+            "path": "0.0",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            }
+          },
+          {
+            "path": "0.1",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            }
+          },
+          {
+            "path": "0.2",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            }
+          },
+          {
+            "path": "0.3",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

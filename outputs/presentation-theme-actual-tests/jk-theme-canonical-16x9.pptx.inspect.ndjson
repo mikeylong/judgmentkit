@@ -1,0 +1,49 @@
+{"kind":"deck","id":"pr/m1u70p","name":"Deck"}
+{"kind":"layout","layoutId":"1f7b05e0-4cc0-496a-a049-4c8091b458ca","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"7df98239-fe3a-4af2-8409-f82a0c66734e","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/k6coct","slide":1,"title":"PRESENTATION THEME ACTUAL TEST","textShapes":13}
+{"kind":"textbox","id":"sh/2hwfyxob","slide":1,"name":"judgmentkit-title-block-eyebrow","text":"PRESENTATION THEME ACTUAL TEST","textPreview":"PRESENTATION THEME ACTUAL TEST","textChars":30,"textLines":1,"bbox":[72,56,1136,28]}
+{"kind":"textbox","id":"sh/94fu18jq","slide":1,"name":"judgmentkit-title-block-title","text":"The theme adapter gives decks a usable review structure","textPreview":"The theme adapter gives decks a usable review structure","textChars":55,"textLines":1,"bbox":[72,98,1136,150]}
+{"kind":"textbox","id":"sh/kjm1cfa9","slide":1,"name":"judgmentkit-title-block-subtitle","text":"Fixture deck for checking rendered size, component spacing, theme slots, and named text styles.","textPreview":"Fixture deck for checking rendered size, component spacing, theme slots, and named text styles.","textChars":95,"textLines":1,"bbox":[72,268,680,100]}
+{"kind":"shape","id":"sh/ra5gbq1o","slide":1,"name":"judgmentkit-status-pill-surface","bbox":[1076,56,132,34]}
+{"kind":"textbox","id":"sh/2p8nqxs7","slide":1,"name":"judgmentkit-status-pill-label","text":"Ready","textPreview":"Ready","textChars":5,"textLines":1,"bbox":[1088,63,108,21]}
+{"kind":"shape","id":"sh/9gr2p8nq","slide":1,"name":"canonical-metric-1-surface","bbox":[72,486,300,164]}
+{"kind":"textbox","id":"sh/gvy90je9","slide":1,"name":"canonical-metric-1-label","text":"Layouts","textPreview":"Layouts","textChars":7,"textLines":1,"bbox":[88,502,268,24]}
+{"kind":"textbox","id":"sh/re1w7mp0","slide":1,"name":"canonical-metric-1-value","text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[88,536,268,62]}
+{"kind":"textbox","id":"sh/2t83itgf","slide":1,"name":"canonical-metric-1-detail","text":"Cover, evidence, and chart slides","textPreview":"Cover, evidence, and chart slides","textChars":33,"textLines":1,"bbox":[88,606,268,28]}
+{"kind":"shape","id":"sh/sneloj2t","slide":1,"name":"canonical-metric-2-surface","bbox":[398,486,300,164]}
+{"kind":"textbox","id":"sh/l87ed8ba","slide":1,"name":"canonical-metric-2-label","text":"Theme slots","textPreview":"Theme slots","textChars":11,"textLines":1,"bbox":[414,502,268,24]}
+{"kind":"textbox","id":"sh/ahoza1gv","slide":1,"name":"canonical-metric-2-value","text":"16","textPreview":"16","textChars":2,"textLines":1,"bbox":[414,536,268,62]}
+{"kind":"textbox","id":"sh/32lszqtc","slide":1,"name":"canonical-metric-2-detail","text":"PowerPoint color slots available","textPreview":"PowerPoint color slots available","textChars":32,"textLines":1,"bbox":[414,606,268,28]}
+{"kind":"shape","id":"sh/szqtcj6t","slide":1,"name":"canonical-metric-3-surface","bbox":[724,486,300,164]}
+{"kind":"textbox","id":"sh/lkjm1cfa","slide":1,"name":"canonical-metric-3-label","text":"Styles","textPreview":"Styles","textChars":6,"textLines":1,"bbox":[740,502,268,24]}
+{"kind":"textbox","id":"sh/at47y1kr","slide":1,"name":"canonical-metric-3-value","text":"14","textPreview":"14","textChars":2,"textLines":1,"bbox":[740,536,268,62]}
+{"kind":"textbox","id":"sh/3ex0nuxc","slide":1,"name":"canonical-metric-3-detail","text":"Named text styles registered","textPreview":"Named text styles registered","textChars":28,"textLines":1,"bbox":[740,606,268,28]}
+{"kind":"notes","id":"nt/k6coct","slide":1,"text":""}
+{"kind":"slide","id":"sl/euf39x","slide":2,"title":"WHAT TO CHECK","textShapes":8}
+{"kind":"textbox","id":"sh/a5gbq1or","slide":2,"name":"judgmentkit-section-header-label","text":"WHAT TO CHECK","textPreview":"WHAT TO CHECK","textChars":13,"textLines":1,"bbox":[72,48,1136,24]}
+{"kind":"textbox","id":"sh/lszqtcj6","slide":2,"name":"judgmentkit-section-header-title","text":"The review components should read as deck content, not UI chrome","textPreview":"The review components should read as deck content, not UI chrome","textChars":64,"textLines":1,"bbox":[72,78,1136,96]}
+{"kind":"shape","id":"sh/s72x4nap","slide":2,"name":"judgmentkit-evidence-panel-surface","bbox":[72,196,530,220]}
+{"kind":"textbox","id":"sh/3ylc7u54","slide":2,"name":"judgmentkit-evidence-panel-title","text":"Evidence checked","textPreview":"Evidence checked","textChars":16,"textLines":1,"bbox":[90,214,494,34]}
+{"kind":"textbox","id":"sh/adsji5sn","slide":2,"name":"judgmentkit-evidence-panel-body","text":"Theme colors render without raw color literals.\nNamed text styles stay readable after export.\nFrames stay inside the slide after PowerPoint export.","textPreview":"Theme colors render without raw color literals. | Named text styles stay readable after export. | Frames stay inside the slide after Powe...","textChars":147,"textLines":3,"bbox":[90,262,494,136]}
+{"kind":"shape","id":"sh/h4byhgn2","slide":2,"name":"judgmentkit-risk-callout-surface","bbox":[632,196,576,220]}
+{"kind":"textbox","id":"sh/sji5snel","slide":2,"name":"judgmentkit-risk-callout-title","text":"Risk","textPreview":"Risk","textChars":4,"textLines":1,"bbox":[650,214,540,34]}
+{"kind":"textbox","id":"sh/za1gvy90","slide":2,"name":"judgmentkit-risk-callout-body","text":"Dense layouts can make status and small body text harder to scan.\nLong labels should be tested against exported previews.","textPreview":"Dense layouts can make status and small body text harder to scan. | Long labels should be tested against exported previews.","textChars":121,"textLines":2,"bbox":[650,262,540,136]}
+{"kind":"shape","id":"sh/ap4r65wj","slide":2,"name":"judgmentkit-handoff-receipt-surface","bbox":[72,442,1136,134]}
+{"kind":"textbox","id":"sh/0je9cvix","slide":2,"name":"judgmentkit-handoff-receipt-title","text":"Handoff receipt","textPreview":"Handoff receipt","textChars":15,"textLines":1,"bbox":[90,460,1100,34]}
+{"kind":"textbox","id":"sh/t47y1kre","slide":2,"name":"judgmentkit-handoff-receipt-body","text":"Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.","textPreview":"Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.","textChars":99,"textLines":1,"bbox":[90,508,1100,50]}
+{"kind":"notes","id":"nt/euf39x","slide":2,"text":""}
+{"kind":"slide","id":"sl/3uouy8","slide":3,"title":"CHART FRAME","textShapes":2}
+{"kind":"textbox","id":"sh/l87ed8ba","slide":3,"name":"judgmentkit-section-header-label","text":"CHART FRAME","textPreview":"CHART FRAME","textChars":11,"textLines":1,"bbox":[72,48,1136,24]}
+{"kind":"textbox","id":"sh/ahoza1gv","slide":3,"name":"judgmentkit-section-header-title","text":"A native chart should sit cleanly inside an adapter media frame","textPreview":"A native chart should sit cleanly inside an adapter media frame","textChars":63,"textLines":1,"bbox":[72,78,1136,96]}
+{"kind":"shape","id":"sh/32lszqtc","slide":3,"name":"judgmentkit-media-frame","bbox":[72,182,1136,382]}
+{"kind":"chart","id":"ch/4zidonyd","slide":3,"name":"","chartType":"bar","bbox":[128,240,1024,270]}
+{"kind":"notes","id":"nt/3uouy8","slide":3,"text":""}
+{"kind":"slide","id":"sl/cb9lvh","slide":4,"title":"EVIDENCE TABLE","textShapes":4}
+{"kind":"textbox","id":"sh/knih4byh","slide":4,"name":"judgmentkit-section-header-label","text":"EVIDENCE TABLE","textPreview":"EVIDENCE TABLE","textChars":14,"textLines":1,"bbox":[72,48,1136,24]}
+{"kind":"textbox","id":"sh/v6psfil0","slide":4,"name":"judgmentkit-section-header-title","text":"Native tables should export through the adapter without helper errors","textPreview":"Native tables should export through the adapter without helper errors","textChars":69,"textLines":1,"bbox":[72,78,1136,96]}
+{"kind":"shape","id":"sh/d0z61032","slide":4,"name":"judgmentkit-handoff-receipt-surface","bbox":[72,508,1136,124]}
+{"kind":"textbox","id":"sh/kf6dcbul","slide":4,"name":"judgmentkit-handoff-receipt-title","text":"Table outcome","textPreview":"Table outcome","textChars":13,"textLines":1,"bbox":[90,526,1100,34]}
+{"kind":"textbox","id":"sh/vu9knih4","slide":4,"name":"judgmentkit-handoff-receipt-body","text":"This slide exercises the real artifact-tool table helper and exported PPTX import path.","textPreview":"This slide exercises the real artifact-tool table helper and exported PPTX import path.","textChars":87,"textLines":1,"bbox":[90,574,1100,40]}
+{"kind":"table","id":"tb/7mp0bi9s","slide":4,"name":"judgmentkit-evidence-table","rows":4,"cols":3,"preview":"Check | Expected | Observed","bbox":[72,182,1136,310]}
+{"kind":"notes","id":"nt/cb9lvh","slide":4,"text":""}

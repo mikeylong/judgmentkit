@@ -1,0 +1,667 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/val87ed8",
+    "id": "val87ed8",
+    "slide": 4,
+    "layoutId": "/ppt/slideLayouts/slideLayout1.xml",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "/ppt/slideMasters/slideMaster1.xml",
+    "masterLayoutName": "Master",
+    "backgroundColor": "bg1",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "JudgmentKit Light",
+    "colors": {
+      "accent1": "#245F73",
+      "accent2": "#23615F",
+      "accent3": "#2E6B48",
+      "accent4": "#8A5A16",
+      "accent5": "#8F342F",
+      "accent6": "#D7D3C8",
+      "dk1": "#171717",
+      "lt1": "#F8F7F2",
+      "dk2": "#61615C",
+      "lt2": "#FFFFFF",
+      "hlink": "#245F73",
+      "folHlink": "#23615F"
+    },
+    "fontScheme": {
+      "name": "Office",
+      "majorFont": {
+        "latinTypeface": "Calibri Light",
+        "eastAsianTypeface": "Calibri Light",
+        "complexScriptTypeface": "Calibri Light"
+      },
+      "minorFont": {
+        "latinTypeface": "Calibri",
+        "eastAsianTypeface": "Calibri",
+        "complexScriptTypeface": "Calibri"
+      }
+    },
+    "typefaces": [
+      "Calibri",
+      "Calibri Light"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "/ppt/slideLayouts/slideLayout1.xml",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "/ppt/slideMasters/slideMaster1.xml",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "/ppt/slideMasters/slideMaster1.xml",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/1gvy90je",
+      "id": "1",
+      "name": "judgmentkit-section-header-label",
+      "bbox": [
+        72,
+        48,
+        1136,
+        24
+      ],
+      "geometry": "rect",
+      "text": "EVIDENCE TABLE",
+      "textPreview": "EVIDENCE TABLE",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "EVIDENCE TABLE"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "EVIDENCE TABLE",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "tx2",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "EVIDENCE TABLE",
+              "fontSize": 12,
+              "color": "tx2",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/qtcj6tov",
+      "id": "2",
+      "name": "judgmentkit-section-header-title",
+      "bbox": [
+        72,
+        78,
+        1136,
+        96
+      ],
+      "geometry": "rect",
+      "text": "Native tables should export through the adapter without helper errors",
+      "textPreview": "Native tables should export through the adapter without helper errors",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Native tables should export through the adapter without helper"
+          },
+          {
+            "index": 2,
+            "text": "errors"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Native tables should export through the adapter without helper errors",
+          "resolvedTextStyle": {
+            "fontSize": 38,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Native tables should export through the adapter without helper errors",
+              "fontSize": 38,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 3,
+      "kind": "table",
+      "scope": "slide",
+      "aid": "tb/qd4vmtwr",
+      "id": "7",
+      "name": "judgmentkit-evidence-table",
+      "bbox": [
+        72,
+        182,
+        1136,
+        310
+      ],
+      "text": "Check | Expected | Observed\nTheme aliases | bg1/lt1 and bg2/lt2 match | Matched\nFrame export | Elements keep absolute positions | Matched\nReadability | Dense copy stays inside panels | Matched",
+      "textPreview": "Check | Expected | Observed | Theme aliases | bg1/lt1 and bg2/lt2 match | Matched | Frame export | Elements keep absolute positions | Mat...",
+      "rows": 4,
+      "cols": 3,
+      "cells": [
+        {
+          "index": 1,
+          "row": 1,
+          "column": 1,
+          "bbox": [
+            72,
+            182,
+            378.67,
+            77.5
+          ],
+          "text": "Check",
+          "textPreview": "Check",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Check",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Check"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "row": 1,
+          "column": 2,
+          "bbox": [
+            450.67,
+            182,
+            378.67,
+            77.5
+          ],
+          "text": "Expected",
+          "textPreview": "Expected",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Expected",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Expected"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "row": 1,
+          "column": 3,
+          "bbox": [
+            829.33,
+            182,
+            378.67,
+            77.5
+          ],
+          "text": "Observed",
+          "textPreview": "Observed",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Observed",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Observed"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "row": 2,
+          "column": 1,
+          "bbox": [
+            72,
+            259.5,
+            378.67,
+            77.5
+          ],
+          "text": "Theme aliases",
+          "textPreview": "Theme aliases",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Theme aliases",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Theme aliases"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "row": 2,
+          "column": 2,
+          "bbox": [
+            450.67,
+            259.5,
+            378.67,
+            77.5
+          ],
+          "text": "bg1/lt1 and bg2/lt2 match",
+          "textPreview": "bg1/lt1 and bg2/lt2 match",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "bg1/lt1 and bg2/lt2 match",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "bg1/lt1 and bg2/lt2 match"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "row": 2,
+          "column": 3,
+          "bbox": [
+            829.33,
+            259.5,
+            378.67,
+            77.5
+          ],
+          "text": "Matched",
+          "textPreview": "Matched",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Matched",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Matched"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 7,
+          "row": 3,
+          "column": 1,
+          "bbox": [
+            72,
+            337,
+            378.67,
+            77.5
+          ],
+          "text": "Frame export",
+          "textPreview": "Frame export",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Frame export",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Frame export"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 8,
+          "row": 3,
+          "column": 2,
+          "bbox": [
+            450.67,
+            337,
+            378.67,
+            77.5
+          ],
+          "text": "Elements keep absolute positions",
+          "textPreview": "Elements keep absolute positions",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Elements keep absolute positions",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Elements keep absolute positions"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 9,
+          "row": 3,
+          "column": 3,
+          "bbox": [
+            829.33,
+            337,
+            378.67,
+            77.5
+          ],
+          "text": "Matched",
+          "textPreview": "Matched",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Matched",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Matched"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 10,
+          "row": 4,
+          "column": 1,
+          "bbox": [
+            72,
+            414.5,
+            378.67,
+            77.5
+          ],
+          "text": "Readability",
+          "textPreview": "Readability",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Readability",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Readability"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 11,
+          "row": 4,
+          "column": 2,
+          "bbox": [
+            450.67,
+            414.5,
+            378.67,
+            77.5
+          ],
+          "text": "Dense copy stays inside panels",
+          "textPreview": "Dense copy stays inside panels",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Dense copy stays inside panels",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Dense copy stays inside panels"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 12,
+          "row": 4,
+          "column": 3,
+          "bbox": [
+            829.33,
+            414.5,
+            378.67,
+            77.5
+          ],
+          "text": "Matched",
+          "textPreview": "Matched",
+          "paragraphs": [
+            {
+              "index": 1,
+              "text": "Matched",
+              "runs": [
+                {
+                  "index": 1,
+                  "text": "Matched"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/87ed8bat",
+      "id": "4",
+      "name": "judgmentkit-handoff-receipt-surface",
+      "bbox": [
+        72,
+        508,
+        1136,
+        124
+      ],
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 5,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/xs72x4na",
+      "id": "5",
+      "name": "judgmentkit-handoff-receipt-title",
+      "bbox": [
+        90,
+        526,
+        1100,
+        34
+      ],
+      "geometry": "rect",
+      "text": "Table outcome",
+      "textPreview": "Table outcome",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Table outcome"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Table outcome",
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Table outcome",
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 6,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/q1orytsv",
+      "id": "6",
+      "name": "judgmentkit-handoff-receipt-body",
+      "bbox": [
+        90,
+        574,
+        1100,
+        40
+      ],
+      "geometry": "rect",
+      "text": "This slide exercises the real artifact-tool table helper and exported PPTX import path.",
+      "textPreview": "This slide exercises the real artifact-tool table helper and exported PPTX import path.",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "This slide exercises the real artifact-tool table helper and exported PPTX import path."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "This slide exercises the real artifact-tool table helper and exported PPTX import path.",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "This slide exercises the real artifact-tool table helper and exported PPTX import path.",
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    }
+  ],
+  "composeRuns": []
+}
