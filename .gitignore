@@ -8,3 +8,4 @@ site/dist/
 .playwright-cli/
 .worktrees/
 output/
+packages/codex-plugin/dist/
