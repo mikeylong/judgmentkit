@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "judgmentkit": {
+      "type": "http",
+      "url": "https://judgmentkit.ai/mcp"
+    }
+  }
+}

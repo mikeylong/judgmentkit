@@ -1,4 +1,5 @@
 node_modules/
+__pycache__/
 .DS_Store
 npm-debug.log*
 coverage/
@@ -8,5 +9,14 @@ site/dist/
 .playwright-cli/
 .worktrees/
 output/
+packages/codex-plugin/dist/
 .presentation-theme-actual-check/
 outputs/presentation-theme-actual-tests/.failures/
+outputs/presentation-theme-template-library-visual-qa/
+outputs/codex-grid-template-library-80/
+outputs/codex-grid-template-library-80.pptx
+outputs/codex-grid-template-library-80.pptx.inspect.ndjson
+outputs/judgmentkit-template-library-80/
+outputs/judgmentkit-template-library-80.pptx
+outputs/judgmentkit-template-library-80.pptx.inspect.ndjson
+outputs/codex-grid-vs-judgmentkit-template-library-80/

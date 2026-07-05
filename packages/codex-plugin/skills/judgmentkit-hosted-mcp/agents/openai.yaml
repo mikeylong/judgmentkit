@@ -1,0 +1,13 @@
+interface:
+  display_name: "JudgmentKit Hosted MCP"
+  short_description: "UI workflow review and hard design-system gates"
+  default_prompt: "Use $judgmentkit-hosted-mcp to review this UI brief for workflow fit, surface choice, disclosure boundaries, and the hard design-system acceptance gate. If the generated UI does not pass the active design system, treat it as a failed candidate and send it back through JudgmentKit for hard repair constraints."
+dependencies:
+  tools:
+    - type: "mcp"
+      value: "judgmentkit"
+      description: "Hosted JudgmentKit MCP server"
+      transport: "streamable_http"
+      url: "https://judgmentkit.ai/mcp"
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,39 @@
+{
+  "name": "judgmentkit",
+  "version": "0.1.0",
+  "description": "AI UI review and handoff guidance that helps Codex preserve design intent, catch workflow mismatches, and enforce hard design-system acceptance gates.",
+  "author": {
+    "name": "JudgmentKit",
+    "url": "https://judgmentkit.ai"
+  },
+  "homepage": "https://judgmentkit.ai",
+  "repository": "https://github.com/mikeylong/judgmentkit",
+  "keywords": [
+    "ai-ui-review",
+    "design-handoff",
+    "design-system",
+    "figma",
+    "workflow-fit",
+    "ui-critique"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "JudgmentKit",
+    "shortDescription": "AI UI review with hard design-system gates",
+    "longDescription": "JudgmentKit helps product designers and design teams review AI-generated UI before screens are planned, built, or accepted. It turns product briefs, Figma or Adobe handoffs, design-system guidance, and generated screens into clear decisions, states, terminology, workflow checks, implementation evidence, and hard design-system acceptance gates. If generated UI does not pass the active design system, it is a failed candidate, not an artifact. The hosted endpoint is for allowed or sanitized work; use a local or self-hosted JudgmentKit path for confidential briefs, unreleased designs, proprietary design-system details, source code, or customer data.",
+    "developerName": "JudgmentKit",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read"
+    ],
+    "websiteURL": "https://judgmentkit.ai",
+    "brandColor": "#255C99",
+    "defaultPrompt": [
+      "Turn this product brief into UI decisions and review criteria.",
+      "Review this sanitized Figma or generated screen for workflow fit and disclosure issues.",
+      "Create hard design-system acceptance criteria for this interface."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

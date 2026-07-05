@@ -135,7 +135,7 @@ function resolveKitSlideSize(options = {}, presentation) {
 }
 
 export function createJudgmentKitComponentFactories(options = {}) {
-  const helpers = options.helpers ?? options;
+  const helpers = options.helpers ?? options.artifactTool ?? options;
   const kitLayout =
     (isLayoutApi(options.layout) ? options.layout : undefined) ??
     layout.createJudgmentKitLayout({
@@ -207,10 +207,11 @@ export function createJudgmentKitComponentFactories(options = {}) {
       const text = requireHelper(helpers, "text");
       const headerFrame = kitLayout.normalizeFrame(frame);
       const titleTop = headerFrame.y + (label ? 30 : 0);
+      const estimatedTitleHeight = estimateLineCount(title, headerFrame.width, 38) * 48;
+      const availableTitleHeight = Math.max(0, headerFrame.y + headerFrame.height - titleTop);
       const titleHeight = Math.max(
-        58,
-        estimateLineCount(title, headerFrame.width, 38) * 48,
-        headerFrame.y + headerFrame.height - titleTop,
+        Math.min(58, availableTitleHeight),
+        Math.min(estimatedTitleHeight, availableTitleHeight),
       );
 
       return layers({ name, width: "fill", height: "fill" }, [
@@ -450,7 +451,7 @@ export function createJudgmentKitDeckKit(presentationOrOptions, options = {}) {
     styleNames: JUDGMENTKIT_STYLE_NAMES,
     components: createJudgmentKitComponentFactories({
       ...normalizedOptions,
-      helpers: normalizedOptions.helpers ?? normalizedOptions,
+      helpers: normalizedOptions.helpers ?? normalizedOptions.artifactTool ?? normalizedOptions,
       layout: kitLayout,
     }),
   };

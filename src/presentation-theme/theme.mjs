@@ -13,12 +13,16 @@ function isObject(value) {
 }
 
 function normalizeOptions(options = {}) {
-  if (isObject(options) && (options.Presentation || options.presentation)) {
-    return options;
+  if (isObject(options) && options.artifactTool) {
+    return {
+      ...options.artifactTool,
+      ...options,
+      helpers: options.helpers ?? options.artifactTool,
+    };
   }
 
-  if (isObject(options) && options.artifactTool) {
-    return { ...options, ...options.artifactTool };
+  if (isObject(options) && (options.Presentation || options.presentation)) {
+    return options;
   }
 
   return options ?? {};

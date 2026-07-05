@@ -10,6 +10,7 @@ export * from "./tokens.mjs";
 export * from "./styles.mjs";
 export * from "./layout.mjs";
 export * from "./components.mjs";
+export * from "./templates.mjs";
 export * from "./theme.mjs";
 export * from "./qa.mjs";
 

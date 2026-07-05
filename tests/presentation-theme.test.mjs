@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import {
   JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST,
   JUDGMENTKIT_PPTX_THEME_COLORS,
+  JUDGMENTKIT_PRESENTATION_TEMPLATE_REGISTRY,
   JUDGMENTKIT_SLIDE_SIZE,
   JUDGMENTKIT_STYLE_NAMES,
   JUDGMENTKIT_TEXT_STYLE_CONFIGS,
@@ -15,18 +16,24 @@ import {
   applyJudgmentKitPptxTheme,
   assertCompleteThemeColors,
   contentFrame,
+  composeJudgmentKitPresentationTemplate,
   createJudgmentKitDeckKit,
   createJudgmentKitLayout,
   createJudgmentKitColorScheme,
   createJudgmentKitComponentFactories,
   createJudgmentKitPresentation,
   createJudgmentKitPresentationAcceptanceEvidence,
+  createJudgmentKitPresentationTemplateRegistry,
   createJudgmentKitTextStyleConfigs,
   fullSlide,
+  getJudgmentKitPresentationTemplate,
   gridSpan,
   jk,
+  listJudgmentKitPresentationTemplates,
   lintJudgmentKitPresentationSource,
+  rankJudgmentKitPresentationTemplates,
   registerJudgmentKitStyles,
+  selectJudgmentKitPresentationTemplate,
 } from "judgmentkit/presentation-theme";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -47,6 +54,7 @@ const PRESENTATION_THEME_EXPORTS = [
   "JUDGMENTKIT_PPTX_THEME_COLOR_ROLE_MAP",
   "JUDGMENTKIT_PPTX_THEME_COLOR_SCHEMES",
   "JUDGMENTKIT_PPTX_THEME_NAMES",
+  "JUDGMENTKIT_PRESENTATION_TEMPLATE_REGISTRY",
   "JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST",
   "JUDGMENTKIT_SLIDE_SIZE",
   "JUDGMENTKIT_STYLE_NAMES",
@@ -63,6 +71,7 @@ const PRESENTATION_THEME_EXPORTS = [
   "assertCompleteThemeColors",
   "cloneJudgmentKitPresentationValue",
   "columns",
+  "composeJudgmentKitPresentationTemplate",
   "contentFrame",
   "createJudgmentKitColorScheme",
   "createJudgmentKitComponentFactories",
@@ -71,20 +80,36 @@ const PRESENTATION_THEME_EXPORTS = [
   "createJudgmentKitPresentation",
   "createJudgmentKitPresentationAcceptanceEvidence",
   "createJudgmentKitPresentationEvidence",
+  "createJudgmentKitPresentationTemplateRegistry",
   "createJudgmentKitTextStyleConfigs",
   "frame",
   "fullSlide",
+  "getJudgmentKitPresentationTemplate",
   "gridSpan",
   "inset",
   "jk",
+  "listJudgmentKitPresentationTemplates",
   "lintJudgmentKitPresentationSource",
   "normalizeFrame",
+  "rankJudgmentKitPresentationTemplates",
   "registerJudgmentKitStyles",
   "resolveJudgmentKitThemeMode",
   "reviewJudgmentKitPresentationEvidence",
   "rows",
+  "selectJudgmentKitPresentationTemplate",
   "split",
   "stack",
+];
+const PRESENTATION_TEMPLATE_LAYOUT_IDS = [
+  ...Array.from({ length: 80 }, (_, index) => `slide-${String(index + 1).padStart(2, "0")}`),
+];
+const LEGACY_PRESENTATION_TEMPLATE_IDS = [
+  "canonical-chart",
+  "canonical-cover",
+  "canonical-evidence",
+  "canonical-table",
+  "compact-decision-slide",
+  "four-by-three-layout",
 ];
 const JUDGMENTKIT_THEME_FIXTURE_ARTIFACT = {
   path: "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9.pptx",
@@ -292,6 +317,38 @@ function createOpaqueFakePresentationFactory() {
   };
 }
 
+function createFakeDeckPresentationFactory() {
+  const created = [];
+
+  return {
+    created,
+    create(options) {
+      const presentation = {
+        ...createFakePresentation(),
+        createOptions: options,
+        slideSize: options.slideSize,
+        slides: {
+          items: [],
+          add() {
+            const slide = {
+              background: {},
+              composeCalls: [],
+              compose(node, options = {}) {
+                this.composeCalls.push({ node, options });
+                return node;
+              },
+            };
+            this.items.push(slide);
+            return slide;
+          },
+        },
+      };
+      created.push(presentation);
+      return presentation;
+    },
+  };
+}
+
 function childNamed(layer, name) {
   return layer.children.find((child) => child.props?.name === name);
 }
@@ -333,6 +390,107 @@ function extractedDeckText(entries, options = {}) {
   };
 }
 
+function registryTemplateList(registry) {
+  if (Array.isArray(registry)) {
+    return registry;
+  }
+
+  if (Array.isArray(registry?.templates)) {
+    return registry.templates;
+  }
+
+  if (Array.isArray(registry?.layouts)) {
+    return registry.layouts;
+  }
+
+  if (typeof registry?.list === "function") {
+    return registry.list();
+  }
+
+  throw new Error("Presentation template registry should expose templates through list(), .templates, or an array.");
+}
+
+function templateId(template) {
+  return template?.layout_id ?? template?.id ?? template?.template_id;
+}
+
+function collectComposeNodes(node, nodes = []) {
+  if (!node) {
+    return nodes;
+  }
+
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      collectComposeNodes(child, nodes);
+    }
+    return nodes;
+  }
+
+  if (typeof node === "object") {
+    nodes.push(node);
+    collectComposeNodes(node.children, nodes);
+  }
+
+  return nodes;
+}
+
+function attemptMutation(callback) {
+  try {
+    callback();
+  } catch (error) {
+    if (!(error instanceof TypeError)) {
+      throw error;
+    }
+  }
+}
+
+function assertNoCodexGridDependency(source, label) {
+  assert.equal(
+    /from\s+["'][^"']*codex[-_]grid[^"']*["']|import\s*\(\s*["'][^"']*codex[-_]grid[^"']*["']\s*\)|require\s*\(\s*["'][^"']*codex[-_]grid[^"']*["']\s*\)/i.test(
+      source,
+    ),
+    false,
+    `${label} must not import a Codex Grid package.`,
+  );
+}
+
+function assertPublicTemplateOutputSafe(value, label) {
+  const json = JSON.stringify(value);
+  const forbiddenKeys = [
+    "artifact_tool_helpers",
+    "component_factories",
+    "compose_contract",
+    "contentKey",
+    "contentKeys",
+    "content_key",
+    "evidence_refs",
+    "layout_helpers",
+    "parity",
+    "public_import",
+    "slot_kind",
+    "source",
+    "source_compose_name",
+    "source_inputs",
+    "source_refs",
+    "source_region_count",
+    "source_sha256",
+    "source_slot_count",
+    "source_text_flow_count",
+    "text_flow",
+    "token",
+    "tokenIds",
+    "token_ids",
+  ];
+
+  for (const key of forbiddenKeys) {
+    assert.equal(new RegExp(`"${escapeRegExp(key)}"\\s*:`).test(json), false, `${label} should not expose ${key}.`);
+  }
+
+  for (const pattern of [/slide-[0-9]{2}\.mjs/, /\b(?:sh|tb|sl)\//, /\/Users\//, /outputs\//, /scripts\//, /src\//]) {
+    assert.equal(pattern.test(json), false, `${label} should not expose ${pattern}.`);
+  }
+}
+
 const packageJson = readJson("package.json");
 const packageLock = fs.existsSync(path.join(root, "package-lock.json"))
   ? fs.readFileSync(path.join(root, "package-lock.json"), "utf8")
@@ -347,6 +505,10 @@ const actualBuilderSource = fs.readFileSync(
 );
 const actualEvidenceCheckerSource = fs.readFileSync(
   path.join(root, "scripts", "presentation-theme", "actual-evidence-check.mjs"),
+  "utf8",
+);
+const templateLibraryExplorationSource = fs.readFileSync(
+  path.join(root, "scripts", "presentation-theme", "template-library-exploration.mjs"),
   "utf8",
 );
 
@@ -404,6 +566,19 @@ assert.equal(
   "The root lockfile must not introduce @oai/artifact-tool.",
 );
 assert.equal(
+  /codex[-_]grid/i.test(packageLock),
+  false,
+  "The root lockfile must not introduce Codex Grid packages.",
+);
+for (const dependencySection of ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"]) {
+  const dependencyNames = Object.keys(packageJson[dependencySection] ?? {});
+  assert.deepEqual(
+    dependencyNames.filter((name) => /codex[-_]grid/i.test(name)),
+    [],
+    `The root package must not depend on Codex Grid in ${dependencySection}.`,
+  );
+}
+assert.equal(
   packageJson.scripts.test.includes("presentation-theme:actual:check"),
   false,
   "The default test lane must not run fresh actual rendering.",
@@ -412,6 +587,31 @@ assert.equal(
   packageJson.scripts.test.includes("presentation-theme:actual:preflight"),
   false,
   "The default test lane must not probe the optional presentation runtime.",
+);
+assert.equal(
+  packageJson.scripts.test.includes("presentation-theme:templates:"),
+  false,
+  "The default test lane must not generate all-80 template exploration artifacts.",
+);
+assert.equal(
+  packageJson.scripts?.["test:presentation-theme"]?.includes("presentation-theme:templates:"),
+  false,
+  "The focused presentation-theme test lane must not generate all-80 template exploration artifacts.",
+);
+assert.equal(
+  packageJson.scripts?.["presentation-theme:templates:preflight"],
+  "node scripts/presentation-theme/template-library-exploration.mjs --action preflight --mode all",
+  "Template-library preflight should be explicit and runtime-only.",
+);
+assert.match(
+  packageJson.scripts?.["presentation-theme:templates:check"] ?? "",
+  /template-library-exploration\.mjs --action check --mode all/,
+  "Template-library check should write only disposable temp outputs.",
+);
+assert.match(
+  packageJson.scripts?.["presentation-theme:templates:visual-qa"] ?? "",
+  /template-library-exploration\.mjs --action update --mode all/,
+  "Template-library visual QA update should be an explicit command.",
 );
 assert.equal(
   packageJson.scripts?.["presentation-theme:actual:preflight"],
@@ -475,17 +675,726 @@ for (const dependencySection of ["dependencies", "devDependencies", "peerDepende
     `The root package must not require @oai/artifact-tool in ${dependencySection}; the presentations runtime injects it.`,
   );
 }
+assert.equal(
+  packageJson.optionalDependencies?.["@oai/artifact-tool"],
+  undefined,
+  "The root package must not require @oai/artifact-tool in optionalDependencies; scripts resolve it from the presentations runtime.",
+);
+assert.match(
+  templateLibraryExplorationSource,
+  /JUDGMENTKIT_PPTX_ACTUAL/,
+  "Template-library exploration should require the explicit actual-runtime gate before generation.",
+);
+assert.match(
+  templateLibraryExplorationSource,
+  /JUDGMENTKIT_PPTX_UPDATE/,
+  "Template-library exploration update should require an explicit update gate before writing output roots.",
+);
+assert.match(
+  templateLibraryExplorationSource,
+  /mkdtemp/,
+  "Template-library check mode should use a disposable temp output root.",
+);
+assert.match(
+  templateLibraryExplorationSource,
+  /PRESENTATIONS_SKILL_DIR/,
+  "Template-library exploration should resolve Codex Grid through the presentations runtime reference.",
+);
+assert.match(
+  templateLibraryExplorationSource,
+  /builder_count/,
+  "Template-library preflight should validate the Codex Grid builder count.",
+);
+assert.match(
+  templateLibraryExplorationSource,
+  /required_exports/,
+  "Template-library preflight should validate required artifact-tool exports.",
+);
+assert.match(
+  templateLibraryExplorationSource,
+  /JUDGMENTKIT_TEMPLATE_LIBRARY_COUNT_MISMATCH/,
+  "Template-library comparison should fail closed on missing or partial all-80 outputs.",
+);
+assert.match(
+  templateLibraryExplorationSource,
+  /JUDGMENTKIT_TEMPLATE_EXPLORATION_OUTPUT_BASE_UNSAFE/,
+  "Template-library update should be restricted to the default ignored output roots.",
+);
+assert.match(
+  templateLibraryExplorationSource,
+  /assertExplorationOutputPolicy/,
+  "Template-library update should validate output containment and raw payload policy.",
+);
+assert.match(
+  templateLibraryExplorationSource,
+  /expectedExplorationOutputPaths/,
+  "Template-library output policy should use a source-owned exact allowlist for generated artifacts.",
+);
+assert.match(
+  templateLibraryExplorationSource,
+  /assertNoSymlinkPath[\s\S]*realpathSync/,
+  "Template-library update should reject symlinked output paths before writing outputs.",
+);
+assert.match(
+  templateLibraryExplorationSource,
+  /prompt\|alt\|sourceText\|rawText/,
+  "Template-library output policy should reject raw prompt/alt/source text payload keys.",
+);
+assert.match(
+  templateLibraryExplorationSource,
+  /top_flagged_imported_slides/,
+  "Template-library visual QA should surface imported PPTX findings in the top-level review packet.",
+);
+assert.match(
+  templateLibraryExplorationSource,
+  /source_object_count_drift_slides[\s\S]*imported_object_count_drift_slides/,
+  "Template-library comparison should report source and imported structural drift separately.",
+);
+assert.match(
+  templateLibraryExplorationSource,
+  /create-template-contact-sheet\.py/,
+  "Template-library exploration should use the repo-owned contact-sheet helper.",
+);
+assert.equal(
+  /from\s+["']@oai\/artifact-tool["']/.test(templateLibraryExplorationSource),
+  false,
+  "Template-library exploration must not statically import @oai/artifact-tool.",
+);
+assert.equal(
+  /\/private\/var\/folders|\/var\/folders\/gt\/lzhcg8wj3f19j78b3g444s1c0000gn/.test(templateLibraryExplorationSource),
+  false,
+  "Template-library exploration must not depend on previous temp scratch paths.",
+);
 for (const filename of fs.readdirSync(presentationThemeDir)) {
   if (!filename.endsWith(".mjs")) {
     continue;
   }
 
   const source = fs.readFileSync(path.join(presentationThemeDir, filename), "utf8");
+  assertNoCodexGridDependency(source, filename);
   assert.equal(
     /from\s+["']@oai\/artifact-tool["']|import\s*\(\s*["']@oai\/artifact-tool["']\s*\)/.test(source),
     false,
     `${filename} must not import @oai/artifact-tool at module load time.`,
   );
+}
+
+const registryTemplates = registryTemplateList(JUDGMENTKIT_PRESENTATION_TEMPLATE_REGISTRY);
+assert.deepEqual(
+  registryTemplates.map(templateId).sort(),
+  PRESENTATION_TEMPLATE_LAYOUT_IDS,
+  "The built-in presentation template registry should expose the stable 80-template layout catalog.",
+);
+assert.deepEqual(
+  listJudgmentKitPresentationTemplates().map(templateId),
+  PRESENTATION_TEMPLATE_LAYOUT_IDS,
+  "listJudgmentKitPresentationTemplates should return the stable 80-layout list.",
+);
+assert.equal(
+  new Set(listJudgmentKitPresentationTemplates().map(templateId)).size,
+  80,
+  "Presentation template ids should stay unique.",
+);
+assert.equal(
+  listJudgmentKitPresentationTemplates().length,
+  80,
+  "JudgmentKit should support the same 80-template catalog size as the reference library.",
+);
+assert.deepEqual(
+  listJudgmentKitPresentationTemplates().map(templateId).slice(0, 3),
+  ["slide-01", "slide-02", "slide-03"],
+  "The public presentation template catalog should start with the slide-01 series.",
+);
+assert.deepEqual(
+  listJudgmentKitPresentationTemplates().map(templateId).slice(-3),
+  ["slide-78", "slide-79", "slide-80"],
+  "The public presentation template catalog should include slide-80.",
+);
+assert.equal(
+  getJudgmentKitPresentationTemplate("slide-01", { includeDiagnostics: true }).source_slot_count,
+  11,
+  "slide-01 should preserve the reference slot count in JudgmentKit-owned metadata.",
+);
+assert.equal(
+  getJudgmentKitPresentationTemplate("slide-80", { includeDiagnostics: true }).source_slot_count,
+  2,
+  "slide-80 should preserve the reference slot count in JudgmentKit-owned metadata.",
+);
+assert.equal(
+  typeof getJudgmentKitPresentationTemplate("slide-01", { includeDiagnostics: true }).slots[0].frame.left,
+  "number",
+  "Diagnostic template metadata should expose committed numeric slot frames for review tooling.",
+);
+const publicSlide01Template = getJudgmentKitPresentationTemplate("slide-01");
+assert.equal(
+  publicSlide01Template.selection.use_when,
+  "Use for steps, workflow, timeline, methods, or sequenced narrative.",
+  "Public template metadata should retain selection guidance for agent routing.",
+);
+assert.equal(
+  publicSlide01Template.selection.avoid_when,
+  "Avoid when the requested content would fight the template layout's region count, density, or dominant visual role.",
+  "Public template metadata should retain avoid guidance for agent routing.",
+);
+assert.equal(
+  publicSlide01Template.selection.density_budget.guidance,
+  "Use for moderate copy with one primary message and a few supporting elements.",
+  "Public template metadata should retain density guidance.",
+);
+assert.equal(
+  publicSlide01Template.selection.typography_budget.guidance,
+  "Preserve the visual hierarchy. Reduce, group, or split content before shrinking below the minimum sizes.",
+  "Public template metadata should retain typography guidance.",
+);
+assert.ok(
+  publicSlide01Template.selection.text_flows.some(
+    (flow) => flow.kind === "column" && flow.content_count === 3 && flow.frame?.width > 0,
+  ),
+  "Public template metadata should expose text-flow context without source token ids.",
+);
+assert.ok(
+  publicSlide01Template.selection.major_regions.some((region) => region.role === "center-field"),
+  "Public template metadata should expose major-region context for layout decisions.",
+);
+assert.equal(
+  publicSlide01Template.preview_ref,
+  "slide-preview:slide-01.png",
+  "Public template metadata should expose a stable preview reference without local filesystem paths.",
+);
+assert.match(
+  publicSlide01Template.slots[0].description,
+  /title content slot/,
+  "Public slot metadata should retain slot descriptions for agent content mapping.",
+);
+assert.equal(
+  "source" in publicSlide01Template.slots[0],
+  false,
+  "Public slot metadata should not expose source-origin fields.",
+);
+assert.equal(
+  "token" in publicSlide01Template.slots[0],
+  false,
+  "Public slot metadata should not expose source token names.",
+);
+assert.equal(
+  publicSlide01Template.selection.text_flows.some((flow) => "token_ids" in flow),
+  false,
+  "Public text-flow metadata should not expose source token ids.",
+);
+assert.equal(
+  "text_flow" in publicSlide01Template.selection,
+  false,
+  "Public selection metadata should not expose raw text-flow strings.",
+);
+assert.equal(
+  JSON.stringify(getJudgmentKitPresentationTemplate("slide-04").selection.asset_slots).includes("contentKey"),
+  false,
+  "Public asset-slot metadata should not expose runtime content keys.",
+);
+for (const field of ["compose_contract", "public_import", "source_compose_name", "source_slot_count", "source_region_count", "source_text_flow_count", "parity"]) {
+  assert.equal(
+    field in publicSlide01Template,
+    false,
+    `Public template metadata should not expose ${field}.`,
+  );
+}
+assert.equal(
+  "authoring_mode" in (publicSlide01Template.agent_context ?? {}),
+  false,
+  "Public agent context should not expose implementation authoring mechanics.",
+);
+assert.equal(
+  JSON.stringify(publicSlide01Template).includes("slide-01.mjs"),
+  false,
+  "Public template metadata should not leak reference rebuild module paths.",
+);
+assert.equal(
+  /\b(?:sh|tb)\//.test(JSON.stringify(publicSlide01Template)),
+  false,
+  "Public template metadata should not leak source-origin element ids.",
+);
+assertPublicTemplateOutputSafe(publicSlide01Template, "Public template metadata");
+for (const template of listJudgmentKitPresentationTemplates()) {
+  assert.equal(typeof template.selection?.use_when, "string", `${template.layout_id} should expose use_when guidance.`);
+  assert.equal(typeof template.selection?.avoid_when, "string", `${template.layout_id} should expose avoid_when guidance.`);
+  assert.ok(
+    Array.isArray(template.selection?.major_regions) && template.selection.major_regions.length > 0,
+    `${template.layout_id} should expose major region context.`,
+  );
+  assert.ok(
+    Array.isArray(template.slots) && template.slots.some((slotValue) => slotValue.frame),
+    `${template.layout_id} should expose slot frame context.`,
+  );
+}
+const diagnosticTemplateIdsAndAliases = registryTemplateList(
+  createJudgmentKitPresentationTemplateRegistry({ includeDiagnostics: true }),
+).flatMap((template) => [template.layout_id, ...(template.registry_aliases ?? [])]);
+assert.equal(
+  new Set(diagnosticTemplateIdsAndAliases).size,
+  diagnosticTemplateIdsAndAliases.length,
+  "Presentation template ids and aliases should not collide.",
+);
+
+const mutatedTemplateList = listJudgmentKitPresentationTemplates();
+attemptMutation(() => {
+  mutatedTemplateList[0].layout_id = "mutated-template-id";
+  mutatedTemplateList[0].layout = { polluted: true };
+  mutatedTemplateList[0].selection = { polluted: true };
+});
+assert.deepEqual(
+  listJudgmentKitPresentationTemplates().map(templateId),
+  PRESENTATION_TEMPLATE_LAYOUT_IDS,
+  "Mutating a listed presentation template should not leak into the registry.",
+);
+
+const canonicalCoverTemplate = getJudgmentKitPresentationTemplate("slide-21");
+attemptMutation(() => {
+  canonicalCoverTemplate.layout_id = "mutated-cover-id";
+  canonicalCoverTemplate.selection = { activity_use: "polluted" };
+});
+assert.equal(
+  templateId(getJudgmentKitPresentationTemplate("slide-21")),
+  "slide-21",
+  "getJudgmentKitPresentationTemplate should return a defensive clone.",
+);
+for (const legacyId of LEGACY_PRESENTATION_TEMPLATE_IDS) {
+  assert.equal(
+    typeof getJudgmentKitPresentationTemplate(legacyId)?.layout_id,
+    "string",
+    `Legacy template id ${legacyId} should remain accepted for compatibility.`,
+  );
+}
+
+const customRegistry = createJudgmentKitPresentationTemplateRegistry();
+const customRegistryTemplates = registryTemplateList(customRegistry);
+attemptMutation(() => {
+  customRegistryTemplates[0].layout_id = "mutated-custom-registry-id";
+});
+assert.deepEqual(
+  registryTemplateList(createJudgmentKitPresentationTemplateRegistry()).map(templateId).sort(),
+  PRESENTATION_TEMPLATE_LAYOUT_IDS,
+  "createJudgmentKitPresentationTemplateRegistry should isolate caller mutations.",
+);
+assert.equal(
+  "source_refs" in customRegistry,
+  false,
+  "The default public template registry should omit diagnostic source references.",
+);
+assert.equal(
+  "compose_contract" in getJudgmentKitPresentationTemplate("slide-21"),
+  false,
+  "Default public template records should omit helper-level compose contracts.",
+);
+assert.equal(
+  "evidence_refs" in getJudgmentKitPresentationTemplate("slide-21"),
+  false,
+  "Default public template records should omit detailed evidence paths.",
+);
+const diagnosticRegistry = createJudgmentKitPresentationTemplateRegistry({ includeDiagnostics: true });
+assert.ok(
+  Array.isArray(diagnosticRegistry.source_refs),
+  "Diagnostic registry mode should retain source references for review tooling.",
+);
+assert.ok(
+  registryTemplateList(diagnosticRegistry).some((template) => template.compose_contract?.builder_visibility === "private"),
+  "Diagnostic registry mode should expose private builder contract metadata only on request.",
+);
+assert.deepEqual(
+  listJudgmentKitPresentationTemplates({ template_use: "chart" }).map(templateId),
+  ["slide-64", "slide-65"],
+  "Template list filters should support snake_case template-use metadata keys.",
+);
+assert.equal(
+  listJudgmentKitPresentationTemplates({ surface_type: "operator_review" }).length,
+  41,
+  "Template list filters should support snake_case surface metadata keys across the 80-template catalog.",
+);
+
+const chartTemplateRanking = rankJudgmentKitPresentationTemplates(
+  { template_use: "chart", layout_family: "chart-evidence", includeDiagnostics: true },
+  { includeDiagnostics: true, maxAlternatives: 2 },
+);
+assert.equal(
+  chartTemplateRanking.schema,
+  "judgmentkit.presentation-theme.template-ranking/v1",
+  "Template ranking should expose a versioned public result shape.",
+);
+assert.equal(
+  chartTemplateRanking.selected?.template?.layout_id,
+  "slide-64",
+  "Template ranking should select the first public chart-evidence template deterministically.",
+);
+assert.equal(
+  chartTemplateRanking.alternatives[0]?.template?.layout_id,
+  "slide-65",
+  "Template ranking should expose the equal-score chart alternative.",
+);
+assert.equal(
+  chartTemplateRanking.selected?.tie_count,
+  2,
+  "Template ranking should make equal-score ties explicit.",
+);
+assert.deepEqual(
+  chartTemplateRanking.selected?.score?.matched.map((entry) => entry.criterion).sort(),
+  ["layout_family", "template_use"],
+  "Template ranking should explain matched weighted public criteria.",
+);
+assert.deepEqual(
+  chartTemplateRanking.criteria.ignored,
+  [{ key: "includeDiagnostics", reason: "diagnostics_are_not_selection_criteria" }],
+  "Template ranking should ignore diagnostic flags as non-selection criteria.",
+);
+assertPublicTemplateOutputSafe(chartTemplateRanking, "Template ranking result");
+
+const denseMetricTemplateRanking = rankJudgmentKitPresentationTemplates({
+  template_use: "metrics",
+  layout_family: "metric-led",
+  density_level: "dense",
+});
+assert.equal(
+  denseMetricTemplateRanking.selected?.template?.layout_id,
+  "slide-62",
+  "Template ranking should preserve the existing dense metric-led selection.",
+);
+assert.equal(
+  denseMetricTemplateRanking.selected?.tie_count,
+  8,
+  "Template ranking should report broad metric-led ties without hiding them.",
+);
+
+const partialTemplateRanking = rankJudgmentKitPresentationTemplates(
+  { template_use: "chart", layout_family: "not-real", content_role: "table" },
+  { maxAlternatives: 3 },
+);
+assert.equal(
+  partialTemplateRanking.selected?.template?.layout_id,
+  "slide-64",
+  "Template ranking should still return the best positive match when some criteria miss.",
+);
+assert.deepEqual(
+  partialTemplateRanking.selected?.missing_criteria.map((entry) => entry.criterion).sort(),
+  ["content_role", "layout_family"],
+  "Template ranking should identify unmet public criteria.",
+);
+
+const unmatchedTemplateRanking = rankJudgmentKitPresentationTemplates({
+  template_use: "not-real",
+  layout_family: "also-not-real",
+});
+assert.equal(
+  unmatchedTemplateRanking.selected,
+  null,
+  "Template ranking should fail closed when no criteria match.",
+);
+assert.deepEqual(
+  unmatchedTemplateRanking.alternatives,
+  [],
+  "Template ranking should omit zero-score alternatives by default.",
+);
+
+const componentTemplateRanking = rankJudgmentKitPresentationTemplates({ component: "table" });
+assert.equal(
+  componentTemplateRanking.selected?.template?.selection?.template_use,
+  "data-table",
+  "Template ranking should preserve public component criteria without private helper contracts.",
+);
+assertPublicTemplateOutputSafe(componentTemplateRanking, "Template component ranking result");
+assert.equal(
+  selectJudgmentKitPresentationTemplate({ component: "table" })?.selection?.template_use,
+  "data-table",
+  "Template selection should preserve component criteria compatibility.",
+);
+assert.equal(
+  selectJudgmentKitPresentationTemplate({ nativeSurface: "table" })?.selection?.template_use,
+  "data-table",
+  "Template selection should preserve camelCase native surface criteria compatibility.",
+);
+assert.equal(
+  selectJudgmentKitPresentationTemplate({ native_surface: "table" })?.selection?.template_use,
+  "data-table",
+  "Template selection should preserve snake_case native surface criteria compatibility.",
+);
+
+const validSlideSizeTemplateRanking = rankJudgmentKitPresentationTemplates({
+  slideSize: { w: 1024, h: 768 },
+});
+assert.equal(
+  validSlideSizeTemplateRanking.selected?.template?.layout_id,
+  "four-by-three-layout",
+  "Template ranking should accept complete positive finite w/h slide-size criteria.",
+);
+assert.deepEqual(
+  validSlideSizeTemplateRanking.criteria.normalized.slide_size,
+  { width: 1024, height: 768 },
+  "Template ranking should normalize valid slide-size criteria consistently.",
+);
+for (const criteria of [
+  { slideSize: { width: 0, height: 540 } },
+  { slideSize: { width: -960, height: 540 } },
+  { slideSize: { width: "960", height: 540 } },
+  { slideSize: { width: 1024 }, height: 768 },
+]) {
+  const invalidSlideSizeTemplateRanking = rankJudgmentKitPresentationTemplates(criteria);
+  assert.equal(
+    invalidSlideSizeTemplateRanking.criteria.normalized.slide_size,
+    undefined,
+    "Template ranking should ignore invalid, non-numeric, or partial slide-size criteria.",
+  );
+  assert.equal(
+    invalidSlideSizeTemplateRanking.selected,
+    null,
+    "Invalid slide-size criteria alone should not select a template.",
+  );
+}
+
+assert.equal(
+  rankJudgmentKitPresentationTemplates({ id: "judgmentkit-template-slide-01" }).selected,
+  null,
+  "Template ranking should not accept internal source compose names as public ids.",
+);
+assert.throws(
+  () => selectJudgmentKitPresentationTemplate("judgmentkit-template-slide-01"),
+  /unknown|not found|presentation template/i,
+  "Template selection should not accept internal source compose names as public ids.",
+);
+
+assert.equal(
+  templateId(
+    selectJudgmentKitPresentationTemplate({
+      template_use: "metrics",
+      layout_family: "metric-led",
+      density_level: "dense",
+    }),
+  ),
+  "slide-62",
+  "Template selection should honor template use and layout family within the 80-template catalog.",
+);
+const selectedWithDiagnosticsFlag = selectJudgmentKitPresentationTemplate({
+  id: "slide-01",
+  includeDiagnostics: true,
+});
+assert.equal(
+  "compose_contract" in selectedWithDiagnosticsFlag,
+  false,
+  "Template selection criteria should not enable diagnostic metadata disclosure.",
+);
+assert.equal(
+  "source" in selectedWithDiagnosticsFlag.slots[0],
+  false,
+  "Template selection should keep returned slot metadata public-safe.",
+);
+assert.equal(
+  templateId(
+    selectJudgmentKitPresentationTemplate({
+      activity_use: "custom_canvas_compatibility",
+      surface_type: "content_report",
+      slideSize: { width: 1024, height: 768 },
+    }),
+  ),
+  "four-by-three-layout",
+  "Template selection should preserve legacy 4:3 compatibility when callers use the old criteria.",
+);
+assert.throws(
+  () => getJudgmentKitPresentationTemplate("not-a-judgmentkit-template"),
+  /unknown|not found|presentation template/i,
+  "Unknown presentation template ids should be rejected clearly.",
+);
+assert.throws(
+  () =>
+    composeJudgmentKitPresentationTemplate("not-a-judgmentkit-template", {
+      Presentation: createFakeDeckPresentationFactory(),
+      helpers: createFakeHelpers(),
+    }),
+  /unknown|not found|presentation template/i,
+  "Composing an unknown presentation template id should be rejected clearly.",
+);
+
+const templatePresentationFactory = createFakeDeckPresentationFactory();
+const customTemplateSlideSize = { width: 960, height: 540 };
+const templatePresentation = templatePresentationFactory.create({ slideSize: customTemplateSlideSize });
+const composedTemplate = composeJudgmentKitPresentationTemplate("slide-62", {
+  presentation: templatePresentation,
+  helpers: createFakeHelpers(),
+  slideSize: customTemplateSlideSize,
+  content: {
+    title: "Regional readiness metrics",
+    metrics: [
+      { label: "Evidence", value: "8", detail: "Review items" },
+      { label: "Risk", value: "3", detail: "Watch areas" },
+      { label: "Owner", value: "1", detail: "Named next step" },
+    ],
+  },
+});
+assert.equal(
+  composedTemplate?.template?.layout_id,
+  "slide-62",
+  "Template composition should identify the rendered layout.",
+);
+assert.equal(
+  "compose_contract" in composedTemplate.template,
+  false,
+  "Template composition should return redacted public metadata by default.",
+);
+assert.equal(
+  "evidence_refs" in composedTemplate.template,
+  false,
+  "Template composition should not return detailed evidence paths by default.",
+);
+assert.equal(
+  composedTemplate?.layout?.fullSlide()?.width,
+  customTemplateSlideSize.width,
+  "Template composition should use custom slide width in its scoped layout.",
+);
+assert.equal(
+  composedTemplate?.layout?.fullSlide()?.height,
+  customTemplateSlideSize.height,
+  "Template composition should use custom slide height in its scoped layout.",
+);
+assert.equal(
+  templatePresentation.slides.items.length,
+  1,
+  "A layout template composition should render one slide with fake Presentation helpers.",
+);
+const templateComposeCalls = templatePresentation.slides.items.flatMap((slide) => slide.composeCalls);
+assert.equal(templateComposeCalls.length, 1, "Template composition should call slide.compose once.");
+assert.equal(
+  templateComposeCalls[0].options?.frame?.width,
+  customTemplateSlideSize.width,
+  "Template composition should use the custom slide size for the compose frame.",
+);
+const renderedTemplateNodes = collectComposeNodes(templateComposeCalls[0].node);
+assert.ok(
+  renderedTemplateNodes.some((node) => node.kind === "text"),
+  "Template composition should render text through the injected helper.",
+);
+assert.equal(
+  renderedTemplateNodes.some((node) => String(node.props?.name ?? "").endsWith("-surface")),
+  false,
+  "Frame-driven templates should not add blanket JudgmentKit surface panels over the Codex Grid layout.",
+);
+for (const node of renderedTemplateNodes) {
+  const props = node.props ?? node.config;
+  if (!props || typeof props !== "object" || !Number.isFinite(props.width)) {
+    continue;
+  }
+
+  assert.ok(
+    composeLeft(props) + props.width <= customTemplateSlideSize.width,
+    `${props.name ?? node.kind} should fit inside the custom slide width.`,
+  );
+  assert.ok(
+    composeTop(props) + props.height <= customTemplateSlideSize.height,
+    `${props.name ?? node.kind} should fit inside the custom slide height.`,
+  );
+}
+
+const nestedInvalidSizePresentationFactory = createFakeDeckPresentationFactory();
+composeJudgmentKitPresentationTemplate("compact-decision-slide", {
+  Presentation: nestedInvalidSizePresentationFactory,
+  helpers: createFakeHelpers(),
+  presentationOptions: { slideSize: { width: 0, height: 540 } },
+});
+assert.equal(
+  nestedInvalidSizePresentationFactory.created[0].createOptions.slideSize.width,
+  960,
+  "Invalid nested slide sizes should fall through to the template slide-size default.",
+);
+assert.equal(nestedInvalidSizePresentationFactory.created[0].createOptions.slideSize.height, 540);
+
+const invalidTopLevelSizePresentationFactory = createFakeDeckPresentationFactory();
+composeJudgmentKitPresentationTemplate("compact-decision-slide", {
+  Presentation: invalidTopLevelSizePresentationFactory,
+  helpers: createFakeHelpers(),
+  slideSize: { width: 0, height: 540 },
+});
+assert.equal(
+  invalidTopLevelSizePresentationFactory.created[0].createOptions.slideSize.width,
+  960,
+  "Invalid top-level slide sizes should fall through to the template slide-size default.",
+);
+assert.equal(invalidTopLevelSizePresentationFactory.created[0].createOptions.slideSize.height, 540);
+
+const artifactToolPresentationFactory = createFakeDeckPresentationFactory();
+composeJudgmentKitPresentationTemplate("canonical-cover", {
+  artifactTool: {
+    Presentation: artifactToolPresentationFactory,
+    ...createFakeHelpers(),
+  },
+});
+assert.equal(
+  artifactToolPresentationFactory.created[0].slides.items.length,
+  1,
+  "Template composition should support artifactTool object injection.",
+);
+
+const directArtifactToolPresentation = createFakePresentation();
+directArtifactToolPresentation.slideSize = { width: 960, height: 540 };
+assert.equal(
+  createJudgmentKitDeckKit({
+    presentation: directArtifactToolPresentation,
+    artifactTool: createFakeHelpers(),
+  }).components.statusPill({ label: "Ready" }).kind,
+  "layers",
+  "Deck kit creation should support artifactTool helper injection with an existing presentation.",
+);
+assert.equal(
+  createJudgmentKitPresentation({
+    presentation: directArtifactToolPresentation,
+    artifactTool: createFakeHelpers(),
+  }).kit.components.statusPill({ label: "Ready" }).kind,
+  "layers",
+  "Presentation creation should support artifactTool helper injection with an existing presentation.",
+);
+
+assert.throws(
+  () =>
+    composeJudgmentKitPresentationTemplate("slide-08", {
+      Presentation: createFakeDeckPresentationFactory(),
+      helpers: {
+        layers: (props, children = []) => ({ kind: "layers", props, children }),
+        text: (lines, props = {}) => ({ kind: "text", lines, props }),
+        shape: (props = {}) => ({ kind: "shape", props }),
+      },
+    }),
+  /helper "table"/,
+  "The public table templates should fail clearly when the native table helper is missing.",
+);
+
+for (const layoutId of PRESENTATION_TEMPLATE_LAYOUT_IDS) {
+  const presentationFactory = createFakeDeckPresentationFactory();
+  const composed = composeJudgmentKitPresentationTemplate(layoutId, {
+    Presentation: presentationFactory,
+    helpers: createFakeHelpers(),
+  });
+  assert.equal(
+    composed.template.layout_id,
+    layoutId,
+    `${layoutId} should compose through the public template renderer.`,
+  );
+  const composeCall = presentationFactory.created[0].slides.items[0].composeCalls[0];
+  assert.equal(
+    composeCall.options?.frame?.width,
+    JUDGMENTKIT_SLIDE_SIZE.width,
+    `${layoutId} should compose against the canonical slide width by default.`,
+  );
+
+  for (const node of collectComposeNodes(composeCall.node)) {
+    const props = node.props ?? node.config;
+    if (!props || typeof props !== "object" || !Number.isFinite(props.width)) {
+      continue;
+    }
+
+    assert.ok(composeLeft(props) >= 0, `${layoutId} ${props.name ?? node.kind} should not start before the slide.`);
+    assert.ok(composeTop(props) >= 0, `${layoutId} ${props.name ?? node.kind} should not start above the slide.`);
+    assert.ok(
+      composeLeft(props) + props.width <= JUDGMENTKIT_SLIDE_SIZE.width + 0.01,
+      `${layoutId} ${props.name ?? node.kind} should fit inside the slide width.`,
+    );
+    assert.ok(
+      composeTop(props) + props.height <= JUDGMENTKIT_SLIDE_SIZE.height + 0.01,
+      `${layoutId} ${props.name ?? node.kind} should fit inside the slide height.`,
+    );
+  }
 }
 
 assert.deepEqual(
@@ -498,23 +1407,31 @@ assert.deepEqual(
   [...ARTIFACT_TOOL_THEME_COLOR_SLOTS].sort(),
   "The exported slot list should match artifact-tool's 16-slot color scheme.",
 );
-assert.equal(JUDGMENTKIT_PPTX_THEME_COLORS.bg1, "#f8f7f2");
-assert.equal(JUDGMENTKIT_PPTX_THEME_COLORS.bg2, "#ffffff");
+assert.equal(
+  JUDGMENTKIT_PPTX_THEME_COLORS.bg1,
+  "#ffffff",
+  "The light presentation canvas should stay white to match the minimal Codex Grid baseline.",
+);
+assert.equal(
+  JUDGMENTKIT_PPTX_THEME_COLORS.bg2,
+  "#f4f4f4",
+  "Secondary surfaces should stay light neutral rather than a warm slide canvas.",
+);
 assert.equal(JUDGMENTKIT_PPTX_THEME_COLORS.tx1, "#171717");
 assert.equal(JUDGMENTKIT_PPTX_THEME_COLORS.accent5, "#8f342f");
 assert.equal(
   JUDGMENTKIT_PPTX_THEME_COLORS.lt1,
-  "#f8f7f2",
+  "#ffffff",
   "PowerPoint bg1 resolves through lt1, so lt1 should carry the canvas color.",
 );
 assert.equal(
   JUDGMENTKIT_PPTX_THEME_COLORS.lt2,
-  "#ffffff",
+  "#f4f4f4",
   "PowerPoint bg2 resolves through lt2, so lt2 should carry the surface color.",
 );
 assert.equal(
   JUDGMENTKIT_PPTX_THEME_COLORS.accent6,
-  "#d7d3c8",
+  "#d9d9d9",
   "The neutral accent slot should carry the visible border color.",
 );
 
@@ -541,7 +1458,7 @@ const customScheme = createJudgmentKitColorScheme({
 });
 assert.equal(customScheme.name, "JudgmentKit Custom");
 assert.equal(customScheme.themeColors.accent1, "#123456");
-assert.equal(customScheme.themeColors.bg1, "#f8f7f2");
+assert.equal(customScheme.themeColors.bg1, "#ffffff");
 
 const bgOverrideScheme = createJudgmentKitColorScheme({
   themeColors: { bg1: "#eeeeee" },
@@ -597,9 +1514,9 @@ for (const slot of ARTIFACT_TOOL_THEME_COLOR_SLOTS) {
 const presentation = createFakePresentation();
 applyJudgmentKitPptxTheme(presentation);
 assert.equal(presentation.theme.colorScheme.name, "JudgmentKit Light");
-assert.equal(presentation.theme.colorScheme.themeColors.lt1, "#f8f7f2");
-assert.equal(presentation.theme.colorScheme.themeColors.lt2, "#ffffff");
-assert.equal(presentation.theme.colorScheme.themeColors.accent6, "#d7d3c8");
+assert.equal(presentation.theme.colorScheme.themeColors.lt1, "#ffffff");
+assert.equal(presentation.theme.colorScheme.themeColors.lt2, "#f4f4f4");
+assert.equal(presentation.theme.colorScheme.themeColors.accent6, "#d9d9d9");
 assert.equal(presentation.calls.textStyles.length, 1);
 assert.ok(
   presentation.calls.stylesAdded.some(
@@ -656,7 +1573,7 @@ assert.deepEqual(
   "createJudgmentKitDeckKit should keep its public return-shape keys stable.",
 );
 assert.equal(created.presentation.createOptions.slideSize.width, JUDGMENTKIT_SLIDE_SIZE.width);
-assert.equal(created.presentation.theme.colorScheme.themeColors.bg2, "#ffffff");
+assert.equal(created.presentation.theme.colorScheme.themeColors.bg2, "#f4f4f4");
 assert.ok(created.kit.components.titleBlock, "createJudgmentKitPresentation should attach a deck kit.");
 
 const presentationOptionsSized = createJudgmentKitPresentation({
@@ -816,7 +1733,7 @@ assert.deepEqual(childNamed(fallbackEmptyTable, "judgmentkit-evidence-table-body
 const wrappedHeader = topLevelSlideSize.kit.components.sectionHeader({
   label: "WRAPPED",
   title: "The review components should read as deck content, not UI chrome",
-  frame: { left: 72, top: 48, width: 540, height: 88 },
+  frame: { left: 72, top: 48, width: 540, height: 160 },
 });
 assert.ok(
   childNamed(wrappedHeader, "judgmentkit-section-header-title").props.height > 58,

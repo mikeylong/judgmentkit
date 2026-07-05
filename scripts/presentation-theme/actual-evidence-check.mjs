@@ -6,16 +6,20 @@ import {
   ACTUAL_CASES,
   OUTPUT_POLICY,
   OUTPUT_ROOT,
+  REPO_ROOT,
   outputPath,
   repoRelative,
   requireCommittedOutputUpdateGate,
 } from "./actual-constants.mjs";
 import { inspectPptx } from "./pptx-structural-inspector.mjs";
+import { createJudgmentKitPresentationTemplateRegistry } from "../../src/presentation-theme/templates.mjs";
 
 const WRITE_MODE = process.argv.includes("--write");
 const HASH_ALGORITHM = "sha256";
 const OUTPUT_ROOT_REF = repoRelative(OUTPUT_ROOT);
 const RASTER_UNAVAILABLE = process.env.JUDGMENTKIT_RASTER_UNAVAILABLE === "1";
+const TEMPLATE_REGISTRY_SOURCE = path.join(REPO_ROOT, "src", "presentation-theme", "templates.mjs");
+const TEMPLATE_LAYOUT_DATA_SOURCE = path.join(REPO_ROOT, "src", "presentation-theme", "template-layout-data.mjs");
 
 function fail(message) {
   throw new Error(message);
@@ -243,6 +247,45 @@ function semanticGuardSha256(paths) {
   return sha256Buffer(stableJson(entries));
 }
 
+function templateRegistrySummary() {
+  const registry = createJudgmentKitPresentationTemplateRegistry({ includeDiagnostics: true });
+
+  return {
+    schema: registry.schema,
+    registry_id: registry.registry_id,
+    registry_version: registry.registry_version,
+    source: repoRelative(TEMPLATE_REGISTRY_SOURCE),
+    source_sha256: sha256File(TEMPLATE_REGISTRY_SOURCE),
+    source_inputs: [TEMPLATE_REGISTRY_SOURCE, TEMPLATE_LAYOUT_DATA_SOURCE].map((sourcePath) => ({
+      path: repoRelative(sourcePath),
+      sha256: sha256File(sourcePath),
+    })),
+    layout_count: registry.layouts.length,
+    layouts: registry.layouts.map((template) => ({
+      layout_id: template.layout_id,
+      aliases: template.registry_aliases,
+      case_id: template.case_id,
+      slide_number: template.slide_number,
+      evidence_refs: template.evidence_refs,
+      selection: {
+        activity_use: template.selection.activity_use,
+        surface_type: template.selection.surface_type,
+        layout_family: template.selection.layout_family,
+        canvas_profile: template.selection.canvas_profile,
+      },
+    })),
+  };
+}
+
+function validateTemplateRegistryManifest() {
+  const manifest = readJson(outputPath("manifest.json"));
+  const expected = templateRegistrySummary();
+
+  if (stableJson(manifest.template_registry) !== stableJson(expected)) {
+    fail("manifest.json template_registry is stale. Run the opt-in actual update lane to refresh evidence.");
+  }
+}
+
 function enrichArtifactSummary(filePath) {
   const relativePath = repoRelative(filePath);
   const fixturePath = fixtureRelative(filePath);
@@ -413,6 +456,7 @@ function buildManifest(files) {
       .sort(),
     policy_source: OUTPUT_POLICY.evidenceChecker,
     runtime_fingerprint: runtimeFingerprint(),
+    template_registry: templateRegistrySummary(),
     version: 1,
   };
 }
@@ -438,10 +482,15 @@ function buildHashes(files) {
           semantic_guard_paths: guardPaths.length > 0 ? guardPaths : undefined,
           semantic_guard_sha256: guardPaths.length > 0 ? semanticGuardSha256(guardPaths) : undefined,
           sha256: sha256File(filePath),
-          source_inputs: [OUTPUT_POLICY.generatedBy],
+          source_inputs: [
+            OUTPUT_POLICY.generatedBy,
+            repoRelative(TEMPLATE_REGISTRY_SOURCE),
+            repoRelative(TEMPLATE_LAYOUT_DATA_SOURCE),
+          ],
         };
       })
       .sort((left, right) => left.path.localeCompare(right.path)),
+    template_registry: templateRegistrySummary(),
   };
 }
 
@@ -452,6 +501,7 @@ function buildReviewSummary(files) {
     .sort((left, right) => left.path.localeCompare(right.path));
   const semanticArtifacts = files
     .map(enrichArtifactSummary)
+    .filter((entry) => !entry.path.endsWith("/review-summary.json"))
     .filter((entry) => !["montage", "png", "pptx", "webp"].includes(entry.kind))
     .sort((left, right) => left.path.localeCompare(right.path));
 
@@ -474,6 +524,7 @@ function buildReviewSummary(files) {
     file_count: files.length,
     runtime_fingerprint: runtimeFingerprint(),
     semantic_artifacts: semanticArtifacts,
+    template_registry: templateRegistrySummary(),
     binary_hash_policy:
       "Binary PPTX/PNG/WEBP hash changes require paired semantic guard changes; hashes include semantic_guard_paths and semantic_guard_sha256 for review.",
     review_order: ["README.md", "manifest.json", "hashes.json", "contact sheets", "full-size PNGs"],
@@ -600,6 +651,15 @@ function verifyHashes(files) {
   }
 }
 
+function verifyReviewSummary(files) {
+  const current = buildReviewSummary(files);
+  const committed = readJson(outputPath("review-summary.json"));
+
+  if (stableJson(committed) !== stableJson(current)) {
+    fail("review-summary.json is stale. Run the opt-in actual update lane to refresh evidence.");
+  }
+}
+
 function main() {
   if (!fs.existsSync(OUTPUT_ROOT)) {
     fail(`Missing actual evidence directory: ${OUTPUT_ROOT}`);
@@ -622,6 +682,9 @@ function main() {
     validateStructural(caseInfo, structural);
     validateEvidence(caseInfo);
   }
+  if (!WRITE_MODE) {
+    validateTemplateRegistryManifest();
+  }
 
   const filesAfterGeneratedWrites = walkFiles(OUTPUT_ROOT);
   const filesForManifest = filesAfterGeneratedWrites.filter(
@@ -629,16 +692,18 @@ function main() {
   );
 
   if (WRITE_MODE) {
-    const filesForHashes = walkFiles(OUTPUT_ROOT).filter((filePath) => path.basename(filePath) !== "hashes.json");
-    writeJson(outputPath("review-summary.json"), buildReviewSummary(filesForHashes));
     const filesForManifestAfterSummary = walkFiles(OUTPUT_ROOT).filter(
       (filePath) => !["hashes.json", "manifest.json"].includes(path.basename(filePath)),
     );
     writeJson(outputPath("manifest.json"), buildManifest(filesForManifestAfterSummary));
+    const filesForReviewSummary = walkFiles(OUTPUT_ROOT).filter((filePath) => path.basename(filePath) !== "hashes.json");
+    writeJson(outputPath("review-summary.json"), buildReviewSummary(filesForReviewSummary));
     const finalFilesForHashes = walkFiles(OUTPUT_ROOT).filter((filePath) => path.basename(filePath) !== "hashes.json");
     writeJson(outputPath("hashes.json"), buildHashes(finalFilesForHashes));
   } else {
-    verifyHashes(filesAfterGeneratedWrites.filter((filePath) => path.basename(filePath) !== "hashes.json"));
+    const replayFiles = filesAfterGeneratedWrites.filter((filePath) => path.basename(filePath) !== "hashes.json");
+    verifyReviewSummary(replayFiles);
+    verifyHashes(replayFiles);
   }
 
   console.log("presentation-theme actual evidence replay passed");
