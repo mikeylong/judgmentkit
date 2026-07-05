@@ -1,4 +1,4 @@
-import * as layout from "./layout.mjs";
+import layoutApi, * as layout from "./layout.mjs";
 import {
   JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST,
   JUDGMENTKIT_SLIDE_SIZE,
@@ -12,8 +12,8 @@ function toComposeFrame(frameValue = layout.contentFrame()) {
 
   return {
     position: { left: frame.x, top: frame.y },
-    width: frame.width,
-    height: frame.height,
+    width: Math.max(0, Number.isFinite(frame.width) ? frame.width : 0),
+    height: Math.max(0, Number.isFinite(frame.height) ? frame.height : 0),
   };
 }
 
@@ -46,7 +46,7 @@ function estimateLineCount(lines, width, fontSize) {
 }
 
 function normalizeTableRows(rows = []) {
-  const sourceRows = Array.isArray(rows) ? rows : [];
+  const sourceRows = Array.isArray(rows) ? rows : rows === undefined || rows === null ? [] : [rows];
   const values = sourceRows.map((row) => {
     const cells = Array.isArray(row) ? row : [row];
     return cells.map((cell) => (cell === undefined || cell === null ? "" : String(cell)));
@@ -108,15 +108,29 @@ function isLayoutApi(value) {
 }
 
 function resolveKitSlideSize(options = {}, presentation) {
-  return (
-    options.slideSize ??
-    options.slide_size ??
-    presentation?.slideSize ??
-    presentation?.slide_size ??
-    presentation?.createOptions?.slideSize ??
-    options.presentationOptions?.slideSize ??
-    options.presentationOptions?.slide_size ??
-    JUDGMENTKIT_SLIDE_SIZE
+  const presentationSlideSize = layoutApi.resolveSlideSize(
+    [
+      presentation?.slideSize,
+      presentation?.slide_size,
+      presentation?.createOptions?.slideSize,
+      presentation?.createOptions?.slide_size,
+    ],
+    null,
+  );
+
+  if (presentation && presentationSlideSize) {
+    return presentationSlideSize;
+  }
+
+  return layoutApi.resolveSlideSize(
+    [
+      options.slideSize,
+      options.slide_size,
+      options.createdSlideSize,
+      options.presentationOptions?.slideSize,
+      options.presentationOptions?.slide_size,
+    ],
+    JUDGMENTKIT_SLIDE_SIZE,
   );
 }
 
@@ -372,20 +386,21 @@ export function createJudgmentKitComponentFactories(options = {}) {
     } = {}) {
       const table = helpers.table;
       const tableFrame = kitLayout.normalizeFrame(frame);
+      const normalizedRows = normalizeTableRows(rows);
 
       if (typeof table === "function") {
         return table({
           name,
           ...toComposeFrame(tableFrame),
           style: JUDGMENTKIT_STYLE_NAMES.bodySmall,
-          ...normalizeTableRows(rows),
+          ...normalizedRows,
         });
       }
 
       return factories.evidencePanel({
         name,
         title: "Evidence",
-        body: rows.map((row) => row.join("  ")),
+        body: normalizedRows.values.map((row) => row.join("  ")),
         frame: tableFrame,
       });
     },

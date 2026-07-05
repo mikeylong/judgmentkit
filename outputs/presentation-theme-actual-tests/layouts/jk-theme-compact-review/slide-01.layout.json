@@ -2,13 +2,13 @@
   "schema": "openai.presentation.layout/v4",
   "unit": "px",
   "slide": {
-    "aid": "sl/fbyne2",
-    "id": "fbyne2",
+    "aid": "sl/ewovst",
+    "id": "ewovst",
     "slide": 1,
-    "layoutId": "86c5cc5d-5c2e-4320-9e64-0aac75341d6f",
+    "layoutId": "28766aa5-6c32-429d-aeed-0d3f2c6c373e",
     "layoutName": "Title Slide",
     "layoutType": "title",
-    "masterLayoutId": "d8a44095-307f-4041-803a-2f44f3a9a10d",
+    "masterLayoutId": "df60482e-fd32-4c84-bf4b-dfe83c92f053",
     "masterLayoutName": "Master",
     "backgroundColor": "bg1",
     "frame": {
@@ -45,15 +45,15 @@
   "inheritedLayers": [
     {
       "scope": "layout",
-      "id": "86c5cc5d-5c2e-4320-9e64-0aac75341d6f",
+      "id": "28766aa5-6c32-429d-aeed-0d3f2c6c373e",
       "name": "Title Slide",
       "type": "title",
-      "parentLayoutId": "d8a44095-307f-4041-803a-2f44f3a9a10d",
+      "parentLayoutId": "df60482e-fd32-4c84-bf4b-dfe83c92f053",
       "elements": []
     },
     {
       "scope": "master",
-      "id": "d8a44095-307f-4041-803a-2f44f3a9a10d",
+      "id": "df60482e-fd32-4c84-bf4b-dfe83c92f053",
       "name": "Master",
       "type": "master",
       "elements": []
@@ -64,7 +64,7 @@
       "order": 1,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/u9knih4b",
+      "aid": "sh/4r65wjud",
       "id": "1",
       "name": "judgmentkit-section-header-label",
       "bbox": [
@@ -78,8 +78,16 @@
         "path": "0.0.0"
       },
       "geometry": "rect",
-      "text": "COMPACT REVIEW",
-      "textPreview": "COMPACT REVIEW",
+      "text_summary": {
+        "present": true,
+        "sha256": "ee82dbf5d6ce393f052abfe1d48cc80c8a96a5310c1275cf280ed12fce4d1f68",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "ee82dbf5d6ce393f052abfe1d48cc80c8a96a5310c1275cf280ed12fce4d1f68",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 12,
       "resolvedTextStyle": {
         "fontSize": 12,
@@ -99,14 +107,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "COMPACT REVIEW"
+            "text_summary": {
+              "present": true,
+              "sha256": "ee82dbf5d6ce393f052abfe1d48cc80c8a96a5310c1275cf280ed12fce4d1f68",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "COMPACT REVIEW",
+          "text_summary": {
+            "present": true,
+            "sha256": "ee82dbf5d6ce393f052abfe1d48cc80c8a96a5310c1275cf280ed12fce4d1f68",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Label",
           "resolvedTextStyle": {
             "fontSize": 12,
@@ -117,7 +133,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "COMPACT REVIEW",
+              "text_summary": {
+                "present": true,
+                "sha256": "ee82dbf5d6ce393f052abfe1d48cc80c8a96a5310c1275cf280ed12fce4d1f68",
+                "length_bucket": "1-20"
+              },
               "fontSize": 12,
               "color": "tx2",
               "bold": true,
@@ -132,7 +152,7 @@
       "order": 2,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/1032lszq",
+      "aid": "sh/f6dcbulw",
       "id": "2",
       "name": "judgmentkit-section-header-title",
       "bbox": [
@@ -146,8 +166,16 @@
         "path": "0.0.1"
       },
       "geometry": "rect",
-      "text": "Compact review needs density controls",
-      "textPreview": "Compact review needs density controls",
+      "text_summary": {
+        "present": true,
+        "sha256": "98fb0f3293d3baf86c8e5c4c989b7d99fb7219a4ce21b8a27efbf993fd1169d4",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "98fb0f3293d3baf86c8e5c4c989b7d99fb7219a4ce21b8a27efbf993fd1169d4",
+        "length_bucket": "21-80"
+      },
       "resolvedFontSize": 38,
       "resolvedTextStyle": {
         "fontSize": 38,
@@ -167,14 +195,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Compact review needs density controls"
+            "text_summary": {
+              "present": true,
+              "sha256": "98fb0f3293d3baf86c8e5c4c989b7d99fb7219a4ce21b8a27efbf993fd1169d4",
+              "length_bucket": "21-80"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Compact review needs density controls",
+          "text_summary": {
+            "present": true,
+            "sha256": "98fb0f3293d3baf86c8e5c4c989b7d99fb7219a4ce21b8a27efbf993fd1169d4",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.SlideTitle",
           "resolvedTextStyle": {
             "fontSize": 38,
@@ -185,7 +221,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Compact review needs density controls",
+              "text_summary": {
+                "present": true,
+                "sha256": "98fb0f3293d3baf86c8e5c4c989b7d99fb7219a4ce21b8a27efbf993fd1169d4",
+                "length_bucket": "21-80"
+              },
               "fontSize": 38,
               "color": "tx1",
               "bold": true,
@@ -200,7 +240,7 @@
       "order": 3,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/cfa9w3m9",
+      "aid": "sh/mlkjm1cf",
       "id": "3",
       "name": "judgmentkit-evidence-panel-surface",
       "bbox": [
@@ -222,7 +262,7 @@
       "order": 4,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/jm1cfa9w",
+      "aid": "sh/xkf6dcbu",
       "id": "4",
       "name": "judgmentkit-evidence-panel-title",
       "bbox": [
@@ -236,8 +276,16 @@
         "path": "0.1.1"
       },
       "geometry": "rect",
-      "text": "Decision evidence",
-      "textPreview": "Decision evidence",
+      "text_summary": {
+        "present": true,
+        "sha256": "1879a5a1cc5167029ec825ba6c593f0a22ca00136b394257e8eda91c1bdcccf8",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "1879a5a1cc5167029ec825ba6c593f0a22ca00136b394257e8eda91c1bdcccf8",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 30,
       "resolvedTextStyle": {
         "fontSize": 30,
@@ -257,14 +305,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Decision evidence"
+            "text_summary": {
+              "present": true,
+              "sha256": "1879a5a1cc5167029ec825ba6c593f0a22ca00136b394257e8eda91c1bdcccf8",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Decision evidence",
+          "text_summary": {
+            "present": true,
+            "sha256": "1879a5a1cc5167029ec825ba6c593f0a22ca00136b394257e8eda91c1bdcccf8",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.SectionHeading",
           "resolvedTextStyle": {
             "fontSize": 30,
@@ -275,7 +331,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Decision evidence",
+              "text_summary": {
+                "present": true,
+                "sha256": "1879a5a1cc5167029ec825ba6c593f0a22ca00136b394257e8eda91c1bdcccf8",
+                "length_bucket": "1-20"
+              },
               "fontSize": 30,
               "color": "tx1",
               "bold": true,
@@ -290,7 +350,7 @@
       "order": 5,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/u18jqh0f",
+      "aid": "sh/4zidonyd",
       "id": "5",
       "name": "judgmentkit-evidence-panel-body",
       "bbox": [
@@ -304,8 +364,16 @@
         "path": "0.1.2"
       },
       "geometry": "rect",
-      "text": "Primary claim is supported.\nTemperature trace stayed within bounds.\nHandoff owner is named.",
-      "textPreview": "Primary claim is supported. | Temperature trace stayed within bounds. | Handoff owner is named.",
+      "text_summary": {
+        "present": true,
+        "sha256": "8d0500a5debead516a95e3606bdccebb714bffe074aab440c89ac9c335f3fea0",
+        "length_bucket": "81-200"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "8816c6953c7dd72b370623cf0da6dd08cd34163daba965be2801204aa50f4e93",
+        "length_bucket": "81-200"
+      },
       "resolvedFontSize": 18,
       "resolvedTextStyle": {
         "fontSize": 18,
@@ -324,22 +392,38 @@
         "lines": [
           {
             "index": 1,
-            "text": "Primary claim is supported."
+            "text_summary": {
+              "present": true,
+              "sha256": "24aa811879dc6d2f14dbfc4ee16cf7731653b43885684b9641e1eb87ee7871d3",
+              "length_bucket": "21-80"
+            }
           },
           {
             "index": 2,
-            "text": "Temperature trace stayed within bounds."
+            "text_summary": {
+              "present": true,
+              "sha256": "610ca10db1c3a30e9f6ed55ab6e8eeb291fb662fe9d83d13aa0c3a0124cdcadd",
+              "length_bucket": "21-80"
+            }
           },
           {
             "index": 3,
-            "text": "Handoff owner is named."
+            "text_summary": {
+              "present": true,
+              "sha256": "75794029074e9ff193cbaa86b29086da4ffbefe8d7489c891fbf47f35b9e42e3",
+              "length_bucket": "21-80"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Primary claim is supported.",
+          "text_summary": {
+            "present": true,
+            "sha256": "24aa811879dc6d2f14dbfc4ee16cf7731653b43885684b9641e1eb87ee7871d3",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.Body",
           "resolvedTextStyle": {
             "fontSize": 18,
@@ -349,7 +433,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Primary claim is supported.",
+              "text_summary": {
+                "present": true,
+                "sha256": "24aa811879dc6d2f14dbfc4ee16cf7731653b43885684b9641e1eb87ee7871d3",
+                "length_bucket": "21-80"
+              },
               "fontSize": 18,
               "color": "tx1",
               "alignment": "left"
@@ -359,7 +447,11 @@
         },
         {
           "index": 2,
-          "text": "Temperature trace stayed within bounds.",
+          "text_summary": {
+            "present": true,
+            "sha256": "610ca10db1c3a30e9f6ed55ab6e8eeb291fb662fe9d83d13aa0c3a0124cdcadd",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.Body",
           "resolvedTextStyle": {
             "fontSize": 18,
@@ -369,7 +461,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Temperature trace stayed within bounds.",
+              "text_summary": {
+                "present": true,
+                "sha256": "610ca10db1c3a30e9f6ed55ab6e8eeb291fb662fe9d83d13aa0c3a0124cdcadd",
+                "length_bucket": "21-80"
+              },
               "fontSize": 18,
               "color": "tx1",
               "alignment": "left"
@@ -379,7 +475,11 @@
         },
         {
           "index": 3,
-          "text": "Handoff owner is named.",
+          "text_summary": {
+            "present": true,
+            "sha256": "75794029074e9ff193cbaa86b29086da4ffbefe8d7489c891fbf47f35b9e42e3",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.Body",
           "resolvedTextStyle": {
             "fontSize": 18,
@@ -389,7 +489,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Handoff owner is named.",
+              "text_summary": {
+                "present": true,
+                "sha256": "75794029074e9ff193cbaa86b29086da4ffbefe8d7489c891fbf47f35b9e42e3",
+                "length_bucket": "21-80"
+              },
               "fontSize": 18,
               "color": "tx1",
               "alignment": "left"
@@ -403,7 +507,7 @@
       "order": 6,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/1orytsvu",
+      "aid": "sh/fepkzupw",
       "id": "6",
       "name": "judgmentkit-risk-callout-surface",
       "bbox": [
@@ -425,7 +529,7 @@
       "order": 7,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/c7u54zid",
+      "aid": "sh/mtwra5gb",
       "id": "7",
       "name": "judgmentkit-risk-callout-title",
       "bbox": [
@@ -439,8 +543,16 @@
         "path": "0.2.1"
       },
       "geometry": "rect",
-      "text": "Watch",
-      "textPreview": "Watch",
+      "text_summary": {
+        "present": true,
+        "sha256": "a71e757324467ccfe2ae90f483fd759eff5378e6afcfcce4c620de929b3f2dd8",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "a71e757324467ccfe2ae90f483fd759eff5378e6afcfcce4c620de929b3f2dd8",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 30,
       "resolvedTextStyle": {
         "fontSize": 30,
@@ -460,14 +572,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Watch"
+            "text_summary": {
+              "present": true,
+              "sha256": "a71e757324467ccfe2ae90f483fd759eff5378e6afcfcce4c620de929b3f2dd8",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Watch",
+          "text_summary": {
+            "present": true,
+            "sha256": "a71e757324467ccfe2ae90f483fd759eff5378e6afcfcce4c620de929b3f2dd8",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.SectionHeading",
           "resolvedTextStyle": {
             "fontSize": 30,
@@ -478,7 +598,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Watch",
+              "text_summary": {
+                "present": true,
+                "sha256": "a71e757324467ccfe2ae90f483fd759eff5378e6afcfcce4c620de929b3f2dd8",
+                "length_bucket": "1-20"
+              },
               "fontSize": 30,
               "color": "tx1",
               "bold": true,
@@ -493,7 +617,7 @@
       "order": 8,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/nap4r65w",
+      "aid": "sh/xobm58z2",
       "id": "8",
       "name": "judgmentkit-risk-callout-body",
       "bbox": [
@@ -507,8 +631,16 @@
         "path": "0.2.2"
       },
       "geometry": "rect",
-      "text": "Longer evidence copy can run close to the panel edge.\nSmall labels become hard to read on the compact canvas.",
-      "textPreview": "Longer evidence copy can run close to the panel edge. | Small labels become hard to read on the compact canvas.",
+      "text_summary": {
+        "present": true,
+        "sha256": "4bbe704d4044f9ef7ed138fb4810d55781f513a48d89515e61fc798938d90f08",
+        "length_bucket": "81-200"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "0b8a78de50abed50ff7ac8b32247dc9a0093c6a5430519155ff7f84dd8488516",
+        "length_bucket": "81-200"
+      },
       "resolvedFontSize": 18,
       "resolvedTextStyle": {
         "fontSize": 18,
@@ -527,26 +659,46 @@
         "lines": [
           {
             "index": 1,
-            "text": "Longer evidence copy can run close to the"
+            "text_summary": {
+              "present": true,
+              "sha256": "42d6fb66be5b362dfcc3a5cc3a8af8fd3523578892b7b63c9d4d6498815e1ccd",
+              "length_bucket": "21-80"
+            }
           },
           {
             "index": 2,
-            "text": "panel edge."
+            "text_summary": {
+              "present": true,
+              "sha256": "4b131118ebeec2205ef07c3d3f56861d81d48f74cde61656848df0bbb22cd122",
+              "length_bucket": "1-20"
+            }
           },
           {
             "index": 3,
-            "text": "Small labels become hard to read on the"
+            "text_summary": {
+              "present": true,
+              "sha256": "f67739661d3e4a6e439f377a4b4b06f3678c1e3d04503e804106fe248cf01555",
+              "length_bucket": "21-80"
+            }
           },
           {
             "index": 4,
-            "text": "compact canvas."
+            "text_summary": {
+              "present": true,
+              "sha256": "fe6d07b29875c6f7af53c4b9af291228af96fb39c69e95e3f4e3a3dbcc46ccd9",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Longer evidence copy can run close to the panel edge.",
+          "text_summary": {
+            "present": true,
+            "sha256": "4168a02c23df2d301bc1aac4e03359ea289b2ca9e97aedea2a2e736a03108069",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.Body",
           "resolvedTextStyle": {
             "fontSize": 18,
@@ -556,7 +708,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Longer evidence copy can run close to the panel edge.",
+              "text_summary": {
+                "present": true,
+                "sha256": "4168a02c23df2d301bc1aac4e03359ea289b2ca9e97aedea2a2e736a03108069",
+                "length_bucket": "21-80"
+              },
               "fontSize": 18,
               "color": "tx1",
               "alignment": "left"
@@ -566,7 +722,11 @@
         },
         {
           "index": 2,
-          "text": "Small labels become hard to read on the compact canvas.",
+          "text_summary": {
+            "present": true,
+            "sha256": "fd4c0a27c1403daaa40df57b4a2eab5e789439fac2007603e446606647e38e64",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.Body",
           "resolvedTextStyle": {
             "fontSize": 18,
@@ -576,7 +736,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Small labels become hard to read on the compact canvas.",
+              "text_summary": {
+                "present": true,
+                "sha256": "fd4c0a27c1403daaa40df57b4a2eab5e789439fac2007603e446606647e38e64",
+                "length_bucket": "21-80"
+              },
               "fontSize": 18,
               "color": "tx1",
               "alignment": "left"
@@ -590,7 +754,7 @@
       "order": 9,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/upwb2hwf",
+      "aid": "sh/83itgfml",
       "id": "9",
       "name": "judgmentkit-status-pill-surface",
       "bbox": [
@@ -612,7 +776,7 @@
       "order": 10,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/orytsvu9",
+      "aid": "sh/y90je9cv",
       "id": "10",
       "name": "judgmentkit-status-pill-label",
       "bbox": [
@@ -626,8 +790,16 @@
         "path": "0.3.1"
       },
       "geometry": "rect",
-      "text": "Needs readback",
-      "textPreview": "Needs readback",
+      "text_summary": {
+        "present": true,
+        "sha256": "7b6fe4032525174e074ee54470d65359f4137c2ac3980787c6434469b462fa56",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "7b6fe4032525174e074ee54470d65359f4137c2ac3980787c6434469b462fa56",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 14,
       "resolvedTextStyle": {
         "fontSize": 14,
@@ -647,14 +819,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Needs readback"
+            "text_summary": {
+              "present": true,
+              "sha256": "7b6fe4032525174e074ee54470d65359f4137c2ac3980787c6434469b462fa56",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Needs readback",
+          "text_summary": {
+            "present": true,
+            "sha256": "7b6fe4032525174e074ee54470d65359f4137c2ac3980787c6434469b462fa56",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Status.Warning",
           "resolvedTextStyle": {
             "fontSize": 14,
@@ -665,7 +845,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Needs readback",
+              "text_summary": {
+                "present": true,
+                "sha256": "7b6fe4032525174e074ee54470d65359f4137c2ac3980787c6434469b462fa56",
+                "length_bucket": "1-20"
+              },
               "fontSize": 14,
               "color": "accent4",
               "bold": true,
@@ -680,7 +864,7 @@
       "order": 11,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/hcrmhk3q",
+      "aid": "sh/nuxc3ylc",
       "id": "11",
       "name": "judgmentkit-handoff-receipt-surface",
       "bbox": [
@@ -702,7 +886,7 @@
       "order": 12,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/al87ed8b",
+      "aid": "sh/gbq1oryt",
       "id": "12",
       "name": "judgmentkit-handoff-receipt-title",
       "bbox": [
@@ -716,8 +900,16 @@
         "path": "0.4.1"
       },
       "geometry": "rect",
-      "text": "Exit state",
-      "textPreview": "Exit state",
+      "text_summary": {
+        "present": true,
+        "sha256": "c4b28ae4a0a4518a5799372cd9a10616e10c942dd0f2e6e253eefdc8d59f311f",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "c4b28ae4a0a4518a5799372cd9a10616e10c942dd0f2e6e253eefdc8d59f311f",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 30,
       "resolvedTextStyle": {
         "fontSize": 30,
@@ -737,14 +929,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Exit state"
+            "text_summary": {
+              "present": true,
+              "sha256": "c4b28ae4a0a4518a5799372cd9a10616e10c942dd0f2e6e253eefdc8d59f311f",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Exit state",
+          "text_summary": {
+            "present": true,
+            "sha256": "c4b28ae4a0a4518a5799372cd9a10616e10c942dd0f2e6e253eefdc8d59f311f",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.SectionHeading",
           "resolvedTextStyle": {
             "fontSize": 30,
@@ -755,7 +955,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Exit state",
+              "text_summary": {
+                "present": true,
+                "sha256": "c4b28ae4a0a4518a5799372cd9a10616e10c942dd0f2e6e253eefdc8d59f311f",
+                "length_bucket": "1-20"
+              },
               "fontSize": 30,
               "color": "tx1",
               "bold": true,
@@ -770,7 +974,7 @@
       "order": 13,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/z61032ls",
+      "aid": "sh/5wjudg7a",
       "id": "13",
       "name": "judgmentkit-handoff-receipt-body",
       "bbox": [
@@ -784,8 +988,16 @@
         "path": "0.4.2"
       },
       "geometry": "rect",
-      "text": "Reviewer leaves with a clear decision, a named owner, and a short evidence trail.",
-      "textPreview": "Reviewer leaves with a clear decision, a named owner, and a short evidence trail.",
+      "text_summary": {
+        "present": true,
+        "sha256": "cae3cd2135869ae10a48602cc6a573f8ffd0e47b0d1b27898c0333948016796f",
+        "length_bucket": "81-200"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "cae3cd2135869ae10a48602cc6a573f8ffd0e47b0d1b27898c0333948016796f",
+        "length_bucket": "81-200"
+      },
       "resolvedFontSize": 18,
       "resolvedTextStyle": {
         "fontSize": 18,
@@ -804,18 +1016,30 @@
         "lines": [
           {
             "index": 1,
-            "text": "Reviewer leaves with a clear decision, a named owner, and a short"
+            "text_summary": {
+              "present": true,
+              "sha256": "3fcd1a6fd263dc326892108461106067946093d77a3101b2fe25d71579086fe2",
+              "length_bucket": "21-80"
+            }
           },
           {
             "index": 2,
-            "text": "evidence trail."
+            "text_summary": {
+              "present": true,
+              "sha256": "2d1fe325e30ec32290da3496d098e407e7c95039790424176d46b5dc72492050",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Reviewer leaves with a clear decision, a named owner, and a short evidence trail.",
+          "text_summary": {
+            "present": true,
+            "sha256": "cae3cd2135869ae10a48602cc6a573f8ffd0e47b0d1b27898c0333948016796f",
+            "length_bucket": "81-200"
+          },
           "styleId": "JK.Body",
           "resolvedTextStyle": {
             "fontSize": 18,
@@ -825,7 +1049,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Reviewer leaves with a clear decision, a named owner, and a short evidence trail.",
+              "text_summary": {
+                "present": true,
+                "sha256": "cae3cd2135869ae10a48602cc6a573f8ffd0e47b0d1b27898c0333948016796f",
+                "length_bucket": "81-200"
+              },
               "fontSize": 18,
               "color": "tx1",
               "alignment": "left"
@@ -931,10 +1159,14 @@
                   "height": 24
                 },
                 "children": [],
-                "text": "COMPACT REVIEW",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "ee82dbf5d6ce393f052abfe1d48cc80c8a96a5310c1275cf280ed12fce4d1f68",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/u9knih4b",
+                  "aid": "sh/4r65wjud",
                   "id": "1",
                   "kind": "shape"
                 }
@@ -974,10 +1206,14 @@
                   "height": 58
                 },
                 "children": [],
-                "text": "Compact review needs density controls",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "98fb0f3293d3baf86c8e5c4c989b7d99fb7219a4ce21b8a27efbf993fd1169d4",
+                  "length_bucket": "21-80"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/1032lszq",
+                  "aid": "sh/f6dcbulw",
                   "id": "2",
                   "kind": "shape"
                 }
@@ -1080,7 +1316,7 @@
                 "children": [],
                 "geometry": "rect",
                 "element": {
-                  "aid": "sh/cfa9w3m9",
+                  "aid": "sh/mlkjm1cf",
                   "id": "3",
                   "kind": "shape"
                 }
@@ -1120,10 +1356,14 @@
                   "height": 34
                 },
                 "children": [],
-                "text": "Decision evidence",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "1879a5a1cc5167029ec825ba6c593f0a22ca00136b394257e8eda91c1bdcccf8",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/jm1cfa9w",
+                  "aid": "sh/xkf6dcbu",
                   "id": "4",
                   "kind": "shape"
                 }
@@ -1163,10 +1403,14 @@
                   "height": 114
                 },
                 "children": [],
-                "text": "Primary claim is supported.Temperature trace stayed within bounds.Handoff owner is named.",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "17a8a79f8000e220d521639861de35ad487cc6e44a54ce3c847ea49ba7d701c5",
+                  "length_bucket": "81-200"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/u18jqh0f",
+                  "aid": "sh/4zidonyd",
                   "id": "5",
                   "kind": "shape"
                 }
@@ -1278,7 +1522,7 @@
                 "children": [],
                 "geometry": "rect",
                 "element": {
-                  "aid": "sh/1orytsvu",
+                  "aid": "sh/fepkzupw",
                   "id": "6",
                   "kind": "shape"
                 }
@@ -1318,10 +1562,14 @@
                   "height": 34
                 },
                 "children": [],
-                "text": "Watch",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "a71e757324467ccfe2ae90f483fd759eff5378e6afcfcce4c620de929b3f2dd8",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/c7u54zid",
+                  "aid": "sh/mtwra5gb",
                   "id": "7",
                   "kind": "shape"
                 }
@@ -1361,10 +1609,14 @@
                   "height": 114
                 },
                 "children": [],
-                "text": "Longer evidence copy can run close to the panel edge.Small labels become hard to read on the compact canvas.",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "f38759615ff7ec9ecd6a76b8ec5f5ea914a409a464cfe60f32b6ed287b6e3719",
+                  "length_bucket": "81-200"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/nap4r65w",
+                  "aid": "sh/xobm58z2",
                   "id": "8",
                   "kind": "shape"
                 }
@@ -1476,7 +1728,7 @@
                 "children": [],
                 "geometry": "roundRect",
                 "element": {
-                  "aid": "sh/upwb2hwf",
+                  "aid": "sh/83itgfml",
                   "id": "9",
                   "kind": "shape"
                 }
@@ -1516,10 +1768,14 @@
                   "height": 21
                 },
                 "children": [],
-                "text": "Needs readback",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "7b6fe4032525174e074ee54470d65359f4137c2ac3980787c6434469b462fa56",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/orytsvu9",
+                  "aid": "sh/y90je9cv",
                   "id": "10",
                   "kind": "shape"
                 }
@@ -1622,7 +1878,7 @@
                 "children": [],
                 "geometry": "rect",
                 "element": {
-                  "aid": "sh/hcrmhk3q",
+                  "aid": "sh/nuxc3ylc",
                   "id": "11",
                   "kind": "shape"
                 }
@@ -1662,10 +1918,14 @@
                   "height": 34
                 },
                 "children": [],
-                "text": "Exit state",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "c4b28ae4a0a4518a5799372cd9a10616e10c942dd0f2e6e253eefdc8d59f311f",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/al87ed8b",
+                  "aid": "sh/gbq1oryt",
                   "id": "12",
                   "kind": "shape"
                 }
@@ -1705,10 +1965,14 @@
                   "height": 40
                 },
                 "children": [],
-                "text": "Reviewer leaves with a clear decision, a named owner, and a short evidence trail.",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "cae3cd2135869ae10a48602cc6a573f8ffd0e47b0d1b27898c0333948016796f",
+                  "length_bucket": "81-200"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/z61032ls",
+                  "aid": "sh/5wjudg7a",
                   "id": "13",
                   "kind": "shape"
                 }

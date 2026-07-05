@@ -84,8 +84,16 @@
         24
       ],
       "geometry": "rect",
-      "text": "CHART FRAME",
-      "textPreview": "CHART FRAME",
+      "text_summary": {
+        "present": true,
+        "sha256": "81e8ba560f6d9f57ac3efd74d362cbe25d9f0389aa752c567c7e569ceb9bf868",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "81e8ba560f6d9f57ac3efd74d362cbe25d9f0389aa752c567c7e569ceb9bf868",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 24,
       "resolvedTextStyle": {
         "fontSize": 24,
@@ -104,14 +112,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "CHART FRAME"
+            "text_summary": {
+              "present": true,
+              "sha256": "81e8ba560f6d9f57ac3efd74d362cbe25d9f0389aa752c567c7e569ceb9bf868",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "CHART FRAME",
+          "text_summary": {
+            "present": true,
+            "sha256": "81e8ba560f6d9f57ac3efd74d362cbe25d9f0389aa752c567c7e569ceb9bf868",
+            "length_bucket": "1-20"
+          },
           "resolvedTextStyle": {
             "fontSize": 12,
             "color": "tx2",
@@ -121,7 +137,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "CHART FRAME",
+              "text_summary": {
+                "present": true,
+                "sha256": "81e8ba560f6d9f57ac3efd74d362cbe25d9f0389aa752c567c7e569ceb9bf868",
+                "length_bucket": "1-20"
+              },
               "fontSize": 12,
               "color": "tx2",
               "bold": true,
@@ -147,8 +167,16 @@
         96
       ],
       "geometry": "rect",
-      "text": "A native chart should sit cleanly inside an adapter media frame",
-      "textPreview": "A native chart should sit cleanly inside an adapter media frame",
+      "text_summary": {
+        "present": true,
+        "sha256": "9df65997e349b30cfb49ab65768f6ced9c4e03c8cfea7433056a008bbd50ae6d",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "9df65997e349b30cfb49ab65768f6ced9c4e03c8cfea7433056a008bbd50ae6d",
+        "length_bucket": "21-80"
+      },
       "resolvedFontSize": 24,
       "resolvedTextStyle": {
         "fontSize": 24,
@@ -167,14 +195,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "A native chart should sit cleanly inside an adapter media frame"
+            "text_summary": {
+              "present": true,
+              "sha256": "9df65997e349b30cfb49ab65768f6ced9c4e03c8cfea7433056a008bbd50ae6d",
+              "length_bucket": "21-80"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "A native chart should sit cleanly inside an adapter media frame",
+          "text_summary": {
+            "present": true,
+            "sha256": "9df65997e349b30cfb49ab65768f6ced9c4e03c8cfea7433056a008bbd50ae6d",
+            "length_bucket": "21-80"
+          },
           "resolvedTextStyle": {
             "fontSize": 38,
             "color": "tx1",
@@ -184,7 +220,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "A native chart should sit cleanly inside an adapter media frame",
+              "text_summary": {
+                "present": true,
+                "sha256": "9df65997e349b30cfb49ab65768f6ced9c4e03c8cfea7433056a008bbd50ae6d",
+                "length_bucket": "21-80"
+              },
               "fontSize": 38,
               "color": "tx1",
               "bold": true,

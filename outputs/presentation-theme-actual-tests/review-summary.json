@@ -1,0 +1,477 @@
+{
+  "binary_artifacts": [
+    {
+      "byte_size": 35368,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "webp",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9.webp",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e"
+    },
+    {
+      "byte_size": 71549,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "png",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-01.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e"
+    },
+    {
+      "byte_size": 80469,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "png",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-02.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e"
+    },
+    {
+      "byte_size": 27997,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "png",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-03.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e"
+    },
+    {
+      "byte_size": 83743,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "png",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-04.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e"
+    },
+    {
+      "byte_size": 34898,
+      "case_id": "jk-theme-compact-review",
+      "kind": "webp",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-compact-review.webp",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "4037a24f5a8b5eaec4a5c5b30de85c3fc7a0556299ab8678190794e61f2314d0"
+    },
+    {
+      "byte_size": 70030,
+      "case_id": "jk-theme-compact-review",
+      "kind": "png",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-compact-review/slide-01.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "4037a24f5a8b5eaec4a5c5b30de85c3fc7a0556299ab8678190794e61f2314d0"
+    },
+    {
+      "byte_size": 43782,
+      "case_id": "jk-theme-custom-4x3",
+      "kind": "webp",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-custom-4x3.webp",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "0e114ebc97062343e05fdb84f9dde2bd939d95a17c7f72db816fb907d364bb02"
+    },
+    {
+      "byte_size": 94802,
+      "case_id": "jk-theme-custom-4x3",
+      "kind": "png",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-custom-4x3/slide-01.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "0e114ebc97062343e05fdb84f9dde2bd939d95a17c7f72db816fb907d364bb02"
+    },
+    {
+      "byte_size": 102251,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "montage",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9-montage.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e"
+    },
+    {
+      "byte_size": 22764,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "pptx",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9.pptx",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e"
+    },
+    {
+      "byte_size": 94210,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "png",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-1.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e"
+    },
+    {
+      "byte_size": 105162,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "png",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-2.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e"
+    },
+    {
+      "byte_size": 39757,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "png",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-3.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e"
+    },
+    {
+      "byte_size": 108305,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "png",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-4.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e"
+    },
+    {
+      "byte_size": 39510,
+      "case_id": "jk-theme-compact-review",
+      "kind": "montage",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-compact-review-montage.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "4037a24f5a8b5eaec4a5c5b30de85c3fc7a0556299ab8678190794e61f2314d0"
+    },
+    {
+      "byte_size": 13175,
+      "case_id": "jk-theme-compact-review",
+      "kind": "pptx",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-compact-review.pptx",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "4037a24f5a8b5eaec4a5c5b30de85c3fc7a0556299ab8678190794e61f2314d0"
+    },
+    {
+      "byte_size": 125925,
+      "case_id": "jk-theme-compact-review",
+      "kind": "png",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-compact-review/slide-1.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "4037a24f5a8b5eaec4a5c5b30de85c3fc7a0556299ab8678190794e61f2314d0"
+    },
+    {
+      "byte_size": 35044,
+      "case_id": "jk-theme-custom-4x3",
+      "kind": "montage",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3-montage.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "0e114ebc97062343e05fdb84f9dde2bd939d95a17c7f72db816fb907d364bb02"
+    },
+    {
+      "byte_size": 13329,
+      "case_id": "jk-theme-custom-4x3",
+      "kind": "pptx",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3.pptx",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "0e114ebc97062343e05fdb84f9dde2bd939d95a17c7f72db816fb907d364bb02"
+    },
+    {
+      "byte_size": 115339,
+      "case_id": "jk-theme-custom-4x3",
+      "kind": "png",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3/slide-1.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "0e114ebc97062343e05fdb84f9dde2bd939d95a17c7f72db816fb907d364bb02"
+    }
+  ],
+  "binary_hash_policy": "Binary PPTX/PNG/WEBP hash changes require paired semantic guard changes; hashes include semantic_guard_paths and semantic_guard_sha256 for review.",
+  "cases": [
+    {
+      "evidence": "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+      "id": "jk-theme-canonical-16x9",
+      "pptx": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9.pptx",
+      "raster": {
+        "contact_sheet": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9-montage.png",
+        "rendered_png_directory": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9",
+        "status": "available"
+      },
+      "slide_count": 4,
+      "slide_size": {
+        "height": 720,
+        "width": 1280
+      }
+    },
+    {
+      "evidence": "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+      "id": "jk-theme-custom-4x3",
+      "pptx": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3.pptx",
+      "raster": {
+        "contact_sheet": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3-montage.png",
+        "rendered_png_directory": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3",
+        "status": "available"
+      },
+      "slide_count": 1,
+      "slide_size": {
+        "height": 768,
+        "width": 1024
+      }
+    },
+    {
+      "evidence": "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+      "id": "jk-theme-compact-review",
+      "pptx": "outputs/presentation-theme-actual-tests/jk-theme-compact-review.pptx",
+      "raster": {
+        "contact_sheet": "outputs/presentation-theme-actual-tests/jk-theme-compact-review-montage.png",
+        "rendered_png_directory": "outputs/presentation-theme-actual-tests/jk-theme-compact-review",
+        "status": "available"
+      },
+      "slide_count": 1,
+      "slide_size": {
+        "height": 540,
+        "width": 960
+      }
+    }
+  ],
+  "file_count": 48,
+  "review_order": [
+    "README.md",
+    "manifest.json",
+    "hashes.json",
+    "contact sheets",
+    "full-size PNGs"
+  ],
+  "runtime_fingerprint": {
+    "mode": "committed_replay",
+    "raster_available": true
+  },
+  "semantic_artifacts": [
+    {
+      "byte_size": 11296,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "evidence",
+      "path": "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json"
+    },
+    {
+      "byte_size": 7576,
+      "case_id": "jk-theme-compact-review",
+      "kind": "evidence",
+      "path": "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json"
+    },
+    {
+      "byte_size": 8182,
+      "case_id": "jk-theme-custom-4x3",
+      "kind": "evidence",
+      "path": "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json"
+    },
+    {
+      "byte_size": 31700,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "layout",
+      "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-01.layout.json"
+    },
+    {
+      "byte_size": 23857,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "layout",
+      "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-02.layout.json"
+    },
+    {
+      "byte_size": 6707,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "layout",
+      "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-03.layout.json"
+    },
+    {
+      "byte_size": 26610,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "layout",
+      "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-04.layout.json"
+    },
+    {
+      "byte_size": 26643,
+      "case_id": "jk-theme-compact-review",
+      "kind": "layout",
+      "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-compact-review/slide-01.layout.json"
+    },
+    {
+      "byte_size": 36095,
+      "case_id": "jk-theme-custom-4x3",
+      "kind": "layout",
+      "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-custom-4x3/slide-01.layout.json"
+    },
+    {
+      "byte_size": 13425,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "inspect",
+      "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+    },
+    {
+      "byte_size": 13416,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "inspect",
+      "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.ndjson"
+    },
+    {
+      "byte_size": 4564,
+      "case_id": "jk-theme-compact-review",
+      "kind": "inspect",
+      "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson"
+    },
+    {
+      "byte_size": 4566,
+      "case_id": "jk-theme-compact-review",
+      "kind": "inspect",
+      "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.ndjson"
+    },
+    {
+      "byte_size": 6652,
+      "case_id": "jk-theme-custom-4x3",
+      "kind": "inspect",
+      "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson"
+    },
+    {
+      "byte_size": 6654,
+      "case_id": "jk-theme-custom-4x3",
+      "kind": "inspect",
+      "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.ndjson"
+    },
+    {
+      "byte_size": 68265,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "layout",
+      "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-01.layout.json"
+    },
+    {
+      "byte_size": 48738,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "layout",
+      "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-02.layout.json"
+    },
+    {
+      "byte_size": 13660,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "layout",
+      "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-03.layout.json"
+    },
+    {
+      "byte_size": 40066,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "layout",
+      "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-04.layout.json"
+    },
+    {
+      "byte_size": 56118,
+      "case_id": "jk-theme-compact-review",
+      "kind": "layout",
+      "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-compact-review/slide-01.layout.json"
+    },
+    {
+      "byte_size": 74771,
+      "case_id": "jk-theme-custom-4x3",
+      "kind": "layout",
+      "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-custom-4x3/slide-01.layout.json"
+    },
+    {
+      "byte_size": 22,
+      "kind": "manifest",
+      "path": "outputs/presentation-theme-actual-tests/manifest.json"
+    },
+    {
+      "byte_size": 681,
+      "kind": "readme",
+      "path": "outputs/presentation-theme-actual-tests/README.md"
+    },
+    {
+      "byte_size": 22,
+      "kind": "manifest",
+      "path": "outputs/presentation-theme-actual-tests/review-summary.json"
+    },
+    {
+      "byte_size": 1600,
+      "case_id": "jk-theme-canonical-16x9",
+      "kind": "structural",
+      "path": "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json"
+    },
+    {
+      "byte_size": 1007,
+      "case_id": "jk-theme-compact-review",
+      "kind": "structural",
+      "path": "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json"
+    },
+    {
+      "byte_size": 1007,
+      "case_id": "jk-theme-custom-4x3",
+      "kind": "structural",
+      "path": "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json"
+    }
+  ]
+}

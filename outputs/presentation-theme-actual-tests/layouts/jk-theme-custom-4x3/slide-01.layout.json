@@ -2,13 +2,13 @@
   "schema": "openai.presentation.layout/v4",
   "unit": "px",
   "slide": {
-    "aid": "sl/i5sac9",
-    "id": "i5sac9",
+    "aid": "sl/fp5us1",
+    "id": "fp5us1",
     "slide": 1,
-    "layoutId": "386531c7-1af1-487d-84bc-8f831fe189fe",
+    "layoutId": "5d38943f-1bf6-4905-830b-0010d4cc68b8",
     "layoutName": "Title Slide",
     "layoutType": "title",
-    "masterLayoutId": "de1e4d21-7533-4c1d-8ab6-9cdf194289b6",
+    "masterLayoutId": "a7927716-3c34-44c6-979d-167928c0c981",
     "masterLayoutName": "Master",
     "backgroundColor": "bg1",
     "frame": {
@@ -45,15 +45,15 @@
   "inheritedLayers": [
     {
       "scope": "layout",
-      "id": "386531c7-1af1-487d-84bc-8f831fe189fe",
+      "id": "5d38943f-1bf6-4905-830b-0010d4cc68b8",
       "name": "Title Slide",
       "type": "title",
-      "parentLayoutId": "de1e4d21-7533-4c1d-8ab6-9cdf194289b6",
+      "parentLayoutId": "a7927716-3c34-44c6-979d-167928c0c981",
       "elements": []
     },
     {
       "scope": "master",
-      "id": "de1e4d21-7533-4c1d-8ab6-9cdf194289b6",
+      "id": "a7927716-3c34-44c6-979d-167928c0c981",
       "name": "Master",
       "type": "master",
       "elements": []
@@ -64,7 +64,7 @@
       "order": 1,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/s36hcrmh",
+      "aid": "sh/6tovahoz",
       "id": "1",
       "name": "judgmentkit-title-block-eyebrow",
       "bbox": [
@@ -78,8 +78,16 @@
         "path": "0.0.0"
       },
       "geometry": "rect",
-      "text": "CUSTOM SIZE CHECK",
-      "textPreview": "CUSTOM SIZE CHECK",
+      "text_summary": {
+        "present": true,
+        "sha256": "18c62e46b90129c4a63a0a621b357c219b8f32ecb9501e0886d0d4adfe797f9c",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "18c62e46b90129c4a63a0a621b357c219b8f32ecb9501e0886d0d4adfe797f9c",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 12,
       "resolvedTextStyle": {
         "fontSize": 12,
@@ -99,14 +107,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "CUSTOM SIZE CHECK"
+            "text_summary": {
+              "present": true,
+              "sha256": "18c62e46b90129c4a63a0a621b357c219b8f32ecb9501e0886d0d4adfe797f9c",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "CUSTOM SIZE CHECK",
+          "text_summary": {
+            "present": true,
+            "sha256": "18c62e46b90129c4a63a0a621b357c219b8f32ecb9501e0886d0d4adfe797f9c",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Label",
           "resolvedTextStyle": {
             "fontSize": 12,
@@ -117,7 +133,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "CUSTOM SIZE CHECK",
+              "text_summary": {
+                "present": true,
+                "sha256": "18c62e46b90129c4a63a0a621b357c219b8f32ecb9501e0886d0d4adfe797f9c",
+                "length_bucket": "1-20"
+              },
               "fontSize": 12,
               "color": "tx2",
               "bold": true,
@@ -132,7 +152,7 @@
       "order": 2,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/zidonyd0",
+      "aid": "sh/dg7adsji",
       "id": "2",
       "name": "judgmentkit-title-block-title",
       "bbox": [
@@ -146,8 +166,16 @@
         "path": "0.0.1"
       },
       "geometry": "rect",
-      "text": "A 4:3 deck should not inherit widescreen component defaults",
-      "textPreview": "A 4:3 deck should not inherit widescreen component defaults",
+      "text_summary": {
+        "present": true,
+        "sha256": "106b759a030ea8db02d72a0d3a2bdad96aa86c5f9475f92627a163119b0303ff",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "106b759a030ea8db02d72a0d3a2bdad96aa86c5f9475f92627a163119b0303ff",
+        "length_bucket": "21-80"
+      },
       "resolvedFontSize": 52,
       "resolvedTextStyle": {
         "fontSize": 52,
@@ -167,18 +195,30 @@
         "lines": [
           {
             "index": 1,
-            "text": "A 4:3 deck should not inherit"
+            "text_summary": {
+              "present": true,
+              "sha256": "2ac7afb68bb235914d70a6941e52bf42bca9fe7b23875554985a4cbeded14260",
+              "length_bucket": "21-80"
+            }
           },
           {
             "index": 2,
-            "text": "widescreen component defaults"
+            "text_summary": {
+              "present": true,
+              "sha256": "9a049352a16632cbac4e4f9465ce9c834c6c543afdbc275b218cbd4a5faa6756",
+              "length_bucket": "21-80"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "A 4:3 deck should not inherit widescreen component defaults",
+          "text_summary": {
+            "present": true,
+            "sha256": "106b759a030ea8db02d72a0d3a2bdad96aa86c5f9475f92627a163119b0303ff",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.Display",
           "resolvedTextStyle": {
             "fontSize": 52,
@@ -189,7 +229,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "A 4:3 deck should not inherit widescreen component defaults",
+              "text_summary": {
+                "present": true,
+                "sha256": "106b759a030ea8db02d72a0d3a2bdad96aa86c5f9475f92627a163119b0303ff",
+                "length_bucket": "21-80"
+              },
               "fontSize": 52,
               "color": "tx1",
               "bold": true,
@@ -204,7 +248,7 @@
       "order": 3,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/a1gvy90j",
+      "aid": "sh/ovahoza1",
       "id": "3",
       "name": "judgmentkit-title-block-subtitle",
       "bbox": [
@@ -218,8 +262,16 @@
         "path": "0.0.2"
       },
       "geometry": "rect",
-      "text": "Default content frames and component widths should match the 1024 by 768 canvas.",
-      "textPreview": "Default content frames and component widths should match the 1024 by 768 canvas.",
+      "text_summary": {
+        "present": true,
+        "sha256": "9d344e1b3ab0c8cfe8dc904377e83cd3dd2155d9cbcb19a48439e4606ffe0592",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "9d344e1b3ab0c8cfe8dc904377e83cd3dd2155d9cbcb19a48439e4606ffe0592",
+        "length_bucket": "21-80"
+      },
       "resolvedFontSize": 24,
       "resolvedTextStyle": {
         "fontSize": 24,
@@ -238,18 +290,30 @@
         "lines": [
           {
             "index": 1,
-            "text": "Default content frames and component widths should match"
+            "text_summary": {
+              "present": true,
+              "sha256": "9c06b2b361e834f61edbcbb729849efd8ad13a8e1ae28e0975befd21cef88e40",
+              "length_bucket": "21-80"
+            }
           },
           {
             "index": 2,
-            "text": "the 1024 by 768 canvas."
+            "text_summary": {
+              "present": true,
+              "sha256": "9b407b5fe6209a3d37954400a7650c38a3435625ba7e1834cbe702ae174d733a",
+              "length_bucket": "21-80"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Default content frames and component widths should match the 1024 by 768 canvas.",
+          "text_summary": {
+            "present": true,
+            "sha256": "9d344e1b3ab0c8cfe8dc904377e83cd3dd2155d9cbcb19a48439e4606ffe0592",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.Subtitle",
           "resolvedTextStyle": {
             "fontSize": 24,
@@ -259,7 +323,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Default content frames and component widths should match the 1024 by 768 canvas.",
+              "text_summary": {
+                "present": true,
+                "sha256": "9d344e1b3ab0c8cfe8dc904377e83cd3dd2155d9cbcb19a48439e4606ffe0592",
+                "length_bucket": "21-80"
+              },
               "fontSize": 24,
               "color": "tx2",
               "alignment": "left"
@@ -273,7 +341,7 @@
       "order": 4,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/hgn29gr2",
+      "aid": "sh/z25kb6xk",
       "id": "4",
       "name": "judgmentkit-metric-tile-surface",
       "bbox": [
@@ -295,7 +363,7 @@
       "order": 5,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/svu9knih",
+      "aid": "sh/6hcrmhk3",
       "id": "5",
       "name": "judgmentkit-metric-tile-label",
       "bbox": [
@@ -309,8 +377,16 @@
         "path": "0.1.1"
       },
       "geometry": "rect",
-      "text": "Canvas",
-      "textPreview": "Canvas",
+      "text_summary": {
+        "present": true,
+        "sha256": "3824a9f4dafe92c6f1b80b40656a59784c03a824c27d58125d7d0ace753e2df2",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "3824a9f4dafe92c6f1b80b40656a59784c03a824c27d58125d7d0ace753e2df2",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 12,
       "resolvedTextStyle": {
         "fontSize": 12,
@@ -330,14 +406,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Canvas"
+            "text_summary": {
+              "present": true,
+              "sha256": "3824a9f4dafe92c6f1b80b40656a59784c03a824c27d58125d7d0ace753e2df2",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Canvas",
+          "text_summary": {
+            "present": true,
+            "sha256": "3824a9f4dafe92c6f1b80b40656a59784c03a824c27d58125d7d0ace753e2df2",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Label",
           "resolvedTextStyle": {
             "fontSize": 12,
@@ -348,7 +432,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Canvas",
+              "text_summary": {
+                "present": true,
+                "sha256": "3824a9f4dafe92c6f1b80b40656a59784c03a824c27d58125d7d0ace753e2df2",
+                "length_bucket": "1-20"
+              },
               "fontSize": 12,
               "color": "tx2",
               "bold": true,
@@ -363,7 +451,7 @@
       "order": 6,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/za1gvy90",
+      "aid": "sh/d8v6psfi",
       "id": "6",
       "name": "judgmentkit-metric-tile-value",
       "bbox": [
@@ -377,8 +465,16 @@
         "path": "0.1.2"
       },
       "geometry": "rect",
-      "text": "4:3",
-      "textPreview": "4:3",
+      "text_summary": {
+        "present": true,
+        "sha256": "3be52504bc3601514c8eb1a050a3ccdba6326a46d4f1c7d3c051e64c4c750b1f",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "3be52504bc3601514c8eb1a050a3ccdba6326a46d4f1c7d3c051e64c4c750b1f",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 42,
       "resolvedTextStyle": {
         "fontSize": 42,
@@ -398,14 +494,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "4:3"
+            "text_summary": {
+              "present": true,
+              "sha256": "3be52504bc3601514c8eb1a050a3ccdba6326a46d4f1c7d3c051e64c4c750b1f",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "4:3",
+          "text_summary": {
+            "present": true,
+            "sha256": "3be52504bc3601514c8eb1a050a3ccdba6326a46d4f1c7d3c051e64c4c750b1f",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Numeric",
           "resolvedTextStyle": {
             "fontSize": 42,
@@ -416,7 +520,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "4:3",
+              "text_summary": {
+                "present": true,
+                "sha256": "3be52504bc3601514c8eb1a050a3ccdba6326a46d4f1c7d3c051e64c4c750b1f",
+                "length_bucket": "1-20"
+              },
               "fontSize": 42,
               "color": "tx1",
               "bold": true,
@@ -431,7 +539,7 @@
       "order": 7,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/ap4r65wj",
+      "aid": "sh/onyd0z61",
       "id": "7",
       "name": "judgmentkit-metric-tile-detail",
       "bbox": [
@@ -445,8 +553,16 @@
         "path": "0.1.3"
       },
       "geometry": "rect",
-      "text": "1024 by 768",
-      "textPreview": "1024 by 768",
+      "text_summary": {
+        "present": true,
+        "sha256": "862a62639ac65c948b57db58bdfaff1cdeb30cfbd3bfcbf63c83a09102a0f1fd",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "862a62639ac65c948b57db58bdfaff1cdeb30cfbd3bfcbf63c83a09102a0f1fd",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 16,
       "resolvedTextStyle": {
         "fontSize": 16,
@@ -465,14 +581,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "1024 by 768"
+            "text_summary": {
+              "present": true,
+              "sha256": "862a62639ac65c948b57db58bdfaff1cdeb30cfbd3bfcbf63c83a09102a0f1fd",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "1024 by 768",
+          "text_summary": {
+            "present": true,
+            "sha256": "862a62639ac65c948b57db58bdfaff1cdeb30cfbd3bfcbf63c83a09102a0f1fd",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.BodySmall",
           "resolvedTextStyle": {
             "fontSize": 16,
@@ -482,7 +606,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "1024 by 768",
+              "text_summary": {
+                "present": true,
+                "sha256": "862a62639ac65c948b57db58bdfaff1cdeb30cfbd3bfcbf63c83a09102a0f1fd",
+                "length_bucket": "1-20"
+              },
               "fontSize": 16,
               "color": "tx1",
               "alignment": "left"
@@ -496,7 +624,7 @@
       "order": 8,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/h4byhgn2",
+      "aid": "sh/vy90je9c",
       "id": "8",
       "name": "judgmentkit-metric-tile-surface",
       "bbox": [
@@ -518,7 +646,7 @@
       "order": 9,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/sji5snel",
+      "aid": "sh/6dcbulwv",
       "id": "9",
       "name": "judgmentkit-metric-tile-label",
       "bbox": [
@@ -532,8 +660,16 @@
         "path": "0.2.1"
       },
       "geometry": "rect",
-      "text": "Content",
-      "textPreview": "Content",
+      "text_summary": {
+        "present": true,
+        "sha256": "47bd29075f8b8019f0beec6d86beda7c9bf67aaf05053dcbe0b3bcb63968517f",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "47bd29075f8b8019f0beec6d86beda7c9bf67aaf05053dcbe0b3bcb63968517f",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 12,
       "resolvedTextStyle": {
         "fontSize": 12,
@@ -553,14 +689,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Content"
+            "text_summary": {
+              "present": true,
+              "sha256": "47bd29075f8b8019f0beec6d86beda7c9bf67aaf05053dcbe0b3bcb63968517f",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Content",
+          "text_summary": {
+            "present": true,
+            "sha256": "47bd29075f8b8019f0beec6d86beda7c9bf67aaf05053dcbe0b3bcb63968517f",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Label",
           "resolvedTextStyle": {
             "fontSize": 12,
@@ -571,7 +715,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Content",
+              "text_summary": {
+                "present": true,
+                "sha256": "47bd29075f8b8019f0beec6d86beda7c9bf67aaf05053dcbe0b3bcb63968517f",
+                "length_bucket": "1-20"
+              },
               "fontSize": 12,
               "color": "tx2",
               "bold": true,
@@ -586,7 +734,7 @@
       "order": 10,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/qh0fepkz",
+      "aid": "sh/4zidonyd",
       "id": "10",
       "name": "judgmentkit-metric-tile-value",
       "bbox": [
@@ -600,8 +748,16 @@
         "path": "0.2.2"
       },
       "geometry": "rect",
-      "text": "880",
-      "textPreview": "880",
+      "text_summary": {
+        "present": true,
+        "sha256": "52efd2aad05d27e3eac3665b82f2bffa6da52351ce871c1c28e4ba69b40ea3e6",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "52efd2aad05d27e3eac3665b82f2bffa6da52351ce871c1c28e4ba69b40ea3e6",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 42,
       "resolvedTextStyle": {
         "fontSize": 42,
@@ -621,14 +777,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "880"
+            "text_summary": {
+              "present": true,
+              "sha256": "52efd2aad05d27e3eac3665b82f2bffa6da52351ce871c1c28e4ba69b40ea3e6",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "880",
+          "text_summary": {
+            "present": true,
+            "sha256": "52efd2aad05d27e3eac3665b82f2bffa6da52351ce871c1c28e4ba69b40ea3e6",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Numeric",
           "resolvedTextStyle": {
             "fontSize": 42,
@@ -639,7 +803,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "880",
+              "text_summary": {
+                "present": true,
+                "sha256": "52efd2aad05d27e3eac3665b82f2bffa6da52351ce871c1c28e4ba69b40ea3e6",
+                "length_bucket": "1-20"
+              },
               "fontSize": 42,
               "color": "tx1",
               "bold": true,
@@ -654,7 +822,7 @@
       "order": 11,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/j2t83itg",
+      "aid": "sh/xkf6dcbu",
       "id": "11",
       "name": "judgmentkit-metric-tile-detail",
       "bbox": [
@@ -668,8 +836,16 @@
         "path": "0.2.3"
       },
       "geometry": "rect",
-      "text": "Scoped frame width",
-      "textPreview": "Scoped frame width",
+      "text_summary": {
+        "present": true,
+        "sha256": "1148c667504e8fe13e0c2f06efc326411c53972c23b83de13ccbcef5455e798b",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "1148c667504e8fe13e0c2f06efc326411c53972c23b83de13ccbcef5455e798b",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 16,
       "resolvedTextStyle": {
         "fontSize": 16,
@@ -688,14 +864,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Scoped frame width"
+            "text_summary": {
+              "present": true,
+              "sha256": "1148c667504e8fe13e0c2f06efc326411c53972c23b83de13ccbcef5455e798b",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Scoped frame width",
+          "text_summary": {
+            "present": true,
+            "sha256": "1148c667504e8fe13e0c2f06efc326411c53972c23b83de13ccbcef5455e798b",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.BodySmall",
           "resolvedTextStyle": {
             "fontSize": 16,
@@ -705,7 +889,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Scoped frame width",
+              "text_summary": {
+                "present": true,
+                "sha256": "1148c667504e8fe13e0c2f06efc326411c53972c23b83de13ccbcef5455e798b",
+                "length_bucket": "1-20"
+              },
               "fontSize": 16,
               "color": "tx1",
               "alignment": "left"
@@ -719,7 +907,7 @@
       "order": 12,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/8nqxs72x",
+      "aid": "sh/mtwra5gb",
       "id": "12",
       "name": "judgmentkit-metric-tile-surface",
       "bbox": [
@@ -741,7 +929,7 @@
       "order": 13,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/18jqh0fe",
+      "aid": "sh/fepkzupw",
       "id": "13",
       "name": "judgmentkit-metric-tile-label",
       "bbox": [
@@ -755,8 +943,16 @@
         "path": "0.3.1"
       },
       "geometry": "rect",
-      "text": "Margin",
-      "textPreview": "Margin",
+      "text_summary": {
+        "present": true,
+        "sha256": "2bf63d817630601b992694bc0b0559715001b9a24e7fe0d741eea02dce9181af",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "2bf63d817630601b992694bc0b0559715001b9a24e7fe0d741eea02dce9181af",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 12,
       "resolvedTextStyle": {
         "fontSize": 12,
@@ -776,14 +972,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Margin"
+            "text_summary": {
+              "present": true,
+              "sha256": "2bf63d817630601b992694bc0b0559715001b9a24e7fe0d741eea02dce9181af",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Margin",
+          "text_summary": {
+            "present": true,
+            "sha256": "2bf63d817630601b992694bc0b0559715001b9a24e7fe0d741eea02dce9181af",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Label",
           "resolvedTextStyle": {
             "fontSize": 12,
@@ -794,7 +998,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Margin",
+              "text_summary": {
+                "present": true,
+                "sha256": "2bf63d817630601b992694bc0b0559715001b9a24e7fe0d741eea02dce9181af",
+                "length_bucket": "1-20"
+              },
               "fontSize": 12,
               "color": "tx2",
               "bold": true,
@@ -809,7 +1017,7 @@
       "order": 14,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/q5o7qpg3",
+      "aid": "sh/4r65wjud",
       "id": "14",
       "name": "judgmentkit-metric-tile-value",
       "bbox": [
@@ -823,8 +1031,16 @@
         "path": "0.3.2"
       },
       "geometry": "rect",
-      "text": "72",
-      "textPreview": "72",
+      "text_summary": {
+        "present": true,
+        "sha256": "8722616204217eddb39e7df969e0698aed8e599ba62ed2de1ce49b03ade0fede",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "8722616204217eddb39e7df969e0698aed8e599ba62ed2de1ce49b03ade0fede",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 42,
       "resolvedTextStyle": {
         "fontSize": 42,
@@ -844,14 +1060,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "72"
+            "text_summary": {
+              "present": true,
+              "sha256": "8722616204217eddb39e7df969e0698aed8e599ba62ed2de1ce49b03ade0fede",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "72",
+          "text_summary": {
+            "present": true,
+            "sha256": "8722616204217eddb39e7df969e0698aed8e599ba62ed2de1ce49b03ade0fede",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Numeric",
           "resolvedTextStyle": {
             "fontSize": 42,
@@ -862,7 +1086,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "72",
+              "text_summary": {
+                "present": true,
+                "sha256": "8722616204217eddb39e7df969e0698aed8e599ba62ed2de1ce49b03ade0fede",
+                "length_bucket": "1-20"
+              },
               "fontSize": 42,
               "color": "tx1",
               "bold": true,
@@ -877,7 +1105,7 @@
       "order": 15,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/jqh0fepk",
+      "aid": "sh/xc3ylc7u",
       "id": "15",
       "name": "judgmentkit-metric-tile-detail",
       "bbox": [
@@ -891,8 +1119,16 @@
         "path": "0.3.3"
       },
       "geometry": "rect",
-      "text": "Equal left and right",
-      "textPreview": "Equal left and right",
+      "text_summary": {
+        "present": true,
+        "sha256": "f72a4e1bb7a65dffed49df174db70204da2c5834054848ea3546658ff6d79ebe",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "f72a4e1bb7a65dffed49df174db70204da2c5834054848ea3546658ff6d79ebe",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 16,
       "resolvedTextStyle": {
         "fontSize": 16,
@@ -911,14 +1147,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Equal left and right"
+            "text_summary": {
+              "present": true,
+              "sha256": "f72a4e1bb7a65dffed49df174db70204da2c5834054848ea3546658ff6d79ebe",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Equal left and right",
+          "text_summary": {
+            "present": true,
+            "sha256": "f72a4e1bb7a65dffed49df174db70204da2c5834054848ea3546658ff6d79ebe",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.BodySmall",
           "resolvedTextStyle": {
             "fontSize": 16,
@@ -928,7 +1172,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Equal left and right",
+              "text_summary": {
+                "present": true,
+                "sha256": "f72a4e1bb7a65dffed49df174db70204da2c5834054848ea3546658ff6d79ebe",
+                "length_bucket": "1-20"
+              },
               "fontSize": 16,
               "color": "tx1",
               "alignment": "left"
@@ -942,7 +1190,7 @@
       "order": 16,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/8bat47y1",
+      "aid": "sh/mlkjm1cf",
       "id": "16",
       "name": "judgmentkit-evidence-panel-surface",
       "bbox": [
@@ -964,7 +1212,7 @@
       "order": 17,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/1w7mp0bi",
+      "aid": "sh/f6dcbulw",
       "id": "17",
       "name": "judgmentkit-evidence-panel-title",
       "bbox": [
@@ -978,8 +1226,16 @@
         "path": "0.4.1"
       },
       "geometry": "rect",
-      "text": "Expected visual result",
-      "textPreview": "Expected visual result",
+      "text_summary": {
+        "present": true,
+        "sha256": "65bdfc3cfad1d71e9bdab2d1e8d17bc7eb01c155d4a326965cf268a2df2104b6",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "65bdfc3cfad1d71e9bdab2d1e8d17bc7eb01c155d4a326965cf268a2df2104b6",
+        "length_bucket": "21-80"
+      },
       "resolvedFontSize": 30,
       "resolvedTextStyle": {
         "fontSize": 30,
@@ -999,14 +1255,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Expected visual result"
+            "text_summary": {
+              "present": true,
+              "sha256": "65bdfc3cfad1d71e9bdab2d1e8d17bc7eb01c155d4a326965cf268a2df2104b6",
+              "length_bucket": "21-80"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Expected visual result",
+          "text_summary": {
+            "present": true,
+            "sha256": "65bdfc3cfad1d71e9bdab2d1e8d17bc7eb01c155d4a326965cf268a2df2104b6",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.SectionHeading",
           "resolvedTextStyle": {
             "fontSize": 30,
@@ -1017,7 +1281,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Expected visual result",
+              "text_summary": {
+                "present": true,
+                "sha256": "65bdfc3cfad1d71e9bdab2d1e8d17bc7eb01c155d4a326965cf268a2df2104b6",
+                "length_bucket": "21-80"
+              },
               "fontSize": 30,
               "color": "tx1",
               "bold": true,
@@ -1032,7 +1300,7 @@
       "order": 18,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/uxc3ylc7",
+      "aid": "sh/4fu18jqh",
       "id": "18",
       "name": "judgmentkit-evidence-panel-body",
       "bbox": [
@@ -1046,8 +1314,16 @@
         "path": "0.4.2"
       },
       "geometry": "rect",
-      "text": "The three tiles should align within the narrower canvas.\nThe evidence panel should end before the right edge.\nNo text should wrap into adjacent elements.",
-      "textPreview": "The three tiles should align within the narrower canvas. | The evidence panel should end before the right edge. | No text should wrap int...",
+      "text_summary": {
+        "present": true,
+        "sha256": "2dc1b26f6dab642bacd629049d1cb57a608770b241685c6ce254ee63b6708c2e",
+        "length_bucket": "81-200"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "6ed963ea38ece1d69b033f90923b6eb728c572453184bb28318d78c6670584c7",
+        "length_bucket": "81-200"
+      },
       "resolvedFontSize": 18,
       "resolvedTextStyle": {
         "fontSize": 18,
@@ -1066,22 +1342,38 @@
         "lines": [
           {
             "index": 1,
-            "text": "The three tiles should align within the narrower canvas."
+            "text_summary": {
+              "present": true,
+              "sha256": "e0b85fa172da271a617d7cbee1fce6c1f6dea68f16876b92ac7d4f76aa2c6e0b",
+              "length_bucket": "21-80"
+            }
           },
           {
             "index": 2,
-            "text": "The evidence panel should end before the right edge."
+            "text_summary": {
+              "present": true,
+              "sha256": "6e4ecdf5d30745f38cfcc8e0f4ea31509dba3452187a63c94f724696046c1c6e",
+              "length_bucket": "21-80"
+            }
           },
           {
             "index": 3,
-            "text": "No text should wrap into adjacent elements."
+            "text_summary": {
+              "present": true,
+              "sha256": "333379184c013299ac5a4fb372309a43a0fefcbe4477e99a4a6dbaeff446f037",
+              "length_bucket": "21-80"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "The three tiles should align within the narrower canvas.",
+          "text_summary": {
+            "present": true,
+            "sha256": "e0b85fa172da271a617d7cbee1fce6c1f6dea68f16876b92ac7d4f76aa2c6e0b",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.Body",
           "resolvedTextStyle": {
             "fontSize": 18,
@@ -1091,7 +1383,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "The three tiles should align within the narrower canvas.",
+              "text_summary": {
+                "present": true,
+                "sha256": "e0b85fa172da271a617d7cbee1fce6c1f6dea68f16876b92ac7d4f76aa2c6e0b",
+                "length_bucket": "21-80"
+              },
               "fontSize": 18,
               "color": "tx1",
               "alignment": "left"
@@ -1101,7 +1397,11 @@
         },
         {
           "index": 2,
-          "text": "The evidence panel should end before the right edge.",
+          "text_summary": {
+            "present": true,
+            "sha256": "6e4ecdf5d30745f38cfcc8e0f4ea31509dba3452187a63c94f724696046c1c6e",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.Body",
           "resolvedTextStyle": {
             "fontSize": 18,
@@ -1111,7 +1411,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "The evidence panel should end before the right edge.",
+              "text_summary": {
+                "present": true,
+                "sha256": "6e4ecdf5d30745f38cfcc8e0f4ea31509dba3452187a63c94f724696046c1c6e",
+                "length_bucket": "21-80"
+              },
               "fontSize": 18,
               "color": "tx1",
               "alignment": "left"
@@ -1121,7 +1425,11 @@
         },
         {
           "index": 3,
-          "text": "No text should wrap into adjacent elements.",
+          "text_summary": {
+            "present": true,
+            "sha256": "333379184c013299ac5a4fb372309a43a0fefcbe4477e99a4a6dbaeff446f037",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.Body",
           "resolvedTextStyle": {
             "fontSize": 18,
@@ -1131,7 +1439,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "No text should wrap into adjacent elements.",
+              "text_summary": {
+                "present": true,
+                "sha256": "333379184c013299ac5a4fb372309a43a0fefcbe4477e99a4a6dbaeff446f037",
+                "length_bucket": "21-80"
+              },
               "fontSize": 18,
               "color": "tx1",
               "alignment": "left"
@@ -1237,10 +1549,14 @@
                   "height": 28
                 },
                 "children": [],
-                "text": "CUSTOM SIZE CHECK",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "18c62e46b90129c4a63a0a621b357c219b8f32ecb9501e0886d0d4adfe797f9c",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/s36hcrmh",
+                  "aid": "sh/6tovahoz",
                   "id": "1",
                   "kind": "shape"
                 }
@@ -1280,10 +1596,14 @@
                   "height": 98
                 },
                 "children": [],
-                "text": "A 4:3 deck should not inherit widescreen component defaults",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "106b759a030ea8db02d72a0d3a2bdad96aa86c5f9475f92627a163119b0303ff",
+                  "length_bucket": "21-80"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/zidonyd0",
+                  "aid": "sh/dg7adsji",
                   "id": "2",
                   "kind": "shape"
                 }
@@ -1323,10 +1643,14 @@
                   "height": 100
                 },
                 "children": [],
-                "text": "Default content frames and component widths should match the 1024 by 768 canvas.",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "9d344e1b3ab0c8cfe8dc904377e83cd3dd2155d9cbcb19a48439e4606ffe0592",
+                  "length_bucket": "21-80"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/a1gvy90j",
+                  "aid": "sh/ovahoza1",
                   "id": "3",
                   "kind": "shape"
                 }
@@ -1438,7 +1762,7 @@
                 "children": [],
                 "geometry": "rect",
                 "element": {
-                  "aid": "sh/hgn29gr2",
+                  "aid": "sh/z25kb6xk",
                   "id": "4",
                   "kind": "shape"
                 }
@@ -1478,10 +1802,14 @@
                   "height": 24
                 },
                 "children": [],
-                "text": "Canvas",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "3824a9f4dafe92c6f1b80b40656a59784c03a824c27d58125d7d0ace753e2df2",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/svu9knih",
+                  "aid": "sh/6hcrmhk3",
                   "id": "5",
                   "kind": "shape"
                 }
@@ -1521,10 +1849,14 @@
                   "height": 62
                 },
                 "children": [],
-                "text": "4:3",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "3be52504bc3601514c8eb1a050a3ccdba6326a46d4f1c7d3c051e64c4c750b1f",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/za1gvy90",
+                  "aid": "sh/d8v6psfi",
                   "id": "6",
                   "kind": "shape"
                 }
@@ -1564,10 +1896,14 @@
                   "height": 28
                 },
                 "children": [],
-                "text": "1024 by 768",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "862a62639ac65c948b57db58bdfaff1cdeb30cfbd3bfcbf63c83a09102a0f1fd",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/ap4r65wj",
+                  "aid": "sh/onyd0z61",
                   "id": "7",
                   "kind": "shape"
                 }
@@ -1688,7 +2024,7 @@
                 "children": [],
                 "geometry": "rect",
                 "element": {
-                  "aid": "sh/h4byhgn2",
+                  "aid": "sh/vy90je9c",
                   "id": "8",
                   "kind": "shape"
                 }
@@ -1728,10 +2064,14 @@
                   "height": 24
                 },
                 "children": [],
-                "text": "Content",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "47bd29075f8b8019f0beec6d86beda7c9bf67aaf05053dcbe0b3bcb63968517f",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/sji5snel",
+                  "aid": "sh/6dcbulwv",
                   "id": "9",
                   "kind": "shape"
                 }
@@ -1771,10 +2111,14 @@
                   "height": 62
                 },
                 "children": [],
-                "text": "880",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "52efd2aad05d27e3eac3665b82f2bffa6da52351ce871c1c28e4ba69b40ea3e6",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/qh0fepkz",
+                  "aid": "sh/4zidonyd",
                   "id": "10",
                   "kind": "shape"
                 }
@@ -1814,10 +2158,14 @@
                   "height": 28
                 },
                 "children": [],
-                "text": "Scoped frame width",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "1148c667504e8fe13e0c2f06efc326411c53972c23b83de13ccbcef5455e798b",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/j2t83itg",
+                  "aid": "sh/xkf6dcbu",
                   "id": "11",
                   "kind": "shape"
                 }
@@ -1938,7 +2286,7 @@
                 "children": [],
                 "geometry": "rect",
                 "element": {
-                  "aid": "sh/8nqxs72x",
+                  "aid": "sh/mtwra5gb",
                   "id": "12",
                   "kind": "shape"
                 }
@@ -1978,10 +2326,14 @@
                   "height": 24
                 },
                 "children": [],
-                "text": "Margin",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "2bf63d817630601b992694bc0b0559715001b9a24e7fe0d741eea02dce9181af",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/18jqh0fe",
+                  "aid": "sh/fepkzupw",
                   "id": "13",
                   "kind": "shape"
                 }
@@ -2021,10 +2373,14 @@
                   "height": 62
                 },
                 "children": [],
-                "text": "72",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "8722616204217eddb39e7df969e0698aed8e599ba62ed2de1ce49b03ade0fede",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/q5o7qpg3",
+                  "aid": "sh/4r65wjud",
                   "id": "14",
                   "kind": "shape"
                 }
@@ -2064,10 +2420,14 @@
                   "height": 28
                 },
                 "children": [],
-                "text": "Equal left and right",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "f72a4e1bb7a65dffed49df174db70204da2c5834054848ea3546658ff6d79ebe",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/jqh0fepk",
+                  "aid": "sh/xc3ylc7u",
                   "id": "15",
                   "kind": "shape"
                 }
@@ -2188,7 +2548,7 @@
                 "children": [],
                 "geometry": "rect",
                 "element": {
-                  "aid": "sh/8bat47y1",
+                  "aid": "sh/mlkjm1cf",
                   "id": "16",
                   "kind": "shape"
                 }
@@ -2228,10 +2588,14 @@
                   "height": 34
                 },
                 "children": [],
-                "text": "Expected visual result",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "65bdfc3cfad1d71e9bdab2d1e8d17bc7eb01c155d4a326965cf268a2df2104b6",
+                  "length_bucket": "21-80"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/1w7mp0bi",
+                  "aid": "sh/f6dcbulw",
                   "id": "17",
                   "kind": "shape"
                 }
@@ -2271,10 +2635,14 @@
                   "height": 96
                 },
                 "children": [],
-                "text": "The three tiles should align within the narrower canvas.The evidence panel should end before the right edge.No text should wrap into adjacent elements.",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "df4d92161973872b8fb44a1ae70de4c71e10de1f57245e09e00d29be2a3993b8",
+                  "length_bucket": "81-200"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/uxc3ylc7",
+                  "aid": "sh/4fu18jqh",
                   "id": "18",
                   "kind": "shape"
                 }

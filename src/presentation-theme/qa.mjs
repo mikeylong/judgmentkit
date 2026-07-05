@@ -1,3 +1,9 @@
+import { execFileSync } from "node:child_process";
+import crypto from "node:crypto";
+import fs from "node:fs";
+import path from "node:path";
+import zlib from "node:zlib";
+
 import {
   JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST,
   JUDGMENTKIT_THEME_COLOR_SLOTS,
@@ -10,23 +16,63 @@ const CSS_COLOR_FUNCTION_PATTERN = /\b(?:rgb|rgba|hsl|hsla|oklch|color)\s*\(/gi;
 const TAILWIND_COLOR_CLASS_PATTERN = /\b(?:bg|text|border|fill|stroke)-(?:slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-\d{2,3}\b/g;
 const DIRECT_FONT_PATTERN = /\bfont(?:Face|Family)\s*[:=]\s*["'][^"']+["']/g;
 const PUBLIC_ADAPTER_IMPORT = "judgmentkit/presentation-theme";
+const HASH_ALGORITHM = "sha256";
+const PPTX_EOCD_SIGNATURE = 0x06054b50;
+const PPTX_CENTRAL_DIRECTORY_SIGNATURE = 0x02014b50;
+const PPTX_LOCAL_FILE_SIGNATURE = 0x04034b50;
+const XML_DECODER = new TextDecoder("utf8");
+const ALLOWED_DIAGNOSTIC_CONTEXTS = new Set([
+  "setup",
+  "debugging",
+  "auditing",
+  "integration",
+  "source_inspection",
+]);
+const ALLOWED_NO_TEXT_PROOF_METHODS = new Set([
+  "structural_inspection_plus_ocr_negative",
+  "artifact_bound_ocr_negative",
+]);
+const ALLOWED_OCR_AUTHORITY_METHODS = new Set([
+  "artifact_bound_ocr",
+  "artifact_bound_ocr_extracted_text",
+  "ocr_extracted_text",
+]);
+const MIN_OCR_CONFIDENCE = 0.8;
 const SLIDE_DISCLOSURE_PATTERNS = [
-  { term: "ready_for_review", pattern: /\bready(?:[_ -]+)for(?:[_ -]+)review\b/i },
-  { term: "activity_model", pattern: /\bactivity(?:[_ -]+)model\b/i },
-  { term: "Primary user", pattern: /\bPrimary(?:[_ -]+)user\b/i },
-  { term: "Main decision", pattern: /\bMain(?:[_ -]+)decision\b/i },
-  { term: "JSON schema", pattern: /\bJSON\s+schema\b/i },
-  { term: "MCP server", pattern: /\bMCP\s+servers?\b/i },
-  { term: "prompt template", pattern: /\bprompt\s+templates?\b/i },
-  { term: "resource id", pattern: /\bresource\s+ids?\b/i },
-  { term: "review_status", pattern: /\breview(?:[_ -]+)status\b/i },
-  { term: "system mechanics", pattern: /\b(?:raw(?:[_ -]+))?system(?:[_ -]+)mechanics?\b/i },
+  { id: "ready_for_review", term: "ready_for_review", pattern: /\bready(?:[_ -]+)for(?:[_ -]+)review\b/i },
+  { id: "activity_model", term: "activity_model", pattern: /\bactivity(?:[_ -]+)model\b/i },
+  { id: "primary_user", term: "Primary user", pattern: /\bPrimary(?:[_ -]+)user\b/i },
+  { id: "main_decision", term: "Main decision", pattern: /\bMain(?:[_ -]+)decision\b/i },
+  { id: "json_schema", term: "JSON schema", pattern: /\bJSON\s+schema\b/i },
+  { id: "mcp_server", term: "MCP server", pattern: /\bMCP\s+servers?\b/i },
+  { id: "prompt_template", term: "prompt template", pattern: /\bprompt\s+templates?\b/i },
+  { id: "resource_id", term: "resource id", pattern: /\bresource\s+ids?\b/i },
+  { id: "review_status", term: "review_status", pattern: /\breview(?:[_ -]+)status\b/i },
+  { id: "model_configuration", term: "model configuration", pattern: /\bmodel(?:[_ -]+)configurations?\b/i },
+  { id: "data_model", term: "data model", pattern: /\bdata(?:[_ -]+)models?\b/i },
+  { id: "database_table", term: "database table", pattern: /\bdatabase(?:[_ -]+)tables?\b/i },
+  { id: "api_endpoint", term: "API endpoint", pattern: /\bAPI(?:[_ -]+)endpoints?\b/i },
+  { id: "crud", term: "CRUD", pattern: /\bCRUD\b/i },
+  { id: "system_mechanics", term: "system mechanics", pattern: /\b(?:raw(?:[_ -]+))?system(?:[_ -]+)mechanics?\b/i },
   {
+    id: "implementation_trace",
     term: "trace",
     pattern:
-      /\b(?:agent|tool|tool(?:[_ -]+)call|debug|execution|export|implementation|schema|system)(?:[_ -]+)traces?\b|\btraces?\s+(?:details?|ids?|identifiers?|logs?|outputs?|payloads?)\b/i,
+      /\b(?:agent|tool|tool(?:[_ -]+)call|prompt(?:[_ -]+)tool(?:[_ -]+)call|debug|execution|export|implementation|schema|system)(?:[_ -]+)traces?\b|\btraces?\s+(?:details?|ids?|identifiers?|logs?|outputs?|payloads?)\b/i,
   },
-  { term: "tool call", pattern: /\btool(?:[_ -]+)calls?\b/i },
+  { id: "tool_call", term: "tool call", pattern: /\btool(?:[_ -]+)calls?\b/i },
+  {
+    id: "schema_context",
+    term: "schema",
+    pattern:
+      /\b(?:data|API|database|model|payload|validation|field)(?:[_ -]+)schemas?\b|\bschemas?(?:[_ -]+)(?:field|fields|payload|validation|API|database|model)\b/i,
+  },
+  {
+    id: "field_context",
+    term: "field",
+    pattern:
+      /\b(?:schema|database|API|JSON|object|record)(?:[_ -]+)fields?\b|\bfields?(?:[_ -]+)(?:schema|database|API|JSON|object|record|listing|list)\b/i,
+  },
 ];
 
 function finding(id, severity, message, evidence = {}) {
@@ -316,84 +362,759 @@ function styleIdsFromEvidence(evidence) {
   return evidence.theme?.style_ids ?? evidence.theme?.styleIds ?? null;
 }
 
-function slideStringEntries(value, path = []) {
-  if (typeof value === "string") {
-    return [{ path: path.join("."), value }];
+function sha256(value) {
+  return crypto.createHash(HASH_ALGORITHM).update(String(value)).digest("hex");
+}
+
+function sha256Buffer(value) {
+  return crypto.createHash(HASH_ALGORITHM).update(value).digest("hex");
+}
+
+function normalizeEvidenceText(value) {
+  return String(value ?? "").replace(/\s+/g, " ").trim();
+}
+
+function textLengthBucket(value) {
+  const length = normalizeEvidenceText(value).length;
+
+  if (length === 0) {
+    return "0";
   }
 
-  if (Array.isArray(value)) {
-    return value.flatMap((entry, index) => slideStringEntries(entry, [...path, index]));
+  if (length <= 20) {
+    return "1-20";
+  }
+
+  if (length <= 80) {
+    return "21-80";
+  }
+
+  if (length <= 200) {
+    return "81-200";
+  }
+
+  return "201+";
+}
+
+function confidenceBucket(value) {
+  if (!Number.isFinite(value)) {
+    return "missing";
+  }
+
+  if (value >= 0.95) {
+    return "0.95-1.00";
+  }
+
+  if (value >= MIN_OCR_CONFIDENCE) {
+    return "0.80-0.94";
+  }
+
+  return "below-0.80";
+}
+
+function hashValue(value) {
+  if (typeof value === "string") {
+    return value;
   }
 
   if (value && typeof value === "object") {
-    return Object.entries(value).flatMap(([key, entry]) =>
-      slideStringEntries(entry, [...path, key]),
+    return value.sha256 ?? value.value;
+  }
+
+  return undefined;
+}
+
+function isPortablePath(value) {
+  if (typeof value !== "string" || value.length === 0) {
+    return false;
+  }
+
+  return !(
+    value.startsWith("/") ||
+    value.startsWith("file://") ||
+    /^[A-Za-z]:[\\/]/.test(value) ||
+    value.includes("\\") ||
+    value.split("/").includes("..")
+  );
+}
+
+function normalizeArtifactRef(value = {}) {
+  const source = value && typeof value === "object" ? value : {};
+  const sha = source.sha256 ?? hashValue(source.hash);
+
+  return {
+    kind: source.kind ?? "pptx",
+    path: typeof source.path === "string" ? source.path : undefined,
+    sha256: typeof sha === "string" ? sha : undefined,
+  };
+}
+
+function toPortableRepoPath(value) {
+  return String(value).split(path.sep).join("/");
+}
+
+function isPathInside(parent, child) {
+  const relative = path.relative(parent, child);
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+}
+
+function isGitTracked(repoRoot, absolutePath) {
+  const relativePath = toPortableRepoPath(path.relative(repoRoot, absolutePath));
+
+  try {
+    execFileSync("git", ["ls-files", "--error-unmatch", relativePath], {
+      cwd: repoRoot,
+      stdio: ["ignore", "ignore", "ignore"],
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function findPptxEndOfCentralDirectory(buffer) {
+  for (let offset = buffer.length - 22; offset >= Math.max(0, buffer.length - 65_557); offset -= 1) {
+    if (buffer.readUInt32LE(offset) === PPTX_EOCD_SIGNATURE) {
+      return offset;
+    }
+  }
+
+  throw new Error("PPTX_ZIP_EOCD_MISSING");
+}
+
+function readPptxZipEntries(buffer) {
+  const eocdOffset = findPptxEndOfCentralDirectory(buffer);
+  const entryCount = buffer.readUInt16LE(eocdOffset + 10);
+  const centralDirectoryOffset = buffer.readUInt32LE(eocdOffset + 16);
+  const entries = new Map();
+  let offset = centralDirectoryOffset;
+
+  for (let index = 0; index < entryCount; index += 1) {
+    if (buffer.readUInt32LE(offset) !== PPTX_CENTRAL_DIRECTORY_SIGNATURE) {
+      throw new Error("PPTX_ZIP_CENTRAL_DIRECTORY_INVALID");
+    }
+
+    const compressionMethod = buffer.readUInt16LE(offset + 10);
+    const compressedSize = buffer.readUInt32LE(offset + 20);
+    const uncompressedSize = buffer.readUInt32LE(offset + 24);
+    const fileNameLength = buffer.readUInt16LE(offset + 28);
+    const extraLength = buffer.readUInt16LE(offset + 30);
+    const commentLength = buffer.readUInt16LE(offset + 32);
+    const localHeaderOffset = buffer.readUInt32LE(offset + 42);
+    const name = buffer.subarray(offset + 46, offset + 46 + fileNameLength).toString("utf8");
+
+    entries.set(name, {
+      name,
+      compressionMethod,
+      compressedSize,
+      uncompressedSize,
+      localHeaderOffset,
+    });
+
+    offset += 46 + fileNameLength + extraLength + commentLength;
+  }
+
+  return entries;
+}
+
+function readPptxZipEntry(buffer, entry) {
+  const offset = entry.localHeaderOffset;
+
+  if (buffer.readUInt32LE(offset) !== PPTX_LOCAL_FILE_SIGNATURE) {
+    throw new Error(`PPTX_ZIP_LOCAL_HEADER_INVALID:${entry.name}`);
+  }
+
+  const fileNameLength = buffer.readUInt16LE(offset + 26);
+  const extraLength = buffer.readUInt16LE(offset + 28);
+  const dataStart = offset + 30 + fileNameLength + extraLength;
+  const compressed = buffer.subarray(dataStart, dataStart + entry.compressedSize);
+
+  if (entry.compressionMethod === 0) {
+    return compressed;
+  }
+
+  if (entry.compressionMethod === 8) {
+    return zlib.inflateRawSync(compressed);
+  }
+
+  throw new Error(`PPTX_ZIP_UNSUPPORTED_COMPRESSION:${entry.name}`);
+}
+
+function readPptxXml(buffer, entries, name) {
+  const entry = entries.get(name);
+  return entry ? XML_DECODER.decode(readPptxZipEntry(buffer, entry)) : "";
+}
+
+function decodeXmlText(value) {
+  return String(value)
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&")
+    .replace(/&quot;/g, "\"")
+    .replace(/&apos;/g, "'");
+}
+
+function inspectPptxArtifactBuffer(buffer) {
+  const entries = readPptxZipEntries(buffer);
+  const names = [...entries.keys()];
+  const contentTypesXml = readPptxXml(buffer, entries, "[Content_Types].xml");
+  const presentationXml = readPptxXml(buffer, entries, "ppt/presentation.xml");
+  const slideEntries = names
+    .filter((name) => /^ppt\/slides\/slide\d+\.xml$/.test(name))
+    .sort((left, right) =>
+      Number(left.match(/slide(\d+)\.xml$/)?.[1] ?? 0) -
+      Number(right.match(/slide(\d+)\.xml$/)?.[1] ?? 0),
+    );
+  let textRunCount = 0;
+
+  for (const slideEntry of slideEntries) {
+    const slideXml = readPptxXml(buffer, entries, slideEntry);
+    for (const match of slideXml.matchAll(/<a:t\b[^>]*>([\s\S]*?)<\/a:t>/g)) {
+      if (decodeXmlText(match[1]).trim().length > 0) {
+        textRunCount += 1;
+      }
+    }
+  }
+
+  return {
+    hasContentTypes: contentTypesXml.includes("presentationml.presentation.main+xml"),
+    hasPresentationXml: presentationXml.length > 0,
+    slideCount: slideEntries.length,
+    textRunCount,
+  };
+}
+
+function bindArtifactRef(value = {}, options = {}) {
+  const artifactRef = normalizeArtifactRef(value);
+  const findings = [];
+
+  if (!artifactRef.path) {
+    return { artifactRef, findings };
+  }
+
+  if (!isPortablePath(artifactRef.path)) {
+    findings.push(
+      finding(
+        "invalid_artifact_path",
+        "High",
+        "Presentation artifact paths must be repo-relative and must not contain absolute paths, backslashes, or parent traversal.",
+      ),
+    );
+    return { artifactRef, findings };
+  }
+
+  const repoRoot = path.resolve(options.repoRoot ?? process.cwd());
+  const absolutePath = path.resolve(repoRoot, artifactRef.path);
+  let realRepoRoot;
+  let realArtifactPath;
+
+  try {
+    realRepoRoot = fs.realpathSync(repoRoot);
+    realArtifactPath = fs.realpathSync(absolutePath);
+  } catch {
+    findings.push(
+      finding(
+        "artifact_file_missing",
+        "High",
+        "Presentation evidence must reference an existing PPTX artifact under the repository root.",
+      ),
+    );
+    return { artifactRef, findings };
+  }
+
+  if (!isPathInside(realRepoRoot, realArtifactPath)) {
+    findings.push(
+      finding(
+        "artifact_path_escapes_repo",
+        "High",
+        "Presentation evidence artifact paths must resolve under the repository root.",
+      ),
+    );
+    return { artifactRef, findings };
+  }
+
+  const artifactBytes = fs.readFileSync(realArtifactPath);
+  const computedSha256 = sha256Buffer(artifactBytes);
+  let artifactStructure;
+
+  if (artifactRef.kind === "pptx") {
+    try {
+      artifactStructure = inspectPptxArtifactBuffer(artifactBytes);
+    } catch {
+      findings.push(
+        finding(
+          "invalid_pptx_artifact",
+          "High",
+          "Presentation PPTX evidence must reference a valid PPTX ZIP with presentation XML.",
+          { path: artifactRef.path },
+        ),
+      );
+    }
+
+    if (
+      artifactStructure &&
+      (!artifactStructure.hasContentTypes ||
+        !artifactStructure.hasPresentationXml ||
+        artifactStructure.slideCount <= 0)
+    ) {
+      findings.push(
+        finding(
+          "invalid_pptx_artifact",
+          "High",
+          "Presentation PPTX evidence must include content types, presentation XML, and at least one slide.",
+          {
+            path: artifactRef.path,
+            slide_count: artifactStructure.slideCount,
+          },
+        ),
+      );
+    }
+  }
+
+  if (artifactRef.sha256 && artifactRef.sha256 !== computedSha256) {
+    findings.push(
+      finding(
+        "artifact_hash_mismatch",
+        "High",
+        "Presentation artifact sha256 must match the artifact bytes in the repository.",
+        {
+          path: artifactRef.path,
+          expected_sha256: artifactRef.sha256,
+          observed_sha256: computedSha256,
+        },
+      ),
     );
   }
 
-  return [];
-}
+  artifactRef.sha256 = computedSha256;
 
-function reviewSlideDisclosure(slides) {
-  if (!Array.isArray(slides) || slides.length === 0) {
-    return [
+  if (options.requireTrackedArtifact && !isGitTracked(realRepoRoot, realArtifactPath)) {
+    findings.push(
       finding(
-        "missing_slide_text",
+        "artifact_not_git_tracked",
         "High",
-        "Presentation evidence must include extracted primary slide text so disclosure review can run.",
+        "Release evidence must reference a git-tracked PPTX artifact.",
+        { path: artifactRef.path },
       ),
-    ];
+    );
   }
 
-  const entries = slides.flatMap((slide, slideIndex) =>
-    slideStringEntries(slide).map((entry) => ({ ...entry, slideIndex })),
-  ).filter((entry) => entry.value.trim().length > 0);
+  return {
+    artifactRef,
+    findings,
+    absolutePath: realArtifactPath,
+    slideCount: artifactStructure?.slideCount,
+    textRunCount: artifactStructure?.textRunCount,
+  };
+}
 
-  if (entries.length === 0) {
-    return [
+function artifactRefsMatch(left, right) {
+  return (
+    left.kind === right.kind &&
+    left.path === right.path &&
+    left.sha256 &&
+    right.sha256 &&
+    left.sha256 === right.sha256
+  );
+}
+
+function normalizeSlideEntry(entry = {}, objectIndex = 0) {
+  const slideIndex =
+    Number.isInteger(entry.slide_index)
+      ? entry.slide_index
+      : Number.isInteger(entry.slideIndex)
+        ? entry.slideIndex
+        : Number.isInteger(entry.slide_number)
+          ? entry.slide_number - 1
+          : Number.isInteger(entry.slide)
+            ? entry.slide - 1
+            : 0;
+  const slideNumber =
+    Number.isInteger(entry.slide_number)
+      ? entry.slide_number
+      : Number.isInteger(entry.slideNumber)
+        ? entry.slideNumber
+        : slideIndex + 1;
+
+  return {
+    slide_index: slideIndex,
+    slide_number: slideNumber,
+    object_index: objectIndex,
+    kind: typeof entry.kind === "string" ? entry.kind : "text",
+    text: normalizeEvidenceText(entry.text ?? entry.value),
+    confidence: Number.isFinite(entry.confidence)
+      ? entry.confidence
+      : Number.isFinite(entry.ocr_confidence)
+        ? entry.ocr_confidence
+        : undefined,
+  };
+}
+
+function buildTextAuthority(input = {}) {
+  const source = input.extracted_deck_text ?? input.extractedDeckText ?? input.text_authority;
+  const rawSource = source && typeof source === "object" ? source : {};
+  const rawEntries = Array.isArray(rawSource.entries) ? rawSource.entries : [];
+  const entries = rawEntries.map((entry, index) => normalizeSlideEntry(entry, index));
+  const slideCount = Number.isInteger(rawSource.slide_count)
+    ? rawSource.slide_count
+    : Math.max(0, ...entries.map((entry) => entry.slide_number));
+  const bySlide = new Map();
+
+  for (const entry of entries) {
+    if (!bySlide.has(entry.slide_number)) {
+      bySlide.set(entry.slide_number, []);
+    }
+
+    bySlide.get(entry.slide_number).push(entry);
+  }
+
+  const normalizedTextHashes = [];
+  const textLengthBuckets = [];
+  const confidenceBuckets = [];
+  const locators = [];
+
+  for (const slideNumber of [...bySlide.keys()].sort((a, b) => a - b)) {
+    const slideEntries = bySlide.get(slideNumber);
+    const joined = normalizeEvidenceText(slideEntries.map((entry) => entry.text).join(" "));
+
+    if (joined.length > 0) {
+      normalizedTextHashes.push(sha256(joined));
+      textLengthBuckets.push(textLengthBucket(joined));
+    }
+
+    for (const entry of slideEntries) {
+      locators.push({
+        slide_index: entry.slide_index,
+        slide_number: entry.slide_number,
+        object_index: entry.object_index,
+        kind: entry.kind,
+      });
+    }
+  }
+
+  const artifactRef = normalizeArtifactRef(
+    rawSource.artifact_ref ?? rawSource.artifact ?? input.artifact_ref ?? input.artifact,
+  );
+  const confidences = entries
+    .map((entry) => entry.confidence)
+    .filter((entry) => Number.isFinite(entry));
+
+  for (const entry of entries) {
+    if (entry.text.length > 0) {
+      confidenceBuckets.push(confidenceBucket(entry.confidence));
+    }
+  }
+
+  return {
+    raw: rawSource,
+    entries,
+    public: {
+      status: rawSource.status ?? (source ? "missing" : "missing"),
+      method: rawSource.method ?? rawSource.extraction?.method ?? "pptx_extract",
+      artifact_sha256: artifactRef.sha256,
+      extractor_id: rawSource.extractor_id ?? rawSource.extraction?.extractor,
+      extractor_version: rawSource.extractor_version ?? rawSource.extraction?.version,
+      config_sha256: rawSource.config_sha256,
+      slide_count: slideCount,
+      authoritative_slide_count: [...bySlide.values()].filter((slideEntries) =>
+        slideEntries.some((entry) => entry.text.length > 0),
+      ).length,
+      text_run_count: entries.filter((entry) => entry.text.length > 0).length,
+      raster_text_region_count: rawSource.raster_text_region_count ?? 0,
+      min_confidence: confidences.length > 0 ? Math.min(...confidences) : undefined,
+      confidence_buckets: confidenceBuckets,
+      normalized_text_hashes: normalizedTextHashes,
+      text_length_buckets: textLengthBuckets,
+      locators,
+    },
+  };
+}
+
+function isDiagnosticDisclosureContext(context) {
+  const value = typeof context === "string" ? context : context?.mode ?? context?.type;
+  return ALLOWED_DIAGNOSTIC_CONTEXTS.has(value);
+}
+
+function isOcrTextAuthority(status) {
+  return status === "ocr_extracted_text" || status === "ocr_authoritative";
+}
+
+function reviewTextAuthority(textAuthority, artifactRef, options = {}) {
+  const findings = [];
+  const warnings = [];
+  const status = textAuthority.public.status;
+  const legacySlides = Array.isArray(options.legacySlides) ? options.legacySlides : [];
+  const artifactSlideCount = Number.isInteger(options.artifactSlideCount)
+    ? options.artifactSlideCount
+    : undefined;
+  const artifactTextRunCount = Number.isInteger(options.artifactTextRunCount)
+    ? options.artifactTextRunCount
+    : undefined;
+
+  if (legacySlides.length > 0) {
+    warnings.push({
+      id: "legacy_slides_non_authoritative",
+      message:
+        "Handwritten slide summaries are retained as supplemental context but cannot satisfy presentation acceptance.",
+    });
+  }
+
+  if (status === "no_user_facing_text_proven") {
+    const proofRef = normalizeArtifactRef(
+      textAuthority.raw.artifact_ref ?? textAuthority.raw.artifact,
+    );
+    const proofIsBound =
+      artifactRef.kind === "pptx" &&
+      isPortablePath(artifactRef.path) &&
+      artifactRef.sha256 &&
+      artifactRefsMatch(artifactRef, proofRef);
+    const proofMethod = textAuthority.public.method;
+    const proofComplete =
+      proofIsBound &&
+      ALLOWED_NO_TEXT_PROOF_METHODS.has(proofMethod) &&
+      textAuthority.public.extractor_id &&
+      textAuthority.public.config_sha256 &&
+      Number.isInteger(textAuthority.public.slide_count) &&
+      textAuthority.public.slide_count > 0 &&
+      (artifactSlideCount === undefined || textAuthority.public.slide_count === artifactSlideCount) &&
+      (artifactTextRunCount === undefined || artifactTextRunCount === 0) &&
+      textAuthority.public.text_run_count === 0 &&
+      textAuthority.public.authoritative_slide_count === 0 &&
+      textAuthority.public.raster_text_region_count === 0;
+
+    if (!proofIsBound) {
+      findings.push(
+        finding(
+          "no_text_proof_not_artifact_bound",
+          "High",
+          "Visual-only no-text proof must be bound to the same repo-relative PPTX artifact path and sha256.",
+        ),
+      );
+    }
+
+    if (!proofComplete) {
+      findings.push(
+        finding(
+          "no_text_proof_incomplete",
+          "High",
+          "Visual-only decks must include artifact-bound no-user-facing-text proof.",
+          {
+            method: proofMethod,
+            has_extractor_id: Boolean(textAuthority.public.extractor_id),
+            has_config_sha256: Boolean(textAuthority.public.config_sha256),
+            slide_count: textAuthority.public.slide_count,
+            artifact_slide_count: artifactSlideCount,
+            artifact_text_run_count: artifactTextRunCount,
+            text_run_count: textAuthority.public.text_run_count,
+            raster_text_region_count: textAuthority.public.raster_text_region_count,
+          },
+        ),
+      );
+    }
+
+    return { findings, warnings };
+  }
+
+  const ocrTextAuthority = isOcrTextAuthority(status);
+
+  if (status !== "extracted" && status !== "authoritative" && !ocrTextAuthority) {
+    const statusFindingId =
+      status === "ocr_required"
+        ? "ocr_required"
+        : status === "ocr_inconclusive"
+          ? "ocr_inconclusive"
+          : "missing_authoritative_text";
+
+    findings.push(
       finding(
-        "missing_slide_text",
+        statusFindingId,
         "High",
-        "Presentation evidence must include extracted primary slide text so disclosure review can run.",
+        "Presentation evidence must include artifact-bound authoritative extracted primary slide text.",
       ),
-    ];
+    );
+
+    return { findings, warnings };
+  }
+
+  const extractionRef = normalizeArtifactRef(
+    textAuthority.raw.artifact_ref ?? textAuthority.raw.artifact,
+  );
+  const extractionIsBound =
+    artifactRef.kind === "pptx" &&
+    isPortablePath(artifactRef.path) &&
+    artifactRef.sha256 &&
+    artifactRefsMatch(artifactRef, extractionRef);
+
+  if (!extractionIsBound) {
+    findings.push(
+      finding(
+        "extraction_not_artifact_bound",
+        "High",
+        "Authoritative presentation text must be bound to the same repo-relative PPTX artifact path and sha256.",
+      ),
+    );
+  }
+
+  if (ocrTextAuthority) {
+    const textEntries = textAuthority.entries.filter((entry) => entry.text.length > 0);
+    const lowConfidenceCount = textEntries.filter(
+      (entry) => !Number.isFinite(entry.confidence) || entry.confidence < MIN_OCR_CONFIDENCE,
+    ).length;
+    const ocrComplete =
+      extractionIsBound &&
+      ALLOWED_OCR_AUTHORITY_METHODS.has(textAuthority.public.method) &&
+      textAuthority.public.extractor_id &&
+      textAuthority.public.extractor_version &&
+      textAuthority.public.config_sha256 &&
+      textAuthority.public.raster_text_region_count > 0 &&
+      lowConfidenceCount === 0;
+
+    if (!ocrComplete) {
+      findings.push(
+        finding(
+          "ocr_inconclusive",
+          "High",
+          "OCR evidence must be artifact-bound, pinned to an extractor version and config hash, and meet the confidence floor.",
+          {
+            method: textAuthority.public.method,
+            has_extractor_id: Boolean(textAuthority.public.extractor_id),
+            has_extractor_version: Boolean(textAuthority.public.extractor_version),
+            has_config_sha256: Boolean(textAuthority.public.config_sha256),
+            raster_text_region_count: textAuthority.public.raster_text_region_count,
+            confidence_floor: MIN_OCR_CONFIDENCE,
+            low_confidence_entry_count: lowConfidenceCount,
+          },
+        ),
+      );
+    }
+  }
+
+  const slideCount = textAuthority.public.slide_count;
+  const coveredSlides = new Set();
+  const invalidSlides = [];
+
+  if (artifactSlideCount !== undefined && slideCount !== artifactSlideCount) {
+    findings.push(
+      finding(
+        "artifact_slide_count_mismatch",
+        "High",
+        "Authoritative presentation text slide count must match the bound PPTX artifact slide count.",
+        {
+          artifact_slide_count: artifactSlideCount,
+          declared_slide_count: slideCount,
+        },
+      ),
+    );
+  }
+
+  for (const entry of textAuthority.entries) {
+    if (
+      !Number.isInteger(entry.slide_index) ||
+      !Number.isInteger(entry.slide_number) ||
+      entry.slide_index < 0 ||
+      entry.slide_number !== entry.slide_index + 1 ||
+      entry.slide_number < 1 ||
+      entry.slide_number > slideCount
+    ) {
+      invalidSlides.push(entry.object_index);
+      continue;
+    }
+
+    if (entry.text.length > 0) {
+      coveredSlides.add(entry.slide_number);
+    }
+  }
+
+  if (
+    !Number.isInteger(slideCount) ||
+    slideCount <= 0 ||
+    coveredSlides.size !== slideCount ||
+    invalidSlides.length > 0
+  ) {
+    findings.push(
+      finding(
+        "missing_authoritative_text",
+        "High",
+        "Authoritative presentation text must cover every slide with valid slide locators.",
+        {
+          slide_count: slideCount,
+          covered_slide_count: coveredSlides.size,
+          invalid_locator_count: invalidSlides.length,
+        },
+      ),
+    );
+  }
+
+  if (textAuthority.public.raster_text_region_count > 0 && !ocrTextAuthority) {
+    findings.push(
+      finding(
+        "ocr_required",
+        "High",
+        "Raster text regions require an artifact-bound OCR authority before presentation evidence can be accepted.",
+        {
+          raster_text_region_count: textAuthority.public.raster_text_region_count,
+        },
+      ),
+    );
+  }
+
+  if (isDiagnosticDisclosureContext(options.disclosureContext)) {
+    return { findings, warnings };
   }
 
   const matches = [];
-
-  for (const entry of entries) {
+  for (const entry of textAuthority.entries) {
     for (const rule of SLIDE_DISCLOSURE_PATTERNS) {
-      if (rule.pattern.test(entry.value)) {
+      if (rule.pattern.test(entry.text)) {
         matches.push({
-          slide_index: entry.slideIndex,
-          path: entry.path || String(entry.slideIndex),
+          rule_id: rule.id,
           term: rule.term,
+          slide_index: entry.slide_index,
+          slide_number: entry.slide_number,
+          object_index: entry.object_index,
+          text_hash: sha256(entry.text),
+          text_length_bucket: textLengthBucket(entry.text),
         });
       }
     }
   }
 
-  if (matches.length === 0) {
-    return [];
+  if (matches.length > 0) {
+    findings.push(
+      finding(
+        "slide_disclosure_leak",
+        "High",
+        "Presentation slide evidence must not expose implementation or review machinery in primary slide copy.",
+        {
+          matches: matches.slice(0, 20),
+          omitted: Math.max(0, matches.length - 20),
+        },
+      ),
+    );
   }
 
-  return [
-    finding(
-      "slide_disclosure_leak",
-      "High",
-      "Presentation slide evidence must not expose implementation or review machinery in primary slide copy.",
-      {
-        matches: matches.slice(0, 20),
-        omitted: Math.max(0, matches.length - 20),
-      },
-    ),
-  ];
+  return { findings, warnings };
 }
 
 export function reviewJudgmentKitPresentationEvidence(evidence = {}) {
   const findings = [];
+  const warnings = [];
+  const artifactBinding = bindArtifactRef(
+    evidence.artifact_ref ?? evidence.artifact ?? {
+      path: evidence.deck_path,
+      kind: "pptx",
+    },
+    {
+      repoRoot: evidence.repo_root,
+      requireTrackedArtifact: evidence.require_tracked_artifact,
+    },
+  );
+  const artifactRef = artifactBinding.artifactRef;
+  const textAuthority = buildTextAuthority(evidence);
 
-  if (!evidence.source) {
+  findings.push(...artifactBinding.findings);
+
+  if (!evidence.source && !evidence.source_ref && !evidence.source_hash) {
     findings.push(
       finding(
         "missing_source",
@@ -405,10 +1126,17 @@ export function reviewJudgmentKitPresentationEvidence(evidence = {}) {
 
   const sourceReview = evidence.source
     ? lintJudgmentKitPresentationSource(evidence.source)
-    : { status: "skipped", findings: [] };
+    : evidence.source_lint ?? { status: "skipped", findings: [] };
 
   findings.push(...sourceReview.findings);
-  findings.push(...reviewSlideDisclosure(evidence.slides));
+  const textReview = reviewTextAuthority(textAuthority, artifactRef, {
+    legacySlides: evidence.slides,
+    disclosureContext: evidence.disclosure_context,
+    artifactSlideCount: artifactBinding.slideCount,
+    artifactTextRunCount: artifactBinding.textRunCount,
+  });
+  findings.push(...textReview.findings);
+  warnings.push(...textReview.warnings);
 
   try {
     assertCompleteThemeColors(
@@ -448,7 +1176,7 @@ export function reviewJudgmentKitPresentationEvidence(evidence = {}) {
     }
   }
 
-  if (!evidence.artifact?.path && !evidence.deck_path) {
+  if (!artifactRef.path) {
     findings.push(
       finding(
         "missing_artifact_path",
@@ -462,16 +1190,34 @@ export function reviewJudgmentKitPresentationEvidence(evidence = {}) {
     status: statusFromFindings(findings),
     acceptance_status: findings.length > 0 ? "rejected" : "accepted",
     source_lint: sourceReview,
+    warnings,
     findings,
   };
 }
 
 export function createJudgmentKitPresentationEvidence(input = {}) {
   const styleIds = input.theme?.style_ids ?? input.theme?.styleIds;
+  const sourceReview = input.source
+    ? lintJudgmentKitPresentationSource(input.source)
+    : input.source_lint;
+  const artifactBinding = bindArtifactRef(
+    input.artifact_ref ?? input.artifact ?? {
+      path: input.deck_path,
+      kind: "pptx",
+    },
+    {
+      repoRoot: input.repo_root,
+      requireTrackedArtifact: input.require_tracked_artifact,
+    },
+  );
+  const artifactRef = artifactBinding.artifactRef;
+  const textAuthority = buildTextAuthority(input);
   const evidence = {
     adapter: JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST,
-    artifact: input.artifact ?? { path: input.deck_path, kind: "pptx" },
-    source: input.source,
+    artifact_ref: artifactRef,
+    source_ref: input.source_ref,
+    source_hash: input.source_hash ?? (input.source ? sha256(input.source) : undefined),
+    source_lint: sourceReview,
     theme: {
       id: JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST.id,
       color_scheme:
@@ -482,12 +1228,26 @@ export function createJudgmentKitPresentationEvidence(input = {}) {
       fallback_policy: "fail_incomplete",
     },
     checks: input.checks ?? {},
-    slides: input.slides ?? [],
+    text_authority: textAuthority.public,
+    legacy_slides: {
+      authority: "non_authoritative",
+      count: Array.isArray(input.slides) ? input.slides.length : 0,
+      omitted: true,
+    },
+    evidence_sources: {
+      slides: { authority: "non_authoritative", role: "supplemental_summary" },
+    },
   };
 
   return {
     ...evidence,
-    review: reviewJudgmentKitPresentationEvidence(evidence),
+    review: reviewJudgmentKitPresentationEvidence({
+      ...input,
+      source_lint: sourceReview,
+      artifact_ref: artifactRef,
+      repo_root: input.repo_root,
+      require_tracked_artifact: input.require_tracked_artifact,
+    }),
   };
 }
 

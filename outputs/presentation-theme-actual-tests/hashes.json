@@ -1,0 +1,704 @@
+{
+  "algorithm": "sha256",
+  "entries": [
+    {
+      "artifact_kind": "webp",
+      "byte_size": 35368,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9.webp",
+      "review_path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9.webp",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
+      "sha256": "fb579d8d84ce5fdebd3adf816ca98f3fdbce6960be49bb169b95075243f54e39",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "png",
+      "byte_size": 71549,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-01.png",
+      "review_path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-01.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
+      "sha256": "7e2e20384c54c8463ba188b6c530d11a66df206cc4da58fd90bd3924fc19e3ff",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "png",
+      "byte_size": 80469,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-02.png",
+      "review_path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-02.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
+      "sha256": "1e9034459572430496f1766073ba816925d49df00eebedeec4e255e66a0a2b7d",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "png",
+      "byte_size": 27997,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-03.png",
+      "review_path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-03.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
+      "sha256": "febba12e1d3b9642b5a628378bc0430f814262bc9dd74fad0d71eb8097459f11",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "png",
+      "byte_size": 83743,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-04.png",
+      "review_path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-04.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
+      "sha256": "8a1621ba708992c8c3a0ce02104bf25bd17b24a84cc7b6c9b09b076d706b2088",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "webp",
+      "byte_size": 34898,
+      "case_id": "jk-theme-compact-review",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-compact-review.webp",
+      "review_path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-compact-review.webp",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "4037a24f5a8b5eaec4a5c5b30de85c3fc7a0556299ab8678190794e61f2314d0",
+      "sha256": "a60abe835412428dc2208928c8befb9421cb2f4825ff49f33d2580b07e6bed06",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "png",
+      "byte_size": 70030,
+      "case_id": "jk-theme-compact-review",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-compact-review/slide-01.png",
+      "review_path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-compact-review/slide-01.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "4037a24f5a8b5eaec4a5c5b30de85c3fc7a0556299ab8678190794e61f2314d0",
+      "sha256": "07408c7c04aa7e501870611c16e3a5250344083606d35b8eeb01cd3f033f55e6",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "webp",
+      "byte_size": 43782,
+      "case_id": "jk-theme-custom-4x3",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-custom-4x3.webp",
+      "review_path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-custom-4x3.webp",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "0e114ebc97062343e05fdb84f9dde2bd939d95a17c7f72db816fb907d364bb02",
+      "sha256": "f65a5e0c368d9b552e8dbddb1d91daf5669ae1d9cc2d359548579a9562f84408",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "png",
+      "byte_size": 94802,
+      "case_id": "jk-theme-custom-4x3",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-custom-4x3/slide-01.png",
+      "review_path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-custom-4x3/slide-01.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "0e114ebc97062343e05fdb84f9dde2bd939d95a17c7f72db816fb907d364bb02",
+      "sha256": "28491469f64f6d59883e95b9e6657037bb6f2751f18a5611894f30cf38155995",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "evidence",
+      "byte_size": 11296,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+      "review_path": "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+      "sha256": "1cafb3fe3083840e6c1c6def04f2b155844998c1d3d22370fc0cdca38e2c38a2",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "evidence",
+      "byte_size": 7576,
+      "case_id": "jk-theme-compact-review",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+      "review_path": "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+      "sha256": "b8fedab424816667d7393e63b709caa3faed636d378316d40bc809e529bddb72",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "evidence",
+      "byte_size": 8182,
+      "case_id": "jk-theme-custom-4x3",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+      "review_path": "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+      "sha256": "ee2e3436b4960acaa2fb433a91805ae5ee2847195f53da1122f5ebfab7bea865",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "layout",
+      "byte_size": 31700,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-01.layout.json",
+      "review_path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-01.layout.json",
+      "sha256": "59065fc77ecf4b9e950e989c45d690d8e711059d6f5723eba93ffc01726aa824",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "layout",
+      "byte_size": 23857,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-02.layout.json",
+      "review_path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-02.layout.json",
+      "sha256": "f679e1c55003dc05729518879128e6c776de3ebadbb4a6051c52b926fa3d95eb",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "layout",
+      "byte_size": 6707,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-03.layout.json",
+      "review_path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-03.layout.json",
+      "sha256": "a608ca001caeef68a1440a236b7b28be1cf0e32411b80d541a40a7313eb4fe68",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "layout",
+      "byte_size": 26610,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-04.layout.json",
+      "review_path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-04.layout.json",
+      "sha256": "bee83bd17bcf10b1a8bc48f89bc4467ab10574e18b4f9ccfeab62149538ae3d9",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "layout",
+      "byte_size": 26643,
+      "case_id": "jk-theme-compact-review",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-compact-review/slide-01.layout.json",
+      "review_path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-compact-review/slide-01.layout.json",
+      "sha256": "932a244c6c0cab79e2bc2a3fa33aa5483bb9f47b029e1097cde686903ba52033",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "layout",
+      "byte_size": 36095,
+      "case_id": "jk-theme-custom-4x3",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-custom-4x3/slide-01.layout.json",
+      "review_path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-custom-4x3/slide-01.layout.json",
+      "sha256": "da3ea9c199c75e17207b75bf71aa5f9ea043aa5e21b165577734bbc399b1c4c4",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "inspect",
+      "byte_size": 13425,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson",
+      "review_path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson",
+      "sha256": "27201785e95bd495cba8d683ed893feb3fa60184d9b40a1e1fd02dc20653184d",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "inspect",
+      "byte_size": 13416,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.ndjson",
+      "review_path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.ndjson",
+      "sha256": "3b1374022bf020cfe52d3d8cddc30ffbe1cd4b11462510d3021708e4232f6b68",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "inspect",
+      "byte_size": 4564,
+      "case_id": "jk-theme-compact-review",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson",
+      "review_path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson",
+      "sha256": "5d80756ad6f6a02412685f9f27b55ae7c527c2643ac4069358396c750415bf16",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "inspect",
+      "byte_size": 4566,
+      "case_id": "jk-theme-compact-review",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.ndjson",
+      "review_path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.ndjson",
+      "sha256": "e9b1db57bba543f5cb9f31c89d3cc47bfe27bf1f66d2ab6b15ab1f21ffecc758",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "inspect",
+      "byte_size": 6652,
+      "case_id": "jk-theme-custom-4x3",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson",
+      "review_path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson",
+      "sha256": "5b5719f4b6bf9fb1668401699e1e9af2978babb7bfe92ca209b9f7a9a52aecbd",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "inspect",
+      "byte_size": 6654,
+      "case_id": "jk-theme-custom-4x3",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.ndjson",
+      "review_path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.ndjson",
+      "sha256": "1a46ff71403a5ddebc3019219825da6dda54f254c104eef874e6e84510e80b6f",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "montage",
+      "byte_size": 102251,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9-montage.png",
+      "review_path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9-montage.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
+      "sha256": "3687425f1c0b619f38bd8d296cae5c3b9a2722e049f3b4977f85811185fb1a23",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "pptx",
+      "byte_size": 22764,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9.pptx",
+      "review_path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9.pptx",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
+      "sha256": "60974849f620c3547006c0be15bdaf28d94448466041db141f36a504713c5b8f",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "png",
+      "byte_size": 94210,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-1.png",
+      "review_path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-1.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
+      "sha256": "c87c4b313d4aab3cbad57809b62014cb2738bb9f2b49210ba7432db8a8a17ee7",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "png",
+      "byte_size": 105162,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-2.png",
+      "review_path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-2.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
+      "sha256": "fb21a08184abbcd5a1a0359648a7588f70d7dac4ee997ee468512940b386a5ad",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "png",
+      "byte_size": 39757,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-3.png",
+      "review_path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-3.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
+      "sha256": "00c34caa0080e50e7dcc7f6a8bfbc0863a09c2de1432421bb00eb3dceca6707f",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "png",
+      "byte_size": 108305,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-4.png",
+      "review_path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-4.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
+      "sha256": "9ca33f6137732dd375b1931db743465dfd8be4f3e9f980855a5bc53cc7c67ace",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "montage",
+      "byte_size": 39510,
+      "case_id": "jk-theme-compact-review",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-compact-review-montage.png",
+      "review_path": "outputs/presentation-theme-actual-tests/jk-theme-compact-review-montage.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "4037a24f5a8b5eaec4a5c5b30de85c3fc7a0556299ab8678190794e61f2314d0",
+      "sha256": "e99d44c9128ff74989c169eb48fd4a99032c913c3d35d091801d22693eb0a1bb",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "pptx",
+      "byte_size": 13175,
+      "case_id": "jk-theme-compact-review",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-compact-review.pptx",
+      "review_path": "outputs/presentation-theme-actual-tests/jk-theme-compact-review.pptx",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "4037a24f5a8b5eaec4a5c5b30de85c3fc7a0556299ab8678190794e61f2314d0",
+      "sha256": "ccb2231f1a8b63213eb13a03de93d9b5f5da1770d0636dfd2a539fdf21845887",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "png",
+      "byte_size": 125925,
+      "case_id": "jk-theme-compact-review",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-compact-review/slide-1.png",
+      "review_path": "outputs/presentation-theme-actual-tests/jk-theme-compact-review/slide-1.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "4037a24f5a8b5eaec4a5c5b30de85c3fc7a0556299ab8678190794e61f2314d0",
+      "sha256": "28a4063228ea0c03e6f841d56d6c512bdb25880ddbd3669c44eed96d42614818",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "montage",
+      "byte_size": 35044,
+      "case_id": "jk-theme-custom-4x3",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3-montage.png",
+      "review_path": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3-montage.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "0e114ebc97062343e05fdb84f9dde2bd939d95a17c7f72db816fb907d364bb02",
+      "sha256": "04110705cddbd246b38c3f95fd1e5976da738abae98c1a32df7b031f8474473e",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "pptx",
+      "byte_size": 13329,
+      "case_id": "jk-theme-custom-4x3",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3.pptx",
+      "review_path": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3.pptx",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "0e114ebc97062343e05fdb84f9dde2bd939d95a17c7f72db816fb907d364bb02",
+      "sha256": "19cda77d1ec7e24e91f58ecce07569ae7143682b0b8e9ab2d1a78b8c80b537aa",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "png",
+      "byte_size": 115339,
+      "case_id": "jk-theme-custom-4x3",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3/slide-1.png",
+      "review_path": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3/slide-1.png",
+      "semantic_guard_paths": [
+        "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+        "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
+        "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson"
+      ],
+      "semantic_guard_sha256": "0e114ebc97062343e05fdb84f9dde2bd939d95a17c7f72db816fb907d364bb02",
+      "sha256": "67aaa241943975050120bc2031581e03c15d4eff6ed9bd3eb78afa9354e32aee",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "layout",
+      "byte_size": 68265,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-01.layout.json",
+      "review_path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-01.layout.json",
+      "sha256": "eefbfe627976fb28fe8c7b77f86ee1b5b3847db36d129086855b983430794988",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "layout",
+      "byte_size": 48738,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-02.layout.json",
+      "review_path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-02.layout.json",
+      "sha256": "af92ecf24339401956646bd6109f842333dfa1cbf029007b5e5b451ffef7ea92",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "layout",
+      "byte_size": 13660,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-03.layout.json",
+      "review_path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-03.layout.json",
+      "sha256": "b81380ce2d2f523bec2179b724d18f703b723f1295a11969bd2d85582d959943",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "layout",
+      "byte_size": 40066,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-04.layout.json",
+      "review_path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-04.layout.json",
+      "sha256": "6588c2e38f92837b4077693bd32f91a3b679865a4630b364e4df2f59584cfc1b",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "layout",
+      "byte_size": 56118,
+      "case_id": "jk-theme-compact-review",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-compact-review/slide-01.layout.json",
+      "review_path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-compact-review/slide-01.layout.json",
+      "sha256": "883634a8a1d827f1e40e65ddb610923b2da07642a4cb40072f9ca7e1b356dc68",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "layout",
+      "byte_size": 74771,
+      "case_id": "jk-theme-custom-4x3",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-custom-4x3/slide-01.layout.json",
+      "review_path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-custom-4x3/slide-01.layout.json",
+      "sha256": "729b52cddd5247df3b8470864b9fb026a17fa2b59464d1521f9fc829d9123dce",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "manifest",
+      "byte_size": 6742,
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/manifest.json",
+      "review_path": "outputs/presentation-theme-actual-tests/manifest.json",
+      "sha256": "82d9b7329a15435707ee5f96a65878c3a2d638f2ea6f457b5a5992a57385b6fa",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "readme",
+      "byte_size": 681,
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/README.md",
+      "review_path": "outputs/presentation-theme-actual-tests/README.md",
+      "sha256": "ce2fb3929a380b2bc76cdfb596b29faaf55551ddb562f4bb5ac359244d17d22a",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "manifest",
+      "byte_size": 21227,
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/review-summary.json",
+      "review_path": "outputs/presentation-theme-actual-tests/review-summary.json",
+      "sha256": "7e4e18444d80276268765ccb74ad69a70548c393791bcd32ebf7884db4e73acf",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "structural",
+      "byte_size": 1600,
+      "case_id": "jk-theme-canonical-16x9",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+      "review_path": "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+      "sha256": "7e229893057c0d05a5b3e6d9b8b7f7e84acb4e94769d41f04e033646cb74d403",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "structural",
+      "byte_size": 1007,
+      "case_id": "jk-theme-compact-review",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
+      "review_path": "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
+      "sha256": "e62a09ff8c14c52f58d5bc935aecc748894f88d9bff8a158713a942551eae9be",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    },
+    {
+      "artifact_kind": "structural",
+      "byte_size": 1007,
+      "case_id": "jk-theme-custom-4x3",
+      "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "path": "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
+      "review_path": "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
+      "sha256": "6397f41b72745270a1fde69d057ca107c26aa320957638f4459317f2af5beaf6",
+      "source_inputs": [
+        "scripts/presentation-theme/build-actual-fixtures.mjs"
+      ]
+    }
+  ]
+}

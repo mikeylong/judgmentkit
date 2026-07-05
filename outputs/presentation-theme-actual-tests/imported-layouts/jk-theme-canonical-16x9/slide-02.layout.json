@@ -84,8 +84,16 @@
         24
       ],
       "geometry": "rect",
-      "text": "WHAT TO CHECK",
-      "textPreview": "WHAT TO CHECK",
+      "text_summary": {
+        "present": true,
+        "sha256": "8481bf151082d17e2d0666be857285ad46606d0945b4340e6c99c9acfebb09d4",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "8481bf151082d17e2d0666be857285ad46606d0945b4340e6c99c9acfebb09d4",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 24,
       "resolvedTextStyle": {
         "fontSize": 24,
@@ -104,14 +112,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "WHAT TO CHECK"
+            "text_summary": {
+              "present": true,
+              "sha256": "8481bf151082d17e2d0666be857285ad46606d0945b4340e6c99c9acfebb09d4",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "WHAT TO CHECK",
+          "text_summary": {
+            "present": true,
+            "sha256": "8481bf151082d17e2d0666be857285ad46606d0945b4340e6c99c9acfebb09d4",
+            "length_bucket": "1-20"
+          },
           "resolvedTextStyle": {
             "fontSize": 12,
             "color": "tx2",
@@ -121,7 +137,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "WHAT TO CHECK",
+              "text_summary": {
+                "present": true,
+                "sha256": "8481bf151082d17e2d0666be857285ad46606d0945b4340e6c99c9acfebb09d4",
+                "length_bucket": "1-20"
+              },
               "fontSize": 12,
               "color": "tx2",
               "bold": true,
@@ -147,8 +167,16 @@
         96
       ],
       "geometry": "rect",
-      "text": "The review components should read as deck content, not UI chrome",
-      "textPreview": "The review components should read as deck content, not UI chrome",
+      "text_summary": {
+        "present": true,
+        "sha256": "8630382e05c6cdacdee27233c94ba5e8dde8b58c857f98a0ac3d837c333781a1",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "8630382e05c6cdacdee27233c94ba5e8dde8b58c857f98a0ac3d837c333781a1",
+        "length_bucket": "21-80"
+      },
       "resolvedFontSize": 24,
       "resolvedTextStyle": {
         "fontSize": 24,
@@ -167,18 +195,30 @@
         "lines": [
           {
             "index": 1,
-            "text": "The review components should read as deck content, not UI"
+            "text_summary": {
+              "present": true,
+              "sha256": "dd62a0aef475d56c6e94a552a801449d83be513c6074778b4d0e1fcdc00dfe1d",
+              "length_bucket": "21-80"
+            }
           },
           {
             "index": 2,
-            "text": "chrome"
+            "text_summary": {
+              "present": true,
+              "sha256": "9390ef32addf32bfdea786bc1e20679592498068bcbfcd357ea10ab64ea35e47",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "The review components should read as deck content, not UI chrome",
+          "text_summary": {
+            "present": true,
+            "sha256": "8630382e05c6cdacdee27233c94ba5e8dde8b58c857f98a0ac3d837c333781a1",
+            "length_bucket": "21-80"
+          },
           "resolvedTextStyle": {
             "fontSize": 38,
             "color": "tx1",
@@ -188,7 +228,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "The review components should read as deck content, not UI chrome",
+              "text_summary": {
+                "present": true,
+                "sha256": "8630382e05c6cdacdee27233c94ba5e8dde8b58c857f98a0ac3d837c333781a1",
+                "length_bucket": "21-80"
+              },
               "fontSize": 38,
               "color": "tx1",
               "bold": true,
@@ -232,8 +276,16 @@
         34
       ],
       "geometry": "rect",
-      "text": "Evidence checked",
-      "textPreview": "Evidence checked",
+      "text_summary": {
+        "present": true,
+        "sha256": "63b35f804bc8a519f119567d23737ab48d9c3b3477e38f48be7b22a327ad23c5",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "63b35f804bc8a519f119567d23737ab48d9c3b3477e38f48be7b22a327ad23c5",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 24,
       "resolvedTextStyle": {
         "fontSize": 24,
@@ -252,14 +304,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Evidence checked"
+            "text_summary": {
+              "present": true,
+              "sha256": "63b35f804bc8a519f119567d23737ab48d9c3b3477e38f48be7b22a327ad23c5",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Evidence checked",
+          "text_summary": {
+            "present": true,
+            "sha256": "63b35f804bc8a519f119567d23737ab48d9c3b3477e38f48be7b22a327ad23c5",
+            "length_bucket": "1-20"
+          },
           "resolvedTextStyle": {
             "fontSize": 30,
             "color": "tx1",
@@ -269,7 +329,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Evidence checked",
+              "text_summary": {
+                "present": true,
+                "sha256": "63b35f804bc8a519f119567d23737ab48d9c3b3477e38f48be7b22a327ad23c5",
+                "length_bucket": "1-20"
+              },
               "fontSize": 30,
               "color": "tx1",
               "bold": true,
@@ -295,8 +359,16 @@
         136
       ],
       "geometry": "rect",
-      "text": "Theme colors render without raw color literals.\nNamed text styles stay readable after export.\nFrames stay inside the slide after PowerPoint export.",
-      "textPreview": "Theme colors render without raw color literals. | Named text styles stay readable after export. | Frames stay inside the slide after Powe...",
+      "text_summary": {
+        "present": true,
+        "sha256": "6cd95ad2074421e0ee1e4db3d17a96b1f1333cbf0c6b0f994ebed523810d3f1b",
+        "length_bucket": "81-200"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "06f9052db4ded9d930083fc14b22dbf35fd890704e7b9e623a100b7deaad6c44",
+        "length_bucket": "81-200"
+      },
       "resolvedFontSize": 24,
       "resolvedTextStyle": {
         "fontSize": 24,
@@ -315,22 +387,38 @@
         "lines": [
           {
             "index": 1,
-            "text": "Theme colors render without raw color literals."
+            "text_summary": {
+              "present": true,
+              "sha256": "d7a4c91322cfda0e3229f9c888f5567655631da6cdec76ec0051e0af8128c852",
+              "length_bucket": "21-80"
+            }
           },
           {
             "index": 2,
-            "text": "Named text styles stay readable after export."
+            "text_summary": {
+              "present": true,
+              "sha256": "04ca230428cab25195be38a76d0c11eb07f0e207ac7bbce63326185f78527344",
+              "length_bucket": "21-80"
+            }
           },
           {
             "index": 3,
-            "text": "Frames stay inside the slide after PowerPoint export."
+            "text_summary": {
+              "present": true,
+              "sha256": "8f076e1e94141aa74551969eb9c0300bac9208b059a96343d9fdd7d1b0f8fc3b",
+              "length_bucket": "21-80"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Theme colors render without raw color literals.",
+          "text_summary": {
+            "present": true,
+            "sha256": "d7a4c91322cfda0e3229f9c888f5567655631da6cdec76ec0051e0af8128c852",
+            "length_bucket": "21-80"
+          },
           "resolvedTextStyle": {
             "fontSize": 18,
             "color": "tx1",
@@ -339,7 +427,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Theme colors render without raw color literals.",
+              "text_summary": {
+                "present": true,
+                "sha256": "d7a4c91322cfda0e3229f9c888f5567655631da6cdec76ec0051e0af8128c852",
+                "length_bucket": "21-80"
+              },
               "fontSize": 18,
               "color": "tx1",
               "alignment": "left"
@@ -350,7 +442,11 @@
         },
         {
           "index": 2,
-          "text": "Named text styles stay readable after export.",
+          "text_summary": {
+            "present": true,
+            "sha256": "04ca230428cab25195be38a76d0c11eb07f0e207ac7bbce63326185f78527344",
+            "length_bucket": "21-80"
+          },
           "resolvedTextStyle": {
             "fontSize": 18,
             "color": "tx1",
@@ -359,7 +455,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Named text styles stay readable after export.",
+              "text_summary": {
+                "present": true,
+                "sha256": "04ca230428cab25195be38a76d0c11eb07f0e207ac7bbce63326185f78527344",
+                "length_bucket": "21-80"
+              },
               "fontSize": 18,
               "color": "tx1",
               "alignment": "left"
@@ -370,7 +470,11 @@
         },
         {
           "index": 3,
-          "text": "Frames stay inside the slide after PowerPoint export.",
+          "text_summary": {
+            "present": true,
+            "sha256": "8f076e1e94141aa74551969eb9c0300bac9208b059a96343d9fdd7d1b0f8fc3b",
+            "length_bucket": "21-80"
+          },
           "resolvedTextStyle": {
             "fontSize": 18,
             "color": "tx1",
@@ -379,7 +483,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Frames stay inside the slide after PowerPoint export.",
+              "text_summary": {
+                "present": true,
+                "sha256": "8f076e1e94141aa74551969eb9c0300bac9208b059a96343d9fdd7d1b0f8fc3b",
+                "length_bucket": "21-80"
+              },
               "fontSize": 18,
               "color": "tx1",
               "alignment": "left"
@@ -422,8 +530,16 @@
         34
       ],
       "geometry": "rect",
-      "text": "Risk",
-      "textPreview": "Risk",
+      "text_summary": {
+        "present": true,
+        "sha256": "0711a8d636e4c068ae59fa80c03ad68e7bd9fe473c1f9248fd2cf3716e3fb715",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "0711a8d636e4c068ae59fa80c03ad68e7bd9fe473c1f9248fd2cf3716e3fb715",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 24,
       "resolvedTextStyle": {
         "fontSize": 24,
@@ -442,14 +558,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Risk"
+            "text_summary": {
+              "present": true,
+              "sha256": "0711a8d636e4c068ae59fa80c03ad68e7bd9fe473c1f9248fd2cf3716e3fb715",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Risk",
+          "text_summary": {
+            "present": true,
+            "sha256": "0711a8d636e4c068ae59fa80c03ad68e7bd9fe473c1f9248fd2cf3716e3fb715",
+            "length_bucket": "1-20"
+          },
           "resolvedTextStyle": {
             "fontSize": 30,
             "color": "tx1",
@@ -459,7 +583,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Risk",
+              "text_summary": {
+                "present": true,
+                "sha256": "0711a8d636e4c068ae59fa80c03ad68e7bd9fe473c1f9248fd2cf3716e3fb715",
+                "length_bucket": "1-20"
+              },
               "fontSize": 30,
               "color": "tx1",
               "bold": true,
@@ -485,8 +613,16 @@
         136
       ],
       "geometry": "rect",
-      "text": "Dense layouts can make status and small body text harder to scan.\nLong labels should be tested against exported previews.",
-      "textPreview": "Dense layouts can make status and small body text harder to scan. | Long labels should be tested against exported previews.",
+      "text_summary": {
+        "present": true,
+        "sha256": "ad30b916d8cff2ba06a99a535727767f4d33148e66f7214d23430b2049e8e9bf",
+        "length_bucket": "81-200"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "0a641f68177f8df306b9ee0992b5d4ae951d9820200ddbd51afe9d56c5ee8792",
+        "length_bucket": "81-200"
+      },
       "resolvedFontSize": 24,
       "resolvedTextStyle": {
         "fontSize": 24,
@@ -505,22 +641,38 @@
         "lines": [
           {
             "index": 1,
-            "text": "Dense layouts can make status and small body text harder to"
+            "text_summary": {
+              "present": true,
+              "sha256": "697b1c89fde309ef48b39da6a3d28e30d2967de2a9fa1ba50b14c99bdc579161",
+              "length_bucket": "21-80"
+            }
           },
           {
             "index": 2,
-            "text": "scan."
+            "text_summary": {
+              "present": true,
+              "sha256": "35dc4930b1ee3860a3896964fd709e4b1b4a7832f438458a0d9ef8fa007952c3",
+              "length_bucket": "1-20"
+            }
           },
           {
             "index": 3,
-            "text": "Long labels should be tested against exported previews."
+            "text_summary": {
+              "present": true,
+              "sha256": "9819da7eb364a8112af3abc28899529aa5723a8edd9ee4cdcf5d7b86b440c908",
+              "length_bucket": "21-80"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Dense layouts can make status and small body text harder to scan.",
+          "text_summary": {
+            "present": true,
+            "sha256": "634358248dccf9c4f91571dec661dc4be5a1f6d5f9acff85f23577396e06b7bd",
+            "length_bucket": "21-80"
+          },
           "resolvedTextStyle": {
             "fontSize": 18,
             "color": "tx1",
@@ -529,7 +681,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Dense layouts can make status and small body text harder to scan.",
+              "text_summary": {
+                "present": true,
+                "sha256": "634358248dccf9c4f91571dec661dc4be5a1f6d5f9acff85f23577396e06b7bd",
+                "length_bucket": "21-80"
+              },
               "fontSize": 18,
               "color": "tx1",
               "alignment": "left"
@@ -540,7 +696,11 @@
         },
         {
           "index": 2,
-          "text": "Long labels should be tested against exported previews.",
+          "text_summary": {
+            "present": true,
+            "sha256": "9819da7eb364a8112af3abc28899529aa5723a8edd9ee4cdcf5d7b86b440c908",
+            "length_bucket": "21-80"
+          },
           "resolvedTextStyle": {
             "fontSize": 18,
             "color": "tx1",
@@ -549,7 +709,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Long labels should be tested against exported previews.",
+              "text_summary": {
+                "present": true,
+                "sha256": "9819da7eb364a8112af3abc28899529aa5723a8edd9ee4cdcf5d7b86b440c908",
+                "length_bucket": "21-80"
+              },
               "fontSize": 18,
               "color": "tx1",
               "alignment": "left"
@@ -592,8 +756,16 @@
         34
       ],
       "geometry": "rect",
-      "text": "Handoff receipt",
-      "textPreview": "Handoff receipt",
+      "text_summary": {
+        "present": true,
+        "sha256": "949886d90db6c5a35392f1a0170d4cb2e25523db21ab38f1ba4883e8eca9c752",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "949886d90db6c5a35392f1a0170d4cb2e25523db21ab38f1ba4883e8eca9c752",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 24,
       "resolvedTextStyle": {
         "fontSize": 24,
@@ -612,14 +784,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Handoff receipt"
+            "text_summary": {
+              "present": true,
+              "sha256": "949886d90db6c5a35392f1a0170d4cb2e25523db21ab38f1ba4883e8eca9c752",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Handoff receipt",
+          "text_summary": {
+            "present": true,
+            "sha256": "949886d90db6c5a35392f1a0170d4cb2e25523db21ab38f1ba4883e8eca9c752",
+            "length_bucket": "1-20"
+          },
           "resolvedTextStyle": {
             "fontSize": 30,
             "color": "tx1",
@@ -629,7 +809,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Handoff receipt",
+              "text_summary": {
+                "present": true,
+                "sha256": "949886d90db6c5a35392f1a0170d4cb2e25523db21ab38f1ba4883e8eca9c752",
+                "length_bucket": "1-20"
+              },
               "fontSize": 30,
               "color": "tx1",
               "bold": true,
@@ -655,8 +839,16 @@
         50
       ],
       "geometry": "rect",
-      "text": "Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.",
-      "textPreview": "Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.",
+      "text_summary": {
+        "present": true,
+        "sha256": "490c8d9068a6f89a0bcb78665211f8ab4cec6a5a3649c00aedf8eaa76f3f4bc8",
+        "length_bucket": "81-200"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "490c8d9068a6f89a0bcb78665211f8ab4cec6a5a3649c00aedf8eaa76f3f4bc8",
+        "length_bucket": "81-200"
+      },
       "resolvedFontSize": 24,
       "resolvedTextStyle": {
         "fontSize": 24,
@@ -675,14 +867,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy."
+            "text_summary": {
+              "present": true,
+              "sha256": "490c8d9068a6f89a0bcb78665211f8ab4cec6a5a3649c00aedf8eaa76f3f4bc8",
+              "length_bucket": "81-200"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.",
+          "text_summary": {
+            "present": true,
+            "sha256": "490c8d9068a6f89a0bcb78665211f8ab4cec6a5a3649c00aedf8eaa76f3f4bc8",
+            "length_bucket": "81-200"
+          },
           "resolvedTextStyle": {
             "fontSize": 18,
             "color": "tx1",
@@ -691,7 +891,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.",
+              "text_summary": {
+                "present": true,
+                "sha256": "490c8d9068a6f89a0bcb78665211f8ab4cec6a5a3649c00aedf8eaa76f3f4bc8",
+                "length_bucket": "81-200"
+              },
               "fontSize": 18,
               "color": "tx1",
               "alignment": "left"

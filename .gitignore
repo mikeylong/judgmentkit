@@ -8,3 +8,5 @@ site/dist/
 .playwright-cli/
 .worktrees/
 output/
+.presentation-theme-actual-check/
+outputs/presentation-theme-actual-tests/.failures/

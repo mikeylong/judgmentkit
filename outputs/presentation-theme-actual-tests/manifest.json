@@ -1,8 +1,108 @@
 {
-  "source": "/Users/mike/JudgmentKit2/outputs/presentation-theme-actual-tests/build-fixtures.mjs",
-  "outputs": [
-    "/Users/mike/JudgmentKit2/outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9.pptx",
-    "/Users/mike/JudgmentKit2/outputs/presentation-theme-actual-tests/jk-theme-custom-4x3.pptx",
-    "/Users/mike/JudgmentKit2/outputs/presentation-theme-actual-tests/jk-theme-compact-review.pptx"
-  ]
+  "cases": [
+    {
+      "evidence": "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+      "id": "jk-theme-canonical-16x9",
+      "pptx": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9.pptx",
+      "raster": {
+        "contact_sheet": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9-montage.png",
+        "rendered_png_directory": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9",
+        "status": "available"
+      },
+      "size": {
+        "height": 720,
+        "width": 1280
+      },
+      "slides": 4,
+      "structural": "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json"
+    },
+    {
+      "evidence": "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+      "id": "jk-theme-custom-4x3",
+      "pptx": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3.pptx",
+      "raster": {
+        "contact_sheet": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3-montage.png",
+        "rendered_png_directory": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3",
+        "status": "available"
+      },
+      "size": {
+        "height": 768,
+        "width": 1024
+      },
+      "slides": 1,
+      "structural": "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json"
+    },
+    {
+      "evidence": "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+      "id": "jk-theme-compact-review",
+      "pptx": "outputs/presentation-theme-actual-tests/jk-theme-compact-review.pptx",
+      "raster": {
+        "contact_sheet": "outputs/presentation-theme-actual-tests/jk-theme-compact-review-montage.png",
+        "rendered_png_directory": "outputs/presentation-theme-actual-tests/jk-theme-compact-review",
+        "status": "available"
+      },
+      "size": {
+        "height": 540,
+        "width": 960
+      },
+      "slides": 1,
+      "structural": "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json"
+    }
+  ],
+  "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+  "managed_files": [
+    "outputs/presentation-theme-actual-tests/README.md",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9.webp",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-01.png",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-02.png",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-03.png",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-04.png",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-compact-review.webp",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-compact-review/slide-01.png",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-custom-4x3.webp",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-custom-4x3/slide-01.png",
+    "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+    "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+    "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+    "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-01.layout.json",
+    "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-02.layout.json",
+    "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-03.layout.json",
+    "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-04.layout.json",
+    "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-compact-review/slide-01.layout.json",
+    "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-custom-4x3/slide-01.layout.json",
+    "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson",
+    "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.ndjson",
+    "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson",
+    "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.ndjson",
+    "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson",
+    "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.ndjson",
+    "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9-montage.png",
+    "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9.pptx",
+    "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-1.png",
+    "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-2.png",
+    "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-3.png",
+    "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-4.png",
+    "outputs/presentation-theme-actual-tests/jk-theme-compact-review-montage.png",
+    "outputs/presentation-theme-actual-tests/jk-theme-compact-review.pptx",
+    "outputs/presentation-theme-actual-tests/jk-theme-compact-review/slide-1.png",
+    "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3-montage.png",
+    "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3.pptx",
+    "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3/slide-1.png",
+    "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-01.layout.json",
+    "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-02.layout.json",
+    "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-03.layout.json",
+    "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-04.layout.json",
+    "outputs/presentation-theme-actual-tests/layouts/jk-theme-compact-review/slide-01.layout.json",
+    "outputs/presentation-theme-actual-tests/layouts/jk-theme-custom-4x3/slide-01.layout.json",
+    "outputs/presentation-theme-actual-tests/review-summary.json",
+    "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+    "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
+    "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json"
+  ],
+  "policy_source": "scripts/presentation-theme/actual-evidence-check.mjs",
+  "runtime_fingerprint": {
+    "mode": "committed_replay",
+    "raster_available": true
+  },
+  "version": 1
 }

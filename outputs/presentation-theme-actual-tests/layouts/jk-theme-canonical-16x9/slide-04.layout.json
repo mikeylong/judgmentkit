@@ -2,13 +2,13 @@
   "schema": "openai.presentation.layout/v4",
   "unit": "px",
   "slide": {
-    "aid": "sl/cb9lvh",
-    "id": "cb9lvh",
+    "aid": "sl/pxa8fi",
+    "id": "pxa8fi",
     "slide": 4,
-    "layoutId": "7df98239-fe3a-4af2-8409-f82a0c66734e",
+    "layoutId": "3e35faba-4fe8-4fe5-aace-796987e28d35",
     "layoutName": "Title Slide",
     "layoutType": "title",
-    "masterLayoutId": "1f7b05e0-4cc0-496a-a049-4c8091b458ca",
+    "masterLayoutId": "4ad3837c-cd04-4a09-a003-a4929be46836",
     "masterLayoutName": "Master",
     "backgroundColor": "bg1",
     "frame": {
@@ -45,15 +45,15 @@
   "inheritedLayers": [
     {
       "scope": "layout",
-      "id": "7df98239-fe3a-4af2-8409-f82a0c66734e",
+      "id": "3e35faba-4fe8-4fe5-aace-796987e28d35",
       "name": "Title Slide",
       "type": "title",
-      "parentLayoutId": "1f7b05e0-4cc0-496a-a049-4c8091b458ca",
+      "parentLayoutId": "4ad3837c-cd04-4a09-a003-a4929be46836",
       "elements": []
     },
     {
       "scope": "master",
-      "id": "1f7b05e0-4cc0-496a-a049-4c8091b458ca",
+      "id": "4ad3837c-cd04-4a09-a003-a4929be46836",
       "name": "Master",
       "type": "master",
       "elements": []
@@ -64,7 +64,7 @@
       "order": 1,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/knih4byh",
+      "aid": "sh/m94fu18j",
       "id": "1",
       "name": "judgmentkit-section-header-label",
       "bbox": [
@@ -78,8 +78,16 @@
         "path": "0.0.0"
       },
       "geometry": "rect",
-      "text": "EVIDENCE TABLE",
-      "textPreview": "EVIDENCE TABLE",
+      "text_summary": {
+        "present": true,
+        "sha256": "7c143ce80d6112b54d17daab428441a5d0949e779fcd558c95a84708f9293843",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "7c143ce80d6112b54d17daab428441a5d0949e779fcd558c95a84708f9293843",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 12,
       "resolvedTextStyle": {
         "fontSize": 12,
@@ -99,14 +107,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "EVIDENCE TABLE"
+            "text_summary": {
+              "present": true,
+              "sha256": "7c143ce80d6112b54d17daab428441a5d0949e779fcd558c95a84708f9293843",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "EVIDENCE TABLE",
+          "text_summary": {
+            "present": true,
+            "sha256": "7c143ce80d6112b54d17daab428441a5d0949e779fcd558c95a84708f9293843",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Label",
           "resolvedTextStyle": {
             "fontSize": 12,
@@ -117,7 +133,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "EVIDENCE TABLE",
+              "text_summary": {
+                "present": true,
+                "sha256": "7c143ce80d6112b54d17daab428441a5d0949e779fcd558c95a84708f9293843",
+                "length_bucket": "1-20"
+              },
               "fontSize": 12,
               "color": "tx2",
               "bold": true,
@@ -132,7 +152,7 @@
       "order": 2,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/v6psfil0",
+      "aid": "sh/x0nuxc3y",
       "id": "2",
       "name": "judgmentkit-section-header-title",
       "bbox": [
@@ -146,8 +166,16 @@
         "path": "0.0.1"
       },
       "geometry": "rect",
-      "text": "Native tables should export through the adapter without helper errors",
-      "textPreview": "Native tables should export through the adapter without helper errors",
+      "text_summary": {
+        "present": true,
+        "sha256": "a9dba4005198bfcc5dfab164cfacef833c4b3703129e01cf13568fa677b20215",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "a9dba4005198bfcc5dfab164cfacef833c4b3703129e01cf13568fa677b20215",
+        "length_bucket": "21-80"
+      },
       "resolvedFontSize": 38,
       "resolvedTextStyle": {
         "fontSize": 38,
@@ -167,18 +195,30 @@
         "lines": [
           {
             "index": 1,
-            "text": "Native tables should export through the adapter without helper"
+            "text_summary": {
+              "present": true,
+              "sha256": "364ae9485a46d5cba6ad4d2f1d87f0d751ed3ebe51e108035cfd51766b08bd66",
+              "length_bucket": "21-80"
+            }
           },
           {
             "index": 2,
-            "text": "errors"
+            "text_summary": {
+              "present": true,
+              "sha256": "be4bd56772770471b639574d919a92de16c0e522ea5601e2892461691bdf9545",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Native tables should export through the adapter without helper errors",
+          "text_summary": {
+            "present": true,
+            "sha256": "a9dba4005198bfcc5dfab164cfacef833c4b3703129e01cf13568fa677b20215",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.SlideTitle",
           "resolvedTextStyle": {
             "fontSize": 38,
@@ -189,7 +229,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Native tables should export through the adapter without helper errors",
+              "text_summary": {
+                "present": true,
+                "sha256": "a9dba4005198bfcc5dfab164cfacef833c4b3703129e01cf13568fa677b20215",
+                "length_bucket": "21-80"
+              },
               "fontSize": 38,
               "color": "tx1",
               "bold": true,
@@ -204,7 +248,7 @@
       "order": 3,
       "kind": "table",
       "scope": "slide",
-      "aid": "tb/7mp0bi9s",
+      "aid": "tb/1032lszq",
       "id": "3",
       "name": "judgmentkit-evidence-table",
       "bbox": [
@@ -217,8 +261,16 @@
         "run": 1,
         "path": "0.1"
       },
-      "text": "Check | Expected | Observed\nTheme aliases | bg1/lt1 and bg2/lt2 match | Matched\nFrame export | Elements keep absolute positions | Matched\nReadability | Dense copy stays inside panels | Matched",
-      "textPreview": "Check | Expected | Observed | Theme aliases | bg1/lt1 and bg2/lt2 match | Matched | Frame export | Elements keep absolute positions | Mat...",
+      "text_summary": {
+        "present": true,
+        "sha256": "e944202f46ae4951c923aa177e1465dd1c9a3bd4931ff78460dfbe8c7f16dcf9",
+        "length_bucket": "81-200"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "ff07f2ed73644ccf35bedcc7da93aedc5640483a38db4d9939e73f40e99ffcd6",
+        "length_bucket": "81-200"
+      },
       "rows": 4,
       "cols": 3,
       "cells": [
@@ -232,16 +284,32 @@
             378.67,
             77.5
           ],
-          "text": "Check",
-          "textPreview": "Check",
+          "text_summary": {
+            "present": true,
+            "sha256": "9d60841e0a7891df0fd55b24d5c883a5d92ae544808675c2ec84537c12589c49",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "9d60841e0a7891df0fd55b24d5c883a5d92ae544808675c2ec84537c12589c49",
+            "length_bucket": "1-20"
+          },
           "paragraphs": [
             {
               "index": 1,
-              "text": "Check",
+              "text_summary": {
+                "present": true,
+                "sha256": "9d60841e0a7891df0fd55b24d5c883a5d92ae544808675c2ec84537c12589c49",
+                "length_bucket": "1-20"
+              },
               "runs": [
                 {
                   "index": 1,
-                  "text": "Check"
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "9d60841e0a7891df0fd55b24d5c883a5d92ae544808675c2ec84537c12589c49",
+                    "length_bucket": "1-20"
+                  }
                 }
               ]
             }
@@ -257,16 +325,32 @@
             378.67,
             77.5
           ],
-          "text": "Expected",
-          "textPreview": "Expected",
+          "text_summary": {
+            "present": true,
+            "sha256": "ca99b7f1b14ee2c04f7aaefde89858fc947fa88de518c2e6d4b6132892175218",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "ca99b7f1b14ee2c04f7aaefde89858fc947fa88de518c2e6d4b6132892175218",
+            "length_bucket": "1-20"
+          },
           "paragraphs": [
             {
               "index": 1,
-              "text": "Expected",
+              "text_summary": {
+                "present": true,
+                "sha256": "ca99b7f1b14ee2c04f7aaefde89858fc947fa88de518c2e6d4b6132892175218",
+                "length_bucket": "1-20"
+              },
               "runs": [
                 {
                   "index": 1,
-                  "text": "Expected"
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "ca99b7f1b14ee2c04f7aaefde89858fc947fa88de518c2e6d4b6132892175218",
+                    "length_bucket": "1-20"
+                  }
                 }
               ]
             }
@@ -282,16 +366,32 @@
             378.67,
             77.5
           ],
-          "text": "Observed",
-          "textPreview": "Observed",
+          "text_summary": {
+            "present": true,
+            "sha256": "64fa8a14a90feef5d86951352195391dfead1194f932aaed0755021c504e2a15",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "64fa8a14a90feef5d86951352195391dfead1194f932aaed0755021c504e2a15",
+            "length_bucket": "1-20"
+          },
           "paragraphs": [
             {
               "index": 1,
-              "text": "Observed",
+              "text_summary": {
+                "present": true,
+                "sha256": "64fa8a14a90feef5d86951352195391dfead1194f932aaed0755021c504e2a15",
+                "length_bucket": "1-20"
+              },
               "runs": [
                 {
                   "index": 1,
-                  "text": "Observed"
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "64fa8a14a90feef5d86951352195391dfead1194f932aaed0755021c504e2a15",
+                    "length_bucket": "1-20"
+                  }
                 }
               ]
             }
@@ -307,16 +407,32 @@
             378.67,
             77.5
           ],
-          "text": "Theme aliases",
-          "textPreview": "Theme aliases",
+          "text_summary": {
+            "present": true,
+            "sha256": "19df6f14692970e65042558b6cfafac543e15b223464ebdfbb04eca3d4b0ca36",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "19df6f14692970e65042558b6cfafac543e15b223464ebdfbb04eca3d4b0ca36",
+            "length_bucket": "1-20"
+          },
           "paragraphs": [
             {
               "index": 1,
-              "text": "Theme aliases",
+              "text_summary": {
+                "present": true,
+                "sha256": "19df6f14692970e65042558b6cfafac543e15b223464ebdfbb04eca3d4b0ca36",
+                "length_bucket": "1-20"
+              },
               "runs": [
                 {
                   "index": 1,
-                  "text": "Theme aliases"
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "19df6f14692970e65042558b6cfafac543e15b223464ebdfbb04eca3d4b0ca36",
+                    "length_bucket": "1-20"
+                  }
                 }
               ]
             }
@@ -332,16 +448,32 @@
             378.67,
             77.5
           ],
-          "text": "bg1/lt1 and bg2/lt2 match",
-          "textPreview": "bg1/lt1 and bg2/lt2 match",
+          "text_summary": {
+            "present": true,
+            "sha256": "6c1e9387cecdb08ab3c00df6c5ab86b08916700792efbd654e1d50d4868c2dac",
+            "length_bucket": "21-80"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "6c1e9387cecdb08ab3c00df6c5ab86b08916700792efbd654e1d50d4868c2dac",
+            "length_bucket": "21-80"
+          },
           "paragraphs": [
             {
               "index": 1,
-              "text": "bg1/lt1 and bg2/lt2 match",
+              "text_summary": {
+                "present": true,
+                "sha256": "6c1e9387cecdb08ab3c00df6c5ab86b08916700792efbd654e1d50d4868c2dac",
+                "length_bucket": "21-80"
+              },
               "runs": [
                 {
                   "index": 1,
-                  "text": "bg1/lt1 and bg2/lt2 match"
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "6c1e9387cecdb08ab3c00df6c5ab86b08916700792efbd654e1d50d4868c2dac",
+                    "length_bucket": "21-80"
+                  }
                 }
               ]
             }
@@ -357,16 +489,32 @@
             378.67,
             77.5
           ],
-          "text": "Matched",
-          "textPreview": "Matched",
+          "text_summary": {
+            "present": true,
+            "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+            "length_bucket": "1-20"
+          },
           "paragraphs": [
             {
               "index": 1,
-              "text": "Matched",
+              "text_summary": {
+                "present": true,
+                "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+                "length_bucket": "1-20"
+              },
               "runs": [
                 {
                   "index": 1,
-                  "text": "Matched"
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+                    "length_bucket": "1-20"
+                  }
                 }
               ]
             }
@@ -382,16 +530,32 @@
             378.67,
             77.5
           ],
-          "text": "Frame export",
-          "textPreview": "Frame export",
+          "text_summary": {
+            "present": true,
+            "sha256": "824a960bc13cd3ac60b8ccda3824484a8a26e4d7a43805418a79e4c8b38203e8",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "824a960bc13cd3ac60b8ccda3824484a8a26e4d7a43805418a79e4c8b38203e8",
+            "length_bucket": "1-20"
+          },
           "paragraphs": [
             {
               "index": 1,
-              "text": "Frame export",
+              "text_summary": {
+                "present": true,
+                "sha256": "824a960bc13cd3ac60b8ccda3824484a8a26e4d7a43805418a79e4c8b38203e8",
+                "length_bucket": "1-20"
+              },
               "runs": [
                 {
                   "index": 1,
-                  "text": "Frame export"
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "824a960bc13cd3ac60b8ccda3824484a8a26e4d7a43805418a79e4c8b38203e8",
+                    "length_bucket": "1-20"
+                  }
                 }
               ]
             }
@@ -407,16 +571,32 @@
             378.67,
             77.5
           ],
-          "text": "Elements keep absolute positions",
-          "textPreview": "Elements keep absolute positions",
+          "text_summary": {
+            "present": true,
+            "sha256": "0afa29615af62d954c5b9f79d04eaae8473eb049f5c95b6dacb8da65f95ce218",
+            "length_bucket": "21-80"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "0afa29615af62d954c5b9f79d04eaae8473eb049f5c95b6dacb8da65f95ce218",
+            "length_bucket": "21-80"
+          },
           "paragraphs": [
             {
               "index": 1,
-              "text": "Elements keep absolute positions",
+              "text_summary": {
+                "present": true,
+                "sha256": "0afa29615af62d954c5b9f79d04eaae8473eb049f5c95b6dacb8da65f95ce218",
+                "length_bucket": "21-80"
+              },
               "runs": [
                 {
                   "index": 1,
-                  "text": "Elements keep absolute positions"
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "0afa29615af62d954c5b9f79d04eaae8473eb049f5c95b6dacb8da65f95ce218",
+                    "length_bucket": "21-80"
+                  }
                 }
               ]
             }
@@ -432,16 +612,32 @@
             378.67,
             77.5
           ],
-          "text": "Matched",
-          "textPreview": "Matched",
+          "text_summary": {
+            "present": true,
+            "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+            "length_bucket": "1-20"
+          },
           "paragraphs": [
             {
               "index": 1,
-              "text": "Matched",
+              "text_summary": {
+                "present": true,
+                "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+                "length_bucket": "1-20"
+              },
               "runs": [
                 {
                   "index": 1,
-                  "text": "Matched"
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+                    "length_bucket": "1-20"
+                  }
                 }
               ]
             }
@@ -457,16 +653,32 @@
             378.67,
             77.5
           ],
-          "text": "Readability",
-          "textPreview": "Readability",
+          "text_summary": {
+            "present": true,
+            "sha256": "ac2c18829c4f673a6744332fa29da6a47a1f0cf6246d1befebcb675b002211ac",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "ac2c18829c4f673a6744332fa29da6a47a1f0cf6246d1befebcb675b002211ac",
+            "length_bucket": "1-20"
+          },
           "paragraphs": [
             {
               "index": 1,
-              "text": "Readability",
+              "text_summary": {
+                "present": true,
+                "sha256": "ac2c18829c4f673a6744332fa29da6a47a1f0cf6246d1befebcb675b002211ac",
+                "length_bucket": "1-20"
+              },
               "runs": [
                 {
                   "index": 1,
-                  "text": "Readability"
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "ac2c18829c4f673a6744332fa29da6a47a1f0cf6246d1befebcb675b002211ac",
+                    "length_bucket": "1-20"
+                  }
                 }
               ]
             }
@@ -482,16 +694,32 @@
             378.67,
             77.5
           ],
-          "text": "Dense copy stays inside panels",
-          "textPreview": "Dense copy stays inside panels",
+          "text_summary": {
+            "present": true,
+            "sha256": "45a9a0685cdbe0a4e37f4ae880adfa308e91daf647e0f4a54ef8ff8e3a43529e",
+            "length_bucket": "21-80"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "45a9a0685cdbe0a4e37f4ae880adfa308e91daf647e0f4a54ef8ff8e3a43529e",
+            "length_bucket": "21-80"
+          },
           "paragraphs": [
             {
               "index": 1,
-              "text": "Dense copy stays inside panels",
+              "text_summary": {
+                "present": true,
+                "sha256": "45a9a0685cdbe0a4e37f4ae880adfa308e91daf647e0f4a54ef8ff8e3a43529e",
+                "length_bucket": "21-80"
+              },
               "runs": [
                 {
                   "index": 1,
-                  "text": "Dense copy stays inside panels"
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "45a9a0685cdbe0a4e37f4ae880adfa308e91daf647e0f4a54ef8ff8e3a43529e",
+                    "length_bucket": "21-80"
+                  }
                 }
               ]
             }
@@ -507,16 +735,32 @@
             378.67,
             77.5
           ],
-          "text": "Matched",
-          "textPreview": "Matched",
+          "text_summary": {
+            "present": true,
+            "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+            "length_bucket": "1-20"
+          },
           "paragraphs": [
             {
               "index": 1,
-              "text": "Matched",
+              "text_summary": {
+                "present": true,
+                "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+                "length_bucket": "1-20"
+              },
               "runs": [
                 {
                   "index": 1,
-                  "text": "Matched"
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+                    "length_bucket": "1-20"
+                  }
                 }
               ]
             }
@@ -528,7 +772,7 @@
       "order": 4,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/d0z61032",
+      "aid": "sh/fil0rqd4",
       "id": "4",
       "name": "judgmentkit-handoff-receipt-surface",
       "bbox": [
@@ -550,7 +794,7 @@
       "order": 5,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/kf6dcbul",
+      "aid": "sh/qxs72x4n",
       "id": "5",
       "name": "judgmentkit-handoff-receipt-title",
       "bbox": [
@@ -564,8 +808,16 @@
         "path": "0.2.1"
       },
       "geometry": "rect",
-      "text": "Table outcome",
-      "textPreview": "Table outcome",
+      "text_summary": {
+        "present": true,
+        "sha256": "87950833b64d1526efca2b6237b4c02f7f4374c75df603393e36c8e40893eac9",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "87950833b64d1526efca2b6237b4c02f7f4374c75df603393e36c8e40893eac9",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 30,
       "resolvedTextStyle": {
         "fontSize": 30,
@@ -585,14 +837,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Table outcome"
+            "text_summary": {
+              "present": true,
+              "sha256": "87950833b64d1526efca2b6237b4c02f7f4374c75df603393e36c8e40893eac9",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Table outcome",
+          "text_summary": {
+            "present": true,
+            "sha256": "87950833b64d1526efca2b6237b4c02f7f4374c75df603393e36c8e40893eac9",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.SectionHeading",
           "resolvedTextStyle": {
             "fontSize": 30,
@@ -603,7 +863,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Table outcome",
+              "text_summary": {
+                "present": true,
+                "sha256": "87950833b64d1526efca2b6237b4c02f7f4374c75df603393e36c8e40893eac9",
+                "length_bucket": "1-20"
+              },
               "fontSize": 30,
               "color": "tx1",
               "bold": true,
@@ -618,7 +882,7 @@
       "order": 6,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/vu9knih4",
+      "aid": "sh/xobm58z2",
       "id": "6",
       "name": "judgmentkit-handoff-receipt-body",
       "bbox": [
@@ -632,8 +896,16 @@
         "path": "0.2.2"
       },
       "geometry": "rect",
-      "text": "This slide exercises the real artifact-tool table helper and exported PPTX import path.",
-      "textPreview": "This slide exercises the real artifact-tool table helper and exported PPTX import path.",
+      "text_summary": {
+        "present": true,
+        "sha256": "6648bc0b0d30d97fb053e1e8bd6d47c8d9a1121530e546519a9395e610a8d180",
+        "length_bucket": "81-200"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "6648bc0b0d30d97fb053e1e8bd6d47c8d9a1121530e546519a9395e610a8d180",
+        "length_bucket": "81-200"
+      },
       "resolvedFontSize": 18,
       "resolvedTextStyle": {
         "fontSize": 18,
@@ -652,14 +924,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "This slide exercises the real artifact-tool table helper and exported PPTX import path."
+            "text_summary": {
+              "present": true,
+              "sha256": "6648bc0b0d30d97fb053e1e8bd6d47c8d9a1121530e546519a9395e610a8d180",
+              "length_bucket": "81-200"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "This slide exercises the real artifact-tool table helper and exported PPTX import path.",
+          "text_summary": {
+            "present": true,
+            "sha256": "6648bc0b0d30d97fb053e1e8bd6d47c8d9a1121530e546519a9395e610a8d180",
+            "length_bucket": "81-200"
+          },
           "styleId": "JK.Body",
           "resolvedTextStyle": {
             "fontSize": 18,
@@ -669,7 +949,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "This slide exercises the real artifact-tool table helper and exported PPTX import path.",
+              "text_summary": {
+                "present": true,
+                "sha256": "6648bc0b0d30d97fb053e1e8bd6d47c8d9a1121530e546519a9395e610a8d180",
+                "length_bucket": "81-200"
+              },
               "fontSize": 18,
               "color": "tx1",
               "alignment": "left"
@@ -775,10 +1059,14 @@
                   "height": 24
                 },
                 "children": [],
-                "text": "EVIDENCE TABLE",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "7c143ce80d6112b54d17daab428441a5d0949e779fcd558c95a84708f9293843",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/knih4byh",
+                  "aid": "sh/m94fu18j",
                   "id": "1",
                   "kind": "shape"
                 }
@@ -818,10 +1106,14 @@
                   "height": 96
                 },
                 "children": [],
-                "text": "Native tables should export through the adapter without helper errors",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "a9dba4005198bfcc5dfab164cfacef833c4b3703129e01cf13568fa677b20215",
+                  "length_bucket": "21-80"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/v6psfil0",
+                  "aid": "sh/x0nuxc3y",
                   "id": "2",
                   "kind": "shape"
                 }
@@ -901,7 +1193,7 @@
             "columns": 3,
             "style": "JK.BodySmall",
             "element": {
-              "aid": "tb/7mp0bi9s",
+              "aid": "tb/1032lszq",
               "id": "3",
               "kind": "table"
             }
@@ -968,7 +1260,7 @@
                 "children": [],
                 "geometry": "rect",
                 "element": {
-                  "aid": "sh/d0z61032",
+                  "aid": "sh/fil0rqd4",
                   "id": "4",
                   "kind": "shape"
                 }
@@ -1008,10 +1300,14 @@
                   "height": 34
                 },
                 "children": [],
-                "text": "Table outcome",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "87950833b64d1526efca2b6237b4c02f7f4374c75df603393e36c8e40893eac9",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/kf6dcbul",
+                  "aid": "sh/qxs72x4n",
                   "id": "5",
                   "kind": "shape"
                 }
@@ -1051,10 +1347,14 @@
                   "height": 40
                 },
                 "children": [],
-                "text": "This slide exercises the real artifact-tool table helper and exported PPTX import path.",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "6648bc0b0d30d97fb053e1e8bd6d47c8d9a1121530e546519a9395e610a8d180",
+                  "length_bucket": "81-200"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/vu9knih4",
+                  "aid": "sh/xobm58z2",
                   "id": "6",
                   "kind": "shape"
                 }

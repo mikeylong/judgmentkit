@@ -1,0 +1,47 @@
+{
+  "absolute_or_traversal_relationships": [],
+  "bytes": 13175,
+  "external_relationships": [],
+  "has_content_types": true,
+  "has_presentation_xml": true,
+  "image_relationships": [],
+  "relationship_file_count": 7,
+  "slide_count": 1,
+  "slide_entries": [
+    {
+      "blips": 0,
+      "charts": 0,
+      "graphic_frames": 0,
+      "path": "ppt/slides/slide1.xml",
+      "pictures": 0,
+      "shapes": 13,
+      "tables": 0,
+      "text_runs": 12
+    }
+  ],
+  "slide_size_emu": {
+    "cx": 9144000,
+    "cy": 5143500
+  },
+  "theme_colors": {
+    "ppt/theme/theme1.xml": {
+      "accent1": "#245f73",
+      "accent2": "#23615f",
+      "accent3": "#2e6b48",
+      "accent4": "#8a5a16",
+      "accent5": "#8f342f",
+      "accent6": "#d7d3c8",
+      "dk1": "#171717",
+      "dk2": "#61615c",
+      "folHlink": "#23615f",
+      "hlink": "#245f73",
+      "lt1": "#f8f7f2",
+      "lt2": "#ffffff"
+    }
+  },
+  "theme_entries": [
+    "ppt/theme/theme1.xml"
+  ],
+  "traversal_entries": [],
+  "zip_entries": 21
+}

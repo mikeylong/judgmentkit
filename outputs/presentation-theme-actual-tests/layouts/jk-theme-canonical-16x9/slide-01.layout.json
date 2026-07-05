@@ -2,13 +2,13 @@
   "schema": "openai.presentation.layout/v4",
   "unit": "px",
   "slide": {
-    "aid": "sl/k6coct",
-    "id": "k6coct",
+    "aid": "sl/1xjvgs",
+    "id": "1xjvgs",
     "slide": 1,
-    "layoutId": "7df98239-fe3a-4af2-8409-f82a0c66734e",
+    "layoutId": "3e35faba-4fe8-4fe5-aace-796987e28d35",
     "layoutName": "Title Slide",
     "layoutType": "title",
-    "masterLayoutId": "1f7b05e0-4cc0-496a-a049-4c8091b458ca",
+    "masterLayoutId": "4ad3837c-cd04-4a09-a003-a4929be46836",
     "masterLayoutName": "Master",
     "backgroundColor": "bg1",
     "frame": {
@@ -45,15 +45,15 @@
   "inheritedLayers": [
     {
       "scope": "layout",
-      "id": "7df98239-fe3a-4af2-8409-f82a0c66734e",
+      "id": "3e35faba-4fe8-4fe5-aace-796987e28d35",
       "name": "Title Slide",
       "type": "title",
-      "parentLayoutId": "1f7b05e0-4cc0-496a-a049-4c8091b458ca",
+      "parentLayoutId": "4ad3837c-cd04-4a09-a003-a4929be46836",
       "elements": []
     },
     {
       "scope": "master",
-      "id": "1f7b05e0-4cc0-496a-a049-4c8091b458ca",
+      "id": "4ad3837c-cd04-4a09-a003-a4929be46836",
       "name": "Master",
       "type": "master",
       "elements": []
@@ -64,7 +64,7 @@
       "order": 1,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/2hwfyxob",
+      "aid": "sh/val87ed8",
       "id": "1",
       "name": "judgmentkit-title-block-eyebrow",
       "bbox": [
@@ -78,8 +78,16 @@
         "path": "0.0.0"
       },
       "geometry": "rect",
-      "text": "PRESENTATION THEME ACTUAL TEST",
-      "textPreview": "PRESENTATION THEME ACTUAL TEST",
+      "text_summary": {
+        "present": true,
+        "sha256": "0a2ea72484b4318444015b93f7cdcfb53a38ce35fc11c331b89f9225ebdd181c",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "0a2ea72484b4318444015b93f7cdcfb53a38ce35fc11c331b89f9225ebdd181c",
+        "length_bucket": "21-80"
+      },
       "resolvedFontSize": 12,
       "resolvedTextStyle": {
         "fontSize": 12,
@@ -99,14 +107,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "PRESENTATION THEME ACTUAL TEST"
+            "text_summary": {
+              "present": true,
+              "sha256": "0a2ea72484b4318444015b93f7cdcfb53a38ce35fc11c331b89f9225ebdd181c",
+              "length_bucket": "21-80"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "PRESENTATION THEME ACTUAL TEST",
+          "text_summary": {
+            "present": true,
+            "sha256": "0a2ea72484b4318444015b93f7cdcfb53a38ce35fc11c331b89f9225ebdd181c",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.Label",
           "resolvedTextStyle": {
             "fontSize": 12,
@@ -117,7 +133,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "PRESENTATION THEME ACTUAL TEST",
+              "text_summary": {
+                "present": true,
+                "sha256": "0a2ea72484b4318444015b93f7cdcfb53a38ce35fc11c331b89f9225ebdd181c",
+                "length_bucket": "21-80"
+              },
               "fontSize": 12,
               "color": "tx2",
               "bold": true,
@@ -132,7 +152,7 @@
       "order": 2,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/94fu18jq",
+      "aid": "sh/kre1w7mp",
       "id": "2",
       "name": "judgmentkit-title-block-title",
       "bbox": [
@@ -146,8 +166,16 @@
         "path": "0.0.1"
       },
       "geometry": "rect",
-      "text": "The theme adapter gives decks a usable review structure",
-      "textPreview": "The theme adapter gives decks a usable review structure",
+      "text_summary": {
+        "present": true,
+        "sha256": "cdcec9d66fb3c881fd05d6c5852954c2efff969d751056d2bc1e21c649e1fcf1",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "cdcec9d66fb3c881fd05d6c5852954c2efff969d751056d2bc1e21c649e1fcf1",
+        "length_bucket": "21-80"
+      },
       "resolvedFontSize": 52,
       "resolvedTextStyle": {
         "fontSize": 52,
@@ -167,18 +195,30 @@
         "lines": [
           {
             "index": 1,
-            "text": "The theme adapter gives decks a usable review"
+            "text_summary": {
+              "present": true,
+              "sha256": "5d3b789ef2fd9fb44d65e9557511fdc0a9a09f6d0f31a3a6e4d4562da9ff9535",
+              "length_bucket": "21-80"
+            }
           },
           {
             "index": 2,
-            "text": "structure"
+            "text_summary": {
+              "present": true,
+              "sha256": "520cdb563bf80b193aab6aad62781a9647c75dbf76748117299c7dac0ae63a87",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "The theme adapter gives decks a usable review structure",
+          "text_summary": {
+            "present": true,
+            "sha256": "cdcec9d66fb3c881fd05d6c5852954c2efff969d751056d2bc1e21c649e1fcf1",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.Display",
           "resolvedTextStyle": {
             "fontSize": 52,
@@ -189,7 +229,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "The theme adapter gives decks a usable review structure",
+              "text_summary": {
+                "present": true,
+                "sha256": "cdcec9d66fb3c881fd05d6c5852954c2efff969d751056d2bc1e21c649e1fcf1",
+                "length_bucket": "21-80"
+              },
               "fontSize": 52,
               "color": "tx1",
               "bold": true,
@@ -204,7 +248,7 @@
       "order": 3,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/kjm1cfa9",
+      "aid": "sh/dcbulwva",
       "id": "3",
       "name": "judgmentkit-title-block-subtitle",
       "bbox": [
@@ -218,8 +262,16 @@
         "path": "0.0.2"
       },
       "geometry": "rect",
-      "text": "Fixture deck for checking rendered size, component spacing, theme slots, and named text styles.",
-      "textPreview": "Fixture deck for checking rendered size, component spacing, theme slots, and named text styles.",
+      "text_summary": {
+        "present": true,
+        "sha256": "c517233f991169e3420cafd2e13fec684a52a2658da3b73ee50d958957e96e5f",
+        "length_bucket": "81-200"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "c517233f991169e3420cafd2e13fec684a52a2658da3b73ee50d958957e96e5f",
+        "length_bucket": "81-200"
+      },
       "resolvedFontSize": 24,
       "resolvedTextStyle": {
         "fontSize": 24,
@@ -238,18 +290,30 @@
         "lines": [
           {
             "index": 1,
-            "text": "Fixture deck for checking rendered size, component spacing,"
+            "text_summary": {
+              "present": true,
+              "sha256": "02ef2e9389c3f5d13a54c3ee50c3913277be61bf70f16670c0fbba83f042ae7f",
+              "length_bucket": "21-80"
+            }
           },
           {
             "index": 2,
-            "text": "theme slots, and named text styles."
+            "text_summary": {
+              "present": true,
+              "sha256": "813dac8954baf717ae39349914d4e6cca901467431adde5c39191c6d38ec3556",
+              "length_bucket": "21-80"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Fixture deck for checking rendered size, component spacing, theme slots, and named text styles.",
+          "text_summary": {
+            "present": true,
+            "sha256": "c517233f991169e3420cafd2e13fec684a52a2658da3b73ee50d958957e96e5f",
+            "length_bucket": "81-200"
+          },
           "styleId": "JK.Subtitle",
           "resolvedTextStyle": {
             "fontSize": 24,
@@ -259,7 +323,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Fixture deck for checking rendered size, component spacing, theme slots, and named text styles.",
+              "text_summary": {
+                "present": true,
+                "sha256": "c517233f991169e3420cafd2e13fec684a52a2658da3b73ee50d958957e96e5f",
+                "length_bucket": "81-200"
+              },
               "fontSize": 24,
               "color": "tx2",
               "alignment": "left"
@@ -273,7 +341,7 @@
       "order": 4,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/ra5gbq1o",
+      "aid": "sh/2x4nap4r",
       "id": "4",
       "name": "judgmentkit-status-pill-surface",
       "bbox": [
@@ -295,7 +363,7 @@
       "order": 5,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/2p8nqxs7",
+      "aid": "sh/vixczed8",
       "id": "5",
       "name": "judgmentkit-status-pill-label",
       "bbox": [
@@ -309,8 +377,16 @@
         "path": "0.1.1"
       },
       "geometry": "rect",
-      "text": "Ready",
-      "textPreview": "Ready",
+      "text_summary": {
+        "present": true,
+        "sha256": "5fa7aac5375c5815787fba3f49559f9b45b14023147ce0652803387974144e5f",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "5fa7aac5375c5815787fba3f49559f9b45b14023147ce0652803387974144e5f",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 14,
       "resolvedTextStyle": {
         "fontSize": 14,
@@ -330,14 +406,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Ready"
+            "text_summary": {
+              "present": true,
+              "sha256": "5fa7aac5375c5815787fba3f49559f9b45b14023147ce0652803387974144e5f",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Ready",
+          "text_summary": {
+            "present": true,
+            "sha256": "5fa7aac5375c5815787fba3f49559f9b45b14023147ce0652803387974144e5f",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Status.Success",
           "resolvedTextStyle": {
             "fontSize": 14,
@@ -348,7 +432,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Ready",
+              "text_summary": {
+                "present": true,
+                "sha256": "5fa7aac5375c5815787fba3f49559f9b45b14023147ce0652803387974144e5f",
+                "length_bucket": "1-20"
+              },
               "fontSize": 14,
               "color": "accent3",
               "bold": true,
@@ -363,7 +451,7 @@
       "order": 6,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/9gr2p8nq",
+      "aid": "sh/k3q5o7qp",
       "id": "6",
       "name": "canonical-metric-1-surface",
       "bbox": [
@@ -385,7 +473,7 @@
       "order": 7,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/gvy90je9",
+      "aid": "sh/donyd0z6",
       "id": "7",
       "name": "canonical-metric-1-label",
       "bbox": [
@@ -399,8 +487,16 @@
         "path": "0.2.1"
       },
       "geometry": "rect",
-      "text": "Layouts",
-      "textPreview": "Layouts",
+      "text_summary": {
+        "present": true,
+        "sha256": "303bd0bbf5381981e9904f4d21ac58041827fb176d2c781386d2d35d3e319866",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "303bd0bbf5381981e9904f4d21ac58041827fb176d2c781386d2d35d3e319866",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 12,
       "resolvedTextStyle": {
         "fontSize": 12,
@@ -420,14 +516,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Layouts"
+            "text_summary": {
+              "present": true,
+              "sha256": "303bd0bbf5381981e9904f4d21ac58041827fb176d2c781386d2d35d3e319866",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Layouts",
+          "text_summary": {
+            "present": true,
+            "sha256": "303bd0bbf5381981e9904f4d21ac58041827fb176d2c781386d2d35d3e319866",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Label",
           "resolvedTextStyle": {
             "fontSize": 12,
@@ -438,7 +542,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Layouts",
+              "text_summary": {
+                "present": true,
+                "sha256": "303bd0bbf5381981e9904f4d21ac58041827fb176d2c781386d2d35d3e319866",
+                "length_bucket": "1-20"
+              },
               "fontSize": 12,
               "color": "tx2",
               "bold": true,
@@ -453,7 +561,7 @@
       "order": 8,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/re1w7mp0",
+      "aid": "sh/29gr2p8n",
       "id": "8",
       "name": "canonical-metric-1-value",
       "bbox": [
@@ -467,8 +575,16 @@
         "path": "0.2.2"
       },
       "geometry": "rect",
-      "text": "3",
-      "textPreview": "3",
+      "text_summary": {
+        "present": true,
+        "sha256": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 42,
       "resolvedTextStyle": {
         "fontSize": 42,
@@ -488,14 +604,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "3"
+            "text_summary": {
+              "present": true,
+              "sha256": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "3",
+          "text_summary": {
+            "present": true,
+            "sha256": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Numeric",
           "resolvedTextStyle": {
             "fontSize": 42,
@@ -506,7 +630,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "3",
+              "text_summary": {
+                "present": true,
+                "sha256": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+                "length_bucket": "1-20"
+              },
               "fontSize": 42,
               "color": "tx1",
               "bold": true,
@@ -521,7 +649,7 @@
       "order": 9,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/2t83itgf",
+      "aid": "sh/vu9knih4",
       "id": "9",
       "name": "canonical-metric-1-detail",
       "bbox": [
@@ -535,8 +663,16 @@
         "path": "0.2.3"
       },
       "geometry": "rect",
-      "text": "Cover, evidence, and chart slides",
-      "textPreview": "Cover, evidence, and chart slides",
+      "text_summary": {
+        "present": true,
+        "sha256": "342707c392f088a69e21dfa5ed74df88677530c621f7ba298b428ced1b64a396",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "342707c392f088a69e21dfa5ed74df88677530c621f7ba298b428ced1b64a396",
+        "length_bucket": "21-80"
+      },
       "resolvedFontSize": 16,
       "resolvedTextStyle": {
         "fontSize": 16,
@@ -555,14 +691,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Cover, evidence, and chart slides"
+            "text_summary": {
+              "present": true,
+              "sha256": "342707c392f088a69e21dfa5ed74df88677530c621f7ba298b428ced1b64a396",
+              "length_bucket": "21-80"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Cover, evidence, and chart slides",
+          "text_summary": {
+            "present": true,
+            "sha256": "342707c392f088a69e21dfa5ed74df88677530c621f7ba298b428ced1b64a396",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.BodySmall",
           "resolvedTextStyle": {
             "fontSize": 16,
@@ -572,7 +716,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Cover, evidence, and chart slides",
+              "text_summary": {
+                "present": true,
+                "sha256": "342707c392f088a69e21dfa5ed74df88677530c621f7ba298b428ced1b64a396",
+                "length_bucket": "21-80"
+              },
               "fontSize": 16,
               "color": "tx1",
               "alignment": "left"
@@ -586,7 +734,7 @@
       "order": 10,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/sneloj2t",
+      "aid": "sh/3ylc7u54",
       "id": "10",
       "name": "canonical-metric-2-surface",
       "bbox": [
@@ -608,7 +756,7 @@
       "order": 11,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/l87ed8ba",
+      "aid": "sh/adsji5sn",
       "id": "11",
       "name": "canonical-metric-2-label",
       "bbox": [
@@ -622,8 +770,16 @@
         "path": "0.3.1"
       },
       "geometry": "rect",
-      "text": "Theme slots",
-      "textPreview": "Theme slots",
+      "text_summary": {
+        "present": true,
+        "sha256": "83229d241850cd12570a87af598eb0413b16849c3f765455189a97b6e46dfc1b",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "83229d241850cd12570a87af598eb0413b16849c3f765455189a97b6e46dfc1b",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 12,
       "resolvedTextStyle": {
         "fontSize": 12,
@@ -643,14 +799,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Theme slots"
+            "text_summary": {
+              "present": true,
+              "sha256": "83229d241850cd12570a87af598eb0413b16849c3f765455189a97b6e46dfc1b",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Theme slots",
+          "text_summary": {
+            "present": true,
+            "sha256": "83229d241850cd12570a87af598eb0413b16849c3f765455189a97b6e46dfc1b",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Label",
           "resolvedTextStyle": {
             "fontSize": 12,
@@ -661,7 +825,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Theme slots",
+              "text_summary": {
+                "present": true,
+                "sha256": "83229d241850cd12570a87af598eb0413b16849c3f765455189a97b6e46dfc1b",
+                "length_bucket": "1-20"
+              },
               "fontSize": 12,
               "color": "tx2",
               "bold": true,
@@ -676,7 +844,7 @@
       "order": 12,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/ahoza1gv",
+      "aid": "sh/h4byhgn2",
       "id": "12",
       "name": "canonical-metric-2-value",
       "bbox": [
@@ -690,8 +858,16 @@
         "path": "0.3.2"
       },
       "geometry": "rect",
-      "text": "16",
-      "textPreview": "16",
+      "text_summary": {
+        "present": true,
+        "sha256": "b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 42,
       "resolvedTextStyle": {
         "fontSize": 42,
@@ -711,14 +887,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "16"
+            "text_summary": {
+              "present": true,
+              "sha256": "b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "16",
+          "text_summary": {
+            "present": true,
+            "sha256": "b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Numeric",
           "resolvedTextStyle": {
             "fontSize": 42,
@@ -729,7 +913,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "16",
+              "text_summary": {
+                "present": true,
+                "sha256": "b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9",
+                "length_bucket": "1-20"
+              },
               "fontSize": 42,
               "color": "tx1",
               "bold": true,
@@ -744,7 +932,7 @@
       "order": 13,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/32lszqtc",
+      "aid": "sh/sji5snel",
       "id": "13",
       "name": "canonical-metric-2-detail",
       "bbox": [
@@ -758,8 +946,16 @@
         "path": "0.3.3"
       },
       "geometry": "rect",
-      "text": "PowerPoint color slots available",
-      "textPreview": "PowerPoint color slots available",
+      "text_summary": {
+        "present": true,
+        "sha256": "2db4847335de38a88b0d158388721004dbce565f599ec02e488439c72b5acaca",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "2db4847335de38a88b0d158388721004dbce565f599ec02e488439c72b5acaca",
+        "length_bucket": "21-80"
+      },
       "resolvedFontSize": 16,
       "resolvedTextStyle": {
         "fontSize": 16,
@@ -778,14 +974,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "PowerPoint color slots available"
+            "text_summary": {
+              "present": true,
+              "sha256": "2db4847335de38a88b0d158388721004dbce565f599ec02e488439c72b5acaca",
+              "length_bucket": "21-80"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "PowerPoint color slots available",
+          "text_summary": {
+            "present": true,
+            "sha256": "2db4847335de38a88b0d158388721004dbce565f599ec02e488439c72b5acaca",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.BodySmall",
           "resolvedTextStyle": {
             "fontSize": 16,
@@ -795,7 +999,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "PowerPoint color slots available",
+              "text_summary": {
+                "present": true,
+                "sha256": "2db4847335de38a88b0d158388721004dbce565f599ec02e488439c72b5acaca",
+                "length_bucket": "21-80"
+              },
               "fontSize": 16,
               "color": "tx1",
               "alignment": "left"
@@ -809,7 +1017,7 @@
       "order": 14,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/szqtcj6t",
+      "aid": "sh/3m94fu18",
       "id": "14",
       "name": "canonical-metric-3-surface",
       "bbox": [
@@ -831,7 +1039,7 @@
       "order": 15,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/lkjm1cfa",
+      "aid": "sh/a5gbq1or",
       "id": "15",
       "name": "canonical-metric-3-label",
       "bbox": [
@@ -845,8 +1053,16 @@
         "path": "0.4.1"
       },
       "geometry": "rect",
-      "text": "Styles",
-      "textPreview": "Styles",
+      "text_summary": {
+        "present": true,
+        "sha256": "3626e7fdea1cea3e30207f6d0637263aa6e13b9f7f7047b3d4f409cec6f02437",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "3626e7fdea1cea3e30207f6d0637263aa6e13b9f7f7047b3d4f409cec6f02437",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 12,
       "resolvedTextStyle": {
         "fontSize": 12,
@@ -866,14 +1082,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Styles"
+            "text_summary": {
+              "present": true,
+              "sha256": "3626e7fdea1cea3e30207f6d0637263aa6e13b9f7f7047b3d4f409cec6f02437",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Styles",
+          "text_summary": {
+            "present": true,
+            "sha256": "3626e7fdea1cea3e30207f6d0637263aa6e13b9f7f7047b3d4f409cec6f02437",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Label",
           "resolvedTextStyle": {
             "fontSize": 12,
@@ -884,7 +1108,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Styles",
+              "text_summary": {
+                "present": true,
+                "sha256": "3626e7fdea1cea3e30207f6d0637263aa6e13b9f7f7047b3d4f409cec6f02437",
+                "length_bucket": "1-20"
+              },
               "fontSize": 12,
               "color": "tx2",
               "bold": true,
@@ -899,7 +1127,7 @@
       "order": 16,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/at47y1kr",
+      "aid": "sh/lszqtcj6",
       "id": "16",
       "name": "canonical-metric-3-value",
       "bbox": [
@@ -913,8 +1141,16 @@
         "path": "0.4.2"
       },
       "geometry": "rect",
-      "text": "14",
-      "textPreview": "14",
+      "text_summary": {
+        "present": true,
+        "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 42,
       "resolvedTextStyle": {
         "fontSize": 42,
@@ -934,14 +1170,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "14"
+            "text_summary": {
+              "present": true,
+              "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "14",
+          "text_summary": {
+            "present": true,
+            "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Numeric",
           "resolvedTextStyle": {
             "fontSize": 42,
@@ -952,7 +1196,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "14",
+              "text_summary": {
+                "present": true,
+                "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+                "length_bucket": "1-20"
+              },
               "fontSize": 42,
               "color": "tx1",
               "bold": true,
@@ -967,7 +1215,7 @@
       "order": 17,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/3ex0nuxc",
+      "aid": "sh/s72x4nap",
       "id": "17",
       "name": "canonical-metric-3-detail",
       "bbox": [
@@ -981,8 +1229,16 @@
         "path": "0.4.3"
       },
       "geometry": "rect",
-      "text": "Named text styles registered",
-      "textPreview": "Named text styles registered",
+      "text_summary": {
+        "present": true,
+        "sha256": "4aeb14f623eac68d18791322435d6945076cc90f766d24803ba2a2e3dcbdf299",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "4aeb14f623eac68d18791322435d6945076cc90f766d24803ba2a2e3dcbdf299",
+        "length_bucket": "21-80"
+      },
       "resolvedFontSize": 16,
       "resolvedTextStyle": {
         "fontSize": 16,
@@ -1001,14 +1257,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "Named text styles registered"
+            "text_summary": {
+              "present": true,
+              "sha256": "4aeb14f623eac68d18791322435d6945076cc90f766d24803ba2a2e3dcbdf299",
+              "length_bucket": "21-80"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "Named text styles registered",
+          "text_summary": {
+            "present": true,
+            "sha256": "4aeb14f623eac68d18791322435d6945076cc90f766d24803ba2a2e3dcbdf299",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.BodySmall",
           "resolvedTextStyle": {
             "fontSize": 16,
@@ -1018,7 +1282,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "Named text styles registered",
+              "text_summary": {
+                "present": true,
+                "sha256": "4aeb14f623eac68d18791322435d6945076cc90f766d24803ba2a2e3dcbdf299",
+                "length_bucket": "21-80"
+              },
               "fontSize": 16,
               "color": "tx1",
               "alignment": "left"
@@ -1124,10 +1392,14 @@
                   "height": 28
                 },
                 "children": [],
-                "text": "PRESENTATION THEME ACTUAL TEST",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "0a2ea72484b4318444015b93f7cdcfb53a38ce35fc11c331b89f9225ebdd181c",
+                  "length_bucket": "21-80"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/2hwfyxob",
+                  "aid": "sh/val87ed8",
                   "id": "1",
                   "kind": "shape"
                 }
@@ -1167,10 +1439,14 @@
                   "height": 150
                 },
                 "children": [],
-                "text": "The theme adapter gives decks a usable review structure",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "cdcec9d66fb3c881fd05d6c5852954c2efff969d751056d2bc1e21c649e1fcf1",
+                  "length_bucket": "21-80"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/94fu18jq",
+                  "aid": "sh/kre1w7mp",
                   "id": "2",
                   "kind": "shape"
                 }
@@ -1210,10 +1486,14 @@
                   "height": 100
                 },
                 "children": [],
-                "text": "Fixture deck for checking rendered size, component spacing, theme slots, and named text styles.",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "c517233f991169e3420cafd2e13fec684a52a2658da3b73ee50d958957e96e5f",
+                  "length_bucket": "81-200"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/kjm1cfa9",
+                  "aid": "sh/dcbulwva",
                   "id": "3",
                   "kind": "shape"
                 }
@@ -1325,7 +1605,7 @@
                 "children": [],
                 "geometry": "roundRect",
                 "element": {
-                  "aid": "sh/ra5gbq1o",
+                  "aid": "sh/2x4nap4r",
                   "id": "4",
                   "kind": "shape"
                 }
@@ -1365,10 +1645,14 @@
                   "height": 21
                 },
                 "children": [],
-                "text": "Ready",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "5fa7aac5375c5815787fba3f49559f9b45b14023147ce0652803387974144e5f",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/2p8nqxs7",
+                  "aid": "sh/vixczed8",
                   "id": "5",
                   "kind": "shape"
                 }
@@ -1471,7 +1755,7 @@
                 "children": [],
                 "geometry": "rect",
                 "element": {
-                  "aid": "sh/9gr2p8nq",
+                  "aid": "sh/k3q5o7qp",
                   "id": "6",
                   "kind": "shape"
                 }
@@ -1511,10 +1795,14 @@
                   "height": 24
                 },
                 "children": [],
-                "text": "Layouts",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "303bd0bbf5381981e9904f4d21ac58041827fb176d2c781386d2d35d3e319866",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/gvy90je9",
+                  "aid": "sh/donyd0z6",
                   "id": "7",
                   "kind": "shape"
                 }
@@ -1554,10 +1842,14 @@
                   "height": 62
                 },
                 "children": [],
-                "text": "3",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "4e07408562bedb8b60ce05c1decfe3ad16b72230967de01f640b7e4729b49fce",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/re1w7mp0",
+                  "aid": "sh/29gr2p8n",
                   "id": "8",
                   "kind": "shape"
                 }
@@ -1597,10 +1889,14 @@
                   "height": 28
                 },
                 "children": [],
-                "text": "Cover, evidence, and chart slides",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "342707c392f088a69e21dfa5ed74df88677530c621f7ba298b428ced1b64a396",
+                  "length_bucket": "21-80"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/2t83itgf",
+                  "aid": "sh/vu9knih4",
                   "id": "9",
                   "kind": "shape"
                 }
@@ -1721,7 +2017,7 @@
                 "children": [],
                 "geometry": "rect",
                 "element": {
-                  "aid": "sh/sneloj2t",
+                  "aid": "sh/3ylc7u54",
                   "id": "10",
                   "kind": "shape"
                 }
@@ -1761,10 +2057,14 @@
                   "height": 24
                 },
                 "children": [],
-                "text": "Theme slots",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "83229d241850cd12570a87af598eb0413b16849c3f765455189a97b6e46dfc1b",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/l87ed8ba",
+                  "aid": "sh/adsji5sn",
                   "id": "11",
                   "kind": "shape"
                 }
@@ -1804,10 +2104,14 @@
                   "height": 62
                 },
                 "children": [],
-                "text": "16",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "b17ef6d19c7a5b1ee83b907c595526dcb1eb06db8227d650d5dda0a9f4ce8cd9",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/ahoza1gv",
+                  "aid": "sh/h4byhgn2",
                   "id": "12",
                   "kind": "shape"
                 }
@@ -1847,10 +2151,14 @@
                   "height": 28
                 },
                 "children": [],
-                "text": "PowerPoint color slots available",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "2db4847335de38a88b0d158388721004dbce565f599ec02e488439c72b5acaca",
+                  "length_bucket": "21-80"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/32lszqtc",
+                  "aid": "sh/sji5snel",
                   "id": "13",
                   "kind": "shape"
                 }
@@ -1971,7 +2279,7 @@
                 "children": [],
                 "geometry": "rect",
                 "element": {
-                  "aid": "sh/szqtcj6t",
+                  "aid": "sh/3m94fu18",
                   "id": "14",
                   "kind": "shape"
                 }
@@ -2011,10 +2319,14 @@
                   "height": 24
                 },
                 "children": [],
-                "text": "Styles",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "3626e7fdea1cea3e30207f6d0637263aa6e13b9f7f7047b3d4f409cec6f02437",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/lkjm1cfa",
+                  "aid": "sh/a5gbq1or",
                   "id": "15",
                   "kind": "shape"
                 }
@@ -2054,10 +2366,14 @@
                   "height": 62
                 },
                 "children": [],
-                "text": "14",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "8527a891e224136950ff32ca212b45bc93f69fbb801c3b1ebedac52775f99e61",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/at47y1kr",
+                  "aid": "sh/lszqtcj6",
                   "id": "16",
                   "kind": "shape"
                 }
@@ -2097,10 +2413,14 @@
                   "height": 28
                 },
                 "children": [],
-                "text": "Named text styles registered",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "4aeb14f623eac68d18791322435d6945076cc90f766d24803ba2a2e3dcbdf299",
+                  "length_bucket": "21-80"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/3ex0nuxc",
+                  "aid": "sh/s72x4nap",
                   "id": "17",
                   "kind": "shape"
                 }

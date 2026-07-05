@@ -1,8 +1,9 @@
 import fs from "node:fs/promises";
+import fsSync from "node:fs";
+import crypto from "node:crypto";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
-import { FileBlob, Presentation, PresentationFile, layers, shape, table, text } from "@oai/artifact-tool";
 import {
   JUDGMENTKIT_PPTX_THEME_COLORS,
   JUDGMENTKIT_STYLE_NAMES,
@@ -10,14 +11,90 @@ import {
   createJudgmentKitPresentationAcceptanceEvidence,
 } from "judgmentkit/presentation-theme";
 
+import { requireCommittedOutputUpdateGate } from "./actual-constants.mjs";
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const outputDir = __dirname;
+const repoRoot = path.resolve(__dirname, "..", "..");
+const outputDir = path.resolve(
+  repoRoot,
+  process.env.JUDGMENTKIT_PPTX_FIXTURE_DIR ?? "outputs/presentation-theme-actual-tests",
+);
 const previewRoot = path.join(outputDir, "artifact-previews");
 const layoutRoot = path.join(outputDir, "layouts");
 const importedLayoutRoot = path.join(outputDir, "imported-layouts");
 const inspectRoot = path.join(outputDir, "inspect");
 const evidenceRoot = path.join(outputDir, "evidence");
-const helpers = { layers, shape, table, text };
+const scriptRef = path.relative(repoRoot, fileURLToPath(import.meta.url)).split(path.sep).join("/");
+
+let FileBlob;
+let Presentation;
+let PresentationFile;
+let layers;
+let shape;
+let table;
+let text;
+let helpers;
+
+function cliOption(name) {
+  const index = process.argv.indexOf(name);
+  return index >= 0 ? process.argv[index + 1] : undefined;
+}
+
+function resolveArtifactToolPackage() {
+  const candidates = [
+    cliOption("--artifact-tool-package"),
+    process.env.JUDGMENTKIT_ARTIFACT_TOOL_PACKAGE,
+    process.env.CODEX_RUNTIME_DEPENDENCIES
+      ? path.join(process.env.CODEX_RUNTIME_DEPENDENCIES, "node", "node_modules", "@oai", "artifact-tool")
+      : undefined,
+    process.env.CODEX_WORKSPACE_DEPENDENCIES
+      ? path.join(process.env.CODEX_WORKSPACE_DEPENDENCIES, "node", "node_modules", "@oai", "artifact-tool")
+      : undefined,
+    process.env.CODEX_DEPENDENCIES
+      ? path.join(process.env.CODEX_DEPENDENCIES, "node", "node_modules", "@oai", "artifact-tool")
+      : undefined,
+    path.join(
+      process.env.HOME ?? "",
+      ".cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool",
+    ),
+  ].filter(Boolean);
+
+  for (const candidate of candidates) {
+    const packageJsonPath = path.join(candidate, "package.json");
+
+    if (!fsSync.existsSync(packageJsonPath)) {
+      continue;
+    }
+
+    const packageJson = JSON.parse(fsSync.readFileSync(packageJsonPath, "utf8"));
+    if (packageJson.name !== "@oai/artifact-tool") {
+      throw new Error(`JUDGMENTKIT_ACTUAL_INVALID_RUNTIME: ${candidate} is not @oai/artifact-tool.`);
+    }
+
+    if (!String(packageJson.version ?? "").startsWith("2.")) {
+      throw new Error(
+        `JUDGMENTKIT_ACTUAL_UNSUPPORTED_RUNTIME: @oai/artifact-tool ${packageJson.version} is not supported by this fixture harness.`,
+      );
+    }
+
+    return candidate;
+  }
+
+  throw new Error(
+    "JUDGMENTKIT_ACTUAL_RUNTIME_MISSING: set JUDGMENTKIT_ARTIFACT_TOOL_PACKAGE or pass --artifact-tool-package for actual PPTX generation.",
+  );
+}
+
+async function loadArtifactTool() {
+  const packagePath = resolveArtifactToolPackage();
+  const modulePath = path.join(packagePath, "dist", "artifact_tool.mjs");
+  const artifactTool = await import(pathToFileURL(modulePath).href);
+
+  ({ FileBlob, Presentation, PresentationFile, layers, shape, table, text } = artifactTool);
+  helpers = { layers, shape, table, text };
+
+  return packagePath;
+}
 
 async function writeBlob(filePath, blob) {
   await fs.writeFile(filePath, new Uint8Array(await blob.arrayBuffer()));
@@ -25,6 +102,141 @@ async function writeBlob(filePath, blob) {
 
 async function writeJson(filePath, value) {
   await fs.writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function sha256File(filePath) {
+  return crypto.createHash("sha256").update(fsSync.readFileSync(filePath)).digest("hex");
+}
+
+function sha256String(value) {
+  return crypto.createHash("sha256").update(String(value)).digest("hex");
+}
+
+function repoRelative(filePath) {
+  return path.relative(repoRoot, filePath).split(path.sep).join("/");
+}
+
+function parseNdjson(value) {
+  return String(value)
+    .split(/\n+/)
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
+}
+
+function textFromInspectEntry(entry) {
+  const parts = [];
+
+  for (const key of ["text", "preview", "title", "label", "name"]) {
+    if (typeof entry[key] === "string") {
+      parts.push(entry[key]);
+    }
+  }
+
+  return parts.join(" ").replace(/\s+/g, " ").trim();
+}
+
+function normalizeOutputText(value) {
+  return String(value ?? "").replace(/\s+/g, " ").trim();
+}
+
+function textLengthBucket(value) {
+  const length = normalizeOutputText(value).length;
+
+  if (length === 0) return "0";
+  if (length <= 20) return "1-20";
+  if (length <= 80) return "21-80";
+  if (length <= 200) return "81-200";
+  return "201+";
+}
+
+function safeTextSummary(value) {
+  const normalized = normalizeOutputText(value);
+  return {
+    present: normalized.length > 0,
+    sha256: sha256String(normalized),
+    length_bucket: textLengthBucket(normalized),
+  };
+}
+
+function safeTextKey(key) {
+  return key.replace(/([a-z0-9])([A-Z])/g, "$1_$2").toLowerCase();
+}
+
+function sanitizePublicOutput(value) {
+  const rawTextKeys = new Set([
+    "body",
+    "label",
+    "preview",
+    "subtitle",
+    "text",
+    "textPreview",
+    "title",
+    "value",
+  ]);
+
+  if (Array.isArray(value)) {
+    return value.map(sanitizePublicOutput);
+  }
+
+  if (!value || typeof value !== "object") {
+    return value;
+  }
+
+  return Object.fromEntries(
+    Object.entries(value).flatMap(([key, entry]) => {
+      if (rawTextKeys.has(key) && typeof entry === "string") {
+        return [[`${safeTextKey(key)}_summary`, safeTextSummary(entry)]];
+      }
+
+      return [[key, sanitizePublicOutput(entry)]];
+    }),
+  );
+}
+
+function sanitizeInspectNdjson(ndjson) {
+  return `${parseNdjson(ndjson)
+    .map((entry) => JSON.stringify(sanitizePublicOutput(entry)))
+    .join("\n")}\n`;
+}
+
+function sanitizeLayoutJsonText(jsonText) {
+  return `${JSON.stringify(sanitizePublicOutput(JSON.parse(jsonText)), null, 2)}\n`;
+}
+
+function extractedDeckTextFromInspect(ndjson, artifactRef, slideCount) {
+  const entries = [];
+
+  for (const [objectIndex, entry] of parseNdjson(ndjson).entries()) {
+    const slideNumber = Number.isInteger(entry.slide)
+      ? entry.slide
+      : Number.isInteger(entry.slide_number)
+        ? entry.slide_number
+        : Number.isInteger(entry.slideIndex)
+          ? entry.slideIndex + 1
+          : undefined;
+    const textValue = textFromInspectEntry(entry);
+
+    if (!slideNumber || slideNumber < 1 || slideNumber > slideCount || textValue.length === 0) {
+      continue;
+    }
+
+    entries.push({
+      slide_index: slideNumber - 1,
+      slide_number: slideNumber,
+      object_index: objectIndex,
+      kind: entry.kind ?? "text",
+      text: textValue,
+    });
+  }
+
+  return {
+    status: "extracted",
+    method: "artifact_tool_import_pptx_inspect_ndjson",
+    extractor_id: "PresentationFile.importPptx.inspect",
+    artifact_ref: artifactRef,
+    slide_count: slideCount,
+    entries,
+  };
 }
 
 function composeSlide(slide, kit, name, children) {
@@ -39,7 +251,7 @@ function frame(kit, x, y, width, height) {
   return kit.layout.frame(x, y, width, height);
 }
 
-async function saveDeck(name, deck, slidesEvidence) {
+async function saveDeck(name, deck) {
   const source = await fs.readFile(new URL(import.meta.url), "utf8");
   const pptxPath = path.join(outputDir, `${name}.pptx`);
   const previewDir = path.join(previewRoot, name);
@@ -60,7 +272,7 @@ async function saveDeck(name, deck, slidesEvidence) {
     );
     await fs.writeFile(
       path.join(layoutDir, `${stem}.layout.json`),
-      await (await slide.export({ format: "layout" })).text(),
+      sanitizeLayoutJsonText(await (await slide.export({ format: "layout" })).text()),
     );
   }
 
@@ -73,7 +285,7 @@ async function saveDeck(name, deck, slidesEvidence) {
     kind: "slide,textbox,shape,table,chart,layout",
     maxChars: 40000,
   });
-  await fs.writeFile(path.join(inspectRoot, `${name}.ndjson`), inspect.ndjson);
+  await fs.writeFile(path.join(inspectRoot, `${name}.ndjson`), sanitizeInspectNdjson(inspect.ndjson));
 
   await (await PresentationFile.exportPptx(deck.presentation)).save(pptxPath);
 
@@ -82,7 +294,7 @@ async function saveDeck(name, deck, slidesEvidence) {
     const stem = `slide-${String(index + 1).padStart(2, "0")}`;
     await fs.writeFile(
       path.join(importedLayoutDir, `${stem}.layout.json`),
-      await (await slide.export({ format: "layout" })).text(),
+      sanitizeLayoutJsonText(await (await slide.export({ format: "layout" })).text()),
     );
   }
 
@@ -90,28 +302,40 @@ async function saveDeck(name, deck, slidesEvidence) {
     kind: "slide,textbox,shape,table,chart,layout",
     maxChars: 40000,
   });
-  await fs.writeFile(path.join(inspectRoot, `${name}.imported.ndjson`), importedInspect.ndjson);
+  const importedInspectPath = path.join(inspectRoot, `${name}.imported.ndjson`);
+  await fs.writeFile(importedInspectPath, sanitizeInspectNdjson(importedInspect.ndjson));
+
+  const artifactRef = {
+    path: repoRelative(pptxPath),
+    kind: "pptx",
+    sha256: sha256File(pptxPath),
+  };
 
   await writeJson(
     path.join(evidenceRoot, `${name}.acceptance.json`),
     createJudgmentKitPresentationAcceptanceEvidence({
       source,
-      artifact: { path: pptxPath, kind: "pptx" },
+      source_ref: { path: scriptRef, kind: "generator" },
+      artifact_ref: artifactRef,
       theme: {
         colorScheme: { themeColors: JUDGMENTKIT_PPTX_THEME_COLORS },
         styleIds: Object.values(JUDGMENTKIT_STYLE_NAMES),
       },
       checks: {
         actual_slide_size: deck.kit.layout.fullSlide(),
-        artifact_preview_directory: previewDir,
+        artifact_preview_directory: repoRelative(previewDir),
         artifact_preview_pngs: deck.presentation.slides.items.length,
         layout_json_exports: deck.presentation.slides.items.length,
         imported_layout_json_exports: imported.slides.items.length,
-        imported_inspect_path: path.join(inspectRoot, `${name}.imported.ndjson`),
-        rendered_pptx_png_directory: path.join(outputDir, name),
+        imported_inspect_path: repoRelative(importedInspectPath),
+        rendered_pptx_png_directory: repoRelative(path.join(outputDir, name)),
         rendered_pptx_pngs_expected: deck.presentation.slides.items.length,
       },
-      slides: slidesEvidence,
+      extracted_deck_text: extractedDeckTextFromInspect(
+        importedInspect.ndjson,
+        artifactRef,
+        imported.slides.items.length,
+      ),
     }),
   );
 
@@ -320,6 +544,14 @@ function buildCompactDeck() {
 }
 
 async function main() {
+  if (process.env.JUDGMENTKIT_PPTX_ACTUAL !== "1") {
+    throw new Error("JUDGMENTKIT_ACTUAL_NOT_ENABLED: set JUDGMENTKIT_PPTX_ACTUAL=1 to build actual PPTX fixtures.");
+  }
+
+  requireCommittedOutputUpdateGate("building committed actual PPTX fixtures");
+
+  const artifactToolPackage = await loadArtifactTool();
+
   for (const dir of [previewRoot, layoutRoot, importedLayoutRoot, inspectRoot, evidenceRoot]) {
     await fs.mkdir(dir, { recursive: true });
   }
@@ -328,13 +560,18 @@ async function main() {
   const fourByThree = buildFourByThreeDeck();
   const compact = buildCompactDeck();
   const outputs = [
-    await saveDeck("jk-theme-canonical-16x9", canonical.deck, canonical.slides),
-    await saveDeck("jk-theme-custom-4x3", fourByThree.deck, fourByThree.slides),
-    await saveDeck("jk-theme-compact-review", compact.deck, compact.slides),
+    await saveDeck("jk-theme-canonical-16x9", canonical.deck),
+    await saveDeck("jk-theme-custom-4x3", fourByThree.deck),
+    await saveDeck("jk-theme-compact-review", compact.deck),
   ];
   await writeJson(path.join(outputDir, "manifest.json"), {
-    source: fileURLToPath(import.meta.url),
-    outputs,
+    version: 1,
+    generated_by: scriptRef,
+    runtime: {
+      artifact_tool_package: "@oai/artifact-tool",
+      artifact_tool_package_path: path.basename(artifactToolPackage),
+    },
+    outputs: outputs.map(repoRelative),
   });
 }
 

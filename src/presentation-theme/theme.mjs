@@ -4,6 +4,7 @@ import {
   cloneJudgmentKitPresentationValue,
   createJudgmentKitColorScheme,
 } from "./tokens.mjs";
+import layoutApi from "./layout.mjs";
 import { createJudgmentKitDeckKit } from "./components.mjs";
 import { registerJudgmentKitStyles } from "./styles.mjs";
 
@@ -36,9 +37,21 @@ function assignPresentationMetadata(presentation, metadata) {
   }
 }
 
+function resolveCreateSlideSize(options, presentationOptions) {
+  return layoutApi.resolveSlideSize(
+    [
+      options.slideSize,
+      options.slide_size,
+      presentationOptions.slideSize,
+      presentationOptions.slide_size,
+    ],
+    JUDGMENTKIT_SLIDE_SIZE,
+  );
+}
+
 function createPresentationInstance(options) {
   if (options.presentation) {
-    return options.presentation;
+    return { presentation: options.presentation, requestedSlideSize: undefined };
   }
 
   const Presentation = options.Presentation;
@@ -50,19 +63,17 @@ function createPresentationInstance(options) {
   }
 
   const presentationOptions = { ...(options.presentationOptions ?? {}) };
-  const slideSize =
-    options.slideSize ??
-    options.slide_size ??
-    presentationOptions.slideSize ??
-    presentationOptions.slide_size ??
-    JUDGMENTKIT_SLIDE_SIZE;
+  const slideSize = resolveCreateSlideSize(options, presentationOptions);
 
   delete presentationOptions.slide_size;
 
-  return Presentation.create({
-    ...presentationOptions,
-    slideSize: cloneJudgmentKitPresentationValue(slideSize),
-  });
+  return {
+    presentation: Presentation.create({
+      ...presentationOptions,
+      slideSize: cloneJudgmentKitPresentationValue(slideSize),
+    }),
+    requestedSlideSize: slideSize,
+  };
 }
 
 export function applyJudgmentKitPptxTheme(presentation, options = {}) {
@@ -99,13 +110,16 @@ export function applyJudgmentKitPptxTheme(presentation, options = {}) {
 
 export function createJudgmentKitPresentation(options = {}) {
   const normalizedOptions = normalizeOptions(options);
-  const presentation = createPresentationInstance(normalizedOptions);
+  const { presentation, requestedSlideSize } = createPresentationInstance(normalizedOptions);
 
   applyJudgmentKitPptxTheme(presentation, normalizedOptions);
 
   return {
     presentation,
     manifest: JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST,
-    kit: createJudgmentKitDeckKit(presentation, normalizedOptions),
+    kit: createJudgmentKitDeckKit(presentation, {
+      ...normalizedOptions,
+      createdSlideSize: requestedSlideSize,
+    }),
   };
 }

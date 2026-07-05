@@ -2,13 +2,13 @@
   "schema": "openai.presentation.layout/v4",
   "unit": "px",
   "slide": {
-    "aid": "sl/3uouy8",
-    "id": "3uouy8",
+    "aid": "sl/cwf5n1",
+    "id": "cwf5n1",
     "slide": 3,
-    "layoutId": "7df98239-fe3a-4af2-8409-f82a0c66734e",
+    "layoutId": "3e35faba-4fe8-4fe5-aace-796987e28d35",
     "layoutName": "Title Slide",
     "layoutType": "title",
-    "masterLayoutId": "1f7b05e0-4cc0-496a-a049-4c8091b458ca",
+    "masterLayoutId": "4ad3837c-cd04-4a09-a003-a4929be46836",
     "masterLayoutName": "Master",
     "backgroundColor": "bg1",
     "frame": {
@@ -45,15 +45,15 @@
   "inheritedLayers": [
     {
       "scope": "layout",
-      "id": "7df98239-fe3a-4af2-8409-f82a0c66734e",
+      "id": "3e35faba-4fe8-4fe5-aace-796987e28d35",
       "name": "Title Slide",
       "type": "title",
-      "parentLayoutId": "1f7b05e0-4cc0-496a-a049-4c8091b458ca",
+      "parentLayoutId": "4ad3837c-cd04-4a09-a003-a4929be46836",
       "elements": []
     },
     {
       "scope": "master",
-      "id": "1f7b05e0-4cc0-496a-a049-4c8091b458ca",
+      "id": "4ad3837c-cd04-4a09-a003-a4929be46836",
       "name": "Master",
       "type": "master",
       "elements": []
@@ -64,7 +64,7 @@
       "order": 1,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/l87ed8ba",
+      "aid": "sh/wjudg7ad",
       "id": "1",
       "name": "judgmentkit-section-header-label",
       "bbox": [
@@ -78,8 +78,16 @@
         "path": "0.0.0"
       },
       "geometry": "rect",
-      "text": "CHART FRAME",
-      "textPreview": "CHART FRAME",
+      "text_summary": {
+        "present": true,
+        "sha256": "81e8ba560f6d9f57ac3efd74d362cbe25d9f0389aa752c567c7e569ceb9bf868",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "81e8ba560f6d9f57ac3efd74d362cbe25d9f0389aa752c567c7e569ceb9bf868",
+        "length_bucket": "1-20"
+      },
       "resolvedFontSize": 12,
       "resolvedTextStyle": {
         "fontSize": 12,
@@ -99,14 +107,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "CHART FRAME"
+            "text_summary": {
+              "present": true,
+              "sha256": "81e8ba560f6d9f57ac3efd74d362cbe25d9f0389aa752c567c7e569ceb9bf868",
+              "length_bucket": "1-20"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "CHART FRAME",
+          "text_summary": {
+            "present": true,
+            "sha256": "81e8ba560f6d9f57ac3efd74d362cbe25d9f0389aa752c567c7e569ceb9bf868",
+            "length_bucket": "1-20"
+          },
           "styleId": "JK.Label",
           "resolvedTextStyle": {
             "fontSize": 12,
@@ -117,7 +133,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "CHART FRAME",
+              "text_summary": {
+                "present": true,
+                "sha256": "81e8ba560f6d9f57ac3efd74d362cbe25d9f0389aa752c567c7e569ceb9bf868",
+                "length_bucket": "1-20"
+              },
               "fontSize": 12,
               "color": "tx2",
               "bold": true,
@@ -132,7 +152,7 @@
       "order": 2,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/ahoza1gv",
+      "aid": "sh/7y1kre1w",
       "id": "2",
       "name": "judgmentkit-section-header-title",
       "bbox": [
@@ -146,8 +166,16 @@
         "path": "0.0.1"
       },
       "geometry": "rect",
-      "text": "A native chart should sit cleanly inside an adapter media frame",
-      "textPreview": "A native chart should sit cleanly inside an adapter media frame",
+      "text_summary": {
+        "present": true,
+        "sha256": "9df65997e349b30cfb49ab65768f6ced9c4e03c8cfea7433056a008bbd50ae6d",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "9df65997e349b30cfb49ab65768f6ced9c4e03c8cfea7433056a008bbd50ae6d",
+        "length_bucket": "21-80"
+      },
       "resolvedFontSize": 38,
       "resolvedTextStyle": {
         "fontSize": 38,
@@ -167,14 +195,22 @@
         "lines": [
           {
             "index": 1,
-            "text": "A native chart should sit cleanly inside an adapter media frame"
+            "text_summary": {
+              "present": true,
+              "sha256": "9df65997e349b30cfb49ab65768f6ced9c4e03c8cfea7433056a008bbd50ae6d",
+              "length_bucket": "21-80"
+            }
           }
         ]
       },
       "paragraphs": [
         {
           "index": 1,
-          "text": "A native chart should sit cleanly inside an adapter media frame",
+          "text_summary": {
+            "present": true,
+            "sha256": "9df65997e349b30cfb49ab65768f6ced9c4e03c8cfea7433056a008bbd50ae6d",
+            "length_bucket": "21-80"
+          },
           "styleId": "JK.SlideTitle",
           "resolvedTextStyle": {
             "fontSize": 38,
@@ -185,7 +221,11 @@
           "runs": [
             {
               "index": 1,
-              "text": "A native chart should sit cleanly inside an adapter media frame",
+              "text_summary": {
+                "present": true,
+                "sha256": "9df65997e349b30cfb49ab65768f6ced9c4e03c8cfea7433056a008bbd50ae6d",
+                "length_bucket": "21-80"
+              },
               "fontSize": 38,
               "color": "tx1",
               "bold": true,
@@ -200,7 +240,7 @@
       "order": 3,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/32lszqtc",
+      "aid": "sh/ed8v6psf",
       "id": "3",
       "name": "judgmentkit-media-frame",
       "bbox": [
@@ -222,7 +262,7 @@
       "order": 4,
       "kind": "chart",
       "scope": "slide",
-      "aid": "ch/4zidonyd",
+      "aid": "ch/hgn29gr2",
       "id": "4",
       "bbox": [
         128,
@@ -328,10 +368,14 @@
                   "height": 24
                 },
                 "children": [],
-                "text": "CHART FRAME",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "81e8ba560f6d9f57ac3efd74d362cbe25d9f0389aa752c567c7e569ceb9bf868",
+                  "length_bucket": "1-20"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/l87ed8ba",
+                  "aid": "sh/wjudg7ad",
                   "id": "1",
                   "kind": "shape"
                 }
@@ -371,10 +415,14 @@
                   "height": 96
                 },
                 "children": [],
-                "text": "A native chart should sit cleanly inside an adapter media frame",
+                "text_summary": {
+                  "present": true,
+                  "sha256": "9df65997e349b30cfb49ab65768f6ced9c4e03c8cfea7433056a008bbd50ae6d",
+                  "length_bucket": "21-80"
+                },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/ahoza1gv",
+                  "aid": "sh/7y1kre1w",
                   "id": "2",
                   "kind": "shape"
                 }
@@ -452,7 +500,7 @@
             "children": [],
             "geometry": "rect",
             "element": {
-              "aid": "sh/32lszqtc",
+              "aid": "sh/ed8v6psf",
               "id": "3",
               "kind": "shape"
             }

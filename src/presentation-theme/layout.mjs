@@ -25,6 +25,45 @@ function finiteNumber(value, fallback) {
   return Number.isFinite(value) ? value : fallback;
 }
 
+function completePositiveSlideSize(value) {
+  if (!value || typeof value !== "object") {
+    return null;
+  }
+
+  const hasWidthHeight = Number.isFinite(value.width) && Number.isFinite(value.height);
+  const hasWH = Number.isFinite(value.w) && Number.isFinite(value.h);
+  const width = hasWidthHeight ? value.width : hasWH ? value.w : undefined;
+  const height = hasWidthHeight ? value.height : hasWH ? value.h : undefined;
+
+  if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
+    return null;
+  }
+
+  return {
+    width,
+    height,
+    w: width,
+    h: height,
+    aspectRatio: width / height,
+  };
+}
+
+function resolveSlideSize(candidates = [], fallback = SLIDE_SIZE) {
+  for (const candidate of candidates) {
+    const resolved = completePositiveSlideSize(candidate);
+
+    if (resolved) {
+      return resolved;
+    }
+  }
+
+  if (fallback === null) {
+    return null;
+  }
+
+  return completePositiveSlideSize(fallback) ?? SLIDE_SIZE;
+}
+
 export function normalizeFrame(frame = {}) {
   const source = frame && typeof frame === "object" ? frame : {};
   const x = finiteNumber(source.x, finiteNumber(source.left, 0));
@@ -45,11 +84,8 @@ export function normalizeFrame(frame = {}) {
   };
 }
 
-function normalizeSlideSize(slide = SLIDE_SIZE) {
-  return normalizeFrame({
-    width: finiteNumber(slide.width, finiteNumber(slide.w, SLIDE_WIDTH)),
-    height: finiteNumber(slide.height, finiteNumber(slide.h, SLIDE_HEIGHT)),
-  });
+function normalizeSlideSize(slide = SLIDE_SIZE, fallback = SLIDE_SIZE) {
+  return normalizeFrame(resolveSlideSize([slide], fallback));
 }
 
 function normalizeInsets(value = MARGINS, fallback = MARGINS) {
@@ -92,7 +128,9 @@ export function frame(x, y, width, height, extra = {}) {
 }
 
 export function fullSlide(options = {}) {
-  const slide = normalizeSlideSize(options.slide ?? options);
+  const slide = normalizeSlideSize(
+    resolveSlideSize([options.slide, options.slideSize, options.slide_size, options]),
+  );
 
   return frame(0, 0, slide.width, slide.height, {
     name: options.name ?? "full-slide",
@@ -100,7 +138,9 @@ export function fullSlide(options = {}) {
 }
 
 export function contentFrame(options = {}) {
-  const slide = normalizeSlideSize(options.slide);
+  const slide = normalizeSlideSize(
+    resolveSlideSize([options.slide, options.slideSize, options.slide_size, options]),
+  );
   const margins = normalizeInsets(options.margins ?? options, MARGINS);
 
   return frame(
@@ -257,7 +297,7 @@ export function alignWithin(containerFrame, boxSize = {}, options = {}) {
 
 export function createJudgmentKitLayout(options = {}) {
   const defaultSlide = normalizeSlideSize(
-    options.slide ?? options.slideSize ?? options.slide_size ?? options,
+    resolveSlideSize([options.slide, options.slideSize, options.slide_size, options]),
   );
   const scopedSlideSize = Object.freeze({
     width: defaultSlide.width,
@@ -268,24 +308,33 @@ export function createJudgmentKitLayout(options = {}) {
   });
 
   function scopedFullSlide(fullSlideOptions = {}) {
-    const hasExplicitSlide =
-      Boolean(fullSlideOptions.slide) ||
-      Number.isFinite(fullSlideOptions.width) ||
-      Number.isFinite(fullSlideOptions.w) ||
-      Number.isFinite(fullSlideOptions.height) ||
-      Number.isFinite(fullSlideOptions.h);
-
-    return fullSlide(
-      hasExplicitSlide
-        ? fullSlideOptions
-        : { ...fullSlideOptions, slide: scopedSlideSize },
+    const slide = resolveSlideSize(
+      [
+        fullSlideOptions.slide,
+        fullSlideOptions.slideSize,
+        fullSlideOptions.slide_size,
+        fullSlideOptions,
+      ],
+      scopedSlideSize,
     );
+
+    return fullSlide({ ...fullSlideOptions, slide });
   }
 
   function scopedContentFrame(contentOptions = {}) {
+    const slide = resolveSlideSize(
+      [
+        contentOptions.slide,
+        contentOptions.slideSize,
+        contentOptions.slide_size,
+        contentOptions,
+      ],
+      scopedSlideSize,
+    );
+
     return contentFrame({
       ...contentOptions,
-      slide: contentOptions.slide ?? scopedSlideSize,
+      slide,
     });
   }
 
@@ -341,4 +390,5 @@ export default {
   split,
   alignWithin,
   createJudgmentKitLayout,
+  resolveSlideSize,
 };
