@@ -51,10 +51,35 @@ try {
     "create_ui_generation_handoff",
     "create_frontend_generation_context",
     "create_frontend_implementation_skill_context",
+    "create_slide_deck",
     "list_icon_catalog",
     "search_icon_catalog",
     "get_icon_svg",
   ]);
+
+  const deckResponse = await withTimeout(
+    client.callTool({
+      name: "create_slide_deck",
+      arguments: {
+        deck: { deck_id: "smoke deck" },
+        slides: [
+          {
+            template_id: "slide-21",
+            content: {
+              title: "Smoke deck",
+              subtitle: "MCP deck planning works.",
+            },
+          },
+        ],
+        dry_run: true,
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(deckResponse.isError, undefined);
+  assert.equal(deckResponse.structuredContent.deck_creation_status, "planned");
+  assert.equal(deckResponse.structuredContent.slides[0].layout_id, "slide-21");
 
   const iconSearchResponse = await withTimeout(
     client.callTool({
@@ -99,6 +124,7 @@ try {
       {
         ok: true,
         tools: toolNames,
+        deck_status: deckResponse.structuredContent.deck_creation_status,
         icon_search_first_match: iconSearchResponse.structuredContent.icons[0].id,
         review_status: reviewResponse.structuredContent.review_status,
       },

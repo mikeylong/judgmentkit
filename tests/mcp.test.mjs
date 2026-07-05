@@ -1,4 +1,6 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import path from "node:path";
 
 import {
   formatPlanningCard,
@@ -33,6 +35,7 @@ assert.deepEqual(
     "create_ui_generation_handoff",
     "create_frontend_generation_context",
     "create_frontend_implementation_skill_context",
+    "create_slide_deck",
     "list_icon_catalog",
     "search_icon_catalog",
     "get_icon_svg",
@@ -163,9 +166,134 @@ assert.equal(toolByName.create_ui_generation_handoff.inputSchema.required.includ
 assert.equal(toolByName.create_ui_generation_handoff.inputSchema.properties.cognitive_dimensions_review.type, "object");
 assert.equal(toolByName.create_frontend_generation_context.inputSchema.required.includes("ui_generation_handoff"), true);
 assert.equal(toolByName.create_frontend_implementation_skill_context.inputSchema.required.includes("frontend_generation_context"), true);
+assert.equal(toolByName.create_slide_deck.inputSchema.required.includes("slides"), true);
+assert.equal(toolByName.create_slide_deck.inputSchema.properties.slides.maxItems, 24);
+assert.equal(toolByName.create_slide_deck.inputSchema.properties.output.properties.path.type, "string");
+assert.equal(toolByName.create_slide_deck.inputSchema.properties.runtime.properties.artifact_tool_package.type, "string");
 assert.equal(toolByName.list_icon_catalog.inputSchema.properties.include_svg.type, "boolean");
 assert.equal(toolByName.search_icon_catalog.inputSchema.required.includes("query"), true);
 assert.equal(toolByName.get_icon_svg.inputSchema.required.includes("id"), true);
+
+const deckPlan = await handleToolCall("create_slide_deck", {
+  deck: {
+    deck_id: "Quarterly review",
+    title: "Quarterly review",
+  },
+  slides: [
+    {
+      template_id: "slide-21",
+      content: {
+        title: "Quarterly review",
+        subtitle: "Evidence and decisions for the product team.",
+      },
+    },
+    {
+      selection: {
+        template_use: "chart",
+        layout_family: "chart-evidence",
+      },
+      content: {
+        title: "Activation trend",
+        metrics: [
+          { label: "Activation", value: "68%", detail: "Current quarter" },
+        ],
+      },
+    },
+  ],
+  dry_run: true,
+});
+assert.equal("error" in deckPlan, false);
+assert.equal(deckPlan.schema, "judgmentkit.mcp.slide-deck/v1");
+assert.equal(deckPlan.deck_creation_status, "planned");
+assert.equal(deckPlan.deck.deck_id, "quarterly-review");
+assert.equal(deckPlan.deck.slide_count, 2);
+assert.equal(deckPlan.deck.template_registry_version, "0.1.0");
+assert.equal(deckPlan.planned_output.path, "outputs/judgmentkit-slide-decks/quarterly-review.pptx");
+assert.equal(deckPlan.slides[0].layout_id, "slide-21");
+assert.equal(deckPlan.slides[0].selected_by, "template_id");
+assert.equal(deckPlan.slides[0].content_keys.includes("title"), true);
+assert.equal("content" in deckPlan.slides[0], false);
+assert.equal(deckPlan.slides[1].layout_id, "slide-64");
+assert.equal(deckPlan.slides[1].selected_by, "selection");
+
+const deckPlanText = formatPlanningCard(deckPlan);
+assert.ok(deckPlanText.includes("## JudgmentKit Slide Deck"));
+assert.ok(deckPlanText.includes("**Status:** Deck plan ready"));
+assert.ok(deckPlanText.includes("slide-21"));
+assert.equal(deckPlanText.includes("Evidence and decisions for the product team."), false);
+
+const missingSlidesDeck = await handleToolCall("create_slide_deck", {
+  slides: [],
+  dry_run: true,
+});
+assert.equal("error" in missingSlidesDeck, true);
+assert.match(missingSlidesDeck.error.message, /at least one slide/i);
+
+const unknownTemplateDeck = await handleToolCall("create_slide_deck", {
+  slides: [
+    {
+      template_id: "not-a-template",
+      content: { title: "Unknown" },
+    },
+  ],
+  dry_run: true,
+});
+assert.equal("error" in unknownTemplateDeck, true);
+assert.equal(unknownTemplateDeck.error.code, "slide_template_not_found");
+
+const unsafeOutputDeck = await handleToolCall("create_slide_deck", {
+  output: { path: "../unsafe.pptx" },
+  slides: [
+    {
+      content: { title: "Unsafe path" },
+    },
+  ],
+});
+assert.equal("error" in unsafeOutputDeck, true);
+assert.equal(unsafeOutputDeck.error.code, "unsafe_output_path");
+
+const missingRuntimeDeck = await handleToolCall("create_slide_deck", {
+  dry_run: false,
+  runtime: {
+    artifact_tool_package: "/no/such/artifact-tool",
+  },
+  slides: [
+    {
+      content: { title: "Needs runtime" },
+    },
+  ],
+});
+assert.equal("error" in missingRuntimeDeck, true);
+assert.equal(missingRuntimeDeck.error.code, "artifact_runtime_unavailable");
+
+const existingOutputPath = path.join(
+  process.cwd(),
+  "outputs",
+  "judgmentkit-slide-decks",
+  "existing-output-test.pptx",
+);
+fs.mkdirSync(path.dirname(existingOutputPath), { recursive: true });
+fs.writeFileSync(existingOutputPath, "existing");
+try {
+  const existingOutputDeck = await handleToolCall("create_slide_deck", {
+    dry_run: false,
+    output: {
+      path: "outputs/judgmentkit-slide-decks/existing-output-test.pptx",
+    },
+    runtime: {
+      artifact_tool_package: "/no/such/artifact-tool",
+    },
+    slides: [
+      {
+        content: { title: "Existing output" },
+      },
+    ],
+  });
+  assert.equal("error" in existingOutputDeck, true);
+  assert.equal(existingOutputDeck.error.code, "output_exists");
+} finally {
+  fs.rmSync(existingOutputPath, { force: true });
+}
 
 const iconList = await handleToolCall("list_icon_catalog", { limit: 2 });
 assert.equal("error" in iconList, false);

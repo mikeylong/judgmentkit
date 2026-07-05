@@ -6436,6 +6436,7 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
               <p><strong>UI generation:</strong> the LLM or agent generates the interface outside JudgmentKit from the reviewed handoff.</p>
               <p><strong>Implementation contract:</strong> <code>create_ui_implementation_contract</code> supplies <code>implementation_contract.design_system_source</code>, <code>implementation_contract.local_component_authority</code>, <code>implementation_contract.visual_token_adapter</code>, <code>implementation_contract.default_ai_native_design_system</code>, approved primitives, required states, static checks, browser QA expectations, <code>implementation_contract.visual_asset_policy</code>, and <code>implementation_contract.accessibility_policy</code> before final handoff. <code>review_ui_implementation_candidate</code> checks generated UI against that contract and marks failed design-system candidates as repair-only diagnostics, not accepted artifacts.</p>
               <p><strong>Frontend adapter:</strong> <code>create_frontend_generation_context</code> combines a ready handoff, selected surface type, project frontend context, and verification expectations. <code>create_frontend_implementation_skill_context</code> turns that ready context into portable implementation instructions, semantic token roles, system font stacks, Lucide icon catalog policy, design-system provenance expectations, and local component authority without exposing raw skill files. Design-system compliance is not a substitute for activity fit.</p>
+              <p><strong>Slide decks:</strong> <code>create_slide_deck</code> plans or exports JudgmentKit presentation-theme decks from user-facing slide content. Hosted callers can use dry-run planning; PPTX export requires a local artifact runtime.</p>
               <p><strong>Iteration:</strong> draft review produces updated context that re-enters source/activity review rather than becoming only a longer prompt.</p>
             </div>
             <p class="system-branch"><strong>Blocked path:</strong> if activity, workflow, or handoff is not ready, resolve targeted questions or leakage details before generating UI.</p>
@@ -6467,6 +6468,10 @@ examples/ai-native-design-system/canonical-examples.json</code></pre>
           <section class="doc-section" id="frontend-context">
             <h2>Frontend Context</h2>
             <p>Call <code>create_frontend_generation_context</code> after the handoff gate when an agent needs frontend implementation guidance with selected surface type, project context, and verification expectations. Call <code>create_frontend_implementation_skill_context</code> when an MCP client needs compiled implementation skill guidance instead of repo-local skill access.</p>
+          </section>
+          <section class="doc-section" id="slide-decks">
+            <h2>Slide Decks</h2>
+            <p>Call <code>create_slide_deck</code> when an allowed brief, workflow review, handoff, or implementation evidence should become a JudgmentKit presentation, PowerPoint, or PPTX. The tool returns selected templates and content keys in dry-run mode, and writes PPTX artifacts only from a local <code>@oai/artifact-tool</code> runtime under the guarded output directory.</p>
           </section>
           <section class="doc-section" id="profiles">
             <h2>Guidance Profiles</h2>

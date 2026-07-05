@@ -913,6 +913,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "review_ui_implementation_candidate",
       "create_frontend_generation_context",
       "create_frontend_implementation_skill_context",
+      "create_slide_deck",
       "operator-review-ui",
     ],
     "docs",
