@@ -20,6 +20,18 @@ Current committed plugin version: `0.1.0`.
 - `skills/judgmentkit-hosted-mcp/agents/openai.yaml`: OpenAI agent metadata for the skill.
 - `CHANGELOG.md`: package-local release history.
 
+## Discoverable Triggers
+
+Use the hosted skill when a user or agent asks JudgmentKit to review UI activity fit, set design-system acceptance gates, prepare handoff criteria, or create a slide deck, presentation, PowerPoint, or PPTX from an allowed brief, review packet, handoff, or implementation evidence.
+
+Visible trigger examples:
+
+- "Use JudgmentKit to create a slide deck from this product brief."
+- "Make a JudgmentKit presentation from this workflow review."
+- "Turn this handoff into a PPTX deck."
+
+If the active JudgmentKit MCP server does not expose a deck creation tool yet, report that the current endpoint cannot create the deck and collect the deck audience, purpose, source material, confidentiality boundary, and desired output format without fabricating an MCP result.
+
 ## Hosted Privacy Boundary
 
 The included MCP configuration points to `https://judgmentkit.ai/mcp`. Hosted requests leave the local environment and are appropriate only for allowed or sanitized work.

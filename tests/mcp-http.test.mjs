@@ -24,6 +24,7 @@ const EXPECTED_TOOL_NAMES = [
   "create_ui_generation_handoff",
   "create_frontend_generation_context",
   "create_frontend_implementation_skill_context",
+  "create_slide_deck",
   "list_icon_catalog",
   "search_icon_catalog",
   "get_icon_svg",
@@ -133,6 +134,34 @@ async function runMcpClient(endpoint) {
       toolsResponse.tools.map((tool) => tool.name),
       EXPECTED_TOOL_NAMES,
     );
+
+    const deckResponse = await withTimeout(
+      client.callTool({
+        name: "create_slide_deck",
+        arguments: {
+          deck: { deck_id: "http review deck" },
+          slides: [
+            {
+              template_id: "slide-21",
+              content: {
+                title: "Review deck",
+                subtitle: "Safe hosted planning response.",
+              },
+            },
+          ],
+          dry_run: true,
+        },
+      }),
+      5_000,
+    );
+
+    assert.equal(deckResponse.isError, undefined);
+    assert.ok(textContent(deckResponse).includes("## JudgmentKit Slide Deck"));
+    assert.ok(textContent(deckResponse).includes("**Status:** Deck plan ready"));
+    assert.equal(deckResponse.structuredContent.deck_creation_status, "planned");
+    assert.equal(deckResponse.structuredContent.deck.deck_id, "http-review-deck");
+    assert.equal(deckResponse.structuredContent.slides[0].layout_id, "slide-21");
+    assert.equal("content" in deckResponse.structuredContent.slides[0], false);
 
     const reviewResponse = await withTimeout(
       client.callTool({
@@ -444,6 +473,7 @@ assert.ok(
 );
 for (const toolName of [
   "create_activity_model_review",
+  "create_slide_deck",
   "create_ui_implementation_contract",
   "review_ui_implementation_candidate",
 ]) {

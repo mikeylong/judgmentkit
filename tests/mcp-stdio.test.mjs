@@ -136,6 +136,7 @@ try {
       "create_ui_generation_handoff",
       "create_frontend_generation_context",
       "create_frontend_implementation_skill_context",
+      "create_slide_deck",
       "list_icon_catalog",
       "search_icon_catalog",
       "get_icon_svg",
@@ -159,6 +160,43 @@ try {
     reviewImplementationTool.inputSchema.properties.frontend_generation_context.type,
     "object",
   );
+  const deckTool = toolsResponse.tools.find((tool) => tool.name === "create_slide_deck");
+
+  assert.ok(deckTool);
+  assert.equal(deckTool.inputSchema.properties.slides.type, "array");
+  assert.equal(deckTool.inputSchema.properties.output.type, "object");
+
+  const deckResponse = await withTimeout(
+    client.callTool({
+      name: "create_slide_deck",
+      arguments: {
+        deck: { deck_id: "stdio review deck" },
+        slides: [
+          {
+            template_id: "slide-21",
+            content: {
+              title: "Review deck",
+              subtitle: "Safe planning response.",
+            },
+          },
+        ],
+        dry_run: true,
+      },
+    }),
+    5_000,
+  );
+
+  assert.equal(deckResponse.isError, undefined);
+  assert.ok(
+    assertPlanningCard(
+      deckResponse,
+      "## JudgmentKit Slide Deck",
+      "Deck plan ready",
+    ).includes("slide-21"),
+  );
+  assert.equal(deckResponse.structuredContent.deck_creation_status, "planned");
+  assert.equal(deckResponse.structuredContent.deck.deck_id, "stdio-review-deck");
+  assert.equal("content" in deckResponse.structuredContent.slides[0], false);
 
   const iconListResponse = await withTimeout(
     client.callTool({

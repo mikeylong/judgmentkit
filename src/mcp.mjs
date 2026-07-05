@@ -1,3 +1,9 @@
+import crypto from "node:crypto";
+import fs from "node:fs";
+import fsp from "node:fs/promises";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 
@@ -19,9 +25,23 @@ import {
   reviewUiWorkflowCandidate,
   searchIconCatalog,
 } from "./index.mjs";
+import {
+  JUDGMENTKIT_PRESENTATION_TEMPLATE_REGISTRY,
+  JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST,
+  JUDGMENTKIT_SLIDE_SIZE,
+  composeJudgmentKitPresentationTemplate,
+  createJudgmentKitPresentation,
+  getJudgmentKitPresentationTemplate,
+  selectJudgmentKitPresentationTemplate,
+} from "./presentation-theme/index.mjs";
 
 const MCP_SERVER_NAME = "JudgmentKit";
 const MCP_SERVER_VERSION = "0.6.5";
+const SLIDE_DECK_SCHEMA = "judgmentkit.mcp.slide-deck/v1";
+const MAX_SLIDE_DECK_SLIDES = 24;
+const DEFAULT_SLIDE_DECK_OUTPUT_DIR = "outputs/judgmentkit-slide-decks";
+const PPTX_MIME_TYPE =
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 const APPROVED_PRIMITIVES_INPUT_DESCRIPTION =
   "Optional allowed implementation primitives for generated UI evidence. These are implementation primitives only; do not list design-system component contract ids here. Defaults to the portable no-system primitive set.";
 const REVIEW_UI_IMPLEMENTATION_CANDIDATE_INPUT_DESCRIPTION =
@@ -444,6 +464,116 @@ const FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL = {
         type: "string",
         description:
           "Optional instruction format. Supported values: structured_markdown or markdown.",
+      },
+    },
+    additionalProperties: false,
+  },
+};
+
+const CREATE_SLIDE_DECK_TOOL = {
+  name: "create_slide_deck",
+  description:
+    "Plan or create a JudgmentKit PPTX slide deck from user-facing slide content using the presentation-theme template registry. Without output.path or dry_run false, this returns a safe deck plan. Artifact creation requires a local @oai/artifact-tool runtime and writes only under outputs/judgmentkit-slide-decks.",
+  inputSchema: {
+    type: "object",
+    required: ["slides"],
+    properties: {
+      slides: {
+        type: "array",
+        minItems: 1,
+        maxItems: MAX_SLIDE_DECK_SLIDES,
+        description:
+          "Ordered slide specifications. Provide user-facing domain content only; keep prompts, schemas, tool traces, and implementation machinery out unless this is an explicit diagnostic deck.",
+        items: {
+          type: "object",
+          required: ["content"],
+          properties: {
+            template_id: {
+              type: "string",
+              description:
+                "Optional JudgmentKit presentation template id such as slide-21 or a supported legacy alias.",
+            },
+            selection: {
+              type: "object",
+              description:
+                "Optional template selection criteria such as template_use, layout_family, surface_type, component, or nativeSurface. Used when template_id is omitted.",
+            },
+            content: {
+              type: "object",
+              description:
+                "Template content values such as title, subtitle, body, bullets, rows, metrics, or media descriptions.",
+            },
+          },
+          additionalProperties: false,
+        },
+      },
+      deck: {
+        type: "object",
+        description:
+          "Optional deck metadata for planning and export.",
+        properties: {
+          deck_id: {
+            type: "string",
+            description:
+              "Stable id used for the default output filename. Unsafe characters are normalized.",
+          },
+          title: {
+            type: "string",
+            description: "Optional human-readable deck title for metadata.",
+          },
+          slide_size: {
+            type: "object",
+            description:
+              "Optional slide size with positive numeric width and height. Defaults to JudgmentKit widescreen.",
+          },
+          theme_mode: {
+            type: "string",
+            enum: ["light", "dark"],
+            description:
+              "Optional JudgmentKit presentation theme mode. Defaults to light.",
+          },
+        },
+        additionalProperties: false,
+      },
+      output: {
+        type: "object",
+        description:
+          "Optional artifact output request. Paths must be repo-relative .pptx files under outputs/judgmentkit-slide-decks.",
+        properties: {
+          path: {
+            type: "string",
+            description:
+              "Repo-relative .pptx path under outputs/judgmentkit-slide-decks. Supplying this requests artifact creation unless dry_run is true.",
+          },
+          overwrite: {
+            type: "boolean",
+            description: "When true, replace an existing non-symlink output file.",
+          },
+        },
+        additionalProperties: false,
+      },
+      runtime: {
+        type: "object",
+        description:
+          "Optional local runtime details for artifact creation. Hosted MCP callers should usually omit this and use dry_run planning.",
+        properties: {
+          artifact_tool_package: {
+            type: "string",
+            description:
+              "Optional local path to an @oai/artifact-tool package. If omitted, JudgmentKit checks standard Codex runtime environment paths.",
+          },
+        },
+        additionalProperties: false,
+      },
+      dry_run: {
+        type: "boolean",
+        description:
+          "When true, return the selected deck plan without writing a PPTX. Defaults to true unless output.path is supplied or dry_run is explicitly false.",
+      },
+      include_diagnostics: {
+        type: "boolean",
+        description:
+          "When true, include diagnostic template metadata and runtime resolution details. Default output redacts source paths and slide content.",
       },
     },
     additionalProperties: false,
@@ -940,7 +1070,617 @@ function iconCatalogSummary(iconCatalog) {
     .join(" ");
 }
 
+function cloneJson(value) {
+  return value === undefined ? undefined : JSON.parse(JSON.stringify(value));
+}
+
+function normalizeDeckId(value) {
+  const normalized = compactText(value)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+
+  return normalized || "judgmentkit-slide-deck";
+}
+
+function normalizeThemeMode(value) {
+  return String(value ?? "light").toLowerCase() === "dark" ? "dark" : "light";
+}
+
+function normalizeSlideSize(value) {
+  const width = Number(value?.width ?? value?.w);
+  const height = Number(value?.height ?? value?.h);
+
+  if (Number.isFinite(width) && width > 0 && Number.isFinite(height) && height > 0) {
+    return { width, height };
+  }
+
+  return cloneJson(JUDGMENTKIT_SLIDE_SIZE);
+}
+
+function assertSlideDeckInput(args = {}) {
+  if (!Array.isArray(args.slides)) {
+    throw new JudgmentKitInputError("create_slide_deck requires slides.");
+  }
+
+  if (args.slides.length < 1) {
+    throw new JudgmentKitInputError("create_slide_deck requires at least one slide.");
+  }
+
+  if (args.slides.length > MAX_SLIDE_DECK_SLIDES) {
+    throw new JudgmentKitInputError(
+      `create_slide_deck supports at most ${MAX_SLIDE_DECK_SLIDES} slides per call.`,
+      {
+        code: "slide_deck_too_large",
+        details: {
+          max_slides: MAX_SLIDE_DECK_SLIDES,
+          supplied_slides: args.slides.length,
+        },
+      },
+    );
+  }
+}
+
+function assertRecordField(value, message) {
+  if (!isRecord(value)) {
+    throw new JudgmentKitInputError(message);
+  }
+}
+
+function normalizeSlideDeckSlides(slides) {
+  return slides.map((slide, index) => {
+    assertRecordField(slide, `Slide ${index + 1} must be an object.`);
+    assertRecordField(slide.content, `Slide ${index + 1} requires content.`);
+
+    return {
+      template_id: compactText(slide.template_id),
+      selection: isRecord(slide.selection) ? cloneJson(slide.selection) : undefined,
+      content: cloneJson(slide.content),
+    };
+  });
+}
+
+function selectDeckTemplate(slide, index, includeDiagnostics = false) {
+  try {
+    if (slide.template_id) {
+      return {
+        selected_by: "template_id",
+        template: getJudgmentKitPresentationTemplate(slide.template_id, {
+          includeDiagnostics,
+        }),
+      };
+    }
+
+    if (isRecord(slide.selection)) {
+      const selected = selectJudgmentKitPresentationTemplate(slide.selection);
+
+      if (!selected) {
+        throw new JudgmentKitInputError(
+          `Slide ${index + 1} selection did not match a JudgmentKit presentation template.`,
+          {
+            code: "slide_template_not_found",
+            details: { slide_number: index + 1 },
+          },
+        );
+      }
+
+      return {
+        selected_by: "selection",
+        template: includeDiagnostics
+          ? getJudgmentKitPresentationTemplate(selected.layout_id, {
+              includeDiagnostics: true,
+            })
+          : selected,
+      };
+    }
+
+    const defaultTemplateId = index === 0 ? "slide-21" : "slide-01";
+
+    return {
+      selected_by: "default",
+      template: getJudgmentKitPresentationTemplate(defaultTemplateId, {
+        includeDiagnostics,
+      }),
+    };
+  } catch (error) {
+    if (error instanceof JudgmentKitInputError) {
+      throw error;
+    }
+
+    throw new JudgmentKitInputError(
+      `Slide ${index + 1} references an unknown JudgmentKit presentation template.`,
+      {
+        code: "slide_template_not_found",
+        details: {
+          slide_number: index + 1,
+          template_id: slide.template_id,
+          message: error instanceof Error ? error.message : String(error),
+        },
+      },
+    );
+  }
+}
+
+function slideTemplateSummary(slide, selected, index) {
+  const template = selected.template;
+
+  return {
+    slide_number: index + 1,
+    layout_id: template.layout_id,
+    selected_by: selected.selected_by,
+    template_use: template.selection?.template_use,
+    layout_family: template.selection?.layout_family,
+    content_keys: Object.keys(slide.content).sort(),
+  };
+}
+
+function normalizeSlideDeckOutputPath(output, deckId) {
+  const rawPath = compactText(output?.path);
+  const relativePath = rawPath || `${DEFAULT_SLIDE_DECK_OUTPUT_DIR}/${deckId}.pptx`;
+
+  if (
+    path.isAbsolute(relativePath) ||
+    relativePath.includes("\\") ||
+    relativePath.includes("\0")
+  ) {
+    throw new JudgmentKitInputError(
+      "create_slide_deck output.path must be a repo-relative .pptx path using forward slashes.",
+      { code: "unsafe_output_path" },
+    );
+  }
+
+  const normalized = path.posix.normalize(relativePath);
+
+  if (
+    normalized === "." ||
+    normalized.startsWith("../") ||
+    normalized === ".." ||
+    normalized.startsWith("/") ||
+    !normalized.startsWith(`${DEFAULT_SLIDE_DECK_OUTPUT_DIR}/`) ||
+    path.posix.extname(normalized).toLowerCase() !== ".pptx"
+  ) {
+    throw new JudgmentKitInputError(
+      `create_slide_deck output.path must stay under ${DEFAULT_SLIDE_DECK_OUTPUT_DIR} and end in .pptx.`,
+      {
+        code: "unsafe_output_path",
+        details: { output_path: relativePath },
+      },
+    );
+  }
+
+  return normalized;
+}
+
+async function prepareSlideDeckOutputTarget(relativePath, output = {}) {
+  const root = path.resolve(process.cwd(), DEFAULT_SLIDE_DECK_OUTPUT_DIR);
+  const absolutePath = path.resolve(process.cwd(), relativePath);
+  const parent = path.dirname(absolutePath);
+
+  await fsp.mkdir(parent, { recursive: true });
+
+  const [realRoot, realParent] = await Promise.all([
+    fsp.realpath(root),
+    fsp.realpath(parent),
+  ]);
+  const relativeParent = path.relative(realRoot, realParent);
+
+  if (
+    relativeParent.startsWith("..") ||
+    path.isAbsolute(relativeParent)
+  ) {
+    throw new JudgmentKitInputError(
+      "create_slide_deck output.path resolves outside the allowed output directory.",
+      {
+        code: "unsafe_output_path",
+        details: { output_path: relativePath },
+      },
+    );
+  }
+
+  let existing;
+  try {
+    existing = await fsp.lstat(absolutePath);
+  } catch (error) {
+    if (error?.code !== "ENOENT") {
+      throw error;
+    }
+  }
+
+  if (existing?.isSymbolicLink()) {
+    throw new JudgmentKitInputError(
+      "create_slide_deck refuses to overwrite symlink output paths.",
+      {
+        code: "unsafe_output_path",
+        details: { output_path: relativePath },
+      },
+    );
+  }
+
+  if (existing && output.overwrite !== true) {
+    throw new JudgmentKitInputError(
+      "create_slide_deck output.path already exists. Set output.overwrite true to replace it.",
+      {
+        code: "output_exists",
+        details: { output_path: relativePath },
+      },
+    );
+  }
+
+  return { absolutePath, relativePath };
+}
+
+function sha256File(filePath) {
+  return crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex");
+}
+
+function findZipEndOfCentralDirectory(buffer) {
+  const minOffset = Math.max(0, buffer.length - 65557);
+
+  for (let offset = buffer.length - 22; offset >= minOffset; offset -= 1) {
+    if (buffer.readUInt32LE(offset) === 0x06054b50) {
+      return offset;
+    }
+  }
+
+  return -1;
+}
+
+function listZipEntries(buffer) {
+  const eocdOffset = findZipEndOfCentralDirectory(buffer);
+
+  if (eocdOffset < 0) {
+    throw new JudgmentKitInputError(
+      "create_slide_deck exported file is not a valid PPTX ZIP.",
+      { code: "invalid_pptx_artifact" },
+    );
+  }
+
+  const entryCount = buffer.readUInt16LE(eocdOffset + 10);
+  let offset = buffer.readUInt32LE(eocdOffset + 16);
+  const entries = [];
+
+  for (let index = 0; index < entryCount; index += 1) {
+    if (buffer.readUInt32LE(offset) !== 0x02014b50) {
+      throw new JudgmentKitInputError(
+        "create_slide_deck exported PPTX has an invalid central directory.",
+        { code: "invalid_pptx_artifact" },
+      );
+    }
+
+    const nameLength = buffer.readUInt16LE(offset + 28);
+    const extraLength = buffer.readUInt16LE(offset + 30);
+    const commentLength = buffer.readUInt16LE(offset + 32);
+    const name = buffer.subarray(offset + 46, offset + 46 + nameLength).toString("utf8");
+    entries.push(name);
+    offset += 46 + nameLength + extraLength + commentLength;
+  }
+
+  return entries;
+}
+
+function inspectPptxArtifact(filePath) {
+  const buffer = fs.readFileSync(filePath);
+  const entries = listZipEntries(buffer);
+  const slideEntries = entries.filter((entry) => /^ppt\/slides\/slide\d+[.]xml$/.test(entry));
+
+  if (
+    !entries.includes("[Content_Types].xml") ||
+    !entries.includes("ppt/presentation.xml") ||
+    slideEntries.length === 0
+  ) {
+    throw new JudgmentKitInputError(
+      "create_slide_deck exported PPTX is missing required presentation parts.",
+      { code: "invalid_pptx_artifact" },
+    );
+  }
+
+  return {
+    bytes: buffer.length,
+    entry_count: entries.length,
+    slide_count: slideEntries.length,
+  };
+}
+
+function artifactToolPackageCandidates(runtime = {}) {
+  const explicit = compactText(runtime.artifact_tool_package);
+
+  if (explicit) {
+    return [explicit];
+  }
+
+  return [
+    process.env.JUDGMENTKIT_ARTIFACT_TOOL_PACKAGE,
+    process.env.CODEX_RUNTIME_DEPENDENCIES
+      ? path.join(
+          process.env.CODEX_RUNTIME_DEPENDENCIES,
+          "node",
+          "node_modules",
+          "@oai",
+          "artifact-tool",
+        )
+      : undefined,
+    process.env.CODEX_WORKSPACE_DEPENDENCIES
+      ? path.join(
+          process.env.CODEX_WORKSPACE_DEPENDENCIES,
+          "node",
+          "node_modules",
+          "@oai",
+          "artifact-tool",
+        )
+      : undefined,
+    process.env.CODEX_DEPENDENCIES
+      ? path.join(
+          process.env.CODEX_DEPENDENCIES,
+          "node",
+          "node_modules",
+          "@oai",
+          "artifact-tool",
+        )
+      : undefined,
+    path.join(
+      process.env.HOME ?? "",
+      ".cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool",
+    ),
+  ].filter(Boolean);
+}
+
+async function loadArtifactToolRuntime(runtime = {}) {
+  const candidates = artifactToolPackageCandidates(runtime);
+
+  for (const candidate of candidates) {
+    const packageJsonPath = path.join(candidate, "package.json");
+
+    if (!fs.existsSync(packageJsonPath)) {
+      continue;
+    }
+
+    const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, "utf8"));
+
+    if (packageJson.name !== "@oai/artifact-tool") {
+      throw new JudgmentKitInputError(
+        "create_slide_deck artifact_tool_package is not @oai/artifact-tool.",
+        {
+          code: "invalid_artifact_runtime",
+          details: { artifact_tool_package: candidate },
+        },
+      );
+    }
+
+    if (!String(packageJson.version ?? "").startsWith("2.")) {
+      throw new JudgmentKitInputError(
+        `create_slide_deck requires @oai/artifact-tool 2.x; found ${packageJson.version}.`,
+        {
+          code: "unsupported_artifact_runtime",
+          details: {
+            artifact_tool_package: candidate,
+            version: packageJson.version,
+          },
+        },
+      );
+    }
+
+    const modulePath = path.join(candidate, "dist", "artifact_tool.mjs");
+    const artifactTool = await import(pathToFileURL(modulePath).href);
+    const requiredExports = [
+      "Presentation",
+      "PresentationFile",
+      "layers",
+      "shape",
+      "table",
+      "text",
+    ];
+    const missingExports = requiredExports.filter(
+      (exportName) => artifactTool[exportName] === undefined,
+    );
+
+    if (missingExports.length > 0) {
+      throw new JudgmentKitInputError(
+        `create_slide_deck artifact runtime is missing exports: ${missingExports.join(", ")}.`,
+        {
+          code: "invalid_artifact_runtime",
+          details: { missing_exports: missingExports },
+        },
+      );
+    }
+
+    return {
+      package_path: candidate,
+      package_version: packageJson.version,
+      module: artifactTool,
+    };
+  }
+
+  throw new JudgmentKitInputError(
+    "create_slide_deck artifact creation requires a local @oai/artifact-tool runtime. Use dry_run true for hosted planning, or pass runtime.artifact_tool_package.",
+    {
+      code: "artifact_runtime_unavailable",
+      details: {
+        checked_candidates: candidates,
+      },
+    },
+  );
+}
+
+async function withoutArtifactExportConsoleNoise(callback) {
+  const originalLog = console.log;
+  const originalInfo = console.info;
+
+  console.log = () => {};
+  console.info = () => {};
+
+  try {
+    return await callback();
+  } finally {
+    console.log = originalLog;
+    console.info = originalInfo;
+  }
+}
+
+async function exportSlideDeckArtifact({ args, deckId, outputPath, selectedSlides, slideSize, themeMode }) {
+  const outputTarget = await prepareSlideDeckOutputTarget(outputPath, args.output ?? {});
+  const runtime = await loadArtifactToolRuntime(args.runtime ?? {});
+  const {
+    Presentation,
+    PresentationFile,
+    layers,
+    shape,
+    table,
+    text,
+  } = runtime.module;
+  const helpers = { layers, shape, table, text };
+  const deck = createJudgmentKitPresentation({
+    Presentation,
+    helpers,
+    slideSize,
+    themeMode,
+  });
+
+  for (const slide of selectedSlides) {
+    composeJudgmentKitPresentationTemplate(slide.layout_id, {
+      content: slide.content,
+      helpers,
+      kit: deck.kit,
+      presentation: deck.presentation,
+    });
+  }
+
+  const temporaryPath = `${outputTarget.absolutePath}.${process.pid}.${Date.now()}.tmp`;
+  const temporaryInspectPath = `${temporaryPath}.inspect.ndjson`;
+
+  try {
+    await withoutArtifactExportConsoleNoise(async () => {
+      await (await PresentationFile.exportPptx(deck.presentation)).save(temporaryPath);
+    });
+    const structure = inspectPptxArtifact(temporaryPath);
+
+    if (structure.slide_count !== selectedSlides.length) {
+      throw new JudgmentKitInputError(
+        "create_slide_deck exported PPTX slide count does not match the request.",
+        {
+          code: "invalid_pptx_artifact",
+          details: {
+            expected_slide_count: selectedSlides.length,
+            actual_slide_count: structure.slide_count,
+          },
+        },
+      );
+    }
+
+    await fsp.rename(temporaryPath, outputTarget.absolutePath);
+    await fsp.rm(temporaryInspectPath, { force: true }).catch(() => {});
+
+    return {
+      artifact_ref: {
+        kind: "pptx",
+        path: outputTarget.relativePath,
+        sha256: sha256File(outputTarget.absolutePath),
+        bytes: structure.bytes,
+        mime_type: PPTX_MIME_TYPE,
+      },
+      diagnostics: {
+        artifact_runtime: {
+          package: "@oai/artifact-tool",
+          version: runtime.package_version,
+        },
+        pptx_structure: structure,
+      },
+    };
+  } catch (error) {
+    await Promise.all([
+      fsp.rm(temporaryPath, { force: true }).catch(() => {}),
+      fsp.rm(temporaryInspectPath, { force: true }).catch(() => {}),
+    ]);
+    throw error;
+  }
+}
+
+async function createSlideDeck(args = {}) {
+  assertSlideDeckInput(args);
+
+  const deckInput = isRecord(args.deck) ? args.deck : {};
+  const slides = normalizeSlideDeckSlides(args.slides);
+  const includeDiagnostics = args.include_diagnostics === true;
+  const deckId = normalizeDeckId(deckInput.deck_id ?? deckInput.title);
+  const slideSize = normalizeSlideSize(deckInput.slide_size ?? deckInput.slideSize);
+  const themeMode = normalizeThemeMode(deckInput.theme_mode ?? deckInput.themeMode);
+  const outputPath = normalizeSlideDeckOutputPath(args.output, deckId);
+  const shouldCreateArtifact =
+    args.dry_run === false || (isRecord(args.output) && compactText(args.output.path));
+  const dryRun = args.dry_run === true || !shouldCreateArtifact;
+  const selectedSlides = slides.map((slide, index) => {
+    const selected = selectDeckTemplate(slide, index, includeDiagnostics);
+
+    return {
+      ...slideTemplateSummary(slide, selected, index),
+      content: slide.content,
+      template: includeDiagnostics ? selected.template : undefined,
+    };
+  });
+  const warnings = dryRun
+    ? [
+        "No PPTX artifact was written. Pass output.path or dry_run false from a local runtime to export a deck.",
+      ]
+    : [];
+  const result = {
+    schema: SLIDE_DECK_SCHEMA,
+    deck_creation_status: dryRun ? "planned" : "created",
+    deck: {
+      deck_id: deckId,
+      title: compactText(deckInput.title) || undefined,
+      slide_count: selectedSlides.length,
+      slide_size: slideSize,
+      theme_mode: themeMode,
+      template_registry_version: JUDGMENTKIT_PRESENTATION_TEMPLATE_REGISTRY.registry_version,
+      adapter_manifest_id: JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST.id,
+    },
+    planned_output: dryRun
+      ? {
+          kind: "pptx",
+          path: outputPath,
+          mime_type: PPTX_MIME_TYPE,
+        }
+      : undefined,
+    slides: selectedSlides.map(({ content, template, ...slide }) => {
+      if (includeDiagnostics) {
+        return { ...slide, template };
+      }
+
+      return slide;
+    }),
+    warnings,
+  };
+
+  if (dryRun) {
+    return result;
+  }
+
+  const artifact = await exportSlideDeckArtifact({
+    args,
+    deckId,
+    outputPath,
+    selectedSlides,
+    slideSize,
+    themeMode,
+  });
+
+  return {
+    ...result,
+    artifact_ref: artifact.artifact_ref,
+    diagnostics: includeDiagnostics ? artifact.diagnostics : undefined,
+    warnings: [],
+  };
+}
+
 function planningStatus(result) {
+  if (result.deck_creation_status === "created") {
+    return "Deck created";
+  }
+
+  if (result.deck_creation_status === "planned") {
+    return "Deck plan ready";
+  }
+
   if (result.implementation_review_status === "passed") {
     return "Implementation gate passed";
   }
@@ -1629,6 +2369,52 @@ function formatIconCatalogCard(result) {
   return lines.join("\n");
 }
 
+function formatSlideDeckCard(result) {
+  const created = result.deck_creation_status === "created";
+  const lines = [
+    "## JudgmentKit Slide Deck",
+    `**Status:** ${planningStatus(result)}`,
+    created
+      ? "**Next step:** Review the exported PPTX artifact and run presentation evidence checks before treating it as release proof."
+      : "**Next step:** Review selected templates, then call create_slide_deck with output.path from a local artifact-tool runtime to export PPTX.",
+  ];
+
+  addSection(lines, "Deck", [
+    firstLine("Deck id", result.deck?.deck_id),
+    firstLine("Title", result.deck?.title),
+    firstLine("Slides", String(result.deck?.slide_count ?? "")),
+    firstLine(
+      "Canvas",
+      result.deck?.slide_size
+        ? `${result.deck.slide_size.width} x ${result.deck.slide_size.height}`
+        : "",
+    ),
+    firstLine("Theme", result.deck?.theme_mode),
+    firstLine("Template registry", result.deck?.template_registry_version),
+  ]);
+  addSection(lines, "Artifact", [
+    firstLine("Path", result.artifact_ref?.path ?? result.planned_output?.path),
+    firstLine("Kind", result.artifact_ref?.kind ?? result.planned_output?.kind),
+    firstLine("Bytes", result.artifact_ref?.bytes ? String(result.artifact_ref.bytes) : ""),
+    firstLine("SHA-256", result.artifact_ref?.sha256),
+  ]);
+  addSection(lines, "Slides", [
+    listLine(
+      "Layouts",
+      (Array.isArray(result.slides) ? result.slides : []).map((slide) =>
+        [
+          `Slide ${slide.slide_number}`,
+          slide.layout_id,
+          slide.template_use,
+        ].filter(Boolean).join(": "),
+      ),
+    ),
+  ]);
+  addSection(lines, "Warnings", bulletList(result.warnings));
+
+  return lines.join("\n");
+}
+
 function formatErrorCard(result) {
   const details = result.error?.details ?? {};
   const lines = [
@@ -1656,6 +2442,10 @@ function formatErrorCard(result) {
 export function formatPlanningCard(result) {
   if (result?.error) {
     return formatErrorCard(result);
+  }
+
+  if (result?.deck_creation_status) {
+    return formatSlideDeckCard(result);
   }
 
   if (result?.skill_context_status) {
@@ -1727,6 +2517,7 @@ export function listTools() {
     UI_GENERATION_HANDOFF_TOOL,
     FRONTEND_GENERATION_CONTEXT_TOOL,
     FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL,
+    CREATE_SLIDE_DECK_TOOL,
     LIST_ICON_CATALOG_TOOL,
     SEARCH_ICON_CATALOG_TOOL,
     GET_ICON_SVG_TOOL,
@@ -1760,6 +2551,7 @@ export async function handleToolCall(name, args = {}) {
       UI_GENERATION_HANDOFF_TOOL.name,
       FRONTEND_GENERATION_CONTEXT_TOOL.name,
       FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL.name,
+      CREATE_SLIDE_DECK_TOOL.name,
       LIST_ICON_CATALOG_TOOL.name,
       SEARCH_ICON_CATALOG_TOOL.name,
       GET_ICON_SVG_TOOL.name,
@@ -1772,6 +2564,10 @@ export async function handleToolCall(name, args = {}) {
   }
 
   try {
+    if (name === CREATE_SLIDE_DECK_TOOL.name) {
+      return await createSlideDeck(args);
+    }
+
     if (name === GET_ICON_SVG_TOOL.name) {
       return getIconSvg({ id: args.id });
     }
@@ -2111,6 +2907,48 @@ export function createJudgmentKitMcpServer() {
       createToolResult(
         await handleToolCall(FRONTEND_IMPLEMENTATION_SKILL_CONTEXT_TOOL.name, args),
       ),
+  );
+
+  server.registerTool(
+    CREATE_SLIDE_DECK_TOOL.name,
+    {
+      description: CREATE_SLIDE_DECK_TOOL.description,
+      inputSchema: {
+        slides: z
+          .array(
+            z.object({
+              template_id: z.string().optional(),
+              selection: z.record(z.any()).optional(),
+              content: z.record(z.any()),
+            }),
+          )
+          .min(1)
+          .max(MAX_SLIDE_DECK_SLIDES),
+        deck: z
+          .object({
+            deck_id: z.string().optional(),
+            title: z.string().optional(),
+            slide_size: z.record(z.any()).optional(),
+            theme_mode: z.enum(["light", "dark"]).optional(),
+          })
+          .optional(),
+        output: z
+          .object({
+            path: z.string().optional(),
+            overwrite: z.boolean().optional(),
+          })
+          .optional(),
+        runtime: z
+          .object({
+            artifact_tool_package: z.string().optional(),
+          })
+          .optional(),
+        dry_run: z.boolean().optional(),
+        include_diagnostics: z.boolean().optional(),
+      },
+    },
+    async (args) =>
+      createToolResult(await handleToolCall(CREATE_SLIDE_DECK_TOOL.name, args)),
   );
 
   server.registerTool(

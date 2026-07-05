@@ -1,6 +1,6 @@
 ---
 name: judgmentkit-hosted-mcp
-description: Use JudgmentKit when the user explicitly asks or the project opts in to clarify what a UI must support, choose the right surface type, review workflow fit, set disclosure boundaries, enforce design-system acceptance gates, or prepare design-system handoff criteria before product UI is planned, generated, reviewed, or accepted.
+description: Use JudgmentKit when the user explicitly asks or the project opts in to clarify what a UI must support, choose the right surface type, review workflow fit, set disclosure boundaries, enforce design-system acceptance gates, prepare design-system handoff criteria before product UI is planned, generated, reviewed, or accepted, or create a JudgmentKit slide deck, presentation, PowerPoint, or PPTX from allowed source material once the deck creation tool is available.
 ---
 
 # JudgmentKit Hosted MCP
@@ -9,7 +9,25 @@ description: Use JudgmentKit when the user explicitly asks or the project opts i
 
 Use this skill to help product designers working with Codex clarify the job a product UI must do before screens, components, or styling are chosen. Start from a brief, Figma or Adobe handoff, design mockup, generated screen, or local source context and make the design decision set explicit: participants, outcomes, workflow, surface type, domain language, disclosure boundaries, required states, and evidence needed for handoff or acceptance.
 
+Use this skill for JudgmentKit slide deck requests when the user asks to create, draft, generate, export, or turn source material into a deck, presentation, PowerPoint, or PPTX. Deck requests should start from the activity and audience, then use the deck creation MCP tool when the active endpoint exposes one.
+
 MCP and server details belong only in setup, diagnostics, audit, or integration work. Keep them out of product-facing UI and copy.
+
+## Slide Deck Creation
+
+Trigger this skill when the user asks JudgmentKit to create, draft, generate, export, or turn source material into a slide deck, presentation, PowerPoint, or PPTX.
+
+Before calling a deck creation MCP tool, establish:
+
+- audience and decision the deck should support
+- source material and evidence authority
+- desired deck form, such as narrative, handoff, review, pitch, or status update
+- required output format and delivery path
+- confidentiality boundary for hosted processing
+
+When the active JudgmentKit MCP server exposes a deck creation tool, call it with the reviewed activity context and allowed source material. Keep primary slide copy in domain language and do not expose prompts, schemas, resource ids, MCP server names, tool names, traces, or model configuration in slide content.
+
+If no deck creation tool is listed by the active endpoint, state that the current JudgmentKit endpoint cannot create the deck yet. Do not fabricate a JudgmentKit packet, deck, or MCP result. Continue only with a deterministic outline or requirements summary if the user wants that fallback.
 
 ## Design-System Acceptance Gate
 
@@ -37,6 +55,7 @@ Before calling MCP tools, check the active user, project, and AGENTS instruction
 - Use JudgmentKit only when the user explicitly asks for it or the current project instructions opt into JudgmentKit for the task.
 - Do not send confidential briefs, unreleased designs, proprietary design-system details, source code, customer data, or internal roadmap context to the hosted endpoint unless workspace policy allows it.
 - When allowed, use JudgmentKit for UI generation, UI critique, implementation planning, workflow review, handoff review, and generated UI acceptance.
+- When the user asks for a JudgmentKit deck, presentation, PowerPoint, or PPTX and the active endpoint exposes deck creation, use JudgmentKit for deck creation from allowed source material.
 - Do not use JudgmentKit for unrelated backend work, factual answers, docs-only edits, or general code review unless the task depends on UI activity fit.
 - If the activity is setup, debugging, auditing, or integration work, implementation details may be visible. Otherwise, keep prompts, schemas, resource ids, MCP servers, tool names, traces, and model configuration out of product UI.
 - When ranking findings, use `High`, `Medium`, and `Low` labels.
@@ -58,6 +77,16 @@ Before calling MCP tools, check the active user, project, and AGENTS instruction
 13. If design-system authority fails, stop treating the output as generated UI. Use the MCP review result to issue hard constraints and regenerate or repair before any acceptance step.
 
 Use the MCP response `structuredContent` for follow-up tool calls and implementation decisions. Use `content[0].text` as the concise human-facing planning card.
+
+## Deck Workflow
+
+For slide deck requests:
+
+1. Confirm the deck audience, purpose, source material, confidentiality boundary, and target format from the brief or local context.
+2. Use the activity contract to keep the deck focused on the participant decision and outcome, not implementation machinery.
+3. Call the deck creation MCP tool when it is available from the active endpoint.
+4. Treat returned deck guidance or artifacts as JudgmentKit output only when they came from the MCP tool.
+5. Review slide copy for disclosure discipline before handoff: primary slides should use domain language, while prompts, schemas, resource ids, MCP details, traces, and model configuration stay out of the deck unless the deck is explicitly for setup, debugging, auditing, or integration.
 
 ## Activity Contract
 

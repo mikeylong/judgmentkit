@@ -1,7 +1,7 @@
 interface:
   display_name: "JudgmentKit Hosted MCP"
-  short_description: "UI workflow review and hard design-system gates"
-  default_prompt: "Use $judgmentkit-hosted-mcp to review this UI brief for workflow fit, surface choice, disclosure boundaries, and the hard design-system acceptance gate. If the generated UI does not pass the active design system, treat it as a failed candidate and send it back through JudgmentKit for hard repair constraints."
+  short_description: "UI workflow review, slide deck creation, and hard design-system gates"
+  default_prompt: "Use $judgmentkit-hosted-mcp to review this UI brief for workflow fit, surface choice, disclosure boundaries, and the hard design-system acceptance gate, or to create a JudgmentKit slide deck, presentation, PowerPoint, or PPTX from allowed source material when the deck creation tool is available. If generated UI does not pass the active design system, treat it as a failed candidate and send it back through JudgmentKit for hard repair constraints. If the active JudgmentKit endpoint does not expose deck creation, say so and capture deck requirements without fabricating results."
 dependencies:
   tools:
     - type: "mcp"
