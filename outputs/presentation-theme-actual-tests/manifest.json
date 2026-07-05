@@ -101,9 +101,116 @@
   ],
   "policy_source": "scripts/presentation-theme/actual-evidence-check.mjs",
   "runtime_fingerprint": {
-    "mode": "committed_replay",
-    "raster_available": true
+    "artifact_tool": {
+      "module": {
+        "path": "artifact_tool.mjs",
+        "sha256": "f64faa0a3f86428b108c62d99f35d03b0a952de9788c2ffa0b07dad1dc6c4aef"
+      },
+      "package": "@oai/artifact-tool",
+      "package_json": {
+        "path": "package.json",
+        "sha256": "d707bfd3d31ada38632a38999258a9d69dc33bd3c993f6c42e38d1f16a32ee6d"
+      },
+      "version": "2.8.18"
+    },
+    "fixture_builder": {
+      "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+    },
+    "presentations_skill_dir": {
+      "basename": "presentations",
+      "kind": "local_path",
+      "sha256": "2134a449bafb98d87475838f6698b80dd163099fcc822fa1d73bc6006a18b5c4"
+    },
+    "python": {
+      "executable": {
+        "basename": "python3",
+        "kind": "local_path",
+        "sha256": "d653e13ce0764c5880a3aaabd33663e8ab18a77888b4c0929b193969df2931d5"
+      },
+      "numpy": true,
+      "numpy_version": "2.3.5",
+      "pdf2image": true,
+      "PIL": true,
+      "PIL_version": "12.2.0",
+      "pptx": true,
+      "pptx_version": "1.0.2",
+      "version": "3.12.13"
+    },
+    "raster_available": true,
+    "render_tools": {
+      "create_montage": {
+        "path": "create_montage.py",
+        "sha256": "cdcc06f3740843c81b635670f2416d5b641860bea8e00281d4b650022ba3eb36"
+      },
+      "render_slides": {
+        "path": "render_slides.py",
+        "sha256": "3bedbcf9689cfcba30a09fd025fb9219381f9c46bdf4f9038d16212b7ae028fd"
+      },
+      "slides_test": {
+        "path": "slides_test.py",
+        "sha256": "f192e85ba17a9f7634908074e2149a277a30684c0e38d459f9c1d0245bfd6cc1"
+      }
+    }
   },
+  "source_inputs": [
+    {
+      "path": "scripts/presentation-theme/actual-constants.mjs",
+      "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+    },
+    {
+      "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+      "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+    },
+    {
+      "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+    },
+    {
+      "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+      "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+    },
+    {
+      "path": "scripts/presentation-theme/run-actual-qa.mjs",
+      "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+    },
+    {
+      "path": "src/presentation-theme/components.mjs",
+      "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+    },
+    {
+      "path": "src/presentation-theme/index.mjs",
+      "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+    },
+    {
+      "path": "src/presentation-theme/layout.mjs",
+      "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+    },
+    {
+      "path": "src/presentation-theme/qa.mjs",
+      "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+    },
+    {
+      "path": "src/presentation-theme/styles.mjs",
+      "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+    },
+    {
+      "path": "src/presentation-theme/template-layout-data.mjs",
+      "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+    },
+    {
+      "path": "src/presentation-theme/templates.mjs",
+      "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+    },
+    {
+      "path": "src/presentation-theme/theme.mjs",
+      "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+    },
+    {
+      "path": "src/presentation-theme/tokens.mjs",
+      "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+    }
+  ],
   "template_registry": {
     "layout_count": 80,
     "layouts": [
@@ -1235,14 +1342,14 @@
     "source_inputs": [
       {
         "path": "src/presentation-theme/templates.mjs",
-        "sha256": "d1d1a8a02e15b84c266649b143681981ddeceeb40976a20b086cf732278cc944"
+        "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
       },
       {
         "path": "src/presentation-theme/template-layout-data.mjs",
         "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
       }
     ],
-    "source_sha256": "d1d1a8a02e15b84c266649b143681981ddeceeb40976a20b086cf732278cc944"
+    "source_sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
   },
   "version": 1
 }

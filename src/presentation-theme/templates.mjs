@@ -188,7 +188,6 @@ function publicAssetSlots(assetSlots = [], fallbackSurfaces = []) {
 
     return compactObject({
       role: assetSlot.role,
-      alt: assetSlot.alt,
       frame: publicFrameRef(assetSlot.frame),
     });
   });

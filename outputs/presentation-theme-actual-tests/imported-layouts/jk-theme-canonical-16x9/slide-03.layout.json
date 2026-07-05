@@ -21,18 +21,18 @@
   "theme": {
     "colorSchemeName": "JudgmentKit Light",
     "colors": {
-      "accent1": "#245F73",
-      "accent2": "#23615F",
+      "accent1": "#156082",
+      "accent2": "#467886",
       "accent3": "#2E6B48",
       "accent4": "#8A5A16",
       "accent5": "#8F342F",
-      "accent6": "#D7D3C8",
+      "accent6": "#D9D9D9",
       "dk1": "#171717",
-      "lt1": "#F8F7F2",
-      "dk2": "#61615C",
-      "lt2": "#FFFFFF",
-      "hlink": "#245F73",
-      "folHlink": "#23615F"
+      "lt1": "#FFFFFF",
+      "dk2": "#666666",
+      "lt2": "#F4F4F4",
+      "hlink": "#156082",
+      "folHlink": "#467886"
     },
     "fontScheme": {
       "name": "Office",
@@ -164,7 +164,7 @@
         72,
         78,
         1136,
-        96
+        58
       ],
       "geometry": "rect",
       "text_summary": {

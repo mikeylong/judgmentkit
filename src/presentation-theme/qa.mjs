@@ -37,6 +37,8 @@ const ALLOWED_OCR_AUTHORITY_METHODS = new Set([
   "artifact_bound_ocr_extracted_text",
   "ocr_extracted_text",
 ]);
+const ALLOWED_OCR_TEXT_ENTRY_KINDS = new Set(["ocr_text"]);
+const TRUSTED_SOURCE_LINT_STATUSES = new Set(["passed", "failed"]);
 const MIN_OCR_CONFIDENCE = 0.8;
 const SLIDE_DISCLOSURE_PATTERNS = [
   { id: "ready_for_review", term: "ready_for_review", pattern: /\bready(?:[_ -]+)for(?:[_ -]+)review\b/i },
@@ -290,6 +292,10 @@ function statusFromFindings(findings) {
   return findings.length > 0 ? "failed" : "passed";
 }
 
+function isObject(value) {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value));
+}
+
 export function lintJudgmentKitPresentationSource(source, options = {}) {
   const sourceText = String(source ?? "");
   const findings = [];
@@ -422,6 +428,43 @@ function hashValue(value) {
   }
 
   return undefined;
+}
+
+function normalizeSourceLint(value) {
+  const sourceLint = isObject(value) ? value : {};
+  const findings = Array.isArray(sourceLint.findings) ? sourceLint.findings : [];
+  const status =
+    typeof sourceLint.status === "string" ? sourceLint.status : "skipped";
+
+  return {
+    ...sourceLint,
+    status,
+    findings,
+  };
+}
+
+function sourceLintBinding(sourceLint = {}) {
+  const nestedSource = isObject(sourceLint.source) ? sourceLint.source : {};
+  const sourceHash =
+    sourceLint.source_hash ??
+    sourceLint.sourceHash ??
+    hashValue(sourceLint.hash) ??
+    nestedSource.source_hash ??
+    nestedSource.sourceHash ??
+    nestedSource.sha256 ??
+    hashValue(nestedSource.hash);
+  const sourceRef =
+    sourceLint.source_ref ??
+    sourceLint.sourceRef ??
+    sourceLint.ref ??
+    nestedSource.source_ref ??
+    nestedSource.sourceRef ??
+    nestedSource.ref;
+
+  return {
+    sourceHash: typeof sourceHash === "string" ? sourceHash : undefined,
+    sourceRef,
+  };
 }
 
 function isPortablePath(value) {
@@ -960,6 +1003,9 @@ function reviewTextAuthority(textAuthority, artifactRef, options = {}) {
     const lowConfidenceCount = textEntries.filter(
       (entry) => !Number.isFinite(entry.confidence) || entry.confidence < MIN_OCR_CONFIDENCE,
     ).length;
+    const nonOcrTextEntryCount = textEntries.filter(
+      (entry) => !ALLOWED_OCR_TEXT_ENTRY_KINDS.has(entry.kind),
+    ).length;
     const ocrComplete =
       extractionIsBound &&
       ALLOWED_OCR_AUTHORITY_METHODS.has(textAuthority.public.method) &&
@@ -967,6 +1013,7 @@ function reviewTextAuthority(textAuthority, artifactRef, options = {}) {
       textAuthority.public.extractor_version &&
       textAuthority.public.config_sha256 &&
       textAuthority.public.raster_text_region_count > 0 &&
+      nonOcrTextEntryCount === 0 &&
       lowConfidenceCount === 0;
 
     if (!ocrComplete) {
@@ -983,6 +1030,7 @@ function reviewTextAuthority(textAuthority, artifactRef, options = {}) {
             raster_text_region_count: textAuthority.public.raster_text_region_count,
             confidence_floor: MIN_OCR_CONFIDENCE,
             low_confidence_entry_count: lowConfidenceCount,
+            non_ocr_text_entry_count: nonOcrTextEntryCount,
           },
         ),
       );
@@ -1045,6 +1093,25 @@ function reviewTextAuthority(textAuthority, artifactRef, options = {}) {
     );
   }
 
+  if (
+    !ocrTextAuthority &&
+    Number.isInteger(artifactTextRunCount) &&
+    artifactTextRunCount > 0 &&
+    textAuthority.public.text_run_count < artifactTextRunCount
+  ) {
+    findings.push(
+      finding(
+        "incomplete_text_authority",
+        "High",
+        "Authoritative presentation text must account for every text run in the bound PPTX artifact.",
+        {
+          artifact_text_run_count: artifactTextRunCount,
+          extracted_text_run_count: textAuthority.public.text_run_count,
+        },
+      ),
+    );
+  }
+
   if (textAuthority.public.raster_text_region_count > 0 && !ocrTextAuthority) {
     findings.push(
       finding(
@@ -1096,6 +1163,136 @@ function reviewTextAuthority(textAuthority, artifactRef, options = {}) {
   return { findings, warnings };
 }
 
+function normalizeSourceRef(value) {
+  if (typeof value === "string") {
+    return { path: value };
+  }
+
+  if (!isObject(value)) {
+    return undefined;
+  }
+
+  return {
+    kind: typeof value.kind === "string" ? value.kind : undefined,
+    path: typeof value.path === "string" ? value.path : undefined,
+    sha256: typeof value.sha256 === "string" ? value.sha256 : undefined,
+  };
+}
+
+function sourceRefsMatch(left, right) {
+  const normalizedLeft = normalizeSourceRef(left);
+  const normalizedRight = normalizeSourceRef(right);
+
+  if (!normalizedLeft?.path || !normalizedRight?.path) {
+    return false;
+  }
+
+  return (
+    normalizedLeft.path === normalizedRight.path &&
+    (normalizedLeft.kind === undefined ||
+      normalizedRight.kind === undefined ||
+      normalizedLeft.kind === normalizedRight.kind) &&
+    (normalizedLeft.sha256 === undefined ||
+      normalizedRight.sha256 === undefined ||
+      normalizedLeft.sha256 === normalizedRight.sha256)
+  );
+}
+
+function createSourceLintReview(evidence = {}, findings) {
+  if (typeof evidence.source === "string") {
+    const computedSourceHash = sha256(evidence.source);
+
+    if (
+      typeof evidence.source_hash === "string" &&
+      evidence.source_hash !== computedSourceHash
+    ) {
+      findings.push(
+        finding(
+          "source_hash_mismatch",
+          "High",
+          "Presentation source_hash must match the supplied generated source text.",
+          {
+            expected_sha256: evidence.source_hash,
+            observed_sha256: computedSourceHash,
+          },
+        ),
+      );
+    }
+
+    const sourceReview = lintJudgmentKitPresentationSource(evidence.source);
+    return {
+      ...sourceReview,
+      source_hash: computedSourceHash,
+      source_ref: normalizeSourceRef(evidence.source_ref),
+    };
+  }
+
+  const sourceReview = normalizeSourceLint(evidence.source_lint);
+  const binding = sourceLintBinding(sourceReview);
+  const hasSourcePointer = Boolean(evidence.source_ref || evidence.source_hash);
+  const lintStatus = sourceReview.status;
+  const lintFindings = sourceReview.findings;
+  const trustedStatus = TRUSTED_SOURCE_LINT_STATUSES.has(lintStatus);
+  const hashBound =
+    typeof evidence.source_hash === "string" &&
+    binding.sourceHash === evidence.source_hash;
+  const refBound =
+    evidence.source_ref &&
+    binding.sourceRef &&
+    sourceRefsMatch(binding.sourceRef, evidence.source_ref);
+  const bindingConflict =
+    (typeof evidence.source_hash === "string" &&
+      typeof binding.sourceHash === "string" &&
+      binding.sourceHash !== evidence.source_hash) ||
+    (evidence.source_ref &&
+      binding.sourceRef &&
+      !sourceRefsMatch(binding.sourceRef, evidence.source_ref));
+
+  if (!hasSourcePointer) {
+    findings.push(
+      finding(
+        "missing_source",
+        "High",
+        "Presentation evidence must include generated source so the adapter import and off-token styles can be audited.",
+      ),
+    );
+  } else if (!sourceReview || lintStatus === "skipped" || !trustedStatus) {
+    findings.push(
+      finding(
+        "missing_source_lint",
+        "High",
+        "Presentation evidence with source_ref or source_hash must include a non-skipped source lint result.",
+      ),
+    );
+  } else if (bindingConflict || (!hashBound && !refBound)) {
+    findings.push(
+      finding(
+        "unbound_source_lint",
+        "High",
+        "Presentation source lint must be bound to the same source_hash or source_ref as the evidence.",
+      ),
+    );
+  }
+
+  if (lintStatus === "failed") {
+    findings.push(
+      finding(
+        "source_lint_failed",
+        "High",
+        "Presentation source lint must pass before evidence can be accepted.",
+        { source_finding_count: lintFindings.length },
+      ),
+    );
+  }
+
+  return {
+    status: lintStatus,
+    findings: lintFindings,
+    source_hash: binding.sourceHash,
+    source_ref: normalizeSourceRef(binding.sourceRef),
+  };
+}
+
 export function reviewJudgmentKitPresentationEvidence(evidence = {}) {
   const findings = [];
   const warnings = [];
@@ -1114,19 +1311,7 @@ export function reviewJudgmentKitPresentationEvidence(evidence = {}) {
 
   findings.push(...artifactBinding.findings);
 
-  if (!evidence.source && !evidence.source_ref && !evidence.source_hash) {
-    findings.push(
-      finding(
-        "missing_source",
-        "High",
-        "Presentation evidence must include generated source so the adapter import and off-token styles can be audited.",
-      ),
-    );
-  }
-
-  const sourceReview = evidence.source
-    ? lintJudgmentKitPresentationSource(evidence.source)
-    : evidence.source_lint ?? { status: "skipped", findings: [] };
+  const sourceReview = createSourceLintReview(evidence, findings);
 
   findings.push(...sourceReview.findings);
   const textReview = reviewTextAuthority(textAuthority, artifactRef, {
@@ -1197,8 +1382,19 @@ export function reviewJudgmentKitPresentationEvidence(evidence = {}) {
 
 export function createJudgmentKitPresentationEvidence(input = {}) {
   const styleIds = input.theme?.style_ids ?? input.theme?.styleIds;
-  const sourceReview = input.source
-    ? lintJudgmentKitPresentationSource(input.source)
+  const hasSourceText = typeof input.source === "string";
+  const inputSourceLintBinding = sourceLintBinding(normalizeSourceLint(input.source_lint));
+  const computedSourceHash = hasSourceText ? sha256(input.source) : undefined;
+  const sourceHash = hasSourceText
+    ? input.source_hash ?? computedSourceHash
+    : input.source_hash ?? inputSourceLintBinding.sourceHash;
+  const sourceRef = input.source_ref ?? inputSourceLintBinding.sourceRef;
+  const sourceReview = hasSourceText
+    ? {
+        ...lintJudgmentKitPresentationSource(input.source),
+        source_hash: computedSourceHash,
+        source_ref: normalizeSourceRef(sourceRef),
+      }
     : input.source_lint;
   const artifactBinding = bindArtifactRef(
     input.artifact_ref ?? input.artifact ?? {
@@ -1215,8 +1411,8 @@ export function createJudgmentKitPresentationEvidence(input = {}) {
   const evidence = {
     adapter: JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST,
     artifact_ref: artifactRef,
-    source_ref: input.source_ref,
-    source_hash: input.source_hash ?? (input.source ? sha256(input.source) : undefined),
+    source_ref: sourceRef,
+    source_hash: sourceHash,
     source_lint: sourceReview,
     theme: {
       id: JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST.id,
@@ -1244,6 +1440,8 @@ export function createJudgmentKitPresentationEvidence(input = {}) {
     review: reviewJudgmentKitPresentationEvidence({
       ...input,
       source_lint: sourceReview,
+      source_ref: sourceRef,
+      source_hash: sourceHash,
       artifact_ref: artifactRef,
       repo_root: input.repo_root,
       require_tracked_artifact: input.require_tracked_artifact,

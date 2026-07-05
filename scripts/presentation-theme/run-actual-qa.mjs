@@ -1,4 +1,5 @@
 import { execFileSync } from "node:child_process";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -151,11 +152,72 @@ function supportsRasterPython(pythonRuntime) {
   }
 }
 
-function runtimeFingerprintPayload(skillDir, pythonRuntime, rasterAvailable) {
+function sha256File(filePath) {
+  return crypto.createHash("sha256").update(fs.readFileSync(filePath)).digest("hex");
+}
+
+function fileIdentity(filePath) {
+  if (!filePath || !fs.existsSync(filePath)) {
+    return undefined;
+  }
+
+  const relativePath = path.relative(REPO_ROOT, filePath).split(path.sep).join("/");
   return {
+    path: relativePath.startsWith("..") ? path.basename(filePath) : relativePath,
+    sha256: sha256File(filePath),
+  };
+}
+
+function resolveArtifactToolPackageInfo() {
+  const candidates = [
+    process.env.JUDGMENTKIT_ARTIFACT_TOOL_PACKAGE,
+    process.env.CODEX_RUNTIME_DEPENDENCIES
+      ? path.join(process.env.CODEX_RUNTIME_DEPENDENCIES, "node", "node_modules", "@oai", "artifact-tool")
+      : undefined,
+    process.env.CODEX_WORKSPACE_DEPENDENCIES
+      ? path.join(process.env.CODEX_WORKSPACE_DEPENDENCIES, "node", "node_modules", "@oai", "artifact-tool")
+      : undefined,
+    process.env.CODEX_DEPENDENCIES
+      ? path.join(process.env.CODEX_DEPENDENCIES, "node", "node_modules", "@oai", "artifact-tool")
+      : undefined,
+    path.join(
+      process.env.HOME ?? "",
+      ".cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool",
+    ),
+  ].filter(Boolean);
+
+  for (const candidate of candidates) {
+    const packageJsonPath = path.join(candidate, "package.json");
+    const modulePath = path.join(candidate, "dist", "artifact_tool.mjs");
+
+    if (!fs.existsSync(packageJsonPath)) {
+      continue;
+    }
+
+    const packageJson = readJson(packageJsonPath);
+    return {
+      package: packageJson.name,
+      version: packageJson.version,
+      package_json: fileIdentity(packageJsonPath),
+      module: fileIdentity(modulePath),
+    };
+  }
+
+  return { package: "@oai/artifact-tool", status: "not_found" };
+}
+
+function runtimeFingerprintPayload(skillDir, pythonRuntime, rasterAvailable, tools) {
+  return {
+    artifact_tool: resolveArtifactToolPackageInfo(),
+    fixture_builder: fileIdentity(path.join(REPO_ROOT, "scripts", "presentation-theme", "build-actual-fixtures.mjs")),
     presentations_skill_dir: skillDir,
     python: pythonRuntime.selected,
     raster_available: rasterAvailable,
+    render_tools: {
+      create_montage: fileIdentity(tools.createMontage),
+      render_slides: fileIdentity(tools.renderSlides),
+      slides_test: fileIdentity(tools.slidesTest),
+    },
   };
 }
 
@@ -213,6 +275,14 @@ function stableJson(value) {
   return JSON.stringify(stable(value));
 }
 
+function parseNdjsonFile(filePath) {
+  return fs
+    .readFileSync(filePath, "utf8")
+    .split(/\n+/)
+    .filter(Boolean)
+    .map((line) => JSON.parse(line));
+}
+
 function fixtureRelativeFromHashPath(entryPath, outputDir) {
   const outputRootRef = path.relative(REPO_ROOT, outputDir).split(path.sep).join("/");
   return entryPath.startsWith(`${outputRootRef}/`) ? entryPath.slice(outputRootRef.length + 1) : entryPath;
@@ -235,7 +305,210 @@ function runtimeFingerprintsMatch(tempOutputDir) {
   return stableJson(committed) === stableJson(generated);
 }
 
+function outputRootRef(outputDir) {
+  return path.relative(REPO_ROOT, outputDir).split(path.sep).join("/");
+}
+
+function normalizeFixtureReference(value, outputDir) {
+  const fixtureRoot = outputRootRef(outputDir);
+
+  if (value === fixtureRoot) {
+    return "<fixture-root>";
+  }
+
+  if (value.startsWith(`${fixtureRoot}/`)) {
+    return `<fixture-root>/${value.slice(fixtureRoot.length + 1)}`;
+  }
+
+  return value;
+}
+
+function normalizeSemanticArtifact(value, outputDir, artifactKind, pathParts = []) {
+  const dotPath = pathParts.join(".");
+  const key = pathParts.at(-1);
+
+  if (
+    artifactKind === "hashes" &&
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    value.artifact_kind
+  ) {
+    return Object.fromEntries(
+      Object.entries(value).map(([entryKey, entry]) => {
+        const volatileHashField =
+          entryKey === "byte_size" ||
+          entryKey === "semantic_guard_sha256" ||
+          entryKey === "sha256";
+        return [
+          entryKey,
+          volatileHashField
+            ? `<hashes-${entryKey}>`
+            : normalizeSemanticArtifact(entry, outputDir, artifactKind, [...pathParts, entryKey]),
+        ];
+      }),
+    );
+  }
+
+  if (
+    artifactKind === "manifest" &&
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    (value.kind || value.path)
+  ) {
+    return Object.fromEntries(
+      Object.entries(value).map(([entryKey, entry]) => {
+        const summaryOnlyField =
+          entryKey === "byte_size" ||
+          entryKey === "semantic_guard_sha256";
+        return [
+          entryKey,
+          summaryOnlyField
+            ? `<summary-${entryKey}>`
+            : normalizeSemanticArtifact(entry, outputDir, artifactKind, [...pathParts, entryKey]),
+        ];
+      }),
+    );
+  }
+
+  if (
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    (value.artifact_kind === "pptx" || value.kind === "pptx")
+  ) {
+    return Object.fromEntries(
+      Object.entries(value).map(([entryKey, entry]) => {
+        const volatilePptxField =
+          entryKey === "byte_size" ||
+          entryKey === "semantic_guard_sha256" ||
+          entryKey === "sha256";
+        return [
+          entryKey,
+          volatilePptxField
+            ? `<pptx-${entryKey}>`
+            : normalizeSemanticArtifact(entry, outputDir, artifactKind, [...pathParts, entryKey]),
+        ];
+      }),
+    );
+  }
+
+  if (dotPath === "artifact_ref.sha256" || dotPath === "text_authority.artifact_sha256") {
+    return "<pptx-byte-sha256>";
+  }
+
+  if (artifactKind === "inspect" && key === "layoutId") {
+    return "<inspect-layout-id>";
+  }
+
+  if (artifactKind === "inspect" && key === "id") {
+    return "<inspect-object-id>";
+  }
+
+  if (
+    artifactKind === "layout" &&
+    ["aid", "id", "layoutId", "masterLayoutId", "parentLayoutId"].includes(key)
+  ) {
+    return `<layout-${key}>`;
+  }
+
+  if (artifactKind === "layout" && dotPath.endsWith("composeSource.path")) {
+    return "<layout-compose-source-path>";
+  }
+
+  if (artifactKind === "structural" && dotPath === "bytes") {
+    return "<pptx-byte-count>";
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((entry, index) =>
+      normalizeSemanticArtifact(entry, outputDir, artifactKind, [...pathParts, String(index)]),
+    );
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [
+        key,
+        normalizeSemanticArtifact(entry, outputDir, artifactKind, [...pathParts, key]),
+      ]),
+    );
+  }
+
+  if (typeof value === "string") {
+    return normalizeFixtureReference(value, outputDir);
+  }
+
+  return value;
+}
+
+function readSemanticArtifact(filePath, artifactKind, outputDir) {
+  const value = artifactKind === "inspect"
+    ? parseNdjsonFile(filePath)
+    : artifactKind === "readme"
+      ? fs.readFileSync(filePath, "utf8")
+      : readJson(filePath);
+  return normalizeSemanticArtifact(value, outputDir, artifactKind);
+}
+
+function compareSemanticArtifacts(tempOutputDir, committedHashes, generatedHashes) {
+  const semanticKinds = new Set(["evidence", "hashes", "inspect", "layout", "manifest", "readme", "structural"]);
+  const committedHashesValue = readSemanticArtifact(path.join(OUTPUT_ROOT, "hashes.json"), "hashes", OUTPUT_ROOT);
+  const generatedHashesValue = readSemanticArtifact(path.join(tempOutputDir, "hashes.json"), "hashes", tempOutputDir);
+
+  if (stableJson(committedHashesValue) !== stableJson(generatedHashesValue)) {
+    fail(
+      "hashes.json generated semantic artifact differs from committed replay evidence; refresh committed evidence intentionally with presentation-theme:actual:update.",
+    );
+  }
+
+  for (const [relativePath, committedEntry] of committedHashes) {
+    if (semanticKinds.has(committedEntry.artifact_kind) && !generatedHashes.has(relativePath)) {
+      fail(`${relativePath} committed semantic artifact was not regenerated by actual:check.`);
+    }
+  }
+
+  for (const [relativePath, generatedEntry] of generatedHashes) {
+    if (!semanticKinds.has(generatedEntry.artifact_kind)) {
+      continue;
+    }
+
+    const committedEntry = committedHashes.get(relativePath);
+    if (!committedEntry) {
+      fail(`${relativePath} generated semantic artifact has no committed replay artifact.`);
+    }
+
+    if (committedEntry.artifact_kind !== generatedEntry.artifact_kind) {
+      fail(`${relativePath} generated semantic artifact kind differs from committed replay evidence.`);
+    }
+
+    const committedValue = readSemanticArtifact(
+      path.join(OUTPUT_ROOT, relativePath),
+      committedEntry.artifact_kind,
+      OUTPUT_ROOT,
+    );
+    const generatedValue = readSemanticArtifact(
+      path.join(tempOutputDir, relativePath),
+      generatedEntry.artifact_kind,
+      tempOutputDir,
+    );
+
+    if (stableJson(committedValue) !== stableJson(generatedValue)) {
+      fail(
+        `${relativePath} generated semantic artifact differs from committed replay evidence; refresh committed evidence intentionally with presentation-theme:actual:update.`,
+      );
+    }
+  }
+}
+
 function compareGeneratedToCommitted(tempOutputDir) {
+  const committedHashes = hashEntriesByFixturePath(OUTPUT_ROOT);
+  const generatedHashes = hashEntriesByFixturePath(tempOutputDir);
+  const exactBinaryKinds = new Set(["montage", "png", "webp"]);
+
+  compareSemanticArtifacts(tempOutputDir, committedHashes, generatedHashes);
+
   for (const caseInfo of ACTUAL_CASES) {
     const committedEvidence = readJson(
       path.join(OUTPUT_ROOT, "evidence", `${caseInfo.id}.acceptance.json`),
@@ -287,12 +560,8 @@ function compareGeneratedToCommitted(tempOutputDir) {
     return;
   }
 
-  const committedHashes = hashEntriesByFixturePath(OUTPUT_ROOT);
-  const generatedHashes = hashEntriesByFixturePath(tempOutputDir);
-  const binaryKinds = new Set(["montage", "png", "pptx", "webp"]);
-
   for (const [relativePath, generatedEntry] of generatedHashes) {
-    if (!binaryKinds.has(generatedEntry.artifact_kind)) {
+    if (!exactBinaryKinds.has(generatedEntry.artifact_kind)) {
       continue;
     }
 
@@ -339,7 +608,7 @@ function main() {
         {
           status: "passed",
           mode,
-          runtime_fingerprint: runtimeFingerprintPayload(skillDir, pythonRuntime, rasterAvailable),
+          runtime_fingerprint: runtimeFingerprintPayload(skillDir, pythonRuntime, rasterAvailable, tools),
         },
         null,
         2,
@@ -359,7 +628,7 @@ function main() {
     JUDGMENTKIT_PPTX_FIXTURE_DIR: fixtureDir,
     JUDGMENTKIT_PPTX_PYTHON: tools.python,
     JUDGMENTKIT_PPTX_RUNTIME_FINGERPRINT: JSON.stringify(
-      runtimeFingerprintPayload(skillDir, pythonRuntime, rasterAvailable),
+      runtimeFingerprintPayload(skillDir, pythonRuntime, rasterAvailable, tools),
     ),
   };
 

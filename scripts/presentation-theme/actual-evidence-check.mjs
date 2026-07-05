@@ -20,6 +20,7 @@ const OUTPUT_ROOT_REF = repoRelative(OUTPUT_ROOT);
 const RASTER_UNAVAILABLE = process.env.JUDGMENTKIT_RASTER_UNAVAILABLE === "1";
 const TEMPLATE_REGISTRY_SOURCE = path.join(REPO_ROOT, "src", "presentation-theme", "templates.mjs");
 const TEMPLATE_LAYOUT_DATA_SOURCE = path.join(REPO_ROOT, "src", "presentation-theme", "template-layout-data.mjs");
+const PRESENTATION_THEME_SOURCE_DIR = path.join(REPO_ROOT, "src", "presentation-theme");
 
 function fail(message) {
   throw new Error(message);
@@ -67,6 +68,35 @@ function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
+function repoSourcePath(relativePath) {
+  return path.join(REPO_ROOT, relativePath);
+}
+
+function presentationThemeSourcePaths() {
+  return fs
+    .readdirSync(PRESENTATION_THEME_SOURCE_DIR)
+    .filter((name) => name.endsWith(".mjs"))
+    .map((name) => path.join(PRESENTATION_THEME_SOURCE_DIR, name));
+}
+
+function sourceDigestEntries() {
+  const sourcePaths = [
+    repoSourcePath("scripts/presentation-theme/actual-constants.mjs"),
+    repoSourcePath(OUTPUT_POLICY.generatedBy),
+    repoSourcePath(OUTPUT_POLICY.evidenceChecker),
+    repoSourcePath("scripts/presentation-theme/run-actual-qa.mjs"),
+    repoSourcePath(OUTPUT_POLICY.structuralInspector),
+    ...presentationThemeSourcePaths(),
+  ];
+
+  return [...new Set(sourcePaths.map((sourcePath) => path.resolve(sourcePath)))]
+    .sort((left, right) => repoRelative(left).localeCompare(repoRelative(right)))
+    .map((sourcePath) => ({
+      path: repoRelative(sourcePath),
+      sha256: sha256File(sourcePath),
+    }));
+}
+
 function sanitizeRuntimeFingerprint(value) {
   if (Array.isArray(value)) {
     return value.map(sanitizeRuntimeFingerprint);
@@ -94,6 +124,20 @@ function sanitizeRuntimeFingerprint(value) {
 
 function runtimeFingerprint() {
   if (!process.env.JUDGMENTKIT_PPTX_RUNTIME_FINGERPRINT) {
+    if (!WRITE_MODE) {
+      const manifestPath = outputPath("manifest.json");
+      if (fs.existsSync(manifestPath)) {
+        try {
+          const committedFingerprint = readJson(manifestPath).runtime_fingerprint;
+          if (committedFingerprint) {
+            return committedFingerprint;
+          }
+        } catch {
+          // Fall through to the explicit committed-replay marker below.
+        }
+      }
+    }
+
     return {
       mode: "committed_replay",
       raster_available: !RASTER_UNAVAILABLE,
@@ -286,6 +330,15 @@ function validateTemplateRegistryManifest() {
   }
 }
 
+function validateSourceInputManifest() {
+  const manifest = readJson(outputPath("manifest.json"));
+  const expected = sourceDigestEntries();
+
+  if (stableJson(manifest.source_inputs) !== stableJson(expected)) {
+    fail("manifest.json source_inputs are stale. Run the opt-in actual update lane to refresh evidence.");
+  }
+}
+
 function enrichArtifactSummary(filePath) {
   const relativePath = repoRelative(filePath);
   const fixturePath = fixtureRelative(filePath);
@@ -405,6 +458,14 @@ function validateStructural(caseInfo, structural) {
     fail(`${caseInfo.id} should contain ${caseInfo.slides} slides, observed ${structural.slide_count}.`);
   }
 
+  const expectedSlideSizeEmu = {
+    cx: caseInfo.width * 9525,
+    cy: caseInfo.height * 9525,
+  };
+  if (stableJson(structural.slide_size_emu) !== stableJson(expectedSlideSizeEmu)) {
+    fail(`${caseInfo.id} slide_size_emu does not match expected case dimensions.`);
+  }
+
   if (structural.external_relationships.length > 0) {
     fail(`${caseInfo.id} contains external relationships.`);
   }
@@ -456,6 +517,7 @@ function buildManifest(files) {
       .sort(),
     policy_source: OUTPUT_POLICY.evidenceChecker,
     runtime_fingerprint: runtimeFingerprint(),
+    source_inputs: sourceDigestEntries(),
     template_registry: templateRegistrySummary(),
     version: 1,
   };
@@ -482,11 +544,7 @@ function buildHashes(files) {
           semantic_guard_paths: guardPaths.length > 0 ? guardPaths : undefined,
           semantic_guard_sha256: guardPaths.length > 0 ? semanticGuardSha256(guardPaths) : undefined,
           sha256: sha256File(filePath),
-          source_inputs: [
-            OUTPUT_POLICY.generatedBy,
-            repoRelative(TEMPLATE_REGISTRY_SOURCE),
-            repoRelative(TEMPLATE_LAYOUT_DATA_SOURCE),
-          ],
+          source_inputs: sourceDigestEntries(),
         };
       })
       .sort((left, right) => left.path.localeCompare(right.path)),
@@ -523,6 +581,7 @@ function buildReviewSummary(files) {
     })),
     file_count: files.length,
     runtime_fingerprint: runtimeFingerprint(),
+    source_inputs: sourceDigestEntries(),
     semantic_artifacts: semanticArtifacts,
     template_registry: templateRegistrySummary(),
     binary_hash_policy:
@@ -563,6 +622,8 @@ function writeGeneratedStructuralReports() {
 
 function validateEvidence(caseInfo) {
   const evidence = readJson(outputPath("evidence", `${caseInfo.id}.acceptance.json`));
+  const sourceRefPath = evidence.source_ref?.path;
+  const sourcePath = sourceRefPath ? path.join(REPO_ROOT, sourceRefPath) : null;
 
   if (evidence.acceptance_status !== "accepted") {
     fail(`${caseInfo.id} evidence should be accepted.`);
@@ -582,6 +643,18 @@ function validateEvidence(caseInfo) {
 
   if (!evidence.artifact_ref?.sha256 || evidence.artifact_ref.sha256 !== sha256File(outputPath(`${caseInfo.id}.pptx`))) {
     fail(`${caseInfo.id} evidence is not bound to the actual PPTX bytes.`);
+  }
+
+  if (!sourcePath || !fs.existsSync(sourcePath) || evidence.source_hash !== sha256File(sourcePath)) {
+    fail(`${caseInfo.id} evidence source_hash is not bound to its source_ref.`);
+  }
+
+  if (
+    evidence.source_lint?.status === "skipped" ||
+    evidence.source_lint?.source_hash !== evidence.source_hash ||
+    stableJson(evidence.source_lint?.source_ref) !== stableJson(evidence.source_ref)
+  ) {
+    fail(`${caseInfo.id} evidence source_lint is missing or not bound to source_hash/source_ref.`);
   }
 
   if (evidence.text_authority?.slide_count !== caseInfo.slides) {
@@ -679,31 +752,41 @@ function main() {
 
   for (const caseInfo of ACTUAL_CASES) {
     const structural = readJson(outputPath("structural", `${caseInfo.id}.structural.json`));
+    if (!WRITE_MODE) {
+      const observedStructural = normalizedStructural(caseInfo);
+      if (stableJson(structural) !== stableJson(observedStructural)) {
+        fail(`${caseInfo.id} committed structural JSON does not match the PPTX bytes.`);
+      }
+    }
+
     validateStructural(caseInfo, structural);
     validateEvidence(caseInfo);
   }
   if (!WRITE_MODE) {
     validateTemplateRegistryManifest();
+    validateSourceInputManifest();
   }
 
   const filesAfterGeneratedWrites = walkFiles(OUTPUT_ROOT);
-  const filesForManifest = filesAfterGeneratedWrites.filter(
-    (filePath) => !["hashes.json", "manifest.json"].includes(path.basename(filePath)),
-  );
 
   if (WRITE_MODE) {
     const filesForManifestAfterSummary = walkFiles(OUTPUT_ROOT).filter(
       (filePath) => !["hashes.json", "manifest.json"].includes(path.basename(filePath)),
     );
     writeJson(outputPath("manifest.json"), buildManifest(filesForManifestAfterSummary));
-    const filesForReviewSummary = walkFiles(OUTPUT_ROOT).filter((filePath) => path.basename(filePath) !== "hashes.json");
+    const filesForReviewSummary = walkFiles(OUTPUT_ROOT).filter(
+      (filePath) => !["hashes.json", "review-summary.json"].includes(path.basename(filePath)),
+    );
     writeJson(outputPath("review-summary.json"), buildReviewSummary(filesForReviewSummary));
     const finalFilesForHashes = walkFiles(OUTPUT_ROOT).filter((filePath) => path.basename(filePath) !== "hashes.json");
     writeJson(outputPath("hashes.json"), buildHashes(finalFilesForHashes));
   } else {
-    const replayFiles = filesAfterGeneratedWrites.filter((filePath) => path.basename(filePath) !== "hashes.json");
-    verifyReviewSummary(replayFiles);
-    verifyHashes(replayFiles);
+    const replayFilesForReviewSummary = filesAfterGeneratedWrites.filter(
+      (filePath) => !["hashes.json", "review-summary.json"].includes(path.basename(filePath)),
+    );
+    const replayFilesForHashes = filesAfterGeneratedWrites.filter((filePath) => path.basename(filePath) !== "hashes.json");
+    verifyReviewSummary(replayFilesForReviewSummary);
+    verifyHashes(replayFilesForHashes);
   }
 
   console.log("presentation-theme actual evidence replay passed");

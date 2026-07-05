@@ -35,6 +35,7 @@ import {
   registerJudgmentKitStyles,
   selectJudgmentKitPresentationTemplate,
 } from "judgmentkit/presentation-theme";
+import { inspectPptx } from "../scripts/presentation-theme/pptx-structural-inspector.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
@@ -142,6 +143,47 @@ const ARTIFACT_TOOL_THEME_COLOR_SLOTS = [
 
 function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(root, relativePath), "utf8"));
+}
+
+function stable(value) {
+  if (Array.isArray(value)) {
+    return value.map(stable);
+  }
+
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value)
+        .filter(([, entryValue]) => entryValue !== undefined)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, entryValue]) => [key, stable(entryValue)]),
+    );
+  }
+
+  if (typeof value === "number") {
+    return Number.isInteger(value) ? value : Number(value.toFixed(4));
+  }
+
+  return value;
+}
+
+function normalizedStructuralForTest(relativePptxPath) {
+  const structural = inspectPptx(path.join(root, relativePptxPath));
+  return {
+    absolute_or_traversal_relationships: structural.absolute_or_traversal_relationships,
+    bytes: structural.bytes,
+    external_relationships: structural.external_relationships,
+    has_content_types: structural.has_content_types,
+    has_presentation_xml: structural.has_presentation_xml,
+    image_relationships: structural.image_relationships,
+    relationship_file_count: structural.relationship_file_count,
+    slide_count: structural.slide_count,
+    slide_entries: structural.slide_entries,
+    slide_size_emu: structural.slide_size_emu,
+    theme_colors: structural.theme_colors,
+    theme_entries: structural.theme_entries,
+    traversal_entries: structural.traversal_entries,
+    zip_entries: structural.zip_entries,
+  };
 }
 
 function createStoredZip(entries) {
@@ -390,6 +432,30 @@ function extractedDeckText(entries, options = {}) {
   };
 }
 
+function completeFixtureDeckText(options = {}) {
+  const slideText = options.slideText ?? [
+    "Daily handoff Cases that need a bounded decision.",
+    "Evidence checked Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.",
+    "A native chart should sit cleanly inside an adapter media frame.",
+    "Native tables should export through the adapter without helper errors.",
+  ];
+  const textRunsBySlide = [13, 11, 2, 16];
+  const entries = textRunsBySlide.flatMap((count, slideIndex) =>
+    Array.from({ length: count }, (_, runIndex) => ({
+      slide_index: slideIndex,
+      slide_number: slideIndex + 1,
+      kind: "text",
+      text: `${slideText[slideIndex]} Run ${runIndex + 1}.`,
+    })),
+  );
+
+  return extractedDeckText(entries, {
+    artifactRef: options.artifactRef ?? JUDGMENTKIT_THEME_FIXTURE_ARTIFACT,
+    status: options.status,
+    slideCount: 4,
+  });
+}
+
 function registryTemplateList(registry) {
   if (Array.isArray(registry)) {
     return registry;
@@ -458,6 +524,7 @@ function assertPublicTemplateOutputSafe(value, label) {
   const json = JSON.stringify(value);
   const forbiddenKeys = [
     "artifact_tool_helpers",
+    "alt",
     "component_factories",
     "compose_contract",
     "contentKey",
@@ -636,7 +703,27 @@ assert.equal(
 assert.match(
   actualQaSource,
   /runtimeFingerprintsMatch/,
-  "The actual check lane should compare binary hashes exactly when the runtime fingerprint matches.",
+  "The actual check lane should compare deterministic raster binary hashes exactly when the runtime fingerprint matches.",
+);
+assert.match(
+  actualQaSource,
+  /exactBinaryKinds[\s\S]*montage[\s\S]*png[\s\S]*webp/,
+  "The actual check lane should keep exact same-runtime binary replay to deterministic raster outputs.",
+);
+assert.match(
+  actualQaSource,
+  /semanticKinds[\s\S]*evidence[\s\S]*hashes[\s\S]*inspect[\s\S]*layout[\s\S]*manifest[\s\S]*readme[\s\S]*structural/,
+  "The actual check lane should compare generated semantic artifacts and committed metadata regardless of runtime fingerprint.",
+);
+assert.match(
+  actualQaSource,
+  /artifact_tool[\s\S]*fixture_builder[\s\S]*render_tools/,
+  "The actual runtime fingerprint should bind artifact-tool, render helpers, and fixture-builder identities.",
+);
+assert.match(
+  actualQaSource,
+  /generated semantic artifact differs from committed replay evidence/,
+  "The actual check lane should fail clearly when non-raster evidence or layout artifacts drift.",
 );
 assert.match(
   actualQaSource,
@@ -668,6 +755,76 @@ assert.match(
   /semantic_guard_sha256/,
   "Binary output hash records should include semantic guard digests for review.",
 );
+assert.match(
+  actualEvidenceCheckerSource,
+  /sourceDigestEntries/,
+  "Actual evidence metadata should bind replay artifacts to relevant source digests.",
+);
+assert.match(
+  actualEvidenceCheckerSource,
+  /committed structural JSON does not match the PPTX bytes/,
+  "Replay evidence should recompute PPTX structure instead of trusting stale structural JSON.",
+);
+assert.match(
+  actualEvidenceCheckerSource,
+  /slide_size_emu[\s\S]*caseInfo\.width \* 9525[\s\S]*caseInfo\.height \* 9525/,
+  "Replay evidence should validate PPTX slide dimensions against the actual case size.",
+);
+
+{
+  const actualManifest = readJson("outputs/presentation-theme-actual-tests/manifest.json");
+  const expectedSourceInputs = [
+    "scripts/presentation-theme/actual-constants.mjs",
+    "scripts/presentation-theme/actual-evidence-check.mjs",
+    "scripts/presentation-theme/build-actual-fixtures.mjs",
+    "scripts/presentation-theme/pptx-structural-inspector.mjs",
+    "scripts/presentation-theme/run-actual-qa.mjs",
+    ...fs
+      .readdirSync(path.join(root, "src", "presentation-theme"))
+      .filter((name) => name.endsWith(".mjs"))
+      .map((name) => `src/presentation-theme/${name}`),
+  ]
+    .sort()
+    .map((relativePath) => ({
+      path: relativePath,
+      sha256: sha256File(relativePath),
+    }));
+
+  assert.deepEqual(
+    actualManifest.source_inputs,
+    expectedSourceInputs,
+    "Committed actual manifest should bind replay evidence to current source digests.",
+  );
+
+  for (const caseInfo of actualManifest.cases) {
+    const evidence = readJson(caseInfo.evidence);
+    const structural = readJson(caseInfo.structural);
+    const recomputedStructural = normalizedStructuralForTest(caseInfo.pptx);
+
+    assert.equal(evidence.artifact_ref.sha256, sha256File(evidence.artifact_ref.path));
+    assert.equal(evidence.text_authority.artifact_sha256, evidence.artifact_ref.sha256);
+    assert.equal(evidence.source_hash, sha256File(evidence.source_ref.path));
+    assert.equal(evidence.source_lint.source_hash, evidence.source_hash);
+    assert.deepEqual(evidence.source_lint.source_ref, evidence.source_ref);
+    assert.equal(evidence.review.source_lint.source_hash, evidence.source_hash);
+    assert.deepEqual(evidence.review.source_lint.source_ref, evidence.source_ref);
+    assert.equal(evidence.checks.actual_slide_size.width, caseInfo.size.width);
+    assert.equal(evidence.checks.actual_slide_size.height, caseInfo.size.height);
+    assert.equal(evidence.checks.artifact_preview_pngs, caseInfo.slides);
+    assert.equal(evidence.checks.layout_json_exports, caseInfo.slides);
+    assert.equal(evidence.text_authority.slide_count, caseInfo.slides);
+    assert.equal(evidence.text_authority.authoritative_slide_count, caseInfo.slides);
+    assert.ok(evidence.checks.artifact_preview_directory.includes(caseInfo.id));
+    if (caseInfo.raster.status === "available") {
+      assert.ok(caseInfo.raster.rendered_png_directory.includes(caseInfo.id));
+    }
+    assert.deepEqual(stable(structural), stable(recomputedStructural));
+    assert.equal(structural.external_relationships.length, 0);
+    assert.equal(structural.absolute_or_traversal_relationships.length, 0);
+    assert.equal(structural.traversal_entries.length, 0);
+  }
+}
+
 for (const dependencySection of ["dependencies", "devDependencies", "peerDependencies"]) {
   assert.equal(
     packageJson[dependencySection]?.["@oai/artifact-tool"],
@@ -891,6 +1048,11 @@ assert.equal(
   false,
   "Public asset-slot metadata should not expose runtime content keys.",
 );
+assert.equal(
+  JSON.stringify(getJudgmentKitPresentationTemplate("slide-04").selection.asset_slots).includes("alt"),
+  false,
+  "Public asset-slot metadata should not expose private alt/source descriptions.",
+);
 for (const field of ["compose_contract", "public_import", "source_compose_name", "source_slot_count", "source_region_count", "source_text_flow_count", "parity"]) {
   assert.equal(
     field in publicSlide01Template,
@@ -915,6 +1077,7 @@ assert.equal(
 );
 assertPublicTemplateOutputSafe(publicSlide01Template, "Public template metadata");
 for (const template of listJudgmentKitPresentationTemplates()) {
+  assertPublicTemplateOutputSafe(template, `${template.layout_id} public template metadata`);
   assert.equal(typeof template.selection?.use_when, "string", `${template.layout_id} should expose use_when guidance.`);
   assert.equal(typeof template.selection?.avoid_when, "string", `${template.layout_id} should expose avoid_when guidance.`);
   assert.ok(
@@ -1544,6 +1707,22 @@ assert.equal(
   20,
   "Style overrides should apply through semantic style keys.",
 );
+assert.throws(
+  () => registerJudgmentKitStyles({ theme: {} }, { strict: true }),
+  /style APIs/,
+  "Strict style registration should require a real artifact-tool style API.",
+);
+assert.throws(
+  () => applyJudgmentKitPptxTheme({ theme: {} }, { strict: true }),
+  /style APIs/,
+  "Strict theme application should not accept metadata-only style fallback.",
+);
+const fallbackStylesPresentation = { theme: {} };
+registerJudgmentKitStyles(fallbackStylesPresentation);
+assert.ok(
+  fallbackStylesPresentation.judgmentKitTextStyles,
+  "Non-strict style registration should still record metadata fallback for test doubles and simple adapters.",
+);
 assert.equal(
   createJudgmentKitTextStyleConfigs()[JUDGMENTKIT_STYLE_NAMES.diagnostic].color,
   "tx2",
@@ -1947,12 +2126,7 @@ const acceptedEvidence = createJudgmentKitPresentationAcceptanceEvidence({
   source: validSource,
   artifact_ref: JUDGMENTKIT_THEME_FIXTURE_ARTIFACT,
   theme: themeEvidence,
-  extracted_deck_text: extractedDeckText([
-    "Daily handoff Cases that need a bounded decision.",
-    "Evidence checked Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.",
-    "A native chart should sit cleanly inside an adapter media frame.",
-    "Native tables should export through the adapter without helper errors.",
-  ]),
+  extracted_deck_text: completeFixtureDeckText(),
   slides: [
     {
       title: "Daily handoff",
@@ -1984,6 +2158,7 @@ assert.deepEqual(
 assert.equal("source" in acceptedEvidence, false);
 assert.equal("slides" in acceptedEvidence, false);
 assert.equal(acceptedEvidence.source_hash.length, 64);
+assert.equal(acceptedEvidence.source_lint.source_hash, acceptedEvidence.source_hash);
 assert.deepEqual(acceptedEvidence.legacy_slides, {
   authority: "non_authoritative",
   count: 1,
@@ -2095,12 +2270,14 @@ const acceptedDomainTrace = createJudgmentKitPresentationAcceptanceEvidence({
   source: validSource,
   artifact_ref: JUDGMENTKIT_THEME_FIXTURE_ARTIFACT,
   theme: themeEvidence,
-  extracted_deck_text: extractedDeckText([
-    "Cold-chain review Temperature trace stayed within bounds after the field visit. The field service team confirmed handoff.",
-    "Cold-chain review Temperature trace stayed within bounds after the field visit.",
-    "Cold-chain review Temperature trace stayed within bounds after the field visit.",
-    "Cold-chain review Temperature trace stayed within bounds after the field visit.",
-  ]),
+  extracted_deck_text: completeFixtureDeckText({
+    slideText: [
+      "Cold-chain review Temperature trace stayed within bounds after the field visit. The field service team confirmed handoff.",
+      "Cold-chain review Temperature trace stayed within bounds after the field visit.",
+      "Cold-chain review Temperature trace stayed within bounds after the field visit.",
+      "Cold-chain review Temperature trace stayed within bounds after the field visit.",
+    ],
+  }),
 });
 assert.equal(acceptedDomainTrace.acceptance_status, "accepted");
 assert.deepEqual(acceptedDomainTrace.review.findings, []);
@@ -2226,6 +2403,25 @@ assert.ok(
   ),
 );
 
+const rejectedIncompleteTextAuthority = createJudgmentKitPresentationAcceptanceEvidence({
+  source: validSource,
+  artifact_ref: JUDGMENTKIT_THEME_FIXTURE_ARTIFACT,
+  theme: themeEvidence,
+  extracted_deck_text: extractedDeckText([
+    "Daily handoff Cases that need a bounded decision.",
+    "Evidence checked Accept this deck only if rendered previews preserve margins, hierarchy, and readable evidence copy.",
+    "A native chart should sit cleanly inside an adapter media frame.",
+    "Native tables should export through the adapter without helper errors.",
+  ]),
+});
+assert.equal(rejectedIncompleteTextAuthority.acceptance_status, "rejected");
+assert.ok(
+  rejectedIncompleteTextAuthority.review.findings.some(
+    (entry) => entry.id === "incomplete_text_authority",
+  ),
+  "Authoritative text should not pass with one summary entry per slide when the PPTX has more text runs.",
+);
+
 const rejectedRasterTextWithoutOcr = createJudgmentKitPresentationAcceptanceEvidence({
   source: validSource,
   artifact_ref: JUDGMENTKIT_THEME_FIXTURE_ARTIFACT,
@@ -2294,6 +2490,53 @@ assert.equal(acceptedOcrRasterTextEvidence.acceptance_status, "accepted");
 assert.equal(acceptedOcrRasterTextEvidence.text_authority.status, "ocr_extracted_text");
 assert.equal(acceptedOcrRasterTextEvidence.text_authority.min_confidence, 0.91);
 assert.equal(JSON.stringify(acceptedOcrRasterTextEvidence).includes("Native tables should export"), false);
+
+const rejectedOcrTextKindMasquerade = createJudgmentKitPresentationAcceptanceEvidence({
+  source: validSource,
+  artifact_ref: JUDGMENTKIT_THEME_FIXTURE_ARTIFACT,
+  theme: themeEvidence,
+  extracted_deck_text: {
+    status: "ocr_extracted_text",
+    method: "artifact_bound_ocr",
+    extractor_id: "pinned-ocr-smoke",
+    extractor_version: "1.0.0",
+    config_sha256: "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    artifact_ref: JUDGMENTKIT_THEME_FIXTURE_ARTIFACT,
+    slide_count: 4,
+    raster_text_region_count: 8,
+    entries: [
+      {
+        slide_index: 0,
+        slide_number: 1,
+        confidence: 0.96,
+        text: "Daily handoff Cases that need a bounded decision.",
+      },
+      {
+        slide_index: 1,
+        slide_number: 2,
+        confidence: 0.94,
+        text: "Evidence checked Accept this deck only if rendered previews preserve margins.",
+      },
+      {
+        slide_index: 2,
+        slide_number: 3,
+        confidence: 0.93,
+        text: "A native chart should sit cleanly inside an adapter media frame.",
+      },
+      {
+        slide_index: 3,
+        slide_number: 4,
+        confidence: 0.91,
+        text: "Native tables should export through the adapter without helper errors.",
+      },
+    ],
+  },
+});
+assert.equal(rejectedOcrTextKindMasquerade.acceptance_status, "rejected");
+assert.ok(
+  rejectedOcrTextKindMasquerade.review.findings.some((entry) => entry.id === "ocr_inconclusive"),
+  "OCR status should not exempt ordinary extracted text entries from native text-run completeness.",
+);
 
 const rejectedUnpinnedOcrEvidence = createJudgmentKitPresentationAcceptanceEvidence({
   source: validSource,
@@ -2369,6 +2612,90 @@ const rejectedMissingSource = createJudgmentKitPresentationAcceptanceEvidence({
 assert.equal(rejectedMissingSource.acceptance_status, "rejected");
 assert.ok(
   rejectedMissingSource.review.findings.some((entry) => entry.id === "missing_source"),
+);
+
+const rejectedSkippedSourceLint = createJudgmentKitPresentationAcceptanceEvidence({
+  source_hash: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  source_lint: { status: "skipped", findings: [] },
+  artifact_ref: JUDGMENTKIT_THEME_FIXTURE_ARTIFACT,
+  theme: themeEvidence,
+  extracted_deck_text: completeFixtureDeckText(),
+});
+assert.equal(rejectedSkippedSourceLint.acceptance_status, "rejected");
+assert.ok(
+  rejectedSkippedSourceLint.review.findings.some((entry) => entry.id === "missing_source_lint"),
+  "Source hashes should not bypass adapter import and style linting.",
+);
+
+const rejectedUnboundSourceLint = createJudgmentKitPresentationAcceptanceEvidence({
+  source_hash: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  source_ref: { path: "scripts/presentation-theme/build-actual-fixtures.mjs", kind: "generator" },
+  source_lint: { status: "passed", findings: [] },
+  artifact_ref: JUDGMENTKIT_THEME_FIXTURE_ARTIFACT,
+  theme: themeEvidence,
+  extracted_deck_text: completeFixtureDeckText(),
+});
+assert.equal(rejectedUnboundSourceLint.acceptance_status, "rejected");
+assert.ok(
+  rejectedUnboundSourceLint.review.findings.some((entry) => entry.id === "unbound_source_lint"),
+  "Source lint should be bound to the source_hash or source_ref it audited.",
+);
+
+const rejectedConflictingSourceLintHash = createJudgmentKitPresentationAcceptanceEvidence({
+  source_hash: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  source_ref: { path: "scripts/presentation-theme/build-actual-fixtures.mjs", kind: "generator" },
+  source_lint: {
+    status: "passed",
+    findings: [],
+    source_hash: "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    source_ref: { path: "scripts/presentation-theme/build-actual-fixtures.mjs", kind: "generator" },
+  },
+  artifact_ref: JUDGMENTKIT_THEME_FIXTURE_ARTIFACT,
+  theme: themeEvidence,
+  extracted_deck_text: completeFixtureDeckText(),
+});
+assert.equal(rejectedConflictingSourceLintHash.acceptance_status, "rejected");
+assert.ok(
+  rejectedConflictingSourceLintHash.review.findings.some((entry) => entry.id === "unbound_source_lint"),
+  "A matching source_ref should not override a conflicting source_lint source_hash.",
+);
+
+const rejectedFailedSourceLint = createJudgmentKitPresentationAcceptanceEvidence({
+  source_hash: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  source_lint: {
+    status: "failed",
+    findings: [],
+    source_hash: "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  },
+  artifact_ref: JUDGMENTKIT_THEME_FIXTURE_ARTIFACT,
+  theme: themeEvidence,
+  extracted_deck_text: completeFixtureDeckText(),
+});
+assert.equal(rejectedFailedSourceLint.acceptance_status, "rejected");
+assert.ok(
+  rejectedFailedSourceLint.review.findings.some((entry) => entry.id === "source_lint_failed"),
+  "Failed source lint status should reject evidence even when findings are omitted.",
+);
+
+const suppliedMismatchedSourceHash = "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+const rejectedMismatchedDirectSourceHash = createJudgmentKitPresentationAcceptanceEvidence({
+  source: validSource,
+  source_hash: suppliedMismatchedSourceHash,
+  artifact_ref: JUDGMENTKIT_THEME_FIXTURE_ARTIFACT,
+  theme: themeEvidence,
+  extracted_deck_text: completeFixtureDeckText(),
+});
+assert.equal(rejectedMismatchedDirectSourceHash.acceptance_status, "rejected");
+assert.equal(rejectedMismatchedDirectSourceHash.source_hash, suppliedMismatchedSourceHash);
+assert.equal(
+  rejectedMismatchedDirectSourceHash.source_lint.source_hash,
+  crypto.createHash("sha256").update(validSource).digest("hex"),
+);
+assert.ok(
+  rejectedMismatchedDirectSourceHash.review.findings.some(
+    (entry) => entry.id === "source_hash_mismatch",
+  ),
+  "Acceptance helper should not hide a caller-supplied source_hash mismatch for direct source text.",
 );
 
 const rejectedEvidence = createJudgmentKitPresentationAcceptanceEvidence({

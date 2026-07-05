@@ -54,17 +54,17 @@
     },
     "token_sets": {
       "light": {
-        "--jk-color-canvas": "#f8f7f2",
-        "--jk-color-surface": "#ffffff",
+        "--jk-color-canvas": "#ffffff",
+        "--jk-color-surface": "#f4f4f4",
         "--jk-color-text": "#171717",
-        "--jk-color-muted": "#61615c",
-        "--jk-color-border": "#d7d3c8",
-        "--jk-color-focus": "#245f73",
+        "--jk-color-muted": "#666666",
+        "--jk-color-border": "#d9d9d9",
+        "--jk-color-focus": "#156082",
         "--jk-color-success": "#2e6b48",
         "--jk-color-warning": "#8a5a16",
         "--jk-color-risk": "#8f342f",
-        "--jk-color-disabled": "#8a8f93",
-        "--jk-color-receipt": "#23615f"
+        "--jk-color-disabled": "#999999",
+        "--jk-color-receipt": "#467886"
       },
       "dark": {
         "--jk-color-canvas": "#101312",
@@ -86,6 +86,13 @@
       "registerJudgmentKitStyles",
       "createJudgmentKitDeckKit",
       "createJudgmentKitLayout",
+      "createJudgmentKitPresentationTemplateRegistry",
+      "listJudgmentKitPresentationTemplates",
+      "getJudgmentKitPresentationTemplate",
+      "rankJudgmentKitPresentationTemplates",
+      "selectJudgmentKitPresentationTemplate",
+      "composeJudgmentKitPresentationTemplate",
+      "JUDGMENTKIT_PRESENTATION_TEMPLATE_REGISTRY",
       "JUDGMENTKIT_SLIDE_SIZE",
       "JUDGMENTKIT_PPTX_THEME_COLORS",
       "JUDGMENTKIT_TEXT_STYLE_CONFIGS",
@@ -97,7 +104,7 @@
   "artifact_ref": {
     "kind": "pptx",
     "path": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3.pptx",
-    "sha256": "19cda77d1ec7e24e91f58ecce07569ae7143682b0b8e9ab2d1a78b8c80b537aa"
+    "sha256": "3dd523e940a13841385f7b1f3cc24c3870492fab03cd75307fdae10a09a285e8"
   },
   "source_ref": {
     "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
@@ -106,27 +113,32 @@
   "source_hash": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0",
   "source_lint": {
     "status": "passed",
-    "findings": []
+    "findings": [],
+    "source_hash": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0",
+    "source_ref": {
+      "kind": "generator",
+      "path": "scripts/presentation-theme/build-actual-fixtures.mjs"
+    }
   },
   "theme": {
     "id": "judgmentkit.presentation-theme.adapter-v1",
     "color_scheme": {
-      "accent1": "#245f73",
-      "accent2": "#23615f",
+      "accent1": "#156082",
+      "accent2": "#467886",
       "accent3": "#2e6b48",
       "accent4": "#8a5a16",
       "accent5": "#8f342f",
-      "accent6": "#d7d3c8",
-      "bg1": "#f8f7f2",
-      "bg2": "#ffffff",
+      "accent6": "#d9d9d9",
+      "bg1": "#ffffff",
+      "bg2": "#f4f4f4",
       "tx1": "#171717",
-      "tx2": "#61615c",
+      "tx2": "#666666",
       "dk1": "#171717",
-      "dk2": "#61615c",
-      "lt1": "#f8f7f2",
-      "lt2": "#ffffff",
-      "hlink": "#245f73",
-      "folHlink": "#23615f"
+      "dk2": "#666666",
+      "lt1": "#ffffff",
+      "lt2": "#f4f4f4",
+      "hlink": "#156082",
+      "folHlink": "#467886"
     },
     "style_ids": [
       "JK.Display",
@@ -170,12 +182,33 @@
   "text_authority": {
     "status": "extracted",
     "method": "artifact_tool_import_pptx_inspect_ndjson",
-    "artifact_sha256": "19cda77d1ec7e24e91f58ecce07569ae7143682b0b8e9ab2d1a78b8c80b537aa",
+    "artifact_sha256": "3dd523e940a13841385f7b1f3cc24c3870492fab03cd75307fdae10a09a285e8",
     "extractor_id": "PresentationFile.importPptx.inspect",
     "slide_count": 1,
     "authoritative_slide_count": 1,
     "text_run_count": 19,
     "raster_text_region_count": 0,
+    "confidence_buckets": [
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing"
+    ],
     "normalized_text_hashes": [
       "ce67c363075c0fcb489fdeac12334fffecaee9167e2aa5da83c4f90f6166329e"
     ],
@@ -315,7 +348,12 @@
     "acceptance_status": "accepted",
     "source_lint": {
       "status": "passed",
-      "findings": []
+      "findings": [],
+      "source_hash": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0",
+      "source_ref": {
+        "kind": "generator",
+        "path": "scripts/presentation-theme/build-actual-fixtures.mjs"
+      }
     },
     "warnings": [],
     "findings": []

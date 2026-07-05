@@ -3,7 +3,7 @@
   "entries": [
     {
       "artifact_kind": "webp",
-      "byte_size": 35368,
+      "byte_size": 34364,
       "case_id": "jk-theme-canonical-16x9",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9.webp",
@@ -13,17 +13,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
       ],
-      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
-      "sha256": "fb579d8d84ce5fdebd3adf816ca98f3fdbce6960be49bb169b95075243f54e39",
+      "semantic_guard_sha256": "e5d80cfdd8d56741b8a1ddf9fe1315c290065c44c3e94804029883700db319a9",
+      "sha256": "1c8eb5f6e66552562b7b764d30d4ebbe391a4608a7023cc0e018ce9c39de67d9",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "png",
-      "byte_size": 71549,
+      "byte_size": 69932,
       "case_id": "jk-theme-canonical-16x9",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-01.png",
@@ -33,17 +86,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
       ],
-      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
-      "sha256": "7e2e20384c54c8463ba188b6c530d11a66df206cc4da58fd90bd3924fc19e3ff",
+      "semantic_guard_sha256": "e5d80cfdd8d56741b8a1ddf9fe1315c290065c44c3e94804029883700db319a9",
+      "sha256": "9413b0275ba486798b06183eed54ba546c9ae97920c379098773a29154d4d09c",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "png",
-      "byte_size": 80469,
+      "byte_size": 78303,
       "case_id": "jk-theme-canonical-16x9",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-02.png",
@@ -53,17 +159,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
       ],
-      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
-      "sha256": "1e9034459572430496f1766073ba816925d49df00eebedeec4e255e66a0a2b7d",
+      "semantic_guard_sha256": "e5d80cfdd8d56741b8a1ddf9fe1315c290065c44c3e94804029883700db319a9",
+      "sha256": "cee36936d46a06f9ab1ac64f050accf3e85fb4d8c30be732be2b76e5c97772a7",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "png",
-      "byte_size": 27997,
+      "byte_size": 26775,
       "case_id": "jk-theme-canonical-16x9",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-03.png",
@@ -73,17 +232,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
       ],
-      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
-      "sha256": "febba12e1d3b9642b5a628378bc0430f814262bc9dd74fad0d71eb8097459f11",
+      "semantic_guard_sha256": "e5d80cfdd8d56741b8a1ddf9fe1315c290065c44c3e94804029883700db319a9",
+      "sha256": "025a2e4bd0fabcc4bef63b5e263dbe93509f41b21833cf8cc8190453978413c5",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "png",
-      "byte_size": 83743,
+      "byte_size": 79826,
       "case_id": "jk-theme-canonical-16x9",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-04.png",
@@ -93,17 +305,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
       ],
-      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
-      "sha256": "8a1621ba708992c8c3a0ce02104bf25bd17b24a84cc7b6c9b09b076d706b2088",
+      "semantic_guard_sha256": "e5d80cfdd8d56741b8a1ddf9fe1315c290065c44c3e94804029883700db319a9",
+      "sha256": "ed73b38282d8dcb962d1fb0c2dab466dbd50b7d3222f0d2a1581c3eb638be2cb",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "webp",
-      "byte_size": 34898,
+      "byte_size": 33922,
       "case_id": "jk-theme-compact-review",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-compact-review.webp",
@@ -113,17 +378,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson"
       ],
-      "semantic_guard_sha256": "4037a24f5a8b5eaec4a5c5b30de85c3fc7a0556299ab8678190794e61f2314d0",
-      "sha256": "a60abe835412428dc2208928c8befb9421cb2f4825ff49f33d2580b07e6bed06",
+      "semantic_guard_sha256": "c055b54880329be1f9fb9774cace159716c33e2c339798e31118737aa2eb8c79",
+      "sha256": "858bf446ba6f444e2c22435c6e90afa5d738ce2d49f2538611e2a87200d94708",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "png",
-      "byte_size": 70030,
+      "byte_size": 68766,
       "case_id": "jk-theme-compact-review",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-compact-review/slide-01.png",
@@ -133,17 +451,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson"
       ],
-      "semantic_guard_sha256": "4037a24f5a8b5eaec4a5c5b30de85c3fc7a0556299ab8678190794e61f2314d0",
-      "sha256": "07408c7c04aa7e501870611c16e3a5250344083606d35b8eeb01cd3f033f55e6",
+      "semantic_guard_sha256": "c055b54880329be1f9fb9774cace159716c33e2c339798e31118737aa2eb8c79",
+      "sha256": "bc132769e7085a54e63dfe5be8b60a0e661762e34af1310cda8211da0e716434",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "webp",
-      "byte_size": 43782,
+      "byte_size": 42418,
       "case_id": "jk-theme-custom-4x3",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-custom-4x3.webp",
@@ -153,17 +524,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson"
       ],
-      "semantic_guard_sha256": "0e114ebc97062343e05fdb84f9dde2bd939d95a17c7f72db816fb907d364bb02",
-      "sha256": "f65a5e0c368d9b552e8dbddb1d91daf5669ae1d9cc2d359548579a9562f84408",
+      "semantic_guard_sha256": "0210f5f4fd90f835ca8dfc45ce9e42a8f01ef7d2372bfe4627120192c15610e5",
+      "sha256": "533cce08b1f67f66bed3c9523c38ef5128236a2f6fe96f0d5704a6c67a3edd51",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "png",
-      "byte_size": 94802,
+      "byte_size": 92282,
       "case_id": "jk-theme-custom-4x3",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-custom-4x3/slide-01.png",
@@ -173,54 +597,266 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson"
       ],
-      "semantic_guard_sha256": "0e114ebc97062343e05fdb84f9dde2bd939d95a17c7f72db816fb907d364bb02",
-      "sha256": "28491469f64f6d59883e95b9e6657037bb6f2751f18a5611894f30cf38155995",
+      "semantic_guard_sha256": "0210f5f4fd90f835ca8dfc45ce9e42a8f01ef7d2372bfe4627120192c15610e5",
+      "sha256": "851c673b863bfab7087e5ea76a09064ab8854165b5442504cf6cd69b476e88d8",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "evidence",
-      "byte_size": 11296,
+      "byte_size": 12812,
       "case_id": "jk-theme-canonical-16x9",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
       "review_path": "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
-      "sha256": "1cafb3fe3083840e6c1c6def04f2b155844998c1d3d22370fc0cdca38e2c38a2",
+      "sha256": "a8815f1c31a0e7b546e0d99402355a2d24b211ae83d2471feb162b9d05864914",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "evidence",
-      "byte_size": 7576,
+      "byte_size": 8616,
       "case_id": "jk-theme-compact-review",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
       "review_path": "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
-      "sha256": "b8fedab424816667d7393e63b709caa3faed636d378316d40bc809e529bddb72",
+      "sha256": "af77f8a2c53ea152060ac6c191756298be5d015575fa68d12cef4bca87e13cbe",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "evidence",
-      "byte_size": 8182,
+      "byte_size": 9307,
       "case_id": "jk-theme-custom-4x3",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
       "review_path": "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
-      "sha256": "ee2e3436b4960acaa2fb433a91805ae5ee2847195f53da1122f5ebfab7bea865",
+      "sha256": "cf849cb20a7c669f7ce640a456142167d02ba5e6106126df2abcd0f31668a11a",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -230,11 +866,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-01.layout.json",
       "review_path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-01.layout.json",
-      "sha256": "59065fc77ecf4b9e950e989c45d690d8e711059d6f5723eba93ffc01726aa824",
+      "sha256": "ff55d19e78ae8278f433ddcf4b19cdb2e8a0c7c007b82134901114b89c82ea6f",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -244,11 +933,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-02.layout.json",
       "review_path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-02.layout.json",
-      "sha256": "f679e1c55003dc05729518879128e6c776de3ebadbb4a6051c52b926fa3d95eb",
+      "sha256": "efaeac686f2a7fe42d56df025df69893f44436ea295af9a61efdd8d155e23205",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -258,11 +1000,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-03.layout.json",
       "review_path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-03.layout.json",
-      "sha256": "a608ca001caeef68a1440a236b7b28be1cf0e32411b80d541a40a7313eb4fe68",
+      "sha256": "5d41c56597ef079137537430cda7b1a0707188bd545ae99d4b338d06e10bbdc8",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -272,11 +1067,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-04.layout.json",
       "review_path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-04.layout.json",
-      "sha256": "bee83bd17bcf10b1a8bc48f89bc4467ab10574e18b4f9ccfeab62149538ae3d9",
+      "sha256": "17c612e329c3138019dbd13e701c8d5140259b47303e6c89961fb074968beaff",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -286,11 +1134,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-compact-review/slide-01.layout.json",
       "review_path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-compact-review/slide-01.layout.json",
-      "sha256": "932a244c6c0cab79e2bc2a3fa33aa5483bb9f47b029e1097cde686903ba52033",
+      "sha256": "49e5ad421b60802025aa1e71bcc99bc2ba650409f2224350a3588f1ac2d0ed8f",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -300,11 +1201,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-custom-4x3/slide-01.layout.json",
       "review_path": "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-custom-4x3/slide-01.layout.json",
-      "sha256": "da3ea9c199c75e17207b75bf71aa5f9ea043aa5e21b165577734bbc399b1c4c4",
+      "sha256": "3c8e80e4dfbe15149b4708ecd73f1ba40f741bc781a08937550c065fb79d476b",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -314,11 +1268,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson",
       "review_path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson",
-      "sha256": "27201785e95bd495cba8d683ed893feb3fa60184d9b40a1e1fd02dc20653184d",
+      "sha256": "bb090e4cfda55243dc36b3a629c534ba5f9e710f33f195adff3e791682f32570",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -328,11 +1335,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.ndjson",
       "review_path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.ndjson",
-      "sha256": "3b1374022bf020cfe52d3d8cddc30ffbe1cd4b11462510d3021708e4232f6b68",
+      "sha256": "00121f92da823e220bb6f3421f5a2ca3240b0482a43dc61a2ac4d631ee3b2ebd",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -342,11 +1402,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson",
       "review_path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson",
-      "sha256": "5d80756ad6f6a02412685f9f27b55ae7c527c2643ac4069358396c750415bf16",
+      "sha256": "20a836253fe7ea125752e58032ee334bedf4521a5f4c9b82566237ab2a52c5f0",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -356,11 +1469,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.ndjson",
       "review_path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.ndjson",
-      "sha256": "e9b1db57bba543f5cb9f31c89d3cc47bfe27bf1f66d2ab6b15ab1f21ffecc758",
+      "sha256": "4b9c66e243516bc92b4202412e58c2bcb9e06ae2a123c483466700b1eb13cb4d",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -372,9 +1538,62 @@
       "review_path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson",
       "sha256": "5b5719f4b6bf9fb1668401699e1e9af2978babb7bfe92ca209b9f7a9a52aecbd",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -384,16 +1603,69 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.ndjson",
       "review_path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.ndjson",
-      "sha256": "1a46ff71403a5ddebc3019219825da6dda54f254c104eef874e6e84510e80b6f",
+      "sha256": "b823ef899c84907839dbeb7a078fb716baa1df45455bb6ec25790f4060354ec8",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "montage",
-      "byte_size": 102251,
+      "byte_size": 92118,
       "case_id": "jk-theme-canonical-16x9",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9-montage.png",
@@ -403,17 +1675,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
       ],
-      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
-      "sha256": "3687425f1c0b619f38bd8d296cae5c3b9a2722e049f3b4977f85811185fb1a23",
+      "semantic_guard_sha256": "e5d80cfdd8d56741b8a1ddf9fe1315c290065c44c3e94804029883700db319a9",
+      "sha256": "c4570ebc442b4e5889c5b95719280ba3b05a995ad2dad050efdf384b0750a344",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "pptx",
-      "byte_size": 22764,
+      "byte_size": 22765,
       "case_id": "jk-theme-canonical-16x9",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9.pptx",
@@ -423,17 +1748,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
       ],
-      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
-      "sha256": "60974849f620c3547006c0be15bdaf28d94448466041db141f36a504713c5b8f",
+      "semantic_guard_sha256": "e5d80cfdd8d56741b8a1ddf9fe1315c290065c44c3e94804029883700db319a9",
+      "sha256": "9c1e670984336980f892d6960cec99e0e6caebd4a1e7d2fab21a5732d528355c",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "png",
-      "byte_size": 94210,
+      "byte_size": 91249,
       "case_id": "jk-theme-canonical-16x9",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-1.png",
@@ -443,17 +1821,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
       ],
-      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
-      "sha256": "c87c4b313d4aab3cbad57809b62014cb2738bb9f2b49210ba7432db8a8a17ee7",
+      "semantic_guard_sha256": "e5d80cfdd8d56741b8a1ddf9fe1315c290065c44c3e94804029883700db319a9",
+      "sha256": "caffacd03804180dba1f9b6adc85d373841c7dc0c41f17c6098dca5aa5b19139",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "png",
-      "byte_size": 105162,
+      "byte_size": 104597,
       "case_id": "jk-theme-canonical-16x9",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-2.png",
@@ -463,17 +1894,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
       ],
-      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
-      "sha256": "fb21a08184abbcd5a1a0359648a7588f70d7dac4ee997ee468512940b386a5ad",
+      "semantic_guard_sha256": "e5d80cfdd8d56741b8a1ddf9fe1315c290065c44c3e94804029883700db319a9",
+      "sha256": "f8ed3120e40172f6bea98a6f7a4ddfe4d195e6b92330b229d20d6ec71957163d",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "png",
-      "byte_size": 39757,
+      "byte_size": 38201,
       "case_id": "jk-theme-canonical-16x9",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-3.png",
@@ -483,17 +1967,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
       ],
-      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
-      "sha256": "00c34caa0080e50e7dcc7f6a8bfbc0863a09c2de1432421bb00eb3dceca6707f",
+      "semantic_guard_sha256": "e5d80cfdd8d56741b8a1ddf9fe1315c290065c44c3e94804029883700db319a9",
+      "sha256": "967f58de5e806935e1926c891a693fccea53a99c86076960ced22ea0058e18f6",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "png",
-      "byte_size": 108305,
+      "byte_size": 104369,
       "case_id": "jk-theme-canonical-16x9",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-4.png",
@@ -503,17 +2040,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson"
       ],
-      "semantic_guard_sha256": "cb82a36b5c7da40bd4f6a4a5610e6a1a2f5a880a0fcaef5b6037106685bf7c0e",
-      "sha256": "9ca33f6137732dd375b1931db743465dfd8be4f3e9f980855a5bc53cc7c67ace",
+      "semantic_guard_sha256": "e5d80cfdd8d56741b8a1ddf9fe1315c290065c44c3e94804029883700db319a9",
+      "sha256": "f476b958ddc902434f732a9dbaecd982162a1135e2f1a1d408b0cd3d4dde4dc6",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "montage",
-      "byte_size": 39510,
+      "byte_size": 40695,
       "case_id": "jk-theme-compact-review",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/jk-theme-compact-review-montage.png",
@@ -523,17 +2113,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson"
       ],
-      "semantic_guard_sha256": "4037a24f5a8b5eaec4a5c5b30de85c3fc7a0556299ab8678190794e61f2314d0",
-      "sha256": "e99d44c9128ff74989c169eb48fd4a99032c913c3d35d091801d22693eb0a1bb",
+      "semantic_guard_sha256": "c055b54880329be1f9fb9774cace159716c33e2c339798e31118737aa2eb8c79",
+      "sha256": "a1a82afdbaa09e77af8bd523cc7dcec0e95c0fcd4e68eaadbc1fd882a3416e8b",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "pptx",
-      "byte_size": 13175,
+      "byte_size": 13159,
       "case_id": "jk-theme-compact-review",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/jk-theme-compact-review.pptx",
@@ -543,17 +2186,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson"
       ],
-      "semantic_guard_sha256": "4037a24f5a8b5eaec4a5c5b30de85c3fc7a0556299ab8678190794e61f2314d0",
-      "sha256": "ccb2231f1a8b63213eb13a03de93d9b5f5da1770d0636dfd2a539fdf21845887",
+      "semantic_guard_sha256": "c055b54880329be1f9fb9774cace159716c33e2c339798e31118737aa2eb8c79",
+      "sha256": "51e688b8884858cbd2e5c63bf5d49c43ace7ea61077cb34007252516763be35d",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "png",
-      "byte_size": 125925,
+      "byte_size": 124191,
       "case_id": "jk-theme-compact-review",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/jk-theme-compact-review/slide-1.png",
@@ -563,17 +2259,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson"
       ],
-      "semantic_guard_sha256": "4037a24f5a8b5eaec4a5c5b30de85c3fc7a0556299ab8678190794e61f2314d0",
-      "sha256": "28a4063228ea0c03e6f841d56d6c512bdb25880ddbd3669c44eed96d42614818",
+      "semantic_guard_sha256": "c055b54880329be1f9fb9774cace159716c33e2c339798e31118737aa2eb8c79",
+      "sha256": "e204fb2dcedc8d5e4538b4bba8e6a805dfc36cacee7ba2d0d269f366175e0158",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "montage",
-      "byte_size": 35044,
+      "byte_size": 33099,
       "case_id": "jk-theme-custom-4x3",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3-montage.png",
@@ -583,17 +2332,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson"
       ],
-      "semantic_guard_sha256": "0e114ebc97062343e05fdb84f9dde2bd939d95a17c7f72db816fb907d364bb02",
-      "sha256": "04110705cddbd246b38c3f95fd1e5976da738abae98c1a32df7b031f8474473e",
+      "semantic_guard_sha256": "0210f5f4fd90f835ca8dfc45ce9e42a8f01ef7d2372bfe4627120192c15610e5",
+      "sha256": "a10ff4d0691db6101147d229dea7480e0214bf87873df5f62dbe971e78cd07a6",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "pptx",
-      "byte_size": 13329,
+      "byte_size": 13310,
       "case_id": "jk-theme-custom-4x3",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3.pptx",
@@ -603,17 +2405,70 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson"
       ],
-      "semantic_guard_sha256": "0e114ebc97062343e05fdb84f9dde2bd939d95a17c7f72db816fb907d364bb02",
-      "sha256": "19cda77d1ec7e24e91f58ecce07569ae7143682b0b8e9ab2d1a78b8c80b537aa",
+      "semantic_guard_sha256": "0210f5f4fd90f835ca8dfc45ce9e42a8f01ef7d2372bfe4627120192c15610e5",
+      "sha256": "3dd523e940a13841385f7b1f3cc24c3870492fab03cd75307fdae10a09a285e8",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "png",
-      "byte_size": 115339,
+      "byte_size": 111533,
       "case_id": "jk-theme-custom-4x3",
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3/slide-1.png",
@@ -623,12 +2478,65 @@
         "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
         "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson"
       ],
-      "semantic_guard_sha256": "0e114ebc97062343e05fdb84f9dde2bd939d95a17c7f72db816fb907d364bb02",
-      "sha256": "67aaa241943975050120bc2031581e03c15d4eff6ed9bd3eb78afa9354e32aee",
+      "semantic_guard_sha256": "0210f5f4fd90f835ca8dfc45ce9e42a8f01ef7d2372bfe4627120192c15610e5",
+      "sha256": "11eb84ceba2a878429efd97a90a411f0b3961730e85904a437da0591fc034449",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -638,11 +2546,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-01.layout.json",
       "review_path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-01.layout.json",
-      "sha256": "eefbfe627976fb28fe8c7b77f86ee1b5b3847db36d129086855b983430794988",
+      "sha256": "478ce521f26181da9fb10aac4d2415fe5c5580c56cc4b0ed130ea306b92d493d",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -652,11 +2613,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-02.layout.json",
       "review_path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-02.layout.json",
-      "sha256": "af92ecf24339401956646bd6109f842333dfa1cbf029007b5e5b451ffef7ea92",
+      "sha256": "f4e714281d87e1b064d60f775381110d4f2190007871be4c15e020a0620db94e",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -666,11 +2680,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-03.layout.json",
       "review_path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-03.layout.json",
-      "sha256": "b81380ce2d2f523bec2179b724d18f703b723f1295a11969bd2d85582d959943",
+      "sha256": "627b2835d22f33e60c08828fc211a4f62fffdf6314fecf88e1d8e158a00da5f1",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -680,11 +2747,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-04.layout.json",
       "review_path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-04.layout.json",
-      "sha256": "6588c2e38f92837b4077693bd32f91a3b679865a4630b364e4df2f59584cfc1b",
+      "sha256": "06fde78b74d6dfd74c51f7ca268173cd2e4f037888e6b275829aada569297dc2",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -694,11 +2814,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-compact-review/slide-01.layout.json",
       "review_path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-compact-review/slide-01.layout.json",
-      "sha256": "883634a8a1d827f1e40e65ddb610923b2da07642a4cb40072f9ca7e1b356dc68",
+      "sha256": "3b786985bfbdccf2ec902312cde2e0582e93a1763aebe8c88c9b828084ae8e1c",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -708,24 +2881,130 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-custom-4x3/slide-01.layout.json",
       "review_path": "outputs/presentation-theme-actual-tests/layouts/jk-theme-custom-4x3/slide-01.layout.json",
-      "sha256": "729b52cddd5247df3b8470864b9fb026a17fa2b59464d1521f9fc829d9123dce",
+      "sha256": "49ac8f974e6e2d9f4b7c883cb167fe58b12188ac4331edb096b2c9d60863e4f1",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "manifest",
-      "byte_size": 38828,
+      "byte_size": 42642,
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/manifest.json",
       "review_path": "outputs/presentation-theme-actual-tests/manifest.json",
-      "sha256": "aba4a0b4e45a5345cad4881ad5761160463b299df97ca6c7cbace9697a5361e0",
+      "sha256": "f6540c3ff57dcf63f9d19055ffd84a3647da47b390a44b56c5e4941260ab4a71",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -736,22 +3015,128 @@
       "review_path": "outputs/presentation-theme-actual-tests/README.md",
       "sha256": "ce2fb3929a380b2bc76cdfb596b29faaf55551ddb562f4bb5ac359244d17d22a",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
       "artifact_kind": "manifest",
-      "byte_size": 53178,
+      "byte_size": 56991,
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/review-summary.json",
       "review_path": "outputs/presentation-theme-actual-tests/review-summary.json",
-      "sha256": "5d06fcac131712a3e890f2dfeffb71e7e09c9d6946f3319e5db676e8c7a42cbe",
+      "sha256": "b4dc73acc1d42f5dea585a248a1d90bd3922f7365a56d630e3c1f035cca9f305",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -761,11 +3146,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
       "review_path": "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
-      "sha256": "7e229893057c0d05a5b3e6d9b8b7f7e84acb4e94769d41f04e033646cb74d403",
+      "sha256": "2362570b16c6850463bbef2251c7c3ff1b9684c996497f45d23ab5398df3b1ac",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -775,11 +3213,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
       "review_path": "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
-      "sha256": "e62a09ff8c14c52f58d5bc935aecc748894f88d9bff8a158713a942551eae9be",
+      "sha256": "c9d6f9966419f8dd32535b1594a1197e852b19955153b5931d06f39dc69dfe75",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     },
     {
@@ -789,11 +3280,64 @@
       "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
       "path": "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
       "review_path": "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json",
-      "sha256": "6397f41b72745270a1fde69d057ca107c26aa320957638f4459317f2af5beaf6",
+      "sha256": "06e18d9d6691847646b7d0455becc43af1c0fb6b043694cb5c94a887a9b9a71a",
       "source_inputs": [
-        "scripts/presentation-theme/build-actual-fixtures.mjs",
-        "src/presentation-theme/templates.mjs",
-        "src/presentation-theme/template-layout-data.mjs"
+        {
+          "path": "scripts/presentation-theme/actual-constants.mjs",
+          "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+        },
+        {
+          "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+          "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+        },
+        {
+          "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+          "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+        },
+        {
+          "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+          "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+        },
+        {
+          "path": "scripts/presentation-theme/run-actual-qa.mjs",
+          "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+        },
+        {
+          "path": "src/presentation-theme/components.mjs",
+          "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+        },
+        {
+          "path": "src/presentation-theme/index.mjs",
+          "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+        },
+        {
+          "path": "src/presentation-theme/layout.mjs",
+          "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+        },
+        {
+          "path": "src/presentation-theme/qa.mjs",
+          "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+        },
+        {
+          "path": "src/presentation-theme/styles.mjs",
+          "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+        },
+        {
+          "path": "src/presentation-theme/template-layout-data.mjs",
+          "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+        },
+        {
+          "path": "src/presentation-theme/templates.mjs",
+          "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+        },
+        {
+          "path": "src/presentation-theme/theme.mjs",
+          "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+        },
+        {
+          "path": "src/presentation-theme/tokens.mjs",
+          "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+        }
       ]
     }
   ],
@@ -1928,13 +4472,13 @@
     "source_inputs": [
       {
         "path": "src/presentation-theme/templates.mjs",
-        "sha256": "d1d1a8a02e15b84c266649b143681981ddeceeb40976a20b086cf732278cc944"
+        "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
       },
       {
         "path": "src/presentation-theme/template-layout-data.mjs",
         "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
       }
     ],
-    "source_sha256": "d1d1a8a02e15b84c266649b143681981ddeceeb40976a20b086cf732278cc944"
+    "source_sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
   }
 }

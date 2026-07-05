@@ -260,6 +260,12 @@ export function registerJudgmentKitStyles(presentation, options = {}) {
   }
 
   if (registeredSurfaces.length === 0) {
+    if (options.strict) {
+      throw new Error(
+        "registerJudgmentKitStyles strict mode requires artifact-tool style APIs: presentation.theme.textStyles or presentation.styles.add.",
+      );
+    }
+
     const registeredFallback = fallbackStyleRegistration(
       presentation,
       textStyleConfigs,
@@ -267,10 +273,6 @@ export function registerJudgmentKitStyles(presentation, options = {}) {
 
     if (registeredFallback) {
       registeredSurfaces.push("presentation.judgmentKitTextStyles");
-    } else if (options.strict) {
-      throw new Error(
-        "registerJudgmentKitStyles could not find artifact-tool style APIs on the presentation.",
-      );
     }
   }
 

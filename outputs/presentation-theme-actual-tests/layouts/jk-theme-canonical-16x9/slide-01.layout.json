@@ -2,13 +2,13 @@
   "schema": "openai.presentation.layout/v4",
   "unit": "px",
   "slide": {
-    "aid": "sl/1xjvgs",
-    "id": "1xjvgs",
+    "aid": "sl/bd7qx0",
+    "id": "bd7qx0",
     "slide": 1,
-    "layoutId": "3e35faba-4fe8-4fe5-aace-796987e28d35",
+    "layoutId": "0b19083d-ee62-4769-b2a6-0efff82f0fc1",
     "layoutName": "Title Slide",
     "layoutType": "title",
-    "masterLayoutId": "4ad3837c-cd04-4a09-a003-a4929be46836",
+    "masterLayoutId": "54a665fc-aa1b-4e70-ad27-8c94562d3402",
     "masterLayoutName": "Master",
     "backgroundColor": "bg1",
     "frame": {
@@ -21,22 +21,22 @@
   "theme": {
     "colorSchemeName": "JudgmentKit Light",
     "colors": {
-      "accent1": "#245F73",
-      "accent2": "#23615F",
+      "accent1": "#156082",
+      "accent2": "#467886",
       "accent3": "#2E6B48",
       "accent4": "#8A5A16",
       "accent5": "#8F342F",
-      "accent6": "#D7D3C8",
-      "bg1": "#F8F7F2",
-      "bg2": "#FFFFFF",
+      "accent6": "#D9D9D9",
+      "bg1": "#FFFFFF",
+      "bg2": "#F4F4F4",
       "tx1": "#171717",
-      "tx2": "#61615C",
+      "tx2": "#666666",
       "dk1": "#171717",
-      "dk2": "#61615C",
-      "lt1": "#F8F7F2",
-      "lt2": "#FFFFFF",
-      "hlink": "#245F73",
-      "folHlink": "#23615F"
+      "dk2": "#666666",
+      "lt1": "#FFFFFF",
+      "lt2": "#F4F4F4",
+      "hlink": "#156082",
+      "folHlink": "#467886"
     },
     "typefaces": [
       "+mn-lt"
@@ -45,15 +45,15 @@
   "inheritedLayers": [
     {
       "scope": "layout",
-      "id": "3e35faba-4fe8-4fe5-aace-796987e28d35",
+      "id": "0b19083d-ee62-4769-b2a6-0efff82f0fc1",
       "name": "Title Slide",
       "type": "title",
-      "parentLayoutId": "4ad3837c-cd04-4a09-a003-a4929be46836",
+      "parentLayoutId": "54a665fc-aa1b-4e70-ad27-8c94562d3402",
       "elements": []
     },
     {
       "scope": "master",
-      "id": "4ad3837c-cd04-4a09-a003-a4929be46836",
+      "id": "54a665fc-aa1b-4e70-ad27-8c94562d3402",
       "name": "Master",
       "type": "master",
       "elements": []
@@ -64,7 +64,7 @@
       "order": 1,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/val87ed8",
+      "aid": "sh/kzupwb2h",
       "id": "1",
       "name": "judgmentkit-title-block-eyebrow",
       "bbox": [
@@ -152,7 +152,7 @@
       "order": 2,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/kre1w7mp",
+      "aid": "sh/re1w7mp0",
       "id": "2",
       "name": "judgmentkit-title-block-title",
       "bbox": [
@@ -248,7 +248,7 @@
       "order": 3,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/dcbulwva",
+      "aid": "sh/2t83itgf",
       "id": "3",
       "name": "judgmentkit-title-block-subtitle",
       "bbox": [
@@ -341,7 +341,7 @@
       "order": 4,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/2x4nap4r",
+      "aid": "sh/9w3m94fu",
       "id": "4",
       "name": "judgmentkit-status-pill-surface",
       "bbox": [
@@ -363,7 +363,7 @@
       "order": 5,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/vixczed8",
+      "aid": "sh/kb6xkf6d",
       "id": "5",
       "name": "judgmentkit-status-pill-label",
       "bbox": [
@@ -451,7 +451,7 @@
       "order": 6,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/k3q5o7qp",
+      "aid": "sh/rqd4vmtw",
       "id": "6",
       "name": "canonical-metric-1-surface",
       "bbox": [
@@ -473,7 +473,7 @@
       "order": 7,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/donyd0z6",
+      "aid": "sh/25kb6xkf",
       "id": "7",
       "name": "canonical-metric-1-label",
       "bbox": [
@@ -561,7 +561,7 @@
       "order": 8,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/29gr2p8n",
+      "aid": "sh/94fu18jq",
       "id": "8",
       "name": "canonical-metric-1-value",
       "bbox": [
@@ -649,7 +649,7 @@
       "order": 9,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/vu9knih4",
+      "aid": "sh/kjm1cfa9",
       "id": "9",
       "name": "canonical-metric-1-detail",
       "bbox": [
@@ -734,7 +734,7 @@
       "order": 10,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/3ylc7u54",
+      "aid": "sh/mlkjm1cf",
       "id": "10",
       "name": "canonical-metric-2-surface",
       "bbox": [
@@ -756,7 +756,7 @@
       "order": 11,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/adsji5sn",
+      "aid": "sh/f6dcbulw",
       "id": "11",
       "name": "canonical-metric-2-label",
       "bbox": [
@@ -844,7 +844,7 @@
       "order": 12,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/h4byhgn2",
+      "aid": "sh/4r65wjud",
       "id": "12",
       "name": "canonical-metric-2-value",
       "bbox": [
@@ -932,7 +932,7 @@
       "order": 13,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/sji5snel",
+      "aid": "sh/xc3ylc7u",
       "id": "13",
       "name": "canonical-metric-2-detail",
       "bbox": [
@@ -1017,7 +1017,7 @@
       "order": 14,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/3m94fu18",
+      "aid": "sh/mtwra5gb",
       "id": "14",
       "name": "canonical-metric-3-surface",
       "bbox": [
@@ -1039,7 +1039,7 @@
       "order": 15,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/a5gbq1or",
+      "aid": "sh/fepkzupw",
       "id": "15",
       "name": "canonical-metric-3-label",
       "bbox": [
@@ -1127,7 +1127,7 @@
       "order": 16,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/lszqtcj6",
+      "aid": "sh/4zidonyd",
       "id": "16",
       "name": "canonical-metric-3-value",
       "bbox": [
@@ -1215,7 +1215,7 @@
       "order": 17,
       "kind": "shape",
       "scope": "slide",
-      "aid": "sh/s72x4nap",
+      "aid": "sh/xkf6dcbu",
       "id": "17",
       "name": "canonical-metric-3-detail",
       "bbox": [
@@ -1399,7 +1399,7 @@
                 },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/val87ed8",
+                  "aid": "sh/kzupwb2h",
                   "id": "1",
                   "kind": "shape"
                 }
@@ -1446,7 +1446,7 @@
                 },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/kre1w7mp",
+                  "aid": "sh/re1w7mp0",
                   "id": "2",
                   "kind": "shape"
                 }
@@ -1493,7 +1493,7 @@
                 },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/dcbulwva",
+                  "aid": "sh/2t83itgf",
                   "id": "3",
                   "kind": "shape"
                 }
@@ -1605,7 +1605,7 @@
                 "children": [],
                 "geometry": "roundRect",
                 "element": {
-                  "aid": "sh/2x4nap4r",
+                  "aid": "sh/9w3m94fu",
                   "id": "4",
                   "kind": "shape"
                 }
@@ -1652,7 +1652,7 @@
                 },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/vixczed8",
+                  "aid": "sh/kb6xkf6d",
                   "id": "5",
                   "kind": "shape"
                 }
@@ -1755,7 +1755,7 @@
                 "children": [],
                 "geometry": "rect",
                 "element": {
-                  "aid": "sh/k3q5o7qp",
+                  "aid": "sh/rqd4vmtw",
                   "id": "6",
                   "kind": "shape"
                 }
@@ -1802,7 +1802,7 @@
                 },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/donyd0z6",
+                  "aid": "sh/25kb6xkf",
                   "id": "7",
                   "kind": "shape"
                 }
@@ -1849,7 +1849,7 @@
                 },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/29gr2p8n",
+                  "aid": "sh/94fu18jq",
                   "id": "8",
                   "kind": "shape"
                 }
@@ -1896,7 +1896,7 @@
                 },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/vu9knih4",
+                  "aid": "sh/kjm1cfa9",
                   "id": "9",
                   "kind": "shape"
                 }
@@ -2017,7 +2017,7 @@
                 "children": [],
                 "geometry": "rect",
                 "element": {
-                  "aid": "sh/3ylc7u54",
+                  "aid": "sh/mlkjm1cf",
                   "id": "10",
                   "kind": "shape"
                 }
@@ -2064,7 +2064,7 @@
                 },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/adsji5sn",
+                  "aid": "sh/f6dcbulw",
                   "id": "11",
                   "kind": "shape"
                 }
@@ -2111,7 +2111,7 @@
                 },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/h4byhgn2",
+                  "aid": "sh/4r65wjud",
                   "id": "12",
                   "kind": "shape"
                 }
@@ -2158,7 +2158,7 @@
                 },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/sji5snel",
+                  "aid": "sh/xc3ylc7u",
                   "id": "13",
                   "kind": "shape"
                 }
@@ -2279,7 +2279,7 @@
                 "children": [],
                 "geometry": "rect",
                 "element": {
-                  "aid": "sh/3m94fu18",
+                  "aid": "sh/mtwra5gb",
                   "id": "14",
                   "kind": "shape"
                 }
@@ -2326,7 +2326,7 @@
                 },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/a5gbq1or",
+                  "aid": "sh/fepkzupw",
                   "id": "15",
                   "kind": "shape"
                 }
@@ -2373,7 +2373,7 @@
                 },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/lszqtcj6",
+                  "aid": "sh/4zidonyd",
                   "id": "16",
                   "kind": "shape"
                 }
@@ -2420,7 +2420,7 @@
                 },
                 "transform": "none",
                 "element": {
-                  "aid": "sh/s72x4nap",
+                  "aid": "sh/xkf6dcbu",
                   "id": "17",
                   "kind": "shape"
                 }

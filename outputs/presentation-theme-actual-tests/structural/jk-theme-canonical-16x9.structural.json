@@ -1,6 +1,6 @@
 {
   "absolute_or_traversal_relationships": [],
-  "bytes": 22764,
+  "bytes": 22765,
   "external_relationships": [],
   "has_content_types": true,
   "has_presentation_xml": true,
@@ -55,18 +55,18 @@
   },
   "theme_colors": {
     "ppt/theme/theme1.xml": {
-      "accent1": "#245f73",
-      "accent2": "#23615f",
+      "accent1": "#156082",
+      "accent2": "#467886",
       "accent3": "#2e6b48",
       "accent4": "#8a5a16",
       "accent5": "#8f342f",
-      "accent6": "#d7d3c8",
+      "accent6": "#d9d9d9",
       "dk1": "#171717",
-      "dk2": "#61615c",
-      "folHlink": "#23615f",
-      "hlink": "#245f73",
-      "lt1": "#f8f7f2",
-      "lt2": "#ffffff"
+      "dk2": "#666666",
+      "folHlink": "#467886",
+      "hlink": "#156082",
+      "lt1": "#ffffff",
+      "lt2": "#f4f4f4"
     }
   },
   "theme_entries": [
