@@ -1,0 +1,2760 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/k4zny1",
+    "id": "k4zny1",
+    "slide": 1,
+    "layoutId": "29b15ed9-a83d-4975-bffd-d6f5c8ae3739",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "c760b58e-1426-4e8d-96a7-afda05af7db9",
+    "masterLayoutName": "Master",
+    "backgroundColor": "bg1",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1024,
+      "height": 768
+    }
+  },
+  "theme": {
+    "colorSchemeName": "JudgmentKit Light",
+    "colors": {
+      "accent1": "#156082",
+      "accent2": "#467886",
+      "accent3": "#2E6B48",
+      "accent4": "#8A5A16",
+      "accent5": "#8F342F",
+      "accent6": "#D9D9D9",
+      "bg1": "#FFFFFF",
+      "bg2": "#F4F4F4",
+      "tx1": "#171717",
+      "tx2": "#666666",
+      "dk1": "#171717",
+      "dk2": "#666666",
+      "lt1": "#FFFFFF",
+      "lt2": "#F4F4F4",
+      "hlink": "#156082",
+      "folHlink": "#467886"
+    },
+    "typefaces": [
+      "+mn-lt"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "29b15ed9-a83d-4975-bffd-d6f5c8ae3739",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "c760b58e-1426-4e8d-96a7-afda05af7db9",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "c760b58e-1426-4e8d-96a7-afda05af7db9",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/l87ed8ba",
+      "id": "1",
+      "name": "judgmentkit-title-block-eyebrow",
+      "bbox": [
+        72,
+        56,
+        880,
+        28
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.0.0"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "18c62e46b90129c4a63a0a621b357c219b8f32ecb9501e0886d0d4adfe797f9c",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "18c62e46b90129c4a63a0a621b357c219b8f32ecb9501e0886d0d4adfe797f9c",
+        "length_bucket": "1-20"
+      },
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "tx2",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "18c62e46b90129c4a63a0a621b357c219b8f32ecb9501e0886d0d4adfe797f9c",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "18c62e46b90129c4a63a0a621b357c219b8f32ecb9501e0886d0d4adfe797f9c",
+            "length_bucket": "1-20"
+          },
+          "styleId": "JK.Label",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "tx2",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "18c62e46b90129c4a63a0a621b357c219b8f32ecb9501e0886d0d4adfe797f9c",
+                "length_bucket": "1-20"
+              },
+              "fontSize": 12,
+              "color": "tx2",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/ahoza1gv",
+      "id": "2",
+      "name": "judgmentkit-title-block-title",
+      "bbox": [
+        72,
+        98,
+        880,
+        98
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.0.1"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "106b759a030ea8db02d72a0d3a2bdad96aa86c5f9475f92627a163119b0303ff",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "106b759a030ea8db02d72a0d3a2bdad96aa86c5f9475f92627a163119b0303ff",
+        "length_bucket": "21-80"
+      },
+      "resolvedFontSize": 52,
+      "resolvedTextStyle": {
+        "fontSize": 52,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "2ac7afb68bb235914d70a6941e52bf42bca9fe7b23875554985a4cbeded14260",
+              "length_bucket": "21-80"
+            }
+          },
+          {
+            "index": 2,
+            "text_summary": {
+              "present": true,
+              "sha256": "9a049352a16632cbac4e4f9465ce9c834c6c543afdbc275b218cbd4a5faa6756",
+              "length_bucket": "21-80"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "106b759a030ea8db02d72a0d3a2bdad96aa86c5f9475f92627a163119b0303ff",
+            "length_bucket": "21-80"
+          },
+          "styleId": "JK.Display",
+          "resolvedTextStyle": {
+            "fontSize": 52,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "106b759a030ea8db02d72a0d3a2bdad96aa86c5f9475f92627a163119b0303ff",
+                "length_bucket": "21-80"
+              },
+              "fontSize": 52,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 3,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/32lszqtc",
+      "id": "3",
+      "name": "judgmentkit-title-block-subtitle",
+      "bbox": [
+        72,
+        216,
+        680,
+        100
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.0.2"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "9d344e1b3ab0c8cfe8dc904377e83cd3dd2155d9cbcb19a48439e4606ffe0592",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "9d344e1b3ab0c8cfe8dc904377e83cd3dd2155d9cbcb19a48439e4606ffe0592",
+        "length_bucket": "21-80"
+      },
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "+mn-lt",
+        "color": "tx2",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "9c06b2b361e834f61edbcbb729849efd8ad13a8e1ae28e0975befd21cef88e40",
+              "length_bucket": "21-80"
+            }
+          },
+          {
+            "index": 2,
+            "text_summary": {
+              "present": true,
+              "sha256": "9b407b5fe6209a3d37954400a7650c38a3435625ba7e1834cbe702ae174d733a",
+              "length_bucket": "21-80"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "9d344e1b3ab0c8cfe8dc904377e83cd3dd2155d9cbcb19a48439e4606ffe0592",
+            "length_bucket": "21-80"
+          },
+          "styleId": "JK.Subtitle",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "tx2",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "9d344e1b3ab0c8cfe8dc904377e83cd3dd2155d9cbcb19a48439e4606ffe0592",
+                "length_bucket": "21-80"
+              },
+              "fontSize": 24,
+              "color": "tx2",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/szqtcj6t",
+      "id": "4",
+      "name": "judgmentkit-metric-tile-surface",
+      "bbox": [
+        72,
+        344,
+        278.67,
+        164
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 5,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/lkjm1cfa",
+      "id": "5",
+      "name": "judgmentkit-metric-tile-label",
+      "bbox": [
+        88,
+        360,
+        246.67,
+        24
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1.1"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "3824a9f4dafe92c6f1b80b40656a59784c03a824c27d58125d7d0ace753e2df2",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "3824a9f4dafe92c6f1b80b40656a59784c03a824c27d58125d7d0ace753e2df2",
+        "length_bucket": "1-20"
+      },
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "tx2",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "3824a9f4dafe92c6f1b80b40656a59784c03a824c27d58125d7d0ace753e2df2",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "3824a9f4dafe92c6f1b80b40656a59784c03a824c27d58125d7d0ace753e2df2",
+            "length_bucket": "1-20"
+          },
+          "styleId": "JK.Label",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "tx2",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "3824a9f4dafe92c6f1b80b40656a59784c03a824c27d58125d7d0ace753e2df2",
+                "length_bucket": "1-20"
+              },
+              "fontSize": 12,
+              "color": "tx2",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 6,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/at47y1kr",
+      "id": "6",
+      "name": "judgmentkit-metric-tile-value",
+      "bbox": [
+        88,
+        394,
+        246.67,
+        62
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1.2"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "3be52504bc3601514c8eb1a050a3ccdba6326a46d4f1c7d3c051e64c4c750b1f",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "3be52504bc3601514c8eb1a050a3ccdba6326a46d4f1c7d3c051e64c4c750b1f",
+        "length_bucket": "1-20"
+      },
+      "resolvedFontSize": 42,
+      "resolvedTextStyle": {
+        "fontSize": 42,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "3be52504bc3601514c8eb1a050a3ccdba6326a46d4f1c7d3c051e64c4c750b1f",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "3be52504bc3601514c8eb1a050a3ccdba6326a46d4f1c7d3c051e64c4c750b1f",
+            "length_bucket": "1-20"
+          },
+          "styleId": "JK.Numeric",
+          "resolvedTextStyle": {
+            "fontSize": 42,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "3be52504bc3601514c8eb1a050a3ccdba6326a46d4f1c7d3c051e64c4c750b1f",
+                "length_bucket": "1-20"
+              },
+              "fontSize": 42,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 7,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/3ex0nuxc",
+      "id": "7",
+      "name": "judgmentkit-metric-tile-detail",
+      "bbox": [
+        88,
+        464,
+        246.67,
+        28
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1.3"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "862a62639ac65c948b57db58bdfaff1cdeb30cfbd3bfcbf63c83a09102a0f1fd",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "862a62639ac65c948b57db58bdfaff1cdeb30cfbd3bfcbf63c83a09102a0f1fd",
+        "length_bucket": "1-20"
+      },
+      "resolvedFontSize": 16,
+      "resolvedTextStyle": {
+        "fontSize": 16,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "862a62639ac65c948b57db58bdfaff1cdeb30cfbd3bfcbf63c83a09102a0f1fd",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "862a62639ac65c948b57db58bdfaff1cdeb30cfbd3bfcbf63c83a09102a0f1fd",
+            "length_bucket": "1-20"
+          },
+          "styleId": "JK.BodySmall",
+          "resolvedTextStyle": {
+            "fontSize": 16,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "862a62639ac65c948b57db58bdfaff1cdeb30cfbd3bfcbf63c83a09102a0f1fd",
+                "length_bucket": "1-20"
+              },
+              "fontSize": 16,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 8,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/w3m94fu1",
+      "id": "8",
+      "name": "judgmentkit-metric-tile-surface",
+      "bbox": [
+        372.67,
+        344,
+        278.67,
+        164
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 9,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/loj2t83i",
+      "id": "9",
+      "name": "judgmentkit-metric-tile-label",
+      "bbox": [
+        388.67,
+        360,
+        246.67,
+        24
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.1"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "47bd29075f8b8019f0beec6d86beda7c9bf67aaf05053dcbe0b3bcb63968517f",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "47bd29075f8b8019f0beec6d86beda7c9bf67aaf05053dcbe0b3bcb63968517f",
+        "length_bucket": "1-20"
+      },
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "tx2",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "47bd29075f8b8019f0beec6d86beda7c9bf67aaf05053dcbe0b3bcb63968517f",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "47bd29075f8b8019f0beec6d86beda7c9bf67aaf05053dcbe0b3bcb63968517f",
+            "length_bucket": "1-20"
+          },
+          "styleId": "JK.Label",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "tx2",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "47bd29075f8b8019f0beec6d86beda7c9bf67aaf05053dcbe0b3bcb63968517f",
+                "length_bucket": "1-20"
+              },
+              "fontSize": 12,
+              "color": "tx2",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 10,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/9knih4by",
+      "id": "10",
+      "name": "judgmentkit-metric-tile-value",
+      "bbox": [
+        388.67,
+        394,
+        246.67,
+        62
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.2"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "52efd2aad05d27e3eac3665b82f2bffa6da52351ce871c1c28e4ba69b40ea3e6",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "52efd2aad05d27e3eac3665b82f2bffa6da52351ce871c1c28e4ba69b40ea3e6",
+        "length_bucket": "1-20"
+      },
+      "resolvedFontSize": 42,
+      "resolvedTextStyle": {
+        "fontSize": 42,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "52efd2aad05d27e3eac3665b82f2bffa6da52351ce871c1c28e4ba69b40ea3e6",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "52efd2aad05d27e3eac3665b82f2bffa6da52351ce871c1c28e4ba69b40ea3e6",
+            "length_bucket": "1-20"
+          },
+          "styleId": "JK.Numeric",
+          "resolvedTextStyle": {
+            "fontSize": 42,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "52efd2aad05d27e3eac3665b82f2bffa6da52351ce871c1c28e4ba69b40ea3e6",
+                "length_bucket": "1-20"
+              },
+              "fontSize": 42,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 11,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/kzupwb2h",
+      "id": "11",
+      "name": "judgmentkit-metric-tile-detail",
+      "bbox": [
+        388.67,
+        464,
+        246.67,
+        28
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.3"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "1148c667504e8fe13e0c2f06efc326411c53972c23b83de13ccbcef5455e798b",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "1148c667504e8fe13e0c2f06efc326411c53972c23b83de13ccbcef5455e798b",
+        "length_bucket": "1-20"
+      },
+      "resolvedFontSize": 16,
+      "resolvedTextStyle": {
+        "fontSize": 16,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "1148c667504e8fe13e0c2f06efc326411c53972c23b83de13ccbcef5455e798b",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "1148c667504e8fe13e0c2f06efc326411c53972c23b83de13ccbcef5455e798b",
+            "length_bucket": "1-20"
+          },
+          "styleId": "JK.BodySmall",
+          "resolvedTextStyle": {
+            "fontSize": 16,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "1148c667504e8fe13e0c2f06efc326411c53972c23b83de13ccbcef5455e798b",
+                "length_bucket": "1-20"
+              },
+              "fontSize": 16,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 12,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/re1w7mp0",
+      "id": "12",
+      "name": "judgmentkit-metric-tile-surface",
+      "bbox": [
+        673.33,
+        344,
+        278.67,
+        164
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.3.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 13,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/2t83itgf",
+      "id": "13",
+      "name": "judgmentkit-metric-tile-label",
+      "bbox": [
+        689.33,
+        360,
+        246.67,
+        24
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.3.1"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "2bf63d817630601b992694bc0b0559715001b9a24e7fe0d741eea02dce9181af",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "2bf63d817630601b992694bc0b0559715001b9a24e7fe0d741eea02dce9181af",
+        "length_bucket": "1-20"
+      },
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "tx2",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "2bf63d817630601b992694bc0b0559715001b9a24e7fe0d741eea02dce9181af",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "2bf63d817630601b992694bc0b0559715001b9a24e7fe0d741eea02dce9181af",
+            "length_bucket": "1-20"
+          },
+          "styleId": "JK.Label",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "tx2",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "2bf63d817630601b992694bc0b0559715001b9a24e7fe0d741eea02dce9181af",
+                "length_bucket": "1-20"
+              },
+              "fontSize": 12,
+              "color": "tx2",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 14,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/9w3m94fu",
+      "id": "14",
+      "name": "judgmentkit-metric-tile-value",
+      "bbox": [
+        689.33,
+        394,
+        246.67,
+        62
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.3.2"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "8722616204217eddb39e7df969e0698aed8e599ba62ed2de1ce49b03ade0fede",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "8722616204217eddb39e7df969e0698aed8e599ba62ed2de1ce49b03ade0fede",
+        "length_bucket": "1-20"
+      },
+      "resolvedFontSize": 42,
+      "resolvedTextStyle": {
+        "fontSize": 42,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "8722616204217eddb39e7df969e0698aed8e599ba62ed2de1ce49b03ade0fede",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "8722616204217eddb39e7df969e0698aed8e599ba62ed2de1ce49b03ade0fede",
+            "length_bucket": "1-20"
+          },
+          "styleId": "JK.Numeric",
+          "resolvedTextStyle": {
+            "fontSize": 42,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "8722616204217eddb39e7df969e0698aed8e599ba62ed2de1ce49b03ade0fede",
+                "length_bucket": "1-20"
+              },
+              "fontSize": 42,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 15,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/kb6xkf6d",
+      "id": "15",
+      "name": "judgmentkit-metric-tile-detail",
+      "bbox": [
+        689.33,
+        464,
+        246.67,
+        28
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.3.3"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "f72a4e1bb7a65dffed49df174db70204da2c5834054848ea3546658ff6d79ebe",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "f72a4e1bb7a65dffed49df174db70204da2c5834054848ea3546658ff6d79ebe",
+        "length_bucket": "1-20"
+      },
+      "resolvedFontSize": 16,
+      "resolvedTextStyle": {
+        "fontSize": 16,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "f72a4e1bb7a65dffed49df174db70204da2c5834054848ea3546658ff6d79ebe",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "f72a4e1bb7a65dffed49df174db70204da2c5834054848ea3546658ff6d79ebe",
+            "length_bucket": "1-20"
+          },
+          "styleId": "JK.BodySmall",
+          "resolvedTextStyle": {
+            "fontSize": 16,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "f72a4e1bb7a65dffed49df174db70204da2c5834054848ea3546658ff6d79ebe",
+                "length_bucket": "1-20"
+              },
+              "fontSize": 16,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 16,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/rqd4vmtw",
+      "id": "16",
+      "name": "judgmentkit-evidence-panel-surface",
+      "bbox": [
+        72,
+        532,
+        880,
+        180
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.4.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 17,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/25kb6xkf",
+      "id": "17",
+      "name": "judgmentkit-evidence-panel-title",
+      "bbox": [
+        90,
+        550,
+        844,
+        34
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.4.1"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "65bdfc3cfad1d71e9bdab2d1e8d17bc7eb01c155d4a326965cf268a2df2104b6",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "65bdfc3cfad1d71e9bdab2d1e8d17bc7eb01c155d4a326965cf268a2df2104b6",
+        "length_bucket": "21-80"
+      },
+      "resolvedFontSize": 30,
+      "resolvedTextStyle": {
+        "fontSize": 30,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "65bdfc3cfad1d71e9bdab2d1e8d17bc7eb01c155d4a326965cf268a2df2104b6",
+              "length_bucket": "21-80"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "65bdfc3cfad1d71e9bdab2d1e8d17bc7eb01c155d4a326965cf268a2df2104b6",
+            "length_bucket": "21-80"
+          },
+          "styleId": "JK.SectionHeading",
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "65bdfc3cfad1d71e9bdab2d1e8d17bc7eb01c155d4a326965cf268a2df2104b6",
+                "length_bucket": "21-80"
+              },
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 18,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/94fu18jq",
+      "id": "18",
+      "name": "judgmentkit-evidence-panel-body",
+      "bbox": [
+        90,
+        598,
+        844,
+        96
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.4.2"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "2dc1b26f6dab642bacd629049d1cb57a608770b241685c6ce254ee63b6708c2e",
+        "length_bucket": "81-200"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "6ed963ea38ece1d69b033f90923b6eb728c572453184bb28318d78c6670584c7",
+        "length_bucket": "81-200"
+      },
+      "resolvedFontSize": 18,
+      "resolvedTextStyle": {
+        "fontSize": 18,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "e0b85fa172da271a617d7cbee1fce6c1f6dea68f16876b92ac7d4f76aa2c6e0b",
+              "length_bucket": "21-80"
+            }
+          },
+          {
+            "index": 2,
+            "text_summary": {
+              "present": true,
+              "sha256": "6e4ecdf5d30745f38cfcc8e0f4ea31509dba3452187a63c94f724696046c1c6e",
+              "length_bucket": "21-80"
+            }
+          },
+          {
+            "index": 3,
+            "text_summary": {
+              "present": true,
+              "sha256": "333379184c013299ac5a4fb372309a43a0fefcbe4477e99a4a6dbaeff446f037",
+              "length_bucket": "21-80"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "e0b85fa172da271a617d7cbee1fce6c1f6dea68f16876b92ac7d4f76aa2c6e0b",
+            "length_bucket": "21-80"
+          },
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "e0b85fa172da271a617d7cbee1fce6c1f6dea68f16876b92ac7d4f76aa2c6e0b",
+                "length_bucket": "21-80"
+              },
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        },
+        {
+          "index": 2,
+          "text_summary": {
+            "present": true,
+            "sha256": "6e4ecdf5d30745f38cfcc8e0f4ea31509dba3452187a63c94f724696046c1c6e",
+            "length_bucket": "21-80"
+          },
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "6e4ecdf5d30745f38cfcc8e0f4ea31509dba3452187a63c94f724696046c1c6e",
+                "length_bucket": "21-80"
+              },
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        },
+        {
+          "index": 3,
+          "text_summary": {
+            "present": true,
+            "sha256": "333379184c013299ac5a4fb372309a43a0fefcbe4477e99a4a6dbaeff446f037",
+            "length_bucket": "21-80"
+          },
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "333379184c013299ac5a4fb372309a43a0fefcbe4477e99a4a6dbaeff446f037",
+                "length_bucket": "21-80"
+              },
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    }
+  ],
+  "composeRuns": [
+    {
+      "index": 1,
+      "frame": {
+        "left": 0,
+        "top": 0,
+        "width": 1024,
+        "height": 768
+      },
+      "baseUnit": 8,
+      "root": {
+        "path": "0",
+        "kind": "layers",
+        "name": "four-by-three-layout",
+        "requestedSize": {
+          "width": {
+            "mode": "fill",
+            "value": 1
+          },
+          "height": {
+            "mode": "fill",
+            "value": 1
+          }
+        },
+        "intrinsicSize": {
+          "width": 952,
+          "height": 712
+        },
+        "frame": {
+          "left": 0,
+          "top": 0,
+          "width": 1024,
+          "height": 768
+        },
+        "children": [
+          {
+            "path": "0.0",
+            "kind": "layers",
+            "name": "judgmentkit-title-block",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 952,
+              "height": 316
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "children": [
+              {
+                "path": "0.0.0",
+                "kind": "text",
+                "name": "judgmentkit-title-block-eyebrow",
+                "position": {
+                  "left": 72,
+                  "top": 56
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 880
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 28
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 880,
+                  "height": 28
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 56,
+                  "width": 880,
+                  "height": 28
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 56,
+                  "width": 880,
+                  "height": 28
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "18c62e46b90129c4a63a0a621b357c219b8f32ecb9501e0886d0d4adfe797f9c",
+                  "length_bucket": "1-20"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/l87ed8ba",
+                  "id": "1",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.0.1",
+                "kind": "text",
+                "name": "judgmentkit-title-block-title",
+                "position": {
+                  "left": 72,
+                  "top": 98
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 880
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 98
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 880,
+                  "height": 98
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 98,
+                  "width": 880,
+                  "height": 98
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 98,
+                  "width": 880,
+                  "height": 98
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "106b759a030ea8db02d72a0d3a2bdad96aa86c5f9475f92627a163119b0303ff",
+                  "length_bucket": "21-80"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/ahoza1gv",
+                  "id": "2",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.0.2",
+                "kind": "text",
+                "name": "judgmentkit-title-block-subtitle",
+                "position": {
+                  "left": 72,
+                  "top": 216
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 680
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 100
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 680,
+                  "height": 100
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 216,
+                  "width": 680,
+                  "height": 100
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 216,
+                  "width": 680,
+                  "height": 100
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "9d344e1b3ab0c8cfe8dc904377e83cd3dd2155d9cbcb19a48439e4606ffe0592",
+                  "length_bucket": "21-80"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/32lszqtc",
+                  "id": "3",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "items": [
+              {
+                "path": "0.0.0",
+                "frame": {
+                  "left": 72,
+                  "top": 56,
+                  "width": 880,
+                  "height": 28
+                }
+              },
+              {
+                "path": "0.0.1",
+                "frame": {
+                  "left": 72,
+                  "top": 98,
+                  "width": 880,
+                  "height": 98
+                }
+              },
+              {
+                "path": "0.0.2",
+                "frame": {
+                  "left": 72,
+                  "top": 216,
+                  "width": 680,
+                  "height": 100
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.1",
+            "kind": "layers",
+            "name": "judgmentkit-metric-tile",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 350.67,
+              "height": 508
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "children": [
+              {
+                "path": "0.1.0",
+                "kind": "shape",
+                "name": "judgmentkit-metric-tile-surface",
+                "position": {
+                  "left": 72,
+                  "top": 344
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 278.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 164
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 278.67,
+                  "height": 164
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                },
+                "children": [],
+                "geometry": "rect",
+                "element": {
+                  "aid": "sh/szqtcj6t",
+                  "id": "4",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.1.1",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-label",
+                "position": {
+                  "left": 88,
+                  "top": 360
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 24
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 24
+                },
+                "frame": {
+                  "left": 88,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                },
+                "snappedFrame": {
+                  "left": 88,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "3824a9f4dafe92c6f1b80b40656a59784c03a824c27d58125d7d0ace753e2df2",
+                  "length_bucket": "1-20"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/lkjm1cfa",
+                  "id": "5",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.1.2",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-value",
+                "position": {
+                  "left": 88,
+                  "top": 394
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 62
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 62
+                },
+                "frame": {
+                  "left": 88,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                },
+                "snappedFrame": {
+                  "left": 88,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "3be52504bc3601514c8eb1a050a3ccdba6326a46d4f1c7d3c051e64c4c750b1f",
+                  "length_bucket": "1-20"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/at47y1kr",
+                  "id": "6",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.1.3",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-detail",
+                "position": {
+                  "left": 88,
+                  "top": 464
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 28
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 28
+                },
+                "frame": {
+                  "left": 88,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                },
+                "snappedFrame": {
+                  "left": 88,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "862a62639ac65c948b57db58bdfaff1cdeb30cfbd3bfcbf63c83a09102a0f1fd",
+                  "length_bucket": "1-20"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/3ex0nuxc",
+                  "id": "7",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "items": [
+              {
+                "path": "0.1.0",
+                "frame": {
+                  "left": 72,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                }
+              },
+              {
+                "path": "0.1.1",
+                "frame": {
+                  "left": 88,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                }
+              },
+              {
+                "path": "0.1.2",
+                "frame": {
+                  "left": 88,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                }
+              },
+              {
+                "path": "0.1.3",
+                "frame": {
+                  "left": 88,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.2",
+            "kind": "layers",
+            "name": "judgmentkit-metric-tile",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 651.33,
+              "height": 508
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "children": [
+              {
+                "path": "0.2.0",
+                "kind": "shape",
+                "name": "judgmentkit-metric-tile-surface",
+                "position": {
+                  "left": 372.67,
+                  "top": 344
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 278.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 164
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 278.67,
+                  "height": 164
+                },
+                "frame": {
+                  "left": 372.67,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                },
+                "snappedFrame": {
+                  "left": 372.67,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                },
+                "children": [],
+                "geometry": "rect",
+                "element": {
+                  "aid": "sh/w3m94fu1",
+                  "id": "8",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.2.1",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-label",
+                "position": {
+                  "left": 388.67,
+                  "top": 360
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 24
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 24
+                },
+                "frame": {
+                  "left": 388.67,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                },
+                "snappedFrame": {
+                  "left": 388.67,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "47bd29075f8b8019f0beec6d86beda7c9bf67aaf05053dcbe0b3bcb63968517f",
+                  "length_bucket": "1-20"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/loj2t83i",
+                  "id": "9",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.2.2",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-value",
+                "position": {
+                  "left": 388.67,
+                  "top": 394
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 62
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 62
+                },
+                "frame": {
+                  "left": 388.67,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                },
+                "snappedFrame": {
+                  "left": 388.67,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "52efd2aad05d27e3eac3665b82f2bffa6da52351ce871c1c28e4ba69b40ea3e6",
+                  "length_bucket": "1-20"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/9knih4by",
+                  "id": "10",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.2.3",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-detail",
+                "position": {
+                  "left": 388.67,
+                  "top": 464
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 28
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 28
+                },
+                "frame": {
+                  "left": 388.67,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                },
+                "snappedFrame": {
+                  "left": 388.67,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "1148c667504e8fe13e0c2f06efc326411c53972c23b83de13ccbcef5455e798b",
+                  "length_bucket": "1-20"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/kzupwb2h",
+                  "id": "11",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "items": [
+              {
+                "path": "0.2.0",
+                "frame": {
+                  "left": 372.67,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                }
+              },
+              {
+                "path": "0.2.1",
+                "frame": {
+                  "left": 388.67,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                }
+              },
+              {
+                "path": "0.2.2",
+                "frame": {
+                  "left": 388.67,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                }
+              },
+              {
+                "path": "0.2.3",
+                "frame": {
+                  "left": 388.67,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.3",
+            "kind": "layers",
+            "name": "judgmentkit-metric-tile",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 952,
+              "height": 508
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "children": [
+              {
+                "path": "0.3.0",
+                "kind": "shape",
+                "name": "judgmentkit-metric-tile-surface",
+                "position": {
+                  "left": 673.33,
+                  "top": 344
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 278.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 164
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 278.67,
+                  "height": 164
+                },
+                "frame": {
+                  "left": 673.33,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                },
+                "snappedFrame": {
+                  "left": 673.33,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                },
+                "children": [],
+                "geometry": "rect",
+                "element": {
+                  "aid": "sh/re1w7mp0",
+                  "id": "12",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.3.1",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-label",
+                "position": {
+                  "left": 689.33,
+                  "top": 360
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 24
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 24
+                },
+                "frame": {
+                  "left": 689.33,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                },
+                "snappedFrame": {
+                  "left": 689.33,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "2bf63d817630601b992694bc0b0559715001b9a24e7fe0d741eea02dce9181af",
+                  "length_bucket": "1-20"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/2t83itgf",
+                  "id": "13",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.3.2",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-value",
+                "position": {
+                  "left": 689.33,
+                  "top": 394
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 62
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 62
+                },
+                "frame": {
+                  "left": 689.33,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                },
+                "snappedFrame": {
+                  "left": 689.33,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "8722616204217eddb39e7df969e0698aed8e599ba62ed2de1ce49b03ade0fede",
+                  "length_bucket": "1-20"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/9w3m94fu",
+                  "id": "14",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.3.3",
+                "kind": "text",
+                "name": "judgmentkit-metric-tile-detail",
+                "position": {
+                  "left": 689.33,
+                  "top": 464
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 246.67
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 28
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 246.67,
+                  "height": 28
+                },
+                "frame": {
+                  "left": 689.33,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                },
+                "snappedFrame": {
+                  "left": 689.33,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "f72a4e1bb7a65dffed49df174db70204da2c5834054848ea3546658ff6d79ebe",
+                  "length_bucket": "1-20"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/kb6xkf6d",
+                  "id": "15",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "items": [
+              {
+                "path": "0.3.0",
+                "frame": {
+                  "left": 673.33,
+                  "top": 344,
+                  "width": 278.67,
+                  "height": 164
+                }
+              },
+              {
+                "path": "0.3.1",
+                "frame": {
+                  "left": 689.33,
+                  "top": 360,
+                  "width": 246.67,
+                  "height": 24
+                }
+              },
+              {
+                "path": "0.3.2",
+                "frame": {
+                  "left": 689.33,
+                  "top": 394,
+                  "width": 246.67,
+                  "height": 62
+                }
+              },
+              {
+                "path": "0.3.3",
+                "frame": {
+                  "left": 689.33,
+                  "top": 464,
+                  "width": 246.67,
+                  "height": 28
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.4",
+            "kind": "layers",
+            "name": "judgmentkit-evidence-panel",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 952,
+              "height": 712
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "children": [
+              {
+                "path": "0.4.0",
+                "kind": "shape",
+                "name": "judgmentkit-evidence-panel-surface",
+                "position": {
+                  "left": 72,
+                  "top": 532
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 880
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 180
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 880,
+                  "height": 180
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 532,
+                  "width": 880,
+                  "height": 180
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 532,
+                  "width": 880,
+                  "height": 180
+                },
+                "children": [],
+                "geometry": "rect",
+                "element": {
+                  "aid": "sh/rqd4vmtw",
+                  "id": "16",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.4.1",
+                "kind": "text",
+                "name": "judgmentkit-evidence-panel-title",
+                "position": {
+                  "left": 90,
+                  "top": 550
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 844
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 34
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 844,
+                  "height": 34
+                },
+                "frame": {
+                  "left": 90,
+                  "top": 550,
+                  "width": 844,
+                  "height": 34
+                },
+                "snappedFrame": {
+                  "left": 90,
+                  "top": 550,
+                  "width": 844,
+                  "height": 34
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "65bdfc3cfad1d71e9bdab2d1e8d17bc7eb01c155d4a326965cf268a2df2104b6",
+                  "length_bucket": "21-80"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/25kb6xkf",
+                  "id": "17",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.4.2",
+                "kind": "text",
+                "name": "judgmentkit-evidence-panel-body",
+                "position": {
+                  "left": 90,
+                  "top": 598
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 844
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 96
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 844,
+                  "height": 96
+                },
+                "frame": {
+                  "left": 90,
+                  "top": 598,
+                  "width": 844,
+                  "height": 96
+                },
+                "snappedFrame": {
+                  "left": 90,
+                  "top": 598,
+                  "width": 844,
+                  "height": 96
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "df4d92161973872b8fb44a1ae70de4c71e10de1f57245e09e00d29be2a3993b8",
+                  "length_bucket": "81-200"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/94fu18jq",
+                  "id": "18",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            },
+            "items": [
+              {
+                "path": "0.4.0",
+                "frame": {
+                  "left": 72,
+                  "top": 532,
+                  "width": 880,
+                  "height": 180
+                }
+              },
+              {
+                "path": "0.4.1",
+                "frame": {
+                  "left": 90,
+                  "top": 550,
+                  "width": 844,
+                  "height": 34
+                }
+              },
+              {
+                "path": "0.4.2",
+                "frame": {
+                  "left": 90,
+                  "top": 598,
+                  "width": 844,
+                  "height": 96
+                }
+              }
+            ]
+          }
+        ],
+        "padding": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "alignItems": "stretch",
+        "justifyItems": "stretch",
+        "contentFrame": {
+          "left": 0,
+          "top": 0,
+          "width": 1024,
+          "height": 768
+        },
+        "items": [
+          {
+            "path": "0.0",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            }
+          },
+          {
+            "path": "0.1",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            }
+          },
+          {
+            "path": "0.2",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            }
+          },
+          {
+            "path": "0.3",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            }
+          },
+          {
+            "path": "0.4",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1024,
+              "height": 768
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

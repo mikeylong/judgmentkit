@@ -1,0 +1,1454 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/eckkcs",
+    "id": "eckkcs",
+    "slide": 4,
+    "layoutId": "0b19083d-ee62-4769-b2a6-0efff82f0fc1",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "54a665fc-aa1b-4e70-ad27-8c94562d3402",
+    "masterLayoutName": "Master",
+    "backgroundColor": "bg1",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "JudgmentKit Light",
+    "colors": {
+      "accent1": "#156082",
+      "accent2": "#467886",
+      "accent3": "#2E6B48",
+      "accent4": "#8A5A16",
+      "accent5": "#8F342F",
+      "accent6": "#D9D9D9",
+      "bg1": "#FFFFFF",
+      "bg2": "#F4F4F4",
+      "tx1": "#171717",
+      "tx2": "#666666",
+      "dk1": "#171717",
+      "dk2": "#666666",
+      "lt1": "#FFFFFF",
+      "lt2": "#F4F4F4",
+      "hlink": "#156082",
+      "folHlink": "#467886"
+    },
+    "typefaces": [
+      "+mn-lt"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "0b19083d-ee62-4769-b2a6-0efff82f0fc1",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "54a665fc-aa1b-4e70-ad27-8c94562d3402",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "54a665fc-aa1b-4e70-ad27-8c94562d3402",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/2t83itgf",
+      "id": "1",
+      "name": "judgmentkit-section-header-label",
+      "bbox": [
+        72,
+        48,
+        1136,
+        24
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.0.0"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "7c143ce80d6112b54d17daab428441a5d0949e779fcd558c95a84708f9293843",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "7c143ce80d6112b54d17daab428441a5d0949e779fcd558c95a84708f9293843",
+        "length_bucket": "1-20"
+      },
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "tx2",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "7c143ce80d6112b54d17daab428441a5d0949e779fcd558c95a84708f9293843",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "7c143ce80d6112b54d17daab428441a5d0949e779fcd558c95a84708f9293843",
+            "length_bucket": "1-20"
+          },
+          "styleId": "JK.Label",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "tx2",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "7c143ce80d6112b54d17daab428441a5d0949e779fcd558c95a84708f9293843",
+                "length_bucket": "1-20"
+              },
+              "fontSize": 12,
+              "color": "tx2",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/9knih4by",
+      "id": "2",
+      "name": "judgmentkit-section-header-title",
+      "bbox": [
+        72,
+        78,
+        1136,
+        58
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.0.1"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "a9dba4005198bfcc5dfab164cfacef833c4b3703129e01cf13568fa677b20215",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "a9dba4005198bfcc5dfab164cfacef833c4b3703129e01cf13568fa677b20215",
+        "length_bucket": "21-80"
+      },
+      "resolvedFontSize": 38,
+      "resolvedTextStyle": {
+        "fontSize": 38,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "364ae9485a46d5cba6ad4d2f1d87f0d751ed3ebe51e108035cfd51766b08bd66",
+              "length_bucket": "21-80"
+            }
+          },
+          {
+            "index": 2,
+            "text_summary": {
+              "present": true,
+              "sha256": "be4bd56772770471b639574d919a92de16c0e522ea5601e2892461691bdf9545",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "a9dba4005198bfcc5dfab164cfacef833c4b3703129e01cf13568fa677b20215",
+            "length_bucket": "21-80"
+          },
+          "styleId": "JK.SlideTitle",
+          "resolvedTextStyle": {
+            "fontSize": 38,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "a9dba4005198bfcc5dfab164cfacef833c4b3703129e01cf13568fa677b20215",
+                "length_bucket": "21-80"
+              },
+              "fontSize": 38,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 3,
+      "kind": "table",
+      "scope": "slide",
+      "aid": "tb/p4r65wju",
+      "id": "3",
+      "name": "judgmentkit-evidence-table",
+      "bbox": [
+        72,
+        182,
+        1136,
+        310
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.1"
+      },
+      "text_summary": {
+        "present": true,
+        "sha256": "e944202f46ae4951c923aa177e1465dd1c9a3bd4931ff78460dfbe8c7f16dcf9",
+        "length_bucket": "81-200"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "ff07f2ed73644ccf35bedcc7da93aedc5640483a38db4d9939e73f40e99ffcd6",
+        "length_bucket": "81-200"
+      },
+      "rows": 4,
+      "cols": 3,
+      "cells": [
+        {
+          "index": 1,
+          "row": 1,
+          "column": 1,
+          "bbox": [
+            72,
+            182,
+            378.67,
+            77.5
+          ],
+          "text_summary": {
+            "present": true,
+            "sha256": "9d60841e0a7891df0fd55b24d5c883a5d92ae544808675c2ec84537c12589c49",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "9d60841e0a7891df0fd55b24d5c883a5d92ae544808675c2ec84537c12589c49",
+            "length_bucket": "1-20"
+          },
+          "paragraphs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "9d60841e0a7891df0fd55b24d5c883a5d92ae544808675c2ec84537c12589c49",
+                "length_bucket": "1-20"
+              },
+              "runs": [
+                {
+                  "index": 1,
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "9d60841e0a7891df0fd55b24d5c883a5d92ae544808675c2ec84537c12589c49",
+                    "length_bucket": "1-20"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 2,
+          "row": 1,
+          "column": 2,
+          "bbox": [
+            450.67,
+            182,
+            378.67,
+            77.5
+          ],
+          "text_summary": {
+            "present": true,
+            "sha256": "ca99b7f1b14ee2c04f7aaefde89858fc947fa88de518c2e6d4b6132892175218",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "ca99b7f1b14ee2c04f7aaefde89858fc947fa88de518c2e6d4b6132892175218",
+            "length_bucket": "1-20"
+          },
+          "paragraphs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "ca99b7f1b14ee2c04f7aaefde89858fc947fa88de518c2e6d4b6132892175218",
+                "length_bucket": "1-20"
+              },
+              "runs": [
+                {
+                  "index": 1,
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "ca99b7f1b14ee2c04f7aaefde89858fc947fa88de518c2e6d4b6132892175218",
+                    "length_bucket": "1-20"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 3,
+          "row": 1,
+          "column": 3,
+          "bbox": [
+            829.33,
+            182,
+            378.67,
+            77.5
+          ],
+          "text_summary": {
+            "present": true,
+            "sha256": "64fa8a14a90feef5d86951352195391dfead1194f932aaed0755021c504e2a15",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "64fa8a14a90feef5d86951352195391dfead1194f932aaed0755021c504e2a15",
+            "length_bucket": "1-20"
+          },
+          "paragraphs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "64fa8a14a90feef5d86951352195391dfead1194f932aaed0755021c504e2a15",
+                "length_bucket": "1-20"
+              },
+              "runs": [
+                {
+                  "index": 1,
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "64fa8a14a90feef5d86951352195391dfead1194f932aaed0755021c504e2a15",
+                    "length_bucket": "1-20"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 4,
+          "row": 2,
+          "column": 1,
+          "bbox": [
+            72,
+            259.5,
+            378.67,
+            77.5
+          ],
+          "text_summary": {
+            "present": true,
+            "sha256": "19df6f14692970e65042558b6cfafac543e15b223464ebdfbb04eca3d4b0ca36",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "19df6f14692970e65042558b6cfafac543e15b223464ebdfbb04eca3d4b0ca36",
+            "length_bucket": "1-20"
+          },
+          "paragraphs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "19df6f14692970e65042558b6cfafac543e15b223464ebdfbb04eca3d4b0ca36",
+                "length_bucket": "1-20"
+              },
+              "runs": [
+                {
+                  "index": 1,
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "19df6f14692970e65042558b6cfafac543e15b223464ebdfbb04eca3d4b0ca36",
+                    "length_bucket": "1-20"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 5,
+          "row": 2,
+          "column": 2,
+          "bbox": [
+            450.67,
+            259.5,
+            378.67,
+            77.5
+          ],
+          "text_summary": {
+            "present": true,
+            "sha256": "6c1e9387cecdb08ab3c00df6c5ab86b08916700792efbd654e1d50d4868c2dac",
+            "length_bucket": "21-80"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "6c1e9387cecdb08ab3c00df6c5ab86b08916700792efbd654e1d50d4868c2dac",
+            "length_bucket": "21-80"
+          },
+          "paragraphs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "6c1e9387cecdb08ab3c00df6c5ab86b08916700792efbd654e1d50d4868c2dac",
+                "length_bucket": "21-80"
+              },
+              "runs": [
+                {
+                  "index": 1,
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "6c1e9387cecdb08ab3c00df6c5ab86b08916700792efbd654e1d50d4868c2dac",
+                    "length_bucket": "21-80"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 6,
+          "row": 2,
+          "column": 3,
+          "bbox": [
+            829.33,
+            259.5,
+            378.67,
+            77.5
+          ],
+          "text_summary": {
+            "present": true,
+            "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+            "length_bucket": "1-20"
+          },
+          "paragraphs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+                "length_bucket": "1-20"
+              },
+              "runs": [
+                {
+                  "index": 1,
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+                    "length_bucket": "1-20"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 7,
+          "row": 3,
+          "column": 1,
+          "bbox": [
+            72,
+            337,
+            378.67,
+            77.5
+          ],
+          "text_summary": {
+            "present": true,
+            "sha256": "824a960bc13cd3ac60b8ccda3824484a8a26e4d7a43805418a79e4c8b38203e8",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "824a960bc13cd3ac60b8ccda3824484a8a26e4d7a43805418a79e4c8b38203e8",
+            "length_bucket": "1-20"
+          },
+          "paragraphs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "824a960bc13cd3ac60b8ccda3824484a8a26e4d7a43805418a79e4c8b38203e8",
+                "length_bucket": "1-20"
+              },
+              "runs": [
+                {
+                  "index": 1,
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "824a960bc13cd3ac60b8ccda3824484a8a26e4d7a43805418a79e4c8b38203e8",
+                    "length_bucket": "1-20"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 8,
+          "row": 3,
+          "column": 2,
+          "bbox": [
+            450.67,
+            337,
+            378.67,
+            77.5
+          ],
+          "text_summary": {
+            "present": true,
+            "sha256": "0afa29615af62d954c5b9f79d04eaae8473eb049f5c95b6dacb8da65f95ce218",
+            "length_bucket": "21-80"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "0afa29615af62d954c5b9f79d04eaae8473eb049f5c95b6dacb8da65f95ce218",
+            "length_bucket": "21-80"
+          },
+          "paragraphs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "0afa29615af62d954c5b9f79d04eaae8473eb049f5c95b6dacb8da65f95ce218",
+                "length_bucket": "21-80"
+              },
+              "runs": [
+                {
+                  "index": 1,
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "0afa29615af62d954c5b9f79d04eaae8473eb049f5c95b6dacb8da65f95ce218",
+                    "length_bucket": "21-80"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 9,
+          "row": 3,
+          "column": 3,
+          "bbox": [
+            829.33,
+            337,
+            378.67,
+            77.5
+          ],
+          "text_summary": {
+            "present": true,
+            "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+            "length_bucket": "1-20"
+          },
+          "paragraphs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+                "length_bucket": "1-20"
+              },
+              "runs": [
+                {
+                  "index": 1,
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+                    "length_bucket": "1-20"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 10,
+          "row": 4,
+          "column": 1,
+          "bbox": [
+            72,
+            414.5,
+            378.67,
+            77.5
+          ],
+          "text_summary": {
+            "present": true,
+            "sha256": "ac2c18829c4f673a6744332fa29da6a47a1f0cf6246d1befebcb675b002211ac",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "ac2c18829c4f673a6744332fa29da6a47a1f0cf6246d1befebcb675b002211ac",
+            "length_bucket": "1-20"
+          },
+          "paragraphs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "ac2c18829c4f673a6744332fa29da6a47a1f0cf6246d1befebcb675b002211ac",
+                "length_bucket": "1-20"
+              },
+              "runs": [
+                {
+                  "index": 1,
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "ac2c18829c4f673a6744332fa29da6a47a1f0cf6246d1befebcb675b002211ac",
+                    "length_bucket": "1-20"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 11,
+          "row": 4,
+          "column": 2,
+          "bbox": [
+            450.67,
+            414.5,
+            378.67,
+            77.5
+          ],
+          "text_summary": {
+            "present": true,
+            "sha256": "45a9a0685cdbe0a4e37f4ae880adfa308e91daf647e0f4a54ef8ff8e3a43529e",
+            "length_bucket": "21-80"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "45a9a0685cdbe0a4e37f4ae880adfa308e91daf647e0f4a54ef8ff8e3a43529e",
+            "length_bucket": "21-80"
+          },
+          "paragraphs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "45a9a0685cdbe0a4e37f4ae880adfa308e91daf647e0f4a54ef8ff8e3a43529e",
+                "length_bucket": "21-80"
+              },
+              "runs": [
+                {
+                  "index": 1,
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "45a9a0685cdbe0a4e37f4ae880adfa308e91daf647e0f4a54ef8ff8e3a43529e",
+                    "length_bucket": "21-80"
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "index": 12,
+          "row": 4,
+          "column": 3,
+          "bbox": [
+            829.33,
+            414.5,
+            378.67,
+            77.5
+          ],
+          "text_summary": {
+            "present": true,
+            "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+            "length_bucket": "1-20"
+          },
+          "text_preview_summary": {
+            "present": true,
+            "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+            "length_bucket": "1-20"
+          },
+          "paragraphs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+                "length_bucket": "1-20"
+              },
+              "runs": [
+                {
+                  "index": 1,
+                  "text_summary": {
+                    "present": true,
+                    "sha256": "0d6346e060b47f1c3f9f98ac3d3c62aefccca331d4349625b6bb139c64fe16fa",
+                    "length_bucket": "1-20"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/rqd4vmtw",
+      "id": "4",
+      "name": "judgmentkit-handoff-receipt-surface",
+      "bbox": [
+        72,
+        508,
+        1136,
+        124
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.0"
+      },
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 5,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/25kb6xkf",
+      "id": "5",
+      "name": "judgmentkit-handoff-receipt-title",
+      "bbox": [
+        90,
+        526,
+        1100,
+        34
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.1"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "87950833b64d1526efca2b6237b4c02f7f4374c75df603393e36c8e40893eac9",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "87950833b64d1526efca2b6237b4c02f7f4374c75df603393e36c8e40893eac9",
+        "length_bucket": "1-20"
+      },
+      "resolvedFontSize": 30,
+      "resolvedTextStyle": {
+        "fontSize": 30,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "bold": true,
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "87950833b64d1526efca2b6237b4c02f7f4374c75df603393e36c8e40893eac9",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "87950833b64d1526efca2b6237b4c02f7f4374c75df603393e36c8e40893eac9",
+            "length_bucket": "1-20"
+          },
+          "styleId": "JK.SectionHeading",
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "87950833b64d1526efca2b6237b4c02f7f4374c75df603393e36c8e40893eac9",
+                "length_bucket": "1-20"
+              },
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 6,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/9w3m94fu",
+      "id": "6",
+      "name": "judgmentkit-handoff-receipt-body",
+      "bbox": [
+        90,
+        574,
+        1100,
+        40
+      ],
+      "composeSource": {
+        "run": 1,
+        "path": "0.2.2"
+      },
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "6648bc0b0d30d97fb053e1e8bd6d47c8d9a1121530e546519a9395e610a8d180",
+        "length_bucket": "81-200"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "6648bc0b0d30d97fb053e1e8bd6d47c8d9a1121530e546519a9395e610a8d180",
+        "length_bucket": "81-200"
+      },
+      "resolvedFontSize": 18,
+      "resolvedTextStyle": {
+        "fontSize": 18,
+        "typeface": "+mn-lt",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "6648bc0b0d30d97fb053e1e8bd6d47c8d9a1121530e546519a9395e610a8d180",
+              "length_bucket": "81-200"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "6648bc0b0d30d97fb053e1e8bd6d47c8d9a1121530e546519a9395e610a8d180",
+            "length_bucket": "81-200"
+          },
+          "styleId": "JK.Body",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "6648bc0b0d30d97fb053e1e8bd6d47c8d9a1121530e546519a9395e610a8d180",
+                "length_bucket": "81-200"
+              },
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ]
+    }
+  ],
+  "composeRuns": [
+    {
+      "index": 1,
+      "frame": {
+        "left": 0,
+        "top": 0,
+        "width": 1280,
+        "height": 720
+      },
+      "baseUnit": 8,
+      "root": {
+        "path": "0",
+        "kind": "layers",
+        "name": "canonical-table",
+        "requestedSize": {
+          "width": {
+            "mode": "fill",
+            "value": 1
+          },
+          "height": {
+            "mode": "fill",
+            "value": 1
+          }
+        },
+        "intrinsicSize": {
+          "width": 1208,
+          "height": 632
+        },
+        "frame": {
+          "left": 0,
+          "top": 0,
+          "width": 1280,
+          "height": 720
+        },
+        "children": [
+          {
+            "path": "0.0",
+            "kind": "layers",
+            "name": "judgmentkit-section-header",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 1208,
+              "height": 136
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            },
+            "children": [
+              {
+                "path": "0.0.0",
+                "kind": "text",
+                "name": "judgmentkit-section-header-label",
+                "position": {
+                  "left": 72,
+                  "top": 48
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 1136
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 24
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 1136,
+                  "height": 24
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 48,
+                  "width": 1136,
+                  "height": 24
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 48,
+                  "width": 1136,
+                  "height": 24
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "7c143ce80d6112b54d17daab428441a5d0949e779fcd558c95a84708f9293843",
+                  "length_bucket": "1-20"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/2t83itgf",
+                  "id": "1",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.0.1",
+                "kind": "text",
+                "name": "judgmentkit-section-header-title",
+                "position": {
+                  "left": 72,
+                  "top": 78
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 1136
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 58
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 1136,
+                  "height": 58
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 78,
+                  "width": 1136,
+                  "height": 58
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 78,
+                  "width": 1136,
+                  "height": 58
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "a9dba4005198bfcc5dfab164cfacef833c4b3703129e01cf13568fa677b20215",
+                  "length_bucket": "21-80"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/9knih4by",
+                  "id": "2",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            },
+            "items": [
+              {
+                "path": "0.0.0",
+                "frame": {
+                  "left": 72,
+                  "top": 48,
+                  "width": 1136,
+                  "height": 24
+                }
+              },
+              {
+                "path": "0.0.1",
+                "frame": {
+                  "left": 72,
+                  "top": 78,
+                  "width": 1136,
+                  "height": 58
+                }
+              }
+            ]
+          },
+          {
+            "path": "0.1",
+            "kind": "table",
+            "name": "judgmentkit-evidence-table",
+            "position": {
+              "left": 72,
+              "top": 182
+            },
+            "requestedSize": {
+              "width": {
+                "mode": "fixed",
+                "value": 1136
+              },
+              "height": {
+                "mode": "fixed",
+                "value": 310
+              }
+            },
+            "intrinsicSize": {
+              "width": 1136,
+              "height": 310
+            },
+            "frame": {
+              "left": 72,
+              "top": 182,
+              "width": 1136,
+              "height": 310
+            },
+            "snappedFrame": {
+              "left": 72,
+              "top": 182,
+              "width": 1136,
+              "height": 310
+            },
+            "children": [],
+            "rows": 4,
+            "columns": 3,
+            "style": "JK.BodySmall",
+            "element": {
+              "aid": "tb/p4r65wju",
+              "id": "3",
+              "kind": "table"
+            }
+          },
+          {
+            "path": "0.2",
+            "kind": "layers",
+            "name": "judgmentkit-handoff-receipt",
+            "requestedSize": {
+              "width": {
+                "mode": "fill",
+                "value": 1
+              },
+              "height": {
+                "mode": "fill",
+                "value": 1
+              }
+            },
+            "intrinsicSize": {
+              "width": 1208,
+              "height": 632
+            },
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            },
+            "children": [
+              {
+                "path": "0.2.0",
+                "kind": "shape",
+                "name": "judgmentkit-handoff-receipt-surface",
+                "position": {
+                  "left": 72,
+                  "top": 508
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 1136
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 124
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 1136,
+                  "height": 124
+                },
+                "frame": {
+                  "left": 72,
+                  "top": 508,
+                  "width": 1136,
+                  "height": 124
+                },
+                "snappedFrame": {
+                  "left": 72,
+                  "top": 508,
+                  "width": 1136,
+                  "height": 124
+                },
+                "children": [],
+                "geometry": "rect",
+                "element": {
+                  "aid": "sh/rqd4vmtw",
+                  "id": "4",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.2.1",
+                "kind": "text",
+                "name": "judgmentkit-handoff-receipt-title",
+                "position": {
+                  "left": 90,
+                  "top": 526
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 1100
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 34
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 1100,
+                  "height": 34
+                },
+                "frame": {
+                  "left": 90,
+                  "top": 526,
+                  "width": 1100,
+                  "height": 34
+                },
+                "snappedFrame": {
+                  "left": 90,
+                  "top": 526,
+                  "width": 1100,
+                  "height": 34
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "87950833b64d1526efca2b6237b4c02f7f4374c75df603393e36c8e40893eac9",
+                  "length_bucket": "1-20"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/25kb6xkf",
+                  "id": "5",
+                  "kind": "shape"
+                }
+              },
+              {
+                "path": "0.2.2",
+                "kind": "text",
+                "name": "judgmentkit-handoff-receipt-body",
+                "position": {
+                  "left": 90,
+                  "top": 574
+                },
+                "requestedSize": {
+                  "width": {
+                    "mode": "fixed",
+                    "value": 1100
+                  },
+                  "height": {
+                    "mode": "fixed",
+                    "value": 40
+                  }
+                },
+                "intrinsicSize": {
+                  "width": 1100,
+                  "height": 40
+                },
+                "frame": {
+                  "left": 90,
+                  "top": 574,
+                  "width": 1100,
+                  "height": 40
+                },
+                "snappedFrame": {
+                  "left": 90,
+                  "top": 574,
+                  "width": 1100,
+                  "height": 40
+                },
+                "children": [],
+                "text_summary": {
+                  "present": true,
+                  "sha256": "6648bc0b0d30d97fb053e1e8bd6d47c8d9a1121530e546519a9395e610a8d180",
+                  "length_bucket": "81-200"
+                },
+                "transform": "none",
+                "element": {
+                  "aid": "sh/9w3m94fu",
+                  "id": "6",
+                  "kind": "shape"
+                }
+              }
+            ],
+            "padding": {
+              "top": 0,
+              "right": 0,
+              "bottom": 0,
+              "left": 0
+            },
+            "alignItems": "stretch",
+            "justifyItems": "stretch",
+            "contentFrame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            },
+            "items": [
+              {
+                "path": "0.2.0",
+                "frame": {
+                  "left": 72,
+                  "top": 508,
+                  "width": 1136,
+                  "height": 124
+                }
+              },
+              {
+                "path": "0.2.1",
+                "frame": {
+                  "left": 90,
+                  "top": 526,
+                  "width": 1100,
+                  "height": 34
+                }
+              },
+              {
+                "path": "0.2.2",
+                "frame": {
+                  "left": 90,
+                  "top": 574,
+                  "width": 1100,
+                  "height": 40
+                }
+              }
+            ]
+          }
+        ],
+        "padding": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        },
+        "alignItems": "stretch",
+        "justifyItems": "stretch",
+        "contentFrame": {
+          "left": 0,
+          "top": 0,
+          "width": 1280,
+          "height": 720
+        },
+        "items": [
+          {
+            "path": "0.0",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            }
+          },
+          {
+            "path": "0.1",
+            "frame": {
+              "left": 72,
+              "top": 182,
+              "width": 1136,
+              "height": 310
+            }
+          },
+          {
+            "path": "0.2",
+            "frame": {
+              "left": 0,
+              "top": 0,
+              "width": 1280,
+              "height": 720
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

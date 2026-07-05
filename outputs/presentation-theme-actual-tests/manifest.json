@@ -1,0 +1,1355 @@
+{
+  "cases": [
+    {
+      "evidence": "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+      "id": "jk-theme-canonical-16x9",
+      "pptx": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9.pptx",
+      "raster": {
+        "contact_sheet": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9-montage.png",
+        "rendered_png_directory": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9",
+        "status": "available"
+      },
+      "size": {
+        "height": 720,
+        "width": 1280
+      },
+      "slides": 4,
+      "structural": "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json"
+    },
+    {
+      "evidence": "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+      "id": "jk-theme-custom-4x3",
+      "pptx": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3.pptx",
+      "raster": {
+        "contact_sheet": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3-montage.png",
+        "rendered_png_directory": "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3",
+        "status": "available"
+      },
+      "size": {
+        "height": 768,
+        "width": 1024
+      },
+      "slides": 1,
+      "structural": "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json"
+    },
+    {
+      "evidence": "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+      "id": "jk-theme-compact-review",
+      "pptx": "outputs/presentation-theme-actual-tests/jk-theme-compact-review.pptx",
+      "raster": {
+        "contact_sheet": "outputs/presentation-theme-actual-tests/jk-theme-compact-review-montage.png",
+        "rendered_png_directory": "outputs/presentation-theme-actual-tests/jk-theme-compact-review",
+        "status": "available"
+      },
+      "size": {
+        "height": 540,
+        "width": 960
+      },
+      "slides": 1,
+      "structural": "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json"
+    }
+  ],
+  "generated_by": "scripts/presentation-theme/build-actual-fixtures.mjs",
+  "managed_files": [
+    "outputs/presentation-theme-actual-tests/README.md",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9.webp",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-01.png",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-02.png",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-03.png",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9/slide-04.png",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-compact-review.webp",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-compact-review/slide-01.png",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-custom-4x3.webp",
+    "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-custom-4x3/slide-01.png",
+    "outputs/presentation-theme-actual-tests/evidence/jk-theme-canonical-16x9.acceptance.json",
+    "outputs/presentation-theme-actual-tests/evidence/jk-theme-compact-review.acceptance.json",
+    "outputs/presentation-theme-actual-tests/evidence/jk-theme-custom-4x3.acceptance.json",
+    "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-01.layout.json",
+    "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-02.layout.json",
+    "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-03.layout.json",
+    "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-canonical-16x9/slide-04.layout.json",
+    "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-compact-review/slide-01.layout.json",
+    "outputs/presentation-theme-actual-tests/imported-layouts/jk-theme-custom-4x3/slide-01.layout.json",
+    "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson",
+    "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.ndjson",
+    "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson",
+    "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.ndjson",
+    "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.imported.ndjson",
+    "outputs/presentation-theme-actual-tests/inspect/jk-theme-custom-4x3.ndjson",
+    "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9-montage.png",
+    "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9.pptx",
+    "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-1.png",
+    "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-2.png",
+    "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-3.png",
+    "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9/slide-4.png",
+    "outputs/presentation-theme-actual-tests/jk-theme-compact-review-montage.png",
+    "outputs/presentation-theme-actual-tests/jk-theme-compact-review.pptx",
+    "outputs/presentation-theme-actual-tests/jk-theme-compact-review/slide-1.png",
+    "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3-montage.png",
+    "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3.pptx",
+    "outputs/presentation-theme-actual-tests/jk-theme-custom-4x3/slide-1.png",
+    "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-01.layout.json",
+    "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-02.layout.json",
+    "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-03.layout.json",
+    "outputs/presentation-theme-actual-tests/layouts/jk-theme-canonical-16x9/slide-04.layout.json",
+    "outputs/presentation-theme-actual-tests/layouts/jk-theme-compact-review/slide-01.layout.json",
+    "outputs/presentation-theme-actual-tests/layouts/jk-theme-custom-4x3/slide-01.layout.json",
+    "outputs/presentation-theme-actual-tests/review-summary.json",
+    "outputs/presentation-theme-actual-tests/structural/jk-theme-canonical-16x9.structural.json",
+    "outputs/presentation-theme-actual-tests/structural/jk-theme-compact-review.structural.json",
+    "outputs/presentation-theme-actual-tests/structural/jk-theme-custom-4x3.structural.json"
+  ],
+  "policy_source": "scripts/presentation-theme/actual-evidence-check.mjs",
+  "runtime_fingerprint": {
+    "artifact_tool": {
+      "module": {
+        "path": "artifact_tool.mjs",
+        "sha256": "f64faa0a3f86428b108c62d99f35d03b0a952de9788c2ffa0b07dad1dc6c4aef"
+      },
+      "package": "@oai/artifact-tool",
+      "package_json": {
+        "path": "package.json",
+        "sha256": "d707bfd3d31ada38632a38999258a9d69dc33bd3c993f6c42e38d1f16a32ee6d"
+      },
+      "version": "2.8.18"
+    },
+    "fixture_builder": {
+      "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+    },
+    "presentations_skill_dir": {
+      "basename": "presentations",
+      "kind": "local_path",
+      "sha256": "2134a449bafb98d87475838f6698b80dd163099fcc822fa1d73bc6006a18b5c4"
+    },
+    "python": {
+      "executable": {
+        "basename": "python3",
+        "kind": "local_path",
+        "sha256": "d653e13ce0764c5880a3aaabd33663e8ab18a77888b4c0929b193969df2931d5"
+      },
+      "numpy": true,
+      "numpy_version": "2.3.5",
+      "pdf2image": true,
+      "PIL": true,
+      "PIL_version": "12.2.0",
+      "pptx": true,
+      "pptx_version": "1.0.2",
+      "version": "3.12.13"
+    },
+    "raster_available": true,
+    "render_tools": {
+      "create_montage": {
+        "path": "create_montage.py",
+        "sha256": "cdcc06f3740843c81b635670f2416d5b641860bea8e00281d4b650022ba3eb36"
+      },
+      "render_slides": {
+        "path": "render_slides.py",
+        "sha256": "3bedbcf9689cfcba30a09fd025fb9219381f9c46bdf4f9038d16212b7ae028fd"
+      },
+      "slides_test": {
+        "path": "slides_test.py",
+        "sha256": "f192e85ba17a9f7634908074e2149a277a30684c0e38d459f9c1d0245bfd6cc1"
+      }
+    }
+  },
+  "source_inputs": [
+    {
+      "path": "scripts/presentation-theme/actual-constants.mjs",
+      "sha256": "88ddfdd2c162a6b940d270d8c96dfc4d4bb8c77d6b833ca4ebefed35630c531f"
+    },
+    {
+      "path": "scripts/presentation-theme/actual-evidence-check.mjs",
+      "sha256": "45757f0e55b54b17f7a98009d2d61b7cf4368537dcc0ae9f05a7b3fcf5ea71a6"
+    },
+    {
+      "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+      "sha256": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0"
+    },
+    {
+      "path": "scripts/presentation-theme/pptx-structural-inspector.mjs",
+      "sha256": "30be6e13198ac68b9067ee5780aee8dae14ca963788e41c9e582111b25e5f3a0"
+    },
+    {
+      "path": "scripts/presentation-theme/run-actual-qa.mjs",
+      "sha256": "bb0fd6a35f65970c7f772cf52d67963c2af221118963be473b7bbfeaceba8934"
+    },
+    {
+      "path": "src/presentation-theme/components.mjs",
+      "sha256": "8d1df658e1b6cca3d20f2911b6f6141cff03eeb92fe0f6f932c5f203e21d82d0"
+    },
+    {
+      "path": "src/presentation-theme/index.mjs",
+      "sha256": "9bda6ef4c10540e8af695c16c11eb1979e0a4b595927380badab164bad32a79d"
+    },
+    {
+      "path": "src/presentation-theme/layout.mjs",
+      "sha256": "88e6e8fe8c996b7fca468b8d9de3e75db4459d21e37f50298a32a9fae43c7f35"
+    },
+    {
+      "path": "src/presentation-theme/qa.mjs",
+      "sha256": "44af72f2845a91800e5ec04c3df4d577396080878ba23e3ac70ff00e5041fb8d"
+    },
+    {
+      "path": "src/presentation-theme/styles.mjs",
+      "sha256": "1ac4622b9f8b96eb608ca5d6106b1233bdd4d921164c3109595a8ff7157d788f"
+    },
+    {
+      "path": "src/presentation-theme/template-layout-data.mjs",
+      "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+    },
+    {
+      "path": "src/presentation-theme/templates.mjs",
+      "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+    },
+    {
+      "path": "src/presentation-theme/theme.mjs",
+      "sha256": "9b8fa54a1e59435673fa755203b0aa072af16498c2134b5c8763122f83b59b18"
+    },
+    {
+      "path": "src/presentation-theme/tokens.mjs",
+      "sha256": "5805e446b2871ef2b17f3698f21676c2684d4cc8a1b09c4055a56bdff3d3eb4d"
+    }
+  ],
+  "template_registry": {
+    "layout_count": 80,
+    "layouts": [
+      {
+        "aliases": [
+          "jk-slide-01"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-01",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 1
+      },
+      {
+        "aliases": [
+          "jk-slide-02"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-02",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 2
+      },
+      {
+        "aliases": [
+          "jk-slide-03"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-03",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 3
+      },
+      {
+        "aliases": [
+          "jk-slide-04"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-04",
+        "selection": {
+          "activity_use": "image-hero",
+          "canvas_profile": "widescreen",
+          "layout_family": "full-bleed-image",
+          "surface_type": "content_report"
+        },
+        "slide_number": 4
+      },
+      {
+        "aliases": [
+          "jk-slide-05"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-05",
+        "selection": {
+          "activity_use": "image-hero",
+          "canvas_profile": "widescreen",
+          "layout_family": "full-bleed-image",
+          "surface_type": "content_report"
+        },
+        "slide_number": 5
+      },
+      {
+        "aliases": [
+          "jk-slide-06"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-06",
+        "selection": {
+          "activity_use": "two-column",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "content_report"
+        },
+        "slide_number": 6
+      },
+      {
+        "aliases": [
+          "jk-slide-07"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-07",
+        "selection": {
+          "activity_use": "agenda",
+          "canvas_profile": "widescreen",
+          "layout_family": "agenda-list",
+          "surface_type": "content_report"
+        },
+        "slide_number": 7
+      },
+      {
+        "aliases": [
+          "jk-slide-08"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-08",
+        "selection": {
+          "activity_use": "data-table",
+          "canvas_profile": "widescreen",
+          "layout_family": "table-evidence",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 8
+      },
+      {
+        "aliases": [
+          "jk-slide-09"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-09",
+        "selection": {
+          "activity_use": "data-table",
+          "canvas_profile": "widescreen",
+          "layout_family": "table-evidence",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 9
+      },
+      {
+        "aliases": [
+          "jk-slide-10"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-10",
+        "selection": {
+          "activity_use": "image-hero",
+          "canvas_profile": "widescreen",
+          "layout_family": "split-image-text",
+          "surface_type": "content_report"
+        },
+        "slide_number": 10
+      },
+      {
+        "aliases": [
+          "jk-slide-11"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-11",
+        "selection": {
+          "activity_use": "agenda",
+          "canvas_profile": "widescreen",
+          "layout_family": "agenda-list",
+          "surface_type": "content_report"
+        },
+        "slide_number": 11
+      },
+      {
+        "aliases": [
+          "jk-slide-12"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-12",
+        "selection": {
+          "activity_use": "agenda",
+          "canvas_profile": "widescreen",
+          "layout_family": "agenda-list",
+          "surface_type": "content_report"
+        },
+        "slide_number": 12
+      },
+      {
+        "aliases": [
+          "jk-slide-13"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-13",
+        "selection": {
+          "activity_use": "image-hero",
+          "canvas_profile": "widescreen",
+          "layout_family": "split-image-text",
+          "surface_type": "content_report"
+        },
+        "slide_number": 13
+      },
+      {
+        "aliases": [
+          "jk-slide-14"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-14",
+        "selection": {
+          "activity_use": "agenda",
+          "canvas_profile": "widescreen",
+          "layout_family": "agenda-list",
+          "surface_type": "content_report"
+        },
+        "slide_number": 14
+      },
+      {
+        "aliases": [
+          "jk-slide-15"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-15",
+        "selection": {
+          "activity_use": "agenda",
+          "canvas_profile": "widescreen",
+          "layout_family": "agenda-list",
+          "surface_type": "content_report"
+        },
+        "slide_number": 15
+      },
+      {
+        "aliases": [
+          "jk-slide-16"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-16",
+        "selection": {
+          "activity_use": "data-table",
+          "canvas_profile": "widescreen",
+          "layout_family": "table-evidence",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 16
+      },
+      {
+        "aliases": [
+          "jk-slide-17"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-17",
+        "selection": {
+          "activity_use": "image-hero",
+          "canvas_profile": "widescreen",
+          "layout_family": "split-image-text",
+          "surface_type": "content_report"
+        },
+        "slide_number": 17
+      },
+      {
+        "aliases": [
+          "jk-slide-18"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-18",
+        "selection": {
+          "activity_use": "image-hero",
+          "canvas_profile": "widescreen",
+          "layout_family": "split-image-text",
+          "surface_type": "content_report"
+        },
+        "slide_number": 18
+      },
+      {
+        "aliases": [
+          "jk-slide-19"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-19",
+        "selection": {
+          "activity_use": "image-hero",
+          "canvas_profile": "widescreen",
+          "layout_family": "split-image-text",
+          "surface_type": "content_report"
+        },
+        "slide_number": 19
+      },
+      {
+        "aliases": [
+          "jk-slide-20"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-20",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 20
+      },
+      {
+        "aliases": [
+          "jk-slide-21"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-21",
+        "selection": {
+          "activity_use": "cover",
+          "canvas_profile": "widescreen",
+          "layout_family": "cover-image-field",
+          "surface_type": "content_report"
+        },
+        "slide_number": 21
+      },
+      {
+        "aliases": [
+          "jk-slide-22"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-22",
+        "selection": {
+          "activity_use": "cover",
+          "canvas_profile": "widescreen",
+          "layout_family": "cover-image-field",
+          "surface_type": "content_report"
+        },
+        "slide_number": 22
+      },
+      {
+        "aliases": [
+          "jk-slide-23"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-23",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 23
+      },
+      {
+        "aliases": [
+          "jk-slide-24"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-24",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 24
+      },
+      {
+        "aliases": [
+          "jk-slide-25"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-25",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 25
+      },
+      {
+        "aliases": [
+          "jk-slide-26"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-26",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 26
+      },
+      {
+        "aliases": [
+          "jk-slide-27"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-27",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 27
+      },
+      {
+        "aliases": [
+          "jk-slide-28"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-28",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 28
+      },
+      {
+        "aliases": [
+          "jk-slide-29"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-29",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 29
+      },
+      {
+        "aliases": [
+          "jk-slide-30"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-30",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 30
+      },
+      {
+        "aliases": [
+          "jk-slide-31"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-31",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 31
+      },
+      {
+        "aliases": [
+          "jk-slide-32"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-32",
+        "selection": {
+          "activity_use": "two-column",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "content_report"
+        },
+        "slide_number": 32
+      },
+      {
+        "aliases": [
+          "jk-slide-33"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-33",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 33
+      },
+      {
+        "aliases": [
+          "jk-slide-34"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-34",
+        "selection": {
+          "activity_use": "data-table",
+          "canvas_profile": "widescreen",
+          "layout_family": "table-evidence",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 34
+      },
+      {
+        "aliases": [
+          "jk-slide-35"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-35",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 35
+      },
+      {
+        "aliases": [
+          "jk-slide-36"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-36",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 36
+      },
+      {
+        "aliases": [
+          "jk-slide-37"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-37",
+        "selection": {
+          "activity_use": "two-column",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "content_report"
+        },
+        "slide_number": 37
+      },
+      {
+        "aliases": [
+          "jk-slide-38"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-38",
+        "selection": {
+          "activity_use": "two-column",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "content_report"
+        },
+        "slide_number": 38
+      },
+      {
+        "aliases": [
+          "jk-slide-39"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-39",
+        "selection": {
+          "activity_use": "two-column",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "content_report"
+        },
+        "slide_number": 39
+      },
+      {
+        "aliases": [
+          "jk-slide-40"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-40",
+        "selection": {
+          "activity_use": "two-column",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "content_report"
+        },
+        "slide_number": 40
+      },
+      {
+        "aliases": [
+          "jk-slide-41"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-41",
+        "selection": {
+          "activity_use": "data-table",
+          "canvas_profile": "widescreen",
+          "layout_family": "table-evidence",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 41
+      },
+      {
+        "aliases": [
+          "jk-slide-42"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-42",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 42
+      },
+      {
+        "aliases": [
+          "jk-slide-43"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-43",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 43
+      },
+      {
+        "aliases": [
+          "jk-slide-44"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-44",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 44
+      },
+      {
+        "aliases": [
+          "jk-slide-45"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-45",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 45
+      },
+      {
+        "aliases": [
+          "jk-slide-46"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-46",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 46
+      },
+      {
+        "aliases": [
+          "jk-slide-47"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-47",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 47
+      },
+      {
+        "aliases": [
+          "jk-slide-48"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-48",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 48
+      },
+      {
+        "aliases": [
+          "jk-slide-49"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-49",
+        "selection": {
+          "activity_use": "two-column",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "content_report"
+        },
+        "slide_number": 49
+      },
+      {
+        "aliases": [
+          "jk-slide-50"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-50",
+        "selection": {
+          "activity_use": "two-column",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "content_report"
+        },
+        "slide_number": 50
+      },
+      {
+        "aliases": [
+          "jk-slide-51"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-51",
+        "selection": {
+          "activity_use": "two-column",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "content_report"
+        },
+        "slide_number": 51
+      },
+      {
+        "aliases": [
+          "jk-slide-52"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-52",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 52
+      },
+      {
+        "aliases": [
+          "jk-slide-53"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-53",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 53
+      },
+      {
+        "aliases": [
+          "jk-slide-54"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-54",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 54
+      },
+      {
+        "aliases": [
+          "jk-slide-55"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-55",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 55
+      },
+      {
+        "aliases": [
+          "jk-slide-56"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-56",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 56
+      },
+      {
+        "aliases": [
+          "jk-slide-57"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-57",
+        "selection": {
+          "activity_use": "two-column",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "content_report"
+        },
+        "slide_number": 57
+      },
+      {
+        "aliases": [
+          "jk-slide-58"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-58",
+        "selection": {
+          "activity_use": "two-column",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "content_report"
+        },
+        "slide_number": 58
+      },
+      {
+        "aliases": [
+          "jk-slide-59"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-59",
+        "selection": {
+          "activity_use": "two-column",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "content_report"
+        },
+        "slide_number": 59
+      },
+      {
+        "aliases": [
+          "jk-slide-60"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-60",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 60
+      },
+      {
+        "aliases": [
+          "jk-slide-61"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-61",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 61
+      },
+      {
+        "aliases": [
+          "jk-slide-62"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-62",
+        "selection": {
+          "activity_use": "metrics",
+          "canvas_profile": "widescreen",
+          "layout_family": "metric-led",
+          "surface_type": "dashboard_monitor"
+        },
+        "slide_number": 62
+      },
+      {
+        "aliases": [
+          "jk-slide-63"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-63",
+        "selection": {
+          "activity_use": "two-column",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "content_report"
+        },
+        "slide_number": 63
+      },
+      {
+        "aliases": [
+          "jk-slide-64"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-64",
+        "selection": {
+          "activity_use": "chart",
+          "canvas_profile": "widescreen",
+          "layout_family": "chart-evidence",
+          "surface_type": "dashboard_monitor"
+        },
+        "slide_number": 64
+      },
+      {
+        "aliases": [
+          "jk-slide-65"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-65",
+        "selection": {
+          "activity_use": "chart",
+          "canvas_profile": "widescreen",
+          "layout_family": "chart-evidence",
+          "surface_type": "dashboard_monitor"
+        },
+        "slide_number": 65
+      },
+      {
+        "aliases": [
+          "jk-slide-66"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-66",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 66
+      },
+      {
+        "aliases": [
+          "jk-slide-67"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-67",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 67
+      },
+      {
+        "aliases": [
+          "jk-slide-68"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-68",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 68
+      },
+      {
+        "aliases": [
+          "jk-slide-69"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-69",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 69
+      },
+      {
+        "aliases": [
+          "jk-slide-70"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-70",
+        "selection": {
+          "activity_use": "metrics",
+          "canvas_profile": "widescreen",
+          "layout_family": "metric-led",
+          "surface_type": "dashboard_monitor"
+        },
+        "slide_number": 70
+      },
+      {
+        "aliases": [
+          "jk-slide-71"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-71",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 71
+      },
+      {
+        "aliases": [
+          "jk-slide-72"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-72",
+        "selection": {
+          "activity_use": "metrics",
+          "canvas_profile": "widescreen",
+          "layout_family": "metric-led",
+          "surface_type": "dashboard_monitor"
+        },
+        "slide_number": 72
+      },
+      {
+        "aliases": [
+          "jk-slide-73"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-73",
+        "selection": {
+          "activity_use": "two-column",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "content_report"
+        },
+        "slide_number": 73
+      },
+      {
+        "aliases": [
+          "jk-slide-74"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-74",
+        "selection": {
+          "activity_use": "metrics",
+          "canvas_profile": "widescreen",
+          "layout_family": "metric-led",
+          "surface_type": "dashboard_monitor"
+        },
+        "slide_number": 74
+      },
+      {
+        "aliases": [
+          "jk-slide-75"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-75",
+        "selection": {
+          "activity_use": "metrics",
+          "canvas_profile": "widescreen",
+          "layout_family": "metric-led",
+          "surface_type": "dashboard_monitor"
+        },
+        "slide_number": 75
+      },
+      {
+        "aliases": [
+          "jk-slide-76"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-76",
+        "selection": {
+          "activity_use": "metrics",
+          "canvas_profile": "widescreen",
+          "layout_family": "metric-led",
+          "surface_type": "dashboard_monitor"
+        },
+        "slide_number": 76
+      },
+      {
+        "aliases": [
+          "jk-slide-77"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-77",
+        "selection": {
+          "activity_use": "metrics",
+          "canvas_profile": "widescreen",
+          "layout_family": "metric-led",
+          "surface_type": "dashboard_monitor"
+        },
+        "slide_number": 77
+      },
+      {
+        "aliases": [
+          "jk-slide-78"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-78",
+        "selection": {
+          "activity_use": "metrics",
+          "canvas_profile": "widescreen",
+          "layout_family": "metric-led",
+          "surface_type": "dashboard_monitor"
+        },
+        "slide_number": 78
+      },
+      {
+        "aliases": [
+          "jk-slide-79"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-79",
+        "selection": {
+          "activity_use": "process",
+          "canvas_profile": "widescreen",
+          "layout_family": "two-column-content",
+          "surface_type": "operator_review"
+        },
+        "slide_number": 79
+      },
+      {
+        "aliases": [
+          "jk-slide-80"
+        ],
+        "case_id": "judgmentkit-template-library-80",
+        "layout_id": "slide-80",
+        "selection": {
+          "activity_use": "content",
+          "canvas_profile": "widescreen",
+          "layout_family": "multi-region-content",
+          "surface_type": "content_report"
+        },
+        "slide_number": 80
+      }
+    ],
+    "registry_id": "judgmentkit.presentation-theme.templates",
+    "registry_version": "0.1.0",
+    "schema": "judgmentkit.presentation-theme.template-registry/v1",
+    "source": "src/presentation-theme/templates.mjs",
+    "source_inputs": [
+      {
+        "path": "src/presentation-theme/templates.mjs",
+        "sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+      },
+      {
+        "path": "src/presentation-theme/template-layout-data.mjs",
+        "sha256": "51fa0137b81e34cf9aa4925749ff007373c348ce01acb0a7319525acfe6f4115"
+      }
+    ],
+    "source_sha256": "6679705a876a870c99393ae28b4ac93dbd4aa845636310f43ade825dd9c657a0"
+  },
+  "version": 1
+}

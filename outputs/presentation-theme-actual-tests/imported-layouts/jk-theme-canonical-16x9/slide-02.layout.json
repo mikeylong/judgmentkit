@@ -1,0 +1,911 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/pg3ex0nu",
+    "id": "pg3ex0nu",
+    "slide": 2,
+    "layoutId": "/ppt/slideLayouts/slideLayout1.xml",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "/ppt/slideMasters/slideMaster1.xml",
+    "masterLayoutName": "Master",
+    "backgroundColor": "bg1",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "JudgmentKit Light",
+    "colors": {
+      "accent1": "#156082",
+      "accent2": "#467886",
+      "accent3": "#2E6B48",
+      "accent4": "#8A5A16",
+      "accent5": "#8F342F",
+      "accent6": "#D9D9D9",
+      "dk1": "#171717",
+      "lt1": "#FFFFFF",
+      "dk2": "#666666",
+      "lt2": "#F4F4F4",
+      "hlink": "#156082",
+      "folHlink": "#467886"
+    },
+    "fontScheme": {
+      "name": "Office",
+      "majorFont": {
+        "latinTypeface": "Calibri Light",
+        "eastAsianTypeface": "Calibri Light",
+        "complexScriptTypeface": "Calibri Light"
+      },
+      "minorFont": {
+        "latinTypeface": "Calibri",
+        "eastAsianTypeface": "Calibri",
+        "complexScriptTypeface": "Calibri"
+      }
+    },
+    "typefaces": [
+      "Calibri",
+      "Calibri Light"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "/ppt/slideLayouts/slideLayout1.xml",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "/ppt/slideMasters/slideMaster1.xml",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "/ppt/slideMasters/slideMaster1.xml",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/yxobm58z",
+      "id": "1",
+      "name": "judgmentkit-section-header-label",
+      "bbox": [
+        72,
+        48,
+        1136,
+        24
+      ],
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "8481bf151082d17e2d0666be857285ad46606d0945b4340e6c99c9acfebb09d4",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "8481bf151082d17e2d0666be857285ad46606d0945b4340e6c99c9acfebb09d4",
+        "length_bucket": "1-20"
+      },
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "8481bf151082d17e2d0666be857285ad46606d0945b4340e6c99c9acfebb09d4",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "8481bf151082d17e2d0666be857285ad46606d0945b4340e6c99c9acfebb09d4",
+            "length_bucket": "1-20"
+          },
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "tx2",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "8481bf151082d17e2d0666be857285ad46606d0945b4340e6c99c9acfebb09d4",
+                "length_bucket": "1-20"
+              },
+              "fontSize": 12,
+              "color": "tx2",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/5o7qpg3e",
+      "id": "2",
+      "name": "judgmentkit-section-header-title",
+      "bbox": [
+        72,
+        78,
+        1136,
+        58
+      ],
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "8630382e05c6cdacdee27233c94ba5e8dde8b58c857f98a0ac3d837c333781a1",
+        "length_bucket": "21-80"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "8630382e05c6cdacdee27233c94ba5e8dde8b58c857f98a0ac3d837c333781a1",
+        "length_bucket": "21-80"
+      },
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "dd62a0aef475d56c6e94a552a801449d83be513c6074778b4d0e1fcdc00dfe1d",
+              "length_bucket": "21-80"
+            }
+          },
+          {
+            "index": 2,
+            "text_summary": {
+              "present": true,
+              "sha256": "9390ef32addf32bfdea786bc1e20679592498068bcbfcd357ea10ab64ea35e47",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "8630382e05c6cdacdee27233c94ba5e8dde8b58c857f98a0ac3d837c333781a1",
+            "length_bucket": "21-80"
+          },
+          "resolvedTextStyle": {
+            "fontSize": 38,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "8630382e05c6cdacdee27233c94ba5e8dde8b58c857f98a0ac3d837c333781a1",
+                "length_bucket": "21-80"
+              },
+              "fontSize": 38,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 3,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/g3ex0nux",
+      "id": "3",
+      "name": "judgmentkit-evidence-panel-surface",
+      "bbox": [
+        72,
+        196,
+        530,
+        220
+      ],
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/r65wjudg",
+      "id": "4",
+      "name": "judgmentkit-evidence-panel-title",
+      "bbox": [
+        90,
+        214,
+        494,
+        34
+      ],
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "63b35f804bc8a519f119567d23737ab48d9c3b3477e38f48be7b22a327ad23c5",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "63b35f804bc8a519f119567d23737ab48d9c3b3477e38f48be7b22a327ad23c5",
+        "length_bucket": "1-20"
+      },
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "63b35f804bc8a519f119567d23737ab48d9c3b3477e38f48be7b22a327ad23c5",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "63b35f804bc8a519f119567d23737ab48d9c3b3477e38f48be7b22a327ad23c5",
+            "length_bucket": "1-20"
+          },
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "63b35f804bc8a519f119567d23737ab48d9c3b3477e38f48be7b22a327ad23c5",
+                "length_bucket": "1-20"
+              },
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 5,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/ylc7u54z",
+      "id": "5",
+      "name": "judgmentkit-evidence-panel-body",
+      "bbox": [
+        90,
+        262,
+        494,
+        136
+      ],
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "6cd95ad2074421e0ee1e4db3d17a96b1f1333cbf0c6b0f994ebed523810d3f1b",
+        "length_bucket": "81-200"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "06f9052db4ded9d930083fc14b22dbf35fd890704e7b9e623a100b7deaad6c44",
+        "length_bucket": "81-200"
+      },
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "d7a4c91322cfda0e3229f9c888f5567655631da6cdec76ec0051e0af8128c852",
+              "length_bucket": "21-80"
+            }
+          },
+          {
+            "index": 2,
+            "text_summary": {
+              "present": true,
+              "sha256": "04ca230428cab25195be38a76d0c11eb07f0e207ac7bbce63326185f78527344",
+              "length_bucket": "21-80"
+            }
+          },
+          {
+            "index": 3,
+            "text_summary": {
+              "present": true,
+              "sha256": "8f076e1e94141aa74551969eb9c0300bac9208b059a96343d9fdd7d1b0f8fc3b",
+              "length_bucket": "21-80"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "d7a4c91322cfda0e3229f9c888f5567655631da6cdec76ec0051e0af8128c852",
+            "length_bucket": "21-80"
+          },
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "d7a4c91322cfda0e3229f9c888f5567655631da6cdec76ec0051e0af8128c852",
+                "length_bucket": "21-80"
+              },
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        },
+        {
+          "index": 2,
+          "text_summary": {
+            "present": true,
+            "sha256": "04ca230428cab25195be38a76d0c11eb07f0e207ac7bbce63326185f78527344",
+            "length_bucket": "21-80"
+          },
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "04ca230428cab25195be38a76d0c11eb07f0e207ac7bbce63326185f78527344",
+                "length_bucket": "21-80"
+              },
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        },
+        {
+          "index": 3,
+          "text_summary": {
+            "present": true,
+            "sha256": "8f076e1e94141aa74551969eb9c0300bac9208b059a96343d9fdd7d1b0f8fc3b",
+            "length_bucket": "21-80"
+          },
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "8f076e1e94141aa74551969eb9c0300bac9208b059a96343d9fdd7d1b0f8fc3b",
+                "length_bucket": "21-80"
+              },
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 6,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/9cvixcze",
+      "id": "6",
+      "name": "judgmentkit-risk-callout-surface",
+      "bbox": [
+        632,
+        196,
+        576,
+        220
+      ],
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 7,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/gr2p8nqx",
+      "id": "7",
+      "name": "judgmentkit-risk-callout-title",
+      "bbox": [
+        650,
+        214,
+        540,
+        34
+      ],
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "0711a8d636e4c068ae59fa80c03ad68e7bd9fe473c1f9248fd2cf3716e3fb715",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "0711a8d636e4c068ae59fa80c03ad68e7bd9fe473c1f9248fd2cf3716e3fb715",
+        "length_bucket": "1-20"
+      },
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "0711a8d636e4c068ae59fa80c03ad68e7bd9fe473c1f9248fd2cf3716e3fb715",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "0711a8d636e4c068ae59fa80c03ad68e7bd9fe473c1f9248fd2cf3716e3fb715",
+            "length_bucket": "1-20"
+          },
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "0711a8d636e4c068ae59fa80c03ad68e7bd9fe473c1f9248fd2cf3716e3fb715",
+                "length_bucket": "1-20"
+              },
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 8,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/rytsvu9k",
+      "id": "8",
+      "name": "judgmentkit-risk-callout-body",
+      "bbox": [
+        650,
+        262,
+        540,
+        136
+      ],
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "ad30b916d8cff2ba06a99a535727767f4d33148e66f7214d23430b2049e8e9bf",
+        "length_bucket": "81-200"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "0a641f68177f8df306b9ee0992b5d4ae951d9820200ddbd51afe9d56c5ee8792",
+        "length_bucket": "81-200"
+      },
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "697b1c89fde309ef48b39da6a3d28e30d2967de2a9fa1ba50b14c99bdc579161",
+              "length_bucket": "21-80"
+            }
+          },
+          {
+            "index": 2,
+            "text_summary": {
+              "present": true,
+              "sha256": "35dc4930b1ee3860a3896964fd709e4b1b4a7832f438458a0d9ef8fa007952c3",
+              "length_bucket": "1-20"
+            }
+          },
+          {
+            "index": 3,
+            "text_summary": {
+              "present": true,
+              "sha256": "9819da7eb364a8112af3abc28899529aa5723a8edd9ee4cdcf5d7b86b440c908",
+              "length_bucket": "21-80"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "634358248dccf9c4f91571dec661dc4be5a1f6d5f9acff85f23577396e06b7bd",
+            "length_bucket": "21-80"
+          },
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "634358248dccf9c4f91571dec661dc4be5a1f6d5f9acff85f23577396e06b7bd",
+                "length_bucket": "21-80"
+              },
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        },
+        {
+          "index": 2,
+          "text_summary": {
+            "present": true,
+            "sha256": "9819da7eb364a8112af3abc28899529aa5723a8edd9ee4cdcf5d7b86b440c908",
+            "length_bucket": "21-80"
+          },
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "9819da7eb364a8112af3abc28899529aa5723a8edd9ee4cdcf5d7b86b440c908",
+                "length_bucket": "21-80"
+              },
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 9,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/yd0z6103",
+      "id": "9",
+      "name": "judgmentkit-handoff-receipt-surface",
+      "bbox": [
+        72,
+        442,
+        1136,
+        134
+      ],
+      "geometry": "roundRect",
+      "fillColor": "bg2",
+      "lineColor": "accent6",
+      "lineWidth": 1
+    },
+    {
+      "order": 10,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/wb2hwfyx",
+      "id": "10",
+      "name": "judgmentkit-handoff-receipt-title",
+      "bbox": [
+        90,
+        460,
+        1100,
+        34
+      ],
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "949886d90db6c5a35392f1a0170d4cb2e25523db21ab38f1ba4883e8eca9c752",
+        "length_bucket": "1-20"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "949886d90db6c5a35392f1a0170d4cb2e25523db21ab38f1ba4883e8eca9c752",
+        "length_bucket": "1-20"
+      },
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "949886d90db6c5a35392f1a0170d4cb2e25523db21ab38f1ba4883e8eca9c752",
+              "length_bucket": "1-20"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "949886d90db6c5a35392f1a0170d4cb2e25523db21ab38f1ba4883e8eca9c752",
+            "length_bucket": "1-20"
+          },
+          "resolvedTextStyle": {
+            "fontSize": 30,
+            "color": "tx1",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "949886d90db6c5a35392f1a0170d4cb2e25523db21ab38f1ba4883e8eca9c752",
+                "length_bucket": "1-20"
+              },
+              "fontSize": 30,
+              "color": "tx1",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    },
+    {
+      "order": 11,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/lwval87e",
+      "id": "11",
+      "name": "judgmentkit-handoff-receipt-body",
+      "bbox": [
+        90,
+        508,
+        1100,
+        50
+      ],
+      "geometry": "rect",
+      "text_summary": {
+        "present": true,
+        "sha256": "490c8d9068a6f89a0bcb78665211f8ab4cec6a5a3649c00aedf8eaa76f3f4bc8",
+        "length_bucket": "81-200"
+      },
+      "text_preview_summary": {
+        "present": true,
+        "sha256": "490c8d9068a6f89a0bcb78665211f8ab4cec6a5a3649c00aedf8eaa76f3f4bc8",
+        "length_bucket": "81-200"
+      },
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "fontSize": 24,
+        "typeface": "Calibri",
+        "color": "tx1",
+        "alignment": "left",
+        "insets": {
+          "top": 0,
+          "right": 0,
+          "bottom": 0,
+          "left": 0
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text_summary": {
+              "present": true,
+              "sha256": "490c8d9068a6f89a0bcb78665211f8ab4cec6a5a3649c00aedf8eaa76f3f4bc8",
+              "length_bucket": "81-200"
+            }
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text_summary": {
+            "present": true,
+            "sha256": "490c8d9068a6f89a0bcb78665211f8ab4cec6a5a3649c00aedf8eaa76f3f4bc8",
+            "length_bucket": "81-200"
+          },
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "tx1",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text_summary": {
+                "present": true,
+                "sha256": "490c8d9068a6f89a0bcb78665211f8ab4cec6a5a3649c00aedf8eaa76f3f4bc8",
+                "length_bucket": "81-200"
+              },
+              "fontSize": 18,
+              "color": "tx1",
+              "alignment": "left"
+            }
+          ],
+          "bulletCharacter": "",
+          "marginLeft": 0
+        }
+      ]
+    }
+  ],
+  "composeRuns": []
+}

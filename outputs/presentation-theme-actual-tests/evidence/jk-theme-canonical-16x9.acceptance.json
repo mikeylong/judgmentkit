@@ -1,0 +1,530 @@
+{
+  "adapter": {
+    "id": "judgmentkit.presentation-theme.adapter-v1",
+    "name": "JudgmentKit PPTX Theme Adapter",
+    "version": "0.1.0",
+    "source": "src/index.mjs DEFAULT_VISUAL_TOKEN_ADAPTER",
+    "visual_token_authority": {
+      "module_path": "src/index.mjs",
+      "symbol": "DEFAULT_VISUAL_TOKEN_ADAPTER",
+      "id": "judgmentkit.visual-token-adapter.boundary-v1",
+      "mode": "boundary_only"
+    },
+    "runtime": "@oai/artifact-tool",
+    "dependency_policy": "dependency-free adapter; callers inject Presentation or presentation",
+    "slide_size": {
+      "width": 1280,
+      "height": 720
+    },
+    "theme_color_slots": [
+      "accent1",
+      "accent2",
+      "accent3",
+      "accent4",
+      "accent5",
+      "accent6",
+      "bg1",
+      "bg2",
+      "tx1",
+      "tx2",
+      "dk1",
+      "dk2",
+      "lt1",
+      "lt2",
+      "hlink",
+      "folHlink"
+    ],
+    "theme_color_role_map": {
+      "accent1": "focus",
+      "accent2": "receipt",
+      "accent3": "success",
+      "accent4": "warning",
+      "accent5": "risk",
+      "accent6": "border",
+      "bg1": "canvas",
+      "bg2": "surface",
+      "tx1": "text",
+      "tx2": "muted",
+      "dk1": "text",
+      "dk2": "muted",
+      "lt1": "canvas",
+      "lt2": "surface",
+      "hlink": "focus",
+      "folHlink": "receipt"
+    },
+    "token_sets": {
+      "light": {
+        "--jk-color-canvas": "#ffffff",
+        "--jk-color-surface": "#f4f4f4",
+        "--jk-color-text": "#171717",
+        "--jk-color-muted": "#666666",
+        "--jk-color-border": "#d9d9d9",
+        "--jk-color-focus": "#156082",
+        "--jk-color-success": "#2e6b48",
+        "--jk-color-warning": "#8a5a16",
+        "--jk-color-risk": "#8f342f",
+        "--jk-color-disabled": "#999999",
+        "--jk-color-receipt": "#467886"
+      },
+      "dark": {
+        "--jk-color-canvas": "#101312",
+        "--jk-color-surface": "#181d1b",
+        "--jk-color-text": "#f2f4ef",
+        "--jk-color-muted": "#b8c0bb",
+        "--jk-color-border": "#39423f",
+        "--jk-color-focus": "#7db6c7",
+        "--jk-color-success": "#82c99a",
+        "--jk-color-warning": "#e0b15d",
+        "--jk-color-risk": "#e37d76",
+        "--jk-color-disabled": "#7d8580",
+        "--jk-color-receipt": "#80cbc7"
+      }
+    },
+    "exports": [
+      "createJudgmentKitPresentation",
+      "applyJudgmentKitPptxTheme",
+      "registerJudgmentKitStyles",
+      "createJudgmentKitDeckKit",
+      "createJudgmentKitLayout",
+      "createJudgmentKitPresentationTemplateRegistry",
+      "listJudgmentKitPresentationTemplates",
+      "getJudgmentKitPresentationTemplate",
+      "rankJudgmentKitPresentationTemplates",
+      "selectJudgmentKitPresentationTemplate",
+      "composeJudgmentKitPresentationTemplate",
+      "JUDGMENTKIT_PRESENTATION_TEMPLATE_REGISTRY",
+      "JUDGMENTKIT_SLIDE_SIZE",
+      "JUDGMENTKIT_PPTX_THEME_COLORS",
+      "JUDGMENTKIT_TEXT_STYLE_CONFIGS",
+      "JUDGMENTKIT_STYLE_NAMES",
+      "JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST",
+      "JUDGMENTKIT_PPTX_THEME_ADAPTER_MANIFEST"
+    ]
+  },
+  "artifact_ref": {
+    "kind": "pptx",
+    "path": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9.pptx",
+    "sha256": "9c1e670984336980f892d6960cec99e0e6caebd4a1e7d2fab21a5732d528355c"
+  },
+  "source_ref": {
+    "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+    "kind": "generator"
+  },
+  "source_hash": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0",
+  "source_lint": {
+    "status": "passed",
+    "findings": [],
+    "source_hash": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0",
+    "source_ref": {
+      "kind": "generator",
+      "path": "scripts/presentation-theme/build-actual-fixtures.mjs"
+    }
+  },
+  "theme": {
+    "id": "judgmentkit.presentation-theme.adapter-v1",
+    "color_scheme": {
+      "accent1": "#156082",
+      "accent2": "#467886",
+      "accent3": "#2e6b48",
+      "accent4": "#8a5a16",
+      "accent5": "#8f342f",
+      "accent6": "#d9d9d9",
+      "bg1": "#ffffff",
+      "bg2": "#f4f4f4",
+      "tx1": "#171717",
+      "tx2": "#666666",
+      "dk1": "#171717",
+      "dk2": "#666666",
+      "lt1": "#ffffff",
+      "lt2": "#f4f4f4",
+      "hlink": "#156082",
+      "folHlink": "#467886"
+    },
+    "style_ids": [
+      "JK.Display",
+      "JK.SlideTitle",
+      "JK.SectionHeading",
+      "JK.Subtitle",
+      "JK.Body",
+      "JK.BodySmall",
+      "JK.Label",
+      "JK.Caption",
+      "JK.Numeric",
+      "JK.Diagnostic",
+      "JK.Link",
+      "JK.Status.Success",
+      "JK.Status.Warning",
+      "JK.Status.Risk",
+      "JK.Status.Receipt"
+    ],
+    "fallback_policy": "fail_incomplete"
+  },
+  "checks": {
+    "actual_slide_size": {
+      "name": "full-slide",
+      "x": 0,
+      "y": 0,
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720,
+      "w": 1280,
+      "h": 720
+    },
+    "artifact_preview_directory": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-canonical-16x9",
+    "artifact_preview_pngs": 4,
+    "layout_json_exports": 4,
+    "imported_layout_json_exports": 4,
+    "imported_inspect_path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-canonical-16x9.imported.ndjson",
+    "rendered_pptx_png_directory": "outputs/presentation-theme-actual-tests/jk-theme-canonical-16x9",
+    "rendered_pptx_pngs_expected": 4
+  },
+  "text_authority": {
+    "status": "extracted",
+    "method": "artifact_tool_import_pptx_inspect_ndjson",
+    "artifact_sha256": "9c1e670984336980f892d6960cec99e0e6caebd4a1e7d2fab21a5732d528355c",
+    "extractor_id": "PresentationFile.importPptx.inspect",
+    "slide_count": 4,
+    "authoritative_slide_count": 4,
+    "text_run_count": 42,
+    "raster_text_region_count": 0,
+    "confidence_buckets": [
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing"
+    ],
+    "normalized_text_hashes": [
+      "ac77880c1e029675b26f839171a55d32b82415eee9db632a509f0302a7cdf079",
+      "18fb3a7ccaaa9122b12a072ae70c31cca7d85dab3e0c93ddb78dbf5bab9b55ae",
+      "f561e5413fa9ad3f50a04b8c0586533b88d2671987c1eb22adcce31dd15db89e",
+      "8897a5b4e9022c7234f41c53d7135db5eca3f74f2f8be5228013192e54cbebcb"
+    ],
+    "text_length_buckets": [
+      "201+",
+      "201+",
+      "81-200",
+      "201+"
+    ],
+    "locators": [
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 0,
+        "kind": "slide"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 1,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 2,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 3,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 4,
+        "kind": "shape"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 5,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 6,
+        "kind": "shape"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 7,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 8,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 9,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 10,
+        "kind": "shape"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 11,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 12,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 13,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 14,
+        "kind": "shape"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 15,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 16,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 17,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 1,
+        "slide_number": 2,
+        "object_index": 18,
+        "kind": "slide"
+      },
+      {
+        "slide_index": 1,
+        "slide_number": 2,
+        "object_index": 19,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 1,
+        "slide_number": 2,
+        "object_index": 20,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 1,
+        "slide_number": 2,
+        "object_index": 21,
+        "kind": "shape"
+      },
+      {
+        "slide_index": 1,
+        "slide_number": 2,
+        "object_index": 22,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 1,
+        "slide_number": 2,
+        "object_index": 23,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 1,
+        "slide_number": 2,
+        "object_index": 24,
+        "kind": "shape"
+      },
+      {
+        "slide_index": 1,
+        "slide_number": 2,
+        "object_index": 25,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 1,
+        "slide_number": 2,
+        "object_index": 26,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 1,
+        "slide_number": 2,
+        "object_index": 27,
+        "kind": "shape"
+      },
+      {
+        "slide_index": 1,
+        "slide_number": 2,
+        "object_index": 28,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 1,
+        "slide_number": 2,
+        "object_index": 29,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 2,
+        "slide_number": 3,
+        "object_index": 30,
+        "kind": "slide"
+      },
+      {
+        "slide_index": 2,
+        "slide_number": 3,
+        "object_index": 31,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 2,
+        "slide_number": 3,
+        "object_index": 32,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 2,
+        "slide_number": 3,
+        "object_index": 33,
+        "kind": "shape"
+      },
+      {
+        "slide_index": 2,
+        "slide_number": 3,
+        "object_index": 34,
+        "kind": "chart"
+      },
+      {
+        "slide_index": 3,
+        "slide_number": 4,
+        "object_index": 35,
+        "kind": "slide"
+      },
+      {
+        "slide_index": 3,
+        "slide_number": 4,
+        "object_index": 36,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 3,
+        "slide_number": 4,
+        "object_index": 37,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 3,
+        "slide_number": 4,
+        "object_index": 38,
+        "kind": "shape"
+      },
+      {
+        "slide_index": 3,
+        "slide_number": 4,
+        "object_index": 39,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 3,
+        "slide_number": 4,
+        "object_index": 40,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 3,
+        "slide_number": 4,
+        "object_index": 41,
+        "kind": "table"
+      }
+    ]
+  },
+  "legacy_slides": {
+    "authority": "non_authoritative",
+    "count": 0,
+    "omitted": true
+  },
+  "evidence_sources": {
+    "slides": {
+      "authority": "non_authoritative",
+      "role": "supplemental_summary"
+    }
+  },
+  "review": {
+    "status": "passed",
+    "acceptance_status": "accepted",
+    "source_lint": {
+      "status": "passed",
+      "findings": [],
+      "source_hash": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0",
+      "source_ref": {
+        "kind": "generator",
+        "path": "scripts/presentation-theme/build-actual-fixtures.mjs"
+      }
+    },
+    "warnings": [],
+    "findings": []
+  },
+  "status": "passed",
+  "acceptance_status": "accepted"
+}

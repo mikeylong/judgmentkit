@@ -1,0 +1,328 @@
+{
+  "adapter": {
+    "id": "judgmentkit.presentation-theme.adapter-v1",
+    "name": "JudgmentKit PPTX Theme Adapter",
+    "version": "0.1.0",
+    "source": "src/index.mjs DEFAULT_VISUAL_TOKEN_ADAPTER",
+    "visual_token_authority": {
+      "module_path": "src/index.mjs",
+      "symbol": "DEFAULT_VISUAL_TOKEN_ADAPTER",
+      "id": "judgmentkit.visual-token-adapter.boundary-v1",
+      "mode": "boundary_only"
+    },
+    "runtime": "@oai/artifact-tool",
+    "dependency_policy": "dependency-free adapter; callers inject Presentation or presentation",
+    "slide_size": {
+      "width": 1280,
+      "height": 720
+    },
+    "theme_color_slots": [
+      "accent1",
+      "accent2",
+      "accent3",
+      "accent4",
+      "accent5",
+      "accent6",
+      "bg1",
+      "bg2",
+      "tx1",
+      "tx2",
+      "dk1",
+      "dk2",
+      "lt1",
+      "lt2",
+      "hlink",
+      "folHlink"
+    ],
+    "theme_color_role_map": {
+      "accent1": "focus",
+      "accent2": "receipt",
+      "accent3": "success",
+      "accent4": "warning",
+      "accent5": "risk",
+      "accent6": "border",
+      "bg1": "canvas",
+      "bg2": "surface",
+      "tx1": "text",
+      "tx2": "muted",
+      "dk1": "text",
+      "dk2": "muted",
+      "lt1": "canvas",
+      "lt2": "surface",
+      "hlink": "focus",
+      "folHlink": "receipt"
+    },
+    "token_sets": {
+      "light": {
+        "--jk-color-canvas": "#ffffff",
+        "--jk-color-surface": "#f4f4f4",
+        "--jk-color-text": "#171717",
+        "--jk-color-muted": "#666666",
+        "--jk-color-border": "#d9d9d9",
+        "--jk-color-focus": "#156082",
+        "--jk-color-success": "#2e6b48",
+        "--jk-color-warning": "#8a5a16",
+        "--jk-color-risk": "#8f342f",
+        "--jk-color-disabled": "#999999",
+        "--jk-color-receipt": "#467886"
+      },
+      "dark": {
+        "--jk-color-canvas": "#101312",
+        "--jk-color-surface": "#181d1b",
+        "--jk-color-text": "#f2f4ef",
+        "--jk-color-muted": "#b8c0bb",
+        "--jk-color-border": "#39423f",
+        "--jk-color-focus": "#7db6c7",
+        "--jk-color-success": "#82c99a",
+        "--jk-color-warning": "#e0b15d",
+        "--jk-color-risk": "#e37d76",
+        "--jk-color-disabled": "#7d8580",
+        "--jk-color-receipt": "#80cbc7"
+      }
+    },
+    "exports": [
+      "createJudgmentKitPresentation",
+      "applyJudgmentKitPptxTheme",
+      "registerJudgmentKitStyles",
+      "createJudgmentKitDeckKit",
+      "createJudgmentKitLayout",
+      "createJudgmentKitPresentationTemplateRegistry",
+      "listJudgmentKitPresentationTemplates",
+      "getJudgmentKitPresentationTemplate",
+      "rankJudgmentKitPresentationTemplates",
+      "selectJudgmentKitPresentationTemplate",
+      "composeJudgmentKitPresentationTemplate",
+      "JUDGMENTKIT_PRESENTATION_TEMPLATE_REGISTRY",
+      "JUDGMENTKIT_SLIDE_SIZE",
+      "JUDGMENTKIT_PPTX_THEME_COLORS",
+      "JUDGMENTKIT_TEXT_STYLE_CONFIGS",
+      "JUDGMENTKIT_STYLE_NAMES",
+      "JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST",
+      "JUDGMENTKIT_PPTX_THEME_ADAPTER_MANIFEST"
+    ]
+  },
+  "artifact_ref": {
+    "kind": "pptx",
+    "path": "outputs/presentation-theme-actual-tests/jk-theme-compact-review.pptx",
+    "sha256": "51e688b8884858cbd2e5c63bf5d49c43ace7ea61077cb34007252516763be35d"
+  },
+  "source_ref": {
+    "path": "scripts/presentation-theme/build-actual-fixtures.mjs",
+    "kind": "generator"
+  },
+  "source_hash": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0",
+  "source_lint": {
+    "status": "passed",
+    "findings": [],
+    "source_hash": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0",
+    "source_ref": {
+      "kind": "generator",
+      "path": "scripts/presentation-theme/build-actual-fixtures.mjs"
+    }
+  },
+  "theme": {
+    "id": "judgmentkit.presentation-theme.adapter-v1",
+    "color_scheme": {
+      "accent1": "#156082",
+      "accent2": "#467886",
+      "accent3": "#2e6b48",
+      "accent4": "#8a5a16",
+      "accent5": "#8f342f",
+      "accent6": "#d9d9d9",
+      "bg1": "#ffffff",
+      "bg2": "#f4f4f4",
+      "tx1": "#171717",
+      "tx2": "#666666",
+      "dk1": "#171717",
+      "dk2": "#666666",
+      "lt1": "#ffffff",
+      "lt2": "#f4f4f4",
+      "hlink": "#156082",
+      "folHlink": "#467886"
+    },
+    "style_ids": [
+      "JK.Display",
+      "JK.SlideTitle",
+      "JK.SectionHeading",
+      "JK.Subtitle",
+      "JK.Body",
+      "JK.BodySmall",
+      "JK.Label",
+      "JK.Caption",
+      "JK.Numeric",
+      "JK.Diagnostic",
+      "JK.Link",
+      "JK.Status.Success",
+      "JK.Status.Warning",
+      "JK.Status.Risk",
+      "JK.Status.Receipt"
+    ],
+    "fallback_policy": "fail_incomplete"
+  },
+  "checks": {
+    "actual_slide_size": {
+      "name": "full-slide",
+      "x": 0,
+      "y": 0,
+      "left": 0,
+      "top": 0,
+      "width": 960,
+      "height": 540,
+      "w": 960,
+      "h": 540
+    },
+    "artifact_preview_directory": "outputs/presentation-theme-actual-tests/artifact-previews/jk-theme-compact-review",
+    "artifact_preview_pngs": 1,
+    "layout_json_exports": 1,
+    "imported_layout_json_exports": 1,
+    "imported_inspect_path": "outputs/presentation-theme-actual-tests/inspect/jk-theme-compact-review.imported.ndjson",
+    "rendered_pptx_png_directory": "outputs/presentation-theme-actual-tests/jk-theme-compact-review",
+    "rendered_pptx_pngs_expected": 1
+  },
+  "text_authority": {
+    "status": "extracted",
+    "method": "artifact_tool_import_pptx_inspect_ndjson",
+    "artifact_sha256": "51e688b8884858cbd2e5c63bf5d49c43ace7ea61077cb34007252516763be35d",
+    "extractor_id": "PresentationFile.importPptx.inspect",
+    "slide_count": 1,
+    "authoritative_slide_count": 1,
+    "text_run_count": 14,
+    "raster_text_region_count": 0,
+    "confidence_buckets": [
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing",
+      "missing"
+    ],
+    "normalized_text_hashes": [
+      "4786471bb8367496cc5f556adb61c7bafa7ba13983f3fbe020adc710c6b1ac16"
+    ],
+    "text_length_buckets": [
+      "201+"
+    ],
+    "locators": [
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 0,
+        "kind": "slide"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 1,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 2,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 3,
+        "kind": "shape"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 4,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 5,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 6,
+        "kind": "shape"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 7,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 8,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 9,
+        "kind": "shape"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 10,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 11,
+        "kind": "shape"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 12,
+        "kind": "textbox"
+      },
+      {
+        "slide_index": 0,
+        "slide_number": 1,
+        "object_index": 13,
+        "kind": "textbox"
+      }
+    ]
+  },
+  "legacy_slides": {
+    "authority": "non_authoritative",
+    "count": 0,
+    "omitted": true
+  },
+  "evidence_sources": {
+    "slides": {
+      "authority": "non_authoritative",
+      "role": "supplemental_summary"
+    }
+  },
+  "review": {
+    "status": "passed",
+    "acceptance_status": "accepted",
+    "source_lint": {
+      "status": "passed",
+      "findings": [],
+      "source_hash": "116bc68d56663f93762e07b2ab7d6329f7daa8240c6aad6b4fa011039b08f4e0",
+      "source_ref": {
+        "kind": "generator",
+        "path": "scripts/presentation-theme/build-actual-fixtures.mjs"
+      }
+    },
+    "warnings": [],
+    "findings": []
+  },
+  "status": "passed",
+  "acceptance_status": "accepted"
+}
