@@ -1441,6 +1441,36 @@ function normalizeConfiguredWorkspaceRoot(candidate) {
     );
   }
 
+  const realRoot = fs.realpathSync(root);
+
+  if (workspaceRootIsUnsafe(root)) {
+    throw new JudgmentKitInputError(
+      "workspace_root_invalid: create_slide_deck workspace root points to an unsafe Codex runtime/cache directory.",
+      {
+        code: "workspace_root_invalid",
+        details: {
+          workspace_root: root,
+          real_workspace_root: realRoot,
+          workspace_root_source: candidate.source,
+        },
+      },
+    );
+  }
+
+  if (workspaceRootIsUnsafe(realRoot)) {
+    throw new JudgmentKitInputError(
+      "workspace_root_invalid: create_slide_deck workspace root resolves to an unsafe Codex runtime/cache directory.",
+      {
+        code: "workspace_root_invalid",
+        details: {
+          workspace_root: root,
+          real_workspace_root: realRoot,
+          workspace_root_source: candidate.source,
+        },
+      },
+    );
+  }
+
   return {
     root,
     source: candidate.source,
@@ -1448,12 +1478,31 @@ function normalizeConfiguredWorkspaceRoot(candidate) {
   };
 }
 
-function implicitWorkspaceRootIsUnsafe(root) {
+function pathSegments(value) {
+  return path.resolve(value).split(path.sep).filter(Boolean);
+}
+
+function pathHasSegmentSequence(segments, sequence) {
+  return segments.some((_, index) =>
+    sequence.every((segment, offset) => segments[index + offset] === segment),
+  );
+}
+
+function pathIsInside(parent, child) {
+  const relative = path.relative(parent, child);
+
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+}
+
+function workspaceRootIsUnsafe(root) {
+  const resolved = path.resolve(root);
+  const segments = pathSegments(resolved);
+
   return (
-    root === "/var/task" ||
-    root.startsWith("/var/task/") ||
-    root.includes(`${path.sep}.codex${path.sep}`) ||
-    root.includes(`${path.sep}.cache${path.sep}codex-runtimes${path.sep}`)
+    resolved === "/var/task" ||
+    resolved.startsWith("/var/task/") ||
+    segments.includes(".codex") ||
+    pathHasSegmentSequence(segments, [".cache", "codex-runtimes"])
   );
 }
 
@@ -1467,14 +1516,16 @@ function resolveSlideDeckWorkspaceRoot(runtime = {}) {
   }
 
   const cwd = path.resolve(process.cwd());
+  const realCwd = fs.realpathSync(cwd);
 
-  if (implicitWorkspaceRootIsUnsafe(cwd)) {
+  if (workspaceRootIsUnsafe(cwd) || workspaceRootIsUnsafe(realCwd)) {
     throw new JudgmentKitInputError(
       `workspace_root_missing: create_slide_deck could not determine the Codex workspace root. It would resolve ${DEFAULT_SLIDE_DECK_OUTPUT_DIR} under ${cwd}; provide runtime.workspace_root or configure the MCP runtime.`,
       {
         code: "workspace_root_missing",
         details: {
           attempted_workspace_root: cwd,
+          real_workspace_root: realCwd,
           workspace_root_source: "process.cwd()",
           checked_env: WORKSPACE_ROOT_ENV_KEYS,
         },
@@ -1489,65 +1540,165 @@ function resolveSlideDeckWorkspaceRoot(runtime = {}) {
   };
 }
 
+function slideDeckUnsafeOutputPathError(message, relativePath, workspaceRoot, details = {}) {
+  return new JudgmentKitInputError(
+    message,
+    {
+      code: "unsafe_output_path",
+      details: {
+        ...slideDeckOutputPathDetails(relativePath, workspaceRoot),
+        ...details,
+      },
+    },
+  );
+}
+
+async function lstatIfExists(filePath) {
+  try {
+    return await fsp.lstat(filePath);
+  } catch (error) {
+    if (error?.code === "ENOENT") {
+      return null;
+    }
+
+    throw error;
+  }
+}
+
+async function ensureSafeOutputDirectory(directoryPath, workspaceRoot, relativePath) {
+  const root = path.resolve(workspaceRoot);
+  const target = path.resolve(directoryPath);
+  const workspaceRealPath = await fsp.realpath(root);
+  const relativeDirectory = path.relative(root, target);
+
+  if (
+    relativeDirectory.startsWith("..") ||
+    path.isAbsolute(relativeDirectory)
+  ) {
+    throw slideDeckUnsafeOutputPathError(
+      "create_slide_deck output.path resolves outside the workspace root.",
+      relativePath,
+      workspaceRoot,
+      { directory_path: directoryPath },
+    );
+  }
+
+  let current = root;
+  const segments = relativeDirectory.split(path.sep).filter(Boolean);
+
+  for (const segment of segments) {
+    current = path.join(current, segment);
+
+    let stats = await lstatIfExists(current);
+
+    if (!stats) {
+      await fsp.mkdir(current);
+      stats = await fsp.lstat(current);
+    }
+
+    if (stats.isSymbolicLink()) {
+      throw slideDeckUnsafeOutputPathError(
+        "create_slide_deck output.path cannot use symlinked output directories.",
+        relativePath,
+        workspaceRoot,
+        { directory_path: current },
+      );
+    }
+
+    if (!stats.isDirectory()) {
+      throw slideDeckUnsafeOutputPathError(
+        "create_slide_deck output.path parent must be a directory.",
+        relativePath,
+        workspaceRoot,
+        { directory_path: current },
+      );
+    }
+
+    const realCurrent = await fsp.realpath(current);
+
+    if (!pathIsInside(workspaceRealPath, realCurrent)) {
+      throw slideDeckUnsafeOutputPathError(
+        "create_slide_deck output.path resolves outside the real workspace root.",
+        relativePath,
+        workspaceRoot,
+        {
+          directory_path: current,
+          real_directory_path: realCurrent,
+          real_workspace_root: workspaceRealPath,
+        },
+      );
+    }
+  }
+}
+
+async function assertSafeOutputFileTarget(absolutePath, relativePath, output, workspaceRoot, label) {
+  const existing = await lstatIfExists(absolutePath);
+
+  if (existing?.isSymbolicLink()) {
+    throw slideDeckUnsafeOutputPathError(
+      `create_slide_deck refuses to overwrite symlink ${label} paths.`,
+      relativePath,
+      workspaceRoot,
+      { target: label },
+    );
+  }
+
+  if (existing && (output.overwrite !== true || existing.isDirectory())) {
+    throw new JudgmentKitInputError(
+      `create_slide_deck ${label} already exists. Set output.overwrite true to replace it.`,
+      {
+        code: "output_exists",
+        details: {
+          ...slideDeckOutputPathDetails(relativePath, workspaceRoot),
+          target: label,
+        },
+      },
+    );
+  }
+}
+
 async function prepareSlideDeckOutputTarget(relativePath, output = {}, workspaceRoot) {
   const workspace = workspaceRoot ?? resolveSlideDeckWorkspaceRoot();
   const root = path.resolve(workspace.root, DEFAULT_SLIDE_DECK_OUTPUT_DIR);
   const absolutePath = path.resolve(workspace.root, relativePath);
   const parent = path.dirname(absolutePath);
+  const absoluteReceiptPath = `${absolutePath}.receipt.json`;
+  const receiptPath = `${relativePath}.receipt.json`;
 
-  await fsp.mkdir(parent, { recursive: true });
+  await ensureSafeOutputDirectory(parent, workspace.root, relativePath);
 
-  const [realRoot, realParent] = await Promise.all([
-    fsp.realpath(root),
-    fsp.realpath(parent),
-  ]);
-  const relativeParent = path.relative(realRoot, realParent);
+  const realRoot = await fsp.realpath(root);
+  const realParent = await fsp.realpath(parent);
 
-  if (
-    relativeParent.startsWith("..") ||
-    path.isAbsolute(relativeParent)
-  ) {
-    throw new JudgmentKitInputError(
+  if (!pathIsInside(realRoot, realParent)) {
+    throw slideDeckUnsafeOutputPathError(
       "create_slide_deck output.path resolves outside the allowed output directory.",
-      {
-        code: "unsafe_output_path",
-        details: slideDeckOutputPathDetails(relativePath, workspace.root),
-      },
+      relativePath,
+      workspace.root,
+      { real_output_root: realRoot, real_parent: realParent },
     );
   }
 
-  let existing;
-  try {
-    existing = await fsp.lstat(absolutePath);
-  } catch (error) {
-    if (error?.code !== "ENOENT") {
-      throw error;
-    }
-  }
-
-  if (existing?.isSymbolicLink()) {
-    throw new JudgmentKitInputError(
-      "create_slide_deck refuses to overwrite symlink output paths.",
-      {
-        code: "unsafe_output_path",
-        details: slideDeckOutputPathDetails(relativePath, workspace.root),
-      },
-    );
-  }
-
-  if (existing && output.overwrite !== true) {
-    throw new JudgmentKitInputError(
-      "create_slide_deck output.path already exists. Set output.overwrite true to replace it.",
-      {
-        code: "output_exists",
-        details: slideDeckOutputPathDetails(relativePath, workspace.root),
-      },
-    );
-  }
+  await assertSafeOutputFileTarget(
+    absolutePath,
+    relativePath,
+    output,
+    workspace.root,
+    "output.path",
+  );
+  await assertSafeOutputFileTarget(
+    absoluteReceiptPath,
+    receiptPath,
+    output,
+    workspace.root,
+    "provenance receipt",
+  );
 
   return {
     absolutePath,
     relativePath,
+    absoluteReceiptPath,
+    receiptPath,
     workspace_root: workspace.root,
     workspace_root_source: workspace.source,
   };
@@ -1833,6 +1984,7 @@ function warningMessages(warnings) {
 function buildSlideDeckProvenanceReceipt({
   deckId,
   outputTarget,
+  artifact,
   runtime,
   selectedSlides,
   themeMode,
@@ -1847,6 +1999,9 @@ function buildSlideDeckProvenanceReceipt({
     deck_id: deckId,
     output_path: outputTarget.relativePath,
     absolute_resolved_path: outputTarget.absolutePath,
+    sha256: artifact.sha256,
+    bytes: artifact.bytes,
+    mime_type: artifact.mime_type,
     created_at: createdAt,
     theme_mode: themeMode,
     adapter_manifest_id: JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST.id,
@@ -1869,16 +2024,153 @@ function buildSlideDeckProvenanceReceipt({
   };
 }
 
-async function writeSlideDeckProvenanceReceipt(outputTarget, receipt) {
-  const absoluteReceiptPath = `${outputTarget.absolutePath}.receipt.json`;
-  const receiptPath = `${outputTarget.relativePath}.receipt.json`;
+async function writeFileNoFollow(filePath, content, { overwrite = false } = {}) {
+  const flags =
+    fs.constants.O_CREAT |
+    fs.constants.O_WRONLY |
+    (overwrite ? fs.constants.O_TRUNC : fs.constants.O_EXCL) |
+    (fs.constants.O_NOFOLLOW ?? 0);
+  const handle = await fsp.open(filePath, flags, 0o600);
 
-  await fsp.writeFile(absoluteReceiptPath, `${JSON.stringify(receipt, null, 2)}\n`, "utf8");
+  try {
+    await handle.writeFile(content, "utf8");
+  } finally {
+    await handle.close();
+  }
+}
+
+function outputExistsError(relativePath, workspaceRoot, label) {
+  return new JudgmentKitInputError(
+    `create_slide_deck ${label} already exists. Set output.overwrite true to replace it.`,
+    {
+      code: "output_exists",
+      details: {
+        ...slideDeckOutputPathDetails(relativePath, workspaceRoot),
+        target: label,
+      },
+    },
+  );
+}
+
+async function publishFileNoFollow(sourcePath, destinationPath, {
+  overwrite = false,
+  relativePath,
+  workspaceRoot,
+  label,
+} = {}) {
+  await assertSafeOutputFileTarget(
+    destinationPath,
+    relativePath,
+    { overwrite },
+    workspaceRoot,
+    label,
+  );
+
+  try {
+    if (overwrite) {
+      await fsp.rename(sourcePath, destinationPath);
+      return;
+    }
+
+    await fsp.link(sourcePath, destinationPath);
+    await fsp.rm(sourcePath, { force: true }).catch(() => {});
+  } catch (error) {
+    if (error?.code === "EEXIST" || error?.code === "EISDIR") {
+      throw outputExistsError(relativePath, workspaceRoot, label);
+    }
+
+    throw error;
+  }
+}
+
+async function backupExistingOutputFile(filePath, relativePath, workspaceRoot, label) {
+  const existing = await lstatIfExists(filePath);
+
+  if (!existing) {
+    return null;
+  }
+
+  if (existing.isSymbolicLink()) {
+    throw slideDeckUnsafeOutputPathError(
+      `create_slide_deck refuses to overwrite symlink ${label} paths.`,
+      relativePath,
+      workspaceRoot,
+      { target: label },
+    );
+  }
+
+  if (existing.isDirectory()) {
+    throw outputExistsError(relativePath, workspaceRoot, label);
+  }
+
+  const safeLabel = label.replace(/[^a-z0-9]+/gi, "-").toLowerCase();
+  const backupPath = `${filePath}.${process.pid}.${Date.now()}.${safeLabel}.bak`;
+  await fsp.rename(filePath, backupPath);
+
+  return {
+    filePath,
+    backupPath,
+  };
+}
+
+async function restoreOutputBackups(backups) {
+  for (const backup of backups.slice().reverse()) {
+    await fsp.rm(backup.filePath, { force: true }).catch(() => {});
+    await fsp.rename(backup.backupPath, backup.filePath);
+  }
+}
+
+async function removeOutputBackups(backups) {
+  await Promise.all(backups.map((backup) => fsp.rm(backup.backupPath, { force: true })));
+}
+
+async function writeSlideDeckProvenanceReceipt(outputTarget, receipt, output = {}) {
+  const temporaryReceiptPath = `${outputTarget.absoluteReceiptPath}.${process.pid}.${Date.now()}.tmp`;
+
+  try {
+    await writeFileNoFollow(
+      temporaryReceiptPath,
+      `${JSON.stringify(receipt, null, 2)}\n`,
+      { overwrite: false },
+    );
+    await publishFileNoFollow(
+      temporaryReceiptPath,
+      outputTarget.absoluteReceiptPath,
+      {
+        overwrite: output.overwrite === true,
+        relativePath: outputTarget.receiptPath,
+        workspaceRoot: outputTarget.workspace_root,
+        label: "provenance receipt",
+      },
+    );
+  } catch (error) {
+    if (error?.code === "EEXIST" || error?.code === "EISDIR") {
+      await fsp.rm(temporaryReceiptPath, { force: true }).catch(() => {});
+      throw outputExistsError(
+        outputTarget.receiptPath,
+        outputTarget.workspace_root,
+        "provenance receipt",
+      );
+    }
+
+    if (error?.code === "ELOOP") {
+      await fsp.rm(temporaryReceiptPath, { force: true }).catch(() => {});
+      throw slideDeckUnsafeOutputPathError(
+        "create_slide_deck refuses to write symlink provenance receipt paths.",
+        outputTarget.receiptPath,
+        outputTarget.workspace_root,
+        { target: "provenance receipt" },
+      );
+    }
+
+    await fsp.rm(temporaryReceiptPath, { force: true }).catch(() => {});
+    throw error;
+  }
 
   return {
     ...receipt,
-    receipt_path: receiptPath,
-    absolute_receipt_path: absoluteReceiptPath,
+    receipt_path: outputTarget.receiptPath,
+    absolute_receipt_path: outputTarget.absoluteReceiptPath,
   };
 }
 
@@ -1925,6 +2217,9 @@ async function exportSlideDeckArtifact({
 
   const temporaryPath = `${outputTarget.absolutePath}.${process.pid}.${Date.now()}.tmp`;
   const temporaryInspectPath = `${temporaryPath}.inspect.ndjson`;
+  let committedOutput = false;
+  const overwrite = args.output?.overwrite === true;
+  const outputBackups = [];
 
   try {
     await withoutArtifactExportConsoleNoise(async () => {
@@ -1945,27 +2240,66 @@ async function exportSlideDeckArtifact({
       );
     }
 
-    await fsp.rename(temporaryPath, outputTarget.absolutePath);
+    const artifactDetails = {
+      sha256: sha256File(temporaryPath),
+      bytes: structure.bytes,
+      mime_type: PPTX_MIME_TYPE,
+    };
+
+    if (overwrite) {
+      const outputBackup = await backupExistingOutputFile(
+        outputTarget.absolutePath,
+        outputTarget.relativePath,
+        outputTarget.workspace_root,
+        "output.path",
+      );
+      if (outputBackup) {
+        outputBackups.push(outputBackup);
+      }
+
+      const receiptBackup = await backupExistingOutputFile(
+        outputTarget.absoluteReceiptPath,
+        outputTarget.receiptPath,
+        outputTarget.workspace_root,
+        "provenance receipt",
+      );
+      if (receiptBackup) {
+        outputBackups.push(receiptBackup);
+      }
+    }
+
+    await publishFileNoFollow(
+      temporaryPath,
+      outputTarget.absolutePath,
+      {
+        overwrite,
+        relativePath: outputTarget.relativePath,
+        workspaceRoot: outputTarget.workspace_root,
+        label: "output.path",
+      },
+    );
+    committedOutput = true;
     await fsp.rm(temporaryInspectPath, { force: true }).catch(() => {});
     const receipt = await writeSlideDeckProvenanceReceipt(
       outputTarget,
       buildSlideDeckProvenanceReceipt({
         deckId,
         outputTarget,
+        artifact: artifactDetails,
         runtime,
         selectedSlides,
         themeMode,
         warnings,
       }),
+      args.output ?? {},
     );
+    await removeOutputBackups(outputBackups);
 
     return {
       artifact_ref: {
         kind: "pptx",
         path: outputTarget.relativePath,
-        sha256: sha256File(outputTarget.absolutePath),
-        bytes: structure.bytes,
-        mime_type: PPTX_MIME_TYPE,
+        ...artifactDetails,
         receipt_path: receipt.receipt_path,
       },
       provenance_receipt: receipt,
@@ -1983,7 +2317,10 @@ async function exportSlideDeckArtifact({
     await Promise.all([
       fsp.rm(temporaryPath, { force: true }).catch(() => {}),
       fsp.rm(temporaryInspectPath, { force: true }).catch(() => {}),
+      committedOutput ? fsp.rm(outputTarget.absolutePath, { force: true }).catch(() => {}) : undefined,
+      overwrite ? fsp.rm(outputTarget.absoluteReceiptPath, { force: true }).catch(() => {}) : undefined,
     ]);
+    await restoreOutputBackups(outputBackups);
     throw error;
   }
 }
@@ -2029,11 +2366,6 @@ async function createSlideDeck(args = {}) {
   const shouldCreateArtifact =
     args.dry_run === false || (isRecord(args.output) && compactText(args.output.path));
   const dryRun = args.dry_run === true || !shouldCreateArtifact;
-  const outputPath = normalizeSlideDeckOutputPath(
-    args.output,
-    deckId,
-    compactText(args.runtime?.workspace_root),
-  );
   const selectedSlides = slides.map((slide, index) => {
     const selected = selectDeckTemplate(slide, index, includeDiagnostics);
 
@@ -2052,7 +2384,7 @@ async function createSlideDeck(args = {}) {
         ]
       : []),
   ];
-  const result = {
+  const baseResult = {
     schema: SLIDE_DECK_SCHEMA,
     deck_creation_status: dryRun ? "planned" : "export_attempted",
     export_status: dryRun ? "not_requested" : "attempted",
@@ -2064,14 +2396,7 @@ async function createSlideDeck(args = {}) {
       theme_mode: themeMode,
       template_registry_version: JUDGMENTKIT_PRESENTATION_TEMPLATE_REGISTRY.registry_version,
       adapter_manifest_id: JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST.id,
-    },
-    planned_output: dryRun
-      ? {
-          kind: "pptx",
-          path: outputPath,
-          mime_type: PPTX_MIME_TYPE,
-        }
-      : undefined,
+      },
     slides: selectedSlides.map(({ content, template, ...slide }) => {
       if (includeDiagnostics) {
         return { ...slide, template };
@@ -2080,6 +2405,40 @@ async function createSlideDeck(args = {}) {
       return slide;
     }),
     warnings,
+  };
+  let outputPath;
+  try {
+    outputPath = normalizeSlideDeckOutputPath(
+      args.output,
+      deckId,
+      compactText(args.runtime?.workspace_root),
+    );
+  } catch (error) {
+    if (!dryRun) {
+      return createSlideDeckExportFailureResult(
+        baseResult,
+        error,
+        {
+          output_path: compactText(args.output?.path),
+          workspace_root: compactText(args.runtime?.workspace_root) || undefined,
+          workspace_root_source: "unresolved",
+        },
+        warnings,
+      );
+    }
+
+    throw error;
+  }
+
+  const result = {
+    ...baseResult,
+    planned_output: dryRun
+      ? {
+          kind: "pptx",
+          path: outputPath,
+          mime_type: PPTX_MIME_TYPE,
+        }
+      : undefined,
   };
 
   if (dryRun) {

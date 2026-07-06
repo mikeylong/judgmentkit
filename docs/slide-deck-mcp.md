@@ -65,7 +65,6 @@ Then export from a local runtime:
     "artifact_tool_package": "/Users/mike/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool"
   },
   "dry_run": false,
-  "include_diagnostics": true,
   "slides": [
     {
       "template_id": "slide-21",
@@ -84,12 +83,17 @@ A successful export returns `deck_creation_status: "exported"`, `artifact_ref`, 
 outputs/judgmentkit-slide-decks/quarterly-review.pptx.receipt.json
 ```
 
+Treat dry-run planning as JudgmentKit guidance when the MCP response uses `schema: "judgmentkit.mcp.slide-deck/v1"` and `deck_creation_status: "planned"`.
+
 Treat a deck as JudgmentKit-generated only when the MCP response or sidecar receipt confirms:
 
 ```json
 {
   "tool_name": "mcp__judgmentkit.create_slide_deck",
   "deck_creation_status": "exported",
+  "sha256": "<matching PPTX SHA-256>",
+  "bytes": 12345,
+  "mime_type": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
   "adapter_manifest_id": "judgmentkit.presentation-theme.adapter-v1",
   "template_registry_version": "0.1.0"
 }
@@ -142,4 +146,4 @@ For portfolio, pitch, and case-study decks, pass explicit `template_id` values o
 }
 ```
 
-If more than half the deck uses the same layout or layout family, the response includes a repetition warning with suggested template families.
+For decks with at least four slides, if more than half the deck uses the same layout or layout family, the response includes a repetition warning with suggested template families.
