@@ -38,8 +38,27 @@ import {
 const MCP_SERVER_NAME = "JudgmentKit";
 const MCP_SERVER_VERSION = "0.6.5";
 const SLIDE_DECK_SCHEMA = "judgmentkit.mcp.slide-deck/v1";
+const SLIDE_DECK_RECEIPT_SCHEMA = "judgmentkit.mcp.slide-deck.provenance-receipt/v1";
 const MAX_SLIDE_DECK_SLIDES = 24;
 const DEFAULT_SLIDE_DECK_OUTPUT_DIR = "outputs/judgmentkit-slide-decks";
+const DEFAULT_BODY_TEMPLATE_SEQUENCE = [
+  "slide-01",
+  "slide-06",
+  "slide-32",
+  "slide-62",
+  "slide-64",
+  "slide-08",
+  "slide-37",
+  "slide-70",
+  "slide-73",
+];
+const WORKSPACE_ROOT_ENV_KEYS = [
+  "JUDGMENTKIT_WORKSPACE_ROOT",
+  "CODEX_WORKSPACE_ROOT",
+  "CODEX_WORKSPACE_DIR",
+  "CODEX_WORKSPACE",
+  "INIT_CWD",
+];
 const PPTX_MIME_TYPE =
   "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 const APPROVED_PRIMITIVES_INPUT_DESCRIPTION =
@@ -562,6 +581,11 @@ const CREATE_SLIDE_DECK_TOOL = {
             description:
               "Optional local path to an @oai/artifact-tool package. If omitted, JudgmentKit checks standard Codex runtime environment paths.",
           },
+          workspace_root: {
+            type: "string",
+            description:
+              "Optional absolute Codex workspace root used to resolve repo-relative output.path during local artifact export. Also supported through JUDGMENTKIT_WORKSPACE_ROOT or CODEX_WORKSPACE_ROOT.",
+          },
         },
         additionalProperties: false,
       },
@@ -689,7 +713,7 @@ function toDisplayList(values, limit = 4) {
   }
 
   return values
-    .map((entry) => compactText(entry))
+    .map((entry) => compactText(entry) || (isRecord(entry) ? compactText(entry.message) : ""))
     .filter(Boolean)
     .slice(0, limit);
 }
@@ -1141,6 +1165,95 @@ function normalizeSlideDeckSlides(slides) {
   });
 }
 
+function collectSlideContentSignals(value, signals = []) {
+  if (signals.length >= 200) {
+    return signals;
+  }
+
+  if (typeof value === "string") {
+    signals.push(value);
+    return signals;
+  }
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      collectSlideContentSignals(item, signals);
+    }
+
+    return signals;
+  }
+
+  if (isRecord(value)) {
+    for (const [key, nestedValue] of Object.entries(value)) {
+      signals.push(key);
+      collectSlideContentSignals(nestedValue, signals);
+    }
+  }
+
+  return signals;
+}
+
+function slideContentSignalText(slide) {
+  return collectSlideContentSignals(slide.content).join(" ").toLowerCase();
+}
+
+function hasArrayContent(value, keys) {
+  return keys.some((key) => Array.isArray(value?.[key]) && value[key].length > 0);
+}
+
+function hasRecordContent(value, keys) {
+  return keys.some((key) => isRecord(value?.[key]));
+}
+
+function inferredDefaultTemplateId(slide, index) {
+  if (index === 0) {
+    return "slide-21";
+  }
+
+  const content = isRecord(slide.content) ? slide.content : {};
+  const signalText = slideContentSignalText(slide);
+
+  if (
+    hasArrayContent(content, ["rows", "table", "table_rows", "evidence_rows"]) ||
+    hasRecordContent(content, ["table"])
+  ) {
+    return "slide-08";
+  }
+
+  if (
+    hasRecordContent(content, ["chart", "graph"]) ||
+    hasArrayContent(content, ["series", "data_points", "trend_points"]) ||
+    /\b(chart|graph|trend|trajectory|funnel|distribution)\b/.test(signalText)
+  ) {
+    return "slide-64";
+  }
+
+  if (
+    hasArrayContent(content, ["metrics", "stats", "kpis", "measures"]) ||
+    /\b(metric|metrics|kpi|kpis|measure|measures|score|scores|outcome|outcomes)\b/.test(
+      signalText,
+    )
+  ) {
+    return "slide-62";
+  }
+
+  if (
+    hasArrayContent(content, ["columns", "sections", "comparisons"]) ||
+    hasRecordContent(content, ["before_after", "comparison"]) ||
+    /\b(compare|comparison|versus|before|after|tradeoff|trade-off|architecture|system model)\b/.test(
+      signalText,
+    )
+  ) {
+    return "slide-06";
+  }
+
+  if (/\b(closing|next step|next steps|recommendation|takeaway|summary|handoff)\b/.test(signalText)) {
+    return "slide-80";
+  }
+
+  return DEFAULT_BODY_TEMPLATE_SEQUENCE[(index - 1) % DEFAULT_BODY_TEMPLATE_SEQUENCE.length];
+}
+
 function selectDeckTemplate(slide, index, includeDiagnostics = false) {
   try {
     if (slide.template_id) {
@@ -1175,7 +1288,7 @@ function selectDeckTemplate(slide, index, includeDiagnostics = false) {
       };
     }
 
-    const defaultTemplateId = index === 0 ? "slide-21" : "slide-01";
+    const defaultTemplateId = inferredDefaultTemplateId(slide, index);
 
     return {
       selected_by: "default",
@@ -1215,7 +1328,15 @@ function slideTemplateSummary(slide, selected, index) {
   };
 }
 
-function normalizeSlideDeckOutputPath(output, deckId) {
+function slideDeckOutputPathDetails(outputPath, workspaceRoot) {
+  return {
+    output_path: outputPath,
+    accepted_path_shape: `${DEFAULT_SLIDE_DECK_OUTPUT_DIR}/<name>.pptx`,
+    workspace_root: workspaceRoot,
+  };
+}
+
+function normalizeSlideDeckOutputPath(output, deckId, workspaceRoot) {
   const rawPath = compactText(output?.path);
   const relativePath = rawPath || `${DEFAULT_SLIDE_DECK_OUTPUT_DIR}/${deckId}.pptx`;
 
@@ -1225,8 +1346,11 @@ function normalizeSlideDeckOutputPath(output, deckId) {
     relativePath.includes("\0")
   ) {
     throw new JudgmentKitInputError(
-      "create_slide_deck output.path must be a repo-relative .pptx path using forward slashes.",
-      { code: "unsafe_output_path" },
+      `create_slide_deck output.path must be repo-relative under ${DEFAULT_SLIDE_DECK_OUTPUT_DIR} and use forward slashes. Absolute paths are not accepted; pass runtime.workspace_root separately when exporting.`,
+      {
+        code: "unsafe_output_path",
+        details: slideDeckOutputPathDetails(relativePath, workspaceRoot),
+      },
     );
   }
 
@@ -1244,7 +1368,7 @@ function normalizeSlideDeckOutputPath(output, deckId) {
       `create_slide_deck output.path must stay under ${DEFAULT_SLIDE_DECK_OUTPUT_DIR} and end in .pptx.`,
       {
         code: "unsafe_output_path",
-        details: { output_path: relativePath },
+        details: slideDeckOutputPathDetails(relativePath, workspaceRoot),
       },
     );
   }
@@ -1252,9 +1376,123 @@ function normalizeSlideDeckOutputPath(output, deckId) {
   return normalized;
 }
 
-async function prepareSlideDeckOutputTarget(relativePath, output = {}) {
-  const root = path.resolve(process.cwd(), DEFAULT_SLIDE_DECK_OUTPUT_DIR);
-  const absolutePath = path.resolve(process.cwd(), relativePath);
+function configuredWorkspaceRootCandidates(runtime = {}) {
+  return [
+    {
+      source: "runtime.workspace_root",
+      value: runtime.workspace_root,
+    },
+    ...WORKSPACE_ROOT_ENV_KEYS.map((key) => ({
+      source: `env.${key}`,
+      value: process.env[key],
+    })),
+  ];
+}
+
+function normalizeConfiguredWorkspaceRoot(candidate) {
+  const value = compactText(candidate.value);
+
+  if (!value) {
+    return null;
+  }
+
+  if (!path.isAbsolute(value)) {
+    throw new JudgmentKitInputError(
+      "workspace_root_invalid: create_slide_deck workspace root must be an absolute path.",
+      {
+        code: "workspace_root_invalid",
+        details: {
+          workspace_root: value,
+          workspace_root_source: candidate.source,
+        },
+      },
+    );
+  }
+
+  const root = path.resolve(value);
+
+  let stats;
+  try {
+    stats = fs.statSync(root);
+  } catch (error) {
+    throw new JudgmentKitInputError(
+      "workspace_root_missing: create_slide_deck workspace root does not exist.",
+      {
+        code: "workspace_root_missing",
+        details: {
+          workspace_root: root,
+          workspace_root_source: candidate.source,
+          message: error instanceof Error ? error.message : String(error),
+        },
+      },
+    );
+  }
+
+  if (!stats.isDirectory()) {
+    throw new JudgmentKitInputError(
+      "workspace_root_invalid: create_slide_deck workspace root must be a directory.",
+      {
+        code: "workspace_root_invalid",
+        details: {
+          workspace_root: root,
+          workspace_root_source: candidate.source,
+        },
+      },
+    );
+  }
+
+  return {
+    root,
+    source: candidate.source,
+    explicit: candidate.source === "runtime.workspace_root",
+  };
+}
+
+function implicitWorkspaceRootIsUnsafe(root) {
+  return (
+    root === "/var/task" ||
+    root.startsWith("/var/task/") ||
+    root.includes(`${path.sep}.codex${path.sep}`) ||
+    root.includes(`${path.sep}.cache${path.sep}codex-runtimes${path.sep}`)
+  );
+}
+
+function resolveSlideDeckWorkspaceRoot(runtime = {}) {
+  for (const candidate of configuredWorkspaceRootCandidates(runtime)) {
+    const resolved = normalizeConfiguredWorkspaceRoot(candidate);
+
+    if (resolved) {
+      return resolved;
+    }
+  }
+
+  const cwd = path.resolve(process.cwd());
+
+  if (implicitWorkspaceRootIsUnsafe(cwd)) {
+    throw new JudgmentKitInputError(
+      `workspace_root_missing: create_slide_deck could not determine the Codex workspace root. It would resolve ${DEFAULT_SLIDE_DECK_OUTPUT_DIR} under ${cwd}; provide runtime.workspace_root or configure the MCP runtime.`,
+      {
+        code: "workspace_root_missing",
+        details: {
+          attempted_workspace_root: cwd,
+          workspace_root_source: "process.cwd()",
+          checked_env: WORKSPACE_ROOT_ENV_KEYS,
+        },
+      },
+    );
+  }
+
+  return {
+    root: cwd,
+    source: "process.cwd()",
+    explicit: false,
+  };
+}
+
+async function prepareSlideDeckOutputTarget(relativePath, output = {}, workspaceRoot) {
+  const workspace = workspaceRoot ?? resolveSlideDeckWorkspaceRoot();
+  const root = path.resolve(workspace.root, DEFAULT_SLIDE_DECK_OUTPUT_DIR);
+  const absolutePath = path.resolve(workspace.root, relativePath);
   const parent = path.dirname(absolutePath);
 
   await fsp.mkdir(parent, { recursive: true });
@@ -1273,7 +1511,7 @@ async function prepareSlideDeckOutputTarget(relativePath, output = {}) {
       "create_slide_deck output.path resolves outside the allowed output directory.",
       {
         code: "unsafe_output_path",
-        details: { output_path: relativePath },
+        details: slideDeckOutputPathDetails(relativePath, workspace.root),
       },
     );
   }
@@ -1292,7 +1530,7 @@ async function prepareSlideDeckOutputTarget(relativePath, output = {}) {
       "create_slide_deck refuses to overwrite symlink output paths.",
       {
         code: "unsafe_output_path",
-        details: { output_path: relativePath },
+        details: slideDeckOutputPathDetails(relativePath, workspace.root),
       },
     );
   }
@@ -1302,12 +1540,17 @@ async function prepareSlideDeckOutputTarget(relativePath, output = {}) {
       "create_slide_deck output.path already exists. Set output.overwrite true to replace it.",
       {
         code: "output_exists",
-        details: { output_path: relativePath },
+        details: slideDeckOutputPathDetails(relativePath, workspace.root),
       },
     );
   }
 
-  return { absolutePath, relativePath };
+  return {
+    absolutePath,
+    relativePath,
+    workspace_root: workspace.root,
+    workspace_root_source: workspace.source,
+  };
 }
 
 function sha256File(filePath) {
@@ -1517,8 +1760,143 @@ async function withoutArtifactExportConsoleNoise(callback) {
   }
 }
 
-async function exportSlideDeckArtifact({ args, deckId, outputPath, selectedSlides, slideSize, themeMode }) {
-  const outputTarget = await prepareSlideDeckOutputTarget(outputPath, args.output ?? {});
+function commonTemplateSuggestions() {
+  return [
+    { template_id: "slide-21", family: "cover", use_when: "opening or section title" },
+    { template_id: "slide-06", family: "two-column", use_when: "paired narrative or comparison" },
+    { template_id: "slide-08", family: "data-table", use_when: "structured evidence" },
+    { template_id: "slide-64", family: "chart", use_when: "trend or visual evidence" },
+    { template_id: "slide-62", family: "metrics", use_when: "quantified outcomes" },
+    { template_id: "slide-80", family: "content", use_when: "closing or concise takeaway" },
+  ];
+}
+
+function mostCommonValue(values) {
+  const counts = new Map();
+
+  for (const value of values.filter(Boolean)) {
+    counts.set(value, (counts.get(value) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .map(([value, count]) => ({ value, count }))
+    .sort((left, right) =>
+      right.count === left.count ? left.value.localeCompare(right.value) : right.count - left.count,
+    )[0];
+}
+
+function slideDeckTemplateWarnings(selectedSlides) {
+  if (selectedSlides.length < 4) {
+    return [];
+  }
+
+  const warnings = [];
+  const layoutUsage = mostCommonValue(selectedSlides.map((slide) => slide.layout_id));
+  const familyUsage = mostCommonValue(selectedSlides.map((slide) => slide.layout_family));
+  const suggested_templates = commonTemplateSuggestions();
+
+  if (layoutUsage && layoutUsage.count > selectedSlides.length / 2) {
+    warnings.push({
+      code: "layout_repetition_warning",
+      message: `${layoutUsage.count} of ${selectedSlides.length} slides use ${layoutUsage.value}. For a case-study or portfolio deck, pass explicit template_id values or add slide purpose metadata.`,
+      layout_id: layoutUsage.value,
+      count: layoutUsage.count,
+      slide_count: selectedSlides.length,
+      suggested_templates,
+    });
+  }
+
+  if (
+    familyUsage &&
+    familyUsage.count > selectedSlides.length / 2 &&
+    familyUsage.value !== layoutUsage?.value
+  ) {
+    warnings.push({
+      code: "layout_family_repetition_warning",
+      message: `${familyUsage.count} of ${selectedSlides.length} slides use the ${familyUsage.value} family. Mix template families when a deck needs case-study or portfolio variety.`,
+      layout_family: familyUsage.value,
+      count: familyUsage.count,
+      slide_count: selectedSlides.length,
+      suggested_templates,
+    });
+  }
+
+  return warnings;
+}
+
+function warningMessages(warnings) {
+  return warnings.map((warning) =>
+    typeof warning === "string" ? warning : compactText(warning.message),
+  ).filter(Boolean);
+}
+
+function buildSlideDeckProvenanceReceipt({
+  deckId,
+  outputTarget,
+  runtime,
+  selectedSlides,
+  themeMode,
+  warnings,
+}) {
+  const createdAt = new Date().toISOString();
+
+  return {
+    schema: SLIDE_DECK_RECEIPT_SCHEMA,
+    tool_name: "mcp__judgmentkit.create_slide_deck",
+    deck_creation_status: "exported",
+    deck_id: deckId,
+    output_path: outputTarget.relativePath,
+    absolute_resolved_path: outputTarget.absolutePath,
+    created_at: createdAt,
+    theme_mode: themeMode,
+    adapter_manifest_id: JUDGMENTKIT_PRESENTATION_THEME_ADAPTER_MANIFEST.id,
+    template_registry_version: JUDGMENTKIT_PRESENTATION_TEMPLATE_REGISTRY.registry_version,
+    slide_count: selectedSlides.length,
+    selected_templates: selectedSlides.map((slide) => ({
+      slide_number: slide.slide_number,
+      layout_id: slide.layout_id,
+      selected_by: slide.selected_by,
+      caller_specified: slide.selected_by !== "default",
+      exact_template_id_specified: slide.selected_by === "template_id",
+      template_use: slide.template_use,
+      layout_family: slide.layout_family,
+    })),
+    runtime_package_path: runtime.package_path,
+    runtime_package_version: runtime.package_version,
+    workspace_root: outputTarget.workspace_root,
+    workspace_root_source: outputTarget.workspace_root_source,
+    warnings: warningMessages(warnings),
+  };
+}
+
+async function writeSlideDeckProvenanceReceipt(outputTarget, receipt) {
+  const absoluteReceiptPath = `${outputTarget.absolutePath}.receipt.json`;
+  const receiptPath = `${outputTarget.relativePath}.receipt.json`;
+
+  await fsp.writeFile(absoluteReceiptPath, `${JSON.stringify(receipt, null, 2)}\n`, "utf8");
+
+  return {
+    ...receipt,
+    receipt_path: receiptPath,
+    absolute_receipt_path: absoluteReceiptPath,
+  };
+}
+
+async function exportSlideDeckArtifact({
+  args,
+  deckId,
+  outputPath,
+  selectedSlides,
+  slideSize,
+  themeMode,
+  workspaceRoot,
+  warnings,
+}) {
+  const outputTarget = await prepareSlideDeckOutputTarget(
+    outputPath,
+    args.output ?? {},
+    workspaceRoot,
+  );
   const runtime = await loadArtifactToolRuntime(args.runtime ?? {});
   const {
     Presentation,
@@ -1569,6 +1947,17 @@ async function exportSlideDeckArtifact({ args, deckId, outputPath, selectedSlide
 
     await fsp.rename(temporaryPath, outputTarget.absolutePath);
     await fsp.rm(temporaryInspectPath, { force: true }).catch(() => {});
+    const receipt = await writeSlideDeckProvenanceReceipt(
+      outputTarget,
+      buildSlideDeckProvenanceReceipt({
+        deckId,
+        outputTarget,
+        runtime,
+        selectedSlides,
+        themeMode,
+        warnings,
+      }),
+    );
 
     return {
       artifact_ref: {
@@ -1577,12 +1966,16 @@ async function exportSlideDeckArtifact({ args, deckId, outputPath, selectedSlide
         sha256: sha256File(outputTarget.absolutePath),
         bytes: structure.bytes,
         mime_type: PPTX_MIME_TYPE,
+        receipt_path: receipt.receipt_path,
       },
+      provenance_receipt: receipt,
       diagnostics: {
         artifact_runtime: {
           package: "@oai/artifact-tool",
           version: runtime.package_version,
+          package_path: runtime.package_path,
         },
+        output_target: outputTarget,
         pptx_structure: structure,
       },
     };
@@ -1595,6 +1988,35 @@ async function exportSlideDeckArtifact({ args, deckId, outputPath, selectedSlide
   }
 }
 
+function createSlideDeckExportFailureResult(baseResult, error, exportAttempt, warnings) {
+  const isInputError = error instanceof JudgmentKitInputError;
+  const message = isInputError
+    ? error.message
+    : `export_failed: create_slide_deck could not export the PPTX artifact. ${error instanceof Error ? error.message : String(error)}`;
+  const code = isInputError ? error.code : "export_failed";
+  const details = {
+    ...(isRecord(error?.details) ? error.details : {}),
+    export_attempt: exportAttempt,
+  };
+
+  return {
+    ...baseResult,
+    deck_creation_status: "export_failed",
+    export_status: "failed",
+    export_attempt: {
+      ...exportAttempt,
+      status: "export_failed",
+      error_code: code,
+    },
+    warnings,
+    error: {
+      code,
+      message,
+      details,
+    },
+  };
+}
+
 async function createSlideDeck(args = {}) {
   assertSlideDeckInput(args);
 
@@ -1604,10 +2026,14 @@ async function createSlideDeck(args = {}) {
   const deckId = normalizeDeckId(deckInput.deck_id ?? deckInput.title);
   const slideSize = normalizeSlideSize(deckInput.slide_size ?? deckInput.slideSize);
   const themeMode = normalizeThemeMode(deckInput.theme_mode ?? deckInput.themeMode);
-  const outputPath = normalizeSlideDeckOutputPath(args.output, deckId);
   const shouldCreateArtifact =
     args.dry_run === false || (isRecord(args.output) && compactText(args.output.path));
   const dryRun = args.dry_run === true || !shouldCreateArtifact;
+  const outputPath = normalizeSlideDeckOutputPath(
+    args.output,
+    deckId,
+    compactText(args.runtime?.workspace_root),
+  );
   const selectedSlides = slides.map((slide, index) => {
     const selected = selectDeckTemplate(slide, index, includeDiagnostics);
 
@@ -1617,14 +2043,19 @@ async function createSlideDeck(args = {}) {
       template: includeDiagnostics ? selected.template : undefined,
     };
   });
-  const warnings = dryRun
-    ? [
-        "No PPTX artifact was written. Pass output.path or dry_run false from a local runtime to export a deck.",
-      ]
-    : [];
+  const templateWarnings = slideDeckTemplateWarnings(selectedSlides);
+  const warnings = [
+    ...templateWarnings,
+    ...(dryRun
+      ? [
+          "No PPTX artifact was written. Pass output.path or dry_run false from a local runtime to export a deck.",
+        ]
+      : []),
+  ];
   const result = {
     schema: SLIDE_DECK_SCHEMA,
-    deck_creation_status: dryRun ? "planned" : "created",
+    deck_creation_status: dryRun ? "planned" : "export_attempted",
+    export_status: dryRun ? "not_requested" : "attempted",
     deck: {
       deck_id: deckId,
       title: compactText(deckInput.title) || undefined,
@@ -1655,6 +2086,27 @@ async function createSlideDeck(args = {}) {
     return result;
   }
 
+  let workspaceRoot;
+  try {
+    workspaceRoot = resolveSlideDeckWorkspaceRoot(args.runtime ?? {});
+  } catch (error) {
+    return createSlideDeckExportFailureResult(
+      result,
+      error,
+      {
+        output_path: outputPath,
+        workspace_root_source: "unresolved",
+      },
+      warnings,
+    );
+  }
+
+  const exportAttempt = {
+    output_path: outputPath,
+    absolute_resolved_path: path.resolve(workspaceRoot.root, outputPath),
+    workspace_root: workspaceRoot.root,
+    workspace_root_source: workspaceRoot.source,
+  };
   const artifact = await exportSlideDeckArtifact({
     args,
     deckId,
@@ -1662,19 +2114,38 @@ async function createSlideDeck(args = {}) {
     selectedSlides,
     slideSize,
     themeMode,
-  });
+    workspaceRoot,
+    warnings,
+  }).catch((error) =>
+    createSlideDeckExportFailureResult(result, error, exportAttempt, warnings),
+  );
+
+  if ("error" in artifact) {
+    return artifact;
+  }
 
   return {
     ...result,
+    deck_creation_status: "exported",
+    export_status: "exported",
     artifact_ref: artifact.artifact_ref,
+    provenance_receipt: artifact.provenance_receipt,
     diagnostics: includeDiagnostics ? artifact.diagnostics : undefined,
-    warnings: [],
+    warnings,
   };
 }
 
 function planningStatus(result) {
-  if (result.deck_creation_status === "created") {
-    return "Deck created";
+  if (result.deck_creation_status === "exported") {
+    return "Deck exported";
+  }
+
+  if (result.deck_creation_status === "export_attempted") {
+    return "Deck export attempted";
+  }
+
+  if (result.deck_creation_status === "export_failed") {
+    return "Deck export failed";
   }
 
   if (result.deck_creation_status === "planned") {
@@ -2370,11 +2841,11 @@ function formatIconCatalogCard(result) {
 }
 
 function formatSlideDeckCard(result) {
-  const created = result.deck_creation_status === "created";
+  const exported = result.deck_creation_status === "exported";
   const lines = [
     "## JudgmentKit Slide Deck",
     `**Status:** ${planningStatus(result)}`,
-    created
+    exported
       ? "**Next step:** Review the exported PPTX artifact and run presentation evidence checks before treating it as release proof."
       : "**Next step:** Review selected templates, then call create_slide_deck with output.path from a local artifact-tool runtime to export PPTX.",
   ];
@@ -2394,6 +2865,8 @@ function formatSlideDeckCard(result) {
   ]);
   addSection(lines, "Artifact", [
     firstLine("Path", result.artifact_ref?.path ?? result.planned_output?.path),
+    firstLine("Resolved path", result.provenance_receipt?.absolute_resolved_path),
+    firstLine("Receipt", result.provenance_receipt?.receipt_path ?? result.artifact_ref?.receipt_path),
     firstLine("Kind", result.artifact_ref?.kind ?? result.planned_output?.kind),
     firstLine("Bytes", result.artifact_ref?.bytes ? String(result.artifact_ref.bytes) : ""),
     firstLine("SHA-256", result.artifact_ref?.sha256),
@@ -2428,6 +2901,10 @@ function formatErrorCard(result) {
   addSection(lines, "Targeted questions", bulletList(details.targeted_questions));
   addSection(lines, "Diagnostics", [
     firstLine("Code", result.error?.code),
+    firstLine("Deck status", result.deck_creation_status),
+    firstLine("Output path", details.export_attempt?.output_path),
+    firstLine("Workspace root", details.export_attempt?.workspace_root),
+    firstLine("Workspace root source", details.export_attempt?.workspace_root_source),
     firstLine("Review status", details.review_status),
     firstLine("Confidence", details.confidence),
     listLine("Implementation leakage", termList(details.implementation_leakage_terms)),
@@ -2941,6 +3418,7 @@ export function createJudgmentKitMcpServer() {
         runtime: z
           .object({
             artifact_tool_package: z.string().optional(),
+            workspace_root: z.string().optional(),
           })
           .optional(),
         dry_run: z.boolean().optional(),

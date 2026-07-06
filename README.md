@@ -101,6 +101,8 @@ npm run mcp:smoke
 judgmentkit review --input examples/refund-triage.brief.txt
 ```
 
+For JudgmentKit slide deck planning and local PPTX export from Codex Desktop, use the receipt-backed MCP workflow in `docs/slide-deck-mcp.md`.
+
 For a hosted MCP install:
 
 ```bash

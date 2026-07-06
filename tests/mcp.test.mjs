@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 import {
@@ -19,6 +20,27 @@ const OLD_TOOL_NAMES = [
   "get_example",
   "resolve_related",
 ];
+
+function localArtifactToolPackage() {
+  const candidates = [
+    process.env.JUDGMENTKIT_ARTIFACT_TOOL_PACKAGE,
+    process.env.CODEX_RUNTIME_DEPENDENCIES
+      ? path.join(
+          process.env.CODEX_RUNTIME_DEPENDENCIES,
+          "node",
+          "node_modules",
+          "@oai",
+          "artifact-tool",
+        )
+      : undefined,
+    path.join(
+      process.env.HOME ?? "",
+      ".cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/@oai/artifact-tool",
+    ),
+  ].filter(Boolean);
+
+  return candidates.find((candidate) => fs.existsSync(path.join(candidate, "package.json")));
+}
 
 assert.deepEqual(
   tools.map((tool) => tool.name),
@@ -170,6 +192,7 @@ assert.equal(toolByName.create_slide_deck.inputSchema.required.includes("slides"
 assert.equal(toolByName.create_slide_deck.inputSchema.properties.slides.maxItems, 24);
 assert.equal(toolByName.create_slide_deck.inputSchema.properties.output.properties.path.type, "string");
 assert.equal(toolByName.create_slide_deck.inputSchema.properties.runtime.properties.artifact_tool_package.type, "string");
+assert.equal(toolByName.create_slide_deck.inputSchema.properties.runtime.properties.workspace_root.type, "string");
 assert.equal(toolByName.list_icon_catalog.inputSchema.properties.include_svg.type, "boolean");
 assert.equal(toolByName.search_icon_catalog.inputSchema.required.includes("query"), true);
 assert.equal(toolByName.get_icon_svg.inputSchema.required.includes("id"), true);
@@ -222,6 +245,95 @@ assert.ok(deckPlanText.includes("**Status:** Deck plan ready"));
 assert.ok(deckPlanText.includes("slide-21"));
 assert.equal(deckPlanText.includes("Evidence and decisions for the product team."), false);
 
+const inferredTemplateDeck = await handleToolCall("create_slide_deck", {
+  deck: { deck_id: "inferred template deck" },
+  slides: [
+    { content: { title: "Case study", subtitle: "Decision context." } },
+    {
+      content: {
+        title: "Evidence table",
+        rows: [
+          { signal: "Queue pressure", value: "High" },
+          { signal: "Review debt", value: "Rising" },
+        ],
+      },
+    },
+    {
+      content: {
+        title: "Trend evidence",
+        chart: { type: "line" },
+        series: [{ label: "Cycle time", values: [4, 5, 7] }],
+      },
+    },
+    {
+      content: {
+        title: "Outcome metrics",
+        metrics: [{ label: "Saved time", value: "32%" }],
+      },
+    },
+    {
+      content: {
+        title: "Before and after",
+        comparison: {
+          before: "Manual routing",
+          after: "Evidence-led review",
+        },
+      },
+    },
+  ],
+  dry_run: true,
+});
+assert.equal("error" in inferredTemplateDeck, false);
+assert.deepEqual(
+  inferredTemplateDeck.slides.map((slide) => slide.layout_id),
+  ["slide-21", "slide-08", "slide-64", "slide-62", "slide-06"],
+);
+assert.equal(inferredTemplateDeck.slides.every((slide) => slide.selected_by === "default"), true);
+
+const repeatedLayoutDeck = await handleToolCall("create_slide_deck", {
+  deck: { deck_id: "repeated layout deck" },
+  slides: Array.from({ length: 12 }, (_, index) => ({
+    selection: {
+      template_use: index === 0 ? "cover" : "process",
+      layout_family: index === 0 ? "cover-image-field" : "two-column-content",
+    },
+    content: { title: `Repeated layout ${index + 1}` },
+  })),
+  dry_run: true,
+});
+assert.equal("error" in repeatedLayoutDeck, false);
+assert.equal(
+  repeatedLayoutDeck.warnings.some(
+    (warning) => warning.code === "layout_repetition_warning" && warning.layout_id === "slide-01",
+  ),
+  true,
+);
+assert.ok(formatPlanningCard(repeatedLayoutDeck).includes("layout"));
+
+const explicitTemplateDeck = await handleToolCall("create_slide_deck", {
+  deck: { deck_id: "explicit template variety" },
+  slides: [
+    { template_id: "slide-21", content: { title: "Case study" } },
+    { template_id: "slide-06", content: { title: "Problem and solution" } },
+    { template_id: "slide-64", content: { title: "Trend", chart: { type: "line" } } },
+    { template_id: "slide-08", content: { title: "Evidence", rows: [{ label: "A" }] } },
+    { template_id: "slide-62", content: { title: "Metrics", metrics: [{ label: "A" }] } },
+    { template_id: "slide-80", content: { title: "Close", body: "Next steps" } },
+  ],
+  dry_run: true,
+});
+assert.equal("error" in explicitTemplateDeck, false);
+assert.deepEqual(
+  explicitTemplateDeck.slides.map((slide) => slide.layout_id),
+  ["slide-21", "slide-06", "slide-64", "slide-08", "slide-62", "slide-80"],
+);
+assert.equal(new Set(explicitTemplateDeck.slides.map((slide) => slide.layout_id)).size >= 5, true);
+assert.equal(explicitTemplateDeck.slides.every((slide) => slide.selected_by === "template_id"), true);
+assert.equal(
+  explicitTemplateDeck.warnings.some((warning) => warning.code === "layout_repetition_warning"),
+  false,
+);
+
 const missingSlidesDeck = await handleToolCall("create_slide_deck", {
   slides: [],
   dry_run: true,
@@ -252,19 +364,103 @@ const unsafeOutputDeck = await handleToolCall("create_slide_deck", {
 assert.equal("error" in unsafeOutputDeck, true);
 assert.equal(unsafeOutputDeck.error.code, "unsafe_output_path");
 
-const missingRuntimeDeck = await handleToolCall("create_slide_deck", {
-  dry_run: false,
-  runtime: {
-    artifact_tool_package: "/no/such/artifact-tool",
-  },
+const absoluteOutputDeck = await handleToolCall("create_slide_deck", {
+  output: { path: path.join(process.cwd(), "outputs/judgmentkit-slide-decks/absolute.pptx") },
+  runtime: { workspace_root: process.cwd() },
   slides: [
     {
-      content: { title: "Needs runtime" },
+      content: { title: "Absolute path" },
     },
   ],
 });
-assert.equal("error" in missingRuntimeDeck, true);
-assert.equal(missingRuntimeDeck.error.code, "artifact_runtime_unavailable");
+assert.equal("error" in absoluteOutputDeck, true);
+assert.equal(absoluteOutputDeck.error.code, "unsafe_output_path");
+assert.match(absoluteOutputDeck.error.message, /repo-relative/i);
+assert.equal(absoluteOutputDeck.error.details.workspace_root, process.cwd());
+
+const missingRuntimeWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-missing-runtime-"));
+try {
+  const missingRuntimeDeck = await handleToolCall("create_slide_deck", {
+    dry_run: false,
+    output: { path: "outputs/judgmentkit-slide-decks/missing-runtime-test.pptx" },
+    runtime: {
+      artifact_tool_package: "/no/such/artifact-tool",
+      workspace_root: missingRuntimeWorkspace,
+    },
+    slides: [
+      {
+        content: { title: "Needs runtime" },
+      },
+    ],
+  });
+  assert.equal("error" in missingRuntimeDeck, true);
+  assert.equal(missingRuntimeDeck.error.code, "artifact_runtime_unavailable");
+  assert.equal(missingRuntimeDeck.deck_creation_status, "export_failed");
+  assert.equal(missingRuntimeDeck.export_status, "failed");
+  assert.equal(missingRuntimeDeck.export_attempt.workspace_root, missingRuntimeWorkspace);
+} finally {
+  fs.rmSync(missingRuntimeWorkspace, { recursive: true, force: true });
+}
+
+const originalCwd = process.cwd();
+const originalWorkspaceEnv = Object.fromEntries(
+  [
+    "JUDGMENTKIT_WORKSPACE_ROOT",
+    "CODEX_WORKSPACE_ROOT",
+    "CODEX_WORKSPACE_DIR",
+    "CODEX_WORKSPACE",
+    "INIT_CWD",
+  ].map((key) => [key, process.env[key]]),
+);
+const unsafeImplicitRoot = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-unsafe-cwd-"));
+const unsafeNestedCwd = path.join(unsafeImplicitRoot, ".codex", "judgmentkit-mcp");
+fs.mkdirSync(unsafeNestedCwd, { recursive: true });
+try {
+  for (const key of Object.keys(originalWorkspaceEnv)) {
+    delete process.env[key];
+  }
+  process.chdir(unsafeNestedCwd);
+  const missingWorkspaceDeck = await handleToolCall("create_slide_deck", {
+    dry_run: false,
+    slides: [
+      {
+        content: { title: "Missing workspace" },
+      },
+    ],
+  });
+  assert.equal("error" in missingWorkspaceDeck, true);
+  assert.equal(missingWorkspaceDeck.error.code, "workspace_root_missing");
+  assert.equal(missingWorkspaceDeck.deck_creation_status, "export_failed");
+
+  const explicitWorkspaceDeck = await handleToolCall("create_slide_deck", {
+    dry_run: false,
+    output: {
+      path: `outputs/judgmentkit-slide-decks/explicit-workspace-${process.pid}.pptx`,
+    },
+    runtime: {
+      artifact_tool_package: "/no/such/artifact-tool",
+      workspace_root: originalCwd,
+    },
+    slides: [
+      {
+        content: { title: "Explicit workspace" },
+      },
+    ],
+  });
+  assert.equal("error" in explicitWorkspaceDeck, true);
+  assert.equal(explicitWorkspaceDeck.error.code, "artifact_runtime_unavailable");
+  assert.equal(explicitWorkspaceDeck.export_attempt.workspace_root, originalCwd);
+} finally {
+  process.chdir(originalCwd);
+  for (const [key, value] of Object.entries(originalWorkspaceEnv)) {
+    if (value === undefined) {
+      delete process.env[key];
+    } else {
+      process.env[key] = value;
+    }
+  }
+  fs.rmSync(unsafeImplicitRoot, { recursive: true, force: true });
+}
 
 const existingOutputPath = path.join(
   process.cwd(),
@@ -291,8 +487,57 @@ try {
   });
   assert.equal("error" in existingOutputDeck, true);
   assert.equal(existingOutputDeck.error.code, "output_exists");
+  assert.equal(existingOutputDeck.deck_creation_status, "export_failed");
 } finally {
   fs.rmSync(existingOutputPath, { force: true });
+}
+
+const artifactToolPackage = localArtifactToolPackage();
+if (artifactToolPackage) {
+  const exportWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-mcp-export-"));
+  const exportPath = "outputs/judgmentkit-slide-decks/repro-minimal-test.pptx";
+  try {
+    const exportedDeck = await handleToolCall("create_slide_deck", {
+      deck: { deck_id: "repro minimal test" },
+      dry_run: false,
+      include_diagnostics: true,
+      output: {
+        path: exportPath,
+      },
+      runtime: {
+        artifact_tool_package: artifactToolPackage,
+        workspace_root: exportWorkspace,
+      },
+      slides: [
+        {
+          template_id: "slide-21",
+          content: {
+            title: "Minimal export",
+            subtitle: "Workspace-root export proof.",
+          },
+        },
+      ],
+    });
+
+    assert.equal("error" in exportedDeck, false);
+    assert.equal(exportedDeck.deck_creation_status, "exported");
+    assert.equal(exportedDeck.export_status, "exported");
+    assert.equal(exportedDeck.artifact_ref.path, exportPath);
+    assert.equal(exportedDeck.provenance_receipt.tool_name, "mcp__judgmentkit.create_slide_deck");
+    assert.equal(exportedDeck.provenance_receipt.output_path, exportPath);
+    assert.equal(exportedDeck.provenance_receipt.workspace_root, exportWorkspace);
+    assert.equal(exportedDeck.provenance_receipt.selected_templates[0].layout_id, "slide-21");
+    assert.equal(exportedDeck.provenance_receipt.selected_templates[0].caller_specified, true);
+    assert.equal(fs.existsSync(path.join(exportWorkspace, exportPath)), true);
+    assert.equal(fs.existsSync(path.join(exportWorkspace, `${exportPath}.receipt.json`)), true);
+    assert.equal(
+      exportedDeck.provenance_receipt.absolute_resolved_path.startsWith(exportWorkspace),
+      true,
+    );
+    assert.equal(formatPlanningCard(exportedDeck).includes("Receipt"), true);
+  } finally {
+    fs.rmSync(exportWorkspace, { recursive: true, force: true });
+  }
 }
 
 const iconList = await handleToolCall("list_icon_catalog", { limit: 2 });
