@@ -25,7 +25,9 @@ Before calling a deck creation MCP tool, establish:
 - required output format and delivery path
 - confidentiality boundary for hosted processing
 
-When the active JudgmentKit MCP server exposes a deck creation tool, call it with the reviewed activity context and allowed source material. Keep primary slide copy in domain language and do not expose prompts, schemas, resource ids, MCP server names, tool names, traces, or model configuration in slide content.
+When the active JudgmentKit MCP server exposes a deck creation tool, call it with the reviewed activity context and allowed source material. Keep primary slide copy in domain language and do not expose prompts, schemas, resource ids, MCP server names, tool names, traces, or model configuration in slide content. For local PPTX export, use a repo-relative `output.path` and pass the active workspace root separately through the tool runtime when required.
+
+Treat dry-run deck planning as JudgmentKit guidance when the MCP response uses `schema: "judgmentkit.mcp.slide-deck/v1"` and `deck_creation_status: "planned"`. Treat an exported PPTX as JudgmentKit output only when the MCP response or sidecar receipt confirms `tool_name: "mcp__judgmentkit.create_slide_deck"`, `deck_creation_status: "exported"`, and matching `sha256`, `bytes`, and `mime_type` artifact fields. A folder named `outputs/judgmentkit-slide-decks` is not provenance by itself.
 
 If no deck creation tool is listed by the active endpoint, state that the current JudgmentKit endpoint cannot create the deck yet. Do not fabricate a JudgmentKit packet, deck, or MCP result. Continue only with a deterministic outline or requirements summary if the user wants that fallback.
 
@@ -85,8 +87,9 @@ For slide deck requests:
 1. Confirm the deck audience, purpose, source material, confidentiality boundary, and target format from the brief or local context.
 2. Use the activity contract to keep the deck focused on the participant decision and outcome, not implementation machinery.
 3. Call the deck creation MCP tool when it is available from the active endpoint.
-4. Treat returned deck guidance or artifacts as JudgmentKit output only when they came from the MCP tool.
-5. Review slide copy for disclosure discipline before handoff: primary slides should use domain language, while prompts, schemas, resource ids, MCP details, traces, and model configuration stay out of the deck unless the deck is explicitly for setup, debugging, auditing, or integration.
+4. Treat dry-run deck planning as JudgmentKit guidance when the MCP response uses `schema: "judgmentkit.mcp.slide-deck/v1"` and `deck_creation_status: "planned"`; treat exported PPTX artifacts as JudgmentKit output only when the MCP response or sidecar receipt confirms `tool_name: "mcp__judgmentkit.create_slide_deck"`, `deck_creation_status: "exported"`, and matching `sha256`, `bytes`, and `mime_type` artifact fields.
+5. For portfolio or case-study decks, pass explicit `template_id` values or strong selection metadata when layout variety matters; heed layout repetition warnings.
+6. Review slide copy for disclosure discipline before handoff: primary slides should use domain language, while prompts, schemas, resource ids, MCP details, traces, and model configuration stay out of the deck unless the deck is explicitly for setup, debugging, auditing, or integration.
 
 ## Activity Contract
 

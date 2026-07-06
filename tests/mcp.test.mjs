@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 
 import {
@@ -19,6 +20,204 @@ const OLD_TOOL_NAMES = [
   "get_example",
   "resolve_related",
 ];
+const WORKSPACE_ENV_KEYS = [
+  "JUDGMENTKIT_WORKSPACE_ROOT",
+  "CODEX_WORKSPACE_ROOT",
+  "CODEX_WORKSPACE_DIR",
+  "CODEX_WORKSPACE",
+  "INIT_CWD",
+];
+
+function createFixtureArtifactToolPackage(root) {
+  const packageRoot = path.join(root, "artifact-tool");
+  const distDir = path.join(packageRoot, "dist");
+  fs.mkdirSync(distDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(packageRoot, "package.json"),
+    JSON.stringify({ name: "@oai/artifact-tool", version: "2.0.0", type: "module" }, null, 2),
+  );
+  fs.writeFileSync(
+    path.join(distDir, "artifact_tool.mjs"),
+    `
+import fs from "node:fs";
+
+const CRC_TABLE = Array.from({ length: 256 }, (_, index) => {
+  let value = index;
+  for (let bit = 0; bit < 8; bit += 1) {
+    value = value & 1 ? 0xedb88320 ^ (value >>> 1) : value >>> 1;
+  }
+  return value >>> 0;
+});
+
+function crc32(buffer) {
+  let value = 0xffffffff;
+  for (const byte of buffer) {
+    value = (value >>> 8) ^ CRC_TABLE[(value ^ byte) & 0xff];
+  }
+  return (value ^ 0xffffffff) >>> 0;
+}
+
+function uint16(value) {
+  const buffer = Buffer.alloc(2);
+  buffer.writeUInt16LE(value);
+  return buffer;
+}
+
+function uint32(value) {
+  const buffer = Buffer.alloc(4);
+  buffer.writeUInt32LE(value >>> 0);
+  return buffer;
+}
+
+function writeZip(filePath, entries) {
+  const localParts = [];
+  const centralParts = [];
+  let offset = 0;
+
+  for (const [entryName, content] of entries) {
+    const name = Buffer.from(entryName, "utf8");
+    const data = Buffer.from(content, "utf8");
+    const checksum = crc32(data);
+    const localHeader = Buffer.concat([
+      uint32(0x04034b50),
+      uint16(20),
+      uint16(0),
+      uint16(0),
+      uint16(0),
+      uint16(0),
+      uint32(checksum),
+      uint32(data.length),
+      uint32(data.length),
+      uint16(name.length),
+      uint16(0),
+      name,
+      data,
+    ]);
+    const centralHeader = Buffer.concat([
+      uint32(0x02014b50),
+      uint16(20),
+      uint16(20),
+      uint16(0),
+      uint16(0),
+      uint16(0),
+      uint16(0),
+      uint32(checksum),
+      uint32(data.length),
+      uint32(data.length),
+      uint16(name.length),
+      uint16(0),
+      uint16(0),
+      uint16(0),
+      uint16(0),
+      uint32(0),
+      uint32(offset),
+      name,
+    ]);
+
+    localParts.push(localHeader);
+    centralParts.push(centralHeader);
+    offset += localHeader.length;
+  }
+
+  const centralDirectory = Buffer.concat(centralParts);
+  const endOfCentralDirectory = Buffer.concat([
+    uint32(0x06054b50),
+    uint16(0),
+    uint16(0),
+    uint16(entries.length),
+    uint16(entries.length),
+    uint32(centralDirectory.length),
+    uint32(offset),
+    uint16(0),
+  ]);
+
+  fs.writeFileSync(filePath, Buffer.concat([...localParts, centralDirectory, endOfCentralDirectory]));
+}
+
+function createSlide() {
+  return {
+    background: {},
+    layers: [],
+    charts: { add() {} },
+    compose(layer, options) {
+      this.layers.push({ layer, options });
+    },
+  };
+}
+
+export const Presentation = {
+  create(options = {}) {
+    const presentation = {
+      createOptions: options,
+      slideSize: options.slideSize,
+      theme: {},
+      slides: {
+        items: [],
+        add() {
+          const slide = createSlide();
+          this.items.push(slide);
+          return slide;
+        },
+      },
+    };
+
+    return presentation;
+  },
+};
+
+export const PresentationFile = {
+  async exportPptx(presentation) {
+    return {
+      async save(filePath) {
+        const slideCount = Math.max(1, presentation?.slides?.items?.length ?? 0);
+        const slideEntries = Array.from({ length: slideCount }, (_, index) => [
+          "ppt/slides/slide" + String(index + 1) + ".xml",
+          "<p:sld xmlns:p='http://schemas.openxmlformats.org/presentationml/2006/main'/>",
+        ]);
+        writeZip(filePath, [
+          ["[Content_Types].xml", "<Types xmlns='http://schemas.openxmlformats.org/package/2006/content-types'/>"],
+          ["ppt/presentation.xml", "<p:presentation xmlns:p='http://schemas.openxmlformats.org/presentationml/2006/main'/>"],
+          ...slideEntries,
+        ]);
+      },
+    };
+  },
+};
+
+export function layers(options, children = []) {
+  return { type: "layers", options, children };
+}
+
+export function shape(options) {
+  return { type: "shape", options };
+}
+
+export function table(options) {
+  return { type: "table", options };
+}
+
+export function text(lines, options) {
+  return { type: "text", lines, options };
+}
+`,
+  );
+
+  return packageRoot;
+}
+
+function captureWorkspaceEnv() {
+  return Object.fromEntries(WORKSPACE_ENV_KEYS.map((key) => [key, process.env[key]]));
+}
+
+function restoreWorkspaceEnv(values) {
+  for (const [key, value] of Object.entries(values)) {
+    if (value === undefined) {
+      delete process.env[key];
+    } else {
+      process.env[key] = value;
+    }
+  }
+}
 
 assert.deepEqual(
   tools.map((tool) => tool.name),
@@ -170,6 +369,7 @@ assert.equal(toolByName.create_slide_deck.inputSchema.required.includes("slides"
 assert.equal(toolByName.create_slide_deck.inputSchema.properties.slides.maxItems, 24);
 assert.equal(toolByName.create_slide_deck.inputSchema.properties.output.properties.path.type, "string");
 assert.equal(toolByName.create_slide_deck.inputSchema.properties.runtime.properties.artifact_tool_package.type, "string");
+assert.equal(toolByName.create_slide_deck.inputSchema.properties.runtime.properties.workspace_root.type, "string");
 assert.equal(toolByName.list_icon_catalog.inputSchema.properties.include_svg.type, "boolean");
 assert.equal(toolByName.search_icon_catalog.inputSchema.required.includes("query"), true);
 assert.equal(toolByName.get_icon_svg.inputSchema.required.includes("id"), true);
@@ -222,6 +422,95 @@ assert.ok(deckPlanText.includes("**Status:** Deck plan ready"));
 assert.ok(deckPlanText.includes("slide-21"));
 assert.equal(deckPlanText.includes("Evidence and decisions for the product team."), false);
 
+const inferredTemplateDeck = await handleToolCall("create_slide_deck", {
+  deck: { deck_id: "inferred template deck" },
+  slides: [
+    { content: { title: "Case study", subtitle: "Decision context." } },
+    {
+      content: {
+        title: "Evidence table",
+        rows: [
+          { signal: "Queue pressure", value: "High" },
+          { signal: "Review debt", value: "Rising" },
+        ],
+      },
+    },
+    {
+      content: {
+        title: "Trend evidence",
+        chart: { type: "line" },
+        series: [{ label: "Cycle time", values: [4, 5, 7] }],
+      },
+    },
+    {
+      content: {
+        title: "Outcome metrics",
+        metrics: [{ label: "Saved time", value: "32%" }],
+      },
+    },
+    {
+      content: {
+        title: "Before and after",
+        comparison: {
+          before: "Manual routing",
+          after: "Evidence-led review",
+        },
+      },
+    },
+  ],
+  dry_run: true,
+});
+assert.equal("error" in inferredTemplateDeck, false);
+assert.deepEqual(
+  inferredTemplateDeck.slides.map((slide) => slide.layout_id),
+  ["slide-21", "slide-08", "slide-64", "slide-62", "slide-06"],
+);
+assert.equal(inferredTemplateDeck.slides.every((slide) => slide.selected_by === "default"), true);
+
+const repeatedLayoutDeck = await handleToolCall("create_slide_deck", {
+  deck: { deck_id: "repeated layout deck" },
+  slides: Array.from({ length: 12 }, (_, index) => ({
+    selection: {
+      template_use: index === 0 ? "cover" : "process",
+      layout_family: index === 0 ? "cover-image-field" : "two-column-content",
+    },
+    content: { title: `Repeated layout ${index + 1}` },
+  })),
+  dry_run: true,
+});
+assert.equal("error" in repeatedLayoutDeck, false);
+assert.equal(
+  repeatedLayoutDeck.warnings.some(
+    (warning) => warning.code === "layout_repetition_warning" && warning.layout_id === "slide-01",
+  ),
+  true,
+);
+assert.ok(formatPlanningCard(repeatedLayoutDeck).includes("layout"));
+
+const explicitTemplateDeck = await handleToolCall("create_slide_deck", {
+  deck: { deck_id: "explicit template variety" },
+  slides: [
+    { template_id: "slide-21", content: { title: "Case study" } },
+    { template_id: "slide-06", content: { title: "Problem and solution" } },
+    { template_id: "slide-64", content: { title: "Trend", chart: { type: "line" } } },
+    { template_id: "slide-08", content: { title: "Evidence", rows: [{ label: "A" }] } },
+    { template_id: "slide-62", content: { title: "Metrics", metrics: [{ label: "A" }] } },
+    { template_id: "slide-80", content: { title: "Close", body: "Next steps" } },
+  ],
+  dry_run: true,
+});
+assert.equal("error" in explicitTemplateDeck, false);
+assert.deepEqual(
+  explicitTemplateDeck.slides.map((slide) => slide.layout_id),
+  ["slide-21", "slide-06", "slide-64", "slide-08", "slide-62", "slide-80"],
+);
+assert.equal(new Set(explicitTemplateDeck.slides.map((slide) => slide.layout_id)).size >= 5, true);
+assert.equal(explicitTemplateDeck.slides.every((slide) => slide.selected_by === "template_id"), true);
+assert.equal(
+  explicitTemplateDeck.warnings.some((warning) => warning.code === "layout_repetition_warning"),
+  false,
+);
+
 const missingSlidesDeck = await handleToolCall("create_slide_deck", {
   slides: [],
   dry_run: true,
@@ -251,20 +540,141 @@ const unsafeOutputDeck = await handleToolCall("create_slide_deck", {
 });
 assert.equal("error" in unsafeOutputDeck, true);
 assert.equal(unsafeOutputDeck.error.code, "unsafe_output_path");
+assert.equal(unsafeOutputDeck.deck_creation_status, "export_failed");
+assert.equal(unsafeOutputDeck.export_status, "failed");
+assert.equal(unsafeOutputDeck.export_attempt.output_path, "../unsafe.pptx");
 
-const missingRuntimeDeck = await handleToolCall("create_slide_deck", {
-  dry_run: false,
-  runtime: {
-    artifact_tool_package: "/no/such/artifact-tool",
-  },
+const absoluteOutputDeck = await handleToolCall("create_slide_deck", {
+  output: { path: path.join(process.cwd(), "outputs/judgmentkit-slide-decks/absolute.pptx") },
+  runtime: { workspace_root: process.cwd() },
   slides: [
     {
-      content: { title: "Needs runtime" },
+      content: { title: "Absolute path" },
     },
   ],
 });
-assert.equal("error" in missingRuntimeDeck, true);
-assert.equal(missingRuntimeDeck.error.code, "artifact_runtime_unavailable");
+assert.equal("error" in absoluteOutputDeck, true);
+assert.equal(absoluteOutputDeck.error.code, "unsafe_output_path");
+assert.match(absoluteOutputDeck.error.message, /repo-relative/i);
+assert.equal(absoluteOutputDeck.error.details.workspace_root, process.cwd());
+assert.equal(absoluteOutputDeck.deck_creation_status, "export_failed");
+assert.equal(absoluteOutputDeck.export_status, "failed");
+
+const missingRuntimeWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-missing-runtime-"));
+try {
+  const missingRuntimeDeck = await handleToolCall("create_slide_deck", {
+    dry_run: false,
+    output: { path: "outputs/judgmentkit-slide-decks/missing-runtime-test.pptx" },
+    runtime: {
+      artifact_tool_package: "/no/such/artifact-tool",
+      workspace_root: missingRuntimeWorkspace,
+    },
+    slides: [
+      {
+        content: { title: "Needs runtime" },
+      },
+    ],
+  });
+  assert.equal("error" in missingRuntimeDeck, true);
+  assert.equal(missingRuntimeDeck.error.code, "artifact_runtime_unavailable");
+  assert.equal(missingRuntimeDeck.deck_creation_status, "export_failed");
+  assert.equal(missingRuntimeDeck.export_status, "failed");
+  assert.equal(missingRuntimeDeck.export_attempt.workspace_root, missingRuntimeWorkspace);
+} finally {
+  fs.rmSync(missingRuntimeWorkspace, { recursive: true, force: true });
+}
+
+const originalCwd = process.cwd();
+const originalWorkspaceEnv = captureWorkspaceEnv();
+const unsafeImplicitRoot = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-unsafe-cwd-"));
+const unsafeExactCwd = path.join(unsafeImplicitRoot, ".codex");
+const unsafeNestedCwd = path.join(unsafeExactCwd, "judgmentkit-mcp");
+fs.mkdirSync(unsafeNestedCwd, { recursive: true });
+try {
+  for (const key of WORKSPACE_ENV_KEYS) {
+    delete process.env[key];
+  }
+  process.chdir(unsafeNestedCwd);
+  const missingWorkspaceDeck = await handleToolCall("create_slide_deck", {
+    dry_run: false,
+    slides: [
+      {
+        content: { title: "Missing workspace" },
+      },
+    ],
+  });
+  assert.equal("error" in missingWorkspaceDeck, true);
+  assert.equal(missingWorkspaceDeck.error.code, "workspace_root_missing");
+  assert.equal(missingWorkspaceDeck.deck_creation_status, "export_failed");
+
+  process.chdir(unsafeExactCwd);
+  const exactUnsafeWorkspaceDeck = await handleToolCall("create_slide_deck", {
+    dry_run: false,
+    slides: [
+      {
+        content: { title: "Exact unsafe workspace" },
+      },
+    ],
+  });
+  assert.equal("error" in exactUnsafeWorkspaceDeck, true);
+  assert.equal(exactUnsafeWorkspaceDeck.error.code, "workspace_root_missing");
+  assert.equal(exactUnsafeWorkspaceDeck.deck_creation_status, "export_failed");
+
+  process.chdir(originalCwd);
+  process.env.JUDGMENTKIT_WORKSPACE_ROOT = unsafeExactCwd;
+  const envUnsafeWorkspaceDeck = await handleToolCall("create_slide_deck", {
+    dry_run: false,
+    slides: [
+      {
+        content: { title: "Env unsafe workspace" },
+      },
+    ],
+  });
+  assert.equal("error" in envUnsafeWorkspaceDeck, true);
+  assert.equal(envUnsafeWorkspaceDeck.error.code, "workspace_root_invalid");
+  assert.equal(envUnsafeWorkspaceDeck.deck_creation_status, "export_failed");
+  delete process.env.JUDGMENTKIT_WORKSPACE_ROOT;
+
+  const unsafeSymlinkWorkspace = path.join(unsafeImplicitRoot, "workspace-link");
+  fs.symlinkSync(unsafeExactCwd, unsafeSymlinkWorkspace);
+  const symlinkUnsafeWorkspaceDeck = await handleToolCall("create_slide_deck", {
+    dry_run: false,
+    runtime: {
+      workspace_root: unsafeSymlinkWorkspace,
+    },
+    slides: [
+      {
+        content: { title: "Symlink unsafe workspace" },
+      },
+    ],
+  });
+  assert.equal("error" in symlinkUnsafeWorkspaceDeck, true);
+  assert.equal(symlinkUnsafeWorkspaceDeck.error.code, "workspace_root_invalid");
+  assert.equal(symlinkUnsafeWorkspaceDeck.deck_creation_status, "export_failed");
+
+  const explicitWorkspaceDeck = await handleToolCall("create_slide_deck", {
+    dry_run: false,
+    output: {
+      path: `outputs/judgmentkit-slide-decks/explicit-workspace-${process.pid}.pptx`,
+    },
+    runtime: {
+      artifact_tool_package: "/no/such/artifact-tool",
+      workspace_root: originalCwd,
+    },
+    slides: [
+      {
+        content: { title: "Explicit workspace" },
+      },
+    ],
+  });
+  assert.equal("error" in explicitWorkspaceDeck, true);
+  assert.equal(explicitWorkspaceDeck.error.code, "artifact_runtime_unavailable");
+  assert.equal(explicitWorkspaceDeck.export_attempt.workspace_root, originalCwd);
+} finally {
+  process.chdir(originalCwd);
+  restoreWorkspaceEnv(originalWorkspaceEnv);
+  fs.rmSync(unsafeImplicitRoot, { recursive: true, force: true });
+}
 
 const existingOutputPath = path.join(
   process.cwd(),
@@ -291,8 +701,239 @@ try {
   });
   assert.equal("error" in existingOutputDeck, true);
   assert.equal(existingOutputDeck.error.code, "output_exists");
+  assert.equal(existingOutputDeck.deck_creation_status, "export_failed");
 } finally {
   fs.rmSync(existingOutputPath, { force: true });
+}
+
+const receiptExistsWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-receipt-exists-"));
+try {
+  const exportPath = "outputs/judgmentkit-slide-decks/receipt-exists-test.pptx";
+  const receiptPath = path.join(receiptExistsWorkspace, `${exportPath}.receipt.json`);
+  fs.mkdirSync(path.dirname(receiptPath), { recursive: true });
+  fs.writeFileSync(receiptPath, "existing receipt", "utf8");
+  const existingReceiptDeck = await handleToolCall("create_slide_deck", {
+    dry_run: false,
+    output: { path: exportPath },
+    runtime: {
+      artifact_tool_package: "/no/such/artifact-tool",
+      workspace_root: receiptExistsWorkspace,
+    },
+    slides: [
+      {
+        content: { title: "Existing receipt" },
+      },
+    ],
+  });
+  assert.equal("error" in existingReceiptDeck, true);
+  assert.equal(existingReceiptDeck.error.code, "output_exists");
+  assert.equal(existingReceiptDeck.error.details.target, "provenance receipt");
+  assert.equal(fs.existsSync(path.join(receiptExistsWorkspace, exportPath)), false);
+} finally {
+  fs.rmSync(receiptExistsWorkspace, { recursive: true, force: true });
+}
+
+const receiptSymlinkWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-receipt-symlink-"));
+try {
+  const exportPath = "outputs/judgmentkit-slide-decks/receipt-symlink-test.pptx";
+  const receiptPath = path.join(receiptSymlinkWorkspace, `${exportPath}.receipt.json`);
+  const outsideReceiptTarget = path.join(receiptSymlinkWorkspace, "outside-receipt-target.json");
+  fs.mkdirSync(path.dirname(receiptPath), { recursive: true });
+  fs.writeFileSync(outsideReceiptTarget, "outside-before", "utf8");
+  fs.symlinkSync(outsideReceiptTarget, receiptPath);
+  const symlinkReceiptDeck = await handleToolCall("create_slide_deck", {
+    dry_run: false,
+    output: { path: exportPath },
+    runtime: {
+      artifact_tool_package: "/no/such/artifact-tool",
+      workspace_root: receiptSymlinkWorkspace,
+    },
+    slides: [
+      {
+        content: { title: "Receipt symlink" },
+      },
+    ],
+  });
+  assert.equal("error" in symlinkReceiptDeck, true);
+  assert.equal(symlinkReceiptDeck.error.code, "unsafe_output_path");
+  assert.equal(fs.readFileSync(outsideReceiptTarget, "utf8"), "outside-before");
+  assert.equal(fs.existsSync(path.join(receiptSymlinkWorkspace, exportPath)), false);
+} finally {
+  fs.rmSync(receiptSymlinkWorkspace, { recursive: true, force: true });
+}
+
+const symlinkOutputWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-output-symlink-"));
+const symlinkOutputOutside = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-output-outside-"));
+try {
+  const outputRoot = path.join(symlinkOutputWorkspace, "outputs", "judgmentkit-slide-decks");
+  fs.mkdirSync(path.dirname(outputRoot), { recursive: true });
+  fs.symlinkSync(symlinkOutputOutside, outputRoot);
+  const symlinkOutputDeck = await handleToolCall("create_slide_deck", {
+    dry_run: false,
+    output: { path: "outputs/judgmentkit-slide-decks/symlink-output-test.pptx" },
+    runtime: {
+      artifact_tool_package: "/no/such/artifact-tool",
+      workspace_root: symlinkOutputWorkspace,
+    },
+    slides: [
+      {
+        content: { title: "Symlink output" },
+      },
+    ],
+  });
+  assert.equal("error" in symlinkOutputDeck, true);
+  assert.equal(symlinkOutputDeck.error.code, "unsafe_output_path");
+  assert.equal(fs.existsSync(path.join(symlinkOutputOutside, "symlink-output-test.pptx")), false);
+} finally {
+  fs.rmSync(symlinkOutputWorkspace, { recursive: true, force: true });
+  fs.rmSync(symlinkOutputOutside, { recursive: true, force: true });
+}
+
+const nestedSymlinkWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-nested-symlink-"));
+const nestedSymlinkOutside = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-nested-outside-"));
+try {
+  const linkPath = path.join(
+    nestedSymlinkWorkspace,
+    "outputs",
+    "judgmentkit-slide-decks",
+    "link",
+  );
+  fs.mkdirSync(path.dirname(linkPath), { recursive: true });
+  fs.symlinkSync(nestedSymlinkOutside, linkPath);
+  const nestedSymlinkDeck = await handleToolCall("create_slide_deck", {
+    dry_run: false,
+    output: { path: "outputs/judgmentkit-slide-decks/link/nested/deck.pptx" },
+    runtime: {
+      artifact_tool_package: "/no/such/artifact-tool",
+      workspace_root: nestedSymlinkWorkspace,
+    },
+    slides: [
+      {
+        content: { title: "Nested symlink" },
+      },
+    ],
+  });
+  assert.equal("error" in nestedSymlinkDeck, true);
+  assert.equal(nestedSymlinkDeck.error.code, "unsafe_output_path");
+  assert.equal(fs.existsSync(path.join(nestedSymlinkOutside, "nested")), false);
+} finally {
+  fs.rmSync(nestedSymlinkWorkspace, { recursive: true, force: true });
+  fs.rmSync(nestedSymlinkOutside, { recursive: true, force: true });
+}
+
+const receiptDirectoryWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-receipt-dir-"));
+try {
+  const exportPath = "outputs/judgmentkit-slide-decks/receipt-dir-test.pptx";
+  const receiptPath = path.join(receiptDirectoryWorkspace, `${exportPath}.receipt.json`);
+  fs.mkdirSync(receiptPath, { recursive: true });
+  const receiptDirectoryDeck = await handleToolCall("create_slide_deck", {
+    dry_run: false,
+    output: { path: exportPath },
+    runtime: {
+      artifact_tool_package: "/no/such/artifact-tool",
+      workspace_root: receiptDirectoryWorkspace,
+    },
+    slides: [
+      {
+        content: { title: "Receipt directory" },
+      },
+    ],
+  });
+  assert.equal("error" in receiptDirectoryDeck, true);
+  assert.equal(receiptDirectoryDeck.error.code, "output_exists");
+  assert.equal(fs.existsSync(path.join(receiptDirectoryWorkspace, exportPath)), false);
+} finally {
+  fs.rmSync(receiptDirectoryWorkspace, { recursive: true, force: true });
+}
+
+const overwriteReceiptFailureWorkspace = fs.mkdtempSync(
+  path.join(os.tmpdir(), "judgmentkit-overwrite-receipt-fail-"),
+);
+try {
+  const exportPath = "outputs/judgmentkit-slide-decks/overwrite-receipt-fail-test.pptx";
+  const outputPath = path.join(overwriteReceiptFailureWorkspace, exportPath);
+  const receiptPath = path.join(overwriteReceiptFailureWorkspace, `${exportPath}.receipt.json`);
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
+  fs.writeFileSync(outputPath, "existing deck", "utf8");
+  fs.mkdirSync(receiptPath, { recursive: true });
+  const overwriteReceiptFailureDeck = await handleToolCall("create_slide_deck", {
+    dry_run: false,
+    output: { path: exportPath, overwrite: true },
+    runtime: {
+      artifact_tool_package: "/no/such/artifact-tool",
+      workspace_root: overwriteReceiptFailureWorkspace,
+    },
+    slides: [
+      {
+        content: { title: "Overwrite receipt failure" },
+      },
+    ],
+  });
+  assert.equal("error" in overwriteReceiptFailureDeck, true);
+  assert.equal(overwriteReceiptFailureDeck.error.code, "output_exists");
+  assert.equal(fs.readFileSync(outputPath, "utf8"), "existing deck");
+} finally {
+  fs.rmSync(overwriteReceiptFailureWorkspace, { recursive: true, force: true });
+}
+
+const artifactToolFixtureRoot = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-artifact-fixture-"));
+const artifactToolPackage = createFixtureArtifactToolPackage(artifactToolFixtureRoot);
+try {
+  const exportWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-mcp-export-"));
+  const exportPath = "outputs/judgmentkit-slide-decks/repro-minimal-test.pptx";
+  try {
+    const exportedDeck = await handleToolCall("create_slide_deck", {
+      deck: { deck_id: "repro minimal test" },
+      dry_run: false,
+      include_diagnostics: true,
+      output: {
+        path: exportPath,
+      },
+      runtime: {
+        artifact_tool_package: artifactToolPackage,
+        workspace_root: exportWorkspace,
+      },
+      slides: [
+        {
+          template_id: "slide-21",
+          content: {
+            title: "Minimal export",
+            subtitle: "Workspace-root export proof.",
+          },
+        },
+      ],
+    });
+
+    assert.equal("error" in exportedDeck, false);
+    assert.equal(exportedDeck.deck_creation_status, "exported");
+    assert.equal(exportedDeck.export_status, "exported");
+    assert.equal(exportedDeck.artifact_ref.path, exportPath);
+    assert.equal(exportedDeck.provenance_receipt.tool_name, "mcp__judgmentkit.create_slide_deck");
+    assert.equal(exportedDeck.provenance_receipt.output_path, exportPath);
+    assert.equal(exportedDeck.provenance_receipt.workspace_root, exportWorkspace);
+    assert.equal(exportedDeck.provenance_receipt.sha256, exportedDeck.artifact_ref.sha256);
+    assert.equal(exportedDeck.provenance_receipt.bytes, exportedDeck.artifact_ref.bytes);
+    assert.equal(exportedDeck.provenance_receipt.mime_type, exportedDeck.artifact_ref.mime_type);
+    assert.equal(exportedDeck.provenance_receipt.selected_templates[0].layout_id, "slide-21");
+    assert.equal(exportedDeck.provenance_receipt.selected_templates[0].caller_specified, true);
+    assert.equal(fs.existsSync(path.join(exportWorkspace, exportPath)), true);
+    assert.equal(fs.existsSync(path.join(exportWorkspace, `${exportPath}.receipt.json`)), true);
+    const writtenReceipt = JSON.parse(
+      fs.readFileSync(path.join(exportWorkspace, `${exportPath}.receipt.json`), "utf8"),
+    );
+    assert.equal(writtenReceipt.sha256, exportedDeck.artifact_ref.sha256);
+    assert.equal(writtenReceipt.bytes, exportedDeck.artifact_ref.bytes);
+    assert.equal(writtenReceipt.mime_type, exportedDeck.artifact_ref.mime_type);
+    assert.equal(
+      exportedDeck.provenance_receipt.absolute_resolved_path.startsWith(exportWorkspace),
+      true,
+    );
+    assert.equal(formatPlanningCard(exportedDeck).includes("Receipt"), true);
+  } finally {
+    fs.rmSync(exportWorkspace, { recursive: true, force: true });
+  }
+} finally {
+  fs.rmSync(artifactToolFixtureRoot, { recursive: true, force: true });
 }
 
 const iconList = await handleToolCall("list_icon_catalog", { limit: 2 });
