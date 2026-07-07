@@ -43,6 +43,24 @@ export const REQUIRED_DESIGN_SYSTEM_GATE_WORDING = [
   "If the active design-system review fails, the next action is repair or regeneration against the MCP-returned constraints, not acceptance with caveats.",
 ];
 
+export const REQUIRED_SLIDE_DECK_WORKFLOW_WORDING = [
+  "Use this skill for JudgmentKit slide deck requests",
+  "## Slide Deck Creation",
+  "## Deck Workflow",
+  "deck_creation_status",
+  "mcp__judgmentkit.create_slide_deck",
+  "If no deck creation tool is listed by the active endpoint",
+  "Do not fabricate a JudgmentKit packet, deck, or MCP result",
+  "explicit `template_id` values or strong selection metadata",
+];
+
+export const REQUIRED_AGENT_DECK_DISCOVERY_WORDING = [
+  "slide deck creation",
+  "create a JudgmentKit slide deck",
+  "presentation, PowerPoint, or PPTX",
+  "deck creation tool is available",
+];
+
 const CODEX_SUFFIX_PATTERN = new RegExp(`\\+${"codex"}\\b`, "i");
 const LOCAL_HOME_PATTERN = new RegExp(`/Users/${"mike"}\\b`);
 const CODEX_CACHE_PATTERN = new RegExp(`\\.codex/${"plugins"}/cache`);
@@ -214,6 +232,16 @@ function collectMissingWordingFailures(skillText) {
     }
   }
 
+  for (const phrase of REQUIRED_SLIDE_DECK_WORKFLOW_WORDING) {
+    if (!normalizedSkillText.includes(normalizeText(phrase))) {
+      failures.push({
+        check: "slide_deck_workflow_wording",
+        file: "skills/judgmentkit-hosted-mcp/SKILL.md",
+        message: `Missing required slide-deck workflow wording from hosted MCP skill: ${phrase}`,
+      });
+    }
+  }
+
   return failures;
 }
 
@@ -308,6 +336,16 @@ function collectAgentYamlFailures(agentYamlText, mcpUrl) {
       file: "skills/judgmentkit-hosted-mcp/agents/openai.yaml",
       message: "Hosted JudgmentKit plugin must not allow implicit invocation.",
     });
+  }
+
+  for (const phrase of REQUIRED_AGENT_DECK_DISCOVERY_WORDING) {
+    if (!normalizedAgentYaml.includes(normalizeText(phrase))) {
+      failures.push({
+        check: "agent_deck_discovery",
+        file: "skills/judgmentkit-hosted-mcp/agents/openai.yaml",
+        message: `OpenAI agent metadata must keep slide-deck discovery wording: ${phrase}`,
+      });
+    }
   }
 
   return failures;
