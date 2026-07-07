@@ -107,6 +107,16 @@ function validSkillText() {
     "",
     "# JudgmentKit Hosted MCP",
     "",
+    "Use this skill for JudgmentKit slide deck requests when the user asks to create, draft, generate, export, or turn source material into a deck, presentation, PowerPoint, or PPTX.",
+    "",
+    "## Slide Deck Creation",
+    "",
+    "Treat dry-run deck planning as JudgmentKit guidance when the MCP response uses `schema: \"judgmentkit.mcp.slide-deck/v1\"` and `deck_creation_status: \"planned\"`.",
+    "",
+    "Treat an exported PPTX as JudgmentKit output only when the MCP response or sidecar receipt confirms `tool_name: \"mcp__judgmentkit.create_slide_deck\"`, `deck_creation_status: \"exported\"`, and matching `sha256`, `bytes`, and `mime_type` artifact fields.",
+    "",
+    "If no deck creation tool is listed by the active endpoint, state that the current JudgmentKit endpoint cannot create the deck yet. Do not fabricate a JudgmentKit packet, deck, or MCP result.",
+    "",
     "## Design-System Acceptance Gate",
     "",
     "A generated UI that does not pass the active design system is not an artifact. It is a failed candidate.",
@@ -127,6 +137,10 @@ function validSkillText() {
     "",
     "For unreleased designs, proprietary design-system details, source code, customer data, or internal roadmaps, prefer a local checkout, local stdio server, or self-hosted JudgmentKit MCP endpoint instead of `https://judgmentkit.ai/mcp`.",
     "",
+    "## Deck Workflow",
+    "",
+    "For portfolio or case-study decks, pass explicit `template_id` values or strong selection metadata when layout variety matters; heed layout repetition warnings.",
+    "",
   ].join("\n");
 }
 
@@ -134,8 +148,8 @@ function validAgentYaml() {
   return [
     "interface:",
     '  display_name: "JudgmentKit Hosted MCP"',
-    '  short_description: "UI workflow review and hard design-system gates"',
-    '  default_prompt: "Use $judgmentkit-hosted-mcp to review this UI brief for workflow fit, surface choice, disclosure boundaries, and the hard design-system acceptance gate."',
+    '  short_description: "UI workflow review, slide deck creation, and hard design-system gates"',
+    '  default_prompt: "Use $judgmentkit-hosted-mcp to review this UI brief for workflow fit, surface choice, disclosure boundaries, and the hard design-system acceptance gate, or to create a JudgmentKit slide deck, presentation, PowerPoint, or PPTX from allowed source material when the deck creation tool is available."',
     "dependencies:",
     "  tools:",
     '    - type: "mcp"',
@@ -307,6 +321,46 @@ async function assertVerifyRejects(options, expectedChecks) {
       packageJsonPath: fixture.packageJsonPath,
     },
     ["privacy_wording", "design_system_gate_wording"],
+  );
+}
+
+{
+  const fixture = await createFixture({
+    skillText: validSkillText().replace(
+      /## Slide Deck Creation[\s\S]*?## Design-System Acceptance Gate/,
+      "## Design-System Acceptance Gate",
+    ).replace(
+      /## Deck Workflow[\s\S]*$/,
+      "",
+    ),
+  });
+  await assertVerifyRejects(
+    {
+      sourceDir: fixture.sourceDir,
+      packageJsonPath: fixture.packageJsonPath,
+    },
+    ["slide_deck_workflow_wording"],
+  );
+}
+
+{
+  const fixture = await createFixture({
+    agentYaml: validAgentYaml()
+      .replace(
+        '  short_description: "UI workflow review, slide deck creation, and hard design-system gates"',
+        '  short_description: "UI workflow review and hard design-system gates"',
+      )
+      .replace(
+        '  default_prompt: "Use $judgmentkit-hosted-mcp to review this UI brief for workflow fit, surface choice, disclosure boundaries, and the hard design-system acceptance gate, or to create a JudgmentKit slide deck, presentation, PowerPoint, or PPTX from allowed source material when the deck creation tool is available."',
+        '  default_prompt: "Use $judgmentkit-hosted-mcp to review this UI brief for workflow fit, surface choice, disclosure boundaries, and the hard design-system acceptance gate."',
+      ),
+  });
+  await assertVerifyRejects(
+    {
+      sourceDir: fixture.sourceDir,
+      packageJsonPath: fixture.packageJsonPath,
+    },
+    ["agent_deck_discovery"],
   );
 }
 
