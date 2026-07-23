@@ -827,7 +827,6 @@ const stylesheet = `
   --hero-action-secondary-bg: rgba(255, 255, 255, 0.62);
   --hero-art-border: rgba(255, 255, 255, 0.34);
   --hero-art-shadow: rgba(15, 35, 41, 0.22);
-  --hero-caption: #525854;
   --eval-serif: "Source Serif 4", "Iowan Old Style", Charter, "Palatino Linotype", "Book Antiqua", Georgia, serif;
   --site-gutter: clamp(18px, 4vw, 56px);
   --site-shell-width: 1220px;
@@ -877,7 +876,6 @@ const stylesheet = `
     --hero-action-secondary-bg: rgba(24, 29, 27, 0.72);
     --hero-art-border: rgba(169, 215, 228, 0.2);
     --hero-art-shadow: rgba(0, 0, 0, 0.46);
-    --hero-caption: #b8c0bb;
   }
 }
 * {
@@ -1216,18 +1214,10 @@ a {
 .homepage-hero .eyebrow {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
   margin-bottom: 24px;
   font-size: 13px;
   letter-spacing: 0.07em;
   text-transform: uppercase;
-}
-.homepage-hero .eyebrow::before {
-  content: "";
-  width: 28px;
-  height: 2px;
-  border-radius: 999px;
-  background: var(--accent-strong);
 }
 .homepage-hero h1 {
   max-width: 10.8ch;
@@ -1276,23 +1266,6 @@ a {
   height: 100%;
   object-fit: cover;
   object-position: 50% 50%;
-}
-.homepage-hero-visual figcaption {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 14px 6px 0;
-  color: var(--hero-caption);
-  font-size: 12px;
-  font-weight: 650;
-  letter-spacing: 0.025em;
-}
-.homepage-hero-visual figcaption::before {
-  content: "";
-  width: 26px;
-  height: 1px;
-  flex: 0 0 auto;
-  background: currentColor;
 }
 .eyebrow {
   color: var(--accent-strong);
@@ -4156,13 +4129,6 @@ pre {
   .homepage-hero-art img {
     object-position: 50% 43%;
   }
-  .homepage-hero-visual figcaption {
-    align-items: flex-start;
-    line-height: 1.45;
-  }
-  .homepage-hero-visual figcaption::before {
-    margin-top: 0.7em;
-  }
 }
 @media (max-width: 767px) {
   .surfaces-navigation-inner {
@@ -4238,7 +4204,7 @@ function homepage() {
     <section class="hero homepage-hero">
       <div class="site-shell homepage-hero-shell">
         <div class="homepage-hero-copy">
-          <p class="eyebrow">Activity-first judgment for AI agents</p>
+          <p class="eyebrow">Human-centered judgment for AI agents</p>
           <h1>Judgment before generation.</h1>
           <p class="lede">JudgmentKit catches implementation-shaped UI before it ships, then gives the agent a repair path grounded in the user's real work.</p>
           <div class="hero-actions" aria-label="Primary proof paths">
@@ -4251,7 +4217,6 @@ function homepage() {
           <div class="homepage-hero-art">
             <img src="${HOMEPAGE_HERO_ART_PATH}" width="1122" height="1402" alt="Rough stone fragments pass through a teal glass lens and emerge as an ordered path." loading="eager" fetchpriority="high" decoding="async">
           </div>
-          <figcaption>Raw structure, judged against the work, becomes purposeful product direction.</figcaption>
         </figure>
       </div>
     </section>

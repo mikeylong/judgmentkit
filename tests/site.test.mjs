@@ -363,6 +363,8 @@ assert.ok(homepage.includes('class="site-shell homepage-section-shell"'));
 assert.ok(homepage.includes("[data-surfaces-primary-menu-button]"));
 assert.ok(homepage.includes("[data-surfaces-system-menu-button]"));
 assert.ok(homepage.includes("Judgment before generation."));
+assert.ok(homepage.includes("Human-centered judgment for AI agents"));
+assert.equal(homepage.includes("Activity-first judgment for AI agents"), false);
 assert.ok(homepage.includes("JudgmentKit catches implementation-shaped UI before it ships"));
 assert.equal((homepageMain.match(/<h1\b/g) ?? []).length, 1);
 assert.ok(homepage.includes('href="/value/"'));
@@ -374,10 +376,11 @@ assert.ok(
     '<img src="/assets/judgment-lens-hero.webp" width="1122" height="1402" alt="Rough stone fragments pass through a teal glass lens and emerge as an ordered path." loading="eager" fetchpriority="high" decoding="async">',
   ),
 );
-assert.ok(
+assert.equal(
   homepage.includes(
     "<figcaption>Raw structure, judged against the work, becomes purposeful product direction.</figcaption>",
   ),
+  false,
 );
 assert.equal(homepage.includes('src="/assets/judgment-lens-hero.webp" loading="lazy"'), false);
 assert.ok(homepage.includes('class="hero-actions" aria-label="Primary proof paths"'));
