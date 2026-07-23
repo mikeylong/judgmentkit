@@ -460,15 +460,15 @@ assert.equal(homepage.includes("Open system map"), false);
 assert.equal(homepage.includes("not the final renderer"), false);
 assert.ok(homepage.includes('rel="canonical" href="https://judgmentkit.ai/"'));
 assert.ok(homepage.includes('rel="icon" href="/favicon.svg"'));
-assert.ok(homepage.includes('rel="image_src" href="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20260723.png"'));
-assert.ok(homepage.includes('property="og:image" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20260723.png"'));
-assert.ok(homepage.includes('property="og:image:secure_url" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20260723.png"'));
+assert.ok(homepage.includes('rel="image_src" href="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20260723-v2.png"'));
+assert.ok(homepage.includes('property="og:image" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20260723-v2.png"'));
+assert.ok(homepage.includes('property="og:image:secure_url" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20260723-v2.png"'));
 assert.ok(homepage.includes('property="og:image:type" content="image/png"'));
 assert.ok(homepage.includes('property="og:image:width" content="1200"'));
 assert.ok(homepage.includes('property="og:image:height" content="630"'));
 assert.ok(homepage.includes('property="og:image:alt" content="JudgmentKit. Before the UI."'));
 assert.ok(homepage.includes('name="twitter:card" content="summary_large_image"'));
-assert.ok(homepage.includes('name="twitter:image" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20260723.png"'));
+assert.ok(homepage.includes('name="twitter:image" content="https://judgmentkit.ai/assets/judgmentkit-social-thumbnail-20260723-v2.png"'));
 assert.ok(homepage.includes('name="twitter:image:alt" content="JudgmentKit. Before the UI."'));
 assert.ok(llms.includes("- /evals/judgmentkit-mcp/"));
 assert.ok(llms.includes("- /evals/site-rebuild-log/"));
@@ -1883,10 +1883,25 @@ const socialThumbnail = fs.readFileSync(path.join(tempDir, "assets", "judgmentki
 assert.equal(socialThumbnail.subarray(1, 4).toString("ascii"), "PNG");
 assert.equal(socialThumbnail.readUInt32BE(16), 1200);
 assert.equal(socialThumbnail.readUInt32BE(20), 630);
-const versionedSocialThumbnail = fs.readFileSync(path.join(tempDir, "assets", "judgmentkit-social-thumbnail-20260723.png"));
+assert.equal(
+  crypto.createHash("sha256").update(socialThumbnail).digest("hex"),
+  "969df7ef71c748a151f58357b67d4100e3ee2dbf799da0cd22dbb3c5bc0375ea",
+  "social thumbnail must match the visually approved direct SVG render",
+);
+const socialThumbnailSvg = fs.readFileSync(
+  new URL("../site/assets/judgmentkit-social-thumbnail.svg", import.meta.url),
+  "utf8",
+);
+assert.match(
+  socialThumbnailSvg,
+  /<text x="190" y="158"[\s\S]*?>JudgmentKit<\/text>/,
+  "social thumbnail wordmark must retain its optically balanced baseline",
+);
+const versionedSocialThumbnail = fs.readFileSync(path.join(tempDir, "assets", "judgmentkit-social-thumbnail-20260723-v2.png"));
 assert.equal(versionedSocialThumbnail.subarray(1, 4).toString("ascii"), "PNG");
 assert.equal(versionedSocialThumbnail.readUInt32BE(16), 1200);
 assert.equal(versionedSocialThumbnail.readUInt32BE(20), 630);
+assert.deepEqual(versionedSocialThumbnail, socialThumbnail);
 const homepageHeroArt = fs.readFileSync(path.join(tempDir, "assets", "judgment-lens-hero.webp"));
 const homepageHeroArtSource = fs.readFileSync(
   new URL("../site/assets/judgment-lens-hero.webp", import.meta.url),
