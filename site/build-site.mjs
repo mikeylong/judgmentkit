@@ -29,6 +29,8 @@ const SOCIAL_THUMBNAIL_SOURCE_FILENAME = "judgmentkit-social-thumbnail.png";
 const SOCIAL_THUMBNAIL_FILENAME = "judgmentkit-social-thumbnail-20260611.png";
 const SOCIAL_THUMBNAIL_PATH = `/assets/${SOCIAL_THUMBNAIL_FILENAME}`;
 const SOCIAL_THUMBNAIL_ALT = "JudgmentKit. Before the UI.";
+const HOMEPAGE_HERO_ART_FILENAME = "judgment-lens-hero.webp";
+const HOMEPAGE_HERO_ART_PATH = `/assets/${HOMEPAGE_HERO_ART_FILENAME}`;
 const DESIGN_SYSTEM_SPECIMEN_RENDERER = {
   id: "judgmentkit-static-specimens",
   version: "0.1.0",
@@ -820,6 +822,12 @@ const stylesheet = `
   --system-map-node-llm-bg: #fbf3e7;
   --system-map-node-output-bg: #f0f8f2;
   --system-map-node-blocked-bg: #fff7ec;
+  --hero-bg-end: #edf2ef;
+  --hero-glow: rgba(36, 95, 115, 0.17);
+  --hero-action-secondary-bg: rgba(255, 255, 255, 0.62);
+  --hero-art-border: rgba(255, 255, 255, 0.34);
+  --hero-art-shadow: rgba(15, 35, 41, 0.22);
+  --hero-caption: #525854;
   --eval-serif: "Source Serif 4", "Iowan Old Style", Charter, "Palatino Linotype", "Book Antiqua", Georgia, serif;
   --site-gutter: clamp(18px, 4vw, 56px);
   --site-shell-width: 1220px;
@@ -864,6 +872,12 @@ const stylesheet = `
     --system-map-node-llm-bg: rgba(224, 177, 93, 0.14);
     --system-map-node-output-bg: rgba(130, 201, 154, 0.14);
     --system-map-node-blocked-bg: rgba(224, 177, 93, 0.18);
+    --hero-bg-end: #15211e;
+    --hero-glow: rgba(125, 182, 199, 0.15);
+    --hero-action-secondary-bg: rgba(24, 29, 27, 0.72);
+    --hero-art-border: rgba(169, 215, 228, 0.2);
+    --hero-art-shadow: rgba(0, 0, 0, 0.46);
+    --hero-caption: #b8c0bb;
   }
 }
 * {
@@ -1163,11 +1177,122 @@ a {
   min-height: 78vh;
 }
 .homepage-hero {
+  position: relative;
   display: block;
-  min-height: clamp(420px, 60vh, 640px);
+  min-height: 0;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    radial-gradient(circle at 77% 24%, var(--hero-glow), transparent 34%),
+    linear-gradient(132deg, var(--bg) 0%, var(--bg) 54%, var(--hero-bg-end) 100%);
 }
-.homepage-hero > div {
-  max-width: 780px;
+.homepage-hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  top: 12%;
+  right: -9%;
+  width: min(54vw, 760px);
+  aspect-ratio: 1;
+  border: 1px solid var(--hero-glow);
+  border-radius: 50%;
+  opacity: 0.55;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+}
+.homepage-hero-shell {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(390px, 0.82fr);
+  gap: clamp(40px, 6vw, 78px);
+  align-items: center;
+  min-height: clamp(590px, calc(100vh - var(--site-navigation-height)), 780px);
+}
+.homepage-hero-copy {
+  position: relative;
+  z-index: 2;
+  max-width: 690px;
+  padding-block: 28px;
+}
+.homepage-hero .eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 24px;
+  font-size: 13px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.homepage-hero .eyebrow::before {
+  content: "";
+  width: 28px;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--accent-strong);
+}
+.homepage-hero h1 {
+  max-width: 10.8ch;
+  margin-bottom: 26px;
+  font-size: clamp(56px, 6.25vw, 92px);
+  line-height: 0.91;
+  letter-spacing: -0.055em;
+}
+.homepage-hero .lede {
+  max-width: 58ch;
+  font-size: clamp(18px, 1.55vw, 21px);
+  line-height: 1.55;
+}
+.homepage-hero .hero-actions {
+  margin-top: 32px;
+}
+.homepage-hero-visual {
+  width: 100%;
+  max-width: 510px;
+  margin: 0;
+  justify-self: end;
+}
+.homepage-hero-art {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  border: 1px solid var(--hero-art-border);
+  border-radius: clamp(20px, 2.4vw, 34px);
+  background: #08181d;
+  box-shadow:
+    0 42px 100px var(--hero-art-shadow),
+    0 12px 28px rgba(15, 35, 41, 0.18);
+}
+.homepage-hero-art::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(4, 18, 23, 0) 58%, rgba(4, 18, 23, 0.3) 100%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07), transparent 24%);
+  pointer-events: none;
+}
+.homepage-hero-art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 50%;
+}
+.homepage-hero-visual figcaption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 6px 0;
+  color: var(--hero-caption);
+  font-size: 12px;
+  font-weight: 650;
+  letter-spacing: 0.025em;
+}
+.homepage-hero-visual figcaption::before {
+  content: "";
+  width: 26px;
+  height: 1px;
+  flex: 0 0 auto;
+  background: currentColor;
 }
 .eyebrow {
   color: var(--accent-strong);
@@ -1231,20 +1356,33 @@ h2 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 42px;
-  padding: 9px 14px;
+  min-height: 46px;
+  padding: 10px 16px;
   border: 1px solid var(--accent-strong);
   border-radius: 8px;
   font-weight: 800;
   text-decoration: none;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+.hero-action:hover {
+  transform: translateY(-2px);
+}
+.hero-action:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 3px var(--focus-ring);
 }
 .hero-action-primary {
   color: var(--bg);
   background: var(--accent-strong);
+  box-shadow: 0 12px 28px rgba(19, 63, 78, 0.18);
 }
 .hero-action-secondary {
   color: var(--accent-strong);
-  background: transparent;
+  background: var(--hero-action-secondary-bg);
+  backdrop-filter: blur(8px);
 }
 .proof-panel,
 .route-grid article {
@@ -3808,6 +3946,36 @@ pre {
   .doc-layout {
     display: block;
   }
+  .homepage-hero {
+    padding-top: clamp(44px, 8vw, 68px);
+    padding-bottom: clamp(52px, 9vw, 76px);
+  }
+  .homepage-hero::before {
+    top: auto;
+    right: -28%;
+    bottom: -10%;
+    width: min(88vw, 680px);
+  }
+  .homepage-hero-shell {
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(34px, 7vw, 52px);
+    min-height: 0;
+  }
+  .homepage-hero-copy {
+    max-width: 740px;
+    padding-block: 0;
+  }
+  .homepage-hero-visual {
+    width: min(100%, 680px);
+    max-width: none;
+    justify-self: start;
+  }
+  .homepage-hero-art {
+    aspect-ratio: 16 / 11;
+  }
+  .homepage-hero-art img {
+    object-position: 50% 44%;
+  }
   .proof-panel {
     margin-top: 18px;
   }
@@ -3958,6 +4126,44 @@ pre {
     border-bottom: 0;
   }
 }
+@media (max-width: 560px) {
+  .homepage-hero {
+    padding-top: 40px;
+    padding-bottom: 52px;
+  }
+  .homepage-hero .eyebrow {
+    margin-bottom: 20px;
+    font-size: 12px;
+  }
+  .homepage-hero h1 {
+    max-width: 10ch;
+    margin-bottom: 22px;
+    font-size: clamp(48px, 14.6vw, 66px);
+  }
+  .homepage-hero .hero-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 28px;
+  }
+  .homepage-hero .hero-action-primary {
+    grid-column: 1 / -1;
+  }
+  .homepage-hero-art {
+    aspect-ratio: 1 / 1;
+    border-radius: 20px;
+  }
+  .homepage-hero-art img {
+    object-position: 50% 43%;
+  }
+  .homepage-hero-visual figcaption {
+    align-items: flex-start;
+    line-height: 1.45;
+  }
+  .homepage-hero-visual figcaption::before {
+    margin-top: 0.7em;
+  }
+}
 @media (max-width: 767px) {
   .surfaces-navigation-inner {
     padding-left: 16px;
@@ -3986,6 +4192,43 @@ pre {
     display: none;
   }
 }
+@media (prefers-reduced-motion: reduce) {
+  .homepage-hero-art img {
+    transform: none;
+  }
+  .hero-action {
+    transition: none;
+  }
+  .hero-action:hover {
+    transform: none;
+  }
+}
+@media (prefers-contrast: more) {
+  .homepage-hero-art,
+  .hero-action {
+    border-width: 2px;
+    border-color: var(--ink);
+    box-shadow: none;
+  }
+}
+@media (forced-colors: active) {
+  .homepage-hero {
+    background: Canvas;
+  }
+  .homepage-hero::before {
+    display: none;
+  }
+  .homepage-hero-art,
+  .hero-action {
+    border-color: CanvasText;
+    box-shadow: none;
+  }
+  .hero-action-primary,
+  .hero-action-secondary {
+    color: LinkText;
+    background: Canvas;
+  }
+}
 `;
 
 function homepage() {
@@ -3993,15 +4236,23 @@ function homepage() {
     "JudgmentKit",
     `
     <section class="hero homepage-hero">
-      <div class="homepage-hero-copy">
-        <p class="eyebrow">Activity-first judgment for AI agents</p>
-        <h1>Judgment before generation.</h1>
-        <p class="lede">JudgmentKit catches implementation-shaped UI before it ships, then gives the agent a repair path grounded in the user's real work.</p>
-        <div class="hero-actions" aria-label="Primary proof paths">
-          <a class="hero-action hero-action-primary" data-hero-action="primary" href="/value/">What it prevents</a>
-          <a class="hero-action hero-action-secondary" data-hero-action="secondary" href="/examples/">Examples</a>
-          <a class="hero-action hero-action-secondary" data-hero-action="evidence" href="/evals/">Evals</a>
+      <div class="site-shell homepage-hero-shell">
+        <div class="homepage-hero-copy">
+          <p class="eyebrow">Activity-first judgment for AI agents</p>
+          <h1>Judgment before generation.</h1>
+          <p class="lede">JudgmentKit catches implementation-shaped UI before it ships, then gives the agent a repair path grounded in the user's real work.</p>
+          <div class="hero-actions" aria-label="Primary proof paths">
+            <a class="hero-action hero-action-primary" data-hero-action="primary" href="/value/">What it prevents</a>
+            <a class="hero-action hero-action-secondary" data-hero-action="secondary" href="/examples/">Examples</a>
+            <a class="hero-action hero-action-secondary" data-hero-action="evidence" href="/evals/">Evals</a>
+          </div>
         </div>
+        <figure class="homepage-hero-visual">
+          <div class="homepage-hero-art">
+            <img src="${HOMEPAGE_HERO_ART_PATH}" width="1122" height="1402" alt="Rough stone fragments pass through a teal glass lens and emerge as an ordered path." loading="eager" fetchpriority="high" decoding="async">
+          </div>
+          <figcaption>Raw structure, judged against the work, becomes purposeful product direction.</figcaption>
+        </figure>
       </div>
     </section>
     <section class="section homepage-preview" aria-labelledby="repair-preview-title">
@@ -8204,6 +8455,10 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.copyFile(
     socialThumbnailSourcePath,
     path.join(outDir, "assets", SOCIAL_THUMBNAIL_SOURCE_FILENAME),
+  );
+  await fs.copyFile(
+    path.join(__dirname, "assets", HOMEPAGE_HERO_ART_FILENAME),
+    path.join(outDir, "assets", HOMEPAGE_HERO_ART_FILENAME),
   );
   await buildSystemMapFlowAssets(outDir);
   await fs.writeFile(

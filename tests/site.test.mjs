@@ -302,10 +302,16 @@ assert.ok(siteCss.includes(".system-map-flow-root .react-flow,\n.system-map-flow
 assert.ok(siteCss.includes("box-shadow: 0 0 0 2px var(--focus-ring);"));
 const stepMarkerBackgrounds = cssCustomPropertyValues(siteCss, "--step-marker-bg");
 const stepMarkerTextColors = cssCustomPropertyValues(siteCss, "--step-marker-ink");
+const heroPrimaryBackgrounds = cssCustomPropertyValues(siteCss, "--accent-strong");
+const heroPrimaryTextColors = cssCustomPropertyValues(siteCss, "--bg");
 assert.deepEqual(stepMarkerBackgrounds, ["#245f73", "#a9d7e4"]);
 assert.deepEqual(stepMarkerTextColors, ["#ffffff", "#101312"]);
+assert.deepEqual(heroPrimaryBackgrounds, ["#133f4e", "#a9d7e4"]);
+assert.deepEqual(heroPrimaryTextColors, ["#f8f7f2", "#101312"]);
 assertContrastPair("light design-system step marker", stepMarkerTextColors[0], stepMarkerBackgrounds[0]);
 assertContrastPair("dark design-system step marker", stepMarkerTextColors[1], stepMarkerBackgrounds[1]);
+assertContrastPair("light homepage hero primary action", heroPrimaryTextColors[0], heroPrimaryBackgrounds[0]);
+assertContrastPair("dark homepage hero primary action", heroPrimaryTextColors[1], heroPrimaryBackgrounds[1]);
 assert.equal(platformNavCss.includes("position: sticky;"), false);
 assert.ok(siteCss.includes(".surfaces-primary-menu"));
 assert.ok(siteCss.includes(".surfaces-primary-menu-button"));
@@ -358,8 +364,22 @@ assert.ok(homepage.includes("[data-surfaces-primary-menu-button]"));
 assert.ok(homepage.includes("[data-surfaces-system-menu-button]"));
 assert.ok(homepage.includes("Judgment before generation."));
 assert.ok(homepage.includes("JudgmentKit catches implementation-shaped UI before it ships"));
+assert.equal((homepageMain.match(/<h1\b/g) ?? []).length, 1);
 assert.ok(homepage.includes('href="/value/"'));
 assert.ok(homepage.includes('href="/evals/"'));
+assert.ok(homepage.includes('class="site-shell homepage-hero-shell"'));
+assert.ok(homepage.includes('class="homepage-hero-visual"'));
+assert.ok(
+  homepage.includes(
+    '<img src="/assets/judgment-lens-hero.webp" width="1122" height="1402" alt="Rough stone fragments pass through a teal glass lens and emerge as an ordered path." loading="eager" fetchpriority="high" decoding="async">',
+  ),
+);
+assert.ok(
+  homepage.includes(
+    "<figcaption>Raw structure, judged against the work, becomes purposeful product direction.</figcaption>",
+  ),
+);
+assert.equal(homepage.includes('src="/assets/judgment-lens-hero.webp" loading="lazy"'), false);
 assert.ok(homepage.includes('class="hero-actions" aria-label="Primary proof paths"'));
 assert.ok(homepage.includes('class="hero-action hero-action-primary" data-hero-action="primary" href="/value/"'));
 assert.ok(homepage.includes('class="hero-action hero-action-secondary" data-hero-action="secondary" href="/examples/"'));
@@ -391,6 +411,14 @@ assert.ok(siteCss.includes(".evaluation-panel"));
 assert.ok(siteCss.includes(".failure-grid"));
 assert.ok(siteCss.includes(".route-grid-proof"));
 assert.ok(siteCss.includes(".route-grid-adoption"));
+assert.ok(siteCss.includes(".homepage-hero-shell {\n  display: grid;"));
+assert.ok(siteCss.includes("grid-template-columns: minmax(0, 1.08fr) minmax(390px, 0.82fr);"));
+assert.ok(siteCss.includes(".homepage-hero-art img {\n  display: block;\n  width: 100%;\n  height: 100%;\n  object-fit: cover;"));
+assert.ok(siteCss.includes(".hero-action:focus-visible {\n  outline: 0;\n  box-shadow: 0 0 0 3px var(--focus-ring);"));
+assert.ok(siteCss.includes("@media (prefers-reduced-motion: reduce)"));
+assert.ok(siteCss.includes("@media (prefers-contrast: more)"));
+assert.ok(siteCss.includes("@media (forced-colors: active)"));
+assert.ok(siteCss.includes(".homepage-hero-shell {\n    grid-template-columns: minmax(0, 1fr);"));
 assert.equal(siteCss.includes("text-decoration-line: underline;"), false);
 assert.equal(homepageMain.includes("Prompt"), false);
 assert.equal(homepageMain.includes("JSON schema"), false);
@@ -1856,6 +1884,15 @@ const versionedSocialThumbnail = fs.readFileSync(path.join(tempDir, "assets", "j
 assert.equal(versionedSocialThumbnail.subarray(1, 4).toString("ascii"), "PNG");
 assert.equal(versionedSocialThumbnail.readUInt32BE(16), 1200);
 assert.equal(versionedSocialThumbnail.readUInt32BE(20), 630);
+const homepageHeroArt = fs.readFileSync(path.join(tempDir, "assets", "judgment-lens-hero.webp"));
+const homepageHeroArtSource = fs.readFileSync(
+  new URL("../site/assets/judgment-lens-hero.webp", import.meta.url),
+);
+assert.deepEqual(homepageHeroArt, homepageHeroArtSource);
+assert.equal(homepageHeroArt.subarray(0, 4).toString("ascii"), "RIFF");
+assert.equal(homepageHeroArt.subarray(8, 12).toString("ascii"), "WEBP");
+assert.ok(homepageHeroArt.length > 0);
+assert.ok(homepageHeroArt.length < 250_000);
 
 for (const experimentPath of [
   ["experiments", "netflix-library", "index.html"],

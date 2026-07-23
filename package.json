@@ -57,6 +57,7 @@
     "site:build": "node site/build-site.mjs",
     "site:dev": "npm run site:build && node scripts/site-local-server.mjs",
     "site:serve": "node scripts/site-local-server.mjs",
+    "test:site": "node tests/site.test.mjs && node tests/site-local-server.test.mjs",
     "smoke:icons": "node scripts/lucide-icon-catalog-smoke.mjs",
     "smoke:openai-ui-workflow": "node scripts/smoke-openai-ui-workflow.mjs",
     "test:presentation-theme": "node tests/presentation-theme.test.mjs && npm run presentation-theme:actual:evidence && npm run presentation-theme:pack:smoke",

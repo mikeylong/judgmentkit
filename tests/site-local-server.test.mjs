@@ -341,6 +341,30 @@ try {
   }
 
   {
+    const response = await fetchRoute(url, "/assets/judgment-lens-hero.webp");
+    const body = Buffer.from(await response.arrayBuffer());
+
+    assert.equal(response.status, 200, "homepage hero art should return 200");
+    assert.equal(response.headers.get("content-type"), "image/webp");
+    assert.equal(Number(response.headers.get("content-length")), body.length);
+    assert.equal(body.subarray(0, 4).toString("ascii"), "RIFF");
+    assert.equal(body.subarray(8, 12).toString("ascii"), "WEBP");
+
+    const headResponse = await fetchRoute(url, "/assets/judgment-lens-hero.webp", {
+      method: "HEAD",
+    });
+
+    assert.equal(headResponse.status, 200, "homepage hero art HEAD should return 200");
+    assert.equal(headResponse.headers.get("content-type"), "image/webp");
+    assert.equal(
+      Number(headResponse.headers.get("content-length")),
+      body.length,
+      "homepage hero art HEAD should report the full body size",
+    );
+    assert.equal(await headResponse.text(), "");
+  }
+
+  {
     const response = await fetchRoute(
       url,
       "/examples/model-ui/refund-system-map/manifest.json",
