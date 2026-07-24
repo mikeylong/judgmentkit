@@ -122,17 +122,17 @@
 }
 
 .rf-zone-kernel {
-  border-color: rgba(36, 95, 115, 0.34);
+  border-color: color-mix(in srgb, var(--rf-map-edge) 34%, transparent);
   background: var(--rf-map-zone-kernel-bg);
 }
 
 .rf-zone-llm {
-  border-color: rgba(138, 90, 22, 0.32);
+  border-color: color-mix(in srgb, var(--rf-map-edge-warning) 32%, transparent);
   background: var(--rf-map-zone-llm-bg);
 }
 
 .rf-zone-output {
-  border-color: rgba(46, 115, 70, 0.32);
+  border-color: color-mix(in srgb, var(--rf-map-edge-output) 32%, transparent);
   background: var(--rf-map-zone-output-bg);
 }
 
@@ -175,22 +175,22 @@
 }
 
 .rf-map-node-kernel {
-  border-color: rgba(36, 95, 115, 0.34);
+  border-color: color-mix(in srgb, var(--rf-map-edge) 34%, transparent);
   background: var(--rf-map-node-kernel-bg);
 }
 
 .rf-map-node-llm {
-  border-color: rgba(138, 90, 22, 0.34);
+  border-color: color-mix(in srgb, var(--rf-map-edge-warning) 34%, transparent);
   background: var(--rf-map-node-llm-bg);
 }
 
 .rf-map-node-output {
-  border-color: rgba(46, 115, 70, 0.32);
+  border-color: color-mix(in srgb, var(--rf-map-edge-output) 32%, transparent);
   background: var(--rf-map-node-output-bg);
 }
 
 .rf-map-node-blocked {
-  border-color: rgba(138, 90, 22, 0.42);
+  border-color: color-mix(in srgb, var(--rf-map-edge-warning) 42%, transparent);
   border-style: dashed;
   background: var(--rf-map-node-blocked-bg);
 }
