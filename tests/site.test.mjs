@@ -12,6 +12,7 @@ import {
   MODEL_UI_INDEX_FILE,
   MODEL_UI_USE_CASES,
 } from "../scripts/model-ui-use-cases.mjs";
+import { assertValueAppearanceContract } from "../scripts/verify-public-release.mjs";
 import { getHostedMcpMetadata } from "../src/mcp-http.mjs";
 import { createUiImplementationContract } from "../src/index.mjs";
 
@@ -52,6 +53,29 @@ const PUBLIC_DIAGNOSTIC_CANDIDATE_KEYS = [
   "use_case_label",
 ];
 const root = path.resolve(".");
+const RAW_COLOR_VALUE_PATTERN =
+  /#[0-9a-f]{3,8}\b|rgba?\(|hsla?\(|hwb\(|(?:ok)?lab\(|(?:ok)?lch\(|color\(|\b(?:white|black)\b/i;
+const APPEARANCE_INVARIANT_SITE_TOKENS = [
+  "--captured-artifact-bg",
+  "--eval-serif",
+  "--fixed-light-ink",
+  "--hero-art-bg",
+  "--hero-art-overlay",
+  "--modal-backdrop-bg",
+  "--modal-media-stage-bg",
+  "--report-video-grid-bg",
+  "--report-video-hero-bg",
+  "--report-video-play-bg",
+  "--section-rail-top",
+  "--site-gutter",
+  "--site-navigation-height",
+  "--site-page-top",
+  "--site-rail-gap",
+  "--site-rail-width",
+  "--site-reading-wide",
+  "--site-reading-width",
+  "--site-shell-width",
+];
 
 function canonicalizeJsonValue(value) {
   if (Array.isArray(value)) {
@@ -101,6 +125,30 @@ function cssCustomPropertyValues(css, name) {
   return [...css.matchAll(new RegExp(`${escapedName}:\\s*([^;]+);`, "g"))].map((match) => match[1].trim());
 }
 
+function cssRuleBody(css, selector) {
+  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = css.match(new RegExp(`${escapedSelector}\\s*\\{([^}]*)\\}`, "m"));
+  assert.ok(match, `expected CSS rule for ${selector}`);
+  return match[1];
+}
+
+function cssRuleBlocks(css) {
+  return [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((match) => ({
+    selector: match[1].trim(),
+    body: match[2],
+  }));
+}
+
+function cssCustomPropertyMap(ruleBody) {
+  return new Map(
+    ruleBody
+      .split(";")
+      .map((declaration) => declaration.trim().match(/^(--[\w-]+)\s*:\s*([\s\S]+)$/))
+      .filter(Boolean)
+      .map((match) => [match[1], match[2].trim()]),
+  );
+}
+
 function hexColorToRgb(value) {
   const match = value.match(/^#([0-9a-f]{6})$/i);
   assert.ok(match, `expected hex color, got ${value}`);
@@ -130,6 +178,49 @@ function contrastRatio(foreground, background) {
 function assertContrastPair(label, foreground, background, minimum = 4.5) {
   const ratio = contrastRatio(foreground, background);
   assert.ok(ratio >= minimum, `${label} contrast ${ratio.toFixed(2)} is below ${minimum}`);
+}
+
+function rawConsumerThemeDeclarations(css) {
+  const declarationPattern =
+    /(?:^|[;{])\s*(background(?:-color|-image)?|color|border(?:-[a-z-]+)?|fill|stroke|outline(?:-[a-z-]+)?)\s*:\s*([^;}]+)/gim;
+
+  return [...css.matchAll(declarationPattern)]
+    .filter((match) => RAW_COLOR_VALUE_PATTERN.test(match[2]))
+    .map((match) => `${match[1]}: ${match[2].trim()}`);
+}
+
+function rawInlineConsumerThemeDeclarations(html) {
+  return [...html.matchAll(/\sstyle=(["'])(.*?)\1/gis)]
+    .flatMap((match) => match[2].split(";"))
+    .map((declaration) => declaration.trim().match(/^([\w-]+)\s*:\s*(.+)$/s))
+    .filter(
+      (match) =>
+        match &&
+        !match[1].startsWith("--") &&
+        RAW_COLOR_VALUE_PATTERN.test(match[2]),
+    )
+    .map((match) => `${match[1]}: ${match[2].trim()}`);
+}
+
+function inlineCustomPropertyNames(html) {
+  return [...html.matchAll(/\sstyle=(["'])(.*?)\1/gis)]
+    .flatMap((match) => match[2].split(";"))
+    .map((declaration) => declaration.trim().match(/^(--[\w-]+)\s*:/)?.[1])
+    .filter(Boolean);
+}
+
+function rawColorCustomPropertyDeclarations(ruleBlocks, allowedSelectors) {
+  return ruleBlocks.flatMap(({ selector, body }) => {
+    if (allowedSelectors.has(selector)) {
+      return [];
+    }
+
+    return body
+      .split(";")
+      .map((declaration) => declaration.trim().match(/^(--[\w-]+)\s*:\s*([\s\S]+)$/))
+      .filter((match) => match && RAW_COLOR_VALUE_PATTERN.test(match[2]))
+      .map((match) => `${selector} { ${match[1]}: ${match[2].trim()} }`);
+  });
 }
 
 const OLD_FRAMING = [
@@ -169,6 +260,16 @@ assert.deepEqual(result.routes, [
   "/mcp",
 ]);
 
+for (const route of result.routes.filter((candidate) => candidate.endsWith("/"))) {
+  const relativePath = route === "/" ? "index.html" : `${route.slice(1)}index.html`;
+  const html = fs.readFileSync(path.join(tempDir, relativePath), "utf8");
+  assert.deepEqual(
+    rawInlineConsumerThemeDeclarations(html),
+    [],
+    `${route} inline consumer styles must use theme-aware custom properties`,
+  );
+}
+
 function assertAnalyticsBootstrap(html, label) {
   assert.ok(html.includes("window.va = window.va || function"), `${label} should initialize Vercel Analytics queue`);
   assert.ok(html.includes('src="/_vercel/insights/script.js"'), `${label} should load Vercel Analytics script`);
@@ -181,6 +282,10 @@ const llms = fs.readFileSync(path.join(tempDir, "llms.txt"), "utf8");
 const siteCss = fs.readFileSync(path.join(tempDir, "assets", "site.css"), "utf8");
 const systemMapFlowJs = fs.readFileSync(path.join(tempDir, "assets", "system-map-flow.js"), "utf8");
 const systemMapFlowCss = fs.readFileSync(path.join(tempDir, "assets", "system-map-flow.css"), "utf8");
+const systemMapFlowAuthoredCss = fs.readFileSync(
+  new URL("../site/system-map-flow.css", import.meta.url),
+  "utf8",
+);
 const systemMapFlowSource = fs.readFileSync(new URL("../site/system-map-flow.jsx", import.meta.url), "utf8");
 const platformNavMarkup =
   homepage.match(/<nav class="surfaces-navigation" aria-label="Surfaces platform" data-surfaces-navigation>[\s\S]*?<\/nav>/)
@@ -203,6 +308,38 @@ assert.ok(systemMapFlowCss.includes("background:var(--rf-map-bg)"));
 assert.ok(systemMapFlowCss.includes("background:var(--rf-map-node-kernel-bg)"));
 assert.ok(systemMapFlowCss.includes("color:var(--rf-map-ink)"));
 assert.ok(systemMapFlowCss.includes("color:var(--rf-map-accent)"));
+assert.deepEqual(
+  rawConsumerThemeDeclarations(systemMapFlowAuthoredCss),
+  [],
+  "authored React Flow map consumers must use appearance-aware custom properties",
+);
+const systemMapRuleBlocks = cssRuleBlocks(systemMapFlowAuthoredCss);
+assert.equal(
+  systemMapRuleBlocks.filter(({ selector }) => selector === ".system-map-flow-root").length,
+  2,
+  "React Flow map CSS should define exactly one light and one dark token root",
+);
+assert.deepEqual(
+  rawColorCustomPropertyDeclarations(
+    systemMapRuleBlocks,
+    new Set([".system-map-flow-root"]),
+  ),
+  [],
+  "React Flow raw color tokens must stay in the governed light and dark roots",
+);
+const lightSystemMapTokens = cssCustomPropertyMap(
+  cssRuleBody(systemMapFlowAuthoredCss, ".system-map-flow-root"),
+);
+const darkSystemMapRoot = systemMapFlowAuthoredCss.match(
+  /@media \(prefers-color-scheme: dark\) \{\s*\.system-map-flow-root\s*\{([^}]*)\}/,
+)?.[1];
+assert.ok(darkSystemMapRoot, "React Flow map CSS must expose a dark appearance root");
+const darkSystemMapTokens = cssCustomPropertyMap(darkSystemMapRoot);
+assert.deepEqual(
+  [...darkSystemMapTokens.keys()].sort(),
+  [...lightSystemMapTokens.keys()].sort(),
+  "React Flow map light and dark token sets must stay in parity",
+);
 assert.ok(systemMapFlowSource.includes('position="bottom-left"'));
 assert.ok(systemMapFlowSource.includes('Background color="var(--rf-map-grid)"'));
 assert.ok(systemMapFlowSource.includes('stroke: "var(--rf-map-edge-output)"'));
@@ -295,6 +432,59 @@ assert.ok(siteCss.includes("background: var(--soft-surface);"));
 assert.ok(siteCss.includes("background: var(--report-toc-bg);"));
 assert.ok(siteCss.includes("background: var(--report-video-copy-bg);"));
 assert.ok(siteCss.includes("background: var(--system-map-bg);"));
+assert.deepEqual(
+  rawConsumerThemeDeclarations(siteCss),
+  [],
+  "site CSS consumers must use theme-aware custom properties or color-mix instead of raw colors",
+);
+const siteCssRuleBlocks = cssRuleBlocks(siteCss);
+assert.equal(
+  siteCssRuleBlocks.filter(({ selector }) => selector === ":root").length,
+  4,
+  "site CSS should define only the governed site and design-system light/dark roots",
+);
+assert.deepEqual(
+  rawColorCustomPropertyDeclarations(siteCssRuleBlocks, new Set([":root"])),
+  [],
+  "raw color custom properties must stay in governed appearance roots",
+);
+const lightAppearanceRoot = siteCss.match(/^:root\s*\{([^}]*)\}/m)?.[1];
+const darkAppearanceRoot = siteCss.match(
+  /@media \(prefers-color-scheme: dark\) \{\s*:root\s*\{([^}]*)\}/,
+)?.[1];
+assert.ok(lightAppearanceRoot, "site CSS must expose a light appearance root");
+assert.ok(darkAppearanceRoot, "site CSS must expose a dark appearance root");
+const lightAppearanceTokens = cssCustomPropertyMap(lightAppearanceRoot);
+const darkAppearanceTokens = cssCustomPropertyMap(darkAppearanceRoot);
+const lightAppearanceTokenNames = [...lightAppearanceRoot.matchAll(/^\s*(--[\w-]+)\s*:/gm)].map(
+  (match) => match[1],
+);
+const darkAppearanceTokenNames = [...darkAppearanceRoot.matchAll(/^\s*(--[\w-]+)\s*:/gm)].map(
+  (match) => match[1],
+);
+assert.equal(
+  new Set(lightAppearanceTokenNames).size,
+  lightAppearanceTokenNames.length,
+  "light appearance root must not declare duplicate token names",
+);
+assert.equal(
+  new Set(darkAppearanceTokenNames).size,
+  darkAppearanceTokenNames.length,
+  "dark appearance root must not declare duplicate token names",
+);
+const unpairedLightTokens = [...lightAppearanceTokens.keys()]
+  .filter((name) => !darkAppearanceTokens.has(name))
+  .sort();
+assert.deepEqual(
+  unpairedLightTokens,
+  [...APPEARANCE_INVARIANT_SITE_TOKENS].sort(),
+  "every site token needs a dark counterpart or an explicit appearance-invariant classification",
+);
+assert.deepEqual(
+  [...darkAppearanceTokens.keys()].filter((name) => !lightAppearanceTokens.has(name)),
+  [],
+  "dark appearance tokens must have a light/default counterpart",
+);
 assert.ok(siteCss.includes(".doc-section[data-system-map-flow-section] {\n  overflow-x: hidden;"));
 assert.ok(siteCss.includes(".system-map-canvas {\n  aspect-ratio: 1760 / 1040;\n  position: relative;\n  max-width: 100%;"));
 assert.ok(siteCss.includes("contain: layout paint;\n  overflow: hidden;"));
@@ -304,14 +494,48 @@ const stepMarkerBackgrounds = cssCustomPropertyValues(siteCss, "--step-marker-bg
 const stepMarkerTextColors = cssCustomPropertyValues(siteCss, "--step-marker-ink");
 const heroPrimaryBackgrounds = cssCustomPropertyValues(siteCss, "--accent-strong");
 const heroPrimaryTextColors = cssCustomPropertyValues(siteCss, "--bg");
+const siteBackgrounds = cssCustomPropertyValues(siteCss, "--bg");
+const sitePanelBackgrounds = cssCustomPropertyValues(siteCss, "--panel");
+const siteTextColors = cssCustomPropertyValues(siteCss, "--ink");
+const siteMutedColors = cssCustomPropertyValues(siteCss, "--muted");
+const softSurfaceBackgrounds = cssCustomPropertyValues(siteCss, "--soft-surface");
+const accentBackgrounds = cssCustomPropertyValues(siteCss, "--accent");
+const accentTextColors = cssCustomPropertyValues(siteCss, "--accent-ink");
+const designSystemFocusBackgrounds = cssCustomPropertyValues(siteCss, "--jk-color-focus");
+const warningColors = cssCustomPropertyValues(siteCss, "--warn");
 assert.deepEqual(stepMarkerBackgrounds, ["#245f73", "#a9d7e4"]);
 assert.deepEqual(stepMarkerTextColors, ["#ffffff", "#101312"]);
 assert.deepEqual(heroPrimaryBackgrounds, ["#133f4e", "#a9d7e4"]);
 assert.deepEqual(heroPrimaryTextColors, ["#f8f7f2", "#101312"]);
+assert.deepEqual(softSurfaceBackgrounds, ["#fbfaf6", "#151a18"]);
+assert.deepEqual(accentTextColors, ["#ffffff", "#101312"]);
+assert.deepEqual(designSystemFocusBackgrounds, ["#245f73", "#7db6c7"]);
 assertContrastPair("light design-system step marker", stepMarkerTextColors[0], stepMarkerBackgrounds[0]);
 assertContrastPair("dark design-system step marker", stepMarkerTextColors[1], stepMarkerBackgrounds[1]);
 assertContrastPair("light homepage hero primary action", heroPrimaryTextColors[0], heroPrimaryBackgrounds[0]);
 assertContrastPair("dark homepage hero primary action", heroPrimaryTextColors[1], heroPrimaryBackgrounds[1]);
+for (const [index, mode] of ["light", "dark"].entries()) {
+  assertContrastPair(`${mode} text on soft surface`, siteTextColors[index], softSurfaceBackgrounds[index]);
+  assertContrastPair(`${mode} muted text on soft surface`, siteMutedColors[index], softSurfaceBackgrounds[index]);
+  assertContrastPair(`${mode} text on accent`, accentTextColors[index], accentBackgrounds[index]);
+  assertContrastPair(
+    `${mode} specimen primary control text`,
+    accentTextColors[index],
+    designSystemFocusBackgrounds[index],
+  );
+  assertContrastPair(
+    `${mode} guided chart against panel`,
+    accentBackgrounds[index],
+    sitePanelBackgrounds[index],
+    3,
+  );
+  assertContrastPair(
+    `${mode} baseline chart against panel`,
+    warningColors[index],
+    sitePanelBackgrounds[index],
+    3,
+  );
+}
 assert.equal(platformNavCss.includes("position: sticky;"), false);
 assert.ok(siteCss.includes(".surfaces-primary-menu"));
 assert.ok(siteCss.includes(".surfaces-primary-menu-button"));
@@ -671,6 +895,33 @@ assert.ok(designSystemTokens.includes('<a href="/design-system/tokens/" data-sec
 const visualTokenAdapterExport = JSON.parse(
   fs.readFileSync(path.join(tempDir, "design-system", "visual-token-adapter.json"), "utf8"),
 );
+const appearanceTokenSets = Object.fromEntries(
+  visualTokenAdapterExport.appearance_token_sets.map((tokenSet) => [
+    tokenSet.mode,
+    tokenSet.css_custom_properties,
+  ]),
+);
+const lightAdapterAppearanceTokenNames = appearanceTokenSets.light.map((token) => token.name);
+const darkAdapterAppearanceTokenNames = appearanceTokenSets.dark.map((token) => token.name);
+assert.equal(
+  new Set(lightAdapterAppearanceTokenNames).size,
+  lightAdapterAppearanceTokenNames.length,
+  "design-system light appearance tokens must be unique",
+);
+assert.equal(
+  new Set(darkAdapterAppearanceTokenNames).size,
+  darkAdapterAppearanceTokenNames.length,
+  "design-system dark appearance tokens must be unique",
+);
+assert.deepEqual(
+  [...darkAdapterAppearanceTokenNames].sort(),
+  [...lightAdapterAppearanceTokenNames].sort(),
+  "design-system light and dark appearance token sets must stay in parity",
+);
+const adapterAppearanceTokenNames = new Set([
+  ...lightAdapterAppearanceTokenNames,
+  ...darkAdapterAppearanceTokenNames,
+]);
 const componentContractsExport = JSON.parse(
   fs.readFileSync(path.join(tempDir, "design-system", "component-contracts.json"), "utf8"),
 );
@@ -894,6 +1145,21 @@ assert.ok(designSystemComponents.includes("Output hash"));
 assert.ok(designSystemComponents.includes('data-component-contract="action_button"'));
 assert.ok(designSystemComponents.includes('data-component-contract="dialog"'));
 assert.ok(designSystemComponents.includes("required state coverage"));
+for (const [label, html] of [
+  ["component", designSystemComponents],
+  ["pattern", designSystemPatterns],
+]) {
+  const previewTags = html.match(/<div class="jk-specimen-preview[^>]*>/g) ?? [];
+  assert.ok(previewTags.length > 0, `${label} specimens should render preview roots`);
+  const pinnedAppearanceTokens = inlineCustomPropertyNames(html)
+    .filter((tokenName) => adapterAppearanceTokenNames.has(tokenName))
+    .sort();
+  assert.deepEqual(
+    pinnedAppearanceTokens,
+    [],
+    `${label} specimens must inherit every appearance token instead of pinning it inline`,
+  );
+}
 assert.ok(designSystemPatterns.includes("<h1>Patterns</h1>"));
 assert.ok(designSystemPatterns.includes("Surface pattern contracts"));
 assert.ok(designSystemPatterns.includes("<h2 id=\"specimens\">Specimens</h2>"));
@@ -903,6 +1169,20 @@ assert.ok(designSystemPatterns.includes('data-pattern-control="decision-action"'
 assert.ok(designSystemPatterns.includes('data-pattern-contract="workbench"'));
 assert.ok(designSystemPatterns.includes('data-surface-type="operator_review"'));
 assert.ok(designSystemPatterns.includes("required regions"));
+assert.ok(siteCss.includes("--jk-color-surface: #ffffff;"));
+assert.ok(siteCss.includes("--jk-color-surface: #181d1b;"));
+assert.ok(
+  cssRuleBody(siteCss, ".design-system-search input").includes(
+    "background: var(--panel);",
+  ),
+  "design-system search input must use the appearance-aware panel token",
+);
+assert.ok(
+  cssRuleBody(siteCss, ".design-system-search button").includes(
+    "color: var(--accent-ink);",
+  ),
+  "design-system search button must use the on-accent token",
+);
 assert.ok(designSystemAccessibility.includes("<h1>Accessibility</h1>"));
 assert.ok(designSystemAccessibility.includes("WCAG 2.2 AA"));
 assert.ok(designSystemAccessibility.includes("Normal text contrast target: 4.5:1."));
@@ -1026,7 +1306,11 @@ assert.equal(
 );
 assert.equal(
   specimenProvenanceExport.token_hash,
-  hashCanonical(visualTokenAdapterExport.css_custom_properties),
+  hashCanonical({
+    css_custom_properties: visualTokenAdapterExport.css_custom_properties,
+    appearance_policy: visualTokenAdapterExport.appearance_policy,
+    appearance_token_sets: visualTokenAdapterExport.appearance_token_sets,
+  }),
 );
 assert.equal(
   specimenProvenanceExport.icon_catalog_hash,
@@ -1185,6 +1469,34 @@ assert.ok(siteCss.includes(".value-page"));
 assert.ok(siteCss.includes(".value-case"));
 assert.ok(siteCss.includes(".value-screenshot-pair"));
 assert.ok(siteCss.includes(".value-receipt"));
+assert.ok(
+  cssRuleBody(siteCss, ".value-findings div").includes(
+    "background: var(--soft-surface);",
+  ),
+  "value finding cards must use the appearance-aware soft-surface token",
+);
+assertValueAppearanceContract(value, siteCss);
+assert.throws(
+  () =>
+    assertValueAppearanceContract(
+      value,
+      siteCss.replace(
+        /(\.value-findings div\s*\{[^}]*?)background: var\(--soft-surface\);/s,
+        "$1background: #fbfaf6;",
+      ),
+    ),
+  /value finding card rule should include background: var\(--soft-surface\);/,
+  "production appearance verification must reject a light-only value card",
+);
+assert.throws(
+  () =>
+    assertValueAppearanceContract(
+      value,
+      siteCss.replace("--soft-surface: #151a18;", "--soft-surface: #fbfaf6;"),
+    ),
+  /site CSS dark appearance root should include --soft-surface: #151a18;/,
+  "production appearance verification must reject a stale dark token",
+);
 
 const examples = fs.readFileSync(path.join(tempDir, "examples", "index.html"), "utf8");
 const experimentRoute = "/experiments/netflix-library";

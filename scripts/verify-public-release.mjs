@@ -378,6 +378,47 @@ function assertExcludes(text, needles, label) {
   }
 }
 
+function cssRuleBody(css, selector, label) {
+  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = css.match(new RegExp(`${escapedSelector}\\s*\\{([^}]*)\\}`, "m"));
+  assert.ok(match, `${label} should include a ${selector} rule`);
+  return match[1];
+}
+
+export function assertValueAppearanceContract(valueHtml, siteCss) {
+  assertIncludes(
+    valueHtml,
+    [
+      '<link rel="canonical" href="https://judgmentkit.ai/value/">',
+      '<link rel="stylesheet" href="/assets/site.css">',
+      'class="value-findings"',
+      "Baseline failure",
+      "JudgmentKit catches",
+      "Repaired outcome",
+    ],
+    "value",
+  );
+
+  const darkRoot = siteCss.match(
+    /@media \(prefers-color-scheme: dark\) \{\s*:root\s*\{([^}]*)\}/,
+  )?.[1];
+  assert.ok(darkRoot, "site CSS should include the dark appearance root");
+  assertIncludes(
+    darkRoot,
+    [
+      "--ink: #f2f4ef;",
+      "--muted: #b8c0bb;",
+      "--soft-surface: #151a18;",
+    ],
+    "site CSS dark appearance root",
+  );
+  assertIncludes(
+    cssRuleBody(siteCss, ".value-findings div", "site CSS"),
+    ["background: var(--soft-surface);"],
+    "value finding card rule",
+  );
+}
+
 function evalRunTitle(run) {
   return `${run.date} / ${run.mcp_release_segment ?? `mcp-${run.mcp_release}`} / ${run.run_id}`;
 }
@@ -458,6 +499,24 @@ function getAnalyticsScriptSrc(text, label) {
   }
 
   assert.fail(`${label} should include the Vercel Analytics script`);
+}
+
+function getStylesheetHrefs(text, label) {
+  const hrefs = [];
+
+  for (const [linkTag] of text.matchAll(/<link\b[^>]*>/g)) {
+    const rel = linkTag.match(/\brel="([^"]+)"/)?.[1] ?? "";
+    if (!rel.split(/\s+/).includes("stylesheet")) {
+      continue;
+    }
+
+    const href = linkTag.match(/\bhref="([^"]+)"/)?.[1];
+    assert.ok(href, `${label} stylesheet link should include an href`);
+    hrefs.push(href);
+  }
+
+  assert.ok(hrefs.length > 0, `${label} should link at least one stylesheet`);
+  return hrefs;
 }
 
 async function verifyAnalyticsScript(baseUrl, scriptSrc) {
@@ -894,6 +953,26 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   );
   assertExcludes(home.text, OLD_FRAMING, "homepage");
 
+  const value = await fetchText(baseUrl, "/value/");
+  const valueStylesheetHrefs = getStylesheetHrefs(value.text, "value");
+  assert.deepEqual(
+    valueStylesheetHrefs,
+    ["/assets/site.css"],
+    "value should have one governed site stylesheet",
+  );
+  const valueStylesheetHref = valueStylesheetHrefs[0];
+  const siteCss = await fetchText(
+    baseUrl,
+    `${valueStylesheetHref}?appearance-contract=dark-mode-v1&cache-bust=${Date.now()}`,
+  );
+  assert.equal(getAnalyticsScriptSrc(value.text, "value"), analyticsScriptSrc);
+  assert.match(
+    siteCss.response.headers.get("content-type") ?? "",
+    /^text\/css\b/i,
+    "site stylesheet should return a CSS content type",
+  );
+  assertValueAppearanceContract(value.text, siteCss.text);
+
   const docs = await fetchText(baseUrl, "/docs/");
   assert.equal(getAnalyticsScriptSrc(docs.text, "docs"), analyticsScriptSrc);
   assertIncludes(
@@ -1221,6 +1300,8 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   return {
     checked: [
       "/",
+      "/value/",
+      valueStylesheetHref,
       "/docs/",
       "/examples/",
       "/favicon.svg",

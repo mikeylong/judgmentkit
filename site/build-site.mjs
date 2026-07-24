@@ -662,7 +662,7 @@ function systemMapFallbackSvg(titleId, descId) {
           <desc id="${escapeHtml(descId)}">A static fallback node and edge diagram showing source context, the MCP boundary, JudgmentKit kernel, optional LLM provider seam, UI rendering outside JudgmentKit, design-system source choices with provenance, blocked path, and iteration with updated context returning to source and activity review.</desc>
           <defs>
             <marker id="system-map-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-              <path d="M 0 0 L 10 5 L 0 10 z" fill="#245f73"></path>
+              <path class="map-arrow" d="M 0 0 L 10 5 L 0 10 z"></path>
             </marker>
           </defs>
 
@@ -788,6 +788,13 @@ function systemMapFallbackSvg(titleId, descId) {
         </svg>`;
 }
 
+const siteVisualTokenAdapter = defaultVisualTokenAdapter();
+const designSystemAppearanceStylesheet = cssCustomPropertyBlock(
+  siteVisualTokenAdapter.css_custom_properties,
+  siteVisualTokenAdapter.appearance_policy,
+  siteVisualTokenAdapter.appearance_token_sets,
+);
+
 const stylesheet = `
 :root {
   color-scheme: light dark;
@@ -798,8 +805,12 @@ const stylesheet = `
   --panel: #ffffff;
   --accent: #245f73;
   --accent-strong: #133f4e;
+  --accent-ink: #ffffff;
   --ok: #2e6b48;
   --warn: #8a5a16;
+  --risk: #8f342f;
+  --disabled: #8a8f93;
+  --receipt: #23615f;
   --nav-bg: rgba(255, 255, 255, 0.98);
   --nav-border: #e5e5e5;
   --nav-muted: #525252;
@@ -810,11 +821,31 @@ const stylesheet = `
   --menu-item-bg-hover: #fafafa;
   --menu-item-bg-current: #f5f5f5;
   --soft-surface: #fbfaf6;
+  --code-surface: #f5f3ec;
+  --media-surface: #f2f1eb;
+  --table-heading-surface: #f3f0e7;
+  --bar-track: #eee9dc;
   --status-success-bg: #f4fbf6;
   --status-warning-bg: rgba(138, 90, 22, 0.09);
+  --captured-artifact-bg: #ffffff;
+  --fixed-light-ink: #ffffff;
+  --hero-art-bg: #08181d;
+  --hero-art-overlay:
+    linear-gradient(180deg, rgba(4, 18, 23, 0) 58%, rgba(4, 18, 23, 0.3) 100%),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.07), transparent 24%);
+  --modal-backdrop-bg: rgba(20, 28, 31, 0.72);
+  --modal-media-stage-bg: #10181b;
   --report-toc-bg: rgba(255, 255, 255, 0.72);
   --report-video-bg: #f3f1ea;
   --report-video-copy-bg: rgba(255, 255, 255, 0.76);
+  --report-video-hero-bg:
+    linear-gradient(135deg, rgba(36, 95, 115, 0.16), rgba(46, 107, 72, 0.1)),
+    var(--report-video-bg);
+  --report-video-grid-bg:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0)),
+    repeating-linear-gradient(90deg, rgba(19, 63, 78, 0.12) 0 1px, transparent 1px 18px);
+  --report-video-play-bg: rgba(19, 63, 78, 0.92);
+  --report-chart-grid: rgba(23, 23, 23, 0.1);
   --system-map-bg: #fbfaf6;
   --system-map-zone-bg: rgba(255, 255, 255, 0.78);
   --system-map-node-bg: #ffffff;
@@ -847,8 +878,12 @@ const stylesheet = `
     --panel: #181d1b;
     --accent: #7db6c7;
     --accent-strong: #a9d7e4;
+    --accent-ink: #101312;
     --ok: #82c99a;
     --warn: #e0b15d;
+    --risk: #e37d76;
+    --disabled: #7d8580;
+    --receipt: #80cbc7;
     --nav-bg: rgba(16, 19, 18, 0.96);
     --nav-border: #29312e;
     --nav-muted: #b8c0bb;
@@ -859,11 +894,16 @@ const stylesheet = `
     --menu-item-bg-hover: #202723;
     --menu-item-bg-current: #25312d;
     --soft-surface: #151a18;
+    --code-surface: #1b211f;
+    --media-surface: #141917;
+    --table-heading-surface: #202724;
+    --bar-track: #29312e;
     --status-success-bg: rgba(130, 201, 154, 0.14);
     --status-warning-bg: rgba(224, 177, 93, 0.16);
     --report-toc-bg: rgba(24, 29, 27, 0.88);
     --report-video-bg: #141b19;
     --report-video-copy-bg: rgba(24, 29, 27, 0.88);
+    --report-chart-grid: rgba(242, 244, 239, 0.12);
     --system-map-bg: #151a18;
     --system-map-zone-bg: rgba(24, 29, 27, 0.82);
     --system-map-node-bg: #181d1b;
@@ -878,6 +918,7 @@ const stylesheet = `
     --hero-art-shadow: rgba(0, 0, 0, 0.46);
   }
 }
+${designSystemAppearanceStylesheet}
 * {
   box-sizing: border-box;
 }
@@ -1246,7 +1287,7 @@ a {
   aspect-ratio: 4 / 5;
   border: 1px solid var(--hero-art-border);
   border-radius: clamp(20px, 2.4vw, 34px);
-  background: #08181d;
+  background: var(--hero-art-bg);
   box-shadow:
     0 42px 100px var(--hero-art-shadow),
     0 12px 28px rgba(15, 35, 41, 0.18);
@@ -1255,9 +1296,7 @@ a {
   content: "";
   position: absolute;
   inset: 0;
-  background:
-    linear-gradient(180deg, rgba(4, 18, 23, 0) 58%, rgba(4, 18, 23, 0.3) 100%),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.07), transparent 24%);
+  background: var(--hero-art-overlay);
   pointer-events: none;
 }
 .homepage-hero-art img {
@@ -1396,7 +1435,7 @@ h2 {
   color: var(--muted);
 }
 .evaluation-step-status {
-  background: rgba(46, 107, 72, 0.06);
+  background: color-mix(in srgb, var(--ok) 6%, transparent);
 }
 .homepage-preview,
 .homepage-failure,
@@ -1445,7 +1484,7 @@ pre {
 }
 .prompt-evidence {
   color: var(--accent-strong);
-  background: rgba(36, 95, 115, 0.07);
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
   border-radius: 3px;
   box-decoration-break: clone;
   -webkit-box-decoration-break: clone;
@@ -1486,7 +1525,7 @@ pre {
 }
 .status.prompt-evidence-pill-activity {
   color: var(--accent-strong);
-  background: rgba(36, 95, 115, 0.08);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
 }
 .status.prompt-evidence-pill-diagnostic {
   color: var(--warn);
@@ -1542,10 +1581,10 @@ pre {
   width: fit-content;
 }
 .route-grid-proof article {
-  border-color: rgba(36, 95, 115, 0.18);
+  border-color: color-mix(in srgb, var(--accent) 18%, transparent);
 }
 .route-grid-adoption article {
-  border-color: rgba(46, 107, 72, 0.18);
+  border-color: color-mix(in srgb, var(--ok) 18%, transparent);
 }
 .system-diagram {
   margin-top: 18px;
@@ -1607,12 +1646,12 @@ pre {
   padding: 0 6px;
 }
 .system-node-kernel {
-  border-color: rgba(36, 95, 115, 0.28);
-  background: rgba(36, 95, 115, 0.05);
+  border-color: color-mix(in srgb, var(--accent) 28%, transparent);
+  background: color-mix(in srgb, var(--accent) 5%, transparent);
 }
 .system-node-output {
-  border-color: rgba(46, 115, 70, 0.26);
-  background: rgba(46, 115, 70, 0.05);
+  border-color: color-mix(in srgb, var(--ok) 26%, transparent);
+  background: color-mix(in srgb, var(--ok) 5%, transparent);
 }
 .system-node span {
   display: block;
@@ -1642,7 +1681,7 @@ pre {
 .system-branch {
   margin-top: 14px;
   padding: 13px;
-  border-left: 3px solid rgba(138, 90, 22, 0.35);
+  border-left: 3px solid color-mix(in srgb, var(--warn) 35%, transparent);
   background: var(--status-warning-bg);
   color: var(--warn);
 }
@@ -1702,16 +1741,16 @@ pre {
   stroke-width: 2;
 }
 .system-map-svg .map-zone-kernel {
-  fill: rgba(36, 95, 115, 0.06);
-  stroke: rgba(36, 95, 115, 0.34);
+  fill: color-mix(in srgb, var(--accent) 6%, transparent);
+  stroke: color-mix(in srgb, var(--accent) 34%, transparent);
 }
 .system-map-svg .map-zone-llm {
-  fill: rgba(138, 90, 22, 0.07);
-  stroke: rgba(138, 90, 22, 0.32);
+  fill: color-mix(in srgb, var(--warn) 7%, transparent);
+  stroke: color-mix(in srgb, var(--warn) 32%, transparent);
 }
 .system-map-svg .map-zone-output {
-  fill: rgba(46, 115, 70, 0.07);
-  stroke: rgba(46, 115, 70, 0.32);
+  fill: color-mix(in srgb, var(--ok) 7%, transparent);
+  stroke: color-mix(in srgb, var(--ok) 32%, transparent);
 }
 .system-map-svg .map-zone-title {
   fill: var(--accent-strong);
@@ -1732,19 +1771,19 @@ pre {
 }
 .system-map-svg .map-node-kernel {
   fill: var(--system-map-node-kernel-bg);
-  stroke: rgba(36, 95, 115, 0.34);
+  stroke: color-mix(in srgb, var(--accent) 34%, transparent);
 }
 .system-map-svg .map-node-llm {
   fill: var(--system-map-node-llm-bg);
-  stroke: rgba(138, 90, 22, 0.34);
+  stroke: color-mix(in srgb, var(--warn) 34%, transparent);
 }
 .system-map-svg .map-node-output {
   fill: var(--system-map-node-output-bg);
-  stroke: rgba(46, 115, 70, 0.32);
+  stroke: color-mix(in srgb, var(--ok) 32%, transparent);
 }
 .system-map-svg .map-node-blocked {
   fill: var(--system-map-node-blocked-bg);
-  stroke: rgba(138, 90, 22, 0.42);
+  stroke: color-mix(in srgb, var(--warn) 42%, transparent);
   stroke-dasharray: 8 6;
 }
 .system-map-svg .map-node-title {
@@ -1767,6 +1806,9 @@ pre {
   stroke: var(--accent);
   stroke-width: 3;
   marker-end: url(#system-map-arrow);
+}
+.system-map-svg .map-arrow {
+  fill: var(--accent);
 }
 .system-map-svg .map-edge-muted {
   stroke: var(--line);
@@ -1842,7 +1884,7 @@ pre {
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fbfaf6;
+  background: var(--soft-surface);
 }
 .value-findings dt {
   color: var(--muted);
@@ -1878,7 +1920,7 @@ pre {
   object-position: top center;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #ffffff;
+  background: var(--captured-artifact-bg);
 }
 .value-screenshot-pair figcaption,
 .value-screenshot-pair span {
@@ -1889,9 +1931,9 @@ pre {
   display: grid;
   gap: 12px;
   padding: 16px;
-  border: 1px solid rgba(36, 95, 115, 0.22);
+  border: 1px solid color-mix(in srgb, var(--accent) 32%, transparent);
   border-radius: 8px;
-  background: rgba(36, 95, 115, 0.05);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
 }
 .value-receipt-row {
   display: grid;
@@ -1899,7 +1941,7 @@ pre {
   gap: 12px;
   align-items: start;
   padding-bottom: 12px;
-  border-bottom: 1px solid rgba(36, 95, 115, 0.18);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
 }
 .value-receipt-row:last-child {
   padding-bottom: 0;
@@ -2327,8 +2369,8 @@ pre {
   background: var(--panel);
 }
 .design-system-rule-list-risk li {
-  border-color: rgba(138, 90, 22, 0.28);
-  background: rgba(138, 90, 22, 0.06);
+  border-color: color-mix(in srgb, var(--warn) 28%, transparent);
+  background: color-mix(in srgb, var(--warn) 6%, transparent);
 }
 .design-system-table-wrap {
   overflow-x: auto;
@@ -2401,7 +2443,7 @@ pre {
 }
 .design-system-specimen-preview-frame {
   border-right: 1px solid var(--line);
-  background: #fbfaf6;
+  background: var(--soft-surface);
 }
 .design-system-specimen-support {
   display: grid;
@@ -2427,7 +2469,7 @@ pre {
   padding: 4px 7px;
   border: 1px solid var(--jk-color-border, var(--line));
   border-radius: 999px;
-  background: var(--jk-color-surface, #ffffff);
+  background: var(--jk-color-surface, var(--panel));
   color: var(--jk-color-text, var(--ink));
   font-size: 12px;
   font-weight: 800;
@@ -2469,7 +2511,7 @@ pre {
   overflow-x: auto;
   border: 1px solid var(--line);
   border-radius: 6px;
-  background: #f5f3ec;
+  background: var(--code-surface);
   font-size: 12px;
 }
 .jk-specimen-preview {
@@ -2479,7 +2521,7 @@ pre {
   padding: var(--jk-space-4, 1rem);
   border: 1px solid var(--jk-color-border, var(--line));
   border-radius: var(--jk-radius-panel, 8px);
-  background: var(--jk-color-canvas, #f8f7f2);
+  background: var(--jk-color-canvas, var(--bg));
   color: var(--jk-color-text, var(--ink));
   font-size: 14px;
   line-height: 1.4;
@@ -2498,19 +2540,19 @@ pre {
   padding: var(--jk-space-3, 0.75rem);
   border: 1px solid var(--jk-color-border, var(--line));
   border-radius: var(--jk-radius-control, 4px);
-  background: var(--jk-color-surface, #ffffff);
+  background: var(--jk-color-surface, var(--panel));
 }
 .jk-component-state.is-focus-visible {
-  box-shadow: var(--jk-focus-ring, 0 0 0 3px rgba(36, 95, 115, 0.28));
+  box-shadow: var(--jk-focus-ring, 0 0 0 3px var(--focus-ring));
 }
 .jk-component-state.is-error {
-  border-color: var(--jk-color-risk, #8f342f);
+  border-color: var(--jk-color-risk, var(--risk));
 }
 .jk-component-state.is-loading {
   border-style: dashed;
 }
 .jk-component-state.is-disabled {
-  color: var(--jk-color-disabled, #8a8f93);
+  color: var(--jk-color-disabled, var(--disabled));
 }
 .jk-state-label,
 .jk-pattern-header span,
@@ -2532,16 +2574,16 @@ pre {
   padding: 7px 10px;
   border: 1px solid var(--jk-color-border, var(--line));
   border-radius: var(--jk-radius-control, 4px);
-  background: var(--jk-color-surface, #ffffff);
+  background: var(--jk-color-surface, var(--panel));
   color: var(--jk-color-text, var(--ink));
   font: inherit;
   font-weight: 850;
 }
 .jk-sample-button,
 .jk-pattern-controls button.is-primary {
-  border-color: var(--jk-color-focus, #245f73);
-  background: var(--jk-color-focus, #245f73);
-  color: #ffffff;
+  border-color: var(--jk-color-focus, var(--accent));
+  background: var(--jk-color-focus, var(--accent));
+  color: var(--accent-ink);
 }
 .jk-sample-button {
   display: inline-flex;
@@ -2579,7 +2621,7 @@ pre {
   padding: 7px 9px;
   border: 1px solid var(--jk-color-border, var(--line));
   border-radius: var(--jk-radius-control, 4px);
-  background: var(--jk-color-surface, #ffffff);
+  background: var(--jk-color-surface, var(--panel));
   color: var(--jk-color-text, var(--ink));
   font: inherit;
 }
@@ -2589,7 +2631,7 @@ pre {
 }
 .jk-sample-field strong,
 .jk-sample-choice-group span {
-  color: var(--jk-color-risk, #8f342f);
+  color: var(--jk-color-risk, var(--risk));
 }
 .jk-sample-choice-group {
   margin: 0;
@@ -2601,7 +2643,7 @@ pre {
   width: 30px;
   height: 18px;
   border-radius: 999px;
-  background: var(--jk-color-success, #2e6b48);
+  background: var(--jk-color-success, var(--ok));
 }
 .jk-sample-tabs [role="tablist"] {
   display: flex;
@@ -2613,11 +2655,11 @@ pre {
   padding: 6px 8px;
   border: 1px solid var(--jk-color-border, var(--line));
   border-radius: var(--jk-radius-control, 4px);
-  background: var(--jk-color-surface, #ffffff);
+  background: var(--jk-color-surface, var(--panel));
 }
 .jk-sample-tabs [aria-selected="true"] {
-  border-color: var(--jk-color-focus, #245f73);
-  color: var(--jk-color-focus, #245f73);
+  border-color: var(--jk-color-focus, var(--accent));
+  color: var(--jk-color-focus, var(--accent));
   font-weight: 900;
 }
 .jk-sample-menu ul {
@@ -2635,7 +2677,7 @@ pre {
   padding: 10px;
   border: 1px solid var(--jk-color-border, var(--line));
   border-radius: var(--jk-radius-control, 4px);
-  background: var(--jk-color-surface, #ffffff);
+  background: var(--jk-color-surface, var(--panel));
 }
 .jk-sample-dialog h4,
 .jk-sample-panel h4,
@@ -2649,7 +2691,7 @@ pre {
 .jk-sample-table {
   width: 100%;
   border-collapse: collapse;
-  background: var(--jk-color-surface, #ffffff);
+  background: var(--jk-color-surface, var(--panel));
   font-size: 13px;
 }
 .jk-sample-table caption,
@@ -2682,7 +2724,7 @@ pre {
   padding: var(--jk-space-3, 0.75rem);
   border: 1px solid var(--jk-color-border, var(--line));
   border-radius: var(--jk-radius-control, 4px);
-  background: var(--jk-color-surface, #ffffff);
+  background: var(--jk-color-surface, var(--panel));
 }
 .jk-pattern-region-grid strong,
 .jk-pattern-region-grid p,
@@ -2695,8 +2737,8 @@ pre {
 }
 .jk-pattern-completion {
   padding: 9px 10px;
-  border-left: 3px solid var(--jk-color-receipt, #23615f);
-  background: rgba(35, 97, 95, 0.08);
+  border-left: 3px solid var(--jk-color-receipt, var(--receipt));
+  background: color-mix(in srgb, var(--jk-color-receipt, var(--receipt)) 8%, transparent);
 }
 .token-value-with-swatch {
   display: inline-flex;
@@ -2709,7 +2751,7 @@ pre {
   width: 22px;
   height: 22px;
   flex: 0 0 22px;
-  border: 1px solid rgba(23, 23, 23, 0.28);
+  border: 1px solid color-mix(in srgb, var(--ink) 28%, transparent);
   border-radius: 4px;
   background-color: var(--token-swatch-color);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.52);
@@ -2793,7 +2835,7 @@ pre {
   padding: 8px 10px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fff;
+  background: var(--panel);
   color: var(--ink);
   font: inherit;
 }
@@ -2803,7 +2845,7 @@ pre {
   border: 1px solid var(--accent);
   border-radius: 8px;
   background: var(--accent);
-  color: #fff;
+  color: var(--accent-ink);
   font-weight: 900;
 }
 .design-icon-index-list {
@@ -3058,7 +3100,7 @@ pre {
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 6px;
-  background: #f2f1eb;
+  background: var(--media-surface);
 }
 .example-matrix-thumb img {
   display: block;
@@ -3079,9 +3121,7 @@ pre {
   padding: 14px;
   border: 1px dashed color-mix(in srgb, var(--warn) 58%, var(--line));
   border-radius: 6px;
-  background:
-    linear-gradient(135deg, rgba(138, 90, 22, 0.09), rgba(255, 255, 255, 0.64)),
-    var(--soft-surface);
+  background: color-mix(in srgb, var(--warn) 12%, var(--soft-surface));
   color: var(--ink);
   text-align: center;
 }
@@ -3131,7 +3171,7 @@ pre {
   aspect-ratio: 16 / 10;
   overflow: hidden;
   border-bottom: 1px solid var(--line);
-  background: #f2f1eb;
+  background: var(--media-surface);
 }
 .example-gallery-thumb img {
   display: block;
@@ -3205,7 +3245,7 @@ pre {
   position: absolute;
   inset: 0;
   border: 0;
-  background: rgba(20, 28, 31, 0.72);
+  background: var(--modal-backdrop-bg);
   cursor: zoom-out;
 }
 .example-gallery-modal-panel {
@@ -3228,7 +3268,7 @@ pre {
   min-height: 0;
   place-items: center;
   padding: clamp(12px, 2vw, 22px);
-  background: #10181b;
+  background: var(--modal-media-stage-bg);
 }
 .example-gallery-modal-image img {
   display: block;
@@ -3236,7 +3276,7 @@ pre {
   max-height: 100%;
   border-radius: 6px;
   object-fit: contain;
-  background: #ffffff;
+  background: var(--captured-artifact-bg);
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.28);
 }
 .example-gallery-modal-copy {
@@ -3458,11 +3498,9 @@ pre {
   margin: clamp(24px, 4vw, 42px) auto;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border: 1px solid rgba(19, 63, 78, 0.24);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
   border-radius: 8px;
-  background:
-    linear-gradient(135deg, rgba(36, 95, 115, 0.16), rgba(46, 107, 72, 0.10)),
-    var(--report-video-bg);
+  background: var(--report-video-hero-bg);
 }
 .report-layout > .report-video {
   margin: 0;
@@ -3478,10 +3516,8 @@ pre {
   opacity: 0.46;
 }
 .report-video-grid span {
-  border-right: 1px solid rgba(19, 63, 78, 0.16);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0)),
-    repeating-linear-gradient(90deg, rgba(19, 63, 78, 0.12) 0 1px, transparent 1px 18px);
+  border-right: 1px solid color-mix(in srgb, var(--accent) 18%, transparent);
+  background: var(--report-video-grid-bg);
 }
 .report-video-poster {
   position: absolute;
@@ -3504,7 +3540,7 @@ pre {
   height: clamp(48px, 6vw, 68px);
   place-items: center;
   border-radius: 999px;
-  background: rgba(19, 63, 78, 0.92);
+  background: var(--report-video-play-bg);
 }
 .report-video-play::before {
   content: "";
@@ -3513,14 +3549,14 @@ pre {
   margin-left: 4px;
   border-top: 11px solid transparent;
   border-bottom: 11px solid transparent;
-  border-left: 17px solid #fff;
+  border-left: 17px solid var(--fixed-light-ink);
 }
 .report-video-copy {
   display: grid;
   gap: 4px;
   max-width: min(560px, calc(100% - 40px));
   padding: 12px 14px;
-  border: 1px solid rgba(19, 63, 78, 0.18);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
   border-radius: 8px;
   background: var(--report-video-copy-bg);
   text-align: center;
@@ -3671,7 +3707,7 @@ pre {
   height: auto;
 }
 .report-chart-grid line {
-  stroke: rgba(23, 23, 23, 0.10);
+  stroke: var(--report-chart-grid);
 }
 .report-chart-grid text,
 .report-score-label {
@@ -3687,10 +3723,10 @@ pre {
   rx: 5;
 }
 .report-score-bar-baseline {
-  fill: #8a5a16;
+  fill: var(--warn);
 }
 .report-score-bar-guided {
-  fill: #245f73;
+  fill: var(--accent);
 }
 .report-score-delta {
   fill: var(--accent-strong);
@@ -3718,10 +3754,10 @@ pre {
   border-radius: 3px;
 }
 .legend-baseline {
-  background: #8a5a16;
+  background: var(--warn);
 }
 .legend-guided {
-  background: #245f73;
+  background: var(--accent);
 }
 .report-small-grid {
   display: grid;
@@ -3733,7 +3769,7 @@ pre {
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: 8px;
-  background: #fbfaf6;
+  background: var(--soft-surface);
 }
 .report-small-grid h3 {
   margin-bottom: 10px;
@@ -3761,16 +3797,16 @@ pre {
   width: 100%;
   padding: 4px;
   border-radius: 6px;
-  background: #eee9dc;
+  background: var(--bar-track);
 }
 .report-micro-bars b {
   display: block;
   height: 8px;
   border-radius: 999px;
-  background: #8a5a16;
+  background: var(--warn);
 }
 .report-micro-bars b.guided {
-  background: #245f73;
+  background: var(--accent);
 }
 .report-table-shell,
 .report-context-matrix-shell {
@@ -3820,7 +3856,7 @@ pre {
 .report-context-column {
   padding: 10px 12px;
   border-top: 0;
-  background: #f3f0e7;
+  background: var(--table-heading-surface);
   color: var(--muted);
   font-size: 12px;
   font-weight: 850;
@@ -3835,7 +3871,7 @@ pre {
   align-content: start;
   gap: 6px;
   padding: 12px;
-  background: #fbfaf6;
+  background: var(--soft-surface);
 }
 .report-context-row span {
   color: var(--muted);
@@ -3850,7 +3886,7 @@ pre {
 }
 .report-context-cell:hover,
 .report-context-cell:focus-visible {
-  background: rgba(36, 95, 115, 0.05);
+  background: color-mix(in srgb, var(--accent) 8%, transparent);
 }
 .report-context-cell img {
   display: block;
@@ -3860,7 +3896,7 @@ pre {
   object-position: top left;
   border: 1px solid var(--line);
   border-radius: 6px;
-  background: #fff;
+  background: var(--captured-artifact-bg);
 }
 .report-context-cell span {
   color: var(--muted);
@@ -3871,7 +3907,7 @@ pre {
   align-content: center;
   min-height: 168px;
   border-style: dashed;
-  background: #fff8eb;
+  background: var(--status-warning-bg);
 }
 .report-context-cell-diagnostic strong {
   color: var(--warn);
@@ -4654,9 +4690,13 @@ function renderSpecimenEvidenceChips(items, attrName, className) {
           </ul>`;
 }
 
+function renderSpecimenTokenStyleAttribute(context) {
+  return context.token_style ? ` style="${escapeHtml(context.token_style)}"` : "";
+}
+
 function renderComponentSpecimenPreview(contract, context) {
   const id = specimenId("component", contract.id);
-  return `<div class="jk-specimen-preview jk-component-preview" data-specimen-id="${escapeHtml(id)}" data-contract-id="${escapeHtml(contract.id)}" data-contract-hash="${escapeHtml(context.contract_hash)}" style="${escapeHtml(context.token_style)}">
+  return `<div class="jk-specimen-preview jk-component-preview" data-specimen-id="${escapeHtml(id)}" data-contract-id="${escapeHtml(contract.id)}" data-contract-hash="${escapeHtml(context.contract_hash)}"${renderSpecimenTokenStyleAttribute(context)}>
             <div class="jk-component-state-grid">
               ${(contract.required_states ?? [])
                 .map((state) => renderComponentStatePreview(contract, state))
@@ -4675,7 +4715,7 @@ function renderComponentSpecimenPreview(contract, context) {
 
 function renderPatternSpecimenPreview(contract, context) {
   const id = specimenId("pattern", contract.id);
-  return `<div class="jk-specimen-preview jk-pattern-preview" data-specimen-id="${escapeHtml(id)}" data-contract-id="${escapeHtml(contract.id)}" data-contract-hash="${escapeHtml(context.contract_hash)}" data-surface-type="${escapeHtml(contract.surface_type)}" style="${escapeHtml(context.token_style)}">
+  return `<div class="jk-specimen-preview jk-pattern-preview" data-specimen-id="${escapeHtml(id)}" data-contract-id="${escapeHtml(contract.id)}" data-contract-hash="${escapeHtml(context.contract_hash)}" data-surface-type="${escapeHtml(contract.surface_type)}"${renderSpecimenTokenStyleAttribute(context)}>
             <header class="jk-pattern-header">
               <span>${escapeHtml(contract.surface_type.replaceAll("_", " "))}</span>
               <strong>${escapeHtml(contract.label)}</strong>
@@ -4715,11 +4755,26 @@ function patternRegionCopy(contract, region, index) {
 }
 
 function buildSpecimenContext(adapter, system) {
+  const appearancePropertyNames = new Set(
+    (adapter.appearance_token_sets ?? []).flatMap((tokenSet) =>
+      (tokenSet.css_custom_properties ?? []).map((property) => property.name),
+    ),
+  );
+  const nonAppearanceProperties = appearancePropertyNames.size
+    ? adapter.css_custom_properties.filter(
+        (property) => !appearancePropertyNames.has(property.name),
+      )
+    : adapter.css_custom_properties;
+
   return {
-    token_hash: hashCanonical(adapter.css_custom_properties),
+    token_hash: hashCanonical({
+      css_custom_properties: adapter.css_custom_properties,
+      appearance_policy: adapter.appearance_policy,
+      appearance_token_sets: adapter.appearance_token_sets,
+    }),
     icon_catalog_hash: hashCanonical(adapter.icon_catalog),
     design_system_contract_hash: hashCanonical(system),
-    token_style: cssCustomPropertyStyle(adapter.css_custom_properties),
+    token_style: cssCustomPropertyStyle(nonAppearanceProperties),
   };
 }
 
