@@ -942,14 +942,26 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   assertIncludes(
     home.text,
     [
-      "Judgment before generation.",
-      "JudgmentKit catches implementation-shaped UI before it ships",
-      "repair path grounded in the user's real work",
+      "Stop AI from building the wrong interface.",
+      "Product judgment for AI-generated UI",
+      "JudgmentKit checks the user's work before generation",
+      "See a screen repaired",
+      "Explore examples",
       '<link rel="canonical" href="https://judgmentkit.ai/">',
       '<link rel="icon" href="/favicon.svg"',
       '<meta property="og:site_name" content="JudgmentKit">',
     ],
     "homepage",
+  );
+  assertExcludes(
+    home.text,
+    [
+      "Judgment before generation.",
+      "Human-centered judgment for AI agents",
+      "JudgmentKit catches implementation-shaped UI before it ships",
+      'data-hero-action="evidence"',
+    ],
+    "homepage hero",
   );
   assertExcludes(home.text, OLD_FRAMING, "homepage");
 

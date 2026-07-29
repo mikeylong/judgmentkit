@@ -4151,7 +4151,7 @@ pre {
   }
   .homepage-hero .hero-actions {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
     margin-top: 28px;
   }
@@ -4240,13 +4240,12 @@ function homepage() {
     <section class="hero homepage-hero">
       <div class="site-shell homepage-hero-shell">
         <div class="homepage-hero-copy">
-          <p class="eyebrow">Human-centered judgment for AI agents</p>
-          <h1>Judgment before generation.</h1>
-          <p class="lede">JudgmentKit catches implementation-shaped UI before it ships, then gives the agent a repair path grounded in the user's real work.</p>
-          <div class="hero-actions" aria-label="Primary proof paths">
-            <a class="hero-action hero-action-primary" data-hero-action="primary" href="/value/">What it prevents</a>
-            <a class="hero-action hero-action-secondary" data-hero-action="secondary" href="/examples/">Examples</a>
-            <a class="hero-action hero-action-secondary" data-hero-action="evidence" href="/evals/">Evals</a>
+          <p class="eyebrow">Product judgment for AI-generated UI</p>
+          <h1>Stop AI from building the wrong interface.</h1>
+          <p class="lede">JudgmentKit checks the user's work before generation and tells the agent what to fix when the concept is wrong.</p>
+          <div class="hero-actions" aria-label="Primary next steps">
+            <a class="hero-action hero-action-primary" data-hero-action="primary" href="/value/">See a screen repaired</a>
+            <a class="hero-action hero-action-secondary" data-hero-action="secondary" href="/examples/">Explore examples</a>
           </div>
         </div>
         <figure class="homepage-hero-visual">

@@ -586,10 +586,17 @@ assert.ok(homepage.includes("[data-section-rail-menu]"));
 assert.ok(homepage.includes('class="site-shell homepage-section-shell"'));
 assert.ok(homepage.includes("[data-surfaces-primary-menu-button]"));
 assert.ok(homepage.includes("[data-surfaces-system-menu-button]"));
-assert.ok(homepage.includes("Judgment before generation."));
-assert.ok(homepage.includes("Human-centered judgment for AI agents"));
+assert.ok(homepage.includes("Stop AI from building the wrong interface."));
+assert.ok(homepage.includes("Product judgment for AI-generated UI"));
+assert.ok(
+  homepage.includes(
+    "JudgmentKit checks the user's work before generation and tells the agent what to fix when the concept is wrong.",
+  ),
+);
+assert.equal(homepage.includes("Judgment before generation."), false);
+assert.equal(homepage.includes("Human-centered judgment for AI agents"), false);
 assert.equal(homepage.includes("Activity-first judgment for AI agents"), false);
-assert.ok(homepage.includes("JudgmentKit catches implementation-shaped UI before it ships"));
+assert.equal(homepage.includes("JudgmentKit catches implementation-shaped UI before it ships"), false);
 assert.equal((homepageMain.match(/<h1\b/g) ?? []).length, 1);
 assert.ok(homepage.includes('href="/value/"'));
 assert.ok(homepage.includes('href="/evals/"'));
@@ -607,10 +614,12 @@ assert.equal(
   false,
 );
 assert.equal(homepage.includes('src="/assets/judgment-lens-hero.webp" loading="lazy"'), false);
-assert.ok(homepage.includes('class="hero-actions" aria-label="Primary proof paths"'));
+assert.ok(homepage.includes('class="hero-actions" aria-label="Primary next steps"'));
 assert.ok(homepage.includes('class="hero-action hero-action-primary" data-hero-action="primary" href="/value/"'));
 assert.ok(homepage.includes('class="hero-action hero-action-secondary" data-hero-action="secondary" href="/examples/"'));
-assert.ok(homepage.includes('data-hero-action="evidence" href="/evals/"'));
+assert.ok(homepage.includes("See a screen repaired"));
+assert.ok(homepage.includes("Explore examples"));
+assert.equal(homepage.includes('data-hero-action="evidence"'), false);
 assert.ok(homepage.includes('class="proof-panel evaluation-panel" aria-label="JudgmentKit repair preview"'));
 assert.ok(homepage.includes("The screen follows the system, not the work."));
 assert.ok(homepage.includes("The activity is named before the UI."));
@@ -646,6 +655,11 @@ assert.ok(siteCss.includes("@media (prefers-reduced-motion: reduce)"));
 assert.ok(siteCss.includes("@media (prefers-contrast: more)"));
 assert.ok(siteCss.includes("@media (forced-colors: active)"));
 assert.ok(siteCss.includes(".homepage-hero-shell {\n    grid-template-columns: minmax(0, 1fr);"));
+assert.ok(
+  siteCss.includes(
+    ".homepage-hero .hero-actions {\n    display: grid;\n    grid-template-columns: minmax(0, 1fr);",
+  ),
+);
 assert.equal(siteCss.includes("text-decoration-line: underline;"), false);
 assert.equal(homepageMain.includes("Prompt"), false);
 assert.equal(homepageMain.includes("JSON schema"), false);
