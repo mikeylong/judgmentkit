@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clinical intake review - GPT-5.6 Sol Light via codex exec - Raw brief</title>
+    <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f5f3ed;
+      --panel: #ffffff;
+      --ink: #17231f;
+      --muted: #65726d;
+      --line: #d9d3c7;
+      --accent: #245f73;
+      --accent-strong: #174352;
+      --warning: #8a5a16;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .raw-model-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--canvas);
+    }
+    .raw-model-candidate > section,
+    .raw-model-candidate .card,
+    .raw-model-candidate .panel {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .raw-model-candidate ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .app-shell .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #eef6f7;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: #fff7e8;
+      color: var(--warning);
+    }
+    .app-shell .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .app-shell .queue,
+    .app-shell .detail {
+      padding: 16px;
+    }
+    .app-shell .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .app-shell .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      text-align: left;
+    }
+    .app-shell .queue-item small {
+      color: var(--muted);
+    }
+    .app-shell .queue-item.is-selected {
+      border-color: var(--accent);
+      background: #edf6f7;
+    }
+    .app-shell .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .app-shell .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
+      padding: 14px;
+    }
+    .app-shell .info-grid > div {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #faf9f5;
+    }
+    .app-shell .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .app-shell .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .app-shell .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .app-shell .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--accent-strong);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .app-shell .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-shell .actions button,
+    .app-shell .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .app-shell button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .app-shell .handoff {
+      padding: 14px;
+      background: #f3f8f8;
+    }
+    .raw-brief-candidate .app-header {
+      background: #fff8ea;
+      border: 1px solid #e5c98f;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .reviewed-candidate .app-header {
+      background: #eef6f7;
+      border: 1px solid #b8d2d7;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--ink);
+    }
+    .design-system {
+      --canvas: #f7f4ee;
+      --panel: #ffffff;
+      --ink: #182521;
+      --muted: #64716b;
+      --line: #d9d3c5;
+      --accent: #0f766e;
+      --accent-strong: #0f4f49;
+      --warning: #9a5b16;
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
+        display: grid;
+      }
+      .app-shell .workspace,
+      .app-shell .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+    <style data-model-css>*{box-sizing:border-box}body{margin:0;background:#f3f5f7;color:#18212b;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px}.app{display:grid;grid-template-rows:68px 1fr;min-height:900px}.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:#fff;border-bottom:1px solid #dce2e7}.brand{display:flex;align-items:center;gap:12px}.brand-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:#174a5b;color:#fff;font-weight:800}.brand strong{display:block;font-size:16px}.brand span,.muted{color:#687681}.top-actions{display:flex;align-items:center;gap:12px}.queue-count{padding:7px 11px;border-radius:999px;background:#eef3f5;color:#31515d;font-weight:700}.workspace{display:grid;grid-template-columns:282px minmax(0,1fr) 310px;min-height:832px}.queue{padding:22px 16px;background:#fafbfc;border-right:1px solid #dce2e7}.section-kicker{margin:0 8px 12px;color:#6f7b84;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.queue-list{display:grid;gap:8px}.queue-item{width:100%;padding:14px;text-align:left;background:transparent;border:1px solid transparent;border-radius:10px;color:inherit}.queue-item.active{background:#fff;border-color:#cdd8dd;box-shadow:0 4px 14px rgba(24,33,43,.06)}.queue-item:hover{background:#fff}.queue-row{display:flex;justify-content:space-between;gap:12px;margin-bottom:6px}.queue-id{color:#687681;font-size:12px;font-weight:700}.queue-time{font-weight:800}.queue-name{margin-bottom:9px;font-size:15px;font-weight:750}.status{display:inline-flex;align-items:center;gap:6px;padding:5px 8px;border-radius:999px;font-size:12px;font-weight:750}.status:before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}.status.missing{background:#fff1df;color:#9a4e08}.status.verify{background:#eeeafd;color:#6848aa}.status.ready{background:#e5f5ed;color:#176b46}.case{padding:26px 30px 40px;overflow:auto}.breadcrumbs{margin-bottom:17px;color:#6f7b84;font-size:12px}.case-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:22px;margin-bottom:22px}.case-heading h1{margin:4px 0 7px;font-size:28px;line-height:1.15}.eyebrow{margin:0;color:#174a5b;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.slot{min-width:136px;padding:12px 14px;background:#e9f2f4;border:1px solid #c6d9df;border-radius:10px;text-align:center}.slot span{display:block;color:#54707a;font-size:11px;font-weight:800;text-transform:uppercase}.slot strong{display:block;margin-top:3px;color:#174a5b;font-size:19px}.notice{display:flex;gap:12px;margin-bottom:20px;padding:15px 17px;background:#fff7eb;border:1px solid #efd3a9;border-left:4px solid #c66b16;border-radius:9px}.notice-icon{font-weight:900;color:#a9540d}.notice strong{display:block;margin-bottom:3px}.card{margin-bottom:16px;padding:20px;background:#fff;border:1px solid #dce2e7;border-radius:12px;box-shadow:0 2px 8px rgba(24,33,43,.035)}.card h2{margin:0 0 16px;font-size:16px}.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}.fact span,.field-label{display:block;margin-bottom:5px;color:#6f7b84;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase}.fact strong{font-size:14px}.checklist{display:grid;gap:2px}.check{display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:11px;padding:12px 0;border-top:1px solid #edf0f2}.check:first-child{border-top:0}.check-icon{display:grid;place-items:center;width:22px;height:22px;border-radius:50%;font-weight:900}.check.complete .check-icon{background:#e5f5ed;color:#176b46}.check.incomplete .check-icon{background:#fff1df;color:#9a4e08}.check small{color:#6f7b84}.check-state{font-size:12px;font-weight:800}.check.complete .check-state{color:#176b46}.check.incomplete .check-state{color:#9a4e08}.boundary{padding:14px 16px;background:#eef3f5;border-radius:9px;color:#43545e;font-size:13px;line-height:1.5}.decision-panel{padding:22px;background:#fff;border-left:1px solid #dce2e7}.decision-panel h2{margin:3px 0 6px;font-size:20px}.decision-panel>p{margin:0 0 20px;color:#687681;line-height:1.45}.decision-options{display:grid;gap:10px}.decision{padding:15px;background:#fff;border:1px solid #d7dee3;border-radius:10px;text-align:left;color:#23303a}.decision strong{display:block;margin-bottom:4px;font-size:14px}.decision span{display:block;color:#6a7780;font-size:12px;line-height:1.4}.decision.selected{background:#fff8ee;border:2px solid #bd6517;padding:14px}.decision.schedule{opacity:.62}.handoff{margin-top:20px;padding-top:20px;border-top:1px solid #e1e6e9}.reason{margin:8px 0 14px;padding:12px;background:#f5f7f8;border:1px solid #e0e5e8;border-radius:8px;line-height:1.45}.button{width:100%;padding:12px 16px;border:0;border-radius:8px;background:#174a5b;color:#fff;font:inherit;font-weight:800}.button-secondary{margin-top:9px;background:#fff;color:#374650;border:1px solid #cfd8dd}.system-note{margin-top:18px;padding:13px;border-radius:8px;background:#f5f7f8;color:#6b7880;font-size:11px;line-height:1.45}@media(max-width:1050px){.workspace{grid-template-columns:230px minmax(0,1fr)}.decision-panel{grid-column:1/-1;border-top:1px solid #dce2e7;border-left:0}.decision-options{grid-template-columns:repeat(3,1fr)}}</style>
+
+  </head>
+  <body data-artifact-id="gpt56-sol-low-codex-no-judgmentkit" data-row-id="gpt56-sol-low-codex" data-column-id="no-judgmentkit" data-judgmentkit-mode="no_judgmentkit" data-design-system-mode="none">
+    <main class="app raw-model-candidate" data-primary-surface><header class="topbar"><div class="brand"><div class="brand-mark">N</div><div><strong>Northstar Clinic</strong><span>Intake administration</span></div></div><div class="top-actions"><span class="queue-count">3 requests in review</span><span class="muted">Intake Coordinator</span></div></header><div class="workspace"><aside class="queue" aria-label="Intake review queue"><p class="section-kicker">Readiness queue</p><div class="queue-list"><button class="queue-item active" type="button"><span class="queue-row"><span class="queue-id">I-4471</span><span class="queue-time">10:30 AM</span></span><span class="queue-name">Avery Morgan</span><span class="status missing">Consent missing</span></button><button class="queue-item" type="button"><span class="queue-row"><span class="queue-id">I-4472</span><span class="queue-time">1:00 PM</span></span><span class="queue-name">Sam Rivera</span><span class="status verify">Verify insurance</span></button><button class="queue-item" type="button"><span class="queue-row"><span class="queue-id">I-4473</span><span class="queue-time">3:15 PM</span></span><span class="queue-name">Jules Kim</span><span class="status ready">Ready to schedule</span></button></div></aside><section class="case" aria-labelledby="case-title"><div class="breadcrumbs">Intake packets / I-4471 / Administrative review</div><div class="case-heading"><div><p class="eyebrow">New patient consult</p><h1 id="case-title">Avery Morgan</h1><span class="status missing">Consent missing</span></div><div class="slot"><span>Requested slot</span><strong>10:30 AM</strong></div></div><div class="notice"><div class="notice-icon">!</div><div><strong>Packet is not ready to schedule</strong><span>Required signed consent is missing from the intake packet.</span></div></div><section class="card"><h2>Appointment request</h2><div class="facts"><div class="fact"><span>Packet ID</span><strong>I-4471</strong></div><div class="fact"><span>Referral type</span><strong>New patient consult</strong></div><div class="fact"><span>Review state</span><strong>Pending handoff</strong></div></div></section><section class="card"><h2>Administrative requirements</h2><div class="checklist"><div class="check complete"><span class="check-icon">✓</span><div><strong>Referral document</strong><br><small>Uploaded to intake packet</small></div><span class="check-state">Present</span></div><div class="check complete"><span class="check-icon">✓</span><div><strong>Insurance card image</strong><br><small>Front image received</small></div><span class="check-state">Present</span></div><div class="check incomplete"><span class="check-icon">!</span><div><strong>Signed consent</strong><br><small>Required before an appointment can be scheduled</small></div><span class="check-state">Missing</span></div></div></section><section class="card"><h2>Administrative boundary</h2><div class="boundary">This review covers scheduling and intake administration only. Do not diagnose, triage, or recommend treatment. Insurance uncertainty must be sent to verification staff.</div></section></section><aside class="decision-panel" aria-label="Administrative handoff"><p class="section-kicker">Next action</p><h2>Choose a handoff</h2><p>Select the administrative outcome supported by the packet.</p><div class="decision-options"><button class="decision schedule" type="button"><strong>Schedule appointment</strong><span>Use only when all required administrative forms are complete.</span></button><button class="decision selected" type="button"><strong>Return missing forms</strong><span>Request the signed consent before scheduling.</span></button><button class="decision" type="button"><strong>Escalate insurance verification</strong><span>Send insurance uncertainty to verification staff.</span></button></div><div class="handoff"><span class="field-label">Handoff reason</span><div class="reason">Signed consent form is missing. Return the intake packet for completion before reserving the requested appointment slot.</div><button class="button" type="button">Send administrative handoff</button><button class="button button-secondary" type="button">Save for later</button></div><div class="system-note">Packet source: intake_packet record<br>Eligibility status: available, no escalation indicated<br>Scheduling endpoint: waiting for readiness decision</div></aside></div></main>
+    <aside class="provenance" aria-label="Artifact provenance">
+      <strong>Provenance:</strong>
+      <span>captured</span>
+      <span> - captured_model_output</span>
+      <span> - Raw brief</span>
+
+      <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
+      <p>Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.</p>
+      <p>Manifest entry: <code>artifacts/gpt56-sol-low-codex-no-judgmentkit.html</code></p>
+    </aside>
+    <script type="application/json" id="model-ui-provenance">{
+  "matrix_id": "clinical-intake-review-model-ui-v1",
+  "use_case_id": "clinical-intake-review",
+  "use_case_label": "Clinical intake review",
+  "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+  "artifact_id": "gpt56-sol-low-codex-no-judgmentkit",
+  "row_id": "gpt56-sol-low-codex",
+  "column_id": "no-judgmentkit",
+  "model_label": "GPT-5.6 Sol Light",
+  "generation_source": "captured_model_output",
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "none",
+  "render_source": "model_static_html_css",
+  "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+  "reasoning_effort": "low",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": false,
+    "frontend_skill_context": false
+  },
+  "design_system_name": null,
+  "design_system_package": null,
+  "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+  "handoff_source": null,
+  "design_system_adapter_file": null,
+  "capture_file": "captures/gpt56-sol-low-codex-no-judgmentkit.json",
+  "source_context_sha256": "dda8cfebfd61b7de36053cb8148868435e933bc16c2e18f4379054e82bfbaeca",
+  "current_source_context_sha256": "dda8cfebfd61b7de36053cb8148868435e933bc16c2e18f4379054e82bfbaeca",
+  "source_context_status": "current",
+  "model_response_summary": "A desktop intake readiness workspace that centers the selected packet, its administrative evidence, and three explicit handoff decisions.",
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
+  "capture_provenance": {
+    "status": "captured",
+    "capture_type": "model-output-transcript",
+    "captured_at": "2026-07-30T01:07:08.457Z",
+    "runner": "scripts/capture-model-ui-matrix.mjs",
+    "provider": "codex-cli",
+    "model": "gpt-5.6-sol",
+    "cli": "codex",
+    "transcript_file": "captures/gpt56-sol-low-codex-no-judgmentkit.json",
+    "prompt_sha256": "26e013d7c028f03078ef4c6b5d366af1b3daf4638c3c2055c55a5063dc9b226b",
+    "raw_response_sha256": "6dce31318eee84cd53988fef8453e95b57ee0a484067a7392f6f5116bab1ec42",
+    "source_context_sha256": "dda8cfebfd61b7de36053cb8148868435e933bc16c2e18f4379054e82bfbaeca",
+    "reasoning_effort": "low",
+    "context_included": {
+      "source_brief": true,
+      "sample_case": true,
+      "reviewed_handoff": false,
+      "material_ui_adapter": false,
+      "frontend_skill_context": false
+    },
+    "frontend_context_status": null,
+    "frontend_skill_context_status": null,
+    "design_system_name": null,
+    "design_system_package": null,
+    "design_system_render_mode": null,
+    "lms_context": null,
+    "capture_quality": {
+      "profile": "basic_static_html_css",
+      "css_characters": 5307,
+      "html_characters": 4392,
+      "css_rule_count": 70,
+      "class_selector_count": 96,
+      "semantic_section_count": 7,
+      "structural_block_count": 36,
+      "button_count": 8,
+      "has_responsive_css": true,
+      "has_layout_css": true,
+      "has_panel_css": true,
+      "has_control_css": true,
+      "has_evidence_content": true,
+      "has_handoff_content": true,
+      "compact_template_signature": false,
+      "has_judgmentkit_default_tokens": false,
+      "jk_token_usage_count": 0,
+      "jk_token_reference_count": 0,
+      "unsupported_jk_tokens": [],
+      "jk_token_definition_count": 0,
+      "jk_token_definitions": [],
+      "disallowed_visual_tokens": [],
+      "inline_style_attribute_count": 0,
+      "hard_coded_visual_values": [
+        {
+          "source": "css",
+          "selector": "body",
+          "property": "background",
+          "value": "#f3f5f7"
+        },
+        {
+          "source": "css",
+          "selector": "body",
+          "property": "color",
+          "value": "#18212b"
+        },
+        {
+          "source": "css",
+          "selector": ".topbar",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".topbar",
+          "property": "border-bottom",
+          "value": "1px solid #dce2e7"
+        },
+        {
+          "source": "css",
+          "selector": ".brand-mark",
+          "property": "background",
+          "value": "#174a5b"
+        },
+        {
+          "source": "css",
+          "selector": ".brand-mark",
+          "property": "color",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".brand span,.muted",
+          "property": "color",
+          "value": "#687681"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-count",
+          "property": "background",
+          "value": "#eef3f5"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-count",
+          "property": "color",
+          "value": "#31515d"
+        },
+        {
+          "source": "css",
+          "selector": ".queue",
+          "property": "background",
+          "value": "#fafbfc"
+        },
+        {
+          "source": "css",
+          "selector": ".queue",
+          "property": "border-right",
+          "value": "1px solid #dce2e7"
+        },
+        {
+          "source": "css",
+          "selector": ".section-kicker",
+          "property": "color",
+          "value": "#6f7b84"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-item.active",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-item.active",
+          "property": "border-color",
+          "value": "#cdd8dd"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-item.active",
+          "property": "box-shadow",
+          "value": "0 4px 14px rgba(24,33,43,.06)"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-item:hover",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-id",
+          "property": "color",
+          "value": "#687681"
+        },
+        {
+          "source": "css",
+          "selector": ".status.missing",
+          "property": "background",
+          "value": "#fff1df"
+        },
+        {
+          "source": "css",
+          "selector": ".status.missing",
+          "property": "color",
+          "value": "#9a4e08"
+        },
+        {
+          "source": "css",
+          "selector": ".status.verify",
+          "property": "background",
+          "value": "#eeeafd"
+        },
+        {
+          "source": "css",
+          "selector": ".status.verify",
+          "property": "color",
+          "value": "#6848aa"
+        },
+        {
+          "source": "css",
+          "selector": ".status.ready",
+          "property": "background",
+          "value": "#e5f5ed"
+        },
+        {
+          "source": "css",
+          "selector": ".status.ready",
+          "property": "color",
+          "value": "#176b46"
+        },
+        {
+          "source": "css",
+          "selector": ".breadcrumbs",
+          "property": "color",
+          "value": "#6f7b84"
+        },
+        {
+          "source": "css",
+          "selector": ".eyebrow",
+          "property": "color",
+          "value": "#174a5b"
+        },
+        {
+          "source": "css",
+          "selector": ".slot",
+          "property": "background",
+          "value": "#e9f2f4"
+        },
+        {
+          "source": "css",
+          "selector": ".slot",
+          "property": "border",
+          "value": "1px solid #c6d9df"
+        },
+        {
+          "source": "css",
+          "selector": ".slot span",
+          "property": "color",
+          "value": "#54707a"
+        },
+        {
+          "source": "css",
+          "selector": ".slot strong",
+          "property": "color",
+          "value": "#174a5b"
+        },
+        {
+          "source": "css",
+          "selector": ".notice",
+          "property": "background",
+          "value": "#fff7eb"
+        },
+        {
+          "source": "css",
+          "selector": ".notice",
+          "property": "border",
+          "value": "1px solid #efd3a9"
+        },
+        {
+          "source": "css",
+          "selector": ".notice",
+          "property": "border-left",
+          "value": "4px solid #c66b16"
+        },
+        {
+          "source": "css",
+          "selector": ".notice-icon",
+          "property": "color",
+          "value": "#a9540d"
+        },
+        {
+          "source": "css",
+          "selector": ".card",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".card",
+          "property": "border",
+          "value": "1px solid #dce2e7"
+        },
+        {
+          "source": "css",
+          "selector": ".card",
+          "property": "box-shadow",
+          "value": "0 2px 8px rgba(24,33,43,.035)"
+        },
+        {
+          "source": "css",
+          "selector": ".fact span,.field-label",
+          "property": "color",
+          "value": "#6f7b84"
+        },
+        {
+          "source": "css",
+          "selector": ".check",
+          "property": "border-top",
+          "value": "1px solid #edf0f2"
+        },
+        {
+          "source": "css",
+          "selector": ".check.complete .check-icon",
+          "property": "background",
+          "value": "#e5f5ed"
+        },
+        {
+          "source": "css",
+          "selector": ".check.complete .check-icon",
+          "property": "color",
+          "value": "#176b46"
+        },
+        {
+          "source": "css",
+          "selector": ".check.incomplete .check-icon",
+          "property": "background",
+          "value": "#fff1df"
+        },
+        {
+          "source": "css",
+          "selector": ".check.incomplete .check-icon",
+          "property": "color",
+          "value": "#9a4e08"
+        },
+        {
+          "source": "css",
+          "selector": ".check small",
+          "property": "color",
+          "value": "#6f7b84"
+        },
+        {
+          "source": "css",
+          "selector": ".check.complete .check-state",
+          "property": "color",
+          "value": "#176b46"
+        },
+        {
+          "source": "css",
+          "selector": ".check.incomplete .check-state",
+          "property": "color",
+          "value": "#9a4e08"
+        },
+        {
+          "source": "css",
+          "selector": ".boundary",
+          "property": "background",
+          "value": "#eef3f5"
+        },
+        {
+          "source": "css",
+          "selector": ".boundary",
+          "property": "color",
+          "value": "#43545e"
+        },
+        {
+          "source": "css",
+          "selector": ".decision-panel",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".decision-panel",
+          "property": "border-left",
+          "value": "1px solid #dce2e7"
+        },
+        {
+          "source": "css",
+          "selector": ".decision-panel>p",
+          "property": "color",
+          "value": "#687681"
+        },
+        {
+          "source": "css",
+          "selector": ".decision",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".decision",
+          "property": "border",
+          "value": "1px solid #d7dee3"
+        },
+        {
+          "source": "css",
+          "selector": ".decision",
+          "property": "color",
+          "value": "#23303a"
+        },
+        {
+          "source": "css",
+          "selector": ".decision span",
+          "property": "color",
+          "value": "#6a7780"
+        },
+        {
+          "source": "css",
+          "selector": ".decision.selected",
+          "property": "background",
+          "value": "#fff8ee"
+        },
+        {
+          "source": "css",
+          "selector": ".decision.selected",
+          "property": "border",
+          "value": "2px solid #bd6517"
+        },
+        {
+          "source": "css",
+          "selector": ".handoff",
+          "property": "border-top",
+          "value": "1px solid #e1e6e9"
+        },
+        {
+          "source": "css",
+          "selector": ".reason",
+          "property": "background",
+          "value": "#f5f7f8"
+        },
+        {
+          "source": "css",
+          "selector": ".reason",
+          "property": "border",
+          "value": "1px solid #e0e5e8"
+        },
+        {
+          "source": "css",
+          "selector": ".button",
+          "property": "background",
+          "value": "#174a5b"
+        },
+        {
+          "source": "css",
+          "selector": ".button",
+          "property": "color",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".button-secondary",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".button-secondary",
+          "property": "color",
+          "value": "#374650"
+        },
+        {
+          "source": "css",
+          "selector": ".button-secondary",
+          "property": "border",
+          "value": "1px solid #cfd8dd"
+        },
+        {
+          "source": "css",
+          "selector": ".system-note",
+          "property": "background",
+          "value": "#f5f7f8"
+        },
+        {
+          "source": "css",
+          "selector": ".system-note",
+          "property": "color",
+          "value": "#6b7880"
+        },
+        {
+          "source": "css",
+          "selector": ".decision-panel",
+          "property": "border-top",
+          "value": "1px solid #dce2e7"
+        }
+      ],
+      "failures": [],
+      "status": "passed"
+    },
+    "source_context_status": "current",
+    "current_source_context_sha256": "dda8cfebfd61b7de36053cb8148868435e933bc16c2e18f4379054e82bfbaeca",
+    "accepted_source_context_sha256": "dda8cfebfd61b7de36053cb8148868435e933bc16c2e18f4379054e82bfbaeca",
+    "captured_source_context_sha256": "dda8cfebfd61b7de36053cb8148868435e933bc16c2e18f4379054e82bfbaeca",
+    "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+    "notes": "GPT-5.6 Sol Light output captured through codex for the JudgmentKit 5x4 model UI matrix."
+  },
+  "artifact_path": "artifacts/gpt56-sol-low-codex-no-judgmentkit.html",
+  "screenshot_path": "screenshots/gpt56-sol-low-codex-no-judgmentkit.png",
+  "approach_title": "GPT-5.6 Sol Light via codex exec - Raw brief",
+  "approach_caption": "GPT-5.6 Sol Light via codex exec receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+}</script>
+  </body>
+</html>

@@ -1,0 +1,165 @@
+{
+  "artifact_id": "gpt56-sol-ultra-codex-judgmentkit-material-ui",
+  "use_case_id": "b2b-renewal-risk",
+  "use_case_label": "B2B renewal risk review",
+  "activity_summary": "A customer success manager reviews renewal risk and decides save plan, executive escalation, or wait for usage evidence.",
+  "row_id": "gpt56-sol-ultra-codex",
+  "row_label": "GPT-5.6 Sol Ultra via codex exec",
+  "column_id": "judgmentkit-material-ui",
+  "column_label": "JudgmentKit skill + Material UI",
+  "model_label": "GPT-5.6 Sol Ultra",
+  "provider": "codex-cli",
+  "cli": "codex",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "ultra",
+  "judgmentkit_mode": "with_judgmentkit",
+  "design_system_mode": "material_ui",
+  "design_system_name": "Material UI",
+  "design_system_package": "@mui/material",
+  "design_system_render_mode": "static-ssr",
+  "render_mode": "material_ui",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-07-30T04:10:51.849Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": true,
+    "material_ui_adapter": true,
+    "frontend_skill_context": true
+  },
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": "workbench",
+    "design_system_mode": "external_design_system",
+    "design_system_name": "Material UI",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "Verify substantive visuals use imagegen or premium Three.js/WebGL/D3-style rendering when the spec calls for them.",
+      "Provide browser-rendered visual-background contrast evidence for text over images, canvas, WebGL, video, gradients, or generated visuals.",
+      "Verify non-text contrast for meaningful icons, charts, state indicators, custom controls, and authored focus indicators.",
+      "Verify forced-colors or high-contrast behavior when custom colors, gradients, overlays, or authored focus styles are used.",
+      "Verify focus-visible evidence for interactive controls.",
+      "Verify focus order, keyboard navigation, focus-not-obscured behavior, and no keyboard trap for custom widgets, overlays, dialogs, and embedded experiences.",
+      "Verify reduced-motion behavior for animation and rendered visuals.",
+      "Verify pause, stop, hide, or update-frequency control for auto-moving or auto-updating content.",
+      "Verify form labels, instructions, text errors, correction suggestions, and status/live-region messages when forms or async states are present.",
+      "Verify semantic content or accessible fallback for images, canvas, WebGL, video, generated visuals, and D3-style visualization.",
+      "Verify captions, transcripts, descriptions, or media alternatives when audio or video is present.",
+      "Verify target size or valid target spacing/equivalent-control exceptions for dense or touch-oriented controls.",
+      "Verify responsive no-overflow evidence at desktop and mobile sizes.",
+      "judgmentkit-material-ui candidate desktop screenshot has a styled primary work surface",
+      "judgmentkit-material-ui candidate mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
+  "source_context_sha256": "6dc36afbd9e41b9b95eba576728dba0c74a0eb824efe442f2cff6cfdb78612f7",
+  "source_context_status": "current",
+  "current_source_context_sha256": "6dc36afbd9e41b9b95eba576728dba0c74a0eb824efe442f2cff6cfdb78612f7",
+  "accepted_source_context_sha256": "6dc36afbd9e41b9b95eba576728dba0c74a0eb824efe442f2cff6cfdb78612f7",
+  "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+  "prompt_sha256": "dacbe29639309319ffbbe09def3d5e0b2d5fc08cd8ec762a63435a0f75b0810f",
+  "raw_response_sha256": "55fb5664fcbcec1d542a5cb72f7edad1fd6bc90f136b38aa0a98d04eba099615",
+  "command_display": "codex exec --model gpt-5.6-sol -c model_reasoning_effort=\"ultra\" -c sqlite_home=\"<sqlite>\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",
+  "notes": "GPT-5.6 Sol Ultra output captured through codex for the JudgmentKit 5x4 model UI matrix.",
+  "lms_context": null,
+  "capture_quality": null,
+  "parsed": {
+    "summary": "Review Northstar Labs’ renewal risk, resolve the missing procurement timeline, and send a clear handoff.",
+    "surface": {
+      "eyebrow": "Weekly account meeting",
+      "heading": "Renewal risk review",
+      "status": "Decision pending",
+      "queue_title": "Renewal queue",
+      "queue": [
+        {
+          "id": "AC-903",
+          "customer": "Northstar Labs",
+          "state": "Champion change",
+          "amount": "$84K ARR"
+        },
+        {
+          "id": "AC-904",
+          "customer": "Bright Arc",
+          "state": "Usage drop",
+          "amount": "$42K ARR"
+        },
+        {
+          "id": "AC-905",
+          "customer": "Harbor Grid",
+          "state": "Procurement risk",
+          "amount": "$120K ARR"
+        }
+      ],
+      "selected": {
+        "id": "AC-903",
+        "customer": "Northstar Labs",
+        "amount": "$84K ARR",
+        "plan": "Enterprise annual",
+        "request": "Renewal risk review before the account planning meeting.",
+        "status": "Champion change"
+      },
+      "info": [
+        {
+          "label": "Usage trend",
+          "value": "Down 28% over the last two reporting periods"
+        },
+        {
+          "label": "Champion change",
+          "value": "Primary champion left last month"
+        },
+        {
+          "label": "Evidence gap",
+          "value": "Procurement timeline is missing"
+        }
+      ],
+      "evidence": [
+        "Usage dropped 28 percent over the last two reporting periods.",
+        "Primary champion left the account last month.",
+        "Procurement timeline is missing before escalation."
+      ],
+      "policy_title": "Renewal policy",
+      "policy": "Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.",
+      "decision_title": "Choose the next path",
+      "actions": [
+        "Start save plan",
+        "Escalate executive sponsor",
+        "Request procurement date"
+      ],
+      "primary_action": "Send handoff",
+      "handoff": {
+        "owner": "Customer success manager",
+        "title": "Renewal handoff",
+        "reason": "Champion changed and usage dropped, but procurement timing is missing",
+        "action": "Request the procurement date before committing the save plan"
+      }
+    }
+  },
+  "raw_response": "{\"summary\":\"Review Northstar Labs’ renewal risk, resolve the missing procurement timeline, and send a clear handoff.\",\"surface\":{\"eyebrow\":\"Weekly account meeting\",\"heading\":\"Renewal risk review\",\"status\":\"Decision pending\",\"queue_title\":\"Renewal queue\",\"queue\":[{\"id\":\"AC-903\",\"customer\":\"Northstar Labs\",\"state\":\"Champion change\",\"amount\":\"$84K ARR\"},{\"id\":\"AC-904\",\"customer\":\"Bright Arc\",\"state\":\"Usage drop\",\"amount\":\"$42K ARR\"},{\"id\":\"AC-905\",\"customer\":\"Harbor Grid\",\"state\":\"Procurement risk\",\"amount\":\"$120K ARR\"}],\"selected\":{\"id\":\"AC-903\",\"customer\":\"Northstar Labs\",\"amount\":\"$84K ARR\",\"plan\":\"Enterprise annual\",\"request\":\"Renewal risk review before the account planning meeting.\",\"status\":\"Champion change\"},\"info\":[{\"label\":\"Usage trend\",\"value\":\"Down 28% over the last two reporting periods\"},{\"label\":\"Champion change\",\"value\":\"Primary champion left last month\"},{\"label\":\"Evidence gap\",\"value\":\"Procurement timeline is missing\"}],\"evidence\":[\"Usage dropped 28 percent over the last two reporting periods.\",\"Primary champion left the account last month.\",\"Procurement timeline is missing before escalation.\"],\"policy_title\":\"Renewal policy\",\"policy\":\"Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.\",\"decision_title\":\"Choose the next path\",\"actions\":[\"Start save plan\",\"Escalate executive sponsor\",\"Request procurement date\"],\"primary_action\":\"Send handoff\",\"handoff\":{\"owner\":\"Customer success manager\",\"title\":\"Renewal handoff\",\"reason\":\"Champion changed and usage dropped, but procurement timing is missing\",\"action\":\"Request the procurement date before committing the save plan\"}}}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "30577649da7bd3b4febd54c2e5009c40d13cc4da862925d18a5dcd7dfa52dc58",
+    "stderr_sha256": "0255e923d3ff975e11b748df3d4f5aad21ebc5a7478f48d0f1dbbb75295451fa"
+  }
+}

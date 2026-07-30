@@ -366,12 +366,12 @@
     <main>
       <p class="eyebrow">System-map example pack</p>
       <h1>Support refund triage model UI generation matrix</h1>
-      <p>A support operations manager reviews refund escalation cases and decides approve, policy review, or missing evidence. Three generation paths are shown across four context boundaries. JudgmentKit skill context improves activity fit, workflow fit, disclosure discipline, and implementation guidance; Material UI improves visual/component consistency.</p>
+      <p>A support operations manager reviews refund escalation cases and decides approve, policy review, or missing evidence. 5 generation paths are shown across 4 context boundaries. JudgmentKit skill context improves activity fit, workflow fit, disclosure discipline, and implementation guidance; Material UI improves visual/component consistency.</p>
       <div class="summary" aria-label="Matrix summary">
         <div><span>Source brief</span><strong>examples/demo/refund-ops-implementation-heavy.brief.txt</strong></div>
-        <div><span>Rows</span><strong>3 generation paths</strong></div>
+        <div><span>Rows</span><strong>5 generation paths</strong></div>
         <div><span>Columns</span><strong>4 context modes</strong></div>
-        <div><span>Artifacts</span><strong>10 accepted snapshots</strong></div>
+        <div><span>Artifacts</span><strong>18 accepted snapshots</strong></div>
       </div>
       <section class="column-guide" aria-label="Matrix column definitions">
 
@@ -394,12 +394,12 @@
       </section>
       <div class="gallery-intro">
         <div>
-          <h2>3 x 4 comparison gallery</h2>
+          <h2>5 x 4 comparison gallery</h2>
           <p>Each row uses the same generation path. Each column changes only JudgmentKit and Material UI context.</p>
         </div>
         <a href="artifacts/deterministic-no-judgmentkit.html">Open first live artifact</a>
       </div>
-      <section class="matrix-list" aria-label="Model UI 3 by 4 screenshot gallery">
+      <section class="matrix-list" aria-label="Model UI 5 by 4 screenshot gallery">
 
       <article class="matrix-row">
         <div class="matrix-heading">
@@ -650,6 +650,176 @@
         </article>
         </div>
       </article>
+      <article class="matrix-row">
+        <div class="matrix-heading">
+          <p class="eyebrow">Generation path</p>
+          <h2>GPT-5.6 Sol Light via codex exec</h2>
+          <p>GPT-5.6 Sol Light captures run with low reasoning effort across the same four context boundaries.</p>
+        </div>
+        <div class="matrix-cells">
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gpt56-sol-low-codex-no-judgmentkit.html" data-carousel-open="10" aria-label="Open larger view for GPT-5.6 Sol Light via codex exec - Raw brief">
+            <img src="screenshots/gpt56-sol-low-codex-no-judgmentkit.png" alt="GPT-5.6 Sol Light via codex exec - Raw brief screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">Raw brief</p>
+            <h2>GPT-5.6 Sol Light via codex exec - Raw brief</h2>
+            <p>GPT-5.6 Sol Light via codex exec receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI.</p>
+            <dl>
+              <div><dt>Context</dt><dd>Raw brief</dd></div>
+              <div><dt>Render</dt><dd>model_static_html_css</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gpt56-sol-low-codex-no-judgmentkit.html">Open live artifact</a>
+              <a href="screenshots/gpt56-sol-low-codex-no-judgmentkit.png">Open image</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gpt56-sol-low-codex-with-judgmentkit.html" data-carousel-open="11" aria-label="Open larger view for GPT-5.6 Sol Light via codex exec - JudgmentKit skill context">
+            <img src="screenshots/gpt56-sol-low-codex-with-judgmentkit.png" alt="GPT-5.6 Sol Light via codex exec - JudgmentKit skill context screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">JudgmentKit skill context</p>
+            <h2>GPT-5.6 Sol Light via codex exec - JudgmentKit skill context</h2>
+            <p>GPT-5.6 Sol Light via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.</p>
+            <dl>
+              <div><dt>Context</dt><dd>JudgmentKit skill context</dd></div>
+              <div><dt>Render</dt><dd>model_frontend_skill_static_html_css</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gpt56-sol-low-codex-with-judgmentkit.html">Open live artifact</a>
+              <a href="screenshots/gpt56-sol-low-codex-with-judgmentkit.png">Open image</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gpt56-sol-low-codex-material-ui-only.html" data-carousel-open="12" aria-label="Open larger view for GPT-5.6 Sol Light via codex exec - Material UI only">
+            <img src="screenshots/gpt56-sol-low-codex-material-ui-only.png" alt="GPT-5.6 Sol Light via codex exec - Material UI only screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">Material UI only</p>
+            <h2>GPT-5.6 Sol Light via codex exec - Material UI only</h2>
+            <p>GPT-5.6 Sol Light via codex exec is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit.</p>
+            <dl>
+              <div><dt>Context</dt><dd>Material UI only</dd></div>
+              <div><dt>Render</dt><dd>model_structured_data_material_ui_ssr</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gpt56-sol-low-codex-material-ui-only.html">Open live artifact</a>
+              <a href="screenshots/gpt56-sol-low-codex-material-ui-only.png">Open image</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gpt56-sol-low-codex-judgmentkit-material-ui.html" data-carousel-open="13" aria-label="Open larger view for GPT-5.6 Sol Light via codex exec - JudgmentKit skill + Material UI">
+            <img src="screenshots/gpt56-sol-low-codex-judgmentkit-material-ui.png" alt="GPT-5.6 Sol Light via codex exec - JudgmentKit skill + Material UI screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">JudgmentKit skill + Material UI</p>
+            <h2>GPT-5.6 Sol Light via codex exec - JudgmentKit skill + Material UI</h2>
+            <p>GPT-5.6 Sol Light via codex exec receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path.</p>
+            <dl>
+              <div><dt>Context</dt><dd>JudgmentKit skill + Material UI</dd></div>
+              <div><dt>Render</dt><dd>model_frontend_skill_material_ui_ssr</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gpt56-sol-low-codex-judgmentkit-material-ui.html">Open live artifact</a>
+              <a href="screenshots/gpt56-sol-low-codex-judgmentkit-material-ui.png">Open image</a>
+            </div>
+          </div>
+        </article>
+        </div>
+      </article>
+      <article class="matrix-row">
+        <div class="matrix-heading">
+          <p class="eyebrow">Generation path</p>
+          <h2>GPT-5.6 Sol Ultra via codex exec</h2>
+          <p>GPT-5.6 Sol Ultra captures run with ultra reasoning effort across the same four context boundaries.</p>
+        </div>
+        <div class="matrix-cells">
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gpt56-sol-ultra-codex-no-judgmentkit.html" data-carousel-open="14" aria-label="Open larger view for GPT-5.6 Sol Ultra via codex exec - Raw brief">
+            <img src="screenshots/gpt56-sol-ultra-codex-no-judgmentkit.png" alt="GPT-5.6 Sol Ultra via codex exec - Raw brief screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">Raw brief</p>
+            <h2>GPT-5.6 Sol Ultra via codex exec - Raw brief</h2>
+            <p>GPT-5.6 Sol Ultra via codex exec receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI.</p>
+            <dl>
+              <div><dt>Context</dt><dd>Raw brief</dd></div>
+              <div><dt>Render</dt><dd>model_static_html_css</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gpt56-sol-ultra-codex-no-judgmentkit.html">Open live artifact</a>
+              <a href="screenshots/gpt56-sol-ultra-codex-no-judgmentkit.png">Open image</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html" data-carousel-open="15" aria-label="Open larger view for GPT-5.6 Sol Ultra via codex exec - JudgmentKit skill context">
+            <img src="screenshots/gpt56-sol-ultra-codex-with-judgmentkit.png" alt="GPT-5.6 Sol Ultra via codex exec - JudgmentKit skill context screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">JudgmentKit skill context</p>
+            <h2>GPT-5.6 Sol Ultra via codex exec - JudgmentKit skill context</h2>
+            <p>GPT-5.6 Sol Ultra via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.</p>
+            <dl>
+              <div><dt>Context</dt><dd>JudgmentKit skill context</dd></div>
+              <div><dt>Render</dt><dd>model_frontend_skill_static_html_css</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html">Open live artifact</a>
+              <a href="screenshots/gpt56-sol-ultra-codex-with-judgmentkit.png">Open image</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gpt56-sol-ultra-codex-material-ui-only.html" data-carousel-open="16" aria-label="Open larger view for GPT-5.6 Sol Ultra via codex exec - Material UI only">
+            <img src="screenshots/gpt56-sol-ultra-codex-material-ui-only.png" alt="GPT-5.6 Sol Ultra via codex exec - Material UI only screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">Material UI only</p>
+            <h2>GPT-5.6 Sol Ultra via codex exec - Material UI only</h2>
+            <p>GPT-5.6 Sol Ultra via codex exec is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit.</p>
+            <dl>
+              <div><dt>Context</dt><dd>Material UI only</dd></div>
+              <div><dt>Render</dt><dd>model_structured_data_material_ui_ssr</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gpt56-sol-ultra-codex-material-ui-only.html">Open live artifact</a>
+              <a href="screenshots/gpt56-sol-ultra-codex-material-ui-only.png">Open image</a>
+            </div>
+          </div>
+        </article>
+
+        <article class="gallery-card">
+          <a class="thumbnail-link" href="artifacts/gpt56-sol-ultra-codex-judgmentkit-material-ui.html" data-carousel-open="17" aria-label="Open larger view for GPT-5.6 Sol Ultra via codex exec - JudgmentKit skill + Material UI">
+            <img src="screenshots/gpt56-sol-ultra-codex-judgmentkit-material-ui.png" alt="GPT-5.6 Sol Ultra via codex exec - JudgmentKit skill + Material UI screenshot" loading="lazy">
+          </a>
+          <div class="gallery-card-copy">
+            <p class="eyebrow">JudgmentKit skill + Material UI</p>
+            <h2>GPT-5.6 Sol Ultra via codex exec - JudgmentKit skill + Material UI</h2>
+            <p>GPT-5.6 Sol Ultra via codex exec receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path.</p>
+            <dl>
+              <div><dt>Context</dt><dd>JudgmentKit skill + Material UI</dd></div>
+              <div><dt>Render</dt><dd>model_frontend_skill_material_ui_ssr</dd></div>
+            </dl>
+            <div class="card-actions">
+              <a href="artifacts/gpt56-sol-ultra-codex-judgmentkit-material-ui.html">Open live artifact</a>
+              <a href="screenshots/gpt56-sol-ultra-codex-judgmentkit-material-ui.png">Open image</a>
+            </div>
+          </div>
+        </article>
+        </div>
+      </article>
       </section>
       <p class="note">All model cells are committed captures. JudgmentKit skill context improves activity fit, workflow fit, disclosure discipline, and implementation guidance; Material UI improves visual/component consistency.</p>
       <details class="details">
@@ -735,6 +905,70 @@
           </div>
           <p>Transcript: captures/gpt55-xhigh-codex-judgmentkit-material-ui.json</p>
           <a href="artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">GPT-5.6 Sol Light via codex exec</p>
+            <h3>Raw brief</h3>
+          </div>
+          <p>Transcript: captures/gpt56-sol-low-codex-no-judgmentkit.json</p>
+          <a href="artifacts/gpt56-sol-low-codex-no-judgmentkit.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">GPT-5.6 Sol Light via codex exec</p>
+            <h3>JudgmentKit skill context</h3>
+          </div>
+          <p>Transcript: captures/gpt56-sol-low-codex-with-judgmentkit.json</p>
+          <a href="artifacts/gpt56-sol-low-codex-with-judgmentkit.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">GPT-5.6 Sol Light via codex exec</p>
+            <h3>Material UI only</h3>
+          </div>
+          <p>Transcript: captures/gpt56-sol-low-codex-material-ui-only.json</p>
+          <a href="artifacts/gpt56-sol-low-codex-material-ui-only.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">GPT-5.6 Sol Light via codex exec</p>
+            <h3>JudgmentKit skill + Material UI</h3>
+          </div>
+          <p>Transcript: captures/gpt56-sol-low-codex-judgmentkit-material-ui.json</p>
+          <a href="artifacts/gpt56-sol-low-codex-judgmentkit-material-ui.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">GPT-5.6 Sol Ultra via codex exec</p>
+            <h3>Raw brief</h3>
+          </div>
+          <p>Transcript: captures/gpt56-sol-ultra-codex-no-judgmentkit.json</p>
+          <a href="artifacts/gpt56-sol-ultra-codex-no-judgmentkit.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">GPT-5.6 Sol Ultra via codex exec</p>
+            <h3>JudgmentKit skill context</h3>
+          </div>
+          <p>Transcript: captures/gpt56-sol-ultra-codex-with-judgmentkit.json</p>
+          <a href="artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">GPT-5.6 Sol Ultra via codex exec</p>
+            <h3>Material UI only</h3>
+          </div>
+          <p>Transcript: captures/gpt56-sol-ultra-codex-material-ui-only.json</p>
+          <a href="artifacts/gpt56-sol-ultra-codex-material-ui-only.html">Artifact</a>
+        </article>
+        <article class="details-row">
+          <div>
+            <p class="eyebrow">GPT-5.6 Sol Ultra via codex exec</p>
+            <h3>JudgmentKit skill + Material UI</h3>
+          </div>
+          <p>Transcript: captures/gpt56-sol-ultra-codex-judgmentkit-material-ui.json</p>
+          <a href="artifacts/gpt56-sol-ultra-codex-judgmentkit-material-ui.html">Artifact</a>
         </article>
         </div>
       </details>
@@ -902,6 +1136,110 @@
     "prompt_context": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
     "image": "screenshots/gpt55-xhigh-codex-judgmentkit-material-ui.png",
     "artifact": "artifacts/gpt55-xhigh-codex-judgmentkit-material-ui.html"
+  },
+  {
+    "id": "gpt56-sol-low-codex-no-judgmentkit",
+    "title": "GPT-5.6 Sol Light via codex exec - Raw brief",
+    "caption": "GPT-5.6 Sol Light via codex exec receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI.",
+    "model_label": "GPT-5.6 Sol Light via codex exec",
+    "column_label": "Raw brief",
+    "render_source": "model_static_html_css",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+    "prompt_context": "source brief + sample case",
+    "image": "screenshots/gpt56-sol-low-codex-no-judgmentkit.png",
+    "artifact": "artifacts/gpt56-sol-low-codex-no-judgmentkit.html"
+  },
+  {
+    "id": "gpt56-sol-low-codex-with-judgmentkit",
+    "title": "GPT-5.6 Sol Light via codex exec - JudgmentKit skill context",
+    "caption": "GPT-5.6 Sol Light via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.",
+    "model_label": "GPT-5.6 Sol Light via codex exec",
+    "column_label": "JudgmentKit skill context",
+    "render_source": "model_frontend_skill_static_html_css",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+    "prompt_context": "source brief + sample case + reviewed handoff + frontend skill context",
+    "image": "screenshots/gpt56-sol-low-codex-with-judgmentkit.png",
+    "artifact": "artifacts/gpt56-sol-low-codex-with-judgmentkit.html"
+  },
+  {
+    "id": "gpt56-sol-low-codex-material-ui-only",
+    "title": "GPT-5.6 Sol Light via codex exec - Material UI only",
+    "caption": "GPT-5.6 Sol Light via codex exec is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit.",
+    "model_label": "GPT-5.6 Sol Light via codex exec",
+    "column_label": "Material UI only",
+    "render_source": "model_structured_data_material_ui_ssr",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.",
+    "prompt_context": "source brief + sample case + Material UI adapter",
+    "image": "screenshots/gpt56-sol-low-codex-material-ui-only.png",
+    "artifact": "artifacts/gpt56-sol-low-codex-material-ui-only.html"
+  },
+  {
+    "id": "gpt56-sol-low-codex-judgmentkit-material-ui",
+    "title": "GPT-5.6 Sol Light via codex exec - JudgmentKit skill + Material UI",
+    "caption": "GPT-5.6 Sol Light via codex exec receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path.",
+    "model_label": "GPT-5.6 Sol Light via codex exec",
+    "column_label": "JudgmentKit skill + Material UI",
+    "render_source": "model_frontend_skill_material_ui_ssr",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed handoff plus compiled frontend skill context.",
+    "prompt_context": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
+    "image": "screenshots/gpt56-sol-low-codex-judgmentkit-material-ui.png",
+    "artifact": "artifacts/gpt56-sol-low-codex-judgmentkit-material-ui.html"
+  },
+  {
+    "id": "gpt56-sol-ultra-codex-no-judgmentkit",
+    "title": "GPT-5.6 Sol Ultra via codex exec - Raw brief",
+    "caption": "GPT-5.6 Sol Ultra via codex exec receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI.",
+    "model_label": "GPT-5.6 Sol Ultra via codex exec",
+    "column_label": "Raw brief",
+    "render_source": "model_static_html_css",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+    "prompt_context": "source brief + sample case",
+    "image": "screenshots/gpt56-sol-ultra-codex-no-judgmentkit.png",
+    "artifact": "artifacts/gpt56-sol-ultra-codex-no-judgmentkit.html"
+  },
+  {
+    "id": "gpt56-sol-ultra-codex-with-judgmentkit",
+    "title": "GPT-5.6 Sol Ultra via codex exec - JudgmentKit skill context",
+    "caption": "GPT-5.6 Sol Ultra via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer.",
+    "model_label": "GPT-5.6 Sol Ultra via codex exec",
+    "column_label": "JudgmentKit skill context",
+    "render_source": "model_frontend_skill_static_html_css",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+    "prompt_context": "source brief + sample case + reviewed handoff + frontend skill context",
+    "image": "screenshots/gpt56-sol-ultra-codex-with-judgmentkit.png",
+    "artifact": "artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html"
+  },
+  {
+    "id": "gpt56-sol-ultra-codex-material-ui-only",
+    "title": "GPT-5.6 Sol Ultra via codex exec - Material UI only",
+    "caption": "GPT-5.6 Sol Ultra via codex exec is rendered through Material UI from raw-brief context only. This isolates visual/component consistency without JudgmentKit.",
+    "model_label": "GPT-5.6 Sol Ultra via codex exec",
+    "column_label": "Material UI only",
+    "render_source": "model_structured_data_material_ui_ssr",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is rendered through Material UI using raw brief context only; design-system styling is not a substitute for JudgmentKit review.",
+    "prompt_context": "source brief + sample case + Material UI adapter",
+    "image": "screenshots/gpt56-sol-ultra-codex-material-ui-only.png",
+    "artifact": "artifacts/gpt56-sol-ultra-codex-material-ui-only.html"
+  },
+  {
+    "id": "gpt56-sol-ultra-codex-judgmentkit-material-ui",
+    "title": "GPT-5.6 Sol Ultra via codex exec - JudgmentKit skill + Material UI",
+    "caption": "GPT-5.6 Sol Ultra via codex exec receives the reviewed handoff plus compiled frontend skill context, then renders through the Material UI adapter. This is the full intended path.",
+    "model_label": "GPT-5.6 Sol Ultra via codex exec",
+    "column_label": "JudgmentKit skill + Material UI",
+    "render_source": "model_frontend_skill_material_ui_ssr",
+    "provenance": "captured",
+    "rendering_policy": "Visible artifact is rendered through Material UI from the reviewed handoff plus compiled frontend skill context.",
+    "prompt_context": "source brief + sample case + reviewed handoff + frontend skill context + Material UI adapter",
+    "image": "screenshots/gpt56-sol-ultra-codex-judgmentkit-material-ui.png",
+    "artifact": "artifacts/gpt56-sol-ultra-codex-judgmentkit-material-ui.html"
   }
 ]</script>
     <script>

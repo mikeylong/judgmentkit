@@ -735,7 +735,7 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
     assert.equal(
       manifest.comparison_rows?.length,
       COMPARISON_ROWS.length,
-      `${useCase.id} manifest should expose three comparison rows`,
+      `${useCase.id} manifest should expose ${COMPARISON_ROWS.length} comparison rows`,
     );
     assert.equal(
       manifest.comparison_columns?.length,
@@ -745,9 +745,20 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
     assert.equal(
       matrixCellCount(manifest),
       COMPARISON_ROWS.length * COMPARISON_COLUMNS.length,
-      `${useCase.id} manifest should expose twelve matrix cells`,
+      `${useCase.id} manifest should expose ${COMPARISON_ROWS.length * COMPARISON_COLUMNS.length} matrix cells`,
     );
     assertDiagnosticCandidatesExcluded(manifest, useCase.id);
+    assert.ok(sourceManifest, `${useCase.id} source manifest should be available`);
+    const missingSolCaptures = (sourceManifest.diagnostic_candidates ?? []).filter(
+      (candidate) =>
+        candidate.row_id?.startsWith("gpt56-sol-") &&
+        candidate.failed_checks?.includes("capture_missing"),
+    );
+    assert.deepEqual(
+      missingSolCaptures.map((candidate) => candidate.id),
+      [],
+      `${useCase.id} should not publish GPT-5.6 Sol rows with missing captures`,
+    );
 
     const useCaseBaseRoute = manifestRoute.replace(/manifest\.json$/, "");
     await assertDiagnosticRoutesNotPublic(
@@ -799,9 +810,13 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
           `${artifact.id} should include Material UI context`,
         );
       }
-      if (artifact.row_id === "gpt55-xhigh-codex") {
-        assert.equal(artifact.reasoning_effort, "xhigh", `${artifact.id} should record xhigh`);
-      }
+      const comparisonRow = COMPARISON_ROWS.find((row) => row.id === artifact.row_id);
+      assert.ok(comparisonRow, `${artifact.id} should reference a configured comparison row`);
+      assert.equal(
+        artifact.reasoning_effort,
+        comparisonRow.reasoning_effort,
+        `${artifact.id} should record the configured reasoning effort`,
+      );
 
       const artifactRoute = `${useCaseBaseRoute}${artifact.artifact_path}`;
       const artifactPage = await fetchText(baseUrl, artifactRoute);
@@ -891,9 +906,11 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
       }
       assert.ok(capture.prompt_sha256, `${artifact.id} capture should include prompt_sha256`);
       assert.ok(capture.raw_response_sha256, `${artifact.id} capture should include raw_response_sha256`);
-      if (artifact.row_id === "gpt55-xhigh-codex") {
-        assert.equal(capture.reasoning_effort, "xhigh", `${artifact.id} capture should record xhigh`);
-      }
+      assert.equal(
+        capture.reasoning_effort,
+        comparisonRow.reasoning_effort,
+        `${artifact.id} capture should record the configured reasoning effort`,
+      );
       if (artifact.design_system_mode === "material_ui") {
         assert.equal(capture.design_system_name, "Material UI");
         assert.equal(capture.design_system_package, "@mui/material");
@@ -1020,6 +1037,8 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       "These matrix examples compare how the same activity changes across raw brief",
       "Gemma 4 via LM Studio lms",
       "GPT-5.5",
+      "GPT-5.6 Sol Light via codex exec",
+      "GPT-5.6 Sol Ultra via codex exec",
       "Support refund triage",
       "Field service dispatch",
       "Clinical intake review",
@@ -1105,18 +1124,18 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   );
   assert.equal(
     modelUiManifest.comparison_rows?.length,
-    3,
-    "model UI manifest should expose three comparison rows",
+    COMPARISON_ROWS.length,
+    `model UI manifest should expose ${COMPARISON_ROWS.length} comparison rows`,
   );
   assert.equal(
     modelUiManifest.comparison_columns?.length,
-    4,
-    "model UI manifest should expose four comparison columns",
+    COMPARISON_COLUMNS.length,
+    `model UI manifest should expose ${COMPARISON_COLUMNS.length} comparison columns`,
   );
   assert.equal(
     matrixCellCount(modelUiManifest),
-    12,
-    "model UI manifest should expose twelve matrix cells",
+    COMPARISON_ROWS.length * COMPARISON_COLUMNS.length,
+    `model UI manifest should expose ${COMPARISON_ROWS.length * COMPARISON_COLUMNS.length} matrix cells`,
   );
   assertDiagnosticCandidatesExcluded(modelUiManifest, "model UI");
   await assertDiagnosticRoutesNotPublic(

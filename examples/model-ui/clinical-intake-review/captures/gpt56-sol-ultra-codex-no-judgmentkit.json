@@ -1,0 +1,449 @@
+{
+  "artifact_id": "gpt56-sol-ultra-codex-no-judgmentkit",
+  "use_case_id": "clinical-intake-review",
+  "use_case_label": "Clinical intake review",
+  "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+  "row_id": "gpt56-sol-ultra-codex",
+  "row_label": "GPT-5.6 Sol Ultra via codex exec",
+  "column_id": "no-judgmentkit",
+  "column_label": "Raw brief",
+  "model_label": "GPT-5.6 Sol Ultra",
+  "provider": "codex-cli",
+  "cli": "codex",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "ultra",
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "none",
+  "design_system_name": null,
+  "design_system_package": null,
+  "design_system_render_mode": null,
+  "render_mode": "html",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-07-30T01:15:54.949Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": false,
+    "frontend_skill_context": false
+  },
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
+  "source_context_sha256": "05c1fff2eaa69739a97f85666d09cdf406f38cce380c41d0eebced96818b20b3",
+  "source_context_status": "current",
+  "current_source_context_sha256": "05c1fff2eaa69739a97f85666d09cdf406f38cce380c41d0eebced96818b20b3",
+  "accepted_source_context_sha256": "05c1fff2eaa69739a97f85666d09cdf406f38cce380c41d0eebced96818b20b3",
+  "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+  "prompt_sha256": "26e013d7c028f03078ef4c6b5d366af1b3daf4638c3c2055c55a5063dc9b226b",
+  "raw_response_sha256": "e9b8f11b66c88aa605c8db9ea3e4a01e247c330950aee098754f753f2090818b",
+  "command_display": "codex exec --model gpt-5.6-sol -c model_reasoning_effort=\"ultra\" -c sqlite_home=\"<sqlite>\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",
+  "notes": "GPT-5.6 Sol Ultra output captured through codex for the JudgmentKit 5x4 model UI matrix.",
+  "lms_context": null,
+  "capture_quality": {
+    "profile": "basic_static_html_css",
+    "css_characters": 10583,
+    "html_characters": 7992,
+    "css_rule_count": 95,
+    "class_selector_count": 135,
+    "semantic_section_count": 15,
+    "structural_block_count": 66,
+    "button_count": 6,
+    "has_responsive_css": true,
+    "has_layout_css": true,
+    "has_panel_css": true,
+    "has_control_css": true,
+    "has_evidence_content": true,
+    "has_handoff_content": true,
+    "compact_template_signature": false,
+    "has_judgmentkit_default_tokens": false,
+    "jk_token_usage_count": 0,
+    "jk_token_reference_count": 0,
+    "unsupported_jk_tokens": [],
+    "jk_token_definition_count": 0,
+    "jk_token_definitions": [],
+    "disallowed_visual_tokens": [],
+    "inline_style_attribute_count": 0,
+    "hard_coded_visual_values": [
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--ink",
+        "value": "#17201d"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--muted",
+        "value": "#66716c"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--line",
+        "value": "#d9dfdb"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--soft-line",
+        "value": "#e9eeeb"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--canvas",
+        "value": "#f3f5f2"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--surface",
+        "value": "#ffffff"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--surface-alt",
+        "value": "#f8faf8"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--green",
+        "value": "#174f3f"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--green-dark",
+        "value": "#103b2f"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--green-soft",
+        "value": "#e8f2ed"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--amber",
+        "value": "#8a5700"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--amber-soft",
+        "value": "#fff2d7"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--red",
+        "value": "#9a352d"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--red-soft",
+        "value": "#fbe9e6"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--blue",
+        "value": "#245a80"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--blue-soft",
+        "value": "#e8f1f7"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--shadow",
+        "value": "0 12px 32px rgba(23, 32, 29, 0.08)"
+      },
+      {
+        "source": "css",
+        "selector": "button:focus-visible",
+        "property": "outline",
+        "value": "3px solid rgba(36, 90, 128, 0.24)"
+      },
+      {
+        "source": "css",
+        "selector": ".brand-mark",
+        "property": "background",
+        "value": "var(--green)"
+      },
+      {
+        "source": "css",
+        "selector": ".brand-mark",
+        "property": "color",
+        "value": "white"
+      },
+      {
+        "source": "css",
+        "selector": ".scope-tag",
+        "property": "border",
+        "value": "1px solid #bfd1c8"
+      },
+      {
+        "source": "css",
+        "selector": ".scope-tag",
+        "property": "background",
+        "value": "var(--green-soft)"
+      },
+      {
+        "source": "css",
+        "selector": ".scope-tag",
+        "property": "color",
+        "value": "var(--green-dark)"
+      },
+      {
+        "source": "css",
+        "selector": ".avatar",
+        "property": "background",
+        "value": "#dce4df"
+      },
+      {
+        "source": "css",
+        "selector": ".avatar",
+        "property": "color",
+        "value": "#33443d"
+      },
+      {
+        "source": "css",
+        "selector": ".eyebrow",
+        "property": "color",
+        "value": "var(--green)"
+      },
+      {
+        "source": "css",
+        "selector": ".queue-item.selected",
+        "property": "border-color",
+        "value": "#b8cec3"
+      },
+      {
+        "source": "css",
+        "selector": ".queue-item.selected",
+        "property": "background",
+        "value": "var(--green-soft)"
+      },
+      {
+        "source": "css",
+        "selector": ".queue-item.selected",
+        "property": "box-shadow",
+        "value": "inset 3px 0 0 var(--green)"
+      },
+      {
+        "source": "css",
+        "selector": ".status.verify",
+        "property": "background",
+        "value": "var(--blue-soft)"
+      },
+      {
+        "source": "css",
+        "selector": ".status.verify",
+        "property": "color",
+        "value": "var(--blue)"
+      },
+      {
+        "source": "css",
+        "selector": ".status.ready",
+        "property": "background",
+        "value": "var(--green-soft)"
+      },
+      {
+        "source": "css",
+        "selector": ".status.ready",
+        "property": "color",
+        "value": "var(--green)"
+      },
+      {
+        "source": "css",
+        "selector": ".decision-card",
+        "property": "border-color",
+        "value": "#e2c887"
+      },
+      {
+        "source": "css",
+        "selector": ".decision-card",
+        "property": "background",
+        "value": "linear-gradient(145deg, #fffdf7 0%, #fff9e9 100%)"
+      },
+      {
+        "source": "css",
+        "selector": ".decision-card",
+        "property": "box-shadow",
+        "value": "0 10px 26px rgba(138, 87, 0, 0.08)"
+      },
+      {
+        "source": "css",
+        "selector": ".decision-card > p",
+        "property": "color",
+        "value": "#695a38"
+      },
+      {
+        "source": "css",
+        "selector": ".recommendation",
+        "property": "border",
+        "value": "1px solid #e7d39d"
+      },
+      {
+        "source": "css",
+        "selector": ".recommendation",
+        "property": "background",
+        "value": "rgba(255, 255, 255, 0.72)"
+      },
+      {
+        "source": "css",
+        "selector": ".content-card",
+        "property": "box-shadow",
+        "value": "0 7px 22px rgba(23, 32, 29, 0.05)"
+      },
+      {
+        "source": "css",
+        "selector": ".check",
+        "property": "background",
+        "value": "var(--green-soft)"
+      },
+      {
+        "source": "css",
+        "selector": ".check",
+        "property": "color",
+        "value": "var(--green)"
+      },
+      {
+        "source": "css",
+        "selector": ".policy-note",
+        "property": "border-left",
+        "value": "3px solid var(--green)"
+      },
+      {
+        "source": "css",
+        "selector": ".policy-note",
+        "property": "color",
+        "value": "#44504b"
+      },
+      {
+        "source": "css",
+        "selector": ".field-value",
+        "property": "color",
+        "value": "#33403b"
+      },
+      {
+        "source": "css",
+        "selector": ".code-value",
+        "property": "color",
+        "value": "#2e443b"
+      },
+      {
+        "source": "css",
+        "selector": ".endpoint-row",
+        "property": "background",
+        "value": "#f3f6f4"
+      },
+      {
+        "source": "css",
+        "selector": ".endpoint-state",
+        "property": "color",
+        "value": "var(--green)"
+      },
+      {
+        "source": "css",
+        "selector": ".trace-warning",
+        "property": "border",
+        "value": "1px solid #ead49d"
+      },
+      {
+        "source": "css",
+        "selector": ".trace-warning",
+        "property": "color",
+        "value": "#6d510f"
+      },
+      {
+        "source": "css",
+        "selector": ".action-bar",
+        "property": "background",
+        "value": "rgba(255, 255, 255, 0.97)"
+      },
+      {
+        "source": "css",
+        "selector": ".action-bar",
+        "property": "box-shadow",
+        "value": "0 -10px 28px rgba(23, 32, 29, 0.08)"
+      },
+      {
+        "source": "css",
+        "selector": ".btn.primary",
+        "property": "border-color",
+        "value": "var(--green)"
+      },
+      {
+        "source": "css",
+        "selector": ".btn.primary",
+        "property": "background",
+        "value": "var(--green)"
+      },
+      {
+        "source": "css",
+        "selector": ".btn.primary",
+        "property": "color",
+        "value": "white"
+      },
+      {
+        "source": "css",
+        "selector": ".btn.primary:hover",
+        "property": "background",
+        "value": "var(--green-dark)"
+      },
+      {
+        "source": "css",
+        "selector": ".btn.escalate",
+        "property": "border-color",
+        "value": "#b9cfdd"
+      },
+      {
+        "source": "css",
+        "selector": ".btn.escalate",
+        "property": "color",
+        "value": "var(--blue)"
+      },
+      {
+        "source": "css",
+        "selector": ".btn:disabled",
+        "property": "border-color",
+        "value": "#e0e4e1"
+      },
+      {
+        "source": "css",
+        "selector": ".btn:disabled",
+        "property": "background",
+        "value": "#eef1ef"
+      },
+      {
+        "source": "css",
+        "selector": ".btn:disabled",
+        "property": "color",
+        "value": "#9ca49f"
+      }
+    ],
+    "failures": [],
+    "status": "passed"
+  },
+  "parsed": {
+    "summary": "A desktop intake-readiness workspace that prioritizes the missing-consent decision while exposing the implementation-heavy packet context from the raw brief.",
+    "css": ":root {\n  color-scheme: light;\n  --ink: #17201d;\n  --muted: #66716c;\n  --line: #d9dfdb;\n  --soft-line: #e9eeeb;\n  --canvas: #f3f5f2;\n  --surface: #ffffff;\n  --surface-alt: #f8faf8;\n  --green: #174f3f;\n  --green-dark: #103b2f;\n  --green-soft: #e8f2ed;\n  --amber: #8a5700;\n  --amber-soft: #fff2d7;\n  --red: #9a352d;\n  --red-soft: #fbe9e6;\n  --blue: #245a80;\n  --blue-soft: #e8f1f7;\n  --shadow: 0 12px 32px rgba(23, 32, 29, 0.08);\n}\n\n* {\n  box-sizing: border-box;\n}\n\nbody {\n  margin: 0;\n  min-width: 1100px;\n  background: var(--canvas);\n  color: var(--ink);\n  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;\n  font-size: 14px;\n  line-height: 1.45;\n}\n\nbutton {\n  border: 0;\n  font: inherit;\n}\n\nbutton:focus-visible {\n  outline: 3px solid rgba(36, 90, 128, 0.24);\n  outline-offset: 2px;\n}\n\n.app-shell {\n  display: grid;\n  grid-template-rows: 68px minmax(0, 1fr);\n  width: 100%;\n  height: 900px;\n  max-height: 100vh;\n  overflow: hidden;\n  background: var(--canvas);\n}\n\n.topbar {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  padding: 0 28px;\n  border-bottom: 1px solid var(--line);\n  background: var(--surface);\n}\n\n.brand,\n.topbar-actions,\n.identity,\n.case-heading,\n.section-title,\n.field-line,\n.queue-meta,\n.action-row,\n.endpoint-row {\n  display: flex;\n  align-items: center;\n}\n\n.brand-mark {\n  display: grid;\n  width: 34px;\n  height: 34px;\n  margin-right: 12px;\n  place-items: center;\n  border-radius: 10px;\n  background: var(--green);\n  color: white;\n  font-weight: 750;\n  letter-spacing: -0.03em;\n}\n\n.brand-name {\n  font-size: 16px;\n  font-weight: 720;\n  letter-spacing: -0.02em;\n}\n\n.brand-context {\n  margin-left: 12px;\n  padding-left: 12px;\n  border-left: 1px solid var(--line);\n  color: var(--muted);\n  font-size: 13px;\n}\n\n.scope-tag {\n  margin-right: 16px;\n  padding: 6px 10px;\n  border: 1px solid #bfd1c8;\n  border-radius: 999px;\n  background: var(--green-soft);\n  color: var(--green-dark);\n  font-size: 12px;\n  font-weight: 680;\n}\n\n.avatar {\n  display: grid;\n  width: 32px;\n  height: 32px;\n  margin-right: 9px;\n  place-items: center;\n  border-radius: 50%;\n  background: #dce4df;\n  color: #33443d;\n  font-size: 12px;\n  font-weight: 750;\n}\n\n.identity strong,\n.identity span {\n  display: block;\n}\n\n.identity strong {\n  font-size: 13px;\n}\n\n.identity span {\n  color: var(--muted);\n  font-size: 11px;\n}\n\n.workspace {\n  display: grid;\n  grid-template-columns: 286px minmax(540px, 1fr) 326px;\n  min-height: 0;\n}\n\n.queue-panel,\n.trace-panel {\n  min-height: 0;\n  overflow: auto;\n  background: var(--surface);\n}\n\n.queue-panel {\n  border-right: 1px solid var(--line);\n}\n\n.trace-panel {\n  border-left: 1px solid var(--line);\n}\n\n.panel-heading {\n  padding: 22px 20px 16px;\n  border-bottom: 1px solid var(--soft-line);\n}\n\n.eyebrow {\n  margin: 0 0 4px;\n  color: var(--green);\n  font-size: 11px;\n  font-weight: 760;\n  letter-spacing: 0.1em;\n  text-transform: uppercase;\n}\n\n.panel-heading h1,\n.panel-heading h2,\n.case-heading h2,\n.decision-card h3,\n.section-title h3 {\n  margin: 0;\n  letter-spacing: -0.025em;\n}\n\n.panel-heading h1 {\n  font-size: 20px;\n}\n\n.panel-heading h2 {\n  font-size: 17px;\n}\n\n.panel-heading p {\n  margin: 5px 0 0;\n  color: var(--muted);\n  font-size: 12px;\n}\n\n.queue-list {\n  padding: 10px;\n}\n\n.queue-item {\n  width: 100%;\n  margin: 0 0 8px;\n  padding: 14px;\n  border: 1px solid transparent;\n  border-radius: 12px;\n  background: transparent;\n  color: inherit;\n  text-align: left;\n  cursor: default;\n}\n\n.queue-item:hover {\n  background: var(--surface-alt);\n}\n\n.queue-item.selected {\n  border-color: #b8cec3;\n  background: var(--green-soft);\n  box-shadow: inset 3px 0 0 var(--green);\n}\n\n.queue-id {\n  color: var(--muted);\n  font-size: 11px;\n  font-weight: 720;\n  letter-spacing: 0.06em;\n}\n\n.queue-name {\n  margin: 3px 0 8px;\n  font-size: 14px;\n  font-weight: 720;\n}\n\n.queue-meta {\n  justify-content: space-between;\n  gap: 8px;\n}\n\n.time {\n  color: var(--muted);\n  font-size: 12px;\n  font-variant-numeric: tabular-nums;\n}\n\n.status {\n  display: inline-flex;\n  align-items: center;\n  min-height: 24px;\n  padding: 3px 8px;\n  border-radius: 999px;\n  font-size: 11px;\n  font-weight: 720;\n  white-space: nowrap;\n}\n\n.status.missing {\n  background: var(--amber-soft);\n  color: var(--amber);\n}\n\n.status.verify {\n  background: var(--blue-soft);\n  color: var(--blue);\n}\n\n.status.ready {\n  background: var(--green-soft);\n  color: var(--green);\n}\n\n.case-panel {\n  min-width: 0;\n  overflow: auto;\n  padding: 24px 26px 112px;\n}\n\n.case-heading {\n  justify-content: space-between;\n  gap: 24px;\n  margin-bottom: 18px;\n}\n\n.case-heading h2 {\n  font-size: 24px;\n}\n\n.case-heading p {\n  margin: 5px 0 0;\n  color: var(--muted);\n}\n\n.case-id {\n  padding: 7px 10px;\n  border: 1px solid var(--line);\n  border-radius: 8px;\n  background: var(--surface);\n  color: var(--muted);\n  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;\n  font-size: 12px;\n}\n\n.decision-card,\n.content-card,\n.trace-card {\n  border: 1px solid var(--line);\n  border-radius: 14px;\n  background: var(--surface);\n  box-shadow: var(--shadow);\n}\n\n.decision-card {\n  margin-bottom: 16px;\n  padding: 20px;\n  border-color: #e2c887;\n  background: linear-gradient(145deg, #fffdf7 0%, #fff9e9 100%);\n  box-shadow: 0 10px 26px rgba(138, 87, 0, 0.08);\n}\n\n.decision-card h3 {\n  font-size: 18px;\n}\n\n.decision-card > p {\n  max-width: 680px;\n  margin: 7px 0 18px;\n  color: #695a38;\n}\n\n.recommendation {\n  display: grid;\n  grid-template-columns: 38px 1fr auto;\n  gap: 12px;\n  align-items: center;\n  padding: 14px;\n  border: 1px solid #e7d39d;\n  border-radius: 11px;\n  background: rgba(255, 255, 255, 0.72);\n}\n\n.recommendation-icon {\n  display: grid;\n  width: 38px;\n  height: 38px;\n  place-items: center;\n  border-radius: 10px;\n  background: var(--amber-soft);\n  color: var(--amber);\n  font-size: 18px;\n  font-weight: 800;\n}\n\n.recommendation strong,\n.recommendation span {\n  display: block;\n}\n\n.recommendation span {\n  margin-top: 2px;\n  color: var(--muted);\n  font-size: 12px;\n}\n\n.recommendation .status {\n  display: inline-flex;\n  margin: 0;\n}\n\n.content-grid {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n  gap: 16px;\n}\n\n.content-card {\n  padding: 18px;\n  box-shadow: 0 7px 22px rgba(23, 32, 29, 0.05);\n}\n\n.content-card.full-width {\n  grid-column: 1 / -1;\n}\n\n.section-title {\n  justify-content: space-between;\n  margin-bottom: 14px;\n}\n\n.section-title h3 {\n  font-size: 15px;\n}\n\n.section-title span {\n  color: var(--muted);\n  font-size: 11px;\n}\n\n.fact-grid {\n  display: grid;\n  grid-template-columns: 1fr 1fr;\n  gap: 14px 18px;\n}\n\n.fact label,\n.handoff-field label {\n  display: block;\n  margin-bottom: 4px;\n  color: var(--muted);\n  font-size: 11px;\n  font-weight: 680;\n  letter-spacing: 0.04em;\n  text-transform: uppercase;\n}\n\n.fact strong {\n  display: block;\n  font-size: 13px;\n}\n\n.checklist {\n  display: grid;\n  gap: 10px;\n  margin: 0;\n  padding: 0;\n  list-style: none;\n}\n\n.checklist li {\n  display: grid;\n  grid-template-columns: 24px 1fr;\n  gap: 10px;\n  align-items: start;\n  padding: 10px 0;\n  border-bottom: 1px solid var(--soft-line);\n}\n\n.checklist li:last-child {\n  border-bottom: 0;\n}\n\n.check {\n  display: grid;\n  width: 22px;\n  height: 22px;\n  place-items: center;\n  border-radius: 50%;\n  background: var(--green-soft);\n  color: var(--green);\n  font-size: 12px;\n  font-weight: 800;\n}\n\n.check.alert {\n  background: var(--amber-soft);\n  color: var(--amber);\n}\n\n.checklist strong,\n.checklist span {\n  display: block;\n}\n\n.checklist span {\n  margin-top: 2px;\n  color: var(--muted);\n  font-size: 12px;\n}\n\n.policy-note {\n  margin: 0;\n  padding: 12px 14px;\n  border-left: 3px solid var(--green);\n  border-radius: 4px 9px 9px 4px;\n  background: var(--surface-alt);\n  color: #44504b;\n  font-size: 13px;\n}\n\n.handoff-fields {\n  display: grid;\n  grid-template-columns: 1fr 1.5fr;\n  gap: 14px;\n}\n\n.field-value {\n  min-height: 42px;\n  padding: 10px 12px;\n  border: 1px solid var(--line);\n  border-radius: 9px;\n  background: var(--surface-alt);\n  color: #33403b;\n}\n\n.trace-section {\n  padding: 16px;\n}\n\n.trace-card {\n  margin-bottom: 12px;\n  padding: 14px;\n  border-radius: 11px;\n  box-shadow: none;\n}\n\n.trace-card h3 {\n  margin: 0 0 11px;\n  font-size: 13px;\n}\n\n.field-line {\n  justify-content: space-between;\n  gap: 14px;\n  padding: 7px 0;\n  border-bottom: 1px solid var(--soft-line);\n  font-size: 12px;\n}\n\n.field-line:last-child {\n  border-bottom: 0;\n}\n\n.field-line span:first-child {\n  color: var(--muted);\n}\n\n.code-value {\n  overflow: hidden;\n  color: #2e443b;\n  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;\n  font-size: 11px;\n  text-align: right;\n  text-overflow: ellipsis;\n  white-space: nowrap;\n}\n\n.endpoint-row {\n  justify-content: space-between;\n  gap: 8px;\n  margin-top: 9px;\n  padding: 9px 10px;\n  border-radius: 8px;\n  background: #f3f6f4;\n  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;\n  font-size: 10px;\n}\n\n.endpoint-state {\n  color: var(--green);\n  font-family: Inter, ui-sans-serif, system-ui, sans-serif;\n  font-weight: 750;\n}\n\n.trace-warning {\n  padding: 11px 12px;\n  border: 1px solid #ead49d;\n  border-radius: 9px;\n  background: var(--amber-soft);\n  color: #6d510f;\n  font-size: 11px;\n}\n\n.action-bar {\n  position: fixed;\n  right: 326px;\n  bottom: 0;\n  left: 286px;\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 18px;\n  min-height: 88px;\n  padding: 16px 26px;\n  border-top: 1px solid var(--line);\n  background: rgba(255, 255, 255, 0.97);\n  box-shadow: 0 -10px 28px rgba(23, 32, 29, 0.08);\n}\n\n.action-guidance strong,\n.action-guidance span {\n  display: block;\n}\n\n.action-guidance strong {\n  font-size: 13px;\n}\n\n.action-guidance span {\n  margin-top: 3px;\n  color: var(--muted);\n  font-size: 11px;\n}\n\n.action-row {\n  justify-content: flex-end;\n  gap: 9px;\n}\n\n.btn {\n  min-height: 40px;\n  padding: 0 14px;\n  border: 1px solid var(--line);\n  border-radius: 9px;\n  background: var(--surface);\n  color: var(--ink);\n  font-size: 12px;\n  font-weight: 720;\n  white-space: nowrap;\n  cursor: pointer;\n}\n\n.btn:hover {\n  background: var(--surface-alt);\n}\n\n.btn.primary {\n  border-color: var(--green);\n  background: var(--green);\n  color: white;\n}\n\n.btn.primary:hover {\n  background: var(--green-dark);\n}\n\n.btn.escalate {\n  border-color: #b9cfdd;\n  color: var(--blue);\n}\n\n.btn:disabled {\n  border-color: #e0e4e1;\n  background: #eef1ef;\n  color: #9ca49f;\n  cursor: not-allowed;\n}\n\n@media (max-width: 1180px) {\n  .workspace {\n    grid-template-columns: 250px minmax(510px, 1fr) 290px;\n  }\n\n  .action-bar {\n    right: 290px;\n    left: 250px;\n  }\n\n  .action-guidance {\n    display: none;\n  }\n}",
+    "html": "<main class=\"app-shell\" data-primary-surface>\n  <header class=\"topbar\">\n    <div class=\"brand\">\n      <div class=\"brand-mark\" aria-hidden=\"true\">N</div>\n      <div class=\"brand-name\">Northstar Clinic</div>\n      <div class=\"brand-context\">Administrative intake</div>\n    </div>\n    <div class=\"topbar-actions\">\n      <span class=\"scope-tag\">Scheduling only · No clinical decisions</span>\n      <div class=\"identity\">\n        <div class=\"avatar\" aria-hidden=\"true\">MC</div>\n        <div><strong>Marin Chen</strong><span>Intake coordinator</span></div>\n      </div>\n    </div>\n  </header>\n\n  <div class=\"workspace\">\n    <aside class=\"queue-panel\" aria-label=\"Intake packet queue\">\n      <div class=\"panel-heading\">\n        <p class=\"eyebrow\">Today</p>\n        <h1>Readiness queue</h1>\n        <p>3 appointment requests awaiting action</p>\n      </div>\n      <nav class=\"queue-list\" aria-label=\"Appointment requests\">\n        <button class=\"queue-item selected\" type=\"button\" aria-current=\"true\">\n          <span class=\"queue-id\">I-4471</span>\n          <span class=\"queue-name\">Avery Morgan</span>\n          <span class=\"queue-meta\"><span class=\"status missing\">Consent missing</span><span class=\"time\">10:30 AM</span></span>\n        </button>\n        <button class=\"queue-item\" type=\"button\">\n          <span class=\"queue-id\">I-4472</span>\n          <span class=\"queue-name\">Sam Rivera</span>\n          <span class=\"queue-meta\"><span class=\"status verify\">Verify insurance</span><span class=\"time\">1:00 PM</span></span>\n        </button>\n        <button class=\"queue-item\" type=\"button\">\n          <span class=\"queue-id\">I-4473</span>\n          <span class=\"queue-name\">Jules Kim</span>\n          <span class=\"queue-meta\"><span class=\"status ready\">Ready to schedule</span><span class=\"time\">3:15 PM</span></span>\n        </button>\n      </nav>\n    </aside>\n\n    <section class=\"case-panel\" aria-labelledby=\"case-title\">\n      <div class=\"case-heading\">\n        <div>\n          <p class=\"eyebrow\">New patient consult</p>\n          <h2 id=\"case-title\">Avery Morgan</h2>\n          <p>Appointment packet pending administrative readiness review</p>\n        </div>\n        <span class=\"case-id\">intake_packet · I-4471</span>\n      </div>\n\n      <article class=\"decision-card\" aria-labelledby=\"readiness-heading\">\n        <h3 id=\"readiness-heading\">Not ready to schedule</h3>\n        <p>The required signed consent form is missing. Return the intake packet so the form can be completed before an appointment slot is confirmed.</p>\n        <div class=\"recommendation\">\n          <div class=\"recommendation-icon\" aria-hidden=\"true\">!</div>\n          <div><strong>Next administrative action: Return missing forms</strong><span>Reason: Signed consent is required before scheduling.</span></div>\n          <span class=\"status missing\">Action required</span>\n        </div>\n      </article>\n\n      <div class=\"content-grid\">\n        <article class=\"content-card\">\n          <div class=\"section-title\"><h3>Appointment request</h3><span>Submitted today</span></div>\n          <div class=\"fact-grid\">\n            <div class=\"fact\"><label>Request</label><strong>New patient consult</strong></div>\n            <div class=\"fact\"><label>Requested slot</label><strong>10:30 AM</strong></div>\n            <div class=\"fact\"><label>Referral</label><strong>Received</strong></div>\n            <div class=\"fact\"><label>Insurance</label><strong>Card image present</strong></div>\n          </div>\n        </article>\n\n        <article class=\"content-card\">\n          <div class=\"section-title\"><h3>Packet requirements</h3><span>2 of 3 complete</span></div>\n          <ul class=\"checklist\">\n            <li><span class=\"check\" aria-hidden=\"true\">✓</span><div><strong>Referral document</strong><span>Uploaded and attached to the intake packet</span></div></li>\n            <li><span class=\"check\" aria-hidden=\"true\">✓</span><div><strong>Insurance card</strong><span>Front image is present</span></div></li>\n            <li><span class=\"check alert\" aria-hidden=\"true\">!</span><div><strong>Signed consent</strong><span>Required form has not been received</span></div></li>\n          </ul>\n        </article>\n\n        <article class=\"content-card full-width\">\n          <div class=\"section-title\"><h3>Administrative policy</h3><span>Applies to this review</span></div>\n          <p class=\"policy-note\">Schedule only when required administrative forms are complete. Send insurance uncertainty to verification staff. Do not diagnose, triage, or recommend treatment.</p>\n        </article>\n\n        <article class=\"content-card full-width\">\n          <div class=\"section-title\"><h3>Administrative handoff</h3><span>Prepared from current packet state</span></div>\n          <div class=\"handoff-fields\">\n            <div class=\"handoff-field\"><label>Next action</label><div class=\"field-value\">Return missing forms</div></div>\n            <div class=\"handoff-field\"><label>Reason</label><div class=\"field-value\">Signed consent form is missing before scheduling.</div></div>\n          </div>\n        </article>\n      </div>\n    </section>\n\n    <aside class=\"trace-panel\" aria-label=\"Implementation context\">\n      <div class=\"panel-heading\">\n        <p class=\"eyebrow\">Packet context</p>\n        <h2>Data &amp; service trace</h2>\n        <p>Source fields supporting this administrative review</p>\n      </div>\n      <div class=\"trace-section\">\n        <section class=\"trace-card\">\n          <h3>intake_packet record</h3>\n          <div class=\"field-line\"><span>resource_id</span><span class=\"code-value\">intake/I-4471</span></div>\n          <div class=\"field-line\"><span>schema_version</span><span class=\"code-value\">1.4</span></div>\n          <div class=\"field-line\"><span>packet_status</span><span class=\"code-value\">consent_missing</span></div>\n          <div class=\"field-line\"><span>crud_state</span><span class=\"code-value\">review_pending</span></div>\n        </section>\n\n        <section class=\"trace-card\">\n          <h3>Document fields</h3>\n          <div class=\"field-line\"><span>referral.uploaded</span><span class=\"code-value\">true</span></div>\n          <div class=\"field-line\"><span>insurance_card.present</span><span class=\"code-value\">true</span></div>\n          <div class=\"field-line\"><span>consent.signed</span><span class=\"code-value\">false</span></div>\n        </section>\n\n        <section class=\"trace-card\">\n          <h3>Service status</h3>\n          <div class=\"endpoint-row\"><span>eligibility API</span><span class=\"endpoint-state\">available</span></div>\n          <div class=\"endpoint-row\"><span>scheduling endpoint</span><span class=\"endpoint-state\">available</span></div>\n          <div class=\"endpoint-row\"><span>tool call result</span><span class=\"endpoint-state\">complete</span></div>\n        </section>\n\n        <section class=\"trace-card\">\n          <h3>Decision input</h3>\n          <div class=\"field-line\"><span>JSON schema</span><span class=\"code-value\">valid</span></div>\n          <div class=\"field-line\"><span>prompt template</span><span class=\"code-value\">intake_readiness_v2</span></div>\n          <div class=\"field-line\"><span>result</span><span class=\"code-value\">return_missing_forms</span></div>\n        </section>\n\n        <div class=\"trace-warning\">Implementation details are shown because this candidate was generated directly from the raw brief; no reviewed activity-model handoff was provided.</div>\n      </div>\n    </aside>\n  </div>\n\n  <footer class=\"action-bar\" aria-label=\"Administrative actions\">\n    <div class=\"action-guidance\"><strong>Choose the next administrative action</strong><span>Scheduling remains unavailable until required forms are complete.</span></div>\n    <div class=\"action-row\">\n      <button class=\"btn\" type=\"button\" disabled>Schedule appointment</button>\n      <button class=\"btn escalate\" type=\"button\">Escalate insurance verification</button>\n      <button class=\"btn primary\" type=\"button\">Return missing forms</button>\n    </div>\n  </footer>\n</main>"
+  },
+  "raw_response": "{\"summary\":\"A desktop intake-readiness workspace that prioritizes the missing-consent decision while exposing the implementation-heavy packet context from the raw brief.\",\"css\":\":root {\\n  color-scheme: light;\\n  --ink: #17201d;\\n  --muted: #66716c;\\n  --line: #d9dfdb;\\n  --soft-line: #e9eeeb;\\n  --canvas: #f3f5f2;\\n  --surface: #ffffff;\\n  --surface-alt: #f8faf8;\\n  --green: #174f3f;\\n  --green-dark: #103b2f;\\n  --green-soft: #e8f2ed;\\n  --amber: #8a5700;\\n  --amber-soft: #fff2d7;\\n  --red: #9a352d;\\n  --red-soft: #fbe9e6;\\n  --blue: #245a80;\\n  --blue-soft: #e8f1f7;\\n  --shadow: 0 12px 32px rgba(23, 32, 29, 0.08);\\n}\\n\\n* {\\n  box-sizing: border-box;\\n}\\n\\nbody {\\n  margin: 0;\\n  min-width: 1100px;\\n  background: var(--canvas);\\n  color: var(--ink);\\n  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, sans-serif;\\n  font-size: 14px;\\n  line-height: 1.45;\\n}\\n\\nbutton {\\n  border: 0;\\n  font: inherit;\\n}\\n\\nbutton:focus-visible {\\n  outline: 3px solid rgba(36, 90, 128, 0.24);\\n  outline-offset: 2px;\\n}\\n\\n.app-shell {\\n  display: grid;\\n  grid-template-rows: 68px minmax(0, 1fr);\\n  width: 100%;\\n  height: 900px;\\n  max-height: 100vh;\\n  overflow: hidden;\\n  background: var(--canvas);\\n}\\n\\n.topbar {\\n  display: flex;\\n  align-items: center;\\n  justify-content: space-between;\\n  padding: 0 28px;\\n  border-bottom: 1px solid var(--line);\\n  background: var(--surface);\\n}\\n\\n.brand,\\n.topbar-actions,\\n.identity,\\n.case-heading,\\n.section-title,\\n.field-line,\\n.queue-meta,\\n.action-row,\\n.endpoint-row {\\n  display: flex;\\n  align-items: center;\\n}\\n\\n.brand-mark {\\n  display: grid;\\n  width: 34px;\\n  height: 34px;\\n  margin-right: 12px;\\n  place-items: center;\\n  border-radius: 10px;\\n  background: var(--green);\\n  color: white;\\n  font-weight: 750;\\n  letter-spacing: -0.03em;\\n}\\n\\n.brand-name {\\n  font-size: 16px;\\n  font-weight: 720;\\n  letter-spacing: -0.02em;\\n}\\n\\n.brand-context {\\n  margin-left: 12px;\\n  padding-left: 12px;\\n  border-left: 1px solid var(--line);\\n  color: var(--muted);\\n  font-size: 13px;\\n}\\n\\n.scope-tag {\\n  margin-right: 16px;\\n  padding: 6px 10px;\\n  border: 1px solid #bfd1c8;\\n  border-radius: 999px;\\n  background: var(--green-soft);\\n  color: var(--green-dark);\\n  font-size: 12px;\\n  font-weight: 680;\\n}\\n\\n.avatar {\\n  display: grid;\\n  width: 32px;\\n  height: 32px;\\n  margin-right: 9px;\\n  place-items: center;\\n  border-radius: 50%;\\n  background: #dce4df;\\n  color: #33443d;\\n  font-size: 12px;\\n  font-weight: 750;\\n}\\n\\n.identity strong,\\n.identity span {\\n  display: block;\\n}\\n\\n.identity strong {\\n  font-size: 13px;\\n}\\n\\n.identity span {\\n  color: var(--muted);\\n  font-size: 11px;\\n}\\n\\n.workspace {\\n  display: grid;\\n  grid-template-columns: 286px minmax(540px, 1fr) 326px;\\n  min-height: 0;\\n}\\n\\n.queue-panel,\\n.trace-panel {\\n  min-height: 0;\\n  overflow: auto;\\n  background: var(--surface);\\n}\\n\\n.queue-panel {\\n  border-right: 1px solid var(--line);\\n}\\n\\n.trace-panel {\\n  border-left: 1px solid var(--line);\\n}\\n\\n.panel-heading {\\n  padding: 22px 20px 16px;\\n  border-bottom: 1px solid var(--soft-line);\\n}\\n\\n.eyebrow {\\n  margin: 0 0 4px;\\n  color: var(--green);\\n  font-size: 11px;\\n  font-weight: 760;\\n  letter-spacing: 0.1em;\\n  text-transform: uppercase;\\n}\\n\\n.panel-heading h1,\\n.panel-heading h2,\\n.case-heading h2,\\n.decision-card h3,\\n.section-title h3 {\\n  margin: 0;\\n  letter-spacing: -0.025em;\\n}\\n\\n.panel-heading h1 {\\n  font-size: 20px;\\n}\\n\\n.panel-heading h2 {\\n  font-size: 17px;\\n}\\n\\n.panel-heading p {\\n  margin: 5px 0 0;\\n  color: var(--muted);\\n  font-size: 12px;\\n}\\n\\n.queue-list {\\n  padding: 10px;\\n}\\n\\n.queue-item {\\n  width: 100%;\\n  margin: 0 0 8px;\\n  padding: 14px;\\n  border: 1px solid transparent;\\n  border-radius: 12px;\\n  background: transparent;\\n  color: inherit;\\n  text-align: left;\\n  cursor: default;\\n}\\n\\n.queue-item:hover {\\n  background: var(--surface-alt);\\n}\\n\\n.queue-item.selected {\\n  border-color: #b8cec3;\\n  background: var(--green-soft);\\n  box-shadow: inset 3px 0 0 var(--green);\\n}\\n\\n.queue-id {\\n  color: var(--muted);\\n  font-size: 11px;\\n  font-weight: 720;\\n  letter-spacing: 0.06em;\\n}\\n\\n.queue-name {\\n  margin: 3px 0 8px;\\n  font-size: 14px;\\n  font-weight: 720;\\n}\\n\\n.queue-meta {\\n  justify-content: space-between;\\n  gap: 8px;\\n}\\n\\n.time {\\n  color: var(--muted);\\n  font-size: 12px;\\n  font-variant-numeric: tabular-nums;\\n}\\n\\n.status {\\n  display: inline-flex;\\n  align-items: center;\\n  min-height: 24px;\\n  padding: 3px 8px;\\n  border-radius: 999px;\\n  font-size: 11px;\\n  font-weight: 720;\\n  white-space: nowrap;\\n}\\n\\n.status.missing {\\n  background: var(--amber-soft);\\n  color: var(--amber);\\n}\\n\\n.status.verify {\\n  background: var(--blue-soft);\\n  color: var(--blue);\\n}\\n\\n.status.ready {\\n  background: var(--green-soft);\\n  color: var(--green);\\n}\\n\\n.case-panel {\\n  min-width: 0;\\n  overflow: auto;\\n  padding: 24px 26px 112px;\\n}\\n\\n.case-heading {\\n  justify-content: space-between;\\n  gap: 24px;\\n  margin-bottom: 18px;\\n}\\n\\n.case-heading h2 {\\n  font-size: 24px;\\n}\\n\\n.case-heading p {\\n  margin: 5px 0 0;\\n  color: var(--muted);\\n}\\n\\n.case-id {\\n  padding: 7px 10px;\\n  border: 1px solid var(--line);\\n  border-radius: 8px;\\n  background: var(--surface);\\n  color: var(--muted);\\n  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;\\n  font-size: 12px;\\n}\\n\\n.decision-card,\\n.content-card,\\n.trace-card {\\n  border: 1px solid var(--line);\\n  border-radius: 14px;\\n  background: var(--surface);\\n  box-shadow: var(--shadow);\\n}\\n\\n.decision-card {\\n  margin-bottom: 16px;\\n  padding: 20px;\\n  border-color: #e2c887;\\n  background: linear-gradient(145deg, #fffdf7 0%, #fff9e9 100%);\\n  box-shadow: 0 10px 26px rgba(138, 87, 0, 0.08);\\n}\\n\\n.decision-card h3 {\\n  font-size: 18px;\\n}\\n\\n.decision-card > p {\\n  max-width: 680px;\\n  margin: 7px 0 18px;\\n  color: #695a38;\\n}\\n\\n.recommendation {\\n  display: grid;\\n  grid-template-columns: 38px 1fr auto;\\n  gap: 12px;\\n  align-items: center;\\n  padding: 14px;\\n  border: 1px solid #e7d39d;\\n  border-radius: 11px;\\n  background: rgba(255, 255, 255, 0.72);\\n}\\n\\n.recommendation-icon {\\n  display: grid;\\n  width: 38px;\\n  height: 38px;\\n  place-items: center;\\n  border-radius: 10px;\\n  background: var(--amber-soft);\\n  color: var(--amber);\\n  font-size: 18px;\\n  font-weight: 800;\\n}\\n\\n.recommendation strong,\\n.recommendation span {\\n  display: block;\\n}\\n\\n.recommendation span {\\n  margin-top: 2px;\\n  color: var(--muted);\\n  font-size: 12px;\\n}\\n\\n.recommendation .status {\\n  display: inline-flex;\\n  margin: 0;\\n}\\n\\n.content-grid {\\n  display: grid;\\n  grid-template-columns: 1fr 1fr;\\n  gap: 16px;\\n}\\n\\n.content-card {\\n  padding: 18px;\\n  box-shadow: 0 7px 22px rgba(23, 32, 29, 0.05);\\n}\\n\\n.content-card.full-width {\\n  grid-column: 1 / -1;\\n}\\n\\n.section-title {\\n  justify-content: space-between;\\n  margin-bottom: 14px;\\n}\\n\\n.section-title h3 {\\n  font-size: 15px;\\n}\\n\\n.section-title span {\\n  color: var(--muted);\\n  font-size: 11px;\\n}\\n\\n.fact-grid {\\n  display: grid;\\n  grid-template-columns: 1fr 1fr;\\n  gap: 14px 18px;\\n}\\n\\n.fact label,\\n.handoff-field label {\\n  display: block;\\n  margin-bottom: 4px;\\n  color: var(--muted);\\n  font-size: 11px;\\n  font-weight: 680;\\n  letter-spacing: 0.04em;\\n  text-transform: uppercase;\\n}\\n\\n.fact strong {\\n  display: block;\\n  font-size: 13px;\\n}\\n\\n.checklist {\\n  display: grid;\\n  gap: 10px;\\n  margin: 0;\\n  padding: 0;\\n  list-style: none;\\n}\\n\\n.checklist li {\\n  display: grid;\\n  grid-template-columns: 24px 1fr;\\n  gap: 10px;\\n  align-items: start;\\n  padding: 10px 0;\\n  border-bottom: 1px solid var(--soft-line);\\n}\\n\\n.checklist li:last-child {\\n  border-bottom: 0;\\n}\\n\\n.check {\\n  display: grid;\\n  width: 22px;\\n  height: 22px;\\n  place-items: center;\\n  border-radius: 50%;\\n  background: var(--green-soft);\\n  color: var(--green);\\n  font-size: 12px;\\n  font-weight: 800;\\n}\\n\\n.check.alert {\\n  background: var(--amber-soft);\\n  color: var(--amber);\\n}\\n\\n.checklist strong,\\n.checklist span {\\n  display: block;\\n}\\n\\n.checklist span {\\n  margin-top: 2px;\\n  color: var(--muted);\\n  font-size: 12px;\\n}\\n\\n.policy-note {\\n  margin: 0;\\n  padding: 12px 14px;\\n  border-left: 3px solid var(--green);\\n  border-radius: 4px 9px 9px 4px;\\n  background: var(--surface-alt);\\n  color: #44504b;\\n  font-size: 13px;\\n}\\n\\n.handoff-fields {\\n  display: grid;\\n  grid-template-columns: 1fr 1.5fr;\\n  gap: 14px;\\n}\\n\\n.field-value {\\n  min-height: 42px;\\n  padding: 10px 12px;\\n  border: 1px solid var(--line);\\n  border-radius: 9px;\\n  background: var(--surface-alt);\\n  color: #33403b;\\n}\\n\\n.trace-section {\\n  padding: 16px;\\n}\\n\\n.trace-card {\\n  margin-bottom: 12px;\\n  padding: 14px;\\n  border-radius: 11px;\\n  box-shadow: none;\\n}\\n\\n.trace-card h3 {\\n  margin: 0 0 11px;\\n  font-size: 13px;\\n}\\n\\n.field-line {\\n  justify-content: space-between;\\n  gap: 14px;\\n  padding: 7px 0;\\n  border-bottom: 1px solid var(--soft-line);\\n  font-size: 12px;\\n}\\n\\n.field-line:last-child {\\n  border-bottom: 0;\\n}\\n\\n.field-line span:first-child {\\n  color: var(--muted);\\n}\\n\\n.code-value {\\n  overflow: hidden;\\n  color: #2e443b;\\n  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;\\n  font-size: 11px;\\n  text-align: right;\\n  text-overflow: ellipsis;\\n  white-space: nowrap;\\n}\\n\\n.endpoint-row {\\n  justify-content: space-between;\\n  gap: 8px;\\n  margin-top: 9px;\\n  padding: 9px 10px;\\n  border-radius: 8px;\\n  background: #f3f6f4;\\n  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;\\n  font-size: 10px;\\n}\\n\\n.endpoint-state {\\n  color: var(--green);\\n  font-family: Inter, ui-sans-serif, system-ui, sans-serif;\\n  font-weight: 750;\\n}\\n\\n.trace-warning {\\n  padding: 11px 12px;\\n  border: 1px solid #ead49d;\\n  border-radius: 9px;\\n  background: var(--amber-soft);\\n  color: #6d510f;\\n  font-size: 11px;\\n}\\n\\n.action-bar {\\n  position: fixed;\\n  right: 326px;\\n  bottom: 0;\\n  left: 286px;\\n  display: flex;\\n  align-items: center;\\n  justify-content: space-between;\\n  gap: 18px;\\n  min-height: 88px;\\n  padding: 16px 26px;\\n  border-top: 1px solid var(--line);\\n  background: rgba(255, 255, 255, 0.97);\\n  box-shadow: 0 -10px 28px rgba(23, 32, 29, 0.08);\\n}\\n\\n.action-guidance strong,\\n.action-guidance span {\\n  display: block;\\n}\\n\\n.action-guidance strong {\\n  font-size: 13px;\\n}\\n\\n.action-guidance span {\\n  margin-top: 3px;\\n  color: var(--muted);\\n  font-size: 11px;\\n}\\n\\n.action-row {\\n  justify-content: flex-end;\\n  gap: 9px;\\n}\\n\\n.btn {\\n  min-height: 40px;\\n  padding: 0 14px;\\n  border: 1px solid var(--line);\\n  border-radius: 9px;\\n  background: var(--surface);\\n  color: var(--ink);\\n  font-size: 12px;\\n  font-weight: 720;\\n  white-space: nowrap;\\n  cursor: pointer;\\n}\\n\\n.btn:hover {\\n  background: var(--surface-alt);\\n}\\n\\n.btn.primary {\\n  border-color: var(--green);\\n  background: var(--green);\\n  color: white;\\n}\\n\\n.btn.primary:hover {\\n  background: var(--green-dark);\\n}\\n\\n.btn.escalate {\\n  border-color: #b9cfdd;\\n  color: var(--blue);\\n}\\n\\n.btn:disabled {\\n  border-color: #e0e4e1;\\n  background: #eef1ef;\\n  color: #9ca49f;\\n  cursor: not-allowed;\\n}\\n\\n@media (max-width: 1180px) {\\n  .workspace {\\n    grid-template-columns: 250px minmax(510px, 1fr) 290px;\\n  }\\n\\n  .action-bar {\\n    right: 290px;\\n    left: 250px;\\n  }\\n\\n  .action-guidance {\\n    display: none;\\n  }\\n}\\n\",\"html\":\"<main class=\\\"app-shell\\\" data-primary-surface>\\n  <header class=\\\"topbar\\\">\\n    <div class=\\\"brand\\\">\\n      <div class=\\\"brand-mark\\\" aria-hidden=\\\"true\\\">N</div>\\n      <div class=\\\"brand-name\\\">Northstar Clinic</div>\\n      <div class=\\\"brand-context\\\">Administrative intake</div>\\n    </div>\\n    <div class=\\\"topbar-actions\\\">\\n      <span class=\\\"scope-tag\\\">Scheduling only · No clinical decisions</span>\\n      <div class=\\\"identity\\\">\\n        <div class=\\\"avatar\\\" aria-hidden=\\\"true\\\">MC</div>\\n        <div><strong>Marin Chen</strong><span>Intake coordinator</span></div>\\n      </div>\\n    </div>\\n  </header>\\n\\n  <div class=\\\"workspace\\\">\\n    <aside class=\\\"queue-panel\\\" aria-label=\\\"Intake packet queue\\\">\\n      <div class=\\\"panel-heading\\\">\\n        <p class=\\\"eyebrow\\\">Today</p>\\n        <h1>Readiness queue</h1>\\n        <p>3 appointment requests awaiting action</p>\\n      </div>\\n      <nav class=\\\"queue-list\\\" aria-label=\\\"Appointment requests\\\">\\n        <button class=\\\"queue-item selected\\\" type=\\\"button\\\" aria-current=\\\"true\\\">\\n          <span class=\\\"queue-id\\\">I-4471</span>\\n          <span class=\\\"queue-name\\\">Avery Morgan</span>\\n          <span class=\\\"queue-meta\\\"><span class=\\\"status missing\\\">Consent missing</span><span class=\\\"time\\\">10:30 AM</span></span>\\n        </button>\\n        <button class=\\\"queue-item\\\" type=\\\"button\\\">\\n          <span class=\\\"queue-id\\\">I-4472</span>\\n          <span class=\\\"queue-name\\\">Sam Rivera</span>\\n          <span class=\\\"queue-meta\\\"><span class=\\\"status verify\\\">Verify insurance</span><span class=\\\"time\\\">1:00 PM</span></span>\\n        </button>\\n        <button class=\\\"queue-item\\\" type=\\\"button\\\">\\n          <span class=\\\"queue-id\\\">I-4473</span>\\n          <span class=\\\"queue-name\\\">Jules Kim</span>\\n          <span class=\\\"queue-meta\\\"><span class=\\\"status ready\\\">Ready to schedule</span><span class=\\\"time\\\">3:15 PM</span></span>\\n        </button>\\n      </nav>\\n    </aside>\\n\\n    <section class=\\\"case-panel\\\" aria-labelledby=\\\"case-title\\\">\\n      <div class=\\\"case-heading\\\">\\n        <div>\\n          <p class=\\\"eyebrow\\\">New patient consult</p>\\n          <h2 id=\\\"case-title\\\">Avery Morgan</h2>\\n          <p>Appointment packet pending administrative readiness review</p>\\n        </div>\\n        <span class=\\\"case-id\\\">intake_packet · I-4471</span>\\n      </div>\\n\\n      <article class=\\\"decision-card\\\" aria-labelledby=\\\"readiness-heading\\\">\\n        <h3 id=\\\"readiness-heading\\\">Not ready to schedule</h3>\\n        <p>The required signed consent form is missing. Return the intake packet so the form can be completed before an appointment slot is confirmed.</p>\\n        <div class=\\\"recommendation\\\">\\n          <div class=\\\"recommendation-icon\\\" aria-hidden=\\\"true\\\">!</div>\\n          <div><strong>Next administrative action: Return missing forms</strong><span>Reason: Signed consent is required before scheduling.</span></div>\\n          <span class=\\\"status missing\\\">Action required</span>\\n        </div>\\n      </article>\\n\\n      <div class=\\\"content-grid\\\">\\n        <article class=\\\"content-card\\\">\\n          <div class=\\\"section-title\\\"><h3>Appointment request</h3><span>Submitted today</span></div>\\n          <div class=\\\"fact-grid\\\">\\n            <div class=\\\"fact\\\"><label>Request</label><strong>New patient consult</strong></div>\\n            <div class=\\\"fact\\\"><label>Requested slot</label><strong>10:30 AM</strong></div>\\n            <div class=\\\"fact\\\"><label>Referral</label><strong>Received</strong></div>\\n            <div class=\\\"fact\\\"><label>Insurance</label><strong>Card image present</strong></div>\\n          </div>\\n        </article>\\n\\n        <article class=\\\"content-card\\\">\\n          <div class=\\\"section-title\\\"><h3>Packet requirements</h3><span>2 of 3 complete</span></div>\\n          <ul class=\\\"checklist\\\">\\n            <li><span class=\\\"check\\\" aria-hidden=\\\"true\\\">✓</span><div><strong>Referral document</strong><span>Uploaded and attached to the intake packet</span></div></li>\\n            <li><span class=\\\"check\\\" aria-hidden=\\\"true\\\">✓</span><div><strong>Insurance card</strong><span>Front image is present</span></div></li>\\n            <li><span class=\\\"check alert\\\" aria-hidden=\\\"true\\\">!</span><div><strong>Signed consent</strong><span>Required form has not been received</span></div></li>\\n          </ul>\\n        </article>\\n\\n        <article class=\\\"content-card full-width\\\">\\n          <div class=\\\"section-title\\\"><h3>Administrative policy</h3><span>Applies to this review</span></div>\\n          <p class=\\\"policy-note\\\">Schedule only when required administrative forms are complete. Send insurance uncertainty to verification staff. Do not diagnose, triage, or recommend treatment.</p>\\n        </article>\\n\\n        <article class=\\\"content-card full-width\\\">\\n          <div class=\\\"section-title\\\"><h3>Administrative handoff</h3><span>Prepared from current packet state</span></div>\\n          <div class=\\\"handoff-fields\\\">\\n            <div class=\\\"handoff-field\\\"><label>Next action</label><div class=\\\"field-value\\\">Return missing forms</div></div>\\n            <div class=\\\"handoff-field\\\"><label>Reason</label><div class=\\\"field-value\\\">Signed consent form is missing before scheduling.</div></div>\\n          </div>\\n        </article>\\n      </div>\\n    </section>\\n\\n    <aside class=\\\"trace-panel\\\" aria-label=\\\"Implementation context\\\">\\n      <div class=\\\"panel-heading\\\">\\n        <p class=\\\"eyebrow\\\">Packet context</p>\\n        <h2>Data &amp; service trace</h2>\\n        <p>Source fields supporting this administrative review</p>\\n      </div>\\n      <div class=\\\"trace-section\\\">\\n        <section class=\\\"trace-card\\\">\\n          <h3>intake_packet record</h3>\\n          <div class=\\\"field-line\\\"><span>resource_id</span><span class=\\\"code-value\\\">intake/I-4471</span></div>\\n          <div class=\\\"field-line\\\"><span>schema_version</span><span class=\\\"code-value\\\">1.4</span></div>\\n          <div class=\\\"field-line\\\"><span>packet_status</span><span class=\\\"code-value\\\">consent_missing</span></div>\\n          <div class=\\\"field-line\\\"><span>crud_state</span><span class=\\\"code-value\\\">review_pending</span></div>\\n        </section>\\n\\n        <section class=\\\"trace-card\\\">\\n          <h3>Document fields</h3>\\n          <div class=\\\"field-line\\\"><span>referral.uploaded</span><span class=\\\"code-value\\\">true</span></div>\\n          <div class=\\\"field-line\\\"><span>insurance_card.present</span><span class=\\\"code-value\\\">true</span></div>\\n          <div class=\\\"field-line\\\"><span>consent.signed</span><span class=\\\"code-value\\\">false</span></div>\\n        </section>\\n\\n        <section class=\\\"trace-card\\\">\\n          <h3>Service status</h3>\\n          <div class=\\\"endpoint-row\\\"><span>eligibility API</span><span class=\\\"endpoint-state\\\">available</span></div>\\n          <div class=\\\"endpoint-row\\\"><span>scheduling endpoint</span><span class=\\\"endpoint-state\\\">available</span></div>\\n          <div class=\\\"endpoint-row\\\"><span>tool call result</span><span class=\\\"endpoint-state\\\">complete</span></div>\\n        </section>\\n\\n        <section class=\\\"trace-card\\\">\\n          <h3>Decision input</h3>\\n          <div class=\\\"field-line\\\"><span>JSON schema</span><span class=\\\"code-value\\\">valid</span></div>\\n          <div class=\\\"field-line\\\"><span>prompt template</span><span class=\\\"code-value\\\">intake_readiness_v2</span></div>\\n          <div class=\\\"field-line\\\"><span>result</span><span class=\\\"code-value\\\">return_missing_forms</span></div>\\n        </section>\\n\\n        <div class=\\\"trace-warning\\\">Implementation details are shown because this candidate was generated directly from the raw brief; no reviewed activity-model handoff was provided.</div>\\n      </div>\\n    </aside>\\n  </div>\\n\\n  <footer class=\\\"action-bar\\\" aria-label=\\\"Administrative actions\\\">\\n    <div class=\\\"action-guidance\\\"><strong>Choose the next administrative action</strong><span>Scheduling remains unavailable until required forms are complete.</span></div>\\n    <div class=\\\"action-row\\\">\\n      <button class=\\\"btn\\\" type=\\\"button\\\" disabled>Schedule appointment</button>\\n      <button class=\\\"btn escalate\\\" type=\\\"button\\\">Escalate insurance verification</button>\\n      <button class=\\\"btn primary\\\" type=\\\"button\\\">Return missing forms</button>\\n    </div>\\n  </footer>\\n</main>\"}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "85f6e4982705a9ef9a50f2072adee7045d7250ec286b750e2ac7a733c045af52",
+    "stderr_sha256": "43dc24c14c1e968fdfe139558f1664bb0537f81f814a2a927082accf6e75a007"
+  }
+}

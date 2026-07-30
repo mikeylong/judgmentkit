@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -9,6 +10,8 @@ import {
   COMPARISON_ROWS,
   JUDGMENTKIT_DEFAULT_TOKEN_NAMES,
   LEGACY_ALIASES,
+  MODEL_UI_MATRIX_DIMENSIONS,
+  MODEL_UI_MATRIX_DIMENSIONS_SPACED,
   MODEL_UI_INDEX_FILE,
   MODEL_UI_USE_CASES,
 } from "../scripts/model-ui-use-cases.mjs";
@@ -21,8 +24,16 @@ const pngSignature = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a
 const activityContract = readJson(
   path.join(root, "contracts/ai-ui-generation.activity-contract.json"),
 );
-const { analyzeStaticCaptureQuality, validateParsed } = await import(
-  "../scripts/capture-model-ui-matrix.mjs"
+const {
+  analyzeStaticCaptureQuality,
+  buildCodexArgs,
+  captureWithCodex,
+  captureRowsForArgs,
+  capturesOnlyForArgs,
+  validateParsed,
+} = await import("../scripts/capture-model-ui-matrix.mjs");
+const { findPlaywrightChromeExecutable, SCREENSHOT_READY_EXPRESSION } = await import(
+  "../scripts/capture-model-ui-screenshots.mjs"
 );
 const EXPECTED_TOKEN_BOUNDARY_RULE =
   activityContract.implementation_contract.local_component_authority.token_boundary.rule;
@@ -34,6 +45,133 @@ const JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET = new Set(JUDGMENTKIT_DEFAULT_TOKEN_NAM
 const MODEL_ROWS = COMPARISON_ROWS.filter(
   (row) => row.generation_source === "captured_model_output",
 );
+const KNOWN_STRICT_STATIC_DIAGNOSTIC_IDS = new Set([
+  "gemma4-lms-with-judgmentkit",
+  "gpt55-xhigh-codex-with-judgmentkit",
+]);
+
+for (const expected of [
+  {
+    id: "gpt56-sol-low-codex",
+    label: "GPT-5.6 Sol Light via codex exec",
+    modelLabel: "GPT-5.6 Sol Light",
+    effort: "low",
+  },
+  {
+    id: "gpt56-sol-ultra-codex",
+    label: "GPT-5.6 Sol Ultra via codex exec",
+    modelLabel: "GPT-5.6 Sol Ultra",
+    effort: "ultra",
+  },
+]) {
+  const row = COMPARISON_ROWS.find((candidate) => candidate.id === expected.id);
+  assert.ok(row, `missing ${expected.label} comparison row`);
+  assert.equal(row.label, expected.label);
+  assert.equal(row.model_label, expected.modelLabel);
+  assert.equal(row.model, "gpt-5.6-sol");
+  assert.equal(row.reasoning_effort, expected.effort);
+  const args = buildCodexArgs(
+    { ...row, artifact_id: `${row.id}-no-judgmentkit` },
+    "<schema>",
+    "<output>",
+    "<sqlite>",
+  );
+  assert.equal(args[args.indexOf("--model") + 1], "gpt-5.6-sol");
+  assert.equal(
+    args[args.indexOf("-c") + 1],
+    `model_reasoning_effort="${expected.effort}"`,
+  );
+  assert.ok(args.includes('sqlite_home="<sqlite>"'));
+}
+
+assert.deepEqual(
+  captureRowsForArgs([
+    "--row",
+    "gpt56-sol-low-codex",
+    "--row",
+    "gpt56-sol-ultra-codex",
+  ]).map((row) => row.id),
+  ["gpt56-sol-low-codex", "gpt56-sol-ultra-codex"],
+);
+assert.throws(
+  () => captureRowsForArgs(["--row", "missing-row"]),
+  /Unknown captured model UI row/,
+);
+assert.equal(capturesOnlyForArgs(["--captures-only"]), true);
+assert.equal(capturesOnlyForArgs([]), false);
+assert.ok(SCREENSHOT_READY_EXPRESSION.includes("window.scrollTo(0, 0)"));
+assert.ok(SCREENSHOT_READY_EXPRESSION.includes("document.fonts?.ready"));
+
+function codexCaptureTempDirectories() {
+  return fs
+    .readdirSync(os.tmpdir(), { withFileTypes: true })
+    .filter(
+      (entry) =>
+        entry.isDirectory() && entry.name.startsWith("judgmentkit-codex-capture-"),
+    )
+    .map((entry) => entry.name)
+    .sort();
+}
+
+{
+  const target = {
+    artifact_id: "codex-cleanup-test",
+    model: "gpt-5.6-sol",
+    reasoning_effort: "low",
+    render_mode: "html",
+  };
+  const before = codexCaptureTempDirectories();
+  const successful = await captureWithCodex(target, "test prompt", {
+    execute(_command, args) {
+      const outputFile = args[args.indexOf("--output-last-message") + 1];
+      fs.writeFileSync(
+        outputFile,
+        JSON.stringify({
+          summary: "test",
+          css: "main { display: block; }",
+          html: "<main data-primary-surface>Test</main>",
+        }),
+      );
+      return { status: 0, stdout_sha256: "test", stderr_sha256: "test" };
+    },
+  });
+  assert.ok(successful.raw_response.includes("data-primary-surface"));
+  assert.deepEqual(codexCaptureTempDirectories(), before);
+
+  await assert.rejects(
+    () =>
+      captureWithCodex(target, "test prompt", {
+        execute() {
+          throw new Error("expected capture failure");
+        },
+      }),
+    /expected capture failure/,
+  );
+  assert.deepEqual(codexCaptureTempDirectories(), before);
+}
+
+{
+  const cacheRoot = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-playwright-cache-"));
+  const olderChrome = path.join(
+    cacheRoot,
+    "chromium_headless_shell-1208",
+    "chrome-headless-shell-mac-arm64",
+    "chrome-headless-shell",
+  );
+  const newerChrome = path.join(
+    cacheRoot,
+    "chromium_headless_shell-1232",
+    "chrome-headless-shell-mac-arm64",
+    "chrome-headless-shell",
+  );
+  for (const executable of [olderChrome, newerChrome]) {
+    fs.mkdirSync(path.dirname(executable), { recursive: true });
+    fs.writeFileSync(executable, "");
+    fs.chmodSync(executable, 0o755);
+  }
+  assert.equal(findPlaywrightChromeExecutable([cacheRoot]), newerChrome);
+  fs.rmSync(cacheRoot, { recursive: true, force: true });
+}
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
@@ -174,8 +312,21 @@ function assertDiagnosticBlockIsNonClickable(html, candidate) {
   }
   assert.equal(block.includes("data-carousel-open"), false, `${candidate.id} diagnostic card must not open carousel`);
   assert.ok(block.includes("Needs repair before evidence"), `${candidate.id} should translate repair status`);
-  assert.ok(block.includes("Token provenance failed"), `${candidate.id} should translate token checks`);
-  assert.ok(block.includes("Capture quality failed"), `${candidate.id} should translate capture checks`);
+  if (candidate.failed_checks?.includes("capture_missing")) {
+    assert.ok(block.includes("capture missing"), `${candidate.id} should translate a missing capture`);
+  } else {
+    const failedChecks = new Set(candidate.failed_checks ?? []);
+    if (
+      ["design_system_provenance", "visual_tokens", "local_component_authority"].some((check) =>
+        failedChecks.has(check),
+      )
+    ) {
+      assert.ok(block.includes("Token provenance failed"), `${candidate.id} should translate token checks`);
+    }
+    if (["static_capture_quality", "capture_validation"].some((check) => failedChecks.has(check))) {
+      assert.ok(block.includes("Capture quality failed"), `${candidate.id} should translate capture checks`);
+    }
+  }
   assert.equal(block.includes(candidate.next_agent_action), false, `${candidate.id} should not expose raw repair action`);
   for (const check of candidate.failed_checks ?? []) {
     assert.equal(block.includes(check), false, `${candidate.id} should not expose raw failed check ${check}`);
@@ -187,6 +338,7 @@ function assertModelUiCarouselBehavior(html, label) {
     /<script type="application\/json" id="model-ui-gallery-data">([\s\S]*?)<\/script>/,
   );
   assert.ok(dataMatch, `${label} should include gallery data`);
+  const galleryItems = JSON.parse(dataMatch[1]);
   const scriptStart = html.indexOf("<script>", dataMatch.index + dataMatch[0].length);
   const scriptEnd = html.indexOf("</script>", scriptStart);
   assert.notEqual(scriptStart, -1, `${label} should include carousel script`);
@@ -412,7 +564,7 @@ function assertModelUiCarouselBehavior(html, label) {
   dispatch(fakeDocument, "keydown", { key: "ArrowRight" });
   assert.equal(
     carousel.querySelector("[data-carousel-count]").textContent,
-    "2 / 10",
+    `2 / ${galleryItems.length}`,
     `${label} ArrowRight should advance gallery item`,
   );
   assert.ok(artifactLink.href.includes("artifacts/"), `${label} should populate artifact link`);
@@ -875,7 +1027,7 @@ assert.deepEqual(
 let canonicalArtifacts = 0;
 let canonicalScreenshots = 0;
 let diagnosticCandidates = 0;
-let modelCaptures = 0;
+let committedModelCaptures = 0;
 
 for (const useCase of MODEL_UI_USE_CASES) {
   const outputDir = path.join(root, useCase.output_dir);
@@ -899,14 +1051,14 @@ for (const useCase of MODEL_UI_USE_CASES) {
   assert.equal(manifest.use_case_label, useCase.label);
   assert.equal(manifest.activity_summary, useCase.activity_summary);
   assert.equal(manifest.use_case_index_path, useCase.index_path);
-  assert.equal(manifest.title, "Model UI 3x4 comparison matrix");
+  assert.equal(manifest.title, `Model UI ${MODEL_UI_MATRIX_DIMENSIONS} comparison matrix`);
   assert.equal(manifest.source_brief_file, useCase.source_brief_file);
   assert.equal(manifest.reviewed_handoff_file, `${useCase.output_dir}/reviewed-handoff.fixture.json`);
   assert.equal(manifest.design_system_adapter_file, `${useCase.output_dir}/design-system-adapter.json`);
   assert.equal(manifest.design_system_name, "Material UI");
   assert.equal(manifest.design_system_package, "@mui/material");
   assert.equal(manifest.design_system_render_mode, "static-ssr");
-  assert.equal(manifest.comparison_rows.length, 3);
+  assert.equal(manifest.comparison_rows.length, COMPARISON_ROWS.length);
   assert.equal(manifest.comparison_columns.length, 4);
   assert.ok(Array.isArray(manifest.artifacts));
   assert.ok(Array.isArray(manifest.diagnostic_candidates));
@@ -915,12 +1067,13 @@ for (const useCase of MODEL_UI_USE_CASES) {
       (total, row) => total + row.cells.length,
       0,
     ),
-    12,
+    COMPARISON_ROWS.length * COMPARISON_COLUMNS.length,
   );
-  assert.equal(manifest.artifacts.length + manifest.diagnostic_candidates.length, 12);
-  const strictStaticDiagnosticIds = new Set(
-    MODEL_ROWS.map((row) => `${row.id}-with-judgmentkit`),
+  assert.equal(
+    manifest.artifacts.length + manifest.diagnostic_candidates.length,
+    COMPARISON_ROWS.length * COMPARISON_COLUMNS.length,
   );
+  const strictStaticDiagnosticIds = KNOWN_STRICT_STATIC_DIAGNOSTIC_IDS;
   for (const entry of manifest.artifacts) {
     assert.equal(entry.release_evidence_status, "artifact");
     assert.equal(entry.implementation_review_status, "passed");
@@ -986,6 +1139,17 @@ for (const useCase of MODEL_UI_USE_CASES) {
     [...strictStaticDiagnosticIds].sort(),
     `${useCase.id} should keep invalid strict static captures diagnostic-only`,
   );
+  if (useCase.id === "clinical-intake-review") {
+    const overlapDiagnostic = manifest.diagnostic_candidates.find(
+      (candidate) =>
+        candidate.id === "gpt56-sol-ultra-codex-no-judgmentkit",
+    );
+    assert.ok(
+      overlapDiagnostic,
+      "clinical Ultra raw-brief overlap should remain diagnostic-only",
+    );
+    assert.ok(overlapDiagnostic.failed_checks.includes("static_capture_quality"));
+  }
   assert.equal(
     manifest.legacy_aliases.length,
     0,
@@ -1017,7 +1181,7 @@ for (const useCase of MODEL_UI_USE_CASES) {
   assert.ok(designSystem.components.includes("Button"));
   assert.ok(designSystem.components.includes("Paper"));
   assert.ok(designSystem.constraint.includes("does not supply activity fit"));
-  assert.ok(manifest.generation_policy.includes("3x4 matrix"));
+  assert.ok(manifest.generation_policy.includes(`${MODEL_UI_MATRIX_DIMENSIONS} matrix`));
   assert.ok(manifest.generation_policy.includes("raw brief context"));
   assert.ok(manifest.generation_policy.includes("compiled frontend skill context"));
   assert.ok(manifest.generation_policy.includes("Material UI rendering"));
@@ -1032,7 +1196,7 @@ for (const useCase of MODEL_UI_USE_CASES) {
   );
 
   assert.ok(indexHtml.includes(`${useCase.label} model UI generation matrix`));
-  assert.ok(indexHtml.includes("3 x 4 comparison gallery"));
+  assert.ok(indexHtml.includes(`${MODEL_UI_MATRIX_DIMENSIONS_SPACED} comparison gallery`));
   assert.ok(indexHtml.includes("Raw brief"));
   assert.ok(indexHtml.includes("JudgmentKit skill context"));
   assert.ok(indexHtml.includes("Material UI only"));
@@ -1044,6 +1208,8 @@ for (const useCase of MODEL_UI_USE_CASES) {
   assertModelUiCarouselBehavior(indexHtml, useCase.id);
   assert.ok(indexHtml.includes("Gemma 4 via LM Studio lms"));
   assert.ok(indexHtml.includes("GPT-5.5 xhigh via codex exec"));
+  assert.ok(indexHtml.includes("GPT-5.6 Sol Light via codex exec"));
+  assert.ok(indexHtml.includes("GPT-5.6 Sol Ultra via codex exec"));
   assert.ok(indexHtml.includes("Material UI improves visual/component consistency"));
   assert.ok(indexHtml.includes("JudgmentKit skill context improves activity fit"));
   assert.equal(indexHtml.includes("capture-required"), false);
@@ -1070,7 +1236,19 @@ for (const useCase of MODEL_UI_USE_CASES) {
       const cell = manifestRow.cells.find((entry) => entry.id === id);
       assert.ok(cell, `missing matrix cell ${useCase.id}/${id}`);
       if (row.generation_source === "captured_model_output") {
-        modelCaptures += 1;
+        const configuredCapturePath = path.join(outputDir, "captures", `${id}.json`);
+        assert.equal(
+          fs.existsSync(configuredCapturePath),
+          true,
+          `missing committed model capture for ${useCase.id}/${id}`,
+        );
+        const configuredCapture = readJson(configuredCapturePath);
+        assert.equal(configuredCapture.artifact_id, id);
+        assert.equal(configuredCapture.row_id, row.id);
+        assert.equal(configuredCapture.column_id, column.id);
+        assert.equal(configuredCapture.model, row.model);
+        assert.equal(configuredCapture.reasoning_effort, row.reasoning_effort);
+        committedModelCaptures += 1;
       }
       if (cell.release_evidence_status === "diagnostic_only") {
         assert.equal(cell.artifact_id, null);
@@ -1267,6 +1445,18 @@ for (const useCase of MODEL_UI_USE_CASES) {
             `${useCase.id}/${id} should capture through lms chat`,
           );
         }
+        if (row.cli === "codex") {
+          assert.ok(
+            capture.command_display.includes(`--model ${row.model}`),
+            `${useCase.id}/${id} should capture with ${row.model}`,
+          );
+          assert.ok(
+            capture.command_display.includes(
+              `model_reasoning_effort="${row.reasoning_effort}"`,
+            ),
+            `${useCase.id}/${id} should capture with ${row.reasoning_effort} reasoning`,
+          );
+        }
         if (column.design_system_mode === "material_ui") {
           assert.equal(capture.design_system_name, "Material UI");
           assert.equal(capture.design_system_package, "@mui/material");
@@ -1429,6 +1619,28 @@ for (const useCase of MODEL_UI_USE_CASES) {
       }
     }
   }
+
+  for (const column of COMPARISON_COLUMNS) {
+    const lightCapture = readJson(
+      path.join(
+        outputDir,
+        "captures",
+        `gpt56-sol-low-codex-${column.id}.json`,
+      ),
+    );
+    const ultraCapture = readJson(
+      path.join(
+        outputDir,
+        "captures",
+        `gpt56-sol-ultra-codex-${column.id}.json`,
+      ),
+    );
+    assert.equal(
+      lightCapture.prompt_sha256,
+      ultraCapture.prompt_sha256,
+      `${useCase.id}/${column.id} Sol Light and Ultra should receive identical model-facing input`,
+    );
+  }
 }
 
 const refundDir = path.join(root, "examples/model-ui/refund-system-map");
@@ -1455,8 +1667,14 @@ for (const alias of LEGACY_ALIASES) {
   }
 }
 
-assert.equal(canonicalArtifacts + diagnosticCandidates, 48);
+assert.equal(
+  canonicalArtifacts + diagnosticCandidates,
+  MODEL_UI_USE_CASES.length * COMPARISON_ROWS.length * COMPARISON_COLUMNS.length,
+);
 assert.equal(canonicalScreenshots, canonicalArtifacts);
-assert.equal(modelCaptures, MODEL_UI_USE_CASES.length * MODEL_ROWS.length * COMPARISON_COLUMNS.length);
+assert.equal(
+  committedModelCaptures,
+  MODEL_UI_USE_CASES.length * MODEL_ROWS.length * COMPARISON_COLUMNS.length,
+);
 
 console.log("model UI matrix checks passed.");

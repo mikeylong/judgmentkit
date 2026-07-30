@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Field service dispatch - GPT-5.6 Sol Ultra via codex exec - JudgmentKit skill context</title>
+    <style>
+    :root {
+      --jk-color-canvas: #f8f7f2;
+      --jk-color-surface: #ffffff;
+      --jk-color-text: #171717;
+      --jk-color-muted: #61615c;
+      --jk-color-border: #d7d3c8;
+      --jk-color-focus: #245f73;
+      --jk-color-success: #2e6b48;
+      --jk-color-warning: #8a5a16;
+      --jk-color-risk: #8f342f;
+      --jk-color-disabled: #8a8f93;
+      --jk-color-receipt: #23615f;
+      --jk-space-2: 0.5rem;
+      --jk-space-3: 0.75rem;
+      --jk-space-4: 1rem;
+      --jk-radius-control: 4px;
+      --jk-radius-panel: 8px;
+      --jk-focus-ring: 0 0 0 3px rgba(36, 95, 115, 0.28);
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--jk-color-canvas);
+      color: var(--jk-color-text);
+      font: 15px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .raw-model-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--jk-color-canvas);
+    }
+    .raw-model-candidate > section,
+    .raw-model-candidate .card,
+    .raw-model-candidate .panel {
+      margin-top: 14px;
+      padding: var(--jk-space-4);
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: var(--jk-color-surface);
+    }
+    .raw-model-candidate ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--jk-color-muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--jk-color-receipt);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .app-shell .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+      color: var(--jk-color-receipt);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: color-mix(in srgb, var(--jk-color-warning) 12%, var(--jk-color-surface));
+      color: var(--jk-color-warning);
+    }
+    .app-shell .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: var(--jk-color-surface);
+    }
+    .app-shell .queue,
+    .app-shell .detail {
+      padding: var(--jk-space-4);
+    }
+    .app-shell .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .app-shell .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: var(--jk-color-surface);
+      color: var(--jk-color-text);
+      text-align: left;
+    }
+    .app-shell .queue-item small {
+      color: var(--jk-color-muted);
+    }
+    .app-shell .queue-item.is-selected {
+      border-color: var(--jk-color-focus);
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+    }
+    .app-shell .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .app-shell .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
+      padding: 14px;
+    }
+    .app-shell .info-grid > div {
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: color-mix(in srgb, var(--jk-color-canvas) 75%, var(--jk-color-surface));
+    }
+    .app-shell .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--jk-color-muted);
+      font-size: 13px;
+    }
+    .app-shell .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .app-shell .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .app-shell .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: 999px;
+      color: var(--jk-color-receipt);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .app-shell .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-shell .actions button,
+    .app-shell .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: var(--jk-color-surface);
+      color: var(--jk-color-text);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .app-shell button:focus-visible {
+      outline: none;
+      box-shadow: var(--jk-focus-ring);
+    }
+    .app-shell button.primary {
+      border-color: var(--jk-color-focus);
+      background: var(--jk-color-focus);
+      color: var(--jk-color-surface);
+    }
+    .app-shell .handoff {
+      padding: 14px;
+      background: color-mix(in srgb, var(--jk-color-receipt) 9%, var(--jk-color-surface));
+    }
+    .reviewed-candidate .app-header {
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+      border: 1px solid color-mix(in srgb, var(--jk-color-focus) 35%, var(--jk-color-border));
+      border-radius: var(--jk-radius-panel);
+      padding: 14px;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--jk-color-muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--jk-color-text);
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
+        display: grid;
+      }
+      .app-shell .workspace,
+      .app-shell .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+    <style data-model-css>.dispatch-workspace,.dispatch-workspace *{box-sizing:border-box}.dispatch-workspace{min-height:100vh;margin:0;padding-bottom:calc(var(--jk-space-4) * 2);background:var(--jk-color-canvas);color:var(--jk-color-text);font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;line-height:1.45}.dispatch-workspace button{font:inherit}.app-header{display:flex;align-items:center;justify-content:space-between;gap:calc(var(--jk-space-4) * 2);padding:calc(var(--jk-space-4) * 1.25) calc(var(--jk-space-4) * 1.5);border-bottom:1px solid var(--jk-color-border);background:var(--jk-color-surface)}.app-header h1,.panel h2,.panel h3,.app-header p,.panel p{margin-top:0}.app-header h1{margin-bottom:var(--jk-space-2);font-size:1.75rem;line-height:1.15;letter-spacing:-.02em}.subhead{max-width:46rem;margin-bottom:0;color:var(--jk-color-muted)}.eyebrow{margin-bottom:var(--jk-space-2);color:var(--jk-color-muted);font-size:.75rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.queue-summary{display:flex;align-items:baseline;gap:var(--jk-space-2);min-width:11rem;padding:var(--jk-space-3) var(--jk-space-4);border:1px solid var(--jk-color-border);border-radius:var(--jk-radius-control);background:var(--jk-color-canvas)}.queue-summary strong{color:var(--jk-color-focus);font-size:1.5rem;font-variant-numeric:tabular-nums}.queue-summary span{color:var(--jk-color-muted);font-size:.875rem}.workspace-grid{display:grid;grid-template-columns:minmax(230px,.72fr) minmax(480px,1.75fr) minmax(310px,.95fr);gap:var(--jk-space-4);width:100%;max-width:1440px;margin:0 auto;padding:var(--jk-space-4) calc(var(--jk-space-4) * 1.5)}.panel{min-width:0;padding:var(--jk-space-4);border:1px solid var(--jk-color-border);border-radius:var(--jk-radius-panel);background:var(--jk-color-surface)}.panel h2{margin-bottom:var(--jk-space-4);font-size:1.05rem;line-height:1.25}.panel h3{font-size:1.2rem;line-height:1.3}.section-heading,.visit-heading,.decision-heading,.handoff-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--jk-space-3)}.section-heading h2,.visit-heading h2,.decision-heading h2,.handoff-heading h2{margin-bottom:0}.count-badge,.status{display:inline-flex;align-items:center;min-height:1.75rem;padding:.2rem var(--jk-space-2);border:1px solid var(--jk-color-border);border-radius:var(--jk-radius-control);background:var(--jk-color-surface);font-size:.75rem;font-weight:700;line-height:1.2;white-space:nowrap}.count-badge{color:var(--jk-color-muted)}.status-focus{border-color:var(--jk-color-focus);color:var(--jk-color-focus)}.status-ready{border-color:var(--jk-color-success);color:var(--jk-color-success)}.status-warning{border-color:var(--jk-color-warning);color:var(--jk-color-warning)}.status-risk{border-color:var(--jk-color-risk);color:var(--jk-color-risk)}.status-receipt{border-color:var(--jk-color-receipt);color:var(--jk-color-receipt)}.queue-list{display:grid;gap:var(--jk-space-3);margin-top:var(--jk-space-4)}.queue-item{display:grid;gap:var(--jk-space-2);width:100%;min-height:76px;padding:var(--jk-space-3);border:1px solid var(--jk-color-border);border-radius:var(--jk-radius-control);background:var(--jk-color-surface);color:var(--jk-color-text);text-align:left;cursor:pointer}.queue-item:hover:not(:disabled){border-color:var(--jk-color-focus)}.queue-item.is-selected{border-left:4px solid var(--jk-color-focus);background:var(--jk-color-canvas)}.queue-item-top,.queue-item-bottom{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--jk-space-2)}.visit-id,.sla{font-variant-numeric:tabular-nums}.visit-id{font-weight:750}.sla{color:var(--jk-color-muted);font-size:.8rem;font-weight:700}.customer-name{font-size:.9rem;font-weight:650}.queue-state{color:var(--jk-color-muted);font-size:.8rem;text-align:right}.detail-stack,.decision-stack{display:grid;align-content:start;gap:var(--jk-space-4);min-width:0}.visit-title{margin-top:var(--jk-space-4);padding-bottom:var(--jk-space-4);border-bottom:1px solid var(--jk-color-border)}.visit-title h3{margin-bottom:var(--jk-space-2)}.visit-request{max-width:48rem;margin-bottom:0;color:var(--jk-color-muted)}.visit-facts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--jk-space-4);margin:var(--jk-space-4) 0 0}.visit-facts div,.handoff-list div{min-width:0}.visit-facts dt,.handoff-list dt{margin-bottom:.2rem;color:var(--jk-color-muted);font-size:.72rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase}.visit-facts dd,.handoff-list dd{margin:0;font-weight:650;overflow-wrap:anywhere}.readiness-list{display:grid;gap:0;margin:0;padding:0;list-style:none}.readiness-item{display:grid;grid-template-columns:minmax(92px,.55fr) minmax(0,1.7fr) auto;gap:var(--jk-space-3);align-items:start;padding:var(--jk-space-3) 0;border-top:1px solid var(--jk-color-border)}.readiness-item:first-child{padding-top:0;border-top:0}.readiness-item:last-child{padding-bottom:0}.readiness-label{font-size:.8rem;font-weight:750}.readiness-copy{display:grid;gap:.15rem;min-width:0}.readiness-copy strong{font-size:.9rem;overflow-wrap:anywhere}.readiness-copy span{color:var(--jk-color-muted);font-size:.82rem;overflow-wrap:anywhere}.policy-panel{border-left:4px solid var(--jk-color-warning)}.policy-panel p{margin-bottom:var(--jk-space-3)}.policy-panel p:last-child{margin-bottom:0}.policy-effect{color:var(--jk-color-warning);font-weight:650}.recommendation{margin:var(--jk-space-4) 0;padding:var(--jk-space-4);border-left:4px solid var(--jk-color-focus);background:var(--jk-color-canvas)}.recommendation h3{margin-bottom:var(--jk-space-2)}.recommendation p:last-child{margin-bottom:0;color:var(--jk-color-muted)}.decision-actions{display:grid;gap:var(--jk-space-3)}.button{display:inline-flex;align-items:center;justify-content:center;width:100%;min-height:44px;padding:var(--jk-space-3) var(--jk-space-4);border:1px solid var(--jk-color-border);border-radius:var(--jk-radius-control);font-weight:720;line-height:1.2;text-align:center;cursor:pointer}.button-primary{border-color:var(--jk-color-focus);background:var(--jk-color-focus);color:var(--jk-color-surface)}.button-secondary{background:var(--jk-color-surface);color:var(--jk-color-text)}.button-risk{border-color:var(--jk-color-risk);background:var(--jk-color-surface);color:var(--jk-color-risk)}.button-receipt{border-color:var(--jk-color-receipt);background:var(--jk-color-receipt);color:var(--jk-color-surface)}.button:hover:not(:disabled){outline:1px solid var(--jk-color-focus);outline-offset:1px}.button:focus-visible,.queue-item:focus-visible{outline:0;box-shadow:var(--jk-focus-ring);border-color:var(--jk-color-focus)}.button:disabled{border-color:var(--jk-color-disabled);background:var(--jk-color-surface);color:var(--jk-color-disabled);cursor:not-allowed}.button[aria-busy='true']{border-color:var(--jk-color-border);background:var(--jk-color-surface);color:var(--jk-color-muted);cursor:wait}.disabled-reason{margin:calc(var(--jk-space-2) * -1) 0 0;color:var(--jk-color-disabled);font-size:.78rem;line-height:1.35}.handoff-recipient{margin:var(--jk-space-3) 0 var(--jk-space-4);color:var(--jk-color-muted)}.handoff-list{display:grid;gap:0;margin:0 0 var(--jk-space-4)}.handoff-list div{display:grid;grid-template-columns:minmax(92px,.65fr) minmax(0,1.35fr);gap:var(--jk-space-3);padding:var(--jk-space-3) 0;border-top:1px solid var(--jk-color-border)}.handoff-list div:first-child{padding-top:0;border-top:0}.handoff-note{margin:var(--jk-space-3) 0 0;color:var(--jk-color-muted);font-size:.8rem}.state-message,.empty-state{padding:var(--jk-space-3);border:1px solid var(--jk-color-border);border-radius:var(--jk-radius-control);background:var(--jk-color-surface);color:var(--jk-color-muted)}.state-message.is-error{border-color:var(--jk-color-risk);color:var(--jk-color-risk)}.state-message.is-ready{border-color:var(--jk-color-success);color:var(--jk-color-success)}@media (max-width:1050px){.workspace-grid{grid-template-columns:minmax(220px,.7fr) minmax(0,2fr)}.decision-stack{grid-column:1/-1;grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:720px){.app-header{align-items:flex-start;flex-direction:column}.queue-summary{width:100%}.workspace-grid{grid-template-columns:minmax(0,1fr);padding:var(--jk-space-4)}.decision-stack{grid-column:auto;grid-template-columns:minmax(0,1fr)}.readiness-item{grid-template-columns:minmax(82px,.55fr) minmax(0,1.45fr)}.readiness-item .status{grid-column:2;justify-self:start}.visit-facts{grid-template-columns:repeat(2,minmax(0,1fr))}}@media (max-width:440px){.app-header{padding:var(--jk-space-4)}.visit-facts,.handoff-list div,.readiness-item{grid-template-columns:minmax(0,1fr)}.readiness-item .status{grid-column:auto}.section-heading,.visit-heading,.decision-heading,.handoff-heading{align-items:flex-start;flex-direction:column}}@media (forced-colors:active){.panel,.queue-item,.button,.status,.count-badge{border-color:CanvasText}.queue-item.is-selected{outline:2px solid Highlight}.button:focus-visible,.queue-item:focus-visible{outline:3px solid Highlight;outline-offset:2px;box-shadow:none}}
+    .raw-model-candidate {
+      background: var(--jk-color-canvas) !important;
+      color: var(--jk-color-text) !important;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    }
+    .raw-model-candidate :is(section, article, aside, header, footer, .panel, .card, [class*="panel"], [class*="card"], [class*="queue"], [class*="detail"]) {
+      border-color: var(--jk-color-border) !important;
+      background-color: var(--jk-color-surface) !important;
+    }
+    .raw-model-candidate :is(p, small, span, li, dd) {
+      color: var(--jk-color-muted);
+    }
+    .raw-model-candidate :is(h1, h2, h3, h4, strong, dt) {
+      color: var(--jk-color-text);
+    }
+    .raw-model-candidate button {
+      border-color: var(--jk-color-border) !important;
+      border-radius: var(--jk-radius-control) !important;
+      background: var(--jk-color-surface) !important;
+      color: var(--jk-color-text) !important;
+    }
+    .raw-model-candidate .primary {
+      border-color: var(--jk-color-focus) !important;
+      background: var(--jk-color-focus) !important;
+      color: var(--jk-color-surface) !important;
+    }</style>
+
+  </head>
+  <body data-artifact-id="gpt56-sol-ultra-codex-with-judgmentkit" data-row-id="gpt56-sol-ultra-codex" data-column-id="with-judgmentkit" data-judgmentkit-mode="with_judgmentkit" data-design-system-mode="none">
+    <main class='dispatch-workspace raw-model-candidate' data-primary-surface aria-labelledby='workspace-title'><header class='app-header'><div><p class='eyebrow'>Same-day operations</p><h1 id='workspace-title'>Repair visit dispatch</h1><p class='subhead'>Review route, parts readiness, site access, and SLA risk before handoff.</p></div><div class='queue-summary' aria-label='Queue summary'><strong>3</strong><span>visits need review</span></div></header><div class='workspace-grid'><nav class='panel queue-panel' aria-labelledby='queue-heading'><div class='section-heading'><div><p class='eyebrow'>Same-day queue</p><h2 id='queue-heading'>Visit queue</h2></div><span class='count-badge'>3 visits</span></div><div class='queue-list'><button class='queue-item is-selected' type='button' aria-pressed='true'><span class='queue-item-top'><span class='visit-id'>V-2187</span><span class='sla'>SLA 4h</span></span><span class='queue-item-bottom'><span class='customer-name'>Mallory Chen</span><span class='queue-state'>Selected · Needs gate code</span></span></button><button class='queue-item' type='button' aria-pressed='false'><span class='queue-item-top'><span class='visit-id'>V-2188</span><span class='sla'>Tomorrow</span></span><span class='queue-item-bottom'><span class='customer-name'>Owen Patel</span><span class='queue-state'>Parts shortage</span></span></button><button class='queue-item' type='button' aria-pressed='false'><span class='queue-item-top'><span class='visit-id'>V-2189</span><span class='sla'>SLA 2h</span></span><span class='queue-item-bottom'><span class='customer-name'>Rae Wilson</span><span class='queue-state'>Route conflict</span></span></button></div></nav><div class='detail-stack'><section class='panel' aria-labelledby='selected-heading'><div class='visit-heading'><h2 id='selected-heading'>Selected visit</h2><span class='status status-warning'>Access detail needed</span></div><div class='visit-title'><h3>Mallory Chen · V-2187</h3><p class='visit-request'>Kitchen freezer repair needs dispatch before the service window closes.</p></div><dl class='visit-facts'><div><dt>Plan</dt><dd>Priority repair</dd></div><div><dt>SLA</dt><dd>4-hour service window</dd></div><div><dt>Site access</dt><dd>Gate code missing</dd></div></dl></section><section class='panel' aria-labelledby='readiness-heading'><h2 id='readiness-heading'>Readiness checklist</h2><ul class='readiness-list'><li class='readiness-item'><span class='readiness-label'>Route</span><span class='readiness-copy'><strong>18 minutes from site</strong><span>Reyes is the nearest qualified technician.</span></span><span class='status status-ready'>Ready</span></li><li class='readiness-item'><span class='readiness-label'>Certification</span><span class='readiness-copy'><strong>Freezer repair certified</strong><span>Reyes is qualified for this unit.</span></span><span class='status status-ready'>Ready</span></li><li class='readiness-item'><span class='readiness-label'>Parts readiness</span><span class='readiness-copy'><strong>Fan motor available</strong><span>Replacement part is ready at the west depot.</span></span><span class='status status-ready'>Ready</span></li><li class='readiness-item'><span class='readiness-label'>Site access</span><span class='readiness-copy'><strong>Gate code not provided</strong><span>Access must be confirmed before dispatch.</span></span><span class='status status-warning'>Required</span></li></ul></section><section class='panel policy-panel' aria-labelledby='policy-heading'><h2 id='policy-heading'>Dispatch policy</h2><p><strong>Same-day SLA:</strong> Assign only when parts and site access are confirmed. Missing access details return to dispatch support.</p><p class='policy-effect'>For V-2187, assignment waits on the gate code; parts do not require rescheduling.</p></section></div><aside class='decision-stack' aria-label='Dispatch decision and handoff'><section class='panel' aria-labelledby='decision-heading'><div class='decision-heading'><h2 id='decision-heading'>Decision path</h2><span class='status status-warning'>Action needed</span></div><div class='recommendation'><p class='eyebrow'>Recommended next action</p><h3>Request the gate code</h3><p>Reyes is qualified and nearby, and the fan motor is ready. Missing site access is the only current blocker.</p></div><div class='decision-actions' aria-label='Repair visit actions'><button class='button button-primary' type='button'>Request gate code</button><button class='button button-secondary' type='button' disabled aria-describedby='assign-disabled-reason'>Assign technician</button><p class='disabled-reason' id='assign-disabled-reason'>Unavailable until site access is confirmed.</p><button class='button button-secondary' type='button'>Reschedule for parts</button><button class='button button-risk' type='button'>Escalate SLA risk</button></div></section><section class='panel' aria-labelledby='handoff-heading'><div class='handoff-heading'><h2 id='handoff-heading'>Dispatch handoff</h2><span class='status status-receipt' role='status'>Ready to send</span></div><p class='handoff-recipient'>To Dispatch support</p><dl class='handoff-list'><div><dt>Technician</dt><dd>Reyes, pending site access</dd></div><div><dt>Next action</dt><dd>Request the gate code, then assign Reyes</dd></div><div><dt>Timing constraint</dt><dd>Within the same-day 4-hour SLA window</dd></div><div><dt>Reason</dt><dd>Gate code is missing before dispatch</dd></div></dl><button class='button button-receipt' type='button'>Send dispatch handoff</button><p class='handoff-note'>The visit stays with dispatch support until site access is confirmed.</p></section></aside></div></main>
+    <aside class="provenance" aria-label="Artifact provenance">
+      <strong>Provenance:</strong>
+      <span>captured</span>
+      <span> - captured_model_output</span>
+      <span> - JudgmentKit skill context</span>
+      <span> - frontend skill context ready</span>
+      <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
+      <p>Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.</p>
+      <p>Manifest entry: <code>artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html</code></p>
+    </aside>
+    <script type="application/json" id="model-ui-provenance">{
+  "matrix_id": "field-service-dispatch-model-ui-v1",
+  "use_case_id": "field-service-dispatch",
+  "use_case_label": "Field service dispatch",
+  "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
+  "artifact_id": "gpt56-sol-ultra-codex-with-judgmentkit",
+  "row_id": "gpt56-sol-ultra-codex",
+  "column_id": "with-judgmentkit",
+  "model_label": "GPT-5.6 Sol Ultra",
+  "generation_source": "captured_model_output",
+  "judgmentkit_mode": "with_judgmentkit",
+  "design_system_mode": "none",
+  "render_source": "model_frontend_skill_static_html_css",
+  "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+  "reasoning_effort": "ultra",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": true,
+    "material_ui_adapter": false,
+    "frontend_skill_context": true
+  },
+  "design_system_name": "JudgmentKit",
+  "design_system_package": "judgmentkit",
+  "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
+  "handoff_source": "examples/model-ui/field-service-dispatch/reviewed-handoff.fixture.json",
+  "design_system_adapter_file": null,
+  "capture_file": "captures/gpt56-sol-ultra-codex-with-judgmentkit.json",
+  "source_context_sha256": "ac0f1d68f886c0e87dcd91e3ab2cfaff3aabca846a21cf607c37b1452a95a2e1",
+  "current_source_context_sha256": "ac0f1d68f886c0e87dcd91e3ab2cfaff3aabca846a21cf607c37b1452a95a2e1",
+  "source_context_status": "current",
+  "model_response_summary": "A focused same-day dispatch workbench that keeps visit selection, readiness evidence, decision controls, and the dispatch handoff together.",
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": "workbench",
+    "design_system_mode": "judgmentkit_default",
+    "design_system_name": "JudgmentKit",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "Verify substantive visuals use imagegen or premium Three.js/WebGL/D3-style rendering when the spec calls for them.",
+      "Provide browser-rendered visual-background contrast evidence for text over images, canvas, WebGL, video, gradients, or generated visuals.",
+      "Verify non-text contrast for meaningful icons, charts, state indicators, custom controls, and authored focus indicators.",
+      "Verify forced-colors or high-contrast behavior when custom colors, gradients, overlays, or authored focus styles are used.",
+      "Verify focus-visible evidence for interactive controls.",
+      "Verify focus order, keyboard navigation, focus-not-obscured behavior, and no keyboard trap for custom widgets, overlays, dialogs, and embedded experiences.",
+      "Verify reduced-motion behavior for animation and rendered visuals.",
+      "Verify pause, stop, hide, or update-frequency control for auto-moving or auto-updating content.",
+      "Verify form labels, instructions, text errors, correction suggestions, and status/live-region messages when forms or async states are present.",
+      "Verify semantic content or accessible fallback for images, canvas, WebGL, video, generated visuals, and D3-style visualization.",
+      "Verify captions, transcripts, descriptions, or media alternatives when audio or video is present.",
+      "Verify target size or valid target spacing/equivalent-control exceptions for dense or touch-oriented controls.",
+      "Verify responsive no-overflow evidence at desktop and mobile sizes.",
+      "with-judgmentkit candidate desktop screenshot has a styled primary work surface",
+      "with-judgmentkit candidate mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
+  "capture_provenance": {
+    "status": "captured",
+    "capture_type": "model-output-transcript",
+    "captured_at": "2026-07-30T03:44:08.958Z",
+    "runner": "scripts/capture-model-ui-matrix.mjs",
+    "provider": "codex-cli",
+    "model": "gpt-5.6-sol",
+    "cli": "codex",
+    "transcript_file": "captures/gpt56-sol-ultra-codex-with-judgmentkit.json",
+    "prompt_sha256": "270596b1ddcbec5b8a1d7801a7592213667c27d570a1d0ec61f40f20d0e3933e",
+    "raw_response_sha256": "4d5c6f8ee1e35d49192b94bebc52f7e1c00a0910d31e7a43ff44cdac07a570e0",
+    "source_context_sha256": "ac0f1d68f886c0e87dcd91e3ab2cfaff3aabca846a21cf607c37b1452a95a2e1",
+    "reasoning_effort": "ultra",
+    "context_included": {
+      "source_brief": true,
+      "sample_case": true,
+      "reviewed_handoff": true,
+      "material_ui_adapter": false,
+      "frontend_skill_context": true
+    },
+    "frontend_context_status": "ready_for_frontend_implementation",
+    "frontend_skill_context_status": "ready",
+    "design_system_name": null,
+    "design_system_package": null,
+    "design_system_render_mode": null,
+    "lms_context": null,
+    "capture_quality": {
+      "profile": "judgmentkit_static_html_css",
+      "css_characters": 9074,
+      "html_characters": 5637,
+      "css_rule_count": 92,
+      "class_selector_count": 171,
+      "semantic_section_count": 8,
+      "structural_block_count": 28,
+      "button_count": 8,
+      "has_responsive_css": true,
+      "has_layout_css": true,
+      "has_panel_css": true,
+      "has_control_css": true,
+      "has_evidence_content": true,
+      "has_handoff_content": true,
+      "compact_template_signature": false,
+      "has_judgmentkit_default_tokens": true,
+      "jk_token_usage_count": 127,
+      "jk_token_reference_count": 127,
+      "unsupported_jk_tokens": [],
+      "jk_token_definition_count": 0,
+      "jk_token_definitions": [],
+      "disallowed_visual_tokens": [],
+      "inline_style_attribute_count": 0,
+      "hard_coded_visual_values": [],
+      "failures": [],
+      "status": "passed"
+    },
+    "source_context_status": "current",
+    "current_source_context_sha256": "ac0f1d68f886c0e87dcd91e3ab2cfaff3aabca846a21cf607c37b1452a95a2e1",
+    "accepted_source_context_sha256": "ac0f1d68f886c0e87dcd91e3ab2cfaff3aabca846a21cf607c37b1452a95a2e1",
+    "captured_source_context_sha256": "ac0f1d68f886c0e87dcd91e3ab2cfaff3aabca846a21cf607c37b1452a95a2e1",
+    "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+    "notes": "GPT-5.6 Sol Ultra output captured through codex for the JudgmentKit 5x4 model UI matrix."
+  },
+  "artifact_path": "artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html",
+  "screenshot_path": "screenshots/gpt56-sol-ultra-codex-with-judgmentkit.png",
+  "approach_title": "GPT-5.6 Sol Ultra via codex exec - JudgmentKit skill context",
+  "approach_caption": "GPT-5.6 Sol Ultra via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
+}</script>
+  </body>
+</html>

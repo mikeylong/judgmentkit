@@ -1,0 +1,169 @@
+{
+  "artifact_id": "gpt56-sol-low-codex-judgmentkit-material-ui",
+  "use_case_id": "refund-system-map",
+  "use_case_label": "Support refund triage",
+  "activity_summary": "A support operations manager reviews refund escalation cases and decides approve, policy review, or missing evidence.",
+  "row_id": "gpt56-sol-low-codex",
+  "row_label": "GPT-5.6 Sol Light via codex exec",
+  "column_id": "judgmentkit-material-ui",
+  "column_label": "JudgmentKit skill + Material UI",
+  "model_label": "GPT-5.6 Sol Light",
+  "provider": "codex-cli",
+  "cli": "codex",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "low",
+  "judgmentkit_mode": "with_judgmentkit",
+  "design_system_mode": "material_ui",
+  "design_system_name": "Material UI",
+  "design_system_package": "@mui/material",
+  "design_system_render_mode": "static-ssr",
+  "render_mode": "material_ui",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-07-30T01:48:17.356Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": true,
+    "material_ui_adapter": true,
+    "frontend_skill_context": true
+  },
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": "workbench",
+    "design_system_mode": "external_design_system",
+    "design_system_name": "Material UI",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "Verify substantive visuals use imagegen or premium Three.js/WebGL/D3-style rendering when the spec calls for them.",
+      "Provide browser-rendered visual-background contrast evidence for text over images, canvas, WebGL, video, gradients, or generated visuals.",
+      "Verify non-text contrast for meaningful icons, charts, state indicators, custom controls, and authored focus indicators.",
+      "Verify forced-colors or high-contrast behavior when custom colors, gradients, overlays, or authored focus styles are used.",
+      "Verify focus-visible evidence for interactive controls.",
+      "Verify focus order, keyboard navigation, focus-not-obscured behavior, and no keyboard trap for custom widgets, overlays, dialogs, and embedded experiences.",
+      "Verify reduced-motion behavior for animation and rendered visuals.",
+      "Verify pause, stop, hide, or update-frequency control for auto-moving or auto-updating content.",
+      "Verify form labels, instructions, text errors, correction suggestions, and status/live-region messages when forms or async states are present.",
+      "Verify semantic content or accessible fallback for images, canvas, WebGL, video, generated visuals, and D3-style visualization.",
+      "Verify captions, transcripts, descriptions, or media alternatives when audio or video is present.",
+      "Verify target size or valid target spacing/equivalent-control exceptions for dense or touch-oriented controls.",
+      "Verify responsive no-overflow evidence at desktop and mobile sizes.",
+      "judgmentkit-material-ui candidate desktop screenshot has a styled primary work surface",
+      "judgmentkit-material-ui candidate mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
+  "source_context_sha256": "d9c0b71c47bbcdddb048db91f5d590c6bc3c0c279d36fca33f81a48a05c82f02",
+  "source_context_status": "current",
+  "current_source_context_sha256": "d9c0b71c47bbcdddb048db91f5d590c6bc3c0c279d36fca33f81a48a05c82f02",
+  "accepted_source_context_sha256": "d9c0b71c47bbcdddb048db91f5d590c6bc3c0c279d36fca33f81a48a05c82f02",
+  "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+  "prompt_sha256": "c659a3708b454999c97408c454852adb42c4b82a38dbceebca1b9877aa43070a",
+  "raw_response_sha256": "f8f8cfd233d2bc716d7477cb3c5beea7cfe80ad02f76183c2bb76089accc5c79",
+  "command_display": "codex exec --model gpt-5.6-sol -c model_reasoning_effort=\"low\" -c sqlite_home=\"<sqlite>\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",
+  "notes": "GPT-5.6 Sol Light output captured through codex for the JudgmentKit 5x4 model UI matrix.",
+  "lms_context": null,
+  "capture_quality": null,
+  "parsed": {
+    "summary": "Refund escalation R-1842 should return to the support agent for missing evidence before manager approval.",
+    "surface": {
+      "eyebrow": "Support refund triage",
+      "heading": "Refund escalation review",
+      "status": "Evidence incomplete",
+      "queue_title": "Refund queue",
+      "queue": [
+        {
+          "id": "R-1842",
+          "customer": "Nora Diaz",
+          "state": "Needs receipt",
+          "amount": "$184.20"
+        },
+        {
+          "id": "R-1843",
+          "customer": "Jun Park",
+          "state": "Policy question",
+          "amount": "$89.00"
+        },
+        {
+          "id": "R-1844",
+          "customer": "Amara Blake",
+          "state": "Manager review",
+          "amount": "$312.75"
+        }
+      ],
+      "selected": {
+        "id": "R-1842",
+        "customer": "Nora Diaz",
+        "amount": "$184.20",
+        "plan": "Pro annual",
+        "request": "Subscription renewal disputed after agent escalation.",
+        "status": "Evidence incomplete"
+      },
+      "info": [
+        {
+          "label": "Customer",
+          "value": "Nora Diaz"
+        },
+        {
+          "label": "Plan",
+          "value": "Pro annual"
+        },
+        {
+          "label": "Refund amount",
+          "value": "$184.20"
+        },
+        {
+          "label": "Request",
+          "value": "Subscription renewal disputed after agent escalation."
+        }
+      ],
+      "evidence": [
+        "Renewal date confirmed in purchase history.",
+        "Support note captures the customer's refund reason.",
+        "Receipt photo is missing before manager approval."
+      ],
+      "policy_title": "Policy context",
+      "policy": "Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.",
+      "decision_title": "Choose the next refund path",
+      "actions": [
+        "Approve refund",
+        "Send to policy review",
+        "Return for evidence"
+      ],
+      "primary_action": "Send handoff",
+      "handoff": {
+        "owner": "Support agent",
+        "title": "Return for evidence",
+        "reason": "Receipt photo is missing. Ask the customer to attach proof before approval.",
+        "action": "Return the request to the support agent with the missing evidence request."
+      }
+    }
+  },
+  "raw_response": "{\"summary\":\"Refund escalation R-1842 should return to the support agent for missing evidence before manager approval.\",\"surface\":{\"eyebrow\":\"Support refund triage\",\"heading\":\"Refund escalation review\",\"status\":\"Evidence incomplete\",\"queue_title\":\"Refund queue\",\"queue\":[{\"id\":\"R-1842\",\"customer\":\"Nora Diaz\",\"state\":\"Needs receipt\",\"amount\":\"$184.20\"},{\"id\":\"R-1843\",\"customer\":\"Jun Park\",\"state\":\"Policy question\",\"amount\":\"$89.00\"},{\"id\":\"R-1844\",\"customer\":\"Amara Blake\",\"state\":\"Manager review\",\"amount\":\"$312.75\"}],\"selected\":{\"id\":\"R-1842\",\"customer\":\"Nora Diaz\",\"amount\":\"$184.20\",\"plan\":\"Pro annual\",\"request\":\"Subscription renewal disputed after agent escalation.\",\"status\":\"Evidence incomplete\"},\"info\":[{\"label\":\"Customer\",\"value\":\"Nora Diaz\"},{\"label\":\"Plan\",\"value\":\"Pro annual\"},{\"label\":\"Refund amount\",\"value\":\"$184.20\"},{\"label\":\"Request\",\"value\":\"Subscription renewal disputed after agent escalation.\"}],\"evidence\":[\"Renewal date confirmed in purchase history.\",\"Support note captures the customer's refund reason.\",\"Receipt photo is missing before manager approval.\"],\"policy_title\":\"Policy context\",\"policy\":\"Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.\",\"decision_title\":\"Choose the next refund path\",\"actions\":[\"Approve refund\",\"Send to policy review\",\"Return for evidence\"],\"primary_action\":\"Send handoff\",\"handoff\":{\"owner\":\"Support agent\",\"title\":\"Return for evidence\",\"reason\":\"Receipt photo is missing. Ask the customer to attach proof before approval.\",\"action\":\"Return the request to the support agent with the missing evidence request.\"}}}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "d1fa418dd85a172e97dd6ba1dcb7d58f9fe045d50b23ddb8ecb57e560aefe5e6",
+    "stderr_sha256": "7b868b648eae5b631e60ee3ccfb29893017a4f3f2f954d97983a4de1156330b9"
+  }
+}

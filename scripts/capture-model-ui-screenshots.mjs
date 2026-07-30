@@ -16,6 +16,17 @@ const VIEWPORT = {
   device_scale_factor: 1,
   mobile: false,
 };
+export const SCREENSHOT_READY_EXPRESSION = `(
+  async () => {
+    if (document.fonts?.ready) await document.fonts.ready;
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    if (document.body) document.body.scrollTop = 0;
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    await new Promise((resolve) => requestAnimationFrame(resolve));
+    return { scrollX: window.scrollX, scrollY: window.scrollY };
+  }
+)()`;
 
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
@@ -65,6 +76,46 @@ function configuredChromePath(envName) {
   return resolved;
 }
 
+export function findPlaywrightChromeExecutable(
+  cacheRoots = [
+    path.join(os.homedir(), "Library", "Caches", "ms-playwright"),
+    path.join(os.homedir(), ".cache", "ms-playwright"),
+  ],
+) {
+  const relativeExecutablePaths = [
+    path.join("chrome-headless-shell-mac-arm64", "chrome-headless-shell"),
+    path.join("chrome-headless-shell-mac-x64", "chrome-headless-shell"),
+    path.join("chrome-headless-shell-linux64", "chrome-headless-shell"),
+  ];
+
+  for (const cacheRoot of cacheRoots) {
+    let releases;
+    try {
+      releases = fs
+        .readdirSync(cacheRoot, { withFileTypes: true })
+        .filter(
+          (entry) =>
+            entry.isDirectory() && entry.name.startsWith("chromium_headless_shell-"),
+        )
+        .map((entry) => entry.name)
+        .sort((left, right) =>
+          right.localeCompare(left, undefined, { numeric: true }),
+        );
+    } catch {
+      continue;
+    }
+
+    for (const release of releases) {
+      for (const relativePath of relativeExecutablePaths) {
+        const candidate = path.join(cacheRoot, release, relativePath);
+        if (isExecutable(candidate)) return candidate;
+      }
+    }
+  }
+
+  return null;
+}
+
 function resolveChromeExecutable() {
   const configured =
     configuredChromePath("JUDGMENTKIT_UI_EVAL_CHROME_PATH") ??
@@ -91,6 +142,9 @@ function resolveChromeExecutable() {
   ]) {
     if (isExecutable(candidate)) return candidate;
   }
+
+  const playwrightChrome = findPlaywrightChromeExecutable();
+  if (playwrightChrome) return playwrightChrome;
 
   throw new Error(
     "Chrome is required to capture model UI screenshots. Install Chrome/Chromium or set JUDGMENTKIT_UI_EVAL_CHROME_PATH to an executable Chrome path.",
@@ -243,12 +297,17 @@ async function captureArtifactScreenshot(client, outputDir, artifact) {
       url: pathToFileURL(artifactPath).href,
     }, sessionId);
     await loadEvent;
-    await client.send("Runtime.evaluate", {
-      expression:
-        "document.fonts && document.fonts.ready ? document.fonts.ready.then(() => true) : true",
+    const readyState = await client.send("Runtime.evaluate", {
+      expression: SCREENSHOT_READY_EXPRESSION,
       awaitPromise: true,
       returnByValue: true,
     }, sessionId);
+    if (
+      readyState.result?.value?.scrollX !== 0 ||
+      readyState.result?.value?.scrollY !== 0
+    ) {
+      throw new Error(`Unable to reset ${artifact.id} to the top-left capture origin.`);
+    }
     await delay(150);
 
     const capture = await client.send("Page.captureScreenshot", {
@@ -335,4 +394,6 @@ async function captureUseCaseScreenshots(client, useCase) {
   }
 }
 
-await main();
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  await main();
+}

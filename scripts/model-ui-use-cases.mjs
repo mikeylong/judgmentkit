@@ -61,6 +61,30 @@ export const COMPARISON_ROWS = [
     summary:
       "GPT-5.5 captures use extra-high reasoning to show the same matrix with a stronger model path.",
   },
+  {
+    id: "gpt56-sol-low-codex",
+    label: "GPT-5.6 Sol Light via codex exec",
+    model_label: "GPT-5.6 Sol Light",
+    generation_source: "captured_model_output",
+    provider: "codex-cli",
+    model: "gpt-5.6-sol",
+    cli: "codex",
+    reasoning_effort: "low",
+    summary:
+      "GPT-5.6 Sol Light captures run with low reasoning effort across the same four context boundaries.",
+  },
+  {
+    id: "gpt56-sol-ultra-codex",
+    label: "GPT-5.6 Sol Ultra via codex exec",
+    model_label: "GPT-5.6 Sol Ultra",
+    generation_source: "captured_model_output",
+    provider: "codex-cli",
+    model: "gpt-5.6-sol",
+    cli: "codex",
+    reasoning_effort: "ultra",
+    summary:
+      "GPT-5.6 Sol Ultra captures run with ultra reasoning effort across the same four context boundaries.",
+  },
 ];
 
 export const COMPARISON_COLUMNS = [
@@ -105,6 +129,13 @@ export const COMPARISON_COLUMNS = [
       "Reviewed handoff plus compiled frontend skill context rendered through Material UI.",
   },
 ];
+
+export const MODEL_UI_MATRIX_DIMENSIONS =
+  `${COMPARISON_ROWS.length}x${COMPARISON_COLUMNS.length}`;
+export const MODEL_UI_MATRIX_DIMENSIONS_SPACED =
+  `${COMPARISON_ROWS.length} x ${COMPARISON_COLUMNS.length}`;
+export const MODEL_UI_MATRIX_DIMENSIONS_SPOKEN =
+  `${COMPARISON_ROWS.length} by ${COMPARISON_COLUMNS.length}`;
 
 export const LEGACY_ALIASES = [
   {

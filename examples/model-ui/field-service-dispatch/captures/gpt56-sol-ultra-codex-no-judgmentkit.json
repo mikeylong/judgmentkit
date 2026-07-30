@@ -1,0 +1,773 @@
+{
+  "artifact_id": "gpt56-sol-ultra-codex-no-judgmentkit",
+  "use_case_id": "field-service-dispatch",
+  "use_case_label": "Field service dispatch",
+  "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
+  "row_id": "gpt56-sol-ultra-codex",
+  "row_label": "GPT-5.6 Sol Ultra via codex exec",
+  "column_id": "no-judgmentkit",
+  "column_label": "Raw brief",
+  "model_label": "GPT-5.6 Sol Ultra",
+  "provider": "codex-cli",
+  "cli": "codex",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "ultra",
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "none",
+  "design_system_name": null,
+  "design_system_package": null,
+  "design_system_render_mode": null,
+  "render_mode": "html",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-07-30T03:39:21.608Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": false,
+    "frontend_skill_context": false
+  },
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
+  "source_context_sha256": "be97525b7b124b7f34ce495489a7aabde40a616dd9fb5762f769ea5112d83b98",
+  "source_context_status": "current",
+  "current_source_context_sha256": "be97525b7b124b7f34ce495489a7aabde40a616dd9fb5762f769ea5112d83b98",
+  "accepted_source_context_sha256": "be97525b7b124b7f34ce495489a7aabde40a616dd9fb5762f769ea5112d83b98",
+  "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+  "prompt_sha256": "bb8ccc2467a2bac2e0620af02491c8274b263a026c443603d066a9098a4be086",
+  "raw_response_sha256": "c764831c1f00a1aeb86e98178221c1855ccced0ef20d04433b44449f1553286b",
+  "command_display": "codex exec --model gpt-5.6-sol -c model_reasoning_effort=\"ultra\" -c sqlite_home=\"<sqlite>\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",
+  "notes": "GPT-5.6 Sol Ultra output captured through codex for the JudgmentKit 5x4 model UI matrix.",
+  "lms_context": null,
+  "capture_quality": {
+    "profile": "basic_static_html_css",
+    "css_characters": 8508,
+    "html_characters": 6367,
+    "css_rule_count": 102,
+    "class_selector_count": 151,
+    "semantic_section_count": 10,
+    "structural_block_count": 34,
+    "button_count": 9,
+    "has_responsive_css": true,
+    "has_layout_css": true,
+    "has_panel_css": true,
+    "has_control_css": true,
+    "has_evidence_content": true,
+    "has_handoff_content": true,
+    "compact_template_signature": false,
+    "has_judgmentkit_default_tokens": false,
+    "jk_token_usage_count": 0,
+    "jk_token_reference_count": 0,
+    "unsupported_jk_tokens": [],
+    "jk_token_definition_count": 0,
+    "jk_token_definitions": [],
+    "disallowed_visual_tokens": [],
+    "inline_style_attribute_count": 0,
+    "hard_coded_visual_values": [
+      {
+        "source": "css",
+        "selector": "body",
+        "property": "background",
+        "value": "#e9eef1"
+      },
+      {
+        "source": "css",
+        "selector": "body",
+        "property": "color",
+        "value": "#182329"
+      },
+      {
+        "source": "css",
+        "selector": ".dispatch-app",
+        "property": "background",
+        "value": "#f4f6f7"
+      },
+      {
+        "source": "css",
+        "selector": ".topbar",
+        "property": "background",
+        "value": "#17362f"
+      },
+      {
+        "source": "css",
+        "selector": ".topbar",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".topbar",
+        "property": "border-bottom",
+        "value": "1px solid #315048"
+      },
+      {
+        "source": "css",
+        "selector": ".brand-mark",
+        "property": "background",
+        "value": "#d4f16f"
+      },
+      {
+        "source": "css",
+        "selector": ".brand-mark",
+        "property": "color",
+        "value": "#17362f"
+      },
+      {
+        "source": "css",
+        "selector": ".brand-divider",
+        "property": "background",
+        "value": "#567068"
+      },
+      {
+        "source": "css",
+        "selector": ".brand-subtitle",
+        "property": "color",
+        "value": "#c5d1cd"
+      },
+      {
+        "source": "css",
+        "selector": ".shift-meta .muted",
+        "property": "color",
+        "value": "#b8c7c2"
+      },
+      {
+        "source": "css",
+        "selector": ".status-dot",
+        "property": "background",
+        "value": "#d4f16f"
+      },
+      {
+        "source": "css",
+        "selector": ".status-dot",
+        "property": "box-shadow",
+        "value": "0 0 0 3px rgba(212,241,111,.14)"
+      },
+      {
+        "source": "css",
+        "selector": ".avatar",
+        "property": "border",
+        "value": "1px solid #617a73"
+      },
+      {
+        "source": "css",
+        "selector": ".avatar",
+        "property": "background",
+        "value": "#24483f"
+      },
+      {
+        "source": "css",
+        "selector": ".avatar",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".queue-panel",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".queue-panel",
+        "property": "border-right",
+        "value": "1px solid #d9e0e3"
+      },
+      {
+        "source": "css",
+        "selector": ".eyebrow",
+        "property": "color",
+        "value": "#65747b"
+      },
+      {
+        "source": "css",
+        "selector": ".panel-heading h1,.decision-header h2",
+        "property": "color",
+        "value": "#17252b"
+      },
+      {
+        "source": "css",
+        "selector": ".count",
+        "property": "background",
+        "value": "#eef2f3"
+      },
+      {
+        "source": "css",
+        "selector": ".count",
+        "property": "color",
+        "value": "#43545b"
+      },
+      {
+        "source": "css",
+        "selector": ".queue-filters",
+        "property": "background",
+        "value": "#eef2f3"
+      },
+      {
+        "source": "css",
+        "selector": ".filter",
+        "property": "color",
+        "value": "#627178"
+      },
+      {
+        "source": "css",
+        "selector": ".filter.active",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".filter.active",
+        "property": "color",
+        "value": "#17362f"
+      },
+      {
+        "source": "css",
+        "selector": ".filter.active",
+        "property": "box-shadow",
+        "value": "0 1px 3px rgba(20,35,41,.12)"
+      },
+      {
+        "source": "css",
+        "selector": ".queue-item.selected",
+        "property": "background",
+        "value": "#eef7f2"
+      },
+      {
+        "source": "css",
+        "selector": ".queue-item.selected",
+        "property": "border-color",
+        "value": "#a9c8b9"
+      },
+      {
+        "source": "css",
+        "selector": ".queue-item.selected",
+        "property": "box-shadow",
+        "value": "inset 3px 0 0 #28745b"
+      },
+      {
+        "source": "css",
+        "selector": ".queue-item:not(.selected)",
+        "property": "border-color",
+        "value": "#e6ebed"
+      },
+      {
+        "source": "css",
+        "selector": ".visit-id",
+        "property": "color",
+        "value": "#5d6d74"
+      },
+      {
+        "source": "css",
+        "selector": ".sla-high",
+        "property": "background",
+        "value": "#fff0df"
+      },
+      {
+        "source": "css",
+        "selector": ".sla-high",
+        "property": "color",
+        "value": "#96511c"
+      },
+      {
+        "source": "css",
+        "selector": ".sla-critical",
+        "property": "background",
+        "value": "#ffe8e5"
+      },
+      {
+        "source": "css",
+        "selector": ".sla-critical",
+        "property": "color",
+        "value": "#a33b31"
+      },
+      {
+        "source": "css",
+        "selector": ".sla-neutral",
+        "property": "background",
+        "value": "#eef1f2"
+      },
+      {
+        "source": "css",
+        "selector": ".sla-neutral",
+        "property": "color",
+        "value": "#596970"
+      },
+      {
+        "source": "css",
+        "selector": ".state-line",
+        "property": "color",
+        "value": "#69777d"
+      },
+      {
+        "source": "css",
+        "selector": ".state-indicator",
+        "property": "background",
+        "value": "#d57b35"
+      },
+      {
+        "source": "css",
+        "selector": ".state-indicator.red",
+        "property": "background",
+        "value": "#c85045"
+      },
+      {
+        "source": "css",
+        "selector": ".state-indicator.gray",
+        "property": "background",
+        "value": "#89969b"
+      },
+      {
+        "source": "css",
+        "selector": ".queue-foot",
+        "property": "border-top",
+        "value": "1px solid #e3e8ea"
+      },
+      {
+        "source": "css",
+        "selector": ".queue-foot",
+        "property": "color",
+        "value": "#65747b"
+      },
+      {
+        "source": "css",
+        "selector": ".visit-panel",
+        "property": "background",
+        "value": "#f6f8f8"
+      },
+      {
+        "source": "css",
+        "selector": ".breadcrumb",
+        "property": "color",
+        "value": "#66767c"
+      },
+      {
+        "source": "css",
+        "selector": ".visit-title-row h2",
+        "property": "color",
+        "value": "#14242a"
+      },
+      {
+        "source": "css",
+        "selector": ".pill",
+        "property": "border",
+        "value": "1px solid #d9e0e2"
+      },
+      {
+        "source": "css",
+        "selector": ".pill",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".pill",
+        "property": "color",
+        "value": "#53636a"
+      },
+      {
+        "source": "css",
+        "selector": ".pill.sla-pill",
+        "property": "border-color",
+        "value": "#edcda9"
+      },
+      {
+        "source": "css",
+        "selector": ".pill.sla-pill",
+        "property": "background",
+        "value": "#fff8ed"
+      },
+      {
+        "source": "css",
+        "selector": ".pill.sla-pill",
+        "property": "color",
+        "value": "#8c4c1d"
+      },
+      {
+        "source": "css",
+        "selector": ".status-card",
+        "property": "border",
+        "value": "1px solid #efc9ad"
+      },
+      {
+        "source": "css",
+        "selector": ".status-card",
+        "property": "border-left",
+        "value": "4px solid #d46b30"
+      },
+      {
+        "source": "css",
+        "selector": ".status-card",
+        "property": "background",
+        "value": "#fff8f1"
+      },
+      {
+        "source": "css",
+        "selector": ".status-card strong",
+        "property": "color",
+        "value": "#713818"
+      },
+      {
+        "source": "css",
+        "selector": ".status-card p",
+        "property": "color",
+        "value": "#725847"
+      },
+      {
+        "source": "css",
+        "selector": ".blocked-button",
+        "property": "border",
+        "value": "1px solid #dfb594"
+      },
+      {
+        "source": "css",
+        "selector": ".blocked-button",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".blocked-button",
+        "property": "color",
+        "value": "#85441f"
+      },
+      {
+        "source": "css",
+        "selector": ".request-card",
+        "property": "border",
+        "value": "1px solid #dce3e5"
+      },
+      {
+        "source": "css",
+        "selector": ".request-card",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".section-kicker",
+        "property": "color",
+        "value": "#66767c"
+      },
+      {
+        "source": "css",
+        "selector": ".request-card p:last-child",
+        "property": "color",
+        "value": "#2a3b42"
+      },
+      {
+        "source": "css",
+        "selector": ".section-heading h3,.handoff-fields h3",
+        "property": "color",
+        "value": "#1c2d33"
+      },
+      {
+        "source": "css",
+        "selector": ".readiness-count",
+        "property": "color",
+        "value": "#5b6d74"
+      },
+      {
+        "source": "css",
+        "selector": ".constraint-card",
+        "property": "border",
+        "value": "1px solid #dbe2e4"
+      },
+      {
+        "source": "css",
+        "selector": ".constraint-card",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".constraint-card.blocked",
+        "property": "border-color",
+        "value": "#e7b994"
+      },
+      {
+        "source": "css",
+        "selector": ".constraint-card.blocked",
+        "property": "background",
+        "value": "#fffaf5"
+      },
+      {
+        "source": "css",
+        "selector": ".constraint-icon",
+        "property": "background",
+        "value": "#e7f2ed"
+      },
+      {
+        "source": "css",
+        "selector": ".constraint-icon",
+        "property": "color",
+        "value": "#21634d"
+      },
+      {
+        "source": "css",
+        "selector": ".constraint-card.blocked .constraint-icon",
+        "property": "background",
+        "value": "#fbe7d6"
+      },
+      {
+        "source": "css",
+        "selector": ".constraint-card.blocked .constraint-icon",
+        "property": "color",
+        "value": "#9a4c21"
+      },
+      {
+        "source": "css",
+        "selector": ".constraint-state.ready",
+        "property": "color",
+        "value": "#287157"
+      },
+      {
+        "source": "css",
+        "selector": ".constraint-state.missing",
+        "property": "color",
+        "value": "#a04d23"
+      },
+      {
+        "source": "css",
+        "selector": ".constraint-value",
+        "property": "color",
+        "value": "#23353c"
+      },
+      {
+        "source": "css",
+        "selector": ".constraint-detail",
+        "property": "color",
+        "value": "#69787e"
+      },
+      {
+        "source": "css",
+        "selector": ".policy-strip",
+        "property": "background",
+        "value": "#eaf0f2"
+      },
+      {
+        "source": "css",
+        "selector": ".policy-strip",
+        "property": "color",
+        "value": "#465961"
+      },
+      {
+        "source": "css",
+        "selector": ".policy-label",
+        "property": "color",
+        "value": "#17362f"
+      },
+      {
+        "source": "css",
+        "selector": ".decision-panel",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".decision-panel",
+        "property": "border-left",
+        "value": "1px solid #d9e0e3"
+      },
+      {
+        "source": "css",
+        "selector": ".decision-header p:last-child",
+        "property": "color",
+        "value": "#68777d"
+      },
+      {
+        "source": "css",
+        "selector": ".recommendation",
+        "property": "border",
+        "value": "1px solid #aacdbc"
+      },
+      {
+        "source": "css",
+        "selector": ".recommendation",
+        "property": "background",
+        "value": "#edf8f2"
+      },
+      {
+        "source": "css",
+        "selector": ".recommendation-title",
+        "property": "color",
+        "value": "#205e49"
+      },
+      {
+        "source": "css",
+        "selector": ".recommendation-mark",
+        "property": "background",
+        "value": "#28745b"
+      },
+      {
+        "source": "css",
+        "selector": ".recommendation-mark",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".recommendation p",
+        "property": "color",
+        "value": "#3e5c50"
+      },
+      {
+        "source": "css",
+        "selector": ".decision-option",
+        "property": "border",
+        "value": "1px solid #dce3e5"
+      },
+      {
+        "source": "css",
+        "selector": ".decision-option",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".decision-option.selected",
+        "property": "border-color",
+        "value": "#74a992"
+      },
+      {
+        "source": "css",
+        "selector": ".decision-option.selected",
+        "property": "background",
+        "value": "#f1f8f4"
+      },
+      {
+        "source": "css",
+        "selector": ".decision-option.selected",
+        "property": "box-shadow",
+        "value": "inset 0 0 0 1px #74a992"
+      },
+      {
+        "source": "css",
+        "selector": ".decision-label input",
+        "property": "accent-color",
+        "value": "#28745b"
+      },
+      {
+        "source": "css",
+        "selector": ".option-copy strong",
+        "property": "color",
+        "value": "#22343a"
+      },
+      {
+        "source": "css",
+        "selector": ".option-copy span",
+        "property": "color",
+        "value": "#6a797f"
+      },
+      {
+        "source": "css",
+        "selector": ".handoff-fields",
+        "property": "border-top",
+        "value": "1px solid #e1e6e8"
+      },
+      {
+        "source": "css",
+        "selector": ".field",
+        "property": "color",
+        "value": "#52636a"
+      },
+      {
+        "source": "css",
+        "selector": ".field select,.field input,.field textarea",
+        "property": "border",
+        "value": "1px solid #cfd8db"
+      },
+      {
+        "source": "css",
+        "selector": ".field select,.field input,.field textarea",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".field select,.field input,.field textarea",
+        "property": "color",
+        "value": "#24363d"
+      },
+      {
+        "source": "css",
+        "selector": ".field select:focus,.field input:focus,.field textarea:focus",
+        "property": "border-color",
+        "value": "#28745b"
+      },
+      {
+        "source": "css",
+        "selector": ".field select:focus,.field input:focus,.field textarea:focus",
+        "property": "box-shadow",
+        "value": "0 0 0 3px rgba(40,116,91,.12)"
+      },
+      {
+        "source": "css",
+        "selector": ".primary-action",
+        "property": "border",
+        "value": "1px solid #17362f"
+      },
+      {
+        "source": "css",
+        "selector": ".primary-action",
+        "property": "background",
+        "value": "#17362f"
+      },
+      {
+        "source": "css",
+        "selector": ".primary-action",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".secondary-action",
+        "property": "border",
+        "value": "1px solid #cdd7da"
+      },
+      {
+        "source": "css",
+        "selector": ".secondary-action",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".secondary-action",
+        "property": "color",
+        "value": "#34474e"
+      },
+      {
+        "source": "css",
+        "selector": ".action-note",
+        "property": "color",
+        "value": "#8b552e"
+      },
+      {
+        "source": "css",
+        "selector": ".lock-dot",
+        "property": "background",
+        "value": "#d46b30"
+      },
+      {
+        "source": "css",
+        "selector": "button:focus-visible",
+        "property": "outline",
+        "value": "3px solid rgba(40,116,91,.25)"
+      }
+    ],
+    "failures": [],
+    "status": "passed"
+  },
+  "parsed": {
+    "summary": "A three-pane same-day dispatch workspace that surfaces the visit queue, route, parts, and access constraints, and a policy-aligned handoff for V-2187.",
+    "css": "*{box-sizing:border-box}body{margin:0;background:#e9eef1;color:#182329;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.dispatch-app{height:900px;min-width:1180px;background:#f4f6f7;overflow:hidden}.topbar{height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#17362f;color:#fff;border-bottom:1px solid #315048}.brand-lockup,.brand-copy,.shift-meta,.visit-title-row,.meta-row,.queue-topline,.state-line,.constraint-top,.decision-label,.recommendation-title,.action-note{display:flex;align-items:center}.brand-lockup{gap:12px}.brand-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:#d4f16f;color:#17362f;font-size:12px;font-weight:800;letter-spacing:.04em}.brand-copy{gap:10px;font-weight:700}.brand-divider{width:1px;height:18px;background:#567068}.brand-subtitle{color:#c5d1cd;font-size:13px;font-weight:500}.shift-meta{gap:10px;font-size:13px}.shift-meta .muted{color:#b8c7c2}.status-dot{width:8px;height:8px;border-radius:50%;background:#d4f16f;box-shadow:0 0 0 3px rgba(212,241,111,.14)}.avatar{width:34px;height:34px;border:1px solid #617a73;border-radius:50%;background:#24483f;color:#fff;font-weight:700}.workspace{height:calc(100% - 68px);display:grid;grid-template-columns:264px minmax(0,1fr) 370px}.queue-panel,.decision-panel,.visit-panel{min-height:0;overflow-y:auto}.queue-panel{display:flex;flex-direction:column;background:#fff;border-right:1px solid #d9e0e3}.panel-heading{display:flex;align-items:flex-end;justify-content:space-between;padding:24px 20px 14px}.eyebrow{margin:0 0 5px;color:#65747b;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.panel-heading h1,.decision-header h2{margin:0;color:#17252b;font-size:21px;line-height:1.2}.count{display:grid;place-items:center;min-width:28px;height:28px;padding:0 8px;border-radius:14px;background:#eef2f3;color:#43545b;font-size:12px;font-weight:800}.queue-filters{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:0 14px 14px;padding:4px;background:#eef2f3;border-radius:9px}.filter{padding:8px;border:0;border-radius:6px;background:transparent;color:#627178;font-size:12px;font-weight:700}.filter.active{background:#fff;color:#17362f;box-shadow:0 1px 3px rgba(20,35,41,.12)}.visit-queue{display:flex;flex-direction:column;gap:8px;padding:0 12px}.queue-item{width:100%;padding:14px;border:1px solid transparent;border-radius:10px;background:transparent;color:inherit;text-align:left}.queue-item.selected{background:#eef7f2;border-color:#a9c8b9;box-shadow:inset 3px 0 0 #28745b}.queue-item:not(.selected){border-color:#e6ebed}.queue-topline{justify-content:space-between;margin-bottom:8px}.visit-id{color:#5d6d74;font-size:11px;font-weight:800;letter-spacing:.06em}.sla{padding:3px 6px;border-radius:5px;font-size:10px;font-weight:800}.sla-high{background:#fff0df;color:#96511c}.sla-critical{background:#ffe8e5;color:#a33b31}.sla-neutral{background:#eef1f2;color:#596970}.customer-name{display:block;margin-bottom:5px;font-size:14px;font-weight:750}.state-line{gap:7px;color:#69777d;font-size:12px}.state-indicator{width:7px;height:7px;border-radius:50%;background:#d57b35}.state-indicator.red{background:#c85045}.state-indicator.gray{background:#89969b}.queue-foot{margin-top:auto;padding:16px 20px 20px;border-top:1px solid #e3e8ea;color:#65747b;font-size:11px;line-height:1.45}.visit-panel{padding:26px 28px 32px;background:#f6f8f8}.breadcrumb{margin:0 0 12px;color:#66767c;font-size:12px;font-weight:650}.visit-title-row{justify-content:space-between;gap:16px}.visit-title-row h2{margin:0;color:#14242a;font-size:28px;line-height:1.15}.meta-row{gap:8px;margin-top:10px}.pill{padding:5px 8px;border:1px solid #d9e0e2;border-radius:6px;background:#fff;color:#53636a;font-size:11px;font-weight:750}.pill.sla-pill{border-color:#edcda9;background:#fff8ed;color:#8c4c1d}.status-card{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-top:22px;padding:16px 18px;border:1px solid #efc9ad;border-left:4px solid #d46b30;border-radius:10px;background:#fff8f1}.status-card strong{display:block;margin-bottom:4px;color:#713818;font-size:14px}.status-card p{margin:0;color:#725847;font-size:12px;line-height:1.5}.blocked-button{flex:none;padding:9px 12px;border:1px solid #dfb594;border-radius:7px;background:#fff;color:#85441f;font-size:12px;font-weight:800}.request-card{margin-top:18px;padding:18px;border:1px solid #dce3e5;border-radius:10px;background:#fff}.section-kicker{margin:0 0 7px;color:#66767c;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.request-card p:last-child{margin:0;color:#2a3b42;font-size:14px;line-height:1.55}.section-heading{display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px}.section-heading h3,.handoff-fields h3{margin:0;color:#1c2d33;font-size:15px}.readiness-count{color:#5b6d74;font-size:11px;font-weight:750}.constraint-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.constraint-card{min-height:166px;padding:15px;border:1px solid #dbe2e4;border-radius:10px;background:#fff}.constraint-card.blocked{border-color:#e7b994;background:#fffaf5}.constraint-top{justify-content:space-between;margin-bottom:15px}.constraint-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#e7f2ed;color:#21634d;font-size:12px;font-weight:900}.constraint-card.blocked .constraint-icon{background:#fbe7d6;color:#9a4c21}.constraint-state{font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:.05em}.constraint-state.ready{color:#287157}.constraint-state.missing{color:#a04d23}.constraint-card h4{margin:0 0 8px;font-size:13px}.constraint-value{margin:0 0 6px;color:#23353c;font-size:13px;font-weight:750;line-height:1.35}.constraint-detail{margin:0;color:#69787e;font-size:11px;line-height:1.45}.policy-strip{display:flex;gap:12px;margin-top:18px;padding:14px 16px;border-radius:9px;background:#eaf0f2;color:#465961;font-size:12px;line-height:1.5}.policy-label{flex:none;color:#17362f;font-weight:850}.decision-panel{padding:24px;background:#fff;border-left:1px solid #d9e0e3}.decision-header{margin-bottom:16px}.decision-header p:last-child{margin:8px 0 0;color:#68777d;font-size:12px;line-height:1.45}.recommendation{padding:14px;border:1px solid #aacdbc;border-radius:10px;background:#edf8f2}.recommendation-title{gap:8px;color:#205e49;font-size:12px;font-weight:850}.recommendation-mark{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#28745b;color:#fff;font-size:11px}.recommendation p{margin:7px 0 0;color:#3e5c50;font-size:12px;line-height:1.45}.decision-options{display:flex;flex-direction:column;gap:8px;margin:16px 0 20px}.decision-option{display:block;padding:12px;border:1px solid #dce3e5;border-radius:9px;background:#fff}.decision-option.selected{border-color:#74a992;background:#f1f8f4;box-shadow:inset 0 0 0 1px #74a992}.decision-label{align-items:flex-start;gap:9px}.decision-label input{margin:3px 0 0;accent-color:#28745b}.option-copy strong{display:block;color:#22343a;font-size:12px}.option-copy span{display:block;margin-top:4px;color:#6a797f;font-size:11px;line-height:1.35}.handoff-fields{padding-top:18px;border-top:1px solid #e1e6e8}.field{display:block;margin-top:12px;color:#52636a;font-size:11px;font-weight:750}.field select,.field input,.field textarea{width:100%;margin-top:6px;padding:10px 11px;border:1px solid #cfd8db;border-radius:7px;background:#fff;color:#24363d;font:inherit;font-size:12px;outline:none}.field textarea{height:62px;resize:none;line-height:1.4}.field select:focus,.field input:focus,.field textarea:focus{border-color:#28745b;box-shadow:0 0 0 3px rgba(40,116,91,.12)}.action-area{margin-top:18px}.primary-action,.secondary-action{width:100%;padding:11px 14px;border-radius:8px;font-size:12px;font-weight:850}.primary-action{border:1px solid #17362f;background:#17362f;color:#fff}.secondary-action{margin-top:8px;border:1px solid #cdd7da;background:#fff;color:#34474e}.action-note{justify-content:center;gap:6px;margin:10px 0 0;color:#8b552e;font-size:10px;font-weight:700}.lock-dot{width:6px;height:6px;border-radius:50%;background:#d46b30}button,select{cursor:pointer}button:focus-visible{outline:3px solid rgba(40,116,91,.25);outline-offset:2px}@media(max-width:1200px){.workspace{grid-template-columns:238px minmax(0,1fr) 340px}.visit-panel{padding-left:22px;padding-right:22px}.constraint-grid{gap:7px}.constraint-card{padding:12px}}",
+    "html": "<main data-primary-surface class='dispatch-app' aria-label='Same-day repair dispatch workspace'><header class='topbar'><div class='brand-lockup'><span class='brand-mark'>FO</span><div class='brand-copy'><span>Field Operations</span><span class='brand-divider'></span><span class='brand-subtitle'>Dispatch desk</span></div></div><div class='shift-meta'><span class='status-dot'></span><span>Same-day dispatch</span><span class='muted'>3 visits need review</span><button class='avatar' aria-label='Open manager profile'>MO</button></div></header><div class='workspace'><aside class='queue-panel' aria-label='Repair visit queue'><div class='panel-heading'><div><p class='eyebrow'>Before dispatch</p><h1>Repair visits</h1></div><span class='count'>3</span></div><div class='queue-filters' role='group' aria-label='Queue view'><button class='filter active' aria-pressed='true'>Needs review</button><button class='filter' aria-pressed='false'>All today</button></div><nav class='visit-queue' aria-label='Visits awaiting review'><button class='queue-item selected' aria-current='true'><span class='queue-topline'><span class='visit-id'>V-2187</span><span class='sla sla-high'>SLA 4h</span></span><span class='customer-name'>Mallory Chen</span><span class='state-line'><span class='state-indicator'></span>Needs gate code</span></button><button class='queue-item'><span class='queue-topline'><span class='visit-id'>V-2188</span><span class='sla sla-neutral'>Tomorrow</span></span><span class='customer-name'>Owen Patel</span><span class='state-line'><span class='state-indicator gray'></span>Parts shortage</span></button><button class='queue-item'><span class='queue-topline'><span class='visit-id'>V-2189</span><span class='sla sla-critical'>SLA 2h</span></span><span class='customer-name'>Rae Wilson</span><span class='state-line'><span class='state-indicator red'></span>Route conflict</span></button></nav><div class='queue-foot'>Review route, parts readiness, site access, and SLA risk before releasing a technician.</div></aside><section class='visit-panel' aria-labelledby='visit-title'><p class='breadcrumb'>Repair visit / V-2187</p><div class='visit-title-row'><div><h2 id='visit-title'>Mallory Chen</h2><div class='meta-row'><span class='pill'>Priority repair</span><span class='pill sla-pill'>SLA 4h</span></div></div></div><div class='status-card' role='status'><div><strong>Dispatch blocked by missing site access</strong><p>Route, technician qualification, and the required part are ready. Confirm the customer gate code before release.</p></div><button class='blocked-button'>Request gate code</button></div><article class='request-card'><p class='section-kicker'>Service request</p><p>Kitchen freezer repair needs dispatch before the service window closes.</p></article><div class='section-heading'><h3>Dispatch constraints</h3><span class='readiness-count'>2 ready · 1 blocked</span></div><div class='constraint-grid'><article class='constraint-card'><div class='constraint-top'><span class='constraint-icon'>R</span><span class='constraint-state ready'>Ready</span></div><h4>Route &amp; qualification</h4><p class='constraint-value'>Technician Reyes</p><p class='constraint-detail'>18 minutes from the site and certified for the freezer unit.</p></article><article class='constraint-card'><div class='constraint-top'><span class='constraint-icon'>P</span><span class='constraint-state ready'>Ready</span></div><h4>Parts readiness</h4><p class='constraint-value'>Replacement fan motor</p><p class='constraint-detail'>Available at the west depot.</p></article><article class='constraint-card blocked'><div class='constraint-top'><span class='constraint-icon'>A</span><span class='constraint-state missing'>Missing</span></div><h4>Site access</h4><p class='constraint-value'>Customer gate code</p><p class='constraint-detail'>Required before the technician can be dispatched.</p></article></div><div class='policy-strip'><span class='policy-label'>Dispatch policy</span><span>Same-day SLA visits can be assigned when parts and site access are confirmed. Missing access details return to dispatch support.</span></div></section><aside class='decision-panel' aria-labelledby='decision-title'><header class='decision-header'><p class='eyebrow'>Dispatch handoff</p><h2 id='decision-title'>Choose next action</h2><p>Record the technician, timing constraint, and reason for the next team.</p></header><div class='recommendation'><div class='recommendation-title'><span class='recommendation-mark'>✓</span>Recommended path</div><p>Confirm site access, then assign Reyes. Parts are available, so rescheduling is not indicated.</p></div><div class='decision-options' role='radiogroup' aria-label='Dispatch decision'><label class='decision-option selected'><span class='decision-label'><input type='radio' name='dispatch-decision' checked><span class='option-copy'><strong>Assign after access confirmation</strong><span>Best route and qualification fit for this visit.</span></span></span></label><label class='decision-option'><span class='decision-label'><input type='radio' name='dispatch-decision'><span class='option-copy'><strong>Reschedule for parts</strong><span>Not needed while the fan motor remains available.</span></span></span></label><label class='decision-option'><span class='decision-label'><input type='radio' name='dispatch-decision'><span class='option-copy'><strong>Escalate for SLA risk</strong><span>Use if access cannot be confirmed before the service window closes.</span></span></span></label></div><div class='handoff-fields'><h3>Handoff details</h3><label class='field'>Technician<select><option>Reyes — qualified, 18 min away</option></select></label><label class='field'>Next action<select><option>Request gate code from dispatch support</option></select></label><label class='field'>Timing constraint<input type='text' value='Before the service window closes' readonly></label><label class='field'>Reason<textarea readonly>Route and certification fit; the fan motor is available. Site access must be confirmed before dispatch.</textarea></label></div><div class='action-area'><button class='primary-action'>Send to dispatch support</button><button class='secondary-action'>Save handoff</button><p class='action-note'><span class='lock-dot'></span>Technician release stays blocked until access is confirmed.</p></div></aside></div></main>"
+  },
+  "raw_response": "{\"summary\":\"A three-pane same-day dispatch workspace that surfaces the visit queue, route, parts, and access constraints, and a policy-aligned handoff for V-2187.\",\"css\":\"*{box-sizing:border-box}body{margin:0;background:#e9eef1;color:#182329;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}.dispatch-app{height:900px;min-width:1180px;background:#f4f6f7;overflow:hidden}.topbar{height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:#17362f;color:#fff;border-bottom:1px solid #315048}.brand-lockup,.brand-copy,.shift-meta,.visit-title-row,.meta-row,.queue-topline,.state-line,.constraint-top,.decision-label,.recommendation-title,.action-note{display:flex;align-items:center}.brand-lockup{gap:12px}.brand-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:#d4f16f;color:#17362f;font-size:12px;font-weight:800;letter-spacing:.04em}.brand-copy{gap:10px;font-weight:700}.brand-divider{width:1px;height:18px;background:#567068}.brand-subtitle{color:#c5d1cd;font-size:13px;font-weight:500}.shift-meta{gap:10px;font-size:13px}.shift-meta .muted{color:#b8c7c2}.status-dot{width:8px;height:8px;border-radius:50%;background:#d4f16f;box-shadow:0 0 0 3px rgba(212,241,111,.14)}.avatar{width:34px;height:34px;border:1px solid #617a73;border-radius:50%;background:#24483f;color:#fff;font-weight:700}.workspace{height:calc(100% - 68px);display:grid;grid-template-columns:264px minmax(0,1fr) 370px}.queue-panel,.decision-panel,.visit-panel{min-height:0;overflow-y:auto}.queue-panel{display:flex;flex-direction:column;background:#fff;border-right:1px solid #d9e0e3}.panel-heading{display:flex;align-items:flex-end;justify-content:space-between;padding:24px 20px 14px}.eyebrow{margin:0 0 5px;color:#65747b;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.panel-heading h1,.decision-header h2{margin:0;color:#17252b;font-size:21px;line-height:1.2}.count{display:grid;place-items:center;min-width:28px;height:28px;padding:0 8px;border-radius:14px;background:#eef2f3;color:#43545b;font-size:12px;font-weight:800}.queue-filters{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin:0 14px 14px;padding:4px;background:#eef2f3;border-radius:9px}.filter{padding:8px;border:0;border-radius:6px;background:transparent;color:#627178;font-size:12px;font-weight:700}.filter.active{background:#fff;color:#17362f;box-shadow:0 1px 3px rgba(20,35,41,.12)}.visit-queue{display:flex;flex-direction:column;gap:8px;padding:0 12px}.queue-item{width:100%;padding:14px;border:1px solid transparent;border-radius:10px;background:transparent;color:inherit;text-align:left}.queue-item.selected{background:#eef7f2;border-color:#a9c8b9;box-shadow:inset 3px 0 0 #28745b}.queue-item:not(.selected){border-color:#e6ebed}.queue-topline{justify-content:space-between;margin-bottom:8px}.visit-id{color:#5d6d74;font-size:11px;font-weight:800;letter-spacing:.06em}.sla{padding:3px 6px;border-radius:5px;font-size:10px;font-weight:800}.sla-high{background:#fff0df;color:#96511c}.sla-critical{background:#ffe8e5;color:#a33b31}.sla-neutral{background:#eef1f2;color:#596970}.customer-name{display:block;margin-bottom:5px;font-size:14px;font-weight:750}.state-line{gap:7px;color:#69777d;font-size:12px}.state-indicator{width:7px;height:7px;border-radius:50%;background:#d57b35}.state-indicator.red{background:#c85045}.state-indicator.gray{background:#89969b}.queue-foot{margin-top:auto;padding:16px 20px 20px;border-top:1px solid #e3e8ea;color:#65747b;font-size:11px;line-height:1.45}.visit-panel{padding:26px 28px 32px;background:#f6f8f8}.breadcrumb{margin:0 0 12px;color:#66767c;font-size:12px;font-weight:650}.visit-title-row{justify-content:space-between;gap:16px}.visit-title-row h2{margin:0;color:#14242a;font-size:28px;line-height:1.15}.meta-row{gap:8px;margin-top:10px}.pill{padding:5px 8px;border:1px solid #d9e0e2;border-radius:6px;background:#fff;color:#53636a;font-size:11px;font-weight:750}.pill.sla-pill{border-color:#edcda9;background:#fff8ed;color:#8c4c1d}.status-card{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;margin-top:22px;padding:16px 18px;border:1px solid #efc9ad;border-left:4px solid #d46b30;border-radius:10px;background:#fff8f1}.status-card strong{display:block;margin-bottom:4px;color:#713818;font-size:14px}.status-card p{margin:0;color:#725847;font-size:12px;line-height:1.5}.blocked-button{flex:none;padding:9px 12px;border:1px solid #dfb594;border-radius:7px;background:#fff;color:#85441f;font-size:12px;font-weight:800}.request-card{margin-top:18px;padding:18px;border:1px solid #dce3e5;border-radius:10px;background:#fff}.section-kicker{margin:0 0 7px;color:#66767c;font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase}.request-card p:last-child{margin:0;color:#2a3b42;font-size:14px;line-height:1.55}.section-heading{display:flex;align-items:center;justify-content:space-between;margin:24px 0 12px}.section-heading h3,.handoff-fields h3{margin:0;color:#1c2d33;font-size:15px}.readiness-count{color:#5b6d74;font-size:11px;font-weight:750}.constraint-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.constraint-card{min-height:166px;padding:15px;border:1px solid #dbe2e4;border-radius:10px;background:#fff}.constraint-card.blocked{border-color:#e7b994;background:#fffaf5}.constraint-top{justify-content:space-between;margin-bottom:15px}.constraint-icon{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:#e7f2ed;color:#21634d;font-size:12px;font-weight:900}.constraint-card.blocked .constraint-icon{background:#fbe7d6;color:#9a4c21}.constraint-state{font-size:10px;font-weight:850;text-transform:uppercase;letter-spacing:.05em}.constraint-state.ready{color:#287157}.constraint-state.missing{color:#a04d23}.constraint-card h4{margin:0 0 8px;font-size:13px}.constraint-value{margin:0 0 6px;color:#23353c;font-size:13px;font-weight:750;line-height:1.35}.constraint-detail{margin:0;color:#69787e;font-size:11px;line-height:1.45}.policy-strip{display:flex;gap:12px;margin-top:18px;padding:14px 16px;border-radius:9px;background:#eaf0f2;color:#465961;font-size:12px;line-height:1.5}.policy-label{flex:none;color:#17362f;font-weight:850}.decision-panel{padding:24px;background:#fff;border-left:1px solid #d9e0e3}.decision-header{margin-bottom:16px}.decision-header p:last-child{margin:8px 0 0;color:#68777d;font-size:12px;line-height:1.45}.recommendation{padding:14px;border:1px solid #aacdbc;border-radius:10px;background:#edf8f2}.recommendation-title{gap:8px;color:#205e49;font-size:12px;font-weight:850}.recommendation-mark{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#28745b;color:#fff;font-size:11px}.recommendation p{margin:7px 0 0;color:#3e5c50;font-size:12px;line-height:1.45}.decision-options{display:flex;flex-direction:column;gap:8px;margin:16px 0 20px}.decision-option{display:block;padding:12px;border:1px solid #dce3e5;border-radius:9px;background:#fff}.decision-option.selected{border-color:#74a992;background:#f1f8f4;box-shadow:inset 0 0 0 1px #74a992}.decision-label{align-items:flex-start;gap:9px}.decision-label input{margin:3px 0 0;accent-color:#28745b}.option-copy strong{display:block;color:#22343a;font-size:12px}.option-copy span{display:block;margin-top:4px;color:#6a797f;font-size:11px;line-height:1.35}.handoff-fields{padding-top:18px;border-top:1px solid #e1e6e8}.field{display:block;margin-top:12px;color:#52636a;font-size:11px;font-weight:750}.field select,.field input,.field textarea{width:100%;margin-top:6px;padding:10px 11px;border:1px solid #cfd8db;border-radius:7px;background:#fff;color:#24363d;font:inherit;font-size:12px;outline:none}.field textarea{height:62px;resize:none;line-height:1.4}.field select:focus,.field input:focus,.field textarea:focus{border-color:#28745b;box-shadow:0 0 0 3px rgba(40,116,91,.12)}.action-area{margin-top:18px}.primary-action,.secondary-action{width:100%;padding:11px 14px;border-radius:8px;font-size:12px;font-weight:850}.primary-action{border:1px solid #17362f;background:#17362f;color:#fff}.secondary-action{margin-top:8px;border:1px solid #cdd7da;background:#fff;color:#34474e}.action-note{justify-content:center;gap:6px;margin:10px 0 0;color:#8b552e;font-size:10px;font-weight:700}.lock-dot{width:6px;height:6px;border-radius:50%;background:#d46b30}button,select{cursor:pointer}button:focus-visible{outline:3px solid rgba(40,116,91,.25);outline-offset:2px}@media(max-width:1200px){.workspace{grid-template-columns:238px minmax(0,1fr) 340px}.visit-panel{padding-left:22px;padding-right:22px}.constraint-grid{gap:7px}.constraint-card{padding:12px}}\",\"html\":\"<main data-primary-surface class='dispatch-app' aria-label='Same-day repair dispatch workspace'><header class='topbar'><div class='brand-lockup'><span class='brand-mark'>FO</span><div class='brand-copy'><span>Field Operations</span><span class='brand-divider'></span><span class='brand-subtitle'>Dispatch desk</span></div></div><div class='shift-meta'><span class='status-dot'></span><span>Same-day dispatch</span><span class='muted'>3 visits need review</span><button class='avatar' aria-label='Open manager profile'>MO</button></div></header><div class='workspace'><aside class='queue-panel' aria-label='Repair visit queue'><div class='panel-heading'><div><p class='eyebrow'>Before dispatch</p><h1>Repair visits</h1></div><span class='count'>3</span></div><div class='queue-filters' role='group' aria-label='Queue view'><button class='filter active' aria-pressed='true'>Needs review</button><button class='filter' aria-pressed='false'>All today</button></div><nav class='visit-queue' aria-label='Visits awaiting review'><button class='queue-item selected' aria-current='true'><span class='queue-topline'><span class='visit-id'>V-2187</span><span class='sla sla-high'>SLA 4h</span></span><span class='customer-name'>Mallory Chen</span><span class='state-line'><span class='state-indicator'></span>Needs gate code</span></button><button class='queue-item'><span class='queue-topline'><span class='visit-id'>V-2188</span><span class='sla sla-neutral'>Tomorrow</span></span><span class='customer-name'>Owen Patel</span><span class='state-line'><span class='state-indicator gray'></span>Parts shortage</span></button><button class='queue-item'><span class='queue-topline'><span class='visit-id'>V-2189</span><span class='sla sla-critical'>SLA 2h</span></span><span class='customer-name'>Rae Wilson</span><span class='state-line'><span class='state-indicator red'></span>Route conflict</span></button></nav><div class='queue-foot'>Review route, parts readiness, site access, and SLA risk before releasing a technician.</div></aside><section class='visit-panel' aria-labelledby='visit-title'><p class='breadcrumb'>Repair visit / V-2187</p><div class='visit-title-row'><div><h2 id='visit-title'>Mallory Chen</h2><div class='meta-row'><span class='pill'>Priority repair</span><span class='pill sla-pill'>SLA 4h</span></div></div></div><div class='status-card' role='status'><div><strong>Dispatch blocked by missing site access</strong><p>Route, technician qualification, and the required part are ready. Confirm the customer gate code before release.</p></div><button class='blocked-button'>Request gate code</button></div><article class='request-card'><p class='section-kicker'>Service request</p><p>Kitchen freezer repair needs dispatch before the service window closes.</p></article><div class='section-heading'><h3>Dispatch constraints</h3><span class='readiness-count'>2 ready · 1 blocked</span></div><div class='constraint-grid'><article class='constraint-card'><div class='constraint-top'><span class='constraint-icon'>R</span><span class='constraint-state ready'>Ready</span></div><h4>Route &amp; qualification</h4><p class='constraint-value'>Technician Reyes</p><p class='constraint-detail'>18 minutes from the site and certified for the freezer unit.</p></article><article class='constraint-card'><div class='constraint-top'><span class='constraint-icon'>P</span><span class='constraint-state ready'>Ready</span></div><h4>Parts readiness</h4><p class='constraint-value'>Replacement fan motor</p><p class='constraint-detail'>Available at the west depot.</p></article><article class='constraint-card blocked'><div class='constraint-top'><span class='constraint-icon'>A</span><span class='constraint-state missing'>Missing</span></div><h4>Site access</h4><p class='constraint-value'>Customer gate code</p><p class='constraint-detail'>Required before the technician can be dispatched.</p></article></div><div class='policy-strip'><span class='policy-label'>Dispatch policy</span><span>Same-day SLA visits can be assigned when parts and site access are confirmed. Missing access details return to dispatch support.</span></div></section><aside class='decision-panel' aria-labelledby='decision-title'><header class='decision-header'><p class='eyebrow'>Dispatch handoff</p><h2 id='decision-title'>Choose next action</h2><p>Record the technician, timing constraint, and reason for the next team.</p></header><div class='recommendation'><div class='recommendation-title'><span class='recommendation-mark'>✓</span>Recommended path</div><p>Confirm site access, then assign Reyes. Parts are available, so rescheduling is not indicated.</p></div><div class='decision-options' role='radiogroup' aria-label='Dispatch decision'><label class='decision-option selected'><span class='decision-label'><input type='radio' name='dispatch-decision' checked><span class='option-copy'><strong>Assign after access confirmation</strong><span>Best route and qualification fit for this visit.</span></span></span></label><label class='decision-option'><span class='decision-label'><input type='radio' name='dispatch-decision'><span class='option-copy'><strong>Reschedule for parts</strong><span>Not needed while the fan motor remains available.</span></span></span></label><label class='decision-option'><span class='decision-label'><input type='radio' name='dispatch-decision'><span class='option-copy'><strong>Escalate for SLA risk</strong><span>Use if access cannot be confirmed before the service window closes.</span></span></span></label></div><div class='handoff-fields'><h3>Handoff details</h3><label class='field'>Technician<select><option>Reyes — qualified, 18 min away</option></select></label><label class='field'>Next action<select><option>Request gate code from dispatch support</option></select></label><label class='field'>Timing constraint<input type='text' value='Before the service window closes' readonly></label><label class='field'>Reason<textarea readonly>Route and certification fit; the fan motor is available. Site access must be confirmed before dispatch.</textarea></label></div><div class='action-area'><button class='primary-action'>Send to dispatch support</button><button class='secondary-action'>Save handoff</button><p class='action-note'><span class='lock-dot'></span>Technician release stays blocked until access is confirmed.</p></div></aside></div></main>\"}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "829e2bf9cc2434aa18eb6c4e814a1fe369c6c28230a03d3bbb83104916d84068",
+    "stderr_sha256": "0eccf7e47c78920410dfa80c0dcc1d4cd08f12eabc5ce7f2f2cd799e7fa39e82"
+  }
+}

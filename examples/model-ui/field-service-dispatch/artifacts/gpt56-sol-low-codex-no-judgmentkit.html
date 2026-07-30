@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Field service dispatch - GPT-5.6 Sol Light via codex exec - Raw brief</title>
+    <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f5f3ed;
+      --panel: #ffffff;
+      --ink: #17231f;
+      --muted: #65726d;
+      --line: #d9d3c7;
+      --accent: #245f73;
+      --accent-strong: #174352;
+      --warning: #8a5a16;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .raw-model-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--canvas);
+    }
+    .raw-model-candidate > section,
+    .raw-model-candidate .card,
+    .raw-model-candidate .panel {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .raw-model-candidate ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .app-shell .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #eef6f7;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: #fff7e8;
+      color: var(--warning);
+    }
+    .app-shell .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .app-shell .queue,
+    .app-shell .detail {
+      padding: 16px;
+    }
+    .app-shell .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .app-shell .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      text-align: left;
+    }
+    .app-shell .queue-item small {
+      color: var(--muted);
+    }
+    .app-shell .queue-item.is-selected {
+      border-color: var(--accent);
+      background: #edf6f7;
+    }
+    .app-shell .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .app-shell .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
+      padding: 14px;
+    }
+    .app-shell .info-grid > div {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #faf9f5;
+    }
+    .app-shell .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .app-shell .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .app-shell .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .app-shell .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--accent-strong);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .app-shell .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-shell .actions button,
+    .app-shell .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .app-shell button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .app-shell .handoff {
+      padding: 14px;
+      background: #f3f8f8;
+    }
+    .raw-brief-candidate .app-header {
+      background: #fff8ea;
+      border: 1px solid #e5c98f;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .reviewed-candidate .app-header {
+      background: #eef6f7;
+      border: 1px solid #b8d2d7;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--ink);
+    }
+    .design-system {
+      --canvas: #f7f4ee;
+      --panel: #ffffff;
+      --ink: #182521;
+      --muted: #64716b;
+      --line: #d9d3c5;
+      --accent: #0f766e;
+      --accent-strong: #0f4f49;
+      --warning: #9a5b16;
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
+        display: grid;
+      }
+      .app-shell .workspace,
+      .app-shell .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+    <style data-model-css>:root{color-scheme:light;--ink:#17211d;--muted:#64706a;--line:#d9e0dc;--soft:#f3f6f4;--paper:#fff;--green:#176b4a;--green-soft:#e7f4ed;--amber:#8a5708;--amber-soft:#fff3d6;--red:#a63d32;--red-soft:#fae9e6;--navy:#20364f}*{box-sizing:border-box}body{margin:0;background:#edf1ee;color:var(--ink);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}.dispatch-app{width:100%;min-height:900px;background:var(--soft)}button{font:inherit}.topbar{height:68px;padding:0 28px;display:flex;align-items:center;justify-content:space-between;background:var(--navy);color:#fff}.brand{display:flex;align-items:center;gap:12px}.brand-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:#56b789;color:#102b20;font-weight:800}.brand strong{display:block;font-size:16px}.brand span{display:block;color:#c9d7e2;font-size:12px}.top-meta{display:flex;align-items:center;gap:18px;color:#dbe5ec}.top-meta strong{color:#fff}.workspace{display:grid;grid-template-columns:290px minmax(0,1fr);min-height:832px}.queue-panel{padding:22px 18px;border-right:1px solid var(--line);background:#f8faf9}.panel-heading,.section-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.panel-heading h1{margin:0;font-size:18px}.panel-heading p,.section-heading p{margin:4px 0 0;color:var(--muted);font-size:12px}.count{padding:3px 8px;border-radius:99px;background:#e4eae6;color:#43504a;font-size:12px}.filter-row{display:flex;gap:6px;margin:18px 0 14px}.filter{padding:7px 10px;border:1px solid var(--line);border-radius:7px;background:#fff;color:#58635e}.filter.active{border-color:#789e8d;background:#e8f2ed;color:#185d42;font-weight:700}.queue-list{display:grid;gap:9px}.queue-item{width:100%;padding:14px;text-align:left;border:1px solid var(--line);border-radius:10px;background:#fff;color:inherit}.queue-item.selected{border-color:#2c7a59;box-shadow:inset 3px 0 #2c7a59;background:#f4faf7}.queue-top,.queue-bottom{display:flex;justify-content:space-between;gap:10px}.queue-top strong{font-size:13px}.queue-item h2{margin:7px 0 9px;font-size:15px}.queue-bottom{align-items:center;color:var(--muted);font-size:12px}.state{font-weight:700}.state.blocked{color:var(--amber)}.state.risk{color:var(--red)}.detail{padding:24px 28px 32px;overflow:hidden}.visit-header{display:flex;align-items:flex-start;justify-content:space-between;gap:24px;margin-bottom:18px}.eyebrow{margin:0 0 5px;color:var(--green);font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.visit-header h1{margin:0;font-size:26px;line-height:1.2}.visit-header p{margin:6px 0 0;color:var(--muted)}.sla-card{min-width:190px;padding:12px 14px;border:1px solid #e5bd75;border-radius:10px;background:var(--amber-soft)}.sla-card span{display:block;color:#76511d;font-size:12px}.sla-card strong{display:block;margin-top:2px;color:#70450a;font-size:18px}.content-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(320px,.8fr);gap:18px}.card{border:1px solid var(--line);border-radius:12px;background:var(--paper);box-shadow:0 1px 2px rgba(22,34,28,.04)}.card-body{padding:18px}.section-heading{margin-bottom:15px}.section-heading h2{margin:0;font-size:16px}.badge{padding:4px 9px;border-radius:99px;font-size:12px;font-weight:700}.badge.amber{background:var(--amber-soft);color:var(--amber)}.badge.green{background:var(--green-soft);color:var(--green)}.fact-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.fact{min-height:88px;padding:12px;border:1px solid var(--line);border-radius:9px;background:#fafcfb}.fact span{display:block;color:var(--muted);font-size:12px}.fact strong{display:block;margin:6px 0 2px}.fact small{color:var(--muted)}.fact.attention{border-color:#e4b963;background:#fffaf0}.constraint-list{display:grid;gap:10px;margin-top:14px}.constraint{display:flex;gap:11px;padding:12px;border-radius:9px;background:var(--soft)}.constraint-icon{display:grid;place-items:center;flex:0 0 25px;height:25px;border-radius:50%;background:#dce7e1;color:var(--green);font-weight:800}.constraint.warning .constraint-icon{background:#f8dfaa;color:var(--amber)}.constraint strong,.constraint span{display:block}.constraint span{margin-top:2px;color:var(--muted);font-size:12px}.tech-card{margin-top:18px}.tech-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;padding:13px 0;border-top:1px solid var(--line)}.tech-row:first-of-type{border-top:0}.avatar{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:#dbe8e2;color:#245b45;font-weight:800}.tech-copy strong,.tech-copy span{display:block}.tech-copy span{color:var(--muted);font-size:12px}.tech-fit{text-align:right}.tech-fit strong,.tech-fit span{display:block}.tech-fit strong{color:var(--green)}.tech-fit span{color:var(--muted);font-size:12px}.decision-card{position:sticky;top:20px}.decision-options{display:grid;gap:9px}.decision-option{display:flex;gap:10px;padding:12px;border:1px solid var(--line);border-radius:9px;background:#fff}.decision-option.selected{border-color:#348061;background:#f1f8f4}.radio{flex:0 0 16px;width:16px;height:16px;margin-top:2px;border:2px solid #98a49e;border-radius:50%}.selected .radio{border:5px solid var(--green)}.decision-option strong,.decision-option span{display:block}.decision-option span{margin-top:2px;color:var(--muted);font-size:12px}.handoff{margin-top:16px;padding:14px;border-radius:9px;background:var(--soft)}.handoff h3{margin:0 0 10px;font-size:13px}.handoff dl{display:grid;grid-template-columns:88px 1fr;gap:8px;margin:0}.handoff dt{color:var(--muted)}.handoff dd{margin:0;font-weight:650}.notice{margin-top:14px;padding:11px 12px;border-left:3px solid var(--amber);background:var(--amber-soft);color:#694717;font-size:12px}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px}.btn{padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:#fff;color:#33413a;font-weight:700}.btn.primary{grid-column:1/-1;border-color:var(--green);background:var(--green);color:#fff}.footer-note{margin:10px 0 0;text-align:center;color:var(--muted);font-size:11px}@media(max-width:1000px){.workspace{grid-template-columns:250px 1fr}.content-grid{grid-template-columns:1fr}.decision-card{position:static}.fact-grid{grid-template-columns:1fr 1fr}}</style>
+
+  </head>
+  <body data-artifact-id="gpt56-sol-low-codex-no-judgmentkit" data-row-id="gpt56-sol-low-codex" data-column-id="no-judgmentkit" data-judgmentkit-mode="no_judgmentkit" data-design-system-mode="none">
+    <main class="dispatch-app raw-model-candidate" data-primary-surface><header class="topbar"><div class="brand"><div class="brand-mark">FD</div><div><strong>Field Dispatch</strong><span>Same-day repair desk</span></div></div><div class="top-meta"><span>Wednesday, July 29</span><span><strong>3</strong> visits need review</span></div></header><div class="workspace"><aside class="queue-panel" aria-label="Repair visit queue"><div class="panel-heading"><div><h1>Repair visits</h1><p>Review before dispatch</p></div><span class="count">3 open</span></div><div class="filter-row" aria-label="Queue filters"><button class="filter active" type="button">Needs action</button><button class="filter" type="button">All today</button></div><div class="queue-list"><button class="queue-item selected" type="button"><span class="queue-top"><strong>V-2187</strong><span>SLA 4h</span></span><h2>Mallory Chen</h2><span class="queue-bottom"><span class="state blocked">Needs gate code</span><span>Priority repair</span></span></button><button class="queue-item" type="button"><span class="queue-top"><strong>V-2188</strong><span>Tomorrow</span></span><h2>Owen Patel</h2><span class="queue-bottom"><span class="state blocked">Parts shortage</span><span>Standard</span></span></button><button class="queue-item" type="button"><span class="queue-top"><strong>V-2189</strong><span>SLA 2h</span></span><h2>Rae Wilson</h2><span class="queue-bottom"><span class="state risk">Route conflict</span><span>Priority repair</span></span></button></div></aside><section class="detail" aria-labelledby="visit-title"><header class="visit-header"><div><p class="eyebrow">Repair visit V-2187</p><h1 id="visit-title">Kitchen freezer repair</h1><p>Mallory Chen · Priority repair</p></div><div class="sla-card"><span>Service window closes</span><strong>3:40 PM</strong><span>1h 32m remaining</span></div></header><div class="content-grid"><div><article class="card"><div class="card-body"><div class="section-heading"><div><h2>Dispatch readiness</h2><p>Facts that affect today’s visit</p></div><span class="badge amber">1 blocker</span></div><div class="fact-grid"><div class="fact"><span>Route</span><strong>18 min to site</strong><small>From current location</small></div><div class="fact"><span>Parts readiness</span><strong>Fan motor available</strong><small>West depot pickup</small></div><div class="fact attention"><span>Site access</span><strong>Gate code missing</strong><small>Confirm before dispatch</small></div></div><div class="constraint-list"><div class="constraint"><div class="constraint-icon">✓</div><div><strong>Qualified technician available</strong><span>Reyes is certified for this freezer unit.</span></div></div><div class="constraint"><div class="constraint-icon">✓</div><div><strong>Required part can be collected</strong><span>West depot is on the proposed route.</span></div></div><div class="constraint warning"><div class="constraint-icon">!</div><div><strong>Access confirmation required</strong><span>Same-day visits can dispatch only after site access is confirmed.</span></div></div></div></div></article><article class="card tech-card"><div class="card-body"><div class="section-heading"><div><h2>Technician fit</h2><p>Route, qualification, and availability</p></div></div><div class="tech-row"><div class="avatar">JR</div><div class="tech-copy"><strong>Jordan Reyes</strong><span>Freezer certified · Available now</span></div><div class="tech-fit"><strong>Best fit</strong><span>18 min away</span></div></div><div class="tech-row"><div class="avatar">AK</div><div class="tech-copy"><strong>Amara King</strong><span>Freezer certified · Visit ends 2:45 PM</span></div><div class="tech-fit"><strong>Backup</strong><span>37 min away</span></div></div></div></article></div><aside><article class="card decision-card"><div class="card-body"><div class="section-heading"><div><h2>Choose next action</h2><p>Prepare the dispatch handoff</p></div></div><div class="decision-options"><div class="decision-option selected"><span class="radio"></span><div><strong>Assign Reyes after access confirmation</strong><span>Hold the route while dispatch support gets the gate code.</span></div></div><div class="decision-option"><span class="radio"></span><div><strong>Reschedule for parts or access</strong><span>Move the visit if readiness cannot be confirmed in time.</span></div></div><div class="decision-option"><span class="radio"></span><div><strong>Escalate SLA risk</strong><span>Alert the service lead when the window is likely to be missed.</span></div></div></div><div class="handoff"><h3>Dispatch handoff</h3><dl><dt>Technician</dt><dd>Jordan Reyes</dd><dt>Next action</dt><dd>Get gate code, then dispatch</dd><dt>Timing</dt><dd>Confirm by 2:35 PM</dd><dt>Reason</dt><dd>Best qualified route; access still blocked</dd></dl></div><div class="notice"><strong>Dispatch is on hold.</strong> Site access must be confirmed before Reyes departs.</div><div class="actions"><button class="btn" type="button">Reschedule</button><button class="btn" type="button">Escalate risk</button><button class="btn primary" type="button">Send to dispatch support</button></div><p class="footer-note">This handoff will return for assignment when access is confirmed.</p></div></article></aside></div></section></div></main>
+    <aside class="provenance" aria-label="Artifact provenance">
+      <strong>Provenance:</strong>
+      <span>captured</span>
+      <span> - captured_model_output</span>
+      <span> - Raw brief</span>
+
+      <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
+      <p>Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.</p>
+      <p>Manifest entry: <code>artifacts/gpt56-sol-low-codex-no-judgmentkit.html</code></p>
+    </aside>
+    <script type="application/json" id="model-ui-provenance">{
+  "matrix_id": "field-service-dispatch-model-ui-v1",
+  "use_case_id": "field-service-dispatch",
+  "use_case_label": "Field service dispatch",
+  "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
+  "artifact_id": "gpt56-sol-low-codex-no-judgmentkit",
+  "row_id": "gpt56-sol-low-codex",
+  "column_id": "no-judgmentkit",
+  "model_label": "GPT-5.6 Sol Light",
+  "generation_source": "captured_model_output",
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "none",
+  "render_source": "model_static_html_css",
+  "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+  "reasoning_effort": "low",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": false,
+    "frontend_skill_context": false
+  },
+  "design_system_name": null,
+  "design_system_package": null,
+  "source_brief_file": "examples/model-ui/field-service-dispatch/source-brief.txt",
+  "handoff_source": null,
+  "design_system_adapter_file": null,
+  "capture_file": "captures/gpt56-sol-low-codex-no-judgmentkit.json",
+  "source_context_sha256": "cab5e9e53208adc647fb1d3512162144dd6e6997b3b80a21bb3210e1e42d37c0",
+  "current_source_context_sha256": "cab5e9e53208adc647fb1d3512162144dd6e6997b3b80a21bb3210e1e42d37c0",
+  "source_context_status": "current",
+  "model_response_summary": "A desktop dispatch workspace that keeps the repair queue, visit constraints, technician fit, and handoff decision visible without exposing implementation machinery.",
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
+  "capture_provenance": {
+    "status": "captured",
+    "capture_type": "model-output-transcript",
+    "captured_at": "2026-07-30T03:30:00.284Z",
+    "runner": "scripts/capture-model-ui-matrix.mjs",
+    "provider": "codex-cli",
+    "model": "gpt-5.6-sol",
+    "cli": "codex",
+    "transcript_file": "captures/gpt56-sol-low-codex-no-judgmentkit.json",
+    "prompt_sha256": "bb8ccc2467a2bac2e0620af02491c8274b263a026c443603d066a9098a4be086",
+    "raw_response_sha256": "681317c090e407988df59dae8cccc2dde4cc5519520fdc2c838b82a418293c2e",
+    "source_context_sha256": "cab5e9e53208adc647fb1d3512162144dd6e6997b3b80a21bb3210e1e42d37c0",
+    "reasoning_effort": "low",
+    "context_included": {
+      "source_brief": true,
+      "sample_case": true,
+      "reviewed_handoff": false,
+      "material_ui_adapter": false,
+      "frontend_skill_context": false
+    },
+    "frontend_context_status": null,
+    "frontend_skill_context_status": null,
+    "design_system_name": null,
+    "design_system_package": null,
+    "design_system_render_mode": null,
+    "lms_context": null,
+    "capture_quality": {
+      "profile": "basic_static_html_css",
+      "css_characters": 6340,
+      "html_characters": 5272,
+      "css_rule_count": 91,
+      "class_selector_count": 112,
+      "semantic_section_count": 8,
+      "structural_block_count": 62,
+      "button_count": 8,
+      "has_responsive_css": true,
+      "has_layout_css": true,
+      "has_panel_css": true,
+      "has_control_css": true,
+      "has_evidence_content": true,
+      "has_handoff_content": true,
+      "compact_template_signature": false,
+      "has_judgmentkit_default_tokens": false,
+      "jk_token_usage_count": 0,
+      "jk_token_reference_count": 0,
+      "unsupported_jk_tokens": [],
+      "jk_token_definition_count": 0,
+      "jk_token_definitions": [],
+      "disallowed_visual_tokens": [],
+      "inline_style_attribute_count": 0,
+      "hard_coded_visual_values": [
+        {
+          "source": "css",
+          "selector": ":root",
+          "property": "--ink",
+          "value": "#17211d"
+        },
+        {
+          "source": "css",
+          "selector": ":root",
+          "property": "--muted",
+          "value": "#64706a"
+        },
+        {
+          "source": "css",
+          "selector": ":root",
+          "property": "--line",
+          "value": "#d9e0dc"
+        },
+        {
+          "source": "css",
+          "selector": ":root",
+          "property": "--soft",
+          "value": "#f3f6f4"
+        },
+        {
+          "source": "css",
+          "selector": ":root",
+          "property": "--paper",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ":root",
+          "property": "--green",
+          "value": "#176b4a"
+        },
+        {
+          "source": "css",
+          "selector": ":root",
+          "property": "--green-soft",
+          "value": "#e7f4ed"
+        },
+        {
+          "source": "css",
+          "selector": ":root",
+          "property": "--amber",
+          "value": "#8a5708"
+        },
+        {
+          "source": "css",
+          "selector": ":root",
+          "property": "--amber-soft",
+          "value": "#fff3d6"
+        },
+        {
+          "source": "css",
+          "selector": ":root",
+          "property": "--red",
+          "value": "#a63d32"
+        },
+        {
+          "source": "css",
+          "selector": ":root",
+          "property": "--red-soft",
+          "value": "#fae9e6"
+        },
+        {
+          "source": "css",
+          "selector": ":root",
+          "property": "--navy",
+          "value": "#20364f"
+        },
+        {
+          "source": "css",
+          "selector": "body",
+          "property": "background",
+          "value": "#edf1ee"
+        },
+        {
+          "source": "css",
+          "selector": ".topbar",
+          "property": "background",
+          "value": "var(--navy)"
+        },
+        {
+          "source": "css",
+          "selector": ".topbar",
+          "property": "color",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".brand-mark",
+          "property": "background",
+          "value": "#56b789"
+        },
+        {
+          "source": "css",
+          "selector": ".brand-mark",
+          "property": "color",
+          "value": "#102b20"
+        },
+        {
+          "source": "css",
+          "selector": ".brand span",
+          "property": "color",
+          "value": "#c9d7e2"
+        },
+        {
+          "source": "css",
+          "selector": ".top-meta",
+          "property": "color",
+          "value": "#dbe5ec"
+        },
+        {
+          "source": "css",
+          "selector": ".top-meta strong",
+          "property": "color",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-panel",
+          "property": "background",
+          "value": "#f8faf9"
+        },
+        {
+          "source": "css",
+          "selector": ".count",
+          "property": "background",
+          "value": "#e4eae6"
+        },
+        {
+          "source": "css",
+          "selector": ".count",
+          "property": "color",
+          "value": "#43504a"
+        },
+        {
+          "source": "css",
+          "selector": ".filter",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".filter",
+          "property": "color",
+          "value": "#58635e"
+        },
+        {
+          "source": "css",
+          "selector": ".filter.active",
+          "property": "border-color",
+          "value": "#789e8d"
+        },
+        {
+          "source": "css",
+          "selector": ".filter.active",
+          "property": "background",
+          "value": "#e8f2ed"
+        },
+        {
+          "source": "css",
+          "selector": ".filter.active",
+          "property": "color",
+          "value": "#185d42"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-item",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-item.selected",
+          "property": "border-color",
+          "value": "#2c7a59"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-item.selected",
+          "property": "box-shadow",
+          "value": "inset 3px 0 #2c7a59"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-item.selected",
+          "property": "background",
+          "value": "#f4faf7"
+        },
+        {
+          "source": "css",
+          "selector": ".state.risk",
+          "property": "color",
+          "value": "var(--red)"
+        },
+        {
+          "source": "css",
+          "selector": ".eyebrow",
+          "property": "color",
+          "value": "var(--green)"
+        },
+        {
+          "source": "css",
+          "selector": ".sla-card",
+          "property": "border",
+          "value": "1px solid #e5bd75"
+        },
+        {
+          "source": "css",
+          "selector": ".sla-card span",
+          "property": "color",
+          "value": "#76511d"
+        },
+        {
+          "source": "css",
+          "selector": ".sla-card strong",
+          "property": "color",
+          "value": "#70450a"
+        },
+        {
+          "source": "css",
+          "selector": ".card",
+          "property": "box-shadow",
+          "value": "0 1px 2px rgba(22,34,28,.04)"
+        },
+        {
+          "source": "css",
+          "selector": ".badge.green",
+          "property": "background",
+          "value": "var(--green-soft)"
+        },
+        {
+          "source": "css",
+          "selector": ".badge.green",
+          "property": "color",
+          "value": "var(--green)"
+        },
+        {
+          "source": "css",
+          "selector": ".fact",
+          "property": "background",
+          "value": "#fafcfb"
+        },
+        {
+          "source": "css",
+          "selector": ".fact.attention",
+          "property": "border-color",
+          "value": "#e4b963"
+        },
+        {
+          "source": "css",
+          "selector": ".fact.attention",
+          "property": "background",
+          "value": "#fffaf0"
+        },
+        {
+          "source": "css",
+          "selector": ".constraint-icon",
+          "property": "background",
+          "value": "#dce7e1"
+        },
+        {
+          "source": "css",
+          "selector": ".constraint-icon",
+          "property": "color",
+          "value": "var(--green)"
+        },
+        {
+          "source": "css",
+          "selector": ".constraint.warning .constraint-icon",
+          "property": "background",
+          "value": "#f8dfaa"
+        },
+        {
+          "source": "css",
+          "selector": ".avatar",
+          "property": "background",
+          "value": "#dbe8e2"
+        },
+        {
+          "source": "css",
+          "selector": ".avatar",
+          "property": "color",
+          "value": "#245b45"
+        },
+        {
+          "source": "css",
+          "selector": ".tech-fit strong",
+          "property": "color",
+          "value": "var(--green)"
+        },
+        {
+          "source": "css",
+          "selector": ".decision-option",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".decision-option.selected",
+          "property": "border-color",
+          "value": "#348061"
+        },
+        {
+          "source": "css",
+          "selector": ".decision-option.selected",
+          "property": "background",
+          "value": "#f1f8f4"
+        },
+        {
+          "source": "css",
+          "selector": ".radio",
+          "property": "border",
+          "value": "2px solid #98a49e"
+        },
+        {
+          "source": "css",
+          "selector": ".selected .radio",
+          "property": "border",
+          "value": "5px solid var(--green)"
+        },
+        {
+          "source": "css",
+          "selector": ".notice",
+          "property": "color",
+          "value": "#694717"
+        },
+        {
+          "source": "css",
+          "selector": ".btn",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".btn",
+          "property": "color",
+          "value": "#33413a"
+        },
+        {
+          "source": "css",
+          "selector": ".btn.primary",
+          "property": "border-color",
+          "value": "var(--green)"
+        },
+        {
+          "source": "css",
+          "selector": ".btn.primary",
+          "property": "background",
+          "value": "var(--green)"
+        },
+        {
+          "source": "css",
+          "selector": ".btn.primary",
+          "property": "color",
+          "value": "#fff"
+        }
+      ],
+      "failures": [],
+      "status": "passed"
+    },
+    "source_context_status": "current",
+    "current_source_context_sha256": "cab5e9e53208adc647fb1d3512162144dd6e6997b3b80a21bb3210e1e42d37c0",
+    "accepted_source_context_sha256": "cab5e9e53208adc647fb1d3512162144dd6e6997b3b80a21bb3210e1e42d37c0",
+    "captured_source_context_sha256": "cab5e9e53208adc647fb1d3512162144dd6e6997b3b80a21bb3210e1e42d37c0",
+    "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+    "notes": "GPT-5.6 Sol Light output captured through codex for the JudgmentKit 5x4 model UI matrix."
+  },
+  "artifact_path": "artifacts/gpt56-sol-low-codex-no-judgmentkit.html",
+  "screenshot_path": "screenshots/gpt56-sol-low-codex-no-judgmentkit.png",
+  "approach_title": "GPT-5.6 Sol Light via codex exec - Raw brief",
+  "approach_caption": "GPT-5.6 Sol Light via codex exec receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+}</script>
+  </body>
+</html>

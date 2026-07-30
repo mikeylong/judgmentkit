@@ -1,0 +1,486 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Support refund triage - GPT-5.6 Sol Light via codex exec - JudgmentKit skill context</title>
+    <style>
+    :root {
+      --jk-color-canvas: #f8f7f2;
+      --jk-color-surface: #ffffff;
+      --jk-color-text: #171717;
+      --jk-color-muted: #61615c;
+      --jk-color-border: #d7d3c8;
+      --jk-color-focus: #245f73;
+      --jk-color-success: #2e6b48;
+      --jk-color-warning: #8a5a16;
+      --jk-color-risk: #8f342f;
+      --jk-color-disabled: #8a8f93;
+      --jk-color-receipt: #23615f;
+      --jk-space-2: 0.5rem;
+      --jk-space-3: 0.75rem;
+      --jk-space-4: 1rem;
+      --jk-radius-control: 4px;
+      --jk-radius-panel: 8px;
+      --jk-focus-ring: 0 0 0 3px rgba(36, 95, 115, 0.28);
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--jk-color-canvas);
+      color: var(--jk-color-text);
+      font: 15px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .raw-model-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--jk-color-canvas);
+    }
+    .raw-model-candidate > section,
+    .raw-model-candidate .card,
+    .raw-model-candidate .panel {
+      margin-top: 14px;
+      padding: var(--jk-space-4);
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: var(--jk-color-surface);
+    }
+    .raw-model-candidate ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--jk-color-muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--jk-color-receipt);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .app-shell .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+      color: var(--jk-color-receipt);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: color-mix(in srgb, var(--jk-color-warning) 12%, var(--jk-color-surface));
+      color: var(--jk-color-warning);
+    }
+    .app-shell .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: var(--jk-color-surface);
+    }
+    .app-shell .queue,
+    .app-shell .detail {
+      padding: var(--jk-space-4);
+    }
+    .app-shell .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .app-shell .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: var(--jk-color-surface);
+      color: var(--jk-color-text);
+      text-align: left;
+    }
+    .app-shell .queue-item small {
+      color: var(--jk-color-muted);
+    }
+    .app-shell .queue-item.is-selected {
+      border-color: var(--jk-color-focus);
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+    }
+    .app-shell .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .app-shell .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
+      padding: 14px;
+    }
+    .app-shell .info-grid > div {
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: color-mix(in srgb, var(--jk-color-canvas) 75%, var(--jk-color-surface));
+    }
+    .app-shell .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--jk-color-muted);
+      font-size: 13px;
+    }
+    .app-shell .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .app-shell .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .app-shell .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: 999px;
+      color: var(--jk-color-receipt);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .app-shell .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-shell .actions button,
+    .app-shell .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: var(--jk-color-surface);
+      color: var(--jk-color-text);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .app-shell button:focus-visible {
+      outline: none;
+      box-shadow: var(--jk-focus-ring);
+    }
+    .app-shell button.primary {
+      border-color: var(--jk-color-focus);
+      background: var(--jk-color-focus);
+      color: var(--jk-color-surface);
+    }
+    .app-shell .handoff {
+      padding: 14px;
+      background: color-mix(in srgb, var(--jk-color-receipt) 9%, var(--jk-color-surface));
+    }
+    .reviewed-candidate .app-header {
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+      border: 1px solid color-mix(in srgb, var(--jk-color-focus) 35%, var(--jk-color-border));
+      border-radius: var(--jk-radius-panel);
+      padding: 14px;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--jk-color-muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--jk-color-text);
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
+        display: grid;
+      }
+      .app-shell .workspace,
+      .app-shell .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+    <style data-model-css>* { box-sizing: border-box; }
+body { margin: 0; background: var(--jk-color-canvas); color: var(--jk-color-text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 14px; line-height: 1.45; }
+button, select, textarea { font: inherit; color: inherit; }
+.refund-workbench { min-height: 100vh; padding: var(--jk-space-4); }
+.page-header { display: flex; align-items: flex-end; justify-content: space-between; gap: var(--jk-space-4); max-width: 1333px; margin: 0 auto var(--jk-space-4); }
+.eyebrow { margin: 0 0 var(--jk-space-2); color: var(--jk-color-muted); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+h1, h2, h3, p { margin-top: 0; }
+h1 { margin-bottom: var(--jk-space-2); font-size: 24px; line-height: 1.2; }
+h2 { margin-bottom: var(--jk-space-3); font-size: 16px; }
+h3 { margin-bottom: var(--jk-space-2); font-size: 14px; }
+.subtitle, .muted, .helper { color: var(--jk-color-muted); }
+.subtitle, .helper { margin-bottom: 0; }
+.queue-count { white-space: nowrap; color: var(--jk-color-muted); }
+.workspace { display: grid; grid-template-columns: minmax(230px, 280px) minmax(430px, 1fr) minmax(300px, 360px); gap: var(--jk-space-4); max-width: 1333px; margin: 0 auto; align-items: start; }
+.panel { min-width: 0; background: var(--jk-color-surface); border: 1px solid var(--jk-color-border); border-radius: var(--jk-radius-panel); }
+.panel-heading { padding: var(--jk-space-4); border-bottom: 1px solid var(--jk-color-border); }
+.panel-heading h2, .panel-heading p { margin-bottom: 0; }
+.queue-list { display: grid; gap: 1px; background: var(--jk-color-border); }
+.queue-item { width: 100%; min-height: 88px; padding: var(--jk-space-3) var(--jk-space-4); border: 0; background: var(--jk-color-surface); text-align: left; cursor: pointer; }
+.queue-item:hover { background: var(--jk-color-canvas); }
+.queue-item[aria-current="true"] { border-left: 4px solid var(--jk-color-focus); background: var(--jk-color-canvas); padding-left: var(--jk-space-3); }
+.queue-row { display: flex; justify-content: space-between; gap: var(--jk-space-3); margin-bottom: 3px; }
+.case-id, .amount { font-variant-numeric: tabular-nums; font-weight: 700; }
+.customer { font-weight: 650; }
+.state { display: block; margin-top: 4px; color: var(--jk-color-muted); }
+.state-warning { color: var(--jk-color-warning); font-weight: 700; }
+.detail-body { padding: var(--jk-space-4); }
+.case-summary { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--jk-space-4); padding-bottom: var(--jk-space-4); border-bottom: 1px solid var(--jk-color-border); }
+.case-summary h2 { margin-bottom: 4px; font-size: 20px; }
+.price { font-size: 20px; font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.request { margin: var(--jk-space-4) 0; }
+.status-alert { padding: var(--jk-space-3); margin-bottom: var(--jk-space-4); border: 1px solid var(--jk-color-warning); border-radius: var(--jk-radius-control); color: var(--jk-color-warning); font-weight: 650; }
+.section { padding-top: var(--jk-space-4); margin-top: var(--jk-space-4); border-top: 1px solid var(--jk-color-border); }
+.evidence-list { padding: 0; margin: 0; list-style: none; }
+.evidence-list li { display: grid; grid-template-columns: 22px 1fr; gap: var(--jk-space-2); padding: var(--jk-space-2) 0; }
+.evidence-mark { font-weight: 800; color: var(--jk-color-success); }
+.evidence-missing .evidence-mark, .evidence-missing strong { color: var(--jk-color-warning); }
+.policy { padding: var(--jk-space-3); border-left: 3px solid var(--jk-color-focus); background: var(--jk-color-canvas); }
+.policy p { margin-bottom: 0; }
+.decision-panel { position: sticky; top: var(--jk-space-4); }
+.decision-body { padding: var(--jk-space-4); }
+.decision-options { display: grid; gap: var(--jk-space-2); }
+.decision-button { min-height: 48px; padding: var(--jk-space-3); border: 1px solid var(--jk-color-border); border-radius: var(--jk-radius-control); background: var(--jk-color-surface); text-align: left; font-weight: 700; cursor: pointer; }
+.decision-button:hover { border-color: var(--jk-color-focus); }
+.decision-button[aria-pressed="true"] { border: 2px solid var(--jk-color-warning); color: var(--jk-color-warning); background: var(--jk-color-canvas); }
+.field { display: grid; gap: var(--jk-space-2); margin-top: var(--jk-space-4); }
+.field label { font-weight: 700; }
+.field select, .field textarea { width: 100%; border: 1px solid var(--jk-color-border); border-radius: var(--jk-radius-control); background: var(--jk-color-surface); }
+.field select { min-height: 44px; padding: 0 var(--jk-space-3); }
+.field textarea { min-height: 112px; padding: var(--jk-space-3); resize: vertical; }
+.handoff-preview { margin-top: var(--jk-space-4); padding: var(--jk-space-3); border: 1px solid var(--jk-color-receipt); border-radius: var(--jk-radius-control); }
+.handoff-preview strong { color: var(--jk-color-receipt); }
+.send-button { width: 100%; min-height: 48px; margin-top: var(--jk-space-4); padding: var(--jk-space-3) var(--jk-space-4); border: 1px solid var(--jk-color-focus); border-radius: var(--jk-radius-control); background: var(--jk-color-focus); color: var(--jk-color-surface); font-weight: 750; cursor: pointer; }
+button:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--jk-color-focus); outline-offset: 2px; box-shadow: var(--jk-focus-ring); }
+button:disabled, select:disabled, textarea:disabled { border-color: var(--jk-color-disabled); color: var(--jk-color-disabled); cursor: not-allowed; }
+@media (max-width: 980px) { .workspace { grid-template-columns: 230px minmax(0, 1fr); } .decision-panel { position: static; grid-column: 1 / -1; } }
+@media (max-width: 680px) { .refund-workbench { padding: var(--jk-space-3); } .page-header { align-items: flex-start; flex-direction: column; } .workspace { grid-template-columns: 1fr; } .decision-panel { grid-column: auto; } .queue-list { grid-template-columns: 1fr; } .case-summary { flex-direction: column; } .price { font-size: 18px; } }
+    .raw-model-candidate {
+      background: var(--jk-color-canvas) !important;
+      color: var(--jk-color-text) !important;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    }
+    .raw-model-candidate :is(section, article, aside, header, footer, .panel, .card, [class*="panel"], [class*="card"], [class*="queue"], [class*="detail"]) {
+      border-color: var(--jk-color-border) !important;
+      background-color: var(--jk-color-surface) !important;
+    }
+    .raw-model-candidate :is(p, small, span, li, dd) {
+      color: var(--jk-color-muted);
+    }
+    .raw-model-candidate :is(h1, h2, h3, h4, strong, dt) {
+      color: var(--jk-color-text);
+    }
+    .raw-model-candidate button {
+      border-color: var(--jk-color-border) !important;
+      border-radius: var(--jk-radius-control) !important;
+      background: var(--jk-color-surface) !important;
+      color: var(--jk-color-text) !important;
+    }
+    .raw-model-candidate .primary {
+      border-color: var(--jk-color-focus) !important;
+      background: var(--jk-color-focus) !important;
+      color: var(--jk-color-surface) !important;
+    }</style>
+
+  </head>
+  <body data-artifact-id="gpt56-sol-low-codex-with-judgmentkit" data-row-id="gpt56-sol-low-codex" data-column-id="with-judgmentkit" data-judgmentkit-mode="with_judgmentkit" data-design-system-mode="none">
+    <main class="refund-workbench raw-model-candidate" data-primary-surface aria-labelledby="page-title"><header class="page-header"><div><p class="eyebrow">Support operations</p><h1 id="page-title">Refund escalation review</h1><p class="subtitle">Review the evidence, choose the next path, and send a clear handoff.</p></div><p class="queue-count">3 cases in queue</p></header><div class="workspace"><nav class="panel" aria-labelledby="queue-title"><div class="panel-heading"><h2 id="queue-title">Refund queue</h2></div><div class="queue-list"><button class="queue-item" type="button" aria-current="true"><span class="queue-row"><span class="case-id">R-1842</span><span class="amount">$184.20</span></span><span class="customer">Nora Diaz</span><span class="state state-warning">Needs receipt</span></button><button class="queue-item" type="button"><span class="queue-row"><span class="case-id">R-1843</span><span class="amount">$89.00</span></span><span class="customer">Jun Park</span><span class="state">Policy question</span></button><button class="queue-item" type="button"><span class="queue-row"><span class="case-id">R-1844</span><span class="amount">$312.75</span></span><span class="customer">Amara Blake</span><span class="state">Manager review</span></button></div></nav><article class="panel" aria-labelledby="case-title"><div class="detail-body"><div class="case-summary"><div><p class="eyebrow">Selected request · R-1842</p><h2 id="case-title">Nora Diaz</h2><p class="muted">Pro annual</p></div><div class="price">$184.20</div></div><p class="request">Subscription renewal disputed after agent escalation.</p><div class="status-alert" role="status">Action needed: receipt photo is missing before approval.</div><section class="section" aria-labelledby="evidence-title"><h3 id="evidence-title">Evidence checklist</h3><ul class="evidence-list"><li><span class="evidence-mark" aria-hidden="true">✓</span><span>Renewal date confirmed in purchase history.</span></li><li><span class="evidence-mark" aria-hidden="true">✓</span><span>Support note captures the customer’s refund reason.</span></li><li class="evidence-missing"><span class="evidence-mark" aria-hidden="true">!</span><span><strong>Missing:</strong> Receipt photo required before manager approval.</span></li></ul></section><section class="section" aria-labelledby="policy-title"><h3 id="policy-title">Policy context</h3><div class="policy"><p>Inside exception window. Manager approval is allowed when evidence is complete. Unclear duplicate-charge cases go to policy review.</p></div></section></div></article><aside class="panel decision-panel" aria-labelledby="decision-title"><div class="panel-heading"><h2 id="decision-title">Decision path</h2><p class="helper">Choose the path supported by the evidence.</p></div><div class="decision-body"><div class="decision-options" role="group" aria-label="Refund decision"><button class="decision-button" type="button" aria-pressed="false">Approve refund</button><button class="decision-button" type="button" aria-pressed="false">Send to policy review</button><button class="decision-button" type="button" aria-pressed="true">Return for evidence</button></div><div class="field"><label for="next-owner">Next owner</label><select id="next-owner" name="next-owner"><option selected>Support agent</option><option>Policy team</option><option>Support operations manager</option></select></div><div class="field"><label for="handoff-reason">Handoff reason</label><textarea id="handoff-reason" name="handoff-reason">Receipt photo is missing. Ask the customer to attach proof before approval.</textarea><p class="helper">Explain what is needed so the next owner can act.</p></div><div class="handoff-preview"><strong>Next action</strong><p>Return the request to the support agent with the missing evidence request.</p></div><button class="send-button" type="button">Send handoff</button></div></aside></div></main>
+    <aside class="provenance" aria-label="Artifact provenance">
+      <strong>Provenance:</strong>
+      <span>captured</span>
+      <span> - captured_model_output</span>
+      <span> - JudgmentKit skill context</span>
+      <span> - frontend skill context ready</span>
+      <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
+      <p>Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.</p>
+      <p>Manifest entry: <code>artifacts/gpt56-sol-low-codex-with-judgmentkit.html</code></p>
+    </aside>
+    <script type="application/json" id="model-ui-provenance">{
+  "matrix_id": "refund-system-map-model-ui-v2",
+  "use_case_id": "refund-system-map",
+  "use_case_label": "Support refund triage",
+  "activity_summary": "A support operations manager reviews refund escalation cases and decides approve, policy review, or missing evidence.",
+  "artifact_id": "gpt56-sol-low-codex-with-judgmentkit",
+  "row_id": "gpt56-sol-low-codex",
+  "column_id": "with-judgmentkit",
+  "model_label": "GPT-5.6 Sol Light",
+  "generation_source": "captured_model_output",
+  "judgmentkit_mode": "with_judgmentkit",
+  "design_system_mode": "none",
+  "render_source": "model_frontend_skill_static_html_css",
+  "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+  "reasoning_effort": "low",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": true,
+    "material_ui_adapter": false,
+    "frontend_skill_context": true
+  },
+  "design_system_name": "JudgmentKit",
+  "design_system_package": "judgmentkit",
+  "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+  "handoff_source": "examples/model-ui/refund-system-map/reviewed-handoff.fixture.json",
+  "design_system_adapter_file": null,
+  "capture_file": "captures/gpt56-sol-low-codex-with-judgmentkit.json",
+  "source_context_sha256": "3ef3d7841b10511bee0979c1afd8800a64b5b79fb4a9ae13f3d36f7fa54b1f32",
+  "current_source_context_sha256": "3ef3d7841b10511bee0979c1afd8800a64b5b79fb4a9ae13f3d36f7fa54b1f32",
+  "source_context_status": "current",
+  "model_response_summary": "A focused refund escalation workbench that keeps queue selection, evidence review, decision, and handoff together.",
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": "workbench",
+    "design_system_mode": "judgmentkit_default",
+    "design_system_name": "JudgmentKit",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "Verify substantive visuals use imagegen or premium Three.js/WebGL/D3-style rendering when the spec calls for them.",
+      "Provide browser-rendered visual-background contrast evidence for text over images, canvas, WebGL, video, gradients, or generated visuals.",
+      "Verify non-text contrast for meaningful icons, charts, state indicators, custom controls, and authored focus indicators.",
+      "Verify forced-colors or high-contrast behavior when custom colors, gradients, overlays, or authored focus styles are used.",
+      "Verify focus-visible evidence for interactive controls.",
+      "Verify focus order, keyboard navigation, focus-not-obscured behavior, and no keyboard trap for custom widgets, overlays, dialogs, and embedded experiences.",
+      "Verify reduced-motion behavior for animation and rendered visuals.",
+      "Verify pause, stop, hide, or update-frequency control for auto-moving or auto-updating content.",
+      "Verify form labels, instructions, text errors, correction suggestions, and status/live-region messages when forms or async states are present.",
+      "Verify semantic content or accessible fallback for images, canvas, WebGL, video, generated visuals, and D3-style visualization.",
+      "Verify captions, transcripts, descriptions, or media alternatives when audio or video is present.",
+      "Verify target size or valid target spacing/equivalent-control exceptions for dense or touch-oriented controls.",
+      "Verify responsive no-overflow evidence at desktop and mobile sizes.",
+      "with-judgmentkit candidate desktop screenshot has a styled primary work surface",
+      "with-judgmentkit candidate mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
+  "capture_provenance": {
+    "status": "captured",
+    "capture_type": "model-output-transcript",
+    "captured_at": "2026-07-30T01:46:43.425Z",
+    "runner": "scripts/capture-model-ui-matrix.mjs",
+    "provider": "codex-cli",
+    "model": "gpt-5.6-sol",
+    "cli": "codex",
+    "transcript_file": "captures/gpt56-sol-low-codex-with-judgmentkit.json",
+    "prompt_sha256": "bccd80abf570ad7344b1cfec8b8d5fc0c9dc884581816f200f2d75038b02fb3a",
+    "raw_response_sha256": "66ab69ee772ee0635b9f18583be099665b383d570c20855687c5ad13bf7e4b4f",
+    "source_context_sha256": "3ef3d7841b10511bee0979c1afd8800a64b5b79fb4a9ae13f3d36f7fa54b1f32",
+    "reasoning_effort": "low",
+    "context_included": {
+      "source_brief": true,
+      "sample_case": true,
+      "reviewed_handoff": true,
+      "material_ui_adapter": false,
+      "frontend_skill_context": true
+    },
+    "frontend_context_status": "ready_for_frontend_implementation",
+    "frontend_skill_context_status": "ready",
+    "design_system_name": null,
+    "design_system_package": null,
+    "design_system_render_mode": null,
+    "lms_context": null,
+    "capture_quality": {
+      "profile": "judgmentkit_static_html_css",
+      "css_characters": 6079,
+      "html_characters": 3899,
+      "css_rule_count": 64,
+      "class_selector_count": 66,
+      "semantic_section_count": 6,
+      "structural_block_count": 22,
+      "button_count": 7,
+      "has_responsive_css": true,
+      "has_layout_css": true,
+      "has_panel_css": true,
+      "has_control_css": true,
+      "has_evidence_content": true,
+      "has_handoff_content": true,
+      "compact_template_signature": false,
+      "has_judgmentkit_default_tokens": true,
+      "jk_token_usage_count": 84,
+      "jk_token_reference_count": 84,
+      "unsupported_jk_tokens": [],
+      "jk_token_definition_count": 0,
+      "jk_token_definitions": [],
+      "disallowed_visual_tokens": [],
+      "inline_style_attribute_count": 0,
+      "hard_coded_visual_values": [],
+      "failures": [],
+      "status": "passed"
+    },
+    "source_context_status": "current",
+    "current_source_context_sha256": "3ef3d7841b10511bee0979c1afd8800a64b5b79fb4a9ae13f3d36f7fa54b1f32",
+    "accepted_source_context_sha256": "3ef3d7841b10511bee0979c1afd8800a64b5b79fb4a9ae13f3d36f7fa54b1f32",
+    "captured_source_context_sha256": "3ef3d7841b10511bee0979c1afd8800a64b5b79fb4a9ae13f3d36f7fa54b1f32",
+    "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+    "notes": "GPT-5.6 Sol Light output captured through codex for the JudgmentKit 5x4 model UI matrix."
+  },
+  "artifact_path": "artifacts/gpt56-sol-low-codex-with-judgmentkit.html",
+  "screenshot_path": "screenshots/gpt56-sol-low-codex-with-judgmentkit.png",
+  "approach_title": "GPT-5.6 Sol Light via codex exec - JudgmentKit skill context",
+  "approach_caption": "GPT-5.6 Sol Light via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
+}</script>
+  </body>
+</html>

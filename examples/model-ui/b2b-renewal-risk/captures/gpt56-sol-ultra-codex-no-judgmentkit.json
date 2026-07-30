@@ -1,0 +1,395 @@
+{
+  "artifact_id": "gpt56-sol-ultra-codex-no-judgmentkit",
+  "use_case_id": "b2b-renewal-risk",
+  "use_case_label": "B2B renewal risk review",
+  "activity_summary": "A customer success manager reviews renewal risk and decides save plan, executive escalation, or wait for usage evidence.",
+  "row_id": "gpt56-sol-ultra-codex",
+  "row_label": "GPT-5.6 Sol Ultra via codex exec",
+  "column_id": "no-judgmentkit",
+  "column_label": "Raw brief",
+  "model_label": "GPT-5.6 Sol Ultra",
+  "provider": "codex-cli",
+  "cli": "codex",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "ultra",
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "none",
+  "design_system_name": null,
+  "design_system_package": null,
+  "design_system_render_mode": null,
+  "render_mode": "html",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-07-30T03:39:01.025Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": false,
+    "frontend_skill_context": false
+  },
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
+  "source_context_sha256": "89b906ead989720d86ac9339017f475b2e8b9c840f125c9364dacb24ce5bda00",
+  "source_context_status": "current",
+  "current_source_context_sha256": "89b906ead989720d86ac9339017f475b2e8b9c840f125c9364dacb24ce5bda00",
+  "accepted_source_context_sha256": "89b906ead989720d86ac9339017f475b2e8b9c840f125c9364dacb24ce5bda00",
+  "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+  "prompt_sha256": "0fc18b541c9d855f793f78aadc0d48566686a2a17e4bb109e884f2a566367a5e",
+  "raw_response_sha256": "4883b34d803c8ed8e351d1128a89757379074c007abe07867bfad7b0d6961e62",
+  "command_display": "codex exec --model gpt-5.6-sol -c model_reasoning_effort=\"ultra\" -c sqlite_home=\"<sqlite>\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",
+  "notes": "GPT-5.6 Sol Ultra output captured through codex for the JudgmentKit 5x4 model UI matrix.",
+  "lms_context": null,
+  "capture_quality": {
+    "profile": "basic_static_html_css",
+    "css_characters": 9538,
+    "html_characters": 7884,
+    "css_rule_count": 99,
+    "class_selector_count": 144,
+    "semantic_section_count": 11,
+    "structural_block_count": 39,
+    "button_count": 6,
+    "has_responsive_css": true,
+    "has_layout_css": true,
+    "has_panel_css": true,
+    "has_control_css": true,
+    "has_evidence_content": true,
+    "has_handoff_content": true,
+    "compact_template_signature": false,
+    "has_judgmentkit_default_tokens": false,
+    "jk_token_usage_count": 0,
+    "jk_token_reference_count": 0,
+    "unsupported_jk_tokens": [],
+    "jk_token_definition_count": 0,
+    "jk_token_definitions": [],
+    "disallowed_visual_tokens": [],
+    "inline_style_attribute_count": 0,
+    "hard_coded_visual_values": [
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--ink",
+        "value": "#17201e"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--muted",
+        "value": "#66716e"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--line",
+        "value": "#dce2df"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--canvas",
+        "value": "#f3f5f2"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--panel",
+        "value": "#ffffff"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--forest",
+        "value": "#173f38"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--forest-soft",
+        "value": "#e8f0ed"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--amber",
+        "value": "#9a5b12"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--amber-soft",
+        "value": "#fff3dc"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--red",
+        "value": "#a43c35"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--red-soft",
+        "value": "#fcecea"
+      },
+      {
+        "source": "css",
+        "selector": ":root",
+        "property": "--shadow",
+        "value": "0 1px 2px rgba(21, 40, 35, 0.05), 0 10px 30px rgba(21, 40, 35, 0.04)"
+      },
+      {
+        "source": "css",
+        "selector": ".topbar",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".brand-mark",
+        "property": "border",
+        "value": "1px solid rgba(255,255,255,0.3)"
+      },
+      {
+        "source": "css",
+        "selector": ".brand-mark",
+        "property": "background",
+        "value": "rgba(255,255,255,0.1)"
+      },
+      {
+        "source": "css",
+        "selector": ".eyebrow",
+        "property": "color",
+        "value": "#6b7773"
+      },
+      {
+        "source": "css",
+        "selector": ".topbar .eyebrow",
+        "property": "color",
+        "value": "rgba(255,255,255,0.62)"
+      },
+      {
+        "source": "css",
+        "selector": ".count",
+        "property": "color",
+        "value": "rgba(255,255,255,0.72)"
+      },
+      {
+        "source": "css",
+        "selector": ".button.secondary",
+        "property": "border-color",
+        "value": "rgba(255,255,255,0.25)"
+      },
+      {
+        "source": "css",
+        "selector": ".button.secondary",
+        "property": "background",
+        "value": "rgba(255,255,255,0.08)"
+      },
+      {
+        "source": "css",
+        "selector": ".button.secondary",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".button.primary",
+        "property": "color",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".button.ghost",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".button.ghost",
+        "property": "color",
+        "value": "#45504d"
+      },
+      {
+        "source": "css",
+        "selector": ".account-row:hover",
+        "property": "background",
+        "value": "#f5f7f5"
+      },
+      {
+        "source": "css",
+        "selector": ".account-row.selected",
+        "property": "border-color",
+        "value": "#b9cec7"
+      },
+      {
+        "source": "css",
+        "selector": ".account-row .amount",
+        "property": "color",
+        "value": "#35413e"
+      },
+      {
+        "source": "css",
+        "selector": ".account-row.selected small",
+        "property": "color",
+        "value": "#3d5b54"
+      },
+      {
+        "source": "css",
+        "selector": ".queue-footer",
+        "property": "background",
+        "value": "#f6f7f5"
+      },
+      {
+        "source": "css",
+        "selector": ".meta-dot",
+        "property": "color",
+        "value": "#a1aaa7"
+      },
+      {
+        "source": "css",
+        "selector": ".risk-badge",
+        "property": "border",
+        "value": "1px solid #f0c7c1"
+      },
+      {
+        "source": "css",
+        "selector": ".risk-badge",
+        "property": "background",
+        "value": "var(--red-soft)"
+      },
+      {
+        "source": "css",
+        "selector": ".risk-badge",
+        "property": "color",
+        "value": "var(--red)"
+      },
+      {
+        "source": "css",
+        "selector": ".signal",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".signal.danger strong",
+        "property": "color",
+        "value": "var(--red)"
+      },
+      {
+        "source": "css",
+        "selector": ".evidence-row",
+        "property": "border",
+        "value": "1px solid #e7ebe8"
+      },
+      {
+        "source": "css",
+        "selector": ".evidence-icon",
+        "property": "background",
+        "value": "#f1f4f2"
+      },
+      {
+        "source": "css",
+        "selector": ".evidence-icon",
+        "property": "color",
+        "value": "#50605c"
+      },
+      {
+        "source": "css",
+        "selector": ".evidence-state",
+        "property": "color",
+        "value": "var(--red)"
+      },
+      {
+        "source": "css",
+        "selector": ".option-body",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".radio-mark",
+        "property": "border",
+        "value": "1.5px solid #a8b1ae"
+      },
+      {
+        "source": "css",
+        "selector": ".radio-mark",
+        "property": "box-shadow",
+        "value": "inset 0 0 0 3px #fff"
+      },
+      {
+        "source": "css",
+        "selector": ".decision-option input:focus-visible + .option-body",
+        "property": "outline",
+        "value": "3px solid rgba(23,63,56,0.18)"
+      },
+      {
+        "source": "css",
+        "selector": ".diagnostics summary",
+        "property": "color",
+        "value": "#53605d"
+      },
+      {
+        "source": "css",
+        "selector": ".readiness",
+        "property": "border",
+        "value": "1px solid #efd5a6"
+      },
+      {
+        "source": "css",
+        "selector": ".readiness strong",
+        "property": "color",
+        "value": "#75430c"
+      },
+      {
+        "source": "css",
+        "selector": ".readiness p",
+        "property": "color",
+        "value": "#82551e"
+      },
+      {
+        "source": "css",
+        "selector": ".field",
+        "property": "color",
+        "value": "#46514e"
+      },
+      {
+        "source": "css",
+        "selector": ".field select, .field textarea",
+        "property": "border",
+        "value": "1px solid #ccd5d1"
+      },
+      {
+        "source": "css",
+        "selector": ".field select, .field textarea",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".field select:focus, .field textarea:focus",
+        "property": "box-shadow",
+        "value": "0 0 0 3px rgba(23,63,56,0.1)"
+      },
+      {
+        "source": "css",
+        "selector": ".handoff-facts div",
+        "property": "background",
+        "value": "#f6f7f5"
+      }
+    ],
+    "failures": [],
+    "status": "passed"
+  },
+  "parsed": {
+    "summary": "A focused renewal-risk workspace that keeps evidence, decision policy, and the meeting handoff visible while containing implementation details in a collapsed diagnostic area.",
+    "css": "* { box-sizing: border-box; }\n:root {\n  --ink: #17201e;\n  --muted: #66716e;\n  --line: #dce2df;\n  --canvas: #f3f5f2;\n  --panel: #ffffff;\n  --forest: #173f38;\n  --forest-soft: #e8f0ed;\n  --amber: #9a5b12;\n  --amber-soft: #fff3dc;\n  --red: #a43c35;\n  --red-soft: #fcecea;\n  --shadow: 0 1px 2px rgba(21, 40, 35, 0.05), 0 10px 30px rgba(21, 40, 35, 0.04);\n}\nbody {\n  margin: 0;\n  background: var(--canvas);\n  color: var(--ink);\n  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;\n}\nbutton, select, textarea, input { font: inherit; }\nbutton, select { cursor: pointer; }\n.renewal-shell { min-height: 100vh; background: var(--canvas); }\n.topbar {\n  min-height: 76px;\n  display: grid;\n  grid-template-columns: 250px 1fr auto;\n  align-items: center;\n  gap: 24px;\n  padding: 14px 22px;\n  background: var(--forest);\n  color: #fff;\n}\n.brand { display: flex; align-items: center; gap: 11px; font-size: 15px; font-weight: 760; letter-spacing: -0.01em; }\n.brand-mark {\n  width: 34px;\n  height: 34px;\n  display: grid;\n  place-items: center;\n  border: 1px solid rgba(255,255,255,0.3);\n  border-radius: 10px;\n  background: rgba(255,255,255,0.1);\n  font-family: Georgia, serif;\n  font-size: 20px;\n}\n.meeting-context { display: flex; flex-direction: column; gap: 3px; }\n.meeting-context strong { font-size: 15px; font-weight: 650; }\n.eyebrow { color: #6b7773; font-size: 11px; font-weight: 760; letter-spacing: 0.09em; text-transform: uppercase; }\n.topbar .eyebrow { color: rgba(255,255,255,0.62); }\n.top-actions { display: flex; align-items: center; gap: 12px; }\n.count { color: rgba(255,255,255,0.72); font-size: 13px; }\n.button {\n  min-height: 38px;\n  border: 1px solid transparent;\n  border-radius: 9px;\n  padding: 0 14px;\n  font-weight: 700;\n  font-size: 13px;\n}\n.button.secondary { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); color: #fff; }\n.button.primary { width: 100%; background: var(--forest); color: #fff; }\n.button.ghost { width: 100%; border-color: var(--line); background: #fff; color: #45504d; }\n.button:disabled { cursor: not-allowed; opacity: 0.5; }\n.workspace {\n  display: grid;\n  grid-template-columns: 250px minmax(0, 1fr) 320px;\n  gap: 16px;\n  max-width: 1365px;\n  margin: 0 auto;\n  padding: 18px;\n  align-items: start;\n}\n.queue, .handoff, .case-card, .decision-card, .review-header, .diagnostics {\n  border: 1px solid var(--line);\n  background: var(--panel);\n  box-shadow: var(--shadow);\n}\n.queue, .handoff { border-radius: 14px; overflow: hidden; }\n.panel-heading { padding: 18px 18px 14px; border-bottom: 1px solid var(--line); }\n.panel-heading h2 { margin: 4px 0 0; font-size: 16px; letter-spacing: -0.02em; }\n.queue nav { display: flex; flex-direction: column; padding: 8px; gap: 5px; }\n.account-row {\n  width: 100%;\n  display: grid;\n  grid-template-columns: 1fr auto;\n  gap: 5px 10px;\n  padding: 12px;\n  border: 1px solid transparent;\n  border-radius: 10px;\n  background: transparent;\n  color: var(--ink);\n  text-align: left;\n}\n.account-row:hover { background: #f5f7f5; }\n.account-row.selected { border-color: #b9cec7; background: var(--forest-soft); }\n.account-row strong { font-size: 13px; }\n.account-row .amount { color: #35413e; font-size: 12px; font-weight: 750; }\n.account-row small { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }\n.account-row.selected small { color: #3d5b54; }\n.queue-footer { margin: 8px 14px 14px; padding: 12px; border-radius: 10px; background: #f6f7f5; }\n.queue-footer span { display: block; color: var(--muted); font-size: 11px; }\n.queue-footer strong { display: block; margin-top: 4px; font-size: 12px; }\n.review { min-width: 0; display: flex; flex-direction: column; gap: 13px; }\n.review-header { display: flex; justify-content: space-between; gap: 20px; padding: 19px 20px; border-radius: 14px; }\n.account-kicker { margin: 0 0 5px; color: var(--muted); font-size: 12px; font-weight: 680; }\n.review-header h1 { margin: 0; font-size: 25px; line-height: 1.15; letter-spacing: -0.035em; }\n.account-meta { display: flex; gap: 8px; align-items: center; margin: 9px 0 0; color: var(--muted); font-size: 13px; }\n.meta-dot { color: #a1aaa7; }\n.risk-badge { align-self: flex-start; border: 1px solid #f0c7c1; border-radius: 999px; padding: 7px 10px; background: var(--red-soft); color: var(--red); font-size: 12px; font-weight: 760; white-space: nowrap; }\n.signal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }\n.signal {\n  min-height: 94px;\n  padding: 14px;\n  border: 1px solid var(--line);\n  border-radius: 12px;\n  background: #fff;\n}\n.signal span { display: block; color: var(--muted); font-size: 11px; font-weight: 680; }\n.signal strong { display: block; margin-top: 8px; font-size: 18px; letter-spacing: -0.02em; }\n.signal small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }\n.signal.danger strong { color: var(--red); }\n.signal.warning strong { color: var(--amber); }\n.card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }\n.card-heading h2 { margin: 0; font-size: 16px; letter-spacing: -0.02em; }\n.card-heading p { margin: 4px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }\n.case-card, .decision-card { border-radius: 14px; padding: 17px 18px; }\n.evidence-list { display: grid; gap: 8px; margin-top: 14px; }\n.evidence-row { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; padding: 10px 11px; border: 1px solid #e7ebe8; border-radius: 10px; }\n.evidence-icon { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px; background: #f1f4f2; color: #50605c; font-size: 12px; font-weight: 800; }\n.evidence-copy strong { display: block; font-size: 12px; }\n.evidence-copy span { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }\n.evidence-state { color: var(--red); font-size: 11px; font-weight: 760; }\n.evidence-state.missing { color: var(--amber); }\n.gap-badge { border-radius: 999px; padding: 6px 9px; background: var(--amber-soft); color: var(--amber); font-size: 11px; font-weight: 760; white-space: nowrap; }\n.decision-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 14px; }\n.decision-option { position: relative; display: block; }\n.decision-option input { position: absolute; opacity: 0; pointer-events: none; }\n.option-body { min-height: 124px; display: flex; flex-direction: column; padding: 12px; border: 1px solid var(--line); border-radius: 11px; background: #fff; }\n.option-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }\n.option-title { font-size: 12px; font-weight: 780; }\n.radio-mark { width: 16px; height: 16px; flex: 0 0 auto; border: 1.5px solid #a8b1ae; border-radius: 50%; box-shadow: inset 0 0 0 3px #fff; }\n.option-body p { margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }\n.option-note { margin-top: auto; padding-top: 9px; color: var(--amber); font-size: 10px; font-weight: 760; }\n.decision-option input:checked + .option-body { border-color: var(--forest); background: var(--forest-soft); box-shadow: inset 0 0 0 1px var(--forest); }\n.decision-option input:checked + .option-body .radio-mark { border-color: var(--forest); background: var(--forest); }\n.decision-option input:focus-visible + .option-body { outline: 3px solid rgba(23,63,56,0.18); outline-offset: 2px; }\n.diagnostics { border-radius: 11px; box-shadow: none; }\n.diagnostics summary { padding: 12px 14px; color: #53605d; font-size: 12px; font-weight: 720; cursor: pointer; }\n.diagnostic-content { padding: 0 14px 14px; color: var(--muted); font-size: 11px; line-height: 1.5; }\n.diagnostic-content p { margin: 0; }\n.handoff-body { display: flex; flex-direction: column; gap: 14px; padding: 16px; }\n.readiness { padding: 12px; border: 1px solid #efd5a6; border-radius: 10px; background: var(--amber-soft); }\n.readiness strong { display: block; color: #75430c; font-size: 12px; }\n.readiness p { margin: 5px 0 0; color: #82551e; font-size: 11px; line-height: 1.45; }\n.decision-summary { display: grid; grid-template-columns: 1fr auto; gap: 5px 10px; padding-bottom: 13px; border-bottom: 1px solid var(--line); }\n.decision-summary span { color: var(--muted); font-size: 11px; }\n.decision-summary strong { color: var(--forest); font-size: 12px; }\n.field { display: flex; flex-direction: column; gap: 6px; color: #46514e; font-size: 11px; font-weight: 720; }\n.field select, .field textarea { width: 100%; border: 1px solid #ccd5d1; border-radius: 9px; background: #fff; color: var(--ink); outline: none; }\n.field select { height: 38px; padding: 0 10px; }\n.field textarea { min-height: 74px; resize: none; padding: 10px; line-height: 1.4; }\n.field select:focus, .field textarea:focus { border-color: var(--forest); box-shadow: 0 0 0 3px rgba(23,63,56,0.1); }\n.handoff-facts { margin: 0; display: grid; gap: 10px; }\n.handoff-facts div { padding: 10px; border-radius: 9px; background: #f6f7f5; }\n.handoff-facts dt { color: var(--muted); font-size: 10px; font-weight: 740; text-transform: uppercase; letter-spacing: 0.06em; }\n.handoff-facts dd { margin: 4px 0 0; font-size: 12px; line-height: 1.4; font-weight: 620; }\n.action-stack { display: grid; gap: 8px; }\n.lock-note { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.4; text-align: center; }\n@media (max-width: 1100px) {\n  .workspace { grid-template-columns: 220px minmax(0, 1fr); }\n  .handoff { grid-column: 2; }\n  .topbar { grid-template-columns: 220px 1fr auto; }\n}",
+    "html": "<main class=\"renewal-shell\" data-primary-surface>\n  <header class=\"topbar\">\n    <div class=\"brand\"><span class=\"brand-mark\" aria-hidden=\"true\">R</span><span>Renewal desk</span></div>\n    <div class=\"meeting-context\">\n      <span class=\"eyebrow\">Review session</span>\n      <strong>Weekly account meeting</strong>\n    </div>\n    <div class=\"top-actions\">\n      <span class=\"count\">3 accounts</span>\n      <button class=\"button secondary\" type=\"button\">Export handoff</button>\n    </div>\n  </header>\n\n  <div class=\"workspace\">\n    <aside class=\"queue\" aria-labelledby=\"queue-title\">\n      <div class=\"panel-heading\">\n        <span class=\"eyebrow\">Review queue</span>\n        <h2 id=\"queue-title\">At-risk renewals</h2>\n      </div>\n      <nav aria-label=\"Accounts to review\">\n        <button class=\"account-row selected\" type=\"button\" aria-current=\"true\">\n          <strong>Northstar Labs</strong><span class=\"amount\">$84K ARR</span>\n          <small>Champion change · AC-903</small>\n        </button>\n        <button class=\"account-row\" type=\"button\">\n          <strong>Bright Arc</strong><span class=\"amount\">$42K ARR</span>\n          <small>Usage drop · AC-904</small>\n        </button>\n        <button class=\"account-row\" type=\"button\">\n          <strong>Harbor Grid</strong><span class=\"amount\">$120K ARR</span>\n          <small>Procurement risk · AC-905</small>\n        </button>\n      </nav>\n      <div class=\"queue-footer\">\n        <span>Review focus</span>\n        <strong>Resolve evidence gaps before commitment</strong>\n      </div>\n    </aside>\n\n    <section class=\"review\" aria-labelledby=\"account-title\">\n      <header class=\"review-header\">\n        <div>\n          <p class=\"account-kicker\">Account AC-903</p>\n          <h1 id=\"account-title\">Northstar Labs</h1>\n          <p class=\"account-meta\"><span>Enterprise annual</span><span class=\"meta-dot\">•</span><strong>$84K ARR</strong></p>\n        </div>\n        <span class=\"risk-badge\">Champion change</span>\n      </header>\n\n      <div class=\"signal-grid\" aria-label=\"Renewal risk signals\">\n        <article class=\"signal danger\">\n          <span>Usage trend</span>\n          <strong>−28%</strong>\n          <small>Across two reporting periods</small>\n        </article>\n        <article class=\"signal danger\">\n          <span>Primary champion</span>\n          <strong>Left account</strong>\n          <small>Last month</small>\n        </article>\n        <article class=\"signal warning\">\n          <span>Procurement timeline</span>\n          <strong>Missing</strong>\n          <small>Required before commitment</small>\n        </article>\n      </div>\n\n      <section class=\"case-card\" aria-labelledby=\"evidence-title\">\n        <div class=\"card-heading\">\n          <div>\n            <h2 id=\"evidence-title\">What we know</h2>\n            <p>Account facts that should shape the renewal decision.</p>\n          </div>\n          <span class=\"gap-badge\">1 evidence gap</span>\n        </div>\n        <div class=\"evidence-list\">\n          <div class=\"evidence-row\">\n            <span class=\"evidence-icon\" aria-hidden=\"true\">U</span>\n            <div class=\"evidence-copy\"><strong>Usage is declining</strong><span>Down 28 percent over the last two reporting periods.</span></div>\n            <span class=\"evidence-state\">Risk signal</span>\n          </div>\n          <div class=\"evidence-row\">\n            <span class=\"evidence-icon\" aria-hidden=\"true\">C</span>\n            <div class=\"evidence-copy\"><strong>Champion continuity is broken</strong><span>The primary champion left the account last month.</span></div>\n            <span class=\"evidence-state\">Risk signal</span>\n          </div>\n          <div class=\"evidence-row\">\n            <span class=\"evidence-icon\" aria-hidden=\"true\">P</span>\n            <div class=\"evidence-copy\"><strong>Renewal timing is unclear</strong><span>The procurement timeline has not been confirmed.</span></div>\n            <span class=\"evidence-state missing\">Evidence gap</span>\n          </div>\n        </div>\n      </section>\n\n      <section class=\"decision-card\" aria-labelledby=\"decision-title\">\n        <div class=\"card-heading\">\n          <div>\n            <h2 id=\"decision-title\">Choose the next move</h2>\n            <p>Decide what the account team should do before the weekly meeting.</p>\n          </div>\n        </div>\n        <div class=\"decision-options\">\n          <label class=\"decision-option\">\n            <input type=\"radio\" name=\"renewal-decision\">\n            <span class=\"option-body\">\n              <span class=\"option-top\"><span class=\"option-title\">Start save plan</span><span class=\"radio-mark\" aria-hidden=\"true\"></span></span>\n              <p>Coordinate customer outreach and recovery actions.</p>\n              <span class=\"option-note\">Needs procurement timing</span>\n            </span>\n          </label>\n          <label class=\"decision-option\">\n            <input type=\"radio\" name=\"renewal-decision\">\n            <span class=\"option-body\">\n              <span class=\"option-top\"><span class=\"option-title\">Executive escalation</span><span class=\"radio-mark\" aria-hidden=\"true\"></span></span>\n              <p>Bring in an executive sponsor to address relationship risk.</p>\n              <span class=\"option-note\">Timing is not clear yet</span>\n            </span>\n          </label>\n          <label class=\"decision-option\">\n            <input type=\"radio\" name=\"renewal-decision\" checked>\n            <span class=\"option-body\">\n              <span class=\"option-top\"><span class=\"option-title\">Wait for evidence</span><span class=\"radio-mark\" aria-hidden=\"true\"></span></span>\n              <p>Confirm procurement timing and watch the next usage report.</p>\n              <span class=\"option-note\">Recommended next step</span>\n            </span>\n          </label>\n        </div>\n      </section>\n\n      <details class=\"diagnostics\">\n        <summary>Diagnostics</summary>\n        <div class=\"diagnostic-content\">\n          <p>Prompt output, schemas, tool traces, resource identifiers, billing endpoint status, and CRUD details are intentionally kept outside the renewal review surface.</p>\n        </div>\n      </details>\n    </section>\n\n    <aside class=\"handoff\" aria-labelledby=\"handoff-title\">\n      <div class=\"panel-heading\">\n        <span class=\"eyebrow\">Meeting output</span>\n        <h2 id=\"handoff-title\">Renewal handoff</h2>\n      </div>\n      <div class=\"handoff-body\">\n        <div class=\"readiness\">\n          <strong>More evidence needed</strong>\n          <p>Confirm renewal timing before starting a save plan or escalating.</p>\n        </div>\n\n        <div class=\"decision-summary\">\n          <span>Current decision</span>\n          <strong>Wait for evidence</strong>\n        </div>\n\n        <label class=\"field\">\n          Next owner\n          <select aria-label=\"Next owner\">\n            <option selected>Customer success manager</option>\n            <option>Account executive</option>\n            <option>Executive sponsor</option>\n          </select>\n        </label>\n\n        <label class=\"field\">\n          Next action\n          <textarea aria-label=\"Next action\">Confirm the procurement timeline, then review the next usage report.</textarea>\n        </label>\n\n        <dl class=\"handoff-facts\">\n          <div>\n            <dt>Risk reason</dt>\n            <dd>Champion change and a 28% usage decline</dd>\n          </div>\n          <div>\n            <dt>Evidence gap</dt>\n            <dd>Procurement timeline is not confirmed</dd>\n          </div>\n        </dl>\n\n        <div class=\"action-stack\">\n          <button class=\"button primary\" type=\"button\">Save renewal handoff</button>\n          <button class=\"button ghost\" type=\"button\" disabled>Mark ready for meeting</button>\n          <p class=\"lock-note\">Readiness unlocks when the procurement timeline is recorded.</p>\n        </div>\n      </div>\n    </aside>\n  </div>\n</main>"
+  },
+  "raw_response": "{\"summary\":\"A focused renewal-risk workspace that keeps evidence, decision policy, and the meeting handoff visible while containing implementation details in a collapsed diagnostic area.\",\"css\":\"* { box-sizing: border-box; }\\n:root {\\n  --ink: #17201e;\\n  --muted: #66716e;\\n  --line: #dce2df;\\n  --canvas: #f3f5f2;\\n  --panel: #ffffff;\\n  --forest: #173f38;\\n  --forest-soft: #e8f0ed;\\n  --amber: #9a5b12;\\n  --amber-soft: #fff3dc;\\n  --red: #a43c35;\\n  --red-soft: #fcecea;\\n  --shadow: 0 1px 2px rgba(21, 40, 35, 0.05), 0 10px 30px rgba(21, 40, 35, 0.04);\\n}\\nbody {\\n  margin: 0;\\n  background: var(--canvas);\\n  color: var(--ink);\\n  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, \\\"Segoe UI\\\", sans-serif;\\n}\\nbutton, select, textarea, input { font: inherit; }\\nbutton, select { cursor: pointer; }\\n.renewal-shell { min-height: 100vh; background: var(--canvas); }\\n.topbar {\\n  min-height: 76px;\\n  display: grid;\\n  grid-template-columns: 250px 1fr auto;\\n  align-items: center;\\n  gap: 24px;\\n  padding: 14px 22px;\\n  background: var(--forest);\\n  color: #fff;\\n}\\n.brand { display: flex; align-items: center; gap: 11px; font-size: 15px; font-weight: 760; letter-spacing: -0.01em; }\\n.brand-mark {\\n  width: 34px;\\n  height: 34px;\\n  display: grid;\\n  place-items: center;\\n  border: 1px solid rgba(255,255,255,0.3);\\n  border-radius: 10px;\\n  background: rgba(255,255,255,0.1);\\n  font-family: Georgia, serif;\\n  font-size: 20px;\\n}\\n.meeting-context { display: flex; flex-direction: column; gap: 3px; }\\n.meeting-context strong { font-size: 15px; font-weight: 650; }\\n.eyebrow { color: #6b7773; font-size: 11px; font-weight: 760; letter-spacing: 0.09em; text-transform: uppercase; }\\n.topbar .eyebrow { color: rgba(255,255,255,0.62); }\\n.top-actions { display: flex; align-items: center; gap: 12px; }\\n.count { color: rgba(255,255,255,0.72); font-size: 13px; }\\n.button {\\n  min-height: 38px;\\n  border: 1px solid transparent;\\n  border-radius: 9px;\\n  padding: 0 14px;\\n  font-weight: 700;\\n  font-size: 13px;\\n}\\n.button.secondary { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); color: #fff; }\\n.button.primary { width: 100%; background: var(--forest); color: #fff; }\\n.button.ghost { width: 100%; border-color: var(--line); background: #fff; color: #45504d; }\\n.button:disabled { cursor: not-allowed; opacity: 0.5; }\\n.workspace {\\n  display: grid;\\n  grid-template-columns: 250px minmax(0, 1fr) 320px;\\n  gap: 16px;\\n  max-width: 1365px;\\n  margin: 0 auto;\\n  padding: 18px;\\n  align-items: start;\\n}\\n.queue, .handoff, .case-card, .decision-card, .review-header, .diagnostics {\\n  border: 1px solid var(--line);\\n  background: var(--panel);\\n  box-shadow: var(--shadow);\\n}\\n.queue, .handoff { border-radius: 14px; overflow: hidden; }\\n.panel-heading { padding: 18px 18px 14px; border-bottom: 1px solid var(--line); }\\n.panel-heading h2 { margin: 4px 0 0; font-size: 16px; letter-spacing: -0.02em; }\\n.queue nav { display: flex; flex-direction: column; padding: 8px; gap: 5px; }\\n.account-row {\\n  width: 100%;\\n  display: grid;\\n  grid-template-columns: 1fr auto;\\n  gap: 5px 10px;\\n  padding: 12px;\\n  border: 1px solid transparent;\\n  border-radius: 10px;\\n  background: transparent;\\n  color: var(--ink);\\n  text-align: left;\\n}\\n.account-row:hover { background: #f5f7f5; }\\n.account-row.selected { border-color: #b9cec7; background: var(--forest-soft); }\\n.account-row strong { font-size: 13px; }\\n.account-row .amount { color: #35413e; font-size: 12px; font-weight: 750; }\\n.account-row small { grid-column: 1 / -1; color: var(--muted); font-size: 12px; }\\n.account-row.selected small { color: #3d5b54; }\\n.queue-footer { margin: 8px 14px 14px; padding: 12px; border-radius: 10px; background: #f6f7f5; }\\n.queue-footer span { display: block; color: var(--muted); font-size: 11px; }\\n.queue-footer strong { display: block; margin-top: 4px; font-size: 12px; }\\n.review { min-width: 0; display: flex; flex-direction: column; gap: 13px; }\\n.review-header { display: flex; justify-content: space-between; gap: 20px; padding: 19px 20px; border-radius: 14px; }\\n.account-kicker { margin: 0 0 5px; color: var(--muted); font-size: 12px; font-weight: 680; }\\n.review-header h1 { margin: 0; font-size: 25px; line-height: 1.15; letter-spacing: -0.035em; }\\n.account-meta { display: flex; gap: 8px; align-items: center; margin: 9px 0 0; color: var(--muted); font-size: 13px; }\\n.meta-dot { color: #a1aaa7; }\\n.risk-badge { align-self: flex-start; border: 1px solid #f0c7c1; border-radius: 999px; padding: 7px 10px; background: var(--red-soft); color: var(--red); font-size: 12px; font-weight: 760; white-space: nowrap; }\\n.signal-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }\\n.signal {\\n  min-height: 94px;\\n  padding: 14px;\\n  border: 1px solid var(--line);\\n  border-radius: 12px;\\n  background: #fff;\\n}\\n.signal span { display: block; color: var(--muted); font-size: 11px; font-weight: 680; }\\n.signal strong { display: block; margin-top: 8px; font-size: 18px; letter-spacing: -0.02em; }\\n.signal small { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }\\n.signal.danger strong { color: var(--red); }\\n.signal.warning strong { color: var(--amber); }\\n.card-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }\\n.card-heading h2 { margin: 0; font-size: 16px; letter-spacing: -0.02em; }\\n.card-heading p { margin: 4px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }\\n.case-card, .decision-card { border-radius: 14px; padding: 17px 18px; }\\n.evidence-list { display: grid; gap: 8px; margin-top: 14px; }\\n.evidence-row { display: grid; grid-template-columns: 28px 1fr auto; gap: 10px; align-items: center; padding: 10px 11px; border: 1px solid #e7ebe8; border-radius: 10px; }\\n.evidence-icon { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 8px; background: #f1f4f2; color: #50605c; font-size: 12px; font-weight: 800; }\\n.evidence-copy strong { display: block; font-size: 12px; }\\n.evidence-copy span { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }\\n.evidence-state { color: var(--red); font-size: 11px; font-weight: 760; }\\n.evidence-state.missing { color: var(--amber); }\\n.gap-badge { border-radius: 999px; padding: 6px 9px; background: var(--amber-soft); color: var(--amber); font-size: 11px; font-weight: 760; white-space: nowrap; }\\n.decision-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin-top: 14px; }\\n.decision-option { position: relative; display: block; }\\n.decision-option input { position: absolute; opacity: 0; pointer-events: none; }\\n.option-body { min-height: 124px; display: flex; flex-direction: column; padding: 12px; border: 1px solid var(--line); border-radius: 11px; background: #fff; }\\n.option-top { display: flex; justify-content: space-between; gap: 8px; align-items: center; }\\n.option-title { font-size: 12px; font-weight: 780; }\\n.radio-mark { width: 16px; height: 16px; flex: 0 0 auto; border: 1.5px solid #a8b1ae; border-radius: 50%; box-shadow: inset 0 0 0 3px #fff; }\\n.option-body p { margin: 8px 0 0; color: var(--muted); font-size: 11px; line-height: 1.45; }\\n.option-note { margin-top: auto; padding-top: 9px; color: var(--amber); font-size: 10px; font-weight: 760; }\\n.decision-option input:checked + .option-body { border-color: var(--forest); background: var(--forest-soft); box-shadow: inset 0 0 0 1px var(--forest); }\\n.decision-option input:checked + .option-body .radio-mark { border-color: var(--forest); background: var(--forest); }\\n.decision-option input:focus-visible + .option-body { outline: 3px solid rgba(23,63,56,0.18); outline-offset: 2px; }\\n.diagnostics { border-radius: 11px; box-shadow: none; }\\n.diagnostics summary { padding: 12px 14px; color: #53605d; font-size: 12px; font-weight: 720; cursor: pointer; }\\n.diagnostic-content { padding: 0 14px 14px; color: var(--muted); font-size: 11px; line-height: 1.5; }\\n.diagnostic-content p { margin: 0; }\\n.handoff-body { display: flex; flex-direction: column; gap: 14px; padding: 16px; }\\n.readiness { padding: 12px; border: 1px solid #efd5a6; border-radius: 10px; background: var(--amber-soft); }\\n.readiness strong { display: block; color: #75430c; font-size: 12px; }\\n.readiness p { margin: 5px 0 0; color: #82551e; font-size: 11px; line-height: 1.45; }\\n.decision-summary { display: grid; grid-template-columns: 1fr auto; gap: 5px 10px; padding-bottom: 13px; border-bottom: 1px solid var(--line); }\\n.decision-summary span { color: var(--muted); font-size: 11px; }\\n.decision-summary strong { color: var(--forest); font-size: 12px; }\\n.field { display: flex; flex-direction: column; gap: 6px; color: #46514e; font-size: 11px; font-weight: 720; }\\n.field select, .field textarea { width: 100%; border: 1px solid #ccd5d1; border-radius: 9px; background: #fff; color: var(--ink); outline: none; }\\n.field select { height: 38px; padding: 0 10px; }\\n.field textarea { min-height: 74px; resize: none; padding: 10px; line-height: 1.4; }\\n.field select:focus, .field textarea:focus { border-color: var(--forest); box-shadow: 0 0 0 3px rgba(23,63,56,0.1); }\\n.handoff-facts { margin: 0; display: grid; gap: 10px; }\\n.handoff-facts div { padding: 10px; border-radius: 9px; background: #f6f7f5; }\\n.handoff-facts dt { color: var(--muted); font-size: 10px; font-weight: 740; text-transform: uppercase; letter-spacing: 0.06em; }\\n.handoff-facts dd { margin: 4px 0 0; font-size: 12px; line-height: 1.4; font-weight: 620; }\\n.action-stack { display: grid; gap: 8px; }\\n.lock-note { margin: 0; color: var(--muted); font-size: 10px; line-height: 1.4; text-align: center; }\\n@media (max-width: 1100px) {\\n  .workspace { grid-template-columns: 220px minmax(0, 1fr); }\\n  .handoff { grid-column: 2; }\\n  .topbar { grid-template-columns: 220px 1fr auto; }\\n}\\n\",\"html\":\"<main class=\\\"renewal-shell\\\" data-primary-surface>\\n  <header class=\\\"topbar\\\">\\n    <div class=\\\"brand\\\"><span class=\\\"brand-mark\\\" aria-hidden=\\\"true\\\">R</span><span>Renewal desk</span></div>\\n    <div class=\\\"meeting-context\\\">\\n      <span class=\\\"eyebrow\\\">Review session</span>\\n      <strong>Weekly account meeting</strong>\\n    </div>\\n    <div class=\\\"top-actions\\\">\\n      <span class=\\\"count\\\">3 accounts</span>\\n      <button class=\\\"button secondary\\\" type=\\\"button\\\">Export handoff</button>\\n    </div>\\n  </header>\\n\\n  <div class=\\\"workspace\\\">\\n    <aside class=\\\"queue\\\" aria-labelledby=\\\"queue-title\\\">\\n      <div class=\\\"panel-heading\\\">\\n        <span class=\\\"eyebrow\\\">Review queue</span>\\n        <h2 id=\\\"queue-title\\\">At-risk renewals</h2>\\n      </div>\\n      <nav aria-label=\\\"Accounts to review\\\">\\n        <button class=\\\"account-row selected\\\" type=\\\"button\\\" aria-current=\\\"true\\\">\\n          <strong>Northstar Labs</strong><span class=\\\"amount\\\">$84K ARR</span>\\n          <small>Champion change · AC-903</small>\\n        </button>\\n        <button class=\\\"account-row\\\" type=\\\"button\\\">\\n          <strong>Bright Arc</strong><span class=\\\"amount\\\">$42K ARR</span>\\n          <small>Usage drop · AC-904</small>\\n        </button>\\n        <button class=\\\"account-row\\\" type=\\\"button\\\">\\n          <strong>Harbor Grid</strong><span class=\\\"amount\\\">$120K ARR</span>\\n          <small>Procurement risk · AC-905</small>\\n        </button>\\n      </nav>\\n      <div class=\\\"queue-footer\\\">\\n        <span>Review focus</span>\\n        <strong>Resolve evidence gaps before commitment</strong>\\n      </div>\\n    </aside>\\n\\n    <section class=\\\"review\\\" aria-labelledby=\\\"account-title\\\">\\n      <header class=\\\"review-header\\\">\\n        <div>\\n          <p class=\\\"account-kicker\\\">Account AC-903</p>\\n          <h1 id=\\\"account-title\\\">Northstar Labs</h1>\\n          <p class=\\\"account-meta\\\"><span>Enterprise annual</span><span class=\\\"meta-dot\\\">•</span><strong>$84K ARR</strong></p>\\n        </div>\\n        <span class=\\\"risk-badge\\\">Champion change</span>\\n      </header>\\n\\n      <div class=\\\"signal-grid\\\" aria-label=\\\"Renewal risk signals\\\">\\n        <article class=\\\"signal danger\\\">\\n          <span>Usage trend</span>\\n          <strong>−28%</strong>\\n          <small>Across two reporting periods</small>\\n        </article>\\n        <article class=\\\"signal danger\\\">\\n          <span>Primary champion</span>\\n          <strong>Left account</strong>\\n          <small>Last month</small>\\n        </article>\\n        <article class=\\\"signal warning\\\">\\n          <span>Procurement timeline</span>\\n          <strong>Missing</strong>\\n          <small>Required before commitment</small>\\n        </article>\\n      </div>\\n\\n      <section class=\\\"case-card\\\" aria-labelledby=\\\"evidence-title\\\">\\n        <div class=\\\"card-heading\\\">\\n          <div>\\n            <h2 id=\\\"evidence-title\\\">What we know</h2>\\n            <p>Account facts that should shape the renewal decision.</p>\\n          </div>\\n          <span class=\\\"gap-badge\\\">1 evidence gap</span>\\n        </div>\\n        <div class=\\\"evidence-list\\\">\\n          <div class=\\\"evidence-row\\\">\\n            <span class=\\\"evidence-icon\\\" aria-hidden=\\\"true\\\">U</span>\\n            <div class=\\\"evidence-copy\\\"><strong>Usage is declining</strong><span>Down 28 percent over the last two reporting periods.</span></div>\\n            <span class=\\\"evidence-state\\\">Risk signal</span>\\n          </div>\\n          <div class=\\\"evidence-row\\\">\\n            <span class=\\\"evidence-icon\\\" aria-hidden=\\\"true\\\">C</span>\\n            <div class=\\\"evidence-copy\\\"><strong>Champion continuity is broken</strong><span>The primary champion left the account last month.</span></div>\\n            <span class=\\\"evidence-state\\\">Risk signal</span>\\n          </div>\\n          <div class=\\\"evidence-row\\\">\\n            <span class=\\\"evidence-icon\\\" aria-hidden=\\\"true\\\">P</span>\\n            <div class=\\\"evidence-copy\\\"><strong>Renewal timing is unclear</strong><span>The procurement timeline has not been confirmed.</span></div>\\n            <span class=\\\"evidence-state missing\\\">Evidence gap</span>\\n          </div>\\n        </div>\\n      </section>\\n\\n      <section class=\\\"decision-card\\\" aria-labelledby=\\\"decision-title\\\">\\n        <div class=\\\"card-heading\\\">\\n          <div>\\n            <h2 id=\\\"decision-title\\\">Choose the next move</h2>\\n            <p>Decide what the account team should do before the weekly meeting.</p>\\n          </div>\\n        </div>\\n        <div class=\\\"decision-options\\\">\\n          <label class=\\\"decision-option\\\">\\n            <input type=\\\"radio\\\" name=\\\"renewal-decision\\\">\\n            <span class=\\\"option-body\\\">\\n              <span class=\\\"option-top\\\"><span class=\\\"option-title\\\">Start save plan</span><span class=\\\"radio-mark\\\" aria-hidden=\\\"true\\\"></span></span>\\n              <p>Coordinate customer outreach and recovery actions.</p>\\n              <span class=\\\"option-note\\\">Needs procurement timing</span>\\n            </span>\\n          </label>\\n          <label class=\\\"decision-option\\\">\\n            <input type=\\\"radio\\\" name=\\\"renewal-decision\\\">\\n            <span class=\\\"option-body\\\">\\n              <span class=\\\"option-top\\\"><span class=\\\"option-title\\\">Executive escalation</span><span class=\\\"radio-mark\\\" aria-hidden=\\\"true\\\"></span></span>\\n              <p>Bring in an executive sponsor to address relationship risk.</p>\\n              <span class=\\\"option-note\\\">Timing is not clear yet</span>\\n            </span>\\n          </label>\\n          <label class=\\\"decision-option\\\">\\n            <input type=\\\"radio\\\" name=\\\"renewal-decision\\\" checked>\\n            <span class=\\\"option-body\\\">\\n              <span class=\\\"option-top\\\"><span class=\\\"option-title\\\">Wait for evidence</span><span class=\\\"radio-mark\\\" aria-hidden=\\\"true\\\"></span></span>\\n              <p>Confirm procurement timing and watch the next usage report.</p>\\n              <span class=\\\"option-note\\\">Recommended next step</span>\\n            </span>\\n          </label>\\n        </div>\\n      </section>\\n\\n      <details class=\\\"diagnostics\\\">\\n        <summary>Diagnostics</summary>\\n        <div class=\\\"diagnostic-content\\\">\\n          <p>Prompt output, schemas, tool traces, resource identifiers, billing endpoint status, and CRUD details are intentionally kept outside the renewal review surface.</p>\\n        </div>\\n      </details>\\n    </section>\\n\\n    <aside class=\\\"handoff\\\" aria-labelledby=\\\"handoff-title\\\">\\n      <div class=\\\"panel-heading\\\">\\n        <span class=\\\"eyebrow\\\">Meeting output</span>\\n        <h2 id=\\\"handoff-title\\\">Renewal handoff</h2>\\n      </div>\\n      <div class=\\\"handoff-body\\\">\\n        <div class=\\\"readiness\\\">\\n          <strong>More evidence needed</strong>\\n          <p>Confirm renewal timing before starting a save plan or escalating.</p>\\n        </div>\\n\\n        <div class=\\\"decision-summary\\\">\\n          <span>Current decision</span>\\n          <strong>Wait for evidence</strong>\\n        </div>\\n\\n        <label class=\\\"field\\\">\\n          Next owner\\n          <select aria-label=\\\"Next owner\\\">\\n            <option selected>Customer success manager</option>\\n            <option>Account executive</option>\\n            <option>Executive sponsor</option>\\n          </select>\\n        </label>\\n\\n        <label class=\\\"field\\\">\\n          Next action\\n          <textarea aria-label=\\\"Next action\\\">Confirm the procurement timeline, then review the next usage report.</textarea>\\n        </label>\\n\\n        <dl class=\\\"handoff-facts\\\">\\n          <div>\\n            <dt>Risk reason</dt>\\n            <dd>Champion change and a 28% usage decline</dd>\\n          </div>\\n          <div>\\n            <dt>Evidence gap</dt>\\n            <dd>Procurement timeline is not confirmed</dd>\\n          </div>\\n        </dl>\\n\\n        <div class=\\\"action-stack\\\">\\n          <button class=\\\"button primary\\\" type=\\\"button\\\">Save renewal handoff</button>\\n          <button class=\\\"button ghost\\\" type=\\\"button\\\" disabled>Mark ready for meeting</button>\\n          <p class=\\\"lock-note\\\">Readiness unlocks when the procurement timeline is recorded.</p>\\n        </div>\\n      </div>\\n    </aside>\\n  </div>\\n</main>\"}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "8d9eb442a46629fa76614c2608ae8c429e90633a41e27ebec2113c27cdb7eef2",
+    "stderr_sha256": "fdc5e58810e7c10648247c893e3886a3eecca3f143978889f888d2bfe19f1012"
+  }
+}

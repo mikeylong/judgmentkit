@@ -1,0 +1,1169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>B2B renewal risk review - GPT-5.6 Sol Ultra via codex exec - JudgmentKit skill context</title>
+    <style>
+    :root {
+      --jk-color-canvas: #f8f7f2;
+      --jk-color-surface: #ffffff;
+      --jk-color-text: #171717;
+      --jk-color-muted: #61615c;
+      --jk-color-border: #d7d3c8;
+      --jk-color-focus: #245f73;
+      --jk-color-success: #2e6b48;
+      --jk-color-warning: #8a5a16;
+      --jk-color-risk: #8f342f;
+      --jk-color-disabled: #8a8f93;
+      --jk-color-receipt: #23615f;
+      --jk-space-2: 0.5rem;
+      --jk-space-3: 0.75rem;
+      --jk-space-4: 1rem;
+      --jk-radius-control: 4px;
+      --jk-radius-panel: 8px;
+      --jk-focus-ring: 0 0 0 3px rgba(36, 95, 115, 0.28);
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--jk-color-canvas);
+      color: var(--jk-color-text);
+      font: 15px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .raw-model-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--jk-color-canvas);
+    }
+    .raw-model-candidate > section,
+    .raw-model-candidate .card,
+    .raw-model-candidate .panel {
+      margin-top: 14px;
+      padding: var(--jk-space-4);
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: var(--jk-color-surface);
+    }
+    .raw-model-candidate ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--jk-color-muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--jk-color-receipt);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .app-shell .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+      color: var(--jk-color-receipt);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: color-mix(in srgb, var(--jk-color-warning) 12%, var(--jk-color-surface));
+      color: var(--jk-color-warning);
+    }
+    .app-shell .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: var(--jk-color-surface);
+    }
+    .app-shell .queue,
+    .app-shell .detail {
+      padding: var(--jk-space-4);
+    }
+    .app-shell .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .app-shell .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: var(--jk-color-surface);
+      color: var(--jk-color-text);
+      text-align: left;
+    }
+    .app-shell .queue-item small {
+      color: var(--jk-color-muted);
+    }
+    .app-shell .queue-item.is-selected {
+      border-color: var(--jk-color-focus);
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+    }
+    .app-shell .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .app-shell .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
+      padding: 14px;
+    }
+    .app-shell .info-grid > div {
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: color-mix(in srgb, var(--jk-color-canvas) 75%, var(--jk-color-surface));
+    }
+    .app-shell .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--jk-color-muted);
+      font-size: 13px;
+    }
+    .app-shell .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .app-shell .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .app-shell .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: 999px;
+      color: var(--jk-color-receipt);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .app-shell .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-shell .actions button,
+    .app-shell .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: var(--jk-color-surface);
+      color: var(--jk-color-text);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .app-shell button:focus-visible {
+      outline: none;
+      box-shadow: var(--jk-focus-ring);
+    }
+    .app-shell button.primary {
+      border-color: var(--jk-color-focus);
+      background: var(--jk-color-focus);
+      color: var(--jk-color-surface);
+    }
+    .app-shell .handoff {
+      padding: 14px;
+      background: color-mix(in srgb, var(--jk-color-receipt) 9%, var(--jk-color-surface));
+    }
+    .reviewed-candidate .app-header {
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+      border: 1px solid color-mix(in srgb, var(--jk-color-focus) 35%, var(--jk-color-border));
+      border-radius: var(--jk-radius-panel);
+      padding: 14px;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--jk-color-muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--jk-color-text);
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
+        display: grid;
+      }
+      .app-shell .workspace,
+      .app-shell .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+    <style data-model-css>* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--jk-color-canvas);
+  color: var(--jk-color-text);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+button {
+  font: inherit;
+}
+
+.app-shell {
+  min-height: 100vh;
+  background: var(--jk-color-canvas);
+  color: var(--jk-color-text);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--jk-space-4);
+  padding: var(--jk-space-4) calc(var(--jk-space-4) * 1.5);
+  border-bottom: 1px solid var(--jk-color-border);
+  background: var(--jk-color-surface);
+}
+
+.topbar h1,
+.panel h2,
+.panel h3,
+.panel p {
+  margin-top: 0;
+}
+
+.topbar h1 {
+  margin-bottom: var(--jk-space-2);
+  font-size: 1.5rem;
+  line-height: 1.2;
+}
+
+.topbar p {
+  margin: 0;
+  color: var(--jk-color-muted);
+  font-size: 0.9rem;
+}
+
+.meeting-context {
+  flex: 0 0 auto;
+  padding: var(--jk-space-2) var(--jk-space-3);
+  border: 1px solid var(--jk-color-border);
+  border-radius: var(--jk-radius-control);
+  color: var(--jk-color-muted);
+  font-size: 0.82rem;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.72fr) minmax(440px, 1.7fr) minmax(310px, 1fr);
+  gap: var(--jk-space-4);
+  width: min(100%, 1480px);
+  margin: 0 auto;
+  padding: var(--jk-space-4);
+  align-items: start;
+}
+
+.panel {
+  min-width: 0;
+  padding: var(--jk-space-4);
+  border: 1px solid var(--jk-color-border);
+  border-radius: var(--jk-radius-panel);
+  background: var(--jk-color-surface);
+}
+
+.panel h2 {
+  margin-bottom: var(--jk-space-2);
+  font-size: 1rem;
+  line-height: 1.3;
+}
+
+.panel h3 {
+  margin-bottom: var(--jk-space-3);
+  font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.panel-subtitle,
+.section-intro {
+  margin-bottom: var(--jk-space-4);
+  color: var(--jk-color-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.queue-list,
+.evidence-list,
+.decision-options {
+  display: grid;
+  gap: var(--jk-space-3);
+}
+
+.queue-item {
+  width: 100%;
+  min-height: 76px;
+  padding: var(--jk-space-3);
+  border: 1px solid var(--jk-color-border);
+  border-radius: var(--jk-radius-control);
+  background: var(--jk-color-surface);
+  color: var(--jk-color-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.queue-item:hover {
+  border-color: var(--jk-color-focus);
+}
+
+.queue-item[aria-current="true"] {
+  border-color: var(--jk-color-focus);
+  box-shadow: inset 3px 0 0 var(--jk-color-focus);
+}
+
+.queue-topline,
+.queue-meta,
+.account-header,
+.section-heading,
+.evidence-item,
+.receipt {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--jk-space-3);
+}
+
+.queue-id,
+.eyebrow,
+.evidence-label,
+.handoff-row dt {
+  color: var(--jk-color-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.035em;
+  text-transform: uppercase;
+}
+
+.queue-customer {
+  display: block;
+  margin: var(--jk-space-2) 0;
+  font-size: 0.94rem;
+  font-weight: 720;
+  overflow-wrap: anywhere;
+}
+
+.queue-meta {
+  color: var(--jk-color-muted);
+  font-size: 0.76rem;
+}
+
+.queue-action {
+  color: var(--jk-color-focus);
+  font-weight: 700;
+}
+
+.detail-panel {
+  padding: calc(var(--jk-space-4) + var(--jk-space-2));
+}
+
+.account-header {
+  padding-bottom: var(--jk-space-4);
+  border-bottom: 1px solid var(--jk-color-border);
+}
+
+.account-header h2 {
+  margin: var(--jk-space-2) 0 0;
+  font-size: 1.35rem;
+}
+
+.status-badge,
+.evidence-state {
+  flex: 0 0 auto;
+  padding: var(--jk-space-2) var(--jk-space-3);
+  border: 1px solid var(--jk-color-warning);
+  border-radius: var(--jk-radius-control);
+  color: var(--jk-color-warning);
+  font-size: 0.75rem;
+  font-weight: 720;
+}
+
+.facts-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  border-bottom: 1px solid var(--jk-color-border);
+}
+
+.facts-grid > div {
+  min-width: 0;
+  padding: var(--jk-space-4) var(--jk-space-3);
+  border-right: 1px solid var(--jk-color-border);
+}
+
+.facts-grid > div:first-child {
+  padding-left: 0;
+}
+
+.facts-grid > div:last-child {
+  border-right: 0;
+}
+
+.facts-grid dt {
+  margin-bottom: var(--jk-space-2);
+  color: var(--jk-color-muted);
+  font-size: 0.72rem;
+}
+
+.facts-grid dd {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 680;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+
+.section-block {
+  padding-top: var(--jk-space-4);
+}
+
+.section-heading {
+  align-items: baseline;
+}
+
+.section-heading span {
+  color: var(--jk-color-muted);
+  font-size: 0.75rem;
+}
+
+.evidence-item {
+  align-items: center;
+  padding: var(--jk-space-3) var(--jk-space-4);
+  border: 1px solid var(--jk-color-border);
+  border-left: 3px solid var(--jk-color-success);
+  border-radius: var(--jk-radius-control);
+}
+
+.evidence-item.state-error {
+  border-left-color: var(--jk-color-risk);
+}
+
+.evidence-copy {
+  min-width: 0;
+}
+
+.evidence-label {
+  display: block;
+  margin-bottom: var(--jk-space-2);
+}
+
+.evidence-value {
+  display: block;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.evidence-state.state-ready {
+  border-color: var(--jk-color-success);
+  color: var(--jk-color-success);
+}
+
+.evidence-state.state-empty,
+.state-empty {
+  border-color: var(--jk-color-warning);
+  color: var(--jk-color-warning);
+}
+
+.evidence-state.state-error,
+.state-error {
+  border-color: var(--jk-color-risk);
+  color: var(--jk-color-risk);
+}
+
+.policy-callout {
+  padding: var(--jk-space-4);
+  border: 1px solid var(--jk-color-warning);
+  border-left: 3px solid var(--jk-color-warning);
+  border-radius: var(--jk-radius-control);
+}
+
+.policy-callout h3 {
+  color: var(--jk-color-warning);
+}
+
+.policy-callout p {
+  margin-bottom: 0;
+  color: var(--jk-color-text);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.decision-rail {
+  display: grid;
+  gap: var(--jk-space-4);
+  min-width: 0;
+}
+
+.decision-option {
+  display: block;
+  width: 100%;
+  min-height: 62px;
+  padding: var(--jk-space-3) var(--jk-space-4);
+  border: 1px solid var(--jk-color-border);
+  border-radius: var(--jk-radius-control);
+  background: var(--jk-color-surface);
+  color: var(--jk-color-text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.decision-option strong,
+.decision-option span {
+  display: block;
+}
+
+.decision-option strong {
+  margin-bottom: var(--jk-space-2);
+  font-size: 0.86rem;
+}
+
+.decision-option span {
+  color: var(--jk-color-muted);
+  font-size: 0.76rem;
+  line-height: 1.4;
+}
+
+.decision-option[aria-pressed="true"] {
+  border-color: var(--jk-color-focus);
+  box-shadow: inset 3px 0 0 var(--jk-color-focus);
+}
+
+.decision-option:disabled,
+.button:disabled {
+  border-color: var(--jk-color-border);
+  background: var(--jk-color-canvas);
+  color: var(--jk-color-disabled);
+  cursor: not-allowed;
+}
+
+.decision-option:disabled span {
+  color: var(--jk-color-disabled);
+}
+
+.disabled-reason {
+  margin: var(--jk-space-2) 0 0;
+  color: var(--jk-color-disabled);
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+.action-row {
+  display: flex;
+  gap: var(--jk-space-3);
+  margin-top: var(--jk-space-4);
+}
+
+.button {
+  min-height: 44px;
+  padding: var(--jk-space-3) var(--jk-space-4);
+  border: 1px solid var(--jk-color-border);
+  border-radius: var(--jk-radius-control);
+  font-weight: 720;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.button-primary {
+  border-color: var(--jk-color-focus);
+  background: var(--jk-color-focus);
+  color: var(--jk-color-surface);
+}
+
+.button-secondary {
+  background: var(--jk-color-surface);
+  color: var(--jk-color-focus);
+  border-color: var(--jk-color-focus);
+}
+
+.button-risk {
+  background: var(--jk-color-surface);
+  color: var(--jk-color-risk);
+  border-color: var(--jk-color-risk);
+}
+
+.button:hover:not(:disabled),
+.decision-option:hover:not(:disabled) {
+  box-shadow: inset 0 0 0 1px var(--jk-color-focus);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--jk-color-focus);
+  outline-offset: 2px;
+  box-shadow: var(--jk-focus-ring);
+}
+
+.handoff-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  border-top: 1px solid var(--jk-color-border);
+}
+
+.handoff-row {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: var(--jk-space-3);
+  padding: var(--jk-space-3) 0;
+  border-bottom: 1px solid var(--jk-color-border);
+}
+
+.handoff-row dt,
+.handoff-row dd {
+  margin: 0;
+}
+
+.handoff-row dd {
+  font-size: 0.8rem;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.receipt {
+  align-items: center;
+  margin-top: var(--jk-space-4);
+  padding: var(--jk-space-3);
+  border: 1px solid var(--jk-color-receipt);
+  border-radius: var(--jk-radius-control);
+  color: var(--jk-color-receipt);
+}
+
+.receipt strong,
+.receipt span {
+  display: block;
+}
+
+.receipt strong {
+  margin-bottom: var(--jk-space-2);
+  font-size: 0.8rem;
+}
+
+.receipt span {
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.state-loading {
+  cursor: progress;
+  color: var(--jk-color-muted);
+}
+
+.state-loading::after {
+  content: "Loading…";
+  margin-left: var(--jk-space-2);
+}
+
+@media (max-width: 1080px) {
+  .workspace {
+    grid-template-columns: minmax(210px, 0.7fr) minmax(0, 1.6fr);
+  }
+
+  .decision-rail {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .facts-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .facts-grid > div:nth-child(2) {
+    border-right: 0;
+  }
+}
+
+@media (max-width: 720px) {
+  .topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .meeting-context {
+    white-space: normal;
+  }
+
+  .workspace {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .queue-panel {
+    order: 1;
+  }
+
+  .decision-rail {
+    order: 2;
+    grid-column: auto;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .detail-panel {
+    order: 3;
+  }
+
+  .facts-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .facts-grid > div,
+  .facts-grid > div:first-child {
+    padding: var(--jk-space-3) 0;
+    border-right: 0;
+    border-bottom: 1px solid var(--jk-color-border);
+  }
+
+  .facts-grid > div:last-child {
+    border-bottom: 0;
+  }
+
+  .account-header,
+  .evidence-item,
+  .receipt {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .action-row,
+  .action-row .button,
+  .receipt .button {
+    width: 100%;
+  }
+}
+
+@media (forced-colors: active) {
+  button,
+  .panel,
+  .status-badge,
+  .evidence-item,
+  .policy-callout,
+  .receipt {
+    border: 1px solid currentColor;
+  }
+}
+    .raw-model-candidate {
+      background: var(--jk-color-canvas) !important;
+      color: var(--jk-color-text) !important;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    }
+    .raw-model-candidate :is(section, article, aside, header, footer, .panel, .card, [class*="panel"], [class*="card"], [class*="queue"], [class*="detail"]) {
+      border-color: var(--jk-color-border) !important;
+      background-color: var(--jk-color-surface) !important;
+    }
+    .raw-model-candidate :is(p, small, span, li, dd) {
+      color: var(--jk-color-muted);
+    }
+    .raw-model-candidate :is(h1, h2, h3, h4, strong, dt) {
+      color: var(--jk-color-text);
+    }
+    .raw-model-candidate button {
+      border-color: var(--jk-color-border) !important;
+      border-radius: var(--jk-radius-control) !important;
+      background: var(--jk-color-surface) !important;
+      color: var(--jk-color-text) !important;
+    }
+    .raw-model-candidate .primary {
+      border-color: var(--jk-color-focus) !important;
+      background: var(--jk-color-focus) !important;
+      color: var(--jk-color-surface) !important;
+    }</style>
+
+  </head>
+  <body data-artifact-id="gpt56-sol-ultra-codex-with-judgmentkit" data-row-id="gpt56-sol-ultra-codex" data-column-id="with-judgmentkit" data-judgmentkit-mode="with_judgmentkit" data-design-system-mode="none">
+    <main class="app-shell raw-model-candidate" data-primary-surface>
+  <header class="topbar">
+    <div>
+      <h1>Renewal risk review</h1>
+      <p>Decide the next path before the weekly account meeting.</p>
+    </div>
+    <div class="meeting-context">3 at-risk accounts · Northstar Labs selected</div>
+  </header>
+
+  <div class="workspace">
+    <nav class="panel queue-panel" aria-labelledby="queue-title">
+      <h2 id="queue-title">Renewal queue</h2>
+      <p class="panel-subtitle">Choose an account to review.</p>
+
+      <div class="queue-list">
+        <button class="queue-item" type="button" aria-current="true">
+          <span class="queue-topline">
+            <span class="queue-id">AC-903</span>
+            <span>$84K ARR</span>
+          </span>
+          <span class="queue-customer">Northstar Labs</span>
+          <span class="queue-meta">
+            <span>Champion change</span>
+            <span class="queue-action">Selected account</span>
+          </span>
+        </button>
+
+        <button class="queue-item" type="button">
+          <span class="queue-topline">
+            <span class="queue-id">AC-904</span>
+            <span>$42K ARR</span>
+          </span>
+          <span class="queue-customer">Bright Arc</span>
+          <span class="queue-meta">
+            <span>Usage drop</span>
+            <span class="queue-action">Select account</span>
+          </span>
+        </button>
+
+        <button class="queue-item" type="button">
+          <span class="queue-topline">
+            <span class="queue-id">AC-905</span>
+            <span>$120K ARR</span>
+          </span>
+          <span class="queue-customer">Harbor Grid</span>
+          <span class="queue-meta">
+            <span>Procurement risk</span>
+            <span class="queue-action">Select account</span>
+          </span>
+        </button>
+      </div>
+    </nav>
+
+    <section class="panel detail-panel" aria-labelledby="account-title">
+      <header class="account-header">
+        <div>
+          <span class="eyebrow">Selected account · AC-903</span>
+          <h2 id="account-title">Northstar Labs</h2>
+        </div>
+        <span class="status-badge">Champion change</span>
+      </header>
+
+      <dl class="facts-grid">
+        <div>
+          <dt>Renewal amount</dt>
+          <dd>$84K ARR</dd>
+        </div>
+        <div>
+          <dt>Plan</dt>
+          <dd>Enterprise annual</dd>
+        </div>
+        <div>
+          <dt>Renewal status</dt>
+          <dd>At risk</dd>
+        </div>
+        <div>
+          <dt>Renewal timing</dt>
+          <dd class="state-empty">Not confirmed</dd>
+        </div>
+      </dl>
+
+      <section class="section-block" aria-labelledby="evidence-title">
+        <div class="section-heading">
+          <h3 id="evidence-title">Risk evidence</h3>
+          <span>2 observed · 1 gap</span>
+        </div>
+
+        <div class="evidence-list">
+          <article class="evidence-item">
+            <div class="evidence-copy">
+              <span class="evidence-label">Usage trend</span>
+              <span class="evidence-value">Usage dropped 28 percent over the last two reporting periods.</span>
+            </div>
+            <span class="evidence-state state-ready">Observed</span>
+          </article>
+
+          <article class="evidence-item">
+            <div class="evidence-copy">
+              <span class="evidence-label">Champion change</span>
+              <span class="evidence-value">The primary champion left the account last month.</span>
+            </div>
+            <span class="evidence-state state-ready">Observed</span>
+          </article>
+
+          <article class="evidence-item state-error">
+            <div class="evidence-copy">
+              <span class="evidence-label">Procurement timeline</span>
+              <span class="evidence-value">No procurement date is available before escalation or save-plan commitment.</span>
+            </div>
+            <span class="evidence-state state-error">Missing</span>
+          </article>
+        </div>
+      </section>
+
+      <section class="section-block" aria-labelledby="policy-title">
+        <div class="policy-callout">
+          <h3 id="policy-title">Renewal policy</h3>
+          <p>Executive escalation is appropriate when sponsor risk and renewal timing are clear. With procurement timing missing, request the date before committing a save plan.</p>
+        </div>
+      </section>
+    </section>
+
+    <aside class="decision-rail" aria-label="Decision and renewal handoff">
+      <section class="panel decision-panel" aria-labelledby="decision-title">
+        <h2 id="decision-title">Decision path</h2>
+        <p class="section-intro">Choose the next path for Northstar Labs.</p>
+
+        <div class="decision-options" role="group" aria-labelledby="decision-title">
+          <button class="decision-option" type="button" aria-pressed="false" aria-describedby="save-plan-reason" disabled>
+            <strong>Start save plan</strong>
+            <span>Commit an account recovery plan and owners.</span>
+          </button>
+          <p class="disabled-reason" id="save-plan-reason">Unavailable until the procurement timeline is known.</p>
+
+          <button class="decision-option" type="button" aria-pressed="false">
+            <strong>Escalate executive sponsor</strong>
+            <span>Bring sponsor risk to executive attention.</span>
+          </button>
+
+          <button class="decision-option" type="button" aria-pressed="true">
+            <strong>Wait for stronger usage evidence</strong>
+            <span>Request procurement timing now and reassess with the next usage update.</span>
+          </button>
+        </div>
+
+        <div class="action-row">
+          <button class="button button-secondary" type="button">Request procurement date</button>
+        </div>
+      </section>
+
+      <section class="panel handoff-panel" aria-labelledby="handoff-title">
+        <h2 id="handoff-title">Renewal handoff</h2>
+        <p class="section-intro">Confirm what the customer success team receives.</p>
+
+        <dl class="handoff-list">
+          <div class="handoff-row">
+            <dt>Next owner</dt>
+            <dd>Customer success manager</dd>
+          </div>
+          <div class="handoff-row">
+            <dt>Action</dt>
+            <dd>Request the procurement date, then reassess the save plan.</dd>
+          </div>
+          <div class="handoff-row">
+            <dt>Risk reason</dt>
+            <dd>Champion changed and usage dropped 28 percent.</dd>
+          </div>
+          <div class="handoff-row">
+            <dt>Evidence gap</dt>
+            <dd>Procurement timeline is missing.</dd>
+          </div>
+        </dl>
+
+        <div class="receipt" role="status" aria-live="polite">
+          <div>
+            <strong>Ready to send</strong>
+            <span>Owner, action, risk reason, and evidence gap are included.</span>
+          </div>
+          <button class="button button-primary" type="button">Send handoff</button>
+        </div>
+      </section>
+    </aside>
+  </div>
+</main>
+    <aside class="provenance" aria-label="Artifact provenance">
+      <strong>Provenance:</strong>
+      <span>captured</span>
+      <span> - captured_model_output</span>
+      <span> - JudgmentKit skill context</span>
+      <span> - frontend skill context ready</span>
+      <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
+      <p>Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.</p>
+      <p>Manifest entry: <code>artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html</code></p>
+    </aside>
+    <script type="application/json" id="model-ui-provenance">{
+  "matrix_id": "b2b-renewal-risk-model-ui-v1",
+  "use_case_id": "b2b-renewal-risk",
+  "use_case_label": "B2B renewal risk review",
+  "activity_summary": "A customer success manager reviews renewal risk and decides save plan, executive escalation, or wait for usage evidence.",
+  "artifact_id": "gpt56-sol-ultra-codex-with-judgmentkit",
+  "row_id": "gpt56-sol-ultra-codex",
+  "column_id": "with-judgmentkit",
+  "model_label": "GPT-5.6 Sol Ultra",
+  "generation_source": "captured_model_output",
+  "judgmentkit_mode": "with_judgmentkit",
+  "design_system_mode": "none",
+  "render_source": "model_frontend_skill_static_html_css",
+  "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+  "reasoning_effort": "ultra",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": true,
+    "material_ui_adapter": false,
+    "frontend_skill_context": true
+  },
+  "design_system_name": "JudgmentKit",
+  "design_system_package": "judgmentkit",
+  "source_brief_file": "examples/model-ui/b2b-renewal-risk/source-brief.txt",
+  "handoff_source": "examples/model-ui/b2b-renewal-risk/reviewed-handoff.fixture.json",
+  "design_system_adapter_file": null,
+  "capture_file": "captures/gpt56-sol-ultra-codex-with-judgmentkit.json",
+  "source_context_sha256": "1c0a8acbe007c991e439172c7f8046ec041a488a955d6e8a9fb98151fcbb2511",
+  "current_source_context_sha256": "1c0a8acbe007c991e439172c7f8046ec041a488a955d6e8a9fb98151fcbb2511",
+  "source_context_status": "current",
+  "model_response_summary": "A focused renewal-risk workbench coordinates account selection, evidence review, decision-making, and a ready-to-send handoff.",
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": "workbench",
+    "design_system_mode": "judgmentkit_default",
+    "design_system_name": "JudgmentKit",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "Verify substantive visuals use imagegen or premium Three.js/WebGL/D3-style rendering when the spec calls for them.",
+      "Provide browser-rendered visual-background contrast evidence for text over images, canvas, WebGL, video, gradients, or generated visuals.",
+      "Verify non-text contrast for meaningful icons, charts, state indicators, custom controls, and authored focus indicators.",
+      "Verify forced-colors or high-contrast behavior when custom colors, gradients, overlays, or authored focus styles are used.",
+      "Verify focus-visible evidence for interactive controls.",
+      "Verify focus order, keyboard navigation, focus-not-obscured behavior, and no keyboard trap for custom widgets, overlays, dialogs, and embedded experiences.",
+      "Verify reduced-motion behavior for animation and rendered visuals.",
+      "Verify pause, stop, hide, or update-frequency control for auto-moving or auto-updating content.",
+      "Verify form labels, instructions, text errors, correction suggestions, and status/live-region messages when forms or async states are present.",
+      "Verify semantic content or accessible fallback for images, canvas, WebGL, video, generated visuals, and D3-style visualization.",
+      "Verify captions, transcripts, descriptions, or media alternatives when audio or video is present.",
+      "Verify target size or valid target spacing/equivalent-control exceptions for dense or touch-oriented controls.",
+      "Verify responsive no-overflow evidence at desktop and mobile sizes.",
+      "with-judgmentkit candidate desktop screenshot has a styled primary work surface",
+      "with-judgmentkit candidate mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
+  "capture_provenance": {
+    "status": "captured",
+    "capture_type": "model-output-transcript",
+    "captured_at": "2026-07-30T04:07:18.642Z",
+    "runner": "scripts/capture-model-ui-matrix.mjs",
+    "provider": "codex-cli",
+    "model": "gpt-5.6-sol",
+    "cli": "codex",
+    "transcript_file": "captures/gpt56-sol-ultra-codex-with-judgmentkit.json",
+    "prompt_sha256": "b4f960f232df84e6997ffa42798136b6c31f52680a401903242965380066a59b",
+    "raw_response_sha256": "0138e7fb3b07b4bef7fc2faf5efcc69981c09a43ea3fd7c51c27a3c214e894aa",
+    "source_context_sha256": "1c0a8acbe007c991e439172c7f8046ec041a488a955d6e8a9fb98151fcbb2511",
+    "reasoning_effort": "ultra",
+    "context_included": {
+      "source_brief": true,
+      "sample_case": true,
+      "reviewed_handoff": true,
+      "material_ui_adapter": false,
+      "frontend_skill_context": true
+    },
+    "frontend_context_status": "ready_for_frontend_implementation",
+    "frontend_skill_context_status": "ready",
+    "design_system_name": null,
+    "design_system_package": null,
+    "design_system_render_mode": null,
+    "lms_context": null,
+    "capture_quality": {
+      "profile": "judgmentkit_static_html_css",
+      "css_characters": 10290,
+      "html_characters": 7027,
+      "css_rule_count": 89,
+      "class_selector_count": 160,
+      "semantic_section_count": 12,
+      "structural_block_count": 35,
+      "button_count": 8,
+      "has_responsive_css": true,
+      "has_layout_css": true,
+      "has_panel_css": true,
+      "has_control_css": true,
+      "has_evidence_content": true,
+      "has_handoff_content": true,
+      "compact_template_signature": false,
+      "has_judgmentkit_default_tokens": true,
+      "jk_token_usage_count": 126,
+      "jk_token_reference_count": 126,
+      "unsupported_jk_tokens": [],
+      "jk_token_definition_count": 0,
+      "jk_token_definitions": [],
+      "disallowed_visual_tokens": [],
+      "inline_style_attribute_count": 0,
+      "hard_coded_visual_values": [],
+      "failures": [],
+      "status": "passed"
+    },
+    "source_context_status": "current",
+    "current_source_context_sha256": "1c0a8acbe007c991e439172c7f8046ec041a488a955d6e8a9fb98151fcbb2511",
+    "accepted_source_context_sha256": "1c0a8acbe007c991e439172c7f8046ec041a488a955d6e8a9fb98151fcbb2511",
+    "captured_source_context_sha256": "1c0a8acbe007c991e439172c7f8046ec041a488a955d6e8a9fb98151fcbb2511",
+    "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+    "notes": "GPT-5.6 Sol Ultra output captured through codex for the JudgmentKit 5x4 model UI matrix."
+  },
+  "artifact_path": "artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html",
+  "screenshot_path": "screenshots/gpt56-sol-ultra-codex-with-judgmentkit.png",
+  "approach_title": "GPT-5.6 Sol Ultra via codex exec - JudgmentKit skill context",
+  "approach_caption": "GPT-5.6 Sol Ultra via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
+}</script>
+  </body>
+</html>

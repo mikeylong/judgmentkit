@@ -1,0 +1,125 @@
+{
+  "artifact_id": "gpt56-sol-low-codex-material-ui-only",
+  "use_case_id": "b2b-renewal-risk",
+  "use_case_label": "B2B renewal risk review",
+  "activity_summary": "A customer success manager reviews renewal risk and decides save plan, executive escalation, or wait for usage evidence.",
+  "row_id": "gpt56-sol-low-codex",
+  "row_label": "GPT-5.6 Sol Light via codex exec",
+  "column_id": "material-ui-only",
+  "column_label": "Material UI only",
+  "model_label": "GPT-5.6 Sol Light",
+  "provider": "codex-cli",
+  "cli": "codex",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "low",
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "material_ui",
+  "design_system_name": "Material UI",
+  "design_system_package": "@mui/material",
+  "design_system_render_mode": "static-ssr",
+  "render_mode": "material_ui",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-07-30T03:34:10.561Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": true,
+    "frontend_skill_context": false
+  },
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
+  "source_context_sha256": "09375586af2c2f42e8eec898f872a1edc1ff04e6125911e4b00c6136d58448dc",
+  "source_context_status": "current",
+  "current_source_context_sha256": "09375586af2c2f42e8eec898f872a1edc1ff04e6125911e4b00c6136d58448dc",
+  "accepted_source_context_sha256": "09375586af2c2f42e8eec898f872a1edc1ff04e6125911e4b00c6136d58448dc",
+  "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+  "prompt_sha256": "33023f752e158851a848f584622324b4996faec102f21925497bad64c3d7b669",
+  "raw_response_sha256": "d251e1a49032b47ec2fdbff74ece5f1930f9802b8290165d7d36600bf4633b0a",
+  "command_display": "codex exec --model gpt-5.6-sol -c model_reasoning_effort=\"low\" -c sqlite_home=\"<sqlite>\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",
+  "notes": "GPT-5.6 Sol Light output captured through codex for the JudgmentKit 5x4 model UI matrix.",
+  "lms_context": null,
+  "capture_quality": null,
+  "parsed": {
+    "summary": "Review Northstar Labs’ renewal risk and assign the next evidence-gathering handoff before choosing escalation or a save plan.",
+    "surface": {
+      "eyebrow": "B2B renewal risk review",
+      "heading": "Northstar Labs renewal decision",
+      "status": "Evidence needed",
+      "queue_title": "At-risk renewals",
+      "queue": [
+        {
+          "id": "AC-903",
+          "customer": "Northstar Labs",
+          "state": "Champion change",
+          "amount": "$84K ARR"
+        },
+        {
+          "id": "AC-904",
+          "customer": "Bright Arc",
+          "state": "Usage drop",
+          "amount": "$42K ARR"
+        },
+        {
+          "id": "AC-905",
+          "customer": "Harbor Grid",
+          "state": "Procurement risk",
+          "amount": "$120K ARR"
+        }
+      ],
+      "selected": {
+        "id": "AC-903",
+        "customer": "Northstar Labs",
+        "amount": "$84K ARR",
+        "plan": "Enterprise annual",
+        "request": "Renewal risk review before the account planning meeting.",
+        "status": "Champion change"
+      },
+      "info": [
+        {
+          "label": "Usage trend",
+          "value": "Down 28% over the last two reporting periods"
+        },
+        {
+          "label": "Champion change",
+          "value": "Primary champion left last month"
+        },
+        {
+          "label": "Procurement timeline",
+          "value": "Missing"
+        },
+        {
+          "label": "Current decision",
+          "value": "Wait for stronger evidence"
+        }
+      ],
+      "evidence": [
+        "Usage dropped 28 percent over the last two reporting periods.",
+        "Primary champion left the account last month.",
+        "Procurement timeline is missing before escalation."
+      ],
+      "policy_title": "Escalation and save-plan guidance",
+      "policy": "Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.",
+      "decision_title": "Choose the next step",
+      "actions": [
+        "Start save plan",
+        "Escalate to executive sponsor",
+        "Wait for usage evidence"
+      ],
+      "primary_action": "Wait for usage evidence",
+      "handoff": {
+        "owner": "Customer success manager",
+        "title": "Confirm procurement timeline and recent usage context",
+        "reason": "Renewal timing is unclear, and the usage decline needs context after the champion change.",
+        "action": "Confirm the procurement date and validate the two-period usage decline before the weekly account meeting."
+      }
+    }
+  },
+  "raw_response": "{\"summary\":\"Review Northstar Labs’ renewal risk and assign the next evidence-gathering handoff before choosing escalation or a save plan.\",\"surface\":{\"eyebrow\":\"B2B renewal risk review\",\"heading\":\"Northstar Labs renewal decision\",\"status\":\"Evidence needed\",\"queue_title\":\"At-risk renewals\",\"queue\":[{\"id\":\"AC-903\",\"customer\":\"Northstar Labs\",\"state\":\"Champion change\",\"amount\":\"$84K ARR\"},{\"id\":\"AC-904\",\"customer\":\"Bright Arc\",\"state\":\"Usage drop\",\"amount\":\"$42K ARR\"},{\"id\":\"AC-905\",\"customer\":\"Harbor Grid\",\"state\":\"Procurement risk\",\"amount\":\"$120K ARR\"}],\"selected\":{\"id\":\"AC-903\",\"customer\":\"Northstar Labs\",\"amount\":\"$84K ARR\",\"plan\":\"Enterprise annual\",\"request\":\"Renewal risk review before the account planning meeting.\",\"status\":\"Champion change\"},\"info\":[{\"label\":\"Usage trend\",\"value\":\"Down 28% over the last two reporting periods\"},{\"label\":\"Champion change\",\"value\":\"Primary champion left last month\"},{\"label\":\"Procurement timeline\",\"value\":\"Missing\"},{\"label\":\"Current decision\",\"value\":\"Wait for stronger evidence\"}],\"evidence\":[\"Usage dropped 28 percent over the last two reporting periods.\",\"Primary champion left the account last month.\",\"Procurement timeline is missing before escalation.\"],\"policy_title\":\"Escalation and save-plan guidance\",\"policy\":\"Executive escalation is appropriate when sponsor risk and renewal timing are clear; missing procurement dates should be resolved before committing a save plan.\",\"decision_title\":\"Choose the next step\",\"actions\":[\"Start save plan\",\"Escalate to executive sponsor\",\"Wait for usage evidence\"],\"primary_action\":\"Wait for usage evidence\",\"handoff\":{\"owner\":\"Customer success manager\",\"title\":\"Confirm procurement timeline and recent usage context\",\"reason\":\"Renewal timing is unclear, and the usage decline needs context after the champion change.\",\"action\":\"Confirm the procurement date and validate the two-period usage decline before the weekly account meeting.\"}}}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "15ee7c7c3cca398ba5af505c8bd13572b6d5b9b141d5625747b3879c554eaf83",
+    "stderr_sha256": "d8a0fcb8c3c5d27465be40673c54a934ea1f02ef42b54ffb97b74488c3532bf7"
+  }
+}

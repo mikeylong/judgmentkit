@@ -9,6 +9,8 @@ import {
   COMPARISON_COLUMNS,
   COMPARISON_ROWS,
   LEGACY_ALIASES,
+  MODEL_UI_MATRIX_DIMENSIONS,
+  MODEL_UI_MATRIX_DIMENSIONS_SPOKEN,
   MODEL_UI_INDEX_FILE,
   MODEL_UI_USE_CASES,
 } from "../scripts/model-ui-use-cases.mjs";
@@ -1574,6 +1576,11 @@ assert.equal(examples.includes("Inline preview"), false);
 assert.ok(examples.includes('class="example-preview-body" data-model-ui-preview'));
 assert.ok(examples.includes('class="example-gallery" aria-label="Model UI screenshot gallery"'));
 assert.ok(examples.includes('class="example-matrix-table"'));
+assert.ok(
+  examples.includes(
+    `aria-label="Model UI ${MODEL_UI_MATRIX_DIMENSIONS_SPOKEN} comparison matrix"`,
+  ),
+);
 assert.ok(examples.includes('class="example-matrix-column-header"'));
 assert.ok(examples.includes('class="example-matrix-cell"'));
 assert.ok(examples.includes('class="example-matrix-thumb"'));
@@ -1716,15 +1723,72 @@ for (const useCase of MODEL_UI_USE_CASES) {
   assert.equal(manifest.use_case_id, useCase.id);
   assert.equal(manifest.use_case_label, useCase.label);
   assert.equal(manifest.legacy_aliases.length, 0);
-  assert.equal(manifest.comparison_rows.length, 3);
-  assert.equal(manifest.comparison_columns.length, 4);
+  assert.equal(manifest.title, `Model UI ${MODEL_UI_MATRIX_DIMENSIONS} comparison matrix`);
+  assert.equal(manifest.comparison_rows.length, COMPARISON_ROWS.length);
+  assert.equal(manifest.comparison_columns.length, COMPARISON_COLUMNS.length);
   assert.equal(
     manifest.artifacts.length + manifest.diagnostic_candidates.length,
     COMPARISON_ROWS.length * COMPARISON_COLUMNS.length,
     `${useCase.id} should account for every matrix cell`,
   );
-  assert.equal(manifest.artifacts.length, 10);
-  assert.equal(manifest.diagnostic_candidates.length, 2);
+  assert.equal(manifest.artifacts.length, sourceManifest.artifacts.length);
+  assert.equal(
+    manifest.diagnostic_candidates.length,
+    sourceManifest.diagnostic_candidates.length,
+  );
+  for (const [rowId, effort] of [
+    ["gpt56-sol-low-codex", "low"],
+    ["gpt56-sol-ultra-codex", "ultra"],
+  ]) {
+    const row = manifest.comparison_rows.find((candidate) => candidate.id === rowId);
+    assert.ok(row, `${rowId} should appear in ${useCase.id}`);
+    assert.equal(row.cells.length, COMPARISON_COLUMNS.length);
+    for (const cell of row.cells) {
+      const sourceCapturePath = path.join(
+        root,
+        useCase.output_dir,
+        "captures",
+        `${cell.id}.json`,
+      );
+      assert.equal(
+        fs.existsSync(sourceCapturePath),
+        true,
+        `${useCase.id}/${cell.id} should have a committed Sol capture`,
+      );
+      const sourceCapture = JSON.parse(fs.readFileSync(sourceCapturePath, "utf8"));
+      assert.equal(sourceCapture.model, "gpt-5.6-sol");
+      assert.equal(sourceCapture.reasoning_effort, effort);
+      const diagnostic = sourceDiagnosticCandidatesById.get(cell.id);
+      assert.equal(
+        diagnostic?.failed_checks?.includes("capture_missing") ?? false,
+        false,
+        `${useCase.id}/${cell.id} should never publish as capture-missing`,
+      );
+    }
+  }
+  if (useCase.id === "refund-system-map") {
+    for (const [rowId, effort] of [
+      ["gpt56-sol-low-codex", "low"],
+      ["gpt56-sol-ultra-codex", "ultra"],
+    ]) {
+      const row = manifest.comparison_rows.find((candidate) => candidate.id === rowId);
+      assert.ok(row, `${rowId} should appear in the default public matrix`);
+      assert.equal(row.cells.length, COMPARISON_COLUMNS.length);
+      assert.equal(
+        row.cells.every((cell) => cell.release_evidence_status === "artifact"),
+        true,
+        `${rowId} should publish four accepted default-use-case artifacts`,
+      );
+      for (const cell of row.cells) {
+        const artifact = manifest.artifacts.find(
+          (candidate) => candidate.id === cell.artifact_id,
+        );
+        assert.ok(artifact, `${cell.id} should resolve to a public artifact`);
+        assert.equal(artifact.model, "gpt-5.6-sol");
+        assert.equal(artifact.reasoning_effort, effort);
+      }
+    }
+  }
 
   for (const artifact of manifest.artifacts) {
     const artifactRoute = `/examples/model-ui/${useCase.id}/${artifact.artifact_path}`;
@@ -1827,6 +1891,8 @@ assert.equal(examples.includes("/examples/evals/index.json"), false);
 assert.ok(examples.includes("GPT-5.5"));
 assert.ok(examples.includes("Gemma 4 via LM Studio lms"));
 assert.ok(examples.includes("GPT-5.5 xhigh via codex exec"));
+assert.ok(examples.includes("GPT-5.6 Sol Light via codex exec"));
+assert.ok(examples.includes("GPT-5.6 Sol Ultra via codex exec"));
 assert.ok(examples.includes("static HTML/CSS"));
 assert.ok(examples.includes("Material UI SSR"));
 assert.equal(examples.includes("with design-system adapter"), false);

@@ -1,0 +1,461 @@
+{
+  "artifact_id": "gpt56-sol-low-codex-no-judgmentkit",
+  "use_case_id": "b2b-renewal-risk",
+  "use_case_label": "B2B renewal risk review",
+  "activity_summary": "A customer success manager reviews renewal risk and decides save plan, executive escalation, or wait for usage evidence.",
+  "row_id": "gpt56-sol-low-codex",
+  "row_label": "GPT-5.6 Sol Light via codex exec",
+  "column_id": "no-judgmentkit",
+  "column_label": "Raw brief",
+  "model_label": "GPT-5.6 Sol Light",
+  "provider": "codex-cli",
+  "cli": "codex",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "low",
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "none",
+  "design_system_name": null,
+  "design_system_package": null,
+  "design_system_render_mode": null,
+  "render_mode": "html",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-07-30T03:29:56.959Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": false,
+    "frontend_skill_context": false
+  },
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
+  "source_context_sha256": "1cbb3bdd64b8f1b9d13cc495160ebd7885d4c248c728c7bb8e969ca2c912a668",
+  "source_context_status": "current",
+  "current_source_context_sha256": "1cbb3bdd64b8f1b9d13cc495160ebd7885d4c248c728c7bb8e969ca2c912a668",
+  "accepted_source_context_sha256": "1cbb3bdd64b8f1b9d13cc495160ebd7885d4c248c728c7bb8e969ca2c912a668",
+  "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+  "prompt_sha256": "0fc18b541c9d855f793f78aadc0d48566686a2a17e4bb109e884f2a566367a5e",
+  "raw_response_sha256": "b0039245725e4f3755cff49c917beb7d478b3db1f2b6380be204e2749e87744f",
+  "command_display": "codex exec --model gpt-5.6-sol -c model_reasoning_effort=\"low\" -c sqlite_home=\"<sqlite>\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",
+  "notes": "GPT-5.6 Sol Light output captured through codex for the JudgmentKit 5x4 model UI matrix.",
+  "lms_context": null,
+  "capture_quality": {
+    "profile": "basic_static_html_css",
+    "css_characters": 5216,
+    "html_characters": 4577,
+    "css_rule_count": 67,
+    "class_selector_count": 82,
+    "semantic_section_count": 10,
+    "structural_block_count": 31,
+    "button_count": 5,
+    "has_responsive_css": true,
+    "has_layout_css": true,
+    "has_panel_css": true,
+    "has_control_css": true,
+    "has_evidence_content": true,
+    "has_handoff_content": true,
+    "compact_template_signature": false,
+    "has_judgmentkit_default_tokens": false,
+    "jk_token_usage_count": 0,
+    "jk_token_reference_count": 0,
+    "unsupported_jk_tokens": [],
+    "jk_token_definition_count": 0,
+    "jk_token_definitions": [],
+    "disallowed_visual_tokens": [],
+    "inline_style_attribute_count": 6,
+    "hard_coded_visual_values": [
+      {
+        "source": "css",
+        "selector": "body",
+        "property": "background",
+        "value": "#f4f6f8"
+      },
+      {
+        "source": "css",
+        "selector": "body",
+        "property": "color",
+        "value": "#17202a"
+      },
+      {
+        "source": "css",
+        "selector": ".eyebrow",
+        "property": "color",
+        "value": "#667085"
+      },
+      {
+        "source": "css",
+        "selector": ".meeting-note",
+        "property": "border",
+        "value": "1px solid #d0d5dd"
+      },
+      {
+        "source": "css",
+        "selector": ".meeting-note",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".meeting-note",
+        "property": "color",
+        "value": "#475467"
+      },
+      {
+        "source": "css",
+        "selector": ".panel",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".panel",
+        "property": "border",
+        "value": "1px solid #dfe3e8"
+      },
+      {
+        "source": "css",
+        "selector": ".panel",
+        "property": "box-shadow",
+        "value": "0 1px 2px rgba(16,24,40,.04)"
+      },
+      {
+        "source": "css",
+        "selector": ".count",
+        "property": "background",
+        "value": "#eef2f6"
+      },
+      {
+        "source": "css",
+        "selector": ".count",
+        "property": "color",
+        "value": "#475467"
+      },
+      {
+        "source": "css",
+        "selector": ".account-card",
+        "property": "border",
+        "value": "1px solid #e4e7ec"
+      },
+      {
+        "source": "css",
+        "selector": ".account-card",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".account-card.selected",
+        "property": "border-color",
+        "value": "#3559c7"
+      },
+      {
+        "source": "css",
+        "selector": ".account-card.selected",
+        "property": "background",
+        "value": "#f4f6ff"
+      },
+      {
+        "source": "css",
+        "selector": ".account-card.selected",
+        "property": "box-shadow",
+        "value": "inset 3px 0 #3559c7"
+      },
+      {
+        "source": "css",
+        "selector": ".account-id",
+        "property": "color",
+        "value": "#667085"
+      },
+      {
+        "source": "css",
+        "selector": ".account-state",
+        "property": "color",
+        "value": "#9a3412"
+      },
+      {
+        "source": "css",
+        "selector": ".account-amount",
+        "property": "color",
+        "value": "#475467"
+      },
+      {
+        "source": "css",
+        "selector": ".case-header",
+        "property": "border-bottom",
+        "value": "1px solid #e4e7ec"
+      },
+      {
+        "source": "css",
+        "selector": ".subhead",
+        "property": "color",
+        "value": "#667085"
+      },
+      {
+        "source": "css",
+        "selector": ".risk-badge",
+        "property": "background",
+        "value": "#fff1e8"
+      },
+      {
+        "source": "css",
+        "selector": ".risk-badge",
+        "property": "color",
+        "value": "#9a3412"
+      },
+      {
+        "source": "css",
+        "selector": ".fact",
+        "property": "border",
+        "value": "1px solid #e4e7ec"
+      },
+      {
+        "source": "css",
+        "selector": ".fact",
+        "property": "background",
+        "value": "#fafbfc"
+      },
+      {
+        "source": "css",
+        "selector": ".fact span",
+        "property": "color",
+        "value": "#667085"
+      },
+      {
+        "source": "css",
+        "selector": ".section",
+        "property": "border-top",
+        "value": "1px solid #eaecf0"
+      },
+      {
+        "source": "css",
+        "selector": ".metric strong",
+        "property": "color",
+        "value": "#b42318"
+      },
+      {
+        "source": "css",
+        "selector": ".metric span",
+        "property": "color",
+        "value": "#667085"
+      },
+      {
+        "source": "css",
+        "selector": ".trend-bars",
+        "property": "border-left",
+        "value": "1px solid #d0d5dd"
+      },
+      {
+        "source": "css",
+        "selector": ".trend-bars",
+        "property": "border-bottom",
+        "value": "1px solid #d0d5dd"
+      },
+      {
+        "source": "css",
+        "selector": ".bar",
+        "property": "background",
+        "value": "#8ea1d8"
+      },
+      {
+        "source": "css",
+        "selector": ".bar.latest",
+        "property": "background",
+        "value": "#d97757"
+      },
+      {
+        "source": "css",
+        "selector": ".period-labels",
+        "property": "color",
+        "value": "#667085"
+      },
+      {
+        "source": "css",
+        "selector": ".evidence-list li",
+        "property": "background",
+        "value": "#f8fafc"
+      },
+      {
+        "source": "css",
+        "selector": ".evidence-list li",
+        "property": "color",
+        "value": "#344054"
+      },
+      {
+        "source": "css",
+        "selector": ".evidence-list li:before",
+        "property": "background",
+        "value": "#d97706"
+      },
+      {
+        "source": "css",
+        "selector": ".evidence-list li.gap",
+        "property": "background",
+        "value": "#fff8e7"
+      },
+      {
+        "source": "css",
+        "selector": ".evidence-list li.gap",
+        "property": "color",
+        "value": "#7a2e0e"
+      },
+      {
+        "source": "css",
+        "selector": ".policy",
+        "property": "border-left",
+        "value": "3px solid #3559c7"
+      },
+      {
+        "source": "css",
+        "selector": ".policy",
+        "property": "background",
+        "value": "#f4f6ff"
+      },
+      {
+        "source": "css",
+        "selector": ".policy",
+        "property": "color",
+        "value": "#344054"
+      },
+      {
+        "source": "css",
+        "selector": ".decision-intro",
+        "property": "color",
+        "value": "#667085"
+      },
+      {
+        "source": "css",
+        "selector": ".choice",
+        "property": "border",
+        "value": "1px solid #d0d5dd"
+      },
+      {
+        "source": "css",
+        "selector": ".choice",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".choice.recommended",
+        "property": "border-color",
+        "value": "#3559c7"
+      },
+      {
+        "source": "css",
+        "selector": ".choice.recommended",
+        "property": "background",
+        "value": "#f4f6ff"
+      },
+      {
+        "source": "css",
+        "selector": ".choice input",
+        "property": "accent-color",
+        "value": "#3559c7"
+      },
+      {
+        "source": "css",
+        "selector": ".choice small",
+        "property": "color",
+        "value": "#667085"
+      },
+      {
+        "source": "css",
+        "selector": ".recommended-label",
+        "property": "color",
+        "value": "#3559c7"
+      },
+      {
+        "source": "css",
+        "selector": ".form-section",
+        "property": "border-top",
+        "value": "1px solid #e4e7ec"
+      },
+      {
+        "source": "css",
+        "selector": ".field",
+        "property": "color",
+        "value": "#344054"
+      },
+      {
+        "source": "css",
+        "selector": ".field input,.field textarea",
+        "property": "border",
+        "value": "1px solid #d0d5dd"
+      },
+      {
+        "source": "css",
+        "selector": ".field input,.field textarea",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".field input,.field textarea",
+        "property": "color",
+        "value": "#17202a"
+      },
+      {
+        "source": "css",
+        "selector": ".next-step",
+        "property": "background",
+        "value": "#fff8e7"
+      },
+      {
+        "source": "css",
+        "selector": ".next-step",
+        "property": "color",
+        "value": "#7a2e0e"
+      },
+      {
+        "source": "css",
+        "selector": ".button",
+        "property": "border",
+        "value": "1px solid #c8ced8"
+      },
+      {
+        "source": "css",
+        "selector": ".button",
+        "property": "background",
+        "value": "#fff"
+      },
+      {
+        "source": "css",
+        "selector": ".button",
+        "property": "color",
+        "value": "#344054"
+      },
+      {
+        "source": "css",
+        "selector": ".button.primary",
+        "property": "border-color",
+        "value": "#2949a8"
+      },
+      {
+        "source": "css",
+        "selector": ".button.primary",
+        "property": "background",
+        "value": "#3559c7"
+      },
+      {
+        "source": "css",
+        "selector": ".button.primary",
+        "property": "color",
+        "value": "#fff"
+      }
+    ],
+    "failures": [],
+    "status": "passed"
+  },
+  "parsed": {
+    "summary": "A desktop renewal-risk workspace that helps a customer success manager assess Northstar Labs, compare evidence, and record a clear next-step handoff.",
+    "css": "*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#17202a;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\"Segoe UI\",sans-serif}.renewal-app{width:100%;min-height:900px;padding:24px}.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}.topbar h1{margin:0;font-size:24px;letter-spacing:-.02em}.eyebrow{margin:0 0 5px;color:#667085;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.meeting-note{padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;background:#fff;color:#475467;font-size:13px}.workspace{display:grid;grid-template-columns:265px minmax(0,1fr) 330px;gap:18px;align-items:start}.panel{background:#fff;border:1px solid #dfe3e8;border-radius:12px;box-shadow:0 1px 2px rgba(16,24,40,.04)}.queue{padding:16px}.queue-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.queue h2,.decision h2{margin:0;font-size:15px}.count{display:inline-flex;min-width:24px;height:24px;align-items:center;justify-content:center;border-radius:999px;background:#eef2f6;color:#475467;font-size:12px;font-weight:700}.account-list{display:grid;gap:8px}.account-card{width:100%;padding:12px;border:1px solid #e4e7ec;border-radius:9px;background:#fff;color:inherit;text-align:left;cursor:default}.account-card.selected{border-color:#3559c7;background:#f4f6ff;box-shadow:inset 3px 0 #3559c7}.account-line{display:flex;justify-content:space-between;gap:8px}.account-name{font-size:14px;font-weight:700}.account-id{color:#667085;font-size:11px}.account-state{margin:7px 0 3px;color:#9a3412;font-size:12px;font-weight:650}.account-amount{color:#475467;font-size:12px}.case{overflow:hidden}.case-header{display:flex;justify-content:space-between;gap:20px;padding:20px 22px;border-bottom:1px solid #e4e7ec}.case-header h2{margin:2px 0 4px;font-size:25px;letter-spacing:-.025em}.subhead{margin:0;color:#667085;font-size:13px}.risk-badge{align-self:flex-start;padding:7px 10px;border-radius:999px;background:#fff1e8;color:#9a3412;font-size:12px;font-weight:750}.case-body{padding:20px 22px}.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}.fact{padding:12px;border:1px solid #e4e7ec;border-radius:9px;background:#fafbfc}.fact span{display:block;margin-bottom:5px;color:#667085;font-size:11px;font-weight:700;text-transform:uppercase}.fact strong{font-size:14px}.section{padding:18px 0;border-top:1px solid #eaecf0}.section:first-of-type{border-top:0;padding-top:0}.section h3{margin:0 0 12px;font-size:15px}.usage-summary{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center}.metric strong{display:block;color:#b42318;font-size:29px;letter-spacing:-.03em}.metric span{color:#667085;font-size:12px}.trend-bars{display:flex;height:84px;align-items:end;gap:14px;padding:8px 12px 0;border-left:1px solid #d0d5dd;border-bottom:1px solid #d0d5dd}.bar-group{display:flex;flex:1;align-items:end;gap:4px;height:100%}.bar{width:100%;min-height:10px;border-radius:4px 4px 0 0;background:#8ea1d8}.bar.latest{background:#d97757}.period-labels{display:flex;justify-content:space-around;margin:5px 0 0 168px;color:#667085;font-size:11px}.evidence-list{display:grid;gap:9px;margin:0;padding:0;list-style:none}.evidence-list li{display:flex;gap:10px;align-items:flex-start;padding:11px 12px;border-radius:8px;background:#f8fafc;color:#344054;font-size:13px;line-height:1.4}.evidence-list li:before{content:\"\";width:7px;height:7px;margin-top:6px;border-radius:50%;background:#d97706;flex:none}.evidence-list li.gap{background:#fff8e7;color:#7a2e0e}.policy{margin:0;padding:13px 14px;border-left:3px solid #3559c7;background:#f4f6ff;color:#344054;font-size:13px;line-height:1.5}.decision{padding:18px}.decision-intro{margin:7px 0 15px;color:#667085;font-size:12px;line-height:1.45}.choice-list{display:grid;gap:8px}.choice{display:block;padding:12px;border:1px solid #d0d5dd;border-radius:9px;background:#fff}.choice.recommended{border-color:#3559c7;background:#f4f6ff}.choice input{margin:2px 8px 0 0;vertical-align:top;accent-color:#3559c7}.choice strong{font-size:13px}.choice small{display:block;margin:5px 0 0 23px;color:#667085;font-size:11px;line-height:1.4}.recommended-label{float:right;color:#3559c7;font-size:10px;font-weight:800;text-transform:uppercase}.form-section{margin-top:18px;padding-top:17px;border-top:1px solid #e4e7ec}.field{display:block;margin-bottom:12px;color:#344054;font-size:12px;font-weight:700}.field input,.field textarea{width:100%;margin-top:6px;padding:9px 10px;border:1px solid #d0d5dd;border-radius:7px;background:#fff;color:#17202a;font:inherit;font-weight:400}.field textarea{min-height:66px;resize:none}.next-step{padding:11px;border-radius:8px;background:#fff8e7;color:#7a2e0e;font-size:12px;line-height:1.4}.actions{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:14px}.button{padding:10px 13px;border:1px solid #c8ced8;border-radius:7px;background:#fff;color:#344054;font-size:12px;font-weight:750}.button.primary{border-color:#2949a8;background:#3559c7;color:#fff}@media(max-width:1050px){.workspace{grid-template-columns:220px minmax(0,1fr)}.decision{grid-column:1/-1}.renewal-app{padding:16px}}",
+    "html": "<main class=\"renewal-app\" data-primary-surface><header class=\"topbar\"><div><p class=\"eyebrow\">Customer success</p><h1>Renewal risk review</h1></div><div class=\"meeting-note\">Weekly account meeting · 3 accounts to review</div></header><div class=\"workspace\"><aside class=\"panel queue\" aria-label=\"At-risk renewal queue\"><div class=\"queue-header\"><h2>Review queue</h2><span class=\"count\">3</span></div><nav class=\"account-list\" aria-label=\"Accounts\"><button class=\"account-card selected\" type=\"button\"><span class=\"account-line\"><span class=\"account-name\">Northstar Labs</span><span class=\"account-id\">AC-903</span></span><span class=\"account-state\">Champion change</span><span class=\"account-amount\">$84K ARR</span></button><button class=\"account-card\" type=\"button\"><span class=\"account-line\"><span class=\"account-name\">Bright Arc</span><span class=\"account-id\">AC-904</span></span><span class=\"account-state\">Usage drop</span><span class=\"account-amount\">$42K ARR</span></button><button class=\"account-card\" type=\"button\"><span class=\"account-line\"><span class=\"account-name\">Harbor Grid</span><span class=\"account-id\">AC-905</span></span><span class=\"account-state\">Procurement risk</span><span class=\"account-amount\">$120K ARR</span></button></nav></aside><article class=\"panel case\"><header class=\"case-header\"><div><p class=\"eyebrow\">Account AC-903</p><h2>Northstar Labs</h2><p class=\"subhead\">Renewal risk review before the account planning meeting</p></div><span class=\"risk-badge\">Renewal risk: elevated</span></header><div class=\"case-body\"><section class=\"facts\" aria-label=\"Account facts\"><div class=\"fact\"><span>Plan</span><strong>Enterprise annual</strong></div><div class=\"fact\"><span>Contract value</span><strong>$84K ARR</strong></div><div class=\"fact\"><span>Primary risk</span><strong>Champion change</strong></div></section><section class=\"section\"><h3>Usage trend</h3><div class=\"usage-summary\"><div class=\"metric\"><strong>−28%</strong><span>across two reporting periods</span></div><div><div class=\"trend-bars\" aria-label=\"Usage declined over three periods\"><div class=\"bar-group\"><span class=\"bar\" style=\"height:88%\"></span><span class=\"bar\" style=\"height:82%\"></span></div><div class=\"bar-group\"><span class=\"bar\" style=\"height:72%\"></span><span class=\"bar\" style=\"height:67%\"></span></div><div class=\"bar-group\"><span class=\"bar latest\" style=\"height:57%\"></span><span class=\"bar latest\" style=\"height:52%\"></span></div></div></div></div><div class=\"period-labels\"><span>Earlier</span><span>Previous</span><span>Latest</span></div></section><section class=\"section\"><h3>Risk evidence</h3><ul class=\"evidence-list\"><li>Usage dropped 28 percent over the last two reporting periods.</li><li>Primary champion left the account last month.</li><li class=\"gap\">Evidence gap: procurement timeline is missing before escalation.</li></ul></section><section class=\"section\"><h3>Decision guidance</h3><p class=\"policy\">Executive escalation is appropriate when sponsor risk and renewal timing are clear. Resolve missing procurement dates before committing a save plan.</p></section></div></article><aside class=\"panel decision\"><h2>Choose next step</h2><p class=\"decision-intro\">Record the decision and create a renewal handoff with one accountable owner.</p><div class=\"choice-list\"><label class=\"choice\"><input type=\"radio\" name=\"decision\"><strong>Start save plan</strong><small>Commit coordinated actions to protect the renewal.</small></label><label class=\"choice\"><input type=\"radio\" name=\"decision\"><strong>Executive escalation</strong><small>Engage an executive sponsor after renewal timing is clear.</small></label><label class=\"choice recommended\"><span class=\"recommended-label\">Best supported</span><input type=\"radio\" name=\"decision\" checked><strong>Wait for usage evidence</strong><small>Resolve the procurement timeline before committing a save plan.</small></label></div><div class=\"form-section\"><label class=\"field\">Next owner<input type=\"text\" value=\"CSM · Jordan Lee\" readonly></label><label class=\"field\">Next action<textarea readonly>Confirm the procurement timeline with the new account contact and reassess renewal risk.</textarea></label><label class=\"field\">Risk reason<input type=\"text\" value=\"Champion change and declining usage\" readonly></label><div class=\"next-step\"><strong>Evidence gap:</strong> Procurement dates and renewal timing are not confirmed.</div><div class=\"actions\"><button class=\"button\" type=\"button\">Save draft</button><button class=\"button primary\" type=\"button\">Create handoff</button></div></div></aside></div></main>"
+  },
+  "raw_response": "{\"summary\":\"A desktop renewal-risk workspace that helps a customer success manager assess Northstar Labs, compare evidence, and record a clear next-step handoff.\",\"css\":\"*{box-sizing:border-box}body{margin:0;background:#f4f6f8;color:#17202a;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,\\\"Segoe UI\\\",sans-serif}.renewal-app{width:100%;min-height:900px;padding:24px}.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}.topbar h1{margin:0;font-size:24px;letter-spacing:-.02em}.eyebrow{margin:0 0 5px;color:#667085;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.meeting-note{padding:9px 12px;border:1px solid #d0d5dd;border-radius:8px;background:#fff;color:#475467;font-size:13px}.workspace{display:grid;grid-template-columns:265px minmax(0,1fr) 330px;gap:18px;align-items:start}.panel{background:#fff;border:1px solid #dfe3e8;border-radius:12px;box-shadow:0 1px 2px rgba(16,24,40,.04)}.queue{padding:16px}.queue-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.queue h2,.decision h2{margin:0;font-size:15px}.count{display:inline-flex;min-width:24px;height:24px;align-items:center;justify-content:center;border-radius:999px;background:#eef2f6;color:#475467;font-size:12px;font-weight:700}.account-list{display:grid;gap:8px}.account-card{width:100%;padding:12px;border:1px solid #e4e7ec;border-radius:9px;background:#fff;color:inherit;text-align:left;cursor:default}.account-card.selected{border-color:#3559c7;background:#f4f6ff;box-shadow:inset 3px 0 #3559c7}.account-line{display:flex;justify-content:space-between;gap:8px}.account-name{font-size:14px;font-weight:700}.account-id{color:#667085;font-size:11px}.account-state{margin:7px 0 3px;color:#9a3412;font-size:12px;font-weight:650}.account-amount{color:#475467;font-size:12px}.case{overflow:hidden}.case-header{display:flex;justify-content:space-between;gap:20px;padding:20px 22px;border-bottom:1px solid #e4e7ec}.case-header h2{margin:2px 0 4px;font-size:25px;letter-spacing:-.025em}.subhead{margin:0;color:#667085;font-size:13px}.risk-badge{align-self:flex-start;padding:7px 10px;border-radius:999px;background:#fff1e8;color:#9a3412;font-size:12px;font-weight:750}.case-body{padding:20px 22px}.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}.fact{padding:12px;border:1px solid #e4e7ec;border-radius:9px;background:#fafbfc}.fact span{display:block;margin-bottom:5px;color:#667085;font-size:11px;font-weight:700;text-transform:uppercase}.fact strong{font-size:14px}.section{padding:18px 0;border-top:1px solid #eaecf0}.section:first-of-type{border-top:0;padding-top:0}.section h3{margin:0 0 12px;font-size:15px}.usage-summary{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:center}.metric strong{display:block;color:#b42318;font-size:29px;letter-spacing:-.03em}.metric span{color:#667085;font-size:12px}.trend-bars{display:flex;height:84px;align-items:end;gap:14px;padding:8px 12px 0;border-left:1px solid #d0d5dd;border-bottom:1px solid #d0d5dd}.bar-group{display:flex;flex:1;align-items:end;gap:4px;height:100%}.bar{width:100%;min-height:10px;border-radius:4px 4px 0 0;background:#8ea1d8}.bar.latest{background:#d97757}.period-labels{display:flex;justify-content:space-around;margin:5px 0 0 168px;color:#667085;font-size:11px}.evidence-list{display:grid;gap:9px;margin:0;padding:0;list-style:none}.evidence-list li{display:flex;gap:10px;align-items:flex-start;padding:11px 12px;border-radius:8px;background:#f8fafc;color:#344054;font-size:13px;line-height:1.4}.evidence-list li:before{content:\\\"\\\";width:7px;height:7px;margin-top:6px;border-radius:50%;background:#d97706;flex:none}.evidence-list li.gap{background:#fff8e7;color:#7a2e0e}.policy{margin:0;padding:13px 14px;border-left:3px solid #3559c7;background:#f4f6ff;color:#344054;font-size:13px;line-height:1.5}.decision{padding:18px}.decision-intro{margin:7px 0 15px;color:#667085;font-size:12px;line-height:1.45}.choice-list{display:grid;gap:8px}.choice{display:block;padding:12px;border:1px solid #d0d5dd;border-radius:9px;background:#fff}.choice.recommended{border-color:#3559c7;background:#f4f6ff}.choice input{margin:2px 8px 0 0;vertical-align:top;accent-color:#3559c7}.choice strong{font-size:13px}.choice small{display:block;margin:5px 0 0 23px;color:#667085;font-size:11px;line-height:1.4}.recommended-label{float:right;color:#3559c7;font-size:10px;font-weight:800;text-transform:uppercase}.form-section{margin-top:18px;padding-top:17px;border-top:1px solid #e4e7ec}.field{display:block;margin-bottom:12px;color:#344054;font-size:12px;font-weight:700}.field input,.field textarea{width:100%;margin-top:6px;padding:9px 10px;border:1px solid #d0d5dd;border-radius:7px;background:#fff;color:#17202a;font:inherit;font-weight:400}.field textarea{min-height:66px;resize:none}.next-step{padding:11px;border-radius:8px;background:#fff8e7;color:#7a2e0e;font-size:12px;line-height:1.4}.actions{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:14px}.button{padding:10px 13px;border:1px solid #c8ced8;border-radius:7px;background:#fff;color:#344054;font-size:12px;font-weight:750}.button.primary{border-color:#2949a8;background:#3559c7;color:#fff}@media(max-width:1050px){.workspace{grid-template-columns:220px minmax(0,1fr)}.decision{grid-column:1/-1}.renewal-app{padding:16px}}\",\"html\":\"<main class=\\\"renewal-app\\\" data-primary-surface><header class=\\\"topbar\\\"><div><p class=\\\"eyebrow\\\">Customer success</p><h1>Renewal risk review</h1></div><div class=\\\"meeting-note\\\">Weekly account meeting · 3 accounts to review</div></header><div class=\\\"workspace\\\"><aside class=\\\"panel queue\\\" aria-label=\\\"At-risk renewal queue\\\"><div class=\\\"queue-header\\\"><h2>Review queue</h2><span class=\\\"count\\\">3</span></div><nav class=\\\"account-list\\\" aria-label=\\\"Accounts\\\"><button class=\\\"account-card selected\\\" type=\\\"button\\\"><span class=\\\"account-line\\\"><span class=\\\"account-name\\\">Northstar Labs</span><span class=\\\"account-id\\\">AC-903</span></span><span class=\\\"account-state\\\">Champion change</span><span class=\\\"account-amount\\\">$84K ARR</span></button><button class=\\\"account-card\\\" type=\\\"button\\\"><span class=\\\"account-line\\\"><span class=\\\"account-name\\\">Bright Arc</span><span class=\\\"account-id\\\">AC-904</span></span><span class=\\\"account-state\\\">Usage drop</span><span class=\\\"account-amount\\\">$42K ARR</span></button><button class=\\\"account-card\\\" type=\\\"button\\\"><span class=\\\"account-line\\\"><span class=\\\"account-name\\\">Harbor Grid</span><span class=\\\"account-id\\\">AC-905</span></span><span class=\\\"account-state\\\">Procurement risk</span><span class=\\\"account-amount\\\">$120K ARR</span></button></nav></aside><article class=\\\"panel case\\\"><header class=\\\"case-header\\\"><div><p class=\\\"eyebrow\\\">Account AC-903</p><h2>Northstar Labs</h2><p class=\\\"subhead\\\">Renewal risk review before the account planning meeting</p></div><span class=\\\"risk-badge\\\">Renewal risk: elevated</span></header><div class=\\\"case-body\\\"><section class=\\\"facts\\\" aria-label=\\\"Account facts\\\"><div class=\\\"fact\\\"><span>Plan</span><strong>Enterprise annual</strong></div><div class=\\\"fact\\\"><span>Contract value</span><strong>$84K ARR</strong></div><div class=\\\"fact\\\"><span>Primary risk</span><strong>Champion change</strong></div></section><section class=\\\"section\\\"><h3>Usage trend</h3><div class=\\\"usage-summary\\\"><div class=\\\"metric\\\"><strong>−28%</strong><span>across two reporting periods</span></div><div><div class=\\\"trend-bars\\\" aria-label=\\\"Usage declined over three periods\\\"><div class=\\\"bar-group\\\"><span class=\\\"bar\\\" style=\\\"height:88%\\\"></span><span class=\\\"bar\\\" style=\\\"height:82%\\\"></span></div><div class=\\\"bar-group\\\"><span class=\\\"bar\\\" style=\\\"height:72%\\\"></span><span class=\\\"bar\\\" style=\\\"height:67%\\\"></span></div><div class=\\\"bar-group\\\"><span class=\\\"bar latest\\\" style=\\\"height:57%\\\"></span><span class=\\\"bar latest\\\" style=\\\"height:52%\\\"></span></div></div></div></div><div class=\\\"period-labels\\\"><span>Earlier</span><span>Previous</span><span>Latest</span></div></section><section class=\\\"section\\\"><h3>Risk evidence</h3><ul class=\\\"evidence-list\\\"><li>Usage dropped 28 percent over the last two reporting periods.</li><li>Primary champion left the account last month.</li><li class=\\\"gap\\\">Evidence gap: procurement timeline is missing before escalation.</li></ul></section><section class=\\\"section\\\"><h3>Decision guidance</h3><p class=\\\"policy\\\">Executive escalation is appropriate when sponsor risk and renewal timing are clear. Resolve missing procurement dates before committing a save plan.</p></section></div></article><aside class=\\\"panel decision\\\"><h2>Choose next step</h2><p class=\\\"decision-intro\\\">Record the decision and create a renewal handoff with one accountable owner.</p><div class=\\\"choice-list\\\"><label class=\\\"choice\\\"><input type=\\\"radio\\\" name=\\\"decision\\\"><strong>Start save plan</strong><small>Commit coordinated actions to protect the renewal.</small></label><label class=\\\"choice\\\"><input type=\\\"radio\\\" name=\\\"decision\\\"><strong>Executive escalation</strong><small>Engage an executive sponsor after renewal timing is clear.</small></label><label class=\\\"choice recommended\\\"><span class=\\\"recommended-label\\\">Best supported</span><input type=\\\"radio\\\" name=\\\"decision\\\" checked><strong>Wait for usage evidence</strong><small>Resolve the procurement timeline before committing a save plan.</small></label></div><div class=\\\"form-section\\\"><label class=\\\"field\\\">Next owner<input type=\\\"text\\\" value=\\\"CSM · Jordan Lee\\\" readonly></label><label class=\\\"field\\\">Next action<textarea readonly>Confirm the procurement timeline with the new account contact and reassess renewal risk.</textarea></label><label class=\\\"field\\\">Risk reason<input type=\\\"text\\\" value=\\\"Champion change and declining usage\\\" readonly></label><div class=\\\"next-step\\\"><strong>Evidence gap:</strong> Procurement dates and renewal timing are not confirmed.</div><div class=\\\"actions\\\"><button class=\\\"button\\\" type=\\\"button\\\">Save draft</button><button class=\\\"button primary\\\" type=\\\"button\\\">Create handoff</button></div></div></aside></div></main>\"}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "fd71ff4c72369f5a5d631d7ce4abbea85f0d87993497dc6f51335829249c1e2f",
+    "stderr_sha256": "17f8ca0d90ff593a2a23174c62b2c7aa913d6e677d9953ec8062c6f79d285680"
+  }
+}

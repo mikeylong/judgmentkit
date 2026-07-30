@@ -383,8 +383,11 @@ try {
     ]);
 
     assert.equal(response.status, 200, "model UI manifest should return 200");
-    assert.equal(manifest.diagnostic_candidates.length, 2);
-    assert.equal(diagnosticIds.size, 2);
+    assert.equal(
+      manifest.diagnostic_candidates.length,
+      sourceManifest.diagnostic_candidates.length,
+    );
+    assert.equal(diagnosticIds.size, sourceManifest.diagnostic_candidates.length);
 
     for (const id of [...diagnosticIds].sort()) {
       const sourceCandidate = sourceDiagnosticCandidatesById.get(id) ?? {};

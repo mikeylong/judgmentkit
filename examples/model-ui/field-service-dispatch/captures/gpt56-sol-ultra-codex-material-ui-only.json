@@ -1,0 +1,126 @@
+{
+  "artifact_id": "gpt56-sol-ultra-codex-material-ui-only",
+  "use_case_id": "field-service-dispatch",
+  "use_case_label": "Field service dispatch",
+  "activity_summary": "A field operations manager assigns, reschedules, or escalates a repair visit using route, parts, and SLA constraints.",
+  "row_id": "gpt56-sol-ultra-codex",
+  "row_label": "GPT-5.6 Sol Ultra via codex exec",
+  "column_id": "material-ui-only",
+  "column_label": "Material UI only",
+  "model_label": "GPT-5.6 Sol Ultra",
+  "provider": "codex-cli",
+  "cli": "codex",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "ultra",
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "material_ui",
+  "design_system_name": "Material UI",
+  "design_system_package": "@mui/material",
+  "design_system_render_mode": "static-ssr",
+  "render_mode": "material_ui",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-07-30T03:45:50.154Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": true,
+    "frontend_skill_context": false
+  },
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
+  "source_context_sha256": "8b6b73383a4ef1d15ce686dbf6982b445b7908b2c21d451fdaafa1676b8df808",
+  "source_context_status": "current",
+  "current_source_context_sha256": "8b6b73383a4ef1d15ce686dbf6982b445b7908b2c21d451fdaafa1676b8df808",
+  "accepted_source_context_sha256": "8b6b73383a4ef1d15ce686dbf6982b445b7908b2c21d451fdaafa1676b8df808",
+  "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+  "prompt_sha256": "c8635562a0ad806d750dcb10d5166486be32e1e89bae75adb8b9aba90fcbcef8",
+  "raw_response_sha256": "bd37a9d9f86860b556de515eeb9be18c97b5efdd67da82386c1ccd6454456bcb",
+  "command_display": "codex exec --model gpt-5.6-sol -c model_reasoning_effort=\"ultra\" -c sqlite_home=\"<sqlite>\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",
+  "notes": "GPT-5.6 Sol Ultra output captured through codex for the JudgmentKit 5x4 model UI matrix.",
+  "lms_context": null,
+  "capture_quality": null,
+  "parsed": {
+    "summary": "A same-day repair dispatch surface focused on the facts, decision, and handoff needed for each visit.",
+    "surface": {
+      "eyebrow": "Field service dispatch",
+      "heading": "Same-day repair visits",
+      "status": "3 visits need review",
+      "queue_title": "Dispatch queue",
+      "queue": [
+        {
+          "id": "V-2187",
+          "customer": "Mallory Chen",
+          "state": "Needs gate code",
+          "amount": "SLA 4h"
+        },
+        {
+          "id": "V-2188",
+          "customer": "Owen Patel",
+          "state": "Parts shortage",
+          "amount": "Tomorrow"
+        },
+        {
+          "id": "V-2189",
+          "customer": "Rae Wilson",
+          "state": "Route conflict",
+          "amount": "SLA 2h"
+        }
+      ],
+      "selected": {
+        "id": "V-2187",
+        "customer": "Mallory Chen",
+        "amount": "SLA 4h",
+        "plan": "Priority repair",
+        "request": "Kitchen freezer repair needs dispatch before the service window closes.",
+        "status": "Parts check needed"
+      },
+      "info": [
+        {
+          "label": "Recommended technician",
+          "value": "Reyes"
+        },
+        {
+          "label": "Route",
+          "value": "18 minutes from site"
+        },
+        {
+          "label": "Parts readiness",
+          "value": "Fan motor available at west depot"
+        },
+        {
+          "label": "Site access",
+          "value": "Gate code missing"
+        }
+      ],
+      "evidence": [
+        "Technician Reyes is 18 minutes from the site and certified for the freezer unit.",
+        "Replacement fan motor is available at the west depot.",
+        "Customer gate code is missing before dispatch."
+      ],
+      "policy_title": "Same-day dispatch policy",
+      "policy": "Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support.",
+      "decision_title": "Choose the next action",
+      "actions": [
+        "Assign to Technician Reyes",
+        "Reschedule for parts",
+        "Escalate for SLA risk",
+        "Return for site access"
+      ],
+      "primary_action": "Return for site access",
+      "handoff": {
+        "owner": "Dispatch support",
+        "title": "Obtain the customer gate code",
+        "reason": "Site access must be confirmed before this repair visit can be assigned.",
+        "action": "Get the gate code, then return V-2187 for assignment to Technician Reyes."
+      }
+    }
+  },
+  "raw_response": "{\"summary\":\"A same-day repair dispatch surface focused on the facts, decision, and handoff needed for each visit.\",\"surface\":{\"eyebrow\":\"Field service dispatch\",\"heading\":\"Same-day repair visits\",\"status\":\"3 visits need review\",\"queue_title\":\"Dispatch queue\",\"queue\":[{\"id\":\"V-2187\",\"customer\":\"Mallory Chen\",\"state\":\"Needs gate code\",\"amount\":\"SLA 4h\"},{\"id\":\"V-2188\",\"customer\":\"Owen Patel\",\"state\":\"Parts shortage\",\"amount\":\"Tomorrow\"},{\"id\":\"V-2189\",\"customer\":\"Rae Wilson\",\"state\":\"Route conflict\",\"amount\":\"SLA 2h\"}],\"selected\":{\"id\":\"V-2187\",\"customer\":\"Mallory Chen\",\"amount\":\"SLA 4h\",\"plan\":\"Priority repair\",\"request\":\"Kitchen freezer repair needs dispatch before the service window closes.\",\"status\":\"Parts check needed\"},\"info\":[{\"label\":\"Recommended technician\",\"value\":\"Reyes\"},{\"label\":\"Route\",\"value\":\"18 minutes from site\"},{\"label\":\"Parts readiness\",\"value\":\"Fan motor available at west depot\"},{\"label\":\"Site access\",\"value\":\"Gate code missing\"}],\"evidence\":[\"Technician Reyes is 18 minutes from the site and certified for the freezer unit.\",\"Replacement fan motor is available at the west depot.\",\"Customer gate code is missing before dispatch.\"],\"policy_title\":\"Same-day dispatch policy\",\"policy\":\"Same-day SLA visits can be assigned when parts and site access are confirmed; missing access details return to dispatch support.\",\"decision_title\":\"Choose the next action\",\"actions\":[\"Assign to Technician Reyes\",\"Reschedule for parts\",\"Escalate for SLA risk\",\"Return for site access\"],\"primary_action\":\"Return for site access\",\"handoff\":{\"owner\":\"Dispatch support\",\"title\":\"Obtain the customer gate code\",\"reason\":\"Site access must be confirmed before this repair visit can be assigned.\",\"action\":\"Get the gate code, then return V-2187 for assignment to Technician Reyes.\"}}}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "21e7f4c80484796535dd48f7c40fbc4ccfebae65520964d7b33980ef07c5df34",
+    "stderr_sha256": "d19f7c47f19c986fb671d4c9186f73f217749dfd1f47bde8ead57c6ffb850299"
+  }
+}

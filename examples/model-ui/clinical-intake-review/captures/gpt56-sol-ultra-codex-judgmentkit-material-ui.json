@@ -1,0 +1,173 @@
+{
+  "artifact_id": "gpt56-sol-ultra-codex-judgmentkit-material-ui",
+  "use_case_id": "clinical-intake-review",
+  "use_case_label": "Clinical intake review",
+  "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+  "row_id": "gpt56-sol-ultra-codex",
+  "row_label": "GPT-5.6 Sol Ultra via codex exec",
+  "column_id": "judgmentkit-material-ui",
+  "column_label": "JudgmentKit skill + Material UI",
+  "model_label": "GPT-5.6 Sol Ultra",
+  "provider": "codex-cli",
+  "cli": "codex",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "ultra",
+  "judgmentkit_mode": "with_judgmentkit",
+  "design_system_mode": "material_ui",
+  "design_system_name": "Material UI",
+  "design_system_package": "@mui/material",
+  "design_system_render_mode": "static-ssr",
+  "render_mode": "material_ui",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-07-30T01:54:54.023Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": true,
+    "material_ui_adapter": true,
+    "frontend_skill_context": true
+  },
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": "form_flow",
+    "design_system_mode": "external_design_system",
+    "design_system_name": "Material UI",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "Verify substantive visuals use imagegen or premium Three.js/WebGL/D3-style rendering when the spec calls for them.",
+      "Provide browser-rendered visual-background contrast evidence for text over images, canvas, WebGL, video, gradients, or generated visuals.",
+      "Verify non-text contrast for meaningful icons, charts, state indicators, custom controls, and authored focus indicators.",
+      "Verify forced-colors or high-contrast behavior when custom colors, gradients, overlays, or authored focus styles are used.",
+      "Verify focus-visible evidence for interactive controls.",
+      "Verify focus order, keyboard navigation, focus-not-obscured behavior, and no keyboard trap for custom widgets, overlays, dialogs, and embedded experiences.",
+      "Verify reduced-motion behavior for animation and rendered visuals.",
+      "Verify pause, stop, hide, or update-frequency control for auto-moving or auto-updating content.",
+      "Verify form labels, instructions, text errors, correction suggestions, and status/live-region messages when forms or async states are present.",
+      "Verify semantic content or accessible fallback for images, canvas, WebGL, video, generated visuals, and D3-style visualization.",
+      "Verify captions, transcripts, descriptions, or media alternatives when audio or video is present.",
+      "Verify target size or valid target spacing/equivalent-control exceptions for dense or touch-oriented controls.",
+      "Verify responsive no-overflow evidence at desktop and mobile sizes.",
+      "judgmentkit-material-ui candidate desktop screenshot has a styled primary work surface",
+      "judgmentkit-material-ui candidate mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
+  "source_context_sha256": "a94bedc2a5a4d64fb02c35be8bbe31c45dd84a3e5691f4c3e1a4756a8770a5f1",
+  "source_context_status": "current",
+  "current_source_context_sha256": "a94bedc2a5a4d64fb02c35be8bbe31c45dd84a3e5691f4c3e1a4756a8770a5f1",
+  "accepted_source_context_sha256": "a94bedc2a5a4d64fb02c35be8bbe31c45dd84a3e5691f4c3e1a4756a8770a5f1",
+  "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+  "prompt_sha256": "454e7461718fe7212f1389dfad79798a07f20bec0fa84b0e96696f1ea524289c",
+  "raw_response_sha256": "02d096219129901782280d8ba59522ba9c88024e19f680bc44816991e5797244",
+  "command_display": "codex exec --model gpt-5.6-sol -c model_reasoning_effort=\"ultra\" -c sqlite_home=\"<sqlite>\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",
+  "notes": "GPT-5.6 Sol Ultra output captured through codex for the JudgmentKit 5x4 model UI matrix.",
+  "lms_context": null,
+  "capture_quality": null,
+  "parsed": {
+    "summary": "Avery Morgan’s intake packet should be returned for signed consent before scheduling.",
+    "surface": {
+      "eyebrow": "Administrative intake",
+      "heading": "Appointment readiness review",
+      "status": "Consent required before scheduling",
+      "queue_title": "Intake queue",
+      "queue": [
+        {
+          "id": "I-4471",
+          "customer": "Avery Morgan",
+          "state": "Consent missing",
+          "amount": "10:30 AM"
+        },
+        {
+          "id": "I-4472",
+          "customer": "Sam Rivera",
+          "state": "Verify insurance",
+          "amount": "1:00 PM"
+        },
+        {
+          "id": "I-4473",
+          "customer": "Jules Kim",
+          "state": "Ready to schedule",
+          "amount": "3:15 PM"
+        }
+      ],
+      "selected": {
+        "id": "I-4471",
+        "customer": "Avery Morgan",
+        "amount": "10:30 AM",
+        "plan": "New patient consult",
+        "request": "Appointment packet is pending administrative readiness review.",
+        "status": "Consent missing"
+      },
+      "info": [
+        {
+          "label": "Intake packet",
+          "value": "I-4471"
+        },
+        {
+          "label": "Appointment slot",
+          "value": "10:30 AM"
+        },
+        {
+          "label": "Referral",
+          "value": "Uploaded"
+        },
+        {
+          "label": "Insurance card",
+          "value": "Present"
+        },
+        {
+          "label": "Signed consent",
+          "value": "Missing"
+        }
+      ],
+      "evidence": [
+        "Referral document is uploaded.",
+        "Insurance card image is present.",
+        "Signed consent form is missing before scheduling."
+      ],
+      "policy_title": "Administrative policy",
+      "policy": "Schedule only when required administrative forms are complete. Send insurance uncertainty to verification staff. This review is limited to scheduling and intake administration; do not diagnose, triage, or recommend treatment.",
+      "decision_title": "Choose the next administrative action",
+      "actions": [
+        "Ready to schedule",
+        "Return for consent",
+        "Escalate insurance verification"
+      ],
+      "primary_action": "Return for consent",
+      "handoff": {
+        "owner": "Intake coordinator",
+        "title": "Return packet for signed consent",
+        "reason": "Signed consent is missing before the appointment can be scheduled.",
+        "action": "Return the packet for consent and keep the request in administrative review."
+      }
+    }
+  },
+  "raw_response": "{\"summary\":\"Avery Morgan’s intake packet should be returned for signed consent before scheduling.\",\"surface\":{\"eyebrow\":\"Administrative intake\",\"heading\":\"Appointment readiness review\",\"status\":\"Consent required before scheduling\",\"queue_title\":\"Intake queue\",\"queue\":[{\"id\":\"I-4471\",\"customer\":\"Avery Morgan\",\"state\":\"Consent missing\",\"amount\":\"10:30 AM\"},{\"id\":\"I-4472\",\"customer\":\"Sam Rivera\",\"state\":\"Verify insurance\",\"amount\":\"1:00 PM\"},{\"id\":\"I-4473\",\"customer\":\"Jules Kim\",\"state\":\"Ready to schedule\",\"amount\":\"3:15 PM\"}],\"selected\":{\"id\":\"I-4471\",\"customer\":\"Avery Morgan\",\"amount\":\"10:30 AM\",\"plan\":\"New patient consult\",\"request\":\"Appointment packet is pending administrative readiness review.\",\"status\":\"Consent missing\"},\"info\":[{\"label\":\"Intake packet\",\"value\":\"I-4471\"},{\"label\":\"Appointment slot\",\"value\":\"10:30 AM\"},{\"label\":\"Referral\",\"value\":\"Uploaded\"},{\"label\":\"Insurance card\",\"value\":\"Present\"},{\"label\":\"Signed consent\",\"value\":\"Missing\"}],\"evidence\":[\"Referral document is uploaded.\",\"Insurance card image is present.\",\"Signed consent form is missing before scheduling.\"],\"policy_title\":\"Administrative policy\",\"policy\":\"Schedule only when required administrative forms are complete. Send insurance uncertainty to verification staff. This review is limited to scheduling and intake administration; do not diagnose, triage, or recommend treatment.\",\"decision_title\":\"Choose the next administrative action\",\"actions\":[\"Ready to schedule\",\"Return for consent\",\"Escalate insurance verification\"],\"primary_action\":\"Return for consent\",\"handoff\":{\"owner\":\"Intake coordinator\",\"title\":\"Return packet for signed consent\",\"reason\":\"Signed consent is missing before the appointment can be scheduled.\",\"action\":\"Return the packet for consent and keep the request in administrative review.\"}}}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "f95808d00f6bc9cc56a1dc5c48e50e9b40c98fc94d194a999729296a08920916",
+    "stderr_sha256": "f936ad89a50a395c51a2c498029c6fca7c91ee1bec881445357c0841e13e0196"
+  }
+}

@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clinical intake review - GPT-5.6 Sol Ultra via codex exec - JudgmentKit skill context</title>
+    <style>
+    :root {
+      --jk-color-canvas: #f8f7f2;
+      --jk-color-surface: #ffffff;
+      --jk-color-text: #171717;
+      --jk-color-muted: #61615c;
+      --jk-color-border: #d7d3c8;
+      --jk-color-focus: #245f73;
+      --jk-color-success: #2e6b48;
+      --jk-color-warning: #8a5a16;
+      --jk-color-risk: #8f342f;
+      --jk-color-disabled: #8a8f93;
+      --jk-color-receipt: #23615f;
+      --jk-space-2: 0.5rem;
+      --jk-space-3: 0.75rem;
+      --jk-space-4: 1rem;
+      --jk-radius-control: 4px;
+      --jk-radius-panel: 8px;
+      --jk-focus-ring: 0 0 0 3px rgba(36, 95, 115, 0.28);
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--jk-color-canvas);
+      color: var(--jk-color-text);
+      font: 15px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .raw-model-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--jk-color-canvas);
+    }
+    .raw-model-candidate > section,
+    .raw-model-candidate .card,
+    .raw-model-candidate .panel {
+      margin-top: 14px;
+      padding: var(--jk-space-4);
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: var(--jk-color-surface);
+    }
+    .raw-model-candidate ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--jk-color-muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--jk-color-receipt);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .app-shell .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+      color: var(--jk-color-receipt);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: color-mix(in srgb, var(--jk-color-warning) 12%, var(--jk-color-surface));
+      color: var(--jk-color-warning);
+    }
+    .app-shell .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: var(--jk-color-surface);
+    }
+    .app-shell .queue,
+    .app-shell .detail {
+      padding: var(--jk-space-4);
+    }
+    .app-shell .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .app-shell .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: var(--jk-color-surface);
+      color: var(--jk-color-text);
+      text-align: left;
+    }
+    .app-shell .queue-item small {
+      color: var(--jk-color-muted);
+    }
+    .app-shell .queue-item.is-selected {
+      border-color: var(--jk-color-focus);
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+    }
+    .app-shell .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .app-shell .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
+      padding: 14px;
+    }
+    .app-shell .info-grid > div {
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-panel);
+      background: color-mix(in srgb, var(--jk-color-canvas) 75%, var(--jk-color-surface));
+    }
+    .app-shell .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--jk-color-muted);
+      font-size: 13px;
+    }
+    .app-shell .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .app-shell .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .app-shell .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: 999px;
+      color: var(--jk-color-receipt);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .app-shell .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-shell .actions button,
+    .app-shell .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--jk-color-border);
+      border-radius: var(--jk-radius-control);
+      background: var(--jk-color-surface);
+      color: var(--jk-color-text);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .app-shell button:focus-visible {
+      outline: none;
+      box-shadow: var(--jk-focus-ring);
+    }
+    .app-shell button.primary {
+      border-color: var(--jk-color-focus);
+      background: var(--jk-color-focus);
+      color: var(--jk-color-surface);
+    }
+    .app-shell .handoff {
+      padding: 14px;
+      background: color-mix(in srgb, var(--jk-color-receipt) 9%, var(--jk-color-surface));
+    }
+    .reviewed-candidate .app-header {
+      background: color-mix(in srgb, var(--jk-color-focus) 10%, var(--jk-color-surface));
+      border: 1px solid color-mix(in srgb, var(--jk-color-focus) 35%, var(--jk-color-border));
+      border-radius: var(--jk-radius-panel);
+      padding: 14px;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--jk-color-muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--jk-color-text);
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
+        display: grid;
+      }
+      .app-shell .workspace,
+      .app-shell .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+    <style data-model-css>html,body{margin:0;min-height:100%;background:var(--jk-color-canvas)}.jk-intake,.jk-intake *{box-sizing:border-box}.jk-intake{min-height:100vh;padding:calc(var(--jk-space-4) * 1.5);background:var(--jk-color-canvas);color:var(--jk-color-text);font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;font-size:16px;line-height:1.45}.jk-intake h1,.jk-intake h2,.jk-intake p,.jk-intake dl,.jk-intake dd{margin:0}.jk-intake button{font:inherit}.jk-shell{max-width:1320px;margin:0 auto}.jk-page-header{display:flex;align-items:center;justify-content:space-between;gap:var(--jk-space-4);margin-bottom:var(--jk-space-4)}.jk-kicker{margin-bottom:var(--jk-space-2)!important;color:var(--jk-color-focus);font-size:.75rem;font-weight:750;letter-spacing:.08em;text-transform:uppercase}.jk-page-header h1{font-size:1.75rem;line-height:1.15;letter-spacing:-.025em}.jk-intro{max-width:660px;margin-top:var(--jk-space-2)!important;color:var(--jk-color-muted)}.jk-header-status{display:flex;align-items:baseline;gap:var(--jk-space-2);min-width:150px;padding:var(--jk-space-3) var(--jk-space-4);border:1px solid var(--jk-color-border);border-radius:var(--jk-radius-panel);background:var(--jk-color-surface);color:var(--jk-color-muted);white-space:nowrap}.jk-header-status strong{color:var(--jk-color-text);font-size:1.25rem;font-variant-numeric:tabular-nums}.jk-progress{margin-bottom:var(--jk-space-4);padding:var(--jk-space-3) var(--jk-space-4);border:1px solid var(--jk-color-border);border-radius:var(--jk-radius-panel);background:var(--jk-color-surface)}.jk-progress ol{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--jk-space-3);margin:0;padding:0;list-style:none}.jk-progress li{display:flex;align-items:center;gap:var(--jk-space-3);min-width:0;padding:var(--jk-space-2);border-radius:var(--jk-radius-control);color:var(--jk-color-muted)}.jk-progress li.is-current{border:1px solid var(--jk-color-focus);color:var(--jk-color-text)}.jk-step-number{display:grid;flex:0 0 28px;height:28px;place-items:center;border:1px solid var(--jk-color-border);border-radius:50%;font-size:.8rem;font-weight:750;font-variant-numeric:tabular-nums}.is-complete .jk-step-number{border-color:var(--jk-color-receipt);color:var(--jk-color-receipt)}.is-current .jk-step-number{border-color:var(--jk-color-focus);color:var(--jk-color-focus)}.jk-progress strong,.jk-progress small{display:block;overflow-wrap:anywhere}.jk-progress strong{font-size:.84rem}.jk-progress small{color:var(--jk-color-muted);font-size:.72rem}.jk-workspace{display:grid;grid-template-columns:minmax(250px,290px) minmax(0,1fr);gap:var(--jk-space-4);align-items:start}.jk-panel{min-width:0;padding:var(--jk-space-4);border:1px solid var(--jk-color-border);border-radius:var(--jk-radius-panel);background:var(--jk-color-surface)}.jk-panel.is-loading{border-style:dashed;color:var(--jk-color-muted)}.jk-panel.is-error{border-color:var(--jk-color-risk)}.jk-panel.is-empty{min-height:120px;color:var(--jk-color-muted)}.jk-panel-header,.jk-section-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--jk-space-3);margin-bottom:var(--jk-space-3)}.jk-panel h2{font-size:1rem;line-height:1.3}.jk-panel-subtitle{margin-top:var(--jk-space-2)!important;color:var(--jk-color-muted);font-size:.82rem}.jk-count{color:var(--jk-color-muted);font-size:.78rem;white-space:nowrap}.jk-queue-list{display:grid;gap:var(--jk-space-2)}.jk-queue-item{width:100%;min-height:72px;padding:var(--jk-space-3);border:1px solid var(--jk-color-border);border-radius:var(--jk-radius-control);background:var(--jk-color-surface);color:var(--jk-color-text);text-align:left;cursor:pointer}.jk-queue-item:hover:not(:disabled){border-color:var(--jk-color-focus)}.jk-queue-item.is-selected{border-color:var(--jk-color-focus);background:var(--jk-color-canvas);box-shadow:inset 3px 0 0 var(--jk-color-focus)}.jk-queue-item-top,.jk-queue-item-bottom{display:flex;align-items:center;justify-content:space-between;gap:var(--jk-space-2)}.jk-queue-item-top{margin-bottom:var(--jk-space-2)}.jk-queue-item-bottom{color:var(--jk-color-muted);font-size:.78rem}.jk-time,.jk-item-id{font-variant-numeric:tabular-nums}.jk-time{color:var(--jk-color-text);font-size:.82rem}.jk-review-grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(340px,.92fr);gap:var(--jk-space-4);align-items:start}.jk-evidence-column,.jk-action-column{display:grid;gap:var(--jk-space-4);min-width:0}.jk-badge{display:inline-flex;align-items:center;min-height:25px;padding:2px var(--jk-space-2);border:1px solid currentColor;border-radius:var(--jk-radius-control);background:var(--jk-color-surface);font-size:.72rem;font-weight:750;line-height:1.2;white-space:nowrap}.jk-badge-success{color:var(--jk-color-success)}.jk-badge-warning{color:var(--jk-color-warning)}.jk-badge-risk{color:var(--jk-color-risk)}.jk-badge-receipt{color:var(--jk-color-receipt)}.jk-packet-note{margin-bottom:var(--jk-space-3)!important;color:var(--jk-color-muted);font-size:.86rem}.jk-metadata{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 var(--jk-space-4)}.jk-metadata div{min-width:0;padding:var(--jk-space-3) 0;border-top:1px solid var(--jk-color-border)}.jk-metadata dt{margin-bottom:3px;color:var(--jk-color-muted);font-size:.7rem;font-weight:700;letter-spacing:.045em;text-transform:uppercase}.jk-metadata dd{overflow-wrap:anywhere;font-size:.88rem;font-weight:650}.jk-metadata .jk-numeric{font-variant-numeric:tabular-nums}.jk-readiness-list{display:grid;gap:0;margin:0;padding:0;list-style:none}.jk-readiness-list li{display:grid;grid-template-columns:minmax(110px,.65fr) auto minmax(160px,1.35fr);gap:var(--jk-space-3);align-items:center;padding:var(--jk-space-3) 0;border-top:1px solid var(--jk-color-border)}.jk-readiness-list li:first-child{border-top:0}.jk-readiness-list strong{font-size:.86rem}.jk-evidence-copy{color:var(--jk-color-muted);font-size:.8rem;overflow-wrap:anywhere}.jk-policy{border-inline-start:4px solid var(--jk-color-focus)}.jk-policy p{color:var(--jk-color-muted);font-size:.84rem}.jk-policy p+p{margin-top:var(--jk-space-2)!important}.jk-decision-group{display:grid;gap:var(--jk-space-2)}.jk-decision-option{width:100%;min-height:64px;padding:var(--jk-space-3);border:1px solid var(--jk-color-border);border-radius:var(--jk-radius-control);background:var(--jk-color-surface);color:var(--jk-color-text);text-align:left;cursor:pointer}.jk-decision-option:hover:not(:disabled){border-color:var(--jk-color-focus)}.jk-decision-option[aria-pressed='true']{border-color:var(--jk-color-focus);background:var(--jk-color-canvas);box-shadow:inset 3px 0 0 var(--jk-color-focus)}.jk-decision-option:disabled{border-color:var(--jk-color-border);background:var(--jk-color-canvas);color:var(--jk-color-disabled);cursor:not-allowed}.jk-option-top{display:flex;align-items:center;justify-content:space-between;gap:var(--jk-space-2)}.jk-option-title{font-weight:750}.jk-option-copy{display:block;margin-top:4px;color:var(--jk-color-muted);font-size:.78rem;line-height:1.35}.jk-decision-option:disabled .jk-option-copy{color:var(--jk-color-disabled)}.jk-choice-state{padding:2px var(--jk-space-2);border:1px solid var(--jk-color-focus);border-radius:var(--jk-radius-control);color:var(--jk-color-focus);font-size:.68rem;font-weight:750}.jk-disabled-reason{padding:0 var(--jk-space-2) var(--jk-space-2);color:var(--jk-color-disabled);font-size:.76rem}.jk-ready-message{display:flex;align-items:center;gap:var(--jk-space-2);color:var(--jk-color-muted);font-size:.8rem}.jk-handoff-summary{display:grid;margin-top:var(--jk-space-3)!important;border-top:1px solid var(--jk-color-border)}.jk-handoff-summary div{display:grid;grid-template-columns:100px minmax(0,1fr);gap:var(--jk-space-3);padding:var(--jk-space-3) 0;border-bottom:1px solid var(--jk-color-border)}.jk-handoff-summary dt{color:var(--jk-color-muted);font-size:.76rem;font-weight:700}.jk-handoff-summary dd{font-size:.84rem;overflow-wrap:anywhere}.jk-handoff-actions{display:grid;gap:var(--jk-space-3);margin-top:var(--jk-space-4)}.jk-primary-action{min-height:44px;padding:var(--jk-space-3) var(--jk-space-4);border:1px solid var(--jk-color-focus);border-radius:var(--jk-radius-control);background:var(--jk-color-focus);color:var(--jk-color-surface);font-weight:750;cursor:pointer}.jk-primary-action:hover:not(:disabled){border-color:var(--jk-color-receipt);background:var(--jk-color-receipt)}.jk-primary-action:disabled{border-color:var(--jk-color-disabled);background:var(--jk-color-disabled);cursor:not-allowed}.jk-receipt-note{color:var(--jk-color-muted);font-size:.76rem;text-align:center}.jk-intake button:focus-visible{outline:2px solid var(--jk-color-focus);outline-offset:2px;box-shadow:var(--jk-focus-ring)}@media(max-width:1080px){.jk-workspace{grid-template-columns:minmax(225px,250px) minmax(0,1fr)}.jk-review-grid{grid-template-columns:1fr}}@media(max-width:880px){.jk-workspace{grid-template-columns:1fr}.jk-queue-list{grid-template-columns:repeat(3,minmax(0,1fr))}.jk-review-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:720px){.jk-intake{padding:var(--jk-space-3)}.jk-page-header{align-items:flex-start;flex-direction:column}.jk-header-status{width:100%}.jk-progress ol{grid-template-columns:repeat(2,minmax(0,1fr))}.jk-queue-list,.jk-review-grid,.jk-metadata{grid-template-columns:1fr}.jk-action-column{order:-1}.jk-readiness-list li{grid-template-columns:1fr;gap:var(--jk-space-2)}.jk-handoff-summary div{grid-template-columns:1fr;gap:4px}.jk-panel-header,.jk-section-heading{align-items:flex-start;flex-direction:column}.jk-badge{white-space:normal}.jk-decision-option,.jk-primary-action{min-height:48px}}@media(forced-colors:active){.jk-queue-item.is-selected,.jk-decision-option[aria-pressed='true']{outline:2px solid CanvasText;box-shadow:none}.jk-intake button:focus-visible{outline:3px solid Highlight;box-shadow:none}.jk-badge{forced-color-adjust:auto}}
+    .raw-model-candidate {
+      background: var(--jk-color-canvas) !important;
+      color: var(--jk-color-text) !important;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif !important;
+    }
+    .raw-model-candidate :is(section, article, aside, header, footer, .panel, .card, [class*="panel"], [class*="card"], [class*="queue"], [class*="detail"]) {
+      border-color: var(--jk-color-border) !important;
+      background-color: var(--jk-color-surface) !important;
+    }
+    .raw-model-candidate :is(p, small, span, li, dd) {
+      color: var(--jk-color-muted);
+    }
+    .raw-model-candidate :is(h1, h2, h3, h4, strong, dt) {
+      color: var(--jk-color-text);
+    }
+    .raw-model-candidate button {
+      border-color: var(--jk-color-border) !important;
+      border-radius: var(--jk-radius-control) !important;
+      background: var(--jk-color-surface) !important;
+      color: var(--jk-color-text) !important;
+    }
+    .raw-model-candidate .primary {
+      border-color: var(--jk-color-focus) !important;
+      background: var(--jk-color-focus) !important;
+      color: var(--jk-color-surface) !important;
+    }</style>
+
+  </head>
+  <body data-artifact-id="gpt56-sol-ultra-codex-with-judgmentkit" data-row-id="gpt56-sol-ultra-codex" data-column-id="with-judgmentkit" data-judgmentkit-mode="with_judgmentkit" data-design-system-mode="none">
+    <main data-primary-surface class='jk-intake raw-model-candidate'><div class='jk-shell'><header class='jk-page-header'><div><p class='jk-kicker'>Administrative intake</p><h1>Appointment readiness</h1><p class='jk-intro'>Review the intake packet, choose the next administrative action, and send a clear handoff.</p></div><div class='jk-header-status' aria-label='Queue summary'><strong>3</strong><span>requests in review</span></div></header><nav class='jk-progress' aria-label='Readiness review progress'><ol><li class='is-complete'><span class='jk-step-number'>1</span><span><strong>Packet</strong><small>Selected</small></span></li><li class='is-complete'><span class='jk-step-number'>2</span><span><strong>Readiness</strong><small>Reviewed</small></span></li><li class='is-complete'><span class='jk-step-number'>3</span><span><strong>Decision</strong><small>Selected</small></span></li><li class='is-current' aria-current='step'><span class='jk-step-number'>4</span><span><strong>Handoff</strong><small>Ready to send</small></span></li></ol></nav><div class='jk-workspace'><aside class='jk-panel jk-queue-panel' aria-labelledby='queue-title'><div class='jk-panel-header'><div><h2 id='queue-title'>Intake queue</h2><p class='jk-panel-subtitle'>Select a packet to review.</p></div><span class='jk-count'>3 waiting</span></div><div class='jk-queue-list'><button class='jk-queue-item is-selected' type='button' aria-current='true' aria-label='Select intake packet I-4471 for Avery Morgan'><span class='jk-queue-item-top'><strong>Avery Morgan</strong><span class='jk-time'>10:30 AM</span></span><span class='jk-queue-item-bottom'><span class='jk-item-id'>I-4471</span><span class='jk-badge jk-badge-warning'>Consent missing</span></span></button><button class='jk-queue-item' type='button' aria-label='Select intake packet I-4472 for Sam Rivera'><span class='jk-queue-item-top'><strong>Sam Rivera</strong><span class='jk-time'>1:00 PM</span></span><span class='jk-queue-item-bottom'><span class='jk-item-id'>I-4472</span><span class='jk-badge jk-badge-risk'>Verify insurance</span></span></button><button class='jk-queue-item' type='button' aria-label='Select intake packet I-4473 for Jules Kim'><span class='jk-queue-item-top'><strong>Jules Kim</strong><span class='jk-time'>3:15 PM</span></span><span class='jk-queue-item-bottom'><span class='jk-item-id'>I-4473</span><span class='jk-badge jk-badge-success'>Ready to schedule</span></span></button></div></aside><section aria-label='Selected intake packet review'><div class='jk-review-grid'><div class='jk-evidence-column'><section class='jk-panel' aria-labelledby='packet-title'><div class='jk-section-heading'><div><h2 id='packet-title'>Selected packet</h2><p class='jk-panel-subtitle'>Avery Morgan · New patient consult</p></div><span class='jk-badge jk-badge-warning'>Consent missing</span></div><p class='jk-packet-note'>Appointment packet is pending administrative readiness review.</p><dl class='jk-metadata'><div><dt>Intake packet</dt><dd class='jk-numeric'>I-4471</dd></div><div><dt>Requested appointment slot</dt><dd class='jk-numeric'>10:30 AM</dd></div><div><dt>Appointment type</dt><dd>New patient consult</dd></div><div><dt>Current status</dt><dd>Administrative review</dd></div></dl></section><section class='jk-panel' aria-labelledby='readiness-title'><div class='jk-section-heading'><div><h2 id='readiness-title'>Readiness checklist</h2><p class='jk-panel-subtitle'>Required administrative evidence for this request.</p></div><span class='jk-count'>3 items</span></div><ul class='jk-readiness-list'><li><strong>Referral</strong><span class='jk-badge jk-badge-success'>Complete</span><span class='jk-evidence-copy'>Referral document is uploaded.</span></li><li><strong>Insurance card</strong><span class='jk-badge jk-badge-success'>Present</span><span class='jk-evidence-copy'>Insurance card image is available.</span></li><li><strong>Signed consent</strong><span class='jk-badge jk-badge-warning'>Missing</span><span class='jk-evidence-copy'>Required before the appointment can be scheduled.</span></li></ul></section><section class='jk-panel jk-policy' role='note' aria-labelledby='policy-title'><h2 id='policy-title'>Administrative policy</h2><p>Schedule only when required administrative forms are complete. Insurance uncertainty goes to verification staff.</p><p>Clinical assessment is outside this scheduling and intake review.</p></section></div><div class='jk-action-column'><section class='jk-panel' aria-labelledby='decision-title'><div class='jk-section-heading'><div><h2 id='decision-title'>Decision path</h2><p class='jk-panel-subtitle'>Choose the next administrative action.</p></div><span class='jk-badge jk-badge-receipt'>Decision selected</span></div><div class='jk-decision-group' role='group' aria-label='Administrative decision'><button class='jk-decision-option' type='button' aria-pressed='false' aria-describedby='schedule-disabled-reason' disabled><span class='jk-option-title'>Ready to schedule</span><span class='jk-option-copy'>Schedule the requested appointment slot.</span></button><p class='jk-disabled-reason' id='schedule-disabled-reason'>Unavailable: signed consent is required before scheduling.</p><button class='jk-decision-option' type='button' aria-pressed='true'><span class='jk-option-top'><span class='jk-option-title'>Return for consent</span><span class='jk-choice-state'>Selected</span></span><span class='jk-option-copy'>Return the packet so the signed consent can be completed.</span></button><button class='jk-decision-option' type='button' aria-pressed='false'><span class='jk-option-title'>Escalate insurance verification</span><span class='jk-option-copy'>Send to verification staff when coverage or eligibility is uncertain.</span></button></div></section><section class='jk-panel' aria-labelledby='handoff-title'><div class='jk-section-heading'><div><h2 id='handoff-title'>Intake handoff</h2><p class='jk-panel-subtitle'>Confirm the action and reason the intake team will receive.</p></div></div><p class='jk-ready-message' role='status'><span class='jk-badge jk-badge-receipt'>Ready to send</span><span>Administrative handoff is complete.</span></p><dl class='jk-handoff-summary'><div><dt>Next action</dt><dd>Return the intake packet for signed consent.</dd></div><div><dt>Reason</dt><dd>Signed consent is missing before the appointment can be scheduled.</dd></div><div><dt>Request status</dt><dd>Keep in administrative review.</dd></div></dl><footer class='jk-handoff-actions'><button class='jk-primary-action' type='button'>Send handoff</button><p class='jk-receipt-note'>Sending this handoff will not schedule an appointment slot.</p></footer></section></div></div></section></div></div></main>
+    <aside class="provenance" aria-label="Artifact provenance">
+      <strong>Provenance:</strong>
+      <span>captured</span>
+      <span> - captured_model_output</span>
+      <span> - JudgmentKit skill context</span>
+      <span> - frontend skill context ready</span>
+      <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
+      <p>Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.</p>
+      <p>Manifest entry: <code>artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html</code></p>
+    </aside>
+    <script type="application/json" id="model-ui-provenance">{
+  "matrix_id": "clinical-intake-review-model-ui-v1",
+  "use_case_id": "clinical-intake-review",
+  "use_case_label": "Clinical intake review",
+  "activity_summary": "An intake coordinator reviews administrative appointment readiness and decides schedule, return missing forms, or escalate insurance verification.",
+  "artifact_id": "gpt56-sol-ultra-codex-with-judgmentkit",
+  "row_id": "gpt56-sol-ultra-codex",
+  "column_id": "with-judgmentkit",
+  "model_label": "GPT-5.6 Sol Ultra",
+  "generation_source": "captured_model_output",
+  "judgmentkit_mode": "with_judgmentkit",
+  "design_system_mode": "none",
+  "render_source": "model_frontend_skill_static_html_css",
+  "rendering_policy": "Visible artifact is generated from the reviewed handoff plus compiled frontend skill context with no Material UI adapter.",
+  "reasoning_effort": "ultra",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": true,
+    "material_ui_adapter": false,
+    "frontend_skill_context": true
+  },
+  "design_system_name": "JudgmentKit",
+  "design_system_package": "judgmentkit",
+  "source_brief_file": "examples/model-ui/clinical-intake-review/source-brief.txt",
+  "handoff_source": "examples/model-ui/clinical-intake-review/reviewed-handoff.fixture.json",
+  "design_system_adapter_file": null,
+  "capture_file": "captures/gpt56-sol-ultra-codex-with-judgmentkit.json",
+  "source_context_sha256": "a4d8b09c8e706cc16330b6f535db0dfb78efb0c5089a89b59ab429d04a855707",
+  "current_source_context_sha256": "a4d8b09c8e706cc16330b6f535db0dfb78efb0c5089a89b59ab429d04a855707",
+  "source_context_status": "current",
+  "model_response_summary": "A compact administrative intake workspace keeps the selected packet, readiness evidence, decision path, and handoff reason visible together.",
+  "frontend_context_status": "ready_for_frontend_implementation",
+  "frontend_skill_context_status": "ready",
+  "frontend_skill_context": {
+    "source_skill": "frontend-ui-implementation",
+    "raw_skill_exposed": false,
+    "surface_type": "form_flow",
+    "design_system_mode": "judgmentkit_default",
+    "design_system_name": "JudgmentKit",
+    "next_recommended_tool": "review_ui_implementation_candidate",
+    "verification_checklist": [
+      "Run npm test",
+      "Run npm run capture:model-ui:screenshots",
+      "feature render paths must not emit raw input, select, textarea, or checkbox markup outside approved helpers",
+      "new primitives or variants require updating the repo-local contract first",
+      "generated UI must include a local check command or equivalent static inspection",
+      "Verify substantive visuals use imagegen or premium Three.js/WebGL/D3-style rendering when the spec calls for them.",
+      "Provide browser-rendered visual-background contrast evidence for text over images, canvas, WebGL, video, gradients, or generated visuals.",
+      "Verify non-text contrast for meaningful icons, charts, state indicators, custom controls, and authored focus indicators.",
+      "Verify forced-colors or high-contrast behavior when custom colors, gradients, overlays, or authored focus styles are used.",
+      "Verify focus-visible evidence for interactive controls.",
+      "Verify focus order, keyboard navigation, focus-not-obscured behavior, and no keyboard trap for custom widgets, overlays, dialogs, and embedded experiences.",
+      "Verify reduced-motion behavior for animation and rendered visuals.",
+      "Verify pause, stop, hide, or update-frequency control for auto-moving or auto-updating content.",
+      "Verify form labels, instructions, text errors, correction suggestions, and status/live-region messages when forms or async states are present.",
+      "Verify semantic content or accessible fallback for images, canvas, WebGL, video, generated visuals, and D3-style visualization.",
+      "Verify captions, transcripts, descriptions, or media alternatives when audio or video is present.",
+      "Verify target size or valid target spacing/equivalent-control exceptions for dense or touch-oriented controls.",
+      "Verify responsive no-overflow evidence at desktop and mobile sizes.",
+      "with-judgmentkit candidate desktop screenshot has a styled primary work surface",
+      "with-judgmentkit candidate mobile screenshot keeps the decision and handoff visible",
+      "desktop viewport screenshot",
+      "mobile viewport screenshot",
+      "keyboard focus check for interactive controls",
+      "overflow check for long labels, descriptions, and values",
+      "modal or dialog footer order check when dialogs are present",
+      "disabled, empty, error, and ready state review",
+      "Verify state: selected work item is visible",
+      "Verify state: decision evidence is scannable",
+      "Verify state: primary action and handoff reason are clear",
+      "Verify required state: empty",
+      "Verify required state: ready",
+      "Verify required state: loading",
+      "Verify required state: error",
+      "Verify required state: disabled",
+      "Verify required state: focus-visible"
+    ]
+  },
+  "capture_provenance": {
+    "status": "captured",
+    "capture_type": "model-output-transcript",
+    "captured_at": "2026-07-30T01:53:13.371Z",
+    "runner": "scripts/capture-model-ui-matrix.mjs",
+    "provider": "codex-cli",
+    "model": "gpt-5.6-sol",
+    "cli": "codex",
+    "transcript_file": "captures/gpt56-sol-ultra-codex-with-judgmentkit.json",
+    "prompt_sha256": "0240434a93c2ae970cb00ca8ef4a0d068a169b65fdb6292805d0bf065e2943cb",
+    "raw_response_sha256": "6e4b471e674dbbbbc915680f03f99d590fd6a9292accc44b0daa5a1b2ee99271",
+    "source_context_sha256": "a4d8b09c8e706cc16330b6f535db0dfb78efb0c5089a89b59ab429d04a855707",
+    "reasoning_effort": "ultra",
+    "context_included": {
+      "source_brief": true,
+      "sample_case": true,
+      "reviewed_handoff": true,
+      "material_ui_adapter": false,
+      "frontend_skill_context": true
+    },
+    "frontend_context_status": "ready_for_frontend_implementation",
+    "frontend_skill_context_status": "ready",
+    "design_system_name": null,
+    "design_system_package": null,
+    "design_system_render_mode": null,
+    "lms_context": null,
+    "capture_quality": {
+      "profile": "judgmentkit_static_html_css",
+      "css_characters": 9909,
+      "html_characters": 6696,
+      "css_rule_count": 102,
+      "class_selector_count": 163,
+      "semantic_section_count": 10,
+      "structural_block_count": 36,
+      "button_count": 7,
+      "has_responsive_css": true,
+      "has_layout_css": true,
+      "has_panel_css": true,
+      "has_control_css": true,
+      "has_evidence_content": true,
+      "has_handoff_content": true,
+      "compact_template_signature": false,
+      "has_judgmentkit_default_tokens": true,
+      "jk_token_usage_count": 134,
+      "jk_token_reference_count": 134,
+      "unsupported_jk_tokens": [],
+      "jk_token_definition_count": 0,
+      "jk_token_definitions": [],
+      "disallowed_visual_tokens": [],
+      "inline_style_attribute_count": 0,
+      "hard_coded_visual_values": [],
+      "failures": [],
+      "status": "passed"
+    },
+    "source_context_status": "current",
+    "current_source_context_sha256": "a4d8b09c8e706cc16330b6f535db0dfb78efb0c5089a89b59ab429d04a855707",
+    "accepted_source_context_sha256": "a4d8b09c8e706cc16330b6f535db0dfb78efb0c5089a89b59ab429d04a855707",
+    "captured_source_context_sha256": "a4d8b09c8e706cc16330b6f535db0dfb78efb0c5089a89b59ab429d04a855707",
+    "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+    "notes": "GPT-5.6 Sol Ultra output captured through codex for the JudgmentKit 5x4 model UI matrix."
+  },
+  "artifact_path": "artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html",
+  "screenshot_path": "screenshots/gpt56-sol-ultra-codex-with-judgmentkit.png",
+  "approach_title": "GPT-5.6 Sol Ultra via codex exec - JudgmentKit skill context",
+  "approach_caption": "GPT-5.6 Sol Ultra via codex exec receives the reviewed handoff plus compiled frontend skill context, but no Material UI adapter. This isolates skill-guided implementation without a component renderer."
+}</script>
+  </body>
+</html>

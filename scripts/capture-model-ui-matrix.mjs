@@ -9,6 +9,7 @@ import {
   COMPARISON_COLUMNS as COLUMNS,
   COMPARISON_ROWS,
   JUDGMENTKIT_DEFAULT_TOKEN_NAMES,
+  MODEL_UI_MATRIX_DIMENSIONS,
   MODEL_UI_USE_CASES,
   modelUiUseCasesForArgs,
 } from "./model-ui-use-cases.mjs";
@@ -39,6 +40,12 @@ const LMS_CONTEXT_LENGTH = Math.max(
   LMS_MIN_CONTEXT_LENGTH,
 );
 const FRESH_CAPTURE = process.argv.includes("--fresh");
+
+export function capturesOnlyForArgs(args = []) {
+  return args.includes("--captures-only");
+}
+
+const CAPTURES_ONLY = capturesOnlyForArgs(process.argv.slice(2));
 const JUDGMENTKIT_DEFAULT_TOKEN_NAME_SET = new Set(JUDGMENTKIT_DEFAULT_TOKEN_NAMES);
 
 let activeUseCase;
@@ -51,7 +58,37 @@ let SELECTED_CASE;
 let QUEUE;
 const loadedLmsModels = new Map();
 
-const ROWS = COMPARISON_ROWS.filter((row) => row.generation_source === "captured_model_output");
+const CAPTURE_ROWS = COMPARISON_ROWS.filter(
+  (row) => row.generation_source === "captured_model_output",
+);
+
+export function captureRowsForArgs(args = []) {
+  const requestedIds = [];
+  for (let index = 0; index < args.length; index += 1) {
+    if (args[index] === "--row") {
+      const id = args[index + 1];
+      if (!id) {
+        throw new Error("--row requires a comparison row id.");
+      }
+      requestedIds.push(id);
+      index += 1;
+    }
+  }
+
+  if (requestedIds.length === 0) {
+    return CAPTURE_ROWS;
+  }
+
+  return [...new Set(requestedIds)].map((id) => {
+    const row = CAPTURE_ROWS.find((candidate) => candidate.id === id);
+    if (!row) {
+      throw new Error(`Unknown captured model UI row: ${id}`);
+    }
+    return row;
+  });
+}
+
+const ROWS = captureRowsForArgs(process.argv.slice(2));
 
 const LEGACY_CAPTURE_ALIASES = [
   ["gemma4-without-design-system.json", "gemma4-lms-with-judgmentkit.json", "gemma4-without-design-system"],
@@ -110,6 +147,7 @@ function run(command, args, options = {}) {
   const result = spawnSync(command, args, {
     cwd: ROOT_DIR,
     encoding: "utf8",
+    env: options.env ?? process.env,
     maxBuffer: 80 * 1024 * 1024,
     timeout: options.timeout ?? 600_000,
     input: options.input,
@@ -892,8 +930,8 @@ function contextIncluded(target) {
   };
 }
 
-function artifactPath(target) {
-  return `artifacts/${target.artifact_id}.html`;
+function modelFacingArtifactPath(target) {
+  return `artifacts/${target.column_id}.html`;
 }
 
 function buildFrontendProjectContext(target, designSystemAdapter) {
@@ -915,7 +953,7 @@ function buildFrontendProjectContext(target, designSystemAdapter) {
           "decision controls",
           "handoff panel",
         ],
-    files_or_entrypoints: [artifactPath(target)],
+    files_or_entrypoints: [modelFacingArtifactPath(target)],
   };
 }
 
@@ -923,8 +961,8 @@ function buildFrontendVerificationContext(target) {
   return {
     commands: ["npm test", "npm run capture:model-ui:screenshots"],
     browser_checks: [
-      `${target.artifact_id} desktop screenshot has a styled primary work surface`,
-      `${target.artifact_id} mobile screenshot keeps the decision and handoff visible`,
+      `${target.column_id} candidate desktop screenshot has a styled primary work surface`,
+      `${target.column_id} candidate mobile screenshot keeps the decision and handoff visible`,
     ],
     states_to_verify: [
       "selected work item is visible",
@@ -1095,8 +1133,6 @@ function buildPromptContextPayload(contextPayload) {
     use_case_id: contextPayload.use_case_id,
     use_case_label: contextPayload.use_case_label,
     activity_summary: contextPayload.activity_summary,
-    artifact_id: contextPayload.artifact_id,
-    row_id: contextPayload.row_id,
     column_id: contextPayload.column_id,
     context_included: contextPayload.context_included,
     source_brief: contextPayload.source_brief,
@@ -1155,8 +1191,6 @@ function buildHtmlPrompt({ target, contextPayload }) {
     : "You may reflect the raw brief's implementation-heavy framing if that is what the brief implies.";
 
   return [
-    `Artifact id: ${target.artifact_id}`,
-    `Generation path: ${target.row_label}`,
     `Column: ${target.column_label}`,
     "",
     `Task: Generate one static browser-renderable product UI candidate for this use case: ${activeUseCase.activity_summary}`,
@@ -1190,8 +1224,6 @@ function buildMaterialUiPrompt({ target, contextPayload }) {
     : "Material UI can structure the interface, but it does not fix the raw brief's activity or disclosure problems.";
 
   return [
-    `Artifact id: ${target.artifact_id}`,
-    `Generation path: ${target.row_label}`,
     `Column: ${target.column_label}`,
     "",
     "Task: Produce structured surface data for a static Material UI SSR renderer.",
@@ -1377,19 +1409,25 @@ function schemaForTarget(target) {
   };
 }
 
-async function captureWithCodex(target, prompt, options = {}) {
-  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "judgmentkit-codex-capture-"));
-  const outputFile = path.join(tempDir, `${target.artifact_id}.json`);
-  const schemaFile = path.join(tempDir, "schema.json");
+export function buildCodexArgs(target, schemaFile, outputFile, sqliteHome) {
+  if (!target.model) {
+    throw new Error(`${target.artifact_id} Codex capture requires a model.`);
+  }
+  if (!target.reasoning_effort) {
+    throw new Error(`${target.artifact_id} Codex capture requires a reasoning effort.`);
+  }
+  if (!sqliteHome) {
+    throw new Error(`${target.artifact_id} Codex capture requires an isolated SQLite home.`);
+  }
 
-  await fs.writeFile(schemaFile, JSON.stringify(schemaForTarget(target), null, 2));
-
-  const args = [
+  return [
     "exec",
     "--model",
     target.model,
     "-c",
-    'model_reasoning_effort="xhigh"',
+    `model_reasoning_effort="${target.reasoning_effort}"`,
+    "-c",
+    `sqlite_home="${sqliteHome}"`,
     "--sandbox",
     "read-only",
     "--skip-git-repo-check",
@@ -1402,17 +1440,45 @@ async function captureWithCodex(target, prompt, options = {}) {
     outputFile,
     "-",
   ];
-  const execution = run("codex", args, {
-    input: prompt,
-    timeout: options.timeout ?? MODEL_CAPTURE_TIMEOUT_MS,
-  });
-  const rawResponse = await fs.readFile(outputFile, "utf8");
+}
 
-  return {
-    command_display: `codex ${args.map((arg) => (arg === schemaFile ? "<schema>" : arg === outputFile ? "<output>" : arg)).join(" ")}`,
-    raw_response: rawResponse,
-    execution,
-  };
+export async function captureWithCodex(target, prompt, options = {}) {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "judgmentkit-codex-capture-"));
+  const outputFile = path.join(tempDir, `${target.artifact_id}.json`);
+  const schemaFile = path.join(tempDir, "schema.json");
+  const sqliteHome = path.join(tempDir, "sqlite");
+
+  try {
+    await fs.mkdir(sqliteHome, { recursive: true });
+    await fs.writeFile(schemaFile, JSON.stringify(schemaForTarget(target), null, 2));
+
+    const args = buildCodexArgs(target, schemaFile, outputFile, sqliteHome);
+    const execute = options.execute ?? run;
+    const execution = execute("codex", args, {
+      input: prompt,
+      env: {
+        ...process.env,
+        CODEX_SQLITE_HOME: sqliteHome,
+      },
+      timeout: options.timeout ?? MODEL_CAPTURE_TIMEOUT_MS,
+    });
+    const rawResponse = await fs.readFile(outputFile, "utf8");
+
+    return {
+      command_display: `codex ${args
+        .map((arg) => {
+          if (arg === schemaFile) return "<schema>";
+          if (arg === outputFile) return "<output>";
+          if (arg === `sqlite_home="${sqliteHome}"`) return 'sqlite_home="<sqlite>"';
+          return arg;
+        })
+        .join(" ")}`,
+      raw_response: rawResponse,
+      execution,
+    };
+  } finally {
+    await fs.rm(tempDir, { recursive: true, force: true });
+  }
 }
 
 function buildCompactRetryPrompt(target, contextPayload) {
@@ -1487,7 +1553,6 @@ function buildCompactRetryPrompt(target, contextPayload) {
     return [
       SYSTEM_PROMPT,
       "",
-      `Artifact id: ${target.artifact_id}`,
       contextBoundary,
       designBoundary,
       `Case: ${caseSummary}`,
@@ -1500,7 +1565,6 @@ function buildCompactRetryPrompt(target, contextPayload) {
   return [
     SYSTEM_PROMPT,
     "",
-    `Artifact id: ${target.artifact_id}`,
     contextBoundary,
     designBoundary,
     `Case: ${caseSummary}`,
@@ -1578,7 +1642,6 @@ function buildLmsJudgmentKitStaticPrompt(target, contextPayload, validationFailu
   return [
     SYSTEM_PROMPT,
     "",
-    `Artifact id: ${target.artifact_id}`,
     "Task: Generate a complete static browser-renderable product UI for the reviewed JudgmentKit handoff plus compiled frontend skill context.",
     "Return one compact valid JSON object only with string fields: summary, css, html. Keep the whole response under 3000 characters.",
     "The html field must contain exactly one product-facing <main data-primary-surface ...> root. The css field must contain only CSS.",
@@ -1651,14 +1714,18 @@ async function writeLegacyCaptureAliases() {
 
 async function main() {
   const requestedUseCases = modelUiUseCasesForArgs(process.argv.slice(2));
-  await ensureBaseFiles();
+  if (!CAPTURES_ONLY) {
+    await ensureBaseFiles();
+  }
   for (const useCase of requestedUseCases) {
     await captureUseCase(useCase);
   }
-  await ensureBaseFiles();
-  run(process.execPath, [path.join(ROOT_DIR, "scripts/capture-model-ui-screenshots.mjs")], {
-    timeout: 600_000,
-  });
+  if (!CAPTURES_ONLY) {
+    await ensureBaseFiles();
+    run(process.execPath, [path.join(ROOT_DIR, "scripts/capture-model-ui-screenshots.mjs")], {
+      timeout: 600_000,
+    });
+  }
   process.stdout.write(`Captured model UI use cases: ${requestedUseCases.length}/${MODEL_UI_USE_CASES.length}\n`);
 }
 
@@ -1813,7 +1880,7 @@ async function captureUseCase(useCase) {
       prompt_sha256: promptSha,
       raw_response_sha256: hash(rawResponse),
       command_display: capture.command_display,
-      notes: `${target.model_label} output captured through ${target.cli} for the JudgmentKit 3x4 model UI matrix.`,
+      notes: `${target.model_label} output captured through ${target.cli} for the JudgmentKit ${MODEL_UI_MATRIX_DIMENSIONS} model UI matrix.`,
       lms_context: capture.lms_context ?? null,
       capture_quality: captureQuality,
       parsed: sanitizedParsed,

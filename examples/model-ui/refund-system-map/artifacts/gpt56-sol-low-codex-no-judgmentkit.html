@@ -1,0 +1,778 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Support refund triage - GPT-5.6 Sol Light via codex exec - Raw brief</title>
+    <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f5f3ed;
+      --panel: #ffffff;
+      --ink: #17231f;
+      --muted: #65726d;
+      --line: #d9d3c7;
+      --accent: #245f73;
+      --accent-strong: #174352;
+      --warning: #8a5a16;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 15px/1.45 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    button { font: inherit; }
+    .app-shell {
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .raw-model-candidate {
+      max-width: 1120px;
+      margin: 0 auto;
+      background: var(--canvas);
+    }
+    .raw-model-candidate > section,
+    .raw-model-candidate .card,
+    .raw-model-candidate .panel {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .raw-model-candidate ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .app-shell .app-header,
+    .app-shell .case-header,
+    .app-shell .handoff {
+      display: flex;
+      gap: 18px;
+      align-items: start;
+      justify-content: space-between;
+    }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 0; font-size: clamp(28px, 4vw, 42px); letter-spacing: 0; }
+    h2 { margin-bottom: 8px; font-size: 22px; letter-spacing: 0; }
+    h3 { margin-bottom: 8px; font-size: 18px; letter-spacing: 0; }
+    p { color: var(--muted); }
+    .eyebrow {
+      margin-bottom: 6px;
+      color: var(--accent-strong);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0;
+      text-transform: uppercase;
+    }
+    .app-shell .status,
+    .capture-warning {
+      display: inline-flex;
+      align-items: center;
+      min-height: 32px;
+      padding: 6px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #eef6f7;
+      color: var(--accent-strong);
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .capture-warning {
+      display: block;
+      margin: 18px 0;
+      background: #fff7e8;
+      color: var(--warning);
+    }
+    .app-shell .workspace {
+      display: grid;
+      grid-template-columns: minmax(210px, 280px) minmax(0, 1fr);
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .app-shell .queue,
+    .app-shell .detail,
+    .app-shell .detail > section,
+    .app-shell .handoff {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--panel);
+    }
+    .app-shell .queue,
+    .app-shell .detail {
+      padding: 16px;
+    }
+    .app-shell .queue {
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .app-shell .queue-item {
+      display: grid;
+      gap: 3px;
+      width: 100%;
+      padding: 11px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      text-align: left;
+    }
+    .app-shell .queue-item small {
+      color: var(--muted);
+    }
+    .app-shell .queue-item.is-selected {
+      border-color: var(--accent);
+      background: #edf6f7;
+    }
+    .app-shell .detail {
+      display: grid;
+      gap: 14px;
+    }
+    .app-shell .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .app-shell .info-grid > div,
+    .app-shell .detail > section {
+      padding: 14px;
+    }
+    .app-shell .info-grid > div {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #faf9f5;
+    }
+    .app-shell .info-grid span {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .app-shell .evidence-list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .app-shell .evidence-list li {
+      display: grid;
+      grid-template-columns: 34px minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+    }
+    .app-shell .check {
+      display: inline-grid;
+      place-items: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--accent-strong);
+      font-size: 11px;
+      font-weight: 900;
+    }
+    .app-shell .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .app-shell .actions button,
+    .app-shell .handoff button {
+      min-height: 40px;
+      padding: 8px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #ffffff;
+      color: var(--ink);
+      cursor: pointer;
+      font-weight: 800;
+    }
+    .app-shell button.primary {
+      border-color: var(--accent);
+      background: var(--accent);
+      color: #ffffff;
+    }
+    .app-shell .handoff {
+      padding: 14px;
+      background: #f3f8f8;
+    }
+    .raw-brief-candidate .app-header {
+      background: #fff8ea;
+      border: 1px solid #e5c98f;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .reviewed-candidate .app-header {
+      background: #eef6f7;
+      border: 1px solid #b8d2d7;
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .provenance {
+      padding: 16px 24px 24px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .provenance code {
+      color: var(--ink);
+    }
+    .design-system {
+      --canvas: #f7f4ee;
+      --panel: #ffffff;
+      --ink: #182521;
+      --muted: #64716b;
+      --line: #d9d3c5;
+      --accent: #0f766e;
+      --accent-strong: #0f4f49;
+      --warning: #9a5b16;
+    }
+    @media (max-width: 760px) {
+      .app-shell { padding: 16px; }
+      .app-shell .app-header,
+      .app-shell .case-header,
+      .app-shell .handoff {
+        display: grid;
+      }
+      .app-shell .workspace,
+      .app-shell .info-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+    <style data-model-css>*{box-sizing:border-box}body{margin:0;background:#f3f5f7;color:#17202a;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:14px;line-height:1.45}button{font:inherit}.app{width:100%;min-height:900px;display:grid;grid-template-rows:68px 1fr;background:#f7f8fa}.topbar{display:flex;align-items:center;justify-content:space-between;padding:0 28px;background:#17202a;color:#fff;border-bottom:1px solid #2e3945}.brand{display:flex;align-items:center;gap:14px}.brand-mark{display:grid;place-items:center;width:34px;height:34px;border-radius:8px;background:#3d7eff;font-weight:800}.brand h1{margin:0;font-size:17px;letter-spacing:-.01em}.brand p{margin:2px 0 0;color:#b9c3cf;font-size:12px}.system-status{display:flex;align-items:center;gap:8px;color:#d7dee7;font-size:12px}.status-dot{width:8px;height:8px;border-radius:50%;background:#49c27d;box-shadow:0 0 0 3px rgba(73,194,125,.15)}.workspace{display:grid;grid-template-columns:286px minmax(0,1fr);min-height:0}.queue-panel{background:#fff;border-right:1px solid #dfe3e8;padding:22px 16px}.panel-heading{display:flex;align-items:center;justify-content:space-between;padding:0 6px 14px}.panel-heading h2{margin:0;font-size:14px}.count{min-width:24px;padding:2px 7px;border-radius:999px;background:#e9eef5;color:#465467;text-align:center;font-size:12px;font-weight:700}.queue-list{display:grid;gap:8px}.queue-item{width:100%;padding:14px;border:1px solid #e0e5eb;border-radius:10px;background:#fff;color:inherit;text-align:left;cursor:pointer}.queue-item.selected{border-color:#3976e8;background:#edf4ff;box-shadow:inset 3px 0 0 #3976e8}.queue-item:hover{border-color:#9eb7df}.queue-top,.queue-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px}.queue-id{font-weight:800}.queue-customer{margin:5px 0 8px;color:#364252}.queue-state{font-size:12px;color:#6c4a00}.queue-amount{font-weight:700;font-variant-numeric:tabular-nums}.content{padding:22px 26px 30px;overflow:auto}.case-header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;margin-bottom:18px}.eyebrow{margin:0 0 4px;color:#647184;font-size:11px;font-weight:800;letter-spacing:.09em;text-transform:uppercase}.case-header h2{margin:0;font-size:25px;letter-spacing:-.025em}.case-subtitle{margin:5px 0 0;color:#5d6978}.badge{display:inline-flex;align-items:center;padding:6px 10px;border-radius:999px;background:#fff0ce;color:#714d00;border:1px solid #efd28c;font-size:12px;font-weight:800}.case-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(310px,.8fr);gap:18px;align-items:start}.stack{display:grid;gap:18px}.card{background:#fff;border:1px solid #dfe4ea;border-radius:12px;box-shadow:0 1px 2px rgba(16,24,40,.04)}.card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #e8ebef}.card-header h3{margin:0;font-size:15px}.card-body{padding:18px}.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.fact{padding:12px;border-radius:8px;background:#f7f8fa}.fact-label{display:block;margin-bottom:4px;color:#697586;font-size:11px;font-weight:700;text-transform:uppercase}.fact-value{font-weight:750}.request{margin:16px 0 0;padding-top:16px;border-top:1px solid #e7eaee}.evidence-list{display:grid;gap:10px;margin:0;padding:0;list-style:none}.evidence-item{display:grid;grid-template-columns:22px 1fr;gap:10px;align-items:start;padding:11px 12px;border-radius:8px;background:#f6f8fa}.evidence-icon{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#dff3e7;color:#176a3a;font-size:12px;font-weight:900}.evidence-item.missing{background:#fff3f0;color:#7b291d}.evidence-item.missing .evidence-icon{background:#ffdcd5;color:#9d2e20}.policy{padding:14px;border-left:4px solid #547dc3;background:#f1f5fb;color:#33445e}.decision-options{display:grid;gap:10px}.decision{display:block;padding:13px;border:1px solid #dce2e8;border-radius:9px;background:#fff;text-align:left;color:#1e2935}.decision strong,.decision span{display:block}.decision span{margin-top:3px;color:#667384;font-size:12px}.decision.recommended{border-color:#d19321;background:#fff8e8}.recommendation{color:#875900!important;font-weight:750}.reason-label{display:block;margin:16px 0 7px;font-size:12px;font-weight:800}.reason-box{min-height:70px;padding:11px 12px;border:1px solid #ccd4dd;border-radius:8px;background:#fff;color:#3d4855}.action-row{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}.btn{min-height:40px;border-radius:8px;border:1px solid #cbd3dc;background:#fff;color:#273342;font-weight:750}.btn.primary{grid-column:1/-1;border-color:#285fbe;background:#2f6edb;color:#fff}.diagnostics{font-size:12px}.diagnostic-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.diagnostic{padding:10px;border-radius:7px;background:#f6f7f9}.diagnostic dt{margin-bottom:3px;color:#727e8e}.diagnostic dd{margin:0;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;overflow-wrap:anywhere}.ok{color:#187343;font-weight:800}.warning{color:#9b5410;font-weight:800}.schema-error{margin-top:12px;padding:11px;border:1px solid #f0c8c0;border-radius:7px;background:#fff3f1;color:#852c20;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}.crud-row{display:flex;gap:8px;margin-top:12px}.crud-row .btn{min-height:34px;padding:0 12px;font-size:12px}.muted{color:#6c7887}</style>
+
+  </head>
+  <body data-artifact-id="gpt56-sol-low-codex-no-judgmentkit" data-row-id="gpt56-sol-low-codex" data-column-id="no-judgmentkit" data-judgmentkit-mode="no_judgmentkit" data-design-system-mode="none">
+    <main class="app raw-model-candidate" data-primary-surface><header class="topbar"><div class="brand"><div class="brand-mark">R</div><div><h1>Refund Escalations</h1><p>Support operations review console</p></div></div><div class="system-status"><span class="status-dot"></span>Refund API operational</div></header><div class="workspace"><aside class="queue-panel" aria-label="Escalation queue"><div class="panel-heading"><h2>Review queue</h2><span class="count">3</span></div><div class="queue-list"><button class="queue-item selected" type="button"><span class="queue-top"><span class="queue-id">R-1842</span><span class="queue-amount">$184.20</span></span><span class="queue-customer">Nora Diaz</span><span class="queue-bottom"><span class="queue-state">Needs receipt</span><span aria-hidden="true">›</span></span></button><button class="queue-item" type="button"><span class="queue-top"><span class="queue-id">R-1843</span><span class="queue-amount">$89.00</span></span><span class="queue-customer">Jun Park</span><span class="queue-bottom"><span class="queue-state">Policy question</span><span aria-hidden="true">›</span></span></button><button class="queue-item" type="button"><span class="queue-top"><span class="queue-id">R-1844</span><span class="queue-amount">$312.75</span></span><span class="queue-customer">Amara Blake</span><span class="queue-bottom"><span class="queue-state">Manager review</span><span aria-hidden="true">›</span></span></button></div></aside><section class="content" aria-label="Selected refund case"><div class="case-header"><div><p class="eyebrow">Selected case · R-1842</p><h2>Nora Diaz</h2><p class="case-subtitle">Subscription renewal disputed after agent escalation.</p></div><span class="badge">Evidence incomplete</span></div><div class="case-grid"><div class="stack"><section class="card"><div class="card-header"><h3>Case details</h3><span class="muted">refund_case</span></div><div class="card-body"><div class="facts"><div class="fact"><span class="fact-label">Plan</span><span class="fact-value">Pro annual</span></div><div class="fact"><span class="fact-label">Refund amount</span><span class="fact-value">$184.20</span></div><div class="fact"><span class="fact-label">Case ID</span><span class="fact-value">R-1842</span></div></div><p class="request"><strong>Request</strong><br>Subscription renewal disputed after agent escalation.</p></div></section><section class="card"><div class="card-header"><h3>Evidence review</h3><span class="badge">1 missing</span></div><div class="card-body"><ul class="evidence-list"><li class="evidence-item"><span class="evidence-icon">✓</span><span>Renewal date confirmed in purchase history.</span></li><li class="evidence-item"><span class="evidence-icon">✓</span><span>Support note captures the customer's refund reason.</span></li><li class="evidence-item missing"><span class="evidence-icon">!</span><span><strong>Receipt photo is missing</strong><br>Required before manager approval.</span></li></ul></div></section><section class="card"><div class="card-header"><h3>Applicable policy</h3></div><div class="card-body"><div class="policy">Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.</div></div></section><section class="card diagnostics"><div class="card-header"><h3>Implementation diagnostics</h3><span class="muted">Expanded</span></div><div class="card-body"><dl class="diagnostic-grid"><div class="diagnostic"><dt>Resource ID</dt><dd>refund_case/R-1842</dd></div><div class="diagnostic"><dt>API endpoint</dt><dd><span class="ok">200 OK</span> · /v1/refunds/R-1842</dd></div><div class="diagnostic"><dt>Prompt template</dt><dd>refund-triage@v3.4</dd></div><div class="diagnostic"><dt>Tool call</dt><dd><span class="warning">partial</span> · verify_evidence</dd></div></dl><div class="schema-error">schema.evidence.receipt_photo: required property is missing</div><div class="crud-row"><button class="btn" type="button">Edit record</button><button class="btn" type="button">Duplicate</button><button class="btn" type="button">Archive</button></div></div></section></div><aside class="stack" aria-label="Decision panel"><section class="card"><div class="card-header"><h3>Manager decision</h3></div><div class="card-body"><div class="decision-options"><button class="decision" type="button"><strong>Approve refund</strong><span>Authorize $184.20 and notify the customer.</span></button><button class="decision" type="button"><strong>Send to policy review</strong><span>Escalate an unclear or exceptional policy question.</span></button><button class="decision recommended" type="button"><strong>Request missing evidence</strong><span class="recommendation">Recommended · receipt photo required</span></button></div><span class="reason-label">Handoff reason</span><div class="reason-box">Receipt photo is required before manager approval. Return to the support agent to collect and attach it.</div><div class="action-row"><button class="btn" type="button">Save draft</button><button class="btn" type="button">Cancel</button><button class="btn primary" type="button">Confirm missing evidence</button></div></div></section></aside></div></section></div></main>
+    <aside class="provenance" aria-label="Artifact provenance">
+      <strong>Provenance:</strong>
+      <span>captured</span>
+      <span> - captured_model_output</span>
+      <span> - Raw brief</span>
+
+      <p>This static snapshot is part of the JudgmentKit system-map examples. Build-time site generation copies committed files and does not call a model.</p>
+      <p>Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.</p>
+      <p>Manifest entry: <code>artifacts/gpt56-sol-low-codex-no-judgmentkit.html</code></p>
+    </aside>
+    <script type="application/json" id="model-ui-provenance">{
+  "matrix_id": "refund-system-map-model-ui-v2",
+  "use_case_id": "refund-system-map",
+  "use_case_label": "Support refund triage",
+  "activity_summary": "A support operations manager reviews refund escalation cases and decides approve, policy review, or missing evidence.",
+  "artifact_id": "gpt56-sol-low-codex-no-judgmentkit",
+  "row_id": "gpt56-sol-low-codex",
+  "column_id": "no-judgmentkit",
+  "model_label": "GPT-5.6 Sol Light",
+  "generation_source": "captured_model_output",
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "none",
+  "render_source": "model_static_html_css",
+  "rendering_policy": "Visible artifact is generated from raw brief context only; no reviewed JudgmentKit handoff and no Material UI adapter are used.",
+  "reasoning_effort": "low",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": false,
+    "frontend_skill_context": false
+  },
+  "design_system_name": null,
+  "design_system_package": null,
+  "source_brief_file": "examples/demo/refund-ops-implementation-heavy.brief.txt",
+  "handoff_source": null,
+  "design_system_adapter_file": null,
+  "capture_file": "captures/gpt56-sol-low-codex-no-judgmentkit.json",
+  "source_context_sha256": "1e0ce313c3343fb2f0853260b137dcf72963c8c73e4385ac71b7434a094bc10e",
+  "current_source_context_sha256": "1e0ce313c3343fb2f0853260b137dcf72963c8c73e4385ac71b7434a094bc10e",
+  "source_context_status": "current",
+  "model_response_summary": "A desktop refund escalation workspace pairs a review queue with case evidence, policy guidance, decision controls, and the requested implementation diagnostics.",
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
+  "capture_provenance": {
+    "status": "captured",
+    "capture_type": "model-output-transcript",
+    "captured_at": "2026-07-30T01:07:17.558Z",
+    "runner": "scripts/capture-model-ui-matrix.mjs",
+    "provider": "codex-cli",
+    "model": "gpt-5.6-sol",
+    "cli": "codex",
+    "transcript_file": "captures/gpt56-sol-low-codex-no-judgmentkit.json",
+    "prompt_sha256": "7c34d467c8f2f8f560aec4598a065b28178b1c5d0ab3f3e862f7591e025d833a",
+    "raw_response_sha256": "b1ba28f903cb3714cf68b81a475ec868fb77ea0865ed91f91b9b9ec59ba245a2",
+    "source_context_sha256": "1e0ce313c3343fb2f0853260b137dcf72963c8c73e4385ac71b7434a094bc10e",
+    "reasoning_effort": "low",
+    "context_included": {
+      "source_brief": true,
+      "sample_case": true,
+      "reviewed_handoff": false,
+      "material_ui_adapter": false,
+      "frontend_skill_context": false
+    },
+    "frontend_context_status": null,
+    "frontend_skill_context_status": null,
+    "design_system_name": null,
+    "design_system_package": null,
+    "design_system_render_mode": null,
+    "lms_context": null,
+    "capture_quality": {
+      "profile": "basic_static_html_css",
+      "css_characters": 5380,
+      "html_characters": 5208,
+      "css_rule_count": 70,
+      "class_selector_count": 84,
+      "semantic_section_count": 9,
+      "structural_block_count": 44,
+      "button_count": 12,
+      "has_responsive_css": false,
+      "has_layout_css": true,
+      "has_panel_css": true,
+      "has_control_css": true,
+      "has_evidence_content": true,
+      "has_handoff_content": true,
+      "compact_template_signature": false,
+      "has_judgmentkit_default_tokens": false,
+      "jk_token_usage_count": 0,
+      "jk_token_reference_count": 0,
+      "unsupported_jk_tokens": [],
+      "jk_token_definition_count": 0,
+      "jk_token_definitions": [],
+      "disallowed_visual_tokens": [],
+      "inline_style_attribute_count": 0,
+      "hard_coded_visual_values": [
+        {
+          "source": "css",
+          "selector": "body",
+          "property": "background",
+          "value": "#f3f5f7"
+        },
+        {
+          "source": "css",
+          "selector": "body",
+          "property": "color",
+          "value": "#17202a"
+        },
+        {
+          "source": "css",
+          "selector": ".app",
+          "property": "background",
+          "value": "#f7f8fa"
+        },
+        {
+          "source": "css",
+          "selector": ".topbar",
+          "property": "background",
+          "value": "#17202a"
+        },
+        {
+          "source": "css",
+          "selector": ".topbar",
+          "property": "color",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".topbar",
+          "property": "border-bottom",
+          "value": "1px solid #2e3945"
+        },
+        {
+          "source": "css",
+          "selector": ".brand-mark",
+          "property": "background",
+          "value": "#3d7eff"
+        },
+        {
+          "source": "css",
+          "selector": ".brand p",
+          "property": "color",
+          "value": "#b9c3cf"
+        },
+        {
+          "source": "css",
+          "selector": ".system-status",
+          "property": "color",
+          "value": "#d7dee7"
+        },
+        {
+          "source": "css",
+          "selector": ".status-dot",
+          "property": "background",
+          "value": "#49c27d"
+        },
+        {
+          "source": "css",
+          "selector": ".status-dot",
+          "property": "box-shadow",
+          "value": "0 0 0 3px rgba(73,194,125,.15)"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-panel",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-panel",
+          "property": "border-right",
+          "value": "1px solid #dfe3e8"
+        },
+        {
+          "source": "css",
+          "selector": ".count",
+          "property": "background",
+          "value": "#e9eef5"
+        },
+        {
+          "source": "css",
+          "selector": ".count",
+          "property": "color",
+          "value": "#465467"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-item",
+          "property": "border",
+          "value": "1px solid #e0e5eb"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-item",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-item.selected",
+          "property": "border-color",
+          "value": "#3976e8"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-item.selected",
+          "property": "background",
+          "value": "#edf4ff"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-item.selected",
+          "property": "box-shadow",
+          "value": "inset 3px 0 0 #3976e8"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-item:hover",
+          "property": "border-color",
+          "value": "#9eb7df"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-customer",
+          "property": "color",
+          "value": "#364252"
+        },
+        {
+          "source": "css",
+          "selector": ".queue-state",
+          "property": "color",
+          "value": "#6c4a00"
+        },
+        {
+          "source": "css",
+          "selector": ".eyebrow",
+          "property": "color",
+          "value": "#647184"
+        },
+        {
+          "source": "css",
+          "selector": ".case-subtitle",
+          "property": "color",
+          "value": "#5d6978"
+        },
+        {
+          "source": "css",
+          "selector": ".badge",
+          "property": "background",
+          "value": "#fff0ce"
+        },
+        {
+          "source": "css",
+          "selector": ".badge",
+          "property": "color",
+          "value": "#714d00"
+        },
+        {
+          "source": "css",
+          "selector": ".badge",
+          "property": "border",
+          "value": "1px solid #efd28c"
+        },
+        {
+          "source": "css",
+          "selector": ".card",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".card",
+          "property": "border",
+          "value": "1px solid #dfe4ea"
+        },
+        {
+          "source": "css",
+          "selector": ".card",
+          "property": "box-shadow",
+          "value": "0 1px 2px rgba(16,24,40,.04)"
+        },
+        {
+          "source": "css",
+          "selector": ".card-header",
+          "property": "border-bottom",
+          "value": "1px solid #e8ebef"
+        },
+        {
+          "source": "css",
+          "selector": ".fact",
+          "property": "background",
+          "value": "#f7f8fa"
+        },
+        {
+          "source": "css",
+          "selector": ".fact-label",
+          "property": "color",
+          "value": "#697586"
+        },
+        {
+          "source": "css",
+          "selector": ".request",
+          "property": "border-top",
+          "value": "1px solid #e7eaee"
+        },
+        {
+          "source": "css",
+          "selector": ".evidence-item",
+          "property": "background",
+          "value": "#f6f8fa"
+        },
+        {
+          "source": "css",
+          "selector": ".evidence-icon",
+          "property": "background",
+          "value": "#dff3e7"
+        },
+        {
+          "source": "css",
+          "selector": ".evidence-icon",
+          "property": "color",
+          "value": "#176a3a"
+        },
+        {
+          "source": "css",
+          "selector": ".evidence-item.missing",
+          "property": "background",
+          "value": "#fff3f0"
+        },
+        {
+          "source": "css",
+          "selector": ".evidence-item.missing",
+          "property": "color",
+          "value": "#7b291d"
+        },
+        {
+          "source": "css",
+          "selector": ".evidence-item.missing .evidence-icon",
+          "property": "background",
+          "value": "#ffdcd5"
+        },
+        {
+          "source": "css",
+          "selector": ".evidence-item.missing .evidence-icon",
+          "property": "color",
+          "value": "#9d2e20"
+        },
+        {
+          "source": "css",
+          "selector": ".policy",
+          "property": "border-left",
+          "value": "4px solid #547dc3"
+        },
+        {
+          "source": "css",
+          "selector": ".policy",
+          "property": "background",
+          "value": "#f1f5fb"
+        },
+        {
+          "source": "css",
+          "selector": ".policy",
+          "property": "color",
+          "value": "#33445e"
+        },
+        {
+          "source": "css",
+          "selector": ".decision",
+          "property": "border",
+          "value": "1px solid #dce2e8"
+        },
+        {
+          "source": "css",
+          "selector": ".decision",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".decision",
+          "property": "color",
+          "value": "#1e2935"
+        },
+        {
+          "source": "css",
+          "selector": ".decision span",
+          "property": "color",
+          "value": "#667384"
+        },
+        {
+          "source": "css",
+          "selector": ".decision.recommended",
+          "property": "border-color",
+          "value": "#d19321"
+        },
+        {
+          "source": "css",
+          "selector": ".decision.recommended",
+          "property": "background",
+          "value": "#fff8e8"
+        },
+        {
+          "source": "css",
+          "selector": ".recommendation",
+          "property": "color",
+          "value": "#875900!important"
+        },
+        {
+          "source": "css",
+          "selector": ".reason-box",
+          "property": "border",
+          "value": "1px solid #ccd4dd"
+        },
+        {
+          "source": "css",
+          "selector": ".reason-box",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".reason-box",
+          "property": "color",
+          "value": "#3d4855"
+        },
+        {
+          "source": "css",
+          "selector": ".btn",
+          "property": "border",
+          "value": "1px solid #cbd3dc"
+        },
+        {
+          "source": "css",
+          "selector": ".btn",
+          "property": "background",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".btn",
+          "property": "color",
+          "value": "#273342"
+        },
+        {
+          "source": "css",
+          "selector": ".btn.primary",
+          "property": "border-color",
+          "value": "#285fbe"
+        },
+        {
+          "source": "css",
+          "selector": ".btn.primary",
+          "property": "background",
+          "value": "#2f6edb"
+        },
+        {
+          "source": "css",
+          "selector": ".btn.primary",
+          "property": "color",
+          "value": "#fff"
+        },
+        {
+          "source": "css",
+          "selector": ".diagnostic",
+          "property": "background",
+          "value": "#f6f7f9"
+        },
+        {
+          "source": "css",
+          "selector": ".diagnostic dt",
+          "property": "color",
+          "value": "#727e8e"
+        },
+        {
+          "source": "css",
+          "selector": ".ok",
+          "property": "color",
+          "value": "#187343"
+        },
+        {
+          "source": "css",
+          "selector": ".warning",
+          "property": "color",
+          "value": "#9b5410"
+        },
+        {
+          "source": "css",
+          "selector": ".schema-error",
+          "property": "border",
+          "value": "1px solid #f0c8c0"
+        },
+        {
+          "source": "css",
+          "selector": ".schema-error",
+          "property": "background",
+          "value": "#fff3f1"
+        },
+        {
+          "source": "css",
+          "selector": ".schema-error",
+          "property": "color",
+          "value": "#852c20"
+        },
+        {
+          "source": "css",
+          "selector": ".muted",
+          "property": "color",
+          "value": "#6c7887"
+        }
+      ],
+      "failures": [],
+      "status": "passed"
+    },
+    "source_context_status": "current",
+    "current_source_context_sha256": "1e0ce313c3343fb2f0853260b137dcf72963c8c73e4385ac71b7434a094bc10e",
+    "accepted_source_context_sha256": "1e0ce313c3343fb2f0853260b137dcf72963c8c73e4385ac71b7434a094bc10e",
+    "captured_source_context_sha256": "1e0ce313c3343fb2f0853260b137dcf72963c8c73e4385ac71b7434a094bc10e",
+    "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+    "notes": "GPT-5.6 Sol Light output captured through codex for the JudgmentKit 5x4 model UI matrix."
+  },
+  "artifact_path": "artifacts/gpt56-sol-low-codex-no-judgmentkit.html",
+  "screenshot_path": "screenshots/gpt56-sol-low-codex-no-judgmentkit.png",
+  "approach_title": "GPT-5.6 Sol Light via codex exec - Raw brief",
+  "approach_caption": "GPT-5.6 Sol Light via codex exec receives only the raw brief and sample case. This tests what happens without JudgmentKit or Material UI."
+}</script>
+  </body>
+</html>

@@ -6781,7 +6781,7 @@ const MODEL_UI_EXAMPLE = {
   id: "model-ui-system-map",
   title: "Model UI generation matrix",
   description:
-    "Four matrix comparisons across fixture-rendered baseline, Gemma 4 (local LLM), and GPT-5.5 xhigh paths, separating raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill plus Material UI. Each use case shows accepted snapshots plus diagnostic-only failed-candidate cells.",
+    "Four use-case matrix comparisons across fixture-rendered baseline, Gemma 4 (local LLM), GPT-5.5 xhigh, GPT-5.6 Sol Light, and GPT-5.6 Sol Ultra paths, separating raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill plus Material UI. Each use case shows accepted snapshots plus diagnostic-only failed-candidate cells.",
   actions: [],
 };
 
@@ -6994,6 +6994,7 @@ function renderExampleMatrixCell(item) {
 
 function renderExampleMatrixTable(matrixRows) {
   const columns = matrixRows[0]?.items ?? [];
+  const matrixDimensions = `${matrixRows.length} by ${columns.length}`;
   const columnHeaders = columns
     .map(
       (item) => `
@@ -7018,7 +7019,7 @@ function renderExampleMatrixTable(matrixRows) {
 
   return `
       <div class="example-matrix-scroll">
-        <div class="example-matrix-table" role="table" aria-label="Model UI 3 by 4 comparison matrix">
+        <div class="example-matrix-table" role="table" aria-label="Model UI ${escapeHtml(matrixDimensions)} comparison matrix">
           <div class="example-matrix-axis" role="columnheader">Path</div>
           ${columnHeaders}
           ${rows}
@@ -7061,10 +7062,12 @@ function renderModelUiGalleryPreview(example) {
   const panels = useCases
     .map((useCase, index) => {
       const matrix = renderExampleMatrixTable(useCase.comparisonRows ?? []);
+      const rowCount = useCase.comparisonRows?.length ?? 0;
+      const columnCount = useCase.comparisonRows?.[0]?.items?.length ?? 0;
       return `
         <section class="model-ui-use-case-panel" data-use-case-panel="${escapeHtml(useCase.id)}" ${index === 0 ? "" : "hidden"}>
           <div class="example-gallery-intro">
-            <h3>${escapeHtml(useCase.label)} 3x4 matrix</h3>
+            <h3>${escapeHtml(useCase.label)} ${escapeHtml(`${rowCount}x${columnCount}`)} matrix</h3>
             <p>${escapeHtml(useCase.activitySummary)} Columns separate Raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill + Material UI. This use case currently shows ${escapeHtml(useCase.acceptedCount ?? 0)} accepted snapshots plus ${escapeHtml(useCase.diagnosticCount ?? 0)} diagnostic-only failed-candidate cells; diagnostic cells are not artifact links or release evidence.</p>
           </div>
           ${matrix}
@@ -7827,6 +7830,8 @@ async function judgmentKitMcpReportPage() {
     "Qualitative paired-artifact evidence only; not a statistically powered benchmark.";
   const claimLevel = latestReport?.claim_level ?? latest?.claim_level ?? "pending";
   const modelUseCases = modelUiIndex?.use_cases ?? [];
+  const defaultMatrixDimensions =
+    `${defaultManifest?.comparison_rows?.length ?? 0} by ${defaultManifest?.comparison_columns?.length ?? 0}`;
 
   if (!latestReport || benchmarkCases.length === 0) {
     return page(
@@ -7936,7 +7941,7 @@ async function judgmentKitMcpReportPage() {
             ${renderContextBoundaryMatrix(defaultManifest)}
             <h3>Committed use cases</h3>
             ${renderUseCaseSummary(modelUseCases)}
-            ${videoPlaceholder("Model matrix walkthrough placeholder", "Inline video slot for narrating the 3 by 4 matrix evidence.")}
+            ${videoPlaceholder("Model matrix walkthrough placeholder", `Inline video slot for narrating the ${defaultMatrixDimensions} matrix evidence.`)}
           </section>
           <section id="limitations-and-future-work">
             <h2>Limitations and future work</h2>

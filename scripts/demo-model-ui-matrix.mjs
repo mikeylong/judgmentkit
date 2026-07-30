@@ -46,6 +46,9 @@ import {
   COMPARISON_ROWS,
   JUDGMENTKIT_DEFAULT_CSS_CUSTOM_PROPERTIES,
   LEGACY_ALIASES,
+  MODEL_UI_MATRIX_DIMENSIONS,
+  MODEL_UI_MATRIX_DIMENSIONS_SPACED,
+  MODEL_UI_MATRIX_DIMENSIONS_SPOKEN,
   MODEL_UI_INDEX_FILE,
   MODEL_UI_USE_CASES,
   modelUiUseCaseIndex,
@@ -249,6 +252,10 @@ function artifactPath(id) {
   return `artifacts/${id}.html`;
 }
 
+function modelFacingArtifactPath(output) {
+  return `artifacts/${output.column_id}.html`;
+}
+
 function screenshotPath(id) {
   return `screenshots/${id}.png`;
 }
@@ -258,8 +265,23 @@ function captureFile(output) {
   return `captures/${output.id}.json`;
 }
 
+const MANUAL_DIAGNOSTIC_FINDINGS = new Map([
+  [
+    "clinical-intake-review/gpt56-sol-ultra-codex-no-judgmentkit",
+    [
+      {
+        check: "static_capture_quality",
+        message:
+          "The fixed action panel overlaps the data-and-service trace at the 1365x900 evidence viewport.",
+      },
+    ],
+  ],
+]);
+
 function buildOutput(row, column) {
   const id = `${row.id}-${column.id}`;
+  const findings =
+    MANUAL_DIAGNOSTIC_FINDINGS.get(`${activeUseCase.id}/${id}`) ?? [];
   return {
     ...row,
     ...column,
@@ -276,6 +298,7 @@ function buildOutput(row, column) {
     reasoning_effort: row.reasoning_effort,
     title: `${row.label} - ${column.label}`,
     capture_file: row.generation_source === "captured_model_output" ? `captures/${id}.json` : null,
+    findings,
   };
 }
 
@@ -293,8 +316,11 @@ function contextIncluded(output) {
   };
 }
 
-function buildFrontendProjectContext(output) {
+function buildFrontendProjectContext(output, options = {}) {
   const usesMaterialUi = output.design_system_mode === "material_ui";
+  const entrypoint = options.rowSpecific
+    ? artifactPath(output.id)
+    : modelFacingArtifactPath(output);
   return {
     target_runtime: usesMaterialUi ? "React static SSR" : "Static browser HTML/CSS",
     ui_library: usesMaterialUi ? DESIGN_SYSTEM_ADAPTER.design_system_name : "None",
@@ -312,16 +338,19 @@ function buildFrontendProjectContext(output) {
           "decision controls",
           "handoff panel",
         ],
-    files_or_entrypoints: [artifactPath(output.id)],
+    files_or_entrypoints: [entrypoint],
   };
 }
 
-function buildFrontendVerificationContext(output) {
+function buildFrontendVerificationContext(output, options = {}) {
+  const candidateLabel = options.rowSpecific
+    ? output.id
+    : `${output.column_id} candidate`;
   return {
     commands: ["npm test", "npm run capture:model-ui:screenshots"],
     browser_checks: [
-      `${output.id} desktop screenshot has a styled primary work surface`,
-      `${output.id} mobile screenshot keeps the decision and handoff visible`,
+      `${candidateLabel} desktop screenshot has a styled primary work surface`,
+      `${candidateLabel} mobile screenshot keeps the decision and handoff visible`,
     ],
     states_to_verify: [
       "selected work item is visible",
@@ -331,7 +360,7 @@ function buildFrontendVerificationContext(output) {
   };
 }
 
-function buildFrontendSkillContexts({ output, reviewedHandoff }) {
+function buildFrontendSkillContexts({ output, reviewedHandoff, rowSpecific = false }) {
   if (output.judgmentkit_mode !== "with_judgmentkit") {
     return {
       frontend_generation_context: null,
@@ -343,8 +372,8 @@ function buildFrontendSkillContexts({ output, reviewedHandoff }) {
   const frontendGenerationContext = createFrontendGenerationContext({
     ui_generation_handoff: reviewedHandoff,
     surface_type: reviewedHandoff.surface_type,
-    frontend_context: buildFrontendProjectContext(output),
-    verification: buildFrontendVerificationContext(output),
+    frontend_context: buildFrontendProjectContext(output, { rowSpecific }),
+    verification: buildFrontendVerificationContext(output, { rowSpecific }),
   });
   const frontendSkillContext = createFrontendImplementationSkillContext({
     frontend_generation_context: frontendGenerationContext,
@@ -573,9 +602,18 @@ function stripDefaultVisualAssetPolicyForLegacyCapture(contextPayload) {
   return legacy;
 }
 
-function buildContextPayload({ output, brief, reviewedHandoff }) {
+function buildContextPayload({
+  output,
+  brief,
+  reviewedHandoff,
+  rowSpecificFrontendContext = false,
+}) {
   const included = contextIncluded(output);
-  const frontendContexts = buildFrontendSkillContexts({ output, reviewedHandoff });
+  const frontendContexts = buildFrontendSkillContexts({
+    output,
+    reviewedHandoff,
+    rowSpecific: rowSpecificFrontendContext,
+  });
   return {
     matrix_id: MATRIX_ID,
     use_case_id: activeUseCase.id,
@@ -2676,7 +2714,7 @@ function renderMatrixIndex(manifest) {
     <main>
       <p class="eyebrow">System-map example pack</p>
       <h1>${escapeHtml(manifest.use_case_label)} model UI generation matrix</h1>
-      <p>${escapeHtml(manifest.activity_summary)} Three generation paths are shown across four context boundaries. JudgmentKit skill context improves activity fit, workflow fit, disclosure discipline, and implementation guidance; Material UI improves visual/component consistency.</p>
+      <p>${escapeHtml(manifest.activity_summary)} ${manifest.comparison_rows.length} generation paths are shown across ${manifest.comparison_columns.length} context boundaries. JudgmentKit skill context improves activity fit, workflow fit, disclosure discipline, and implementation guidance; Material UI improves visual/component consistency.</p>
       <div class="summary" aria-label="Matrix summary">
         <div><span>Source brief</span><strong>${escapeHtml(manifest.source_brief_file)}</strong></div>
         <div><span>Rows</span><strong>${manifest.comparison_rows.length} generation paths</strong></div>
@@ -2688,12 +2726,12 @@ ${columnHeaders}
       </section>
       <div class="gallery-intro">
         <div>
-          <h2>3 x 4 comparison gallery</h2>
+          <h2>${MODEL_UI_MATRIX_DIMENSIONS_SPACED} comparison gallery</h2>
           <p>Each row uses the same generation path. Each column changes only JudgmentKit and Material UI context.</p>
         </div>
         ${manifest.artifacts[0]?.artifact_path ? `<a href="${escapeHtml(manifest.artifacts[0].artifact_path)}">Open first live artifact</a>` : ""}
       </div>
-      <section class="matrix-list" aria-label="Model UI 3 by 4 screenshot gallery">
+      <section class="matrix-list" aria-label="Model UI ${MODEL_UI_MATRIX_DIMENSIONS_SPOKEN} screenshot gallery">
 ${matrixRows}
       </section>
       <p class="note">${captureNote}</p>
@@ -2872,6 +2910,17 @@ function contextSummary(output) {
 
 function summarizeFrontendSkillContext(skillContext) {
   if (!skillContext) return null;
+  if (typeof skillContext.source_skill === "string") {
+    return {
+      source_skill: skillContext.source_skill,
+      raw_skill_exposed: skillContext.raw_skill_exposed ?? null,
+      surface_type: skillContext.surface_type ?? null,
+      design_system_mode: skillContext.design_system_mode ?? null,
+      design_system_name: skillContext.design_system_name ?? null,
+      next_recommended_tool: skillContext.next_recommended_tool ?? null,
+      verification_checklist: skillContext.verification_checklist ?? [],
+    };
+  }
   return {
     source_skill: skillContext.source_skill?.name ?? null,
     raw_skill_exposed: skillContext.source_skill?.raw_skill_exposed ?? null,
@@ -3192,34 +3241,66 @@ async function generateUseCase(useCase) {
       let capture = await readCapture(output, contextHash);
 
       if (!capture && output.generation_source === "captured_model_output") {
-        const legacyContextPayload =
-          stripDefaultVisualAssetPolicyForLegacyCapture(contextPayload);
-        const legacyContextHash = hash(
-          JSON.stringify(legacyContextPayload, null, 2),
-        );
+        const rowSpecificContextPayload = buildContextPayload({
+          output,
+          brief,
+          reviewedHandoff,
+          rowSpecificFrontendContext: true,
+        });
+        const legacyContextPayloads = [
+          stripDefaultVisualAssetPolicyForLegacyCapture(contextPayload),
+          rowSpecificContextPayload,
+          stripDefaultVisualAssetPolicyForLegacyCapture(rowSpecificContextPayload),
+        ];
+        const legacyCandidates = [];
+        const seenLegacyHashes = new Set([currentContextHash]);
 
-        if (legacyContextHash !== contextHash) {
-          const legacyCapture = await readCapture(output, legacyContextHash);
+        for (const legacyContextPayload of legacyContextPayloads) {
+          const legacyContextHash = hash(
+            JSON.stringify(legacyContextPayload, null, 2),
+          );
+          if (seenLegacyHashes.has(legacyContextHash)) continue;
+          seenLegacyHashes.add(legacyContextHash);
+          legacyCandidates.push({
+            contextPayload: legacyContextPayload,
+            contextHash: legacyContextHash,
+          });
+        }
 
+        for (const candidate of legacyCandidates) {
+          const legacyCapture = await readCapture(output, candidate.contextHash);
           if (legacyCapture) {
-            effectiveContextPayload = legacyContextPayload;
-            contextHash = legacyContextHash;
+            effectiveContextPayload = candidate.contextPayload;
+            contextHash = candidate.contextHash;
             capture = legacyCapture;
-          } else {
-            const compatibleLegacyCapture = await readCapture(output, legacyContextHash, {
-              ignoreContextHash: true,
-            });
+            break;
+          }
+        }
+
+        if (!capture) {
+          for (const candidate of legacyCandidates) {
+            const compatibleLegacyCapture = await readCapture(
+              output,
+              candidate.contextHash,
+              { ignoreContextHash: true },
+            );
 
             if (
               compatibleLegacyCapture &&
               captureMatchesFrontendSkillSummary(
                 compatibleLegacyCapture,
-                legacyContextPayload,
+                candidate.contextPayload,
               )
             ) {
-              effectiveContextPayload = legacyContextPayload;
+              effectiveContextPayload = {
+                ...candidate.contextPayload,
+                frontend_skill_context:
+                  compatibleLegacyCapture.frontend_skill_context ??
+                  candidate.contextPayload.frontend_skill_context,
+              };
               contextHash = compatibleLegacyCapture.source_context_sha256;
               capture = compatibleLegacyCapture;
+              break;
             }
           }
         }
@@ -3278,7 +3359,7 @@ async function generateUseCase(useCase) {
     use_case_label: activeUseCase.label,
     activity_summary: activeUseCase.activity_summary,
     use_case_index_path: activeUseCase.index_path,
-    title: "Model UI 3x4 comparison matrix",
+    title: `Model UI ${MODEL_UI_MATRIX_DIMENSIONS} comparison matrix`,
     source_brief_file: SOURCE_BRIEF_FILE,
     reviewed_handoff_file: HANDOFF_FILE,
     design_system_adapter_file: DESIGN_SYSTEM_FILE,
@@ -3292,7 +3373,7 @@ async function generateUseCase(useCase) {
     artifacts: manifestArtifacts,
     diagnostic_candidates: diagnosticCandidates,
     generation_policy:
-      "Static captured-fixture pack. Website builds copy committed accepted artifacts and never call a live model. The 3x4 matrix separates raw brief context, JudgmentKit reviewed handoff plus compiled frontend skill context, Material UI rendering, and the combined JudgmentKit skill plus Material UI path. Candidates that fail implementation or design-system review stay in diagnostic_candidates and are excluded from manifest.artifacts, live artifact routes, screenshots, and release evidence.",
+      `Static captured-fixture pack. Website builds copy committed accepted artifacts and never call a live model. The ${MODEL_UI_MATRIX_DIMENSIONS} matrix separates raw brief context, JudgmentKit reviewed handoff plus compiled frontend skill context, Material UI rendering, and the combined JudgmentKit skill plus Material UI path. Candidates that fail implementation or design-system review stay in diagnostic_candidates and are excluded from manifest.artifacts, live artifact routes, screenshots, and release evidence.`,
   };
 
   await writeOrCheckFile(

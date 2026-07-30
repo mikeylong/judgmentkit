@@ -1,0 +1,121 @@
+{
+  "artifact_id": "gpt56-sol-ultra-codex-material-ui-only",
+  "use_case_id": "refund-system-map",
+  "use_case_label": "Support refund triage",
+  "activity_summary": "A support operations manager reviews refund escalation cases and decides approve, policy review, or missing evidence.",
+  "row_id": "gpt56-sol-ultra-codex",
+  "row_label": "GPT-5.6 Sol Ultra via codex exec",
+  "column_id": "material-ui-only",
+  "column_label": "Material UI only",
+  "model_label": "GPT-5.6 Sol Ultra",
+  "provider": "codex-cli",
+  "cli": "codex",
+  "model": "gpt-5.6-sol",
+  "reasoning_effort": "ultra",
+  "judgmentkit_mode": "no_judgmentkit",
+  "design_system_mode": "material_ui",
+  "design_system_name": "Material UI",
+  "design_system_package": "@mui/material",
+  "design_system_render_mode": "static-ssr",
+  "render_mode": "material_ui",
+  "runner": "scripts/capture-model-ui-matrix.mjs",
+  "captured_at": "2026-07-30T01:35:26.179Z",
+  "context_included": {
+    "source_brief": true,
+    "sample_case": true,
+    "reviewed_handoff": false,
+    "material_ui_adapter": true,
+    "frontend_skill_context": false
+  },
+  "frontend_context_status": null,
+  "frontend_skill_context_status": null,
+  "frontend_skill_context": null,
+  "source_context_sha256": "3287bc9c5970ef503467fe00a8a85b00cb32c6defdbcda55320a5872c80d6553",
+  "source_context_status": "current",
+  "current_source_context_sha256": "3287bc9c5970ef503467fe00a8a85b00cb32c6defdbcda55320a5872c80d6553",
+  "accepted_source_context_sha256": "3287bc9c5970ef503467fe00a8a85b00cb32c6defdbcda55320a5872c80d6553",
+  "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+  "prompt_sha256": "f2e4ae7120adc2a17dad250123116477de910c9b63e19cce18b3392c0c921c0f",
+  "raw_response_sha256": "d13bfc0081ed584295082a9816efa8f85f167219dbfedf44fc00e3f84a0d31cd",
+  "command_display": "codex exec --model gpt-5.6-sol -c model_reasoning_effort=\"ultra\" -c sqlite_home=\"<sqlite>\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",
+  "notes": "GPT-5.6 Sol Ultra output captured through codex for the JudgmentKit 5x4 model UI matrix.",
+  "lms_context": null,
+  "capture_quality": null,
+  "parsed": {
+    "summary": "Refund case R-1842 should return to the support agent because the receipt required for manager approval is missing.",
+    "surface": {
+      "eyebrow": "Support operations",
+      "heading": "Refund escalation review",
+      "status": "Evidence incomplete",
+      "queue_title": "Escalation queue",
+      "queue": [
+        {
+          "id": "R-1842",
+          "customer": "Nora Diaz",
+          "state": "Needs receipt",
+          "amount": "$184.20"
+        },
+        {
+          "id": "R-1843",
+          "customer": "Jun Park",
+          "state": "Policy question",
+          "amount": "$89.00"
+        },
+        {
+          "id": "R-1844",
+          "customer": "Amara Blake",
+          "state": "Manager review",
+          "amount": "$312.75"
+        }
+      ],
+      "selected": {
+        "id": "R-1842",
+        "customer": "Nora Diaz",
+        "amount": "$184.20",
+        "plan": "Pro annual",
+        "request": "Subscription renewal disputed after agent escalation.",
+        "status": "Evidence incomplete"
+      },
+      "info": [
+        {
+          "label": "Exception eligibility",
+          "value": "Inside exception window"
+        },
+        {
+          "label": "Approval readiness",
+          "value": "Missing required evidence"
+        },
+        {
+          "label": "Missing item",
+          "value": "Receipt photo"
+        }
+      ],
+      "evidence": [
+        "Renewal date confirmed in purchase history.",
+        "Support note captures the customer's refund reason.",
+        "Receipt photo is missing before manager approval."
+      ],
+      "policy_title": "Refund exception policy",
+      "policy": "Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.",
+      "decision_title": "Choose the next step",
+      "actions": [
+        "Approve refund",
+        "Send to policy review",
+        "Return for missing evidence"
+      ],
+      "primary_action": "Return for missing evidence",
+      "handoff": {
+        "owner": "Support agent",
+        "title": "Collect the missing receipt",
+        "reason": "Manager approval requires complete evidence, and the receipt photo has not been provided.",
+        "action": "Request and attach the receipt photo, then resubmit R-1842 for manager review."
+      }
+    }
+  },
+  "raw_response": "{\"summary\":\"Refund case R-1842 should return to the support agent because the receipt required for manager approval is missing.\",\"surface\":{\"eyebrow\":\"Support operations\",\"heading\":\"Refund escalation review\",\"status\":\"Evidence incomplete\",\"queue_title\":\"Escalation queue\",\"queue\":[{\"id\":\"R-1842\",\"customer\":\"Nora Diaz\",\"state\":\"Needs receipt\",\"amount\":\"$184.20\"},{\"id\":\"R-1843\",\"customer\":\"Jun Park\",\"state\":\"Policy question\",\"amount\":\"$89.00\"},{\"id\":\"R-1844\",\"customer\":\"Amara Blake\",\"state\":\"Manager review\",\"amount\":\"$312.75\"}],\"selected\":{\"id\":\"R-1842\",\"customer\":\"Nora Diaz\",\"amount\":\"$184.20\",\"plan\":\"Pro annual\",\"request\":\"Subscription renewal disputed after agent escalation.\",\"status\":\"Evidence incomplete\"},\"info\":[{\"label\":\"Exception eligibility\",\"value\":\"Inside exception window\"},{\"label\":\"Approval readiness\",\"value\":\"Missing required evidence\"},{\"label\":\"Missing item\",\"value\":\"Receipt photo\"}],\"evidence\":[\"Renewal date confirmed in purchase history.\",\"Support note captures the customer's refund reason.\",\"Receipt photo is missing before manager approval.\"],\"policy_title\":\"Refund exception policy\",\"policy\":\"Inside exception window. Manager approval is allowed when evidence is complete; unclear duplicate-charge cases go to policy review.\",\"decision_title\":\"Choose the next step\",\"actions\":[\"Approve refund\",\"Send to policy review\",\"Return for missing evidence\"],\"primary_action\":\"Return for missing evidence\",\"handoff\":{\"owner\":\"Support agent\",\"title\":\"Collect the missing receipt\",\"reason\":\"Manager approval requires complete evidence, and the receipt photo has not been provided.\",\"action\":\"Request and attach the receipt photo, then resubmit R-1842 for manager review.\"}}}",
+  "execution": {
+    "status": 0,
+    "stdout_sha256": "dcefea2836857c9ba66058f55f3c359d86a05848c6c719d4fe8bb1593c2e6b5e",
+    "stderr_sha256": "4eb560c3e1406337e0bd361a938be3570d148558515e22aa5443073fd23313da"
+  }
+}

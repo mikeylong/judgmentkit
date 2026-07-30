@@ -183,15 +183,18 @@ For the system-map model UI matrix:
 npm run demo:model-ui
 ```
 
-That command writes static 3x4 model UI matrices under `examples/model-ui/` for support refund triage, field service dispatch, clinical intake review, and B2B renewal risk review. Each use case includes a fixture-rendered baseline, Gemma 4 local LLM, and GPT-5.5 xhigh paths across raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill plus Material UI columns. The fixture-rendered baseline is scripted from fixed fixtures and local renderer code; it is not model-generated and is isolated from provider-connected captures. The refund route at `examples/model-ui/refund-system-map/` remains the stable compatibility path. The matrix writes accepted artifacts plus diagnostic records; design-system-failed cells stay in `diagnostic_candidates` and are excluded from `manifest.artifacts`, live artifact routes, screenshots, and release evidence. The website build copies committed accepted artifacts, records provenance in each manifest, and does not call live providers.
+That command writes static 5x4 model UI matrices under `examples/model-ui/` for support refund triage, field service dispatch, clinical intake review, and B2B renewal risk review. Each use case includes a fixture-rendered baseline, Gemma 4 local LLM, GPT-5.5 xhigh, GPT-5.6 Sol Light, and GPT-5.6 Sol Ultra paths across raw brief, JudgmentKit skill context, Material UI only, and JudgmentKit skill plus Material UI columns. The fixture-rendered baseline is scripted from fixed fixtures and local renderer code; it is not model-generated and is isolated from provider-connected captures. The refund route at `examples/model-ui/refund-system-map/` remains the stable compatibility path. The matrix writes accepted artifacts plus diagnostic records; design-system-failed cells stay in `diagnostic_candidates` and are excluded from `manifest.artifacts`, live artifact routes, screenshots, and release evidence. The website build copies committed accepted artifacts, records provenance in each manifest, and does not call live providers.
 
-To refresh the committed Gemma 4 and GPT-5.5 transcripts for that matrix:
+To refresh the committed Gemma 4, GPT-5.5, and GPT-5.6 Sol transcripts for that matrix:
 
 ```bash
 npm run capture:model-ui
 ```
 
-That command uses LM Studio's `lms` CLI for Gemma 4 and the `codex` CLI for GPT-5.5, writes capture transcripts under each `examples/model-ui/<use-case>/captures/` directory, and regenerates the static matrices from those committed files. Add `-- --fresh` to force recapturing every model cell instead of reusing matching transcripts.
+That command uses LM Studio's `lms` CLI for Gemma 4 and the `codex` CLI for GPT-5.5 and GPT-5.6 Sol. Sol Light runs with low reasoning effort; Sol Ultra runs with ultra reasoning effort. Light and Ultra receive identical model-facing input for each use-case column; their row identity stays in capture provenance instead of the prompt. The command writes capture transcripts under each `examples/model-ui/<use-case>/captures/` directory and regenerates the static matrices from those committed files. Add `-- --fresh` to force recapturing every model cell instead of reusing matching transcripts.
+
+Pass one or more `--row <comparison-row-id>` arguments to refresh selected model rows without recapturing other committed rows.
+Use `--captures-only` when model rows are captured in separate use-case chunks, then run `npm run demo:model-ui` and `npm run capture:model-ui:screenshots` once after every chunk finishes.
 Gemma captures explicitly load the local model with a minimum 16k LM Studio context window before `lms chat`; override with `MODEL_UI_LMS_CONTEXT_LENGTH` only to request a larger window.
 
 To refresh only the committed gallery screenshots after regenerating the matrix:
