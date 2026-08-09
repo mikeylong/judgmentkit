@@ -586,13 +586,18 @@ assert.match(
 );
 assert.match(
   siteCss,
-  /\.site-footer-release \{[^}]*font-family: Inter, sans-serif;[^}]*font-weight: 400;[^}]*text-decoration: underline;/s,
-  "the release link should use regular sans-serif text with a persistent link affordance",
+  /\.site-footer-release \{[^}]*color: var\(--accent-strong\);[^}]*font-family: Inter, sans-serif;[^}]*font-weight: 400;[^}]*text-decoration: none;/s,
+  "the peripheral release link should use the site link color and regular sans-serif text without an inline-link underline at rest",
 );
 assert.doesNotMatch(
   siteCss,
   /\.site-footer-release \{[^}]*JetBrains Mono/s,
   "the release link should not introduce a technical monospace treatment",
+);
+assert.match(
+  siteCss,
+  /\.site-footer-release:hover,\n\.site-footer-release:focus-visible \{[^}]*text-decoration: underline;[^}]*text-underline-offset: 3px;/s,
+  "the release link should restore its underline for pointer and keyboard interaction",
 );
 assert.ok(siteCss.includes(".site-footer-release:focus-visible"));
 assert.ok(siteCss.includes(".site-page-header {\n  max-width: var(--site-reading-width);"));

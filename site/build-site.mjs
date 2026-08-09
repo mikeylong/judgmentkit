@@ -1236,13 +1236,14 @@ a {
   font-family: Inter, sans-serif;
   font-size: 13px;
   font-weight: 400;
-  text-decoration: underline;
-  text-decoration-thickness: 1px;
-  text-underline-offset: 3px;
+  text-decoration: none;
 }
 .site-footer-release:hover,
 .site-footer-release:focus-visible {
   color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 .site-footer-release:focus-visible {
   outline: 0;
