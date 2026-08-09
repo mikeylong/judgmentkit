@@ -1226,23 +1226,23 @@ a {
   color: var(--ink);
   font-family: Inter, sans-serif;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
 }
 .site-footer-release {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   color: var(--accent-strong);
-  font-family: "JetBrains Mono", monospace;
+  font-family: Inter, sans-serif;
   font-size: 13px;
-  font-weight: 600;
-  text-decoration: none;
+  font-weight: 400;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 .site-footer-release:hover,
 .site-footer-release:focus-visible {
   color: var(--ink);
-  text-decoration: underline;
-  text-underline-offset: 3px;
 }
 .site-footer-release:focus-visible {
   outline: 0;

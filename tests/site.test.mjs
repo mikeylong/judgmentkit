@@ -579,7 +579,21 @@ assert.ok(siteCss.includes("--site-navigation-height: 56px;"));
 assert.ok(siteCss.includes("--section-rail-top: calc(var(--site-navigation-height) + var(--site-page-top));"));
 assert.ok(siteCss.includes(".site-shell {\n  width: 100%;\n  max-width: var(--site-shell-width);"));
 assert.ok(siteCss.includes(".site-footer {\n  padding: 18px var(--site-gutter) 20px;"));
-assert.ok(siteCss.includes(".site-footer-brand"));
+assert.match(
+  siteCss,
+  /\.site-footer-brand \{[^}]*font-family: Inter, sans-serif;[^}]*font-weight: 600;/s,
+  "the footer brand should use the same restrained sans-serif weight as the site navigation",
+);
+assert.match(
+  siteCss,
+  /\.site-footer-release \{[^}]*font-family: Inter, sans-serif;[^}]*font-weight: 400;[^}]*text-decoration: underline;/s,
+  "the release link should use regular sans-serif text with a persistent link affordance",
+);
+assert.doesNotMatch(
+  siteCss,
+  /\.site-footer-release \{[^}]*JetBrains Mono/s,
+  "the release link should not introduce a technical monospace treatment",
+);
 assert.ok(siteCss.includes(".site-footer-release:focus-visible"));
 assert.ok(siteCss.includes(".site-page-header {\n  max-width: var(--site-reading-width);"));
 assert.ok(siteCss.includes(".site-page-header-wide {\n  max-width: var(--site-reading-wide);"));
