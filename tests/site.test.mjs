@@ -285,7 +285,7 @@ for (const route of result.routes.filter((candidate) => candidate.endsWith("/"))
   );
   assert.ok(
     html.includes(
-      `<a class="site-footer-release" href="https://github.com/mikeylong/judgmentkit/releases" aria-label="Release v${packageJson.version} on GitHub">`,
+      `<a class="site-footer-release" href="https://github.com/mikeylong/judgmentkit/releases/tag/v${packageJson.version}" aria-label="Release v${packageJson.version} on GitHub">`,
     ),
     `${route} footer should link the canonical package version to GitHub Releases`,
   );

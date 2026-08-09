@@ -1016,7 +1016,7 @@ function assertReleaseFooter(html, expectedPackageVersion, label) {
     [
       '<footer class="site-footer">',
       '<span class="site-footer-brand">JudgmentKit</span>',
-      'href="https://github.com/mikeylong/judgmentkit/releases"',
+      `href="https://github.com/mikeylong/judgmentkit/releases/tag/v${expectedPackageVersion}"`,
       `aria-label="Release v${expectedPackageVersion} on GitHub"`,
       `<span>Release v${expectedPackageVersion}</span>`,
       '<span aria-hidden="true">↗</span>',
