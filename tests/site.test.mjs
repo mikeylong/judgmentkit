@@ -273,6 +273,24 @@ for (const route of result.routes.filter((candidate) => candidate.endsWith("/"))
     [],
     `${route} inline consumer styles must use theme-aware custom properties`,
   );
+  assert.ok(
+    html.includes('<footer class="site-footer">'),
+    `${route} should include the shared site footer`,
+  );
+  assert.ok(
+    html.includes(
+      '<span class="site-footer-brand">JudgmentKit</span>',
+    ),
+    `${route} footer should retain the JudgmentKit identity`,
+  );
+  assert.ok(
+    html.includes(
+      `<a class="site-footer-release" href="https://github.com/mikeylong/judgmentkit/releases/tag/v${packageJson.version}" aria-label="Release v${packageJson.version} on GitHub">`,
+    ),
+    `${route} footer should link the canonical package version to GitHub Releases`,
+  );
+  assert.ok(html.includes(`<span>Release v${packageJson.version}</span>`));
+  assert.ok(html.includes('<span aria-hidden="true">↗</span>'));
 }
 
 function assertAnalyticsBootstrap(html, label) {
@@ -560,6 +578,28 @@ assert.ok(siteCss.includes("--site-page-top: clamp(36px, 5vw, 62px);"));
 assert.ok(siteCss.includes("--site-navigation-height: 56px;"));
 assert.ok(siteCss.includes("--section-rail-top: calc(var(--site-navigation-height) + var(--site-page-top));"));
 assert.ok(siteCss.includes(".site-shell {\n  width: 100%;\n  max-width: var(--site-shell-width);"));
+assert.ok(siteCss.includes(".site-footer {\n  padding: 18px var(--site-gutter) 20px;"));
+assert.match(
+  siteCss,
+  /\.site-footer-brand \{[^}]*font-family: Inter, sans-serif;[^}]*font-weight: 600;/s,
+  "the footer brand should use the same restrained sans-serif weight as the site navigation",
+);
+assert.match(
+  siteCss,
+  /\.site-footer-release \{[^}]*color: var\(--accent-strong\);[^}]*font-family: Inter, sans-serif;[^}]*font-weight: 400;[^}]*text-decoration: none;/s,
+  "the peripheral release link should use the site link color and regular sans-serif text without an inline-link underline at rest",
+);
+assert.doesNotMatch(
+  siteCss,
+  /\.site-footer-release \{[^}]*JetBrains Mono/s,
+  "the release link should not introduce a technical monospace treatment",
+);
+assert.match(
+  siteCss,
+  /\.site-footer-release:hover,\n\.site-footer-release:focus-visible \{[^}]*text-decoration: underline;[^}]*text-underline-offset: 3px;/s,
+  "the release link should restore its underline for pointer and keyboard interaction",
+);
+assert.ok(siteCss.includes(".site-footer-release:focus-visible"));
 assert.ok(siteCss.includes(".site-page-header {\n  max-width: var(--site-reading-width);"));
 assert.ok(siteCss.includes(".site-page-header-wide {\n  max-width: var(--site-reading-wide);"));
 assert.ok(siteCss.includes(".section-rail-nav {\n  position: fixed;\n  top: var(--section-rail-top);"));

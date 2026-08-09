@@ -26,6 +26,8 @@ const ANALYTICS_SDK_VERSION = require("@vercel/analytics/package.json").version;
 const JUDGMENTKIT_PACKAGE_VERSION = require("../package.json").version;
 const SYSTEM_MAP_FLOW_ASSET_VERSION = "judgmentkit-flow-design-source-authority";
 const SITE_ORIGIN = "https://judgmentkit.ai";
+const GITHUB_RELEASE_URL =
+  `https://github.com/mikeylong/judgmentkit/releases/tag/v${JUDGMENTKIT_PACKAGE_VERSION}`;
 const SOCIAL_THUMBNAIL_SOURCE_FILENAME = "judgmentkit-social-thumbnail.png";
 const SOCIAL_THUMBNAIL_FILENAME = "judgmentkit-social-thumbnail-20260723-v2.png";
 const SOCIAL_THUMBNAIL_PATH = `/assets/${SOCIAL_THUMBNAIL_FILENAME}`;
@@ -632,9 +634,22 @@ ${analyticsBootstrap()}
   <body>
 ${renderPlatformHeader(pathName)}
     <main>${body}</main>
+${renderSiteFooter()}
 ${platformNavigationScript()}
   </body>
 </html>`;
+}
+
+function renderSiteFooter() {
+  return `    <footer class="site-footer">
+      <div class="site-shell site-footer-inner">
+        <span class="site-footer-brand">JudgmentKit</span>
+        <a class="site-footer-release" href="${escapeHtml(GITHUB_RELEASE_URL)}" aria-label="Release v${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)} on GitHub">
+          <span>Release v${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}</span>
+          <span aria-hidden="true">↗</span>
+        </a>
+      </div>
+    </footer>`;
 }
 
 function systemMapFlowAssets() {
@@ -1196,6 +1211,43 @@ a {
   margin-right: auto;
   margin-left: auto;
   min-width: 0;
+}
+.site-footer {
+  padding: 18px var(--site-gutter) 20px;
+  border-top: 1px solid var(--line);
+}
+.site-footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.site-footer-brand {
+  color: var(--ink);
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+}
+.site-footer-release {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent-strong);
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  text-decoration: none;
+}
+.site-footer-release:hover,
+.site-footer-release:focus-visible {
+  color: var(--ink);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.site-footer-release:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 .site-page-header {
   max-width: var(--site-reading-width);
