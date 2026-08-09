@@ -279,10 +279,18 @@ for (const route of result.routes.filter((candidate) => candidate.endsWith("/"))
   );
   assert.ok(
     html.includes(
-      `<a class="site-footer-release" href="https://github.com/mikeylong/judgmentkit/releases">Release v${packageJson.version}</a>`,
+      '<span class="site-footer-brand">JudgmentKit</span>',
+    ),
+    `${route} footer should retain the JudgmentKit identity`,
+  );
+  assert.ok(
+    html.includes(
+      `<a class="site-footer-release" href="https://github.com/mikeylong/judgmentkit/releases" aria-label="Release v${packageJson.version} on GitHub">`,
     ),
     `${route} footer should link the canonical package version to GitHub Releases`,
   );
+  assert.ok(html.includes(`<span>Release v${packageJson.version}</span>`));
+  assert.ok(html.includes('<span aria-hidden="true">↗</span>'));
 }
 
 function assertAnalyticsBootstrap(html, label) {
@@ -570,7 +578,8 @@ assert.ok(siteCss.includes("--site-page-top: clamp(36px, 5vw, 62px);"));
 assert.ok(siteCss.includes("--site-navigation-height: 56px;"));
 assert.ok(siteCss.includes("--section-rail-top: calc(var(--site-navigation-height) + var(--site-page-top));"));
 assert.ok(siteCss.includes(".site-shell {\n  width: 100%;\n  max-width: var(--site-shell-width);"));
-assert.ok(siteCss.includes(".site-footer {\n  padding: 24px var(--site-gutter) 32px;"));
+assert.ok(siteCss.includes(".site-footer {\n  padding: 18px var(--site-gutter) 20px;"));
+assert.ok(siteCss.includes(".site-footer-brand"));
 assert.ok(siteCss.includes(".site-footer-release:focus-visible"));
 assert.ok(siteCss.includes(".site-page-header {\n  max-width: var(--site-reading-width);"));
 assert.ok(siteCss.includes(".site-page-header-wide {\n  max-width: var(--site-reading-wide);"));

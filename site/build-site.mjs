@@ -643,7 +643,11 @@ ${platformNavigationScript()}
 function renderSiteFooter() {
   return `    <footer class="site-footer">
       <div class="site-shell site-footer-inner">
-        <a class="site-footer-release" href="${escapeHtml(GITHUB_RELEASES_URL)}">Release v${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}</a>
+        <span class="site-footer-brand">JudgmentKit</span>
+        <a class="site-footer-release" href="${escapeHtml(GITHUB_RELEASES_URL)}" aria-label="Release v${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)} on GitHub">
+          <span>Release v${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}</span>
+          <span aria-hidden="true">↗</span>
+        </a>
       </div>
     </footer>`;
 }
@@ -1209,17 +1213,28 @@ a {
   min-width: 0;
 }
 .site-footer {
-  padding: 24px var(--site-gutter) 32px;
+  padding: 18px var(--site-gutter) 20px;
   border-top: 1px solid var(--line);
 }
 .site-footer-inner {
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.site-footer-brand {
+  color: var(--ink);
+  font-family: Inter, sans-serif;
+  font-size: 13px;
+  font-weight: 700;
 }
 .site-footer-release {
-  color: var(--muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--accent-strong);
   font-family: "JetBrains Mono", monospace;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   text-decoration: none;
 }

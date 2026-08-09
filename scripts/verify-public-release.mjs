@@ -1027,8 +1027,11 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       '<link rel="icon" href="/favicon.svg"',
       '<meta property="og:site_name" content="JudgmentKit">',
       '<footer class="site-footer">',
+      '<span class="site-footer-brand">JudgmentKit</span>',
       'href="https://github.com/mikeylong/judgmentkit/releases"',
-      `>Release v${expectedPackageVersion}</a>`,
+      `aria-label="Release v${expectedPackageVersion} on GitHub"`,
+      `<span>Release v${expectedPackageVersion}</span>`,
+      '<span aria-hidden="true">↗</span>',
     ],
     "homepage",
   );
