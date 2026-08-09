@@ -1010,6 +1010,21 @@ export async function verifyDesignSystemSurfaceProfiles(baseUrl) {
   };
 }
 
+function assertReleaseFooter(html, expectedPackageVersion, label) {
+  assertIncludes(
+    html,
+    [
+      '<footer class="site-footer">',
+      '<span class="site-footer-brand">JudgmentKit</span>',
+      'href="https://github.com/mikeylong/judgmentkit/releases"',
+      `aria-label="Release v${expectedPackageVersion} on GitHub"`,
+      `<span>Release v${expectedPackageVersion}</span>`,
+      '<span aria-hidden="true">↗</span>',
+    ],
+    `${label} release footer`,
+  );
+}
+
 async function verifyPublicRoutes(baseUrl, options = {}) {
   const expectedPackageVersion = options.expectedPackageVersion;
   assert.ok(expectedPackageVersion, "verifyPublicRoutes requires expectedPackageVersion");
@@ -1026,15 +1041,10 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       '<link rel="canonical" href="https://judgmentkit.ai/">',
       '<link rel="icon" href="/favicon.svg"',
       '<meta property="og:site_name" content="JudgmentKit">',
-      '<footer class="site-footer">',
-      '<span class="site-footer-brand">JudgmentKit</span>',
-      'href="https://github.com/mikeylong/judgmentkit/releases"',
-      `aria-label="Release v${expectedPackageVersion} on GitHub"`,
-      `<span>Release v${expectedPackageVersion}</span>`,
-      '<span aria-hidden="true">↗</span>',
     ],
     "homepage",
   );
+  assertReleaseFooter(home.text, expectedPackageVersion, "homepage");
   assertExcludes(
     home.text,
     [
@@ -1048,6 +1058,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
   assertExcludes(home.text, OLD_FRAMING, "homepage");
 
   const value = await fetchText(baseUrl, "/value/");
+  assertReleaseFooter(value.text, expectedPackageVersion, "value");
   const valueStylesheetHrefs = getStylesheetHrefs(value.text, "value");
   assert.deepEqual(
     valueStylesheetHrefs,
@@ -1069,6 +1080,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
 
   const docs = await fetchText(baseUrl, "/docs/");
   assert.equal(getAnalyticsScriptSrc(docs.text, "docs"), analyticsScriptSrc);
+  assertReleaseFooter(docs.text, expectedPackageVersion, "docs");
   assertIncludes(
     docs.text,
     [
