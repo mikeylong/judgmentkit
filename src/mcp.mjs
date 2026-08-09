@@ -36,7 +36,7 @@ import {
 } from "./presentation-theme/index.mjs";
 
 const MCP_SERVER_NAME = "JudgmentKit";
-const MCP_SERVER_VERSION = "0.6.5";
+const MCP_SERVER_VERSION = "0.7.0";
 const SLIDE_DECK_SCHEMA = "judgmentkit.mcp.slide-deck/v1";
 const SLIDE_DECK_RECEIPT_SCHEMA = "judgmentkit.mcp.slide-deck.provenance-receipt/v1";
 const MAX_SLIDE_DECK_SLIDES = 24;
@@ -440,6 +440,12 @@ const FRONTEND_GENERATION_CONTEXT_TOOL = {
         type: "string",
         description:
           "Optional selected surface type, such as marketing, workbench, setup_debug_tool, or operator_review.",
+      },
+      surface_profile: {
+        type: "string",
+        enum: ["auto", "none", "judgmentkit.workbench.operational-v1"],
+        description:
+          "Optional surface presentation profile request. Defaults to auto; use none to opt out. It does not change surface classification or design-system authority.",
       },
       frontend_context: {
         type: "object",
@@ -3439,6 +3445,7 @@ export async function handleToolCall(name, args = {}) {
         ui_generation_handoff: args.ui_generation_handoff,
         surface_review: args.surface_review,
         surface_type: args.surface_type,
+        surface_profile: args.surface_profile,
         frontend_context: args.frontend_context,
         verification: args.verification,
       });
@@ -3720,6 +3727,9 @@ export function createJudgmentKitMcpServer() {
         ui_generation_handoff: z.record(z.any()),
         surface_review: z.record(z.any()).optional(),
         surface_type: z.string().optional(),
+        surface_profile: z
+          .enum(["auto", "none", "judgmentkit.workbench.operational-v1"])
+          .optional(),
         frontend_context: z.record(z.any()).optional(),
         verification: z.record(z.any()).optional(),
       },

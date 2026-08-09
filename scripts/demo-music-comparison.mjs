@@ -335,6 +335,8 @@ function buildHandoff(brief) {
     ui_generation_handoff: handoff,
     surface_review: surfaceReview,
     surface_type: surfaceReview.recommended_surface_type,
+    // Preserve this checked-in comparison as historical evidence.
+    surface_profile: "none",
     frontend_context: {
       target_runtime: "standalone HTML/CSS",
       ui_library: "none",

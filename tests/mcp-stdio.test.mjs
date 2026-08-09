@@ -911,6 +911,14 @@ try {
     "ready_for_frontend_implementation",
   );
   assert.equal(frontendContextResponse.structuredContent.surface_type, "workbench");
+  assert.equal(
+    frontendContextResponse.structuredContent.selected_surface_profile.id,
+    "judgmentkit.workbench.operational-v1",
+  );
+  assert.equal(
+    frontendContextResponse.structuredContent.selected_surface_profile.status,
+    "supported",
+  );
   assert.ok(
     frontendContextResponse.structuredContent.frontend_context.visual_requirements.includes(
       "substantive product image",

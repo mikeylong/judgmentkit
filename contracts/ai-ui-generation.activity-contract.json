@@ -1,7 +1,7 @@
 {
   "$schema": "./judgmentkit-kernel.schema.json",
   "id": "judgmentkit.ai-ui-generation.activity-contract",
-  "version": "0.6.5",
+  "version": "0.7.0",
   "source_model": "fresh_start",
   "quality_order": [
     "activity fit",
@@ -1601,6 +1601,7 @@
         "visual_token_adapter": "/design-system/visual-token-adapter.json",
         "component_contracts": "/design-system/component-contracts.json",
         "pattern_contracts": "/design-system/pattern-contracts.json",
+        "surface_presentation_profiles": "/design-system/surface-presentation-profiles.json",
         "accessibility_policy": "/design-system/accessibility-policy.json",
         "icon_catalog": "/design-system/icons/",
         "icon_tools": [

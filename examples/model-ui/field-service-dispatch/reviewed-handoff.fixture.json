@@ -1,5 +1,5 @@
 {
-  "version": "0.6.5",
+  "version": "0.7.0",
   "contract_id": "judgmentkit.ai-ui-generation.activity-contract",
   "handoff_status": "ready_for_generation",
   "source": {
@@ -8,6 +8,60 @@
     "input_excerpt": "A field operations manager is reviewing same-day repair visits before dispatch. The request says to build from the repair_visit data model, route matrix, parts inventory API status, technician calendar fields, JSON schema, prompt template, "
   },
   "surface_type": "workbench",
+  "surface_guidance": {
+    "recommended_surface_type": "workbench",
+    "blocked_surface_types": [
+      "marketing",
+      "operator_review",
+      "form_flow",
+      "content_report",
+      "conversation"
+    ],
+    "confidence": "high",
+    "interaction_implications": {
+      "primary_structure": "Item selection, detail evidence, decision controls, and completion state.",
+      "make_easy": [
+        "Scan work",
+        "Compare evidence",
+        "Make a bounded decision",
+        "Complete the next action"
+      ],
+      "make_harder": [
+        "Turn work into passive metrics",
+        "Separate actions from evidence"
+      ],
+      "completion_focus": "The user advances the selected work with a clear result."
+    },
+    "disclosure_implications": {
+      "product_ui_rule": "Product UI uses domain terms; diagnostics stay secondary.",
+      "reveal_implementation_terms": false,
+      "diagnostic_contexts": [
+        "debugging",
+        "auditing",
+        "explicit source inspection"
+      ]
+    },
+    "frontend_posture": {
+      "density": "operational",
+      "navigation_shape": "master-detail, split workspace, or queue-detail flow",
+      "state_coverage": [
+        "loading",
+        "empty queue",
+        "selected item",
+        "decision pending",
+        "completed handoff",
+        "error"
+      ],
+      "responsive_expectations": "Small screens need an explicit path between list, detail, decision, and completion.",
+      "component_families": [
+        "queue",
+        "detail panel",
+        "evidence list",
+        "decision controls",
+        "handoff receipt"
+      ]
+    }
+  },
   "activity_model": {
     "activity": "Deciding whether the visit should be assigned to the nearest qualified technician, rescheduled for parts, or escalated for SLA risk",
     "participants": [],
@@ -1351,6 +1405,7 @@
         "visual_token_adapter": "/design-system/visual-token-adapter.json",
         "component_contracts": "/design-system/component-contracts.json",
         "pattern_contracts": "/design-system/pattern-contracts.json",
+        "surface_presentation_profiles": "/design-system/surface-presentation-profiles.json",
         "accessibility_policy": "/design-system/accessibility-policy.json",
         "icon_catalog": "/design-system/icons/",
         "icon_tools": [

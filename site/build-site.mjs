@@ -14,6 +14,7 @@ import {
   createUiImplementationContract,
   getIconSvg,
   listIconCatalog,
+  listSurfacePresentationProfiles,
   searchIconCatalog,
 } from "../src/index.mjs";
 
@@ -4410,6 +4411,11 @@ function defaultDesignSystemContract() {
     .default_ai_native_design_system;
 }
 
+function defaultDesignSystemSource() {
+  return createUiImplementationContract().implementation_contract
+    .design_system_source;
+}
+
 function defaultAccessibilityPolicy() {
   return createUiImplementationContract().implementation_contract.accessibility_policy;
 }
@@ -4935,6 +4941,8 @@ function designSystemExports(model) {
         visual_token_adapter: "/design-system/visual-token-adapter.json",
         component_contracts: "/design-system/component-contracts.json",
         pattern_contracts: "/design-system/pattern-contracts.json",
+        surface_presentation_profiles:
+          "/design-system/surface-presentation-profiles.json",
         component_specimens: "/design-system/component-specimens.json",
         pattern_specimens: "/design-system/pattern-specimens.json",
         specimen_provenance: "/design-system/specimen-provenance.json",
@@ -4958,6 +4966,12 @@ function designSystemExports(model) {
     patternContracts: {
       source: model.system.id,
       contracts: model.pattern_contracts,
+    },
+    surfacePresentationProfiles: {
+      source: model.design_system_source.id,
+      contract_source: model.system.id,
+      visual_token_adapter_id: model.adapter.id,
+      profiles: model.surface_presentation_profiles,
     },
     componentSpecimens: {
       source: model.system.id,
@@ -5020,9 +5034,11 @@ function buildDesignSystemIconIndex(scenarios) {
 function buildDesignSystemContentModel() {
   const adapter = defaultVisualTokenAdapter();
   const system = defaultDesignSystemContract();
+  const designSystemSource = defaultDesignSystemSource();
   const accessibilityPolicy = defaultAccessibilityPolicy();
   const componentContracts = system.component_contracts ?? [];
   const patternContracts = system.pattern_contracts ?? [];
+  const surfacePresentationProfiles = listSurfacePresentationProfiles();
   const specimenContext = buildSpecimenContext(adapter, system);
   const componentSpecimens = buildComponentSpecimens(componentContracts, specimenContext);
   const patternSpecimens = buildPatternSpecimens(patternContracts, specimenContext);
@@ -5143,7 +5159,14 @@ function buildDesignSystemContentModel() {
       eyebrow: "Contracts",
       summary:
         "Surface patterns that connect activity purpose to required regions, controls, and completion behavior.",
-      sections: ["Usage", "Specimens", "Surface patterns", "Review checks", "Accessibility"],
+      sections: [
+        "Usage",
+        "Specimens",
+        "Surface patterns",
+        "Presentation profiles",
+        "Review checks",
+        "Accessibility",
+      ],
       examples: [
         {
           title: "Workbench activity",
@@ -5239,9 +5262,11 @@ function buildDesignSystemContentModel() {
     id: "judgmentkit-design-system",
     generated_from: "createUiImplementationContract",
     system,
+    design_system_source: designSystemSource,
     adapter,
     component_contracts: componentContracts,
     pattern_contracts: patternContracts,
+    surface_presentation_profiles: surfacePresentationProfiles,
     component_specimens: componentSpecimens,
     pattern_specimens: patternSpecimens,
     specimen_hashes: {
@@ -6105,6 +6130,7 @@ function renderDesignSystemPatternsPage(model) {
   const pageEntry = designSystemPageById(model, "patterns");
   const contracts = model.pattern_contracts;
   const specimens = model.pattern_specimens;
+  const profiles = model.surface_presentation_profiles;
   const regionCount = new Set(contracts.flatMap((entry) => entry.required_regions ?? [])).size;
   const controlCount = new Set(contracts.flatMap((entry) => entry.expected_controls ?? [])).size;
 
@@ -6168,6 +6194,46 @@ function renderDesignSystemPatternsPage(model) {
               ],
               rows: contracts,
               rowAttributes: (row) => `data-pattern-contract="${escapeHtml(row.id)}" data-surface-type="${escapeHtml(row.surface_type)}"`,
+            })}
+          </section>
+          <section class="design-system-section" aria-labelledby="presentation-profiles">
+            <h2 id="presentation-profiles">Presentation profiles</h2>
+            <p class="note">Presentation profiles specialize a supported surface pattern after the activity, interaction contract, and active design-system source are established. They do not reclassify the activity or select a runtime renderer.</p>
+            ${renderDesignSystemTable({
+              caption: "Supported surface presentation profiles",
+              columns: [
+                {
+                  key: "id",
+                  label: "Profile",
+                  render: (row) => `<code>${escapeHtml(row.id)}</code><br>${escapeHtml(row.name)}`,
+                },
+                {
+                  key: "surface_type",
+                  label: "Surface",
+                  render: (row) => `${escapeHtml(row.surface_type)}<br><code>${escapeHtml(row.authority?.pattern_contract_id ?? "")}</code>`,
+                },
+                {
+                  key: "composition",
+                  label: "Presentation",
+                  render: (row) => escapeHtml(
+                    [
+                      row.composition?.density,
+                      row.composition?.hierarchy,
+                      `${row.appearance?.default_mode ?? "system"} appearance`,
+                    ]
+                      .filter(Boolean)
+                      .join("; "),
+                  ),
+                },
+                {
+                  key: "responsive",
+                  label: "Compact behavior",
+                  render: (row) => escapeHtml(row.responsive?.compact ?? ""),
+                },
+              ],
+              rows: profiles,
+              rowAttributes: (row) =>
+                `data-surface-presentation-profile="${escapeHtml(row.id)}" data-surface-type="${escapeHtml(row.surface_type)}"`,
             })}
           </section>
           <section class="design-system-section" aria-labelledby="review-checks">
@@ -6442,6 +6508,14 @@ function renderDesignSystemPageMarkdown(model, pageEntry) {
         ),
       ),
       "",
+      "## Presentation Profiles",
+      markdownList(
+        model.surface_presentation_profiles.map(
+          (entry) =>
+            `\`${entry.id}\` (${entry.surface_type}, ${entry.status}): ${entry.purpose}; pattern: \`${entry.authority?.pattern_contract_id}\`; appearance: ${entry.appearance?.default_mode ?? "system"}; presentation: ${entry.composition?.density ?? "unspecified"}, ${entry.composition?.hierarchy ?? "unspecified"}; compact: ${entry.responsive?.compact ?? "unspecified"}`,
+        ),
+      ),
+      "",
       "## Review Checks",
       markdownList([
         "The selected pattern must match the selected surface type.",
@@ -6494,6 +6568,7 @@ function renderDesignSystemLlms(model) {
     "- /design-system/visual-token-adapter.json",
     "- /design-system/component-contracts.json",
     "- /design-system/pattern-contracts.json",
+    "- /design-system/surface-presentation-profiles.json",
     "- /design-system/component-specimens.json",
     "- /design-system/pattern-specimens.json",
     "- /design-system/specimen-provenance.json",
@@ -8515,6 +8590,10 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.writeFile(
     path.join(outDir, "design-system", "pattern-contracts.json"),
     jsonExport(designSystemModel.exports.patternContracts),
+  );
+  await fs.writeFile(
+    path.join(outDir, "design-system", "surface-presentation-profiles.json"),
+    jsonExport(designSystemModel.exports.surfacePresentationProfiles),
   );
   await fs.writeFile(
     path.join(outDir, "design-system", "component-specimens.json"),

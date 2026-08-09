@@ -7,6 +7,17 @@ import {
   LUCIDE_ICON_INDEX,
   LUCIDE_ICON_SOURCE,
 } from "./lucide-icon-catalog.generated.mjs";
+import {
+  WORKBENCH_SURFACE_PROFILE_ID,
+  cloneWorkbenchSurfaceProfile,
+  listSurfacePresentationProfiles,
+} from "./surface-presentation-profiles.mjs";
+
+export {
+  WORKBENCH_SURFACE_PROFILE,
+  WORKBENCH_SURFACE_PROFILE_ID,
+  listSurfacePresentationProfiles,
+} from "./surface-presentation-profiles.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const DEFAULT_CONTRACT_PATH = path.resolve(
@@ -102,6 +113,124 @@ function normalizeOptionalSurfaceType(surfaceType) {
   }
 
   return surfaceType.trim();
+}
+
+function normalizeSurfaceProfileRequest(request) {
+  if (request === undefined) {
+    return "auto";
+  }
+
+  if (typeof request !== "string" || request.trim().length === 0) {
+    throw new JudgmentKitInputError(
+      "surface_profile must be a non-empty string when provided.",
+    );
+  }
+
+  const normalized = request.trim();
+  const allowed = ["auto", "none", WORKBENCH_SURFACE_PROFILE_ID];
+
+  if (!allowed.includes(normalized)) {
+    throw new JudgmentKitInputError(
+      `Unknown surface_profile: ${normalized}.`,
+      {
+        details: {
+          surface_profile: normalized,
+          available_surface_profiles:
+            listSurfacePresentationProfiles().map((entry) => entry.id),
+          accepted_requests: allowed,
+        },
+      },
+    );
+  }
+
+  return normalized;
+}
+
+function resolveSurfacePresentationProfile({
+  request,
+  surfaceType,
+  confidence,
+  surfaceTypeSource,
+  designSystemMode = "judgmentkit_default",
+} = {}) {
+  const normalizedRequest = normalizeSurfaceProfileRequest(request);
+
+  if (normalizedRequest === "none") {
+    return null;
+  }
+
+  const normalizedSurfaceType = normalizeOptionalSurfaceType(surfaceType);
+  const explicitProfileRequest =
+    normalizedRequest === WORKBENCH_SURFACE_PROFILE_ID;
+
+  if (
+    explicitProfileRequest &&
+    normalizedSurfaceType !== "workbench"
+  ) {
+    throw new JudgmentKitInputError(
+      "The Workbench surface profile requires a selected surface_type of \"workbench\".",
+      {
+        details: {
+          surface_profile: normalizedRequest,
+          selected_surface_type: normalizedSurfaceType,
+          required_surface_type: "workbench",
+        },
+      },
+    );
+  }
+
+  if (normalizedSurfaceType !== "workbench") {
+    return null;
+  }
+
+  if (designSystemMode !== "judgmentkit_default") {
+    if (explicitProfileRequest) {
+      throw new JudgmentKitInputError(
+        "The JudgmentKit Workbench surface profile is unavailable when an external design system is active.",
+        {
+          details: {
+            surface_profile: normalizedRequest,
+            design_system_mode: designSystemMode,
+            required_design_system_mode: "judgmentkit_default",
+          },
+        },
+      );
+    }
+
+    return null;
+  }
+
+  const normalizedConfidence =
+    typeof confidence === "string" ? confidence.trim().toLowerCase() : "";
+  const acceptedConfidence = new Set(["medium", "high", "provided"]);
+
+  if (!acceptedConfidence.has(normalizedConfidence)) {
+    if (explicitProfileRequest) {
+      throw new JudgmentKitInputError(
+        "The Workbench surface profile requires an explicitly selected or sufficiently grounded Workbench surface.",
+        {
+          details: {
+            surface_profile: normalizedRequest,
+            selected_surface_type: normalizedSurfaceType,
+            surface_type_source: surfaceTypeSource || "unspecified",
+            confidence: normalizedConfidence || "unspecified",
+            accepted_confidence: [...acceptedConfidence],
+          },
+        },
+      );
+    }
+
+    return null;
+  }
+
+  return {
+    ...cloneWorkbenchSurfaceProfile(),
+    selection: {
+      request: normalizedRequest,
+      surface_type_source: surfaceTypeSource || "unspecified",
+      confidence: normalizedConfidence || "unspecified",
+    },
+  };
 }
 
 function resolveSurfaceType(contract, surfaceType) {
@@ -6017,6 +6146,8 @@ const DEFAULT_DESIGN_SYSTEM_SOURCE = {
     visual_token_adapter: "/design-system/visual-token-adapter.json",
     component_contracts: "/design-system/component-contracts.json",
     pattern_contracts: "/design-system/pattern-contracts.json",
+    surface_presentation_profiles:
+      "/design-system/surface-presentation-profiles.json",
     accessibility_policy: "/design-system/accessibility-policy.json",
     icon_catalog: "/design-system/icons/",
     icon_tools: ICON_CATALOG_TOOL_NAMES,
@@ -12604,6 +12735,17 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
     { contract },
   );
   const workflowSurfaceSet = toSurfaceSetArray(workflowCandidate.surface_set);
+  const handoffSurfaceGuidance = summarizeSurfaceReview(
+    workflowReview.surface_guidance,
+    { includeFrontendPosture: true },
+  );
+
+  if (handoffSurfaceGuidance?.recommended_surface_type) {
+    handoffSurfaceGuidance.frontend_posture =
+      buildSurfaceImplications(
+        handoffSurfaceGuidance.recommended_surface_type,
+      ).frontend_posture;
+  }
   const handoff = {
     version: workflowReview.version,
     contract_id: workflowReview.contract_id,
@@ -12617,6 +12759,9 @@ export function createUiGenerationHandoff(workflowReview, options = {}) {
       ? { guidance_profile: workflowReview.guidance_profile }
       : {}),
     ...(workflowReview.surface_type ? { surface_type: workflowReview.surface_type } : {}),
+    ...(handoffSurfaceGuidance
+      ? { surface_guidance: handoffSurfaceGuidance }
+      : {}),
     activity_model: {
       activity: optionalString(activityCandidate.activity_model?.activity),
       participants: toStringArray(activityCandidate.activity_model?.participants),
@@ -13265,6 +13410,7 @@ export function createFrontendGenerationContext({
   ui_generation_handoff: uiGenerationHandoff,
   surface_review: surfaceReview,
   surface_type: surfaceType,
+  surface_profile: surfaceProfile,
   frontend_context: frontendContext,
   verification,
   contract,
@@ -13290,34 +13436,74 @@ export function createFrontendGenerationContext({
   }
 
   const resolvedContract = contract ?? loadActivityContract(contractPath);
-  const selectedSurfaceType = normalizeOptionalSurfaceType(
-    surfaceType ?? uiGenerationHandoff.surface_type ?? surfaceReview?.recommended_surface_type,
+  const providedSurfaceType = normalizeOptionalSurfaceType(surfaceType);
+  const handoffSurfaceType = normalizeOptionalSurfaceType(
+    uiGenerationHandoff.surface_type,
   );
+  const handoffSurfaceGuidance = summarizeSurfaceReview(
+    uiGenerationHandoff.surface_guidance,
+    { includeFrontendPosture: true },
+  );
+  const handoffGuidanceSurfaceType = normalizeOptionalSurfaceType(
+    handoffSurfaceGuidance?.recommended_surface_type,
+  );
+  const reviewedSurfaceType = isPlainObject(surfaceReview)
+    ? normalizeOptionalSurfaceType(surfaceReview.recommended_surface_type)
+    : null;
+  const selectedSurfaceType =
+    providedSurfaceType ?? handoffSurfaceType ?? reviewedSurfaceType;
+  const surfaceTypeCandidates = [
+    ["surface_type", providedSurfaceType],
+    ["ui_generation_handoff.surface_type", handoffSurfaceType],
+    [
+      "ui_generation_handoff.surface_guidance.recommended_surface_type",
+      handoffGuidanceSurfaceType,
+    ],
+    ["surface_review.recommended_surface_type", reviewedSurfaceType],
+  ].filter(([, value]) => value);
+  const conflictingSurfaceTypes = surfaceTypeCandidates.filter(
+    ([, value]) => value !== selectedSurfaceType,
+  );
+
+  if (conflictingSurfaceTypes.length > 0) {
+    throw new JudgmentKitInputError(
+      "Frontend generation context received conflicting surface type selections.",
+      {
+        details: {
+          selected_surface_type: selectedSurfaceType,
+          surface_type_candidates: Object.fromEntries(surfaceTypeCandidates),
+        },
+      },
+    );
+  }
+
   const inferredSurfaceReview = isPlainObject(surfaceReview)
     ? surfaceReview
-    : selectedSurfaceType
-      ? {
-          recommended_surface_type: resolveSurfaceType(
-            resolvedContract,
-            selectedSurfaceType,
-          ).surface_type,
-          confidence: "provided",
-          blocked_surface_types: [],
-          ...buildSurfaceImplications(selectedSurfaceType),
-        }
-      : recommendSurfaceTypes(textFromHandoff(uiGenerationHandoff), {
-          contract: resolvedContract,
-          activity_review: {
-            review_status: "ready_for_review",
-            candidate: {
-              activity_model: uiGenerationHandoff.activity_model,
-              interaction_contract: uiGenerationHandoff.interaction_contract,
-              disclosure_policy: {
-                terms_to_use: uiGenerationHandoff.product_terms ?? [],
+    : handoffSurfaceGuidance
+      ? handoffSurfaceGuidance
+      : selectedSurfaceType
+        ? {
+            recommended_surface_type: resolveSurfaceType(
+              resolvedContract,
+              selectedSurfaceType,
+            ).surface_type,
+            confidence: "provided",
+            blocked_surface_types: [],
+            ...buildSurfaceImplications(selectedSurfaceType),
+          }
+        : recommendSurfaceTypes(textFromHandoff(uiGenerationHandoff), {
+            contract: resolvedContract,
+            activity_review: {
+              review_status: "ready_for_review",
+              candidate: {
+                activity_model: uiGenerationHandoff.activity_model,
+                interaction_contract: uiGenerationHandoff.interaction_contract,
+                disclosure_policy: {
+                  terms_to_use: uiGenerationHandoff.product_terms ?? [],
+                },
               },
             },
-          },
-        });
+          });
   const surfaceGuidance = summarizeSurfaceReview(inferredSurfaceReview, {
     includeFrontendPosture: true,
   });
@@ -13338,6 +13524,37 @@ export function createFrontendGenerationContext({
     designSystemContract,
     { selectedSurfaceType: surfaceGuidance.recommended_surface_type },
   );
+  const handoffCarriesSurfaceConfidence = Boolean(
+    handoffSurfaceType &&
+      handoffGuidanceSurfaceType === handoffSurfaceType &&
+      ["low", "medium", "high"].includes(
+        optionalString(handoffSurfaceGuidance?.confidence)?.toLowerCase(),
+      ),
+  );
+  const surfaceTypeSource = providedSurfaceType
+    ? "provided_surface_type"
+    : handoffCarriesSurfaceConfidence
+      ? "ui_generation_handoff"
+      : handoffSurfaceType
+        ? "provided_surface_type"
+        : reviewedSurfaceType
+          ? "surface_review"
+          : "inferred_from_handoff";
+  const designSystemSource =
+    uiGenerationHandoff.implementation_contract?.design_system_source ??
+    DEFAULT_DESIGN_SYSTEM_SOURCE;
+  const normalizedSurfaceProfileRequest =
+    normalizeSurfaceProfileRequest(surfaceProfile);
+  const selectedSurfaceProfile = resolveSurfacePresentationProfile({
+    request: normalizedSurfaceProfileRequest,
+    surfaceType: surfaceGuidance.recommended_surface_type,
+    confidence:
+      surfaceTypeSource === "provided_surface_type"
+        ? "provided"
+        : surfaceGuidance.confidence,
+    surfaceTypeSource,
+    designSystemMode: designSystemSource.mode,
+  });
 
   return {
     version: uiGenerationHandoff.version,
@@ -13346,14 +13563,14 @@ export function createFrontendGenerationContext({
     frontend_context_status: "ready_for_frontend_implementation",
     source: {
       handoff_status: uiGenerationHandoff.handoff_status,
-      surface_type_source: isPlainObject(surfaceReview)
-        ? "surface_review"
-        : selectedSurfaceType
-          ? "provided_surface_type"
-          : "inferred_from_handoff",
+      surface_type_source: surfaceTypeSource,
+      surface_profile_request: normalizedSurfaceProfileRequest,
     },
     surface_type: surfaceGuidance.recommended_surface_type,
     surface_guidance: surfaceGuidance,
+    ...(selectedSurfaceProfile
+      ? { selected_surface_profile: selectedSurfaceProfile }
+      : {}),
     activity_model: uiGenerationHandoff.activity_model,
     interaction_contract: uiGenerationHandoff.interaction_contract,
     workflow: uiGenerationHandoff.workflow,
@@ -13385,9 +13602,7 @@ export function createFrontendGenerationContext({
       disclosure_implications: surfaceGuidance.disclosure_implications,
       frontend_posture: surfaceGuidance.frontend_posture,
       implementation_contract: uiGenerationHandoff.implementation_contract,
-      design_system_source:
-        uiGenerationHandoff.implementation_contract?.design_system_source ??
-        DEFAULT_DESIGN_SYSTEM_SOURCE,
+      design_system_source: designSystemSource,
       local_component_authority:
         localComponentAuthority,
       visual_asset_policy:
@@ -13418,9 +13633,7 @@ export function createFrontendGenerationContext({
         uiGenerationHandoff.disclosure_reminders?.diagnostic_contexts ?? [],
       approved_primitives:
         uiGenerationHandoff.implementation_contract?.approved_primitives ?? [],
-      design_system_source:
-        uiGenerationHandoff.implementation_contract?.design_system_source ??
-        DEFAULT_DESIGN_SYSTEM_SOURCE,
+      design_system_source: designSystemSource,
       ...(localComponentAuthorityIsActive(localComponentAuthority)
         ? { local_component_authority: localComponentAuthority }
         : {}),
@@ -13431,6 +13644,7 @@ export function createFrontendGenerationContext({
 function buildFrontendImplementationInstructionMarkdown({
   frontendGenerationContext,
   designSystemPolicy,
+  selectedSurfaceProfile,
   targetClient,
   evidenceFieldMapping,
 }) {
@@ -13486,10 +13700,18 @@ function buildFrontendImplementationInstructionMarkdown({
     `- Workflow topology: ${workflow.topology || "workspace"}`,
     `- Runtime: ${frontendContext.target_runtime || "unspecified"}`,
     `- UI library: ${frontendContext.ui_library || "unspecified"}`,
+    ...(selectedSurfaceProfile
+      ? [`- Surface presentation profile: ${selectedSurfaceProfile.id}`]
+      : []),
     "",
     "## Implementation Sequence",
     "- Confirm the activity, primary decision, workflow topology, work units, coordinated surfaces, and handoff are represented.",
     "- Shape the interface around the selected surface type and surface set before choosing section layout.",
+    ...(selectedSurfaceProfile
+      ? [
+          "- Apply the selected surface presentation profile after the activity and Workbench pattern contract are satisfied; it does not replace runtime truth or the active design-system source.",
+        ]
+      : []),
     "- Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
     "- Put only implementation_contract.approved_primitives in primitives_used; put design-system component ids in component_contract_evidence.components[].id with states_covered, and pattern ids in pattern_contract_evidence.pattern_id.",
     "- Use approved component families and documented design-system component contracts before introducing new UI helpers.",
@@ -13590,6 +13812,27 @@ function buildFrontendImplementationInstructionMarkdown({
         (entry) => `${entry.id}: ${entry.surface_type}`,
       ) || "none supplied"
     }`,
+    ...(selectedSurfaceProfile
+      ? [
+          "",
+          "## Surface Presentation Profile",
+          `- Profile: ${selectedSurfaceProfile.id} (${selectedSurfaceProfile.status})`,
+          `- Authority: ${selectedSurfaceProfile.authority?.mode || "judgmentkit_default_surface_profile"}; public contract: ${selectedSurfaceProfile.authority?.public_contract ? "yes" : "no"}; runtime renderer: ${selectedSurfaceProfile.authority?.runtime_renderer ? "yes" : "no"}`,
+          `- Canonical token source: ${selectedSurfaceProfile.appearance?.token_source || "implementation_contract.visual_token_adapter.appearance_token_sets"}`,
+          `- Appearance: ${toStringArray(selectedSurfaceProfile.appearance?.supported_modes).join("; ") || "system"}; default ${selectedSurfaceProfile.appearance?.default_mode || "system"}; visible toggle ${selectedSurfaceProfile.appearance?.visible_toggle_default ? "allowed by default" : "not shown by default"}`,
+          `- Type aliases: ${formatRoleEntries(selectedSurfaceProfile.typography?.css_custom_properties, (entry) => `${entry.name}: ${entry.value}`) || "none supplied"}`,
+          `- Density aliases: ${formatRoleEntries(selectedSurfaceProfile.density?.css_custom_properties, (entry) => `${entry.name}: ${entry.value}`) || "none supplied"}`,
+          `- Composition: ${selectedSurfaceProfile.composition?.density || "operational"} density; ${selectedSurfaceProfile.composition?.hierarchy || "flat_border_led"} hierarchy`,
+          `- Navigation shapes: ${toStringArray(selectedSurfaceProfile.composition?.navigation_shapes).join("; ") || "none supplied"}`,
+          `- Interaction regions and controls: governed by the ${selectedSurfaceProfile.authority?.pattern_contract_id || "selected"} pattern contract`,
+          `- Profile rules: ${toStringArray(selectedSurfaceProfile.composition?.rules).join("; ") || "none supplied"}`,
+          `- State coverage: ${toStringArray(selectedSurfaceProfile.state_coverage).join("; ") || "none supplied"}`,
+          `- Desktop: ${selectedSurfaceProfile.responsive?.desktop || "none supplied"}`,
+          `- Compact: ${selectedSurfaceProfile.responsive?.compact || "none supplied"}`,
+          `- Product adapter owns: ${toStringArray(selectedSurfaceProfile.product_adapter_boundary?.product_adapter_owns).join("; ") || "none supplied"}`,
+          `- Excluded from this generic profile: ${toStringArray(selectedSurfaceProfile.product_adapter_boundary?.excluded_from_generic_profile).join("; ") || "none supplied"}`,
+        ]
+      : []),
     ...(localComponentAuthorityActive
       ? [
           "",
@@ -13729,6 +13972,98 @@ export function createFrontendImplementationSkillContext({
     };
   }
 
+  const selectedSurfaceProfileCandidate =
+    frontendGenerationContext.selected_surface_profile ??
+    implementationGuidance.selected_surface_profile;
+  let selectedSurfaceProfile = null;
+
+  if (selectedSurfaceProfileCandidate !== undefined && selectedSurfaceProfileCandidate !== null) {
+    if (!isPlainObject(selectedSurfaceProfileCandidate)) {
+      throw new JudgmentKitInputError(
+        "selected_surface_profile must be an object when provided by frontend_generation_context.",
+      );
+    }
+
+    if (
+      optionalString(selectedSurfaceProfileCandidate.surface_type) !==
+      optionalString(frontendGenerationContext.surface_type)
+    ) {
+      throw new JudgmentKitInputError(
+        "selected_surface_profile must match frontend_generation_context.surface_type.",
+        {
+          details: {
+            profile_surface_type: selectedSurfaceProfileCandidate.surface_type,
+            frontend_surface_type: frontendGenerationContext.surface_type,
+          },
+        },
+      );
+    }
+
+    if (designSystemSource.mode === "judgmentkit_default") {
+      if (selectedSurfaceProfileCandidate.id !== WORKBENCH_SURFACE_PROFILE_ID) {
+        throw new JudgmentKitInputError(
+          "selected_surface_profile must name a supported canonical profile id.",
+          {
+            details: {
+              selected_surface_profile_id:
+                selectedSurfaceProfileCandidate.id ?? null,
+              available_surface_profiles:
+                listSurfacePresentationProfiles().map((entry) => entry.id),
+            },
+          },
+        );
+      }
+
+      const recordedRequest = optionalString(
+        frontendGenerationContext.source?.surface_profile_request,
+      );
+      const recordedSurfaceTypeSource = optionalString(
+        frontendGenerationContext.source?.surface_type_source,
+      );
+      const recordedConfidence =
+        recordedSurfaceTypeSource === "provided_surface_type"
+          ? "provided"
+          : optionalString(frontendGenerationContext.surface_guidance?.confidence)
+              ?.toLowerCase();
+      const candidateSelection = selectedSurfaceProfileCandidate.selection;
+
+      if (
+        !["auto", WORKBENCH_SURFACE_PROFILE_ID].includes(recordedRequest) ||
+        !isPlainObject(candidateSelection) ||
+        candidateSelection.request !== recordedRequest ||
+        candidateSelection.surface_type_source !== recordedSurfaceTypeSource ||
+        candidateSelection.confidence !== recordedConfidence
+      ) {
+        throw new JudgmentKitInputError(
+          "selected_surface_profile selection metadata does not match the recorded frontend generation context.",
+          {
+            details: {
+              recorded_request: recordedRequest,
+              recorded_surface_type_source: recordedSurfaceTypeSource,
+              recorded_confidence: recordedConfidence,
+            },
+          },
+        );
+      }
+
+      const canonicalProfile = resolveSurfacePresentationProfile({
+        request: recordedRequest,
+        surfaceType: frontendGenerationContext.surface_type,
+        confidence: recordedConfidence,
+        surfaceTypeSource: recordedSurfaceTypeSource,
+        designSystemMode: designSystemSource.mode,
+      });
+
+      if (!canonicalProfile) {
+        throw new JudgmentKitInputError(
+          "selected_surface_profile is not eligible for the recorded frontend generation context.",
+        );
+      }
+
+      selectedSurfaceProfile = canonicalProfile;
+    }
+  }
+
   const designSystemName = optionalDesignSystemName(
     designSystemSource.name,
     frontendContext.ui_library,
@@ -13798,6 +14133,11 @@ export function createFrontendImplementationSkillContext({
       (command) => `Run ${command}`,
     ),
     ...toStringArray(implementationContract.static_enforcement?.default_rules),
+    ...(selectedSurfaceProfile
+      ? selectedSurfaceProfile.evidence_expectations.map(
+          (expectation) => `Verify surface presentation profile: ${expectation}`,
+        )
+      : []),
     ...(localComponentAuthorityActive
       ? [
           "When local component authority is active, scan component-specific selectors for visual identity declarations and direct --jk-* token use.",
@@ -13844,12 +14184,18 @@ export function createFrontendImplementationSkillContext({
     instruction_markdown: buildFrontendImplementationInstructionMarkdown({
       frontendGenerationContext,
       designSystemPolicy,
+      selectedSurfaceProfile,
       targetClient: normalizedTargetClient,
       evidenceFieldMapping,
     }),
     implementation_sequence: [
       "Confirm the activity, primary decision, workflow topology, work units, coordinated surfaces, and handoff from the ready frontend context.",
       "Map the selected surface type to the surface set, required sections, controls, density, navigation, and responsive expectations.",
+      ...(selectedSurfaceProfile
+        ? [
+            "Apply selected_surface_profile as supported presentation guidance after satisfying the activity, Workbench pattern, and active design-system source contracts.",
+          ]
+        : []),
       "Use numbered wizard or stepper UI only when workflow.stepper_eligibility.allowed is true.",
       "Put only implementation_contract.approved_primitives in primitives_used; put design-system component ids in component_contract_evidence.components[].id with states_covered, and pattern ids in pattern_contract_evidence.pattern_id.",
       "Use approved component families and documented design-system component contracts before introducing new UI helpers.",
@@ -13871,6 +14217,9 @@ export function createFrontendImplementationSkillContext({
     ],
     surface_type_guidance: {
       surface_type: frontendGenerationContext.surface_type,
+      ...(selectedSurfaceProfile
+        ? { presentation_profile_id: selectedSurfaceProfile.id }
+        : {}),
       workflow_topology: optionalString(workflow.topology) || "workspace",
       work_units: toStringArray(workflow.work_units),
       stepper_eligibility: workflow.stepper_eligibility ?? {},
@@ -13893,6 +14242,9 @@ export function createFrontendImplementationSkillContext({
     visual_asset_policy: visualAssetPolicy,
     accessibility_policy: accessibilityPolicy,
     local_component_authority: localComponentAuthority,
+    ...(selectedSurfaceProfile
+      ? { selected_surface_profile: selectedSurfaceProfile }
+      : {}),
     design_system_source: designSystemSource,
     visual_token_adapter: visualTokenAdapter,
     design_system_policy: designSystemPolicy,

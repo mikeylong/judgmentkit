@@ -42,7 +42,7 @@ JudgmentKit keeps the core deterministic and lets model assistance enter through
 6. UI workflow candidate review seam: accepts a model- or agent-proposed workflow candidate and checks grounding, action support, handoff clarity, and disclosure containment before UI implementation.
 7. UI implementation contract gate: creates or accepts the repo authority for approved primitives, control semantics, required states, static checks, and browser QA.
 8. UI generation handoff gate: turns only ready workflow reviews plus an implementation contract into compact handoffs for the next UI generation pass.
-9. Frontend generation context adapter: combines a ready handoff, selected surface type, frontend context, and verification expectations without making styling or component inventory part of the kernel contract.
+9. Frontend generation context adapter: combines a ready handoff, selected surface type, frontend context, and verification expectations, then applies supported presentation guidance such as the default Workbench operational profile without making styling or component inventory part of the kernel contract.
 10. Frontend implementation skill context: compiles repo-local frontend skill guidance into a gated MCP packet for agents that cannot read local skills directly, including the active `implementation_contract.design_system_source` for tokens, typography, icons, and component contracts.
 11. Optional provider adapters: provider configuration and network calls stay outside the kernel and feed proposed candidates back through the same review contract.
 
@@ -82,7 +82,7 @@ The canonical examples live beside it:
 
 They cover setup/onboarding, an operational dashboard, and a high-stakes review/refund workflow. The renderer package is still deferred; these examples prove the contract and repair behavior before visual rendering.
 
-By default, `implementation_contract.design_system_source.mode` is `judgmentkit_default`: tokens, font roles, icon catalog policy, and component contracts come from JudgmentKit `/design-system/` exports. If a complete `design_system_adapter` is supplied to `create_ui_implementation_contract`, the mode becomes `external_design_system` and that adapter owns tokens, typography, icons, and renderer components. Incomplete external adapters fail instead of falling back to JudgmentKit defaults.
+By default, `implementation_contract.design_system_source.mode` is `judgmentkit_default`: tokens, font roles, icon catalog policy, component contracts, and supported surface-presentation profiles come from JudgmentKit `/design-system/` exports. A sufficiently grounded or explicitly selected Workbench receives `judgmentkit.workbench.operational-v1` in frontend-generation context by default; `surface_profile: "none"` opts out without changing the Workbench interaction contract. If a complete `design_system_adapter` is supplied to `create_ui_implementation_contract`, the mode becomes `external_design_system` and that adapter owns tokens, typography, icons, and renderer components. Incomplete external adapters fail instead of falling back to JudgmentKit defaults, and JudgmentKit surface profiles never cross that boundary implicitly.
 
 The JudgmentKit default source does not load a font CDN, runtime icon CDN, or external runtime icon package. Font guidance uses system stacks, and icon guidance points to the committed Lucide catalog exposed through `list_icon_catalog`, `search_icon_catalog`, and `get_icon_svg`.
 
@@ -150,7 +150,7 @@ For an early standalone comparison harness:
 npm run demo:comparison
 ```
 
-That command writes two independently runnable apps plus a manifest under `examples/comparison/`. Use it for qualitative paired comparisons of the raw brief baseline versus the JudgmentKit handoff path.
+That command writes two independently runnable apps plus a manifest under `examples/comparison/`. Use it for qualitative paired comparisons of the raw brief baseline versus the JudgmentKit handoff path. The checked-in comparison is historical evidence and explicitly opts out of the Workbench presentation profile so the accepted artifact does not change during profile promotion.
 
 For a music-app standalone comparison:
 
@@ -158,7 +158,7 @@ For a music-app standalone comparison:
 npm run demo:comparison:music
 ```
 
-That command writes a dinner-playlist brief, two independently runnable apps, a manifest, and a facilitator scorecard under `examples/comparison/music/`.
+That command writes a dinner-playlist brief, two independently runnable apps, a manifest, and a facilitator scorecard under `examples/comparison/music/`. This checked-in comparison also preserves its historical visual evidence with `surface_profile: "none"`.
 
 To score the committed comparison artifacts as a deterministic paired UI-generation eval:
 
@@ -166,7 +166,7 @@ To score the committed comparison artifacts as a deterministic paired UI-generat
 npm run eval:ui
 ```
 
-That command writes immutable JSON and HTML reports plus archived screenshots under `evals/reports/<date>/mcp-<version>/run-NNN/` and updates the catalog at `evals/reports/index.html`. It is qualitative paired-artifact evidence, not a statistically powered benchmark.
+That command writes immutable JSON and HTML reports plus archived screenshots under `evals/reports/<date>/mcp-<version>/run-NNN/` and updates the catalog at `evals/reports/index.html`. It is qualitative paired-artifact evidence, not a statistically powered benchmark, and the historical opt-out fixtures do not serve as Workbench-profile evidence.
 Screenshot capture requires local Chrome or Chromium; set `JUDGMENTKIT_UI_EVAL_CHROME_PATH` if the executable is not on the default path.
 
 To run the full live UI-generation refresh for the same paired cases:

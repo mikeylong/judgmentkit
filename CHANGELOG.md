@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## 0.7.0 - 2026-08-08
+
+- Added the supported `judgmentkit.workbench.operational-v1` surface-presentation profile for grounded Workbench activity.
+- Selects the profile by default for explicitly supplied or medium/high-confidence Workbench surfaces, with `surface_profile: "none"` as an opt-out.
+- Keeps low-confidence fallback classification and external design-system authority isolated from JudgmentKit presentation defaults.
+- Publishes the profile through the package API and `/design-system/surface-presentation-profiles.json`, with the existing Patterns page documenting its role.
+- Preserves the reviewed Workbench specimen as supporting evidence while keeping renderer and reusable-component expansion deferred.
+
 ## 0.5.0 - 2026-06-20
 
 - Added `review_cognitive_dimensions_candidate` as a library and MCP tool for reviewing UI workflow or implementation candidates against activity mapping, evidence visibility, hidden dependencies, premature commitment, progressive evaluation, change cost, mental operations, role expressiveness, and disclosure discipline.

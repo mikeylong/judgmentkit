@@ -75,10 +75,10 @@
     ]
   },
   "source_context_sha256": "c99cc6818fddd0756bcd3ab25087b1bff00a7c2305dc3a27badcadae5683b2e4",
-  "source_context_status": "current",
-  "current_source_context_sha256": "c99cc6818fddd0756bcd3ab25087b1bff00a7c2305dc3a27badcadae5683b2e4",
+  "source_context_status": "legacy_accepted",
+  "current_source_context_sha256": "fd5d70e89927569d2235001bc6291f7867fbd049d3b897ce89749711316395fa",
   "accepted_source_context_sha256": "c99cc6818fddd0756bcd3ab25087b1bff00a7c2305dc3a27badcadae5683b2e4",
-  "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+  "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
   "prompt_sha256": "454e7461718fe7212f1389dfad79798a07f20bec0fa84b0e96696f1ea524289c",
   "raw_response_sha256": "d68db4a66cf8826b79adf000e0a75259304432e0cf477c648c46e91fbae98198",
   "command_display": "codex exec --model gpt-5.6-sol -c model_reasoning_effort=\"low\" -c sqlite_home=\"<sqlite>\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",

@@ -39,7 +39,7 @@ This rebuilds `site/dist`, serves the static website, and routes localhost `/mcp
 Use the hosted surface canary after classifier changes or when checking the deployed MCP surface-routing contract:
 
 ```bash
-npm run mcp:smoke:hosted-surface -- --endpoint https://judgmentkit.ai/mcp --expected-version 0.6.5
+npm run mcp:smoke:hosted-surface -- --endpoint https://judgmentkit.ai/mcp --expected-version 0.7.0
 ```
 
 This is a surface-routing smoke, not a full product-workflow readiness check. The command prints `review_status` and `activity_review_ready` for each canary, but fails by default only when metadata, tool availability, or `recommended_surface_type` is wrong. Add `--require-ready-review` when the smoke should also fail on `needs_source_context`.
@@ -288,6 +288,26 @@ create_frontend_generation_context({
   verification
 })
 ```
+
+`surface_profile` defaults to `"auto"`. When the active source is `judgmentkit_default`, JudgmentKit selects `judgmentkit.workbench.operational-v1` for a Workbench supplied directly through `surface_type`, or carried by a ready handoff or surface review with provided, medium, or high confidence. The selected profile appears in the returned frontend context and compiled implementation guidance.
+
+Use the exact id when the implementation should lock the supported profile version:
+
+```text
+create_frontend_generation_context({
+  ui_generation_handoff,
+  surface_review,
+  surface_profile: "judgmentkit.workbench.operational-v1",
+  frontend_context,
+  verification
+})
+```
+
+Use `surface_profile: "none"` when the product should use the JudgmentKit default design-system source without the Workbench presentation profile.
+
+The profile remains downstream presentation guidance. It does not classify the activity, replace the Workbench pattern, or supply a renderer or component package. A neutral low-confidence Workbench fallback cannot activate the profile, including after it passes through a ready handoff or receives an exact-id request. Under `external_design_system`, `auto` selects no JudgmentKit profile and an exact JudgmentKit profile request is rejected. Appearance defaults to `system`; light and dark are appearance modes of the same profile.
+
+The canonical profile is published at `/design-system/surface-presentation-profiles.json`. The durable specimen, boundary notes, reproducible preview states, scoped human direction approval, final-token technical recheck, and remaining per-consumer QA are recorded in `experiments/workbench-surface-variant/README.md`.
 
 Then call `create_frontend_implementation_skill_context` when the implementing agent needs a portable MCP skill packet instead of a repo-local Codex skill file.
 

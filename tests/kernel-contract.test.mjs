@@ -576,6 +576,10 @@ assert.equal(defaultDesignSystemSource.fallback_policy, "fail_incomplete");
 assert.equal(defaultDesignSystemSource.provenance_required, true);
 assert.ok(defaultDesignSystemSource.token_prefixes.includes("--jk-"));
 assert.ok(defaultDesignSystemSource.source_exports.icon_tools.includes("get_icon_svg"));
+assert.equal(
+  defaultDesignSystemSource.source_exports.surface_presentation_profiles,
+  "/design-system/surface-presentation-profiles.json",
+);
 assert.ok(defaultDesignSystemSource.renderer_components.includes("action_button"));
 
 const externalTraceOnlyContract = createUiImplementationContract({
