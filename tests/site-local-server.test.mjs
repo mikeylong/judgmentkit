@@ -15,6 +15,7 @@ import {
   diagnosticPrivatePaths,
   modelUiPublicRoutePath,
   probeRemoteMcpEndpoint,
+  verifyDesignSystemSurfaceProfiles,
 } from "../scripts/verify-public-release.mjs";
 import { buildSite, modelUiPublicPath } from "../site/build-site.mjs";
 import { MAX_MCP_POST_BODY_BYTES } from "../src/mcp-http.mjs";
@@ -437,6 +438,7 @@ try {
     "/design-system/visual-token-adapter.json",
     "/design-system/component-contracts.json",
     "/design-system/pattern-contracts.json",
+    "/design-system/surface-presentation-profiles.json",
     "/design-system/component-specimens.json",
     "/design-system/pattern-specimens.json",
     "/design-system/specimen-provenance.json",
@@ -449,6 +451,20 @@ try {
     assert.equal(response.status, 200, `${route} should return 200`);
     assert.equal(response.headers.get("content-type"), "application/json; charset=utf-8");
     assert.equal(typeof body, "object");
+  }
+
+  {
+    const verification = await verifyDesignSystemSurfaceProfiles(url);
+
+    assert.deepEqual(verification.checked, [
+      "/design-system/manifest.json",
+      "/design-system/surface-presentation-profiles.json",
+    ]);
+    assert.equal(
+      verification.profile_id,
+      "judgmentkit.workbench.operational-v1",
+    );
+    assert.equal(verification.profile_status, "supported");
   }
 
   for (const route of [

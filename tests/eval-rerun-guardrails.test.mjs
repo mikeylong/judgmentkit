@@ -300,7 +300,7 @@ const uiCases = readJson("evals/ui-generation-cases.json");
 const activityContract = readJson("contracts/ai-ui-generation.activity-contract.json");
 const mcpPilotCatalog = readJson("evals/reports/mcp-pilot/index.json");
 
-assert.equal(activityContract.version, "0.6.5");
+assert.equal(activityContract.version, "0.7.0");
 
 const filesWithAxisCoverage = new Set();
 const activeContractAxisCommitments = [
@@ -801,7 +801,7 @@ for (const testCase of visualTokenProofCases) {
   );
 }
 
-assert.equal(REQUIRED_MCP_VERSION, "0.6.5");
+assert.equal(REQUIRED_MCP_VERSION, "0.7.0");
 
 function allRequiredTerms(testCase) {
   return [

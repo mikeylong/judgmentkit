@@ -1,0 +1,286 @@
+<!doctype html>
+<html lang="en" data-theme="system" data-preview-state="ready" data-active-view="queue">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <meta name="robots" content="noindex, nofollow">
+    <title>JudgmentKit Workbench Surface Variant</title>
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#workbench-main">Skip to workbench</a>
+
+    <svg class="icon-sprite" aria-hidden="true">
+      <symbol id="icon-inbox" viewBox="0 0 24 24">
+        <path d="M4 4h16v16H4z"></path>
+        <path d="M4 13h4l2 3h4l2-3h4"></path>
+      </symbol>
+      <symbol id="icon-search" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.3-4.3"></path>
+      </symbol>
+      <symbol id="icon-circle-check" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="m9 12 2 2 4-4"></path>
+      </symbol>
+      <symbol id="icon-clock" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M12 6v6h4"></path>
+      </symbol>
+      <symbol id="icon-alert" viewBox="0 0 24 24">
+        <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"></path>
+        <path d="M12 9v4"></path>
+        <path d="M12 17h.01"></path>
+      </symbol>
+      <symbol id="icon-circle" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="9"></circle>
+        <path d="M12 8v4"></path>
+        <path d="M12 16h.01"></path>
+      </symbol>
+      <symbol id="icon-file" viewBox="0 0 24 24">
+        <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <path d="M8 13h8"></path>
+        <path d="M8 17h5"></path>
+      </symbol>
+      <symbol id="icon-send" viewBox="0 0 24 24">
+        <path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"></path>
+        <path d="m21.854 2.147-10.94 10.939"></path>
+      </symbol>
+      <symbol id="icon-arrow-right" viewBox="0 0 24 24">
+        <path d="M5 12h14"></path>
+        <path d="m13 6 6 6-6 6"></path>
+      </symbol>
+      <symbol id="icon-refresh" viewBox="0 0 24 24">
+        <path d="M20 11a8.1 8.1 0 0 0-15.5-2M4 4v5h5"></path>
+        <path d="M4 13a8.1 8.1 0 0 0 15.5 2M20 20v-5h-5"></path>
+      </symbol>
+    </svg>
+
+    <aside class="specimen-bar" aria-label="Specimen controls">
+      <div class="specimen-identity">
+        <span class="eyebrow">Surface presentation profile</span>
+        <strong>Workbench · operational v1</strong>
+      </div>
+      <div class="specimen-controls">
+        <label class="compact-field" for="theme-select">
+          <span>Appearance</span>
+          <select id="theme-select" name="theme">
+            <option value="system">System</option>
+            <option value="light">Light</option>
+            <option value="dark">Dark</option>
+          </select>
+        </label>
+        <label class="compact-field" for="state-select">
+          <span>Preview</span>
+          <select id="state-select" name="state">
+            <option value="ready">Ready</option>
+            <option value="loading">Loading</option>
+            <option value="error">Error</option>
+            <option value="empty">Empty</option>
+          </select>
+        </label>
+      </div>
+    </aside>
+
+    <div class="app-shell">
+      <header class="app-header">
+        <div>
+          <p class="eyebrow">Review workspace</p>
+          <h1>Requests needing a decision</h1>
+          <p class="app-summary">Inspect the context, compare the evidence, and leave a clear handoff.</p>
+        </div>
+        <div class="queue-summary" aria-label="Queue summary">
+          <span><strong id="open-count">3</strong> open</span>
+          <span><strong id="waiting-count">1</strong> waiting</span>
+        </div>
+      </header>
+
+      <nav class="flow-nav" aria-label="Workbench flow">
+        <button class="flow-step" type="button" data-view-target="queue" aria-controls="queue-region" aria-current="step">
+          <span aria-hidden="true">1</span>
+          Queue
+        </button>
+        <button class="flow-step" type="button" data-view-target="detail" aria-controls="detail-region">
+          <span aria-hidden="true">2</span>
+          Detail
+        </button>
+        <button class="flow-step" type="button" data-view-target="decision" aria-controls="decision-region">
+          <span aria-hidden="true">3</span>
+          Decision
+        </button>
+      </nav>
+
+      <main id="workbench-main" class="workbench-grid" tabindex="-1">
+        <section id="queue-region" class="workbench-panel panel-queue" aria-labelledby="queue-title">
+          <header class="panel-heading">
+            <div>
+              <p class="panel-index">01 · Select</p>
+              <h2 id="queue-title">Queue</h2>
+            </div>
+            <span id="queue-count" class="count-badge" aria-label="4 requests">4</span>
+          </header>
+
+          <label class="search-field" for="queue-search">
+            <span class="visually-hidden">Find a request</span>
+            <svg class="icon" aria-hidden="true"><use href="#icon-search"></use></svg>
+            <input id="queue-search" type="search" autocomplete="off" placeholder="Find a request">
+          </label>
+
+          <div id="queue-feedback" class="queue-feedback" aria-live="polite"></div>
+          <ul id="queue-list" class="queue-list" aria-label="Requests"></ul>
+
+          <div id="queue-state" class="state-panel" hidden></div>
+        </section>
+
+        <section id="detail-region" class="workbench-panel panel-detail" aria-labelledby="detail-title">
+          <header class="panel-heading detail-heading">
+            <div>
+              <p class="panel-index">02 · Inspect</p>
+              <h2 id="detail-title">Select a request</h2>
+            </div>
+            <span id="detail-status" class="status-badge" data-tone="muted"></span>
+          </header>
+
+          <div id="detail-content">
+            <dl class="metadata-grid">
+              <div>
+                <dt>Request</dt>
+                <dd id="detail-id">—</dd>
+              </div>
+              <div>
+                <dt>Submitted by</dt>
+                <dd id="detail-owner">—</dd>
+              </div>
+              <div>
+                <dt>Due</dt>
+                <dd id="detail-due">—</dd>
+              </div>
+              <div>
+                <dt>Updated</dt>
+                <dd id="detail-updated">—</dd>
+              </div>
+            </dl>
+
+            <section class="detail-section" aria-labelledby="summary-heading">
+              <h3 id="summary-heading">What is being requested</h3>
+              <p id="detail-summary"></p>
+            </section>
+
+            <section class="detail-section evidence-section" aria-labelledby="evidence-heading">
+              <div class="section-heading-row">
+                <div>
+                  <p class="panel-index">Evidence</p>
+                  <h3 id="evidence-heading">What supports the decision</h3>
+                </div>
+                <span id="evidence-count" class="subtle-count"></span>
+              </div>
+              <ul id="evidence-list" class="evidence-list"></ul>
+            </section>
+
+            <section class="question-callout" aria-labelledby="question-heading">
+              <h3 id="question-heading">Decision to make</h3>
+              <p id="detail-question"></p>
+            </section>
+
+            <button class="button button-secondary mobile-next" type="button" data-view-target="decision">
+              Continue to decision
+              <svg class="icon" aria-hidden="true"><use href="#icon-arrow-right"></use></svg>
+            </button>
+          </div>
+
+          <div id="detail-state" class="state-panel" hidden></div>
+        </section>
+
+        <section id="decision-region" class="workbench-panel panel-decision" aria-labelledby="decision-heading">
+          <header class="panel-heading">
+            <div>
+              <p class="panel-index">03 · Decide</p>
+              <h2 id="decision-heading">Decision &amp; handoff</h2>
+            </div>
+          </header>
+
+          <form id="decision-form" class="decision-form">
+            <fieldset>
+              <legend>What should happen next?</legend>
+
+              <label class="decision-choice" data-choice="advance">
+                <input type="radio" name="decision" value="advance">
+                <span>
+                  <strong>Ready to hand off</strong>
+                  <small>The evidence supports moving this request forward.</small>
+                  <small class="disabled-reason" data-disabled-reason></small>
+                </span>
+              </label>
+
+              <label class="decision-choice" data-choice="revise">
+                <input type="radio" name="decision" value="revise">
+                <span>
+                  <strong>Needs another pass</strong>
+                  <small>Return it with a specific reason for the next review.</small>
+                  <small class="disabled-reason" data-disabled-reason></small>
+                </span>
+              </label>
+
+              <label class="decision-choice" data-choice="hold">
+                <input type="radio" name="decision" value="hold">
+                <span>
+                  <strong>Hold for context</strong>
+                  <small>Keep it in the queue until missing context arrives.</small>
+                  <small class="disabled-reason" data-disabled-reason></small>
+                </span>
+              </label>
+            </fieldset>
+
+            <label class="notes-field" for="handoff-note">
+              <span>Handoff note <small>Optional</small></span>
+              <textarea id="handoff-note" name="note" rows="4" maxlength="240" placeholder="Add the reason the next owner needs."></textarea>
+              <span class="field-hint"><span id="note-count">0</span>/240</span>
+            </label>
+
+            <p id="action-boundary" class="action-boundary">
+              The selected outcome and note will be included in the handoff record.
+            </p>
+
+            <div class="action-row">
+              <button id="save-draft" class="button button-secondary" type="button">Save for later</button>
+              <button id="complete-handoff" class="button button-primary" type="submit">
+                <svg class="icon" aria-hidden="true"><use href="#icon-send"></use></svg>
+                Complete handoff
+              </button>
+            </div>
+            <p id="action-disabled-reason" class="disabled-action-reason" hidden></p>
+          </form>
+
+          <section id="handoff-receipt" class="handoff-receipt" aria-labelledby="receipt-heading" role="status" aria-live="polite" hidden>
+            <svg class="receipt-icon" aria-hidden="true"><use href="#icon-circle-check"></use></svg>
+            <div>
+              <p class="panel-index">Recorded</p>
+              <h3 id="receipt-heading">Handoff complete</h3>
+              <p id="receipt-copy"></p>
+              <dl class="receipt-meta">
+                <div>
+                  <dt>Outcome</dt>
+                  <dd id="receipt-outcome"></dd>
+                </div>
+                <div>
+                  <dt>Next owner</dt>
+                  <dd id="receipt-owner"></dd>
+                </div>
+              </dl>
+            </div>
+          </section>
+
+          <div id="decision-state" class="state-panel" hidden></div>
+        </section>
+      </main>
+    </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    <noscript>
+      <p class="noscript-message">This interactive specimen needs JavaScript to switch requests and preview states.</p>
+    </noscript>
+  </body>
+</html>

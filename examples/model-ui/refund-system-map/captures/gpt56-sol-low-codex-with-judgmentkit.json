@@ -75,10 +75,10 @@
     ]
   },
   "source_context_sha256": "3ef3d7841b10511bee0979c1afd8800a64b5b79fb4a9ae13f3d36f7fa54b1f32",
-  "source_context_status": "current",
-  "current_source_context_sha256": "3ef3d7841b10511bee0979c1afd8800a64b5b79fb4a9ae13f3d36f7fa54b1f32",
+  "source_context_status": "legacy_accepted",
+  "current_source_context_sha256": "34f757be26c1ea96b7858132491d6fac1990de435503d1905844babd5b2640b1",
   "accepted_source_context_sha256": "3ef3d7841b10511bee0979c1afd8800a64b5b79fb4a9ae13f3d36f7fa54b1f32",
-  "source_context_notes": "Capture transcript source context matches the current generated matrix context.",
+  "source_context_notes": "Capture transcript predates the current generated matrix context and is retained as an explicitly marked legacy capture until recaptured.",
   "prompt_sha256": "bccd80abf570ad7344b1cfec8b8d5fc0c9dc884581816f200f2d75038b02fb3a",
   "raw_response_sha256": "66ab69ee772ee0635b9f18583be099665b383d570c20855687c5ad13bf7e4b4f",
   "command_display": "codex exec --model gpt-5.6-sol -c model_reasoning_effort=\"low\" -c sqlite_home=\"<sqlite>\" --sandbox read-only --skip-git-repo-check --ephemeral --color never --output-schema <schema> --output-last-message <output> -",

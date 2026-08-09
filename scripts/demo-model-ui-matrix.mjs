@@ -372,6 +372,8 @@ function buildFrontendSkillContexts({ output, reviewedHandoff, rowSpecific = fal
   const frontendGenerationContext = createFrontendGenerationContext({
     ui_generation_handoff: reviewedHandoff,
     surface_type: reviewedHandoff.surface_type,
+    // Captured model matrices are historical evidence, not profile promotion fixtures.
+    surface_profile: "none",
     frontend_context: buildFrontendProjectContext(output, { rowSpecific }),
     verification: buildFrontendVerificationContext(output, { rowSpecific }),
   });

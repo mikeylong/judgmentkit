@@ -241,7 +241,7 @@ assert.deepEqual(
   ],
 );
 assert.equal(metadata.name, "JudgmentKit");
-assert.equal(metadata.version, "0.6.5");
+assert.equal(metadata.version, "0.7.0");
 assert.deepEqual(metadata.capabilities.prompts, []);
 const toolsJson = JSON.stringify(tools);
 for (const legacyField of [
@@ -1614,6 +1614,11 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
   assert.equal("error" in frontendContext, false);
   assert.equal(frontendContext.frontend_context_status, "ready_for_frontend_implementation");
   assert.equal(frontendContext.surface_type, "workbench");
+  assert.equal(
+    frontendContext.selected_surface_profile.id,
+    "judgmentkit.workbench.operational-v1",
+  );
+  assert.equal(frontendContext.selected_surface_profile.status, "supported");
   assert.ok(frontendContext.implementation_guidance.required_sections.includes("Evidence checklist"));
   assert.ok(frontendContext.implementation_guidance.verification_expectations.commands.includes("npm test"));
   assert.ok(frontendContext.frontend_context.visual_requirements.includes("substantive product image"));

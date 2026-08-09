@@ -951,6 +951,65 @@ async function verifyModelUiUseCases(baseUrl, analyticsScriptSrc) {
   };
 }
 
+export async function verifyDesignSystemSurfaceProfiles(baseUrl) {
+  const manifestRoute = "/design-system/manifest.json";
+  const profileCatalogRoute =
+    "/design-system/surface-presentation-profiles.json";
+  const manifestResponse = await fetchText(baseUrl, manifestRoute);
+
+  assert.match(
+    manifestResponse.response.headers.get("content-type") ?? "",
+    /^application\/json\b/i,
+    `${manifestRoute} should return a JSON content type`,
+  );
+
+  const manifest = JSON.parse(manifestResponse.text);
+  assert.equal(
+    manifest.exports?.surface_presentation_profiles,
+    profileCatalogRoute,
+    "design-system manifest should publish the surface-presentation profile catalog",
+  );
+
+  const catalogResponse = await fetchText(baseUrl, profileCatalogRoute);
+  assert.match(
+    catalogResponse.response.headers.get("content-type") ?? "",
+    /^application\/json\b/i,
+    `${profileCatalogRoute} should return a JSON content type`,
+  );
+
+  const catalog = JSON.parse(catalogResponse.text);
+  assert.equal(catalog.source, "judgmentkit.design-system.source-v1");
+  assert.equal(
+    catalog.contract_source,
+    "judgmentkit.ai-native-default.contract-v1",
+  );
+  assert.equal(
+    catalog.visual_token_adapter_id,
+    "judgmentkit.visual-token-adapter.boundary-v1",
+  );
+  assert.ok(Array.isArray(catalog.profiles));
+
+  const workbenchProfile = catalog.profiles.find(
+    (profile) => profile.id === "judgmentkit.workbench.operational-v1",
+  );
+  assert.ok(
+    workbenchProfile,
+    "surface-presentation profile catalog should include the supported Workbench profile",
+  );
+  assert.equal(workbenchProfile.status, "supported");
+  assert.equal(workbenchProfile.surface_type, "workbench");
+  assert.equal(workbenchProfile.authority?.public_contract, true);
+  assert.equal(workbenchProfile.authority?.runtime_renderer, false);
+
+  return {
+    checked: [manifestRoute, profileCatalogRoute],
+    manifest_route: manifestRoute,
+    catalog_route: profileCatalogRoute,
+    profile_id: workbenchProfile.id,
+    profile_status: workbenchProfile.status,
+  };
+}
+
 async function verifyPublicRoutes(baseUrl, options = {}) {
   const expectedPackageVersion = options.expectedPackageVersion;
   assert.ok(expectedPackageVersion, "verifyPublicRoutes requires expectedPackageVersion");
@@ -1091,6 +1150,8 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
 
   const evalArchive = await verifyEvalArchive(baseUrl, analyticsScriptSrc, expectedPackageVersion);
   const modelUiArchive = await verifyModelUiUseCases(baseUrl, analyticsScriptSrc);
+  const designSystemSurfaceProfiles =
+    await verifyDesignSystemSurfaceProfiles(baseUrl);
 
   await fetchText(baseUrl, "/favicon.svg");
 
@@ -1352,6 +1413,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       ...modelUiArchive.checked,
       ...modelUiArchive.capture_routes,
       ...modelUiArchive.screenshot_routes,
+      ...designSystemSurfaceProfiles.checked,
       "/examples/comparison/music/version-a.html",
       "/examples/comparison/music/version-b.html",
       "/examples/comparison/music/facilitator-scorecard.md",
@@ -1363,6 +1425,7 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
     ],
     eval_archive: evalArchive,
     model_ui_archive: modelUiArchive,
+    design_system_surface_profiles: designSystemSurfaceProfiles,
     analytics: options.skipAnalyticsScript
       ? "script_fetch_skipped"
       : await verifyAnalyticsScript(baseUrl, analyticsScriptSrc),

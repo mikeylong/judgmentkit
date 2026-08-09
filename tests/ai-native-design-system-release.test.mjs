@@ -133,7 +133,7 @@ const firstUse = readJson("examples/ai-native-design-system/first-use.json");
 const canonicalExamples = readJson("examples/ai-native-design-system/canonical-examples.json");
 const EXPECTED_RELEASE_VERSION = packageJson.version;
 
-assert.equal(packageJson.version, "0.6.5");
+assert.equal(packageJson.version, "0.7.0");
 assert.equal(activityContract.version, EXPECTED_RELEASE_VERSION);
 assert.equal(getMcpMetadata("streamable-http").version, EXPECTED_RELEASE_VERSION);
 assert.equal(
@@ -254,7 +254,13 @@ assert.ok(
 
   const smokeScript = `
 import assert from "node:assert/strict";
-import { createUiImplementationContract, reviewUiImplementationCandidate } from "judgmentkit";
+import {
+  WORKBENCH_SURFACE_PROFILE,
+  WORKBENCH_SURFACE_PROFILE_ID,
+  createUiImplementationContract,
+  listSurfacePresentationProfiles,
+  reviewUiImplementationCandidate,
+} from "judgmentkit";
 
 const coreAccessibilityEvidence = {
   automated_checks: { status: "pass", method: "axe smoke", notes: "No violations." },
@@ -289,6 +295,27 @@ const contractPacket = createUiImplementationContract({
 });
 
 const expectedVersion = ${JSON.stringify(EXPECTED_RELEASE_VERSION)};
+
+assert.equal(WORKBENCH_SURFACE_PROFILE_ID, "judgmentkit.workbench.operational-v1");
+assert.equal(WORKBENCH_SURFACE_PROFILE.id, WORKBENCH_SURFACE_PROFILE_ID);
+assert.equal(WORKBENCH_SURFACE_PROFILE.status, "supported");
+assert.equal(WORKBENCH_SURFACE_PROFILE.authority.public_contract, true);
+assert.equal(WORKBENCH_SURFACE_PROFILE.authority.runtime_renderer, false);
+
+const firstProfileCatalog = listSurfacePresentationProfiles();
+const secondProfileCatalog = listSurfacePresentationProfiles();
+assert.notEqual(firstProfileCatalog, secondProfileCatalog);
+assert.notEqual(firstProfileCatalog[0], secondProfileCatalog[0]);
+assert.notEqual(firstProfileCatalog[0].appearance, secondProfileCatalog[0].appearance);
+firstProfileCatalog[0].name = "Mutated installed-package copy";
+firstProfileCatalog[0].appearance.supported_modes.push("mutated");
+assert.equal(secondProfileCatalog[0].name, WORKBENCH_SURFACE_PROFILE.name);
+assert.deepEqual(secondProfileCatalog[0].appearance.supported_modes, [
+  "light",
+  "dark",
+  "system",
+]);
+assert.equal(WORKBENCH_SURFACE_PROFILE.name, "JudgmentKit Workbench Operational");
 
 assert.equal(contractPacket.version, expectedVersion);
 assert.equal(contractPacket.implementation_contract.iteration_policy.default_max_attempts, 3);

@@ -16,7 +16,10 @@ import {
 } from "../scripts/model-ui-use-cases.mjs";
 import { assertValueAppearanceContract } from "../scripts/verify-public-release.mjs";
 import { getHostedMcpMetadata } from "../src/mcp-http.mjs";
-import { createUiImplementationContract } from "../src/index.mjs";
+import {
+  createUiImplementationContract,
+  listSurfacePresentationProfiles,
+} from "../src/index.mjs";
 
 const EXPECTED_TOOL_NAMES = [
   "analyze_implementation_brief",
@@ -944,6 +947,12 @@ const componentContractsExport = JSON.parse(
 const patternContractsExport = JSON.parse(
   fs.readFileSync(path.join(tempDir, "design-system", "pattern-contracts.json"), "utf8"),
 );
+const surfacePresentationProfilesExport = JSON.parse(
+  fs.readFileSync(
+    path.join(tempDir, "design-system", "surface-presentation-profiles.json"),
+    "utf8",
+  ),
+);
 const componentSpecimensExport = JSON.parse(
   fs.readFileSync(path.join(tempDir, "design-system", "component-specimens.json"), "utf8"),
 );
@@ -1179,6 +1188,17 @@ for (const [label, html] of [
 assert.ok(designSystemPatterns.includes("<h1>Patterns</h1>"));
 assert.ok(designSystemPatterns.includes("Surface pattern contracts"));
 assert.ok(designSystemPatterns.includes("<h2 id=\"specimens\">Specimens</h2>"));
+assert.ok(
+  designSystemPatterns.includes(
+    '<h2 id="presentation-profiles">Presentation profiles</h2>',
+  ),
+);
+assert.ok(
+  designSystemPatterns.includes(
+    'data-surface-presentation-profile="judgmentkit.workbench.operational-v1"',
+  ),
+);
+assert.ok(designSystemPatterns.includes("Supported surface presentation profiles"));
 assert.ok(designSystemPatterns.includes('data-specimen-id="pattern.workbench"'));
 assert.ok(designSystemPatterns.includes('data-pattern-region="work-queue"'));
 assert.ok(designSystemPatterns.includes('data-pattern-control="decision-action"'));
@@ -1205,6 +1225,12 @@ assert.ok(designSystemAccessibility.includes("Normal text contrast target: 4.5:1
 assert.ok(designSystemAccessibility.includes('data-accessibility-contract="keyboard_and_focus"'));
 assert.ok(designSystemComponentsMarkdown.includes("## Component Contracts"));
 assert.ok(designSystemPatternsMarkdown.includes("## Surface Pattern Contracts"));
+assert.ok(designSystemPatternsMarkdown.includes("## Presentation Profiles"));
+assert.ok(
+  designSystemPatternsMarkdown.includes(
+    "`judgmentkit.workbench.operational-v1` (workbench, supported)",
+  ),
+);
 assert.ok(designSystemAccessibilityMarkdown.includes("## Evidence Groups"));
 assert.ok(designSystemComponentsMarkdown.includes("## Specimens"));
 assert.ok(designSystemPatternsMarkdown.includes("## Specimens"));
@@ -1230,6 +1256,11 @@ assert.ok(designSystemLlms.includes("/design-system/index.html.md"));
 assert.ok(designSystemLlms.includes("/design-system/manifest.json"));
 assert.ok(designSystemLlms.includes("/design-system/component-contracts.json"));
 assert.ok(designSystemLlms.includes("/design-system/pattern-contracts.json"));
+assert.ok(
+  designSystemLlms.includes(
+    "/design-system/surface-presentation-profiles.json",
+  ),
+);
 assert.ok(designSystemLlms.includes("/design-system/component-specimens.json"));
 assert.ok(designSystemLlms.includes("/design-system/pattern-specimens.json"));
 assert.ok(designSystemLlms.includes("/design-system/specimen-provenance.json"));
@@ -1247,6 +1278,10 @@ assert.equal(designSystemManifest.exports.llms, "/design-system/llms.txt");
 assert.equal(designSystemManifest.exports.visual_token_adapter, "/design-system/visual-token-adapter.json");
 assert.equal(designSystemManifest.exports.component_contracts, "/design-system/component-contracts.json");
 assert.equal(designSystemManifest.exports.pattern_contracts, "/design-system/pattern-contracts.json");
+assert.equal(
+  designSystemManifest.exports.surface_presentation_profiles,
+  "/design-system/surface-presentation-profiles.json",
+);
 assert.equal(designSystemManifest.exports.component_specimens, "/design-system/component-specimens.json");
 assert.equal(designSystemManifest.exports.pattern_specimens, "/design-system/pattern-specimens.json");
 assert.equal(designSystemManifest.exports.specimen_provenance, "/design-system/specimen-provenance.json");
@@ -1308,6 +1343,38 @@ assert.equal(
   patternContractsExport.contracts.find((entry) => entry.id === "operator_review")
     .surface_type,
   "operator_review",
+);
+assert.equal(
+  surfacePresentationProfilesExport.source,
+  "judgmentkit.design-system.source-v1",
+);
+assert.equal(
+  surfacePresentationProfilesExport.contract_source,
+  "judgmentkit.ai-native-default.contract-v1",
+);
+assert.equal(
+  surfacePresentationProfilesExport.visual_token_adapter_id,
+  visualTokenAdapterExport.id,
+);
+assert.deepEqual(
+  surfacePresentationProfilesExport.profiles,
+  listSurfacePresentationProfiles(),
+);
+assert.equal(surfacePresentationProfilesExport.profiles.length, 1);
+const workbenchPresentationProfile = surfacePresentationProfilesExport.profiles[0];
+assert.equal(workbenchPresentationProfile.id, "judgmentkit.workbench.operational-v1");
+assert.equal(workbenchPresentationProfile.status, "supported");
+assert.equal(workbenchPresentationProfile.surface_type, "workbench");
+assert.equal(workbenchPresentationProfile.authority.public_contract, true);
+assert.equal(workbenchPresentationProfile.authority.runtime_renderer, false);
+assert.equal(workbenchPresentationProfile.authority.pattern_contract_id, "workbench");
+assert.ok(
+  patternContractsExport.contracts.some(
+    (entry) =>
+      entry.id === workbenchPresentationProfile.authority.pattern_contract_id &&
+      entry.surface_type === workbenchPresentationProfile.surface_type,
+  ),
+  "the supported Workbench presentation profile must bind to the public Workbench pattern contract",
 );
 assert.equal(componentSpecimensExport.source, "judgmentkit.ai-native-default.contract-v1");
 assert.equal(componentSpecimensExport.renderer.id, "judgmentkit-static-specimens");

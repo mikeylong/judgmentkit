@@ -177,6 +177,8 @@ function buildHandoff(brief) {
   const handoff = createUiGenerationHandoff(workflowReview);
   const frontendContext = createFrontendGenerationContext({
     ui_generation_handoff: handoff,
+    // Preserve this checked-in comparison as historical evidence.
+    surface_profile: "none",
     frontend_context: {
       target_runtime: "standalone HTML/CSS",
       ui_library: "none",

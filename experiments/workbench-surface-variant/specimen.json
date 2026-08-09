@@ -1,0 +1,428 @@
+{
+  "id": "judgmentkit.workbench-surface-variant.specimen-v1",
+  "title": "Generic operational Workbench specimen",
+  "status": "supporting_evidence_for_supported_profile",
+  "profile": {
+    "id": "judgmentkit.workbench.operational-v1",
+    "version": "1.0.0",
+    "status": "supported",
+    "supported": true,
+    "public_contract": true,
+    "runtime_renderer": false,
+    "surface_type": "workbench",
+    "relationship": "presentation_profile_for_grounded_surface_selection",
+    "appearance_modes": [
+      "system",
+      "light",
+      "dark"
+    ],
+    "default_appearance": "system",
+    "automatic_activation": true,
+    "activation": {
+      "default": "auto",
+      "accepted_requests": [
+        "auto",
+        "none",
+        "judgmentkit.workbench.operational-v1"
+      ],
+      "auto_requires_confidence": [
+        "medium",
+        "high",
+        "provided"
+      ],
+      "exact_id_requires_grounded_or_provided_workbench": true,
+      "low_confidence_fallback": "do_not_activate",
+      "external_design_system_auto": "none",
+      "external_design_system_exact_id": "reject"
+    }
+  },
+  "hypothesis": "A compact, flat, border-led presentation can support repeated inspect, compare, decide, and act work while keeping selection, evidence, decisions, and completion adjacent.",
+  "provenance": {
+    "directional_reference": {
+      "url": "http://127.0.0.1:4180/?theme=system&rev=8",
+      "reviewed_on": "2026-08-08",
+      "relationship": "directional_reference_only",
+      "runtime_dependency": false,
+      "copied_product_assets": []
+    },
+    "judgmentkit_authority": {
+      "activity_contract": "contracts/ai-ui-generation.activity-contract.json#surface_types.workbench",
+      "design_system_implementation": "src/index.mjs#DEFAULT_CSS_CUSTOM_PROPERTIES",
+      "surface_profile_registry": "src/surface-presentation-profiles.mjs",
+      "public_export": "/design-system/surface-presentation-profiles.json",
+      "icon_catalog": "src/lucide-icon-catalog.generated.mjs",
+      "icon_catalog_version": "lucide-static@1.21.0"
+    },
+    "boundary": [
+      "This specimen does not modify surface classification or recommendation.",
+      "The specimen remains evidence; the canonical registry and generated public export own the supported profile.",
+      "The profile must not activate from a low-evidence fallback surface id.",
+      "External design-system adapters remain authoritative and receive no implicit JudgmentKit fallback.",
+      "No product-specific workflow model, graph vocabulary, or source asset was copied from the directional reference."
+    ]
+  },
+  "activity_model": {
+    "activity": "Repeatedly review bounded requests and leave actionable handoffs.",
+    "participants": [
+      "reviewer",
+      "request submitter",
+      "next owner"
+    ],
+    "objective": "Inspect one request, compare its evidence, choose an outcome, and preserve a reason for the next owner.",
+    "outcomes": [
+      "ready to hand off",
+      "needs another pass",
+      "hold for context",
+      "completed handoff receipt"
+    ],
+    "existing_tools_and_artifacts": [
+      "queue",
+      "request summary",
+      "supporting records",
+      "review notes",
+      "due information",
+      "handoff receipt"
+    ],
+    "rules_and_rituals": [
+      "review evidence before deciding",
+      "show why an outcome is unavailable",
+      "keep the selected request and decision context together",
+      "record completion and next ownership"
+    ],
+    "division_of_labor": {
+      "surface": "organize requests, expose relevant evidence, constrain unsupported outcomes, and preserve the handoff",
+      "human": "interpret the evidence, choose the outcome, and supply the reason"
+    },
+    "domain_vocabulary": [
+      "request",
+      "evidence",
+      "decision",
+      "reason",
+      "next owner",
+      "handoff"
+    ],
+    "hidden_implementation_concepts": [
+      "prompt",
+      "schema",
+      "resource id",
+      "MCP server",
+      "tool call",
+      "model configuration",
+      "trace",
+      "node",
+      "graph",
+      "DAG"
+    ],
+    "diagnostic_details": [
+      "appearance preview",
+      "whole-surface state preview"
+    ],
+    "diagnostic_disclosure": "The two diagnostic controls appear only in the separate specimen bar."
+  },
+  "interaction_contract": {
+    "user_goal": "Move repeated requests forward without losing selection context or reconstructing evidence.",
+    "mental_model": [
+      "requests",
+      "supporting evidence",
+      "outcomes",
+      "reasons",
+      "ownership"
+    ],
+    "primary_decisions": [
+      "which request to review",
+      "whether available evidence supports a handoff",
+      "which outcome and reason should be recorded"
+    ],
+    "make_easy": [
+      "scan status plus reason",
+      "change selection without losing context",
+      "compare evidence in place",
+      "understand unavailable outcomes",
+      "leave a receipt with the next owner"
+    ],
+    "make_harder": [
+      "advance without required evidence",
+      "complete without an available outcome",
+      "mistake save-for-later for completion"
+    ],
+    "terms_to_use": [
+      "request",
+      "evidence",
+      "decision",
+      "handoff"
+    ],
+    "terms_to_avoid": [
+      "node",
+      "graph",
+      "pipeline",
+      "schema",
+      "tool call"
+    ],
+    "meaningful_state_changes": [
+      "request selected",
+      "evidence available, missing, or pending",
+      "outcome selected or unavailable with reason",
+      "draft retained",
+      "handoff recorded"
+    ],
+    "completion_knowledge": "The user knows which request was handled, why, what outcome was recorded, and who owns the next step."
+  },
+  "regions": [
+    {
+      "id": "queue",
+      "responsibility": "Selection and compact status-plus-reason scanning"
+    },
+    {
+      "id": "detail",
+      "responsibility": "Selected request context and decision framing"
+    },
+    {
+      "id": "evidence",
+      "responsibility": "Adjacent comparison of supporting items, availability, and reasons"
+    },
+    {
+      "id": "decision_handoff",
+      "responsibility": "Bounded outcome selection, one primary completion action, disabled reasons, and receipt"
+    }
+  ],
+  "visual_contract": {
+    "hierarchy": "flat_border_led",
+    "substantive_visuals_required": false,
+    "canonical_tokens": {
+      "light": {
+        "--jk-color-canvas": "#f8f7f2",
+        "--jk-color-surface": "#ffffff",
+        "--jk-color-text": "#171717",
+        "--jk-color-muted": "#61615c",
+        "--jk-color-border": "#d7d3c8",
+        "--jk-color-focus": "#245f73",
+        "--jk-color-success": "#2e6b48",
+        "--jk-color-warning": "#8a5a16",
+        "--jk-color-risk": "#8f342f",
+        "--jk-color-disabled": "#8a8f93",
+        "--jk-color-receipt": "#23615f",
+        "--jk-focus-ring": "0 0 0 3px rgba(36, 95, 115, 0.28)"
+      },
+      "dark": {
+        "--jk-color-canvas": "#101312",
+        "--jk-color-surface": "#181d1b",
+        "--jk-color-text": "#f2f4ef",
+        "--jk-color-muted": "#b8c0bb",
+        "--jk-color-border": "#39423f",
+        "--jk-color-focus": "#7db6c7",
+        "--jk-color-success": "#82c99a",
+        "--jk-color-warning": "#e0b15d",
+        "--jk-color-risk": "#e37d76",
+        "--jk-color-disabled": "#7d8580",
+        "--jk-color-receipt": "#80cbc7",
+        "--jk-focus-ring": "0 0 0 3px rgba(125, 182, 199, 0.38)"
+      },
+      "shared": {
+        "--jk-space-2": "0.5rem",
+        "--jk-space-3": "0.75rem",
+        "--jk-space-4": "1rem",
+        "--jk-radius-control": "4px",
+        "--jk-radius-panel": "8px"
+      }
+    },
+    "profile_token_prefix": "--jk-",
+    "profile_token_families": [
+      "--jk-type-*",
+      "--jk-density-*",
+      "--jk-workbench-*"
+    ],
+    "profile_tokens": {
+      "type": {
+        "--jk-type-family-body": "system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+        "--jk-type-family-numeric": "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+        "--jk-type-size-title": "1.5rem",
+        "--jk-type-size-section": "1rem",
+        "--jk-type-size-body": "0.875rem",
+        "--jk-type-size-label": "0.75rem",
+        "--jk-type-size-meta": "0.6875rem",
+        "--jk-type-line-body": "1.45",
+        "--jk-type-line-tight": "1.2"
+      },
+      "density": {
+        "--jk-density-panel-padding": "1rem",
+        "--jk-density-row-padding": "0.75rem",
+        "--jk-density-control-height": "2.5rem",
+        "--jk-density-icon-size": "1rem",
+        "--jk-density-shell-gap": "0.75rem",
+        "--jk-workbench-max-width": "96rem",
+        "--jk-workbench-control-border": "color-mix(in srgb, var(--jk-color-muted) 72%, var(--jk-color-surface))"
+      }
+    },
+    "typography": "compact system-stack roles with tabular numeric metadata",
+    "icons": {
+      "source": "JudgmentKit committed Lucide catalog",
+      "usage": "inline SVG paired with visible status text and reason",
+      "color_only_meaning": false
+    },
+    "primary_actions_per_decision_region": 1,
+    "graphs_or_spatial_visualization": false
+  },
+  "responsive_contract": {
+    "desktop": "Queue, detail/evidence, and decision/handoff remain simultaneously visible.",
+    "mobile": "One region is visible at a time with an explicit Queue to Detail to Decision navigation sequence.",
+    "breakpoint": "56.25rem",
+    "minimum_test_width_css_px": 320,
+    "reference_mobile_viewport": "390x844"
+  },
+  "states": [
+    {
+      "id": "ready",
+      "entry": "?state=ready",
+      "expectation": "Queue, selected detail, evidence, decisions, and handoff action are available."
+    },
+    {
+      "id": "loading",
+      "entry": "?state=loading",
+      "expectation": "Every work region names what is loading while controls that depend on current data are unavailable."
+    },
+    {
+      "id": "error",
+      "entry": "?state=error",
+      "expectation": "The error is announced, retry is available, and no decision can be completed."
+    },
+    {
+      "id": "empty",
+      "entry": "?state=empty",
+      "expectation": "The clear queue, missing selection, and no-decision states are distinct."
+    },
+    {
+      "id": "disabled",
+      "entry": "Select RQ-4816 or RQ-4809",
+      "expectation": "Ready-to-handoff is disabled with an adjacent evidence-based reason while other outcomes remain available."
+    },
+    {
+      "id": "focus-visible",
+      "entry": "Use keyboard navigation",
+      "expectation": "All interactive controls show a visible focus indicator in light, dark, and forced-colors modes."
+    },
+    {
+      "id": "completed_receipt",
+      "entry": "Select RQ-4798 or complete an available handoff",
+      "expectation": "The decision form is replaced by a status receipt naming the outcome and next owner."
+    },
+    {
+      "id": "no_search_results",
+      "entry": "Search for a string not in the fixture",
+      "expectation": "The queue reports zero matches without erasing the selected request context."
+    }
+  ],
+  "qa_expectations": [
+    {
+      "dimension": "desktop_layout",
+      "expectation": "At 1280x800 and wider, the three regions remain visible without clipped content or actions."
+    },
+    {
+      "dimension": "responsive_reflow",
+      "expectation": "At 390x844 and 320 CSS pixels wide, the explicit three-step flow has no horizontal page scrolling."
+    },
+    {
+      "dimension": "appearance",
+      "expectation": "System follows prefers-color-scheme and explicit light or dark overrides it without token drift."
+    },
+    {
+      "dimension": "keyboard_and_focus",
+      "expectation": "Every operation has a keyboard path, focus order preserves the workflow, and focus remains visible and unobscured."
+    },
+    {
+      "dimension": "name_role_value",
+      "expectation": "Queue selection, appearance/state controls, decisions, disabled reasons, alerts, status updates, and receipt semantics are exposed."
+    },
+    {
+      "dimension": "status_not_color_only",
+      "expectation": "Every status has an icon, text label, and visible reason."
+    },
+    {
+      "dimension": "decision_boundary",
+      "expectation": "Unsupported outcomes are disabled with reasons; the single primary action requires an available outcome and leaves a receipt."
+    },
+    {
+      "dimension": "forced_colors",
+      "expectation": "Selection, controls, focus, status, and action boundaries remain perceivable."
+    },
+    {
+      "dimension": "zoom_and_overflow",
+      "expectation": "At 200 percent zoom and 320 CSS pixel width, content reflows without two-dimensional scrolling."
+    },
+    {
+      "dimension": "contrast",
+      "expectation": "Normal text meets 4.5:1, large text meets 3:1, and meaningful custom boundaries and icons meet 3:1, backed by computed browser evidence."
+    },
+    {
+      "dimension": "content_stress",
+      "expectation": "Long titles, names, evidence reasons, and 240-character notes wrap without collision or hidden controls."
+    }
+  ],
+  "promotion": {
+    "status": "profile_contract_promoted",
+    "decided_on": "2026-08-08",
+    "decision": "docs/decisions/ADR-0001-workbench-surface-presentation-profile.md",
+    "human_visual_approval": {
+      "status": "direction_approved_before_final_title_token_adjustment",
+      "reviewer_role": "product_owner",
+      "recorded_on": "2026-08-08",
+      "scope": "overall_generic_workbench_direction",
+      "final_title_token_human_review": "not_recorded",
+      "final_title_token_browser_recheck": "passed"
+    },
+    "promoted_scope": [
+      "versioned adapter-layer profile",
+      "grounded Workbench activation",
+      "density and type hierarchy",
+      "region hierarchy and action emphasis",
+      "status treatment and responsive expectations",
+      "per-consumer evidence requirements"
+    ],
+    "deferred_scope": [
+      "runtime renderer",
+      "reusable component package",
+      "product-specific layout and geometry",
+      "cross-domain component expansion"
+    ]
+  },
+  "post_promotion_requirements": [
+    "Validate reusable component candidates with a second domain-neutral fixture and at least two genuinely different domain consumers.",
+    "Keep automatic and exact selection blocked for a low-confidence fallback without independently supplied Workbench evidence.",
+    "Keep automatic selection isolated from external design systems and reject exact JudgmentKit profile selection under external authority.",
+    "Require each rendered consumer to pass applicable desktop, mobile, keyboard, automated accessibility, forced-colors, zoom, overflow, contrast, and content-stress QA in light and dark modes."
+  ],
+  "qa_evidence": {
+    "status": "partial_fixture_evidence_for_promoted_profile",
+    "recorded_on": "2026-08-08",
+    "report": "experiments/workbench-surface-variant/browser-qa.md",
+    "passed_dimensions": [
+      "desktop_layout",
+      "responsive_reflow_390_and_320_css_px",
+      "explicit_light_and_dark_appearance",
+      "canonical_token_inheritance",
+      "selection_coordination",
+      "disabled_with_reason",
+      "completion_receipt",
+      "loading_error_empty_and_no_results",
+      "accessibility_snapshot_semantics",
+      "240_character_note_stress",
+      "computed_fixture_contrast",
+      "human_visual_direction_approval_before_title_token_adjustment"
+    ],
+    "remaining_dimensions": [
+      "full_sequential_keyboard_traversal",
+      "assistive_technology",
+      "forced_colors_runtime",
+      "automated_accessibility_scan",
+      "actual_200_percent_zoom",
+      "cross_browser_visual_regression",
+      "second_domain_specimen"
+    ]
+  },
+  "limitations": [
+    "This is a static specimen, not a renderer or reusable component package.",
+    "Fixture data and completed decisions reset on reload.",
+    "Search, save, and handoff behavior have no external side effects.",
+    "The visible appearance toggle is specimen instrumentation, not a production default.",
+    "Browser and computed-contrast evidence is partial; assistive-technology, forced-colors, automated accessibility, visual-regression, and second-domain evidence remain open for rendered consumers or later component expansion."
+  ]
+}
