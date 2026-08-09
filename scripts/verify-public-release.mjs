@@ -1026,6 +1026,9 @@ async function verifyPublicRoutes(baseUrl, options = {}) {
       '<link rel="canonical" href="https://judgmentkit.ai/">',
       '<link rel="icon" href="/favicon.svg"',
       '<meta property="og:site_name" content="JudgmentKit">',
+      '<footer class="site-footer">',
+      'href="https://github.com/mikeylong/judgmentkit/releases"',
+      `>Release v${expectedPackageVersion}</a>`,
     ],
     "homepage",
   );

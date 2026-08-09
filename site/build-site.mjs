@@ -26,6 +26,8 @@ const ANALYTICS_SDK_VERSION = require("@vercel/analytics/package.json").version;
 const JUDGMENTKIT_PACKAGE_VERSION = require("../package.json").version;
 const SYSTEM_MAP_FLOW_ASSET_VERSION = "judgmentkit-flow-design-source-authority";
 const SITE_ORIGIN = "https://judgmentkit.ai";
+const GITHUB_RELEASES_URL =
+  "https://github.com/mikeylong/judgmentkit/releases";
 const SOCIAL_THUMBNAIL_SOURCE_FILENAME = "judgmentkit-social-thumbnail.png";
 const SOCIAL_THUMBNAIL_FILENAME = "judgmentkit-social-thumbnail-20260723-v2.png";
 const SOCIAL_THUMBNAIL_PATH = `/assets/${SOCIAL_THUMBNAIL_FILENAME}`;
@@ -632,9 +634,18 @@ ${analyticsBootstrap()}
   <body>
 ${renderPlatformHeader(pathName)}
     <main>${body}</main>
+${renderSiteFooter()}
 ${platformNavigationScript()}
   </body>
 </html>`;
+}
+
+function renderSiteFooter() {
+  return `    <footer class="site-footer">
+      <div class="site-shell site-footer-inner">
+        <a class="site-footer-release" href="${escapeHtml(GITHUB_RELEASES_URL)}">Release v${escapeHtml(JUDGMENTKIT_PACKAGE_VERSION)}</a>
+      </div>
+    </footer>`;
 }
 
 function systemMapFlowAssets() {
@@ -1196,6 +1207,31 @@ a {
   margin-right: auto;
   margin-left: auto;
   min-width: 0;
+}
+.site-footer {
+  padding: 24px var(--site-gutter) 32px;
+  border-top: 1px solid var(--line);
+}
+.site-footer-inner {
+  display: flex;
+  justify-content: flex-end;
+}
+.site-footer-release {
+  color: var(--muted);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.site-footer-release:hover,
+.site-footer-release:focus-visible {
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.site-footer-release:focus-visible {
+  outline: 0;
+  box-shadow: 0 0 0 2px var(--focus-ring);
 }
 .site-page-header {
   max-width: var(--site-reading-width);
