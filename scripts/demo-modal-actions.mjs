@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   createUiImplementationContract,
-  reviewUiImplementationCandidate,
+  reviewUiImplementationCandidateWithBrowserRuntime,
 } from "../src/index.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -284,6 +284,8 @@ function buildCandidate(scenario, implementationContract) {
     candidate.modal_actions = [scenario.modalAction];
   }
 
+  candidate.rendered_html = `<main data-scenario-id="${scenario.id}">Modal action fixture</main>`;
+
   return candidate;
 }
 
@@ -299,6 +301,7 @@ function collectReasons(modalActions) {
 
 function validateOutcome(outcome) {
   const mismatches = [];
+  const visualComposition = outcome.review.checks.visual_composition;
 
   if (
     outcome.review.implementation_review_status !==
@@ -321,6 +324,16 @@ function validateOutcome(outcome) {
     );
   }
 
+  if (
+    visualComposition.status !== "not_applicable" ||
+    visualComposition.derived_outcome !== "not_applicable" ||
+    visualComposition.invalid_reasons.length > 0
+  ) {
+    mismatches.push(
+      `visual_composition expected a valid inspected no-applicable receipt, got ${visualComposition.status}`,
+    );
+  }
+
   if (mismatches.length > 0) {
     throw new Error(
       `${outcome.id} demo expectation mismatch: ${mismatches.join("; ")}`,
@@ -328,8 +341,8 @@ function validateOutcome(outcome) {
   }
 }
 
-function runScenario(scenario, implementationContract) {
-  const review = reviewUiImplementationCandidate(
+async function runScenario(scenario, implementationContract) {
+  const review = await reviewUiImplementationCandidateWithBrowserRuntime(
     buildCandidate(scenario, implementationContract),
     { implementation_contract: implementationContract },
   );
@@ -688,8 +701,8 @@ function buildHtml(outcomes) {
 
 async function main() {
   const implementationContract = buildImplementationContract();
-  const outcomes = SCENARIOS.map((scenario) =>
-    runScenario(scenario, implementationContract),
+  const outcomes = await Promise.all(
+    SCENARIOS.map((scenario) => runScenario(scenario, implementationContract)),
   );
 
   await fs.mkdir(path.dirname(HTML_OUTPUT_PATH), { recursive: true });

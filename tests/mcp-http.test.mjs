@@ -116,7 +116,7 @@ async function withTestServer(analyticsTracker, callback) {
   }
 }
 
-async function runMcpClient(endpoint) {
+async function runMcpClient(endpoint, { verifyBrowserRuntime = false } = {}) {
   let transport;
   let client;
 
@@ -301,6 +301,58 @@ async function runMcpClient(endpoint) {
         .design_system_provenance.status,
       "fail",
     );
+
+    if (verifyBrowserRuntime) {
+      const browserVerifiedReviewResponse = await withTimeout(
+        client.callTool({
+          name: "review_ui_implementation_candidate",
+          arguments: {
+            implementation_contract:
+              implementationContractResponse.structuredContent,
+            candidate: {
+              primitives_used: [
+                "queue",
+                "detail panel",
+                "decision controls",
+                "handoff receipt",
+              ],
+              states_covered:
+                implementationContractResponse.structuredContent
+                  .implementation_contract.state_coverage.required_states,
+              static_checks: ["npm test"],
+              browser_qa: { desktop: "passed", mobile: "passed" },
+              accessibility_evidence: coreAccessibilityEvidence(),
+              design_system_provenance: defaultDesignSystemProvenance(),
+              rendered_html:
+                "<!doctype html><html><head><style>body{font:16px system-ui;margin:0}main{padding:24px}</style></head><body><main><h1>Refund review</h1><p>No governed visual relationship is present in this static candidate.</p></main></body></html>",
+            },
+          },
+        }),
+        30_000,
+      );
+
+      assert.equal(browserVerifiedReviewResponse.isError, undefined);
+      assert.equal(
+        browserVerifiedReviewResponse.structuredContent
+          .implementation_review_status,
+        "passed",
+      );
+      assert.equal(
+        browserVerifiedReviewResponse.structuredContent
+          .candidate_artifact_status,
+        "accepted_artifact",
+      );
+      assert.equal(
+        browserVerifiedReviewResponse.structuredContent.checks
+          .visual_composition.status,
+        "not_applicable",
+      );
+      assert.equal(
+        browserVerifiedReviewResponse.structuredContent.checks
+          .visual_composition.trusted_evidence_present,
+        true,
+      );
+    }
   } finally {
     await client?.close().catch(() => {});
     await transport?.close().catch(() => {});
@@ -452,13 +504,15 @@ await withTestServer(
   async (endpoint) => {
     const baseUrl = endpoint.replace(/\/mcp$/, "");
 
-    for (const route of PUBLIC_MCP_ROUTES) {
+    for (const [routeIndex, route] of PUBLIC_MCP_ROUTES.entries()) {
       const routeEndpoint = `${baseUrl}${route}`;
       await assertMcpMetadata(routeEndpoint);
       await assertMcpOptions(routeEndpoint);
       await assertMcpAppGuards(routeEndpoint);
       await postRawInitialize(routeEndpoint);
-      await runMcpClient(routeEndpoint);
+      await runMcpClient(routeEndpoint, {
+        verifyBrowserRuntime: routeIndex === 0,
+      });
     }
   },
 );

@@ -48,6 +48,36 @@ assertValidKernelContract(
   "Kernel schema must preserve patch-release compatibility for contracts without local_component_authority",
 );
 
+const legacyVisualCompositionContract = structuredClone(contract);
+delete legacyVisualCompositionContract.implementation_contract
+  .visual_composition_policy;
+delete legacyVisualCompositionContract.implementation_contract
+  .visual_composition_policy_authority;
+assertValidKernelContract(
+  legacyVisualCompositionContract,
+  "Kernel schema must preserve compatibility for contracts without visual_composition_policy",
+);
+
+const malformedVisualCompositionContract = structuredClone(contract);
+malformedVisualCompositionContract.implementation_contract.visual_composition_policy
+  .calibrations["unscoped.universal-threshold"] = {
+  rule_id: "shared_anchor.block_start",
+  max_spread_css_px: 1,
+};
+assert.equal(
+  validateKernelContract(malformedVisualCompositionContract),
+  false,
+  "Visual-composition calibrations must name their owning component family instead of defining a universal threshold.",
+);
+assert.ok(
+  (validateKernelContract.errors ?? []).some((error) =>
+    error.instancePath.includes(
+      "/implementation_contract/visual_composition_policy/calibrations/unscoped.universal-threshold",
+    ),
+  ),
+  "Malformed visual-composition calibration errors should point at the unscoped calibration.",
+);
+
 const malformedLocalAuthorityContract = structuredClone(contract);
 malformedLocalAuthorityContract.implementation_contract.local_component_authority = {
   mode: "repo_local",
@@ -580,7 +610,78 @@ assert.equal(
   defaultDesignSystemSource.source_exports.surface_presentation_profiles,
   "/design-system/surface-presentation-profiles.json",
 );
+assert.equal(
+  defaultDesignSystemSource.source_exports.visual_composition_policy,
+  "/design-system/visual-composition-policy.json",
+);
 assert.ok(defaultDesignSystemSource.renderer_components.includes("action_button"));
+
+const defaultVisualCompositionPolicy =
+  createUiImplementationContract().implementation_contract
+    .visual_composition_policy;
+assert.equal(
+  defaultVisualCompositionPolicy.id,
+  "judgmentkit.visual-composition.adapter-v1",
+);
+assert.equal(defaultVisualCompositionPolicy.version, "1.0.0");
+assert.equal(defaultVisualCompositionPolicy.layer, "implementation_adapter");
+assert.equal(
+  defaultVisualCompositionPolicy.enforcement,
+  "required_when_applicable",
+);
+assert.equal(
+  defaultVisualCompositionPolicy.receipt_contract.trusted_issuer,
+  "judgmentkit_browser_runtime",
+);
+assert.deepEqual(
+  defaultVisualCompositionPolicy.rules.map((rule) => rule.id),
+  [
+    "inline_pair.box_center",
+    "shared_anchor.block_start",
+    "shared_anchor.inline_start",
+    "protected_atom.single_line",
+    "presentation_owner.select_indicator",
+    "canonical_lockup.asset",
+  ],
+);
+assert.equal(
+  defaultVisualCompositionPolicy.calibrations[
+    "judgmentkit.select_indicator.centered_label_symmetric_rails"
+  ].accessory_rail_width_css_px,
+  36,
+);
+assert.deepEqual(
+  defaultVisualCompositionPolicy.receipt_contract.review_codes,
+  [
+    "presentation_owner_undeclared",
+    "calibration_missing",
+    "canonical_lockup_undeclared",
+    "unsupported_rule_kind",
+  ],
+);
+
+const missingVisualCompositionRuleField = structuredClone(contract);
+delete missingVisualCompositionRuleField.implementation_contract
+  .visual_composition_policy.rules[0].failure_code;
+assert.equal(
+  validateKernelContract(missingVisualCompositionRuleField),
+  false,
+  "The governing schema must reject policies missing required rule fields.",
+);
+assert.throws(
+  () =>
+    createUiImplementationContract({
+      visual_composition_policy:
+        missingVisualCompositionRuleField.implementation_contract
+          .visual_composition_policy,
+    }),
+  (error) =>
+    error?.code === "invalid_visual_composition_policy" &&
+    error?.details?.schema_errors?.some(
+      (entry) => entry.keyword === "required",
+    ),
+  "Runtime normalization must reject the same malformed policy as the kernel schema.",
+);
 
 const externalTraceOnlyContract = createUiImplementationContract({
   external_authority: "Material UI",

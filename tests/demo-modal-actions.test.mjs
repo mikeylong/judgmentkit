@@ -36,6 +36,11 @@ assert.ok(
   ),
 );
 assert.ok(transcript.includes(evidenceCaveat));
+assert.equal(
+  /visual[_ -]composition/i.test(transcript),
+  false,
+  "Cross-cutting receipt machinery must stay out of the modal-action demo transcript",
+);
 
 const expectations = [
   ["omittedEvidence", "passed", "pass", "0"],
@@ -102,6 +107,11 @@ assert.ok(html.includes("JudgmentKit Modal Action Evidence Demo"));
 assert.ok(html.includes(evidenceCaveat));
 assert.ok(html.includes("modal_actions.status"));
 assert.ok(html.includes("Findings / problems"));
+assert.equal(
+  /visual[_ -]composition/i.test(html),
+  false,
+  "Cross-cutting receipt machinery must stay out of the modal-action demo UI",
+);
 
 for (const [scenarioId] of expectations) {
   assert.ok(

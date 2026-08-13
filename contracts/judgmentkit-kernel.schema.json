@@ -482,6 +482,449 @@
         "failure_signals": { "type": "array", "items": { "type": "string" } }
       }
     },
+    "visualCompositionRule": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "axis",
+            "anchor",
+            "measurement",
+            "failure_code",
+            "message"
+          ],
+          "properties": {
+            "id": { "const": "inline_pair.box_center" },
+            "kind": { "const": "inline_pair" },
+            "axis": { "const": "block" },
+            "anchor": { "const": "box_center" },
+            "measurement": { "type": "string" },
+            "failure_code": { "type": "string" },
+            "message": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "axis",
+            "anchor",
+            "measurement",
+            "failure_code",
+            "message"
+          ],
+          "properties": {
+            "id": { "const": "shared_anchor.block_start" },
+            "kind": { "const": "shared_anchor" },
+            "axis": { "const": "block" },
+            "anchor": { "const": "block_start" },
+            "measurement": { "type": "string" },
+            "failure_code": { "type": "string" },
+            "message": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "axis",
+            "anchor",
+            "measurement",
+            "failure_code",
+            "message"
+          ],
+          "properties": {
+            "id": { "const": "shared_anchor.inline_start" },
+            "kind": { "const": "shared_anchor" },
+            "axis": { "const": "inline" },
+            "anchor": { "const": "inline_start" },
+            "measurement": { "type": "string" },
+            "failure_code": { "type": "string" },
+            "message": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "measurement",
+            "failure_code",
+            "message"
+          ],
+          "properties": {
+            "id": { "const": "protected_atom.single_line" },
+            "kind": { "const": "protected_atom" },
+            "measurement": { "type": "string" },
+            "failure_code": { "type": "string" },
+            "message": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "part",
+            "supported_owners",
+            "design_system_measurement",
+            "failure_code",
+            "warning_code",
+            "message"
+          ],
+          "properties": {
+            "id": { "const": "presentation_owner.select_indicator" },
+            "kind": { "const": "presentation_owner" },
+            "part": { "const": "select_indicator" },
+            "supported_owners": {
+              "type": "array",
+              "prefixItems": [
+                { "const": "browser" },
+                { "const": "design_system" }
+              ],
+              "minItems": 2,
+              "maxItems": 2
+            },
+            "design_system_measurement": { "type": "string" },
+            "failure_code": { "type": "string" },
+            "warning_code": { "const": "browser_owned_indicator_unmeasured" },
+            "message": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "kind",
+            "measurement",
+            "failure_code",
+            "message",
+            "lockups"
+          ],
+          "properties": {
+            "id": { "const": "canonical_lockup.asset" },
+            "kind": { "const": "canonical_lockup" },
+            "measurement": { "type": "string" },
+            "failure_code": { "type": "string" },
+            "message": { "type": "string" },
+            "lockups": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["asset_suffix", "sha256"],
+                "properties": {
+                  "asset_suffix": { "type": "string", "minLength": 1 },
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "visualCompositionCalibration": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "component_family",
+            "rule_id",
+            "max_box_center_delta_css_px"
+          ],
+          "properties": {
+            "component_family": { "type": "string", "minLength": 1 },
+            "rule_id": { "const": "inline_pair.box_center" },
+            "max_box_center_delta_css_px": { "type": "number", "minimum": 0 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["component_family", "rule_id", "max_spread_css_px"],
+          "properties": {
+            "component_family": { "type": "string", "minLength": 1 },
+            "rule_id": {
+              "enum": [
+                "shared_anchor.block_start",
+                "shared_anchor.inline_start"
+              ]
+            },
+            "max_spread_css_px": { "type": "number", "minimum": 0 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "component_family",
+            "rule_id",
+            "max_text_line_boxes"
+          ],
+          "properties": {
+            "component_family": { "type": "string", "minLength": 1 },
+            "rule_id": { "const": "protected_atom.single_line" },
+            "max_text_line_boxes": { "type": "integer", "minimum": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "component_family",
+            "rule_id",
+            "composition_variant",
+            "accessory_rail_width_css_px",
+            "max_label_center_delta_css_px",
+            "max_logical_rail_delta_css_px"
+          ],
+          "properties": {
+            "component_family": { "type": "string", "minLength": 1 },
+            "rule_id": { "const": "presentation_owner.select_indicator" },
+            "composition_variant": {
+              "const": "centered_label_symmetric_rails"
+            },
+            "accessory_rail_width_css_px": { "type": "number", "minimum": 0 },
+            "max_label_center_delta_css_px": { "type": "number", "minimum": 0 },
+            "max_logical_rail_delta_css_px": { "type": "number", "minimum": 0 }
+          }
+        }
+      ]
+    },
+    "visualCompositionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "id",
+        "version",
+        "layer",
+        "enforcement",
+        "authority",
+        "outcomes",
+        "receipt_contract",
+        "rules",
+        "calibrations"
+      ],
+      "properties": {
+        "kind": { "const": "visual_composition_policy" },
+        "id": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "layer": { "const": "implementation_adapter" },
+        "enforcement": { "const": "required_when_applicable" },
+        "authority": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["presentation_owner", "runtime"],
+          "properties": {
+            "presentation_owner": { "type": "string", "minLength": 1 },
+            "runtime": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["may", "must_not"],
+              "properties": {
+                "may": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "type": "string" }
+                },
+                "must_not": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "outcomes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "precedence",
+            "browser_owned_indicator",
+            "missing_intent_or_authority",
+            "declared_relationship_inactive",
+            "no_declared_relationships"
+          ],
+          "properties": {
+            "precedence": {
+              "type": "array",
+              "prefixItems": [
+                { "const": "fail" },
+                { "const": "review" },
+                { "const": "pass_with_warning" },
+                { "const": "pass" },
+                { "const": "not_applicable" }
+              ],
+              "minItems": 5,
+              "maxItems": 5
+            },
+            "browser_owned_indicator": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["outcome", "code"],
+              "properties": {
+                "outcome": { "const": "pass_with_warning" },
+                "code": { "const": "browser_owned_indicator_unmeasured" }
+              }
+            },
+            "missing_intent_or_authority": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["outcome"],
+              "properties": {
+                "outcome": { "const": "review" }
+              }
+            },
+            "declared_relationship_inactive": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["outcome", "code"],
+              "properties": {
+                "outcome": { "const": "not_applicable" },
+                "code": { "const": "relationship_inactive_at_viewport" }
+              }
+            },
+            "no_declared_relationships": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["outcome", "code"],
+              "properties": {
+                "outcome": { "const": "not_applicable" },
+                "code": { "const": "no_applicable_contract" }
+              }
+            }
+          }
+        },
+        "receipt_contract": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "kind",
+            "version",
+            "trusted_issuer",
+            "required_fields",
+            "accepted_outcomes",
+            "accepted_codes",
+            "warning_codes",
+            "review_codes",
+            "not_applicable_codes"
+          ],
+          "properties": {
+            "kind": { "const": "visual_composition_evidence" },
+            "version": { "const": "1.0.0" },
+            "trusted_issuer": { "const": "judgmentkit_browser_runtime" },
+            "required_fields": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "type": "string" }
+            },
+            "accepted_outcomes": {
+              "type": "array",
+              "prefixItems": [
+                { "const": "pass" },
+                { "const": "fail" },
+                { "const": "pass_with_warning" },
+                { "const": "review" },
+                { "const": "not_applicable" }
+              ],
+              "minItems": 5,
+              "maxItems": 5
+            },
+            "accepted_codes": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "pass",
+                "fail",
+                "pass_with_warning",
+                "review",
+                "not_applicable"
+              ],
+              "properties": {
+                "pass": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "fail": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "pass_with_warning": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "review": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "not_applicable": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                }
+              }
+            },
+            "warning_codes": {
+              "type": "array",
+              "items": { "const": "browser_owned_indicator_unmeasured" },
+              "minItems": 1,
+              "maxItems": 1
+            },
+            "review_codes": {
+              "type": "array",
+              "prefixItems": [
+                { "const": "presentation_owner_undeclared" },
+                { "const": "calibration_missing" },
+                { "const": "canonical_lockup_undeclared" },
+                { "const": "unsupported_rule_kind" }
+              ],
+              "minItems": 4,
+              "maxItems": 4
+            },
+            "not_applicable_codes": {
+              "type": "array",
+              "prefixItems": [
+                { "const": "relationship_inactive_at_viewport" },
+                { "const": "no_applicable_contract" }
+              ],
+              "minItems": 2,
+              "maxItems": 2
+            }
+          }
+        },
+        "rules": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/visualCompositionRule" }
+        },
+        "calibrations": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/$defs/visualCompositionCalibration"
+          }
+        }
+      }
+    },
     "designSystemSource": {
       "type": "object",
       "additionalProperties": false,
@@ -777,6 +1220,18 @@
             }
           }
         },
+        "visual_composition_policy": {
+          "$ref": "#/$defs/visualCompositionPolicy"
+        },
+        "design_system_adapter": {
+          "type": "object"
+        },
+        "visual_composition_policy_authority": {
+          "enum": [
+            "judgmentkit_default_adapter",
+            "external_design_system_adapter"
+          ]
+        },
         "visual_token_adapter": {
           "type": "object",
           "additionalProperties": false,
@@ -960,7 +1415,54 @@
         },
         "repo_scaffold_outputs": { "type": "array", "items": { "type": "string" } },
         "failure_signals": { "type": "array", "items": { "type": "string" } }
-      }
+      },
+      "allOf": [
+        {
+          "if": { "required": ["visual_composition_policy"] },
+          "then": { "required": ["visual_composition_policy_authority"] },
+          "else": {
+            "not": { "required": ["visual_composition_policy_authority"] }
+          }
+        },
+        {
+          "if": {
+            "required": ["visual_composition_policy", "design_system_source"],
+            "properties": {
+              "design_system_source": {
+                "type": "object",
+                "properties": { "mode": { "const": "judgmentkit_default" } },
+                "required": ["mode"]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "visual_composition_policy_authority": {
+                "const": "judgmentkit_default_adapter"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": ["visual_composition_policy", "design_system_source"],
+            "properties": {
+              "design_system_source": {
+                "type": "object",
+                "properties": { "mode": { "const": "external_design_system" } },
+                "required": ["mode"]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "visual_composition_policy_authority": {
+                "const": "external_design_system_adapter"
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

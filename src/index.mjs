@@ -1,5 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
+import { createHash } from "node:crypto";
+import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
 import {
@@ -20,10 +22,17 @@ export {
 } from "./surface-presentation-profiles.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const requireFromModule = createRequire(import.meta.url);
 const DEFAULT_CONTRACT_PATH = path.resolve(
   __dirname,
   "../contracts/ai-ui-generation.activity-contract.json",
 );
+const KERNEL_SCHEMA_PATH = path.resolve(
+  __dirname,
+  "../contracts/judgmentkit-kernel.schema.json",
+);
+let validateVisualCompositionPolicySchema;
+const trustedVisualCompositionEvidence = new WeakMap();
 const DEFAULT_WORKFLOW_ID = "workflow.ai-ui-generation";
 const OPERATOR_REVIEW_PROFILE_ID = "operator-review-ui";
 const SURFACE_TYPE_IDS = [
@@ -54,6 +63,10 @@ export class JudgmentKitInputError extends Error {
       this.details = options.details;
     }
   }
+}
+
+function getTrustedVisualCompositionEvidence(candidate) {
+  return trustedVisualCompositionEvidence.get(candidate) ?? null;
 }
 
 export function loadActivityContract(contractPath = DEFAULT_CONTRACT_PATH) {
@@ -2750,6 +2763,10 @@ function assertNoStyleFields(packet) {
 
   function visit(value, pathParts = []) {
     if (!value || typeof value !== "object") {
+      return;
+    }
+
+    if (pathParts.join(".") === "implementation_contract.design_system_adapter") {
       return;
     }
 
@@ -6277,6 +6294,28 @@ function clonePolicyValue(value) {
   return value;
 }
 
+function canonicalJsonValue(value) {
+  if (Array.isArray(value)) {
+    return value.map(canonicalJsonValue);
+  }
+
+  if (isPlainObject(value)) {
+    return Object.fromEntries(
+      Object.keys(value)
+        .sort()
+        .map((key) => [key, canonicalJsonValue(value[key])]),
+    );
+  }
+
+  return value;
+}
+
+function sha256CanonicalValue(value) {
+  return createHash("sha256")
+    .update(JSON.stringify(canonicalJsonValue(value)))
+    .digest("hex");
+}
+
 function mergePolicyObject(sourceValue, fallbackValue) {
   if (Array.isArray(fallbackValue)) {
     return normalizePrimitiveList(sourceValue, fallbackValue);
@@ -7469,12 +7508,45 @@ function resolveImplementationDesignSystem(source, base) {
     base.default_ai_native_design_system,
   );
   const designSystemAdapter = designSystemAdapterFromInput(source);
+  const sourceDesignSystemMode = optionalString(
+    source.design_system_source?.mode ?? source.designSystemSource?.mode,
+  );
 
   if (isPlainObject(designSystemAdapter)) {
-    return externalDesignSystemFromAdapter(
+    const resolved = externalDesignSystemFromAdapter(
       designSystemAdapter,
       sourceDefaultDesignSystem,
     );
+    const externalVisualCompositionPolicy = normalizeVisualCompositionPolicy(
+      designSystemAdapter.visual_composition_policy ??
+        designSystemAdapter.visualCompositionPolicy,
+    );
+
+    if (
+      externalVisualCompositionPolicy &&
+      (externalVisualCompositionPolicy.id.startsWith("judgmentkit.") ||
+        optionalString(
+          externalVisualCompositionPolicy.authority?.presentation_owner,
+        ) !== optionalString(resolved.designSystemSource.name))
+    ) {
+      throw new JudgmentKitInputError(
+        "External visual composition policy identity and presentation ownership must match the active external design system.",
+        { code: "ambiguous_visual_composition_authority" },
+      );
+    }
+
+    return {
+      ...resolved,
+      designSystemAdapter: clonePolicyValue(designSystemAdapter),
+      visualCompositionPolicy: externalVisualCompositionPolicy,
+      visualCompositionPolicyAuthority:
+        isPlainObject(
+          designSystemAdapter.visual_composition_policy ??
+            designSystemAdapter.visualCompositionPolicy,
+        )
+          ? "external_design_system_adapter"
+          : null,
+    };
   }
 
   const visualTokenAdapter = normalizeVisualTokenAdapter(
@@ -7490,11 +7562,335 @@ function resolveImplementationDesignSystem(source, base) {
       componentContracts: sourceDefaultDesignSystem.component_contracts,
     },
   );
+  const sourcePolicyFields = [
+    ["visual_composition_policy", source.visual_composition_policy],
+    ["visualCompositionPolicy", source.visualCompositionPolicy],
+  ].filter(([field]) => Object.prototype.hasOwnProperty.call(source, field));
+  const sourcePolicyAuthorityFields = [
+    [
+      "visual_composition_policy_authority",
+      source.visual_composition_policy_authority,
+    ],
+    [
+      "visualCompositionPolicyAuthority",
+      source.visualCompositionPolicyAuthority,
+    ],
+  ].filter(([field]) => Object.prototype.hasOwnProperty.call(source, field));
+
+  if (designSystemSource.mode === "judgmentkit_default") {
+    const canonicalPolicy = normalizeVisualCompositionPolicy(
+      base.visual_composition_policy,
+    );
+    const suppliedPolicies = sourcePolicyFields.map(([field, value]) => {
+      if (!isPlainObject(value)) {
+        throw new JudgmentKitInputError(
+          "The JudgmentKit-default visual composition policy cannot be disabled or replaced by review input.",
+          {
+            code: "noncanonical_default_visual_composition_policy",
+            details: { field },
+          },
+        );
+      }
+      return { field, policy: normalizeVisualCompositionPolicy(value) };
+    });
+    const mismatchedPolicy = suppliedPolicies.find(
+      ({ policy }) => policy.sha256 !== canonicalPolicy?.sha256,
+    );
+    const mismatchedAuthority = sourcePolicyAuthorityFields.find(
+      ([, value]) => optionalString(value) !== "judgmentkit_default_adapter",
+    );
+
+    if (mismatchedPolicy || mismatchedAuthority) {
+      throw new JudgmentKitInputError(
+        "The JudgmentKit-default visual composition policy must match the governing activity contract exactly.",
+        {
+          code: "noncanonical_default_visual_composition_policy",
+          details: {
+            ...(mismatchedPolicy
+              ? { field: mismatchedPolicy.field }
+              : {}),
+            ...(mismatchedAuthority
+              ? { authority_field: mismatchedAuthority[0] }
+              : {}),
+            canonical_sha256: canonicalPolicy?.sha256 ?? null,
+          },
+        },
+      );
+    }
+
+    return {
+      defaultDesignSystem: sourceDefaultDesignSystem,
+      visualTokenAdapter,
+      designSystemSource,
+      designSystemAdapter: null,
+      visualCompositionPolicy: canonicalPolicy,
+      visualCompositionPolicyAuthority: canonicalPolicy
+        ? "judgmentkit_default_adapter"
+        : null,
+    };
+  }
+
+  if (
+    sourceDesignSystemMode === "external_design_system" &&
+    isPlainObject(
+      source.visual_composition_policy ?? source.visualCompositionPolicy,
+    ) &&
+    optionalString(
+      source.visual_composition_policy_authority ??
+        source.visualCompositionPolicyAuthority,
+    ) !== "external_design_system_adapter" &&
+    hasCompleteExternalImplementationAuthority({
+      designSystemSource,
+      visualTokenAdapter,
+      designSystemContract: sourceDefaultDesignSystem,
+    })
+  ) {
+    throw new JudgmentKitInputError(
+      "External visual composition policies must retain external_design_system_adapter authority provenance.",
+      { code: "ambiguous_visual_composition_authority" },
+    );
+  }
+
+  const normalizedVisualCompositionPolicy = normalizeVisualCompositionPolicy(
+    source.visual_composition_policy ??
+      source.visualCompositionPolicy ??
+      null,
+  );
+
+  if (
+    designSystemSource.mode === "external_design_system" &&
+    normalizedVisualCompositionPolicy &&
+    hasCompleteExternalImplementationAuthority({
+      designSystemSource,
+      visualTokenAdapter,
+      designSystemContract: sourceDefaultDesignSystem,
+    }) &&
+    (normalizedVisualCompositionPolicy.id.startsWith("judgmentkit.") ||
+      optionalString(
+        normalizedVisualCompositionPolicy.authority?.presentation_owner,
+      ) !== optionalString(designSystemSource.name))
+  ) {
+    throw new JudgmentKitInputError(
+      "External visual composition policy identity and presentation ownership must match the active external design system.",
+      { code: "ambiguous_visual_composition_authority" },
+    );
+  }
 
   return {
     defaultDesignSystem: sourceDefaultDesignSystem,
     visualTokenAdapter,
     designSystemSource,
+    designSystemAdapter: null,
+    visualCompositionPolicy: normalizedVisualCompositionPolicy,
+    visualCompositionPolicyAuthority:
+      designSystemSource.mode === "external_design_system"
+        ? optionalString(
+            source.visual_composition_policy_authority ??
+              source.visualCompositionPolicyAuthority,
+          ) || null
+        : "judgmentkit_default_adapter",
+  };
+}
+
+function visualCompositionPolicySchemaValidator() {
+  if (!validateVisualCompositionPolicySchema) {
+    const kernelSchema = JSON.parse(fs.readFileSync(KERNEL_SCHEMA_PATH, "utf8"));
+    const ajvModule = requireFromModule("ajv/dist/2020.js");
+    const Ajv2020 = ajvModule.default ?? ajvModule;
+    const ajv = new Ajv2020({ allErrors: true, strict: false });
+    validateVisualCompositionPolicySchema = ajv.compile({
+      $schema: "https://json-schema.org/draft/2020-12/schema",
+      $ref: "#/$defs/visualCompositionPolicy",
+      $defs: kernelSchema.$defs,
+    });
+  }
+
+  return validateVisualCompositionPolicySchema;
+}
+
+function normalizeVisualCompositionPolicy(sourcePolicy) {
+  if (!isPlainObject(sourcePolicy)) {
+    return null;
+  }
+
+  const validatePolicy = visualCompositionPolicySchemaValidator();
+  if (!validatePolicy(sourcePolicy)) {
+    throw new JudgmentKitInputError(
+      "visual_composition_policy does not satisfy the governing kernel schema.",
+      {
+        code: "invalid_visual_composition_policy",
+        details: {
+          schema_errors: (validatePolicy.errors ?? []).map((error) => ({
+            instance_path: error.instancePath,
+            keyword: error.keyword,
+            message: error.message,
+          })),
+        },
+      },
+    );
+  }
+
+  const kind = optionalString(sourcePolicy.kind);
+  const id = optionalString(sourcePolicy.id);
+  const version = optionalString(sourcePolicy.version);
+  const layer = optionalString(sourcePolicy.layer);
+  const allowedRuleKinds = new Map([
+    ["inline_pair.box_center", "inline_pair"],
+    ["shared_anchor.block_start", "shared_anchor"],
+    ["shared_anchor.inline_start", "shared_anchor"],
+    ["protected_atom.single_line", "protected_atom"],
+    ["presentation_owner.select_indicator", "presentation_owner"],
+    ["canonical_lockup.asset", "canonical_lockup"],
+  ]);
+
+  if (
+    kind !== "visual_composition_policy" ||
+    !id ||
+    !version ||
+    layer !== "implementation_adapter"
+  ) {
+    throw new JudgmentKitInputError(
+      "visual_composition_policy requires kind visual_composition_policy, an id and version, and layer implementation_adapter.",
+      {
+        code: "invalid_visual_composition_policy",
+      },
+    );
+  }
+
+  const rules = Array.isArray(sourcePolicy.rules)
+    ? sourcePolicy.rules.filter(isPlainObject).map(clonePolicyValue)
+    : [];
+  const ruleIds = rules.map((rule) => optionalString(rule.id)).filter(Boolean);
+  const uniqueRuleIds = unique(ruleIds);
+
+  if (ruleIds.length !== rules.length || uniqueRuleIds.length !== ruleIds.length) {
+    throw new JudgmentKitInputError(
+      "visual_composition_policy rules require unique ids.",
+      { code: "invalid_visual_composition_policy" },
+    );
+  }
+
+
+  const invalidRules = rules.filter(
+    (rule) =>
+      allowedRuleKinds.get(optionalString(rule.id)) !==
+      optionalString(rule.kind),
+  );
+
+  if (invalidRules.length > 0 || rules.length !== allowedRuleKinds.size) {
+    throw new JudgmentKitInputError(
+      "visual_composition_policy must declare the supported implementation-adapter rule set.",
+      {
+        code: "invalid_visual_composition_policy",
+        details: { invalid_rule_ids: invalidRules.map((rule) => rule.id) },
+      },
+    );
+  }
+
+  const ruleIdSet = new Set(ruleIds);
+  const calibrationSource = isPlainObject(sourcePolicy.calibrations)
+    ? sourcePolicy.calibrations
+    : {};
+  const calibrations = Object.fromEntries(
+    Object.entries(calibrationSource)
+      .filter(([, value]) => isPlainObject(value))
+      .map(([calibrationId, value]) => [
+        calibrationId,
+        clonePolicyValue(value),
+      ]),
+  );
+  const invalidCalibrations = Object.entries(calibrations)
+    .filter(([, value]) => {
+      const ruleId = optionalString(value.rule_id);
+      const componentFamily = optionalString(value.component_family);
+      if (!ruleIdSet.has(ruleId) || !componentFamily) return true;
+      if (ruleId === "inline_pair.box_center") {
+        return !Number.isFinite(value.max_box_center_delta_css_px);
+      }
+      if (ruleId.startsWith("shared_anchor.")) {
+        return !Number.isFinite(value.max_spread_css_px);
+      }
+      if (ruleId === "protected_atom.single_line") {
+        return !Number.isInteger(value.max_text_line_boxes);
+      }
+      if (ruleId === "presentation_owner.select_indicator") {
+        return (
+          value.composition_variant !== "centered_label_symmetric_rails" ||
+          !Number.isFinite(value.accessory_rail_width_css_px) ||
+          !Number.isFinite(value.max_label_center_delta_css_px) ||
+          !Number.isFinite(value.max_logical_rail_delta_css_px)
+        );
+      }
+      return false;
+    })
+    .map(([calibrationId]) => calibrationId);
+
+  if (invalidCalibrations.length > 0) {
+    throw new JudgmentKitInputError(
+      "visual_composition_policy calibrations must reference known rule ids.",
+      {
+        code: "invalid_visual_composition_policy",
+        details: { invalid_calibrations: invalidCalibrations },
+      },
+    );
+  }
+
+
+  const authority = clonePolicyValue(sourcePolicy.authority ?? {});
+  const outcomes = clonePolicyValue(sourcePolicy.outcomes ?? {});
+  const receiptContract = clonePolicyValue(
+    sourcePolicy.receipt_contract ?? sourcePolicy.receiptContract ?? {},
+  );
+  const requiredReceiptFields = new Set(
+    toStringArray(receiptContract.required_fields),
+  );
+  const requiredReceiptFieldNames = [
+    "kind",
+    "version",
+    "policy_ref",
+    "contract_ref",
+    "manifest_ref",
+    "candidate_ref",
+    "environment",
+    "documents",
+    "samples",
+    "outcome",
+  ];
+  const invalidPolicyShape =
+    optionalString(sourcePolicy.enforcement) !== "required_when_applicable" ||
+    !isPlainObject(authority.runtime) ||
+    !Array.isArray(authority.runtime.may) ||
+    !Array.isArray(authority.runtime.must_not) ||
+    !isPlainObject(outcomes) ||
+    receiptContract.kind !== "visual_composition_evidence" ||
+    receiptContract.version !== "1.0.0" ||
+    receiptContract.trusted_issuer !== "judgmentkit_browser_runtime" ||
+    !requiredReceiptFieldNames.every((field) => requiredReceiptFields.has(field)) ||
+    !isPlainObject(receiptContract.accepted_codes);
+
+  if (invalidPolicyShape) {
+    throw new JudgmentKitInputError(
+      "visual_composition_policy does not satisfy the production receipt and authority contract.",
+      { code: "invalid_visual_composition_policy" },
+    );
+  }
+
+  const normalized = {
+    kind,
+    id,
+    version,
+    layer,
+    enforcement: "required_when_applicable",
+    authority,
+    outcomes,
+    receipt_contract: receiptContract,
+    rules,
+    calibrations,
+  };
+
+  return {
+    ...normalized,
+    sha256: sha256CanonicalValue(normalized),
   };
 }
 
@@ -7762,6 +8158,24 @@ function normalizeUiImplementationContract(input = {}, options = {}) {
   const contract = options.contract ?? loadActivityContract(options.contractPath);
   const base = getContractUiImplementationContract(contract);
   const source = isPlainObject(input) ? input : {};
+  if (
+    optionalString(
+      source.design_system_source?.mode ?? source.designSystemSource?.mode,
+    ) === "external_design_system" &&
+    !isPlainObject(designSystemAdapterFromInput(source)) &&
+    isPlainObject(
+      source.visual_composition_policy ?? source.visualCompositionPolicy,
+    ) &&
+    optionalString(
+      source.visual_composition_policy_authority ??
+        source.visualCompositionPolicyAuthority,
+    ) === "external_design_system_adapter"
+  ) {
+    throw new JudgmentKitInputError(
+      "Review input cannot synthesize external visual-composition adapter authority from serialized top-level fields.",
+      { code: "ambiguous_visual_composition_authority" },
+    );
+  }
   const approvedPrimitives = normalizePrimitiveList(
     source.approved_primitives,
     base.approved_primitives,
@@ -7791,6 +8205,9 @@ function normalizeUiImplementationContract(input = {}, options = {}) {
     defaultDesignSystem,
     visualTokenAdapter,
     designSystemSource,
+    visualCompositionPolicy,
+    visualCompositionPolicyAuthority,
+    designSystemAdapter,
   } = resolveImplementationDesignSystem(source, base);
 
   return {
@@ -7833,6 +8250,16 @@ function normalizeUiImplementationContract(input = {}, options = {}) {
       base.iteration_policy,
     ),
     design_system_source: designSystemSource,
+    ...(designSystemAdapter
+      ? { design_system_adapter: designSystemAdapter }
+      : {}),
+    ...(visualCompositionPolicy
+      ? {
+          visual_composition_policy: visualCompositionPolicy,
+          visual_composition_policy_authority:
+            visualCompositionPolicyAuthority,
+        }
+      : {}),
     local_component_authority: normalizeLocalComponentAuthority(
       source.local_component_authority ??
         source.localComponentAuthority ??
@@ -7893,6 +8320,18 @@ export function createUiImplementationContract(input = {}, options = {}) {
     throwIncompleteDesignSystemAuthority();
   }
 
+  if (
+    isPlainObject(designSystemAdapterFromInput(input ?? {})) &&
+    isPlainObject(
+      input?.visual_composition_policy ?? input?.visualCompositionPolicy,
+    )
+  ) {
+    throw new JudgmentKitInputError(
+      "External design systems must declare visual_composition_policy inside design_system_adapter so JudgmentKit cannot supply an implicit fallback.",
+      { code: "ambiguous_visual_composition_authority" },
+    );
+  }
+
   const contract = options.contract ?? loadActivityContract(options.contractPath);
   const normalized = normalizeUiImplementationContract(input ?? {}, { contract });
   const packet = {
@@ -7929,6 +8368,9 @@ export function createUiImplementationContract(input = {}, options = {}) {
           "data visibility",
           "static enforcement",
           "browser QA",
+          ...(normalized.visual_composition_policy
+            ? ["visual composition evidence"]
+            : []),
           "accessibility evidence",
           "local component authority",
         ],
@@ -7941,6 +8383,9 @@ export function createUiImplementationContract(input = {}, options = {}) {
           "visual token boundary",
           "component contract evidence",
           "pattern contract evidence",
+          ...(normalized.visual_composition_policy
+            ? ["declared visual composition policy and receipt"]
+            : []),
         ],
       },
     ],
@@ -12065,6 +12510,26 @@ function reviewEvidenceFieldMapping(
       not_for:
         "Do not use local_component_authority_evidence as component contract evidence, approved primitive evidence, accessibility evidence, static evidence, or browser QA evidence.",
     },
+    ...(sourceContract.visual_composition_policy
+      ? {
+          visual_composition_evidence: {
+            field: "visual_composition_evidence",
+            alias: "browser_qa.visual_composition",
+            reviewed_by: "checks.visual_composition",
+            source_path:
+              "implementation_contract.visual_composition_policy",
+            policy_ref: {
+              id: sourceContract.visual_composition_policy.id,
+              version: sourceContract.visual_composition_policy.version,
+              sha256: sourceContract.visual_composition_policy.sha256,
+            },
+            accepts:
+              "Candidate-scoped rendered DOM geometry for declared relationships plus deterministic runtime discovery of governed icon-text pairs and select-like controls.",
+            not_for:
+              "A harness conformance receipt with seeded failing fixtures is not candidate acceptance evidence. The reviewer derives status from every sample and never trusts a top-level success claim.",
+          },
+        }
+      : {}),
   };
 }
 
@@ -12109,12 +12574,922 @@ function primitiveRoutingDiagnostics(inventedPrimitives, implementationContract)
   };
 }
 
+function candidateVisualCompositionManifest(candidate) {
+  if (!isPlainObject(candidate)) {
+    return null;
+  }
+
+  const browserQa = isPlainObject(candidate.browser_qa)
+    ? candidate.browser_qa
+    : isPlainObject(candidate.browserQa)
+      ? candidate.browserQa
+      : {};
+
+  return (
+    candidate.visual_composition_manifest ??
+    candidate.visualCompositionManifest ??
+    browserQa.visual_composition_manifest ??
+    browserQa.visualCompositionManifest ??
+    null
+  );
+}
+
+function candidateVisualCompositionEvidence(candidate) {
+  if (!isPlainObject(candidate)) {
+    return null;
+  }
+
+  const browserQa = isPlainObject(candidate.browser_qa)
+    ? candidate.browser_qa
+    : isPlainObject(candidate.browserQa)
+      ? candidate.browserQa
+      : {};
+
+  return (
+    candidate.visual_composition_evidence ??
+    candidate.visualCompositionEvidence ??
+    browserQa.visual_composition ??
+    browserQa.visualComposition ??
+    null
+  );
+}
+
+function candidateTextWithoutVisualCompositionEvidence(candidate) {
+  if (!isPlainObject(candidate)) return candidateText(candidate);
+  const {
+    visual_composition_manifest: _manifest,
+    visualCompositionManifest: _manifestCamel,
+    visual_composition_evidence: _evidence,
+    visualCompositionEvidence: _evidenceCamel,
+    ...rest
+  } = candidate;
+  const browserQa = isPlainObject(rest.browser_qa)
+    ? { ...rest.browser_qa }
+    : null;
+  if (browserQa) {
+    delete browserQa.visual_composition;
+    delete browserQa.visualComposition;
+    delete browserQa.visual_composition_manifest;
+    delete browserQa.visualCompositionManifest;
+  }
+  return candidateText({
+    ...rest,
+    ...(browserQa ? { browser_qa: browserQa } : {}),
+  });
+}
+
+function visualCompositionManifestSamples(manifest) {
+  if (!isPlainObject(manifest)) {
+    return [];
+  }
+
+  if (Array.isArray(manifest.samples)) {
+    return manifest.samples.filter(isPlainObject);
+  }
+
+  if (Array.isArray(manifest.relationships)) {
+    return manifest.relationships.filter(isPlainObject);
+  }
+
+  return [];
+}
+
+function visualCompositionSampleIdentity(sample) {
+  return [
+    optionalString(sample.document_id ?? sample.documentId),
+    optionalString(sample.viewport_id ?? sample.viewportId ?? sample.viewport?.id),
+    optionalString(sample.state_id ?? sample.stateId ?? sample.state),
+    optionalString(sample.sample_id ?? sample.sampleId ?? sample.id),
+    optionalString(sample.rule_id ?? sample.ruleId),
+    optionalString(sample.calibration_ref ?? sample.calibrationRef),
+    optionalString(sample.component_family ?? sample.componentFamily),
+    optionalString(sample.selector),
+    optionalString(sample.target_selector ?? sample.targetSelector),
+    optionalString(sample.member_selector ?? sample.memberSelector),
+    optionalString(sample.presentation_owner ?? sample.presentationOwner),
+    optionalString(sample.composition_variant ?? sample.compositionVariant),
+    optionalString(sample.container_selector ?? sample.containerSelector),
+    optionalString(sample.label_selector ?? sample.labelSelector),
+    optionalString(sample.indicator_selector ?? sample.indicatorSelector),
+    optionalString(sample.asset_selector ?? sample.assetSelector),
+    optionalString(sample.lockup_id ?? sample.lockupId),
+  ].join("|");
+}
+
+function candidateVisualCompositionDigest(candidate) {
+  if (!isPlainObject(candidate)) {
+    return sha256CanonicalValue(candidate);
+  }
+
+  const {
+    visual_composition_evidence: _evidence,
+    visualCompositionEvidence: _evidenceCamel,
+    ...candidateWithoutReceipt
+  } = candidate;
+  const browserQa = isPlainObject(candidateWithoutReceipt.browser_qa)
+    ? { ...candidateWithoutReceipt.browser_qa }
+    : null;
+  if (browserQa) {
+    delete browserQa.visual_composition;
+    delete browserQa.visualComposition;
+  }
+
+  return sha256CanonicalValue({
+    ...candidateWithoutReceipt,
+    ...(browserQa ? { browser_qa: browserQa } : {}),
+  });
+}
+
+function expectedVisualCompositionObservation(sample, rule, calibration) {
+  const evidence = isPlainObject(sample.evidence) ? sample.evidence : {};
+
+  if (
+    sample.code === "relationship_limit_exceeded" &&
+    sample.actual === "fail" &&
+    Number.isInteger(evidence.max_relationships_per_viewport) &&
+    Number.isInteger(evidence.observed_relationship_count_at_least) &&
+    evidence.observed_relationship_count_at_least >
+      evidence.max_relationships_per_viewport
+  ) {
+    return { actual: "fail", code: "relationship_limit_exceeded" };
+  }
+
+  if (rule?.kind === "inline_pair") {
+    const observed = evidence.box_center_delta_css_px;
+    const limit = calibration?.max_box_center_delta_css_px;
+    if (![observed, limit].every(Number.isFinite)) return null;
+    return observed <= limit
+      ? { actual: "pass", code: rule.id }
+      : { actual: "fail", code: rule.failure_code };
+  }
+
+  if (rule?.kind === "shared_anchor") {
+    if (evidence.active_query_matches === false) {
+      return {
+        actual: "not_applicable",
+        code: "relationship_inactive_at_viewport",
+      };
+    }
+    const observed = evidence.spread_css_px;
+    const limit = calibration?.max_spread_css_px;
+    if (![observed, limit].every(Number.isFinite)) return null;
+    return observed <= limit
+      ? { actual: "pass", code: rule.id }
+      : { actual: "fail", code: rule.failure_code };
+  }
+
+  if (rule?.kind === "protected_atom") {
+    const lineBoxCount = evidence.line_box_count;
+    const overflowsInline = evidence.overflows_inline;
+    const limit = calibration?.max_text_line_boxes;
+    if (
+      !Number.isInteger(lineBoxCount) ||
+      typeof overflowsInline !== "boolean" ||
+      !Number.isInteger(limit)
+    ) {
+      return null;
+    }
+    return lineBoxCount <= limit && !overflowsInline
+      ? { actual: "pass", code: rule.id }
+      : { actual: "fail", code: rule.failure_code };
+  }
+
+  if (rule?.kind === "presentation_owner") {
+    const owner = optionalString(
+      sample.presentation_owner ?? sample.presentationOwner,
+    );
+    if (owner === "browser") {
+      if (!optionalString(evidence.appearance)) return null;
+      return evidence.appearance === "none"
+        ? { actual: "review", code: "presentation_owner_undeclared" }
+        : {
+            actual: "pass_with_warning",
+            code: rule.warning_code,
+          };
+    }
+    if (owner !== "design_system") {
+      return { actual: "review", code: "presentation_owner_undeclared" };
+    }
+    const centerDelta = evidence.label_center_delta_css_px;
+    const railDelta = evidence.rail_delta_css_px;
+    const centerLimit = calibration?.max_label_center_delta_css_px;
+    const railLimit = calibration?.max_logical_rail_delta_css_px;
+    if (![centerDelta, railDelta, centerLimit, railLimit].every(Number.isFinite)) {
+      return null;
+    }
+    return centerDelta <= centerLimit && railDelta <= railLimit
+      ? { actual: "pass", code: rule.id }
+      : { actual: "fail", code: rule.failure_code };
+  }
+
+  if (rule?.kind === "canonical_lockup") {
+    const expected = rule.lockups?.[sample.lockup_id ?? sample.lockupId];
+    if (!expected) {
+      return { actual: "review", code: "canonical_lockup_undeclared" };
+    }
+    const source = optionalRawString(evidence.source);
+    const sha256 = optionalString(evidence.sha256);
+    if (!source || !sha256) return null;
+    return source.endsWith(expected.asset_suffix) && sha256 === expected.sha256
+      ? { actual: "pass", code: rule.id }
+      : { actual: "fail", code: rule.failure_code };
+  }
+
+  return null;
+}
+
+export function createVisualCompositionEvidenceBinding({
+  candidate,
+  implementation_contract: implementationContractInput,
+  visual_composition_manifest: manifestInput,
+  contract,
+  contractPath,
+} = {}) {
+  if (!isPlainObject(candidate)) {
+    throw new JudgmentKitInputError(
+      "createVisualCompositionEvidenceBinding requires a structured candidate.",
+    );
+  }
+  if (!isPlainObject(manifestInput)) {
+    throw new JudgmentKitInputError(
+      "createVisualCompositionEvidenceBinding requires visual_composition_manifest.",
+    );
+  }
+
+  const implementationContract = normalizeUiImplementationContract(
+    implementationContractInput,
+    { contract, contractPath },
+  );
+  const policy = implementationContract.visual_composition_policy;
+
+  if (!isPlainObject(policy)) {
+    throw new JudgmentKitInputError(
+      "createVisualCompositionEvidenceBinding requires an active visual composition policy.",
+    );
+  }
+
+  return {
+    policy_ref: {
+      id: policy.id,
+      version: policy.version,
+      sha256: policy.sha256,
+    },
+    contract_ref: {
+      id: implementationContract.id,
+      sha256: sha256CanonicalValue(implementationContract),
+    },
+    manifest_ref: {
+      sha256: sha256CanonicalValue(manifestInput),
+    },
+    candidate_ref: {
+      sha256: candidateVisualCompositionDigest(candidate),
+    },
+  };
+}
+
+function visualCompositionOutcome(samples, precedence) {
+  const rank = new Map(
+    toStringArray(precedence).map((outcome, index) => [outcome, index]),
+  );
+  const fallbackRank = rank.size;
+
+  return samples
+    .map((sample) => optionalString(sample.actual))
+    .filter(Boolean)
+    .sort(
+      (left, right) =>
+        (rank.get(left) ?? fallbackRank) - (rank.get(right) ?? fallbackRank),
+    )[0] ?? "not_applicable";
+}
+
+function reviewVisualCompositionEvidence(candidate, implementationContract) {
+  const policy = implementationContract.visual_composition_policy;
+
+  if (!isPlainObject(policy)) {
+    return {
+      status: "not_applicable",
+      applicable: false,
+      evidence_present: false,
+      reason: "no_active_visual_composition_policy",
+      findings: [],
+      warnings: [],
+    };
+  }
+
+  const trustedEvidence = getTrustedVisualCompositionEvidence(candidate);
+  const manifest = trustedEvidence?.manifest ?? candidateVisualCompositionManifest(candidate);
+  const manifestSamples = visualCompositionManifestSamples(manifest);
+  const manifestApplicability = optionalString(manifest?.applicability);
+  const noApplicableDeclaration =
+    manifestApplicability === "none" &&
+    manifestSamples.length === 0 &&
+    Boolean(optionalString(manifest?.rationale)) &&
+    isPlainObject(manifest?.inspection) &&
+    manifest.inspection.declared_relationship_count === 0 &&
+    Boolean(optionalString(manifest.inspection.root_selector));
+  const receipt = trustedEvidence?.receipt ?? candidateVisualCompositionEvidence(candidate);
+  const evidencePresent = isPlainObject(receipt);
+  const trustedEvidencePresent = isPlainObject(trustedEvidence);
+  const manifestDeclared = isPlainObject(manifest);
+  const policyRef = {
+    id: policy.id,
+    version: policy.version,
+    sha256: policy.sha256,
+  };
+
+  if (!manifestDeclared) {
+    const finding = {
+      severity: "fail",
+      check: "visual_composition",
+      code: "missing_visual_composition_manifest",
+      message:
+        "The active visual composition policy requires an explicit applicability manifest; omission cannot be treated as not applicable.",
+      evidence: {
+        field: "visual_composition_manifest",
+        policy_ref: policyRef,
+      },
+    };
+
+    return {
+      status: "fail",
+      applicable: null,
+      evidence_present: evidencePresent,
+      policy_ref: policyRef,
+      reason: "missing_visual_composition_manifest",
+      findings: [finding],
+      warnings: [],
+    };
+  }
+
+  if (manifestSamples.length === 0 && !noApplicableDeclaration) {
+    const finding = {
+      severity: "fail",
+      check: "visual_composition",
+      code: "invalid_visual_composition_manifest",
+      message:
+        "The visual composition manifest must declare governed samples or an inspected no-applicable-contract rationale.",
+      evidence: { manifest },
+    };
+
+    return {
+      status: "fail",
+      applicable: null,
+      evidence_present: evidencePresent,
+      policy_ref: policyRef,
+      reason: "invalid_visual_composition_manifest",
+      findings: [finding],
+      warnings: [],
+    };
+  }
+
+  if (!evidencePresent) {
+    const finding = {
+      severity: "fail",
+      check: "visual_composition",
+      code: "missing_visual_composition_evidence",
+      message:
+        "Candidate declares visual composition applicability but does not provide candidate-scoped visual composition evidence.",
+      evidence: {
+        field: "visual_composition_evidence",
+        alias: "browser_qa.visual_composition",
+        policy_ref: policyRef,
+        declared_sample_count: manifestSamples.length,
+      },
+    };
+
+    return {
+      status: "fail",
+      applicable: true,
+      evidence_present: false,
+      policy_ref: policyRef,
+      reason: "missing_visual_composition_evidence",
+      findings: [finding],
+      warnings: [],
+    };
+  }
+
+  if (!trustedEvidencePresent) {
+    const finding = {
+      severity: "fail",
+      check: "visual_composition",
+      code: "untrusted_visual_composition_evidence",
+      message:
+        "Candidate-authored visual composition claims cannot satisfy the active policy; accepting evidence must come from the trusted browser runtime.",
+      evidence: {
+        field: "visual_composition_evidence",
+        policy_ref: policyRef,
+      },
+    };
+
+    return {
+      status: "fail",
+      applicable: true,
+      evidence_present: true,
+      trusted_evidence_present: false,
+      policy_ref: policyRef,
+      reason: "untrusted_visual_composition_evidence",
+      findings: [finding],
+      warnings: [],
+    };
+  }
+
+  const receiptContract = isPlainObject(policy.receipt_contract)
+    ? policy.receipt_contract
+    : {};
+  const rules = new Map(
+    (Array.isArray(policy.rules) ? policy.rules : [])
+      .filter(isPlainObject)
+      .map((rule) => [optionalString(rule.id), rule]),
+  );
+  const calibrations = new Map(
+    Object.entries(isPlainObject(policy.calibrations) ? policy.calibrations : {}),
+  );
+  const samples = Array.isArray(receipt.samples)
+    ? receipt.samples.filter(isPlainObject)
+    : [];
+  const documents = Array.isArray(receipt.documents)
+    ? receipt.documents.filter(isPlainObject)
+    : [];
+  const acceptedOutcomes = new Set(
+    toStringArray(receiptContract.accepted_outcomes),
+  );
+  const acceptedCodes = isPlainObject(receiptContract.accepted_codes)
+    ? receiptContract.accepted_codes
+    : {};
+  const invalidReasons = [];
+  const warnings = [];
+
+  for (const requiredField of toStringArray(receiptContract.required_fields)) {
+    if (!(requiredField in receipt)) {
+      invalidReasons.push({
+        code: "receipt_required_field_missing",
+        field: requiredField,
+      });
+    }
+  }
+
+  if (receipt.kind !== receiptContract.kind) {
+    invalidReasons.push({
+      code: "receipt_kind_mismatch",
+      expected: receiptContract.kind,
+      actual: receipt.kind ?? null,
+    });
+  }
+
+  if (receipt.version !== receiptContract.version) {
+    invalidReasons.push({
+      code: "receipt_version_mismatch",
+      expected: receiptContract.version,
+      actual: receipt.version ?? null,
+    });
+  }
+
+  if (
+    !isPlainObject(receipt.policy_ref) ||
+    receipt.policy_ref.id !== policy.id ||
+    receipt.policy_ref.version !== policy.version ||
+    (optionalString(policy.sha256) &&
+      receipt.policy_ref.sha256 !== policy.sha256)
+  ) {
+    invalidReasons.push({
+      code: "receipt_policy_mismatch",
+      expected: {
+        ...policyRef,
+        ...(optionalString(policy.sha256) ? { sha256: policy.sha256 } : {}),
+      },
+      actual: isPlainObject(receipt.policy_ref) ? receipt.policy_ref : null,
+    });
+  }
+
+  const expectedContractSha256 = sha256CanonicalValue(implementationContract);
+  const expectedManifestSha256 = sha256CanonicalValue(manifest);
+  const expectedCandidateSha256 = candidateVisualCompositionDigest(candidate);
+
+  if (
+    !isPlainObject(receipt.contract_ref) ||
+    receipt.contract_ref.id !== implementationContract.id ||
+    receipt.contract_ref.sha256 !== expectedContractSha256
+  ) {
+    invalidReasons.push({
+      code: "receipt_contract_mismatch",
+      expected: {
+        id: implementationContract.id,
+        sha256: expectedContractSha256,
+      },
+      actual: isPlainObject(receipt.contract_ref) ? receipt.contract_ref : null,
+    });
+  }
+
+  if (
+    !isPlainObject(receipt.manifest_ref) ||
+    receipt.manifest_ref.sha256 !== expectedManifestSha256
+  ) {
+    invalidReasons.push({
+      code: "receipt_manifest_mismatch",
+      expected: { sha256: expectedManifestSha256 },
+      actual: isPlainObject(receipt.manifest_ref) ? receipt.manifest_ref : null,
+    });
+  }
+
+  if (
+    !isPlainObject(receipt.candidate_ref) ||
+    receipt.candidate_ref.sha256 !== expectedCandidateSha256
+  ) {
+    invalidReasons.push({
+      code: "receipt_candidate_mismatch",
+      expected: { sha256: expectedCandidateSha256 },
+      actual: isPlainObject(receipt.candidate_ref) ? receipt.candidate_ref : null,
+    });
+  }
+
+  if (
+    !isPlainObject(receipt.environment) ||
+    receipt.environment.measurement !== "dom_geometry" ||
+    receipt.environment.fonts_ready !== true ||
+    receipt.environment.issuer !== "judgmentkit_browser_runtime"
+  ) {
+    invalidReasons.push({
+      code: "receipt_environment_invalid",
+      expected: {
+        measurement: "dom_geometry",
+        fonts_ready: true,
+        issuer: "judgmentkit_browser_runtime",
+      },
+      actual: isPlainObject(receipt.environment) ? receipt.environment : null,
+    });
+  }
+
+  if (!Array.isArray(receipt.documents) || documents.length === 0) {
+    invalidReasons.push({ code: "receipt_documents_missing" });
+  }
+
+  if (
+    !Array.isArray(receipt.samples) ||
+    (samples.length === 0 && !noApplicableDeclaration)
+  ) {
+    invalidReasons.push({ code: "receipt_samples_missing" });
+  }
+
+  for (const [index, sample] of samples.entries()) {
+    const actual = optionalString(sample.actual);
+    const code = optionalString(sample.code);
+    const ruleId = optionalString(sample.rule_id ?? sample.ruleId);
+    const calibrationRef = optionalString(
+      sample.calibration_ref ?? sample.calibrationRef,
+    );
+    const rule = rules.get(ruleId);
+    const acceptedForOutcome = toStringArray(acceptedCodes[actual]);
+    const documentId = optionalString(sample.document_id ?? sample.documentId);
+    const document = documents.find(
+      (candidateDocument) =>
+        optionalString(
+          candidateDocument.document_id ?? candidateDocument.documentId,
+        ) === documentId,
+    );
+
+    if (!acceptedOutcomes.has(actual)) {
+      invalidReasons.push({
+        code: "sample_outcome_invalid",
+        sample_index: index,
+        actual: actual || null,
+      });
+    }
+
+    if (!rule) {
+      invalidReasons.push({
+        code: "sample_rule_unknown",
+        sample_index: index,
+        rule_id: ruleId || null,
+      });
+    }
+
+    if (!code || !acceptedForOutcome.includes(code)) {
+      invalidReasons.push({
+        code: "sample_code_invalid",
+        sample_index: index,
+        actual: actual || null,
+        sample_code: code || null,
+      });
+    }
+
+    if (
+      !document ||
+      !/^[a-f0-9]{64}$/.test(optionalString(document.artifact_sha256)) ||
+      sample.artifact_sha256 !== document.artifact_sha256
+    ) {
+      invalidReasons.push({
+        code: "sample_artifact_mismatch",
+        sample_index: index,
+        document_id: documentId || null,
+      });
+    }
+
+    if (code !== "no_applicable_contract" && !optionalString(sample.selector)) {
+      invalidReasons.push({
+        code: "sample_selector_missing",
+        sample_index: index,
+      });
+    }
+
+    if (calibrationRef) {
+      const calibration = calibrations.get(calibrationRef);
+
+      if (!isPlainObject(calibration)) {
+        invalidReasons.push({
+          code: "sample_calibration_unknown",
+          sample_index: index,
+          calibration_ref: calibrationRef,
+        });
+      } else {
+        if (calibration.rule_id !== ruleId) {
+          invalidReasons.push({
+            code: "sample_calibration_rule_mismatch",
+            sample_index: index,
+            calibration_ref: calibrationRef,
+            expected_rule_id: calibration.rule_id,
+            actual_rule_id: ruleId,
+          });
+        }
+        if (
+          optionalString(sample.component_family) &&
+          sample.component_family !== calibration.component_family
+        ) {
+          invalidReasons.push({
+            code: "sample_component_family_mismatch",
+            sample_index: index,
+            calibration_ref: calibrationRef,
+            expected_component_family: calibration.component_family,
+            actual_component_family: sample.component_family,
+          });
+        }
+      }
+    }
+
+    const expectedObservation = expectedVisualCompositionObservation(
+      sample,
+      rule,
+      calibrations.get(calibrationRef),
+    );
+
+    if (
+      !expectedObservation ||
+      expectedObservation.actual !== actual ||
+      expectedObservation.code !== code
+    ) {
+      invalidReasons.push({
+        code: "sample_measurement_outcome_mismatch",
+        sample_index: index,
+        expected: expectedObservation,
+        actual: { outcome: actual || null, code: code || null },
+      });
+    }
+
+    if (
+      rule?.kind === "protected_atom" &&
+      !optionalString(sample.target_selector ?? sample.targetSelector)
+    ) {
+      invalidReasons.push({
+        code: "protected_atom_target_missing",
+        sample_index: index,
+      });
+    }
+
+    if (
+      ["inline_pair", "shared_anchor"].includes(rule?.kind) &&
+      !optionalString(sample.member_selector ?? sample.memberSelector)
+    ) {
+      invalidReasons.push({
+        code: "relationship_member_selector_missing",
+        sample_index: index,
+      });
+    }
+
+    if (
+      rule?.kind === "presentation_owner" &&
+      !toStringArray(rule.supported_owners).includes(
+        optionalString(sample.presentation_owner ?? sample.presentationOwner),
+      )
+    ) {
+      invalidReasons.push({
+        code: "presentation_owner_invalid",
+        sample_index: index,
+      });
+    }
+
+    if (
+      actual === "not_applicable" &&
+      code !== "no_applicable_contract" &&
+      !optionalString(sample.rationale ?? sample.message)
+    ) {
+      invalidReasons.push({
+        code: "not_applicable_rationale_missing",
+        sample_index: index,
+      });
+    }
+
+    if (actual === "pass_with_warning") {
+      warnings.push({
+        code,
+        rule_id: ruleId,
+        sample_id: optionalString(sample.sample_id) || null,
+        message:
+          optionalString(sample.message) ||
+          "The declared browser-owned geometry cannot be measured by this policy.",
+      });
+    }
+  }
+
+  {
+    const manifestIdentities = manifestSamples.map(visualCompositionSampleIdentity);
+    const receiptIdentities = samples.map(visualCompositionSampleIdentity);
+    const duplicateManifestIdentities = manifestIdentities.filter(
+      (identity, index) => manifestIdentities.indexOf(identity) !== index,
+    );
+    const duplicateReceiptIdentities = receiptIdentities.filter(
+      (identity, index) => receiptIdentities.indexOf(identity) !== index,
+    );
+    const receiptSampleIds = new Set(receiptIdentities);
+    const manifestSampleIds = new Set(manifestIdentities);
+    const missingManifestSamples = manifestIdentities.filter(
+      (identity) => !receiptSampleIds.has(identity),
+    );
+    const undeclaredReceiptSamples = receiptIdentities.filter(
+      (identity) => !manifestSampleIds.has(identity),
+    );
+
+    if (
+      missingManifestSamples.length > 0 ||
+      undeclaredReceiptSamples.length > 0 ||
+      duplicateManifestIdentities.length > 0 ||
+      duplicateReceiptIdentities.length > 0
+    ) {
+      invalidReasons.push({
+        code: "manifest_receipt_coverage_mismatch",
+        missing_from_receipt: missingManifestSamples,
+        undeclared_in_receipt: undeclaredReceiptSamples,
+        duplicate_manifest_samples: unique(duplicateManifestIdentities),
+        duplicate_receipt_samples: unique(duplicateReceiptIdentities),
+      });
+    }
+  }
+
+  const precedence =
+    policy.outcomes?.precedence ?? [
+      "fail",
+      "review",
+      "pass_with_warning",
+      "pass",
+      "not_applicable",
+    ];
+  const derivedOutcome = visualCompositionOutcome(samples, precedence);
+
+  if (receipt.outcome !== derivedOutcome) {
+    invalidReasons.push({
+      code: "receipt_outcome_mismatch",
+      expected: derivedOutcome,
+      actual: receipt.outcome ?? null,
+    });
+  }
+
+  const documentSamples = new Map();
+  for (const sample of samples) {
+    const documentId = optionalString(sample.document_id ?? sample.documentId);
+    if (!documentId) {
+      invalidReasons.push({ code: "sample_document_id_missing" });
+      continue;
+    }
+    const group = documentSamples.get(documentId) ?? [];
+    group.push(sample);
+    documentSamples.set(documentId, group);
+  }
+  const documentIds = documents.map((document) =>
+    optionalString(document.document_id ?? document.documentId),
+  );
+  const duplicateDocumentIds = documentIds.filter(
+    (documentId, index) => documentId && documentIds.indexOf(documentId) !== index,
+  );
+  if (duplicateDocumentIds.length > 0) {
+    invalidReasons.push({
+      code: "duplicate_receipt_documents",
+      document_ids: unique(duplicateDocumentIds),
+    });
+  }
+  for (const document of documents) {
+    const documentId = optionalString(document.document_id ?? document.documentId);
+    const groupedSamples = documentSamples.get(documentId) ?? [];
+    const expectedOutcome = visualCompositionOutcome(groupedSamples, precedence);
+
+    const validNoApplicableDocument =
+      groupedSamples.length === 0 &&
+      document.outcome === "not_applicable" &&
+      document.code === "no_applicable_contract" &&
+      isPlainObject(document.evidence) &&
+      document.evidence.declared_relationship_count === 0 &&
+      Boolean(optionalString(document.evidence.inspected_root_selector));
+
+    if (
+      !documentId ||
+      (!validNoApplicableDocument && groupedSamples.length === 0) ||
+      !/^[a-f0-9]{64}$/.test(optionalString(document.artifact_sha256)) ||
+      document.sample_count !== groupedSamples.length ||
+      document.candidate_sha256 !== expectedCandidateSha256
+    ) {
+      invalidReasons.push({
+        code: "document_binding_missing",
+        document_id: documentId || null,
+      });
+    } else if (
+      document.outcome !== expectedOutcome ||
+      (validNoApplicableDocument &&
+        document.evidence.inspected_root_selector !==
+          manifest.inspection.root_selector)
+    ) {
+      invalidReasons.push({
+        code: "document_outcome_mismatch",
+        document_id: documentId,
+        expected: expectedOutcome,
+        actual: document.outcome ?? null,
+      });
+    }
+  }
+
+  if (
+    samples.length > 0 &&
+    samples.every(
+      (sample) => optionalString(sample.actual) === "not_applicable",
+    )
+  ) {
+    invalidReasons.push({
+      code: "declared_relationship_never_observed",
+      message:
+        "Every declared relationship was inactive across the required viewports, so the runtime could not verify it.",
+    });
+  }
+
+  const blockingSamples = samples.filter((sample) =>
+    ["fail", "review"].includes(optionalString(sample.actual)),
+  );
+  const invalid = invalidReasons.length > 0;
+  const blocking = invalid || blockingSamples.length > 0;
+  const status = blocking
+    ? "fail"
+    : derivedOutcome === "pass_with_warning"
+      ? "pass_with_warning"
+      : derivedOutcome;
+  const findings = blocking
+    ? [
+        {
+          severity: "fail",
+          check: "visual_composition",
+          code: invalid
+            ? "invalid_visual_composition_evidence"
+            : derivedOutcome === "review"
+              ? "visual_composition_review_required"
+              : "visual_composition_rule_failed",
+          message: invalid
+            ? "Candidate visual composition evidence does not satisfy the active policy receipt contract."
+            : derivedOutcome === "review"
+              ? "Candidate visual composition evidence requires declared authority or calibration before acceptance."
+              : "Candidate rendered composition violates the active policy.",
+          evidence: {
+            policy_ref: policyRef,
+            derived_outcome: derivedOutcome,
+            invalid_reasons: invalidReasons,
+            blocking_samples: blockingSamples.map((sample) => ({
+              sample_id: optionalString(sample.sample_id) || null,
+              rule_id: optionalString(sample.rule_id) || null,
+              calibration_ref: optionalString(sample.calibration_ref) || null,
+              actual: optionalString(sample.actual) || null,
+              code: optionalString(sample.code) || null,
+              evidence: sample.evidence ?? null,
+            })),
+          },
+        },
+      ]
+    : [];
+
+  return {
+    status,
+    applicable: true,
+    evidence_present: true,
+    trusted_evidence_present: true,
+    policy_ref: policyRef,
+    receipt_outcome: receipt.outcome ?? null,
+    derived_outcome: derivedOutcome,
+    sample_count: samples.length,
+    document_count: documents.length,
+    invalid_reasons: invalidReasons,
+    warnings,
+    findings,
+  };
+}
+
 function buildImplementationCandidateChecks(
   candidate,
   implementationContract,
   { selectedSurfaceType } = {},
 ) {
-  const text = candidateText(candidate);
+  const text = candidateTextWithoutVisualCompositionEvidence(candidate);
   const rawControls = detectRawControls(text);
   const primitivesUsed = normalizeCandidateList(candidate, [
     "primitives_used",
@@ -12182,6 +13557,10 @@ function buildImplementationCandidateChecks(
     candidate,
     implementationContract,
     { selectedSurfaceType },
+  );
+  const visualComposition = reviewVisualCompositionEvidence(
+    candidate,
+    implementationContract,
   );
   const findings = [];
 
@@ -12268,6 +13647,7 @@ function buildImplementationCandidateChecks(
   findings.push(...localComponentAuthority.findings);
   findings.push(...componentContracts.findings);
   findings.push(...patternContracts.findings);
+  findings.push(...visualComposition.findings);
 
   return {
     raw_controls: {
@@ -12328,6 +13708,7 @@ function buildImplementationCandidateChecks(
     local_component_authority: localComponentAuthority,
     component_contracts: componentContracts,
     pattern_contracts: patternContracts,
+    visual_composition: visualComposition,
     findings,
   };
 }
@@ -12402,6 +13783,10 @@ function findingContractArea(check) {
 
   if (check === "pattern_contracts") {
     return "pattern_contracts";
+  }
+
+  if (check === "visual_composition") {
+    return "visual_composition";
   }
 
   return "evidence_gates";
@@ -12509,6 +13894,10 @@ function repairInstructionForFinding(finding, implementationContract) {
 
   if (check === "pattern_contracts") {
     return "Select the pattern that matches the chosen surface type and provide evidence for required regions and expected controls.";
+  }
+
+  if (check === "visual_composition") {
+    return "Repair only the declared rendered relationships, rerender at the required viewports after fonts are ready, and resubmit a candidate-scoped visual_composition_evidence receipt under the active policy.";
   }
 
   return "Repair the failed implementation contract evidence before resubmitting.";
@@ -12627,7 +14016,7 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
         id: "implementation_gate",
         status: failed ? "failed" : "passed",
         requirement:
-          "Generated UI must use approved primitives, respect local component authority, and provide static plus browser QA evidence.",
+          "Generated UI must use approved primitives, respect local component authority, and provide static, browser QA, and applicable rendered visual composition evidence.",
       },
       {
         id: "design_system_gate",
@@ -12651,6 +14040,7 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
       local_component_authority: checks.local_component_authority,
       component_contracts: checks.component_contracts,
       pattern_contracts: checks.pattern_contracts,
+      visual_composition: checks.visual_composition,
     },
     findings: checks.findings,
     implementation_contract: implementationContract,
@@ -12659,6 +14049,108 @@ export function reviewUiImplementationCandidate(candidate, options = {}) {
   assertNoStyleFields(packet);
 
   return packet;
+}
+
+function withoutCallerVisualCompositionEvidence(candidate) {
+  if (!isPlainObject(candidate)) return candidate;
+
+  const nextCandidate = structuredClone(candidate);
+  delete nextCandidate.visual_composition_evidence;
+  delete nextCandidate.visualCompositionEvidence;
+
+  if (isPlainObject(nextCandidate.browser_qa)) {
+    delete nextCandidate.browser_qa.visual_composition;
+    delete nextCandidate.browser_qa.visualComposition;
+  }
+  if (isPlainObject(nextCandidate.browserQa)) {
+    delete nextCandidate.browserQa.visual_composition;
+    delete nextCandidate.browserQa.visualComposition;
+  }
+
+  return nextCandidate;
+}
+
+/**
+ * Independently render and measure a candidate before reviewing it. The
+ * private browser attestation exists only for this call; neither an attacher
+ * nor the attested candidate is exposed to callers.
+ */
+export async function reviewUiImplementationCandidateWithBrowserRuntime(
+  candidate,
+  options = {},
+) {
+  const sanitizedCandidate = withoutCallerVisualCompositionEvidence(candidate);
+  if (!isPlainObject(sanitizedCandidate)) {
+    return reviewUiImplementationCandidate(sanitizedCandidate, options);
+  }
+
+  const contract = options.contract ?? loadActivityContract(options.contractPath);
+  const implementationContract = normalizeUiImplementationContract(
+    options.implementation_contract ??
+      options.ui_implementation_contract ??
+      contract.implementation_contract,
+    { contract },
+  );
+  const reviewOptions = {
+    ...options,
+    contract,
+    implementation_contract: implementationContract,
+  };
+
+  if (!isPlainObject(implementationContract.visual_composition_policy)) {
+    return reviewUiImplementationCandidate(sanitizedCandidate, reviewOptions);
+  }
+
+  const { measureVisualCompositionInBrowser } = await import(
+    "./visual-composition-browser-runtime.mjs"
+  );
+  const measured = await measureVisualCompositionInBrowser({
+    candidate: sanitizedCandidate,
+    implementationContract,
+  });
+
+  if (!isPlainObject(measured?.manifest) || !isPlainObject(measured?.receipt)) {
+    return reviewUiImplementationCandidate(sanitizedCandidate, reviewOptions);
+  }
+
+  const measuredCandidate = {
+    ...sanitizedCandidate,
+    visual_composition_manifest: measured.manifest,
+  };
+  delete measuredCandidate.visualCompositionManifest;
+  if (isPlainObject(measuredCandidate.browser_qa)) {
+    delete measuredCandidate.browser_qa.visual_composition_manifest;
+    delete measuredCandidate.browser_qa.visualCompositionManifest;
+  }
+  if (isPlainObject(measuredCandidate.browserQa)) {
+    delete measuredCandidate.browserQa.visual_composition_manifest;
+    delete measuredCandidate.browserQa.visualCompositionManifest;
+  }
+
+  const binding = createVisualCompositionEvidenceBinding({
+    candidate: measuredCandidate,
+    implementation_contract: implementationContract,
+    visual_composition_manifest: measured.manifest,
+  });
+  const receipt = {
+    ...measured.receipt,
+    ...binding,
+    documents: measured.receipt.documents.map((document) => ({
+      ...document,
+      candidate_sha256: binding.candidate_ref.sha256,
+    })),
+  };
+  measuredCandidate.visual_composition_evidence = receipt;
+  trustedVisualCompositionEvidence.set(measuredCandidate, {
+    manifest: measured.manifest,
+    receipt,
+  });
+
+  try {
+    return reviewUiImplementationCandidate(measuredCandidate, reviewOptions);
+  } finally {
+    trustedVisualCompositionEvidence.delete(measuredCandidate);
+  }
 }
 
 function compactImplementationContractForHandoff(implementationContract) {
@@ -12674,6 +14166,17 @@ function compactImplementationContractForHandoff(implementationContract) {
       implementationContract.default_ai_native_design_system,
     iteration_policy: implementationContract.iteration_policy,
     design_system_source: implementationContract.design_system_source,
+    ...(implementationContract.design_system_adapter
+      ? { design_system_adapter: implementationContract.design_system_adapter }
+      : {}),
+    ...(implementationContract.visual_composition_policy
+      ? {
+          visual_composition_policy:
+            implementationContract.visual_composition_policy,
+          visual_composition_policy_authority:
+            implementationContract.visual_composition_policy_authority,
+        }
+      : {}),
     local_component_authority: implementationContract.local_component_authority,
     visual_token_adapter: implementationContract.visual_token_adapter,
     visual_asset_policy: implementationContract.visual_asset_policy,
@@ -13519,6 +15022,9 @@ export function createFrontendGenerationContext({
     uiGenerationHandoff.implementation_contract?.local_component_authority,
     DEFAULT_LOCAL_COMPONENT_AUTHORITY,
   );
+  const visualCompositionPolicy =
+    uiGenerationHandoff.implementation_contract?.visual_composition_policy ??
+    null;
   const evidenceFieldMapping = reviewEvidenceFieldMapping(
     uiGenerationHandoff.implementation_contract,
     designSystemContract,
@@ -13605,6 +15111,9 @@ export function createFrontendGenerationContext({
       design_system_source: designSystemSource,
       local_component_authority:
         localComponentAuthority,
+      ...(visualCompositionPolicy
+        ? { visual_composition_policy: visualCompositionPolicy }
+        : {}),
       visual_asset_policy:
         uiGenerationHandoff.implementation_contract?.visual_asset_policy ??
         DEFAULT_VISUAL_ASSET_POLICY,
@@ -13619,7 +15128,14 @@ export function createFrontendGenerationContext({
       required_controls: requiredSurfaceAggregate.controls,
       verification_expectations: {
         commands: toStringArray(normalizedVerification.commands),
-        browser_checks: toStringArray(normalizedVerification.browser_checks),
+        browser_checks: unique([
+          ...toStringArray(normalizedVerification.browser_checks),
+          ...(visualCompositionPolicy
+            ? [
+                "Render declared visual-composition relationships at required viewports after fonts are ready, measure DOM geometry under the active policy, and attach candidate-scoped visual_composition_evidence.",
+              ]
+            : []),
+        ]),
         states_to_verify: toStringArray(normalizedVerification.states_to_verify),
       },
     },
@@ -13634,6 +15150,9 @@ export function createFrontendGenerationContext({
       approved_primitives:
         uiGenerationHandoff.implementation_contract?.approved_primitives ?? [],
       design_system_source: designSystemSource,
+      ...(visualCompositionPolicy
+        ? { visual_composition_policy: visualCompositionPolicy }
+        : {}),
       ...(localComponentAuthorityIsActive(localComponentAuthority)
         ? { local_component_authority: localComponentAuthority }
         : {}),
@@ -13662,6 +15181,8 @@ function buildFrontendImplementationInstructionMarkdown({
     reviewEvidenceMapping.design_system_provenance ?? {};
   const localAuthorityEvidenceMapping =
     reviewEvidenceMapping.local_component_authority_evidence ?? {};
+  const visualCompositionEvidenceMapping =
+    reviewEvidenceMapping.visual_composition_evidence ?? {};
   const verification = implementationGuidance.verification_expectations ?? {};
   const frontendContext = frontendGenerationContext.frontend_context ?? {};
   const workflow = frontendGenerationContext.workflow ?? {};
@@ -13677,6 +15198,11 @@ function buildFrontendImplementationInstructionMarkdown({
   );
   const localComponentAuthorityActive =
     localComponentAuthorityIsActive(localComponentAuthority);
+  const visualCompositionPolicy =
+    implementationGuidance.visual_composition_policy ??
+    frontendGenerationContext.implementation_contract
+      ?.visual_composition_policy ??
+    null;
   const contrastTargets =
     accessibilityPolicy.contrast_targets ?? DEFAULT_ACCESSIBILITY_POLICY.contrast_targets;
   const standardsProfile =
@@ -13723,6 +15249,14 @@ function buildFrontendImplementationInstructionMarkdown({
           "- Put repo-local selector-boundary and computed-style proof in local_component_authority_evidence when local authority is active.",
         ]
       : []),
+    ...(visualCompositionPolicy
+      ? [
+          "- Always submit visual_composition_manifest. Declare each governed relationship using only active rule ids and calibration refs with document, viewport, state, sample, component-family, and selector identity; when none apply, explicitly declare applicability none with an inspected root, zero relationship count, and rationale.",
+          "- After implementation, render every declared relationship at required desktop and mobile viewports, await document.fonts.ready, measure DOM geometry, and attach a candidate-scoped visual_composition_evidence receipt.",
+          "- Bind the receipt to the policy, implementation contract, manifest, candidate source, and rendered document SHA-256 values; the reviewer recomputes outcomes from raw measurements.",
+          "- Repair fail or review outcomes, rerender, and replace the receipt before resubmitting. Keep browser_owned_indicator_unmeasured as the policy-declared non-blocking warning for native select arrows.",
+        ]
+      : []),
     "- Use JudgmentKit design-system exports by default; when external_design_system is active, do not mix in JudgmentKit default assets unless the external adapter explicitly names them.",
     "- Verify core accessibility evidence for semantics, landmarks/headings, name/role/value, keyboard navigation, focus order, focus-visible, responsive reflow/no-overflow, and automated checks.",
     "- Add conditional accessibility evidence for visuals, custom widgets, forms, status messages, overlays, motion, media, dense controls, and hover/focus content when those patterns appear.",
@@ -13743,6 +15277,11 @@ function buildFrontendImplementationInstructionMarkdown({
     ...(localComponentAuthorityActive
       ? [
           `- ${localAuthorityEvidenceMapping.field || "local_component_authority_evidence"}: repo-local component family, selector-boundary, token-boundary, and computed-style proof. Active mode: ${localAuthorityEvidenceMapping.active_authority?.mode || localComponentAuthority.mode || "none"}`,
+        ]
+      : []),
+    ...(visualCompositionPolicy
+      ? [
+          `- ${visualCompositionEvidenceMapping.field || "visual_composition_evidence"} (alias ${visualCompositionEvidenceMapping.alias || "browser_qa.visual_composition"}): rendered DOM-geometry receipt for the relationships declared in visual_composition_manifest. Policy: ${visualCompositionPolicy.id}@${visualCompositionPolicy.version}. This receipt is separate from desktop/mobile browser QA.`,
         ]
       : []),
     "",
@@ -13812,6 +15351,14 @@ function buildFrontendImplementationInstructionMarkdown({
         (entry) => `${entry.id}: ${entry.surface_type}`,
       ) || "none supplied"
     }`,
+    ...(visualCompositionPolicy
+      ? [
+          `- Visual composition policy: ${visualCompositionPolicy.id}@${visualCompositionPolicy.version}`,
+          `- Visual composition enforcement: ${visualCompositionPolicy.enforcement}`,
+          `- Governed rules: ${toStringArray(visualCompositionPolicy.rules?.map((rule) => rule.id)).join("; ") || "none supplied"}`,
+          "- Runtime boundary: measure declared relationships plus deterministic discovery of governed icon-text pairs and select-like controls against named component-family calibrations; do not infer unclassified optical intent, fabricate browser-owned indicator geometry, or mutate canonical assets.",
+        ]
+      : []),
     ...(selectedSurfaceProfile
       ? [
           "",
@@ -13927,6 +15474,10 @@ export function createFrontendImplementationSkillContext({
   );
   const localComponentAuthorityActive =
     localComponentAuthorityIsActive(localComponentAuthority);
+  const visualCompositionPolicy =
+    implementationGuidance.visual_composition_policy ??
+    implementationContract.visual_composition_policy ??
+    null;
   let visualTokenAdapter = normalizeVisualTokenAdapter(
     implementationContract.visual_token_adapter ?? {},
     DEFAULT_VISUAL_TOKEN_ADAPTER,
@@ -14207,6 +15758,14 @@ export function createFrontendImplementationSkillContext({
             "Put repo-local selector-boundary and computed-style proof in local_component_authority_evidence when local authority is active.",
           ]
         : []),
+      ...(visualCompositionPolicy
+        ? [
+            "Always declare visual_composition_manifest: list applicable relationships with full document/viewport/state/sample identity, or explicitly document an inspected no-applicable-contract result.",
+            "Render declared and deterministically discovered relationships at required desktop and mobile viewports after fonts are ready; attach candidate-scoped visual_composition_evidence and keep it separate from generic browser QA.",
+            "Bind the receipt to the policy, contract, manifest, candidate source, and rendered document SHA-256 values; provide raw geometry because the reviewer recomputes each outcome.",
+            "On a visual composition fail or review outcome, repair only the declared relationship, rerender, replace the receipt, and resubmit before acceptance.",
+          ]
+        : []),
       "Use JudgmentKit design-system exports by default; when external_design_system is active, do not mix in JudgmentKit default assets unless the external adapter explicitly names them.",
       "When the spec calls for substantive visuals, use imagegen or premium Three.js/WebGL/D3-style rendering instead of rudimentary deterministic geometry.",
       "Verify core accessibility evidence: automated checks, semantic content, landmarks/headings, name-role-value, keyboard navigation, focus order, focus-visible, and responsive reflow/no-overflow.",
@@ -14242,6 +15801,9 @@ export function createFrontendImplementationSkillContext({
     visual_asset_policy: visualAssetPolicy,
     accessibility_policy: accessibilityPolicy,
     local_component_authority: localComponentAuthority,
+    ...(visualCompositionPolicy
+      ? { visual_composition_policy: visualCompositionPolicy }
+      : {}),
     ...(selectedSurfaceProfile
       ? { selected_surface_profile: selectedSurfaceProfile }
       : {}),
@@ -14265,6 +15827,9 @@ export function createFrontendImplementationSkillContext({
       design_system_source: designSystemSource,
       ...(localComponentAuthorityActive
         ? { local_component_authority: localComponentAuthority }
+        : {}),
+      ...(visualCompositionPolicy
+        ? { visual_composition_policy: visualCompositionPolicy }
         : {}),
       visual_asset_policy: visualAssetPolicy,
       accessibility_policy: accessibilityPolicy,

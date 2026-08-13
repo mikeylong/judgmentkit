@@ -19,6 +19,10 @@ The hosted MCP handler also rejects:
 - non-JSON `POST /mcp` and `POST /mcp/` requests with `415`
 - request bodies over `128KB` on `POST /mcp` and `POST /mcp/` with `413`
 - malformed JSON on `POST /mcp` and `POST /mcp/` with `400` and JSON-RPC parse error code `-32700`
+- more than one concurrent browser-backed visual-composition review in the same function instance with `visual_composition_browser_capacity_exceeded`
+- browser-backed visual-composition reviews that exceed `25` seconds with `visual_composition_browser_timeout`
+
+Browser admission is intentionally scoped to renderable, self-contained visual-review candidates. Code-only diagnostics and other MCP tools do not consume a browser slot. The concurrency guard is per warm function instance, not a distributed limit across autoscaled Vercel instances, so the WAF rule remains required and should be verified whenever the hosted browser path changes.
 
 ## Weekly Review
 

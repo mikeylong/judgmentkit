@@ -22,6 +22,7 @@ import {
   reviewCognitiveDimensionsCandidate,
   reviewActivityModelCandidate,
   reviewUiImplementationCandidate,
+  reviewUiImplementationCandidateWithBrowserRuntime,
   reviewUiWorkflowCandidate,
   searchIconCatalog,
 } from "./index.mjs";
@@ -40,6 +41,17 @@ const MCP_SERVER_VERSION = "0.7.0";
 const SLIDE_DECK_SCHEMA = "judgmentkit.mcp.slide-deck/v1";
 const SLIDE_DECK_RECEIPT_SCHEMA = "judgmentkit.mcp.slide-deck.provenance-receipt/v1";
 const MAX_SLIDE_DECK_SLIDES = 24;
+const VISUAL_COMPOSITION_BROWSER_MAX_CONCURRENCY = 1;
+const VISUAL_COMPOSITION_BROWSER_TIMEOUT_MS = 25_000;
+const VISUAL_COMPOSITION_BROWSER_MAX_HTML_BYTES = 128 * 1024;
+const VISUAL_COMPOSITION_BROWSER_HTML_FIELDS = [
+  "rendered_html",
+  "renderedHtml",
+  "rendered_markup",
+  "renderedMarkup",
+  "markup",
+];
+let activeVisualCompositionBrowserReviews = 0;
 const DEFAULT_SLIDE_DECK_OUTPUT_DIR = "outputs/judgmentkit-slide-decks";
 const DEFAULT_BODY_TEMPLATE_SEQUENCE = [
   "slide-01",
@@ -63,8 +75,10 @@ const PPTX_MIME_TYPE =
   "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 const APPROVED_PRIMITIVES_INPUT_DESCRIPTION =
   "Optional allowed implementation primitives for generated UI evidence. These are implementation primitives only; do not list design-system component contract ids here. Defaults to the portable no-system primitive set.";
+const VISUAL_COMPOSITION_POLICY_INPUT_DESCRIPTION =
+  "Optional implementation-adapter policy for declared visual-composition relationships, presentation ownership, calibrated measurements, and browser-runtime enforcement. When active, submit self-contained HTML plus an explicit visual_composition_manifest. The hosted MCP renders that artifact in its isolated browser runtime, discovers governed controls, measures the DOM after fonts are ready, and independently binds the result to the policy, contract, candidate, and rendered document. Candidate-authored visual_composition_evidence is claim-only and cannot satisfy acceptance.";
 const REVIEW_UI_IMPLEMENTATION_CANDIDATE_INPUT_DESCRIPTION =
-  "Generated UI candidate as code text or structured evidence containing primitives_used, states_covered or covered_states, static_checks or static_evidence, browser_qa, accessibility_evidence for core and condition-specific accessibility gates, optional visual_token_evidence metadata, component_contract_evidence, pattern_contract_evidence, required design_system_provenance for the active design-system source, and local_component_authority_evidence reviewed by checks.local_component_authority. String-only code text is diagnostic and cannot pass when the active contract requires structured provenance evidence. primitives_used may contain only implementation_contract.approved_primitives; place design-system component ids in component_contract_evidence.components[].id and pattern ids in pattern_contract_evidence.pattern_id. Candidates that fail the active design-system gate are failed candidates, not artifacts, and must be repaired and resubmitted.";
+  "Generated UI candidate as structured evidence containing primitives_used, states_covered or covered_states, static_checks or static_evidence, browser_qa, accessibility_evidence for core and condition-specific accessibility gates, optional visual_token_evidence metadata, component_contract_evidence, pattern_contract_evidence, required design_system_provenance for the active design-system source, and local_component_authority_evidence reviewed by checks.local_component_authority. When implementation_contract.visual_composition_policy applies, provide exact self-contained HTML in rendered_html, rendered_markup, markup, or HTML code, plus an explicit visual_composition_manifest for relationships that are not deterministically discoverable. The hosted MCP renders it at desktop and mobile sizes, blocks external requests and scripts, discovers icon-text and select-like controls, measures the DOM after fonts are ready, and attaches a server-trusted receipt. Candidate-authored visual_composition_evidence (or browser_qa.visual_composition) is claim-only and cannot pass. Detected controls cannot be hidden by omission or a false no-applicability claim. String-only snippets that cannot render are diagnostic and cannot pass. primitives_used may contain only implementation_contract.approved_primitives; place design-system component ids in component_contract_evidence.components[].id and pattern ids in pattern_contract_evidence.pattern_id. Candidates that fail the active design-system gate are failed candidates, not artifacts, and must be repaired and resubmitted.";
 
 const ANALYZE_TOOL = {
   name: "analyze_implementation_brief",
@@ -357,6 +371,10 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
         description:
           "Optional JudgmentKit-default token, font, and icon metadata. Ignored when design_system_adapter supplies complete external authority.",
       },
+      visual_composition_policy: {
+        type: "object",
+        description: VISUAL_COMPOSITION_POLICY_INPUT_DESCRIPTION,
+      },
     },
     additionalProperties: false,
   },
@@ -365,7 +383,7 @@ const UI_IMPLEMENTATION_CONTRACT_TOOL = {
 const REVIEW_UI_IMPLEMENTATION_CANDIDATE_TOOL = {
   name: "review_ui_implementation_candidate",
   description:
-    "Review generated UI or code evidence against an active UI implementation contract. The active design-system gate is hard: missing or failing design_system_provenance means the candidate is not an artifact and must be repaired and resubmitted. Include local_component_authority_evidence when repo-local component authority is active.",
+    "Review generated UI or code evidence against an active UI implementation contract. The active design-system gate is hard: missing or failing design_system_provenance means the candidate is not an artifact and must be repaired and resubmitted. Include local_component_authority_evidence when repo-local component authority is active. When visual_composition_policy applies, the hosted MCP renders exact self-contained HTML in an isolated browser, measures declared and discovered relationships, and attaches a server-trusted receipt; caller-authored visual_composition_evidence cannot satisfy acceptance.",
   inputSchema: {
     type: "object",
     required: ["candidate", "implementation_contract"],
@@ -811,6 +829,8 @@ function evidenceFieldLabel(key) {
     pattern_contract_evidence: "Pattern contracts",
     pattern_contracts: "Pattern contracts",
     visual_token_evidence: "Visual token evidence",
+    visual_composition_evidence: "Visual composition evidence",
+    visual_composition: "Visual composition evidence",
     design_system_provenance: "Design-system provenance",
     local_component_authority_evidence: "Local component authority",
     local_component_authority: "Local component authority",
@@ -925,6 +945,8 @@ function contractEvidenceFieldMapping(implementationContract) {
     ? defaultSystem.pattern_contracts
     : [];
   const visualTokenAdapter = implementationContract.visual_token_adapter ?? {};
+  const visualCompositionPolicy =
+    implementationContract.visual_composition_policy ?? null;
   const designSystemSource = implementationContract.design_system_source ?? {};
   const localComponentAuthority =
     implementationContract.local_component_authority ?? {};
@@ -962,6 +984,22 @@ function contractEvidenceFieldMapping(implementationContract) {
         "Boundary proof for token families, font roles, icon roles, and catalog icon ids.",
       allowed_values: visualTokenAdapter.token_families,
     },
+    ...(isRecord(visualCompositionPolicy)
+      ? {
+          visual_composition_evidence: {
+            field: "visual_composition_evidence",
+            alias: "browser_qa.visual_composition",
+            source_path: "implementation_contract.visual_composition_policy",
+            accepts:
+              "Candidate-scoped rendered evidence for the declared policy, calibrated relationships, covered viewports and states, and receipt provenance. JudgmentKit reviews the submitted evidence; it does not render the candidate.",
+            policy_ref: {
+              id: visualCompositionPolicy.id,
+              version: visualCompositionPolicy.version,
+              enforcement: visualCompositionPolicy.enforcement,
+            },
+          },
+        }
+      : {}),
     design_system_provenance: {
       field: "design_system_provenance",
       source_path: "implementation_contract.design_system_source",
@@ -1001,6 +1039,7 @@ function evidenceFieldMappingEntries(result) {
 
   const criticalKeys = [
     "visual_token_evidence",
+    "visual_composition_evidence",
     "design_system_provenance",
     "local_component_authority_evidence",
   ];
@@ -2791,6 +2830,8 @@ function formatImplementationContractCard(result) {
   const localComponentAuthority =
     implementationContract.local_component_authority ?? {};
   const visualTokenAdapter = implementationContract.visual_token_adapter ?? {};
+  const visualCompositionPolicy =
+    implementationContract.visual_composition_policy ?? {};
 
   addSection(lines, "Implementation gate", [
     firstLine("Contract", implementationContract.id),
@@ -2822,6 +2863,8 @@ function formatImplementationContractCard(result) {
       defaultSystem.data_visibility?.primary_data_roles,
     ),
     listLine("Browser QA", implementationContract.browser_qa?.checks),
+    firstLine("Visual composition policy", visualCompositionPolicy.id),
+    firstLine("Visual composition enforcement", visualCompositionPolicy.enforcement),
     firstLine(
       "Contrast targets",
       contrastTargets.normal_text_min_ratio && contrastTargets.large_text_min_ratio
@@ -2918,6 +2961,7 @@ function formatImplementationReviewCard(result) {
     firstLine("Data visibility", result.checks?.data_visibility?.status),
     firstLine("Static enforcement", result.checks?.static_enforcement?.status),
     firstLine("Browser QA", result.checks?.browser_qa?.status),
+    firstLine("Visual composition", result.checks?.visual_composition?.status),
     firstLine("Accessibility evidence", result.checks?.accessibility_evidence?.status),
     firstLine("Visual token evidence", result.checks?.visual_tokens?.status),
     firstLine(
@@ -3378,6 +3422,115 @@ export function getMcpMetadata(transport = "stdio") {
   };
 }
 
+function browserRenderableHtml(value) {
+  return (
+    typeof value === "string" &&
+    /<(!doctype\s+html|html|head|body|style|script|main|section|article|div|button|select|label|a|h[1-6]|svg)\b/i.test(
+      value,
+    )
+  );
+}
+
+function browserUnsafeHtml(value) {
+  return [
+    /<\s*script\b/i,
+    /\s+on[a-z][a-z0-9_-]*\s*=/i,
+    /javascript\s*:/i,
+    /<\s*(?:iframe|object|embed|base)\b/i,
+    /<\s*meta\b[^>]*http-equiv\s*=\s*(?:["']\s*)?refresh\b/i,
+    /@import\b/i,
+    /(?:src|href)\s*=\s*(?:["']\s*)?(?:https?:|file:|wss?:|ftp:|\/\/)/i,
+    /url\(\s*(?:["']\s*)?(?:https?:|file:|wss?:|ftp:|\/\/)/i,
+  ].some((pattern) => pattern.test(value));
+}
+
+function candidateQualifiesForBrowserReview(candidate) {
+  if (!isRecord(candidate)) return false;
+
+  const htmlCandidates = VISUAL_COMPOSITION_BROWSER_HTML_FIELDS
+    .map((field) => candidate[field])
+    .filter(browserRenderableHtml);
+  const code = candidate.code;
+  if (
+    browserRenderableHtml(code) &&
+    !/(?:^|\n)\s*(?:import|export)\s/m.test(code) &&
+    !/<[A-Z][A-Za-z0-9]*(?:\s|\/?>)/.test(code)
+  ) {
+    htmlCandidates.push(code);
+  }
+
+  return (
+    htmlCandidates.length === 1 &&
+    !browserUnsafeHtml(htmlCandidates[0]) &&
+    Buffer.byteLength(htmlCandidates[0], "utf8") <=
+      VISUAL_COMPOSITION_BROWSER_MAX_HTML_BYTES
+  );
+}
+
+export async function runVisualCompositionBrowserAdmission(
+  operation,
+  { timeout_ms: timeoutMs = VISUAL_COMPOSITION_BROWSER_TIMEOUT_MS } = {},
+) {
+  if (typeof operation !== "function") {
+    throw new JudgmentKitInputError(
+      "Visual-composition browser admission requires an operation.",
+      { code: "invalid_input" },
+    );
+  }
+
+  if (
+    activeVisualCompositionBrowserReviews >=
+    VISUAL_COMPOSITION_BROWSER_MAX_CONCURRENCY
+  ) {
+    throw new JudgmentKitInputError(
+      "Visual-composition browser capacity is currently occupied; retry the review.",
+      {
+        code: "visual_composition_browser_capacity_exceeded",
+        details: {
+          retryable: true,
+          max_in_process_concurrency:
+            VISUAL_COMPOSITION_BROWSER_MAX_CONCURRENCY,
+        },
+      },
+    );
+  }
+
+  const boundedTimeoutMs =
+    Number.isFinite(timeoutMs) && timeoutMs > 0
+      ? Math.min(timeoutMs, VISUAL_COMPOSITION_BROWSER_TIMEOUT_MS)
+      : VISUAL_COMPOSITION_BROWSER_TIMEOUT_MS;
+  activeVisualCompositionBrowserReviews += 1;
+
+  const trackedOperation = Promise.resolve()
+    .then(operation)
+    .finally(() => {
+      activeVisualCompositionBrowserReviews -= 1;
+    });
+  let timeoutId;
+  const timeout = new Promise((_, reject) => {
+    timeoutId = setTimeout(() => {
+      reject(
+        new JudgmentKitInputError(
+          "Visual-composition browser review exceeded its hosted runtime deadline.",
+          {
+            code: "visual_composition_browser_timeout",
+            details: {
+              retryable: true,
+              timeout_ms: boundedTimeoutMs,
+            },
+          },
+        ),
+      );
+    }, boundedTimeoutMs);
+  });
+
+  try {
+    return await Promise.race([trackedOperation, timeout]);
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
 export async function handleToolCall(name, args = {}) {
   if (
     ![
@@ -3473,10 +3626,11 @@ export async function handleToolCall(name, args = {}) {
         );
       }
 
-      return reviewUiImplementationCandidate(args.candidate, {
-        implementation_contract:
-          args.implementation_contract?.implementation_contract ??
-          args.implementation_contract,
+      const implementationContract =
+        args.implementation_contract?.implementation_contract ??
+        args.implementation_contract;
+      const reviewOptions = {
+        implementation_contract: implementationContract,
         surface_type: args.surface_type,
         surfaceType: args.surfaceType,
         surface_review: args.surface_review,
@@ -3484,7 +3638,21 @@ export async function handleToolCall(name, args = {}) {
         frontend_generation_context: args.frontend_generation_context,
         frontendGenerationContext: args.frontendGenerationContext,
         iteration_context: args.iteration_context,
-      });
+      };
+
+      if (
+        isRecord(implementationContract.visual_composition_policy) &&
+        candidateQualifiesForBrowserReview(args.candidate)
+      ) {
+        return await runVisualCompositionBrowserAdmission(() =>
+          reviewUiImplementationCandidateWithBrowserRuntime(
+            args.candidate,
+            reviewOptions,
+          ),
+        );
+      }
+
+      return reviewUiImplementationCandidate(args.candidate, reviewOptions);
     }
 
     if (name === UI_IMPLEMENTATION_CONTRACT_TOOL.name) {
@@ -3675,6 +3843,10 @@ export function createJudgmentKitMcpServer() {
         default_ai_native_design_system: z.record(z.any()).optional(),
         iteration_policy: z.record(z.any()).optional(),
         visual_token_adapter: z.record(z.any()).optional(),
+        visual_composition_policy: z
+          .record(z.any())
+          .optional()
+          .describe(VISUAL_COMPOSITION_POLICY_INPUT_DESCRIPTION),
       },
     },
     async (args) =>

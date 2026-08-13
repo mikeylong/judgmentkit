@@ -2,6 +2,12 @@
   "buildCommand": "npm run site:build",
   "installCommand": "npm ci",
   "outputDirectory": "site/dist",
+  "functions": {
+    "api/mcp.js": {
+      "includeFiles": "contracts/judgmentkit-kernel.schema.json",
+      "maxDuration": 30
+    }
+  },
   "headers": [
     {
       "source": "/install",
