@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="404" height="72" viewBox="0 0 404 72" role="img" aria-labelledby="title description">
+  <title id="title">Primary Brownfield Safety lockup</title>
+  <desc id="description">The approved amber field mark aligned with the Brownfield Safety wordmark.</desc>
+  <g transform="translate(4 8)">
+    <g fill="#F4BC42" transform="translate(28 28)">
+      <ellipse rx="8" ry="19" transform="rotate(0) translate(0 -10)"/>
+      <ellipse rx="8" ry="19" transform="rotate(60) translate(0 -10)"/>
+      <ellipse rx="8" ry="19" transform="rotate(120) translate(0 -10)"/>
+      <ellipse rx="8" ry="19" transform="rotate(180) translate(0 -10)"/>
+      <ellipse rx="8" ry="19" transform="rotate(240) translate(0 -10)"/>
+      <ellipse rx="8" ry="19" transform="rotate(300) translate(0 -10)"/>
+      <circle r="7" fill="#FFF7DC"/>
+    </g>
+    <text x="76" y="35" fill="#1D2528" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="28" font-weight="650">Brownfield Safety</text>
+  </g>
+</svg>

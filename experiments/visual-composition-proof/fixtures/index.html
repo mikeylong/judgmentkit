@@ -1,0 +1,630 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Visual composition evidence fixtures</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --canvas: #f5f5f1;
+      --surface: #ffffff;
+      --ink: #17211e;
+      --muted: #626d68;
+      --line: #d8d9d2;
+      --line-strong: #aeb4ad;
+      --accent: #176b62;
+      --accent-soft: #edf7f5;
+      --bad: #a4472d;
+      --bad-soft: #fff4ef;
+      --good: #176b45;
+      --good-soft: #eef8f1;
+      --radius: 12px;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-5: 24px;
+      --space-6: 32px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { background: var(--canvas); }
+
+    body {
+      margin: 0;
+      background: var(--canvas);
+      color: var(--ink);
+      font: 15px/1.45 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button,
+    select { font: inherit; }
+
+    .proof-shell {
+      inline-size: min(1180px, calc(100% - 32px));
+      margin-inline: auto;
+      padding-block: 48px 72px;
+    }
+
+    .proof-header {
+      display: grid;
+      gap: var(--space-3);
+      margin-block-end: var(--space-6);
+    }
+
+    .eyebrow,
+    .sample-label,
+    .field-label,
+    dt {
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 760;
+      letter-spacing: 0.075em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    p,
+    dl,
+    dd { margin: 0; }
+
+    h1 {
+      max-inline-size: 760px;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1.04;
+      letter-spacing: -0.035em;
+    }
+
+    .lede {
+      max-inline-size: 760px;
+      color: var(--muted);
+      font-size: 1.02rem;
+    }
+
+    .fixture-list {
+      display: grid;
+      gap: var(--space-6);
+    }
+
+    .fixture {
+      padding: var(--space-5);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: color-mix(in srgb, var(--surface) 88%, var(--canvas));
+    }
+
+    .fixture-heading {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-4);
+      margin-block-end: var(--space-4);
+    }
+
+    .fixture-heading h2 {
+      margin-block-end: var(--space-1);
+      font-size: 1.15rem;
+    }
+
+    .fixture-heading p {
+      max-inline-size: 660px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .scope-tag {
+      flex: none;
+      padding: 5px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: var(--surface);
+      font-size: 0.72rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .pair {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-4);
+    }
+
+    .sample {
+      min-inline-size: 0;
+      padding: var(--space-4);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+    }
+
+    .sample.bad { border-block-start: 4px solid var(--bad); }
+    .sample.good { border-block-start: 4px solid var(--good); }
+
+    .sample-label {
+      display: block;
+      margin-block-end: var(--space-4);
+    }
+
+    .bad .sample-label { color: var(--bad); }
+    .good .sample-label { color: var(--good); }
+
+    /* Corpus mechanism: independent metadata blocks own their label height. */
+    .metadata-bad-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0 var(--space-4);
+      inline-size: min(100%, 340px);
+    }
+
+    .metadata-bad-grid > div {
+      min-inline-size: 0;
+      padding-block: var(--space-3);
+      border-block-start: 1px solid var(--line);
+    }
+
+    .metadata-bad-grid dt { margin-block-end: 3px; }
+
+    .metadata-bad-grid dd,
+    .metadata-good-grid dd {
+      overflow-wrap: anywhere;
+      font-weight: 720;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Shared label and value rows make the relationship explicit. */
+    .metadata-good-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      grid-template-rows: auto auto;
+      gap: 3px var(--space-4);
+      inline-size: min(100%, 340px);
+      padding-block: var(--space-3);
+      border-block-start: 1px solid var(--line);
+    }
+
+    .metadata-good-grid dt { grid-row: 1; }
+    .metadata-good-grid dd { grid-row: 2; }
+
+    .readiness-list {
+      display: grid;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    /* Corpus mechanism: every row computes its own auto badge track. */
+    .columns-bad-list > li {
+      display: grid;
+      grid-template-columns: minmax(92px, 0.65fr) auto minmax(132px, 1.35fr);
+      align-items: center;
+      gap: var(--space-3);
+      padding-block: var(--space-3);
+      border-block-start: 1px solid var(--line);
+    }
+
+    .columns-good-list {
+      grid-template-columns: minmax(92px, 0.65fr) auto minmax(132px, 1.35fr);
+    }
+
+    .columns-good-list > li {
+      display: grid;
+      grid-column: 1 / -1;
+      grid-template-columns: subgrid;
+      align-items: center;
+      gap: var(--space-3);
+      padding-block: var(--space-3);
+      border-block-start: 1px solid var(--line);
+    }
+
+    .row-title { font-size: 0.84rem; }
+
+    .state-badge {
+      justify-self: start;
+      padding: 3px 7px;
+      border: 1px solid var(--line-strong);
+      border-radius: 5px;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 720;
+      white-space: nowrap;
+    }
+
+    [data-part="description"] {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .decision-card {
+      inline-size: 160px;
+      min-block-size: 138px;
+      padding: var(--space-3);
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .decision-title-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: var(--space-2);
+    }
+
+    .decision-title {
+      min-inline-size: 0;
+      font-size: 0.88rem;
+      font-weight: 760;
+    }
+
+    .decision-card p {
+      margin-block-start: var(--space-3);
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    /* Corpus mechanism: wrapping permission leaks into the protected state. */
+    .atom-bad-card { overflow-wrap: anywhere; }
+
+    .atom-token {
+      color: var(--accent);
+      font-size: 0.69rem;
+      font-weight: 800;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .atom-good-card .decision-title { overflow-wrap: anywhere; }
+
+    .atom-good-card .atom-token {
+      flex: none;
+      overflow-wrap: normal;
+      white-space: nowrap;
+    }
+
+    [data-part="container"] {
+      position: relative;
+      display: grid;
+      align-items: center;
+      inline-size: min(100%, 360px);
+      min-block-size: 52px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .owned-select-bad-control {
+      grid-template-columns: minmax(0, 1fr) auto;
+      padding-inline-start: 28px;
+      padding-inline-end: 6px;
+    }
+
+    .owned-select-good-control {
+      grid-template-columns: 36px minmax(0, 1fr) 36px;
+      padding-inline: 0;
+    }
+
+    .owned-select-bad-control [data-part="label"] {
+      justify-self: center;
+      min-inline-size: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .owned-select-good-control [data-part="label"] {
+      grid-column: 2;
+      justify-self: center;
+      min-inline-size: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    [data-part="indicator"] {
+      inline-size: 9px;
+      block-size: 9px;
+      border-inline-end: 1.75px solid currentColor;
+      border-block-end: 1.75px solid currentColor;
+      transform: rotate(45deg) translateY(-2px);
+    }
+
+    .owned-select-bad-control [data-part="indicator"] {
+      justify-self: end;
+    }
+
+    .owned-select-good-control [data-part="indicator"] {
+      grid-column: 3;
+      justify-self: center;
+    }
+
+    .lockup-stage {
+      display: flex;
+      align-items: center;
+      min-block-size: 96px;
+      padding: var(--space-3);
+      overflow: hidden;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+    }
+
+    .reconstructed-lockup {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--space-4);
+    }
+
+    .reconstructed-mark {
+      display: grid;
+      place-items: center;
+      inline-size: 48px;
+      block-size: 48px;
+      border-radius: 50%;
+      color: #6d4a00;
+      background: conic-gradient(from 0deg, #f4bc42, #ffe49a, #f4bc42, #ffe49a, #f4bc42);
+      font-size: 0.65rem;
+      font-weight: 800;
+    }
+
+    .reconstructed-wordmark {
+      padding-block-start: 0;
+      font-size: 1.55rem;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    [data-part="lockup"] {
+      display: block;
+      inline-size: min(100%, 404px);
+      block-size: auto;
+    }
+
+    .native-control {
+      display: grid;
+      gap: var(--space-2);
+      inline-size: min(100%, 360px);
+    }
+
+    .native-control select {
+      inline-size: 100%;
+      min-block-size: 44px;
+      padding-inline: 16px;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--ink);
+    }
+
+    .fixture-note {
+      margin-block-start: var(--space-3);
+      color: var(--muted);
+      font-size: 0.78rem;
+    }
+
+    @media (max-width: 720px) {
+      .proof-shell {
+        inline-size: min(100% - 24px, 540px);
+        padding-block-start: 28px;
+      }
+
+      .fixture { padding: var(--space-4); }
+
+      .fixture-heading,
+      .pair {
+        grid-template-columns: 1fr;
+      }
+
+      .fixture-heading { display: grid; }
+      .scope-tag { justify-self: start; }
+    }
+
+    @media (max-width: 390px) {
+      .proof-shell { inline-size: calc(100% - 16px); }
+      .fixture, .sample { padding: var(--space-3); }
+
+      .metadata-bad-grid,
+      .metadata-good-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: none;
+      }
+
+      .metadata-good-grid { padding-block: 0; border-block-start: 0; }
+      .metadata-good-grid dt,
+      .metadata-good-grid dd { grid-row: auto; }
+      .metadata-good-grid dt { padding-block-start: var(--space-3); border-block-start: 1px solid var(--line); }
+      .metadata-good-grid dd { padding-block-end: var(--space-3); }
+
+      .columns-bad-list > li,
+      .columns-good-list,
+      .columns-good-list > li {
+        grid-template-columns: 1fr;
+      }
+
+      .columns-good-list > li { grid-template-columns: none; }
+      .state-badge { margin-block-start: var(--space-1); }
+
+      .decision-card { inline-size: min(160px, 100%); }
+
+      .owned-select-bad-control,
+      .owned-select-good-control { inline-size: 100%; }
+
+      .reconstructed-wordmark { font-size: 1.15rem; }
+    }
+  </style>
+</head>
+<body>
+  <main class="proof-shell">
+    <header class="proof-header">
+      <span class="eyebrow">Evidence fixture · not a product renderer</span>
+      <h1>Visual composition relationships</h1>
+      <p class="lede">Paired specimens preserve known failure mechanisms and show the smallest governed repair. Tests should assert only the declared relationship; optical measurements remain supporting evidence.</p>
+    </header>
+
+    <div class="fixture-list">
+      <section class="fixture" aria-labelledby="metadata-title">
+        <header class="fixture-heading">
+          <div>
+            <h2 id="metadata-title">Paired metadata values</h2>
+            <p>Independent blocks let a wrapped label move one value. Shared rows preserve the value relationship.</p>
+          </div>
+          <span class="scope-tag">Desktop rail</span>
+        </header>
+        <div class="pair">
+          <article class="sample bad" data-sample="metadata-bad">
+            <span class="sample-label">Bad · independent blocks</span>
+            <dl class="metadata-bad-grid">
+              <div><dt>Intake packet</dt><dd data-part="value">I-4471</dd></div>
+              <div><dt>Requested appointment slot</dt><dd data-part="value">10:30 AM</dd></div>
+            </dl>
+          </article>
+          <article class="sample good" data-sample="metadata-good">
+            <span class="sample-label">Good · shared rows</span>
+            <dl class="metadata-good-grid">
+              <dt>Intake packet</dt><dd data-part="value">I-4471</dd>
+              <dt>Requested appointment slot</dt><dd data-part="value">10:30 AM</dd>
+            </dl>
+          </article>
+        </div>
+      </section>
+
+      <section class="fixture" aria-labelledby="columns-title">
+        <header class="fixture-heading">
+          <div>
+            <h2 id="columns-title">Shared readiness columns</h2>
+            <p>Per-row auto tracks move description starts when badge widths differ. Subgrid makes the tracks communal.</p>
+          </div>
+          <span class="scope-tag">Desktop rail</span>
+        </header>
+        <div class="pair">
+          <article class="sample bad" data-sample="columns-bad">
+            <span class="sample-label">Bad · row-owned tracks</span>
+            <ul class="readiness-list columns-bad-list">
+              <li><strong class="row-title">Referral</strong><span class="state-badge">Complete</span><span data-part="description">Referral document is uploaded.</span></li>
+              <li><strong class="row-title">Insurance card</strong><span class="state-badge">Present</span><span data-part="description">Insurance card image is available.</span></li>
+              <li><strong class="row-title">Signed consent</strong><span class="state-badge">Missing</span><span data-part="description">Required before scheduling.</span></li>
+            </ul>
+          </article>
+          <article class="sample good" data-sample="columns-good">
+            <span class="sample-label">Good · shared tracks</span>
+            <ul class="readiness-list columns-good-list">
+              <li><strong class="row-title">Referral</strong><span class="state-badge">Complete</span><span data-part="description">Referral document is uploaded.</span></li>
+              <li><strong class="row-title">Insurance card</strong><span class="state-badge">Present</span><span data-part="description">Insurance card image is available.</span></li>
+              <li><strong class="row-title">Signed consent</strong><span class="state-badge">Missing</span><span data-part="description">Required before scheduling.</span></li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section class="fixture" aria-labelledby="atom-title">
+        <header class="fixture-heading">
+          <div>
+            <h2 id="atom-title">Protected status atom</h2>
+            <p>A broad wrapping rule fragments the state label. The repair protects only the declared atomic part.</p>
+          </div>
+          <span class="scope-tag">Constrained width</span>
+        </header>
+        <div class="pair">
+          <article class="sample bad" data-sample="atom-bad">
+            <span class="sample-label">Bad · inherited anywhere wrap</span>
+            <div class="decision-card atom-bad-card">
+              <div class="decision-title-row">
+                <span class="decision-title">Return for evidence</span>
+                <span class="atom-token" data-part="atom">Selected</span>
+              </div>
+              <p>Ask the support agent to collect the missing receipt.</p>
+            </div>
+          </article>
+          <article class="sample good" data-sample="atom-good">
+            <span class="sample-label">Good · protected atom</span>
+            <div class="decision-card atom-good-card">
+              <div class="decision-title-row">
+                <span class="decision-title">Return for evidence</span>
+                <span class="atom-token" data-part="atom">Selected</span>
+              </div>
+              <p>Ask the support agent to collect the missing receipt.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="fixture" aria-labelledby="select-title">
+        <header class="fixture-heading">
+          <div>
+            <h2 id="select-title">Author-owned indicator rails</h2>
+            <p>This synthetic control declares centered-label intent. Equal logical rails keep the label and indicator composition balanced and RTL-safe.</p>
+          </div>
+          <span class="scope-tag">Owned geometry</span>
+        </header>
+        <div class="pair">
+          <article class="sample bad" data-sample="owned-select-bad">
+            <span class="sample-label">Bad · centered label, edge indicator</span>
+            <div class="owned-select-bad-control" data-part="container" role="img" aria-label="Unbalanced select trigger example">
+              <span data-part="label">kanban.cards</span>
+              <span data-part="indicator" aria-hidden="true"></span>
+            </div>
+          </article>
+          <article class="sample good" data-sample="owned-select-good">
+            <span class="sample-label">Good · symmetric logical rails</span>
+            <div class="owned-select-good-control" data-part="container" role="img" aria-label="Balanced select trigger example">
+              <span data-part="label">kanban.cards</span>
+              <span data-part="indicator" aria-hidden="true"></span>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="fixture" aria-labelledby="lockup-title">
+        <header class="fixture-heading">
+          <div>
+            <h2 id="lockup-title">Canonical brand lockup</h2>
+            <p>A reconstructed mark and text relationship has no authoritative anchor. The approved asset carries the relationship as one governed object.</p>
+          </div>
+          <span class="scope-tag">Canonical asset</span>
+        </header>
+        <div class="pair">
+          <article class="sample bad" data-sample="lockup-bad">
+            <span class="sample-label">Bad · reconstructed parts</span>
+            <div class="lockup-stage">
+              <div class="reconstructed-lockup">
+                <span class="reconstructed-mark" aria-hidden="true">BF</span>
+                <span class="reconstructed-wordmark">Brownfield Safety</span>
+              </div>
+            </div>
+          </article>
+          <article class="sample good" data-sample="lockup-good">
+            <span class="sample-label">Good · approved source</span>
+            <div class="lockup-stage">
+              <img data-part="lockup" data-canonical-lockup="primary-brand-lockup-v1" src="assets/primary-brand-lockup.svg" alt="Brownfield Safety">
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="fixture" aria-labelledby="native-title">
+        <header class="fixture-heading">
+          <div>
+            <h2 id="native-title">Native select non-fail control</h2>
+            <p>The author supplies symmetric logical padding, while the user agent owns the visible picker indicator. Record its geometry; do not fail it as author-positioned.</p>
+          </div>
+          <span class="scope-tag">Pass with warning</span>
+        </header>
+        <article class="sample" data-sample="native-select">
+          <label class="native-control">
+            <span class="field-label">Next owner</span>
+            <select name="native-owner">
+              <option>Customer success manager</option>
+              <option>Account executive</option>
+              <option>Executive sponsor</option>
+            </select>
+          </label>
+          <p class="fixture-note">No <code>appearance</code> override and no custom indicator are present.</p>
+        </article>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
