@@ -3,6 +3,17 @@ import assert from "node:assert/strict";
 import { createUiImplementationContract } from "../src/index.mjs";
 import { measureVisualCompositionInBrowser } from "../src/visual-composition-browser-runtime.mjs";
 
+const runtimeSource = await import("node:fs/promises").then((fs) =>
+  fs.readFile(
+    new URL("../src/visual-composition-browser-runtime.mjs", import.meta.url),
+    "utf8",
+  ),
+);
+assert.ok(
+  runtimeSource.includes('"--disable-dev-shm-usage"'),
+  "Serverless Chromium must use /tmp when /dev/shm is unavailable.",
+);
+
 const implementationContract = createUiImplementationContract({
   repo_name: "Visual Composition Runtime Test",
   target_stack: "HTML",

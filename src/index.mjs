@@ -14110,7 +14110,21 @@ export async function reviewUiImplementationCandidateWithBrowserRuntime(
   });
 
   if (!isPlainObject(measured?.manifest) || !isPlainObject(measured?.receipt)) {
-    return reviewUiImplementationCandidate(sanitizedCandidate, reviewOptions);
+    const reason =
+      optionalString(measured?.reason) ||
+      "visual_composition_browser_runtime_unavailable";
+    throw new JudgmentKitInputError(
+      reason === "visual_composition_candidate_not_renderable"
+        ? "The visual composition candidate is not safe, self-contained renderable HTML."
+        : "The trusted visual composition browser runtime is unavailable; retry the review.",
+      {
+        code: reason,
+        details: {
+          retryable:
+            reason === "visual_composition_browser_runtime_unavailable",
+        },
+      },
+    );
   }
 
   const measuredCandidate = {
