@@ -324,7 +324,7 @@ async function captureArtifactScreenshot(client, outputDir, artifact) {
   }
 }
 
-async function withChromeClient(callback) {
+export async function withChromeClient(callback) {
   const chromeExecutable = resolveChromeExecutable();
   const port = await findAvailablePort();
   const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-model-ui-chrome-"));

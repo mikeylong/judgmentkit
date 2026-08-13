@@ -1,0 +1,297 @@
+{
+  "kind": "visual_composition_specimen",
+  "id": "judgmentkit.visual-composition-proof.specimen",
+  "version": "0.1.0-experimental",
+  "policy_ref": {
+    "id": "judgmentkit.visual-composition-proof.experimental",
+    "version": "0.1.0-experimental",
+    "artifact": "policy.json"
+  },
+  "documents": [
+    {
+      "id": "paired-fixtures-desktop",
+      "artifact": "fixtures/index.html",
+      "capture_evidence": true,
+      "viewports": [
+        {
+          "id": "desktop",
+          "width": 1365,
+          "height": 900,
+          "device_scale_factor": 1
+        },
+        {
+          "id": "mobile",
+          "width": 390,
+          "height": 844,
+          "device_scale_factor": 1,
+          "mobile": true
+        }
+      ],
+      "samples": [
+        {
+          "id": "metadata-bad",
+          "rule_id": "shared_anchor.block_start",
+          "selector": "[data-sample='metadata-bad']",
+          "member_selector": "[data-part='value']",
+          "calibration_ref": "fixture.metadata_values.desktop",
+          "active_query": "(min-width: 721px)",
+          "expected": "fail",
+          "expected_by_viewport": {
+            "mobile": "not_applicable"
+          }
+        },
+        {
+          "id": "metadata-good",
+          "rule_id": "shared_anchor.block_start",
+          "selector": "[data-sample='metadata-good']",
+          "member_selector": "[data-part='value']",
+          "calibration_ref": "fixture.metadata_values.desktop",
+          "active_query": "(min-width: 721px)",
+          "expected": "pass",
+          "expected_by_viewport": {
+            "mobile": "not_applicable"
+          }
+        },
+        {
+          "id": "columns-bad",
+          "rule_id": "shared_anchor.inline_start",
+          "selector": "[data-sample='columns-bad']",
+          "member_selector": "[data-part='description']",
+          "calibration_ref": "fixture.description_columns.desktop",
+          "active_query": "(min-width: 721px)",
+          "expected": "fail",
+          "expected_by_viewport": {
+            "mobile": "not_applicable"
+          }
+        },
+        {
+          "id": "columns-good",
+          "rule_id": "shared_anchor.inline_start",
+          "selector": "[data-sample='columns-good']",
+          "member_selector": "[data-part='description']",
+          "calibration_ref": "fixture.description_columns.desktop",
+          "active_query": "(min-width: 721px)",
+          "expected": "pass",
+          "expected_by_viewport": {
+            "mobile": "not_applicable"
+          }
+        },
+        {
+          "id": "atom-bad",
+          "rule_id": "protected_atom.single_line",
+          "selector": "[data-sample='atom-bad']",
+          "target_selector": "[data-part='atom']",
+          "calibration_ref": "fixture.choice_selected.single_line",
+          "expected": "fail"
+        },
+        {
+          "id": "atom-good",
+          "rule_id": "protected_atom.single_line",
+          "selector": "[data-sample='atom-good']",
+          "target_selector": "[data-part='atom']",
+          "calibration_ref": "fixture.choice_selected.single_line",
+          "expected": "pass"
+        },
+        {
+          "id": "owned-select-bad",
+          "rule_id": "presentation_owner.select_indicator",
+          "selector": "[data-sample='owned-select-bad']",
+          "presentation_owner": "design_system",
+          "composition_variant": "centered_label_symmetric_rails",
+          "label_selector": "[data-part='label']",
+          "indicator_selector": "[data-part='indicator']",
+          "container_selector": "[data-part='container']",
+          "calibration_ref": "fixture.owned_select.logical_rails",
+          "expected": "fail"
+        },
+        {
+          "id": "owned-select-good",
+          "rule_id": "presentation_owner.select_indicator",
+          "selector": "[data-sample='owned-select-good']",
+          "presentation_owner": "design_system",
+          "composition_variant": "centered_label_symmetric_rails",
+          "label_selector": "[data-part='label']",
+          "indicator_selector": "[data-part='indicator']",
+          "container_selector": "[data-part='container']",
+          "calibration_ref": "fixture.owned_select.logical_rails",
+          "expected": "pass"
+        },
+        {
+          "id": "lockup-bad",
+          "rule_id": "canonical_lockup.asset",
+          "selector": "[data-sample='lockup-bad']",
+          "asset_selector": "[data-part='lockup']",
+          "lockup_id": "fixture.primary",
+          "expected": "fail"
+        },
+        {
+          "id": "lockup-good",
+          "rule_id": "canonical_lockup.asset",
+          "selector": "[data-sample='lockup-good']",
+          "asset_selector": "[data-part='lockup']",
+          "lockup_id": "fixture.primary",
+          "expected": "pass"
+        },
+        {
+          "id": "native-select",
+          "rule_id": "presentation_owner.select_indicator",
+          "selector": "[data-sample='native-select']",
+          "presentation_owner": "browser",
+          "expected": "pass_with_warning"
+        }
+      ]
+    },
+    {
+      "id": "corpus-clinical-intake-review",
+      "artifact": "../../examples/model-ui/clinical-intake-review/artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html",
+      "viewport": {
+        "id": "desktop",
+        "width": 1365,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "samples": [
+        {
+          "id": "clinical-metadata-values",
+          "rule_id": "shared_anchor.block_start",
+          "selector": ".jk-metadata",
+          "member_selector": ".jk-metadata > div:nth-child(-n+2) dd",
+          "calibration_ref": "clinical.selected_packet_metadata.desktop",
+          "active_query": "(min-width: 721px)",
+          "expected": "fail"
+        },
+        {
+          "id": "clinical-readiness-description-columns",
+          "rule_id": "shared_anchor.inline_start",
+          "selector": ".jk-readiness-list",
+          "member_selector": ".jk-readiness-list > li .jk-evidence-copy",
+          "calibration_ref": "clinical.readiness_description_columns.desktop",
+          "active_query": "(min-width: 721px)",
+          "expected": "fail"
+        }
+      ]
+    },
+    {
+      "id": "corpus-refund-protected-atom",
+      "artifact": "../../examples/model-ui/refund-system-map/artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html",
+      "viewport": {
+        "id": "desktop",
+        "width": 1365,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "samples": [
+        {
+          "id": "refund-selected-state-atom",
+          "rule_id": "protected_atom.single_line",
+          "selector": ".decision-choice[aria-pressed='true']",
+          "target_selector": ".choice-selected",
+          "calibration_ref": "refund.decision_choice_selected.single_line",
+          "expected": "fail"
+        }
+      ]
+    },
+    {
+      "id": "corpus-native-select-b2b-renewal",
+      "artifact": "../../examples/model-ui/b2b-renewal-risk/artifacts/gpt56-sol-ultra-codex-no-judgmentkit.html",
+      "viewport": {
+        "id": "desktop",
+        "width": 1365,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "samples": [
+        {
+          "id": "b2b-next-owner-native-select",
+          "rule_id": "presentation_owner.select_indicator",
+          "selector": ".field select",
+          "presentation_owner": "browser",
+          "expected": "pass_with_warning"
+        }
+      ]
+    },
+    {
+      "id": "corpus-native-select-field-service",
+      "artifact": "../../examples/model-ui/field-service-dispatch/artifacts/gpt56-sol-ultra-codex-no-judgmentkit.html",
+      "viewport": {
+        "id": "desktop",
+        "width": 1365,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "samples": [
+        {
+          "id": "field-service-technician-native-select",
+          "rule_id": "presentation_owner.select_indicator",
+          "selector": ".field:nth-of-type(1) select",
+          "presentation_owner": "browser",
+          "expected": "pass_with_warning"
+        },
+        {
+          "id": "field-service-next-action-native-select",
+          "rule_id": "presentation_owner.select_indicator",
+          "selector": ".field:nth-of-type(2) select",
+          "presentation_owner": "browser",
+          "expected": "pass_with_warning"
+        }
+      ]
+    },
+    {
+      "id": "corpus-native-select-refund-raw",
+      "artifact": "../../examples/model-ui/refund-system-map/artifacts/gpt56-sol-ultra-codex-no-judgmentkit.html",
+      "viewport": {
+        "id": "desktop",
+        "width": 1365,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "samples": [
+        {
+          "id": "refund-queue-filter-native-select",
+          "rule_id": "presentation_owner.select_indicator",
+          "selector": ".queue-filter",
+          "presentation_owner": "browser",
+          "expected": "pass_with_warning"
+        }
+      ]
+    },
+    {
+      "id": "corpus-native-select-refund-guided",
+      "artifact": "../../examples/model-ui/refund-system-map/artifacts/gpt56-sol-ultra-codex-with-judgmentkit.html",
+      "viewport": {
+        "id": "desktop",
+        "width": 1365,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "samples": [
+        {
+          "id": "refund-queue-order-native-select",
+          "rule_id": "presentation_owner.select_indicator",
+          "selector": ".queue-control select",
+          "presentation_owner": "browser",
+          "expected": "pass_with_warning"
+        },
+        {
+          "id": "refund-next-owner-native-select",
+          "rule_id": "presentation_owner.select_indicator",
+          "selector": ".control-block select",
+          "presentation_owner": "browser",
+          "expected": "pass_with_warning"
+        }
+      ]
+    },
+    {
+      "id": "corpus-healthy-mui-no-applicable-contract",
+      "artifact": "../../examples/model-ui/clinical-intake-review/artifacts/gpt56-sol-ultra-codex-judgmentkit-material-ui.html",
+      "viewport": {
+        "id": "desktop",
+        "width": 1365,
+        "height": 900,
+        "device_scale_factor": 1
+      },
+      "expected": "no_applicable_contract",
+      "samples": []
+    }
+  ]
+}

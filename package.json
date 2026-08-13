@@ -53,6 +53,7 @@
     "presentation-theme:templates:judgmentkit": "node scripts/presentation-theme/template-library-exploration.mjs --action update --mode judgmentkit",
     "presentation-theme:templates:preflight": "node scripts/presentation-theme/template-library-exploration.mjs --action preflight --mode all",
     "presentation-theme:templates:visual-qa": "node scripts/presentation-theme/template-library-exploration.mjs --action update --mode all",
+    "proof:visual-composition": "node tests/visual-composition-proof.test.mjs",
     "release:verify": "node scripts/verify-public-release.mjs",
     "site:build": "node site/build-site.mjs",
     "site:dev": "npm run site:build && node scripts/site-local-server.mjs",

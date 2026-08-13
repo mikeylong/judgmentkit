@@ -1,0 +1,135 @@
+{
+  "kind": "visual_composition_policy",
+  "id": "judgmentkit.visual-composition-proof.experimental",
+  "version": "0.1.0-experimental",
+  "layer": "implementation_adapter",
+  "authority": {
+    "presentation_owner": "implementation_contract.design_system_source or a declared repo-local component authority",
+    "runtime": {
+      "may": [
+        "resolve declared rules, component calibrations, presentation ownership, and canonical asset references",
+        "measure rendered DOM geometry after fonts are ready",
+        "compare observations with the named component calibration",
+        "emit pass, fail, pass_with_warning, review, or not_applicable evidence"
+      ],
+      "must_not": [
+        "infer an undeclared composition or presentation owner from appearance",
+        "invent or apply a universal optical-alignment threshold",
+        "manufacture a DOM rectangle for a browser-owned select indicator",
+        "mutate a protected atom or canonical lockup",
+        "treat this experimental policy as a JudgmentKit kernel contract"
+      ]
+    }
+  },
+  "outcomes": {
+    "precedence": [
+      "fail",
+      "review",
+      "pass_with_warning",
+      "pass"
+    ],
+    "browser_owned_indicator": {
+      "outcome": "pass_with_warning",
+      "warning_code": "browser_owned_indicator_unmeasured"
+    },
+    "missing_intent_or_authority": {
+      "outcome": "review"
+    },
+    "declared_relationship_inactive": {
+      "outcome": "not_applicable"
+    }
+  },
+  "rules": [
+    {
+      "id": "shared_anchor.block_start",
+      "kind": "shared_anchor",
+      "axis": "block",
+      "anchor": "block_start",
+      "measurement": "member_start_edge_spread_css_px",
+      "failure_code": "shared_block_start_spread_exceeded",
+      "message": "Declared members do not share the governed block-start anchor."
+    },
+    {
+      "id": "shared_anchor.inline_start",
+      "kind": "shared_anchor",
+      "axis": "inline",
+      "anchor": "inline_start",
+      "measurement": "member_logical_start_edge_spread_css_px",
+      "failure_code": "shared_inline_start_spread_exceeded",
+      "message": "Declared members do not share the governed logical inline-start anchor."
+    },
+    {
+      "id": "protected_atom.single_line",
+      "kind": "protected_atom",
+      "measurement": "text_line_box_count",
+      "failure_code": "protected_atom_fragmented",
+      "message": "The declared semantic atom wrapped or escaped its containing composition."
+    },
+    {
+      "id": "presentation_owner.select_indicator",
+      "kind": "presentation_owner",
+      "part": "select_indicator",
+      "supported_owners": [
+        "browser",
+        "design_system"
+      ],
+      "design_system_measurement": "declared_variant_label_center_and_accessory_rail_delta_css_px",
+      "failure_code": "owned_select_composition_mismatch",
+      "warning_code": "browser_owned_indicator_unmeasured",
+      "message": "The design-system-owned select indicator does not satisfy its declared composition calibration."
+    },
+    {
+      "id": "canonical_lockup.asset",
+      "kind": "canonical_lockup",
+      "measurement": "single_declared_asset_reference",
+      "failure_code": "canonical_lockup_asset_mismatch",
+      "message": "The rendered lockup is not the declared canonical asset.",
+      "lockups": {
+        "fixture.primary": {
+          "asset_suffix": "assets/primary-brand-lockup.svg",
+          "sha256": "88f6073c7893d32a986b86b568f98b7ebbabc19769f7a21cd9eccf39408a9963"
+        }
+      }
+    }
+  ],
+  "calibrations": {
+    "fixture.metadata_values.desktop": {
+      "component": "fixture.metadata",
+      "rule_id": "shared_anchor.block_start",
+      "max_spread_css_px": 1
+    },
+    "fixture.description_columns.desktop": {
+      "component": "fixture.readiness_columns",
+      "rule_id": "shared_anchor.inline_start",
+      "max_spread_css_px": 1
+    },
+    "fixture.choice_selected.single_line": {
+      "component": "fixture.choice_selected",
+      "rule_id": "protected_atom.single_line",
+      "max_text_line_boxes": 1
+    },
+    "fixture.owned_select.logical_rails": {
+      "component": "fixture.owned_select",
+      "rule_id": "presentation_owner.select_indicator",
+      "composition_variant": "centered_label_symmetric_rails",
+      "accessory_rail_width_css_px": 36,
+      "max_label_center_delta_css_px": 1,
+      "max_logical_rail_delta_css_px": 2
+    },
+    "clinical.selected_packet_metadata.desktop": {
+      "component": "clinical_intake_review.selected_packet_metadata",
+      "rule_id": "shared_anchor.block_start",
+      "max_spread_css_px": 1
+    },
+    "clinical.readiness_description_columns.desktop": {
+      "component": "clinical_intake_review.readiness_list",
+      "rule_id": "shared_anchor.inline_start",
+      "max_spread_css_px": 1
+    },
+    "refund.decision_choice_selected.single_line": {
+      "component": "refund_system_map.decision_choice_selected",
+      "rule_id": "protected_atom.single_line",
+      "max_text_line_boxes": 1
+    }
+  }
+}
