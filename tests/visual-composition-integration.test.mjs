@@ -697,6 +697,62 @@ const defaultPolicy = defaultContract.visual_composition_policy;
 
 // An active policy still fails closed when there is no renderable browser input.
 {
+  await assert.rejects(
+    () =>
+      reviewCandidateInBrowser(
+        baseImplementationCandidate(defaultContract),
+        defaultContract,
+      ),
+    (error) =>
+      error?.code === "visual_composition_candidate_not_renderable" &&
+      error?.details?.retryable === false,
+  );
+
+  const priorChromePath =
+    process.env.JUDGMENTKIT_VISUAL_COMPOSITION_CHROME_PATH;
+  const originalConsoleError = console.error;
+  const runtimeDiagnostics = [];
+  process.env.JUDGMENTKIT_VISUAL_COMPOSITION_CHROME_PATH =
+    "/judgmentkit-test/missing-chrome";
+  console.error = (...parts) => runtimeDiagnostics.push(parts.join(" "));
+  try {
+    await assert.rejects(
+      () =>
+        reviewCandidateInBrowser(
+          noApplicableCandidate(defaultContract),
+          defaultContract,
+        ),
+      (error) =>
+        error?.code === "visual_composition_browser_runtime_unavailable" &&
+        error?.details?.retryable === true &&
+        !String(error?.message).includes("missing manifest"),
+    );
+  } finally {
+    console.error = originalConsoleError;
+    if (priorChromePath === undefined) {
+      delete process.env.JUDGMENTKIT_VISUAL_COMPOSITION_CHROME_PATH;
+    } else {
+      process.env.JUDGMENTKIT_VISUAL_COMPOSITION_CHROME_PATH = priorChromePath;
+    }
+  }
+  assert.equal(runtimeDiagnostics.length, 1);
+  const runtimeDiagnostic = JSON.parse(runtimeDiagnostics[0]);
+  assert.deepEqual(
+    {
+      level: runtimeDiagnostic.level,
+      event: runtimeDiagnostic.event,
+      code: runtimeDiagnostic.code,
+      error_code: runtimeDiagnostic.error_code,
+    },
+    {
+      level: "error",
+      event: "visual_composition_browser_runtime_unavailable",
+      code: "visual_composition_browser_runtime_unavailable",
+      error_code: "configured_chrome_unavailable",
+    },
+  );
+  assert.equal(runtimeDiagnostics[0].includes("rendered_html"), false);
+
   const missingManifest = reviewCandidate(
     baseImplementationCandidate(defaultContract),
     defaultContract,

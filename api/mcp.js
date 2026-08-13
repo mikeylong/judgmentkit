@@ -1,6 +1,7 @@
 import { handleJudgmentKitMcpNodeRequest } from "../src/mcp-http.mjs";
 
 export const config = {
+  architecture: "x86_64",
   api: {
     bodyParser: false,
   },

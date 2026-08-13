@@ -279,6 +279,28 @@ function playwrightChromeOnMac() {
 }
 
 async function browserLaunch() {
+  const configured =
+    process.env.JUDGMENTKIT_VISUAL_COMPOSITION_CHROME_PATH ??
+    process.env.CHROME_BIN;
+  if (configured) {
+    const executable = executableFromPath(configured);
+    if (!executable) {
+      throw Object.assign(
+        new Error("Configured Chrome executable is unavailable."),
+        { code: "configured_chrome_unavailable" },
+      );
+    }
+    return {
+      executable,
+      args: [
+        "--headless=new",
+        "--disable-gpu",
+        "--no-first-run",
+        "--no-default-browser-check",
+      ],
+    };
+  }
+
   if (process.platform === "linux") {
     return {
       executable: await chromium.executablePath(),
@@ -287,17 +309,6 @@ async function browserLaunch() {
   }
 
   if (process.platform === "darwin") {
-    const configured =
-      process.env.JUDGMENTKIT_VISUAL_COMPOSITION_CHROME_PATH ??
-      process.env.CHROME_BIN;
-    if (configured) {
-      const executable = executableFromPath(configured);
-      if (!executable) throw new Error("Configured Chrome executable is unavailable.");
-      return {
-        executable,
-        args: ["--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check"],
-      };
-    }
     const executable = [
       "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
       "/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary",
@@ -448,6 +459,7 @@ async function withBrowser(callback) {
       "--disable-background-networking",
       "--disable-component-update",
       "--disable-domain-reliability",
+      "--disable-dev-shm-usage",
       "--disable-sync",
       "--force-color-profile=srgb",
       "--hide-scrollbars",
@@ -1272,7 +1284,21 @@ export async function measureVisualCompositionInBrowser({
         },
       };
     });
-  } catch {
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        level: "error",
+        event: "visual_composition_browser_runtime_unavailable",
+        code: "visual_composition_browser_runtime_unavailable",
+        error_name: error instanceof Error ? error.name : "UnknownError",
+        error_code:
+          error && typeof error === "object" && "code" in error
+            ? String(error.code)
+            : null,
+        error_message:
+          error instanceof Error ? error.message : "Unknown browser runtime error",
+      }),
+    );
     return nonRenderable("visual_composition_browser_runtime_unavailable");
   }
 }

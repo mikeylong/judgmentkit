@@ -9,6 +9,7 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 
 import { JUDGMENTKIT_MCP_TOOL_NAMES } from "../scripts/install-mcp.mjs";
+import { config as mcpFunctionConfig } from "../api/mcp.js";
 import { listenSiteLocalServer } from "../scripts/site-local-server.mjs";
 import {
   assertRouteNotPublic,
@@ -533,6 +534,7 @@ try {
   {
     const rewrites = vercelConfig.rewrites ?? [];
     const mcpRewrites = rewrites.filter((rewrite) => rewrite.destination === "/api/mcp");
+    const mcpFunction = vercelConfig.functions?.["api/mcp.js"];
 
     assert.ok(
       mcpRewrites.some((rewrite) => rewrite.source === "/mcp"),
@@ -542,6 +544,12 @@ try {
       mcpRewrites.some((rewrite) => rewrite.source === "/mcp/"),
       "vercel.json should route /mcp/ to /api/mcp",
     );
+    assert.equal(
+      mcpFunctionConfig.architecture,
+      "x86_64",
+      "The hosted browser function must match the x86_64 Chromium binary shipped by @sparticuz/chromium.",
+    );
+    assert.equal(mcpFunction?.maxDuration, 30);
   }
 
   {

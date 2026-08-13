@@ -356,6 +356,65 @@ assert.deepEqual(metadata.capabilities.prompts, []);
   await occupiedSlot;
 }
 
+{
+  const contractPacket = await handleToolCall(
+    "create_ui_implementation_contract",
+    {},
+  );
+  const priorChromePath =
+    process.env.JUDGMENTKIT_VISUAL_COMPOSITION_CHROME_PATH;
+  const originalConsoleError = console.error;
+  const diagnostics = [];
+  process.env.JUDGMENTKIT_VISUAL_COMPOSITION_CHROME_PATH =
+    "/judgmentkit-test/missing-chrome";
+  console.error = (...parts) => diagnostics.push(parts.join(" "));
+  let unavailableReview;
+  try {
+    unavailableReview = await handleToolCall(
+      "review_ui_implementation_candidate",
+      {
+        implementation_contract: contractPacket.implementation_contract,
+        candidate: {
+          rendered_html: "<main>Renderable candidate</main>",
+        },
+      },
+    );
+  } finally {
+    console.error = originalConsoleError;
+    if (priorChromePath === undefined) {
+      delete process.env.JUDGMENTKIT_VISUAL_COMPOSITION_CHROME_PATH;
+    } else {
+      process.env.JUDGMENTKIT_VISUAL_COMPOSITION_CHROME_PATH = priorChromePath;
+    }
+  }
+
+  assert.deepEqual(unavailableReview.error, {
+    code: "visual_composition_browser_runtime_unavailable",
+    message:
+      "The trusted visual composition browser runtime is unavailable; retry the review.",
+    details: { retryable: true },
+  });
+  assert.equal(
+    JSON.stringify(unavailableReview).includes(
+      "Configured Chrome executable is unavailable",
+    ),
+    false,
+  );
+  assert.equal(
+    JSON.stringify(unavailableReview).includes(
+      "missing_visual_composition_manifest",
+    ),
+    false,
+  );
+  const diagnostic = JSON.parse(diagnostics[0]);
+  assert.equal(diagnostic.level, "error");
+  assert.equal(
+    diagnostic.code,
+    "visual_composition_browser_runtime_unavailable",
+  );
+  assert.equal(diagnostic.error_code, "configured_chrome_unavailable");
+}
+
 const toolsJson = JSON.stringify(tools);
 for (const legacyField of [
   "primary_ui",

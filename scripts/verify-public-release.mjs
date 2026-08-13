@@ -1602,6 +1602,7 @@ async function probeRemoteMcpRoute(baseUrl, route, verifyBrowserRuntime = false)
   let reviewStatus;
   let implementationReviewStatus;
   let visualCompositionStatus;
+  let visualCompositionReason;
   let trustedVisualCompositionEvidence = false;
   let errorMessage = "";
 
@@ -1676,6 +1677,8 @@ async function probeRemoteMcpRoute(baseUrl, route, verifyBrowserRuntime = false)
         implementationReview.structuredContent?.implementation_review_status;
       visualCompositionStatus =
         implementationReview.structuredContent?.checks?.visual_composition?.status;
+      visualCompositionReason =
+        implementationReview.structuredContent?.checks?.visual_composition?.reason;
       trustedVisualCompositionEvidence =
         implementationReview.structuredContent?.checks?.visual_composition
           ?.trusted_evidence_present === true;
@@ -1710,6 +1713,7 @@ async function probeRemoteMcpRoute(baseUrl, route, verifyBrowserRuntime = false)
       review_status: reviewStatus,
       implementation_review_status: implementationReviewStatus,
       visual_composition_status: visualCompositionStatus,
+      visual_composition_reason: visualCompositionReason,
       trusted_visual_composition_evidence: trustedVisualCompositionEvidence,
       tools,
     },
@@ -1755,8 +1759,16 @@ export async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
     assert.equal(routeResult.sdk.review_status, "ready_for_review");
   }
 
-  assert.equal(routes[0].sdk.implementation_review_status, "passed");
-  assert.equal(routes[0].sdk.visual_composition_status, "not_applicable");
+  assert.equal(
+    routes[0].sdk.implementation_review_status,
+    "passed",
+    JSON.stringify(routes[0].sdk),
+  );
+  assert.equal(
+    routes[0].sdk.visual_composition_status,
+    "not_applicable",
+    JSON.stringify(routes[0].sdk),
+  );
   assert.equal(routes[0].sdk.trusted_visual_composition_evidence, true);
 
   const firstSupportedRoute = routes.find((routeResult) => routeResult.sdk.supported);
