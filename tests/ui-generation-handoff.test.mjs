@@ -4,7 +4,8 @@ import {
   JudgmentKitInputError,
   createUiImplementationContract,
   createUiGenerationHandoff,
-  reviewUiImplementationCandidate,
+  reviewUiImplementationCandidate as reviewUiImplementationCandidateRaw,
+  reviewUiImplementationCandidateWithBrowserRuntime,
   reviewUiWorkflowCandidate,
 } from "../src/index.mjs";
 
@@ -41,6 +42,44 @@ const implementationContractPacket = createUiImplementationContract({
   target_stack: "vanilla JS",
 });
 const implementationContract = implementationContractPacket.implementation_contract;
+
+function withNoApplicableVisualComposition(candidate, contractInput) {
+  const activeContract =
+    contractInput?.implementation_contract ??
+    contractInput ??
+    implementationContract;
+  if (
+    !activeContract?.visual_composition_policy ||
+    !candidate ||
+    typeof candidate !== "object" ||
+    activeContract.design_system_source?.mode === "external_design_system"
+  ) {
+    return candidate;
+  }
+
+  return {
+    ...structuredClone(candidate),
+    rendered_html:
+      '<main data-primary-surface="fixture">No governed visual relationships</main>',
+  };
+}
+
+async function reviewUiImplementationCandidate(candidate, options = {}) {
+  const fixture = withNoApplicableVisualComposition(
+    candidate,
+    options.implementation_contract ?? options.ui_implementation_contract,
+  );
+  const contractInput =
+    options.implementation_contract ?? options.ui_implementation_contract;
+  const activeContract = contractInput?.implementation_contract ?? contractInput;
+  if (
+    !activeContract?.visual_composition_policy ||
+    activeContract.design_system_source?.mode === "external_design_system"
+  ) {
+    return reviewUiImplementationCandidateRaw(fixture, options);
+  }
+  return reviewUiImplementationCandidateWithBrowserRuntime(fixture, options);
+}
 
 function completeMaterialDesignSystemAdapter() {
   return {
@@ -719,7 +758,7 @@ function repairedSessionsButtonCandidate(contract) {
 }
 
 {
-  const rawControlReview = reviewUiImplementationCandidate(
+  const rawControlReview = await reviewUiImplementationCandidate(
     {
       code: '<fieldset><input type="checkbox"> Approve</fieldset>',
       primitives_used: ["CheckboxGroup"],
@@ -737,7 +776,7 @@ function repairedSessionsButtonCandidate(contract) {
   assert.equal(rawControlReview.checks.raw_controls.status, "fail");
   assert.ok(rawControlReview.checks.raw_controls.detected.includes("checkbox"));
 
-  const approvedReview = reviewUiImplementationCandidate(
+  const approvedReview = await reviewUiImplementationCandidate(
     {
       code: "renderCheckboxGroup({ options, legend: 'Lane responsibility' })",
       primitives_used: ["FormField", "CheckboxGroup", "CheckboxOption"],
@@ -753,13 +792,17 @@ function repairedSessionsButtonCandidate(contract) {
     { implementation_contract: implementationContract },
   );
 
-  assert.equal(approvedReview.implementation_review_status, "passed");
+  assert.equal(
+    approvedReview.implementation_review_status,
+    "passed",
+    JSON.stringify(approvedReview.checks.visual_composition),
+  );
   assert.equal(approvedReview.checks.approved_primitives.status, "pass");
   assert.equal(approvedReview.next_agent_action, "accept");
   assert.equal(approvedReview.autofix_loop.status, "passed");
   assert.deepEqual(approvedReview.findings, []);
 
-  const refundOperatorReview = reviewUiImplementationCandidate(
+  const refundOperatorReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate(),
     { implementation_contract: implementationContract },
   );
@@ -773,7 +816,7 @@ function repairedSessionsButtonCandidate(contract) {
   assert.equal(refundOperatorReview.checks.visual_tokens.reviewed, false);
   assert.equal(refundOperatorReview.next_agent_action, "accept");
 
-  const tokenMetadataReview = reviewUiImplementationCandidate(
+  const tokenMetadataReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       visual_token_evidence: {
         token_families: ["color", "type", "spacing", "motion"],
@@ -836,7 +879,7 @@ function repairedSessionsButtonCandidate(contract) {
       completion_or_handoff: "Review produces a decision reason and receipt.",
     },
   });
-  const componentPatternReview = reviewUiImplementationCandidate(
+  const componentPatternReview = await reviewUiImplementationCandidate(
     componentPatternCandidate,
     { implementation_contract: implementationContract },
   );
@@ -868,7 +911,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const componentIdInPrimitivesReview = reviewUiImplementationCandidate(
+  const componentIdInPrimitivesReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       primitives_used: [
         "FormField",
@@ -938,7 +981,7 @@ function repairedSessionsButtonCandidate(contract) {
   assert.ok(primitiveRepairText.includes("states_covered"));
   assert.match(primitiveRepairText, /move|route|put|place/i);
 
-  const patternIdInPrimitivesReview = reviewUiImplementationCandidate(
+  const patternIdInPrimitivesReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       primitives_used: [
         "FormField",
@@ -989,7 +1032,7 @@ function repairedSessionsButtonCandidate(contract) {
   assert.ok(patternPrimitiveRepairText.includes("pattern_contract_evidence.pattern_id"));
   assert.match(patternPrimitiveRepairText, /move|route|put|place/i);
 
-  const unknownComponentReview = reviewUiImplementationCandidate(
+  const unknownComponentReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       component_contract_evidence: {
         components_used: ["mystery_panel"],
@@ -1013,7 +1056,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const missingComponentStateReview = reviewUiImplementationCandidate(
+  const missingComponentStateReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       component_contract_evidence: {
         components: [{ id: "action_button", states_covered: ["ready"] }],
@@ -1032,7 +1075,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const componentEvidenceMisuseReview = reviewUiImplementationCandidate(
+  const componentEvidenceMisuseReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       component_contract_evidence: {
         components: [
@@ -1055,7 +1098,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const patternMismatchReview = reviewUiImplementationCandidate(
+  const patternMismatchReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       pattern_contract_evidence: {
         pattern_id: "workbench",
@@ -1084,7 +1127,7 @@ function repairedSessionsButtonCandidate(contract) {
     "workbench",
   );
 
-  const topLevelPatternMismatchReview = reviewUiImplementationCandidate(
+  const topLevelPatternMismatchReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       pattern_id: "workbench",
       surface_type: "operator_review",
@@ -1126,7 +1169,7 @@ function repairedSessionsButtonCandidate(contract) {
       ],
     },
   });
-  const selfDeclaredWorkbenchPatternReview = reviewUiImplementationCandidate(
+  const selfDeclaredWorkbenchPatternReview = await reviewUiImplementationCandidate(
     selfDeclaredWorkbenchPatternCandidate,
     { implementation_contract: implementationContract },
   );
@@ -1143,7 +1186,7 @@ function repairedSessionsButtonCandidate(contract) {
     { surface_review: { recommended_surface_type: "operator_review" } },
     { frontend_generation_context: { surface_type: "operator_review" } },
   ]) {
-    const selectedSurfaceReview = reviewUiImplementationCandidate(
+    const selectedSurfaceReview = await reviewUiImplementationCandidate(
       selfDeclaredWorkbenchPatternCandidate,
       { implementation_contract: implementationContract, ...options },
     );
@@ -1167,7 +1210,7 @@ function repairedSessionsButtonCandidate(contract) {
     );
   }
 
-  const missingPatternEvidenceReview = reviewUiImplementationCandidate(
+  const missingPatternEvidenceReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       pattern_contract_evidence: {
         pattern_id: "operator_review",
@@ -1192,7 +1235,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const componentCannotSatisfyAccessibilityReview = reviewUiImplementationCandidate(
+  const componentCannotSatisfyAccessibilityReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       component_contract_evidence: {
         components: [
@@ -1223,7 +1266,7 @@ function repairedSessionsButtonCandidate(contract) {
     "fail",
   );
 
-  const fontIconMetadataReview = reviewUiImplementationCandidate(
+  const fontIconMetadataReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       visual_token_evidence: {
         token_families: ["color", "type"],
@@ -1243,7 +1286,7 @@ function repairedSessionsButtonCandidate(contract) {
   assert.ok(fontIconMetadataReview.checks.visual_tokens.icon_roles.includes("receipt"));
   assert.ok(fontIconMetadataReview.checks.visual_tokens.selected_icon_ids.includes("check"));
 
-  const missingDefaultProvenanceReview = reviewUiImplementationCandidate(
+  const missingDefaultProvenanceReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       design_system_provenance: null,
     }),
@@ -1280,7 +1323,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const incompleteDefaultProvenanceReview = reviewUiImplementationCandidate(
+  const incompleteDefaultProvenanceReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       design_system_provenance: {
         source: "present",
@@ -1308,7 +1351,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const wrongSourceProvenanceReview = reviewUiImplementationCandidate(
+  const wrongSourceProvenanceReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       design_system_provenance: {
         source: "local app stylesheet",
@@ -1339,7 +1382,7 @@ function repairedSessionsButtonCandidate(contract) {
       .missing_required_proof.includes("import_package_boundary"),
   );
 
-  const genericDefaultProvenanceReview = reviewUiImplementationCandidate(
+  const genericDefaultProvenanceReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       design_system_provenance: {
         source: "JudgmentKit",
@@ -1374,7 +1417,7 @@ function repairedSessionsButtonCandidate(contract) {
     );
   }
 
-  const defaultProvenanceFailureReview = reviewUiImplementationCandidate(
+  const defaultProvenanceFailureReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       code: `
         import { Check } from "lucide-react";
@@ -1408,7 +1451,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const defaultProvenancePassReview = reviewUiImplementationCandidate(
+  const defaultProvenancePassReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       code: `
         export function Review() {
@@ -1463,9 +1506,8 @@ function repairedSessionsButtonCandidate(contract) {
     },
   };
 
-  assert.throws(
-    () =>
-      reviewUiImplementationCandidate(refundOperatorImplementationCandidate(), {
+  await assert.rejects(
+    reviewUiImplementationCandidate(refundOperatorImplementationCandidate(), {
         implementation_contract: incompleteExternalReviewContract,
       }),
     (error) =>
@@ -1519,9 +1561,8 @@ function repairedSessionsButtonCandidate(contract) {
     },
   };
 
-  assert.throws(
-    () =>
-      reviewUiImplementationCandidate(refundOperatorImplementationCandidate(), {
+  await assert.rejects(
+    reviewUiImplementationCandidate(refundOperatorImplementationCandidate(), {
         implementation_contract: misleadingDefaultComponentExternalContract,
       }),
     (error) =>
@@ -1533,7 +1574,7 @@ function repairedSessionsButtonCandidate(contract) {
   const materialImplementationContract = createUiImplementationContract({
     design_system_adapter: completeMaterialDesignSystemAdapter(),
   }).implementation_contract;
-  const externalMaterialReview = reviewUiImplementationCandidate(
+  const externalMaterialReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       code: `
         import { Stack, Button } from "@mui/material";
@@ -1589,7 +1630,7 @@ function repairedSessionsButtonCandidate(contract) {
       },
     },
   }).implementation_contract;
-  const genericExternalSourceExportsReview = reviewUiImplementationCandidate(
+  const genericExternalSourceExportsReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       code: `
         import { Stack, Button } from "@mui/material";
@@ -1631,7 +1672,7 @@ function repairedSessionsButtonCandidate(contract) {
       .missing_required_proof.includes("source_export_proof"),
   );
 
-  const concreteExternalSourceExportsReview = reviewUiImplementationCandidate(
+  const concreteExternalSourceExportsReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       code: `
         import { Stack, Button } from "@mui/material";
@@ -1690,7 +1731,7 @@ function repairedSessionsButtonCandidate(contract) {
       },
     },
   }).implementation_contract;
-  const arrayExternalSourceExportsReview = reviewUiImplementationCandidate(
+  const arrayExternalSourceExportsReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       code: `
         import { Stack, Button } from "@mui/material";
@@ -1760,7 +1801,7 @@ function repairedSessionsButtonCandidate(contract) {
     "implementation_contract.design_system_adapter.components",
   );
 
-  const objectComponentsExternalReview = reviewUiImplementationCandidate(
+  const objectComponentsExternalReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       code: `
         import { Stack, Button } from "@mui/material";
@@ -1810,7 +1851,7 @@ function repairedSessionsButtonCandidate(contract) {
     ["Stack", "Button", "Alert"],
   );
 
-  const mixedExternalReview = reviewUiImplementationCandidate(
+  const mixedExternalReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       code: `
         import { Stack } from "@mui/material";
@@ -1838,7 +1879,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const unsupportedIconIdReview = reviewUiImplementationCandidate(
+  const unsupportedIconIdReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       visual_token_evidence: {
         token_families: ["color"],
@@ -1855,7 +1896,7 @@ function repairedSessionsButtonCandidate(contract) {
     "not-a-lucide-icon",
   ]);
 
-  const unsupportedFontIconReview = reviewUiImplementationCandidate(
+  const unsupportedFontIconReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       visual_token_evidence: {
         token_families: ["color"],
@@ -1875,7 +1916,7 @@ function repairedSessionsButtonCandidate(contract) {
     "mascot",
   ]);
 
-  const inaccessibleIconReview = reviewUiImplementationCandidate(
+  const inaccessibleIconReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       code: "renderIconButton({ icon: 'filter', label: undefined })",
       visual_token_evidence: {
@@ -1903,7 +1944,7 @@ function repairedSessionsButtonCandidate(contract) {
     "fail",
   );
 
-  const tokenMisuseReview = reviewUiImplementationCandidate(
+  const tokenMisuseReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       visual_token_evidence: {
         token_families: ["color", "texture"],
@@ -1924,7 +1965,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const tokenCannotSatisfyPrimitiveReview = reviewUiImplementationCandidate(
+  const tokenCannotSatisfyPrimitiveReview = await reviewUiImplementationCandidate(
     {
       ...refundOperatorImplementationCandidate({
         primitives_used: ["ImaginaryTokenWorkbench"],
@@ -1946,7 +1987,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const riskyActionReview = reviewUiImplementationCandidate(
+  const riskyActionReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       actions: ["Auto approve refund", "Charge card"],
       action_boundary_evidence: {},
@@ -1968,7 +2009,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const stoppedActionReview = reviewUiImplementationCandidate(
+  const stoppedActionReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       actions: ["Auto approve refund"],
       action_boundary_evidence: {},
@@ -1982,7 +2023,7 @@ function repairedSessionsButtonCandidate(contract) {
   assert.equal(stoppedActionReview.next_agent_action, "stop_for_human");
   assert.equal(stoppedActionReview.autofix_loop.status, "stopped");
 
-  const dataLeakReview = reviewUiImplementationCandidate(
+  const dataLeakReview = await reviewUiImplementationCandidate(
     refundOperatorImplementationCandidate({
       visible_text: ["Refund request", "JSON schema", "resource id"],
       data_visibility_evidence: {
@@ -2015,7 +2056,7 @@ function repairedSessionsButtonCandidate(contract) {
   for (const key of coreEvidenceKeys) {
     const accessibilityEvidence = formAccessibilityEvidence();
     accessibilityEvidence[key] = key === "automated_checks" ? null : undefined;
-    const missingCoreReview = reviewUiImplementationCandidate(
+    const missingCoreReview = await reviewUiImplementationCandidate(
       {
         code: "renderCheckboxGroup({ options, legend: 'Lane responsibility' })",
         primitives_used: ["FormField", "CheckboxGroup", "CheckboxOption"],
@@ -2038,7 +2079,7 @@ function repairedSessionsButtonCandidate(contract) {
     assert.equal(missingCoreReview.checks.accessibility_evidence[key].status, "fail");
   }
 
-  const notApplicableWithoutRationaleReview = reviewUiImplementationCandidate(
+  const notApplicableWithoutRationaleReview = await reviewUiImplementationCandidate(
     {
       code: "renderCheckboxGroup({ options, legend: 'Lane responsibility' })",
       primitives_used: ["FormField", "CheckboxGroup", "CheckboxOption"],
@@ -2061,7 +2102,7 @@ function repairedSessionsButtonCandidate(contract) {
     "fail",
   );
 
-  const visualHeavyReview = reviewUiImplementationCandidate(
+  const visualHeavyReview = await reviewUiImplementationCandidate(
     visualHeavyStaticCandidate({
       states_covered: undefined,
       static_checks: undefined,
@@ -2080,7 +2121,7 @@ function repairedSessionsButtonCandidate(contract) {
     "pass",
   );
 
-  const missingContrastReview = reviewUiImplementationCandidate(
+  const missingContrastReview = await reviewUiImplementationCandidate(
     visualHeavyStaticCandidate({
       accessibility_evidence: {
         visual_background_contrast: undefined,
@@ -2100,7 +2141,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const contrastFailureReview = reviewUiImplementationCandidate(
+  const contrastFailureReview = await reviewUiImplementationCandidate(
     visualHeavyStaticCandidate({
       accessibility_evidence: {
         visual_background_contrast: {
@@ -2132,7 +2173,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const responsiveAliasReview = reviewUiImplementationCandidate(
+  const responsiveAliasReview = await reviewUiImplementationCandidate(
     visualHeavyStaticCandidate({
       accessibility_evidence: visualAccessibilityEvidence({
         responsive_no_overflow: undefined,
@@ -2152,7 +2193,7 @@ function repairedSessionsButtonCandidate(contract) {
     "pass",
   );
 
-  const customWidgetReview = reviewUiImplementationCandidate(
+  const customWidgetReview = await reviewUiImplementationCandidate(
     {
       code: 'renderTabs({ role: "tablist", tabs })',
       custom_widgets: true,
@@ -2181,7 +2222,7 @@ function repairedSessionsButtonCandidate(contract) {
     "fail",
   );
 
-  const formMissingLabelsReview = reviewUiImplementationCandidate(
+  const formMissingLabelsReview = await reviewUiImplementationCandidate(
     {
       code: "renderFormFlow({ fields, validation })",
       forms: true,
@@ -2205,7 +2246,7 @@ function repairedSessionsButtonCandidate(contract) {
     "fail",
   );
 
-  const motionMissingEvidenceReview = reviewUiImplementationCandidate(
+  const motionMissingEvidenceReview = await reviewUiImplementationCandidate(
     {
       code: "renderAutoAdvancingCarousel({ animation: true, autoAdvance: true })",
       motion: true,
@@ -2232,7 +2273,7 @@ function repairedSessionsButtonCandidate(contract) {
     "fail",
   );
 
-  const overlayMissingEvidenceReview = reviewUiImplementationCandidate(
+  const overlayMissingEvidenceReview = await reviewUiImplementationCandidate(
     {
       code: "renderDialogOverlay({ stickyFooter: true })",
       overlay: true,
@@ -2258,7 +2299,7 @@ function repairedSessionsButtonCandidate(contract) {
     "fail",
   );
 
-  const denseControlMissingTargetReview = reviewUiImplementationCandidate(
+  const denseControlMissingTargetReview = await reviewUiImplementationCandidate(
     {
       code: "renderToolbar({ iconButtons })",
       dense_controls: true,
@@ -2290,7 +2331,7 @@ function repairedSessionsButtonCandidate(contract) {
 
 {
   const contract = sessionsButtonLocalAuthorityContract();
-  const tokenIslandReview = reviewUiImplementationCandidate(
+  const tokenIslandReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(contract),
     { implementation_contract: contract },
   );
@@ -2336,7 +2377,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const spoofedFamilyEvidenceReview = reviewUiImplementationCandidate(
+  const spoofedFamilyEvidenceReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(contract, {
       code: `
         export function SessionsButton({ count }) {
@@ -2390,7 +2431,7 @@ function repairedSessionsButtonCandidate(contract) {
     );
   }
 
-  const isolatedTokenIslandReview = reviewUiImplementationCandidate(
+  const isolatedTokenIslandReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(contract, {
       code: `
         export function SessionsButton({ count }) {
@@ -2476,7 +2517,7 @@ function repairedSessionsButtonCandidate(contract) {
       .component_specific_selectors.includes('[aria-expanded="false"]'),
   );
 
-  const noInheritanceReview = reviewUiImplementationCandidate(
+  const noInheritanceReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(contract, {
       code: `
         export function SessionsButton({ count }) {
@@ -2526,7 +2567,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const dottedClassFalsePositiveReview = reviewUiImplementationCandidate(
+  const dottedClassFalsePositiveReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(contract, {
       code: `
         export function SessionsButton({ count }) {
@@ -2594,7 +2635,7 @@ function repairedSessionsButtonCandidate(contract) {
     static_rules: ["npm run check"],
     browser_qa_checks: ["desktop viewport", "mobile viewport"],
   }).implementation_contract;
-  const buttonClassContractReview = reviewUiImplementationCandidate(
+  const buttonClassContractReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(buttonClassContract, {
       code: `
         export function SessionsButton({ count }) {
@@ -2646,7 +2687,7 @@ function repairedSessionsButtonCandidate(contract) {
     "sessions-button must not satisfy a contract-level .button family requirement.",
   );
 
-  const buttonClassCssModuleReview = reviewUiImplementationCandidate(
+  const buttonClassCssModuleReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(buttonClassContract, {
       code: `
         import styles from "./button.module.css";
@@ -2690,7 +2731,7 @@ function repairedSessionsButtonCandidate(contract) {
     "CSS-module property access should satisfy an exact local class family.",
   );
 
-  const buttonClassUnrelatedPropertyReview = reviewUiImplementationCandidate(
+  const buttonClassUnrelatedPropertyReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(buttonClassContract, {
       code: `
         const tone = theme.button;
@@ -2751,7 +2792,7 @@ function repairedSessionsButtonCandidate(contract) {
     static_rules: ["npm run check"],
     browser_qa_checks: ["desktop viewport", "mobile viewport"],
   }).implementation_contract;
-  const bareButtonImplicitSourceReview = reviewUiImplementationCandidate(
+  const bareButtonImplicitSourceReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(bareButtonFamilyContract, {
       code: `
         export function SessionsButton({ count }) {
@@ -2798,7 +2839,7 @@ function repairedSessionsButtonCandidate(contract) {
     "a bare local family should not be inferred from a <button> element or sessions-button class token.",
   );
 
-  const bareButtonExactClassTokenReview = reviewUiImplementationCandidate(
+  const bareButtonExactClassTokenReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(bareButtonFamilyContract, {
       code: `
         export function SessionsButton({ count }) {
@@ -2840,7 +2881,7 @@ function repairedSessionsButtonCandidate(contract) {
     "an exact class token should satisfy a bare local family without relying on tag-name matching.",
   );
 
-  const bareButtonExplicitEvidenceReview = reviewUiImplementationCandidate(
+  const bareButtonExplicitEvidenceReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(bareButtonFamilyContract, {
       code: `
         export function SessionsButton({ count }) {
@@ -2886,7 +2927,7 @@ function repairedSessionsButtonCandidate(contract) {
     [],
   );
 
-  const arbitraryVisualOverrideReview = reviewUiImplementationCandidate(
+  const arbitraryVisualOverrideReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(contract, {
       code: `
         export function SessionsButton({ count }) {
@@ -2994,7 +3035,7 @@ function repairedSessionsButtonCandidate(contract) {
     assert.deepEqual(recreation.declarations, declarations);
   }
 
-  const arbitraryTokenIslandReview = reviewUiImplementationCandidate(
+  const arbitraryTokenIslandReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(contract, {
       code: `
         export function SessionsButton({ count }) {
@@ -3072,7 +3113,7 @@ function repairedSessionsButtonCandidate(contract) {
     assert.ok(customProperties.includes("--jk-color-text"));
   }
 
-  const globalRootSelectorReview = reviewUiImplementationCandidate(
+  const globalRootSelectorReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(contract, {
       code: `
         export function SessionsButton({ count }) {
@@ -3141,7 +3182,7 @@ function repairedSessionsButtonCandidate(contract) {
     [],
   );
 
-  const rootScopedComponentSelectorReview = reviewUiImplementationCandidate(
+  const rootScopedComponentSelectorReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(contract, {
       code: `
         export function SessionsButton({ count }) {
@@ -3225,7 +3266,7 @@ function repairedSessionsButtonCandidate(contract) {
     "universal-qualified component selectors should not be treated as global root selectors.",
   );
 
-  const structuredSelectorEvidenceReview = reviewUiImplementationCandidate(
+  const structuredSelectorEvidenceReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(contract, {
       code: `
         export function SessionsButton({ count }) {
@@ -3336,7 +3377,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const nestedStructuredSelectorEvidenceReview = reviewUiImplementationCandidate(
+  const nestedStructuredSelectorEvidenceReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(contract, {
       code: `
         export function SessionsButton({ count }) {
@@ -3397,7 +3438,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const selectorMapStructuredEvidenceReview = reviewUiImplementationCandidate(
+  const selectorMapStructuredEvidenceReview = await reviewUiImplementationCandidate(
     sessionsButtonCandidate(contract, {
       code: `
         export function SessionsButton({ count }) {
@@ -3465,7 +3506,7 @@ function repairedSessionsButtonCandidate(contract) {
       differences: ["background differs from representative secondary action"],
     },
   };
-  const failedComputedStyleReview = reviewUiImplementationCandidate(
+  const failedComputedStyleReview = await reviewUiImplementationCandidate(
     failedComputedStyleCandidate,
     { implementation_contract: contract },
   );
@@ -3493,7 +3534,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const repairedReview = reviewUiImplementationCandidate(
+  const repairedReview = await reviewUiImplementationCandidate(
     repairedSessionsButtonCandidate(contract),
     { implementation_contract: contract },
   );
@@ -3540,7 +3581,7 @@ function repairedSessionsButtonCandidate(contract) {
 }
 
 {
-  const orderedReview = reviewUiImplementationCandidate(
+  const orderedReview = await reviewUiImplementationCandidate(
     modalImplementationCandidate({
       context: "New card modal",
       direction: "ltr",
@@ -3558,7 +3599,7 @@ function repairedSessionsButtonCandidate(contract) {
   assert.equal(orderedReview.checks.modal_actions.reviewed, 1);
   assert.deepEqual(orderedReview.findings, []);
 
-  const primaryFirstReview = reviewUiImplementationCandidate(
+  const primaryFirstReview = await reviewUiImplementationCandidate(
     modalImplementationCandidate({
       context: "New card modal",
       direction: "ltr",
@@ -3582,7 +3623,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const rightmostCancelReview = reviewUiImplementationCandidate(
+  const rightmostCancelReview = await reviewUiImplementationCandidate(
     modalImplementationCandidate({
       context: "New card modal",
       direction: "ltr",
@@ -3603,7 +3644,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const wrongSubmitReview = reviewUiImplementationCandidate(
+  const wrongSubmitReview = await reviewUiImplementationCandidate(
     modalImplementationCandidate({
       context: "New card modal",
       direction: "ltr",
@@ -3624,7 +3665,7 @@ function repairedSessionsButtonCandidate(contract) {
     ),
   );
 
-  const destructiveReview = reviewUiImplementationCandidate(
+  const destructiveReview = await reviewUiImplementationCandidate(
     modalImplementationCandidate({
       context: "Delete board modal",
       direction: "ltr",
@@ -3641,7 +3682,7 @@ function repairedSessionsButtonCandidate(contract) {
   assert.equal(destructiveReview.checks.modal_actions.status, "not_applicable");
   assert.equal(destructiveReview.checks.modal_actions.entries[0].status, "not_applicable");
 
-  const rtlReview = reviewUiImplementationCandidate(
+  const rtlReview = await reviewUiImplementationCandidate(
     modalImplementationCandidate({
       context: "RTL create modal",
       direction: "rtl",

@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import {
   createUiImplementationContract,
   reviewUiImplementationCandidate,
+  reviewUiImplementationCandidateWithBrowserRuntime,
 } from "../src/index.mjs";
 import { getMcpMetadata } from "../src/mcp.mjs";
 
@@ -50,7 +51,19 @@ function assertGroupSet(review, expectedGroups, label) {
   }
 }
 
-function assertRepairLoop({ contractInput, failingCandidate, repairedCandidate, expectedGroups, label }) {
+function withNoApplicableVisualComposition(candidate, implementationContract) {
+  if (!implementationContract?.visual_composition_policy) {
+    return candidate;
+  }
+
+  return {
+    ...structuredClone(candidate),
+    rendered_html:
+      '<main data-primary-surface="fixture">No governed visual relationships</main>',
+  };
+}
+
+async function assertRepairLoop({ contractInput, failingCandidate, repairedCandidate, expectedGroups, label }) {
   const contractPacket = createUiImplementationContract(contractInput);
   const implementationContract = contractPacket.implementation_contract;
 
@@ -103,10 +116,13 @@ function assertRepairLoop({ contractInput, failingCandidate, repairedCandidate, 
   );
   assertGroupSet(failingReview, expectedGroups, label);
 
-  const repairedReview = reviewUiImplementationCandidate(repairedCandidate, {
-    implementation_contract: implementationContract,
-    iteration_context: { current_attempt: 2 },
-  });
+  const repairedReview = await reviewUiImplementationCandidateWithBrowserRuntime(
+    withNoApplicableVisualComposition(repairedCandidate, implementationContract),
+    {
+      implementation_contract: implementationContract,
+      iteration_context: { current_attempt: 2 },
+    },
+  );
 
   assert.equal(
     repairedReview.implementation_review_status,
@@ -158,7 +174,7 @@ assert.ok(
   assert.equal(firstUse.transcript[0].expected_next_agent_action, "repair_and_resubmit");
   assert.equal(firstUse.transcript[1].expected_next_agent_action, "accept");
 
-  const { failingReview } = assertRepairLoop({
+  const { failingReview } = await assertRepairLoop({
     contractInput: firstUse.implementation_contract_input,
     failingCandidate: firstUse.failing_candidate,
     repairedCandidate: firstUse.repaired_candidate,
@@ -173,7 +189,7 @@ assert.ok(
 }
 
 {
-  const { failingReview, repairedReview } = assertRepairLoop({
+  const { failingReview, repairedReview } = await assertRepairLoop({
     contractInput: firstUse.implementation_contract_input,
     failingCandidate: withoutDesignSystemProvenance(firstUse.repaired_candidate),
     repairedCandidate: firstUse.repaired_candidate,
@@ -214,7 +230,7 @@ assert.ok(
   );
 
   for (const example of canonicalExamples.examples) {
-    const result = assertRepairLoop({
+    const result = await assertRepairLoop({
       contractInput: example.implementation_contract_input,
       failingCandidate: example.failing_candidate,
       repairedCandidate: example.repaired_candidate,
@@ -239,6 +255,7 @@ assert.ok(
   assert.equal(packInfo.version, EXPECTED_RELEASE_VERSION);
   assert.ok(packedFiles.has("src/index.mjs"));
   assert.ok(packedFiles.has("src/mcp.mjs"));
+  assert.equal(packedFiles.has("src/visual-composition-trust.mjs"), false);
   assert.ok(packedFiles.has("bin/judgmentkit.mjs"));
   assert.ok(packedFiles.has("examples/ai-native-design-system/first-use.json"));
   assert.ok(packedFiles.has("examples/ai-native-design-system/canonical-examples.json"));
@@ -260,6 +277,7 @@ import {
   createUiImplementationContract,
   listSurfacePresentationProfiles,
   reviewUiImplementationCandidate,
+  reviewUiImplementationCandidateWithBrowserRuntime,
 } from "judgmentkit";
 
 const coreAccessibilityEvidence = {
@@ -285,6 +303,13 @@ const defaultDesignSystemProvenance = {
   token_prefix_source: "implementation_contract.design_system_source.token_prefixes",
   source_exports: "implementation_contract.design_system_source.source_exports"
 };
+
+function withNoApplicableVisualComposition(candidate, implementationContract) {
+  return {
+    ...structuredClone(candidate),
+    rendered_html: '<main data-primary-surface="fixture">No governed visual relationships</main>'
+  };
+}
 
 const contractPacket = createUiImplementationContract({
   repo_name: "package-smoke",
@@ -352,7 +377,7 @@ const failing = reviewUiImplementationCandidate({
 assert.equal(failing.next_agent_action, "repair_and_resubmit");
 assert.ok(failing.repair_instructions.groups.data_visibility.length > 0);
 
-const repaired = reviewUiImplementationCandidate({
+const repaired = await reviewUiImplementationCandidateWithBrowserRuntime(withNoApplicableVisualComposition({
   code: "renderReviewSummary({ FieldGrid })",
   primitives_used: ["FieldGrid"],
   states_covered: ["empty", "ready", "loading", "error", "disabled", "focus-visible"],
@@ -362,7 +387,7 @@ const repaired = reviewUiImplementationCandidate({
   design_system_provenance: defaultDesignSystemProvenance,
   visible_text: ["Ready to review", "Handoff receipt"],
   data_visibility_evidence: { primary_data_roles: ["completion result or handoff receipt"] }
-}, {
+}, contractPacket.implementation_contract), {
   implementation_contract: contractPacket.implementation_contract,
   iteration_context: { current_attempt: 2 }
 });

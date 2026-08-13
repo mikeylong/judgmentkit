@@ -676,6 +676,26 @@ for (const testCase of cases) {
         "action_boundaries",
       ),
     );
+    const acceptedImplementationReview = riskyActionContext.tool_calls
+      .filter((call) => call.name === "review_ui_implementation_candidate")
+      .at(-1)?.result;
+    assert.equal(
+      acceptedImplementationReview?.checks?.visual_composition?.status,
+      "not_applicable",
+    );
+    assert.equal(
+      acceptedImplementationReview?.checks?.visual_composition?.evidence_present,
+      true,
+    );
+    assert.equal(
+      acceptedImplementationReview?.checks?.visual_composition
+        ?.trusted_evidence_present,
+      true,
+    );
+    assert.deepEqual(
+      acceptedImplementationReview?.checks?.visual_composition?.invalid_reasons,
+      [],
+    );
 
     const stoppedCase = cases.find((candidate) => candidate.id === "modal-action-order-review");
     const stoppedContext = await buildMcpContextForCase(stoppedCase, mcpRuntime);

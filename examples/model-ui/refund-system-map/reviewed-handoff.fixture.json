@@ -1425,7 +1425,8 @@
           "list_icon_catalog",
           "search_icon_catalog",
           "get_icon_svg"
-        ]
+        ],
+        "visual_composition_policy": "/design-system/visual-composition-policy.json"
       },
       "token_prefixes": [
         "--jk-"
@@ -1481,6 +1482,224 @@
         "external design systems must be supplied as complete contract-time adapters; missing authorities do not fall back to JudgmentKit defaults"
       ]
     },
+    "visual_composition_policy": {
+      "kind": "visual_composition_policy",
+      "id": "judgmentkit.visual-composition.adapter-v1",
+      "version": "1.0.0",
+      "layer": "implementation_adapter",
+      "enforcement": "required_when_applicable",
+      "authority": {
+        "presentation_owner": "implementation_contract.design_system_source or a declared repo-local component authority",
+        "runtime": {
+          "may": [
+            "resolve declared rules, component-family calibrations, presentation ownership, and canonical asset references",
+            "measure rendered DOM geometry after fonts are ready",
+            "compare observations with the named component-family calibration",
+            "emit pass, fail, pass_with_warning, review, or not_applicable evidence"
+          ],
+          "must_not": [
+            "infer an undeclared composition or presentation owner from appearance",
+            "invent or apply a universal optical-alignment threshold",
+            "manufacture a DOM rectangle for a browser-owned select indicator",
+            "mutate a protected atom or canonical lockup",
+            "treat this implementation-adapter policy as a JudgmentKit kernel judgment"
+          ]
+        }
+      },
+      "outcomes": {
+        "precedence": [
+          "fail",
+          "review",
+          "pass_with_warning",
+          "pass",
+          "not_applicable"
+        ],
+        "browser_owned_indicator": {
+          "outcome": "pass_with_warning",
+          "code": "browser_owned_indicator_unmeasured"
+        },
+        "missing_intent_or_authority": {
+          "outcome": "review"
+        },
+        "declared_relationship_inactive": {
+          "outcome": "not_applicable",
+          "code": "relationship_inactive_at_viewport"
+        },
+        "no_declared_relationships": {
+          "outcome": "not_applicable",
+          "code": "no_applicable_contract"
+        }
+      },
+      "receipt_contract": {
+        "kind": "visual_composition_evidence",
+        "version": "1.0.0",
+        "trusted_issuer": "judgmentkit_browser_runtime",
+        "required_fields": [
+          "kind",
+          "version",
+          "policy_ref",
+          "contract_ref",
+          "manifest_ref",
+          "candidate_ref",
+          "environment",
+          "documents",
+          "samples",
+          "outcome"
+        ],
+        "accepted_outcomes": [
+          "pass",
+          "fail",
+          "pass_with_warning",
+          "review",
+          "not_applicable"
+        ],
+        "accepted_codes": {
+          "pass": [
+            "inline_pair.box_center",
+            "shared_anchor.block_start",
+            "shared_anchor.inline_start",
+            "protected_atom.single_line",
+            "presentation_owner.select_indicator",
+            "canonical_lockup.asset"
+          ],
+          "fail": [
+            "inline_pair_box_center_delta_exceeded",
+            "shared_block_start_spread_exceeded",
+            "shared_inline_start_spread_exceeded",
+            "protected_atom_fragmented",
+            "owned_select_composition_mismatch",
+            "canonical_lockup_asset_mismatch",
+            "sample_root_missing",
+            "sample_root_not_rendered",
+            "relationship_members_missing",
+            "relationship_member_not_rendered",
+            "protected_atom_missing",
+            "protected_atom_not_rendered",
+            "select_control_missing",
+            "select_control_not_rendered",
+            "owned_select_parts_missing",
+            "owned_select_part_not_rendered",
+            "canonical_lockup_not_rendered",
+            "relationship_limit_exceeded"
+          ],
+          "pass_with_warning": [
+            "browser_owned_indicator_unmeasured"
+          ],
+          "review": [
+            "presentation_owner_undeclared",
+            "calibration_missing",
+            "canonical_lockup_undeclared",
+            "unsupported_rule_kind"
+          ],
+          "not_applicable": [
+            "relationship_inactive_at_viewport",
+            "no_applicable_contract"
+          ]
+        },
+        "warning_codes": [
+          "browser_owned_indicator_unmeasured"
+        ],
+        "review_codes": [
+          "presentation_owner_undeclared",
+          "calibration_missing",
+          "canonical_lockup_undeclared",
+          "unsupported_rule_kind"
+        ],
+        "not_applicable_codes": [
+          "relationship_inactive_at_viewport",
+          "no_applicable_contract"
+        ]
+      },
+      "rules": [
+        {
+          "id": "inline_pair.box_center",
+          "kind": "inline_pair",
+          "axis": "block",
+          "anchor": "box_center",
+          "measurement": "member_box_center_delta_css_px",
+          "failure_code": "inline_pair_box_center_delta_exceeded",
+          "message": "Declared inline peers do not share the governed box center."
+        },
+        {
+          "id": "shared_anchor.block_start",
+          "kind": "shared_anchor",
+          "axis": "block",
+          "anchor": "block_start",
+          "measurement": "member_start_edge_spread_css_px",
+          "failure_code": "shared_block_start_spread_exceeded",
+          "message": "Declared members do not share the governed block-start anchor."
+        },
+        {
+          "id": "shared_anchor.inline_start",
+          "kind": "shared_anchor",
+          "axis": "inline",
+          "anchor": "inline_start",
+          "measurement": "member_logical_start_edge_spread_css_px",
+          "failure_code": "shared_inline_start_spread_exceeded",
+          "message": "Declared members do not share the governed logical inline-start anchor."
+        },
+        {
+          "id": "protected_atom.single_line",
+          "kind": "protected_atom",
+          "measurement": "text_line_box_count",
+          "failure_code": "protected_atom_fragmented",
+          "message": "The declared semantic atom wrapped or escaped its containing composition."
+        },
+        {
+          "id": "presentation_owner.select_indicator",
+          "kind": "presentation_owner",
+          "part": "select_indicator",
+          "supported_owners": [
+            "browser",
+            "design_system"
+          ],
+          "design_system_measurement": "declared_variant_label_center_and_accessory_rail_delta_css_px",
+          "failure_code": "owned_select_composition_mismatch",
+          "warning_code": "browser_owned_indicator_unmeasured",
+          "message": "The design-system-owned select indicator does not satisfy its declared composition calibration."
+        },
+        {
+          "id": "canonical_lockup.asset",
+          "kind": "canonical_lockup",
+          "measurement": "single_declared_asset_reference",
+          "failure_code": "canonical_lockup_asset_mismatch",
+          "message": "The rendered lockup is not the declared canonical asset.",
+          "lockups": {}
+        }
+      ],
+      "calibrations": {
+        "judgmentkit.inline_pair.box_center": {
+          "component_family": "judgmentkit.inline_pair",
+          "rule_id": "inline_pair.box_center",
+          "max_box_center_delta_css_px": 1
+        },
+        "judgmentkit.shared_anchor.block_start": {
+          "component_family": "judgmentkit.shared_anchor.block_start",
+          "rule_id": "shared_anchor.block_start",
+          "max_spread_css_px": 1
+        },
+        "judgmentkit.shared_anchor.inline_start": {
+          "component_family": "judgmentkit.shared_anchor.inline_start",
+          "rule_id": "shared_anchor.inline_start",
+          "max_spread_css_px": 1
+        },
+        "judgmentkit.protected_atom.single_line": {
+          "component_family": "judgmentkit.protected_atom",
+          "rule_id": "protected_atom.single_line",
+          "max_text_line_boxes": 1
+        },
+        "judgmentkit.select_indicator.centered_label_symmetric_rails": {
+          "component_family": "judgmentkit.select_indicator",
+          "rule_id": "presentation_owner.select_indicator",
+          "composition_variant": "centered_label_symmetric_rails",
+          "accessory_rail_width_css_px": 36,
+          "max_label_center_delta_css_px": 1,
+          "max_logical_rail_delta_css_px": 2
+        }
+      },
+      "sha256": "8d6c23a99ff3398c2b88704a62ea2766bf65e785282553f2349dd654051bd699"
+    },
+    "visual_composition_policy_authority": "judgmentkit_default_adapter",
     "local_component_authority": {
       "mode": "none",
       "enforcement": "optional",

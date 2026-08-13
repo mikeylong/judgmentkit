@@ -1532,7 +1532,38 @@ function withTimeout(promise, timeoutMs, label) {
   ]);
 }
 
-async function probeRemoteMcpRoute(baseUrl, route) {
+function publicReleaseAccessibilityEvidence() {
+  const pass = (method, notes) => ({ status: "pass", method, notes });
+  return {
+    automated_checks: pass("static accessibility checks", "No blocking findings."),
+    semantic_content: pass("DOM inspection", "Semantic content is present."),
+    landmarks_headings: pass("accessibility tree inspection", "Landmarks and headings are present."),
+    name_role_value: pass("accessibility tree inspection", "Names, roles, and values are present."),
+    keyboard_navigation: pass("keyboard walkthrough", "Actions are keyboard operable."),
+    focus_order: pass("keyboard walkthrough", "Focus order preserves meaning."),
+    focus_visible: pass("browser review", "Focus indicators remain visible."),
+    responsive_no_overflow: pass("desktop and mobile browser review", "No responsive overflow."),
+    non_text_contrast: pass("computed contrast review", "Control boundaries meet non-text contrast."),
+    semantic_fallbacks: pass("DOM inspection", "Semantic HTML provides fallback structure."),
+  };
+}
+
+function publicReleaseDesignSystemProvenance() {
+  return {
+    source: "judgmentkit_default",
+    token_source: "/design-system/visual-token-adapter.json",
+    typography_source: "/design-system/visual-token-adapter.json",
+    icon_source: "JudgmentKit icon catalog via get_icon_svg",
+    renderer_component_source:
+      "implementation_contract.default_ai_native_design_system.component_contracts",
+    import_boundary:
+      "No visual, typography, icon, or component package imports outside the active design-system source.",
+    token_prefix_source: "implementation_contract.design_system_source.token_prefixes",
+    source_exports: "implementation_contract.design_system_source.source_exports",
+  };
+}
+
+async function probeRemoteMcpRoute(baseUrl, route, verifyBrowserRuntime = false) {
   const endpointUrl = urlFor(baseUrl, route);
   const initializeBody = JSON.stringify({
     jsonrpc: "2.0",
@@ -1569,6 +1600,9 @@ async function probeRemoteMcpRoute(baseUrl, route) {
   let sdkSupported = false;
   let tools = [];
   let reviewStatus;
+  let implementationReviewStatus;
+  let visualCompositionStatus;
+  let trustedVisualCompositionEvidence = false;
   let errorMessage = "";
 
   try {
@@ -1593,6 +1627,59 @@ async function probeRemoteMcpRoute(baseUrl, route) {
       "public MCP tool call",
     );
     reviewStatus = reviewResponse.structuredContent?.review_status;
+
+    if (verifyBrowserRuntime) {
+      const approvedPrimitives = [
+        "queue",
+        "detail panel",
+        "decision controls",
+        "handoff receipt",
+      ];
+      const contractResponse = await withTimeout(
+        client.callTool({
+          name: "create_ui_implementation_contract",
+          arguments: {
+            target_stack: "HTML",
+            approved_primitives: approvedPrimitives,
+            static_rules: ["npm test"],
+            browser_qa_checks: ["desktop review", "mobile review"],
+          },
+        }),
+        8_000,
+        "public MCP implementation contract",
+      );
+      const implementationContract = contractResponse.structuredContent;
+      const implementationReview = await withTimeout(
+        client.callTool({
+          name: "review_ui_implementation_candidate",
+          arguments: {
+            implementation_contract: implementationContract,
+            candidate: {
+              primitives_used: approvedPrimitives,
+              states_covered:
+                implementationContract.implementation_contract.state_coverage
+                  .required_states,
+              static_checks: ["npm test"],
+              browser_qa: { desktop: "passed", mobile: "passed" },
+              accessibility_evidence: publicReleaseAccessibilityEvidence(),
+              design_system_provenance:
+                publicReleaseDesignSystemProvenance(),
+              rendered_html:
+                "<!doctype html><html><head><style>body{font:16px system-ui;margin:0}main{padding:24px}</style></head><body><main><h1>Refund review</h1><p>Trusted runtime production probe.</p></main></body></html>",
+            },
+          },
+        }),
+        35_000,
+        "public MCP trusted browser review",
+      );
+      implementationReviewStatus =
+        implementationReview.structuredContent?.implementation_review_status;
+      visualCompositionStatus =
+        implementationReview.structuredContent?.checks?.visual_composition?.status;
+      trustedVisualCompositionEvidence =
+        implementationReview.structuredContent?.checks?.visual_composition
+          ?.trusted_evidence_present === true;
+    }
     sdkSupported = true;
   } catch (error) {
     errorMessage = error instanceof Error ? error.message : String(error);
@@ -1621,6 +1708,9 @@ async function probeRemoteMcpRoute(baseUrl, route) {
       supported: sdkSupported,
       error: errorMessage,
       review_status: reviewStatus,
+      implementation_review_status: implementationReviewStatus,
+      visual_composition_status: visualCompositionStatus,
+      trusted_visual_composition_evidence: trustedVisualCompositionEvidence,
       tools,
     },
   };
@@ -1640,8 +1730,8 @@ export async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
 
   const routes = [];
 
-  for (const route of PUBLIC_MCP_ROUTES) {
-    routes.push(await probeRemoteMcpRoute(baseUrl, route));
+  for (const [routeIndex, route] of PUBLIC_MCP_ROUTES.entries()) {
+    routes.push(await probeRemoteMcpRoute(baseUrl, route, routeIndex === 0));
   }
 
   for (const routeResult of routes) {
@@ -1664,6 +1754,10 @@ export async function probeRemoteMcpEndpoint(baseUrl, expectRemoteMcp) {
     assert.deepEqual(routeResult.sdk.tools, JUDGMENTKIT_MCP_TOOL_NAMES);
     assert.equal(routeResult.sdk.review_status, "ready_for_review");
   }
+
+  assert.equal(routes[0].sdk.implementation_review_status, "passed");
+  assert.equal(routes[0].sdk.visual_composition_status, "not_applicable");
+  assert.equal(routes[0].sdk.trusted_visual_composition_evidence, true);
 
   const firstSupportedRoute = routes.find((routeResult) => routeResult.sdk.supported);
 

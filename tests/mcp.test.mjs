@@ -8,7 +8,17 @@ import {
   getMcpMetadata,
   handleToolCall,
   listTools,
+  runVisualCompositionBrowserAdmission,
 } from "../src/mcp.mjs";
+
+function withNoApplicableVisualComposition(candidate, implementationContract) {
+  if (!implementationContract?.visual_composition_policy) return candidate;
+  return {
+    ...candidate,
+    rendered_html:
+      '<main data-primary-surface="fixture">No governed visual relationships</main>',
+  };
+}
 
 const tools = listTools();
 const metadata = getMcpMetadata("stdio");
@@ -243,6 +253,109 @@ assert.deepEqual(
 assert.equal(metadata.name, "JudgmentKit");
 assert.equal(metadata.version, "0.7.0");
 assert.deepEqual(metadata.capabilities.prompts, []);
+
+{
+  let releaseFirstReview;
+  const firstReview = runVisualCompositionBrowserAdmission(
+    () =>
+      new Promise((resolve) => {
+        releaseFirstReview = resolve;
+      }),
+    { timeout_ms: 1_000 },
+  );
+
+  await assert.rejects(
+    runVisualCompositionBrowserAdmission(() => Promise.resolve("not admitted")),
+    (error) =>
+      error?.code === "visual_composition_browser_capacity_exceeded" &&
+      error?.details?.retryable === true &&
+      error?.details?.max_in_process_concurrency === 1,
+    "A second browser-backed review in one process must fail closed instead of launching another browser.",
+  );
+
+  releaseFirstReview("first admitted");
+  assert.equal(await firstReview, "first admitted");
+}
+
+{
+  let finishTimedOutReview;
+  const timedOutReview = runVisualCompositionBrowserAdmission(
+    () =>
+      new Promise((resolve) => {
+        finishTimedOutReview = resolve;
+      }),
+    { timeout_ms: 10 },
+  );
+
+  await assert.rejects(
+    timedOutReview,
+    (error) =>
+      error?.code === "visual_composition_browser_timeout" &&
+      error?.details?.retryable === true &&
+      error?.details?.timeout_ms === 10,
+    "Browser-backed review must return a stable fail-closed timeout before the hosted function deadline.",
+  );
+  await assert.rejects(
+    runVisualCompositionBrowserAdmission(() => Promise.resolve("not admitted")),
+    (error) => error?.code === "visual_composition_browser_capacity_exceeded",
+    "A timed-out browser operation must continue holding its capacity slot until cleanup finishes.",
+  );
+
+  finishTimedOutReview("cleaned up");
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(
+    await runVisualCompositionBrowserAdmission(() => Promise.resolve("admitted")),
+    "admitted",
+    "Browser capacity must become available after the underlying operation finishes cleanup.",
+  );
+}
+
+{
+  const contractPacket = await handleToolCall(
+    "create_ui_implementation_contract",
+    {},
+  );
+  let releaseOccupiedSlot;
+  const occupiedSlot = runVisualCompositionBrowserAdmission(
+    () =>
+      new Promise((resolve) => {
+        releaseOccupiedSlot = resolve;
+      }),
+    { timeout_ms: 1_000 },
+  );
+
+  const codeOnlyReview = await handleToolCall(
+    "review_ui_implementation_candidate",
+    {
+      implementation_contract: contractPacket.implementation_contract,
+      candidate: {
+        code: "export function App() { return <main>Not rendered HTML</main>; }",
+      },
+    },
+  );
+  assert.notEqual(
+    codeOnlyReview.error?.code,
+    "visual_composition_browser_capacity_exceeded",
+    "Code-only diagnostic reviews must not consume hosted browser admission.",
+  );
+
+  const renderableReview = await handleToolCall(
+    "review_ui_implementation_candidate",
+    {
+      implementation_contract: contractPacket.implementation_contract,
+      candidate: { rendered_html: "<main>Rendered candidate</main>" },
+    },
+  );
+  assert.equal(
+    renderableReview.error?.code,
+    "visual_composition_browser_capacity_exceeded",
+    "Only a renderable visual-composition review should encounter occupied browser capacity.",
+  );
+
+  releaseOccupiedSlot("cleaned up");
+  await occupiedSlot;
+}
+
 const toolsJson = JSON.stringify(tools);
 for (const legacyField of [
   "primary_ui",
@@ -301,6 +414,15 @@ assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.design_system_adapter.type, "object");
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.design_system_source.type, "object");
 assert.equal(toolByName.create_ui_implementation_contract.inputSchema.properties.visual_token_adapter.type, "object");
+assert.equal(
+  toolByName.create_ui_implementation_contract.inputSchema.properties.visual_composition_policy.type,
+  "object",
+);
+assert.match(
+  toolByName.create_ui_implementation_contract.inputSchema.properties.visual_composition_policy
+    .description,
+  /hosted MCP renders that artifact/i,
+);
 assert.ok(
   toolByName.create_ui_implementation_contract.inputSchema.properties.visual_token_adapter.description.includes(
     "font",
@@ -335,6 +457,7 @@ for (const evidenceField of [
   "pattern_contract_evidence",
   "local_component_authority_evidence",
   "design_system_provenance",
+  "visual_composition_evidence",
 ]) {
   assert.ok(
     reviewImplementationCandidateHelp.includes(evidenceField),
@@ -357,8 +480,28 @@ assert.match(
 );
 assert.match(
   reviewImplementationCandidateHelp,
-  /String-only code text is diagnostic/i,
+  /String-only snippets that cannot render are diagnostic/i,
   "review_ui_implementation_candidate help should state text-only candidates cannot pass required provenance.",
+);
+assert.match(
+  reviewImplementationCandidateHelp,
+  /browser_qa\.visual_composition/,
+  "review_ui_implementation_candidate help should name the nested visual-composition evidence alias.",
+);
+assert.match(
+  reviewImplementationCandidateHelp,
+  /self-contained HTML/i,
+  "review_ui_implementation_candidate help should require a self-contained renderable artifact.",
+);
+assert.match(
+  reviewImplementationCandidateHelp,
+  /hosted MCP renders[^.]*isolated browser/i,
+  "review_ui_implementation_candidate help should describe the trusted browser runtime.",
+);
+assert.match(
+  reviewImplementationCandidateHelp,
+  /Candidate-authored visual_composition_evidence[\s\S]*cannot pass/i,
+  "review_ui_implementation_candidate help should reject caller-authored acceptance evidence.",
 );
 assert.equal(toolByName.create_ui_generation_handoff.inputSchema.required.includes("workflow_review"), true);
 assert.equal(toolByName.create_ui_generation_handoff.inputSchema.required.includes("implementation_contract"), true);
@@ -1442,15 +1585,76 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
     "implementation contract card",
   );
 
+  const visualCompositionContract = await handleToolCall(
+    "create_ui_implementation_contract",
+    {
+      visual_composition_policy:
+        implementationContract.implementation_contract
+          .visual_composition_policy,
+    },
+  );
+  assert.equal("error" in visualCompositionContract, false);
+  assert.equal(
+    visualCompositionContract.implementation_contract.visual_composition_policy.id,
+    "judgmentkit.visual-composition.adapter-v1",
+  );
+  assert.equal(
+    visualCompositionContract.implementation_contract.visual_composition_policy.enforcement,
+    "required_when_applicable",
+  );
+  const visualCompositionContractCard = formatPlanningCard(visualCompositionContract);
+  assert.match(
+    visualCompositionContractCard,
+    /\*\*Visual composition policy:\*\* judgmentkit\.visual-composition\.adapter-v1/,
+  );
+  assert.match(
+    visualCompositionContractCard,
+    /\*\*Visual composition enforcement:\*\* required_when_applicable/,
+  );
+  assert.match(
+    visualCompositionContractCard,
+    /\*\*Visual composition evidence:\*\* visual_composition_evidence/,
+  );
+
+  const visualCompositionReview = await handleToolCall(
+    "review_ui_implementation_candidate",
+    {
+      implementation_contract: visualCompositionContract,
+      candidate: {
+        visual_composition_manifest: {
+          samples: [
+            {
+              rule_id: "shared_anchor.inline_start",
+              calibration_ref: "judgmentkit.shared_anchor.inline_start",
+              document_id: "fixture",
+              viewport_id: "desktop",
+              sample_id: "fixture-inline-start",
+              component_family: "judgmentkit.shared_anchor.inline_start",
+              selector: "[data-sample='fixture']",
+              member_selector: "[data-part='member']",
+            },
+          ],
+        },
+      },
+    },
+  );
+  assert.equal(visualCompositionReview.checks.visual_composition.status, "fail");
+  assert.equal(
+    visualCompositionReview.checks.visual_composition.reason,
+    "missing_visual_composition_evidence",
+  );
+  const visualCompositionReviewCard = formatPlanningCard(visualCompositionReview);
+  assert.match(visualCompositionReviewCard, /\*\*Visual composition:\*\* fail/);
+
   const missingProvenanceReview = await handleToolCall("review_ui_implementation_candidate", {
     implementation_contract: implementationContract,
-    candidate: {
+    candidate: withNoApplicableVisualComposition({
       primitives_used: ["queue", "detail panel", "decision controls", "handoff receipt"],
       states_covered: implementationContract.implementation_contract.state_coverage.required_states,
       static_checks: ["npm test"],
       browser_qa: { desktop: "passed", mobile: "passed" },
       accessibility_evidence: coreAccessibilityEvidence(),
-    },
+    }, implementationContract.implementation_contract),
   });
 
   assert.equal("error" in missingProvenanceReview, false);
@@ -1477,14 +1681,14 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
 
   const implementationReview = await handleToolCall("review_ui_implementation_candidate", {
     implementation_contract: implementationContract,
-    candidate: {
+    candidate: withNoApplicableVisualComposition({
       primitives_used: ["queue", "detail panel", "decision controls", "handoff receipt"],
       states_covered: implementationContract.implementation_contract.state_coverage.required_states,
       static_checks: ["npm test"],
       browser_qa: { desktop: "passed", mobile: "passed" },
       accessibility_evidence: coreAccessibilityEvidence(),
       design_system_provenance: defaultDesignSystemProvenance(),
-    },
+    }, implementationContract.implementation_contract),
   });
 
   assert.equal("error" in implementationReview, false);
@@ -1503,7 +1707,7 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
   const selectedSurfaceImplementationReview = await handleToolCall("review_ui_implementation_candidate", {
     implementation_contract: implementationContract,
     surface_type: "operator_review",
-    candidate: {
+    candidate: withNoApplicableVisualComposition({
       primitives_used: ["queue", "detail panel", "decision controls", "handoff receipt"],
       states_covered: implementationContract.implementation_contract.state_coverage.required_states,
       static_checks: ["npm test"],
@@ -1525,7 +1729,7 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
           "handoff action",
         ],
       },
-    },
+    }, implementationContract.implementation_contract),
   });
 
   assert.equal("error" in selectedSurfaceImplementationReview, false);
@@ -1543,7 +1747,7 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
   const repairReview = await handleToolCall("review_ui_implementation_candidate", {
     implementation_contract: implementationContract,
     iteration_context: { current_attempt: 2 },
-    candidate: {
+    candidate: withNoApplicableVisualComposition({
       primitives_used: ["queue", "detail panel", "decision controls", "handoff receipt"],
       states_covered:
         implementationContract.implementation_contract.state_coverage.required_states,
@@ -1553,7 +1757,7 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
       design_system_provenance: defaultDesignSystemProvenance(),
       actions: ["Auto approve refund"],
       action_boundary_evidence: {},
-    },
+    }, implementationContract.implementation_contract),
   });
 
   assert.equal("error" in repairReview, false);
@@ -1565,7 +1769,7 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
   const stoppedReview = await handleToolCall("review_ui_implementation_candidate", {
     implementation_contract: implementationContract,
     iteration_context: { current_attempt: 3 },
-    candidate: {
+    candidate: withNoApplicableVisualComposition({
       primitives_used: ["queue", "detail panel", "decision controls", "handoff receipt"],
       states_covered:
         implementationContract.implementation_contract.state_coverage.required_states,
@@ -1574,7 +1778,7 @@ MCP endpoint: http://127.0.0.1:3333/mcp`;
       accessibility_evidence: coreAccessibilityEvidence(),
       design_system_provenance: defaultDesignSystemProvenance(),
       visible_text: ["JSON schema", "resource id"],
-    },
+    }, implementationContract.implementation_contract),
   });
 
   assert.equal("error" in stoppedReview, false);

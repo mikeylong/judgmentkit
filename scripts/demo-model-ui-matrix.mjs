@@ -529,6 +529,9 @@ function isDefaultAdapterGuidanceLine(value) {
     "icon roles",
     "icon catalog",
     "icon tools",
+    "visual-composition",
+    "visual composition",
+    "visual_composition_evidence",
   ].some((needle) => text.includes(needle));
 }
 

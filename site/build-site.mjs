@@ -4458,6 +4458,11 @@ function defaultVisualTokenAdapter() {
   return createUiImplementationContract().implementation_contract.visual_token_adapter;
 }
 
+function defaultVisualCompositionPolicy() {
+  return createUiImplementationContract().implementation_contract
+    .visual_composition_policy;
+}
+
 function defaultDesignSystemContract() {
   return createUiImplementationContract().implementation_contract
     .default_ai_native_design_system;
@@ -4991,6 +4996,8 @@ function designSystemExports(model) {
       exports: {
         manifest: "/design-system/manifest.json",
         visual_token_adapter: "/design-system/visual-token-adapter.json",
+        visual_composition_policy:
+          "/design-system/visual-composition-policy.json",
         component_contracts: "/design-system/component-contracts.json",
         pattern_contracts: "/design-system/pattern-contracts.json",
         surface_presentation_profiles:
@@ -5005,12 +5012,14 @@ function designSystemExports(model) {
       },
       source: {
         visual_token_adapter_id: model.adapter.id,
+        visual_composition_policy_id: model.visual_composition_policy.id,
         design_system_contract_id: model.system.id,
         lucide: model.adapter.icon_catalog,
       },
       principles: model.principles,
     },
     visualTokenAdapter: model.adapter,
+    visualCompositionPolicy: model.visual_composition_policy,
     componentContracts: {
       source: model.system.id,
       contracts: model.component_contracts,
@@ -5085,6 +5094,7 @@ function buildDesignSystemIconIndex(scenarios) {
 
 function buildDesignSystemContentModel() {
   const adapter = defaultVisualTokenAdapter();
+  const visualCompositionPolicy = defaultVisualCompositionPolicy();
   const system = defaultDesignSystemContract();
   const designSystemSource = defaultDesignSystemSource();
   const accessibilityPolicy = defaultAccessibilityPolicy();
@@ -5316,6 +5326,7 @@ function buildDesignSystemContentModel() {
     system,
     design_system_source: designSystemSource,
     adapter,
+    visual_composition_policy: visualCompositionPolicy,
     component_contracts: componentContracts,
     pattern_contracts: patternContracts,
     surface_presentation_profiles: surfacePresentationProfiles,
@@ -6618,6 +6629,7 @@ function renderDesignSystemLlms(model) {
     "",
     "## JSON exports",
     "- /design-system/visual-token-adapter.json",
+    "- /design-system/visual-composition-policy.json",
     "- /design-system/component-contracts.json",
     "- /design-system/pattern-contracts.json",
     "- /design-system/surface-presentation-profiles.json",
@@ -8634,6 +8646,10 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.writeFile(
     path.join(outDir, "design-system", "visual-token-adapter.json"),
     jsonExport(designSystemModel.exports.visualTokenAdapter),
+  );
+  await fs.writeFile(
+    path.join(outDir, "design-system", "visual-composition-policy.json"),
+    jsonExport(designSystemModel.exports.visualCompositionPolicy),
   );
   await fs.writeFile(
     path.join(outDir, "design-system", "component-contracts.json"),

@@ -1299,6 +1299,53 @@ async function recordLocalToolCall(toolCalls, name, args) {
   return result;
 }
 
+function hasVisualCompositionSubmission(candidate) {
+  if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) {
+    return false;
+  }
+
+  const browserQa =
+    candidate.browser_qa && typeof candidate.browser_qa === "object"
+      ? candidate.browser_qa
+      : {};
+
+  return [
+    candidate.visual_composition_manifest,
+    candidate.visualCompositionManifest,
+    candidate.visual_composition_evidence,
+    candidate.visualCompositionEvidence,
+    browserQa.visual_composition_manifest,
+    browserQa.visualCompositionManifest,
+    browserQa.visual_composition,
+    browserQa.visualComposition,
+  ].some((value) => value !== undefined);
+}
+
+function withInspectedNoApplicableVisualComposition(
+  candidate,
+  implementationContractPacket,
+  _options = {},
+) {
+  const implementationContract =
+    implementationContractPacket?.implementation_contract ??
+    implementationContractPacket;
+  if (
+    !candidate ||
+    typeof candidate !== "object" ||
+    Array.isArray(candidate) ||
+    !implementationContract?.visual_composition_policy ||
+    hasVisualCompositionSubmission(candidate)
+  ) {
+    return candidate;
+  }
+
+  return {
+    ...candidate,
+    rendered_html:
+      '<main data-primary-surface="mcp-pilot-fixture">No governed visual relationships</main>',
+  };
+}
+
 export async function buildMcpContextForCase(testCase, mcpRuntime) {
   const toolCalls = [];
   const brief = testCase.source_context?.brief ?? "";
@@ -1403,9 +1450,15 @@ export async function buildMcpContextForCase(testCase, mcpRuntime) {
       );
 
       for (const [attemptIndex, attempt] of repairAttempts.entries()) {
-        const review = await recordToolCall(toolCalls, mcpRuntime, "review_ui_implementation_candidate", {
+        const review = await recordLocalToolCall(toolCalls, "review_ui_implementation_candidate", {
           implementation_contract: implementationContract,
-          candidate: attempt.candidate,
+          candidate: withInspectedNoApplicableVisualComposition(
+            attempt.candidate,
+            implementationContract,
+            {
+              documentId: `${testCase.id}-attempt-${attemptIndex + 1}`,
+            },
+          ),
           iteration_context: {
             current_attempt: attemptIndex + 1,
             max_attempts: maxAttempts,
@@ -1419,9 +1472,13 @@ export async function buildMcpContextForCase(testCase, mcpRuntime) {
         }
       }
     } else {
-      const review = await recordToolCall(toolCalls, mcpRuntime, "review_ui_implementation_candidate", {
+      const review = await recordLocalToolCall(toolCalls, "review_ui_implementation_candidate", {
         implementation_contract: implementationContract,
-        candidate: testCase.implementation_candidate,
+        candidate: withInspectedNoApplicableVisualComposition(
+          testCase.implementation_candidate,
+          implementationContract,
+          { documentId: `${testCase.id}-candidate` },
+        ),
       });
       attemptReviews.push(review);
     }
@@ -2334,7 +2391,11 @@ async function captureRepairLoopObservation(testCase, mcpRuntime, options = {}) 
     const currentAttempt = attemptIndex + 1;
     const review = await recordLocalToolCall(toolCalls, "review_ui_implementation_candidate", {
       implementation_contract: implementationContract,
-      candidate: currentCandidate,
+      candidate: withInspectedNoApplicableVisualComposition(
+        currentCandidate,
+        implementationContract,
+        { documentId: `${testCase.id}-observation-${currentAttempt}` },
+      ),
       iteration_context: {
         current_attempt: currentAttempt,
         max_attempts: maxAttempts,
