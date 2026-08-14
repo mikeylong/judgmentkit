@@ -11,6 +11,7 @@ const MAX_HTML_BYTES = 128 * 1024;
 const MAX_SAMPLES = 100;
 const MAX_SAMPLES_PER_VIEWPORT = MAX_SAMPLES / 2;
 const BROWSER_START_TIMEOUT_MS = 12_000;
+const BROWSER_GRACEFUL_CLOSE_TIMEOUT_MS = 1_000;
 const BROWSER_SHUTDOWN_TIMEOUT_MS = 1_000;
 const BROWSER_PROFILE_REMOVE_RETRIES = 10;
 const BROWSER_PROFILE_REMOVE_RETRY_DELAY_MS = 100;
@@ -387,6 +388,15 @@ async function stopBrowserProcess(child) {
   await waitForProcessExit(child, BROWSER_SHUTDOWN_TIMEOUT_MS);
 }
 
+async function closeBrowserClient(client) {
+  if (!client) return;
+  await Promise.race([
+    client.send("Browser.close").catch(() => {}),
+    delay(BROWSER_GRACEFUL_CLOSE_TIMEOUT_MS),
+  ]);
+  client.close();
+}
+
 async function waitForBrowser(port, stderr) {
   const endpoint = `http://127.0.0.1:${port}/json/version`;
   const deadline = Date.now() + BROWSER_START_TIMEOUT_MS;
@@ -523,7 +533,7 @@ async function withBrowser(callback) {
     client = await connectCdp(versionEndpoint.webSocketDebuggerUrl);
     return await callback(client, versionEndpoint);
   } finally {
-    if (client) client.close();
+    await closeBrowserClient(client);
     await stopBrowserProcess(child);
     fs.rmSync(userDataDir, {
       recursive: true,
@@ -628,19 +638,19 @@ function measurementExpression({ declarations, policy, viewport, documentId }) {
         const candidates = Object.entries(calibrations).filter(([, calibration]) =>
           calibration.rule_id === ruleId
         );
-        const variantMatch = declaration.composition_variant
-          ? candidates.find(([, calibration]) =>
-              declaration.composition_variant === calibration.composition_variant
-            )
-          : null;
-        const familyMatches = declaration.component_family
-          ? candidates.filter(([, calibration]) =>
-              declaration.component_family === calibration.component_family
-            )
-          : [];
-        const found = variantMatch ||
-          (familyMatches.length === 1 ? familyMatches[0] : null) ||
-          (candidates.length === 1 ? candidates[0] : null);
+        const declaredIdentityMatches = candidates.filter(([, calibration]) =>
+          (!declaration.composition_variant ||
+            declaration.composition_variant === calibration.composition_variant) &&
+          (!declaration.component_family ||
+            declaration.component_family === calibration.component_family)
+        );
+        const found = declaredIdentityMatches.length === 1
+          ? declaredIdentityMatches[0]
+          : (!declaration.composition_variant &&
+              !declaration.component_family &&
+              candidates.length === 1
+            ? candidates[0]
+            : null);
         return found || [declaration.calibration_ref || "", null];
       };
       const base = (declaration, index) => ({

@@ -1121,11 +1121,21 @@ assert.match(
   "the bottom-right video controls should use a compact cluster width",
 );
 assert.match(homepageFilmControlsCss, /gap:\s*6px;/);
+assert.ok(
+  !cssDeclarationValue(homepageFilmControlsCss, "opacity") ||
+    cssDeclarationValue(homepageFilmControlsCss, "opacity") === "1",
+  "the semantic video-control group must not lower every control's contrast with shared opacity",
+);
 for (const selector of [".homepage-film-control-button", ".homepage-film-scrubber"]) {
   const background = cssDeclarationValue(cssRuleBody(siteCss, selector), "background");
   assert.ok(
     background && !/^(?:none|transparent)$/i.test(background),
     `${selector} should carry its own bounded visual surface`,
+  );
+  assert.match(
+    background,
+    /var\(--hero-art-bg\)\s+(?:7[5-9]|[89][0-9]|100)%/,
+    `${selector} should retain a sufficiently strong local surface over light film frames`,
   );
 }
 const homepageFilmControlButtonCss = cssRuleBody(siteCss, ".homepage-film-control-button");
@@ -1136,8 +1146,8 @@ assert.match(homepageFilmScrubberCss, /height:\s*44px;/);
 assert.match(homepageFilmScrubberCss, /padding:\s*0 12px;/);
 assert.match(
   siteCss,
-  /\.homepage-film-control-button:focus-visible,\s*\n\.homepage-film-scrubber:focus-visible\s*\{/,
-  "both floating control types should retain a visible keyboard-focus treatment",
+  /\.homepage-film-control-button:focus-visible,\s*\n\.homepage-film-scrubber:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--fixed-light-ink\);[^}]*box-shadow:\s*0 0 0 5px var\(--hero-art-bg\);/s,
+  "both floating control types should retain a dual-contrast keyboard-focus treatment",
 );
 const homepageFilmSectionCss = cssRuleBody(siteCss, ".homepage-film-section");
 const homepageFilmShellCss = cssRuleBody(siteCss, ".homepage-film-shell");

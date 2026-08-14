@@ -300,6 +300,11 @@ async function serveStaticFile(req, res, siteDir, pathname) {
     return;
   }
 
+  if (contentLength === 0) {
+    res.end();
+    return;
+  }
+
   const stream = fs.createReadStream(file.filePath, { start, end });
   stream.on("error", (error) => {
     if (res.headersSent) {

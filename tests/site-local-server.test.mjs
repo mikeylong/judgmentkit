@@ -365,6 +365,7 @@ async function assertPublicMcpAppGuards(baseUrl, route) {
 
 const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-local-site-"));
 await buildSite(tempDir);
+fs.writeFileSync(path.join(tempDir, "empty.txt"), "");
 
 const { server, url } = await listenSiteLocalServer({
   host: "127.0.0.1",
@@ -398,6 +399,17 @@ try {
       response.headers.get("content-type")?.startsWith("text/x-shellscript"),
       "/install should return shell script content type",
     );
+  }
+
+  await assertStaticGetAndHead(url, "/empty.txt", "text/plain; charset=utf-8", (body) => {
+    assert.equal(body.length, 0, "zero-byte static files should remain valid responses");
+  });
+  {
+    const response = await fetchRoute(url, "/empty.txt", {
+      headers: { Range: "bytes=0-0" },
+    });
+    assert.equal(response.status, 416, "a byte range cannot be satisfied for an empty file");
+    assert.equal(response.headers.get("content-range"), "bytes */0");
   }
 
   {
@@ -464,6 +476,11 @@ try {
     assert.match(controlsCss, /bottom:\s*clamp\(/);
     assert.match(controlsCss, /left:\s*auto;/);
     assert.match(controlsCss, /transform:\s*none;/);
+    assert.ok(
+      !cssDeclarationValue(controlsCss, "opacity") ||
+        cssDeclarationValue(controlsCss, "opacity") === "1",
+      "served video-control group must not lower child contrast with shared opacity",
+    );
     assert.match(
       controlsCss,
       /width:\s*min\(292px,/,

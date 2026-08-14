@@ -22,6 +22,10 @@ assert.ok(
   runtimeSource.includes('"--disable-dev-shm-usage"'),
   "Serverless Chromium must use /tmp when /dev/shm is unavailable.",
 );
+assert.ok(
+  runtimeSource.includes('client.send("Browser.close")'),
+  "Browser cleanup must request a graceful CDP shutdown before process termination.",
+);
 
 const implementationContract = createUiImplementationContract({
   repo_name: "Visual Composition Runtime Test",
@@ -170,8 +174,19 @@ const compactCalibrationEntry = Object.entries(
 assert.ok(fieldCalibrationEntry);
 assert.ok(compactCalibrationEntry);
 
+const alternateFieldCalibrationRef = "test.select_indicator.alternate_field_family";
+const alternateFieldFamily = "test.select_indicator.alternate_field";
+const multiFamilyImplementationContract = structuredClone(implementationContract);
+multiFamilyImplementationContract.visual_composition_policy.calibrations[
+  alternateFieldCalibrationRef
+] = {
+  ...fieldCalibrationEntry[1],
+  component_family: alternateFieldFamily,
+  expected_value_start_inset_css_px: 24,
+};
+
 const explicitSelectVariants = await measureVisualCompositionInBrowser({
-  implementationContract,
+  implementationContract: multiFamilyImplementationContract,
   candidate: {
     rendered_html: `<!doctype html>
       <html>
@@ -197,6 +212,7 @@ const explicitSelectVariants = await measureVisualCompositionInBrowser({
             }
             .field [data-part='indicator'] { width: 16px; height: 16px; }
             #field-wrong-value [data-part='value'] { padding-inline-start: 28px; }
+            #field-alternate-family [data-part='value'] { padding-inline-start: 24px; }
             #field-wrong-slot [data-part='indicator-slot'] { width: 28px; }
             #field-off-center [data-part='indicator-slot'] {
               place-items: center end;
@@ -344,6 +360,10 @@ const explicitSelectVariants = await measureVisualCompositionInBrowser({
             <span data-part="label">kanban.cards</span>
             <svg data-part="indicator" aria-hidden="true" viewBox="0 0 20 20"><path d="M4 7l6 6 6-6" /></svg>
           </div>
+          <div id="field-alternate-family" class="control field" role="combobox" aria-label="Alternate board field">
+            <span data-part="value">kanban.cards</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
           <div id="intent-ref" class="control field" role="combobox" aria-label="Board">
             <span data-part="value">kanban.cards</span>
             <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
@@ -407,6 +427,17 @@ const explicitSelectVariants = await measureVisualCompositionInBrowser({
           selector: "#compact-centered",
           presentation_owner: "design_system",
           label_selector: "[data-part='label']",
+          indicator_selector: "[data-part='indicator']",
+        },
+        {
+          sample_id: "field-alternate-family",
+          rule_id: "presentation_owner.select_indicator",
+          component_family: alternateFieldFamily,
+          composition_variant: fieldCalibrationEntry[1].composition_variant,
+          selector: "#field-alternate-family",
+          presentation_owner: "design_system",
+          value_selector: "[data-part='value']",
+          indicator_slot_selector: "[data-part='indicator-slot']",
           indicator_selector: "[data-part='indicator']",
         },
         {
@@ -480,6 +511,7 @@ assert.equal(samplesNamed("field-long-rtl-visible").length, 2);
 assert.equal(samplesNamed("field-centered").length, 2);
 assert.equal(samplesNamed("field-rtl").length, 2);
 assert.equal(samplesNamed("compact-centered").length, 2);
+assert.equal(samplesNamed("field-alternate-family").length, 2);
 assert.equal(samplesNamed("intent-ref").length, 2);
 assert.equal(samplesNamed("intent-family").length, 2);
 assert.equal(samplesNamed("exact-probe").length, 2);
@@ -609,6 +641,13 @@ for (const sample of samplesNamed("compact-centered")) {
   assert.equal(sample.composition_variant, "centered_label_symmetric_rails");
   assert.equal(sample.evidence.label_center_delta_css_px, 0);
   assert.equal(sample.evidence.trailing_rail_width_css_px, 36);
+}
+for (const sample of samplesNamed("field-alternate-family")) {
+  assert.equal(sample.actual, "pass");
+  assert.equal(sample.calibration_ref, alternateFieldCalibrationRef);
+  assert.equal(sample.component_family, alternateFieldFamily);
+  assert.equal(sample.evidence.value_start_inset_css_px, 24);
+  assert.equal(sample.evidence.value_start_delta_css_px, 0);
 }
 for (const sample of [
   ...samplesNamed("intent-ref"),

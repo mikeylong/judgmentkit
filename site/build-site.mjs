@@ -1520,13 +1520,7 @@ h2 {
   color: var(--fixed-light-ink);
   background: transparent;
   box-shadow: none;
-  opacity: 0.82;
   transform: none;
-  transition: opacity 160ms ease;
-}
-.homepage-film-controls:hover,
-.homepage-film-controls:focus-within {
-  opacity: 1;
 }
 .homepage-film-control-button {
   display: inline-flex;
@@ -1537,10 +1531,10 @@ h2 {
   height: 44px;
   min-height: 44px;
   padding: 10px;
-  border: 1px solid color-mix(in srgb, var(--fixed-light-ink) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fixed-light-ink) 48%, transparent);
   border-radius: 999px;
   color: inherit;
-  background: color-mix(in srgb, var(--hero-art-bg) 42%, transparent);
+  background: color-mix(in srgb, var(--hero-art-bg) 78%, transparent);
   box-shadow:
     0 6px 18px color-mix(in srgb, var(--hero-art-bg) 18%, transparent),
     inset 0 1px color-mix(in srgb, var(--fixed-light-ink) 9%, transparent);
@@ -1551,13 +1545,14 @@ h2 {
   transition: background-color 140ms ease, border-color 140ms ease;
 }
 .homepage-film-control-button:hover {
-  border-color: color-mix(in srgb, var(--fixed-light-ink) 28%, transparent);
-  background: color-mix(in srgb, var(--hero-art-bg) 64%, transparent);
+  border-color: color-mix(in srgb, var(--fixed-light-ink) 64%, transparent);
+  background: color-mix(in srgb, var(--hero-art-bg) 88%, transparent);
 }
 .homepage-film-control-button:focus-visible,
 .homepage-film-scrubber:focus-visible {
   outline: 2px solid var(--fixed-light-ink);
   outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--hero-art-bg);
 }
 .homepage-film-control-button svg {
   width: 20px;
@@ -1573,9 +1568,9 @@ h2 {
   height: 44px;
   margin: 0;
   padding: 0 12px;
-  border: 1px solid color-mix(in srgb, var(--fixed-light-ink) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fixed-light-ink) 48%, transparent);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--hero-art-bg) 42%, transparent);
+  background: color-mix(in srgb, var(--hero-art-bg) 78%, transparent);
   box-shadow:
     0 6px 18px color-mix(in srgb, var(--hero-art-bg) 18%, transparent),
     inset 0 1px color-mix(in srgb, var(--fixed-light-ink) 9%, transparent);
