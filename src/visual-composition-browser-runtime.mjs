@@ -11,6 +11,7 @@ const MAX_HTML_BYTES = 128 * 1024;
 const MAX_SAMPLES = 100;
 const MAX_SAMPLES_PER_VIEWPORT = MAX_SAMPLES / 2;
 const BROWSER_START_TIMEOUT_MS = 12_000;
+const CONFIGURED_BROWSER_START_ATTEMPTS = 2;
 const BROWSER_GRACEFUL_CLOSE_TIMEOUT_MS = 1_000;
 const BROWSER_SHUTDOWN_TIMEOUT_MS = 1_000;
 const BROWSER_PROFILE_REMOVE_RETRIES = 10;
@@ -298,6 +299,7 @@ async function browserLaunch() {
     }
     return {
       executable,
+      startupAttempts: CONFIGURED_BROWSER_START_ATTEMPTS,
       args: [
         "--headless=new",
         "--disable-gpu",
@@ -310,6 +312,7 @@ async function browserLaunch() {
   if (process.platform === "linux") {
     return {
       executable: await chromium.executablePath(),
+      startupAttempts: 1,
       args: [...chromium.args],
     };
   }
@@ -327,6 +330,7 @@ async function browserLaunch() {
     if (!executable) throw new Error("No local Chrome executable is available.");
     return {
       executable,
+      startupAttempts: 1,
       args: ["--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check"],
     };
   }
@@ -357,35 +361,48 @@ function processHasExited(child) {
   return child.exitCode !== null || child.signalCode !== null;
 }
 
-function waitForProcessExit(child, timeoutMs) {
-  if (processHasExited(child)) return Promise.resolve(true);
-  return new Promise((resolve) => {
-    let settled = false;
-    let timer;
-    const finish = (exited) => {
-      if (settled) return;
-      settled = true;
-      if (timer) clearTimeout(timer);
-      child.off("exit", onExit);
-      resolve(exited);
-    };
-    const onExit = () => finish(true);
-    child.once("exit", onExit);
-    timer = setTimeout(
-      () => finish(processHasExited(child)),
-      timeoutMs,
-    );
-    if (settled) clearTimeout(timer);
-    else if (processHasExited(child)) finish(true);
-  });
+function browserProcessTreeHasExited(child) {
+  if (process.platform === "win32" || !Number.isInteger(child.pid)) {
+    return processHasExited(child);
+  }
+  try {
+    process.kill(-child.pid, 0);
+    return false;
+  } catch (error) {
+    if (error?.code === "ESRCH") return true;
+    if (error?.code === "EPERM") return false;
+    throw error;
+  }
+}
+
+function signalBrowserProcessTree(child, signal) {
+  if (process.platform !== "win32" && Number.isInteger(child.pid)) {
+    try {
+      process.kill(-child.pid, signal);
+      return;
+    } catch (error) {
+      if (error?.code === "ESRCH") return;
+      throw error;
+    }
+  }
+  if (!processHasExited(child)) child.kill(signal);
+}
+
+async function waitForProcessTreeExit(child, timeoutMs) {
+  const deadline = Date.now() + timeoutMs;
+  while (Date.now() < deadline) {
+    if (browserProcessTreeHasExited(child)) return true;
+    await delay(50);
+  }
+  return browserProcessTreeHasExited(child);
 }
 
 async function stopBrowserProcess(child) {
-  if (processHasExited(child)) return;
-  child.kill("SIGTERM");
-  if (await waitForProcessExit(child, BROWSER_SHUTDOWN_TIMEOUT_MS)) return;
-  child.kill("SIGKILL");
-  await waitForProcessExit(child, BROWSER_SHUTDOWN_TIMEOUT_MS);
+  if (browserProcessTreeHasExited(child)) return;
+  signalBrowserProcessTree(child, "SIGTERM");
+  if (await waitForProcessTreeExit(child, BROWSER_SHUTDOWN_TIMEOUT_MS)) return;
+  signalBrowserProcessTree(child, "SIGKILL");
+  await waitForProcessTreeExit(child, BROWSER_SHUTDOWN_TIMEOUT_MS);
 }
 
 async function closeBrowserClient(client) {
@@ -397,10 +414,16 @@ async function closeBrowserClient(client) {
   client.close();
 }
 
-async function waitForBrowser(port, stderr) {
+async function waitForBrowser(port, stderr, child) {
   const endpoint = `http://127.0.0.1:${port}/json/version`;
   const deadline = Date.now() + BROWSER_START_TIMEOUT_MS;
   while (Date.now() < deadline) {
+    if (processHasExited(child)) {
+      throw Object.assign(
+        new Error(`Chrome exited before its DevTools endpoint started. ${stderr().trim()}`),
+        { code: "browser_exited_before_debugging" },
+      );
+    }
     try {
       const response = await fetch(endpoint);
       if (response.ok) return response.json();
@@ -409,7 +432,10 @@ async function waitForBrowser(port, stderr) {
     }
     await delay(100);
   }
-  throw new Error(`Chrome DevTools endpoint did not start. ${stderr().trim()}`);
+  throw Object.assign(
+    new Error(`Chrome DevTools endpoint did not start. ${stderr().trim()}`),
+    { code: "browser_start_timeout" },
+  );
 }
 
 function connectCdp(url) {
@@ -493,8 +519,7 @@ function connectCdp(url) {
   });
 }
 
-async function withBrowser(callback) {
-  const launch = await browserLaunch();
+async function withBrowserAttempt(callback, launch) {
   const port = await availablePort();
   const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), "judgmentkit-vc-runtime-"));
   let stderr = "";
@@ -521,7 +546,10 @@ async function withBrowser(callback) {
       `--user-data-dir=${userDataDir}`,
       "about:blank",
     ],
-    { stdio: ["ignore", "ignore", "pipe"] },
+    {
+      detached: process.platform !== "win32",
+      stdio: ["ignore", "ignore", "pipe"],
+    },
   );
   child.stderr.on("data", (chunk) => {
     if (stderr.length < 32_768) stderr += chunk.toString();
@@ -529,7 +557,7 @@ async function withBrowser(callback) {
 
   let client;
   try {
-    const versionEndpoint = await waitForBrowser(port, () => stderr);
+    const versionEndpoint = await waitForBrowser(port, () => stderr, child);
     client = await connectCdp(versionEndpoint.webSocketDebuggerUrl);
     return await callback(client, versionEndpoint);
   } finally {
@@ -542,6 +570,20 @@ async function withBrowser(callback) {
       retryDelay: BROWSER_PROFILE_REMOVE_RETRY_DELAY_MS,
     });
   }
+}
+
+async function withBrowser(callback) {
+  const launch = await browserLaunch();
+  for (let attempt = 1; attempt <= launch.startupAttempts; attempt += 1) {
+    try {
+      return await withBrowserAttempt(callback, launch);
+    } catch (error) {
+      if (error?.code !== "browser_start_timeout" || attempt === launch.startupAttempts) {
+        throw error;
+      }
+    }
+  }
+  throw new Error("Configured Chrome failed to start.");
 }
 
 function measurementExpression({ declarations, policy, viewport, documentId }) {

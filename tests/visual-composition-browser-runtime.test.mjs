@@ -26,6 +26,16 @@ assert.ok(
   runtimeSource.includes('client.send("Browser.close")'),
   "Browser cleanup must request a graceful CDP shutdown before process termination.",
 );
+assert.ok(
+  runtimeSource.includes('detached: process.platform !== "win32"') &&
+    runtimeSource.includes("process.kill(-child.pid, signal)"),
+  "Browser cleanup must own and terminate the full POSIX Chrome process group.",
+);
+assert.ok(
+  runtimeSource.includes("CONFIGURED_BROWSER_START_ATTEMPTS = 2") &&
+    runtimeSource.includes('code: "browser_start_timeout"'),
+  "Configured system Chrome may retry one bounded startup failure without changing serverless behavior.",
+);
 
 const implementationContract = createUiImplementationContract({
   repo_name: "Visual Composition Runtime Test",
