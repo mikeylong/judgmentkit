@@ -702,6 +702,52 @@
             "max_label_center_delta_css_px": { "type": "number", "minimum": 0 },
             "max_logical_rail_delta_css_px": { "type": "number", "minimum": 0 }
           }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "component_family",
+            "rule_id",
+            "composition_variant",
+            "expected_value_start_inset_css_px",
+            "expected_indicator_slot_width_css_px",
+            "expected_indicator_inline_size_css_px",
+            "minimum_value_indicator_gap_css_px",
+            "max_geometry_delta_css_px",
+            "max_indicator_slot_center_delta_css_px"
+          ],
+          "properties": {
+            "component_family": { "type": "string", "minLength": 1 },
+            "rule_id": { "const": "presentation_owner.select_indicator" },
+            "composition_variant": {
+              "const": "field_value_trailing_indicator_slot"
+            },
+            "expected_value_start_inset_css_px": {
+              "type": "number",
+              "minimum": 0
+            },
+            "expected_indicator_slot_width_css_px": {
+              "type": "number",
+              "minimum": 0
+            },
+            "expected_indicator_inline_size_css_px": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "minimum_value_indicator_gap_css_px": {
+              "type": "number",
+              "minimum": 0
+            },
+            "max_geometry_delta_css_px": {
+              "type": "number",
+              "minimum": 0
+            },
+            "max_indicator_slot_center_delta_css_px": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
         }
       ]
     },

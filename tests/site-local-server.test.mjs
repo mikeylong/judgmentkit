@@ -48,6 +48,20 @@ function textContent(response) {
   return response.content.find((entry) => entry.type === "text")?.text ?? "";
 }
 
+function cssRuleBody(css, selector) {
+  const escapedSelector = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = css.match(new RegExp(`${escapedSelector}\\s*\\{([^}]*)\\}`, "m"));
+  assert.ok(match, `expected served CSS rule for ${selector}`);
+  return match[1];
+}
+
+function cssDeclarationValue(ruleBody, property) {
+  const escapedProperty = property.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return ruleBody
+    .match(new RegExp(`(?:^|;)\\s*${escapedProperty}\\s*:\\s*([^;]+)`, "m"))?.[1]
+    ?.trim();
+}
+
 async function closeServer(server) {
   server.closeAllConnections?.();
   await new Promise((resolve, reject) => {
@@ -158,6 +172,60 @@ function listenFixtureServer(handler) {
 
 async function fetchRoute(baseUrl, route, options = {}) {
   return fetch(new URL(route, baseUrl), options);
+}
+
+async function assertStaticGetAndHead(baseUrl, route, contentType, verifyBody) {
+  const response = await fetchRoute(baseUrl, route);
+  const body = Buffer.from(await response.arrayBuffer());
+
+  assert.equal(response.status, 200, `${route} GET should return 200`);
+  assert.equal(response.headers.get("content-type"), contentType);
+  assert.equal(
+    Number(response.headers.get("content-length")),
+    body.length,
+    `${route} GET should report the full body size`,
+  );
+  verifyBody?.(body);
+
+  const headResponse = await fetchRoute(baseUrl, route, { method: "HEAD" });
+
+  assert.equal(headResponse.status, 200, `${route} HEAD should return 200`);
+  assert.equal(headResponse.headers.get("content-type"), contentType);
+  assert.equal(
+    Number(headResponse.headers.get("content-length")),
+    body.length,
+    `${route} HEAD should report the GET body size`,
+  );
+  assert.equal(await headResponse.text(), "", `${route} HEAD should not return a body`);
+
+  return body;
+}
+
+async function assertStaticByteRanges(baseUrl, route) {
+  const fullResponse = await fetchRoute(baseUrl, route);
+  const fullBody = Buffer.from(await fullResponse.arrayBuffer());
+  const assetSize = Number(fullResponse.headers.get("content-length"));
+
+  assert.equal(fullResponse.status, 200, `${route} full GET should return 200`);
+  assert.equal(assetSize, fullBody.length, `${route} should report its full byte length`);
+  assert.ok(assetSize >= 100, `${route} should contain at least 100 bytes`);
+  assert.equal(fullResponse.headers.get("accept-ranges"), "bytes");
+
+  const rangeResponse = await fetch(new URL(route, baseUrl), {
+    headers: { Range: "bytes=0-99" },
+  });
+  const rangeBody = Buffer.from(await rangeResponse.arrayBuffer());
+  assert.equal(rangeResponse.status, 206);
+  assert.equal(rangeResponse.headers.get("accept-ranges"), "bytes");
+  assert.equal(rangeResponse.headers.get("content-length"), "100");
+  assert.equal(rangeResponse.headers.get("content-range"), `bytes 0-99/${assetSize}`);
+  assert.deepEqual(rangeBody, fullBody.subarray(0, 100));
+
+  const invalidRangeResponse = await fetch(new URL(route, baseUrl), {
+    headers: { Range: `bytes=${assetSize}-` },
+  });
+  assert.equal(invalidRangeResponse.status, 416);
+  assert.equal(invalidRangeResponse.headers.get("content-range"), `bytes */${assetSize}`);
 }
 
 async function runMcpClient(endpoint) {
@@ -365,6 +433,290 @@ try {
     );
     assert.equal(await headResponse.text(), "");
   }
+
+  await assertStaticGetAndHead(url, "/assets/site.css", "text/css; charset=utf-8", (body) => {
+    const css = body.toString("utf8");
+    const controlsCss = cssRuleBody(css, ".homepage-film-controls");
+
+    for (const property of [
+      "border",
+      "background",
+      "box-shadow",
+      "-webkit-backdrop-filter",
+      "backdrop-filter",
+    ]) {
+      const value = cssDeclarationValue(controlsCss, property);
+      assert.ok(
+        value === undefined || /^(?:0|none|transparent)$/i.test(value),
+        `served video-control group must not render a shared ${property} surface`,
+      );
+    }
+    assert.ok(
+      !(
+        cssDeclarationValue(controlsCss, "left") &&
+        !/^auto$/i.test(cssDeclarationValue(controlsCss, "left")) &&
+        cssDeclarationValue(controlsCss, "right") &&
+        !/^auto$/i.test(cssDeclarationValue(controlsCss, "right"))
+      ),
+      "served video-control group should not stretch edge-to-edge across the film",
+    );
+    assert.match(controlsCss, /right:\s*clamp\(/);
+    assert.match(controlsCss, /bottom:\s*clamp\(/);
+    assert.match(controlsCss, /left:\s*auto;/);
+    assert.match(controlsCss, /transform:\s*none;/);
+    assert.match(
+      controlsCss,
+      /width:\s*min\(292px,/,
+      "served video controls should retain the compact bottom-right footprint",
+    );
+    assert.match(controlsCss, /gap:\s*6px;/);
+
+    for (const selector of [".homepage-film-control-button", ".homepage-film-scrubber"]) {
+      const background = cssDeclarationValue(cssRuleBody(css, selector), "background");
+      assert.ok(
+        background && !/^(?:none|transparent)$/i.test(background),
+        `served ${selector} should carry its own bounded visual surface`,
+      );
+    }
+    assert.match(cssRuleBody(css, ".homepage-film-control-button"), /min-height:\s*44px;/);
+    const scrubberCss = cssRuleBody(css, ".homepage-film-scrubber");
+    assert.match(scrubberCss, /height:\s*44px;/);
+    assert.match(scrubberCss, /padding:\s*0 12px;/);
+
+    const sectionCss = cssRuleBody(css, ".homepage-film-section");
+    const shellCss = cssRuleBody(css, ".homepage-film-shell");
+    const frameCss = cssRuleBody(css, ".homepage-film-frame");
+    for (const property of ["padding", "border", "background", "box-shadow"]) {
+      const value = cssDeclarationValue(frameCss, property);
+      assert.ok(
+        value === undefined || /^(?:0|none|transparent)$/i.test(value),
+        `served homepage film wrapper must not render decorative ${property} chrome`,
+      );
+    }
+    assert.doesNotMatch(
+      css,
+      /\.homepage-film-frame::(?:before|after)\s*\{/,
+      "served film wrapper should not recreate a frame with pseudo-elements",
+    );
+    assert.doesNotMatch(sectionCss, /(?:radial|linear)-gradient\(/i);
+    assert.ok(
+      Number.parseFloat(cssDeclarationValue(shellCss, "max-width") ?? "0") >= 1100,
+      "served recording should use the widened, near-full-bleed shell",
+    );
+    assert.match(
+      cssRuleBody(css, ".homepage-film"),
+      /border-radius:\s*0;/,
+      "served recording must preserve square full-bleed corners",
+    );
+  });
+
+  await assertStaticGetAndHead(url, "/", "text/html; charset=utf-8", (body) => {
+    const html = body.toString("utf8");
+    const frame = html.match(
+      /<(div|section)\b[^>]*class="[^"]*\bhomepage-film-frame\b[^"]*"[^>]*>[\s\S]*?<\/\1>/,
+    )?.[0];
+
+    assert.ok(frame, "homepage should serve the film frame");
+    const videoOpenTag = frame.match(
+      /<video\b[^>]*class="[^"]*\bhomepage-film\b[^"]*"[^>]*>/,
+    )?.[0];
+    const frameOpenTag = frame.match(/^<(?:div|section)\b[^>]*>/i)?.[0] ?? "";
+    assert.ok(videoOpenTag, "homepage should serve the film");
+    assert.match(videoOpenTag, /(?:\s|^)controls(?:\s|>)/);
+    assert.doesNotMatch(videoOpenTag, /(?:\s|^)autoplay(?:\s|>)/);
+    assert.match(
+      frameOpenTag,
+      /data-film-poster-light="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster\.png"/,
+    );
+    assert.match(
+      frameOpenTag,
+      /data-film-poster-dark="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster-dark\.png"/,
+    );
+    assert.equal((html.match(/<video\b/g) ?? []).length, 1);
+    const sourceOpenTag = frame.match(/<source\b[^>]*>/)?.[0] ?? "";
+    assert.match(
+      frameOpenTag,
+      /data-film-source-light="\/assets\/releases\/judgmentkit-select-field-agent-demo\.mp4"/,
+    );
+    assert.match(
+      frameOpenTag,
+      /data-film-source-dark="\/assets\/releases\/judgmentkit-select-field-agent-demo-dark\.mp4"/,
+    );
+    const controlGroups = [
+      ...html.matchAll(
+        /<div\b[^>]*class="[^"]*\bhomepage-film-controls\b[^"]*"[^>]*>[\s\S]*?<\/div>/gi,
+      ),
+    ].map((match) => match[0]);
+    assert.equal(controlGroups.length, 1, "homepage should serve one custom control group");
+    const controls = controlGroups[0];
+    assert.match(controls.match(/<div\b[^>]*>/i)?.[0] ?? "", /(?:\s|^)hidden(?:\s|>)/);
+    assert.match(controls, /role="group"/);
+    assert.match(controls, /aria-label="Video controls"/);
+    assert.equal((controls.match(/<(?:button|input)\b/gi) ?? []).length, 3);
+    assert.equal((controls.match(/<button\b/gi) ?? []).length, 2);
+    assert.equal((controls.match(/<input\b/gi) ?? []).length, 1);
+    const controlElements = [...controls.matchAll(/<(?:button|input)\b[^>]*>/gi)].map(
+      (match) => match[0],
+    );
+    const playControl =
+      controlElements.find((tag) => /data-film-action="play"/.test(tag)) ?? "";
+    const scrubber =
+      controlElements.find((tag) => /data-film-scrubber(?:\s|=|>)/.test(tag)) ?? "";
+    const muteControl =
+      controlElements.find((tag) => /data-film-action="mute"/.test(tag)) ?? "";
+    assert.match(playControl, /^<button\b/i);
+    assert.match(playControl, /aria-label="Play video"/);
+    assert.match(scrubber, /^<input\b/i);
+    assert.match(scrubber, /type="range"/);
+    assert.match(scrubber, /aria-label="Video progress"/);
+    assert.match(muteControl, /^<button\b/i);
+    assert.match(muteControl, /aria-label="Mute video"/);
+    const buttonMarkup = [...controls.matchAll(/<button\b[^>]*>[\s\S]*?<\/button>/gi)].map(
+      (match) => match[0],
+    );
+    const playButtonMarkup =
+      buttonMarkup.find((button) => /data-film-action="play"/.test(button)) ?? "";
+    const muteButtonMarkup =
+      buttonMarkup.find((button) => /data-film-action="mute"/.test(button)) ?? "";
+    assert.deepEqual(
+      [...playButtonMarkup.matchAll(/data-icon-id="([^"]+)"/g)].map((match) => match[1]),
+      ["play", "pause"],
+    );
+    assert.deepEqual(
+      [...muteButtonMarkup.matchAll(/data-icon-id="([^"]+)"/g)].map((match) => match[1]),
+      ["volume-2", "volume-x"],
+    );
+    const iconTags = [
+      ...controls.matchAll(/<svg\b[^>]*data-icon-id="[^"]+"[^>]*>/gi),
+    ].map((match) => match[0]);
+    const iconTag = (id) =>
+      iconTags.find((tag) => tag.includes(`data-icon-id="${id}"`)) ?? "";
+    for (const iconId of ["play", "pause", "volume-2", "volume-x"]) {
+      assert.match(iconTag(iconId), /^<svg\b/i);
+    }
+    assert.doesNotMatch(iconTag("play"), /(?:\s|^)hidden(?:\s|>)/);
+    assert.match(iconTag("pause"), /(?:\s|^)hidden(?:\s|>)/);
+    assert.doesNotMatch(iconTag("volume-2"), /(?:\s|^)hidden(?:\s|>)/);
+    assert.match(iconTag("volume-x"), /(?:\s|^)hidden(?:\s|>)/);
+    assert.doesNotMatch(playButtonMarkup + muteButtonMarkup, /<span\b/i);
+    assert.doesNotMatch(controls, /(?:fullscreen|caption|playback[_-]?rate|speed)/i);
+    const filmIndex = html.search(/class="[^"]*\bhomepage-film-frame\b[^"]*"/);
+    const heroIndex = html.search(/class="[^"]*\bhomepage-hero\b[^"]*"/);
+    assert.ok(
+      filmIndex >= 0 && heroIndex >= 0 && filmIndex < heroIndex,
+      "homepage film should precede the existing hero",
+    );
+    assert.doesNotMatch(frame, /<(?:h[1-6]|p|figcaption)\b/i);
+    assert.doesNotMatch(html, /<iframe\b/i);
+    const filmScripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
+      .map((match) => match[1])
+      .filter((script) => script.includes("homepage-film"))
+      .join("\n");
+    assert.doesNotMatch(filmScripts, /addEventListener\(\s*["'](?:wheel|touchmove|scroll)["']/);
+    assert.ok(filmScripts.includes("filmPosterDark"));
+    assert.ok(filmScripts.includes("filmSourceDark"));
+    assert.match(
+      filmScripts,
+      /matchMedia\(\s*["']\(prefers-color-scheme:\s*dark\)["']\s*\)/,
+    );
+    assert.match(
+      filmScripts,
+      /if\s*\(\s*hasThemeVariant\s*&&\s*typeof window\.matchMedia === ["']function["']\s*\)\s*\{[\s\S]*?matchMedia\(/,
+    );
+    assert.equal(
+      frameOpenTag.includes(
+        'data-film-source-dark="/assets/releases/judgmentkit-select-field-agent-demo.mp4"',
+      ),
+      false,
+      "dark and light film source URLs must remain distinct",
+    );
+    assert.equal(
+      frameOpenTag.includes(
+        'data-film-poster-dark="/assets/releases/judgmentkit-select-field-agent-demo-poster.png"',
+      ),
+      false,
+      "dark and light poster URLs must remain distinct",
+    );
+    const lastBindingIndex = filmScripts.lastIndexOf("addEventListener");
+    const nativeControlsRemovalIndex = filmScripts.search(
+      /(?:removeAttribute\(\s*["']controls["']\s*\)|\.controls\s*=\s*false)/,
+    );
+    const customControlsRevealIndex = filmScripts.search(/\.hidden\s*=\s*false/);
+    assert.ok(lastBindingIndex >= 0);
+    assert.ok(nativeControlsRemovalIndex > lastBindingIndex);
+    assert.ok(customControlsRevealIndex > lastBindingIndex);
+    assert.equal(html.includes("/releases/visual-composition/"), false);
+  });
+
+  {
+    const response = await fetchRoute(url, "/releases/visual-composition/");
+
+    assert.equal(response.status, 404, "separate visual-composition route should not ship");
+  }
+
+  {
+    const response = await fetchRoute(url, "/releases/visual-composition/demo/");
+
+    assert.equal(response.status, 404, "retired interactive demo route should not ship");
+  }
+
+  await assertStaticGetAndHead(
+    url,
+    "/assets/releases/judgmentkit-select-field-agent-demo.mp4",
+    "video/mp4",
+    (body) => {
+      assert.equal(body.subarray(4, 8).toString("ascii"), "ftyp");
+    },
+  );
+
+  await assertStaticGetAndHead(
+    url,
+    "/assets/releases/judgmentkit-select-field-agent-demo-dark.mp4",
+    "video/mp4",
+    (body) => {
+      assert.equal(body.subarray(4, 8).toString("ascii"), "ftyp");
+    },
+  );
+
+  await assertStaticByteRanges(
+    url,
+    "/assets/releases/judgmentkit-select-field-agent-demo.mp4",
+  );
+  await assertStaticByteRanges(
+    url,
+    "/assets/releases/judgmentkit-select-field-agent-demo-dark.mp4",
+  );
+
+  await assertStaticGetAndHead(
+    url,
+    "/assets/releases/judgmentkit-select-field-agent-demo-poster.png",
+    "image/png",
+    (body) => {
+      assert.equal(body.subarray(1, 4).toString("ascii"), "PNG");
+    },
+  );
+
+  await assertStaticGetAndHead(
+    url,
+    "/assets/releases/judgmentkit-select-field-agent-demo-poster-dark.png",
+    "image/png",
+    (body) => {
+      assert.equal(body.subarray(1, 4).toString("ascii"), "PNG");
+    },
+  );
+  await assertStaticByteRanges(
+    url,
+    "/assets/releases/judgmentkit-select-field-agent-demo-poster-dark.png",
+  );
+
+  await assertStaticGetAndHead(
+    url,
+    "/assets/releases/judgmentkit-select-field-agent-demo.vtt",
+    "text/vtt; charset=utf-8",
+    (body) => {
+      assert.ok(body.toString("utf8").startsWith("WEBVTT"));
+    },
+  );
 
   {
     const response = await fetchRoute(

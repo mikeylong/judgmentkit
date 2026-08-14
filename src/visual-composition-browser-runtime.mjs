@@ -11,6 +11,9 @@ const MAX_HTML_BYTES = 128 * 1024;
 const MAX_SAMPLES = 100;
 const MAX_SAMPLES_PER_VIEWPORT = MAX_SAMPLES / 2;
 const BROWSER_START_TIMEOUT_MS = 12_000;
+const BROWSER_SHUTDOWN_TIMEOUT_MS = 1_000;
+const BROWSER_PROFILE_REMOVE_RETRIES = 10;
+const BROWSER_PROFILE_REMOVE_RETRY_DELAY_MS = 100;
 const CDP_TIMEOUT_MS = 15_000;
 const VIEWPORTS = Object.freeze([
   Object.freeze({
@@ -79,6 +82,8 @@ const DECLARATION_FIELDS = [
   "composition_variant",
   "container_selector",
   "label_selector",
+  "value_selector",
+  "indicator_slot_selector",
   "indicator_selector",
   "asset_selector",
   "lockup_id",
@@ -347,6 +352,41 @@ function delay(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
+function processHasExited(child) {
+  return child.exitCode !== null || child.signalCode !== null;
+}
+
+function waitForProcessExit(child, timeoutMs) {
+  if (processHasExited(child)) return Promise.resolve(true);
+  return new Promise((resolve) => {
+    let settled = false;
+    let timer;
+    const finish = (exited) => {
+      if (settled) return;
+      settled = true;
+      if (timer) clearTimeout(timer);
+      child.off("exit", onExit);
+      resolve(exited);
+    };
+    const onExit = () => finish(true);
+    child.once("exit", onExit);
+    timer = setTimeout(
+      () => finish(processHasExited(child)),
+      timeoutMs,
+    );
+    if (settled) clearTimeout(timer);
+    else if (processHasExited(child)) finish(true);
+  });
+}
+
+async function stopBrowserProcess(child) {
+  if (processHasExited(child)) return;
+  child.kill("SIGTERM");
+  if (await waitForProcessExit(child, BROWSER_SHUTDOWN_TIMEOUT_MS)) return;
+  child.kill("SIGKILL");
+  await waitForProcessExit(child, BROWSER_SHUTDOWN_TIMEOUT_MS);
+}
+
 async function waitForBrowser(port, stderr) {
   const endpoint = `http://127.0.0.1:${port}/json/version`;
   const deadline = Date.now() + BROWSER_START_TIMEOUT_MS;
@@ -484,10 +524,13 @@ async function withBrowser(callback) {
     return await callback(client, versionEndpoint);
   } finally {
     if (client) client.close();
-    child.kill("SIGTERM");
-    await delay(100);
-    if (child.exitCode === null) child.kill("SIGKILL");
-    fs.rmSync(userDataDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 50 });
+    await stopBrowserProcess(child);
+    fs.rmSync(userDataDir, {
+      recursive: true,
+      force: true,
+      maxRetries: BROWSER_PROFILE_REMOVE_RETRIES,
+      retryDelay: BROWSER_PROFILE_REMOVE_RETRY_DELAY_MS,
+    });
   }
 }
 
@@ -516,11 +559,42 @@ function measurementExpression({ declarations, policy, viewport, documentId }) {
           top: bounds.top, right: bounds.right, bottom: bounds.bottom, left: bounds.left,
         };
       };
-      const rangeRect = (node) => {
-        const range = document.createRange();
-        if (node.nodeType === Node.TEXT_NODE) range.selectNodeContents(node);
-        else range.selectNodeContents(node);
-        const bounds = range.getBoundingClientRect();
+      const textRangeRect = (node) => {
+        const textNodes = [];
+        if (node.nodeType === Node.TEXT_NODE) {
+          textNodes.push(node);
+        } else {
+          const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+          while (walker.nextNode()) textNodes.push(walker.currentNode);
+        }
+        const rectangles = [];
+        for (const textNode of textNodes) {
+          const value = textNode.textContent || "";
+          const start = value.search(/\\S/);
+          if (start < 0) continue;
+          const end = value.search(/\\s*$/);
+          const range = document.createRange();
+          range.setStart(textNode, start);
+          range.setEnd(textNode, end);
+          rectangles.push(...[...range.getClientRects()].filter(
+            (bounds) => bounds.width > 0 && bounds.height > 0,
+          ));
+        }
+        if (rectangles.length === 0) return null;
+        const left = Math.min(...rectangles.map((bounds) => bounds.left));
+        const top = Math.min(...rectangles.map((bounds) => bounds.top));
+        const right = Math.max(...rectangles.map((bounds) => bounds.right));
+        const bottom = Math.max(...rectangles.map((bounds) => bounds.bottom));
+        const bounds = {
+          x: left,
+          y: top,
+          width: right - left,
+          height: bottom - top,
+          top,
+          right,
+          bottom,
+          left,
+        };
         return {
           x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height,
           top: bounds.top, right: bounds.right, bottom: bounds.bottom, left: bounds.left,
@@ -539,6 +613,14 @@ function measurementExpression({ declarations, policy, viewport, documentId }) {
       const safeAll = (selector, root = document) => {
         try { return [...root.querySelectorAll(selector)]; } catch { return []; }
       };
+      const SELECT_LABEL_SELECTOR =
+        "[data-part='label'],[data-select-label],[data-label]";
+      const SELECT_VALUE_SELECTOR =
+        "[data-part='value'],[data-select-value],[data-value]";
+      const SELECT_INDICATOR_SLOT_SELECTOR =
+        "[data-part='indicator-slot'],[data-select-indicator-slot]";
+      const SELECT_INDICATOR_SELECTOR =
+        "[data-part='indicator'],[data-select-indicator],[data-caret],[class*='caret' i],[class*='chevron' i],[class*='indicator' i]";
       const calibrationFor = (declaration, ruleId) => {
         if (declaration.calibration_ref && calibrations[declaration.calibration_ref]) {
           return [declaration.calibration_ref, calibrations[declaration.calibration_ref]];
@@ -546,12 +628,19 @@ function measurementExpression({ declarations, policy, viewport, documentId }) {
         const candidates = Object.entries(calibrations).filter(([, calibration]) =>
           calibration.rule_id === ruleId
         );
-        const familyMatch = declaration.component_family
+        const variantMatch = declaration.composition_variant
           ? candidates.find(([, calibration]) =>
-              declaration.component_family === calibration.component_family
+              declaration.composition_variant === calibration.composition_variant
             )
           : null;
-        const found = familyMatch || (candidates.length === 1 ? candidates[0] : null);
+        const familyMatches = declaration.component_family
+          ? candidates.filter(([, calibration]) =>
+              declaration.component_family === calibration.component_family
+            )
+          : [];
+        const found = variantMatch ||
+          (familyMatches.length === 1 ? familyMatches[0] : null) ||
+          (candidates.length === 1 ? candidates[0] : null);
         return found || [declaration.calibration_ref || "", null];
       };
       const base = (declaration, index) => ({
@@ -569,6 +658,8 @@ function measurementExpression({ declarations, policy, viewport, documentId }) {
         ...(declaration.composition_variant ? { composition_variant: declaration.composition_variant } : {}),
         ...(declaration.container_selector ? { container_selector: declaration.container_selector } : {}),
         ...(declaration.label_selector ? { label_selector: declaration.label_selector } : {}),
+        ...(declaration.value_selector ? { value_selector: declaration.value_selector } : {}),
+        ...(declaration.indicator_slot_selector ? { indicator_slot_selector: declaration.indicator_slot_selector } : {}),
         ...(declaration.indicator_selector ? { indicator_selector: declaration.indicator_selector } : {}),
         ...(declaration.asset_selector ? { asset_selector: declaration.asset_selector } : {}),
         ...(declaration.lockup_id ? { lockup_id: declaration.lockup_id } : {}),
@@ -699,10 +790,19 @@ function measurementExpression({ declarations, policy, viewport, documentId }) {
         }
 
         if (rule.kind === "presentation_owner") {
+          const selectLikeSelector = "select,[role='combobox'],[role='listbox']";
+          if (!root.matches(selectLikeSelector)) {
+            return outcome(sample, "fail", "select_control_missing", {
+              classification: "declared_select_root_not_control",
+              selector: declaration.selector,
+            }, "The declared select-indicator selector must resolve to the select-like control itself.");
+          }
           const owner = declaration.presentation_owner;
           if (owner === "browser") {
-            const control = root.matches("select") ? root : safeOne("select", root);
-            if (!control) return outcome(sample, "fail", "select_control_missing");
+            const control = root.matches("select") ? root : null;
+            if (!control) return outcome(sample, "fail", "select_control_missing", {
+              classification: "browser_owned_select_root_not_native",
+            });
             if (!rendered(control)) return outcome(sample, "fail", "select_control_not_rendered");
             const style = getComputedStyle(control);
             const appearance = style.appearance || style.webkitAppearance || "auto";
@@ -720,19 +820,325 @@ function measurementExpression({ declarations, policy, viewport, documentId }) {
           if (owner !== "design_system") {
             return outcome(sample, "review", "presentation_owner_undeclared");
           }
-          const container = declaration.container_selector ? safeOne(declaration.container_selector, root) : root;
-          const label = safeOne(declaration.label_selector, root);
-          const indicator = safeOne(declaration.indicator_selector, root);
-          if (!container || !label || !indicator) return outcome(sample, "fail", "owned_select_parts_missing");
-          if (![container, label, indicator].every(rendered)) {
+          if (!declaration.composition_variant) {
+            return outcome(sample, "review", "calibration_missing", {
+              classification: "owned_select_composition_intent_undeclared",
+              calibration_ref: sample.calibration_ref || null,
+              component_family: sample.component_family || null,
+              available_composition_variants: Object.values(calibrations)
+                .filter((entry) => entry.rule_id === rule.id)
+                .map((entry) => entry.composition_variant)
+                .filter(Boolean),
+            }, "The custom select must explicitly declare its field or compact composition intent.");
+          }
+          const declaredContainer = declaration.container_selector
+            ? (root.matches(declaration.container_selector)
+                ? root
+                : safeOne(declaration.container_selector, root))
+            : root;
+          if (declaredContainer !== root) {
+            return outcome(sample, "fail", "owned_select_parts_missing", {
+              classification: "declared_select_container_not_control",
+              container_selector: declaration.container_selector || null,
+            }, "The declared select container must resolve to the select-like control itself.");
+          }
+          const container = root;
+          const compositionVariant = calibration?.composition_variant;
+          const fieldVariant =
+            declaration.composition_variant ===
+            "field_value_trailing_indicator_slot";
+          const textPartSelector = fieldVariant
+            ? declaration.value_selector
+            : declaration.label_selector;
+          const textPart = safeOne(textPartSelector, container);
+          const indicatorSlot = fieldVariant
+            ? safeOne(declaration.indicator_slot_selector, container)
+            : null;
+          const indicator = safeOne(declaration.indicator_selector, container);
+          if (
+            !container ||
+            !textPart ||
+            !indicator ||
+            (fieldVariant && !indicatorSlot)
+          ) {
+            return outcome(sample, "fail", "owned_select_parts_missing", {
+              classification: fieldVariant
+                ? "field_select_value_slot_or_indicator_missing"
+                : "compact_select_label_or_indicator_missing",
+            });
+          }
+          if (
+            textPart === container ||
+            indicator === container ||
+            !container.contains(textPart) ||
+            !container.contains(indicator) ||
+            (fieldVariant &&
+              (indicatorSlot === container ||
+                !container.contains(indicatorSlot) ||
+                !indicatorSlot.contains(indicator)))
+          ) {
+            return outcome(sample, "fail", "owned_select_parts_missing", {
+              classification: "owned_select_parts_not_descendants",
+            });
+          }
+          if (
+            ![
+              container,
+              textPart,
+              ...(fieldVariant ? [indicatorSlot] : []),
+              indicator,
+            ].every(rendered)
+          ) {
             return outcome(sample, "fail", "owned_select_part_not_rendered");
           }
+          const semanticTextParts = [...new Set(
+            safeAll(
+              fieldVariant ? SELECT_VALUE_SELECTOR : SELECT_LABEL_SELECTOR,
+              container,
+            ).filter(rendered),
+          )];
+          const semanticIndicatorSlots = [...new Set(
+            safeAll(SELECT_INDICATOR_SLOT_SELECTOR, container).filter(rendered),
+          )];
+          const semanticIndicators = [...new Set(
+            safeAll(SELECT_INDICATOR_SELECTOR, container).filter(
+              (element) =>
+                rendered(element) &&
+                !element.matches(SELECT_INDICATOR_SLOT_SELECTOR),
+            ),
+          )];
+          if (
+            semanticTextParts.length > 1 ||
+            semanticIndicators.length > 1 ||
+            (fieldVariant && semanticIndicatorSlots.length > 1)
+          ) {
+            return outcome(sample, "review", "presentation_owner_undeclared", {
+              classification: "owned_select_parts_ambiguous",
+              semantic_label_candidate_count: semanticTextParts.length,
+              semantic_indicator_slot_candidate_count:
+                semanticIndicatorSlots.length,
+              semantic_indicator_candidate_count: semanticIndicators.length,
+            }, "The exact select control exposes multiple semantic value, slot, or indicator parts.");
+          }
+          if (
+            (semanticTextParts.length === 1 && semanticTextParts[0] !== textPart) ||
+            (fieldVariant &&
+              semanticIndicatorSlots.length === 1 &&
+              semanticIndicatorSlots[0] !== indicatorSlot) ||
+            (semanticIndicators.length === 1 && semanticIndicators[0] !== indicator)
+          ) {
+            return outcome(sample, "fail", "owned_select_parts_missing", {
+              classification: "declared_select_parts_not_semantic_control_parts",
+              semantic_label_candidate_count: semanticTextParts.length,
+              semantic_indicator_slot_candidate_count:
+                semanticIndicatorSlots.length,
+              semantic_indicator_candidate_count: semanticIndicators.length,
+            }, "Declared value or label, indicator slot, and indicator selectors must resolve to the control's semantic parts.");
+          }
+          const renderedValueTextNodes = [];
+          const textWalker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT);
+          while (textWalker.nextNode()) {
+            const textNode = textWalker.currentNode;
+            if (!(textNode.textContent || "").trim()) continue;
+            if (indicator.contains(textNode)) continue;
+            let ancestor = textNode.parentElement;
+            let visible = true;
+            while (ancestor && container.contains(ancestor)) {
+              if (!rendered(ancestor)) {
+                visible = false;
+                break;
+              }
+              if (ancestor === container) break;
+              ancestor = ancestor.parentElement;
+            }
+            if (visible && textRangeRect(textNode)) renderedValueTextNodes.push(textNode);
+          }
+          if (
+            renderedValueTextNodes.length === 0 ||
+            renderedValueTextNodes.some((textNode) => !textPart.contains(textNode))
+          ) {
+            return outcome(sample, "fail", "owned_select_parts_missing", {
+              classification: "owned_select_value_text_ambiguous",
+              rendered_value_text_node_count: renderedValueTextNodes.length,
+              declared_label_text_node_count: renderedValueTextNodes.filter(
+                (textNode) => textPart.contains(textNode),
+              ).length,
+            }, "All rendered select value text must belong to the declared value or compact-label part.");
+          }
           const containerRect = rect(container);
-          const labelRect = rect(label);
+          const textPartRect = rect(textPart);
           const indicatorRect = rect(indicator);
           const direction = getComputedStyle(container).direction;
+          if (
+            declaration.composition_variant &&
+            compositionVariant &&
+            declaration.composition_variant !== compositionVariant
+          ) {
+            return outcome(sample, "review", "calibration_missing", {
+              classification: "select_composition_variant_calibration_mismatch",
+              declared_composition_variant: declaration.composition_variant,
+              calibration_composition_variant: compositionVariant,
+            });
+          }
+          if (!calibration || compositionVariant !== declaration.composition_variant) {
+            return outcome(sample, "review", "calibration_missing", {
+              classification: "select_composition_calibration_unavailable",
+              declared_composition_variant: declaration.composition_variant,
+              calibration_ref: sample.calibration_ref || null,
+            });
+          }
+          if (
+            declaration.composition_variant ===
+            "field_value_trailing_indicator_slot"
+          ) {
+            const valueTextRect = textRangeRect(textPart);
+            if (!valueTextRect) {
+              return outcome(sample, "fail", "owned_select_parts_missing", {
+                classification: "owned_select_value_text_missing",
+              });
+            }
+            const indicatorSlotRect = rect(indicatorSlot);
+            const valueStyle = getComputedStyle(textPart);
+            const valueWhiteSpace = valueStyle.whiteSpace;
+            const valueOverflowX = valueStyle.overflowX;
+            const valueTextOverflow = valueStyle.textOverflow;
+            const valueStartInset = direction === "rtl"
+              ? containerRect.right - valueTextRect.right
+              : valueTextRect.left - containerRect.left;
+            const indicatorSlotWidth =
+              indicatorSlotRect.right - indicatorSlotRect.left;
+            const indicatorSlotEndInset = direction === "rtl"
+              ? indicatorSlotRect.left - containerRect.left
+              : containerRect.right - indicatorSlotRect.right;
+            const indicatorInlineSize = indicatorRect.right - indicatorRect.left;
+            const indicatorEndInset = direction === "rtl"
+              ? indicatorRect.left - containerRect.left
+              : containerRect.right - indicatorRect.right;
+            const valueIndicatorGap = direction === "rtl"
+              ? textPartRect.left - indicatorRect.right
+              : indicatorRect.left - textPartRect.right;
+            const valueSlotGap = direction === "rtl"
+              ? textPartRect.left - indicatorSlotRect.right
+              : indicatorSlotRect.left - textPartRect.right;
+            const indicatorSlotCenterDelta = Math.abs(
+              (indicatorSlotRect.left + indicatorSlotRect.right) / 2 -
+                (indicatorRect.left + indicatorRect.right) / 2,
+            );
+            const expectedValueStartInset =
+              calibration.expected_value_start_inset_css_px;
+            const expectedIndicatorSlotWidth =
+              calibration.expected_indicator_slot_width_css_px;
+            const expectedIndicatorInlineSize =
+              calibration.expected_indicator_inline_size_css_px;
+            const minimumValueIndicatorGap =
+              calibration.minimum_value_indicator_gap_css_px;
+            const geometryLimit = calibration.max_geometry_delta_css_px;
+            const slotCenterLimit =
+              calibration.max_indicator_slot_center_delta_css_px;
+            const valueStartDelta = Math.abs(
+              valueStartInset - expectedValueStartInset,
+            );
+            const indicatorSlotWidthDelta = Math.abs(
+              indicatorSlotWidth - expectedIndicatorSlotWidth,
+            );
+            const indicatorInlineSizeDelta = Math.abs(
+              indicatorInlineSize - expectedIndicatorInlineSize,
+            );
+            const valuePartContainedInline =
+              textPartRect.left >= containerRect.left &&
+              textPartRect.right <= containerRect.right;
+            const rawValueTextOverflowsPart =
+              valueTextRect.left < textPartRect.left ||
+              valueTextRect.right > textPartRect.right;
+            const valueOverflowGoverned =
+              valueWhiteSpace === "nowrap" &&
+              ["hidden", "clip"].includes(valueOverflowX) &&
+              ["ellipsis", "clip"].includes(valueTextOverflow);
+            const indicatorSlotContainedInline =
+              indicatorSlotRect.left >= containerRect.left &&
+              indicatorSlotRect.right <= containerRect.right;
+            const indicatorContainedInSlot =
+              indicatorRect.left >= indicatorSlotRect.left &&
+              indicatorRect.right <= indicatorSlotRect.right;
+            const valueDoesNotOverlapSlot = valueSlotGap >= 0;
+            const logicalGeometryNonnegative =
+              valueStartInset >= 0 &&
+              indicatorSlotWidth >= 0 &&
+              indicatorInlineSize >= 0 &&
+              indicatorEndInset >= 0;
+            const evidence = {
+              direction,
+              composition_variant: declaration.composition_variant,
+              container_rect: containerRect,
+              value_part_rect: textPartRect,
+              value_text_rect: valueTextRect,
+              value_white_space: valueWhiteSpace,
+              value_overflow_x: valueOverflowX,
+              value_text_overflow: valueTextOverflow,
+              indicator_slot_rect: indicatorSlotRect,
+              indicator_rect: indicatorRect,
+              value_start_inset_css_px: valueStartInset,
+              indicator_slot_width_css_px: indicatorSlotWidth,
+              indicator_slot_end_inset_css_px: indicatorSlotEndInset,
+              indicator_inline_size_css_px: indicatorInlineSize,
+              indicator_end_inset_css_px: indicatorEndInset,
+              value_indicator_gap_css_px: valueIndicatorGap,
+              value_slot_gap_css_px: valueSlotGap,
+              expected_value_start_inset_css_px:
+                expectedValueStartInset ?? null,
+              expected_indicator_slot_width_css_px:
+                expectedIndicatorSlotWidth ?? null,
+              expected_indicator_inline_size_css_px:
+                expectedIndicatorInlineSize ?? null,
+              minimum_value_indicator_gap_css_px:
+                minimumValueIndicatorGap ?? null,
+              geometry_delta_limit_css_px: geometryLimit ?? null,
+              indicator_slot_center_delta_limit_css_px:
+                slotCenterLimit ?? null,
+              value_start_delta_css_px: valueStartDelta,
+              indicator_slot_width_delta_css_px: indicatorSlotWidthDelta,
+              indicator_inline_size_delta_css_px: indicatorInlineSizeDelta,
+              indicator_slot_center_delta_css_px: indicatorSlotCenterDelta,
+              raw_value_text_overflows_part: rawValueTextOverflowsPart,
+              value_overflow_governed: valueOverflowGoverned,
+              value_part_contained_inline: valuePartContainedInline,
+              indicator_slot_contained_inline: indicatorSlotContainedInline,
+              indicator_contained_in_slot: indicatorContainedInSlot,
+              value_does_not_overlap_slot: valueDoesNotOverlapSlot,
+              logical_geometry_nonnegative: logicalGeometryNonnegative,
+            };
+            if (![
+              expectedValueStartInset,
+              expectedIndicatorSlotWidth,
+              expectedIndicatorInlineSize,
+              minimumValueIndicatorGap,
+              geometryLimit,
+              slotCenterLimit,
+            ].every(Number.isFinite)) {
+              return outcome(sample, "review", "calibration_missing", evidence);
+            }
+            return logicalGeometryNonnegative &&
+                valuePartContainedInline &&
+                (!rawValueTextOverflowsPart || valueOverflowGoverned) &&
+                indicatorSlotContainedInline &&
+                indicatorContainedInSlot &&
+                valueDoesNotOverlapSlot &&
+                valueStartDelta <= geometryLimit &&
+                indicatorSlotWidthDelta <= geometryLimit &&
+                Math.abs(indicatorSlotEndInset) <= geometryLimit &&
+                indicatorInlineSizeDelta <= geometryLimit &&
+                indicatorSlotCenterDelta <= slotCenterLimit &&
+                valueIndicatorGap + geometryLimit >= minimumValueIndicatorGap
+              ? outcome(sample, "pass", rule.id, evidence)
+              : outcome(sample, "fail", rule.failure_code, evidence);
+          }
+          if (declaration.composition_variant !== "centered_label_symmetric_rails") {
+            return outcome(sample, "review", "calibration_missing", {
+              composition_variant: declaration.composition_variant,
+            });
+          }
           const containerCenter = (containerRect.left + containerRect.right) / 2;
-          const labelCenter = (labelRect.left + labelRect.right) / 2;
+          const labelCenter = (textPartRect.left + textPartRect.right) / 2;
           const labelCenterDelta = Math.abs(containerCenter - labelCenter);
           const endInset = direction === "rtl"
             ? indicatorRect.left - containerRect.left
@@ -749,8 +1155,9 @@ function measurementExpression({ declarations, policy, viewport, documentId }) {
           }
           const evidence = {
             direction,
+            composition_variant: declaration.composition_variant,
             container_rect: containerRect,
-            label_rect: labelRect,
+            label_rect: textPartRect,
             indicator_rect: indicatorRect,
             label_center_delta_css_px: labelCenterDelta,
             trailing_rail_width_css_px: trailingRailWidth,
@@ -801,10 +1208,9 @@ function measurementExpression({ declarations, policy, viewport, documentId }) {
         const declaredRoot = safeOne(declaration.selector);
         if (!declaredRoot) continue;
         if (declaration.rule_id === "presentation_owner.select_indicator") {
-          const control = declaredRoot.matches("select,[role='combobox'],[role='listbox']")
-            ? declaredRoot
-            : safeOne("select,[role='combobox'],[role='listbox']", declaredRoot);
-          if (control) explicitSelectControls.add(control);
+          if (declaredRoot.matches("select,[role='combobox'],[role='listbox']")) {
+            explicitSelectControls.add(declaredRoot);
+          }
         }
         if (declaration.rule_id === "inline_pair.box_center") {
           explicitInlinePairRoots.add(declaredRoot);
@@ -846,9 +1252,13 @@ function measurementExpression({ declarations, policy, viewport, documentId }) {
           const selector = nextSelector(control, "owned-select");
           const directElements = [...control.children].filter(rendered);
           const strongIndicators = safeAll(
-            "[data-part='indicator'],[data-select-indicator],[data-caret],[class*='caret' i],[class*='chevron' i],[class*='indicator' i]",
+            SELECT_INDICATOR_SELECTOR,
             control,
-          ).filter(rendered);
+          ).filter(
+            (element) =>
+              rendered(element) &&
+              !element.matches(SELECT_INDICATOR_SLOT_SELECTOR),
+          );
           const directIndicators = directElements.filter((element) =>
             iconLike(element) ||
             /^(?:⌄|⌃|▾|▴|▼|▲|∨|˅)$/.test((element.textContent || "").trim())
@@ -858,7 +1268,7 @@ function measurementExpression({ declarations, policy, viewport, documentId }) {
             : directIndicators;
           const indicator = indicatorCandidates.length === 1 ? indicatorCandidates[0] : null;
           const strongLabels = safeAll(
-            "[data-part='label'],[data-select-label],[data-label]",
+            SELECT_LABEL_SELECTOR + "," + SELECT_VALUE_SELECTOR,
             control,
           ).filter((element) => rendered(element) && element !== indicator);
           const directLabels = directElements.filter((element) =>
@@ -908,63 +1318,39 @@ function measurementExpression({ declarations, policy, viewport, documentId }) {
 
           const indicatorSelector = nextSelector(indicator, "owned-select-indicator");
           const labelSelector = label ? nextSelector(label, "owned-select-label") : "::direct-text";
-          const [calibrationRef, calibration] = calibrationFor({}, selectRule.id);
           const sample = {
             document_id: documentId,
             viewport_id: viewport.id,
             state_id: "default",
-            sample_id: "auto-owned-select-" + auto.length + "-" + viewport.id,
+            sample_id: "auto-owned-select-review-" + auto.length + "-" + viewport.id,
             rule_id: selectRule.id,
-            ...(calibrationRef ? {
-              calibration_ref: calibrationRef,
-              component_family: calibration?.component_family,
-            } : {}),
             selector,
             presentation_owner: "design_system",
-            composition_variant: calibration?.composition_variant || "centered_label_symmetric_rails",
             container_selector: selector,
             label_selector: labelSelector,
             indicator_selector: indicatorSelector,
           };
           const containerRect = rect(control);
-          const labelRect = label ? rect(label) : rangeRect(labelTextNode);
+          const labelRect = label ? textRangeRect(label) : textRangeRect(labelTextNode);
           const indicatorRect = rect(indicator);
-          const direction = getComputedStyle(control).direction;
-          const labelCenterDelta = Math.abs(
-            (containerRect.left + containerRect.right) / 2 -
-            (labelRect.left + labelRect.right) / 2
-          );
-          const endInset = direction === "rtl"
-            ? indicatorRect.left - containerRect.left
-            : containerRect.right - indicatorRect.right;
-          const trailingRailWidth = endInset * 2 + indicatorRect.width;
-          const expectedRailWidth = calibration?.accessory_rail_width_css_px;
-          const railDelta = Number.isFinite(expectedRailWidth)
-            ? Math.abs(trailingRailWidth - expectedRailWidth)
-            : Number.POSITIVE_INFINITY;
-          const centerLimit = calibration?.max_label_center_delta_css_px;
-          const railLimit = calibration?.max_logical_rail_delta_css_px;
           const evidence = {
-            direction,
+            classification: "owned_select_composition_intent_undeclared",
+            direction: getComputedStyle(control).direction,
             container_rect: containerRect,
             label_rect: labelRect,
             indicator_rect: indicatorRect,
-            label_center_delta_css_px: labelCenterDelta,
-            trailing_rail_width_css_px: trailingRailWidth,
-            expected_rail_width_css_px: expectedRailWidth ?? null,
-            rail_delta_css_px: Number.isFinite(railDelta) ? railDelta : null,
-            center_limit_css_px: centerLimit ?? null,
-            rail_limit_css_px: railLimit ?? null,
+            available_composition_variants: Object.values(calibrations)
+              .filter((entry) => entry.rule_id === selectRule.id)
+              .map((entry) => entry.composition_variant)
+              .filter(Boolean),
           };
-          const measuredSample = ![
-            expectedRailWidth,
-            centerLimit,
-            railLimit,
-          ].every(Number.isFinite)
-            ? outcome(sample, "review", "calibration_missing", evidence)
-            : labelCenterDelta <= centerLimit && railDelta <= railLimit
-              ? outcome(sample, "pass", selectRule.id, evidence)
-              : outcome(sample, "fail", selectRule.failure_code, evidence);
+          const measuredSample = outcome(
+            sample,
+            "review",
+            "calibration_missing",
+            evidence,
+            "A custom select-like control is rendered, but its field or compact composition intent is undeclared.",
+          );
           if (!addAuto({ __measured: measuredSample })) break;
         }
       }
@@ -1035,7 +1421,7 @@ function measurementExpression({ declarations, policy, viewport, documentId }) {
             member_selector: iconSelector + "," + textSelector,
           };
           const iconRect = rect(icon);
-          const textRect = textElement ? rect(textElement) : rangeRect(textNode);
+          const textRect = textElement ? rect(textElement) : textRangeRect(textNode);
           const delta = Math.abs((iconRect.top + iconRect.bottom) / 2 - (textRect.top + textRect.bottom) / 2);
           const limit = inlineCalibration?.max_box_center_delta_css_px;
           const measuredSample = Number.isFinite(limit)

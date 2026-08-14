@@ -658,6 +658,9 @@
           "anatomy": [
             "label",
             "trigger or native select",
+            "selected value",
+            "trailing indicator slot",
+            "indicator",
             "options",
             "help or error text"
           ],
@@ -672,7 +675,9 @@
             "text",
             "border",
             "focus",
-            "surface"
+            "surface",
+            "spacing",
+            "density"
           ],
           "accessibility_checks": [
             "name role value",
@@ -681,11 +686,16 @@
           ],
           "review_checks": [
             "empty option is clear when optional",
-            "selected value is visible"
+            "selected value is visible, logical-start aligned, and truncates before the trailing indicator slot",
+            "custom field indicators are centered in a governed trailing slot while compact triggers use their declared compact composition",
+            "native select indicators remain browser-owned unless native appearance is replaced by a declared design-system indicator"
           ],
           "failure_signals": [
             "custom select lacks keyboard evidence",
-            "unassigned state is ambiguous"
+            "unassigned state is ambiguous",
+            "custom field equates selected-value start padding with the chevron's physical end inset",
+            "selected value overlaps or enters the trailing indicator slot",
+            "field and compact select composition are conflated"
           ]
         },
         {
@@ -1472,7 +1482,7 @@
     "visual_composition_policy": {
       "kind": "visual_composition_policy",
       "id": "judgmentkit.visual-composition.adapter-v1",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "layer": "implementation_adapter",
       "enforcement": "required_when_applicable",
       "authority": {
@@ -1640,7 +1650,7 @@
             "browser",
             "design_system"
           ],
-          "design_system_measurement": "declared_variant_label_center_and_accessory_rail_delta_css_px",
+          "design_system_measurement": "contract_declared_select_composition_variant_geometry_css_px",
           "failure_code": "owned_select_composition_mismatch",
           "warning_code": "browser_owned_indicator_unmeasured",
           "message": "The design-system-owned select indicator does not satisfy its declared composition calibration."
@@ -1682,9 +1692,20 @@
           "accessory_rail_width_css_px": 36,
           "max_label_center_delta_css_px": 1,
           "max_logical_rail_delta_css_px": 2
+        },
+        "judgmentkit.select_indicator.field_value_trailing_indicator_slot": {
+          "component_family": "judgmentkit.select_indicator.field",
+          "rule_id": "presentation_owner.select_indicator",
+          "composition_variant": "field_value_trailing_indicator_slot",
+          "expected_value_start_inset_css_px": 16,
+          "expected_indicator_slot_width_css_px": 48,
+          "expected_indicator_inline_size_css_px": 16,
+          "minimum_value_indicator_gap_css_px": 16,
+          "max_geometry_delta_css_px": 2,
+          "max_indicator_slot_center_delta_css_px": 1
         }
       },
-      "sha256": "8d6c23a99ff3398c2b88704a62ea2766bf65e785282553f2349dd654051bd699"
+      "sha256": "3b406d9d432007665b86a0623f1763b4e92b030b66b3f87d03881fe9bd351719"
     },
     "visual_composition_policy_authority": "judgmentkit_default_adapter",
     "local_component_authority": {
@@ -1933,6 +1954,27 @@
           "family": "spacing",
           "value": "1rem",
           "usage": "panel padding and section rhythm"
+        },
+        {
+          "name": "--jk-select-value-start-space",
+          "role": "surface",
+          "family": "spacing",
+          "value": "1rem",
+          "usage": "logical-start spacing for selected value text in a field select"
+        },
+        {
+          "name": "--jk-select-indicator-slot-width",
+          "role": "surface",
+          "family": "spacing",
+          "value": "3rem",
+          "usage": "reserved logical-end slot for a design-system-owned field-select indicator"
+        },
+        {
+          "name": "--jk-select-indicator-size",
+          "role": "surface",
+          "family": "density",
+          "value": "1rem",
+          "usage": "inline and block size of the field-select disclosure indicator"
         },
         {
           "name": "--jk-radius-control",
@@ -2210,6 +2252,27 @@
               "usage": "panel padding and section rhythm"
             },
             {
+              "name": "--jk-select-value-start-space",
+              "role": "surface",
+              "family": "spacing",
+              "value": "1rem",
+              "usage": "logical-start spacing for selected value text in a field select"
+            },
+            {
+              "name": "--jk-select-indicator-slot-width",
+              "role": "surface",
+              "family": "spacing",
+              "value": "3rem",
+              "usage": "reserved logical-end slot for a design-system-owned field-select indicator"
+            },
+            {
+              "name": "--jk-select-indicator-size",
+              "role": "surface",
+              "family": "density",
+              "value": "1rem",
+              "usage": "inline and block size of the field-select disclosure indicator"
+            },
+            {
               "name": "--jk-radius-control",
               "role": "border",
               "family": "radius",
@@ -2333,6 +2396,27 @@
               "family": "spacing",
               "value": "1rem",
               "usage": "panel padding and section rhythm"
+            },
+            {
+              "name": "--jk-select-value-start-space",
+              "role": "surface",
+              "family": "spacing",
+              "value": "1rem",
+              "usage": "logical-start spacing for selected value text in a field select"
+            },
+            {
+              "name": "--jk-select-indicator-slot-width",
+              "role": "surface",
+              "family": "spacing",
+              "value": "3rem",
+              "usage": "reserved logical-end slot for a design-system-owned field-select indicator"
+            },
+            {
+              "name": "--jk-select-indicator-size",
+              "role": "surface",
+              "family": "density",
+              "value": "1rem",
+              "usage": "inline and block size of the field-select disclosure indicator"
             },
             {
               "name": "--jk-radius-control",

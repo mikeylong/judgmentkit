@@ -137,6 +137,13 @@ function cssRuleBody(css, selector) {
   return match[1];
 }
 
+function cssDeclarationValue(ruleBody, property) {
+  const escapedProperty = property.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return ruleBody
+    .match(new RegExp(`(?:^|;)\\s*${escapedProperty}\\s*:\\s*([^;]+)`, "m"))?.[1]
+    ?.trim();
+}
+
 function cssRuleBlocks(css) {
   return [...css.matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((match) => ({
     selector: match[1].trim(),
@@ -659,6 +666,580 @@ assert.equal(
   false,
 );
 assert.equal(homepage.includes('src="/assets/judgment-lens-hero.webp" loading="lazy"'), false);
+assert.equal(
+  (homepage.match(/href="\/releases\/visual-composition\/"/g) ?? []).length,
+  0,
+  "homepage should not link to a separate visual-composition release page",
+);
+assert.equal(
+  homepage.includes('class="release-notice"'),
+  false,
+  "homepage should replace the release banner with the film itself",
+);
+const homepageFilmFrameMatch = homepage.match(
+  /<(div|section)\b[^>]*class="[^"]*\bhomepage-film-frame\b[^"]*"[^>]*>([\s\S]*?)<\/\1>/,
+);
+const homepageFilmFrame = homepageFilmFrameMatch?.[0];
+assert.ok(homepageFilmFrame, "homepage should expose the film in one stable frame");
+const homepageFilmFrameOpenTag = homepageFilmFrame?.match(/^<(?:div|section)\b[^>]*>/i)?.[0] ?? "";
+const homepageFilm = homepageFilmFrame.match(
+  /<video\b[^>]*class="[^"]*\bhomepage-film\b[^"]*"[^>]*>[\s\S]*?<\/video>/,
+)?.[0];
+const homepageFilmOpenTag = homepageFilm?.match(/<video\b[^>]*>/)?.[0] ?? "";
+assert.ok(homepageFilm, "homepage should include the visual-composition film");
+assert.equal(
+  (homepageMain.match(/<video\b/g) ?? []).length,
+  1,
+  "homepage should contain exactly one video",
+);
+const homepageFilmFrameIndex = homepageMain.search(
+  /class="[^"]*\bhomepage-film-frame\b[^"]*"/,
+);
+const homepageHeroIndex = homepageMain.search(/class="[^"]*\bhomepage-hero\b[^"]*"/);
+assert.ok(
+  homepageFilmFrameIndex >= 0 &&
+    homepageHeroIndex >= 0 &&
+    homepageFilmFrameIndex < homepageHeroIndex,
+  "homepage film should appear before the existing hero",
+);
+assert.match(homepageFilmOpenTag, /(?:\s|^)controls(?:\s|>)/);
+assert.match(homepageFilmOpenTag, /(?:\s|^)playsinline(?:\s|>)/);
+assert.match(homepageFilmOpenTag, /preload="metadata"/);
+assert.match(
+  homepageFilmOpenTag,
+  /poster="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster\.png"/,
+);
+assert.match(
+  homepageFilmFrameOpenTag,
+  /data-film-poster-light="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster\.png"/,
+  "the current poster should be declared as the light-theme fallback",
+);
+assert.match(
+  homepageFilmFrameOpenTag,
+  /data-film-poster-dark="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster-dark\.png"/,
+  "the dark-theme poster should be declared independently from the light fallback",
+);
+assert.doesNotMatch(homepageFilmOpenTag, /(?:\s|^)autoplay(?:\s|>)/);
+const homepageFilmSource = homepageFilm.match(/<source\b[^>]*>/)?.[0] ?? "";
+assert.match(
+  homepageFilmSource,
+  /src="\/assets\/releases\/judgmentkit-select-field-agent-demo\.mp4"/,
+);
+assert.match(homepageFilmSource, /type="video\/mp4"/);
+assert.match(
+  homepageFilmFrameOpenTag,
+  /data-film-source-light="\/assets\/releases\/judgmentkit-select-field-agent-demo\.mp4"/,
+  "the current recording should be declared as the light-theme fallback",
+);
+assert.match(
+  homepageFilmFrameOpenTag,
+  /data-film-source-dark="\/assets\/releases\/judgmentkit-select-field-agent-demo-dark\.mp4"/,
+  "the dark-theme recording should be declared independently from the light fallback",
+);
+const homepageFilmCaptions = homepageFilm.match(/<track\b[^>]*>/)?.[0] ?? "";
+assert.match(homepageFilmCaptions, /kind="captions"/);
+assert.match(
+  homepageFilmCaptions,
+  /src="\/assets\/releases\/judgmentkit-select-field-agent-demo\.vtt"/,
+);
+assert.match(homepageFilmCaptions, /srclang="en"/);
+assert.match(homepageFilmCaptions, /label="English[^"]*"/);
+assert.doesNotMatch(homepageFilmCaptions, /(?:\s|^)default(?:\s|>)/);
+const homepageFilmControlGroups = [
+  ...homepageMain.matchAll(
+    /<div\b[^>]*class="[^"]*\bhomepage-film-controls\b[^"]*"[^>]*>[\s\S]*?<\/div>/gi,
+  ),
+].map((match) => match[0]);
+assert.equal(
+  homepageFilmControlGroups.length,
+  1,
+  "homepage should expose exactly one custom film-control group",
+);
+const homepageFilmControls = homepageFilmControlGroups[0];
+const homepageFilmControlsOpenTag = homepageFilmControls.match(/<div\b[^>]*>/i)?.[0] ?? "";
+assert.match(
+  homepageFilmControlsOpenTag,
+  /(?:\s|^)hidden(?:\s|>)/,
+  "custom controls should remain hidden until their behavior is bound",
+);
+assert.match(homepageFilmControlsOpenTag, /role="group"/);
+assert.match(homepageFilmControlsOpenTag, /aria-label="Video controls"/);
+const homepageFilmControlElements = [
+  ...homepageFilmControls.matchAll(/<(button|input)\b[^>]*>/gi),
+].map((match) => match[0]);
+assert.equal(
+  homepageFilmControlElements.length,
+  3,
+  "custom player should expose only Play/Pause, a scrubber, and Mute/Unmute",
+);
+assert.equal((homepageFilmControls.match(/<button\b/gi) ?? []).length, 2);
+assert.equal((homepageFilmControls.match(/<input\b/gi) ?? []).length, 1);
+assert.doesNotMatch(homepageFilmControls, /<(?:a|select)\b/i);
+const homepageFilmPlayControl =
+  homepageFilmControlElements.find((tag) => /data-film-action="play"/.test(tag)) ?? "";
+const homepageFilmScrubber =
+  homepageFilmControlElements.find((tag) => /data-film-scrubber(?:\s|=|>)/.test(tag)) ?? "";
+const homepageFilmMuteControl =
+  homepageFilmControlElements.find((tag) => /data-film-action="mute"/.test(tag)) ?? "";
+const homepageFilmButtonMarkup = [
+  ...homepageFilmControls.matchAll(/<button\b[^>]*>[\s\S]*?<\/button>/gi),
+].map((match) => match[0]);
+const homepageFilmPlayButtonMarkup =
+  homepageFilmButtonMarkup.find((button) => /data-film-action="play"/.test(button)) ?? "";
+const homepageFilmMuteButtonMarkup =
+  homepageFilmButtonMarkup.find((button) => /data-film-action="mute"/.test(button)) ?? "";
+assert.match(homepageFilmPlayControl, /^<button\b/i);
+assert.match(homepageFilmPlayControl, /type="button"/);
+assert.match(homepageFilmPlayControl, /aria-label="Play video"/);
+assert.match(homepageFilmScrubber, /^<input\b/i);
+assert.match(homepageFilmScrubber, /type="range"/);
+assert.match(homepageFilmScrubber, /aria-label="Video progress"/);
+assert.match(homepageFilmMuteControl, /^<button\b/i);
+assert.match(homepageFilmMuteControl, /type="button"/);
+assert.match(homepageFilmMuteControl, /aria-label="Mute video"/);
+assert.deepEqual(
+  [...homepageFilmPlayButtonMarkup.matchAll(/data-icon-id="([^"]+)"/g)].map(
+    (match) => match[1],
+  ),
+  ["play", "pause"],
+  "play control should use only the canonical JudgmentKit play and pause icons",
+);
+assert.deepEqual(
+  [...homepageFilmMuteButtonMarkup.matchAll(/data-icon-id="([^"]+)"/g)].map(
+    (match) => match[1],
+  ),
+  ["volume-2", "volume-x"],
+  "mute control should use only the canonical JudgmentKit volume icons",
+);
+const homepageFilmIconTags = [
+  ...homepageFilmControls.matchAll(/<svg\b[^>]*data-icon-id="[^"]+"[^>]*>/gi),
+].map((match) => match[0]);
+const homepageFilmIconTag = (id) =>
+  homepageFilmIconTags.find((tag) => tag.includes(`data-icon-id="${id}"`)) ?? "";
+for (const iconId of ["play", "pause", "volume-2", "volume-x"]) {
+  assert.match(
+    homepageFilmIconTag(iconId),
+    /^<svg\b/i,
+    `${iconId} should render as an inline JudgmentKit icon`,
+  );
+}
+assert.doesNotMatch(homepageFilmIconTag("play"), /(?:\s|^)hidden(?:\s|>)/);
+assert.match(homepageFilmIconTag("pause"), /(?:\s|^)hidden(?:\s|>)/);
+assert.doesNotMatch(homepageFilmIconTag("volume-2"), /(?:\s|^)hidden(?:\s|>)/);
+assert.match(homepageFilmIconTag("volume-x"), /(?:\s|^)hidden(?:\s|>)/);
+assert.doesNotMatch(
+  homepageFilmPlayButtonMarkup + homepageFilmMuteButtonMarkup,
+  /<span\b/i,
+  "icon-only film controls should not render visible label spans",
+);
+assert.doesNotMatch(
+  homepageFilmControls,
+  /(?:fullscreen|caption|playback[_-]?rate|speed)/i,
+  "custom controls should not add fullscreen, caption, or playback-speed actions",
+);
+assert.doesNotMatch(homepageFilmFrame, /<(?:h[1-6]|p|figcaption)\b/i);
+assert.doesNotMatch(homepageMain, /<iframe\b/i);
+const homepageFilmScripts = [...homepage.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
+  .map((match) => match[1])
+  .filter((script) => script.includes("homepage-film"))
+  .join("\n");
+
+function runHomepageFilmBehavior(script, { darkSource = "", darkPoster = "" } = {}) {
+  class FakeNode {
+    constructor({ attributes = {}, dataset = {} } = {}) {
+      this.attributes = new Map(Object.entries(attributes));
+      this.dataset = { ...dataset };
+      this.listeners = new Map();
+      this.hidden = false;
+      this.textContent = "";
+      this.styleValues = new Map();
+      this.style = {
+        setProperty: (name, value) => this.styleValues.set(name, value),
+      };
+    }
+
+    addEventListener(type, listener, options = {}) {
+      const listeners = this.listeners.get(type) ?? [];
+      listeners.push({ listener, once: options?.once === true });
+      this.listeners.set(type, listeners);
+    }
+
+    dispatch(type, event = {}) {
+      const listeners = [...(this.listeners.get(type) ?? [])];
+      for (const entry of listeners) {
+        entry.listener({ type, target: this, currentTarget: this, ...event });
+        if (entry.once) {
+          this.listeners.set(
+            type,
+            (this.listeners.get(type) ?? []).filter((candidate) => candidate !== entry),
+          );
+        }
+      }
+    }
+
+    getAttribute(name) {
+      return this.attributes.get(name) ?? null;
+    }
+
+    hasAttribute(name) {
+      return this.attributes.has(name);
+    }
+
+    setAttribute(name, value) {
+      this.attributes.set(name, String(value));
+    }
+
+    removeAttribute(name) {
+      this.attributes.delete(name);
+    }
+
+    toggleAttribute(name, force) {
+      const shouldHaveAttribute = force === undefined ? !this.hasAttribute(name) : Boolean(force);
+      if (shouldHaveAttribute) {
+        this.setAttribute(name, "");
+      } else {
+        this.removeAttribute(name);
+      }
+      return shouldHaveAttribute;
+    }
+  }
+
+  const player = new FakeNode({
+    dataset: {
+      filmSourceLight: "/light.mp4",
+      filmPosterLight: "/light.png",
+      ...(darkSource ? { filmSourceDark: darkSource } : {}),
+      ...(darkPoster ? { filmPosterDark: darkPoster } : {}),
+    },
+  });
+  const video = new FakeNode({ attributes: { poster: "/light.png" } });
+  const source = new FakeNode({ attributes: { src: "/light.mp4" } });
+  const controls = new FakeNode();
+  const playButton = new FakeNode({ attributes: { "aria-label": "Play video" } });
+  const playIcon = new FakeNode();
+  const pauseIcon = new FakeNode({ attributes: { hidden: "" } });
+  const scrubber = new FakeNode({ attributes: { "aria-valuetext": "0 percent played" } });
+  const muteButton = new FakeNode({ attributes: { "aria-label": "Mute video" } });
+  const soundIcon = new FakeNode();
+  const mutedIcon = new FakeNode({ attributes: { hidden: "" } });
+
+  controls.hidden = true;
+  scrubber.disabled = true;
+  scrubber.value = "0";
+  video.controls = true;
+  video.paused = true;
+  video.ended = false;
+  video.duration = 40;
+  video.currentTime = 0;
+  video.readyState = 1;
+  video.poster = "/light.png";
+  video.playCalls = 0;
+  video.pauseCalls = 0;
+  video.loadCalls = 0;
+  let videoMuted = false;
+  let videoVolume = 1;
+  Object.defineProperties(video, {
+    muted: {
+      get: () => videoMuted,
+      set: (value) => {
+        videoMuted = Boolean(value);
+        video.dispatch("volumechange");
+      },
+    },
+    volume: {
+      get: () => videoVolume,
+      set: (value) => {
+        videoVolume = Number(value);
+        video.dispatch("volumechange");
+      },
+    },
+  });
+  video.play = () => {
+    video.playCalls += 1;
+    video.paused = false;
+    video.ended = false;
+    video.dispatch("play");
+    return Promise.resolve();
+  };
+  video.pause = () => {
+    video.pauseCalls += 1;
+    video.paused = true;
+    video.dispatch("pause");
+  };
+  video.load = () => {
+    video.loadCalls += 1;
+  };
+
+  const selectorMap = new Map([
+    ["video", video],
+    ["[data-homepage-film-source]", source],
+    ["[data-homepage-film-controls]", controls],
+    ["[data-homepage-film-play]", playButton],
+    ["[data-homepage-film-play-icon]", playIcon],
+    ["[data-homepage-film-pause-icon]", pauseIcon],
+    ["[data-homepage-film-scrubber]", scrubber],
+    ["[data-homepage-film-mute]", muteButton],
+    ["[data-homepage-film-sound-icon]", soundIcon],
+    ["[data-homepage-film-muted-icon]", mutedIcon],
+  ]);
+  player.querySelector = (selector) => selectorMap.get(selector) ?? null;
+
+  const themeQuery = new FakeNode();
+  themeQuery.matches = true;
+  let matchMediaCalls = 0;
+  const fakeWindow = {
+    matchMedia(query) {
+      assert.equal(query, "(prefers-color-scheme: dark)");
+      matchMediaCalls += 1;
+      return themeQuery;
+    },
+  };
+  const fakeDocument = {
+    baseURI: "https://judgmentkit.test/",
+    querySelector(selector) {
+      return selector === "[data-homepage-film-player]" ? player : null;
+    },
+  };
+
+  Function("document", "window", "URL", script)(fakeDocument, fakeWindow, URL);
+
+  return {
+    controls,
+    matchMediaCalls: () => matchMediaCalls,
+    muteButton,
+    mutedIcon,
+    pauseIcon,
+    playButton,
+    playIcon,
+    player,
+    scrubber,
+    source,
+    soundIcon,
+    themeQuery,
+    video,
+  };
+}
+
+assert.doesNotMatch(
+  homepageFilmScripts,
+  /addEventListener\(\s*["'](?:wheel|touchmove|scroll)["']/,
+  "homepage film should use natural document scrolling instead of intercepting scroll input",
+);
+for (const eventName of ["click", "input", "play", "pause", "timeupdate", "durationchange"]) {
+  assert.match(
+    homepageFilmScripts,
+    new RegExp(`addEventListener\\(\\s*["']${eventName}["']`),
+    `film behavior should respond to ${eventName}`,
+  );
+}
+assert.match(homepageFilmScripts, /\.play\(\)/);
+assert.match(homepageFilmScripts, /\.pause\(\)/);
+assert.match(homepageFilmScripts, /\.muted\s*=/);
+assert.match(homepageFilmScripts, /\.currentTime\s*=/);
+assert.match(homepageFilmScripts, /\.duration\b/);
+assert.match(homepageFilmScripts, /aria-label/);
+assert.match(homepageFilmScripts, /filmPosterDark/);
+assert.match(homepageFilmScripts, /filmSourceDark/);
+assert.match(
+  homepageFilmScripts,
+  /matchMedia\(\s*["']\(prefers-color-scheme:\s*dark\)["']\s*\)/,
+  "film behavior should be ready to select optional dark-theme assets",
+);
+assert.match(
+  homepageFilmScripts,
+  /addEventListener\(\s*["']change["']\s*,/,
+  "film behavior should react if a supplied dark-theme preference later changes",
+);
+assert.match(
+  homepageFilmScripts,
+  /if\s*\(\s*hasThemeVariant\s*&&\s*typeof window\.matchMedia === ["']function["']\s*\)\s*\{[\s\S]*?matchMedia\(/,
+  "film behavior should subscribe to theme changes only when a distinct dark asset exists",
+);
+assert.equal(
+  homepageFilmFrameOpenTag.includes(
+    'data-film-source-dark="/assets/releases/judgmentkit-select-field-agent-demo.mp4"',
+  ),
+  false,
+  "dark and light film source URLs must remain distinct",
+);
+assert.equal(
+  homepageFilmFrameOpenTag.includes(
+    'data-film-poster-dark="/assets/releases/judgmentkit-select-field-agent-demo-poster.png"',
+  ),
+  false,
+  "dark and light poster URLs must remain distinct",
+);
+const homepageFilmLastBindingIndex = homepageFilmScripts.lastIndexOf("addEventListener");
+const homepageFilmNativeControlsRemovalIndex = homepageFilmScripts.search(
+  /(?:removeAttribute\(\s*["']controls["']\s*\)|\.controls\s*=\s*false)/,
+);
+const homepageFilmControlsRevealIndex = homepageFilmScripts.search(/\.hidden\s*=\s*false/);
+assert.ok(homepageFilmLastBindingIndex >= 0, "film behavior should bind its controls");
+assert.ok(
+  homepageFilmNativeControlsRemovalIndex > homepageFilmLastBindingIndex,
+  "native controls should be removed only after custom behavior is bound",
+);
+assert.ok(
+  homepageFilmControlsRevealIndex > homepageFilmLastBindingIndex,
+  "custom controls should be revealed only after their behavior is bound",
+);
+assert.match(
+  siteCss,
+  /\.homepage-film-controls\[hidden\]\s*\{[^}]*display:\s*none;/s,
+  "hidden custom controls should not flash before enhancement",
+);
+const homepageFilmControlsCss = cssRuleBody(siteCss, ".homepage-film-controls");
+for (const property of [
+  "border",
+  "background",
+  "box-shadow",
+  "-webkit-backdrop-filter",
+  "backdrop-filter",
+]) {
+  const value = cssDeclarationValue(homepageFilmControlsCss, property);
+  assert.ok(
+    value === undefined || /^(?:0|none|transparent)$/i.test(value),
+    `the semantic video-control group must not render a shared ${property} surface`,
+  );
+}
+assert.ok(
+  !(
+    cssDeclarationValue(homepageFilmControlsCss, "left") &&
+    !/^auto$/i.test(cssDeclarationValue(homepageFilmControlsCss, "left")) &&
+    cssDeclarationValue(homepageFilmControlsCss, "right") &&
+    !/^auto$/i.test(cssDeclarationValue(homepageFilmControlsCss, "right"))
+  ),
+  "the semantic video-control group should not stretch edge-to-edge across the film",
+);
+assert.match(homepageFilmControlsCss, /right:\s*clamp\(/);
+assert.match(homepageFilmControlsCss, /bottom:\s*clamp\(/);
+assert.match(homepageFilmControlsCss, /left:\s*auto;/);
+assert.match(homepageFilmControlsCss, /transform:\s*none;/);
+assert.match(
+  homepageFilmControlsCss,
+  /width:\s*min\(292px,/,
+  "the bottom-right video controls should use a compact cluster width",
+);
+assert.match(homepageFilmControlsCss, /gap:\s*6px;/);
+for (const selector of [".homepage-film-control-button", ".homepage-film-scrubber"]) {
+  const background = cssDeclarationValue(cssRuleBody(siteCss, selector), "background");
+  assert.ok(
+    background && !/^(?:none|transparent)$/i.test(background),
+    `${selector} should carry its own bounded visual surface`,
+  );
+}
+const homepageFilmControlButtonCss = cssRuleBody(siteCss, ".homepage-film-control-button");
+assert.match(homepageFilmControlButtonCss, /min-width:\s*44px;/);
+assert.match(homepageFilmControlButtonCss, /min-height:\s*44px;/);
+const homepageFilmScrubberCss = cssRuleBody(siteCss, ".homepage-film-scrubber");
+assert.match(homepageFilmScrubberCss, /height:\s*44px;/);
+assert.match(homepageFilmScrubberCss, /padding:\s*0 12px;/);
+assert.match(
+  siteCss,
+  /\.homepage-film-control-button:focus-visible,\s*\n\.homepage-film-scrubber:focus-visible\s*\{/,
+  "both floating control types should retain a visible keyboard-focus treatment",
+);
+const homepageFilmSectionCss = cssRuleBody(siteCss, ".homepage-film-section");
+const homepageFilmShellCss = cssRuleBody(siteCss, ".homepage-film-shell");
+const homepageFilmFrameCss = cssRuleBody(siteCss, ".homepage-film-frame");
+const homepageFilmElementCss = cssRuleBody(siteCss, ".homepage-film");
+for (const property of ["padding", "border", "background", "box-shadow"]) {
+  const value = cssDeclarationValue(homepageFilmFrameCss, property);
+  assert.ok(
+    value === undefined || /^(?:0|none|transparent)$/i.test(value),
+    `the homepage film wrapper must not render decorative ${property} chrome`,
+  );
+}
+assert.doesNotMatch(
+  siteCss,
+  /\.homepage-film-frame::(?:before|after)\s*\{/,
+  "the full-bleed film wrapper should not recreate a frame with pseudo-elements",
+);
+assert.doesNotMatch(
+  homepageFilmSectionCss,
+  /(?:radial|linear)-gradient\(/i,
+  "the film section should not place a decorative container behind the recording",
+);
+const homepageFilmMaxWidth = Number.parseFloat(
+  cssDeclarationValue(homepageFilmShellCss, "max-width") ?? "0",
+);
+assert.ok(
+  homepageFilmMaxWidth >= 1100,
+  "the homepage recording should occupy a materially wider, near-full-bleed surface",
+);
+assert.match(homepageFilmElementCss, /width:\s*100%;/);
+assert.match(
+  homepageFilmElementCss,
+  /border-radius:\s*0;/,
+  "the full-bleed recording should not reintroduce rounded container corners on the video element",
+);
+const lightFilmBehavior = runHomepageFilmBehavior(homepageFilmScripts);
+assert.equal(lightFilmBehavior.controls.hidden, false);
+assert.equal(lightFilmBehavior.video.controls, false);
+assert.equal(
+  lightFilmBehavior.matchMediaCalls(),
+  0,
+  "light-only media should not subscribe to color-scheme changes",
+);
+assert.equal(lightFilmBehavior.playIcon.hasAttribute("hidden"), false);
+assert.equal(lightFilmBehavior.pauseIcon.hasAttribute("hidden"), true);
+assert.equal(lightFilmBehavior.soundIcon.hasAttribute("hidden"), false);
+assert.equal(lightFilmBehavior.mutedIcon.hasAttribute("hidden"), true);
+lightFilmBehavior.playButton.dispatch("click");
+assert.equal(lightFilmBehavior.video.playCalls, 1);
+assert.equal(lightFilmBehavior.playButton.getAttribute("aria-label"), "Pause video");
+assert.equal(lightFilmBehavior.playIcon.hasAttribute("hidden"), true);
+assert.equal(lightFilmBehavior.pauseIcon.hasAttribute("hidden"), false);
+lightFilmBehavior.playButton.dispatch("click");
+assert.equal(lightFilmBehavior.video.pauseCalls, 1);
+assert.equal(lightFilmBehavior.playButton.getAttribute("aria-label"), "Play video");
+assert.equal(lightFilmBehavior.playIcon.hasAttribute("hidden"), false);
+assert.equal(lightFilmBehavior.pauseIcon.hasAttribute("hidden"), true);
+lightFilmBehavior.scrubber.value = "50";
+lightFilmBehavior.scrubber.dispatch("input");
+assert.equal(lightFilmBehavior.video.currentTime, 20);
+lightFilmBehavior.muteButton.dispatch("click");
+assert.equal(lightFilmBehavior.video.muted, true);
+assert.equal(lightFilmBehavior.muteButton.getAttribute("aria-label"), "Unmute video");
+assert.equal(lightFilmBehavior.soundIcon.hasAttribute("hidden"), true);
+assert.equal(lightFilmBehavior.mutedIcon.hasAttribute("hidden"), false);
+lightFilmBehavior.muteButton.dispatch("click");
+assert.equal(lightFilmBehavior.video.muted, false);
+assert.equal(lightFilmBehavior.muteButton.getAttribute("aria-label"), "Mute video");
+assert.equal(lightFilmBehavior.soundIcon.hasAttribute("hidden"), false);
+assert.equal(lightFilmBehavior.mutedIcon.hasAttribute("hidden"), true);
+
+const darkFilmBehavior = runHomepageFilmBehavior(homepageFilmScripts, {
+  darkSource: "/dark.mp4",
+  darkPoster: "/dark.png",
+});
+assert.equal(darkFilmBehavior.matchMediaCalls(), 1);
+assert.equal(darkFilmBehavior.source.getAttribute("src"), "/dark.mp4");
+assert.equal(darkFilmBehavior.video.poster, "/dark.png");
+assert.equal(darkFilmBehavior.player.getAttribute("data-film-theme"), "dark");
+darkFilmBehavior.themeQuery.dispatch("change", { matches: false });
+assert.equal(darkFilmBehavior.source.getAttribute("src"), "/light.mp4");
+assert.equal(darkFilmBehavior.video.poster, "/light.png");
+assert.equal(darkFilmBehavior.player.getAttribute("data-film-theme"), "light");
+
+const duplicateThemeFilmBehavior = runHomepageFilmBehavior(homepageFilmScripts, {
+  darkSource: "/light.mp4",
+  darkPoster: "/light.png",
+});
+assert.equal(
+  duplicateThemeFilmBehavior.matchMediaCalls(),
+  0,
+  "duplicate light/dark assets should not activate theme switching",
+);
+const homepageFilmCss = cssRuleBlocks(siteCss)
+  .filter(({ selector }) => selector.includes("homepage-film"))
+  .map(({ body }) => body)
+  .join("\n");
+assert.doesNotMatch(
+  homepageFilmCss,
+  /scroll-snap/i,
+  "homepage film should not use CSS scroll snapping",
+);
 assert.ok(homepage.includes('class="hero-actions" aria-label="Primary next steps"'));
 assert.ok(homepage.includes('class="hero-action hero-action-primary" data-hero-action="primary" href="/value/"'));
 assert.ok(homepage.includes('class="hero-action hero-action-secondary" data-hero-action="secondary" href="/examples/"'));
@@ -688,6 +1269,16 @@ assert.ok(homepage.includes("Start installation"));
 assert.ok(homepage.includes('href="/docs/"'));
 assert.ok(homepage.includes('href="/design-system/"'));
 assert.ok(homepage.includes('href="/install"'));
+assert.equal(
+  fs.existsSync(path.join(tempDir, "releases", "visual-composition", "index.html")),
+  false,
+  "site build should not publish a separate visual-composition page",
+);
+assert.equal(
+  fs.existsSync(path.join(tempDir, "releases", "visual-composition", "demo", "index.html")),
+  false,
+  "site build should not publish the retired demo route",
+);
 assert.ok(siteCss.includes(".evaluation-panel"));
 assert.ok(siteCss.includes(".failure-grid"));
 assert.ok(siteCss.includes(".route-grid-proof"));
@@ -756,6 +1347,7 @@ assert.ok(homepage.includes('name="twitter:image:alt" content="JudgmentKit. Befo
 assert.ok(llms.includes("- /evals/judgmentkit-mcp/"));
 assert.ok(llms.includes("- /evals/site-rebuild-log/"));
 assert.ok(llms.includes("- /value/"));
+assert.equal(llms.includes("- /releases/visual-composition/"), false);
 assert.ok(llms.includes("- /design-system/"));
 assert.ok(llms.includes("- /design-system/llms.txt"));
 assert.equal(llms.includes("- /design-system/tokens/"), false);
@@ -1376,6 +1968,35 @@ assert.ok(
     .find((entry) => entry.id === "dialog")
     .accessibility_checks.includes("focus management"),
 );
+const selectFieldContract = componentContractsExport.contracts.find(
+  (entry) => entry.id === "select_field",
+);
+assert.ok(selectFieldContract.anatomy.includes("selected value"));
+assert.ok(selectFieldContract.anatomy.includes("trailing indicator slot"));
+assert.ok(selectFieldContract.anatomy.includes("indicator"));
+assert.ok(
+  selectFieldContract.failure_signals.includes(
+    "custom field equates selected-value start padding with the chevron's physical end inset",
+  ),
+);
+assert.ok(
+  visualTokenAdapterExport.css_custom_properties.some(
+    (entry) =>
+      entry.name === "--jk-select-value-start-space" && entry.value === "1rem",
+  ),
+);
+assert.ok(
+  visualTokenAdapterExport.css_custom_properties.some(
+    (entry) =>
+      entry.name === "--jk-select-indicator-slot-width" && entry.value === "3rem",
+  ),
+);
+assert.ok(
+  visualTokenAdapterExport.css_custom_properties.some(
+    (entry) =>
+      entry.name === "--jk-select-indicator-size" && entry.value === "1rem",
+  ),
+);
 assert.equal(patternContractsExport.source, "judgmentkit.ai-native-default.contract-v1");
 assert.equal(patternContractsExport.contracts.length, 8);
 assert.ok(patternContractsExport.contracts.some((entry) => entry.id === "workbench"));
@@ -1419,6 +2040,25 @@ assert.ok(
 assert.equal(componentSpecimensExport.source, "judgmentkit.ai-native-default.contract-v1");
 assert.equal(componentSpecimensExport.renderer.id, "judgmentkit-static-specimens");
 assert.equal(componentSpecimensExport.specimens.length, componentContractsExport.contracts.length);
+const selectFieldSpecimen = componentSpecimensExport.specimens.find(
+  (entry) => entry.contract_id === "select_field",
+);
+assert.ok(selectFieldSpecimen.rendered_html.includes("jk-sample-select-control"));
+assert.ok(
+  selectFieldSpecimen.rendered_html.includes(
+    'class="jk-sample-select-control" type="button" role="combobox"',
+  ),
+);
+assert.ok(selectFieldSpecimen.rendered_html.includes('data-part="value"'));
+assert.ok(
+  selectFieldSpecimen.rendered_html.includes('data-part="indicator-slot"'),
+);
+assert.ok(selectFieldSpecimen.rendered_html.includes('data-part="indicator"'));
+assert.equal(selectFieldSpecimen.rendered_html.includes("<select"), false);
+assert.ok(siteCss.includes(".jk-sample-select-indicator-slot"));
+assert.ok(
+  siteCss.includes("var(--jk-select-indicator-slot-width, 3rem)"),
+);
 assert.equal(patternSpecimensExport.source, "judgmentkit.ai-native-default.contract-v1");
 assert.equal(patternSpecimensExport.renderer.id, "judgmentkit-static-specimens");
 assert.equal(patternSpecimensExport.specimens.length, patternContractsExport.contracts.length);
@@ -2410,6 +3050,95 @@ assert.equal(homepageHeroArt.subarray(0, 4).toString("ascii"), "RIFF");
 assert.equal(homepageHeroArt.subarray(8, 12).toString("ascii"), "WEBP");
 assert.ok(homepageHeroArt.length > 0);
 assert.ok(homepageHeroArt.length < 250_000);
+
+const releaseRecordingSource = fs.readFileSync(
+  new URL("../site/assets/releases/judgmentkit-select-field-agent-demo.mp4", import.meta.url),
+);
+const releaseRecordingBuilt = fs.readFileSync(
+  path.join(tempDir, "assets", "releases", "judgmentkit-select-field-agent-demo.mp4"),
+);
+assert.deepEqual(releaseRecordingBuilt, releaseRecordingSource);
+assert.equal(releaseRecordingBuilt.subarray(4, 8).toString("ascii"), "ftyp");
+assert.ok(releaseRecordingBuilt.length > 0);
+
+const releaseDarkRecordingSource = fs.readFileSync(
+  new URL(
+    "../site/assets/releases/judgmentkit-select-field-agent-demo-dark.mp4",
+    import.meta.url,
+  ),
+);
+const releaseDarkRecordingBuilt = fs.readFileSync(
+  path.join(
+    tempDir,
+    "assets",
+    "releases",
+    "judgmentkit-select-field-agent-demo-dark.mp4",
+  ),
+);
+assert.deepEqual(releaseDarkRecordingBuilt, releaseDarkRecordingSource);
+assert.equal(releaseDarkRecordingBuilt.subarray(4, 8).toString("ascii"), "ftyp");
+assert.ok(releaseDarkRecordingBuilt.length > 0);
+assert.notDeepEqual(
+  releaseDarkRecordingBuilt,
+  releaseRecordingBuilt,
+  "the dark recording must contain independently rendered dark-theme pixels",
+);
+
+const releasePosterSource = fs.readFileSync(
+  new URL(
+    "../site/assets/releases/judgmentkit-select-field-agent-demo-poster.png",
+    import.meta.url,
+  ),
+);
+const releasePosterBuilt = fs.readFileSync(
+  path.join(
+    tempDir,
+    "assets",
+    "releases",
+    "judgmentkit-select-field-agent-demo-poster.png",
+  ),
+);
+assert.deepEqual(releasePosterBuilt, releasePosterSource);
+assert.equal(releasePosterBuilt.subarray(1, 4).toString("ascii"), "PNG");
+assert.ok(releasePosterBuilt.length > 0);
+
+const releaseDarkPosterSource = fs.readFileSync(
+  new URL(
+    "../site/assets/releases/judgmentkit-select-field-agent-demo-poster-dark.png",
+    import.meta.url,
+  ),
+);
+const releaseDarkPosterBuilt = fs.readFileSync(
+  path.join(
+    tempDir,
+    "assets",
+    "releases",
+    "judgmentkit-select-field-agent-demo-poster-dark.png",
+  ),
+);
+assert.deepEqual(releaseDarkPosterBuilt, releaseDarkPosterSource);
+assert.equal(releaseDarkPosterBuilt.subarray(1, 4).toString("ascii"), "PNG");
+assert.ok(releaseDarkPosterBuilt.length > 0);
+assert.notDeepEqual(
+  releaseDarkPosterBuilt,
+  releasePosterBuilt,
+  "the dark poster must contain independently rendered dark-theme pixels",
+);
+
+const releaseCaptionsSource = fs.readFileSync(
+  new URL("../site/assets/releases/judgmentkit-select-field-agent-demo.vtt", import.meta.url),
+  "utf8",
+);
+const releaseCaptionsBuilt = fs.readFileSync(
+  path.join(tempDir, "assets", "releases", "judgmentkit-select-field-agent-demo.vtt"),
+  "utf8",
+);
+assert.equal(releaseCaptionsBuilt, releaseCaptionsSource);
+assert.ok(releaseCaptionsBuilt.startsWith("WEBVTT"));
+assert.match(
+  releaseCaptionsBuilt,
+  /(?:\d{2}:)?\d{2}:\d{2}\.\d{3} --> (?:\d{2}:)?\d{2}:\d{2}\.\d{3}/,
+);
 
 for (const experimentPath of [
   ["experiments", "netflix-library", "index.html"],

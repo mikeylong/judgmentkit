@@ -1,6 +1,7 @@
 *.json text eol=lf
 *.ndjson text eol=lf
 *.mjs text eol=lf
+*.mp4 binary
 *.png binary
 *.pptx binary
 *.webp binary
