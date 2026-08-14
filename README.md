@@ -84,6 +84,8 @@ They cover setup/onboarding, an operational dashboard, and a high-stakes review/
 
 By default, `implementation_contract.design_system_source.mode` is `judgmentkit_default`: tokens, font roles, icon catalog policy, component contracts, and supported surface-presentation profiles come from JudgmentKit `/design-system/` exports. A sufficiently grounded or explicitly selected Workbench receives `judgmentkit.workbench.operational-v1` in frontend-generation context by default; `surface_profile: "none"` opts out without changing the Workbench interaction contract. If a complete `design_system_adapter` is supplied to `create_ui_implementation_contract`, the mode becomes `external_design_system` and that adapter owns tokens, typography, icons, and renderer components. Incomplete external adapters fail instead of falling back to JudgmentKit defaults, and JudgmentKit surface profiles never cross that boundary implicitly.
 
+The default field-select composition contract is source-backed and documented in [`docs/select-field-composition.md`](https://github.com/mikeylong/judgmentkit/blob/main/docs/select-field-composition.md). It separates selected-value spacing, the reserved trailing indicator slot, and the indicator's placement inside that slot instead of treating a field's content padding as the chevron's physical edge inset.
+
 The JudgmentKit default source does not load a font CDN, runtime icon CDN, or external runtime icon package. Font guidance uses system stacks, and icon guidance points to the committed Lucide catalog exposed through `list_icon_catalog`, `search_icon_catalog`, and `get_icon_svg`.
 
 A generated UI that fails the active design-system source, visual-token, component-contract, local-component-authority, accessibility, or browser-QA gate is repair evidence only. Do not publish it as a UI artifact, gallery snapshot, screenshot artifact, or release proof until a repaired candidate passes.
@@ -209,7 +211,9 @@ For the replacement website build:
 npm run site:build
 ```
 
-That command writes static routes for `/`, `/docs/`, `/examples/`, and `/install` under `site/dist/`. The public `/mcp` and `/mcp/` routes are served by the hosted Streamable HTTP MCP function and return metadata for browser GET requests.
+That command publishes static paths for `/`, `/value/`, `/docs/`, `/examples/`, and `/install` under `site/dist/`. The public `/mcp` and `/mcp/` routes are served by the hosted Streamable HTTP MCP function and return metadata for browser GET requests.
+
+The homepage opens with one visual-composition video above the existing hero and automatically selects distinct light or dark recordings and posters from the visitor's color-scheme preference. Optional captions are available but off by default. The video is replay evidence, not proof that every policy shown is active on the public MCP. There is no separate visual-composition release or interactive-demo route.
 
 For local site review with the same `/mcp` behavior:
 

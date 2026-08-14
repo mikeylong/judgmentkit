@@ -1,7 +1,16 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 
 import { createUiImplementationContract } from "../src/index.mjs";
 import { measureVisualCompositionInBrowser } from "../src/visual-composition-browser-runtime.mjs";
+
+const previousTmpDir = process.env.TMPDIR;
+const browserRuntimeTempRoot = fs.mkdtempSync(
+  path.join(os.tmpdir(), "judgmentkit-vc-runtime-test-"),
+);
+process.env.TMPDIR = browserRuntimeTempRoot;
 
 const runtimeSource = await import("node:fs/promises").then((fs) =>
   fs.readFile(
@@ -12,6 +21,20 @@ const runtimeSource = await import("node:fs/promises").then((fs) =>
 assert.ok(
   runtimeSource.includes('"--disable-dev-shm-usage"'),
   "Serverless Chromium must use /tmp when /dev/shm is unavailable.",
+);
+assert.ok(
+  runtimeSource.includes('client.send("Browser.close")'),
+  "Browser cleanup must request a graceful CDP shutdown before process termination.",
+);
+assert.ok(
+  runtimeSource.includes('detached: process.platform !== "win32"') &&
+    runtimeSource.includes("process.kill(-child.pid, signal)"),
+  "Browser cleanup must own and terminate the full POSIX Chrome process group.",
+);
+assert.ok(
+  runtimeSource.includes("CONFIGURED_BROWSER_START_ATTEMPTS = 2") &&
+    runtimeSource.includes('code: "browser_start_timeout"'),
+  "Configured system Chrome may retry one bounded startup failure without changing serverless behavior.",
 );
 
 const implementationContract = createUiImplementationContract({
@@ -112,9 +135,19 @@ const ownedSelectSamples = measured.receipt.samples.filter(
     sample.presentation_owner === "design_system",
 );
 assert.equal(ownedSelectSamples.length, 2);
-assert.ok(ownedSelectSamples.every((sample) => sample.actual === "fail"));
+assert.ok(ownedSelectSamples.every((sample) => sample.actual === "review"));
 assert.ok(
-  ownedSelectSamples.every((sample) => sample.code === "owned_select_composition_mismatch"),
+  ownedSelectSamples.every((sample) => sample.code === "calibration_missing"),
+);
+assert.ok(
+  ownedSelectSamples.every(
+    (sample) =>
+      sample.calibration_ref === undefined &&
+      sample.composition_variant === undefined &&
+      sample.evidence.classification ===
+        "owned_select_composition_intent_undeclared",
+  ),
+  "Unannotated custom selects must require review without inheriting the compact calibration.",
 );
 
 const ambiguousCustomSelectSamples = measured.receipt.samples.filter(
@@ -135,6 +168,530 @@ for (const document of measured.receipt.documents) {
     measured.receipt.samples.filter((sample) => sample.document_id === document.document_id).length,
   );
 }
+
+const fieldCalibrationEntry = Object.entries(
+  implementationContract.visual_composition_policy.calibrations,
+).find(
+  ([, calibration]) =>
+    calibration.composition_variant === "field_value_trailing_indicator_slot",
+);
+const compactCalibrationEntry = Object.entries(
+  implementationContract.visual_composition_policy.calibrations,
+).find(
+  ([, calibration]) =>
+    calibration.composition_variant === "centered_label_symmetric_rails",
+);
+assert.ok(fieldCalibrationEntry);
+assert.ok(compactCalibrationEntry);
+
+const alternateFieldCalibrationRef = "test.select_indicator.alternate_field_family";
+const alternateFieldFamily = "test.select_indicator.alternate_field";
+const multiFamilyImplementationContract = structuredClone(implementationContract);
+multiFamilyImplementationContract.visual_composition_policy.calibrations[
+  alternateFieldCalibrationRef
+] = {
+  ...fieldCalibrationEntry[1],
+  component_family: alternateFieldFamily,
+  expected_value_start_inset_css_px: 24,
+};
+
+const explicitSelectVariants = await measureVisualCompositionInBrowser({
+  implementationContract: multiFamilyImplementationContract,
+  candidate: {
+    rendered_html: `<!doctype html>
+      <html>
+        <head>
+          <style>
+            * { box-sizing: border-box; }
+            body { margin: 0; font: 16px/20px Arial, sans-serif; }
+            .control { position: relative; width: 320px; height: 64px; margin-block: 8px; }
+            .field [data-part='value'] {
+              position: absolute;
+              inset-block-start: 22px;
+              inset-inline: 0 48px;
+              padding-inline-start: 16px;
+              white-space: nowrap;
+            }
+            .field [data-part='indicator-slot'] {
+              position: absolute;
+              inset-block: 0;
+              inset-inline-end: 0;
+              width: 48px;
+              display: grid;
+              place-items: center;
+            }
+            .field [data-part='indicator'] { width: 16px; height: 16px; }
+            #field-wrong-value [data-part='value'] { padding-inline-start: 28px; }
+            #field-alternate-family [data-part='value'] { padding-inline-start: 24px; }
+            #field-wrong-slot [data-part='indicator-slot'] { width: 28px; }
+            #field-off-center [data-part='indicator-slot'] {
+              place-items: center end;
+              padding-inline-end: 6px;
+            }
+            #field-oversized [data-part='indicator'] { width: 20px; height: 20px; }
+            #field-overlap { width: 200px; }
+            #field-overlap [data-part='value'] {
+              inset-inline-end: 40px;
+              font-family: monospace;
+            }
+            #field-overflow [data-part='value'] {
+              inset-inline: -8px auto;
+              width: max-content;
+              padding: 0;
+            }
+            #field-long-ltr-hidden [data-part='value'] {
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+            #field-long-rtl-clip,
+            #field-long-rtl-visible { direction: rtl; }
+            #field-long-rtl-clip [data-part='value'] {
+              overflow: clip;
+              text-overflow: ellipsis;
+            }
+            #field-long-ltr-visible [data-part='value'],
+            #field-long-rtl-visible [data-part='value'] {
+              overflow: visible;
+              text-overflow: ellipsis;
+            }
+            #field-centered [data-part='value'] {
+              inset-inline: auto;
+              left: 50%;
+              transform: translateX(-50%);
+              width: max-content;
+              padding: 0;
+            }
+            #field-rtl { direction: rtl; }
+            #compact-centered [data-part='label'] {
+              position: absolute;
+              top: 22px;
+              left: 50%;
+              transform: translateX(-50%);
+            }
+            #compact-centered [data-part='indicator'] {
+              position: absolute;
+              top: 22px;
+              width: 20px;
+              height: 20px;
+              inset-inline-end: 8px;
+            }
+            #select-wrapper { position: relative; }
+            #bad-real-select [data-part='value'],
+            #exact-probe-select [data-part='value'] { padding-inline-start: 100px; }
+            #bad-real-select [data-part='indicator-slot'],
+            #exact-probe-select [data-part='indicator-slot'] { width: 28px; }
+            #exact-probe-select .probe-value {
+              position: absolute;
+              inset-inline-start: 16px;
+              top: 22px;
+            }
+            #exact-probe-select .probe-slot {
+              position: absolute;
+              inset-block: 0;
+              inset-inline-end: 0;
+              width: 48px;
+              display: grid;
+              place-items: center;
+            }
+            #exact-probe-select .probe-arrow {
+              width: 16px;
+              height: 16px;
+            }
+            #select-wrapper .probe {
+              position: relative;
+              width: 2px;
+              height: 2px;
+              overflow: hidden;
+            }
+            #select-wrapper .probe-value,
+            #select-wrapper .probe-slot,
+            #select-wrapper .probe-indicator {
+              position: absolute;
+              inset: 0;
+              width: 1px;
+              height: 1px;
+            }
+          </style>
+        </head>
+        <body>
+          <div id="field-correct" class="control field" role="combobox" aria-label="Board">
+            <span data-part="value">kanban.cards</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
+          <div id="field-wrong-value" class="control field" role="combobox" aria-label="Board">
+            <span data-part="value">kanban.cards</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
+          <div id="field-wrong-slot" class="control field" role="combobox" aria-label="Board">
+            <span data-part="value">kanban.cards</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
+          <div id="field-off-center" class="control field" role="combobox" aria-label="Board">
+            <span data-part="value">kanban.cards</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
+          <div id="field-oversized" class="control field" role="combobox" aria-label="Board">
+            <span data-part="value">kanban.cards</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 20 20"><path d="M4 7l6 6 6-6" /></svg></span>
+          </div>
+          <div id="field-overlap" class="control field" role="combobox" aria-label="Board">
+            <span data-part="value">abcdefghijklmnop</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
+          <div id="field-overflow" class="control field" role="combobox" aria-label="Board">
+            <span data-part="value">kanban.cards</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
+          <div id="field-long-ltr-hidden" class="control field" role="combobox" aria-label="Board">
+            <span data-part="value">A very long board name that must truncate before entering the trailing indicator slot</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
+          <div id="field-long-rtl-clip" class="control field" role="combobox" aria-label="Board">
+            <span data-part="value">هذا اسم لوحة طويل للغاية ويجب اختصاره قبل منطقة مؤشر القائمة</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
+          <div id="field-long-ltr-visible" class="control field" role="combobox" aria-label="Board">
+            <span data-part="value">A very long board name that visibly overflows into the trailing indicator slot</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
+          <div id="field-long-rtl-visible" class="control field" role="combobox" aria-label="Board">
+            <span data-part="value">هذا اسم لوحة طويل للغاية ويظهر فوق منطقة مؤشر القائمة</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
+          <div id="field-centered" class="control field" role="combobox" aria-label="Board">
+            <span data-part="value">kanban.cards</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
+          <div id="field-rtl" class="control field" role="combobox" aria-label="Board">
+            <span data-part="value">kanban.cards</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
+          <div id="compact-centered" class="control" role="combobox" aria-label="Board">
+            <span data-part="label">kanban.cards</span>
+            <svg data-part="indicator" aria-hidden="true" viewBox="0 0 20 20"><path d="M4 7l6 6 6-6" /></svg>
+          </div>
+          <div id="field-alternate-family" class="control field" role="combobox" aria-label="Alternate board field">
+            <span data-part="value">kanban.cards</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
+          <div id="intent-ref" class="control field" role="combobox" aria-label="Board">
+            <span data-part="value">kanban.cards</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
+          <div id="intent-family" class="control field" role="combobox" aria-label="Board">
+            <span data-part="value">kanban.cards</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
+          <div id="exact-probe-select" class="control field" role="combobox" aria-label="Adversarial board control">
+            <span data-part="value">bad visible value</span>
+            <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+            <span class="probe-value">good probe</span>
+            <span class="probe-slot"><svg class="probe-arrow" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+          </div>
+          <div id="select-wrapper">
+            <div id="bad-real-select" class="control field" role="combobox" aria-label="Bad board control">
+              <span data-part="value">kanban.cards</span>
+              <span data-part="indicator-slot"><svg data-part="indicator" aria-hidden="true" viewBox="0 0 16 16"><path d="M3 6l5 5 5-5" /></svg></span>
+            </div>
+            <div class="probe" aria-hidden="true">
+              <span class="probe-value">x</span>
+              <span class="probe-slot"><svg class="probe-indicator" viewBox="0 0 1 1"><path d="M0 0h1v1z" /></svg></span>
+            </div>
+          </div>
+        </body>
+      </html>`,
+    visual_composition_manifest: {
+      samples: [
+        ...[
+          ["field-correct", "field-correct"],
+          ["field-wrong-value", "field-wrong-value"],
+          ["field-wrong-slot", "field-wrong-slot"],
+          ["field-off-center", "field-off-center"],
+          ["field-oversized", "field-oversized"],
+          ["field-overlap", "field-overlap"],
+          ["field-overflow", "field-overflow"],
+          ["field-long-ltr-hidden", "field-long-ltr-hidden"],
+          ["field-long-rtl-clip", "field-long-rtl-clip"],
+          ["field-long-ltr-visible", "field-long-ltr-visible"],
+          ["field-long-rtl-visible", "field-long-rtl-visible"],
+          ["field-centered", "field-centered"],
+          ["field-rtl", "field-rtl"],
+        ].map(([sampleId, selectorId]) => ({
+          sample_id: sampleId,
+          rule_id: "presentation_owner.select_indicator",
+          calibration_ref: fieldCalibrationEntry[0],
+          component_family: fieldCalibrationEntry[1].component_family,
+          composition_variant: fieldCalibrationEntry[1].composition_variant,
+          selector: `#${selectorId}`,
+          presentation_owner: "design_system",
+          value_selector: "[data-part='value']",
+          indicator_slot_selector: "[data-part='indicator-slot']",
+          indicator_selector: "[data-part='indicator']",
+        })),
+        {
+          sample_id: "compact-centered",
+          rule_id: "presentation_owner.select_indicator",
+          calibration_ref: compactCalibrationEntry[0],
+          component_family: compactCalibrationEntry[1].component_family,
+          composition_variant: compactCalibrationEntry[1].composition_variant,
+          selector: "#compact-centered",
+          presentation_owner: "design_system",
+          label_selector: "[data-part='label']",
+          indicator_selector: "[data-part='indicator']",
+        },
+        {
+          sample_id: "field-alternate-family",
+          rule_id: "presentation_owner.select_indicator",
+          component_family: alternateFieldFamily,
+          composition_variant: fieldCalibrationEntry[1].composition_variant,
+          selector: "#field-alternate-family",
+          presentation_owner: "design_system",
+          value_selector: "[data-part='value']",
+          indicator_slot_selector: "[data-part='indicator-slot']",
+          indicator_selector: "[data-part='indicator']",
+        },
+        {
+          sample_id: "intent-ref",
+          rule_id: "presentation_owner.select_indicator",
+          calibration_ref: fieldCalibrationEntry[0],
+          component_family: fieldCalibrationEntry[1].component_family,
+          selector: "#intent-ref",
+          presentation_owner: "design_system",
+          value_selector: "[data-part='value']",
+          indicator_slot_selector: "[data-part='indicator-slot']",
+          indicator_selector: "[data-part='indicator']",
+        },
+        {
+          sample_id: "intent-family",
+          rule_id: "presentation_owner.select_indicator",
+          component_family: fieldCalibrationEntry[1].component_family,
+          selector: "#intent-family",
+          presentation_owner: "design_system",
+          value_selector: "[data-part='value']",
+          indicator_slot_selector: "[data-part='indicator-slot']",
+          indicator_selector: "[data-part='indicator']",
+        },
+        {
+          sample_id: "exact-probe",
+          rule_id: "presentation_owner.select_indicator",
+          calibration_ref: fieldCalibrationEntry[0],
+          component_family: fieldCalibrationEntry[1].component_family,
+          composition_variant: fieldCalibrationEntry[1].composition_variant,
+          selector: "#exact-probe-select",
+          presentation_owner: "design_system",
+          value_selector: ".probe-value",
+          indicator_slot_selector: ".probe-slot",
+          indicator_selector: ".probe-arrow",
+        },
+        {
+          sample_id: "wrapper-probe",
+          rule_id: "presentation_owner.select_indicator",
+          calibration_ref: fieldCalibrationEntry[0],
+          component_family: fieldCalibrationEntry[1].component_family,
+          composition_variant: fieldCalibrationEntry[1].composition_variant,
+          selector: "#select-wrapper",
+          container_selector: ".probe",
+          presentation_owner: "design_system",
+          value_selector: ".probe-value",
+          indicator_slot_selector: ".probe-slot",
+          indicator_selector: ".probe-indicator",
+        },
+      ],
+    },
+  },
+});
+
+const selectVariantSamples = explicitSelectVariants.receipt.samples.filter(
+  (sample) => sample.rule_id === "presentation_owner.select_indicator",
+);
+const samplesNamed = (sampleId) =>
+  selectVariantSamples.filter((sample) => sample.sample_id.startsWith(`${sampleId}-`));
+
+assert.equal(samplesNamed("field-correct").length, 2);
+assert.equal(samplesNamed("field-wrong-value").length, 2);
+assert.equal(samplesNamed("field-wrong-slot").length, 2);
+assert.equal(samplesNamed("field-off-center").length, 2);
+assert.equal(samplesNamed("field-oversized").length, 2);
+assert.equal(samplesNamed("field-overlap").length, 2);
+assert.equal(samplesNamed("field-overflow").length, 2);
+assert.equal(samplesNamed("field-long-ltr-hidden").length, 2);
+assert.equal(samplesNamed("field-long-rtl-clip").length, 2);
+assert.equal(samplesNamed("field-long-ltr-visible").length, 2);
+assert.equal(samplesNamed("field-long-rtl-visible").length, 2);
+assert.equal(samplesNamed("field-centered").length, 2);
+assert.equal(samplesNamed("field-rtl").length, 2);
+assert.equal(samplesNamed("compact-centered").length, 2);
+assert.equal(samplesNamed("field-alternate-family").length, 2);
+assert.equal(samplesNamed("intent-ref").length, 2);
+assert.equal(samplesNamed("intent-family").length, 2);
+assert.equal(samplesNamed("exact-probe").length, 2);
+assert.equal(samplesNamed("wrapper-probe").length, 2);
+
+for (const sample of samplesNamed("field-correct")) {
+  assert.equal(sample.actual, "pass");
+  assert.equal(sample.composition_variant, "field_value_trailing_indicator_slot");
+  assert.equal(sample.evidence.value_start_inset_css_px, 16);
+  assert.equal(sample.evidence.indicator_slot_width_css_px, 48);
+  assert.equal(sample.evidence.indicator_slot_end_inset_css_px, 0);
+  assert.equal(sample.evidence.indicator_inline_size_css_px, 16);
+  assert.equal(sample.evidence.indicator_end_inset_css_px, 16);
+  assert.equal(sample.evidence.indicator_slot_center_delta_css_px, 0);
+  assert.equal(sample.evidence.value_start_delta_css_px, 0);
+  assert.equal(sample.evidence.indicator_slot_width_delta_css_px, 0);
+  assert.equal(sample.evidence.indicator_inline_size_delta_css_px, 0);
+  assert.ok(sample.evidence.value_indicator_gap_css_px >= 16);
+  assert.equal(sample.evidence.value_does_not_overlap_slot, true);
+  assert.equal(sample.evidence.value_part_rect.left, sample.evidence.container_rect.left);
+  assert.equal(
+    sample.evidence.value_text_rect.left - sample.evidence.container_rect.left,
+    16,
+    "Field geometry must use the rendered text range, not the stretched value part.",
+  );
+}
+for (const sample of samplesNamed("field-wrong-value")) {
+  assert.equal(sample.actual, "fail");
+  assert.equal(sample.code, "owned_select_composition_mismatch");
+  assert.equal(sample.evidence.value_start_inset_css_px, 28);
+  assert.equal(sample.evidence.value_start_delta_css_px, 12);
+  assert.equal(sample.evidence.indicator_slot_width_css_px, 48);
+}
+for (const sample of samplesNamed("field-wrong-slot")) {
+  assert.equal(sample.actual, "fail");
+  assert.equal(sample.code, "owned_select_composition_mismatch");
+  assert.equal(sample.evidence.indicator_slot_width_css_px, 28);
+  assert.equal(sample.evidence.indicator_slot_width_delta_css_px, 20);
+  assert.equal(sample.evidence.indicator_end_inset_css_px, 6);
+}
+for (const sample of samplesNamed("field-off-center")) {
+  assert.equal(sample.actual, "fail");
+  assert.equal(sample.evidence.indicator_slot_width_css_px, 48);
+  assert.equal(sample.evidence.indicator_inline_size_css_px, 16);
+  assert.equal(sample.evidence.indicator_end_inset_css_px, 6);
+  assert.equal(sample.evidence.indicator_slot_center_delta_css_px, 10);
+}
+for (const sample of samplesNamed("field-oversized")) {
+  assert.equal(sample.actual, "fail");
+  assert.equal(sample.evidence.indicator_inline_size_css_px, 20);
+  assert.equal(sample.evidence.indicator_inline_size_delta_css_px, 4);
+}
+for (const sample of samplesNamed("field-overlap")) {
+  assert.equal(sample.actual, "fail");
+  assert.ok(sample.evidence.value_slot_gap_css_px < 0);
+  assert.ok(sample.evidence.value_indicator_gap_css_px < 16);
+  assert.equal(sample.evidence.value_does_not_overlap_slot, false);
+}
+for (const sample of samplesNamed("field-overflow")) {
+  assert.equal(sample.actual, "fail");
+  assert.equal(sample.evidence.value_start_inset_css_px, -8);
+  assert.equal(sample.evidence.logical_geometry_nonnegative, false);
+  assert.equal(sample.evidence.value_part_contained_inline, false);
+}
+for (const sample of samplesNamed("field-long-ltr-hidden")) {
+  assert.equal(sample.actual, "pass");
+  assert.equal(sample.evidence.direction, "ltr");
+  assert.equal(sample.evidence.value_start_inset_css_px, 16);
+  assert.equal(sample.evidence.indicator_slot_width_css_px, 48);
+  assert.equal(sample.evidence.indicator_inline_size_css_px, 16);
+  assert.equal(sample.evidence.value_white_space, "nowrap");
+  assert.equal(sample.evidence.value_overflow_x, "hidden");
+  assert.equal(sample.evidence.value_text_overflow, "ellipsis");
+  assert.equal(sample.evidence.raw_value_text_overflows_part, true);
+  assert.equal(sample.evidence.value_overflow_governed, true);
+  assert.equal(sample.evidence.value_part_contained_inline, true);
+  assert.equal(sample.evidence.value_indicator_gap_css_px, 16);
+  assert.equal(sample.evidence.value_slot_gap_css_px, 0);
+}
+for (const sample of samplesNamed("field-long-rtl-clip")) {
+  assert.equal(sample.actual, "pass");
+  assert.equal(sample.evidence.direction, "rtl");
+  assert.equal(sample.evidence.value_start_inset_css_px, 16);
+  assert.equal(sample.evidence.indicator_slot_width_css_px, 48);
+  assert.equal(sample.evidence.indicator_inline_size_css_px, 16);
+  assert.equal(sample.evidence.value_white_space, "nowrap");
+  assert.equal(sample.evidence.value_overflow_x, "clip");
+  assert.equal(sample.evidence.value_text_overflow, "ellipsis");
+  assert.equal(sample.evidence.raw_value_text_overflows_part, true);
+  assert.equal(sample.evidence.value_overflow_governed, true);
+  assert.equal(sample.evidence.value_part_contained_inline, true);
+  assert.equal(sample.evidence.value_indicator_gap_css_px, 16);
+  assert.equal(sample.evidence.value_slot_gap_css_px, 0);
+}
+for (const sample of [
+  ...samplesNamed("field-long-ltr-visible"),
+  ...samplesNamed("field-long-rtl-visible"),
+]) {
+  assert.equal(sample.actual, "fail");
+  assert.equal(sample.code, "owned_select_composition_mismatch");
+  assert.equal(sample.evidence.value_start_inset_css_px, 16);
+  assert.equal(sample.evidence.indicator_slot_width_css_px, 48);
+  assert.equal(sample.evidence.indicator_inline_size_css_px, 16);
+  assert.equal(sample.evidence.value_white_space, "nowrap");
+  assert.equal(sample.evidence.value_overflow_x, "visible");
+  assert.equal(sample.evidence.value_text_overflow, "ellipsis");
+  assert.equal(sample.evidence.raw_value_text_overflows_part, true);
+  assert.equal(sample.evidence.value_overflow_governed, false);
+  assert.equal(sample.evidence.value_part_contained_inline, true);
+}
+for (const sample of samplesNamed("field-centered")) {
+  assert.equal(sample.actual, "fail");
+  assert.ok(sample.evidence.value_start_inset_css_px > 100);
+  assert.ok(sample.evidence.value_start_delta_css_px > 80);
+}
+for (const sample of samplesNamed("field-rtl")) {
+  assert.equal(sample.actual, "pass");
+  assert.equal(sample.evidence.direction, "rtl");
+  assert.equal(sample.evidence.value_start_inset_css_px, 16);
+  assert.equal(sample.evidence.indicator_slot_width_css_px, 48);
+  assert.equal(sample.evidence.indicator_slot_end_inset_css_px, 0);
+  assert.equal(sample.evidence.indicator_end_inset_css_px, 16);
+  assert.equal(sample.evidence.indicator_slot_center_delta_css_px, 0);
+}
+for (const sample of samplesNamed("compact-centered")) {
+  assert.equal(sample.actual, "pass");
+  assert.equal(sample.composition_variant, "centered_label_symmetric_rails");
+  assert.equal(sample.evidence.label_center_delta_css_px, 0);
+  assert.equal(sample.evidence.trailing_rail_width_css_px, 36);
+}
+for (const sample of samplesNamed("field-alternate-family")) {
+  assert.equal(sample.actual, "pass");
+  assert.equal(sample.calibration_ref, alternateFieldCalibrationRef);
+  assert.equal(sample.component_family, alternateFieldFamily);
+  assert.equal(sample.evidence.value_start_inset_css_px, 24);
+  assert.equal(sample.evidence.value_start_delta_css_px, 0);
+}
+for (const sample of [
+  ...samplesNamed("intent-ref"),
+  ...samplesNamed("intent-family"),
+]) {
+  assert.equal(sample.actual, "review");
+  assert.equal(sample.code, "calibration_missing");
+  assert.equal(sample.composition_variant, undefined);
+  assert.equal(
+    sample.evidence.classification,
+    "owned_select_composition_intent_undeclared",
+  );
+  assert.equal(sample.calibration_ref, fieldCalibrationEntry[0]);
+}
+for (const sample of samplesNamed("wrapper-probe")) {
+  assert.equal(sample.actual, "fail");
+  assert.equal(sample.code, "select_control_missing");
+  assert.equal(sample.evidence.classification, "declared_select_root_not_control");
+}
+for (const sample of samplesNamed("exact-probe")) {
+  assert.equal(sample.actual, "fail");
+  assert.equal(sample.code, "owned_select_parts_missing");
+  assert.equal(
+    sample.evidence.classification,
+    "declared_select_parts_not_semantic_control_parts",
+  );
+}
+const autoDiscoveredBadRealSelect = selectVariantSamples.filter(
+  (sample) =>
+    sample.sample_id.startsWith("auto-owned-select-review-") &&
+    sample.evidence?.classification === "owned_select_composition_intent_undeclared",
+);
+assert.equal(autoDiscoveredBadRealSelect.length, 2);
+assert.ok(autoDiscoveredBadRealSelect.every((sample) => sample.actual === "review"));
 
 const noApplicable = await measureVisualCompositionInBrowser({
   implementationContract,
@@ -277,6 +834,29 @@ try {
   } else {
     process.env.JUDGMENTKIT_VISUAL_COMPOSITION_CHROME_PATH = previousConfiguredChrome;
   }
+}
+
+const leakedBrowserProfiles = fs
+  .readdirSync(browserRuntimeTempRoot, { withFileTypes: true })
+  .filter(
+    (entry) => entry.isDirectory() && entry.name.startsWith("judgmentkit-vc-runtime-"),
+  )
+  .map((entry) => entry.name);
+try {
+  assert.deepEqual(
+    leakedBrowserProfiles,
+    [],
+    "Completed browser measurements must not leave Chrome user-data directories behind.",
+  );
+} finally {
+  if (previousTmpDir === undefined) delete process.env.TMPDIR;
+  else process.env.TMPDIR = previousTmpDir;
+  fs.rmSync(browserRuntimeTempRoot, {
+    recursive: true,
+    force: true,
+    maxRetries: 10,
+    retryDelay: 100,
+  });
 }
 
 process.stdout.write("Visual composition browser runtime checks passed.\n");

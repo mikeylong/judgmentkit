@@ -14,6 +14,7 @@ import {
   cloneWorkbenchSurfaceProfile,
   listSurfacePresentationProfiles,
 } from "./surface-presentation-profiles.mjs";
+import { deriveFieldValueTrailingIndicatorSlotObservation } from "./visual-composition-observation.mjs";
 
 export {
   WORKBENCH_SURFACE_PROFILE,
@@ -5298,12 +5299,31 @@ const DEFAULT_COMPONENT_CONTRACTS = [
     purpose: "Choose one value from a bounded option set.",
     use_when: ["options are known and one option is selected"],
     avoid_when: ["free text or multiple independent choices are needed"],
-    anatomy: ["label", "trigger or native select", "options", "help or error text"],
+    anatomy: [
+      "label",
+      "trigger or native select",
+      "selected value",
+      "trailing indicator slot",
+      "indicator",
+      "options",
+      "help or error text",
+    ],
     required_states: ["empty", "ready", "error", "disabled", "focus-visible"],
-    token_bindings: ["text", "border", "focus", "surface"],
+    token_bindings: ["text", "border", "focus", "surface", "spacing", "density"],
     accessibility_checks: ["name role value", "keyboard operation", "error association"],
-    review_checks: ["empty option is clear when optional", "selected value is visible"],
-    failure_signals: ["custom select lacks keyboard evidence", "unassigned state is ambiguous"],
+    review_checks: [
+      "empty option is clear when optional",
+      "selected value is visible, logical-start aligned, and truncates before the trailing indicator slot",
+      "custom field indicators are centered in a governed trailing slot while compact triggers use their declared compact composition",
+      "native select indicators remain browser-owned unless native appearance is replaced by a declared design-system indicator",
+    ],
+    failure_signals: [
+      "custom select lacks keyboard evidence",
+      "unassigned state is ambiguous",
+      "custom field equates selected-value start padding with the chevron's physical end inset",
+      "selected value overlaps or enters the trailing indicator slot",
+      "field and compact select composition are conflated",
+    ],
   },
   {
     id: "checkbox_group",
@@ -5802,6 +5822,27 @@ const DEFAULT_CSS_CUSTOM_PROPERTIES = [
     usage: "panel padding and section rhythm",
   },
   {
+    name: "--jk-select-value-start-space",
+    role: "surface",
+    family: "spacing",
+    value: "1rem",
+    usage: "logical-start spacing for selected value text in a field select",
+  },
+  {
+    name: "--jk-select-indicator-slot-width",
+    role: "surface",
+    family: "spacing",
+    value: "3rem",
+    usage: "reserved logical-end slot for a design-system-owned field-select indicator",
+  },
+  {
+    name: "--jk-select-indicator-size",
+    role: "surface",
+    family: "density",
+    value: "1rem",
+    usage: "inline and block size of the field-select disclosure indicator",
+  },
+  {
     name: "--jk-radius-control",
     role: "border",
     family: "radius",
@@ -5922,6 +5963,27 @@ const DEFAULT_DARK_CSS_CUSTOM_PROPERTIES = [
     family: "spacing",
     value: "1rem",
     usage: "panel padding and section rhythm",
+  },
+  {
+    name: "--jk-select-value-start-space",
+    role: "surface",
+    family: "spacing",
+    value: "1rem",
+    usage: "logical-start spacing for selected value text in a field select",
+  },
+  {
+    name: "--jk-select-indicator-slot-width",
+    role: "surface",
+    family: "spacing",
+    value: "3rem",
+    usage: "reserved logical-end slot for a design-system-owned field-select indicator",
+  },
+  {
+    name: "--jk-select-indicator-size",
+    role: "surface",
+    family: "density",
+    value: "1rem",
+    usage: "inline and block size of the field-select disclosure indicator",
   },
   {
     name: "--jk-radius-control",
@@ -7814,12 +7876,29 @@ function normalizeVisualCompositionPolicy(sourcePolicy) {
         return !Number.isInteger(value.max_text_line_boxes);
       }
       if (ruleId === "presentation_owner.select_indicator") {
-        return (
-          value.composition_variant !== "centered_label_symmetric_rails" ||
-          !Number.isFinite(value.accessory_rail_width_css_px) ||
-          !Number.isFinite(value.max_label_center_delta_css_px) ||
-          !Number.isFinite(value.max_logical_rail_delta_css_px)
-        );
+        if (value.composition_variant === "centered_label_symmetric_rails") {
+          return (
+            !Number.isFinite(value.accessory_rail_width_css_px) ||
+            !Number.isFinite(value.max_label_center_delta_css_px) ||
+            !Number.isFinite(value.max_logical_rail_delta_css_px)
+          );
+        }
+        if (
+          value.composition_variant ===
+          "field_value_trailing_indicator_slot"
+        ) {
+          return ![
+            value.expected_value_start_inset_css_px,
+            value.expected_indicator_slot_width_css_px,
+            value.expected_indicator_inline_size_css_px,
+            value.minimum_value_indicator_gap_css_px,
+            value.max_geometry_delta_css_px,
+            value.max_indicator_slot_center_delta_css_px,
+          ].every(
+            Number.isFinite,
+          );
+        }
+        return true;
       }
       return false;
     })
@@ -12670,6 +12749,10 @@ function visualCompositionSampleIdentity(sample) {
     optionalString(sample.composition_variant ?? sample.compositionVariant),
     optionalString(sample.container_selector ?? sample.containerSelector),
     optionalString(sample.label_selector ?? sample.labelSelector),
+    optionalString(sample.value_selector ?? sample.valueSelector),
+    optionalString(
+      sample.indicator_slot_selector ?? sample.indicatorSlotSelector,
+    ),
     optionalString(sample.indicator_selector ?? sample.indicatorSelector),
     optionalString(sample.asset_selector ?? sample.assetSelector),
     optionalString(sample.lockup_id ?? sample.lockupId),
@@ -12702,6 +12785,29 @@ function candidateVisualCompositionDigest(candidate) {
 
 function expectedVisualCompositionObservation(sample, rule, calibration) {
   const evidence = isPlainObject(sample.evidence) ? sample.evidence : {};
+
+  if (
+    sample.actual === "review" &&
+    sample.code === "calibration_missing" &&
+    (
+      !isPlainObject(calibration) ||
+      [
+        "owned_select_composition_intent_undeclared",
+        "select_composition_variant_calibration_mismatch",
+        "select_composition_calibration_unavailable",
+      ].includes(optionalString(evidence.classification))
+    )
+  ) {
+    return { actual: "review", code: "calibration_missing" };
+  }
+
+  if (
+    sample.actual === "review" &&
+    sample.code === "presentation_owner_undeclared" &&
+    optionalString(evidence.classification) === "owned_select_parts_ambiguous"
+  ) {
+    return { actual: "review", code: "presentation_owner_undeclared" };
+  }
 
   if (
     sample.code === "relationship_limit_exceeded" &&
@@ -12755,6 +12861,19 @@ function expectedVisualCompositionObservation(sample, rule, calibration) {
   }
 
   if (rule?.kind === "presentation_owner") {
+    if (
+      sample.actual === "fail" &&
+      [
+        "sample_root_missing",
+        "sample_root_not_rendered",
+        "select_control_missing",
+        "select_control_not_rendered",
+        "owned_select_parts_missing",
+        "owned_select_part_not_rendered",
+      ].includes(optionalString(sample.code))
+    ) {
+      return { actual: "fail", code: optionalString(sample.code) };
+    }
     const owner = optionalString(
       sample.presentation_owner ?? sample.presentationOwner,
     );
@@ -12770,16 +12889,34 @@ function expectedVisualCompositionObservation(sample, rule, calibration) {
     if (owner !== "design_system") {
       return { actual: "review", code: "presentation_owner_undeclared" };
     }
-    const centerDelta = evidence.label_center_delta_css_px;
-    const railDelta = evidence.rail_delta_css_px;
-    const centerLimit = calibration?.max_label_center_delta_css_px;
-    const railLimit = calibration?.max_logical_rail_delta_css_px;
-    if (![centerDelta, railDelta, centerLimit, railLimit].every(Number.isFinite)) {
-      return null;
+    if (
+      calibration?.composition_variant ===
+      "field_value_trailing_indicator_slot"
+    ) {
+      return deriveFieldValueTrailingIndicatorSlotObservation({
+        evidence,
+        calibration,
+        ruleId: rule.id,
+        failureCode: rule.failure_code,
+      });
     }
-    return centerDelta <= centerLimit && railDelta <= railLimit
-      ? { actual: "pass", code: rule.id }
-      : { actual: "fail", code: rule.failure_code };
+    if (
+      calibration?.composition_variant === "centered_label_symmetric_rails"
+    ) {
+      const centerDelta = evidence.label_center_delta_css_px;
+      const railDelta = evidence.rail_delta_css_px;
+      const centerLimit = calibration.max_label_center_delta_css_px;
+      const railLimit = calibration.max_logical_rail_delta_css_px;
+      if (
+        ![centerDelta, railDelta, centerLimit, railLimit].every(Number.isFinite)
+      ) {
+        return null;
+      }
+      return centerDelta <= centerLimit && railDelta <= railLimit
+        ? { actual: "pass", code: rule.id }
+        : { actual: "fail", code: rule.failure_code };
+    }
+    return null;
   }
 
   if (rule?.kind === "canonical_lockup") {
@@ -13222,7 +13359,43 @@ function reviewVisualCompositionEvidence(candidate, implementationContract) {
             actual_component_family: sample.component_family,
           });
         }
+        if (
+          optionalString(sample.composition_variant ?? sample.compositionVariant) &&
+          optionalString(
+            sample.composition_variant ?? sample.compositionVariant,
+          ) !== optionalString(calibration.composition_variant)
+        ) {
+          invalidReasons.push({
+            code: "sample_composition_variant_mismatch",
+            sample_index: index,
+            calibration_ref: calibrationRef,
+            expected_composition_variant: calibration.composition_variant,
+            actual_composition_variant:
+              sample.composition_variant ?? sample.compositionVariant,
+          });
+        }
       }
+    }
+
+    const sampleCompositionVariant = optionalString(
+      sample.composition_variant ?? sample.compositionVariant,
+    );
+    const missingDeclaredSelectIntent =
+      rule?.kind === "presentation_owner" &&
+      optionalString(
+        sample.presentation_owner ?? sample.presentationOwner,
+      ) === "design_system" &&
+      !sampleCompositionVariant;
+    const acceptedMissingIntentReview =
+      actual === "review" &&
+      code === "calibration_missing" &&
+      optionalString(sample.evidence?.classification) ===
+        "owned_select_composition_intent_undeclared";
+    if (missingDeclaredSelectIntent && !acceptedMissingIntentReview) {
+      invalidReasons.push({
+        code: "sample_composition_variant_missing",
+        sample_index: index,
+      });
     }
 
     const expectedObservation = expectedVisualCompositionObservation(
@@ -15266,6 +15439,7 @@ function buildFrontendImplementationInstructionMarkdown({
     ...(visualCompositionPolicy
       ? [
           "- Always submit visual_composition_manifest. Declare each governed relationship using only active rule ids and calibration refs with document, viewport, state, sample, component-family, and selector identity; when none apply, explicitly declare applicability none with an inspected root, zero relationship count, and rationale.",
+          "- For every design-system-owned field select, explicitly declare field_value_trailing_indicator_slot with value_selector, indicator_slot_selector, and indicator_selector; use centered_label_symmetric_rails with label_selector and indicator_selector only for compact triggers. Field geometry validates the value start, reserved trailing slot, indicator size and centering, containment, and collision-free truncation. The runtime does not infer intent from calibration_ref or component_family, and undeclared intent requires review.",
           "- After implementation, render every declared relationship at required desktop and mobile viewports, await document.fonts.ready, measure DOM geometry, and attach a candidate-scoped visual_composition_evidence receipt.",
           "- Bind the receipt to the policy, implementation contract, manifest, candidate source, and rendered document SHA-256 values; the reviewer recomputes outcomes from raw measurements.",
           "- Repair fail or review outcomes, rerender, and replace the receipt before resubmitting. Keep browser_owned_indicator_unmeasured as the policy-declared non-blocking warning for native select arrows.",
@@ -15775,6 +15949,7 @@ export function createFrontendImplementationSkillContext({
       ...(visualCompositionPolicy
         ? [
             "Always declare visual_composition_manifest: list applicable relationships with full document/viewport/state/sample identity, or explicitly document an inspected no-applicable-contract result.",
+            "For every design-system-owned field select, explicitly declare field_value_trailing_indicator_slot with value_selector, indicator_slot_selector, and indicator_selector; use centered_label_symmetric_rails with label_selector and indicator_selector only for compact triggers. Field geometry validates the value start, reserved trailing slot, indicator size and centering, containment, and collision-free truncation. The runtime does not infer intent from calibration_ref or component_family.",
             "Render declared and deterministically discovered relationships at required desktop and mobile viewports after fonts are ready; attach candidate-scoped visual_composition_evidence and keep it separate from generic browser QA.",
             "Bind the receipt to the policy, contract, manifest, candidate source, and rendered document SHA-256 values; provide raw geometry because the reviewer recomputes each outcome.",
             "On a visual composition fail or review outcome, repair only the declared relationship, rerender, replace the receipt, and resubmit before acceptance.",

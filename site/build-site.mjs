@@ -34,6 +34,26 @@ const SOCIAL_THUMBNAIL_PATH = `/assets/${SOCIAL_THUMBNAIL_FILENAME}`;
 const SOCIAL_THUMBNAIL_ALT = "JudgmentKit. Before the UI.";
 const HOMEPAGE_HERO_ART_FILENAME = "judgment-lens-hero.webp";
 const HOMEPAGE_HERO_ART_PATH = `/assets/${HOMEPAGE_HERO_ART_FILENAME}`;
+const VISUAL_COMPOSITION_RECORDING_FILENAME =
+  "judgmentkit-select-field-agent-demo.mp4";
+const VISUAL_COMPOSITION_DARK_RECORDING_FILENAME =
+  "judgmentkit-select-field-agent-demo-dark.mp4";
+const VISUAL_COMPOSITION_POSTER_FILENAME =
+  "judgmentkit-select-field-agent-demo-poster.png";
+const VISUAL_COMPOSITION_DARK_POSTER_FILENAME =
+  "judgmentkit-select-field-agent-demo-poster-dark.png";
+const VISUAL_COMPOSITION_CAPTIONS_FILENAME =
+  "judgmentkit-select-field-agent-demo.vtt";
+const VISUAL_COMPOSITION_RECORDING_PATH =
+  `/assets/releases/${VISUAL_COMPOSITION_RECORDING_FILENAME}`;
+const VISUAL_COMPOSITION_DARK_RECORDING_PATH =
+  `/assets/releases/${VISUAL_COMPOSITION_DARK_RECORDING_FILENAME}`;
+const VISUAL_COMPOSITION_POSTER_PATH =
+  `/assets/releases/${VISUAL_COMPOSITION_POSTER_FILENAME}`;
+const VISUAL_COMPOSITION_DARK_POSTER_PATH =
+  `/assets/releases/${VISUAL_COMPOSITION_DARK_POSTER_FILENAME}`;
+const VISUAL_COMPOSITION_CAPTIONS_PATH =
+  `/assets/releases/${VISUAL_COMPOSITION_CAPTIONS_FILENAME}`;
 const DESIGN_SYSTEM_SPECIMEN_RENDERER = {
   id: "judgmentkit-static-specimens",
   version: "0.1.0",
@@ -1449,6 +1469,162 @@ h2 {
   background: var(--hero-action-secondary-bg);
   backdrop-filter: blur(8px);
 }
+.homepage-film-section {
+  position: relative;
+  display: grid;
+  align-items: center;
+  min-height: 0;
+  padding: 0 clamp(8px, 1.5vw, 24px) clamp(18px, 2.4vw, 34px);
+  overflow: hidden;
+  isolation: isolate;
+  background: var(--bg);
+}
+.homepage-film-shell {
+  max-width: 1240px;
+}
+.homepage-film-figure {
+  margin: 0;
+}
+.homepage-film-frame {
+  position: relative;
+  isolation: isolate;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+.homepage-film {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border: 0;
+  border-radius: 0;
+  background: var(--ink);
+  box-shadow: none;
+}
+.homepage-film-controls[hidden] {
+  display: none;
+}
+.homepage-film-controls {
+  position: absolute;
+  z-index: 3;
+  right: clamp(14px, 2vw, 24px);
+  bottom: clamp(14px, 2vw, 24px);
+  left: auto;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  gap: 6px;
+  align-items: center;
+  width: min(292px, calc(100% - 28px));
+  padding: 0;
+  border: 0;
+  color: var(--fixed-light-ink);
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+.homepage-film-control-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 10px;
+  border: 1px solid color-mix(in srgb, var(--fixed-light-ink) 48%, transparent);
+  border-radius: 999px;
+  color: inherit;
+  background: color-mix(in srgb, var(--hero-art-bg) 78%, transparent);
+  box-shadow:
+    0 6px 18px color-mix(in srgb, var(--hero-art-bg) 18%, transparent),
+    inset 0 1px color-mix(in srgb, var(--fixed-light-ink) 9%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.16);
+  backdrop-filter: blur(16px) saturate(1.16);
+  cursor: pointer;
+  font: inherit;
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+.homepage-film-control-button:hover {
+  border-color: color-mix(in srgb, var(--fixed-light-ink) 64%, transparent);
+  background: color-mix(in srgb, var(--hero-art-bg) 88%, transparent);
+}
+.homepage-film-control-button:focus-visible,
+.homepage-film-scrubber:focus-visible {
+  outline: 2px solid var(--fixed-light-ink);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--hero-art-bg);
+}
+.homepage-film-control-button svg {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+}
+.homepage-film-control-button svg[hidden] {
+  display: none;
+}
+.homepage-film-scrubber {
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  margin: 0;
+  padding: 0 12px;
+  border: 1px solid color-mix(in srgb, var(--fixed-light-ink) 48%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--hero-art-bg) 78%, transparent);
+  box-shadow:
+    0 6px 18px color-mix(in srgb, var(--hero-art-bg) 18%, transparent),
+    inset 0 1px color-mix(in srgb, var(--fixed-light-ink) 9%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.16);
+  backdrop-filter: blur(16px) saturate(1.16);
+  cursor: pointer;
+  appearance: none;
+  accent-color: var(--fixed-light-ink);
+}
+.homepage-film-scrubber:disabled {
+  cursor: wait;
+  opacity: 0.56;
+}
+.homepage-film-scrubber::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    var(--fixed-light-ink) 0 var(--film-progress, 0%),
+    color-mix(in srgb, var(--fixed-light-ink) 34%, transparent) var(--film-progress, 0%) 100%
+  );
+}
+.homepage-film-scrubber::-webkit-slider-thumb {
+  width: 18px;
+  height: 18px;
+  margin-top: -7px;
+  border: 2px solid color-mix(in srgb, var(--hero-art-bg) 72%, transparent);
+  border-radius: 50%;
+  background: var(--fixed-light-ink);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--hero-art-bg) 34%, transparent);
+  appearance: none;
+}
+.homepage-film-scrubber::-moz-range-track {
+  width: 100%;
+  height: 4px;
+  border: 0;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--fixed-light-ink) 34%, transparent);
+}
+.homepage-film-scrubber::-moz-range-progress {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--fixed-light-ink);
+}
+.homepage-film-scrubber::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 2px solid color-mix(in srgb, var(--hero-art-bg) 72%, transparent);
+  border-radius: 50%;
+  background: var(--fixed-light-ink);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--hero-art-bg) 34%, transparent);
+}
 .proof-panel,
 .route-grid article {
   border: 1px solid var(--line);
@@ -2677,6 +2853,50 @@ pre {
   background: var(--jk-color-surface, var(--panel));
   color: var(--jk-color-text, var(--ink));
   font: inherit;
+}
+.jk-sample-select-control {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr)
+    var(--jk-select-indicator-slot-width, 3rem);
+  align-items: stretch;
+  width: 100%;
+  min-height: 40px;
+  min-width: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--jk-color-border, var(--line));
+  border-radius: var(--jk-radius-control, 4px);
+  background: var(--jk-color-surface, var(--panel));
+  color: var(--jk-color-text, var(--ink));
+  font: inherit;
+  text-align: start;
+}
+.jk-sample-select-value {
+  min-width: 0;
+  align-self: center;
+  padding-inline-start: max(
+    0px,
+    calc(var(--jk-select-value-start-space, 1rem) - 1px)
+  );
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.jk-sample-select-indicator-slot {
+  position: relative;
+  inset-inline-end: -1px;
+  display: grid;
+  width: var(--jk-select-indicator-slot-width, 3rem);
+  height: 100%;
+  place-items: center;
+  color: var(--jk-color-text, var(--ink));
+  pointer-events: none;
+}
+.jk-sample-select-indicator-slot svg {
+  width: var(--jk-select-indicator-size, 1rem);
+  height: var(--jk-select-indicator-size, 1rem);
+  overflow: visible;
 }
 .jk-sample-field textarea {
   min-height: 70px;
@@ -4189,6 +4409,25 @@ pre {
   }
 }
 @media (max-width: 560px) {
+  .homepage-film-section {
+    min-height: auto;
+    padding-top: 0;
+    padding-bottom: 18px;
+  }
+  .homepage-film-controls {
+    bottom: 12px;
+    right: 12px;
+    left: auto;
+    width: min(280px, calc(100% - 24px));
+    gap: 6px;
+    padding: 0;
+    transform: none;
+  }
+  .homepage-film-control-button {
+    width: 44px;
+    min-width: 44px;
+    padding: 10px;
+  }
   .homepage-hero {
     padding-top: 40px;
     padding-bottom: 52px;
@@ -4254,29 +4493,73 @@ pre {
   .hero-action {
     transition: none;
   }
+  .homepage-film-controls,
+  .homepage-film-control-button {
+    transition: none;
+  }
   .hero-action:hover {
     transform: none;
   }
 }
 @media (prefers-contrast: more) {
   .homepage-hero-art,
-  .hero-action {
+  .hero-action,
+  .homepage-film {
     border-width: 2px;
     border-color: var(--ink);
     box-shadow: none;
   }
+  .homepage-film-controls {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    opacity: 1;
+  }
+  .homepage-film-control-button,
+  .homepage-film-scrubber {
+    border: 2px solid var(--fixed-light-ink);
+    background: var(--hero-art-bg);
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
 }
 @media (forced-colors: active) {
-  .homepage-hero {
+  .homepage-hero,
+  .homepage-film-section {
     background: Canvas;
   }
   .homepage-hero::before {
     display: none;
   }
   .homepage-hero-art,
-  .hero-action {
+  .hero-action,
+  .homepage-film {
     border-color: CanvasText;
     box-shadow: none;
+  }
+  .homepage-film-controls {
+    border: 0;
+    color: CanvasText;
+    background: transparent;
+    box-shadow: none;
+    opacity: 1;
+  }
+  .homepage-film-control-button,
+  .homepage-film-scrubber {
+    border: 1px solid ButtonText;
+    color: ButtonText;
+    background: ButtonFace;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .homepage-film-control-button:focus-visible,
+  .homepage-film-scrubber:focus-visible {
+    outline-color: Highlight;
+  }
+  .homepage-film-scrubber {
+    accent-color: Highlight;
   }
   .hero-action-primary,
   .hero-action-secondary {
@@ -4286,10 +4569,71 @@ pre {
 }
 `;
 
+function renderHomepageFilmControlIcon(id, stateAttribute, hidden = false) {
+  const attributes = [
+    `data-icon-id="${escapeHtml(id)}"`,
+    'aria-hidden="true"',
+    stateAttribute,
+    hidden ? "hidden" : "",
+  ].filter(Boolean).join(" ");
+
+  return getIconSvg({ id }).inline_svg.replace("<svg ", `<svg ${attributes} `);
+}
+
 function homepage() {
   return page(
     "JudgmentKit",
     `
+    <section class="homepage-film-section" aria-label="Visual composition diagnosis and repair film">
+      <div class="site-shell homepage-film-shell">
+        <figure class="homepage-film-figure">
+          <div
+            class="homepage-film-frame"
+            data-homepage-film-player
+            data-film-source-light="${VISUAL_COMPOSITION_RECORDING_PATH}"
+            data-film-source-dark="${VISUAL_COMPOSITION_DARK_RECORDING_PATH}"
+            data-film-poster-light="${VISUAL_COMPOSITION_POSTER_PATH}"
+            data-film-poster-dark="${VISUAL_COMPOSITION_DARK_POSTER_PATH}"
+          >
+            <video
+              class="homepage-film"
+              controls
+              playsinline
+              preload="metadata"
+              poster="${VISUAL_COMPOSITION_POSTER_PATH}"
+              aria-label="JudgmentKit visual-composition diagnosis and measured repair"
+            >
+              <source src="${VISUAL_COMPOSITION_RECORDING_PATH}" type="video/mp4" data-homepage-film-source>
+              <track kind="captions" srclang="en" label="English visual and music cues" src="${VISUAL_COMPOSITION_CAPTIONS_PATH}">
+              Your browser cannot play this video. <a href="${VISUAL_COMPOSITION_RECORDING_PATH}">Download the demo video</a>.
+            </video>
+            <div class="homepage-film-controls" role="group" aria-label="Video controls" hidden data-homepage-film-controls>
+              <button class="homepage-film-control-button" type="button" aria-label="Play video" data-film-action="play" data-homepage-film-play>
+                ${renderHomepageFilmControlIcon("play", "data-homepage-film-play-icon")}
+                ${renderHomepageFilmControlIcon("pause", "data-homepage-film-pause-icon", true)}
+              </button>
+              <input
+                class="homepage-film-scrubber"
+                type="range"
+                min="0"
+                max="100"
+                step="0.1"
+                value="0"
+                aria-label="Video progress"
+                aria-valuetext="0 percent played"
+                disabled
+                data-film-scrubber
+                data-homepage-film-scrubber
+              >
+              <button class="homepage-film-control-button" type="button" aria-label="Mute video" data-film-action="mute" data-homepage-film-mute>
+                ${renderHomepageFilmControlIcon("volume-2", "data-homepage-film-sound-icon")}
+                ${renderHomepageFilmControlIcon("volume-x", "data-homepage-film-muted-icon", true)}
+              </button>
+            </div>
+          </div>
+        </figure>
+      </div>
+    </section>
     <section class="hero homepage-hero">
       <div class="site-shell homepage-hero-shell">
         <div class="homepage-hero-copy">
@@ -4410,6 +4754,175 @@ function homepage() {
         </div>
       </div>
     </section>
+    <script>
+      (() => {
+        const player = document.querySelector("[data-homepage-film-player]");
+        if (!player) return;
+
+        const video = player.querySelector("video");
+        const source = player.querySelector("[data-homepage-film-source]");
+        const controls = player.querySelector("[data-homepage-film-controls]");
+        const playButton = player.querySelector("[data-homepage-film-play]");
+        const playIcon = player.querySelector("[data-homepage-film-play-icon]");
+        const pauseIcon = player.querySelector("[data-homepage-film-pause-icon]");
+        const scrubber = player.querySelector("[data-homepage-film-scrubber]");
+        const muteButton = player.querySelector("[data-homepage-film-mute]");
+        const soundIcon = player.querySelector("[data-homepage-film-sound-icon]");
+        const mutedIcon = player.querySelector("[data-homepage-film-muted-icon]");
+
+        if (!video || !source || !controls || !playButton || !playIcon || !pauseIcon || !scrubber || !muteButton || !soundIcon || !mutedIcon) return;
+
+        const hasDuration = () => Number.isFinite(video.duration) && video.duration > 0;
+        const setIconHidden = (icon, hidden) => {
+          if (hidden) {
+            icon.setAttribute("hidden", "");
+          } else {
+            icon.removeAttribute("hidden");
+          }
+        };
+        const updatePlayState = () => {
+          const isPlaying = !video.paused && !video.ended;
+          const action = isPlaying ? "Pause" : "Play";
+          playButton.setAttribute("aria-label", action + " video");
+          setIconHidden(playIcon, isPlaying);
+          setIconHidden(pauseIcon, !isPlaying);
+        };
+        const updateProgress = () => {
+          const progress = hasDuration()
+            ? Math.min(100, Math.max(0, (video.currentTime / video.duration) * 100))
+            : 0;
+          scrubber.disabled = !hasDuration();
+          scrubber.value = String(progress);
+          scrubber.style.setProperty("--film-progress", progress + "%");
+          scrubber.setAttribute("aria-valuetext", Math.round(progress) + " percent played");
+        };
+        const updateMuteState = () => {
+          const isMuted = video.muted || video.volume === 0;
+          const action = isMuted ? "Unmute" : "Mute";
+          muteButton.setAttribute("aria-label", action + " video");
+          setIconHidden(soundIcon, isMuted);
+          setIconHidden(mutedIcon, !isMuted);
+        };
+        const normalizeAssetUrl = (value) => {
+          if (!value) return "";
+          try {
+            return new URL(value, document.baseURI).href;
+          } catch {
+            return value;
+          }
+        };
+        const lightSource = player.dataset.filmSourceLight || source.getAttribute("src") || "";
+        const lightPoster = player.dataset.filmPosterLight || video.getAttribute("poster") || "";
+        const darkSourceCandidate = player.dataset.filmSourceDark || "";
+        const darkPosterCandidate = player.dataset.filmPosterDark || "";
+        const hasDarkSource = Boolean(
+          darkSourceCandidate &&
+          normalizeAssetUrl(darkSourceCandidate) !== normalizeAssetUrl(lightSource),
+        );
+        const hasDarkPoster = Boolean(
+          darkPosterCandidate &&
+          normalizeAssetUrl(darkPosterCandidate) !== normalizeAssetUrl(lightPoster),
+        );
+        const hasThemeVariant = hasDarkSource || hasDarkPoster;
+        let sourceSwapToken = 0;
+
+        const applyFilmTheme = (useDarkTheme) => {
+          if (!hasThemeVariant) return;
+
+          const nextSource = useDarkTheme && hasDarkSource ? darkSourceCandidate : lightSource;
+          const nextPoster = useDarkTheme && hasDarkPoster ? darkPosterCandidate : lightPoster;
+          const theme = useDarkTheme ? "dark" : "light";
+          const sourceChanged = normalizeAssetUrl(source.getAttribute("src")) !== normalizeAssetUrl(nextSource);
+
+          if (nextPoster) video.poster = nextPoster;
+          player.setAttribute("data-film-theme", theme);
+          if (!sourceChanged) return;
+
+          const savedTime = Number.isFinite(video.currentTime) ? video.currentTime : 0;
+          const wasPlaying = !video.paused && !video.ended;
+          const wasMuted = video.muted;
+          const savedVolume = video.volume;
+          const swapToken = ++sourceSwapToken;
+
+          video.pause();
+          source.setAttribute("src", nextSource);
+          video.load();
+
+          const restorePlaybackState = () => {
+            if (swapToken !== sourceSwapToken) return;
+            if (hasDuration()) video.currentTime = Math.min(savedTime, video.duration);
+            video.volume = savedVolume;
+            video.muted = wasMuted;
+            updateProgress();
+            updateMuteState();
+            if (wasPlaying) {
+              const request = video.play();
+              if (request) request.catch(updatePlayState);
+            } else {
+              updatePlayState();
+            }
+          };
+
+          if (video.readyState >= 1) {
+            restorePlaybackState();
+          } else {
+            video.addEventListener("loadedmetadata", restorePlaybackState, { once: true });
+          }
+        };
+
+        try {
+          playButton.addEventListener("click", () => {
+            if (video.paused || video.ended) {
+              if (video.ended) video.currentTime = 0;
+              const request = video.play();
+              if (request) request.catch(updatePlayState);
+            } else {
+              video.pause();
+            }
+          });
+          scrubber.addEventListener("input", () => {
+            if (!hasDuration()) return;
+            video.currentTime = (Number(scrubber.value) / 100) * video.duration;
+            updateProgress();
+          });
+          muteButton.addEventListener("click", () => {
+            if (video.muted || video.volume === 0) {
+              video.muted = false;
+              if (video.volume === 0) video.volume = 1;
+            } else {
+              video.muted = true;
+            }
+          });
+
+          video.addEventListener("play", updatePlayState);
+          video.addEventListener("pause", updatePlayState);
+          video.addEventListener("ended", updatePlayState);
+          video.addEventListener("timeupdate", updateProgress);
+          video.addEventListener("loadedmetadata", updateProgress);
+          video.addEventListener("durationchange", updateProgress);
+          video.addEventListener("emptied", updateProgress);
+          video.addEventListener("volumechange", updateMuteState);
+
+          if (hasThemeVariant && typeof window.matchMedia === "function") {
+            const themeQuery = window.matchMedia("(prefers-color-scheme: dark)");
+            const handleThemeChange = (event) => applyFilmTheme(event.matches);
+            themeQuery.addEventListener("change", handleThemeChange);
+            applyFilmTheme(themeQuery.matches);
+          }
+
+          updatePlayState();
+          updateProgress();
+          updateMuteState();
+          controls.hidden = false;
+          video.controls = false;
+          player.setAttribute("data-homepage-film-ready", "true");
+        } catch {
+          controls.hidden = true;
+          video.controls = true;
+          player.removeAttribute("data-homepage-film-ready");
+        }
+      })();
+    </script>
   `,
     {
       description:
@@ -4628,14 +5141,19 @@ function renderComponentStatePreview(contract, state) {
               </label>`;
       break;
     case "select_field":
-      body = `<label class="jk-sample-field" for="${escapeHtml(sampleId)}">
-                <span data-component-anatomy="label">Decision</span>
-                <select id="${escapeHtml(sampleId)}" data-component-anatomy="trigger-or-native-select"${disabledAttr}${invalidAttr}${focusAttr}>
-                  <option data-component-anatomy="options">${empty ? "Choose decision" : "Approve"}</option>
-                  <option>Return for evidence</option>
-                </select>
-                <span data-component-anatomy="help-or-error-text">${escapeHtml(helpText)}</span>
-              </label>`;
+      body = `<div class="jk-sample-field">
+                <span id="${escapeHtml(sampleId)}-label" data-component-anatomy="label">Decision</span>
+                <button id="${escapeHtml(sampleId)}" class="jk-sample-select-control" type="button" role="combobox" aria-haspopup="listbox" aria-expanded="false" aria-labelledby="${escapeHtml(sampleId)}-label" aria-describedby="${escapeHtml(sampleId)}-help" data-component-anatomy="trigger-or-native-select"${disabledAttr}${invalidAttr}${focusAttr}>
+                  <span class="jk-sample-select-value" data-component-anatomy="selected-value" data-part="value">${empty ? "Choose decision" : "Approve"}</span>
+                  <span class="jk-sample-select-indicator-slot" data-component-anatomy="trailing-indicator-slot" data-part="indicator-slot" aria-hidden="true">
+                    <svg data-component-anatomy="indicator" data-part="indicator" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                      <path d="m4 6 4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                </button>
+                <span id="${escapeHtml(sampleId)}-help" data-component-anatomy="help-or-error-text">${escapeHtml(helpText)}</span>
+                <span hidden role="listbox" data-component-anatomy="options">Approve; Return for evidence</span>
+              </div>`;
       break;
     case "checkbox_group":
       body = `<fieldset class="jk-sample-choice-group"${disabled ? " disabled" : ""}${focusAttr}>
@@ -8608,6 +9126,7 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.mkdir(path.join(outDir, "evals", "site-rebuild-log"), { recursive: true });
   await fs.mkdir(path.join(outDir, "examples"), { recursive: true });
   await fs.mkdir(path.join(outDir, "value"), { recursive: true });
+  await fs.mkdir(path.join(outDir, "assets", "releases"), { recursive: true });
 
   await fs.writeFile(path.join(outDir, "assets", "site.css"), stylesheet.trimStart());
   const socialThumbnailSourcePath = path.join(__dirname, "assets", SOCIAL_THUMBNAIL_SOURCE_FILENAME);
@@ -8622,6 +9141,76 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
   await fs.copyFile(
     path.join(__dirname, "assets", HOMEPAGE_HERO_ART_FILENAME),
     path.join(outDir, "assets", HOMEPAGE_HERO_ART_FILENAME),
+  );
+  await fs.copyFile(
+    path.join(
+      __dirname,
+      "assets",
+      "releases",
+      VISUAL_COMPOSITION_RECORDING_FILENAME,
+    ),
+    path.join(
+      outDir,
+      "assets",
+      "releases",
+      VISUAL_COMPOSITION_RECORDING_FILENAME,
+    ),
+  );
+  await fs.copyFile(
+    path.join(
+      __dirname,
+      "assets",
+      "releases",
+      VISUAL_COMPOSITION_DARK_RECORDING_FILENAME,
+    ),
+    path.join(
+      outDir,
+      "assets",
+      "releases",
+      VISUAL_COMPOSITION_DARK_RECORDING_FILENAME,
+    ),
+  );
+  await fs.copyFile(
+    path.join(
+      __dirname,
+      "assets",
+      "releases",
+      VISUAL_COMPOSITION_POSTER_FILENAME,
+    ),
+    path.join(
+      outDir,
+      "assets",
+      "releases",
+      VISUAL_COMPOSITION_POSTER_FILENAME,
+    ),
+  );
+  await fs.copyFile(
+    path.join(
+      __dirname,
+      "assets",
+      "releases",
+      VISUAL_COMPOSITION_DARK_POSTER_FILENAME,
+    ),
+    path.join(
+      outDir,
+      "assets",
+      "releases",
+      VISUAL_COMPOSITION_DARK_POSTER_FILENAME,
+    ),
+  );
+  await fs.copyFile(
+    path.join(
+      __dirname,
+      "assets",
+      "releases",
+      VISUAL_COMPOSITION_CAPTIONS_FILENAME,
+    ),
+    path.join(
+      outDir,
+      "assets",
+      "releases",
+      VISUAL_COMPOSITION_CAPTIONS_FILENAME,
+    ),
   );
   await buildSystemMapFlowAssets(outDir);
   await fs.writeFile(

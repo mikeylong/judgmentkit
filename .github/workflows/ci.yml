@@ -22,6 +22,8 @@ jobs:
         run: npm ci
 
       - name: Run tests
+        env:
+          JUDGMENTKIT_VISUAL_COMPOSITION_CHROME_PATH: google-chrome
         run: npm test
 
       - name: Build website

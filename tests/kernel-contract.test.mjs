@@ -291,6 +291,36 @@ assert.ok(
   ),
   "The component contracts must include an actionable button contract.",
 );
+const defaultSelectFieldContract =
+  contract.implementation_contract.default_ai_native_design_system.component_contracts.find(
+    (entry) => entry.id === "select_field",
+  );
+assert.ok(defaultSelectFieldContract);
+assert.ok(
+  defaultSelectFieldContract.anatomy.includes("selected value") &&
+    defaultSelectFieldContract.anatomy.includes("trailing indicator slot") &&
+    defaultSelectFieldContract.anatomy.includes("indicator"),
+  "The select-field contract must distinguish its value, trailing slot, and indicator parts.",
+);
+assert.ok(
+  defaultSelectFieldContract.review_checks.some((check) =>
+    check.includes("centered in a governed trailing slot"),
+  ),
+  "The select-field contract must govern indicator-slot composition explicitly.",
+);
+assert.deepEqual(
+  Object.fromEntries(
+    contract.implementation_contract.visual_token_adapter.css_custom_properties
+      .filter((entry) => entry.name.startsWith("--jk-select-"))
+      .map((entry) => [entry.name, entry.value]),
+  ),
+  {
+    "--jk-select-value-start-space": "1rem",
+    "--jk-select-indicator-slot-width": "3rem",
+    "--jk-select-indicator-size": "1rem",
+  },
+  "The exported select tokens must preserve the 16px value, 48px slot, and 16px indicator contract.",
+);
 assert.equal(
   contract.implementation_contract.default_ai_native_design_system.pattern_contracts
     .length,
@@ -623,7 +653,7 @@ assert.equal(
   defaultVisualCompositionPolicy.id,
   "judgmentkit.visual-composition.adapter-v1",
 );
-assert.equal(defaultVisualCompositionPolicy.version, "1.0.0");
+assert.equal(defaultVisualCompositionPolicy.version, "1.1.0");
 assert.equal(defaultVisualCompositionPolicy.layer, "implementation_adapter");
 assert.equal(
   defaultVisualCompositionPolicy.enforcement,
@@ -649,6 +679,22 @@ assert.equal(
     "judgmentkit.select_indicator.centered_label_symmetric_rails"
   ].accessory_rail_width_css_px,
   36,
+);
+assert.deepEqual(
+  defaultVisualCompositionPolicy.calibrations[
+    "judgmentkit.select_indicator.field_value_trailing_indicator_slot"
+  ],
+  {
+    component_family: "judgmentkit.select_indicator.field",
+    rule_id: "presentation_owner.select_indicator",
+    composition_variant: "field_value_trailing_indicator_slot",
+    expected_value_start_inset_css_px: 16,
+    expected_indicator_slot_width_css_px: 48,
+    expected_indicator_inline_size_css_px: 16,
+    minimum_value_indicator_gap_css_px: 16,
+    max_geometry_delta_css_px: 2,
+    max_indicator_slot_center_delta_css_px: 1,
+  },
 );
 assert.deepEqual(
   defaultVisualCompositionPolicy.receipt_contract.review_codes,
