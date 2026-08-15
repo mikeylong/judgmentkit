@@ -550,6 +550,11 @@ try {
       /data-film-poster-dark="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster-dark\.png"/,
     );
     assert.equal((html.match(/<video\b/g) ?? []).length, 1);
+    assert.doesNotMatch(
+      frame,
+      /<track\b/i,
+      "served homepage film should not expose a caption track",
+    );
     const sourceOpenTag = frame.match(/<source\b[^>]*>/)?.[0] ?? "";
     assert.match(
       frameOpenTag,
@@ -726,14 +731,18 @@ try {
     "/assets/releases/judgmentkit-select-field-agent-demo-poster-dark.png",
   );
 
-  await assertStaticGetAndHead(
-    url,
-    "/assets/releases/judgmentkit-select-field-agent-demo.vtt",
-    "text/vtt; charset=utf-8",
-    (body) => {
-      assert.ok(body.toString("utf8").startsWith("WEBVTT"));
-    },
-  );
+  for (const method of ["GET", "HEAD"]) {
+    const response = await fetchRoute(
+      url,
+      "/assets/releases/judgmentkit-select-field-agent-demo.vtt",
+      { method },
+    );
+    assert.equal(
+      response.status,
+      404,
+      `disabled caption asset ${method} should not be publicly served`,
+    );
+  }
 
   {
     const response = await fetchRoute(

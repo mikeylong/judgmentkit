@@ -736,15 +736,11 @@ assert.match(
   /data-film-source-dark="\/assets\/releases\/judgmentkit-select-field-agent-demo-dark\.mp4"/,
   "the dark-theme recording should be declared independently from the light fallback",
 );
-const homepageFilmCaptions = homepageFilm.match(/<track\b[^>]*>/)?.[0] ?? "";
-assert.match(homepageFilmCaptions, /kind="captions"/);
-assert.match(
-  homepageFilmCaptions,
-  /src="\/assets\/releases\/judgmentkit-select-field-agent-demo\.vtt"/,
+assert.doesNotMatch(
+  homepageFilm,
+  /<track\b/i,
+  "homepage film should not expose a caption track that browsers can reactivate",
 );
-assert.match(homepageFilmCaptions, /srclang="en"/);
-assert.match(homepageFilmCaptions, /label="English[^"]*"/);
-assert.doesNotMatch(homepageFilmCaptions, /(?:\s|^)default(?:\s|>)/);
 const homepageFilmControlGroups = [
   ...homepageMain.matchAll(
     /<div\b[^>]*class="[^"]*\bhomepage-film-controls\b[^"]*"[^>]*>[\s\S]*?<\/div>/gi,
@@ -3135,19 +3131,12 @@ assert.notDeepEqual(
   "the dark poster must contain independently rendered dark-theme pixels",
 );
 
-const releaseCaptionsSource = fs.readFileSync(
-  new URL("../site/assets/releases/judgmentkit-select-field-agent-demo.vtt", import.meta.url),
-  "utf8",
-);
-const releaseCaptionsBuilt = fs.readFileSync(
-  path.join(tempDir, "assets", "releases", "judgmentkit-select-field-agent-demo.vtt"),
-  "utf8",
-);
-assert.equal(releaseCaptionsBuilt, releaseCaptionsSource);
-assert.ok(releaseCaptionsBuilt.startsWith("WEBVTT"));
-assert.match(
-  releaseCaptionsBuilt,
-  /(?:\d{2}:)?\d{2}:\d{2}\.\d{3} --> (?:\d{2}:)?\d{2}:\d{2}\.\d{3}/,
+assert.equal(
+  fs.existsSync(
+    path.join(tempDir, "assets", "releases", "judgmentkit-select-field-agent-demo.vtt"),
+  ),
+  false,
+  "the public site build should not publish the disabled caption asset",
 );
 
 for (const experimentPath of [
