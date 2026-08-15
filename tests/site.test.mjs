@@ -1641,9 +1641,12 @@ assert.equal(progressiveFilmBehavior.video.currentTime, 19);
 progressiveFilmBehavior.video.dispatch("seeked");
 assert.ok(
   liveCommands().some(
-    (message) => message.type === "SEEK" && message.payload?.timeMs === 19_000,
+    (message) =>
+      message.type === "SYNC"
+      && message.payload?.timeMs === 19_000
+      && message.payload?.playing === true,
   ),
-  "scrubbing should move both the soundtrack clock and live timeline",
+  "scrubbing during playback should move both clocks without pausing the live timeline",
 );
 progressiveFilmBehavior.muteButton.dispatch("click");
 assert.equal(progressiveFilmBehavior.video.muted, true);

@@ -5306,9 +5306,12 @@ function homepage() {
             previousVideoTimeSeconds = Number.isFinite(video.currentTime) ? video.currentTime : 0;
             updateProgress();
             if (!liveReady) return;
-            if (loopResetPending && video.currentTime <= 1 && !video.paused && !video.ended) {
+            if (!video.paused && !video.ended) {
+              const synchronizedTimeMs = loopResetPending && video.currentTime <= 1
+                ? 0
+                : video.currentTime * 1000;
               loopResetPending = false;
-              postToLive("SYNC", { timeMs: 0, playing: true });
+              postToLive("SYNC", { timeMs: synchronizedTimeMs, playing: true });
               return;
             }
             loopResetPending = false;
