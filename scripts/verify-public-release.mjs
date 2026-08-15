@@ -1786,6 +1786,7 @@ async function fetchJsonProbe(endpointUrl, options = {}) {
     method: options.method ?? "GET",
     headers: options.headers,
     body: options.body,
+    signal: options.signal,
   });
   const text = await response.text();
   let body;
@@ -1813,6 +1814,22 @@ async function verifyMcpAppGuardRoute(baseUrl, route) {
     "GET, POST, DELETE, OPTIONS",
     `${route} OPTIONS should advertise MCP methods`,
   );
+
+  const standaloneSse = await fetchJsonProbe(endpointUrl, {
+    headers: {
+      accept: "text/event-stream",
+    },
+    signal: AbortSignal.timeout(3_000),
+  });
+
+  assert.equal(
+    standaloneSse.response.status,
+    405,
+    `${route} standalone SSE GET should fail immediately instead of holding a function open`,
+  );
+  assert.equal(standaloneSse.response.headers.get("allow"), "POST");
+  assert.equal(standaloneSse.response.headers.get("cache-control"), "no-store");
+  assert.equal(standaloneSse.body?.error?.code, -32000);
 
   const unsupportedMedia = await fetchJsonProbe(endpointUrl, {
     method: "POST",
@@ -1863,6 +1880,7 @@ async function verifyMcpAppGuardRoute(baseUrl, route) {
     route,
     endpoint: endpointUrl,
     options_status: optionsResponse.status,
+    standalone_sse_status: standaloneSse.response.status,
     non_json_status: unsupportedMedia.response.status,
     oversized_status: oversized.response.status,
     malformed_json_status: malformed.response.status,

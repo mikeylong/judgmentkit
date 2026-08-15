@@ -119,6 +119,7 @@ async function withTestServer(analyticsTracker, callback) {
 async function runMcpClient(endpoint, { verifyBrowserRuntime = false } = {}) {
   let transport;
   let client;
+  const clientErrors = [];
 
   try {
     transport = new StreamableHTTPClientTransport(new URL(endpoint));
@@ -126,6 +127,9 @@ async function runMcpClient(endpoint, { verifyBrowserRuntime = false } = {}) {
       name: "judgmentkit-http-test-client",
       version: "1.0.0",
     });
+    client.onerror = (error) => {
+      clientErrors.push(error);
+    };
 
     await withTimeout(client.connect(transport), 5_000);
 
@@ -353,6 +357,13 @@ async function runMcpClient(endpoint, { verifyBrowserRuntime = false } = {}) {
         true,
       );
     }
+
+    await new Promise((resolve) => setImmediate(resolve));
+    assert.deepEqual(
+      clientErrors,
+      [],
+      `${endpoint} should treat unsupported standalone SSE as an expected capability boundary`,
+    );
   } finally {
     await client?.close().catch(() => {});
     await transport?.close().catch(() => {});
@@ -412,6 +423,36 @@ async function assertMcpMetadata(endpoint) {
     metadataBody.capabilities.tools.map((tool) => tool.name),
     EXPECTED_TOOL_NAMES,
   );
+}
+
+async function assertStandaloneSseUnsupported(endpoint) {
+  for (const accept of [
+    "text/event-stream",
+    "Application/JSON; q=0.9, Text/Event-Stream; charset=utf-8",
+  ]) {
+    const response = await fetch(endpoint, {
+      headers: { accept },
+      signal: AbortSignal.timeout(1_000),
+    });
+    const body = await response.json();
+
+    assert.equal(
+      response.status,
+      405,
+      `${endpoint} standalone SSE GET should return immediately with 405`,
+    );
+    assert.equal(response.headers.get("allow"), "POST");
+    assert.match(response.headers.get("content-type") ?? "", /^application\/json\b/i);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    assert.equal(response.headers.get("access-control-allow-origin"), "*");
+    assert.equal(body.jsonrpc, "2.0");
+    assert.equal(body.error.code, -32000);
+    assert.equal(
+      body.error.message,
+      "Method not allowed: standalone SSE streams are not supported.",
+    );
+    assert.equal(body.id, null);
+  }
 }
 
 async function assertMcpOptions(endpoint) {
@@ -507,6 +548,7 @@ await withTestServer(
     for (const [routeIndex, route] of PUBLIC_MCP_ROUTES.entries()) {
       const routeEndpoint = `${baseUrl}${route}`;
       await assertMcpMetadata(routeEndpoint);
+      await assertStandaloneSseUnsupported(routeEndpoint);
       await assertMcpOptions(routeEndpoint);
       await assertMcpAppGuards(routeEndpoint);
       await postRawInitialize(routeEndpoint);
