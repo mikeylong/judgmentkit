@@ -3850,6 +3850,74 @@ assert.match(
   /function startStandaloneCinematicLoop\(\)[\s\S]*?notifyClockEnded\s*=\s*\(\)\s*=>\s*\{[\s\S]*?window\.requestAnimationFrame\([\s\S]*?rebuildCinematicAt\(0,\s*\{\s*play:\s*true\s*\}\)[\s\S]*?startCinematic\(\);/,
   "the standalone authored demo should restart asynchronously after its full 38.2-second clock ends",
 );
+const standaloneCinematicToggle = visualCompositionFilmSource.match(
+  /<button\b[^>]*data-standalone-cinematic-toggle[^>]*>[\s\S]*?<\/button>/i,
+)?.[0] ?? "";
+assert.ok(
+  standaloneCinematicToggle,
+  "the looping standalone demo should expose a native playback toggle",
+);
+assert.match(standaloneCinematicToggle, /type="button"/);
+assert.match(standaloneCinematicToggle.match(/<button\b[^>]*>/i)?.[0] ?? "", /(?:\s|^)hidden(?:\s|>)/);
+assert.match(standaloneCinematicToggle, /aria-label="Pause animation"/);
+assert.deepEqual(
+  [...standaloneCinematicToggle.matchAll(/data-icon-id="([^"]+)"/g)].map((match) => match[1]),
+  ["play", "pause"],
+  "the standalone toggle should use canonical JudgmentKit play and pause icons",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /\.standalone-cinematic-toggle\s*\{[^}]*position:\s*fixed;[^}]*width:\s*44px;[^}]*height:\s*44px;[^}]*z-index:\s*(?:100[1-9]|10[1-9]\d|1[1-9]\d{2}|[2-9]\d{3,});[^}]*background:\s*(?!transparent)[^;]+;/s,
+  "the standalone toggle should remain a visible 44px target above cinematic effects",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /\.standalone-cinematic-toggle:focus-visible\s*\{[^}]*outline:\s*(?!none)[^;]+;/s,
+  "the standalone toggle should expose a visible keyboard focus ring",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /\.standalone-cinematic-toggle\[hidden\]\s*\{[^}]*display:\s*none;/s,
+  "manual, capture, and embedded modes should keep the standalone toggle out of view",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /\.standalone-cinematic-toggle\s+svg\[hidden\]\s*\{[^}]*display:\s*none;/s,
+  "the standalone toggle should hide its inactive SVG state in Chrome",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /body\.cinematic-mode\s+\[data-standalone-cinematic-toggle\]\s*\{[^}]*cursor:\s*pointer\s*!important;/s,
+  "the standalone toggle should retain a pointer over the cinematic cursor override",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /function startStandaloneCinematicLoop\(\)[\s\S]*?standaloneCinematicToggle\.hidden\s*=\s*false;[\s\S]*?notifyClockState\s*=\s*syncStandalonePlaybackToggle;[\s\S]*?startCinematic\(\);/,
+  "only the default standalone loop should reveal and synchronize its playback toggle",
+);
+assert.equal(
+  (visualCompositionFilmSource.match(/standaloneCinematicToggle\.hidden\s*=\s*false/g) ?? []).length,
+  1,
+  "no other playback mode should reveal the standalone toggle",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /standaloneCinematicToggle\.addEventListener\('click',\s*\(\)\s*=>\s*\{[\s\S]*?cueClock\.isPlaying\(\)[\s\S]*?cueClock\.pause\(\)[\s\S]*?cueClock\.play\(\)[\s\S]*?\}\);/,
+  "the native standalone toggle should pause and resume the canonical cue clock",
+);
+const standalonePlaybackSyncSource = visualCompositionFilmSource.slice(
+  visualCompositionFilmSource.indexOf("function syncStandalonePlaybackToggle()"),
+  visualCompositionFilmSource.indexOf(
+    "standaloneCinematicToggle.addEventListener",
+    visualCompositionFilmSource.indexOf("function syncStandalonePlaybackToggle()"),
+  ),
+);
+for (const expectedSource of ["aria-label", "Pause animation", "Resume animation"]) {
+  assert.ok(
+    standalonePlaybackSyncSource.includes(expectedSource),
+    `the standalone toggle should synchronize ${expectedSource}`,
+  );
+}
 assert.match(
   visualCompositionFilmSource,
   /else if \(!\['0',\s*'off',\s*'manual'\]\.includes\(autoplayMode\)\)\s*\{\s*startStandaloneCinematicLoop\(\);\s*\}/,

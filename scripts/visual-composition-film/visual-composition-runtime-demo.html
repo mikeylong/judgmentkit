@@ -960,6 +960,40 @@
 
     .replay:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
+    .standalone-cinematic-toggle {
+      position: fixed;
+      left: 18px;
+      bottom: 18px;
+      display: inline-grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      z-index: 1100;
+      padding: 0;
+      border: 1px solid color-mix(in srgb, var(--ink) 24%, transparent);
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--surface) 88%, transparent);
+      color: var(--ink);
+      box-shadow: 0 6px 20px color-mix(in srgb, var(--ink) 16%, transparent);
+      -webkit-backdrop-filter: blur(14px) saturate(1.08);
+      backdrop-filter: blur(14px) saturate(1.08);
+      cursor: pointer;
+    }
+
+    .standalone-cinematic-toggle[hidden] { display: none; }
+
+    .standalone-cinematic-toggle svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .standalone-cinematic-toggle svg[hidden] { display: none; }
+
+    .standalone-cinematic-toggle:focus-visible {
+      outline: 3px solid var(--blue);
+      outline-offset: 3px;
+    }
+
     /*
       Cinematic replay layer. Standalone opens autoplay it by default, while
       ?autoplay=0 keeps the authoring surface manual and homepage embeds remain
@@ -978,6 +1012,8 @@
     body.cinematic-mode,
     body.cinematic-mode button,
     body.cinematic-mode [tabindex] { cursor: none !important; }
+
+    body.cinematic-mode [data-standalone-cinematic-toggle] { cursor: pointer !important; }
 
     body.cinematic-mode .cinematic-fx { opacity: 1; }
 
@@ -1702,6 +1738,19 @@
       body.cinematic-mode button,
       body.cinematic-mode [tabindex] { cursor: auto !important; }
     }
+
+    @media (forced-colors: active) {
+      .standalone-cinematic-toggle {
+        border: 2px solid ButtonText;
+        background: ButtonFace;
+        color: ButtonText;
+        box-shadow: none;
+        -webkit-backdrop-filter: none;
+        backdrop-filter: none;
+      }
+
+      .standalone-cinematic-toggle:focus-visible { outline-color: Highlight; }
+    }
   </style>
 </head>
 <body data-state="idle">
@@ -1802,6 +1851,23 @@
       </svg>
     </div>
   </div>
+  <button
+    class="standalone-cinematic-toggle"
+    id="standalone-cinematic-toggle"
+    type="button"
+    aria-label="Pause animation"
+    title="Pause animation"
+    data-standalone-cinematic-toggle
+    hidden
+  >
+    <svg data-icon-id="play" data-standalone-cinematic-play-icon hidden aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" />
+    </svg>
+    <svg data-icon-id="pause" data-standalone-cinematic-pause-icon aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="14" y="3" width="5" height="18" rx="1" />
+      <rect x="5" y="3" width="5" height="18" rx="1" />
+    </svg>
+  </button>
   <main class="shell">
     <section class="hero" aria-labelledby="demo-title">
       <div class="demo-stage">
@@ -1965,6 +2031,9 @@
       const cinematicFx = document.getElementById('cinematic-fx');
       const cinematicCursor = document.getElementById('cinematic-cursor');
       const draftlingAgent = document.getElementById('draftling-agent');
+      const standaloneCinematicToggle = document.getElementById('standalone-cinematic-toggle');
+      const standaloneCinematicPlayIcon = standaloneCinematicToggle.querySelector('[data-standalone-cinematic-play-icon]');
+      const standaloneCinematicPauseIcon = standaloneCinematicToggle.querySelector('[data-standalone-cinematic-pause-icon]');
       const liveLensScene = document.getElementById('agent-live-lens-scene');
       const liveLensSource = artifactCard.querySelector('.bad-ui');
       const steps = [...document.querySelectorAll('.runtime-step')];
@@ -2348,6 +2417,26 @@
       }
 
       const cueClock = createCueClock();
+
+      function syncStandalonePlaybackToggle() {
+        const playing = cueClock.isPlaying();
+        const actionLabel = playing ? 'Pause animation' : 'Resume animation';
+        standaloneCinematicToggle.setAttribute('aria-label', actionLabel);
+        standaloneCinematicToggle.title = actionLabel;
+        standaloneCinematicPlayIcon.toggleAttribute('hidden', playing);
+        standaloneCinematicPauseIcon.toggleAttribute('hidden', !playing);
+      }
+
+      standaloneCinematicToggle.addEventListener('click', () => {
+        if (cueClock.isPlaying()) {
+          cueClock.pause();
+        } else if (cueClock.state() === 'ended') {
+          rebuildCinematicAt(0, { play: true });
+        } else {
+          cueClock.play();
+        }
+        syncStandalonePlaybackToggle();
+      });
 
       function clearTimers() {
         cueClock.removeGroup('runtime');
@@ -3152,6 +3241,8 @@
       }
 
       function startStandaloneCinematicLoop() {
+        standaloneCinematicToggle.hidden = false;
+        notifyClockState = syncStandalonePlaybackToggle;
         notifyClockEnded = () => {
           window.requestAnimationFrame(() => {
             if (embedConfig.enabled) return;
@@ -3159,6 +3250,7 @@
           });
         };
         startCinematic();
+        syncStandalonePlaybackToggle();
       }
 
       const params = new URLSearchParams(window.location.search);

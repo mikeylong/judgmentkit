@@ -6,4 +6,4 @@
 
 Keep the light and dark captures on the same 38.2-second timeline so the homepage can switch themes without moving the playhead to a different story beat.
 
-Opening the authored HTML directly autoplays and loops the full cinematic. Add `?autoplay=0` when you need the manual authoring surface. Homepage embeds remain parent-controlled so the synchronized soundtrack stays the single playback clock.
+Opening the authored HTML directly autoplays and loops the full cinematic; the bottom-left control pauses and resumes that motion. Add `?autoplay=0` when you need the manual authoring surface. Homepage embeds remain parent-controlled so the synchronized soundtrack stays the single playback clock.
