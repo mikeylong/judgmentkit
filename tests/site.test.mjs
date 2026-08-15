@@ -682,16 +682,66 @@ const homepageFilmFrameMatch = homepage.match(
 const homepageFilmFrame = homepageFilmFrameMatch?.[0];
 assert.ok(homepageFilmFrame, "homepage should expose the film in one stable frame");
 const homepageFilmFrameOpenTag = homepageFilmFrame?.match(/^<(?:div|section)\b[^>]*>/i)?.[0] ?? "";
-const homepageFilm = homepageFilmFrame.match(
-  /<video\b[^>]*class="[^"]*\bhomepage-film\b[^"]*"[^>]*>[\s\S]*?<\/video>/,
+const homepageFilmStageOpenTag = homepageMain.match(
+  /<(?:div|section)\b[^>]*class="[^"]*\bhomepage-film-stage\b[^"]*"[^>]*>/,
+)?.[0] ?? "";
+assert.ok(homepageFilmStageOpenTag, "homepage should expose a fixed live-demo stage");
+assert.match(homepageFilmStageOpenTag, /id="homepage-film-stage"/);
+assert.match(homepageFilmStageOpenTag, /data-homepage-film-stage(?:\s|=|>)/);
+assert.match(
+  homepageFilmStageOpenTag,
+  /(?:\s|^)hidden(?:\s|>)/,
+  "the live stage should not replace the progressive fallback before its ready handshake",
+);
+assert.match(
+  homepageMain,
+  /<span class="sr-only">A live visual replay shows an agent generating a UI, JudgmentKit identifying two composition defects, and the agent applying a measured repair\.<\/span>/,
+  "the visual-only live stage should retain an accessible semantic fallback",
+);
+const homepageFilmLiveScaleOpenTag = homepageMain.match(
+  /<div\b[^>]*class="[^"]*\bhomepage-film-live-scale\b[^"]*"[^>]*>/,
+)?.[0] ?? "";
+assert.match(homepageFilmLiveScaleOpenTag, /data-homepage-film-live-scale(?:\s|=|>)/);
+const homepageFilmLiveOpenTag = homepageMain.match(
+  /<iframe\b[^>]*class="[^"]*\bhomepage-film-live\b[^"]*"[^>]*>/,
+)?.[0] ?? "";
+assert.ok(homepageFilmLiveOpenTag, "homepage should load the authored live composition demo");
+assert.match(homepageFilmLiveOpenTag, /data-homepage-film-live(?:\s|=|>)/);
+assert.match(homepageFilmLiveOpenTag, /src="about:blank"/);
+assert.match(
+  homepageFilmLiveOpenTag,
+  /title="Live JudgmentKit UI generation, diagnosis, and measured repair"/,
+);
+assert.match(homepageFilmLiveOpenTag, /sandbox="allow-scripts"/);
+assert.doesNotMatch(homepageFilmLiveOpenTag, /allow-same-origin/);
+assert.match(homepageFilmLiveOpenTag, /tabindex="-1"/);
+assert.match(homepageFilmLiveOpenTag, /aria-hidden="true"/);
+const homepageFilmMedia = homepageMain.match(
+  /<video\b[^>]*class="[^"]*\bhomepage-film-source-media\b[^"]*"[^>]*>[\s\S]*?<\/video>/,
 )?.[0];
-const homepageFilmOpenTag = homepageFilm?.match(/<video\b[^>]*>/)?.[0] ?? "";
-assert.ok(homepageFilm, "homepage should include the visual-composition film");
+const homepageFilmMediaOpenTag = homepageFilmMedia?.match(/<video\b[^>]*>/)?.[0] ?? "";
+assert.ok(homepageFilmMedia, "homepage should retain a native video fallback and soundtrack clock");
+assert.match(homepageFilmMediaOpenTag, /\bhomepage-film-fallback\b/);
+assert.match(homepageFilmMediaOpenTag, /data-homepage-film-media(?:\s|=|>)/);
+assert.match(homepageFilmMediaOpenTag, /data-homepage-film-fallback(?:\s|=|>)/);
+assert.match(homepageFilmFrameOpenTag, /data-film-renderer="video"/);
+assert.match(homepageFilmFrameOpenTag, /data-film-live-status="loading"/);
+assert.match(homepageFilmFrameOpenTag, /data-film-autoplay-status="pending"/);
+assert.match(
+  homepageFilmFrameOpenTag,
+  /data-film-live-src="\/assets\/releases\/visual-composition-runtime-demo\.html"/,
+);
 assert.equal(
   (homepageMain.match(/<video\b/g) ?? []).length,
   1,
-  "homepage should contain exactly one video",
+  "homepage should contain exactly one fallback and soundtrack media engine",
 );
+assert.equal(
+  (homepageMain.match(/<canvas\b/g) ?? []).length,
+  0,
+  "the live HTML renderer should replace the canvas presentation surface",
+);
+assert.equal((homepageMain.match(/<iframe\b/g) ?? []).length, 1);
 const homepageFilmFrameIndex = homepageMain.search(
   /class="[^"]*\bhomepage-film-frame\b[^"]*"/,
 );
@@ -702,16 +752,20 @@ assert.ok(
     homepageFilmFrameIndex < homepageHeroIndex,
   "homepage film should appear before the existing hero",
 );
-assert.match(homepageFilmOpenTag, /(?:\s|^)controls(?:\s|>)/);
-assert.match(homepageFilmOpenTag, /(?:\s|^)playsinline(?:\s|>)/);
-assert.match(homepageFilmOpenTag, /preload="metadata"/);
 assert.match(
-  homepageFilmOpenTag,
+  homepageFilmMediaOpenTag,
+  /(?:\s|^)controls(?:\s|>)/,
+  "native controls must remain available before live-demo enhancement",
+);
+assert.match(homepageFilmMediaOpenTag, /(?:\s|^)playsinline(?:\s|>)/);
+assert.match(homepageFilmMediaOpenTag, /preload="auto"/);
+assert.match(
+  homepageFilmMediaOpenTag,
   /aria-label="JudgmentKit UI generation, diagnosis, and measured repair"/,
-  "the film description should cover the generated draft as well as its review and repair",
+  "the native fallback should retain the same film description",
 );
 assert.match(
-  homepageFilmOpenTag,
+  homepageFilmMediaOpenTag,
   /poster="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster\.png"/,
 );
 assert.match(
@@ -724,8 +778,14 @@ assert.match(
   /data-film-poster-dark="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster-dark\.png"/,
   "the dark-theme poster should be declared independently from the light fallback",
 );
-assert.doesNotMatch(homepageFilmOpenTag, /(?:\s|^)autoplay(?:\s|>)/);
-const homepageFilmSource = homepageFilm.match(/<source\b[^>]*>/)?.[0] ?? "";
+assert.match(homepageFilmMediaOpenTag, /(?:\s|^)autoplay(?:\s|>)/);
+assert.match(homepageFilmMediaOpenTag, /(?:\s|^)loop(?:\s|>)/);
+assert.doesNotMatch(
+  homepageFilmMediaOpenTag,
+  /(?:\s|^)muted(?:\s|>)/,
+  "sound should be the preferred default; audible autoplay may fail but must not begin muted",
+);
+const homepageFilmSource = homepageFilmMedia.match(/<source\b[^>]*>/)?.[0] ?? "";
 assert.match(
   homepageFilmSource,
   /src="\/assets\/releases\/judgmentkit-select-field-agent-demo\.mp4"/,
@@ -742,7 +802,7 @@ assert.match(
   "the dark-theme recording should be declared independently from the light fallback",
 );
 assert.doesNotMatch(
-  homepageFilm,
+  homepageFilmMedia,
   /<track\b/i,
   "homepage film should not expose a caption track that browsers can reactivate",
 );
@@ -791,13 +851,16 @@ const homepageFilmMuteButtonMarkup =
   homepageFilmButtonMarkup.find((button) => /data-film-action="mute"/.test(button)) ?? "";
 assert.match(homepageFilmPlayControl, /^<button\b/i);
 assert.match(homepageFilmPlayControl, /type="button"/);
-assert.match(homepageFilmPlayControl, /aria-label="Play video"/);
+assert.match(homepageFilmPlayControl, /aria-label="Play demo"/);
+assert.match(homepageFilmPlayControl, /aria-controls="homepage-film-stage"/);
 assert.match(homepageFilmScrubber, /^<input\b/i);
 assert.match(homepageFilmScrubber, /type="range"/);
 assert.match(homepageFilmScrubber, /aria-label="Video progress"/);
+assert.match(homepageFilmScrubber, /aria-controls="homepage-film-stage"/);
 assert.match(homepageFilmMuteControl, /^<button\b/i);
 assert.match(homepageFilmMuteControl, /type="button"/);
-assert.match(homepageFilmMuteControl, /aria-label="Mute video"/);
+assert.match(homepageFilmMuteControl, /aria-label="Mute music"/);
+assert.match(homepageFilmMuteControl, /aria-controls="homepage-film-stage"/);
 assert.deepEqual(
   [...homepageFilmPlayButtonMarkup.matchAll(/data-icon-id="([^"]+)"/g)].map(
     (match) => match[1],
@@ -839,23 +902,41 @@ assert.doesNotMatch(
   "custom controls should not add fullscreen, caption, or playback-speed actions",
 );
 assert.doesNotMatch(homepageFilmFrame, /<(?:h[1-6]|p|figcaption)\b/i);
-assert.doesNotMatch(homepageMain, /<iframe\b/i);
 const homepageFilmScripts = [...homepage.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
   .map((match) => match[1])
   .filter((script) => script.includes("homepage-film"))
   .join("\n");
 
-function runHomepageFilmBehavior(script, { darkSource = "", darkPoster = "" } = {}) {
+function runHomepageLiveFilmBehavior(
+  script,
+  {
+    darkSource = "",
+    darkPoster = "",
+    blockFirstAudiblePlay = false,
+    deferFirstPlay = false,
+  } = {},
+) {
   class FakeNode {
     constructor({ attributes = {}, dataset = {} } = {}) {
       this.attributes = new Map(Object.entries(attributes));
       this.dataset = { ...dataset };
       this.listeners = new Map();
       this.hidden = false;
-      this.textContent = "";
       this.styleValues = new Map();
+      const classes = new Set(String(attributes.class ?? "").split(/\s+/).filter(Boolean));
+      this.classList = {
+        add: (...tokens) => {
+          for (const token of tokens) classes.add(token);
+          this.attributes.set("class", [...classes].join(" "));
+        },
+        contains: (token) => classes.has(token),
+        remove: (...tokens) => {
+          for (const token of tokens) classes.delete(token);
+          this.attributes.set("class", [...classes].join(" "));
+        },
+      };
       this.style = {
-        setProperty: (name, value) => this.styleValues.set(name, value),
+        setProperty: (name, value) => this.styleValues.set(name, String(value)),
       };
     }
 
@@ -888,39 +969,75 @@ function runHomepageFilmBehavior(script, { darkSource = "", darkPoster = "" } = 
 
     setAttribute(name, value) {
       this.attributes.set(name, String(value));
+      if (name === "hidden") this.hidden = true;
+      if (name === "controls") this.controls = true;
     }
 
     removeAttribute(name) {
       this.attributes.delete(name);
-    }
-
-    toggleAttribute(name, force) {
-      const shouldHaveAttribute = force === undefined ? !this.hasAttribute(name) : Boolean(force);
-      if (shouldHaveAttribute) {
-        this.setAttribute(name, "");
-      } else {
-        this.removeAttribute(name);
-      }
-      return shouldHaveAttribute;
+      if (name === "hidden") this.hidden = false;
+      if (name === "controls") this.controls = false;
     }
   }
 
   const player = new FakeNode({
+    attributes: {
+      "data-film-live-status": "loading",
+      "data-film-renderer": "video",
+      "data-film-autoplay-status": "pending",
+    },
     dataset: {
+      filmLiveSrc: "/assets/releases/visual-composition-runtime-demo.html",
       filmSourceLight: "/light.mp4",
       filmPosterLight: "/light.png",
       ...(darkSource ? { filmSourceDark: darkSource } : {}),
       ...(darkPoster ? { filmPosterDark: darkPoster } : {}),
     },
   });
-  const video = new FakeNode({ attributes: { poster: "/light.png" } });
+  const stage = new FakeNode({
+    attributes: {
+      class: "homepage-film-stage",
+      hidden: "",
+      id: "homepage-film-stage",
+    },
+  });
+  stage.hidden = true;
+  stage.clientWidth = 1440;
+  stage.getBoundingClientRect = () => ({
+    width: stage.clientWidth,
+    height: stage.clientWidth * 0.625,
+  });
+  const liveMessages = [];
+  const liveWindow = {
+    postMessage(message, targetOrigin) {
+      liveMessages.push({ message, targetOrigin });
+    },
+  };
+  const liveScale = new FakeNode({
+    attributes: { class: "homepage-film-live-scale" },
+  });
+  const live = new FakeNode({
+    attributes: {
+      class: "homepage-film-live",
+      src: "about:blank",
+    },
+  });
+  live.src = "about:blank";
+  live.contentWindow = liveWindow;
+  const video = new FakeNode({
+    attributes: {
+      class: "homepage-film-source-media",
+      controls: "",
+      poster: "/light.png",
+    },
+  });
   const source = new FakeNode({ attributes: { src: "/light.mp4" } });
   const controls = new FakeNode();
-  const playButton = new FakeNode({ attributes: { "aria-label": "Play video" } });
+  const playButton = new FakeNode({ attributes: { "aria-label": "Play demo" } });
   const playIcon = new FakeNode();
   const pauseIcon = new FakeNode({ attributes: { hidden: "" } });
   const scrubber = new FakeNode({ attributes: { "aria-valuetext": "0 percent played" } });
-  const muteButton = new FakeNode({ attributes: { "aria-label": "Mute video" } });
+  const muteButton = new FakeNode({ attributes: { "aria-label": "Mute music" } });
   const soundIcon = new FakeNode();
   const mutedIcon = new FakeNode({ attributes: { hidden: "" } });
 
@@ -930,7 +1047,7 @@ function runHomepageFilmBehavior(script, { darkSource = "", darkPoster = "" } = 
   video.controls = true;
   video.paused = true;
   video.ended = false;
-  video.duration = 40;
+  video.duration = 38;
   video.currentTime = 0;
   video.readyState = 1;
   video.poster = "/light.png";
@@ -939,6 +1056,7 @@ function runHomepageFilmBehavior(script, { darkSource = "", darkPoster = "" } = 
   video.loadCalls = 0;
   let videoMuted = false;
   let videoVolume = 1;
+  let resolveDeferredFirstPlay;
   Object.defineProperties(video, {
     muted: {
       get: () => videoMuted,
@@ -957,6 +1075,16 @@ function runHomepageFilmBehavior(script, { darkSource = "", darkPoster = "" } = 
   });
   video.play = () => {
     video.playCalls += 1;
+    if (deferFirstPlay && video.playCalls === 1) {
+      return new Promise((resolve) => {
+        resolveDeferredFirstPlay = resolve;
+      });
+    }
+    if (blockFirstAudiblePlay && video.playCalls === 1) {
+      const error = new Error("Audible autoplay is not allowed");
+      error.name = "NotAllowedError";
+      return Promise.reject(error);
+    }
     video.paused = false;
     video.ended = false;
     video.dispatch("play");
@@ -972,7 +1100,11 @@ function runHomepageFilmBehavior(script, { darkSource = "", darkPoster = "" } = 
   };
 
   const selectorMap = new Map([
-    ["video", video],
+    ["[data-homepage-film-media]", video],
+    ["[data-homepage-film-fallback]", video],
+    ["[data-homepage-film-live]", live],
+    ["[data-homepage-film-live-scale]", liveScale],
+    ["[data-homepage-film-stage]", stage],
     ["[data-homepage-film-source]", source],
     ["[data-homepage-film-controls]", controls],
     ["[data-homepage-film-play]", playButton],
@@ -988,13 +1120,62 @@ function runHomepageFilmBehavior(script, { darkSource = "", darkPoster = "" } = 
   const themeQuery = new FakeNode();
   themeQuery.matches = true;
   let matchMediaCalls = 0;
-  const fakeWindow = {
-    matchMedia(query) {
-      assert.equal(query, "(prefers-color-scheme: dark)");
+  const timeoutCallbacks = new Map();
+  let nextTimeoutId = 1;
+  const fakeWindow = new FakeNode();
+  fakeWindow.crypto = { randomUUID: () => "homepage-test-instance" };
+  fakeWindow.location = { origin: "https://judgmentkit.test" };
+  fakeWindow.matchMedia = (query) => {
+    if (query === "(prefers-color-scheme: dark)") {
       matchMediaCalls += 1;
       return themeQuery;
-    },
+    }
+    if (query === "(prefers-reduced-motion: reduce)") {
+      return { matches: false };
+    }
+    throw new Error(`Unexpected media query: ${query}`);
   };
+  fakeWindow.setTimeout = (callback) => {
+    const id = nextTimeoutId++;
+    timeoutCallbacks.set(id, callback);
+    return id;
+  };
+  fakeWindow.clearTimeout = (id) => {
+    timeoutCallbacks.delete(id);
+  };
+  let resizeObserver;
+  class FakeResizeObserver {
+    constructor(callback) {
+      this.callback = callback;
+      this.observed = [];
+      this.disconnected = false;
+      resizeObserver = this;
+    }
+
+    observe(node) {
+      this.observed.push(node);
+    }
+
+    disconnect() {
+      this.disconnected = true;
+    }
+  }
+  fakeWindow.ResizeObserver = FakeResizeObserver;
+  let intersectionObserver;
+  class FakeIntersectionObserver {
+    constructor(callback) {
+      this.callback = callback;
+      this.observed = [];
+      intersectionObserver = this;
+    }
+
+    observe(node) {
+      this.observed.push(node);
+    }
+
+    disconnect() {}
+  }
+  fakeWindow.IntersectionObserver = FakeIntersectionObserver;
   const fakeDocument = {
     baseURI: "https://judgmentkit.test/",
     querySelector(selector) {
@@ -1002,10 +1183,28 @@ function runHomepageFilmBehavior(script, { darkSource = "", darkPoster = "" } = 
     },
   };
 
-  Function("document", "window", "URL", script)(fakeDocument, fakeWindow, URL);
+  Function(
+    "document",
+    "window",
+    "URL",
+    "ResizeObserver",
+    "setTimeout",
+    "clearTimeout",
+    script,
+  )(
+    fakeDocument,
+    fakeWindow,
+    URL,
+    FakeResizeObserver,
+    fakeWindow.setTimeout,
+    fakeWindow.clearTimeout,
+  );
 
   return {
     controls,
+    live,
+    liveScale,
+    liveMessages,
     matchMediaCalls: () => matchMediaCalls,
     muteButton,
     mutedIcon,
@@ -1013,11 +1212,61 @@ function runHomepageFilmBehavior(script, { darkSource = "", darkPoster = "" } = 
     playButton,
     playIcon,
     player,
+    get resizeObserver() {
+      return resizeObserver;
+    },
     scrubber,
     source,
     soundIcon,
+    stage,
     themeQuery,
+    timeoutCallbacks,
     video,
+    async settlePlayback() {
+      await Promise.resolve();
+      await Promise.resolve();
+    },
+    setInView(isIntersecting) {
+      intersectionObserver?.callback([{ target: player, isIntersecting }]);
+    },
+    dispatchMessage(data, { origin = "null", sourceWindow = liveWindow } = {}) {
+      fakeWindow.dispatch("message", { data, origin, source: sourceWindow });
+    },
+    dispatchReady(
+      overrides = {},
+      { origin = "null", sourceWindow = liveWindow } = {},
+    ) {
+      fakeWindow.dispatch("message", {
+        data: {
+          channel: "judgmentkit-visual-composition-v1",
+          version: 1,
+          instance: "homepage-test-instance",
+          type: "READY",
+          payload: {
+            durationMs: 38_000,
+            frame: { width: 1440, height: 900 },
+          },
+          ...overrides,
+        },
+        origin,
+        source: sourceWindow,
+      });
+    },
+    resize(width) {
+      stage.clientWidth = width;
+      resizeObserver?.callback([{ target: stage, contentRect: { width, height: width * 0.625 } }]);
+    },
+    resolveFirstPlay() {
+      resolveDeferredFirstPlay?.();
+      resolveDeferredFirstPlay = undefined;
+    },
+    runReadinessTimeout() {
+      const [id, callback] = timeoutCallbacks.entries().next().value ?? [];
+      if (!callback) return false;
+      timeoutCallbacks.delete(id);
+      callback();
+      return true;
+    },
   };
 }
 
@@ -1026,7 +1275,17 @@ assert.doesNotMatch(
   /addEventListener\(\s*["'](?:wheel|touchmove|scroll)["']/,
   "homepage film should use natural document scrolling instead of intercepting scroll input",
 );
-for (const eventName of ["click", "input", "play", "pause", "timeupdate", "durationchange"]) {
+for (const eventName of [
+  "click",
+  "input",
+  "play",
+  "pause",
+  "ended",
+  "timeupdate",
+  "durationchange",
+  "error",
+  "message",
+]) {
   assert.match(
     homepageFilmScripts,
     new RegExp(`addEventListener\\(\\s*["']${eventName}["']`),
@@ -1036,25 +1295,41 @@ for (const eventName of ["click", "input", "play", "pause", "timeupdate", "durat
 assert.match(homepageFilmScripts, /\.play\(\)/);
 assert.match(homepageFilmScripts, /\.pause\(\)/);
 assert.match(homepageFilmScripts, /\.muted\s*=/);
+assert.doesNotMatch(
+  homepageFilmScripts,
+  /\.defaultMuted\s*=/,
+  "the muted retry must remain a runtime exception, not become the media default",
+);
 assert.match(homepageFilmScripts, /\.currentTime\s*=/);
 assert.match(homepageFilmScripts, /\.duration\b/);
 assert.match(homepageFilmScripts, /aria-label/);
+assert.doesNotMatch(homepageFilmScripts, /getContext\(\s*["']2d["']/);
+assert.doesNotMatch(homepageFilmScripts, /drawImage\(/);
+assert.match(homepageFilmScripts, /judgmentkit-visual-composition-v1/);
+assert.match(homepageFilmScripts, /postMessage\(/);
+assert.match(
+  homepageFilmScripts,
+  /(?:\binstance\s*,|instance:\s*instanceId)/,
+  "parent commands should use the embedded demo's canonical instance envelope field",
+);
+assert.match(
+  homepageFilmScripts,
+  /message\.instance\s*!==\s*instance(?:Id)?/,
+  "the ready handshake should validate the same canonical instance field it sends",
+);
+assert.match(homepageFilmScripts, /ResizeObserver/);
+assert.match(homepageFilmScripts, /setTimeout\(/);
 assert.match(homepageFilmScripts, /filmPosterDark/);
 assert.match(homepageFilmScripts, /filmSourceDark/);
 assert.match(
   homepageFilmScripts,
   /matchMedia\(\s*["']\(prefers-color-scheme:\s*dark\)["']\s*\)/,
-  "film behavior should be ready to select optional dark-theme assets",
+  "live film behavior should derive an initial appearance from the visitor preference",
 );
 assert.match(
   homepageFilmScripts,
   /addEventListener\(\s*["']change["']\s*,/,
   "film behavior should react if a supplied dark-theme preference later changes",
-);
-assert.match(
-  homepageFilmScripts,
-  /if\s*\(\s*hasThemeVariant\s*&&\s*typeof window\.matchMedia === ["']function["']\s*\)\s*\{[\s\S]*?matchMedia\(/,
-  "film behavior should subscribe to theme changes only when a distinct dark asset exists",
 );
 assert.equal(
   homepageFilmFrameOpenTag.includes(
@@ -1069,20 +1344,6 @@ assert.equal(
   ),
   false,
   "dark and light poster URLs must remain distinct",
-);
-const homepageFilmLastBindingIndex = homepageFilmScripts.lastIndexOf("addEventListener");
-const homepageFilmNativeControlsRemovalIndex = homepageFilmScripts.search(
-  /(?:removeAttribute\(\s*["']controls["']\s*\)|\.controls\s*=\s*false)/,
-);
-const homepageFilmControlsRevealIndex = homepageFilmScripts.search(/\.hidden\s*=\s*false/);
-assert.ok(homepageFilmLastBindingIndex >= 0, "film behavior should bind its controls");
-assert.ok(
-  homepageFilmNativeControlsRemovalIndex > homepageFilmLastBindingIndex,
-  "native controls should be removed only after custom behavior is bound",
-);
-assert.ok(
-  homepageFilmControlsRevealIndex > homepageFilmLastBindingIndex,
-  "custom controls should be revealed only after their behavior is bound",
 );
 assert.match(
   siteCss,
@@ -1118,42 +1379,94 @@ assert.match(homepageFilmControlsCss, /left:\s*auto;/);
 assert.match(homepageFilmControlsCss, /transform:\s*none;/);
 assert.match(
   homepageFilmControlsCss,
-  /width:\s*min\(292px,/,
-  "the bottom-right video controls should use a compact cluster width",
+  /width:\s*min\(236px,/,
+  "the bottom-right video controls should reduce their visual footprint by about 20 percent",
 );
-assert.match(homepageFilmControlsCss, /gap:\s*6px;/);
+assert.match(homepageFilmControlsCss, /grid-template-columns:\s*44px minmax\(0, 1fr\) 44px;/);
+assert.match(homepageFilmControlsCss, /gap:\s*4px;/);
 assert.ok(
   !cssDeclarationValue(homepageFilmControlsCss, "opacity") ||
     cssDeclarationValue(homepageFilmControlsCss, "opacity") === "1",
   "the semantic video-control group must not lower every control's contrast with shared opacity",
 );
-for (const selector of [".homepage-film-control-button", ".homepage-film-scrubber"]) {
-  const background = cssDeclarationValue(cssRuleBody(siteCss, selector), "background");
-  assert.ok(
-    background && !/^(?:none|transparent)$/i.test(background),
-    `${selector} should carry its own bounded visual surface`,
-  );
-  assert.match(
-    background,
-    /var\(--hero-art-bg\)\s+(?:7[5-9]|[89][0-9]|100)%/,
-    `${selector} should retain a sufficiently strong local surface over light film frames`,
-  );
-}
 const homepageFilmControlButtonCss = cssRuleBody(siteCss, ".homepage-film-control-button");
+assert.match(homepageFilmControlButtonCss, /position:\s*relative;/);
+assert.match(homepageFilmControlButtonCss, /width:\s*44px;/);
 assert.match(homepageFilmControlButtonCss, /min-width:\s*44px;/);
+assert.match(homepageFilmControlButtonCss, /height:\s*44px;/);
 assert.match(homepageFilmControlButtonCss, /min-height:\s*44px;/);
+assert.match(homepageFilmControlButtonCss, /padding:\s*0;/);
+assert.match(homepageFilmControlButtonCss, /border:\s*0;/);
+assert.match(homepageFilmControlButtonCss, /background:\s*transparent;/);
+assert.match(homepageFilmControlButtonCss, /box-shadow:\s*none;/);
+const homepageFilmControlButtonSurfaceCss = cssRuleBody(
+  siteCss,
+  ".homepage-film-control-button::before",
+);
+assert.match(homepageFilmControlButtonSurfaceCss, /width:\s*36px;/);
+assert.match(homepageFilmControlButtonSurfaceCss, /height:\s*36px;/);
+assert.match(
+  homepageFilmControlButtonSurfaceCss,
+  /background:\s*color-mix\(in srgb, var\(--hero-art-bg\) 78%, transparent\);/,
+);
+assert.ok(
+  !/border:\s*(?:0|none|transparent)\s*;/i.test(homepageFilmControlButtonSurfaceCss),
+  "the reduced button circle should retain a visible boundary",
+);
+const homepageFilmControlIconCss = cssRuleBody(
+  siteCss,
+  ".homepage-film-control-button svg",
+);
+assert.match(homepageFilmControlIconCss, /width:\s*16px;/);
+assert.match(homepageFilmControlIconCss, /height:\s*16px;/);
 const homepageFilmScrubberCss = cssRuleBody(siteCss, ".homepage-film-scrubber");
 assert.match(homepageFilmScrubberCss, /height:\s*44px;/);
-assert.match(homepageFilmScrubberCss, /padding:\s*0 12px;/);
+assert.match(homepageFilmScrubberCss, /padding:\s*4px 8px;/);
+assert.match(homepageFilmScrubberCss, /border:\s*0;/);
+assert.match(homepageFilmScrubberCss, /background-clip:\s*content-box;/);
+assert.match(
+  cssDeclarationValue(homepageFilmScrubberCss, "background") ?? "",
+  /var\(--hero-art-bg\)\s+(?:7[5-9]|[89][0-9]|100)%/,
+  "the inset scrubber surface should retain sufficient contrast over light frames",
+);
+assert.match(homepageFilmScrubberCss, /box-shadow:\s*none;/);
+const homepageFilmWebkitThumbCss = cssRuleBody(
+  siteCss,
+  ".homepage-film-scrubber::-webkit-slider-thumb",
+);
+assert.match(homepageFilmWebkitThumbCss, /width:\s*(?:14|15)px;/);
+assert.match(homepageFilmWebkitThumbCss, /height:\s*(?:14|15)px;/);
+const homepageFilmMozThumbCss = cssRuleBody(
+  siteCss,
+  ".homepage-film-scrubber::-moz-range-thumb",
+);
+assert.match(homepageFilmMozThumbCss, /width:\s*(?:14|15)px;/);
+assert.match(homepageFilmMozThumbCss, /height:\s*(?:14|15)px;/);
 assert.match(
   siteCss,
   /\.homepage-film-control-button:focus-visible,\s*\n\.homepage-film-scrubber:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--fixed-light-ink\);[^}]*box-shadow:\s*0 0 0 5px var\(--hero-art-bg\);/s,
   "both floating control types should retain a dual-contrast keyboard-focus treatment",
 );
+assert.match(
+  siteCss,
+  /@media \(max-width: 560px\)\s*\{[\s\S]*?\.homepage-film-controls\s*\{[\s\S]*?width:\s*min\(236px,\s*calc\(100% - 24px\)\);[\s\S]*?gap:\s*4px;/,
+  "the compact control cluster should remain bounded within narrow mobile film widths",
+);
 const homepageFilmSectionCss = cssRuleBody(siteCss, ".homepage-film-section");
 const homepageFilmShellCss = cssRuleBody(siteCss, ".homepage-film-shell");
 const homepageFilmFrameCss = cssRuleBody(siteCss, ".homepage-film-frame");
-const homepageFilmElementCss = cssRuleBody(siteCss, ".homepage-film");
+const homepageFilmStageCss = cssRuleBody(siteCss, ".homepage-film-stage");
+const homepageFilmSurfaceCss = cssRuleBody(
+  siteCss,
+  ".homepage-film-stage,\n.homepage-film-source-media",
+);
+const homepageFilmLiveScaleCss = cssRuleBody(siteCss, ".homepage-film-live-scale");
+const homepageFilmLiveCss = cssRuleBody(siteCss, ".homepage-film-live");
+const homepageFilmFallbackCss = cssRuleBody(siteCss, ".homepage-film-source-media");
+const homepageFilmClockCss = cssRuleBody(
+  siteCss,
+  ".homepage-film-source-media--soundtrack",
+);
 for (const property of ["padding", "border", "background", "box-shadow"]) {
   const value = cssDeclarationValue(homepageFilmFrameCss, property);
   assert.ok(
@@ -1175,52 +1488,343 @@ const homepageFilmMaxWidth = Number.parseFloat(
   cssDeclarationValue(homepageFilmShellCss, "max-width") ?? "0",
 );
 assert.ok(
-  homepageFilmMaxWidth >= 1100,
-  "the homepage recording should occupy a materially wider, near-full-bleed surface",
+  homepageFilmMaxWidth === 1440,
+  "the homepage live stage should grow to but not upscale beyond its 1440px source width",
 );
-assert.match(homepageFilmElementCss, /width:\s*100%;/);
+assert.match(homepageFilmStageCss, /position:\s*relative;/);
+assert.match(homepageFilmSurfaceCss, /width:\s*100%;/);
+assert.match(homepageFilmSurfaceCss, /aspect-ratio:\s*16\s*\/\s*10;/);
+assert.match(homepageFilmStageCss, /overflow:\s*hidden;/);
+assert.match(homepageFilmLiveScaleCss, /position:\s*absolute;/);
+assert.match(homepageFilmLiveScaleCss, /width:\s*1440px;/);
+assert.match(homepageFilmLiveScaleCss, /height:\s*900px;/);
 assert.match(
-  homepageFilmElementCss,
-  /border-radius:\s*0;/,
-  "the full-bleed recording should not reintroduce rounded container corners on the video element",
+  homepageFilmLiveScaleCss,
+  /transform:\s*scale\(var\(--homepage-film-scale,\s*1\)\);/,
 );
-const lightFilmBehavior = runHomepageFilmBehavior(homepageFilmScripts);
-assert.equal(lightFilmBehavior.controls.hidden, false);
-assert.equal(lightFilmBehavior.video.controls, false);
-assert.equal(
-  lightFilmBehavior.matchMediaCalls(),
-  0,
-  "light-only media should not subscribe to color-scheme changes",
+assert.match(homepageFilmLiveScaleCss, /transform-origin:\s*(?:0 0|top left);/);
+assert.match(homepageFilmLiveCss, /width:\s*1440px;/);
+assert.match(homepageFilmLiveCss, /height:\s*900px;/);
+assert.match(homepageFilmLiveCss, /border:\s*0;/);
+assert.match(homepageFilmLiveCss, /pointer-events:\s*none;/);
+assert.match(
+  siteCss,
+  /\.homepage-film-stage\[hidden\]\s*\{[^}]*display:\s*none;/s,
+  "the live presentation should remain absent before its trusted ready handshake",
 );
-assert.equal(lightFilmBehavior.playIcon.hasAttribute("hidden"), false);
-assert.equal(lightFilmBehavior.pauseIcon.hasAttribute("hidden"), true);
-assert.equal(lightFilmBehavior.soundIcon.hasAttribute("hidden"), false);
-assert.equal(lightFilmBehavior.mutedIcon.hasAttribute("hidden"), true);
-lightFilmBehavior.playButton.dispatch("click");
-assert.equal(lightFilmBehavior.video.playCalls, 1);
-assert.equal(lightFilmBehavior.playButton.getAttribute("aria-label"), "Pause video");
-assert.equal(lightFilmBehavior.playIcon.hasAttribute("hidden"), true);
-assert.equal(lightFilmBehavior.pauseIcon.hasAttribute("hidden"), false);
-lightFilmBehavior.playButton.dispatch("click");
-assert.equal(lightFilmBehavior.video.pauseCalls, 1);
-assert.equal(lightFilmBehavior.playButton.getAttribute("aria-label"), "Play video");
-assert.equal(lightFilmBehavior.playIcon.hasAttribute("hidden"), false);
-assert.equal(lightFilmBehavior.pauseIcon.hasAttribute("hidden"), true);
-lightFilmBehavior.scrubber.value = "50";
-lightFilmBehavior.scrubber.dispatch("input");
-assert.equal(lightFilmBehavior.video.currentTime, 20);
-lightFilmBehavior.muteButton.dispatch("click");
-assert.equal(lightFilmBehavior.video.muted, true);
-assert.equal(lightFilmBehavior.muteButton.getAttribute("aria-label"), "Unmute video");
-assert.equal(lightFilmBehavior.soundIcon.hasAttribute("hidden"), true);
-assert.equal(lightFilmBehavior.mutedIcon.hasAttribute("hidden"), false);
-lightFilmBehavior.muteButton.dispatch("click");
-assert.equal(lightFilmBehavior.video.muted, false);
-assert.equal(lightFilmBehavior.muteButton.getAttribute("aria-label"), "Mute video");
-assert.equal(lightFilmBehavior.soundIcon.hasAttribute("hidden"), false);
-assert.equal(lightFilmBehavior.mutedIcon.hasAttribute("hidden"), true);
+assert.match(homepageFilmFallbackCss, /display:\s*block;/);
+assert.match(homepageFilmFallbackCss, /width:\s*100%;/);
+assert.match(homepageFilmFallbackCss, /height:\s*auto;/);
+assert.match(homepageFilmFallbackCss, /border-radius:\s*0;/);
+assert.match(homepageFilmClockCss, /position:\s*absolute;/);
+assert.match(homepageFilmClockCss, /width:\s*1px;/);
+assert.match(homepageFilmClockCss, /height:\s*1px;/);
+assert.match(homepageFilmClockCss, /opacity:\s*0;/);
+assert.match(homepageFilmClockCss, /pointer-events:\s*none;/);
 
-const darkFilmBehavior = runHomepageFilmBehavior(homepageFilmScripts, {
+const progressiveFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts);
+assert.equal(progressiveFilmBehavior.stage.hidden, true);
+assert.equal(progressiveFilmBehavior.controls.hidden, true);
+assert.equal(progressiveFilmBehavior.video.controls, true);
+assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-renderer"), "video");
+assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-autoplay-status"), "pending");
+assert.equal(progressiveFilmBehavior.video.muted, false);
+assert.equal(progressiveFilmBehavior.resizeObserver, undefined);
+assert.ok(progressiveFilmBehavior.timeoutCallbacks.size >= 1);
+assert.match(
+  progressiveFilmBehavior.live.src,
+  /^https:\/\/judgmentkit\.test\/assets\/releases\/visual-composition-runtime-demo\.html\?/,
+);
+assert.equal(new URL(progressiveFilmBehavior.live.src).searchParams.get("embed"), "homepage");
+assert.equal(
+  new URL(progressiveFilmBehavior.live.src).searchParams.get("instance"),
+  "homepage-test-instance",
+);
+
+progressiveFilmBehavior.setInView(true);
+await progressiveFilmBehavior.settlePlayback();
+assert.equal(progressiveFilmBehavior.video.playCalls, 1);
+assert.equal(progressiveFilmBehavior.video.paused, false);
+assert.equal(progressiveFilmBehavior.video.muted, false);
+assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-autoplay-status"), "playing");
+
+progressiveFilmBehavior.dispatchReady({}, { origin: "https://evil.example" });
+assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-renderer"), "video");
+progressiveFilmBehavior.dispatchMessage(
+  {
+    channel: "judgmentkit-visual-composition-v1",
+    version: 1,
+    instance: "homepage-test-instance",
+    type: "READY",
+    payload: { durationMs: 38_000, frame: { width: 1440, height: 900 } },
+  },
+  { sourceWindow: {} },
+);
+assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-renderer"), "video");
+progressiveFilmBehavior.dispatchMessage(
+  {
+    channel: "wrong-protocol",
+    version: 1,
+    instance: "homepage-test-instance",
+    type: "READY",
+    payload: { durationMs: 38_000, frame: { width: 1440, height: 900 } },
+  },
+);
+assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-renderer"), "video");
+progressiveFilmBehavior.dispatchReady();
+assert.equal(progressiveFilmBehavior.stage.hidden, false);
+assert.equal(progressiveFilmBehavior.controls.hidden, false);
+assert.equal(progressiveFilmBehavior.video.controls, false);
+assert.equal(progressiveFilmBehavior.video.getAttribute("aria-hidden"), "true");
+assert.equal(
+  progressiveFilmBehavior.video.classList.contains(
+    "homepage-film-source-media--soundtrack",
+  ),
+  true,
+);
+assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-renderer"), "live");
+assert.equal(progressiveFilmBehavior.player.getAttribute("data-film-live-status"), "ready");
+assert.equal(progressiveFilmBehavior.player.getAttribute("data-homepage-film-ready"), "true");
+assert.equal(progressiveFilmBehavior.timeoutCallbacks.size, 0);
+assert.ok(progressiveFilmBehavior.resizeObserver?.observed.includes(progressiveFilmBehavior.stage));
+progressiveFilmBehavior.resize(720);
+assert.equal(
+  progressiveFilmBehavior.liveScale.styleValues.get("--homepage-film-scale"),
+  "0.5",
+);
+const liveCommands = () =>
+  progressiveFilmBehavior.liveMessages
+    .map(({ message }) => message)
+    .filter(
+      (message) =>
+        message?.channel === "judgmentkit-visual-composition-v1" &&
+        message?.version === 1 &&
+        message?.instance === "homepage-test-instance",
+    );
+assert.ok(
+  liveCommands().some(
+    (message) => message.type === "INIT" && message.payload?.theme === "light",
+  ),
+);
+assert.ok(
+  progressiveFilmBehavior.liveMessages.every(
+    ({ targetOrigin }) => targetOrigin === "*",
+  ),
+);
+assert.equal(progressiveFilmBehavior.muteButton.getAttribute("aria-label"), "Mute music");
+assert.equal(progressiveFilmBehavior.soundIcon.hasAttribute("hidden"), false);
+assert.equal(progressiveFilmBehavior.mutedIcon.hasAttribute("hidden"), true);
+assert.equal(progressiveFilmBehavior.playButton.getAttribute("aria-label"), "Pause demo");
+
+const commandsBeforePause = liveCommands().length;
+progressiveFilmBehavior.playButton.dispatch("click");
+assert.ok(
+  liveCommands().slice(commandsBeforePause).some(
+    (message) => message.type === "PAUSE" && message.payload?.timeMs === 0,
+  ),
+  "Pause should stop both the soundtrack clock and live timeline",
+);
+assert.equal(progressiveFilmBehavior.playButton.getAttribute("aria-label"), "Play demo");
+const commandsBeforePlay = liveCommands().length;
+progressiveFilmBehavior.playButton.dispatch("click");
+assert.equal(progressiveFilmBehavior.video.playCalls, 2);
+assert.equal(progressiveFilmBehavior.video.muted, false);
+assert.ok(
+  liveCommands().slice(commandsBeforePlay).some(
+    (message) => message.type === "PLAY" && message.payload?.timeMs === 0,
+  ),
+  "a user Play gesture should restart both clocks with sound still on",
+);
+progressiveFilmBehavior.scrubber.value = "50";
+progressiveFilmBehavior.scrubber.dispatch("input");
+assert.equal(progressiveFilmBehavior.video.currentTime, 19);
+progressiveFilmBehavior.video.dispatch("seeked");
+assert.ok(
+  liveCommands().some(
+    (message) =>
+      message.type === "SYNC"
+      && message.payload?.timeMs === 19_000
+      && message.payload?.playing === true,
+  ),
+  "scrubbing during playback should move both clocks without pausing the live timeline",
+);
+progressiveFilmBehavior.muteButton.dispatch("click");
+assert.equal(progressiveFilmBehavior.video.muted, true);
+assert.equal(progressiveFilmBehavior.muteButton.getAttribute("aria-label"), "Unmute music");
+
+const liveSourceBeforeLoop = progressiveFilmBehavior.live.src;
+progressiveFilmBehavior.video.currentTime = progressiveFilmBehavior.video.duration - 0.01;
+progressiveFilmBehavior.video.paused = false;
+progressiveFilmBehavior.video.ended = false;
+progressiveFilmBehavior.video.dispatch("timeupdate");
+const commandsBeforeLoop = liveCommands().length;
+progressiveFilmBehavior.video.currentTime = 0;
+progressiveFilmBehavior.video.dispatch("timeupdate");
+progressiveFilmBehavior.video.dispatch("seeked");
+assert.equal(progressiveFilmBehavior.video.currentTime, 0);
+assert.equal(progressiveFilmBehavior.video.paused, false);
+assert.equal(progressiveFilmBehavior.stage.hidden, false);
+assert.equal(
+  progressiveFilmBehavior.live.src,
+  liveSourceBeforeLoop,
+  "looping should reset the existing live document instead of reloading or flashing it",
+);
+assert.ok(
+  liveCommands().slice(commandsBeforeLoop).some(
+    (message) =>
+      message.type === "SYNC"
+      && message.payload?.timeMs === 0,
+  ),
+  "looping should restart the live timeline at the same zero point as the media clock",
+);
+assert.equal(
+  liveCommands().slice(commandsBeforeLoop).some(
+    (message) => message.type === "SEEK" && message.payload?.timeMs === 0,
+  ),
+  false,
+  "the browser's loop-generated seek must not rebuild the live timeline in a paused state",
+);
+
+const blockedAutoplayFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
+  blockFirstAudiblePlay: true,
+});
+blockedAutoplayFilmBehavior.setInView(true);
+await blockedAutoplayFilmBehavior.settlePlayback();
+assert.equal(
+  blockedAutoplayFilmBehavior.video.playCalls,
+  2,
+  "a blocked audible autoplay should make exactly one muted autoplay retry",
+);
+assert.equal(blockedAutoplayFilmBehavior.video.paused, false);
+assert.equal(blockedAutoplayFilmBehavior.video.muted, true);
+assert.equal(
+  blockedAutoplayFilmBehavior.player.getAttribute("data-film-autoplay-status"),
+  "blocked",
+);
+assert.equal(blockedAutoplayFilmBehavior.playButton.getAttribute("aria-label"), "Pause demo");
+assert.equal(blockedAutoplayFilmBehavior.muteButton.getAttribute("aria-label"), "Unmute music");
+blockedAutoplayFilmBehavior.dispatchReady();
+blockedAutoplayFilmBehavior.muteButton.dispatch("click");
+assert.equal(
+  blockedAutoplayFilmBehavior.video.muted,
+  false,
+  "the explicit Unmute gesture should restore the preferred audible state",
+);
+
+const cancelledAutoplayFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
+  blockFirstAudiblePlay: true,
+});
+cancelledAutoplayFilmBehavior.setInView(true);
+cancelledAutoplayFilmBehavior.setInView(false);
+await cancelledAutoplayFilmBehavior.settlePlayback();
+assert.equal(
+  cancelledAutoplayFilmBehavior.video.playCalls,
+  1,
+  "an autoplay result that settles after the film leaves view must not start a muted retry",
+);
+assert.equal(cancelledAutoplayFilmBehavior.video.paused, true);
+assert.equal(cancelledAutoplayFilmBehavior.video.muted, false);
+assert.equal(cancelledAutoplayFilmBehavior.playButton.getAttribute("aria-label"), "Play demo");
+
+const racedAutoplayFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
+  deferFirstPlay: true,
+});
+racedAutoplayFilmBehavior.setInView(true);
+racedAutoplayFilmBehavior.setInView(false);
+racedAutoplayFilmBehavior.setInView(true);
+assert.equal(racedAutoplayFilmBehavior.video.playCalls, 2);
+assert.equal(racedAutoplayFilmBehavior.video.paused, false);
+racedAutoplayFilmBehavior.resolveFirstPlay();
+await racedAutoplayFilmBehavior.settlePlayback();
+assert.equal(
+  racedAutoplayFilmBehavior.video.paused,
+  false,
+  "a stale successful play promise must not pause the newer in-view playback attempt",
+);
+
+const timeoutFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts);
+assert.equal(timeoutFilmBehavior.runReadinessTimeout(), true);
+assert.equal(timeoutFilmBehavior.stage.hidden, true);
+assert.equal(timeoutFilmBehavior.controls.hidden, true);
+assert.equal(timeoutFilmBehavior.video.controls, true);
+assert.equal(timeoutFilmBehavior.player.getAttribute("data-film-renderer"), "video");
+assert.equal(timeoutFilmBehavior.player.getAttribute("data-film-live-status"), "timeout");
+timeoutFilmBehavior.dispatchReady();
+assert.equal(timeoutFilmBehavior.stage.hidden, true);
+assert.equal(timeoutFilmBehavior.player.getAttribute("data-film-renderer"), "video");
+assert.equal(
+  timeoutFilmBehavior.player.getAttribute("data-film-live-status"),
+  "timeout",
+  "a delayed ready message must not overwrite the terminal timeout state",
+);
+
+const liveErrorFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts);
+liveErrorFilmBehavior.dispatchReady();
+liveErrorFilmBehavior.live.dispatch("error");
+assert.equal(liveErrorFilmBehavior.stage.hidden, true);
+assert.equal(liveErrorFilmBehavior.controls.hidden, true);
+assert.equal(liveErrorFilmBehavior.video.controls, true);
+assert.equal(liveErrorFilmBehavior.video.getAttribute("aria-hidden"), null);
+assert.equal(
+  liveErrorFilmBehavior.video.classList.contains("homepage-film-source-media--soundtrack"),
+  false,
+);
+assert.equal(liveErrorFilmBehavior.player.getAttribute("data-film-renderer"), "video");
+assert.equal(liveErrorFilmBehavior.player.getAttribute("data-film-live-status"), "error");
+
+const earlySoundtrackErrorFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts);
+earlySoundtrackErrorFilmBehavior.video.dispatch("error");
+assert.equal(earlySoundtrackErrorFilmBehavior.player.getAttribute("data-film-renderer"), "video");
+assert.equal(earlySoundtrackErrorFilmBehavior.player.getAttribute("data-film-live-status"), "loading");
+assert.equal(earlySoundtrackErrorFilmBehavior.player.getAttribute("data-film-audio-status"), "unavailable");
+earlySoundtrackErrorFilmBehavior.dispatchReady();
+assert.equal(earlySoundtrackErrorFilmBehavior.stage.hidden, false);
+assert.equal(earlySoundtrackErrorFilmBehavior.controls.hidden, false);
+assert.equal(earlySoundtrackErrorFilmBehavior.player.getAttribute("data-film-renderer"), "live");
+assert.equal(earlySoundtrackErrorFilmBehavior.player.getAttribute("data-film-live-status"), "ready");
+assert.equal(earlySoundtrackErrorFilmBehavior.muteButton.disabled, true);
+assert.ok(
+  earlySoundtrackErrorFilmBehavior.liveMessages.some(
+    ({ message }) => message?.type === "SYNC" && message?.payload?.playing === true,
+  ),
+  "a pre-handshake soundtrack error should still promote and autoplay the healthy live demo",
+);
+
+const soundtrackErrorFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts);
+soundtrackErrorFilmBehavior.dispatchReady();
+soundtrackErrorFilmBehavior.video.dispatch("error");
+assert.equal(soundtrackErrorFilmBehavior.stage.hidden, false);
+assert.equal(soundtrackErrorFilmBehavior.controls.hidden, false);
+assert.equal(soundtrackErrorFilmBehavior.video.controls, false);
+assert.equal(soundtrackErrorFilmBehavior.video.getAttribute("aria-hidden"), "true");
+assert.equal(soundtrackErrorFilmBehavior.player.getAttribute("data-film-renderer"), "live");
+assert.equal(soundtrackErrorFilmBehavior.player.getAttribute("data-film-live-status"), "ready");
+assert.equal(soundtrackErrorFilmBehavior.player.getAttribute("data-film-audio-status"), "unavailable");
+assert.equal(soundtrackErrorFilmBehavior.muteButton.disabled, true);
+assert.equal(soundtrackErrorFilmBehavior.muteButton.getAttribute("aria-label"), "Music unavailable");
+const silentCommandsBeforePlay = soundtrackErrorFilmBehavior.liveMessages.length;
+soundtrackErrorFilmBehavior.playButton.dispatch("click");
+assert.ok(
+  soundtrackErrorFilmBehavior.liveMessages.slice(silentCommandsBeforePlay).some(
+    ({ message }) => message?.type === "SYNC" && message?.payload?.playing === true,
+  ),
+  "a failed soundtrack should leave the live demo controllable on its silent clock",
+);
+soundtrackErrorFilmBehavior.scrubber.value = "100";
+soundtrackErrorFilmBehavior.scrubber.dispatch("input");
+const silentCommandsBeforeRestart = soundtrackErrorFilmBehavior.liveMessages.length;
+soundtrackErrorFilmBehavior.playButton.dispatch("click");
+assert.ok(
+  soundtrackErrorFilmBehavior.liveMessages.slice(silentCommandsBeforeRestart).some(
+    ({ message }) =>
+      message?.type === "SYNC"
+      && message?.payload?.timeMs === 0
+      && message?.payload?.playing === true,
+  ),
+  "the silent clock should restart the live demo after reaching its end",
+);
+
+const darkFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
   darkSource: "/dark.mp4",
   darkPoster: "/dark.png",
 });
@@ -1228,19 +1832,19 @@ assert.equal(darkFilmBehavior.matchMediaCalls(), 1);
 assert.equal(darkFilmBehavior.source.getAttribute("src"), "/dark.mp4");
 assert.equal(darkFilmBehavior.video.poster, "/dark.png");
 assert.equal(darkFilmBehavior.player.getAttribute("data-film-theme"), "dark");
+darkFilmBehavior.dispatchReady();
 darkFilmBehavior.themeQuery.dispatch("change", { matches: false });
-assert.equal(darkFilmBehavior.source.getAttribute("src"), "/light.mp4");
-assert.equal(darkFilmBehavior.video.poster, "/light.png");
-assert.equal(darkFilmBehavior.player.getAttribute("data-film-theme"), "light");
-
-const duplicateThemeFilmBehavior = runHomepageFilmBehavior(homepageFilmScripts, {
-  darkSource: "/light.mp4",
-  darkPoster: "/light.png",
-});
 assert.equal(
-  duplicateThemeFilmBehavior.matchMediaCalls(),
-  0,
-  "duplicate light/dark assets should not activate theme switching",
+  darkFilmBehavior.source.getAttribute("src"),
+  "/dark.mp4",
+  "theme changes should not reload the active soundtrack clock",
+);
+assert.equal(darkFilmBehavior.player.getAttribute("data-film-theme"), "light");
+assert.ok(
+  darkFilmBehavior.liveMessages.some(
+    ({ message }) => message?.type === "SET_THEME" && message?.payload?.theme === "light",
+  ),
+  "theme changes should be sent to the live renderer",
 );
 const homepageFilmCss = cssRuleBlocks(siteCss)
   .filter(({ selector }) => selector.includes("homepage-film"))
@@ -3068,6 +3672,86 @@ const visualCompositionFilmSource = fs.readFileSync(
     import.meta.url,
   ),
   "utf8",
+);
+const visualCompositionLiveAssetPath = path.join(
+  tempDir,
+  "assets",
+  "releases",
+  "visual-composition-runtime-demo.html",
+);
+assert.ok(
+  fs.existsSync(visualCompositionLiveAssetPath),
+  "the authored composition demo should be published as the homepage's internal live asset",
+);
+assert.equal(
+  fs.readFileSync(visualCompositionLiveAssetPath, "utf8"),
+  visualCompositionFilmSource,
+  "the public live asset should stay byte-for-byte aligned with its editable authored source",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /judgmentkit-visual-composition-v1/,
+  "the live demo and homepage should share one versioned message namespace",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /window\.addEventListener\(['"]message['"],/,
+  "the embedded demo should accept typed parent timeline commands",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /postControllerMessage\(['"]READY['"],\s*\{[\s\S]*?\.\.\.controllerState\(\),[\s\S]*?frame:\s*\{\s*width:\s*1440,\s*height:\s*900\s*\}/,
+  "the embedded demo should announce readiness and its live timeline duration",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /html\[data-embed="homepage"\]:not\(\[data-controller-ready="true"\]\) body\s*\{[^}]*visibility:\s*hidden;/s,
+  "the embedded demo should not reveal its unsynchronized initial UI",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /case 'INIT':[\s\S]*?synchronizeController\([\s\S]*?document\.documentElement\.dataset\.controllerReady\s*=\s*'true';/,
+  "the embedded demo should reveal itself only after its initial timeline state is synchronized",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /durationMs:\s*filmDurationMs/,
+  "the live ready state should expose the authored timeline duration",
+);
+const visualCompositionRuntimeExport = visualCompositionFilmSource.slice(
+  visualCompositionFilmSource.indexOf("window.__JUDGMENTKIT_DEMO__"),
+);
+for (const controllerMember of ["play", "pause", "seek", "setTheme", "state"]) {
+  assert.match(
+    visualCompositionRuntimeExport,
+    new RegExp(`\\b${controllerMember}\\b`),
+    `the live demo controller should expose ${controllerMember}`,
+  );
+}
+assert.match(
+  visualCompositionFilmSource,
+  /function createReplayAnimationTracker\(\)[\s\S]*?const elapsedMs\s*=\s*Math\.max\(0,\s*targetMs\s*-\s*cueStartMs\);[\s\S]*?animation\.currentTime\s*=\s*elapsedMs;/,
+  "mid-motion seeks should position each animation at its cue-relative elapsed time",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /completedReplayAnimations\.add\(animation\)/,
+  "animations completed before a seek target must not rewind when playback resumes",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /function resumeDocumentAnimations\(\)[\s\S]*?!completedReplayAnimations\.has\(animation\)/,
+  "playback should resume only replay animations that remain inside their active interval",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /cueClock\.replayTo\(targetMs,\s*replayAnimationTracker\);/,
+  "timeline rebuilds should use the cue-aware animation tracker",
+);
+assert.doesNotMatch(
+  visualCompositionFilmSource,
+  /settleRebuiltAnimations|animation\.finish\(\)/,
+  "seeking must not force every finite animation to its completed pose",
 );
 assert.match(visualCompositionFilmSource, /data-agent="draftling"/);
 assert.match(visualCompositionFilmSource, /data-agent="judgment"/);

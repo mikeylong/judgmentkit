@@ -4,8 +4,23 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
+  <meta name="robots" content="noindex, nofollow">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; base-uri 'none'; form-action 'none'">
   <link rel="icon" href="data:,">
   <title>JudgmentKit — Visual composition runtime demo</title>
+  <script>
+    (() => {
+      const params = new URLSearchParams(window.location.search);
+      const instance = params.get('instance') ?? '';
+      const isHomepageEmbed = params.get('embed') === 'homepage'
+        && /^[A-Za-z0-9._~-]{1,128}$/.test(instance);
+      window.__JUDGMENTKIT_EMBED_CONFIG__ = Object.freeze({
+        enabled: isHomepageEmbed,
+        instance: isHomepageEmbed ? instance : ''
+      });
+      if (isHomepageEmbed) document.documentElement.dataset.embed = 'homepage';
+    })();
+  </script>
   <style>
     :root {
       --ink: #171817;
@@ -30,6 +45,47 @@
     * { box-sizing: border-box; }
 
     html, body { min-height: 100%; }
+
+    html[data-embed="homepage"],
+    html[data-embed="homepage"] body {
+      width: 1440px;
+      min-width: 1440px;
+      height: 900px;
+      min-height: 900px;
+      overflow: hidden;
+    }
+
+    html[data-embed="homepage"] .shell,
+    html[data-embed="homepage"] .hero {
+      width: 1440px;
+      min-width: 1440px;
+      height: 900px;
+      min-height: 900px;
+    }
+
+    html[data-embed="homepage"] body {
+      user-select: none;
+    }
+
+    html[data-embed="homepage"]:not([data-controller-ready="true"]) body {
+      visibility: hidden;
+    }
+
+    html[data-embed="homepage"][data-controller-ready="true"] body {
+      visibility: visible;
+    }
+
+    html[data-embed="homepage"] main {
+      pointer-events: none;
+    }
+
+    html.timeline-rebuilding *,
+    html.timeline-rebuilding *::before,
+    html.timeline-rebuilding *::after {
+      scroll-behavior: auto !important;
+      animation: none !important;
+      transition: none !important;
+    }
 
     body {
       margin: 0;
@@ -649,16 +705,6 @@
       min-height: 68px;
       color: var(--quiet);
       transition: color 220ms ease;
-    }
-
-    .runtime-step:not(:last-child)::before {
-      content: "";
-      position: absolute;
-      left: 14px;
-      top: 34px;
-      bottom: 0;
-      width: 1px;
-      background: var(--line);
     }
 
     .step-icon {
@@ -1922,8 +1968,16 @@
       const liveLensScene = document.getElementById('agent-live-lens-scene');
       const liveLensSource = artifactCard.querySelector('.bad-ui');
       const steps = [...document.querySelectorAll('.runtime-step')];
-      const timers = [];
-      const cinematicTimers = [];
+      const embedConfig = window.__JUDGMENTKIT_EMBED_CONFIG__ ?? Object.freeze({
+        enabled: false,
+        instance: ''
+      });
+      const controllerChannel = 'judgmentkit-visual-composition-v1';
+      const controllerVersion = 1;
+      const filmDurationMs = 38200;
+      let notifyClockState = () => {};
+      let notifyClockEnded = () => {};
+      let notifyControllerError = () => {};
       const diagnosisCopy = [
         ['Render candidate', 'Isolated hosted Chromium session'],
         ['Measure desktop', 'Composition relationships at 1365 × 900'],
@@ -2000,20 +2054,319 @@
       });
       liveLensScene.appendChild(liveLensClone);
 
+      const completedReplayAnimations = new WeakSet();
+
+      function documentAnimations() {
+        return typeof document.getAnimations === 'function'
+          ? document.getAnimations()
+          : [];
+      }
+
+      function pauseDocumentAnimations() {
+        documentAnimations().forEach((animation) => {
+          try {
+            if (animation.playState === 'running' || animation.pending) animation.pause();
+          } catch {}
+        });
+      }
+
+      function resumeDocumentAnimations() {
+        documentAnimations().forEach((animation) => {
+          try {
+            if (
+              animation.playState === 'paused'
+              && !completedReplayAnimations.has(animation)
+            ) animation.play();
+          } catch {}
+        });
+      }
+
+      function cancelDocumentAnimations() {
+        documentAnimations().forEach((animation) => {
+          try {
+            completedReplayAnimations.delete(animation);
+            animation.cancel();
+          } catch {}
+        });
+      }
+
+      function createReplayAnimationTracker() {
+        const cueStartByAnimation = new Map();
+
+        function flushAnimationStyles() {
+          void document.documentElement.offsetWidth;
+        }
+
+        function stopTracking(animation) {
+          cueStartByAnimation.delete(animation);
+          completedReplayAnimations.delete(animation);
+        }
+
+        function positionAnimation(animation, targetMs) {
+          const cueStartMs = cueStartByAnimation.get(animation);
+          const effectTarget = animation.effect?.target;
+          if (
+            cueStartMs === undefined
+            || animation.playState === 'idle'
+            || (effectTarget instanceof Node && !effectTarget.isConnected)
+          ) {
+            stopTracking(animation);
+            return;
+          }
+
+          try {
+            animation.pause();
+            const elapsedMs = Math.max(0, targetMs - cueStartMs);
+            const endTime = animation.effect?.getComputedTiming()?.endTime;
+            if (Number.isFinite(endTime) && elapsedMs >= endTime) {
+              animation.currentTime = endTime;
+              completedReplayAnimations.add(animation);
+            } else {
+              animation.currentTime = elapsedMs;
+              completedReplayAnimations.delete(animation);
+            }
+          } catch {
+            stopTracking(animation);
+          }
+        }
+
+        function advanceTo(targetMs) {
+          cueStartByAnimation.forEach((_, animation) => {
+            positionAnimation(animation, targetMs);
+          });
+          flushAnimationStyles();
+        }
+
+        return Object.freeze({
+          beforeCue(cueStartMs) {
+            advanceTo(cueStartMs);
+            return new Set(documentAnimations());
+          },
+          afterCue(cueStartMs, animationsBeforeCue) {
+            flushAnimationStyles();
+            documentAnimations().forEach((animation) => {
+              if (animationsBeforeCue?.has(animation)) return;
+              cueStartByAnimation.set(animation, cueStartMs);
+              positionAnimation(animation, cueStartMs);
+            });
+            flushAnimationStyles();
+          },
+          advanceTo
+        });
+      }
+
+      function createCueClock() {
+        let cues = [];
+        let sequence = 0;
+        let scheduler = null;
+        let state = 'idle';
+        let kind = 'idle';
+        let durationMs = filmDurationMs;
+        let positionMs = 0;
+        let startedAt = 0;
+        let executingAt = null;
+        let executingGroup = null;
+        let replaying = false;
+        let replayCueObserver = null;
+        let endedNotified = false;
+
+        const now = () => performance.now();
+        const clampTime = (value) => Math.min(durationMs, Math.max(0, Number(value) || 0));
+        const currentTime = () => state === 'playing'
+          ? clampTime(positionMs + now() - startedAt)
+          : positionMs;
+
+        function cancelScheduler() {
+          if (scheduler !== null) window.clearTimeout(scheduler);
+          scheduler = null;
+        }
+
+        function nextCue() {
+          return cues
+            .filter((cue) => !cue.fired)
+            .sort((left, right) => left.at - right.at || left.sequence - right.sequence)[0] ?? null;
+        }
+
+        function executeDue(targetMs) {
+          let executed = false;
+          let safety = 0;
+          while (safety < 1000) {
+            const cue = nextCue();
+            if (!cue || cue.at > targetMs + 0.5) break;
+            cue.fired = true;
+            executingAt = cue.at;
+            executingGroup = cue.group;
+            let replayCueSnapshot = null;
+            try {
+              replayCueSnapshot = replayCueObserver?.beforeCue?.(cue.at) ?? null;
+              cue.callback();
+            } catch (error) {
+              notifyControllerError('cue_failed', error instanceof Error ? error.message : String(error));
+            } finally {
+              try {
+                replayCueObserver?.afterCue?.(cue.at, replayCueSnapshot);
+              } catch (error) {
+                notifyControllerError(
+                  'animation_replay_failed',
+                  error instanceof Error ? error.message : String(error)
+                );
+              }
+              executingAt = null;
+              executingGroup = null;
+            }
+            executed = true;
+            safety += 1;
+          }
+          if (safety >= 1000) {
+            notifyControllerError('cue_overflow', 'The visual-composition cue clock exceeded its replay safety limit.');
+          }
+          return executed;
+        }
+
+        function finishIfNeeded(targetMs) {
+          if (targetMs < durationMs - 0.5) return false;
+          cancelScheduler();
+          positionMs = durationMs;
+          state = 'ended';
+          pauseDocumentAnimations();
+          if (!endedNotified) {
+            endedNotified = true;
+            notifyClockEnded();
+          }
+          notifyClockState();
+          return true;
+        }
+
+        function arm() {
+          cancelScheduler();
+          if (state !== 'playing') return;
+          const targetMs = currentTime();
+          positionMs = targetMs;
+          startedAt = now();
+          const executed = executeDue(targetMs);
+          if (finishIfNeeded(targetMs)) return;
+          if (executed && !replaying) notifyClockState();
+          const cue = nextCue();
+          const wakeAt = Math.min(cue?.at ?? durationMs, durationMs);
+          scheduler = window.setTimeout(arm, Math.max(0, wakeAt - targetMs));
+        }
+
+        return Object.freeze({
+          begin(nextKind, nextDurationMs) {
+            cancelScheduler();
+            cues = [];
+            sequence = 0;
+            state = 'paused';
+            kind = nextKind;
+            durationMs = Math.max(0, Number(nextDurationMs) || filmDurationMs);
+            positionMs = 0;
+            startedAt = now();
+            executingAt = null;
+            executingGroup = null;
+            replaying = false;
+            replayCueObserver = null;
+            endedNotified = false;
+          },
+          clear() {
+            cancelScheduler();
+            cues = [];
+            state = 'idle';
+            kind = 'idle';
+            positionMs = 0;
+            executingAt = null;
+            executingGroup = null;
+            replaying = false;
+            replayCueObserver = null;
+            endedNotified = false;
+            pauseDocumentAnimations();
+          },
+          removeGroup(group) {
+            cues = cues.filter((cue) => cue.group !== group);
+            arm();
+          },
+          at(atMs, callback, group = kind) {
+            cues.push({
+              at: clampTime(atMs),
+              callback,
+              fired: false,
+              group,
+              sequence: sequence += 1
+            });
+            if (!replaying) arm();
+          },
+          after(delayMs, callback, group = executingGroup ?? kind) {
+            const base = executingAt ?? currentTime();
+            this.at(base + Math.max(0, Number(delayMs) || 0), callback, group);
+          },
+          play() {
+            if (state === 'ended' || state === 'playing') return;
+            state = 'playing';
+            startedAt = now();
+            resumeDocumentAnimations();
+            notifyClockState();
+            arm();
+          },
+          pause(atMs = currentTime()) {
+            cancelScheduler();
+            positionMs = clampTime(atMs);
+            executeDue(positionMs);
+            state = positionMs >= durationMs - 0.5 ? 'ended' : 'paused';
+            pauseDocumentAnimations();
+            if (state === 'ended' && !endedNotified) {
+              endedNotified = true;
+              notifyClockEnded();
+            }
+            notifyClockState();
+          },
+          reanchor(atMs) {
+            positionMs = clampTime(atMs);
+            if (state === 'playing') startedAt = now();
+            executeDue(positionMs);
+            arm();
+          },
+          replayTo(atMs, cueObserver = null) {
+            cancelScheduler();
+            replaying = true;
+            positionMs = clampTime(atMs);
+            replayCueObserver = cueObserver;
+            try {
+              executeDue(positionMs);
+              replayCueObserver?.advanceTo?.(positionMs);
+            } finally {
+              replayCueObserver = null;
+              replaying = false;
+            }
+            state = positionMs >= durationMs - 0.5 ? 'ended' : 'paused';
+          },
+          currentTime,
+          currentGroup: () => executingGroup ?? kind,
+          duration: () => durationMs,
+          kind: () => kind,
+          state: () => state,
+          isPlaying: () => state === 'playing'
+        });
+      }
+
+      const cueClock = createCueClock();
+
       function clearTimers() {
-        while (timers.length) window.clearTimeout(timers.pop());
+        cueClock.removeGroup('runtime');
       }
 
       function later(delay, callback) {
-        timers.push(window.setTimeout(callback, delay));
+        cueClock.after(delay, callback, 'runtime');
       }
 
       function clearCinematicTimers() {
-        while (cinematicTimers.length) window.clearTimeout(cinematicTimers.pop());
+        cueClock.removeGroup('cinematic');
       }
 
       function cinematicLater(delay, callback) {
-        cinematicTimers.push(window.setTimeout(callback, delay));
+        cueClock.after(delay, callback, 'cinematic');
+      }
+
+      function controlledLater(delay, callback) {
+        cueClock.after(delay, callback, cueClock.currentGroup());
       }
 
       function setStepCopy(copy) {
@@ -2145,12 +2498,12 @@
         draftlingAgent.style.setProperty('--draftling-y', `${point.y + offsetY}px`);
         draftlingAgent.style.setProperty('--draftling-rotation', `${rotation}deg`);
         draftlingAgent.classList.add('visible', 'moving');
-        window.setTimeout(() => draftlingAgent.classList.remove('moving'), duration + 80);
+        controlledLater(duration + 80, () => draftlingAgent.classList.remove('moving'));
         return point;
       }
 
       function removeEffectAfter(element, delay) {
-        window.setTimeout(() => element.remove(), delay);
+        controlledLater(delay, () => element.remove());
       }
 
       function effectPalette(theme) {
@@ -2197,8 +2550,8 @@
         target.classList.remove('cinematic-target');
         void target.offsetWidth;
         target.classList.add('cinematic-target');
-        window.setTimeout(() => target.classList.remove('cinematic-target'), 900);
-        window.setTimeout(() => cinematicCursor.classList.remove('pressing'), 145);
+        controlledLater(900, () => target.classList.remove('cinematic-target'));
+        controlledLater(145, () => cinematicCursor.classList.remove('pressing'));
       }
 
       function stampDraft(target, stage, {
@@ -2227,8 +2580,8 @@
         target.classList.remove('cinematic-target');
         void target.offsetWidth;
         target.classList.add('cinematic-target');
-        window.setTimeout(() => target.classList.remove('cinematic-target'), 900);
-        window.setTimeout(() => draftlingAgent.classList.remove('stamping'), 180);
+        controlledLater(900, () => target.classList.remove('cinematic-target'));
+        controlledLater(180, () => draftlingAgent.classList.remove('stamping'));
       }
 
       function drawTrace(from, to, duration = 760) {
@@ -2305,7 +2658,7 @@
           cinematicFx.appendChild(confetti);
           removeEffectAfter(confetti, 2300);
         }
-        window.setTimeout(() => receipt.classList.remove('cinematic-accepted-glow'), 2200);
+        controlledLater(2200, () => receipt.classList.remove('cinematic-accepted-glow'));
       }
 
       function finishCinematic() {
@@ -2326,8 +2679,12 @@
         }));
       }
 
+      let deferCinematicPlayback = false;
+
       function startCinematic() {
-        reset();
+        cueClock.begin('cinematic', filmDurationMs);
+        cancelDocumentAnimations();
+        resetVisualState();
         body.dataset.cinematic = 'running';
         body.dataset.storyPhase = 'cold-open';
         body.dataset.lensDetail = 'none';
@@ -2394,7 +2751,7 @@
             offsetY: 0,
             rotation: 12
           });
-          window.setTimeout(() => draftlingAgent.classList.remove('visible'), 820);
+          controlledLater(820, () => draftlingAgent.classList.remove('visible'));
         });
         cinematicLater(cinematicTimeline.judgmentEnters, () => {
           body.dataset.storyPhase = 'judgment-enters';
@@ -2474,11 +2831,10 @@
           moveCursor({ x: window.innerWidth + 54, y: window.innerHeight * 0.78 }, { duration: 900, offsetX: 0, offsetY: 0 });
         });
         cinematicLater(cinematicTimeline.complete, finishCinematic);
+        if (!deferCinematicPlayback) cueClock.play();
       }
 
-      function reset({ focus = false } = {}) {
-        clearTimers();
-        clearCinematicTimers();
+      function resetVisualState({ focus = false } = {}) {
         body.classList.remove('cinematic-mode');
         delete body.dataset.cinematic;
         delete body.dataset.storyPhase;
@@ -2490,6 +2846,7 @@
         draftlingAgent.style.setProperty('--draftling-y', `${Math.round(window.innerHeight * 0.62)}px`);
         draftlingAgent.style.setProperty('--draftling-rotation', '-8deg');
         cinematicFx.querySelectorAll('.cinematic-ripple, .cinematic-spark, .cinematic-confetti, .cinematic-trace').forEach(effect => effect.remove());
+        document.querySelectorAll('.cinematic-target').forEach(target => target.classList.remove('cinematic-target'));
         artifactCard.classList.remove('cinematic-repair-scan');
         artifactCard.dataset.buildStage = 'ready';
         receipt.classList.remove('cinematic-accepted-glow');
@@ -2502,6 +2859,36 @@
         setStepCopy(diagnosisCopy);
         steps.forEach(step => step.classList.remove('done', 'active'));
         if (focus) runButton.focus({ preventScroll: true });
+      }
+
+      function reset({ focus = false } = {}) {
+        cueClock.clear();
+        cancelDocumentAnimations();
+        resetVisualState({ focus });
+        notifyClockState();
+      }
+
+      function rebuildCinematicAt(timeMs, { play = false } = {}) {
+        const targetMs = Math.min(filmDurationMs, Math.max(0, Number(timeMs) || 0));
+        document.documentElement.classList.add('timeline-rebuilding');
+        cancelDocumentAnimations();
+        deferCinematicPlayback = true;
+        try {
+          startCinematic();
+        } finally {
+          deferCinematicPlayback = false;
+        }
+        void document.documentElement.offsetWidth;
+        document.documentElement.classList.remove('timeline-rebuilding');
+        void document.documentElement.offsetWidth;
+        cancelDocumentAnimations();
+        const replayAnimationTracker = createReplayAnimationTracker();
+        cueClock.replayTo(targetMs, replayAnimationTracker);
+        if (play && targetMs < filmDurationMs - 0.5) {
+          cueClock.play();
+        } else {
+          cueClock.pause(targetMs);
+        }
       }
 
       function showFailure() {
@@ -2545,6 +2932,9 @@
 
       function run() {
         if (['diagnosing', 'repairing', 'resubmitting'].includes(body.dataset.state)) return;
+        const nestedInCinematic = cueClock.kind() === 'cinematic';
+        const nestedInAutoplay = cueClock.kind() === 'autoplay';
+        if (!nestedInCinematic && !nestedInAutoplay) cueClock.begin('runtime', timeline.accepted);
         clearTimers();
         body.dataset.state = 'diagnosing';
         runButton.disabled = true;
@@ -2565,11 +2955,13 @@
         later(15400, () => { setStep(2); buttonLabel.textContent = 'Remeasuring mobile…'; });
         later(16600, () => { setStep(3); buttonLabel.textContent = 'Issuing trusted pass receipt…'; });
         later(timeline.accepted, showAccepted);
+        if (!nestedInCinematic && !nestedInAutoplay) cueClock.play();
       }
 
       function replay() {
         reset();
-        window.requestAnimationFrame(() => window.requestAnimationFrame(run));
+        void document.documentElement.offsetWidth;
+        run();
       }
 
       runButton.addEventListener('click', () => {
@@ -2580,21 +2972,222 @@
         }
       });
 
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('autoplay') === 'cinematic') {
-        startCinematic();
-      } else if (['1', 'resolution'].includes(params.get('autoplay'))) {
-        later(timeline.autoplayDelay, run);
+      const themeMediaRule = (() => {
+        for (const stylesheet of document.styleSheets) {
+          let rules;
+          try {
+            rules = [...stylesheet.cssRules];
+          } catch {
+            continue;
+          }
+          const match = rules.find((rule) =>
+            rule.media?.mediaText?.includes('(prefers-color-scheme: dark)')
+          );
+          if (match) return match;
+        }
+        return null;
+      })();
+      let activeTheme = window.matchMedia?.('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
+
+      function setControllerTheme(theme) {
+        if (!['light', 'dark'].includes(theme)) {
+          throw new TypeError('Theme must be either light or dark.');
+        }
+        if (!themeMediaRule) {
+          throw new Error('The visual-composition dark-theme stylesheet is unavailable.');
+        }
+        themeMediaRule.media.mediaText = theme === 'dark' ? 'all' : 'not all';
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+        activeTheme = theme;
+        syncLiveLensCrop();
+        if (!cueClock.isPlaying()) {
+          void document.documentElement.offsetWidth;
+          pauseDocumentAnimations();
+        }
       }
 
+      const controllerParentOrigin = (() => {
+        try {
+          const referrerOrigin = new URL(document.referrer).origin;
+          if (referrerOrigin && referrerOrigin !== 'null') return referrerOrigin;
+        } catch {}
+        return window.location.origin === 'null' ? '*' : window.location.origin;
+      })();
+      let activeControllerRequestId = null;
+
+      function controllerState() {
+        return {
+          playback: cueClock.state(),
+          timeMs: Math.round(cueClock.currentTime()),
+          durationMs: filmDurationMs,
+          visualCompleteMs: cinematicTimeline.complete,
+          theme: activeTheme,
+          phase: body.dataset.storyPhase ?? body.dataset.state ?? 'idle'
+        };
+      }
+
+      function postControllerMessage(type, payload = {}, requestId = activeControllerRequestId) {
+        if (!embedConfig.enabled || window.parent === window) return;
+        const message = {
+          channel: controllerChannel,
+          version: controllerVersion,
+          instance: embedConfig.instance,
+          type,
+          payload
+        };
+        if (requestId !== null && requestId !== undefined) message.requestId = requestId;
+        window.parent.postMessage(message, controllerParentOrigin);
+      }
+
+      notifyClockState = () => postControllerMessage('STATE', controllerState());
+      notifyClockEnded = () => postControllerMessage('ENDED', controllerState());
+      notifyControllerError = (code, message, requestId = activeControllerRequestId) => {
+        postControllerMessage('ERROR', { code, message, state: controllerState() }, requestId);
+      };
+
+      function readControllerTime(payload, fallback = cueClock.currentTime()) {
+        if (payload?.timeMs === undefined) return fallback;
+        const value = Number(payload.timeMs);
+        if (!Number.isFinite(value)) throw new TypeError('timeMs must be a finite number.');
+        return Math.min(filmDurationMs, Math.max(0, value));
+      }
+
+      function synchronizeController(timeMs, playing) {
+        const currentTimeMs = cueClock.currentTime();
+        const requiresRebuild = cueClock.kind() !== 'cinematic'
+          || timeMs < currentTimeMs - 60
+          || Math.abs(timeMs - currentTimeMs) > 240;
+        if (requiresRebuild) {
+          rebuildCinematicAt(timeMs, { play: playing });
+          return;
+        }
+        cueClock.reanchor(timeMs);
+        if (playing) {
+          cueClock.play();
+        } else {
+          cueClock.pause(timeMs);
+        }
+      }
+
+      function handleControllerMessage(event) {
+        if (!embedConfig.enabled || event.source !== window.parent) return;
+        if (controllerParentOrigin !== '*' && event.origin !== controllerParentOrigin) return;
+        const message = event.data;
+        if (!message || typeof message !== 'object') return;
+        if (
+          message.channel !== controllerChannel
+          || message.version !== controllerVersion
+          || message.instance !== embedConfig.instance
+        ) return;
+
+        activeControllerRequestId = message.requestId ?? null;
+        try {
+          const payload = message.payload ?? {};
+          switch (message.type) {
+            case 'INIT': {
+              if (!['light', 'dark'].includes(payload.theme)) {
+                throw new TypeError('INIT payload.theme must be either light or dark.');
+              }
+              if (payload.timeMs === undefined) {
+                throw new TypeError('INIT payload.timeMs is required.');
+              }
+              if (typeof payload.playing !== 'boolean') {
+                throw new TypeError('INIT payload.playing must be a boolean.');
+              }
+              if (
+                payload.reducedMotion !== undefined
+                && typeof payload.reducedMotion !== 'boolean'
+              ) {
+                throw new TypeError('INIT payload.reducedMotion must be a boolean when provided.');
+              }
+              setControllerTheme(payload.theme);
+              synchronizeController(readControllerTime(payload), payload.playing);
+              document.documentElement.dataset.controllerReady = 'true';
+              break;
+            }
+            case 'PLAY': {
+              const timeMs = readControllerTime(payload);
+              synchronizeController(timeMs, true);
+              break;
+            }
+            case 'PAUSE': {
+              const timeMs = readControllerTime(payload);
+              synchronizeController(timeMs, false);
+              break;
+            }
+            case 'SEEK': {
+              rebuildCinematicAt(readControllerTime(payload), { play: false });
+              break;
+            }
+            case 'SYNC': {
+              if (typeof payload.playing !== 'boolean') {
+                throw new TypeError('SYNC payload.playing must be a boolean.');
+              }
+              synchronizeController(readControllerTime(payload), payload.playing);
+              break;
+            }
+            case 'SET_THEME': {
+              setControllerTheme(payload.theme);
+              notifyClockState();
+              break;
+            }
+            case 'RESET': {
+              rebuildCinematicAt(0, { play: false });
+              break;
+            }
+            default:
+              notifyControllerError('unsupported_command', `Unsupported controller command: ${String(message.type)}`);
+          }
+        } catch (error) {
+          notifyControllerError(
+            'invalid_command',
+            error instanceof Error ? error.message : String(error)
+          );
+        } finally {
+          activeControllerRequestId = null;
+        }
+      }
+
+      const params = new URLSearchParams(window.location.search);
       window.__JUDGMENTKIT_DEMO__ = Object.freeze({
         provenance: 'local v1.1 trusted-browser validation replay; no live network call',
         timeline,
         cinematicTimeline,
         run,
         reset,
-        startCinematic
+        startCinematic,
+        pause: () => cueClock.pause(),
+        play: () => cueClock.play(),
+        seek: (timeMs) => rebuildCinematicAt(timeMs, { play: false }),
+        setTheme: setControllerTheme,
+        state: controllerState
       });
+
+      if (embedConfig.enabled) {
+        window.addEventListener('message', handleControllerMessage);
+        postControllerMessage('READY', {
+          ...controllerState(),
+          frame: { width: 1440, height: 900 },
+          capabilities: {
+            play: true,
+            pause: true,
+            seek: true,
+            sync: true,
+            reset: true,
+            theme: true,
+            audio: false
+          }
+        });
+      } else if (params.get('autoplay') === 'cinematic') {
+        startCinematic();
+      } else if (['1', 'resolution'].includes(params.get('autoplay'))) {
+        cueClock.begin('autoplay', timeline.autoplayDelay + timeline.accepted);
+        cueClock.at(timeline.autoplayDelay, run, 'runtime');
+        cueClock.play();
+      }
     })();
   </script>
 </body>
