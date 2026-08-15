@@ -1483,6 +1483,7 @@ h2 {
   max-width: 1440px;
 }
 .homepage-film-figure {
+  position: relative;
   margin: 0;
 }
 .homepage-film-frame {
@@ -1619,20 +1620,95 @@ h2 {
 .homepage-film-control-button svg[hidden] {
   display: none;
 }
+.homepage-film-scroll-cue {
+  position: absolute;
+  z-index: 4;
+  top: min(
+    calc(100svh - var(--site-navigation-height) - 108px),
+    calc(100% - 108px)
+  );
+  left: 50%;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  color: var(--fixed-light-ink);
+  background: transparent;
+  box-shadow: none;
+  text-decoration: none;
+  transform: translateX(-50%);
+}
+.homepage-film-scroll-cue::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 36px;
+  height: 36px;
+  border: 1px solid color-mix(in srgb, var(--fixed-light-ink) 48%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--hero-art-bg) 78%, transparent);
+  box-shadow:
+    0 5px 14px color-mix(in srgb, var(--hero-art-bg) 18%, transparent),
+    inset 0 1px color-mix(in srgb, var(--fixed-light-ink) 9%, transparent);
+  -webkit-backdrop-filter: blur(16px) saturate(1.16);
+  backdrop-filter: blur(16px) saturate(1.16);
+  content: "";
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  transition: background-color 140ms ease, border-color 140ms ease;
+}
+.homepage-film-scroll-cue:hover::before {
+  border-color: color-mix(in srgb, var(--fixed-light-ink) 64%, transparent);
+  background: color-mix(in srgb, var(--hero-art-bg) 88%, transparent);
+}
+.homepage-film-scroll-cue:focus-visible {
+  outline: 2px solid var(--fixed-light-ink);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 5px var(--hero-art-bg);
+}
+.homepage-film-scroll-cue svg {
+  position: relative;
+  z-index: 1;
+  width: 18px;
+  height: 18px;
+  animation: homepage-film-scroll-cue-bob 2.2s ease-in-out 3;
+}
+.homepage-film-scroll-cue:hover svg,
+.homepage-film-scroll-cue:focus-visible svg {
+  animation-play-state: paused;
+}
+.homepage-hero {
+  scroll-margin-top: var(--site-navigation-height);
+}
+@keyframes homepage-film-scroll-cue-bob {
+  0%,
+  100% {
+    transform: translateY(-2px);
+  }
+  50% {
+    transform: translateY(2px);
+  }
+}
 .homepage-film-scrubber {
   box-sizing: border-box;
   width: 100%;
   min-width: 0;
   height: 44px;
   margin: 0;
-  padding: 4px 8px;
+  padding: 0 8px;
   border: 0;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--hero-art-bg) 78%, transparent);
-  background-clip: content-box;
+  background: transparent;
   box-shadow: none;
-  -webkit-backdrop-filter: blur(16px) saturate(1.16);
-  backdrop-filter: blur(16px) saturate(1.16);
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   cursor: pointer;
   appearance: none;
   accent-color: var(--fixed-light-ink);
@@ -1651,6 +1727,9 @@ h2 {
     var(--fixed-light-ink) 0 var(--film-progress, 0%),
     color-mix(in srgb, var(--fixed-light-ink) 42%, transparent) var(--film-progress, 0%) 100%
   );
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--hero-art-bg) 58%, transparent),
+    0 2px 6px color-mix(in srgb, var(--hero-art-bg) 24%, transparent);
 }
 .homepage-film-scrubber::-webkit-slider-thumb {
   width: 14px;
@@ -1668,6 +1747,9 @@ h2 {
   border: 0;
   border-radius: 999px;
   background: color-mix(in srgb, var(--fixed-light-ink) 42%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--hero-art-bg) 58%, transparent),
+    0 2px 6px color-mix(in srgb, var(--hero-art-bg) 24%, transparent);
 }
 .homepage-film-scrubber::-moz-range-progress {
   height: 4px;
@@ -4480,6 +4562,15 @@ pre {
     padding: 0;
     transform: none;
   }
+  .homepage-film-scroll-cue {
+    position: relative;
+    top: auto;
+    right: auto;
+    bottom: auto;
+    left: auto;
+    margin: 8px auto 0;
+    transform: none;
+  }
   .homepage-film-control-button {
     width: 44px;
     min-width: 44px;
@@ -4551,8 +4642,13 @@ pre {
     transition: none;
   }
   .homepage-film-controls,
-  .homepage-film-control-button::before {
+  .homepage-film-control-button::before,
+  .homepage-film-scroll-cue::before {
     transition: none;
+  }
+  .homepage-film-scroll-cue svg {
+    animation: none;
+    transform: none;
   }
   .hero-action:hover {
     transform: none;
@@ -4574,12 +4670,24 @@ pre {
     opacity: 1;
   }
   .homepage-film-control-button::before,
-  .homepage-film-scrubber {
+  .homepage-film-scroll-cue::before {
     border: 2px solid var(--fixed-light-ink);
     background: var(--hero-art-bg);
     box-shadow: none;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+  .homepage-film-scrubber {
+    background: transparent;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .homepage-film-scrubber::-webkit-slider-runnable-track {
+    box-shadow: 0 0 0 2px var(--hero-art-bg);
+  }
+  .homepage-film-scrubber::-moz-range-track {
+    box-shadow: 0 0 0 2px var(--hero-art-bg);
   }
 }
 @media (forced-colors: active) {
@@ -4605,7 +4713,7 @@ pre {
     opacity: 1;
   }
   .homepage-film-control-button::before,
-  .homepage-film-scrubber {
+  .homepage-film-scroll-cue::before {
     border: 1px solid ButtonText;
     color: ButtonText;
     background: ButtonFace;
@@ -4613,8 +4721,39 @@ pre {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
+  .homepage-film-scrubber {
+    color: ButtonText;
+    background: transparent;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+  .homepage-film-scrubber::-webkit-slider-runnable-track {
+    border: 1px solid ButtonText;
+    background: ButtonFace;
+    box-shadow: none;
+  }
+  .homepage-film-scrubber::-webkit-slider-thumb {
+    border-color: ButtonText;
+    background: Highlight;
+    box-shadow: none;
+  }
+  .homepage-film-scrubber::-moz-range-track {
+    border: 1px solid ButtonText;
+    background: ButtonFace;
+    box-shadow: none;
+  }
+  .homepage-film-scrubber::-moz-range-progress {
+    background: Highlight;
+  }
+  .homepage-film-scrubber::-moz-range-thumb {
+    border-color: ButtonText;
+    background: Highlight;
+    box-shadow: none;
+  }
   .homepage-film-control-button:focus-visible,
-  .homepage-film-scrubber:focus-visible {
+  .homepage-film-scrubber:focus-visible,
+  .homepage-film-scroll-cue:focus-visible {
     outline-color: Highlight;
   }
   .homepage-film-scrubber {
@@ -4717,10 +4856,13 @@ function homepage() {
               </button>
             </div>
           </div>
+          <a class="homepage-film-scroll-cue" href="#homepage-overview" aria-label="Continue to JudgmentKit overview" data-homepage-film-scroll-cue>
+            ${renderHomepageFilmControlIcon("chevron-down", "data-homepage-film-scroll-icon")}
+          </a>
         </figure>
       </div>
     </section>
-    <section class="hero homepage-hero">
+    <section id="homepage-overview" class="hero homepage-hero">
       <div class="site-shell homepage-hero-shell">
         <div class="homepage-hero-copy">
           <p class="eyebrow">Product judgment for AI-generated UI</p>
