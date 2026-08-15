@@ -707,6 +707,11 @@ assert.match(homepageFilmOpenTag, /(?:\s|^)playsinline(?:\s|>)/);
 assert.match(homepageFilmOpenTag, /preload="metadata"/);
 assert.match(
   homepageFilmOpenTag,
+  /aria-label="JudgmentKit UI generation, diagnosis, and measured repair"/,
+  "the film description should cover the generated draft as well as its review and repair",
+);
+assert.match(
+  homepageFilmOpenTag,
   /poster="\/assets\/releases\/judgmentkit-select-field-agent-demo-poster\.png"/,
 );
 assert.match(
@@ -3056,6 +3061,267 @@ assert.equal(homepageHeroArt.subarray(0, 4).toString("ascii"), "RIFF");
 assert.equal(homepageHeroArt.subarray(8, 12).toString("ascii"), "WEBP");
 assert.ok(homepageHeroArt.length > 0);
 assert.ok(homepageHeroArt.length < 250_000);
+
+const visualCompositionFilmSource = fs.readFileSync(
+  new URL(
+    "../scripts/visual-composition-film/visual-composition-runtime-demo.html",
+    import.meta.url,
+  ),
+  "utf8",
+);
+assert.match(visualCompositionFilmSource, /data-agent="draftling"/);
+assert.match(visualCompositionFilmSource, /data-agent="judgment"/);
+assert.match(
+  visualCompositionFilmSource,
+  /\.cinematic-cursor\s*>\s*\.agent-guide\s*\{[^}]*width:\s*48px;[^}]*height:\s*54px;[^}]*overflow:\s*visible;/s,
+  "Judgment actor sizing should target only its direct agent-guide SVG",
+);
+assert.doesNotMatch(
+  visualCompositionFilmSource,
+  /\.cinematic-cursor\s+svg\s*\{/,
+  "a broad cinematic-cursor SVG rule would also resize SVGs inside the cloned candidate UI",
+);
+const judgmentMagnifierStart = visualCompositionFilmSource.indexOf('<g class="agent-magnifier">');
+const judgmentMagnifierEnd = visualCompositionFilmSource.indexOf(
+  '<g class="agent-body">',
+  judgmentMagnifierStart,
+);
+const judgmentMagnifierMarkup = visualCompositionFilmSource.slice(
+  judgmentMagnifierStart,
+  judgmentMagnifierEnd,
+);
+assert.match(
+  visualCompositionFilmSource,
+  /class="agent-magnifier-lens"/,
+  "the repair agent should visibly carry its inspection prop",
+);
+const judgmentMagnifierRadius = Number.parseFloat(
+  judgmentMagnifierMarkup.match(/class="agent-magnifier-lens"[^>]*\br="([\d.]+)"/)?.[1] ?? "0",
+);
+assert.ok(
+  judgmentMagnifierRadius >= 10,
+  "the repair agent magnifier should remain large enough to read at homepage-film scale",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /const magnifierExpandedScale = 2\.6;/,
+  "the repair agent should deploy a deliberately oversized inspection lens",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /@keyframes agent-magnifier-pullout[\s\S]*scale\(0\.28\)[\s\S]*scale\(2\.78\)[\s\S]*scale\(2\.6\)/,
+  "the oversized lens should visibly leave its stowed position, overshoot, and settle",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /class="agent-live-lens"[^>]*id="agent-live-lens"[\s\S]*class="agent-live-lens-scene"[^>]*id="agent-live-lens-scene"/,
+  "the inspection prop should provide a clipped HTML viewport for the real candidate UI",
+);
+assert.match(
+  judgmentMagnifierMarkup,
+  /class="agent-magnifier-lens"[\s\S]*class="agent-magnifier-ring"[\s\S]*class="agent-magnifier-shine"/,
+  "the SVG prop should retain only its physical lens, ring, and shine",
+);
+assert.doesNotMatch(
+  judgmentMagnifierMarkup,
+  /agent-lens-scene|>Aa<|>28 slot<|>6 inset</,
+  "the SVG prop must not substitute synthetic artwork or labels for the inspected DOM",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /const liveLensSource = artifactCard\.querySelector\('\.bad-ui'\);[\s\S]*const liveLensClone = liveLensSource\.cloneNode\(true\);[\s\S]*liveLensScene\.appendChild\(liveLensClone\);/,
+  "the expanded lens should render a clone of the real candidate UI",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /liveLensClone\.classList\.add\('agent-live-lens-source'\);[\s\S]*liveLensClone\.setAttribute\('aria-hidden', 'true'\);[\s\S]*liveLensClone\.setAttribute\('inert', ''\);/,
+  "the visual-only clone should be hidden from assistive technology and interaction",
+);
+const liveLensSanitizationStart = visualCompositionFilmSource.indexOf(
+  "[liveLensClone, ...liveLensClone.querySelectorAll('*')]",
+);
+const liveLensSanitizationEnd = visualCompositionFilmSource.indexOf(
+  "liveLensScene.appendChild(liveLensClone)",
+  liveLensSanitizationStart,
+);
+const liveLensSanitizationSource = visualCompositionFilmSource.slice(
+  liveLensSanitizationStart,
+  liveLensSanitizationEnd,
+);
+assert.ok(
+  liveLensSanitizationStart >= 0 && liveLensSanitizationEnd > liveLensSanitizationStart,
+  "the visual-only clone should sanitize itself and every descendant before mounting",
+);
+assert.match(
+  liveLensSanitizationSource,
+  /name\.startsWith\('on'\)[\s\S]*node\.removeAttribute\(name\)/,
+  "the visual-only clone should discard copied event-handler attributes",
+);
+for (const attribute of [
+  "id",
+  "role",
+  "tabindex",
+  "aria-label",
+  "aria-expanded",
+  "name",
+  "for",
+  "href",
+  "data-demo-geometry",
+  "data-part",
+  "data-measure",
+]) {
+  assert.match(
+    liveLensSanitizationSource,
+    new RegExp(`['"]${attribute}['"]`),
+    `the visual-only clone should remove ${attribute} from copied DOM`,
+  );
+}
+assert.match(
+  liveLensSanitizationSource,
+  /node\.removeAttribute\(attribute\)/,
+  "the visual-only clone should remove duplicate semantics and geometry hooks from every descendant",
+);
+assert.doesNotMatch(
+  visualCompositionFilmSource,
+  /document\.querySelector\(['"](?:\.bad-ui|\.bad-lockup(?:-text)?|\.bad-select|\.bad-symbol|\.select-trailing|\[data-demo-geometry="value"\])/,
+  "film actions must stay scoped to the retained source UI so the earlier lens clone cannot steal selectors",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /liveLensSource\.querySelector\('\.bad-symbol'\)[\s\S]*liveLensSource\.querySelector\('\.bad-lockup-text'\)[\s\S]*liveLensSource\.querySelector\('\[data-demo-geometry="value"\]'\)[\s\S]*liveLensSource\.querySelector\('\.select-trailing'\)/,
+  "measured repair traces should resolve every geometry target from the retained source UI",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /const sourceRect = liveLensSource\.getBoundingClientRect\(\);[\s\S]*const targetRect = target\.getBoundingClientRect\(\);[\s\S]*x:\s*targetRect\.left \+ targetRect\.width \* anchorX[\s\S]*y:\s*targetRect\.top \+ targetRect\.height \* anchorY[\s\S]*x:\s*point\.x - sourceRect\.left[\s\S]*y:\s*point\.y - sourceRect\.top/,
+  "the live close-up should derive its focus from the real source and inspected target rectangles",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /liveLensClone\.style\.width\s*=\s*`\$\{sourceRect\.width\}px`;[\s\S]*liveLensClone\.style\.height\s*=\s*`\$\{sourceRect\.height\}px`;/,
+  "the cloned candidate should retain the real source border-box geometry inside the lens",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /liveLensScene\.style\.transform\s*=\s*`translate(?:3d)?\([\s\S]*scale\(\$\{liveLensOpticalZoom\}\)`;/,
+  "the live lens should translate the inspected source point to its center before applying optical zoom",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /\.agent-live-lens\s*\{[^}]*overflow:\s*hidden;[^}]*border-radius:\s*50%;[^}]*opacity:\s*0;/s,
+  "the live close-up should remain clipped and invisible while the prop is stowed",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /data-lens-pose="stowed"/,
+  "the Judgment agent should begin with the live lens explicitly stowed",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /const magnifierHotspot = Object\.freeze\(\{[\s\S]*magnifierExpandedScale[\s\S]*function moveLens\(/,
+  "the film should position the close-up from the lens center rather than the opaque agent body",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /function prepareLens\([\s\S]*function pullLens\([\s\S]*function stowLens\(/,
+  "the lens should have explicit approach, pull-out, and stow behaviors",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /alignmentApproach:[\s\S]*alignmentLensOut:[\s\S]*alignmentLensStow:[\s\S]*caretApproach:[\s\S]*caretLensOut:[\s\S]*caretLensStow:/,
+  "each defect close-up should be framed by a complete physical prop gesture",
+);
+const judgmentEntryStart = visualCompositionFilmSource.indexOf(
+  "cinematicLater(cinematicTimeline.judgmentEnters",
+);
+const judgmentEntryEnd = visualCompositionFilmSource.indexOf(
+  "cinematicLater(cinematicTimeline.startButtonHover",
+  judgmentEntryStart,
+);
+const judgmentEntrySource = visualCompositionFilmSource.slice(
+  judgmentEntryStart,
+  judgmentEntryEnd,
+);
+assert.ok(
+  judgmentEntryStart >= 0 && judgmentEntryEnd > judgmentEntryStart,
+  "the cinematic should retain a bounded Judgment-agent entrance cue",
+);
+assert.match(
+  judgmentEntrySource,
+  /setLensPose\('stowed'\)/,
+  "the Judgment agent should enter with the live close-up explicitly stowed",
+);
+assert.doesNotMatch(
+  judgmentEntrySource,
+  /pullLens\(|setLensPose\(['"](?:pulling|out)['"]\)/,
+  "the live close-up must not pre-show when the Judgment agent enters",
+);
+const cinematicCue = (name) => Number.parseInt(
+  visualCompositionFilmSource.match(new RegExp(`${name}:\\s*(\\d+)`))?.[1] ?? "-1",
+  10,
+);
+assert.ok(
+  cinematicCue("diagnosisFailed") < cinematicCue("alignmentLensOut")
+    && cinematicCue("alignmentLensStow") < cinematicCue("caretLensOut"),
+  "the live close-up must not deploy before failure and must stow between the two inspections",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /body\[data-state="failed"\] \.agent-magnifier-ring,[^{]*\{[^}]*stroke:\s*var\(--red\);/s,
+  "the magnifier should reinforce the detected-failure state",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /\.cinematic-cursor\.success \.agent-guide \.agent-magnifier-ring,[^{]*\{[^}]*stroke:\s*var\(--green\);/s,
+  "the magnifier should resolve with the accepted state",
+);
+assert.match(visualCompositionFilmSource, /data-build-stage="ready"/);
+assert.match(
+  visualCompositionFilmSource,
+  /artifact-card\[data-build-stage="empty"\] \.bad-lockup,[\s\S]*artifact-card\[data-build-stage="empty"\] \.select-demo-shell[\s\S]*opacity:\s*0;[\s\S]*transition:\s*none;/,
+  "the cold-open UI children should be hidden before the frame appears so they cannot flash during the first tap",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /artifact-card\[data-build-stage="empty"\] \.bad-ui\s*\{[^}]*opacity:\s*0;[^}]*visibility:\s*hidden;[^}]*transition:\s*none;/s,
+  "the complete candidate should be unpainted during the cinematic cold open",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /artifact-card\[data-build-stage="frame"\] \.bad-lockup,[\s\S]*artifact-card\[data-build-stage="frame"\] \.select-demo-shell,[\s\S]*artifact-card\[data-build-stage="lockup"\] \.select-demo-shell[\s\S]*opacity:\s*0;/,
+  "each later candidate part should remain hidden until its own Draftling build cue",
+);
+const startCinematicSource = visualCompositionFilmSource.slice(
+  visualCompositionFilmSource.indexOf("function startCinematic()"),
+  visualCompositionFilmSource.indexOf("function reset(", visualCompositionFilmSource.indexOf("function startCinematic()")),
+);
+assert.ok(
+  startCinematicSource.indexOf("artifactCard.dataset.buildStage = 'empty'")
+    < startCinematicSource.indexOf("cinematicLater(cinematicTimeline.draftlingEnters"),
+  "the empty build stage should be committed before any cinematic build timer can run",
+);
+assert.match(visualCompositionFilmSource, /First draft ready/);
+assert.match(visualCompositionFilmSource, /judgmentkit-demo-cinematic-complete/);
+assert.match(
+  visualCompositionFilmSource,
+  /class="candidate-stack"[\s\S]*class="bad-ui"[\s\S]*class="stage-footer"[\s\S]*id="run-review"/,
+  "the film action should remain in the candidate stack immediately after the measured UI",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /\.candidate-stack\s*\{[^}]*width:\s*min\(570px,\s*calc\(100% - 56px\)\);[^}]*gap:\s*14px;/s,
+  "the film action should sit in a compact, fixed-gap stack with the candidate",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /\.stage-footer\s*\{[^}]*justify-content:\s*flex-end;[^}]*margin-top:\s*0;/s,
+  "the film action should align to the candidate edge without a detached footer margin",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /draftlingEnters:\s*500[\s\S]*judgmentEnters:\s*7300[\s\S]*complete:\s*38000/,
+  "the film source should preserve the generation-to-judgment story handoff",
+);
 
 const releaseRecordingSource = fs.readFileSync(
   new URL("../site/assets/releases/judgmentkit-select-field-agent-demo.mp4", import.meta.url),
