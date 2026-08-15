@@ -4580,7 +4580,7 @@ function homepage() {
   return page(
     "JudgmentKit",
     `
-    <section class="homepage-film-section" aria-label="Visual composition diagnosis and repair film">
+    <section class="homepage-film-section" aria-label="UI generation, diagnosis, and repair film">
       <div class="site-shell homepage-film-shell">
         <figure class="homepage-film-figure">
           <div
@@ -4597,7 +4597,7 @@ function homepage() {
               playsinline
               preload="metadata"
               poster="${VISUAL_COMPOSITION_POSTER_PATH}"
-              aria-label="JudgmentKit visual-composition diagnosis and measured repair"
+              aria-label="JudgmentKit UI generation, diagnosis, and measured repair"
             >
               <source src="${VISUAL_COMPOSITION_RECORDING_PATH}" type="video/mp4" data-homepage-film-source>
               Your browser cannot play this video. <a href="${VISUAL_COMPOSITION_RECORDING_PATH}">Download the demo video</a>.

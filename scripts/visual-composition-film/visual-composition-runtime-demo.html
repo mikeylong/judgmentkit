@@ -1,0 +1,2601 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:,">
+  <title>JudgmentKit — Visual composition runtime demo</title>
+  <style>
+    :root {
+      --ink: #171817;
+      --muted: #656761;
+      --quiet: #8b8d85;
+      --paper: #f4f3ee;
+      --surface: #ffffff;
+      --surface-soft: #faf9f5;
+      --line: #deddd5;
+      --line-strong: #c8c7be;
+      --yellow: #f4c84c;
+      --yellow-soft: #fff4ca;
+      --red: #b12b2b;
+      --red-soft: #fff0ed;
+      --green: #16724a;
+      --green-soft: #eaf7f0;
+      --blue: #2d63c8;
+      --shadow: 0 24px 70px rgba(21, 22, 20, 0.08);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { min-height: 100%; }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 16% -10%, rgba(244, 200, 76, 0.14), transparent 30rem),
+        var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, code { font: inherit; }
+
+    .shell {
+      width: 100%;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 0;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(500px, 0.9fr);
+      min-height: 100vh;
+      overflow: hidden;
+      border: 0;
+      border-radius: 0;
+      background: var(--surface);
+      box-shadow: none;
+    }
+
+    .demo-stage {
+      display: flex;
+      flex-direction: column;
+      padding: 48px 52px 42px;
+      border-right: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 18px;
+      height: 1px;
+      background: var(--ink);
+    }
+
+    h1 {
+      max-width: 740px;
+      margin: 0;
+      font-size: clamp(38px, 4vw, 60px);
+      line-height: 0.98;
+      letter-spacing: -0.052em;
+    }
+
+    .lede {
+      max-width: 660px;
+      margin: 20px 0 0;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.55;
+      letter-spacing: -0.01em;
+    }
+
+    .artifact-card {
+      position: relative;
+      flex: 1;
+      display: grid;
+      place-items: center;
+      min-height: 322px;
+      margin-top: 34px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(rgba(23, 24, 23, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23, 24, 23, 0.035) 1px, transparent 1px),
+        var(--surface-soft);
+      background-size: 24px 24px;
+    }
+
+    .candidate-stack {
+      width: min(570px, calc(100% - 56px));
+      display: grid;
+      gap: 14px;
+    }
+
+    body.cinematic-mode .bad-ui,
+    body.cinematic-mode .bad-lockup,
+    body.cinematic-mode .select-demo-shell {
+      transition:
+        opacity 420ms cubic-bezier(0.2, 0.76, 0.2, 1),
+        transform 520ms cubic-bezier(0.16, 0.84, 0.24, 1);
+      will-change: opacity, transform;
+    }
+
+    body.cinematic-mode .artifact-card[data-build-stage="empty"] .bad-ui {
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px) scale(0.955);
+      transition: none;
+    }
+
+    body.cinematic-mode .artifact-card[data-build-stage="empty"] .bad-lockup,
+    body.cinematic-mode .artifact-card[data-build-stage="empty"] .select-demo-shell {
+      opacity: 0;
+      transform: translateY(14px) scale(0.97);
+      transition: none;
+    }
+
+    body.cinematic-mode .artifact-card[data-build-stage="frame"] .bad-lockup,
+    body.cinematic-mode .artifact-card[data-build-stage="frame"] .select-demo-shell,
+    body.cinematic-mode .artifact-card[data-build-stage="lockup"] .select-demo-shell {
+      opacity: 0;
+      transform: translateY(14px) scale(0.97);
+    }
+
+    body[data-story-phase="build-frame"] .bad-ui,
+    body[data-story-phase="build-lockup"] .bad-lockup,
+    body[data-story-phase="build-select"] .select-demo-shell {
+      animation: draft-part-lands 620ms cubic-bezier(0.16, 0.84, 0.24, 1) both;
+    }
+
+    .artifact-label {
+      position: absolute;
+      top: 15px;
+      left: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 99px;
+      background: rgba(255, 255, 255, 0.92);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 720;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 300ms ease, border-color 300ms ease, background 300ms ease;
+    }
+
+    .artifact-label::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--red);
+      transition: background 300ms ease;
+    }
+
+    [data-state="repairing"] .artifact-label,
+    [data-state="resubmitting"] .artifact-label {
+      border-color: #dfc55c;
+      background: var(--yellow-soft);
+      color: #7a5e00;
+    }
+
+    [data-state="repairing"] .artifact-label::before,
+    [data-state="resubmitting"] .artifact-label::before { background: var(--yellow); }
+
+    [data-state="accepted"] .artifact-label {
+      border-color: #b8dcc9;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    [data-state="accepted"] .artifact-label::before { background: var(--green); }
+
+    .bad-ui {
+      width: 100%;
+      padding: 34px 36px 38px;
+      border: 1px solid #e5e4de;
+      border-radius: 15px;
+      background: var(--surface);
+      box-shadow: 0 14px 38px rgba(25, 27, 23, 0.09);
+    }
+
+    .bad-lockup {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      height: 64px;
+      margin-bottom: 25px;
+    }
+
+    .bad-symbol {
+      width: 42px;
+      height: 42px;
+      flex: 0 0 auto;
+      transform: translateY(12px);
+      transition: transform 1050ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .bad-symbol path:nth-child(odd) { fill: #f4c84c; }
+    .bad-symbol path:nth-child(even) { fill: #ffdd6f; }
+
+    .bad-lockup-text {
+      font-size: 30px;
+      font-weight: 540;
+      line-height: 32px;
+      letter-spacing: -0.025em;
+      white-space: nowrap;
+      transition: transform 1050ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .bad-select {
+      --select-border-width: 1px;
+      --select-start-inset: 28px;
+      --select-indicator-slot-width: 28px;
+      --select-indicator-size: 16px;
+      position: relative;
+      display: grid;
+      grid-template-columns: 0 minmax(0, 1fr) auto;
+      align-items: center;
+      width: 100%;
+      height: 72px;
+      padding-top: 0;
+      padding-right: 0;
+      padding-bottom: 0;
+      padding-left: calc(var(--select-start-inset) - var(--select-border-width));
+      border: var(--select-border-width) solid #76786f;
+      border-radius: 8px;
+      box-shadow: 0 0 0 3px #ebe9df;
+      background: #fff;
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      transition: padding 1050ms cubic-bezier(0.2, 0.8, 0.2, 1), border-color 300ms ease, box-shadow 300ms ease;
+    }
+
+    .select-demo-shell {
+      position: relative;
+      width: 100%;
+    }
+
+    .select-rail {
+      display: grid;
+      place-items: center;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    .select-rail svg {
+      width: var(--select-indicator-size);
+      height: var(--select-indicator-size);
+      stroke: var(--ink);
+      stroke-width: 1.6;
+      fill: none;
+      transition: transform 1050ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .select-trailing {
+      width: var(--select-indicator-slot-width);
+      height: 100%;
+      transform: translateX(var(--select-border-width));
+      transition: width 1050ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .select-label {
+      min-width: 0;
+      overflow: hidden;
+      text-align: left;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    [data-state="repairing"] .bad-symbol,
+    [data-state="resubmitting"] .bad-symbol,
+    [data-state="accepted"] .bad-symbol { transform: translateY(0); }
+
+    [data-state="repairing"] .bad-select,
+    [data-state="resubmitting"] .bad-select,
+    [data-state="accepted"] .bad-select {
+      --select-start-inset: 16px;
+      --select-indicator-slot-width: 48px;
+    }
+
+    [data-state="accepted"] .bad-select {
+      border-color: #438568;
+      box-shadow: 0 0 0 3px var(--green-soft);
+    }
+
+    .measurements {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 340ms ease;
+    }
+
+    [data-state="failed"] .failure-measurements { opacity: 1; }
+
+    .repair-measurements { color: var(--green); }
+
+    [data-state="repairing"] .repair-measurements,
+    [data-state="resubmitting"] .repair-measurements,
+    [data-state="accepted"] .repair-measurements { opacity: 1; }
+
+    .centerline {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      top: 62px;
+      height: 1px;
+      border-top: 1px dashed rgba(177, 43, 43, 0.7);
+    }
+
+    .centerline::after {
+      content: "+12 px";
+      position: absolute;
+      right: 0;
+      top: -25px;
+      padding: 4px 6px;
+      border-radius: 5px;
+      background: var(--red-soft);
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 760;
+    }
+
+    .space-left,
+    .space-right {
+      position: absolute;
+      bottom: 57px;
+      height: 26px;
+      border-top: 1px solid var(--red);
+    }
+
+    .space-left {
+      left: 0;
+      width: 28px;
+    }
+
+    .space-right {
+      right: 0;
+      width: 6px;
+    }
+
+    .space-left::before,
+    .space-left::after,
+    .space-right::before,
+    .space-right::after {
+      content: "";
+      position: absolute;
+      top: -4px;
+      width: 1px;
+      height: 8px;
+      background: var(--red);
+    }
+
+    .space-left::before,
+    .space-right::before { left: 0; }
+    .space-left::after,
+    .space-right::after { right: 0; }
+
+    .space-left span,
+    .space-right span {
+      position: absolute;
+      left: 50%;
+      top: 6px;
+      transform: translateX(-50%);
+      color: var(--red);
+      font-size: 12px;
+      font-weight: 760;
+    }
+
+    .good-centerline {
+      position: absolute;
+      left: 10px;
+      right: 10px;
+      top: 32px;
+      height: 1px;
+      border-top: 1px dashed rgba(22, 114, 74, 0.78);
+    }
+
+    .good-centerline::after {
+      content: "0 px";
+      position: absolute;
+      right: 0;
+      top: -25px;
+      padding: 4px 6px;
+      border-radius: 5px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 760;
+    }
+
+    .value-start-space,
+    .indicator-slot-space,
+    .indicator-end-space {
+      position: absolute;
+      bottom: 57px;
+      height: 26px;
+      border-top: 1px solid var(--green);
+    }
+
+    .value-start-space {
+      left: 0;
+      width: 16px;
+    }
+
+    .indicator-slot-space {
+      right: 0;
+      width: 48px;
+    }
+
+    .indicator-end-space {
+      right: 0;
+      bottom: 28px;
+      width: 16px;
+    }
+
+    .value-start-space::before,
+    .value-start-space::after,
+    .indicator-slot-space::before,
+    .indicator-slot-space::after,
+    .indicator-end-space::before,
+    .indicator-end-space::after {
+      content: "";
+      position: absolute;
+      top: -4px;
+      width: 1px;
+      height: 8px;
+      background: var(--green);
+    }
+
+    .value-start-space::before,
+    .indicator-slot-space::before,
+    .indicator-end-space::before { left: 0; }
+    .value-start-space::after,
+    .indicator-slot-space::after,
+    .indicator-end-space::after { right: 0; }
+
+    .value-start-space span,
+    .indicator-slot-space span,
+    .indicator-end-space span {
+      position: absolute;
+      left: 50%;
+      top: 6px;
+      transform: translateX(-50%);
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 760;
+      white-space: nowrap;
+    }
+
+    .indicator-end-space span {
+      top: 32px;
+      right: 0;
+      left: auto;
+      transform: none;
+    }
+
+    .stage-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 18px;
+      margin-top: 0;
+    }
+
+    .run-button {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-width: 218px;
+      height: 48px;
+      padding: 0 20px;
+      border: 1px solid var(--ink);
+      border-radius: 10px;
+      background: var(--ink);
+      color: #fff;
+      font-weight: 720;
+      letter-spacing: -0.01em;
+      cursor: pointer;
+      transition: transform 160ms ease, background 160ms ease;
+    }
+
+    .run-button:hover { transform: translateY(-1px); background: #2a2b28; }
+    .run-button:focus-visible { outline: 3px solid rgba(45, 99, 200, 0.35); outline-offset: 3px; }
+    .run-button:disabled { cursor: wait; transform: none; opacity: 0.85; }
+
+    .run-button svg { width: 18px; height: 18px; }
+
+    .spinner {
+      display: none;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 740ms linear infinite;
+    }
+
+    [data-state="diagnosing"] .run-button .play-icon,
+    [data-state="repairing"] .run-button .play-icon,
+    [data-state="resubmitting"] .run-button .play-icon { display: none; }
+    [data-state="diagnosing"] .run-button .spinner,
+    [data-state="repairing"] .run-button .spinner,
+    [data-state="resubmitting"] .run-button .spinner { display: block; }
+
+    .receipt {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      padding: 48px 46px 40px;
+      background: var(--surface-soft);
+    }
+
+    .receipt-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      padding-bottom: 25px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .receipt-kicker {
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 720;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .receipt h2 {
+      margin: 0;
+      font-size: 32px;
+      line-height: 1.06;
+      letter-spacing: -0.035em;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 9px 13px;
+      border: 1px solid var(--line);
+      border-radius: 99px;
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 760;
+      white-space: nowrap;
+      transition: color 220ms ease, border-color 220ms ease, background 220ms ease;
+    }
+
+    .status-pill::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--quiet);
+    }
+
+    [data-state="diagnosing"] .status-pill,
+    [data-state="repairing"] .status-pill,
+    [data-state="resubmitting"] .status-pill {
+      border-color: #dfc55c;
+      background: var(--yellow-soft);
+      color: #7a5e00;
+    }
+
+    [data-state="diagnosing"] .status-pill::before,
+    [data-state="repairing"] .status-pill::before,
+    [data-state="resubmitting"] .status-pill::before {
+      background: var(--yellow);
+      animation: pulse 900ms ease-in-out infinite alternate;
+    }
+
+    [data-state="failed"] .status-pill {
+      border-color: #e9bdb8;
+      background: var(--red-soft);
+      color: var(--red);
+    }
+
+    [data-state="failed"] .status-pill::before { background: var(--red); }
+
+    [data-state="accepted"] .status-pill {
+      border-color: #b8dcc9;
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    [data-state="accepted"] .status-pill::before { background: var(--green); }
+
+    .runtime-track {
+      margin: 34px 0 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .runtime-step {
+      position: relative;
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 14px;
+      align-items: center;
+      min-height: 68px;
+      color: var(--quiet);
+      transition: color 220ms ease;
+    }
+
+    .runtime-step:not(:last-child)::before {
+      content: "";
+      position: absolute;
+      left: 14px;
+      top: 34px;
+      bottom: 0;
+      width: 1px;
+      background: var(--line);
+    }
+
+    .step-icon {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      width: 30px;
+      height: 30px;
+      border: 1px solid var(--line-strong);
+      border-radius: 50%;
+      background: var(--surface-soft);
+      color: transparent;
+      font-size: 15px;
+      font-weight: 800;
+      transition: all 220ms ease;
+    }
+
+    .step-title {
+      font-size: 18px;
+      font-weight: 720;
+      letter-spacing: -0.015em;
+    }
+
+    .step-detail {
+      display: none;
+    }
+
+    .step-meta {
+      display: none;
+    }
+
+    .runtime-step.active { color: var(--ink); }
+    .runtime-step.active .step-icon {
+      border-color: var(--yellow);
+      background: var(--yellow-soft);
+      box-shadow: 0 0 0 4px rgba(244, 200, 76, 0.12);
+    }
+
+    .runtime-step.done { color: var(--ink); }
+    .runtime-step.done .step-icon {
+      border-color: var(--green);
+      background: var(--green-soft);
+      color: var(--green);
+    }
+
+    .state-panel {
+      display: none;
+      margin-top: 2px;
+      animation: rise 380ms ease both;
+    }
+
+    [data-state="failed"] .runtime-track,
+    [data-state="repairing"] .runtime-track,
+    [data-state="accepted"] .runtime-track { display: none; }
+    [data-state="failed"] .failure-panel,
+    [data-state="repairing"] .repair-panel,
+    [data-state="accepted"] .accepted-panel { display: block; }
+
+    .decision {
+      margin: 30px 0 0;
+      padding: 24px 25px;
+      border: 1px solid #ecc7c1;
+      border-radius: 12px;
+      background: var(--red-soft);
+    }
+
+    .decision-label {
+      color: var(--red);
+      font-size: 13px;
+      font-weight: 780;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .decision-value {
+      margin-top: 9px;
+      color: var(--ink);
+      font-size: 28px;
+      font-weight: 790;
+      letter-spacing: -0.035em;
+    }
+
+    .decision-copy {
+      margin-top: 10px;
+      color: #71403b;
+      font-size: 16px;
+      line-height: 1.42;
+    }
+
+    .decision.accepted-decision {
+      border-color: #b8dcc9;
+      background: var(--green-soft);
+    }
+
+    .accepted-decision .decision-label { color: var(--green); }
+    .accepted-decision .decision-copy { color: #31614c; }
+
+    .repair-card {
+      margin-top: 30px;
+      padding: 24px 25px;
+      border: 1px solid #e2ca6e;
+      border-radius: 12px;
+      background: var(--yellow-soft);
+    }
+
+    .repair-kicker {
+      color: #7a5e00;
+      font-size: 13px;
+      font-weight: 780;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+    }
+
+    .repair-title {
+      margin-top: 9px;
+      font-size: 27px;
+      font-weight: 790;
+      letter-spacing: -0.025em;
+    }
+
+    .repair-copy {
+      margin-top: 10px;
+      color: #6b5717;
+      font-size: 16px;
+      line-height: 1.42;
+    }
+
+    .repair-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 19px;
+    }
+
+    .repair-item {
+      display: grid;
+      grid-template-columns: 22px 1fr auto;
+      gap: 9px;
+      align-items: center;
+      padding: 14px;
+      border: 1px solid rgba(122, 94, 0, 0.18);
+      border-radius: 9px;
+      background: rgba(255, 255, 255, 0.66);
+      color: #4f461f;
+      font-size: 15px;
+      line-height: 1.3;
+    }
+
+    .repair-item-icon {
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--green-soft);
+      color: var(--green);
+      font-weight: 850;
+    }
+
+    .repair-item code {
+      color: var(--ink);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 13px;
+      font-weight: 740;
+    }
+
+    .viewport-results {
+      display: grid;
+      grid-template-columns: 1fr;
+      margin-top: 16px;
+    }
+
+    .viewport-result {
+      padding: 18px 20px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--surface);
+    }
+
+    .viewport-name {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 13px;
+      font-size: 16px;
+      font-weight: 740;
+    }
+
+    .fail-tag { color: var(--red); font-size: 12px; letter-spacing: 0.07em; text-transform: uppercase; }
+    .pass-tag { color: var(--green); font-size: 12px; letter-spacing: 0.07em; text-transform: uppercase; }
+
+    .finding {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .finding + .finding { margin-top: 6px; }
+
+    .finding::before {
+      content: "×";
+      color: var(--red);
+      font-weight: 850;
+    }
+
+    .finding.passed::before { content: "✓"; color: var(--green); }
+
+    .next-action {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 16px;
+      padding: 17px 19px;
+      border: 1px solid var(--line-strong);
+      border-radius: 10px;
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .next-action span:first-child {
+      color: rgba(255, 255, 255, 0.64);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .next-action code {
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 15px;
+      font-weight: 750;
+    }
+
+    .next-action.accept-action { background: var(--green); border-color: var(--green); }
+
+    .replay {
+      display: block;
+      margin: 14px auto 0;
+      padding: 8px;
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      cursor: pointer;
+    }
+
+    .replay:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+    /*
+      Cinematic replay layer. It is intentionally inert and hidden unless the
+      page is opened with ?autoplay=cinematic, preserving the manual demo's
+      native pointer and keyboard behavior.
+    */
+    .cinematic-fx {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      overflow: hidden;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 240ms ease;
+    }
+
+    body.cinematic-mode,
+    body.cinematic-mode button,
+    body.cinematic-mode [tabindex] { cursor: none !important; }
+
+    body.cinematic-mode .cinematic-fx { opacity: 1; }
+
+    .cinematic-cursor {
+      --cursor-x: -72px;
+      --cursor-y: 72vh;
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 48px;
+      height: 54px;
+      opacity: 0;
+      transform: translate3d(var(--cursor-x), var(--cursor-y), 0) rotate(-2deg);
+      transform-origin: 4px 8px;
+      filter: drop-shadow(0 4px 6px rgba(13, 14, 12, 0.24));
+      will-change: transform, opacity;
+    }
+
+    .cinematic-cursor.visible { opacity: 1; }
+
+    .cinematic-cursor > .agent-guide {
+      position: relative;
+      z-index: 2;
+      display: block;
+      width: 48px;
+      height: 54px;
+      overflow: visible;
+    }
+
+    .draftling-agent {
+      --draftling-x: -82px;
+      --draftling-y: 62vh;
+      --draftling-rotation: -8deg;
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 54px;
+      height: 60px;
+      opacity: 0;
+      transform: translate3d(var(--draftling-x), var(--draftling-y), 0) rotate(var(--draftling-rotation));
+      transform-origin: 5px 8px;
+      filter: drop-shadow(0 5px 8px rgba(13, 14, 12, 0.25));
+      transition: opacity 180ms ease;
+      will-change: transform, opacity;
+    }
+
+    .draftling-agent.visible { opacity: 1; }
+
+    .draftling-agent::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      left: -42px;
+      top: 28px;
+      width: 52px;
+      height: 5px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, rgba(45, 99, 200, 0.18), rgba(45, 99, 200, 0.7));
+      opacity: 0;
+      transform: scaleX(0.45);
+      transform-origin: 100% 50%;
+      transition: opacity 160ms ease, transform 220ms ease;
+    }
+
+    .draftling-agent.moving::before {
+      opacity: 1;
+      transform: scaleX(1);
+    }
+
+    .draftling-agent svg {
+      position: relative;
+      z-index: 2;
+      display: block;
+      width: 54px;
+      height: 60px;
+      overflow: visible;
+    }
+
+    .draftling-guide * { vector-effect: non-scaling-stroke; }
+
+    .draftling-agent.stamping {
+      transform: translate3d(var(--draftling-x), var(--draftling-y), 0) rotate(-12deg) scale(0.88);
+    }
+
+    .draftling-agent.stamping .draftling-stamp-arm {
+      transform: translate(-1px, -3px) rotate(-8deg);
+      transform-origin: right bottom;
+    }
+
+    .draftling-agent.stamping .draftling-body {
+      transform: translate(1px, 2px) scaleY(0.94);
+      transform-origin: center bottom;
+    }
+
+    .draftling-agent.flourish .draftling-guide {
+      animation: draftling-flourish 820ms cubic-bezier(0.2, 0.82, 0.2, 1) both;
+    }
+
+    .draftling-agent.flourish .draftling-fin {
+      animation: draftling-fin-flick 540ms ease-out both;
+      transform-origin: 35px 15px;
+    }
+
+    .agent-guide * {
+      vector-effect: non-scaling-stroke;
+    }
+
+    .agent-guide .agent-body,
+    .agent-guide .agent-tap-arm,
+    .agent-guide .agent-tap-hand,
+    .agent-guide .agent-antenna,
+    .agent-guide .agent-eye-open,
+    .agent-guide .agent-eye-happy,
+    .agent-guide .agent-mouth,
+    .agent-guide .agent-success-smile {
+      transform-box: fill-box;
+      transition: transform 135ms ease, opacity 135ms ease, fill 180ms ease, stroke 180ms ease;
+    }
+
+    .agent-guide .agent-magnifier {
+      transform-box: view-box;
+      transform-origin: 43.1px 38.8px;
+      transform: rotate(-48deg) scale(0.28);
+      opacity: 0.9;
+      transition: transform 260ms cubic-bezier(0.2, 0.76, 0.2, 1),
+        filter 220ms ease,
+        opacity 180ms ease;
+    }
+
+    .agent-guide {
+      transition: transform 260ms cubic-bezier(0.2, 0.76, 0.2, 1);
+    }
+
+    .cinematic-cursor.lens-mirrored .agent-guide {
+      transform: scaleX(-1);
+      transform-origin: 128.64px 27px;
+    }
+
+    .cinematic-cursor.magnifying {
+      transform: translate3d(var(--cursor-x), var(--cursor-y), 0) rotate(0deg);
+    }
+
+    .cinematic-cursor[data-lens-pose="pulling"] .agent-guide .agent-magnifier {
+      animation: agent-magnifier-pullout 520ms cubic-bezier(0.16, 0.84, 0.22, 1) both;
+    }
+
+    .cinematic-cursor[data-lens-pose="out"] .agent-guide .agent-magnifier {
+      transform: rotate(0deg) scale(2.6);
+      filter: drop-shadow(0 0 5px rgba(45, 99, 200, 0.24));
+      opacity: 1;
+    }
+
+    .cinematic-cursor[data-lens-pose="stowing"] .agent-guide .agent-magnifier {
+      animation: agent-magnifier-stow 280ms cubic-bezier(0.4, 0, 0.72, 0.28) both;
+    }
+
+    .cinematic-cursor[data-lens-pose="pulling"] .agent-body {
+      animation: agent-pull-brace 520ms cubic-bezier(0.16, 0.84, 0.22, 1) both;
+    }
+
+    .agent-magnifier-lens {
+      fill: transparent;
+      stroke: #171817;
+      stroke-width: 3.2;
+      transition: fill 180ms ease, stroke 180ms ease;
+    }
+
+    .agent-magnifier-ring {
+      fill: none;
+      stroke: var(--blue);
+      stroke-width: 2.1;
+      transition: stroke 180ms ease;
+    }
+
+    .agent-magnifier-shine {
+      fill: none;
+      stroke: #fff8e8;
+      stroke-width: 1.9;
+      stroke-linecap: round;
+      opacity: 0.94;
+    }
+
+    .agent-live-lens {
+      position: absolute;
+      z-index: 1;
+      left: 55.84px;
+      top: -75.6px;
+      width: 145.6px;
+      height: 145.6px;
+      overflow: hidden;
+      border-radius: 50%;
+      background: var(--surface);
+      opacity: 0;
+      transform: scale(0.108);
+      transform-origin: center;
+      pointer-events: none;
+      will-change: opacity, transform;
+    }
+
+    .agent-live-lens-scene {
+      position: absolute;
+      left: 0;
+      top: 0;
+      transform-origin: 0 0;
+      will-change: transform;
+    }
+
+    .agent-live-lens-source {
+      margin: 0;
+      max-width: none;
+    }
+
+    .cinematic-cursor[data-lens-pose="pulling"] .agent-live-lens {
+      animation: agent-live-lens-pullout 520ms cubic-bezier(0.16, 0.84, 0.22, 1) both;
+    }
+
+    .cinematic-cursor[data-lens-pose="out"] .agent-live-lens {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .cinematic-cursor[data-lens-pose="stowing"] .agent-live-lens {
+      animation: agent-live-lens-stow 180ms ease-in both;
+    }
+
+    body[data-state="failed"] .agent-magnifier-ring,
+    body[data-lens-detail="alignment"][data-state="failed"] .agent-magnifier-ring,
+    body[data-lens-detail="caret"][data-state="failed"] .agent-magnifier-ring {
+      stroke: var(--red);
+    }
+
+    body[data-state="failed"] .cinematic-cursor.magnifying .agent-magnifier {
+      filter: drop-shadow(0 0 6px rgba(177, 43, 43, 0.3));
+    }
+
+    .agent-guide .agent-eye-happy,
+    .agent-guide .agent-success-smile {
+      opacity: 0;
+    }
+
+    .agent-guide .agent-eye-open {
+      transform-origin: center;
+    }
+
+    body[data-state="repairing"] .agent-guide .agent-eye-open {
+      transform: translateX(1.15px) scaleY(0.82);
+    }
+
+    body[data-state="repairing"] .agent-guide .agent-antenna {
+      transform: rotate(8deg);
+      transform-origin: 2px 7px;
+    }
+
+    .cursor-aura {
+      position: absolute;
+      left: 8px;
+      top: 7px;
+      width: 39px;
+      height: 39px;
+      border: 1px solid rgba(244, 200, 76, 0.84);
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 244, 202, 0.56), rgba(244, 200, 76, 0.08) 54%, transparent 70%);
+      opacity: 0.68;
+      transform: scale(0.84);
+      transition: transform 130ms ease, opacity 130ms ease, border-color 180ms ease;
+    }
+
+    .cinematic-cursor.pressing {
+      transform: translate3d(var(--cursor-x), var(--cursor-y), 0) rotate(-3deg) scale(0.9);
+    }
+
+    .cinematic-cursor.pressing .agent-body {
+      transform: translate(1px, 2px) scaleY(0.93);
+      transform-origin: center bottom;
+    }
+
+    .cinematic-cursor.pressing .agent-tap-arm {
+      transform: translate(-1px, -2px) rotate(-8deg);
+      transform-origin: right bottom;
+    }
+
+    .cinematic-cursor.pressing .agent-tap-hand {
+      transform: translate(-1px, -2px) scale(0.88);
+      transform-origin: center;
+    }
+
+    .cinematic-cursor.pressing .cursor-aura {
+      opacity: 1;
+      transform: scale(0.58);
+    }
+
+    .cinematic-cursor.success .cursor-aura {
+      border-color: rgba(22, 114, 74, 0.88);
+      background: radial-gradient(circle, rgba(234, 247, 240, 0.78), rgba(22, 114, 74, 0.09) 56%, transparent 72%);
+    }
+
+    .cinematic-cursor.success .agent-guide .agent-antenna-light,
+    .cinematic-cursor.success .agent-guide .agent-headset-accent,
+    .cinematic-cursor.success .agent-guide .agent-badge {
+      fill: #16724a;
+    }
+
+    .cinematic-cursor.success .agent-guide .agent-eye-open,
+    .cinematic-cursor.success .agent-guide .agent-mouth {
+      opacity: 0;
+    }
+
+    .cinematic-cursor.success .agent-guide .agent-eye-happy,
+    .cinematic-cursor.success .agent-guide .agent-success-smile {
+      opacity: 1;
+    }
+
+    .cinematic-cursor.success .agent-guide .agent-magnifier {
+      transform: translate(1px, 2px) rotate(10deg) scale(0.54);
+      filter: drop-shadow(0 0 4px rgba(22, 114, 74, 0.22));
+    }
+
+    .cinematic-cursor.success .agent-guide .agent-magnifier-ring,
+    body[data-state="accepted"] .agent-magnifier-ring {
+      stroke: var(--green);
+    }
+
+    .cinematic-cursor.success .agent-guide .agent-antenna {
+      transform: rotate(9deg);
+      transform-origin: 2px 7px;
+    }
+
+    .cinematic-ripple,
+    .cinematic-spark,
+    .cinematic-confetti,
+    .cinematic-trace {
+      position: fixed;
+      left: 0;
+      top: 0;
+      pointer-events: none;
+      will-change: transform, opacity;
+    }
+
+    .cinematic-ripple {
+      width: 16px;
+      height: 16px;
+      margin: -8px;
+      border: 2px solid var(--fx-color, var(--yellow));
+      border-radius: 50%;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.85), 0 0 22px var(--fx-glow, rgba(244, 200, 76, 0.52));
+      animation: cinematic-ripple 720ms cubic-bezier(0.12, 0.64, 0.24, 1) forwards;
+    }
+
+    .cinematic-spark {
+      width: 5px;
+      height: 5px;
+      margin: -2.5px;
+      border-radius: 999px;
+      background: var(--spark-color, var(--yellow));
+      box-shadow: 0 0 9px var(--spark-color, var(--yellow));
+      animation: cinematic-spark 680ms cubic-bezier(0.14, 0.72, 0.3, 1) forwards;
+    }
+
+    .cinematic-trace {
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(22, 114, 74, 0), rgba(22, 114, 74, 0.98) 20%, #63c48f 78%, rgba(99, 196, 143, 0));
+      box-shadow: 0 0 12px rgba(22, 114, 74, 0.56);
+      transform-origin: 0 50%;
+      animation: cinematic-trace var(--trace-duration, 740ms) cubic-bezier(0.2, 0.82, 0.2, 1) forwards;
+    }
+
+    .cinematic-confetti {
+      width: var(--confetti-width, 7px);
+      height: var(--confetti-height, 13px);
+      border-radius: 2px;
+      background: var(--confetti-color, var(--green));
+      box-shadow: 0 0 8px color-mix(in srgb, var(--confetti-color, var(--green)) 55%, transparent);
+      animation: cinematic-confetti var(--confetti-duration, 1750ms) cubic-bezier(0.18, 0.64, 0.32, 1) forwards;
+    }
+
+    .cinematic-target {
+      animation: cinematic-target 820ms cubic-bezier(0.2, 0.78, 0.2, 1);
+    }
+
+    .artifact-card.cinematic-repair-scan::after {
+      content: "";
+      position: absolute;
+      z-index: 6;
+      left: 8%;
+      right: 8%;
+      top: 14%;
+      height: 2px;
+      border-radius: 99px;
+      background: linear-gradient(90deg, transparent, rgba(22, 114, 74, 0.42), #6ad59c, rgba(22, 114, 74, 0.42), transparent);
+      box-shadow: 0 0 24px rgba(22, 114, 74, 0.42);
+      animation: cinematic-scan 2250ms cubic-bezier(0.35, 0, 0.2, 1) forwards;
+      pointer-events: none;
+    }
+
+    .receipt.cinematic-accepted-glow {
+      position: relative;
+      isolation: isolate;
+      animation: cinematic-accepted-glow 2100ms ease-out both;
+    }
+
+    .receipt.cinematic-accepted-glow::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      inset: 10px;
+      border: 1px solid rgba(22, 114, 74, 0.34);
+      border-radius: 19px;
+      box-shadow: inset 0 0 52px rgba(22, 114, 74, 0.08), 0 0 42px rgba(22, 114, 74, 0.14);
+      animation: cinematic-receipt-ring 2100ms ease-out both;
+      pointer-events: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { to { opacity: 0.4; } }
+    @keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+    @keyframes agent-magnifier-pullout {
+      0% { transform: rotate(-48deg) scale(0.28); opacity: 0.88; }
+      48% { transform: rotate(-18deg) scale(1.08); opacity: 1; }
+      78% { transform: rotate(4deg) scale(2.78); opacity: 1; }
+      100% { transform: rotate(0deg) scale(2.6); opacity: 1; }
+    }
+    @keyframes agent-magnifier-stow {
+      0% { transform: rotate(0deg) scale(2.6); opacity: 1; }
+      38% { transform: rotate(5deg) scale(1.48); opacity: 1; }
+      100% { transform: rotate(-48deg) scale(0.28); opacity: 0.9; }
+    }
+    @keyframes agent-live-lens-pullout {
+      0%, 70% { opacity: 0; transform: scale(0.2); }
+      84% { opacity: 0.42; transform: scale(1.07); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+    @keyframes agent-live-lens-stow {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(0.78); }
+    }
+    @keyframes agent-pull-brace {
+      0%, 100% { transform: translate(0, 0) rotate(0deg); }
+      58% { transform: translate(-2px, 1px) rotate(-3deg); }
+    }
+    @keyframes draft-part-lands {
+      0% { opacity: 0; transform: translateY(-15px) scale(0.94); }
+      66% { opacity: 1; transform: translateY(3px) scale(1.015); }
+      100% { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @keyframes draftling-flourish {
+      0% { transform: rotate(-6deg) translateY(0); }
+      45% { transform: rotate(9deg) translateY(-8px); }
+      100% { transform: rotate(-2deg) translateY(0); }
+    }
+    @keyframes draftling-fin-flick {
+      0%, 100% { transform: rotate(0); }
+      52% { transform: rotate(18deg); }
+    }
+    @keyframes cinematic-ripple {
+      0% { opacity: 0.95; transform: translate3d(var(--fx-x), var(--fx-y), 0) scale(0.25); }
+      72% { opacity: 0.55; }
+      100% { opacity: 0; transform: translate3d(var(--fx-x), var(--fx-y), 0) scale(4.8); }
+    }
+    @keyframes cinematic-spark {
+      0% { opacity: 1; transform: translate3d(var(--spark-x), var(--spark-y), 0) scale(1); }
+      100% { opacity: 0; transform: translate3d(calc(var(--spark-x) + var(--spark-dx)), calc(var(--spark-y) + var(--spark-dy)), 0) scale(0.18); }
+    }
+    @keyframes cinematic-trace {
+      0% { opacity: 0; transform: translate3d(var(--trace-x), var(--trace-y), 0) rotate(var(--trace-angle)) scaleX(0); }
+      18% { opacity: 1; }
+      76% { opacity: 1; }
+      100% { opacity: 0; transform: translate3d(var(--trace-x), var(--trace-y), 0) rotate(var(--trace-angle)) scaleX(1); }
+    }
+    @keyframes cinematic-confetti {
+      0% { opacity: 0; transform: translate3d(var(--confetti-x), var(--confetti-y), 0) rotate(0deg) scale(0.2); }
+      12% { opacity: 1; }
+      100% { opacity: 0; transform: translate3d(calc(var(--confetti-x) + var(--confetti-dx)), calc(var(--confetti-y) + var(--confetti-dy)), 0) rotate(var(--confetti-spin)) scale(0.9); }
+    }
+    @keyframes cinematic-target {
+      0%, 100% { filter: none; }
+      32% { filter: drop-shadow(0 0 10px rgba(244, 200, 76, 0.48)); }
+      64% { filter: drop-shadow(0 0 18px rgba(244, 200, 76, 0.22)); }
+    }
+    @keyframes cinematic-scan {
+      0% { opacity: 0; transform: translateY(0); }
+      14% { opacity: 1; }
+      86% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(260px); }
+    }
+    @keyframes cinematic-accepted-glow {
+      0% { box-shadow: inset 0 0 0 rgba(22, 114, 74, 0); }
+      26% { box-shadow: inset 0 0 70px rgba(22, 114, 74, 0.11); }
+      100% { box-shadow: inset 0 0 0 rgba(22, 114, 74, 0); }
+    }
+    @keyframes cinematic-receipt-ring {
+      0% { opacity: 0; transform: scale(0.97); }
+      24% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.025); }
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --ink: #f2f4ef;
+        --muted: #b8c0bb;
+        --quiet: #8f9994;
+        --paper: #101312;
+        --surface: #181d1b;
+        --surface-soft: #151a18;
+        --surface-raised: #202724;
+        --line: #39423f;
+        --line-strong: #4b5752;
+        --yellow: #e0b15d;
+        --yellow-soft: #302818;
+        --red: #e37d76;
+        --red-soft: #321e1d;
+        --green: #82c99a;
+        --green-soft: #173025;
+        --blue: #7db6c7;
+        --on-bright: #101312;
+        --shadow: 0 28px 86px rgba(0, 0, 0, 0.44);
+      }
+
+      body {
+        background:
+          radial-gradient(circle at 16% -10%, rgba(224, 177, 93, 0.11), transparent 30rem),
+          var(--paper);
+      }
+
+      .artifact-card {
+        background:
+          linear-gradient(rgba(242, 244, 239, 0.045) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(242, 244, 239, 0.045) 1px, transparent 1px),
+          var(--surface-soft);
+      }
+
+      .artifact-label {
+        background: rgba(24, 29, 27, 0.94);
+      }
+
+      [data-state="repairing"] .artifact-label,
+      [data-state="resubmitting"] .artifact-label {
+        border-color: #806c38;
+        color: #f0c86f;
+      }
+
+      [data-state="accepted"] .artifact-label {
+        border-color: #3d7557;
+      }
+
+      .bad-ui {
+        border-color: #303936;
+        box-shadow: 0 16px 42px rgba(0, 0, 0, 0.34);
+      }
+
+      .bad-select {
+        border-color: #66716c;
+        background: #111513;
+        box-shadow: 0 0 0 3px #29312e;
+      }
+
+      [data-state="accepted"] .bad-select {
+        border-color: var(--green);
+        box-shadow: 0 0 0 3px rgba(130, 201, 154, 0.16);
+      }
+
+      .centerline {
+        border-top-color: rgba(227, 125, 118, 0.78);
+      }
+
+      .run-button {
+        border-color: var(--blue);
+        background: var(--blue);
+        color: var(--on-bright);
+      }
+
+      .run-button:hover {
+        background: #a9d7e4;
+      }
+
+      .run-button:focus-visible,
+      .replay:focus-visible {
+        outline-color: var(--blue);
+      }
+
+      .spinner {
+        border-color: rgba(16, 19, 18, 0.34);
+        border-top-color: var(--on-bright);
+      }
+
+      [data-state="diagnosing"] .status-pill,
+      [data-state="repairing"] .status-pill,
+      [data-state="resubmitting"] .status-pill {
+        border-color: #806c38;
+        color: #f0c86f;
+      }
+
+      [data-state="failed"] .status-pill {
+        border-color: #754744;
+      }
+
+      [data-state="accepted"] .status-pill {
+        border-color: #3d7557;
+      }
+
+      .endpoint,
+      .proof-item {
+        background: rgba(24, 29, 27, 0.82);
+      }
+
+      .replay-badge,
+      .repair-kicker {
+        color: #f0c86f;
+      }
+
+      .runtime-step.active .step-icon {
+        box-shadow: 0 0 0 4px rgba(224, 177, 93, 0.13);
+      }
+
+      .decision {
+        border-color: #754744;
+      }
+
+      .decision-copy {
+        color: #d9aaa5;
+      }
+
+      .decision.accepted-decision {
+        border-color: #3d7557;
+      }
+
+      .accepted-decision .decision-copy {
+        color: #a8d7b8;
+      }
+
+      .repair-card {
+        border-color: #806c38;
+      }
+
+      .repair-copy {
+        color: #d8c28b;
+      }
+
+      .repair-item {
+        border-color: rgba(224, 177, 93, 0.24);
+        background: rgba(16, 19, 18, 0.42);
+        color: #e1d4ac;
+      }
+
+      .next-action {
+        border-color: var(--line-strong);
+        background: var(--surface-raised);
+        color: var(--ink);
+      }
+
+      .next-action span:first-child {
+        color: var(--muted);
+      }
+
+      .next-action.accept-action {
+        color: var(--on-bright);
+      }
+
+      .next-action.accept-action span:first-child {
+        color: rgba(13, 23, 17, 0.66);
+      }
+
+      .cinematic-cursor {
+        filter:
+          drop-shadow(0 0 1px rgba(242, 244, 239, 0.9))
+          drop-shadow(0 5px 8px rgba(0, 0, 0, 0.46));
+      }
+
+      .draftling-agent {
+        filter:
+          drop-shadow(0 0 1px rgba(242, 244, 239, 0.88))
+          drop-shadow(0 6px 9px rgba(0, 0, 0, 0.5));
+      }
+
+      .draftling-agent::before {
+        background: linear-gradient(90deg, transparent, rgba(125, 182, 199, 0.18), rgba(125, 182, 199, 0.76));
+      }
+
+      .cinematic-cursor.success .agent-guide .agent-antenna-light,
+      .cinematic-cursor.success .agent-guide .agent-headset-accent,
+      .cinematic-cursor.success .agent-guide .agent-badge {
+        fill: var(--green);
+      }
+
+      .cinematic-cursor.success .agent-guide .agent-success-smile {
+        stroke: var(--green);
+      }
+
+      .cinematic-ripple {
+        box-shadow:
+          0 0 0 1px rgba(242, 244, 239, 0.74),
+          0 0 24px var(--fx-glow, rgba(224, 177, 93, 0.58));
+      }
+    }
+
+    @media (max-width: 1050px) {
+      .hero { grid-template-columns: 1fr; }
+      .demo-stage { border-right: 0; border-bottom: 1px solid var(--line); }
+      .receipt { min-height: 570px; }
+    }
+
+    @media (max-width: 680px) {
+      .shell { width: 100%; padding-top: 0; }
+      .hero { border-radius: 0; }
+      .demo-stage, .receipt { padding: 30px 22px; }
+      h1 { font-size: 40px; }
+      .lede { font-size: 15px; }
+      .candidate-stack { width: calc(100% - 24px); }
+      .bad-ui { padding: 24px 18px 28px; }
+      .bad-lockup-text { font-size: 19px; white-space: normal; }
+      .bad-symbol { width: 34px; height: 34px; }
+      .bad-select { height: 58px; font-size: 20px; }
+      .stage-footer { align-items: stretch; flex-direction: column; }
+      .run-button { width: 100%; }
+      .viewport-results, .receipt-proof { grid-template-columns: 1fr; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+      .cinematic-fx { display: none; }
+      body.cinematic-mode,
+      body.cinematic-mode button,
+      body.cinematic-mode [tabindex] { cursor: auto !important; }
+    }
+  </style>
+</head>
+<body data-state="idle">
+  <div class="cinematic-fx" id="cinematic-fx" aria-hidden="true">
+    <div class="draftling-agent" id="draftling-agent" data-agent="draftling">
+      <svg class="draftling-guide" viewBox="0 0 54 60" aria-hidden="true">
+        <g class="draftling-fin">
+          <path d="m31.5 15.7 16.2-12-4.4 18.8Z" fill="#f4c84c" stroke="#171817" stroke-width="1.8" stroke-linejoin="round"/>
+          <path d="m36.5 13.7 7.4-5.3-2 8.4Z" fill="#fff8e8" stroke="#171817" stroke-width="1.15" stroke-linejoin="round"/>
+        </g>
+
+        <g class="draftling-stamp-arm">
+          <path d="M16.2 29.8C11.4 25.5 8.4 18 6.2 11.3" fill="none" stroke="#171817" stroke-width="6.1" stroke-linecap="round"/>
+          <path d="M16.2 29.8C11.4 25.5 8.4 18 6.2 11.3" fill="none" stroke="#2d63c8" stroke-width="3.7" stroke-linecap="round"/>
+          <circle cx="5.4" cy="8.4" r="3.6" fill="#fff8e8" stroke="#171817" stroke-width="1.55"/>
+          <path d="M3.1 6.1 1.8 3M5.2 4.8 5 1.5M7.2 5.7 8.2 2.8" fill="none" stroke="#171817" stroke-width="1.25" stroke-linecap="round"/>
+        </g>
+
+        <g class="draftling-body">
+          <path d="M20.5 49.8v4.3M35.8 49.8v4.3M18.6 55h4.1M33.8 55h4.1" fill="none" stroke="#171817" stroke-width="2.8" stroke-linecap="round"/>
+          <path d="M17.2 10.8h18.1c6.5 0 10.8 5.3 9.8 11.7l-3 20.2c-.7 5-5 8.8-10.1 8.8H21.3c-5 0-9.3-3.7-10.1-8.7L7.9 24c-1.2-6.8 3.2-13.2 9.3-13.2Z" fill="#2d63c8" stroke="#171817" stroke-width="1.9" stroke-linejoin="round"/>
+          <path d="M40.8 29.4c4.4-.8 7.5-3.3 8.4-7" fill="none" stroke="#171817" stroke-width="5.8" stroke-linecap="round"/>
+          <path d="M40.8 29.4c4.4-.8 7.5-3.3 8.4-7" fill="none" stroke="#2d63c8" stroke-width="3.5" stroke-linecap="round"/>
+          <circle cx="49" cy="19.8" r="3.2" fill="#fff8e8" stroke="#171817" stroke-width="1.5"/>
+          <path d="m47.3 19.9 1.6-1.6 1.9 1.2" fill="none" stroke="#171817" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round"/>
+
+          <rect x="13.8" y="15" width="25.7" height="23.4" rx="9" fill="#fff8e8" stroke="#171817" stroke-width="1.55"/>
+          <path d="M18.6 23.2c1.8-2 4.2-2 6 0" fill="none" stroke="#171817" stroke-width="1.7" stroke-linecap="round"/>
+          <ellipse cx="32.3" cy="24.2" rx="2.25" ry="2.9" fill="#171817"/>
+          <circle cx="33" cy="23.2" r=".65" fill="#fff"/>
+          <path d="M22.2 30.2c3.8 3.2 8 3.3 11.9.1" fill="none" stroke="#171817" stroke-width="1.65" stroke-linecap="round"/>
+          <path d="m28.4 43.2 3-3 3 3-3 3Z" fill="#f4c84c" stroke="#171817" stroke-width="1.2" stroke-linejoin="round"/>
+        </g>
+      </svg>
+    </div>
+    <div class="cinematic-cursor" id="cinematic-cursor" data-agent="judgment" data-lens-pose="stowed">
+      <span class="cursor-aura"></span>
+      <div class="agent-live-lens" id="agent-live-lens" aria-hidden="true">
+        <div class="agent-live-lens-scene" id="agent-live-lens-scene"></div>
+      </div>
+      <svg class="agent-guide" viewBox="0 0 48 54" aria-hidden="true">
+        <g class="agent-antenna">
+          <path d="M29.5 9.4 32.4 4.2" fill="none" stroke="#171817" stroke-width="1.7" stroke-linecap="round"/>
+          <circle class="agent-antenna-light" cx="33.2" cy="3.1" r="2.4" fill="#f4c84c" stroke="#171817" stroke-width="1.5"/>
+        </g>
+
+        <g class="agent-tap-arm">
+          <path d="M15.1 28.4c-4.8-1.2-6.1-6-7.5-11.5" fill="none" stroke="#171817" stroke-width="5.8" stroke-linecap="round"/>
+          <path d="M15.1 28.4c-4.8-1.2-6.1-6-7.5-11.5" fill="none" stroke="#f4c84c" stroke-width="3.5" stroke-linecap="round"/>
+        </g>
+        <g class="agent-tap-hand">
+          <circle cx="6.7" cy="13.9" r="3.5" fill="#fff8e8" stroke="#171817" stroke-width="1.6"/>
+          <path d="M4.7 11.5 3.5 8.3M6.7 10.5 6.3 7.3M8.5 11.3 9.3 8.5" fill="none" stroke="#171817" stroke-width="1.35" stroke-linecap="round"/>
+        </g>
+
+        <g class="agent-magnifier">
+          <path d="M43.1 38.8 51.5 33.1" fill="none" stroke="#171817" stroke-width="7.4" stroke-linecap="round"/>
+          <path d="M43.1 38.8 51.5 33.1" fill="none" stroke="#f4c84c" stroke-width="4.2" stroke-linecap="round"/>
+
+          <circle class="agent-magnifier-lens" cx="76" cy="22.8" r="32"/>
+          <circle class="agent-magnifier-ring" cx="76" cy="22.8" r="28"/>
+          <path class="agent-magnifier-shine" d="M58.5 17.7c3.6-8 10-12.2 18-12.7"/>
+        </g>
+
+        <g class="agent-body">
+          <path d="M19.3 45.4v4.2M35.4 45.4v4.2" fill="none" stroke="#171817" stroke-width="3.6" stroke-linecap="round"/>
+          <path d="M17.5 50.2h4.3M33.3 50.2h4.3" fill="none" stroke="#171817" stroke-width="2.3" stroke-linecap="round"/>
+
+          <path d="M17.1 34.8h20.6v9.5c0 2.2-1.8 4-4 4H21.1c-2.2 0-4-1.8-4-4v-9.5Z" fill="#f4c84c" stroke="#171817" stroke-width="1.8" stroke-linejoin="round"/>
+          <circle class="agent-badge" cx="27.4" cy="42.1" r="2.1" fill="#fff8e8" stroke="#171817" stroke-width="1.25"/>
+
+          <path d="M38.2 30.1c4.2.1 6.1 3.3 5.3 6.8" fill="none" stroke="#171817" stroke-width="5.8" stroke-linecap="round"/>
+          <path d="M38.2 30.1c4.2.1 6.1 3.3 5.3 6.8" fill="none" stroke="#f4c84c" stroke-width="3.5" stroke-linecap="round"/>
+          <circle cx="43" cy="38.8" r="3.2" fill="#fff8e8" stroke="#171817" stroke-width="1.6"/>
+          <path d="m41.4 38.3 1.8 1.1 1.5-1.5" fill="none" stroke="#171817" stroke-width="1.1" stroke-linecap="round"/>
+
+          <rect x="11.9" y="8.3" width="31" height="30.2" rx="11.2" fill="#f4c84c" stroke="#171817" stroke-width="1.9"/>
+          <rect x="15.3" y="12" width="24.1" height="22.1" rx="8.2" fill="#fff8e8" stroke="#171817" stroke-width="1.55"/>
+
+          <path d="M40.4 17.2c3 1.6 4.5 4.1 4.5 7.4v3.2" fill="none" stroke="#171817" stroke-width="1.8" stroke-linecap="round"/>
+          <rect class="agent-headset-accent" x="40.7" y="23.2" width="5.1" height="7.8" rx="2.5" fill="#f4c84c" stroke="#171817" stroke-width="1.55"/>
+          <path d="M44.6 30.2c0 3.4-2.1 5.4-5.1 5.4h-2.7" fill="none" stroke="#171817" stroke-width="1.45" stroke-linecap="round"/>
+          <circle cx="36.1" cy="35.6" r="1.5" fill="#171817"/>
+
+          <g class="agent-eye-open">
+            <ellipse cx="22.7" cy="22.1" rx="2.35" ry="3" fill="#171817"/>
+            <ellipse cx="32.1" cy="22.1" rx="2.35" ry="3" fill="#171817"/>
+            <circle cx="23.4" cy="21.1" r="0.65" fill="#fff"/>
+            <circle cx="32.8" cy="21.1" r="0.65" fill="#fff"/>
+          </g>
+          <g class="agent-eye-happy" fill="none" stroke="#171817" stroke-width="1.8" stroke-linecap="round">
+            <path d="m20.4 22.8 2.3-2.1 2.3 2.1"/>
+            <path d="m29.8 22.8 2.3-2.1 2.3 2.1"/>
+          </g>
+          <path class="agent-mouth" d="M25.1 28.2c1.5.8 3 .8 4.5 0" fill="none" stroke="#171817" stroke-width="1.5" stroke-linecap="round"/>
+          <path class="agent-success-smile" d="M24.3 27.4c1.8 2.3 4.3 2.3 6.1 0" fill="none" stroke="#16724a" stroke-width="1.8" stroke-linecap="round"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+  <main class="shell">
+    <section class="hero" aria-labelledby="demo-title">
+      <div class="demo-stage">
+        <h1 id="demo-title">Catch subtle UI defects.</h1>
+
+        <div class="artifact-card" id="artifact-card" data-build-stage="ready" aria-label="Candidate UI containing deliberate visual composition defects">
+          <div class="artifact-label" id="artifact-label">Candidate under review</div>
+          <div class="candidate-stack">
+          <div class="bad-ui">
+            <div class="bad-lockup">
+              <svg class="bad-symbol" viewBox="0 0 42 42" aria-hidden="true">
+                <path d="M19 3c3-3 8-1 8 3v8c0 3-2 5-5 5s-5-2-5-5V7c0-2 1-3 2-4Z"/>
+                <path d="M33 8c4 0 6 5 3 8l-6 5c-2 2-5 2-7 0-2-2-2-5 0-7l6-5c1-1 3-1 4-1Z"/>
+                <path d="M39 24c2 4-2 7-6 6l-8-2c-3-1-4-4-3-6 1-3 4-4 7-3l7 2c2 0 3 2 3 3Z"/>
+                <path d="M29 37c-2 3-7 2-8-2l-2-8c-1-3 1-5 4-6 3-1 5 1 6 4l2 8c0 2-1 3-2 4Z"/>
+                <path d="M12 36c-4 1-7-3-5-7l4-7c1-2 5-3 7-1s3 5 1 7l-4 7c-1 1-2 1-3 1Z"/>
+                <path d="M3 21c-3-2-2-7 2-8l8-2c3-1 6 1 6 4 1 3-1 5-4 6l-8 2c-2 0-3-1-4-2Z"/>
+              </svg>
+              <span class="bad-lockup-text">Brownfield safety design</span>
+              <div class="measurements failure-measurements" aria-hidden="true">
+                <div class="centerline"></div>
+              </div>
+              <div class="measurements repair-measurements" aria-hidden="true">
+                <div class="good-centerline"></div>
+              </div>
+            </div>
+
+            <div class="select-demo-shell">
+              <div class="bad-select" data-demo-geometry="field" role="combobox" aria-label="Board view" aria-expanded="false" tabindex="0">
+                <span class="select-rail select-leading" aria-hidden="true"></span>
+                <span class="select-label" data-part="value" data-demo-geometry="value">kanban.cards</span>
+                <span class="select-rail select-trailing" data-part="indicator-slot" data-demo-geometry="indicator-slot" aria-hidden="true"><svg data-part="indicator" data-demo-geometry="indicator" viewBox="0 0 24 24"><path d="m5 8 7 7 7-7"/></svg></span>
+              </div>
+              <div class="measurements failure-measurements" aria-hidden="true">
+                <div class="space-left"><span>28</span></div>
+                <div class="space-right"><span>6</span></div>
+              </div>
+              <div class="measurements repair-measurements" aria-hidden="true">
+                <div class="value-start-space" data-measure="value-start"><span>16</span></div>
+                <div class="indicator-slot-space" data-measure="indicator-slot"><span>48 slot</span></div>
+                <div class="indicator-end-space" data-measure="indicator-end"><span>16 inset</span></div>
+              </div>
+            </div>
+            </div>
+
+            <div class="stage-footer">
+              <button class="run-button" id="run-review" type="button">
+                <svg class="play-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m8 5 11 7-11 7V5Z"/></svg>
+                <span class="spinner" aria-hidden="true"></span>
+                <span class="button-label">Replay diagnosis + resolution</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="receipt" aria-labelledby="receipt-title" aria-live="polite">
+        <div class="receipt-header">
+          <h2 id="receipt-title">Browser review</h2>
+          <div class="status-pill" id="status-pill">Ready</div>
+        </div>
+
+        <ol class="runtime-track" id="runtime-track" aria-label="Runtime review progress">
+          <li class="runtime-step" data-step="0">
+            <span class="step-icon">✓</span>
+            <div><div class="step-title" data-step-title>Render candidate</div><div class="step-detail" data-step-detail>Isolated hosted Chromium session</div></div>
+            <span class="step-meta">secure</span>
+          </li>
+          <li class="runtime-step" data-step="1">
+            <span class="step-icon">✓</span>
+            <div><div class="step-title" data-step-title>Measure desktop</div><div class="step-detail" data-step-detail>Composition relationships at 1365 × 900</div></div>
+            <span class="step-meta">desktop</span>
+          </li>
+          <li class="runtime-step" data-step="2">
+            <span class="step-icon">✓</span>
+            <div><div class="step-title" data-step-title>Measure mobile</div><div class="step-detail" data-step-detail>Responsive evidence at 390 × 844</div></div>
+            <span class="step-meta">mobile</span>
+          </li>
+          <li class="runtime-step" data-step="3">
+            <span class="step-icon">✓</span>
+            <div><div class="step-title" data-step-title>Issue trusted receipt</div><div class="step-detail" data-step-detail>Server-observed, candidate-scoped evidence</div></div>
+            <span class="step-meta">trusted</span>
+          </li>
+        </ol>
+
+        <div class="state-panel failure-panel" id="failure-panel">
+          <div class="decision">
+            <div class="decision-label">Review result</div>
+            <div class="decision-value">2 issues found</div>
+            <div class="decision-copy">The candidate is paused until both measured composition defects are repaired.</div>
+          </div>
+
+          <div class="viewport-results">
+            <article class="viewport-result">
+              <div class="viewport-name"><span>Desktop + mobile</span><span class="fail-tag">Failed</span></div>
+              <div class="finding">Icon/text center delta exceeded</div>
+              <div class="finding">Caret slot is 28 px; expected 48 px</div>
+            </article>
+          </div>
+
+          <div class="next-action">
+            <span>Next step</span>
+            <code>Apply measured repair</code>
+          </div>
+
+        </div>
+
+        <div class="state-panel repair-panel" id="repair-panel">
+          <div class="repair-card">
+            <div class="repair-kicker">Measured repair</div>
+            <div class="repair-title">Repair from evidence</div>
+            <div class="repair-list">
+              <div class="repair-item">
+                <span class="repair-item-icon">✓</span>
+                <span>Align icon with label</span>
+                <code>+12 → 0 px</code>
+              </div>
+              <div class="repair-item">
+                <span class="repair-item-icon">✓</span>
+                <span>Reserve space for caret</span>
+                <code>28 → 48 px</code>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="state-panel accepted-panel" id="accepted-panel">
+          <div class="decision accepted-decision">
+            <div class="decision-label">Review result</div>
+            <div class="decision-value">Ready for handoff</div>
+            <div class="decision-copy">The repaired candidate passes the same browser checks at both sizes.</div>
+          </div>
+
+          <div class="viewport-results">
+            <article class="viewport-result">
+              <div class="viewport-name"><span>Desktop + mobile</span><span class="pass-tag">Passed</span></div>
+              <div class="finding passed">Icon/text centers aligned</div>
+              <div class="finding passed">48 px caret slot verified</div>
+            </article>
+          </div>
+
+          <div class="next-action accept-action">
+            <span>Outcome</span>
+            <code>Accepted</code>
+          </div>
+
+        </div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const body = document.body;
+      const runButton = document.getElementById('run-review');
+      const buttonLabel = runButton.querySelector('.button-label');
+      const statusPill = document.getElementById('status-pill');
+      const artifactLabel = document.getElementById('artifact-label');
+      const artifactCard = document.getElementById('artifact-card');
+      const receipt = document.querySelector('.receipt');
+      const cinematicFx = document.getElementById('cinematic-fx');
+      const cinematicCursor = document.getElementById('cinematic-cursor');
+      const draftlingAgent = document.getElementById('draftling-agent');
+      const liveLensScene = document.getElementById('agent-live-lens-scene');
+      const liveLensSource = artifactCard.querySelector('.bad-ui');
+      const steps = [...document.querySelectorAll('.runtime-step')];
+      const timers = [];
+      const cinematicTimers = [];
+      const diagnosisCopy = [
+        ['Render candidate', 'Isolated hosted Chromium session'],
+        ['Measure desktop', 'Composition relationships at 1365 × 900'],
+        ['Measure mobile', 'Responsive evidence at 390 × 844'],
+        ['Issue trusted receipt', 'Server-observed, candidate-scoped evidence']
+      ];
+      const resubmissionCopy = [
+        ['Render repaired candidate', 'Same isolated browser boundary'],
+        ['Remeasure desktop', 'Verify corrected composition at 1365 × 900'],
+        ['Remeasure mobile', 'Verify corrected composition at 390 × 844'],
+        ['Issue trusted receipt', 'Independent repaired-candidate evidence']
+      ];
+      const timeline = Object.freeze({
+        diagnosisFailed: 4300,
+        repairStarts: 8300,
+        resubmissionStarts: 13000,
+        accepted: 19100,
+        autoplayDelay: 1400
+      });
+      // Absolute milliseconds from page readiness for ?autoplay=cinematic.
+      // These named cues are also the synchronization contract for the video soundtrack.
+      const cinematicTimeline = Object.freeze({
+        draftlingEnters: 500,
+        buildFrame: 1400,
+        buildLockup: 2500,
+        buildSelect: 3900,
+        candidateReady: 5200,
+        draftlingExits: 6200,
+        judgmentEnters: 7300,
+        startButtonHover: 8200,
+        startButtonClick: 9000,
+        diagnosisFailed: 13300,
+        alignmentApproach: 13400,
+        alignmentLensOut: 13740,
+        alignmentLensStow: 14850,
+        caretApproach: 15150,
+        caretLensOut: 15450,
+        caretLensStow: 16550,
+        repairApproach: 16840,
+        repairCueClick: 17000,
+        repairStarts: 17300,
+        repairTraceStarts: 17520,
+        repairTraceEnds: 20550,
+        resubmissionStarts: 22000,
+        resubmitClick: 23000,
+        accepted: 28100,
+        acceptedReceiptFocus: 30920,
+        acceptedReceiptClick: 32000,
+        celebrationEnds: 34750,
+        complete: 38000
+      });
+      const magnifierExpandedScale = 2.6;
+      const magnifierGrip = Object.freeze({ x: 43.1, y: 38.8 });
+      const magnifierLensCenter = Object.freeze({ x: 76, y: 22.8 });
+      const magnifierHotspot = Object.freeze({
+        x: magnifierGrip.x + (magnifierLensCenter.x - magnifierGrip.x) * magnifierExpandedScale,
+        y: magnifierGrip.y + (magnifierLensCenter.y - magnifierGrip.y) * magnifierExpandedScale
+      });
+      const liveLensViewportSize = 56 * magnifierExpandedScale;
+      const liveLensOpticalZoom = magnifierExpandedScale;
+      const liveLensClone = liveLensSource.cloneNode(true);
+      let preparedLensFocus = null;
+
+      liveLensClone.classList.add('agent-live-lens-source');
+      liveLensClone.setAttribute('aria-hidden', 'true');
+      liveLensClone.setAttribute('inert', '');
+      [liveLensClone, ...liveLensClone.querySelectorAll('*')].forEach((node) => {
+        [...node.attributes].forEach(({ name }) => {
+          if (name.startsWith('on')) node.removeAttribute(name);
+        });
+        ['id', 'role', 'tabindex', 'aria-label', 'aria-expanded', 'name', 'for', 'href', 'data-demo-geometry', 'data-part', 'data-measure'].forEach((attribute) => {
+          node.removeAttribute(attribute);
+        });
+      });
+      liveLensScene.appendChild(liveLensClone);
+
+      function clearTimers() {
+        while (timers.length) window.clearTimeout(timers.pop());
+      }
+
+      function later(delay, callback) {
+        timers.push(window.setTimeout(callback, delay));
+      }
+
+      function clearCinematicTimers() {
+        while (cinematicTimers.length) window.clearTimeout(cinematicTimers.pop());
+      }
+
+      function cinematicLater(delay, callback) {
+        cinematicTimers.push(window.setTimeout(callback, delay));
+      }
+
+      function setStepCopy(copy) {
+        steps.forEach((step, index) => {
+          step.querySelector('[data-step-title]').textContent = copy[index][0];
+          step.querySelector('[data-step-detail]').textContent = copy[index][1];
+        });
+      }
+
+      function setStep(index) {
+        steps.forEach((step, stepIndex) => {
+          step.classList.toggle('done', stepIndex < index);
+          step.classList.toggle('active', stepIndex === index);
+        });
+      }
+
+      function elementPoint(element, anchorX = 0.5, anchorY = 0.5) {
+        const rect = element.getBoundingClientRect();
+        return {
+          x: rect.left + rect.width * anchorX,
+          y: rect.top + rect.height * anchorY
+        };
+      }
+
+      function moveCursor(target, {
+        duration = 720,
+        anchorX = 0.5,
+        anchorY = 0.5,
+        offsetX = -4,
+        offsetY = -3
+      } = {}) {
+        const point = target instanceof Element
+          ? elementPoint(target, anchorX, anchorY)
+          : target;
+        cinematicCursor.style.transition = `transform ${duration}ms cubic-bezier(0.2, 0.76, 0.2, 1), opacity 180ms ease`;
+        cinematicCursor.style.setProperty('--cursor-x', `${point.x + offsetX}px`);
+        cinematicCursor.style.setProperty('--cursor-y', `${point.y + offsetY}px`);
+        cinematicCursor.classList.add('visible');
+        return point;
+      }
+
+      function setLensDetail(detail = 'none') {
+        body.dataset.lensDetail = detail;
+      }
+
+      function setLensPose(pose = 'stowed') {
+        cinematicCursor.dataset.lensPose = pose;
+        cinematicCursor.classList.toggle('magnifying', pose !== 'stowed');
+      }
+
+      function syncLiveLensCrop() {
+        if (!preparedLensFocus) return;
+        const sourceRect = liveLensSource.getBoundingClientRect();
+        const viewportCenter = liveLensViewportSize / 2;
+        liveLensClone.style.width = `${sourceRect.width}px`;
+        liveLensClone.style.height = `${sourceRect.height}px`;
+        liveLensScene.style.width = `${sourceRect.width}px`;
+        liveLensScene.style.height = `${sourceRect.height}px`;
+        liveLensScene.style.transform = `translate(${viewportCenter - preparedLensFocus.x * liveLensOpticalZoom}px, ${viewportCenter - preparedLensFocus.y * liveLensOpticalZoom}px) scale(${liveLensOpticalZoom})`;
+      }
+
+      function prepareLens(target, options = {}) {
+        setLensDetail('none');
+        setLensPose('stowed');
+        const { anchorX = 0.5, anchorY = 0.5 } = options;
+        const sourceRect = liveLensSource.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        const point = {
+          x: targetRect.left + targetRect.width * anchorX,
+          y: targetRect.top + targetRect.height * anchorY
+        };
+        preparedLensFocus = {
+          x: point.x - sourceRect.left,
+          y: point.y - sourceRect.top
+        };
+        syncLiveLensCrop();
+        return moveLens(point, options);
+      }
+
+      function pullLens(detail) {
+        syncLiveLensCrop();
+        setLensDetail(detail);
+        setLensPose('pulling');
+        cinematicLater(520, () => {
+          if (cinematicCursor.dataset.lensPose === 'pulling') setLensPose('out');
+        });
+      }
+
+      function stowLens() {
+        setLensDetail('none');
+        setLensPose('stowing');
+        cinematicLater(280, () => {
+          if (cinematicCursor.dataset.lensPose !== 'stowing') return;
+          setLensPose('stowed');
+          cinematicCursor.classList.remove('lens-mirrored');
+        });
+      }
+
+      function moveLens(target, {
+        duration = 720,
+        anchorX = 0.5,
+        anchorY = 0.5,
+        side = 'left'
+      } = {}) {
+        const point = target instanceof Element
+          ? elementPoint(target, anchorX, anchorY)
+          : target;
+        cinematicCursor.classList.toggle('lens-mirrored', side === 'right');
+        return moveCursor(point, {
+          duration,
+          offsetX: -magnifierHotspot.x,
+          offsetY: -magnifierHotspot.y
+        });
+      }
+
+      function moveDraftling(target, {
+        duration = 560,
+        anchorX = 0.5,
+        anchorY = 0.5,
+        offsetX = -5,
+        offsetY = -5,
+        rotation = -8
+      } = {}) {
+        const point = target instanceof Element
+          ? elementPoint(target, anchorX, anchorY)
+          : target;
+        draftlingAgent.style.transition = `transform ${duration}ms cubic-bezier(0.14, 0.82, 0.18, 1), opacity 180ms ease`;
+        draftlingAgent.style.setProperty('--draftling-x', `${point.x + offsetX}px`);
+        draftlingAgent.style.setProperty('--draftling-y', `${point.y + offsetY}px`);
+        draftlingAgent.style.setProperty('--draftling-rotation', `${rotation}deg`);
+        draftlingAgent.classList.add('visible', 'moving');
+        window.setTimeout(() => draftlingAgent.classList.remove('moving'), duration + 80);
+        return point;
+      }
+
+      function removeEffectAfter(element, delay) {
+        window.setTimeout(() => element.remove(), delay);
+      }
+
+      function effectPalette(theme) {
+        if (theme === 'success') return ['#16724a', '#63c48f', '#f4c84c', '#ffffff'];
+        if (theme === 'failure') return ['#b12b2b', '#ef8c79', '#f4c84c', '#ffffff'];
+        if (theme === 'draft') return ['#2d63c8', '#7db6c7', '#f4c84c', '#ffffff'];
+        return ['#f4c84c', '#ffdf78', '#2d63c8', '#ffffff'];
+      }
+
+      function sparkBurst(point, theme = 'gold', count = 12, radius = 54) {
+        const palette = effectPalette(theme);
+        for (let index = 0; index < count; index += 1) {
+          const angle = (Math.PI * 2 * index) / count - Math.PI / 2;
+          const distance = radius * (0.7 + (index % 4) * 0.1);
+          const spark = document.createElement('span');
+          spark.className = 'cinematic-spark';
+          spark.style.setProperty('--spark-x', `${point.x}px`);
+          spark.style.setProperty('--spark-y', `${point.y}px`);
+          spark.style.setProperty('--spark-dx', `${Math.cos(angle) * distance}px`);
+          spark.style.setProperty('--spark-dy', `${Math.sin(angle) * distance}px`);
+          spark.style.setProperty('--spark-color', palette[index % palette.length]);
+          cinematicFx.appendChild(spark);
+          removeEffectAfter(spark, 760);
+        }
+      }
+
+      function clickTarget(target, theme = 'gold', { sparks = 12, anchorX = 0.5, anchorY = 0.5 } = {}) {
+        const point = elementPoint(target, anchorX, anchorY);
+        moveCursor(point, { duration: 120, offsetX: -4, offsetY: -3 });
+        cinematicCursor.style.transition = 'transform 110ms ease, opacity 180ms ease';
+        cinematicCursor.classList.add('pressing');
+        if (theme === 'success') cinematicCursor.classList.add('success');
+
+        const ripple = document.createElement('span');
+        ripple.className = 'cinematic-ripple';
+        ripple.style.setProperty('--fx-x', `${point.x}px`);
+        ripple.style.setProperty('--fx-y', `${point.y}px`);
+        ripple.style.setProperty('--fx-color', theme === 'success' ? '#16724a' : theme === 'failure' ? '#b12b2b' : '#f4c84c');
+        ripple.style.setProperty('--fx-glow', theme === 'success' ? 'rgba(22, 114, 74, 0.46)' : theme === 'failure' ? 'rgba(177, 43, 43, 0.42)' : 'rgba(244, 200, 76, 0.52)');
+        cinematicFx.appendChild(ripple);
+        removeEffectAfter(ripple, 820);
+        sparkBurst(point, theme, sparks);
+
+        target.classList.remove('cinematic-target');
+        void target.offsetWidth;
+        target.classList.add('cinematic-target');
+        window.setTimeout(() => target.classList.remove('cinematic-target'), 900);
+        window.setTimeout(() => cinematicCursor.classList.remove('pressing'), 145);
+      }
+
+      function stampDraft(target, stage, {
+        label = 'Generating draft',
+        anchorX = 0.5,
+        anchorY = 0.5,
+        sparks = 12
+      } = {}) {
+        body.dataset.storyPhase = `build-${stage}`;
+        artifactCard.dataset.buildStage = stage;
+        artifactLabel.textContent = label;
+        const point = elementPoint(target, anchorX, anchorY);
+        moveDraftling(point, { duration: 150, offsetX: -5, offsetY: -5, rotation: -11 });
+        draftlingAgent.classList.add('stamping');
+
+        const ripple = document.createElement('span');
+        ripple.className = 'cinematic-ripple';
+        ripple.style.setProperty('--fx-x', `${point.x}px`);
+        ripple.style.setProperty('--fx-y', `${point.y}px`);
+        ripple.style.setProperty('--fx-color', '#2d63c8');
+        ripple.style.setProperty('--fx-glow', 'rgba(45, 99, 200, 0.5)');
+        cinematicFx.appendChild(ripple);
+        removeEffectAfter(ripple, 820);
+        sparkBurst(point, 'draft', sparks, 48);
+
+        target.classList.remove('cinematic-target');
+        void target.offsetWidth;
+        target.classList.add('cinematic-target');
+        window.setTimeout(() => target.classList.remove('cinematic-target'), 900);
+        window.setTimeout(() => draftlingAgent.classList.remove('stamping'), 180);
+      }
+
+      function drawTrace(from, to, duration = 760) {
+        const dx = to.x - from.x;
+        const dy = to.y - from.y;
+        const trace = document.createElement('span');
+        trace.className = 'cinematic-trace';
+        trace.style.width = `${Math.hypot(dx, dy)}px`;
+        trace.style.setProperty('--trace-x', `${from.x}px`);
+        trace.style.setProperty('--trace-y', `${from.y}px`);
+        trace.style.setProperty('--trace-angle', `${Math.atan2(dy, dx)}rad`);
+        trace.style.setProperty('--trace-duration', `${duration}ms`);
+        cinematicFx.appendChild(trace);
+        removeEffectAfter(trace, duration + 100);
+      }
+
+      function traceMeasuredRepair() {
+        const symbol = liveLensSource.querySelector('.bad-symbol');
+        const lockupText = liveLensSource.querySelector('.bad-lockup-text');
+        const selectValue = liveLensSource.querySelector('[data-demo-geometry="value"]');
+        const trailingRail = liveLensSource.querySelector('.select-trailing');
+        const symbolPoint = elementPoint(symbol, 0.5, 0.5);
+        const textPoint = elementPoint(lockupText, 0.18, 0.5);
+        const leadingPoint = elementPoint(selectValue, 0.02, 0.5);
+        const trailingPoint = elementPoint(trailingRail, 0.5, 0.5);
+
+        artifactCard.classList.add('cinematic-repair-scan');
+        setLensDetail('none');
+        setLensPose('stowed');
+        moveCursor(symbolPoint, { duration: 460, offsetX: -4, offsetY: -3 });
+        cinematicLater(460, () => {
+          drawTrace(symbolPoint, textPoint, 860);
+          moveCursor(textPoint, { duration: 820, offsetX: -4, offsetY: -3 });
+          sparkBurst(symbolPoint, 'success', 8, 38);
+        });
+        cinematicLater(1380, () => {
+          sparkBurst(textPoint, 'success', 8, 38);
+          moveCursor(leadingPoint, { duration: 560, offsetX: -4, offsetY: -3 });
+        });
+        cinematicLater(1980, () => {
+          drawTrace(leadingPoint, trailingPoint, 980);
+          moveCursor(trailingPoint, { duration: 940, offsetX: -4, offsetY: -3 });
+          sparkBurst(leadingPoint, 'success', 8, 38);
+        });
+        cinematicLater(3000, () => {
+          sparkBurst(trailingPoint, 'success', 10, 44);
+          artifactCard.classList.remove('cinematic-repair-scan');
+          setLensPose('stowed');
+        });
+      }
+
+      function celebrateAcceptance() {
+        const acceptedDecision = document.querySelector('.accepted-decision');
+        const origin = elementPoint(acceptedDecision, 0.5, 0.36);
+        const colors = ['#16724a', '#63c48f', '#f4c84c', '#ffdf78', '#2d63c8', '#ffffff'];
+        receipt.classList.add('cinematic-accepted-glow');
+        sparkBurst(origin, 'success', 24, 96);
+
+        for (let index = 0; index < 38; index += 1) {
+          const confetti = document.createElement('span');
+          const spread = ((index * 47) % 330) - 165;
+          const lift = -70 - ((index * 29) % 115);
+          const fall = 225 + ((index * 37) % 165);
+          confetti.className = 'cinematic-confetti';
+          confetti.style.setProperty('--confetti-x', `${origin.x + ((index % 5) - 2) * 9}px`);
+          confetti.style.setProperty('--confetti-y', `${origin.y}px`);
+          confetti.style.setProperty('--confetti-dx', `${spread}px`);
+          confetti.style.setProperty('--confetti-dy', `${lift + fall}px`);
+          confetti.style.setProperty('--confetti-spin', `${(index % 2 ? 1 : -1) * (360 + (index % 5) * 115)}deg`);
+          confetti.style.setProperty('--confetti-duration', `${1500 + (index % 7) * 95}ms`);
+          confetti.style.setProperty('--confetti-width', `${5 + (index % 3) * 2}px`);
+          confetti.style.setProperty('--confetti-height', `${8 + (index % 4) * 3}px`);
+          confetti.style.setProperty('--confetti-color', colors[index % colors.length]);
+          cinematicFx.appendChild(confetti);
+          removeEffectAfter(confetti, 2300);
+        }
+        window.setTimeout(() => receipt.classList.remove('cinematic-accepted-glow'), 2200);
+      }
+
+      function finishCinematic() {
+        body.dataset.cinematic = 'complete';
+        body.dataset.storyPhase = 'complete';
+        setLensDetail('none');
+        setLensPose('stowed');
+        cinematicCursor.classList.remove('success', 'pressing', 'visible', 'lens-mirrored');
+        draftlingAgent.classList.remove('visible', 'moving', 'stamping', 'flourish');
+        body.classList.remove('cinematic-mode');
+        window.dispatchEvent(new CustomEvent('judgmentkit-demo-cinematic-complete', {
+          detail: {
+            state: body.dataset.state,
+            cinematic: body.dataset.cinematic,
+            elapsedMs: cinematicTimeline.complete,
+            timeline: cinematicTimeline
+          }
+        }));
+      }
+
+      function startCinematic() {
+        reset();
+        body.dataset.cinematic = 'running';
+        body.dataset.storyPhase = 'cold-open';
+        body.dataset.lensDetail = 'none';
+        body.classList.add('cinematic-mode');
+        cinematicCursor.classList.remove('visible', 'pressing', 'success', 'magnifying', 'lens-mirrored');
+        cinematicCursor.dataset.lensPose = 'stowed';
+        cinematicCursor.style.setProperty('--cursor-x', '-72px');
+        cinematicCursor.style.setProperty('--cursor-y', `${Math.round(window.innerHeight * 0.72)}px`);
+        draftlingAgent.classList.remove('visible', 'moving', 'stamping', 'flourish');
+        draftlingAgent.style.setProperty('--draftling-x', '-82px');
+        draftlingAgent.style.setProperty('--draftling-y', `${Math.round(window.innerHeight * 0.62)}px`);
+        draftlingAgent.style.setProperty('--draftling-rotation', '-8deg');
+        artifactCard.dataset.buildStage = 'empty';
+        artifactLabel.textContent = 'Awaiting candidate';
+        artifactCard.setAttribute('aria-label', 'Empty candidate stage waiting for an initial generated draft');
+        statusPill.textContent = 'Waiting';
+        buttonLabel.textContent = 'Waiting for first draft…';
+        runButton.disabled = true;
+
+        cinematicLater(cinematicTimeline.draftlingEnters, () => {
+          body.dataset.storyPhase = 'draftling-enters';
+          moveDraftling(artifactCard, { duration: 760, anchorX: 0.17, anchorY: 0.72, rotation: -5 });
+        });
+        cinematicLater(cinematicTimeline.buildFrame, () => {
+          stampDraft(liveLensSource, 'frame', {
+            label: 'Generating draft',
+            anchorX: 0.13,
+            anchorY: 0.78,
+            sparks: 14
+          });
+        });
+        cinematicLater(cinematicTimeline.buildLockup, () => {
+          stampDraft(liveLensSource.querySelector('.bad-lockup'), 'lockup', {
+            anchorX: 0.14,
+            anchorY: 0.45,
+            sparks: 12
+          });
+        });
+        cinematicLater(cinematicTimeline.buildSelect, () => {
+          stampDraft(liveLensSource.querySelector('.bad-select'), 'select', {
+            anchorX: 0.92,
+            anchorY: 0.5,
+            sparks: 14
+          });
+        });
+        cinematicLater(cinematicTimeline.candidateReady, () => {
+          body.dataset.storyPhase = 'candidate-ready';
+          artifactCard.dataset.buildStage = 'ready';
+          artifactLabel.textContent = 'First draft ready';
+          artifactCard.setAttribute('aria-label', 'Generated first draft containing subtle visual composition defects');
+          statusPill.textContent = 'Ready to review';
+          buttonLabel.textContent = 'Review candidate';
+          runButton.disabled = false;
+          draftlingAgent.classList.add('flourish');
+          moveDraftling(artifactCard, { duration: 520, anchorX: 0.86, anchorY: 0.28, rotation: 2 });
+          sparkBurst(elementPoint(draftlingAgent, 0.48, 0.42), 'draft', 12, 52);
+        });
+        cinematicLater(cinematicTimeline.draftlingExits, () => {
+          body.dataset.storyPhase = 'handoff';
+          draftlingAgent.classList.remove('flourish');
+          moveDraftling({ x: window.innerWidth + 76, y: window.innerHeight * 0.18 }, {
+            duration: 760,
+            offsetX: 0,
+            offsetY: 0,
+            rotation: 12
+          });
+          window.setTimeout(() => draftlingAgent.classList.remove('visible'), 820);
+        });
+        cinematicLater(cinematicTimeline.judgmentEnters, () => {
+          body.dataset.storyPhase = 'judgment-enters';
+          setLensDetail('none');
+          setLensPose('stowed');
+          moveCursor(liveLensSource.querySelector('.bad-lockup'), {
+            duration: 760,
+            anchorX: 0.15,
+            anchorY: 0.5,
+            offsetX: -58,
+            offsetY: 16
+          });
+        });
+        cinematicLater(cinematicTimeline.startButtonHover, () => {
+          moveCursor(runButton, { duration: 640, anchorX: 0.52, anchorY: 0.5 });
+          runButton.classList.add('cinematic-target');
+        });
+        cinematicLater(cinematicTimeline.startButtonClick, () => {
+          body.dataset.storyPhase = 'reviewing';
+          clickTarget(runButton, 'gold', { sparks: 14 });
+          runButton.click();
+        });
+        cinematicLater(cinematicTimeline.alignmentApproach, () => {
+          body.dataset.storyPhase = 'inspect-alignment';
+          prepareLens(liveLensSource.querySelector('.bad-lockup'), {
+            duration: 300,
+            anchorX: 0.08,
+            anchorY: 0.5
+          });
+        });
+        cinematicLater(cinematicTimeline.alignmentLensOut, () => pullLens('alignment'));
+        cinematicLater(cinematicTimeline.alignmentLensStow, stowLens);
+        cinematicLater(cinematicTimeline.caretApproach, () => {
+          body.dataset.storyPhase = 'inspect-caret';
+          prepareLens(liveLensSource.querySelector('.select-trailing'), {
+            duration: 280,
+            side: 'right'
+          });
+        });
+        cinematicLater(cinematicTimeline.caretLensOut, () => pullLens('caret'));
+        cinematicLater(cinematicTimeline.caretLensStow, stowLens);
+        cinematicLater(cinematicTimeline.repairApproach, () => {
+          moveCursor(document.querySelector('.next-action'), {
+            duration: 160,
+            anchorX: 0.5,
+            anchorY: 0.5,
+            offsetX: -4,
+            offsetY: -3
+          });
+        });
+        cinematicLater(cinematicTimeline.repairCueClick, () => {
+          clickTarget(document.querySelector('.next-action'), 'failure', { sparks: 14 });
+        });
+        cinematicLater(cinematicTimeline.repairTraceStarts, traceMeasuredRepair);
+        cinematicLater(21400, () => {
+          setLensDetail('none');
+          setLensPose('stowed');
+          moveCursor(runButton, { duration: 1180, anchorX: 0.62, anchorY: 0.5 });
+        });
+        cinematicLater(cinematicTimeline.resubmitClick, () => {
+          clickTarget(runButton, 'gold', { sparks: 14 });
+        });
+        cinematicLater(23720, () => moveCursor(steps[1], { duration: 620, anchorX: 0.74, anchorY: 0.3 }));
+        cinematicLater(24920, () => moveCursor(steps[2], { duration: 620, anchorX: 0.74, anchorY: 0.3 }));
+        cinematicLater(26120, () => moveCursor(steps[3], { duration: 620, anchorX: 0.74, anchorY: 0.3 }));
+        cinematicLater(cinematicTimeline.acceptedReceiptFocus, () => {
+          setLensDetail('none');
+          cinematicCursor.classList.add('success');
+          moveCursor(document.querySelector('.accepted-decision'), { duration: 820, anchorX: 0.84, anchorY: 0.72 });
+        });
+        cinematicLater(cinematicTimeline.acceptedReceiptClick, () => {
+          const target = document.querySelector('.accepted-decision');
+          clickTarget(target, 'success', { sparks: 22, anchorX: 0.84, anchorY: 0.72 });
+          celebrateAcceptance();
+        });
+        cinematicLater(cinematicTimeline.celebrationEnds, () => {
+          moveCursor({ x: window.innerWidth + 54, y: window.innerHeight * 0.78 }, { duration: 900, offsetX: 0, offsetY: 0 });
+        });
+        cinematicLater(cinematicTimeline.complete, finishCinematic);
+      }
+
+      function reset({ focus = false } = {}) {
+        clearTimers();
+        clearCinematicTimers();
+        body.classList.remove('cinematic-mode');
+        delete body.dataset.cinematic;
+        delete body.dataset.storyPhase;
+        body.dataset.lensDetail = 'none';
+        cinematicCursor.classList.remove('visible', 'pressing', 'success', 'magnifying', 'lens-mirrored');
+        cinematicCursor.dataset.lensPose = 'stowed';
+        draftlingAgent.classList.remove('visible', 'moving', 'stamping', 'flourish');
+        draftlingAgent.style.setProperty('--draftling-x', '-82px');
+        draftlingAgent.style.setProperty('--draftling-y', `${Math.round(window.innerHeight * 0.62)}px`);
+        draftlingAgent.style.setProperty('--draftling-rotation', '-8deg');
+        cinematicFx.querySelectorAll('.cinematic-ripple, .cinematic-spark, .cinematic-confetti, .cinematic-trace').forEach(effect => effect.remove());
+        artifactCard.classList.remove('cinematic-repair-scan');
+        artifactCard.dataset.buildStage = 'ready';
+        receipt.classList.remove('cinematic-accepted-glow');
+        body.dataset.state = 'idle';
+        runButton.disabled = false;
+        buttonLabel.textContent = 'Replay diagnosis + resolution';
+        statusPill.textContent = 'Ready';
+        artifactLabel.textContent = 'Candidate under review';
+        artifactCard.setAttribute('aria-label', 'Candidate UI containing deliberate visual composition defects');
+        setStepCopy(diagnosisCopy);
+        steps.forEach(step => step.classList.remove('done', 'active'));
+        if (focus) runButton.focus({ preventScroll: true });
+      }
+
+      function showFailure() {
+        steps.forEach(step => step.classList.add('done'));
+        body.dataset.state = 'failed';
+        buttonLabel.textContent = 'Measured repair queued';
+        statusPill.textContent = 'Failed as expected';
+        artifactLabel.textContent = 'Failed candidate';
+      }
+
+      function applyRepair() {
+        body.dataset.state = 'repairing';
+        buttonLabel.textContent = 'Applying measured repair…';
+        statusPill.textContent = 'Repairing';
+        artifactLabel.textContent = 'Measured repair applied';
+        artifactCard.setAttribute('aria-label', 'Candidate UI with the measured composition repair applied');
+      }
+
+      function startResubmission() {
+        body.dataset.state = 'resubmitting';
+        setStepCopy(resubmissionCopy);
+        setStep(0);
+        buttonLabel.textContent = 'Rendering repaired candidate…';
+        statusPill.textContent = 'Resubmitting';
+        artifactLabel.textContent = 'Repaired candidate under review';
+      }
+
+      function showAccepted() {
+        steps.forEach(step => {
+          step.classList.add('done');
+          step.classList.remove('active');
+        });
+        body.dataset.state = 'accepted';
+        runButton.disabled = false;
+        buttonLabel.textContent = 'Replay';
+        statusPill.textContent = 'Accepted';
+        artifactLabel.textContent = 'Accepted artifact';
+        artifactCard.setAttribute('aria-label', 'Accepted UI artifact with aligned icon and text centers, a 16 pixel value start, and a centered 16 pixel caret in a 48 pixel trailing indicator slot');
+        window.dispatchEvent(new CustomEvent('judgmentkit-demo-accepted'));
+      }
+
+      function run() {
+        if (['diagnosing', 'repairing', 'resubmitting'].includes(body.dataset.state)) return;
+        clearTimers();
+        body.dataset.state = 'diagnosing';
+        runButton.disabled = true;
+        buttonLabel.textContent = 'Opening hosted browser…';
+        statusPill.textContent = 'Diagnosing';
+        artifactLabel.textContent = 'Candidate under review';
+        artifactCard.setAttribute('aria-label', 'Candidate UI containing deliberate visual composition defects');
+        setStepCopy(diagnosisCopy);
+        setStep(0);
+
+        later(1000, () => { setStep(1); buttonLabel.textContent = 'Measuring desktop…'; });
+        later(2100, () => { setStep(2); buttonLabel.textContent = 'Measuring mobile…'; });
+        later(3200, () => { setStep(3); buttonLabel.textContent = 'Issuing trusted failure receipt…'; });
+        later(timeline.diagnosisFailed, showFailure);
+        later(timeline.repairStarts, applyRepair);
+        later(timeline.resubmissionStarts, startResubmission);
+        later(14200, () => { setStep(1); buttonLabel.textContent = 'Remeasuring desktop…'; });
+        later(15400, () => { setStep(2); buttonLabel.textContent = 'Remeasuring mobile…'; });
+        later(16600, () => { setStep(3); buttonLabel.textContent = 'Issuing trusted pass receipt…'; });
+        later(timeline.accepted, showAccepted);
+      }
+
+      function replay() {
+        reset();
+        window.requestAnimationFrame(() => window.requestAnimationFrame(run));
+      }
+
+      runButton.addEventListener('click', () => {
+        if (body.dataset.state === 'accepted') {
+          replay();
+        } else {
+          run();
+        }
+      });
+
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('autoplay') === 'cinematic') {
+        startCinematic();
+      } else if (['1', 'resolution'].includes(params.get('autoplay'))) {
+        later(timeline.autoplayDelay, run);
+      }
+
+      window.__JUDGMENTKIT_DEMO__ = Object.freeze({
+        provenance: 'local v1.1 trusted-browser validation replay; no live network call',
+        timeline,
+        cinematicTimeline,
+        run,
+        reset,
+        startCinematic
+      });
+    })();
+  </script>
+</body>
+</html>
