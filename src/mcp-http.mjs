@@ -30,10 +30,21 @@ function getHeaderValue(req, name) {
   return header ?? "";
 }
 
-function wantsMetadata(req) {
-  const accept = getHeaderValue(req, "accept");
+function acceptsMediaType(req, mediaType) {
+  return getHeaderValue(req, "accept")
+    .split(",")
+    .some(
+      (entry) =>
+        entry.split(";", 1)[0].trim().toLowerCase() === mediaType.toLowerCase(),
+    );
+}
 
-  return req.method === "GET" && !accept.includes("text/event-stream");
+function wantsStandaloneSse(req) {
+  return req.method === "GET" && acceptsMediaType(req, "text/event-stream");
+}
+
+function wantsMetadata(req) {
+  return req.method === "GET" && !wantsStandaloneSse(req);
 }
 
 function setCorsHeaders(res) {
@@ -129,6 +140,19 @@ function sendJsonRpcParseError(res) {
   });
 }
 
+function sendStandaloneSseNotSupported(res) {
+  res.setHeader("Allow", "POST");
+  res.setHeader("Cache-Control", "no-store");
+  sendJson(res, 405, {
+    jsonrpc: "2.0",
+    error: {
+      code: -32000,
+      message: "Method not allowed: standalone SSE streams are not supported.",
+    },
+    id: null,
+  });
+}
+
 function sendUnsupportedMediaType(res) {
   sendJson(res, 415, {
     jsonrpc: "2.0",
@@ -157,6 +181,11 @@ export async function handleJudgmentKitMcpNodeRequest(req, res, options = {}) {
   if (req.method === "OPTIONS") {
     res.statusCode = 204;
     res.end();
+    return;
+  }
+
+  if (wantsStandaloneSse(req)) {
+    sendStandaloneSseNotSupported(res);
     return;
   }
 
