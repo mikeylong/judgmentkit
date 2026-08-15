@@ -213,7 +213,7 @@ npm run site:build
 
 That command publishes static paths for `/`, `/value/`, `/docs/`, `/examples/`, and `/install` under `site/dist/`. The public `/mcp` and `/mcp/` routes are served by the hosted Streamable HTTP MCP function and return metadata for browser GET requests.
 
-The homepage opens with one visual-composition video above the existing hero. It follows an initial generated draft through browser diagnosis and measured repair, and automatically selects distinct light or dark recordings and posters from the visitor's color-scheme preference. The public player does not expose or publish a caption track. The video is replay evidence, not proof that every policy shown is active on the public MCP. There is no separate visual-composition release or interactive-demo route.
+The homepage opens with the live visual-composition demo above the existing hero. Its fixed 1440×900 HTML stage scales as one composition with the page, while the MP4 supplies the looping music clock and a native playback fallback. The three controls play or pause the live scene, scrub its timeline, and mute or unmute the music. The stage follows an initial generated draft through browser diagnosis and measured repair, switches between light and dark in place, and requests sound-on autoplay. Browsers that block first-visit audible autoplay fall back to muted playback; Play or Unmute restores sound through a user gesture. The public player does not expose or publish a caption track. The demo is a replay of verified behavior, not proof that every policy shown is active on the public MCP. There is no separate visual-composition release or demo route.
 
 For local site review with the same `/mcp` behavior:
 

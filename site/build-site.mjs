@@ -42,6 +42,8 @@ const VISUAL_COMPOSITION_POSTER_FILENAME =
   "judgmentkit-select-field-agent-demo-poster.png";
 const VISUAL_COMPOSITION_DARK_POSTER_FILENAME =
   "judgmentkit-select-field-agent-demo-poster-dark.png";
+const VISUAL_COMPOSITION_LIVE_DEMO_FILENAME =
+  "visual-composition-runtime-demo.html";
 const VISUAL_COMPOSITION_RECORDING_PATH =
   `/assets/releases/${VISUAL_COMPOSITION_RECORDING_FILENAME}`;
 const VISUAL_COMPOSITION_DARK_RECORDING_PATH =
@@ -50,6 +52,8 @@ const VISUAL_COMPOSITION_POSTER_PATH =
   `/assets/releases/${VISUAL_COMPOSITION_POSTER_FILENAME}`;
 const VISUAL_COMPOSITION_DARK_POSTER_PATH =
   `/assets/releases/${VISUAL_COMPOSITION_DARK_POSTER_FILENAME}`;
+const VISUAL_COMPOSITION_LIVE_DEMO_PATH =
+  `/assets/releases/${VISUAL_COMPOSITION_LIVE_DEMO_FILENAME}`;
 const DESIGN_SYSTEM_SPECIMEN_RENDERER = {
   id: "judgmentkit-static-specimens",
   version: "0.1.0",
@@ -1476,7 +1480,7 @@ h2 {
   background: var(--bg);
 }
 .homepage-film-shell {
-  max-width: 1240px;
+  max-width: 1440px;
 }
 .homepage-film-figure {
   margin: 0;
@@ -1488,14 +1492,53 @@ h2 {
   background: transparent;
   box-shadow: none;
 }
-.homepage-film {
+.homepage-film-stage,
+.homepage-film-source-media {
   display: block;
   width: 100%;
+  height: auto;
   aspect-ratio: 16 / 10;
   border: 0;
   border-radius: 0;
   background: var(--ink);
   box-shadow: none;
+}
+.homepage-film-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+.homepage-film-stage[hidden] {
+  display: none;
+}
+.homepage-film-live-scale {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 1440px;
+  height: 900px;
+  transform: scale(var(--homepage-film-scale, 1));
+  transform-origin: 0 0;
+}
+.homepage-film-live {
+  display: block;
+  width: 1440px;
+  height: 900px;
+  border: 0;
+  background: var(--ink);
+  pointer-events: none;
+}
+.homepage-film-source-media--soundtrack {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  opacity: 0;
+  pointer-events: none;
 }
 .homepage-film-controls[hidden] {
   display: none;
@@ -1508,9 +1551,9 @@ h2 {
   left: auto;
   display: grid;
   grid-template-columns: 44px minmax(0, 1fr) 44px;
-  gap: 6px;
+  gap: 4px;
   align-items: center;
-  width: min(292px, calc(100% - 28px));
+  width: min(236px, calc(100% - 28px));
   padding: 0;
   border: 0;
   color: var(--fixed-light-ink);
@@ -1519,6 +1562,8 @@ h2 {
   transform: none;
 }
 .homepage-film-control-button {
+  position: relative;
+  isolation: isolate;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1526,21 +1571,35 @@ h2 {
   min-width: 44px;
   height: 44px;
   min-height: 44px;
-  padding: 10px;
-  border: 1px solid color-mix(in srgb, var(--fixed-light-ink) 48%, transparent);
+  padding: 0;
+  border: 0;
   border-radius: 999px;
   color: inherit;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+  font: inherit;
+}
+.homepage-film-control-button::before {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 36px;
+  height: 36px;
+  border: 1px solid color-mix(in srgb, var(--fixed-light-ink) 48%, transparent);
+  border-radius: 999px;
   background: color-mix(in srgb, var(--hero-art-bg) 78%, transparent);
   box-shadow:
-    0 6px 18px color-mix(in srgb, var(--hero-art-bg) 18%, transparent),
+    0 5px 14px color-mix(in srgb, var(--hero-art-bg) 18%, transparent),
     inset 0 1px color-mix(in srgb, var(--fixed-light-ink) 9%, transparent);
   -webkit-backdrop-filter: blur(16px) saturate(1.16);
   backdrop-filter: blur(16px) saturate(1.16);
-  cursor: pointer;
-  font: inherit;
+  content: "";
+  pointer-events: none;
+  transform: translate(-50%, -50%);
   transition: background-color 140ms ease, border-color 140ms ease;
 }
-.homepage-film-control-button:hover {
+.homepage-film-control-button:hover::before {
   border-color: color-mix(in srgb, var(--fixed-light-ink) 64%, transparent);
   background: color-mix(in srgb, var(--hero-art-bg) 88%, transparent);
 }
@@ -1551,25 +1610,27 @@ h2 {
   box-shadow: 0 0 0 5px var(--hero-art-bg);
 }
 .homepage-film-control-button svg {
-  width: 20px;
-  height: 20px;
+  position: relative;
+  z-index: 1;
+  width: 16px;
+  height: 16px;
   flex: 0 0 auto;
 }
 .homepage-film-control-button svg[hidden] {
   display: none;
 }
 .homepage-film-scrubber {
+  box-sizing: border-box;
   width: 100%;
   min-width: 0;
   height: 44px;
   margin: 0;
-  padding: 0 12px;
-  border: 1px solid color-mix(in srgb, var(--fixed-light-ink) 48%, transparent);
+  padding: 4px 8px;
+  border: 0;
   border-radius: 999px;
   background: color-mix(in srgb, var(--hero-art-bg) 78%, transparent);
-  box-shadow:
-    0 6px 18px color-mix(in srgb, var(--hero-art-bg) 18%, transparent),
-    inset 0 1px color-mix(in srgb, var(--fixed-light-ink) 9%, transparent);
+  background-clip: content-box;
+  box-shadow: none;
   -webkit-backdrop-filter: blur(16px) saturate(1.16);
   backdrop-filter: blur(16px) saturate(1.16);
   cursor: pointer;
@@ -1588,13 +1649,13 @@ h2 {
   background: linear-gradient(
     90deg,
     var(--fixed-light-ink) 0 var(--film-progress, 0%),
-    color-mix(in srgb, var(--fixed-light-ink) 34%, transparent) var(--film-progress, 0%) 100%
+    color-mix(in srgb, var(--fixed-light-ink) 42%, transparent) var(--film-progress, 0%) 100%
   );
 }
 .homepage-film-scrubber::-webkit-slider-thumb {
-  width: 18px;
-  height: 18px;
-  margin-top: -7px;
+  width: 14px;
+  height: 14px;
+  margin-top: -5px;
   border: 2px solid color-mix(in srgb, var(--hero-art-bg) 72%, transparent);
   border-radius: 50%;
   background: var(--fixed-light-ink);
@@ -1606,7 +1667,7 @@ h2 {
   height: 4px;
   border: 0;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--fixed-light-ink) 34%, transparent);
+  background: color-mix(in srgb, var(--fixed-light-ink) 42%, transparent);
 }
 .homepage-film-scrubber::-moz-range-progress {
   height: 4px;
@@ -1614,8 +1675,8 @@ h2 {
   background: var(--fixed-light-ink);
 }
 .homepage-film-scrubber::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   border: 2px solid color-mix(in srgb, var(--hero-art-bg) 72%, transparent);
   border-radius: 50%;
   background: var(--fixed-light-ink);
@@ -4414,15 +4475,15 @@ pre {
     bottom: 12px;
     right: 12px;
     left: auto;
-    width: min(280px, calc(100% - 24px));
-    gap: 6px;
+    width: min(236px, calc(100% - 24px));
+    gap: 4px;
     padding: 0;
     transform: none;
   }
   .homepage-film-control-button {
     width: 44px;
     min-width: 44px;
-    padding: 10px;
+    padding: 0;
   }
   .homepage-hero {
     padding-top: 40px;
@@ -4490,7 +4551,7 @@ pre {
     transition: none;
   }
   .homepage-film-controls,
-  .homepage-film-control-button {
+  .homepage-film-control-button::before {
     transition: none;
   }
   .hero-action:hover {
@@ -4500,7 +4561,8 @@ pre {
 @media (prefers-contrast: more) {
   .homepage-hero-art,
   .hero-action,
-  .homepage-film {
+  .homepage-film-stage,
+  .homepage-film-source-media {
     border-width: 2px;
     border-color: var(--ink);
     box-shadow: none;
@@ -4511,7 +4573,7 @@ pre {
     box-shadow: none;
     opacity: 1;
   }
-  .homepage-film-control-button,
+  .homepage-film-control-button::before,
   .homepage-film-scrubber {
     border: 2px solid var(--fixed-light-ink);
     background: var(--hero-art-bg);
@@ -4530,7 +4592,8 @@ pre {
   }
   .homepage-hero-art,
   .hero-action,
-  .homepage-film {
+  .homepage-film-stage,
+  .homepage-film-source-media {
     border-color: CanvasText;
     box-shadow: none;
   }
@@ -4541,7 +4604,7 @@ pre {
     box-shadow: none;
     opacity: 1;
   }
-  .homepage-film-control-button,
+  .homepage-film-control-button::before,
   .homepage-film-scrubber {
     border: 1px solid ButtonText;
     color: ButtonText;
@@ -4586,24 +4649,51 @@ function homepage() {
           <div
             class="homepage-film-frame"
             data-homepage-film-player
+            data-film-renderer="video"
+            data-film-live-status="loading"
+            data-film-autoplay-status="pending"
             data-film-source-light="${VISUAL_COMPOSITION_RECORDING_PATH}"
             data-film-source-dark="${VISUAL_COMPOSITION_DARK_RECORDING_PATH}"
             data-film-poster-light="${VISUAL_COMPOSITION_POSTER_PATH}"
             data-film-poster-dark="${VISUAL_COMPOSITION_DARK_POSTER_PATH}"
+            data-film-live-src="${VISUAL_COMPOSITION_LIVE_DEMO_PATH}"
           >
+            <div
+              id="homepage-film-stage"
+              class="homepage-film-stage"
+              hidden
+              data-homepage-film-stage
+            >
+              <div class="homepage-film-live-scale" data-homepage-film-live-scale>
+                <iframe
+                  class="homepage-film-live"
+                  title="Live JudgmentKit UI generation, diagnosis, and measured repair"
+                  sandbox="allow-scripts"
+                  tabindex="-1"
+                  aria-hidden="true"
+                  src="about:blank"
+                  data-homepage-film-live
+                ></iframe>
+              </div>
+              <span class="sr-only">A live visual replay shows an agent generating a UI, JudgmentKit identifying two composition defects, and the agent applying a measured repair.</span>
+            </div>
             <video
-              class="homepage-film"
+              class="homepage-film-source-media homepage-film-fallback"
               controls
+              autoplay
+              loop
               playsinline
-              preload="metadata"
+              preload="auto"
               poster="${VISUAL_COMPOSITION_POSTER_PATH}"
               aria-label="JudgmentKit UI generation, diagnosis, and measured repair"
+              data-homepage-film-media
+              data-homepage-film-fallback
             >
               <source src="${VISUAL_COMPOSITION_RECORDING_PATH}" type="video/mp4" data-homepage-film-source>
               Your browser cannot play this video. <a href="${VISUAL_COMPOSITION_RECORDING_PATH}">Download the demo video</a>.
             </video>
             <div class="homepage-film-controls" role="group" aria-label="Video controls" hidden data-homepage-film-controls>
-              <button class="homepage-film-control-button" type="button" aria-label="Play video" data-film-action="play" data-homepage-film-play>
+              <button class="homepage-film-control-button" type="button" aria-label="Play demo" aria-controls="homepage-film-stage" data-film-action="play" data-homepage-film-play>
                 ${renderHomepageFilmControlIcon("play", "data-homepage-film-play-icon")}
                 ${renderHomepageFilmControlIcon("pause", "data-homepage-film-pause-icon", true)}
               </button>
@@ -4616,11 +4706,12 @@ function homepage() {
                 value="0"
                 aria-label="Video progress"
                 aria-valuetext="0 percent played"
+                aria-controls="homepage-film-stage"
                 disabled
                 data-film-scrubber
                 data-homepage-film-scrubber
               >
-              <button class="homepage-film-control-button" type="button" aria-label="Mute video" data-film-action="mute" data-homepage-film-mute>
+              <button class="homepage-film-control-button" type="button" aria-label="Mute music" aria-controls="homepage-film-stage" data-film-action="mute" data-homepage-film-mute>
                 ${renderHomepageFilmControlIcon("volume-2", "data-homepage-film-sound-icon")}
                 ${renderHomepageFilmControlIcon("volume-x", "data-homepage-film-muted-icon", true)}
               </button>
@@ -4754,7 +4845,10 @@ function homepage() {
         const player = document.querySelector("[data-homepage-film-player]");
         if (!player) return;
 
-        const video = player.querySelector("video");
+        const stage = player.querySelector("[data-homepage-film-stage]");
+        const liveScale = player.querySelector("[data-homepage-film-live-scale]");
+        const liveFrame = player.querySelector("[data-homepage-film-live]");
+        const video = player.querySelector("[data-homepage-film-media]");
         const source = player.querySelector("[data-homepage-film-source]");
         const controls = player.querySelector("[data-homepage-film-controls]");
         const playButton = player.querySelector("[data-homepage-film-play]");
@@ -4765,9 +4859,40 @@ function homepage() {
         const soundIcon = player.querySelector("[data-homepage-film-sound-icon]");
         const mutedIcon = player.querySelector("[data-homepage-film-muted-icon]");
 
-        if (!video || !source || !controls || !playButton || !playIcon || !pauseIcon || !scrubber || !muteButton || !soundIcon || !mutedIcon) return;
+        if (!stage || !liveScale || !liveFrame || !video || !source || !controls || !playButton || !playIcon || !pauseIcon || !scrubber || !muteButton || !soundIcon || !mutedIcon) return;
 
-        const hasDuration = () => Number.isFinite(video.duration) && video.duration > 0;
+        const MESSAGE_CHANNEL = "judgmentkit-visual-composition-v1";
+        const MESSAGE_VERSION = 1;
+        const LIVE_WIDTH = 1440;
+        const LIVE_HEIGHT = 900;
+        const LIVE_DURATION_MS = 38200;
+        const instanceId = typeof window.crypto?.randomUUID === "function"
+          ? window.crypto.randomUUID()
+          : "homepage-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2);
+        const liveAsset = player.dataset.filmLiveSrc || "";
+        let soundtrackFailed = false;
+        let silentClockPlaying = false;
+        let silentClockPositionMs = 0;
+        let silentClockStartedAt = 0;
+        let silentClockFrame = null;
+
+        const clockNow = () => window.performance?.now?.() ?? Date.now();
+        const silentClockTimeMs = () => silentClockPlaying
+          ? Math.min(LIVE_DURATION_MS, silentClockPositionMs + clockNow() - silentClockStartedAt)
+          : silentClockPositionMs;
+        const playbackDurationSeconds = () => soundtrackFailed
+          ? LIVE_DURATION_MS / 1000
+          : video.duration;
+        const playbackCurrentTimeSeconds = () => soundtrackFailed
+          ? silentClockTimeMs() / 1000
+          : video.currentTime;
+        const playbackIsPlaying = () => soundtrackFailed
+          ? silentClockPlaying
+          : !video.paused && !video.ended;
+        const hasDuration = () => {
+          const duration = playbackDurationSeconds();
+          return Number.isFinite(duration) && duration > 0;
+        };
         const setIconHidden = (icon, hidden) => {
           if (hidden) {
             icon.setAttribute("hidden", "");
@@ -4776,15 +4901,15 @@ function homepage() {
           }
         };
         const updatePlayState = () => {
-          const isPlaying = !video.paused && !video.ended;
+          const isPlaying = playbackIsPlaying();
           const action = isPlaying ? "Pause" : "Play";
-          playButton.setAttribute("aria-label", action + " video");
+          playButton.setAttribute("aria-label", action + " demo");
           setIconHidden(playIcon, isPlaying);
           setIconHidden(pauseIcon, !isPlaying);
         };
         const updateProgress = () => {
           const progress = hasDuration()
-            ? Math.min(100, Math.max(0, (video.currentTime / video.duration) * 100))
+            ? Math.min(100, Math.max(0, (playbackCurrentTimeSeconds() / playbackDurationSeconds()) * 100))
             : 0;
           scrubber.disabled = !hasDuration();
           scrubber.value = String(progress);
@@ -4792,9 +4917,9 @@ function homepage() {
           scrubber.setAttribute("aria-valuetext", Math.round(progress) + " percent played");
         };
         const updateMuteState = () => {
-          const isMuted = video.muted || video.volume === 0;
+          const isMuted = soundtrackFailed || video.muted || video.volume === 0;
           const action = isMuted ? "Unmute" : "Mute";
-          muteButton.setAttribute("aria-label", action + " video");
+          muteButton.setAttribute("aria-label", action + " music");
           setIconHidden(soundIcon, isMuted);
           setIconHidden(mutedIcon, !isMuted);
         };
@@ -4820,17 +4945,178 @@ function homepage() {
         );
         const hasThemeVariant = hasDarkSource || hasDarkPoster;
         let sourceSwapToken = 0;
+        let activeTheme = "light";
+        let liveReady = false;
+        let liveActive = false;
+        let liveFailed = false;
+        let soundtrackErrorBeforeReady = false;
+        let handshakeTimer = null;
+        let scaleObserver = null;
+        let visibilityObserver = null;
+        let userPaused = false;
+        let pausedForVisibility = false;
+        let autoplayAttempted = false;
+        let isInView = typeof window.IntersectionObserver !== "function";
+        let playbackAttemptToken = 0;
+        let policyMutedFallback = false;
+        let userMuted = false;
+        let previousVideoTimeSeconds = 0;
+        let loopResetPending = false;
 
-        const applyFilmTheme = (useDarkTheme) => {
-          if (!hasThemeVariant) return;
+        const setAutoplayStatus = (status) => {
+          player.setAttribute("data-film-autoplay-status", status);
+        };
+        const cancelPlaybackAttempt = () => {
+          playbackAttemptToken += 1;
+        };
+        const attemptVideoPlayback = ({ allowMutedFallback = false, preferAudible = false } = {}) => {
+          if (soundtrackFailed) return;
+          const attemptToken = ++playbackAttemptToken;
+          autoplayAttempted = true;
+          if (preferAudible && !userMuted && !policyMutedFallback) {
+            video.muted = false;
+          }
+          updateMuteState();
 
-          const nextSource = useDarkTheme && hasDarkSource ? darkSourceCandidate : lightSource;
-          const nextPoster = useDarkTheme && hasDarkPoster ? darkPosterCandidate : lightPoster;
-          const theme = useDarkTheme ? "dark" : "light";
-          const sourceChanged = normalizeAssetUrl(source.getAttribute("src")) !== normalizeAssetUrl(nextSource);
+          let request;
+          try {
+            request = video.play();
+          } catch (error) {
+            if (error?.name === "NotAllowedError") setAutoplayStatus("blocked");
+            updatePlayState();
+            return;
+          }
+          if (!request || typeof request.then !== "function") return;
 
+          request.then(() => {
+            if (attemptToken !== playbackAttemptToken) return;
+            if (!isInView || userPaused) {
+              video.pause();
+              return;
+            }
+            if (!policyMutedFallback) setAutoplayStatus("playing");
+            updatePlayState();
+            updateMuteState();
+          }).catch((error) => {
+            if (attemptToken !== playbackAttemptToken) return;
+            if (error?.name !== "NotAllowedError") {
+              updatePlayState();
+              return;
+            }
+
+            setAutoplayStatus("blocked");
+            if (!allowMutedFallback || !isInView || userPaused || pausedForVisibility || userMuted) {
+              updatePlayState();
+              return;
+            }
+
+            policyMutedFallback = true;
+            video.muted = true;
+            updateMuteState();
+            let mutedRequest;
+            try {
+              mutedRequest = video.play();
+            } catch {
+              updatePlayState();
+              return;
+            }
+            if (!mutedRequest || typeof mutedRequest.then !== "function") return;
+            mutedRequest.then(() => {
+              if (attemptToken !== playbackAttemptToken) return;
+              if (!isInView || userPaused) {
+                video.pause();
+                return;
+              }
+              updatePlayState();
+              updateMuteState();
+            }).catch(updatePlayState);
+          });
+        };
+
+        const postToLive = (type, payload = {}) => {
+          if (!liveFrame.contentWindow || liveFailed) return;
+          liveFrame.contentWindow.postMessage({
+            channel: MESSAGE_CHANNEL,
+            version: MESSAGE_VERSION,
+            instance: instanceId,
+            type,
+            payload,
+          }, "*");
+        };
+
+        const cancelSilentClockFrame = () => {
+          if (silentClockFrame !== null && typeof window.cancelAnimationFrame === "function") {
+            window.cancelAnimationFrame(silentClockFrame);
+          }
+          silentClockFrame = null;
+        };
+        const renderSilentClock = () => {
+          silentClockFrame = null;
+          if (!soundtrackFailed || !silentClockPlaying) return;
+          const timeMs = silentClockTimeMs();
+          if (timeMs >= LIVE_DURATION_MS) {
+            silentClockPositionMs = 0;
+            silentClockStartedAt = clockNow();
+            updateProgress();
+            updatePlayState();
+            postToLive("SYNC", { timeMs: 0, playing: true });
+            if (typeof window.requestAnimationFrame === "function") {
+              silentClockFrame = window.requestAnimationFrame(renderSilentClock);
+            }
+            return;
+          }
+          updateProgress();
+          if (typeof window.requestAnimationFrame === "function") {
+            silentClockFrame = window.requestAnimationFrame(renderSilentClock);
+          }
+        };
+        const setSilentClock = (timeMs, playing) => {
+          cancelSilentClockFrame();
+          silentClockPositionMs = Math.min(LIVE_DURATION_MS, Math.max(0, Number(timeMs) || 0));
+          silentClockPlaying = Boolean(playing) && silentClockPositionMs < LIVE_DURATION_MS;
+          silentClockStartedAt = clockNow();
+          updateProgress();
+          updatePlayState();
+          postToLive("SYNC", { timeMs: silentClockPositionMs, playing: silentClockPlaying });
+          if (silentClockPlaying && typeof window.requestAnimationFrame === "function") {
+            silentClockFrame = window.requestAnimationFrame(renderSilentClock);
+          }
+        };
+        const enterSilentLiveMode = ({ playing } = {}) => {
+          if (!liveActive || soundtrackFailed) return false;
+          const currentTimeMs = Number.isFinite(video.currentTime)
+            ? Math.min(LIVE_DURATION_MS, Math.max(0, video.currentTime * 1000))
+            : 0;
+          const wasPlaying = typeof playing === "boolean"
+            ? playing
+            : !userPaused
+              && !pausedForVisibility
+              && !video.ended
+              && (!video.paused || autoplayAttempted);
+          soundtrackFailed = true;
+          video.pause();
+          video.muted = true;
+          player.setAttribute("data-film-audio-status", "unavailable");
+          muteButton.disabled = true;
+          muteButton.setAttribute("aria-label", "Music unavailable");
+          setIconHidden(soundIcon, true);
+          setIconHidden(mutedIcon, false);
+          setSilentClock(currentTimeMs, wasPlaying);
+          return true;
+        };
+
+        const updateLiveScale = () => {
+          const width = stage.getBoundingClientRect().width;
+          if (!(width > 0)) return;
+          const scale = width / LIVE_WIDTH;
+          liveScale.style.setProperty("--homepage-film-scale", String(scale));
+          player.style.setProperty("--homepage-film-scale", String(scale));
+        };
+
+        const applyVideoSource = (nextSource, nextPoster) => {
           if (nextPoster) video.poster = nextPoster;
-          player.setAttribute("data-film-theme", theme);
+          if (!nextSource) return;
+          const sourceChanged = normalizeAssetUrl(source.getAttribute("src")) !== normalizeAssetUrl(nextSource);
           if (!sourceChanged) return;
 
           const savedTime = Number.isFinite(video.currentTime) ? video.currentTime : 0;
@@ -4839,6 +5125,7 @@ function homepage() {
           const savedVolume = video.volume;
           const swapToken = ++sourceSwapToken;
 
+          cancelPlaybackAttempt();
           video.pause();
           source.setAttribute("src", nextSource);
           video.load();
@@ -4851,8 +5138,9 @@ function homepage() {
             updateProgress();
             updateMuteState();
             if (wasPlaying) {
-              const request = video.play();
-              if (request) request.catch(updatePlayState);
+              attemptVideoPlayback({
+                allowMutedFallback: !wasMuted && !userMuted,
+              });
             } else {
               updatePlayState();
             }
@@ -4865,56 +5153,281 @@ function homepage() {
           }
         };
 
+        const applyFilmTheme = (useDarkTheme, { forceFallback = false } = {}) => {
+          activeTheme = useDarkTheme ? "dark" : "light";
+
+          const nextSource = useDarkTheme && hasDarkSource ? darkSourceCandidate : lightSource;
+          const nextPoster = useDarkTheme && hasDarkPoster ? darkPosterCandidate : lightPoster;
+          player.setAttribute("data-film-theme", activeTheme);
+          if (liveReady) postToLive("SET_THEME", { theme: activeTheme });
+          if (!liveActive || forceFallback) applyVideoSource(nextSource, nextPoster);
+        };
+
+        const restoreNativeFallback = (reason = "error") => {
+          if (liveFailed) return;
+          liveFailed = true;
+          liveActive = false;
+          soundtrackErrorBeforeReady = false;
+          player.setAttribute("data-film-live-status", reason);
+          if (handshakeTimer !== null) window.clearTimeout(handshakeTimer);
+          handshakeTimer = null;
+          cancelSilentClockFrame();
+          silentClockPlaying = false;
+          scaleObserver?.disconnect();
+          scaleObserver = null;
+          stage.hidden = true;
+          video.classList.remove("homepage-film-source-media--soundtrack");
+          video.removeAttribute("aria-hidden");
+          video.removeAttribute("tabindex");
+          video.controls = true;
+          controls.hidden = true;
+          muteButton.disabled = false;
+          player.setAttribute("data-film-renderer", "video");
+          player.removeAttribute("data-homepage-film-ready");
+          applyFilmTheme(activeTheme === "dark", { forceFallback: true });
+        };
+
+        const activateLive = () => {
+          if (liveActive || liveFailed) return;
+          liveActive = true;
+          stage.hidden = false;
+          video.classList.add("homepage-film-source-media--soundtrack");
+          video.setAttribute("aria-hidden", "true");
+          video.setAttribute("tabindex", "-1");
+          video.controls = false;
+          controls.hidden = false;
+          player.setAttribute("data-film-renderer", "live");
+          player.setAttribute("data-homepage-film-ready", "true");
+          updateLiveScale();
+          if (typeof window.ResizeObserver === "function") {
+            scaleObserver = new window.ResizeObserver(updateLiveScale);
+            scaleObserver.observe(stage);
+          } else {
+            window.addEventListener("resize", updateLiveScale);
+          }
+        };
+
         try {
           playButton.addEventListener("click", () => {
+            if (soundtrackFailed) {
+              const timeMs = silentClockTimeMs();
+              const restartTimeMs = !silentClockPlaying && timeMs >= LIVE_DURATION_MS - 0.5
+                ? 0
+                : timeMs;
+              userPaused = silentClockPlaying;
+              setSilentClock(restartTimeMs, !silentClockPlaying);
+              return;
+            }
             if (video.paused || video.ended) {
+              userPaused = false;
+              pausedForVisibility = false;
               if (video.ended) video.currentTime = 0;
-              const request = video.play();
-              if (request) request.catch(updatePlayState);
+              if (!userMuted) {
+                policyMutedFallback = false;
+                video.muted = false;
+              }
+              attemptVideoPlayback({ preferAudible: !userMuted });
             } else {
+              userPaused = true;
+              cancelPlaybackAttempt();
               video.pause();
             }
           });
           scrubber.addEventListener("input", () => {
             if (!hasDuration()) return;
-            video.currentTime = (Number(scrubber.value) / 100) * video.duration;
+            const nextTimeSeconds = (Number(scrubber.value) / 100) * playbackDurationSeconds();
+            if (soundtrackFailed) {
+              setSilentClock(nextTimeSeconds * 1000, silentClockPlaying);
+              return;
+            }
+            video.currentTime = nextTimeSeconds;
             updateProgress();
           });
           muteButton.addEventListener("click", () => {
+            if (soundtrackFailed) return;
             if (video.muted || video.volume === 0) {
+              userMuted = false;
+              policyMutedFallback = false;
               video.muted = false;
               if (video.volume === 0) video.volume = 1;
+              setAutoplayStatus("playing");
+              if (video.paused && !userPaused && isInView) {
+                attemptVideoPlayback({ preferAudible: true });
+              }
             } else {
+              userMuted = true;
+              policyMutedFallback = false;
               video.muted = true;
             }
           });
 
-          video.addEventListener("play", updatePlayState);
-          video.addEventListener("pause", updatePlayState);
-          video.addEventListener("ended", updatePlayState);
-          video.addEventListener("timeupdate", updateProgress);
+          video.addEventListener("play", () => {
+            if (soundtrackFailed) return;
+            if (!policyMutedFallback) setAutoplayStatus("playing");
+            updatePlayState();
+            if (liveReady) postToLive("PLAY", { timeMs: video.currentTime * 1000 });
+          });
+          video.addEventListener("pause", () => {
+            if (soundtrackFailed) return;
+            updatePlayState();
+            if (liveReady) postToLive("PAUSE", { timeMs: video.currentTime * 1000 });
+          });
+          video.addEventListener("ended", () => {
+            if (soundtrackFailed) return;
+            updatePlayState();
+            if (liveReady) postToLive("SEEK", { timeMs: video.currentTime * 1000 });
+          });
+          video.addEventListener("timeupdate", () => {
+            if (soundtrackFailed) return;
+            const currentTimeSeconds = Number.isFinite(video.currentTime) ? video.currentTime : 0;
+            const durationSeconds = hasDuration() ? playbackDurationSeconds() : 0;
+            const looped = durationSeconds > 0
+              && previousVideoTimeSeconds >= durationSeconds - 1
+              && currentTimeSeconds <= 1
+              && currentTimeSeconds < previousVideoTimeSeconds;
+            if (looped) {
+              loopResetPending = true;
+            } else if (loopResetPending && currentTimeSeconds > 1) {
+              loopResetPending = false;
+            }
+            previousVideoTimeSeconds = currentTimeSeconds;
+            updateProgress();
+            if (liveReady) {
+              postToLive("SYNC", {
+                timeMs: looped ? 0 : currentTimeSeconds * 1000,
+                playing: !video.paused && !video.ended,
+              });
+            }
+          });
           video.addEventListener("loadedmetadata", updateProgress);
           video.addEventListener("durationchange", updateProgress);
+          video.addEventListener("seeked", () => {
+            if (soundtrackFailed) return;
+            previousVideoTimeSeconds = Number.isFinite(video.currentTime) ? video.currentTime : 0;
+            updateProgress();
+            if (!liveReady) return;
+            if (loopResetPending && video.currentTime <= 1 && !video.paused && !video.ended) {
+              loopResetPending = false;
+              postToLive("SYNC", { timeMs: 0, playing: true });
+              return;
+            }
+            loopResetPending = false;
+            postToLive("SEEK", { timeMs: video.currentTime * 1000 });
+          });
+          video.addEventListener("error", () => {
+            if (!liveReady && !liveFailed) {
+              soundtrackErrorBeforeReady = true;
+              player.setAttribute("data-film-audio-status", "unavailable");
+              return;
+            }
+            if (!enterSilentLiveMode()) restoreNativeFallback("error");
+          });
           video.addEventListener("emptied", updateProgress);
-          video.addEventListener("volumechange", updateMuteState);
+          video.addEventListener("volumechange", () => {
+            if (!soundtrackFailed) updateMuteState();
+          });
 
           if (hasThemeVariant && typeof window.matchMedia === "function") {
             const themeQuery = window.matchMedia("(prefers-color-scheme: dark)");
             const handleThemeChange = (event) => applyFilmTheme(event.matches);
             themeQuery.addEventListener("change", handleThemeChange);
             applyFilmTheme(themeQuery.matches);
+          } else {
+            applyFilmTheme(false);
+          }
+
+          window.addEventListener("message", (event) => {
+            if (event.source !== liveFrame.contentWindow) return;
+            if (event.origin !== "null") return;
+            const message = event.data;
+            if (!message || message.channel !== MESSAGE_CHANNEL || message.version !== MESSAGE_VERSION || message.instance !== instanceId) return;
+
+            if (message.type === "READY") {
+              if (liveFailed) return;
+              const durationMs = Number(message.payload?.durationMs);
+              const frameWidth = Number(message.payload?.frame?.width);
+              const frameHeight = Number(message.payload?.frame?.height);
+              if (!(durationMs >= 38000 && durationMs <= 38300) || frameWidth !== LIVE_WIDTH || frameHeight !== LIVE_HEIGHT) {
+                restoreNativeFallback("error");
+                return;
+              }
+              liveReady = true;
+              player.setAttribute("data-film-live-status", "ready");
+              if (handshakeTimer !== null) window.clearTimeout(handshakeTimer);
+              handshakeTimer = null;
+              activateLive();
+              const silentAutoplay = !userPaused && !pausedForVisibility;
+              postToLive("INIT", {
+                theme: activeTheme,
+                timeMs: video.currentTime * 1000,
+                playing: soundtrackErrorBeforeReady
+                  ? silentAutoplay
+                  : !video.paused && !video.ended,
+                reducedMotion: window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches === true,
+              });
+              if (soundtrackErrorBeforeReady) {
+                soundtrackErrorBeforeReady = false;
+                enterSilentLiveMode({ playing: silentAutoplay });
+              }
+              return;
+            }
+
+            if (message.type === "ERROR") restoreNativeFallback("error");
+          });
+
+          liveFrame.addEventListener("error", () => restoreNativeFallback("error"));
+          if (liveAsset) {
+            const liveUrl = new URL(liveAsset, document.baseURI);
+            liveUrl.searchParams.set("embed", "homepage");
+            liveUrl.searchParams.set("instance", instanceId);
+            liveUrl.searchParams.set("theme", activeTheme);
+            liveFrame.src = liveUrl.href;
+            handshakeTimer = window.setTimeout(() => restoreNativeFallback("timeout"), 5000);
+          } else {
+            restoreNativeFallback("error");
+          }
+
+          if (typeof window.IntersectionObserver === "function") {
+            visibilityObserver = new window.IntersectionObserver((entries) => {
+              const inView = entries.some((entry) => entry.isIntersecting);
+              isInView = inView;
+              if (soundtrackFailed) {
+                if (!inView && silentClockPlaying) {
+                  pausedForVisibility = true;
+                  setSilentClock(silentClockTimeMs(), false);
+                  return;
+                }
+                if (inView && !userPaused && pausedForVisibility) {
+                  pausedForVisibility = false;
+                  setSilentClock(silentClockTimeMs(), true);
+                }
+                return;
+              }
+              if (!inView) {
+                cancelPlaybackAttempt();
+                pausedForVisibility = true;
+                if (!video.paused) video.pause();
+                return;
+              }
+              if (inView && !userPaused && !video.ended && (!autoplayAttempted || pausedForVisibility)) {
+                pausedForVisibility = false;
+                const preferAudible = !policyMutedFallback && !userMuted;
+                attemptVideoPlayback({
+                  allowMutedFallback: preferAudible,
+                  preferAudible,
+                });
+              }
+            }, { threshold: 0.1 });
+            visibilityObserver.observe(player);
+          } else {
+            attemptVideoPlayback({ allowMutedFallback: true, preferAudible: true });
           }
 
           updatePlayState();
           updateProgress();
           updateMuteState();
-          controls.hidden = false;
-          video.controls = false;
-          player.setAttribute("data-homepage-film-ready", "true");
         } catch {
-          controls.hidden = true;
-          video.controls = true;
-          player.removeAttribute("data-homepage-film-ready");
+          restoreNativeFallback();
         }
       })();
     </script>
@@ -9191,6 +9704,20 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
       "assets",
       "releases",
       VISUAL_COMPOSITION_DARK_POSTER_FILENAME,
+    ),
+  );
+  await fs.copyFile(
+    path.join(
+      ROOT,
+      "scripts",
+      "visual-composition-film",
+      VISUAL_COMPOSITION_LIVE_DEMO_FILENAME,
+    ),
+    path.join(
+      outDir,
+      "assets",
+      "releases",
+      VISUAL_COMPOSITION_LIVE_DEMO_FILENAME,
     ),
   );
   await buildSystemMapFlowAssets(outDir);
