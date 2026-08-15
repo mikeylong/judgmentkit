@@ -745,12 +745,52 @@ assert.equal((homepageMain.match(/<iframe\b/g) ?? []).length, 1);
 const homepageFilmFrameIndex = homepageMain.search(
   /class="[^"]*\bhomepage-film-frame\b[^"]*"/,
 );
+const homepageFilmScrollCueMatches = [
+  ...homepageMain.matchAll(
+    /<a\b[^>]*class="[^"]*\bhomepage-film-scroll-cue\b[^"]*"[^>]*>[\s\S]*?<\/a>/gi,
+  ),
+].map((match) => match[0]);
+assert.equal(
+  homepageFilmScrollCueMatches.length,
+  1,
+  "homepage should expose one visual cue that more content follows the film",
+);
+const homepageFilmScrollCue = homepageFilmScrollCueMatches[0];
+const homepageFilmScrollCueOpenTag =
+  homepageFilmScrollCue.match(/<a\b[^>]*>/i)?.[0] ?? "";
+assert.match(homepageFilmScrollCueOpenTag, /href="#homepage-overview"/);
+assert.match(
+  homepageFilmScrollCueOpenTag,
+  /aria-label="Continue to JudgmentKit overview"/,
+);
+assert.match(
+  homepageFilmScrollCueOpenTag,
+  /data-homepage-film-scroll-cue(?:\s|=|>)/,
+);
+assert.deepEqual(
+  [...homepageFilmScrollCue.matchAll(/data-icon-id="([^"]+)"/g)].map(
+    (match) => match[1],
+  ),
+  ["chevron-down"],
+  "the scroll cue should use JudgmentKit's canonical down-chevron icon",
+);
+assert.match(homepageFilmScrollCue, /<svg\b[^>]*aria-hidden="true"/i);
+const homepageFilmScrollCueIndex = homepageMain.search(
+  /class="[^"]*\bhomepage-film-scroll-cue\b[^"]*"/,
+);
 const homepageHeroIndex = homepageMain.search(/class="[^"]*\bhomepage-hero\b[^"]*"/);
 assert.ok(
   homepageFilmFrameIndex >= 0 &&
+    homepageFilmScrollCueIndex >= 0 &&
     homepageHeroIndex >= 0 &&
-    homepageFilmFrameIndex < homepageHeroIndex,
-  "homepage film should appear before the existing hero",
+    homepageFilmFrameIndex < homepageFilmScrollCueIndex &&
+    homepageFilmScrollCueIndex < homepageHeroIndex,
+  "homepage scroll cue should bridge the film and the existing hero",
+);
+assert.match(
+  homepageMain.match(/<section\b[^>]*class="[^"]*\bhomepage-hero\b[^"]*"[^>]*>/)?.[0] ?? "",
+  /id="homepage-overview"/,
+  "the scroll cue should target the product overview that follows the film",
 );
 assert.match(
   homepageFilmMediaOpenTag,
@@ -817,6 +857,11 @@ assert.equal(
   "homepage should expose exactly one custom film-control group",
 );
 const homepageFilmControls = homepageFilmControlGroups[0];
+assert.equal(
+  homepageFilmControls.includes("data-homepage-film-scroll-cue"),
+  false,
+  "the scroll cue must not become a fourth video control",
+);
 const homepageFilmControlsOpenTag = homepageFilmControls.match(/<div\b[^>]*>/i)?.[0] ?? "";
 assert.match(
   homepageFilmControlsOpenTag,
@@ -855,6 +900,11 @@ assert.match(homepageFilmPlayControl, /aria-label="Play demo"/);
 assert.match(homepageFilmPlayControl, /aria-controls="homepage-film-stage"/);
 assert.match(homepageFilmScrubber, /^<input\b/i);
 assert.match(homepageFilmScrubber, /type="range"/);
+assert.match(homepageFilmScrubber, /min="0"/);
+assert.match(homepageFilmScrubber, /max="100"/);
+assert.match(homepageFilmScrubber, /step="0\.1"/);
+assert.match(homepageFilmScrubber, /value="0"/);
+assert.match(homepageFilmScrubber, /(?:\s|^)disabled(?:\s|>)/);
 assert.match(homepageFilmScrubber, /aria-label="Video progress"/);
 assert.match(homepageFilmScrubber, /aria-controls="homepage-film-stage"/);
 assert.match(homepageFilmMuteControl, /^<button\b/i);
@@ -1421,15 +1471,26 @@ assert.match(homepageFilmControlIconCss, /width:\s*16px;/);
 assert.match(homepageFilmControlIconCss, /height:\s*16px;/);
 const homepageFilmScrubberCss = cssRuleBody(siteCss, ".homepage-film-scrubber");
 assert.match(homepageFilmScrubberCss, /height:\s*44px;/);
-assert.match(homepageFilmScrubberCss, /padding:\s*4px 8px;/);
+assert.match(homepageFilmScrubberCss, /padding:\s*0 8px;/);
 assert.match(homepageFilmScrubberCss, /border:\s*0;/);
-assert.match(homepageFilmScrubberCss, /background-clip:\s*content-box;/);
-assert.match(
-  cssDeclarationValue(homepageFilmScrubberCss, "background") ?? "",
-  /var\(--hero-art-bg\)\s+(?:7[5-9]|[89][0-9]|100)%/,
-  "the inset scrubber surface should retain sufficient contrast over light frames",
+assert.equal(
+  cssDeclarationValue(homepageFilmScrubberCss, "background"),
+  "transparent",
+  "the native range hitbox should not repaint the oversized scrubber capsule",
 );
 assert.match(homepageFilmScrubberCss, /box-shadow:\s*none;/);
+assert.match(homepageFilmScrubberCss, /-webkit-backdrop-filter:\s*none;/);
+assert.match(homepageFilmScrubberCss, /backdrop-filter:\s*none;/);
+const homepageFilmWebkitTrackCss = cssRuleBody(
+  siteCss,
+  ".homepage-film-scrubber::-webkit-slider-runnable-track",
+);
+assert.match(homepageFilmWebkitTrackCss, /height:\s*4px;/);
+assert.match(
+  homepageFilmWebkitTrackCss,
+  /box-shadow:\s*0 0 0 1px color-mix\(in srgb, var\(--hero-art-bg\) 58%, transparent\)/,
+  "the thin scrubber track should retain a subtle dual-contrast edge",
+);
 const homepageFilmWebkitThumbCss = cssRuleBody(
   siteCss,
   ".homepage-film-scrubber::-webkit-slider-thumb",
@@ -1440,6 +1501,17 @@ const homepageFilmMozThumbCss = cssRuleBody(
   siteCss,
   ".homepage-film-scrubber::-moz-range-thumb",
 );
+const homepageFilmMozTrackCss = cssRuleBody(
+  siteCss,
+  ".homepage-film-scrubber::-moz-range-track",
+);
+const homepageFilmMozProgressCss = cssRuleBody(
+  siteCss,
+  ".homepage-film-scrubber::-moz-range-progress",
+);
+assert.match(homepageFilmMozTrackCss, /height:\s*4px;/);
+assert.match(homepageFilmMozTrackCss, /box-shadow:\s*0 0 0 1px/);
+assert.match(homepageFilmMozProgressCss, /height:\s*4px;/);
 assert.match(homepageFilmMozThumbCss, /width:\s*(?:14|15)px;/);
 assert.match(homepageFilmMozThumbCss, /height:\s*(?:14|15)px;/);
 assert.match(
@@ -1454,7 +1526,62 @@ assert.match(
 );
 const homepageFilmSectionCss = cssRuleBody(siteCss, ".homepage-film-section");
 const homepageFilmShellCss = cssRuleBody(siteCss, ".homepage-film-shell");
+const homepageFilmFigureCss = cssRuleBody(siteCss, ".homepage-film-figure");
 const homepageFilmFrameCss = cssRuleBody(siteCss, ".homepage-film-frame");
+const homepageFilmScrollCueCss = cssRuleBody(siteCss, ".homepage-film-scroll-cue");
+const homepageFilmScrollCueSurfaceCss = cssRuleBody(
+  siteCss,
+  ".homepage-film-scroll-cue::before",
+);
+const homepageFilmScrollCueIconCss = cssRuleBody(
+  siteCss,
+  ".homepage-film-scroll-cue svg",
+);
+assert.match(homepageFilmFigureCss, /position:\s*relative;/);
+assert.match(homepageFilmScrollCueCss, /position:\s*absolute;/);
+assert.match(homepageFilmScrollCueCss, /z-index:\s*[34];/);
+assert.match(homepageFilmScrollCueCss, /left:\s*50%;/);
+assert.match(homepageFilmScrollCueCss, /width:\s*44px;/);
+assert.match(homepageFilmScrollCueCss, /min-width:\s*44px;/);
+assert.match(homepageFilmScrollCueCss, /height:\s*44px;/);
+assert.match(homepageFilmScrollCueCss, /min-height:\s*44px;/);
+assert.match(homepageFilmScrollCueCss, /border-radius:\s*999px;/);
+assert.match(homepageFilmScrollCueCss, /transform:\s*translateX\(-50%\);/);
+assert.match(
+  homepageFilmScrollCueCss,
+  /top:\s*min\(\s*calc\(100svh - var\(--site-navigation-height\) - 108px\),\s*calc\(100% - 108px\)\s*\);/,
+  "the scroll cue should remain visible within a desktop viewport before scrolling",
+);
+assert.match(homepageFilmScrollCueSurfaceCss, /width:\s*36px;/);
+assert.match(homepageFilmScrollCueSurfaceCss, /height:\s*36px;/);
+assert.match(homepageFilmScrollCueSurfaceCss, /border-radius:\s*999px;/);
+assert.match(homepageFilmScrollCueSurfaceCss, /backdrop-filter:\s*blur\(/);
+assert.match(homepageFilmScrollCueIconCss, /width:\s*(?:16|18)px;/);
+assert.match(homepageFilmScrollCueIconCss, /height:\s*(?:16|18)px;/);
+assert.match(
+  homepageFilmScrollCueIconCss,
+  /animation:\s*homepage-film-scroll-cue-bob\s+(?:2|2\.[0-9]+)s\s+ease-in-out\s+3;/,
+);
+assert.match(
+  siteCss,
+  /@keyframes homepage-film-scroll-cue-bob\s*\{[\s\S]*?translateY\(-2px\)[\s\S]*?translateY\(2px\)[\s\S]*?\}/,
+  "the down chevron should use a restrained four-pixel vertical motion range",
+);
+assert.match(
+  siteCss,
+  /\.homepage-film-scroll-cue:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--fixed-light-ink\);[^}]*box-shadow:\s*0 0 0 5px var\(--hero-art-bg\);/s,
+  "the scroll cue should retain a dual-contrast keyboard focus treatment",
+);
+assert.match(
+  siteCss,
+  /@media \(max-width: 560px\)\s*\{[\s\S]*?\.homepage-film-scroll-cue\s*\{[\s\S]*?position:\s*relative;[\s\S]*?top:\s*auto;[\s\S]*?left:\s*auto;[\s\S]*?margin:\s*8px auto 0;[\s\S]*?transform:\s*none;/,
+  "the cue should enter normal flow on narrow screens instead of covering the player",
+);
+assert.match(
+  siteCss,
+  /@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\.homepage-film-scroll-cue svg\s*\{[\s\S]*?animation:\s*none;/,
+  "the scroll cue should stop moving when reduced motion is requested",
+);
 const homepageFilmStageCss = cssRuleBody(siteCss, ".homepage-film-stage");
 const homepageFilmSurfaceCss = cssRuleBody(
   siteCss,
@@ -3717,6 +3844,21 @@ assert.match(
   visualCompositionFilmSource,
   /durationMs:\s*filmDurationMs/,
   "the live ready state should expose the authored timeline duration",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /function startStandaloneCinematicLoop\(\)[\s\S]*?notifyClockEnded\s*=\s*\(\)\s*=>\s*\{[\s\S]*?window\.requestAnimationFrame\([\s\S]*?rebuildCinematicAt\(0,\s*\{\s*play:\s*true\s*\}\)[\s\S]*?startCinematic\(\);/,
+  "the standalone authored demo should restart asynchronously after its full 38.2-second clock ends",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /else if \(!\['0',\s*'off',\s*'manual'\]\.includes\(autoplayMode\)\)\s*\{\s*startStandaloneCinematicLoop\(\);\s*\}/,
+  "a bare standalone demo should autoplay and loop while preserving an explicit manual opt-out",
+);
+assert.match(
+  visualCompositionFilmSource,
+  /if \(embedConfig\.enabled\)[\s\S]*?postControllerMessage\('READY',[\s\S]*?\}\s*else if \(autoplayMode === 'cinematic'\)/,
+  "embedded demos must remain parent-controlled instead of entering the standalone autoplay loop",
 );
 const visualCompositionRuntimeExport = visualCompositionFilmSource.slice(
   visualCompositionFilmSource.indexOf("window.__JUDGMENTKIT_DEMO__"),

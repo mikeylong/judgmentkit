@@ -5,3 +5,5 @@
 `generate-draftling-prelude.mjs` produces the original opening music used for Draftling's entrance and three build actions. The published, caption-free films and posters remain under `site/assets/releases/`.
 
 Keep the light and dark captures on the same 38.2-second timeline so the homepage can switch themes without moving the playhead to a different story beat.
+
+Opening the authored HTML directly autoplays and loops the full cinematic. Add `?autoplay=0` when you need the manual authoring surface. Homepage embeds remain parent-controlled so the synchronized soundtrack stays the single playback clock.

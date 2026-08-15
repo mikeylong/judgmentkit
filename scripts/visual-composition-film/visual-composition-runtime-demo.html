@@ -961,9 +961,9 @@
     .replay:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
     /*
-      Cinematic replay layer. It is intentionally inert and hidden unless the
-      page is opened with ?autoplay=cinematic, preserving the manual demo's
-      native pointer and keyboard behavior.
+      Cinematic replay layer. Standalone opens autoplay it by default, while
+      ?autoplay=0 keeps the authoring surface manual and homepage embeds remain
+      controlled by their parent player.
     */
     .cinematic-fx {
       position: fixed;
@@ -3151,7 +3151,18 @@
         }
       }
 
+      function startStandaloneCinematicLoop() {
+        notifyClockEnded = () => {
+          window.requestAnimationFrame(() => {
+            if (embedConfig.enabled) return;
+            rebuildCinematicAt(0, { play: true });
+          });
+        };
+        startCinematic();
+      }
+
       const params = new URLSearchParams(window.location.search);
+      const autoplayMode = params.get('autoplay');
       window.__JUDGMENTKIT_DEMO__ = Object.freeze({
         provenance: 'local v1.1 trusted-browser validation replay; no live network call',
         timeline,
@@ -3181,12 +3192,14 @@
             audio: false
           }
         });
-      } else if (params.get('autoplay') === 'cinematic') {
+      } else if (autoplayMode === 'cinematic') {
         startCinematic();
-      } else if (['1', 'resolution'].includes(params.get('autoplay'))) {
+      } else if (['1', 'resolution'].includes(autoplayMode)) {
         cueClock.begin('autoplay', timeline.autoplayDelay + timeline.accepted);
         cueClock.at(timeline.autoplayDelay, run, 'runtime');
         cueClock.play();
+      } else if (!['0', 'off', 'manual'].includes(autoplayMode)) {
+        startStandaloneCinematicLoop();
       }
     })();
   </script>
