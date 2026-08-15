@@ -42,8 +42,6 @@ const VISUAL_COMPOSITION_POSTER_FILENAME =
   "judgmentkit-select-field-agent-demo-poster.png";
 const VISUAL_COMPOSITION_DARK_POSTER_FILENAME =
   "judgmentkit-select-field-agent-demo-poster-dark.png";
-const VISUAL_COMPOSITION_CAPTIONS_FILENAME =
-  "judgmentkit-select-field-agent-demo.vtt";
 const VISUAL_COMPOSITION_RECORDING_PATH =
   `/assets/releases/${VISUAL_COMPOSITION_RECORDING_FILENAME}`;
 const VISUAL_COMPOSITION_DARK_RECORDING_PATH =
@@ -52,8 +50,6 @@ const VISUAL_COMPOSITION_POSTER_PATH =
   `/assets/releases/${VISUAL_COMPOSITION_POSTER_FILENAME}`;
 const VISUAL_COMPOSITION_DARK_POSTER_PATH =
   `/assets/releases/${VISUAL_COMPOSITION_DARK_POSTER_FILENAME}`;
-const VISUAL_COMPOSITION_CAPTIONS_PATH =
-  `/assets/releases/${VISUAL_COMPOSITION_CAPTIONS_FILENAME}`;
 const DESIGN_SYSTEM_SPECIMEN_RENDERER = {
   id: "judgmentkit-static-specimens",
   version: "0.1.0",
@@ -4604,7 +4600,6 @@ function homepage() {
               aria-label="JudgmentKit visual-composition diagnosis and measured repair"
             >
               <source src="${VISUAL_COMPOSITION_RECORDING_PATH}" type="video/mp4" data-homepage-film-source>
-              <track kind="captions" srclang="en" label="English visual and music cues" src="${VISUAL_COMPOSITION_CAPTIONS_PATH}">
               Your browser cannot play this video. <a href="${VISUAL_COMPOSITION_RECORDING_PATH}">Download the demo video</a>.
             </video>
             <div class="homepage-film-controls" role="group" aria-label="Video controls" hidden data-homepage-film-controls>
@@ -9196,20 +9191,6 @@ export async function buildSite(outDir = DEFAULT_OUT_DIR) {
       "assets",
       "releases",
       VISUAL_COMPOSITION_DARK_POSTER_FILENAME,
-    ),
-  );
-  await fs.copyFile(
-    path.join(
-      __dirname,
-      "assets",
-      "releases",
-      VISUAL_COMPOSITION_CAPTIONS_FILENAME,
-    ),
-    path.join(
-      outDir,
-      "assets",
-      "releases",
-      VISUAL_COMPOSITION_CAPTIONS_FILENAME,
     ),
   );
   await buildSystemMapFlowAssets(outDir);
