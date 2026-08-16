@@ -866,6 +866,13 @@ const stylesheet = `
   --captured-artifact-bg: #ffffff;
   --fixed-light-ink: #ffffff;
   --hero-art-bg: #08181d;
+  --homepage-film-control-ink: var(--accent-strong);
+  --homepage-film-control-surface: color-mix(in srgb, var(--panel) 88%, transparent);
+  --homepage-film-control-surface-hover: color-mix(in srgb, var(--panel) 96%, transparent);
+  --homepage-film-control-surface-solid: var(--panel);
+  --homepage-film-control-border: color-mix(in srgb, var(--accent-strong) 28%, transparent);
+  --homepage-film-control-border-hover: color-mix(in srgb, var(--accent-strong) 44%, transparent);
+  --homepage-film-control-shadow: color-mix(in srgb, var(--accent-strong) 16%, transparent);
   --hero-art-overlay:
     linear-gradient(180deg, rgba(4, 18, 23, 0) 58%, rgba(4, 18, 23, 0.3) 100%),
     linear-gradient(90deg, rgba(255, 255, 255, 0.07), transparent 24%);
@@ -936,6 +943,13 @@ const stylesheet = `
     --bar-track: #29312e;
     --status-success-bg: rgba(130, 201, 154, 0.14);
     --status-warning-bg: rgba(224, 177, 93, 0.16);
+    --homepage-film-control-ink: var(--fixed-light-ink);
+    --homepage-film-control-surface: color-mix(in srgb, var(--hero-art-bg) 78%, transparent);
+    --homepage-film-control-surface-hover: color-mix(in srgb, var(--hero-art-bg) 88%, transparent);
+    --homepage-film-control-surface-solid: var(--hero-art-bg);
+    --homepage-film-control-border: color-mix(in srgb, var(--fixed-light-ink) 48%, transparent);
+    --homepage-film-control-border-hover: color-mix(in srgb, var(--fixed-light-ink) 64%, transparent);
+    --homepage-film-control-shadow: color-mix(in srgb, var(--hero-art-bg) 18%, transparent);
     --report-toc-bg: rgba(24, 29, 27, 0.88);
     --report-video-bg: #141b19;
     --report-video-copy-bg: rgba(24, 29, 27, 0.88);
@@ -1483,7 +1497,6 @@ h2 {
   max-width: 1440px;
 }
 .homepage-film-figure {
-  position: relative;
   margin: 0;
 }
 .homepage-film-frame {
@@ -1557,7 +1570,7 @@ h2 {
   width: min(236px, calc(100% - 28px));
   padding: 0;
   border: 0;
-  color: var(--fixed-light-ink);
+  color: var(--homepage-film-control-ink);
   background: transparent;
   box-shadow: none;
   transform: none;
@@ -1587,12 +1600,12 @@ h2 {
   left: 50%;
   width: 36px;
   height: 36px;
-  border: 1px solid color-mix(in srgb, var(--fixed-light-ink) 48%, transparent);
+  border: 1px solid var(--homepage-film-control-border);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--hero-art-bg) 78%, transparent);
+  background: var(--homepage-film-control-surface);
   box-shadow:
-    0 5px 14px color-mix(in srgb, var(--hero-art-bg) 18%, transparent),
-    inset 0 1px color-mix(in srgb, var(--fixed-light-ink) 9%, transparent);
+    0 5px 14px var(--homepage-film-control-shadow),
+    inset 0 1px color-mix(in srgb, var(--homepage-film-control-ink) 9%, transparent);
   -webkit-backdrop-filter: blur(16px) saturate(1.16);
   backdrop-filter: blur(16px) saturate(1.16);
   content: "";
@@ -1601,14 +1614,14 @@ h2 {
   transition: background-color 140ms ease, border-color 140ms ease;
 }
 .homepage-film-control-button:hover::before {
-  border-color: color-mix(in srgb, var(--fixed-light-ink) 64%, transparent);
-  background: color-mix(in srgb, var(--hero-art-bg) 88%, transparent);
+  border-color: var(--homepage-film-control-border-hover);
+  background: var(--homepage-film-control-surface-hover);
 }
 .homepage-film-control-button:focus-visible,
 .homepage-film-scrubber:focus-visible {
-  outline: 2px solid var(--fixed-light-ink);
+  outline: 2px solid var(--homepage-film-control-ink);
   outline-offset: 2px;
-  box-shadow: 0 0 0 5px var(--hero-art-bg);
+  box-shadow: 0 0 0 5px var(--homepage-film-control-surface-solid);
 }
 .homepage-film-control-button svg {
   position: relative;
@@ -1619,82 +1632,6 @@ h2 {
 }
 .homepage-film-control-button svg[hidden] {
   display: none;
-}
-.homepage-film-scroll-cue {
-  position: absolute;
-  z-index: 4;
-  top: min(
-    calc(100svh - var(--site-navigation-height) - 108px),
-    calc(100% - 108px)
-  );
-  left: 50%;
-  isolation: isolate;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  min-width: 44px;
-  height: 44px;
-  min-height: 44px;
-  padding: 0;
-  border: 0;
-  border-radius: 999px;
-  color: var(--fixed-light-ink);
-  background: transparent;
-  box-shadow: none;
-  text-decoration: none;
-  transform: translateX(-50%);
-}
-.homepage-film-scroll-cue::before {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 36px;
-  height: 36px;
-  border: 1px solid color-mix(in srgb, var(--fixed-light-ink) 48%, transparent);
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--hero-art-bg) 78%, transparent);
-  box-shadow:
-    0 5px 14px color-mix(in srgb, var(--hero-art-bg) 18%, transparent),
-    inset 0 1px color-mix(in srgb, var(--fixed-light-ink) 9%, transparent);
-  -webkit-backdrop-filter: blur(16px) saturate(1.16);
-  backdrop-filter: blur(16px) saturate(1.16);
-  content: "";
-  pointer-events: none;
-  transform: translate(-50%, -50%);
-  transition: background-color 140ms ease, border-color 140ms ease;
-}
-.homepage-film-scroll-cue:hover::before {
-  border-color: color-mix(in srgb, var(--fixed-light-ink) 64%, transparent);
-  background: color-mix(in srgb, var(--hero-art-bg) 88%, transparent);
-}
-.homepage-film-scroll-cue:focus-visible {
-  outline: 2px solid var(--fixed-light-ink);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 5px var(--hero-art-bg);
-}
-.homepage-film-scroll-cue svg {
-  position: relative;
-  z-index: 1;
-  width: 18px;
-  height: 18px;
-  animation: homepage-film-scroll-cue-bob 2.2s ease-in-out 3;
-}
-.homepage-film-scroll-cue:hover svg,
-.homepage-film-scroll-cue:focus-visible svg {
-  animation-play-state: paused;
-}
-.homepage-hero {
-  scroll-margin-top: var(--site-navigation-height);
-}
-@keyframes homepage-film-scroll-cue-bob {
-  0%,
-  100% {
-    transform: translateY(-2px);
-  }
-  50% {
-    transform: translateY(2px);
-  }
 }
 .homepage-film-scrubber {
   box-sizing: border-box;
@@ -4562,15 +4499,6 @@ pre {
     padding: 0;
     transform: none;
   }
-  .homepage-film-scroll-cue {
-    position: relative;
-    top: auto;
-    right: auto;
-    bottom: auto;
-    left: auto;
-    margin: 8px auto 0;
-    transform: none;
-  }
   .homepage-film-control-button {
     width: 44px;
     min-width: 44px;
@@ -4642,13 +4570,8 @@ pre {
     transition: none;
   }
   .homepage-film-controls,
-  .homepage-film-control-button::before,
-  .homepage-film-scroll-cue::before {
+  .homepage-film-control-button::before {
     transition: none;
-  }
-  .homepage-film-scroll-cue svg {
-    animation: none;
-    transform: none;
   }
   .hero-action:hover {
     transform: none;
@@ -4669,10 +4592,9 @@ pre {
     box-shadow: none;
     opacity: 1;
   }
-  .homepage-film-control-button::before,
-  .homepage-film-scroll-cue::before {
-    border: 2px solid var(--fixed-light-ink);
-    background: var(--hero-art-bg);
+  .homepage-film-control-button::before {
+    border: 2px solid var(--homepage-film-control-ink);
+    background: var(--homepage-film-control-surface-solid);
     box-shadow: none;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
@@ -4712,8 +4634,7 @@ pre {
     box-shadow: none;
     opacity: 1;
   }
-  .homepage-film-control-button::before,
-  .homepage-film-scroll-cue::before {
+  .homepage-film-control-button::before {
     border: 1px solid ButtonText;
     color: ButtonText;
     background: ButtonFace;
@@ -4752,8 +4673,7 @@ pre {
     box-shadow: none;
   }
   .homepage-film-control-button:focus-visible,
-  .homepage-film-scrubber:focus-visible,
-  .homepage-film-scroll-cue:focus-visible {
+  .homepage-film-scrubber:focus-visible {
     outline-color: Highlight;
   }
   .homepage-film-scrubber {
@@ -4856,13 +4776,10 @@ function homepage() {
               </button>
             </div>
           </div>
-          <a class="homepage-film-scroll-cue" href="#homepage-overview" aria-label="Continue to JudgmentKit overview" data-homepage-film-scroll-cue>
-            ${renderHomepageFilmControlIcon("chevron-down", "data-homepage-film-scroll-icon")}
-          </a>
         </figure>
       </div>
     </section>
-    <section id="homepage-overview" class="hero homepage-hero">
+    <section class="hero homepage-hero">
       <div class="site-shell homepage-hero-shell">
         <div class="homepage-hero-copy">
           <p class="eyebrow">Product judgment for AI-generated UI</p>
