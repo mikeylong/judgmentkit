@@ -742,55 +742,25 @@ assert.equal(
   "the live HTML renderer should replace the canvas presentation surface",
 );
 assert.equal((homepageMain.match(/<iframe\b/g) ?? []).length, 1);
-const homepageFilmFrameIndex = homepageMain.search(
-  /class="[^"]*\bhomepage-film-frame\b[^"]*"/,
+assert.doesNotMatch(
+  homepageMain,
+  /homepage-film-scroll-cue|data-homepage-film-scroll-icon|Continue to JudgmentKit overview/,
+  "the homepage should not place a jump control over or after the live demo",
 );
-const homepageFilmScrollCueMatches = [
-  ...homepageMain.matchAll(
-    /<a\b[^>]*class="[^"]*\bhomepage-film-scroll-cue\b[^"]*"[^>]*>[\s\S]*?<\/a>/gi,
-  ),
-].map((match) => match[0]);
-assert.equal(
-  homepageFilmScrollCueMatches.length,
-  1,
-  "homepage should expose one visual cue that more content follows the film",
+assert.doesNotMatch(
+  homepageMain,
+  /id="homepage-overview"/,
+  "the retired jump control should not leave an unused overview target",
 );
-const homepageFilmScrollCue = homepageFilmScrollCueMatches[0];
-const homepageFilmScrollCueOpenTag =
-  homepageFilmScrollCue.match(/<a\b[^>]*>/i)?.[0] ?? "";
-assert.match(homepageFilmScrollCueOpenTag, /href="#homepage-overview"/);
-assert.match(
-  homepageFilmScrollCueOpenTag,
-  /aria-label="Continue to JudgmentKit overview"/,
-);
-assert.match(
-  homepageFilmScrollCueOpenTag,
-  /data-homepage-film-scroll-cue(?:\s|=|>)/,
-);
-assert.deepEqual(
-  [...homepageFilmScrollCue.matchAll(/data-icon-id="([^"]+)"/g)].map(
-    (match) => match[1],
-  ),
-  ["chevron-down"],
-  "the scroll cue should use JudgmentKit's canonical down-chevron icon",
-);
-assert.match(homepageFilmScrollCue, /<svg\b[^>]*aria-hidden="true"/i);
-const homepageFilmScrollCueIndex = homepageMain.search(
-  /class="[^"]*\bhomepage-film-scroll-cue\b[^"]*"/,
+const homepageFilmSectionIndex = homepageMain.search(
+  /class="[^"]*\bhomepage-film-section\b[^"]*"/,
 );
 const homepageHeroIndex = homepageMain.search(/class="[^"]*\bhomepage-hero\b[^"]*"/);
 assert.ok(
-  homepageFilmFrameIndex >= 0 &&
-    homepageFilmScrollCueIndex >= 0 &&
+  homepageFilmSectionIndex >= 0 &&
     homepageHeroIndex >= 0 &&
-    homepageFilmFrameIndex < homepageFilmScrollCueIndex &&
-    homepageFilmScrollCueIndex < homepageHeroIndex,
-  "homepage scroll cue should bridge the film and the existing hero",
-);
-assert.match(
-  homepageMain.match(/<section\b[^>]*class="[^"]*\bhomepage-hero\b[^"]*"[^>]*>/)?.[0] ?? "",
-  /id="homepage-overview"/,
-  "the scroll cue should target the product overview that follows the film",
+    homepageFilmSectionIndex < homepageHeroIndex,
+  "the live film should remain immediately ahead of the existing homepage story",
 );
 assert.match(
   homepageFilmMediaOpenTag,
@@ -1401,6 +1371,11 @@ assert.match(
   "hidden custom controls should not flash before enhancement",
 );
 const homepageFilmControlsCss = cssRuleBody(siteCss, ".homepage-film-controls");
+assert.match(
+  homepageFilmControlsCss,
+  /color:\s*var\(--homepage-film-control-ink\);/,
+  "player icons should inherit the current light or dark site theme instead of fixed light ink",
+);
 for (const property of [
   "border",
   "background",
@@ -1457,7 +1432,12 @@ assert.match(homepageFilmControlButtonSurfaceCss, /width:\s*36px;/);
 assert.match(homepageFilmControlButtonSurfaceCss, /height:\s*36px;/);
 assert.match(
   homepageFilmControlButtonSurfaceCss,
-  /background:\s*color-mix\(in srgb, var\(--hero-art-bg\) 78%, transparent\);/,
+  /background:\s*var\(--homepage-film-control-surface\);/,
+  "player button surfaces should use the theme-aware film-control surface",
+);
+assert.match(
+  homepageFilmControlButtonSurfaceCss,
+  /border:\s*1px solid var\(--homepage-film-control-border\);/,
 );
 assert.ok(
   !/border:\s*(?:0|none|transparent)\s*;/i.test(homepageFilmControlButtonSurfaceCss),
@@ -1489,7 +1469,7 @@ assert.match(homepageFilmWebkitTrackCss, /height:\s*4px;/);
 assert.match(
   homepageFilmWebkitTrackCss,
   /box-shadow:\s*0 0 0 1px color-mix\(in srgb, var\(--hero-art-bg\) 58%, transparent\)/,
-  "the thin scrubber track should retain a subtle dual-contrast edge",
+  "the thin scrubber track should retain its established dual-contrast edge",
 );
 const homepageFilmWebkitThumbCss = cssRuleBody(
   siteCss,
@@ -1516,8 +1496,8 @@ assert.match(homepageFilmMozThumbCss, /width:\s*(?:14|15)px;/);
 assert.match(homepageFilmMozThumbCss, /height:\s*(?:14|15)px;/);
 assert.match(
   siteCss,
-  /\.homepage-film-control-button:focus-visible,\s*\n\.homepage-film-scrubber:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--fixed-light-ink\);[^}]*box-shadow:\s*0 0 0 5px var\(--hero-art-bg\);/s,
-  "both floating control types should retain a dual-contrast keyboard-focus treatment",
+  /\.homepage-film-control-button:focus-visible,\s*\n\.homepage-film-scrubber:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--homepage-film-control-ink\);[^}]*box-shadow:\s*0 0 0 5px var\(--homepage-film-control-surface-solid\);/s,
+  "both floating control types should retain a theme-aware dual-contrast keyboard-focus treatment",
 );
 assert.match(
   siteCss,
@@ -1526,61 +1506,34 @@ assert.match(
 );
 const homepageFilmSectionCss = cssRuleBody(siteCss, ".homepage-film-section");
 const homepageFilmShellCss = cssRuleBody(siteCss, ".homepage-film-shell");
-const homepageFilmFigureCss = cssRuleBody(siteCss, ".homepage-film-figure");
 const homepageFilmFrameCss = cssRuleBody(siteCss, ".homepage-film-frame");
-const homepageFilmScrollCueCss = cssRuleBody(siteCss, ".homepage-film-scroll-cue");
-const homepageFilmScrollCueSurfaceCss = cssRuleBody(
+for (const token of [
+  "--homepage-film-control-ink",
+  "--homepage-film-control-surface",
+  "--homepage-film-control-surface-hover",
+  "--homepage-film-control-surface-solid",
+  "--homepage-film-control-border",
+  "--homepage-film-control-border-hover",
+  "--homepage-film-control-shadow",
+]) {
+  assert.ok(
+    lightAppearanceTokens.has(token),
+    `the light appearance should define ${token}`,
+  );
+  assert.ok(
+    darkAppearanceTokens.has(token),
+    `the dark appearance should define ${token}`,
+  );
+  assert.notEqual(
+    lightAppearanceTokens.get(token),
+    darkAppearanceTokens.get(token),
+    `${token} should adapt between light and dark appearance`,
+  );
+}
+assert.doesNotMatch(
   siteCss,
-  ".homepage-film-scroll-cue::before",
-);
-const homepageFilmScrollCueIconCss = cssRuleBody(
-  siteCss,
-  ".homepage-film-scroll-cue svg",
-);
-assert.match(homepageFilmFigureCss, /position:\s*relative;/);
-assert.match(homepageFilmScrollCueCss, /position:\s*absolute;/);
-assert.match(homepageFilmScrollCueCss, /z-index:\s*[34];/);
-assert.match(homepageFilmScrollCueCss, /left:\s*50%;/);
-assert.match(homepageFilmScrollCueCss, /width:\s*44px;/);
-assert.match(homepageFilmScrollCueCss, /min-width:\s*44px;/);
-assert.match(homepageFilmScrollCueCss, /height:\s*44px;/);
-assert.match(homepageFilmScrollCueCss, /min-height:\s*44px;/);
-assert.match(homepageFilmScrollCueCss, /border-radius:\s*999px;/);
-assert.match(homepageFilmScrollCueCss, /transform:\s*translateX\(-50%\);/);
-assert.match(
-  homepageFilmScrollCueCss,
-  /top:\s*min\(\s*calc\(100svh - var\(--site-navigation-height\) - 108px\),\s*calc\(100% - 108px\)\s*\);/,
-  "the scroll cue should remain visible within a desktop viewport before scrolling",
-);
-assert.match(homepageFilmScrollCueSurfaceCss, /width:\s*36px;/);
-assert.match(homepageFilmScrollCueSurfaceCss, /height:\s*36px;/);
-assert.match(homepageFilmScrollCueSurfaceCss, /border-radius:\s*999px;/);
-assert.match(homepageFilmScrollCueSurfaceCss, /backdrop-filter:\s*blur\(/);
-assert.match(homepageFilmScrollCueIconCss, /width:\s*(?:16|18)px;/);
-assert.match(homepageFilmScrollCueIconCss, /height:\s*(?:16|18)px;/);
-assert.match(
-  homepageFilmScrollCueIconCss,
-  /animation:\s*homepage-film-scroll-cue-bob\s+(?:2|2\.[0-9]+)s\s+ease-in-out\s+3;/,
-);
-assert.match(
-  siteCss,
-  /@keyframes homepage-film-scroll-cue-bob\s*\{[\s\S]*?translateY\(-2px\)[\s\S]*?translateY\(2px\)[\s\S]*?\}/,
-  "the down chevron should use a restrained four-pixel vertical motion range",
-);
-assert.match(
-  siteCss,
-  /\.homepage-film-scroll-cue:focus-visible\s*\{[^}]*outline:\s*2px solid var\(--fixed-light-ink\);[^}]*box-shadow:\s*0 0 0 5px var\(--hero-art-bg\);/s,
-  "the scroll cue should retain a dual-contrast keyboard focus treatment",
-);
-assert.match(
-  siteCss,
-  /@media \(max-width: 560px\)\s*\{[\s\S]*?\.homepage-film-scroll-cue\s*\{[\s\S]*?position:\s*relative;[\s\S]*?top:\s*auto;[\s\S]*?left:\s*auto;[\s\S]*?margin:\s*8px auto 0;[\s\S]*?transform:\s*none;/,
-  "the cue should enter normal flow on narrow screens instead of covering the player",
-);
-assert.match(
-  siteCss,
-  /@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\.homepage-film-scroll-cue svg\s*\{[\s\S]*?animation:\s*none;/,
-  "the scroll cue should stop moving when reduced motion is requested",
+  /\.homepage-film-scroll-cue|homepage-film-scroll-cue-bob/,
+  "retired jump-control styling and motion should be removed from the site bundle",
 );
 const homepageFilmStageCss = cssRuleBody(siteCss, ".homepage-film-stage");
 const homepageFilmSurfaceCss = cssRuleBody(

@@ -449,6 +449,11 @@ try {
   await assertStaticGetAndHead(url, "/assets/site.css", "text/css; charset=utf-8", (body) => {
     const css = body.toString("utf8");
     const controlsCss = cssRuleBody(css, ".homepage-film-controls");
+    assert.match(
+      controlsCss,
+      /color:\s*var\(--homepage-film-control-ink\);/,
+      "served player icons should follow the current site theme",
+    );
 
     for (const property of [
       "border",
@@ -498,6 +503,8 @@ try {
     const buttonSurfaceCss = cssRuleBody(css, ".homepage-film-control-button::before");
     assert.match(buttonSurfaceCss, /width:\s*36px;/);
     assert.match(buttonSurfaceCss, /height:\s*36px;/);
+    assert.match(buttonSurfaceCss, /background:\s*var\(--homepage-film-control-surface\);/);
+    assert.match(buttonSurfaceCss, /border:\s*1px solid var\(--homepage-film-control-border\);/);
     const iconCss = cssRuleBody(css, ".homepage-film-control-button svg");
     assert.match(iconCss, /width:\s*16px;/);
     assert.match(iconCss, /height:\s*16px;/);
@@ -530,27 +537,22 @@ try {
 
     const sectionCss = cssRuleBody(css, ".homepage-film-section");
     const shellCss = cssRuleBody(css, ".homepage-film-shell");
-    const figureCss = cssRuleBody(css, ".homepage-film-figure");
     const frameCss = cssRuleBody(css, ".homepage-film-frame");
-    const scrollCueCss = cssRuleBody(css, ".homepage-film-scroll-cue");
-    const scrollCueSurfaceCss = cssRuleBody(css, ".homepage-film-scroll-cue::before");
-    const scrollCueIconCss = cssRuleBody(css, ".homepage-film-scroll-cue svg");
-    assert.match(figureCss, /position:\s*relative;/);
-    assert.match(scrollCueCss, /position:\s*absolute;/);
-    assert.match(scrollCueCss, /width:\s*44px;/);
-    assert.match(scrollCueCss, /height:\s*44px;/);
-    assert.match(scrollCueCss, /border-radius:\s*999px;/);
-    assert.match(scrollCueSurfaceCss, /width:\s*36px;/);
-    assert.match(scrollCueSurfaceCss, /height:\s*36px;/);
-    assert.match(scrollCueIconCss, /animation:\s*homepage-film-scroll-cue-bob/);
-    assert.match(css, /@keyframes homepage-film-scroll-cue-bob/);
-    assert.match(
+    for (const token of [
+      "--homepage-film-control-ink",
+      "--homepage-film-control-surface",
+      "--homepage-film-control-surface-solid",
+      "--homepage-film-control-border",
+    ]) {
+      assert.match(css, new RegExp(`:root\\s*\\{[^}]*${token}:`, "s"));
+      assert.match(
+        css,
+        new RegExp(`@media \\(prefers-color-scheme: dark\\)\\s*\\{\\s*:root\\s*\\{[^}]*${token}:`, "s"),
+      );
+    }
+    assert.doesNotMatch(
       css,
-      /@media \(prefers-reduced-motion: reduce\)\s*\{[\s\S]*?\.homepage-film-scroll-cue svg\s*\{[\s\S]*?animation:\s*none;/,
-    );
-    assert.match(
-      css,
-      /@media \(max-width: 560px\)\s*\{[\s\S]*?\.homepage-film-scroll-cue\s*\{[\s\S]*?position:\s*relative;[\s\S]*?margin:\s*8px auto 0;/,
+      /\.homepage-film-scroll-cue|homepage-film-scroll-cue-bob/,
     );
     for (const property of ["padding", "border", "background", "box-shadow"]) {
       const value = cssDeclarationValue(frameCss, property);
@@ -741,32 +743,16 @@ try {
     assert.match(iconTag("volume-x"), /(?:\s|^)hidden(?:\s|>)/);
     assert.doesNotMatch(playButtonMarkup + muteButtonMarkup, /<span\b/i);
     assert.doesNotMatch(controls, /(?:fullscreen|caption|playback[_-]?rate|speed)/i);
-    const filmIndex = html.search(/class="[^"]*\bhomepage-film-frame\b[^"]*"/);
-    const scrollCueMarkup = html.match(
-      /<a\b[^>]*class="[^"]*\bhomepage-film-scroll-cue\b[^"]*"[^>]*>[\s\S]*?<\/a>/i,
-    )?.[0] ?? "";
-    assert.ok(scrollCueMarkup, "homepage should serve a down-chevron content cue");
-    assert.match(scrollCueMarkup, /href="#homepage-overview"/);
-    assert.match(scrollCueMarkup, /aria-label="Continue to JudgmentKit overview"/);
-    assert.match(scrollCueMarkup, /data-homepage-film-scroll-cue(?:\s|=|>)/);
-    assert.deepEqual(
-      [...scrollCueMarkup.matchAll(/data-icon-id="([^"]+)"/g)].map((match) => match[1]),
-      ["chevron-down"],
-    );
     assert.equal(controls.includes("data-homepage-film-scroll-cue"), false);
-    const scrollCueIndex = html.search(/class="[^"]*\bhomepage-film-scroll-cue\b[^"]*"/);
+    assert.doesNotMatch(
+      html,
+      /homepage-film-scroll-cue|data-homepage-film-scroll-icon|Continue to JudgmentKit overview|id="homepage-overview"/,
+    );
+    const filmSectionIndex = html.search(/class="[^"]*\bhomepage-film-section\b[^"]*"/);
     const heroIndex = html.search(/class="[^"]*\bhomepage-hero\b[^"]*"/);
     assert.ok(
-      filmIndex >= 0 &&
-        scrollCueIndex >= 0 &&
-        heroIndex >= 0 &&
-        filmIndex < scrollCueIndex &&
-        scrollCueIndex < heroIndex,
-      "homepage scroll cue should bridge the film and the existing hero",
-    );
-    assert.match(
-      html.match(/<section\b[^>]*class="[^"]*\bhomepage-hero\b[^"]*"[^>]*>/)?.[0] ?? "",
-      /id="homepage-overview"/,
+      filmSectionIndex >= 0 && heroIndex >= 0 && filmSectionIndex < heroIndex,
+      "served homepage should keep the live film ahead of the existing hero",
     );
     assert.doesNotMatch(frame, /<(?:h[1-6]|p|figcaption)\b/i);
     const filmScripts = [...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)]
