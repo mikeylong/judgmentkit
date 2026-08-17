@@ -2740,6 +2740,39 @@ for (const [state, expectedLabel] of expectedActionButtonLabels) {
   }
 }
 
+const actionButtonProgressIconCss = cssRuleBody(
+  siteCss,
+  '.jk-sample-button[aria-busy="true"] [data-component-anatomy="progress-indicator"] svg[data-icon-id="loader-circle"]',
+);
+assert.match(
+  actionButtonProgressIconCss,
+  /animation:\s*jk-progress-indicator-spin\s+[\d.]+(?:ms|s)\s+linear\s+infinite;/,
+  "The action-button loading indicator should visibly rotate while work is in progress.",
+);
+assert.deepEqual(
+  cssRuleBlocks(siteCss)
+    .filter(
+      ({ body }) =>
+        body.includes("animation:") &&
+        body.includes("jk-progress-indicator-spin"),
+    )
+    .map(({ selector }) => selector),
+  [
+    '.jk-sample-button[aria-busy="true"] [data-component-anatomy="progress-indicator"] svg[data-icon-id="loader-circle"]',
+  ],
+  "Only the loading progress indicator should receive the rotation animation.",
+);
+assert.match(
+  siteCss,
+  /@keyframes\s+jk-progress-indicator-spin\s*{[\s\S]*?to\s*{[\s\S]*?transform:\s*rotate\((?:360deg|1turn)\);[\s\S]*?}/,
+  "The loading-indicator animation should complete a full rotation.",
+);
+assert.match(
+  siteCss,
+  /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*{[\s\S]*?\.jk-sample-button\[aria-busy="true"\] \[data-component-anatomy="progress-indicator"\] svg\[data-icon-id="loader-circle"\]\s*{[\s\S]*?animation:\s*none;/,
+  "Reduced-motion users should receive the textual loading state without spinner rotation.",
+);
+
 const actionButtonCss = cssRuleBody(siteCss, ".jk-sample-button");
 assert.equal(
   cssDeclarationValue(actionButtonCss, "flex-wrap"),
