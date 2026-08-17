@@ -403,6 +403,105 @@ function protectedAtomCandidate(implementationContract, { failing = false } = {}
   });
 }
 
+function renderedActionButtonCandidate(
+  implementationContract,
+  {
+    label = "Approve refund",
+    state = "ready",
+    inlineSize = "max-content",
+    whiteSpace = "nowrap",
+    labelOverflow = "visible",
+    appendedStateText = "",
+    shortAtom = "",
+    srOnlyText = "",
+    pseudoAfterContent = "",
+    renderDomLabel = true,
+    ariaLabel = "",
+    includeAriaBusy,
+    includeDisabled,
+    includeNativeDisabled,
+    includeAriaDisabled,
+    actions,
+    progressLabels,
+    visualCompositionManifest,
+  } = {},
+) {
+  const loading = state === "loading";
+  const ariaBusy = includeAriaBusy ?? loading;
+  const disabled = includeDisabled ?? (state === "disabled" || loading);
+  const nativeDisabled = includeNativeDisabled ?? disabled;
+  const ariaDisabled = includeAriaDisabled ?? disabled;
+  return baseImplementationCandidate(implementationContract, {
+    component_contract_evidence: {
+      components: [
+        {
+          id: "action_button",
+          states_covered: ["ready", "disabled", "focus-visible", "loading"],
+        },
+      ],
+    },
+    rendered_html: `<!doctype html>
+      <html>
+        <head>
+          <style>
+            * { box-sizing: border-box; }
+            body { margin: 0; padding: 24px; font: 16px/20px Arial, sans-serif; }
+            [data-component-contract='action_button'] {
+              display: inline-flex;
+              inline-size: ${inlineSize};
+              max-inline-size: 100%;
+              align-items: center;
+              justify-content: center;
+              padding: 8px 12px;
+              white-space: ${whiteSpace};
+            }
+            [data-component-anatomy='visible-label'] {
+              display: inline-block;
+              max-inline-size: 100%;
+              min-inline-size: 0;
+              overflow: ${labelOverflow};
+              text-overflow: ${labelOverflow === "hidden" ? "ellipsis" : "clip"};
+              white-space: ${whiteSpace};
+            }
+            ${pseudoAfterContent
+              ? `[data-component-contract='action_button']::after { content: ${JSON.stringify(pseudoAfterContent)}; }`
+              : ""}
+            .sr-only {
+              position: absolute;
+              inline-size: 1px;
+              block-size: 1px;
+              overflow: hidden;
+              clip: rect(0, 0, 0, 0);
+              white-space: nowrap;
+            }
+          </style>
+        </head>
+        <body>
+          <button
+            type="button"
+            data-component-contract="action_button"
+            data-component-anatomy="state-affordance"
+            data-component-state="${state}"
+            ${ariaLabel ? `aria-label="${ariaLabel}"` : ""}
+            ${nativeDisabled ? "disabled" : ""}
+            ${ariaDisabled ? 'aria-disabled="true"' : ""}
+            ${ariaBusy ? 'aria-busy="true"' : ""}
+          >
+            ${shortAtom ? `<span data-short-atom aria-hidden="true">${shortAtom}</span>` : ""}
+            ${srOnlyText ? `<span class="sr-only">${srOnlyText}</span>` : ""}
+            ${renderDomLabel ? `<span data-component-anatomy="visible-label">${label}</span>` : ""}
+            ${appendedStateText ? `<span>${appendedStateText}</span>` : ""}
+          </button>
+        </body>
+      </html>`,
+    ...(actions ? { actions } : {}),
+    ...(progressLabels ? { progress_labels: progressLabels } : {}),
+    ...(visualCompositionManifest
+      ? { visual_composition_manifest: visualCompositionManifest }
+      : {}),
+  });
+}
+
 function noApplicableCandidate(implementationContract) {
   return baseImplementationCandidate(implementationContract, {
     rendered_html:
@@ -1024,6 +1123,381 @@ const defaultPolicy = defaultContract.visual_composition_policy;
   assertRepair(review);
 }
 
+// An action-button claim makes its rendered label a governed atom even when
+// the caller omits a visual-composition manifest. The trusted browser must
+// discover the wrapped label at both required viewports and reject it.
+{
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label: "Approve customer refund",
+      actions: ["Approve customer refund"],
+      inlineSize: "104px",
+      whiteSpace: "normal",
+      shortAtom: "OK",
+    }),
+    defaultContract,
+  );
+
+  assert.equal(review.implementation_review_status, "failed");
+  assert.equal(review.candidate_artifact_status, "not_an_artifact");
+  assert.equal(review.next_agent_action, "repair_and_resubmit");
+  assert.match(
+    JSON.stringify(review.findings),
+    /action.?button[\s\S]*(?:single.?line|wrap)|(?:single.?line|wrap)[\s\S]*action.?button/i,
+    "The repair finding should identify the rendered action-button label violation.",
+  );
+}
+
+// A one-line label is still invalid when lifecycle state is appended to its
+// visible action copy instead of being conveyed semantically by the button.
+{
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label: "Approve refund",
+      state: "ready",
+      appendedStateText: "ready",
+    }),
+    defaultContract,
+  );
+
+  assert.equal(review.implementation_review_status, "failed");
+  assert.equal(review.candidate_artifact_status, "not_an_artifact");
+  assert.equal(review.next_agent_action, "repair_and_resubmit");
+  assert.match(
+    JSON.stringify(review.findings),
+    /action.?button[\s\S]*state metadata|state metadata[\s\S]*action.?button/i,
+    "The repair finding should identify visible state metadata appended to the action label.",
+  );
+}
+
+// DOM grouping cannot hide the same pollution: direct or in-label appended
+// copy must still differ from the candidate-bound workflow action.
+{
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label: "Approve refund ready",
+      state: "ready",
+    }),
+    defaultContract,
+  );
+
+  assert.equal(review.implementation_review_status, "failed");
+  assert.match(
+    JSON.stringify(review.findings),
+    /action.?button[\s\S]*state metadata|state metadata[\s\S]*action.?button/i,
+  );
+}
+
+// A caller-authored generic protected-atom declaration cannot suppress the
+// mandatory complete-label inspection by targeting a harmless short child.
+{
+  const calibration = calibrationForRule(
+    defaultContract.visual_composition_policy,
+    "protected_atom.single_line",
+  );
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label: "Approve customer refund",
+      actions: ["Approve customer refund"],
+      inlineSize: "104px",
+      whiteSpace: "normal",
+      visualCompositionManifest: {
+        samples: [
+          {
+            sample_id: "caller-short-atom",
+            rule_id: "protected_atom.single_line",
+            calibration_ref: calibration.ref,
+            component_family: calibration.component_family,
+            selector: "[data-component-contract='action_button']",
+            target_selector: "[data-short-atom]",
+          },
+        ],
+      },
+    }),
+    defaultContract,
+  );
+
+  assert.equal(review.implementation_review_status, "failed");
+  assert.match(JSON.stringify(review.findings), /action.?button[\s\S]*wrap/i);
+}
+
+// Width-constrained ellipsis is not accepted for a task action because it
+// hides part of the complete action, even though the visible label is one line.
+{
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label: "Approve customer refund",
+      actions: ["Approve customer refund"],
+      inlineSize: "104px",
+      whiteSpace: "nowrap",
+      labelOverflow: "hidden",
+    }),
+    defaultContract,
+  );
+
+  assert.equal(review.implementation_review_status, "failed");
+  assert.match(
+    JSON.stringify(review.findings),
+    /action.?button[\s\S]*(?:clip|truncat)/i,
+  );
+}
+
+// Task copy may legitimately contain words that resemble lifecycle states;
+// only separate visible text outside the complete label is treated as state
+// pollution, avoiding English-only suffix heuristics.
+{
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label: "Ship when ready",
+      state: "ready",
+      actions: ["Ship when ready"],
+    }),
+    defaultContract,
+  );
+
+  assert.equal(review.implementation_review_status, "passed");
+}
+
+// Expected action matching must prefer the complete exact label over a
+// shorter valid action that happens to be its prefix.
+{
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label: "Save as draft",
+      actions: ["Save", "Save as draft"],
+    }),
+    defaultContract,
+  );
+
+  assert.equal(review.checks.visual_composition.status, "pass");
+  assert.equal(review.implementation_review_status, "passed");
+  assert.equal(review.candidate_artifact_status, "accepted_artifact");
+  assert.equal(review.next_agent_action, "accept");
+}
+
+// A button whose painted label exists only in generated CSS content is still
+// applicable to the action-button contract. Its appended lifecycle metadata
+// must fail the full review instead of escaping as not_applicable.
+{
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label: "",
+      renderDomLabel: false,
+      ariaLabel: "Approve refund",
+      pseudoAfterContent: "Approve refund ready",
+      actions: ["Approve refund"],
+    }),
+    defaultContract,
+  );
+
+  assert.equal(review.checks.visual_composition.status, "fail");
+  assert.equal(review.implementation_review_status, "failed");
+  assert.equal(review.candidate_artifact_status, "not_an_artifact");
+  assert.equal(review.next_agent_action, "repair_and_resubmit");
+  assert.match(
+    JSON.stringify(review.findings),
+    /action.?button[\s\S]*(?:generated|state metadata)|(?:generated|state metadata)[\s\S]*action.?button/i,
+    "A generated-only visible action label must be reviewed and rejected when it appends state metadata.",
+  );
+}
+
+// aria-disabled communicates state but does not natively block activation.
+// A busy native button must also carry the actual disabled attribute.
+{
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label: "Saving decision",
+      state: "loading",
+      includeAriaBusy: true,
+      includeNativeDisabled: false,
+      includeAriaDisabled: true,
+      actions: ["Approve refund"],
+      progressLabels: ["Saving decision"],
+    }),
+    defaultContract,
+  );
+
+  assert.equal(review.checks.visual_composition.status, "fail");
+  assert.equal(review.implementation_review_status, "failed");
+  assert.equal(review.candidate_artifact_status, "not_an_artifact");
+  assert.equal(review.next_agent_action, "repair_and_resubmit");
+  assert.match(
+    JSON.stringify(review.findings),
+    /action.?button[\s\S]*(?:native disabled|disabled attribute|repeat activation|activation-blocking)|(?:native disabled|disabled attribute|repeat activation|activation-blocking)[\s\S]*action.?button/i,
+    "A native loading button must use disabled; aria-disabled alone does not prevent repeat activation.",
+  );
+}
+
+// Generated content is visible button copy even though it is absent from the
+// DOM text nodes, so lifecycle metadata added through ::after must fail.
+{
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label: "Approve refund",
+      actions: ["Approve refund"],
+      pseudoAfterContent: " ready",
+    }),
+    defaultContract,
+  );
+
+  assert.equal(review.implementation_review_status, "failed");
+  assert.equal(review.candidate_artifact_status, "not_an_artifact");
+  assert.equal(review.next_agent_action, "repair_and_resubmit");
+  assert.match(
+    JSON.stringify(review.findings),
+    /action.?button[\s\S]*state metadata|state metadata[\s\S]*action.?button/i,
+    "CSS-generated visible lifecycle text must count as appended state metadata.",
+  );
+}
+
+// The platform busy state is authoritative even when a stale data attribute
+// still says ready: aria-busy requires a governed progress label.
+{
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label: "Approve refund",
+      state: "ready",
+      includeAriaBusy: true,
+      includeDisabled: true,
+      actions: ["Approve refund"],
+      progressLabels: ["Saving decision"],
+    }),
+    defaultContract,
+  );
+
+  assert.equal(review.implementation_review_status, "failed");
+  assert.equal(review.candidate_artifact_status, "not_an_artifact");
+  assert.equal(review.next_agent_action, "repair_and_resubmit");
+  assert.match(
+    JSON.stringify(review.findings),
+    /action.?button[\s\S]*(?:progress label|loading)|(?:progress label|loading)[\s\S]*action.?button/i,
+    "aria-busy must force loading-state progress-label semantics.",
+  );
+}
+
+// A declared loading state without aria-busy does not expose its platform
+// state, even when the visible progress label itself is correct.
+{
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label: "Saving decision",
+      state: "loading",
+      includeAriaBusy: false,
+      includeDisabled: true,
+      actions: ["Approve refund"],
+      progressLabels: ["Saving decision"],
+    }),
+    defaultContract,
+  );
+
+  assert.equal(review.implementation_review_status, "failed");
+  assert.equal(review.candidate_artifact_status, "not_an_artifact");
+  assert.match(
+    JSON.stringify(review.findings),
+    /action.?button[\s\S]*aria-busy|aria-busy[\s\S]*action.?button/i,
+    "A declared loading action button must expose aria-busy.",
+  );
+}
+
+// Busy buttons must prevent repeat activation with native and programmatic
+// disabled state while work is in progress.
+{
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label: "Saving decision",
+      state: "loading",
+      includeAriaBusy: true,
+      includeDisabled: false,
+      actions: ["Approve refund"],
+      progressLabels: ["Saving decision"],
+    }),
+    defaultContract,
+  );
+
+  assert.equal(review.implementation_review_status, "failed");
+  assert.equal(review.candidate_artifact_status, "not_an_artifact");
+  assert.match(
+    JSON.stringify(review.findings),
+    /action.?button[\s\S]*(?:aria-disabled|disabled|repeat activation)|(?:aria-disabled|disabled|repeat activation)[\s\S]*action.?button/i,
+    "A loading action button must prevent repeat activation.",
+  );
+}
+
+// Accessibility-only text clipped to a one-pixel box is not painted label
+// metadata and must not create a visual false positive.
+{
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label: "Approve refund",
+      state: "ready",
+      srOnlyText: "ready",
+    }),
+    defaultContract,
+  );
+
+  assert.equal(review.implementation_review_status, "passed");
+}
+
+// Loading copy binds to an explicit progress label while the task action stays
+// available as the non-loading contract.
+{
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label: "Saving decision",
+      state: "loading",
+      progressLabels: ["Saving decision"],
+    }),
+    defaultContract,
+  );
+
+  assert.equal(review.checks.visual_composition.status, "pass");
+  assert.equal(review.implementation_review_status, "passed");
+  assert.equal(review.candidate_artifact_status, "accepted_artifact");
+  assert.equal(review.next_agent_action, "accept");
+}
+
+// Terminal punctuation differences do not change the bounded workflow action.
+// Matching must normalize punctuation symmetrically instead of rejecting a
+// complete label solely because one source includes a period.
+for (const [label, action] of [
+  ["Save changes", "Save changes."],
+  ["Save changes.", "Save changes"],
+]) {
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label,
+      actions: [action],
+    }),
+    defaultContract,
+  );
+
+  assert.equal(
+    review.implementation_review_status,
+    "passed",
+    `action label ${JSON.stringify(label)} should match ${JSON.stringify(action)}`,
+  );
+}
+
+// Semantic state on the button with concise one-line copy must pass trusted
+// inspection at both the required desktop and mobile viewports.
+{
+  const review = await reviewCandidateInBrowser(
+    renderedActionButtonCandidate(defaultContract, {
+      label: "Approve refund",
+      state: "disabled",
+    }),
+    defaultContract,
+  );
+
+  assert.equal(review.checks.visual_composition.status, "pass");
+  assert.equal(review.checks.visual_composition.trusted_evidence_present, true);
+  assert.equal(review.checks.visual_composition.document_count, 2);
+  assert.ok(review.checks.visual_composition.sample_count >= 2);
+  assert.equal(review.implementation_review_status, "passed");
+  assert.equal(review.candidate_artifact_status, "accepted_artifact");
+  assert.equal(review.next_agent_action, "accept");
+}
+
 // The reviewer independently recomputes field-select value/slot/indicator
 // geometry from the trusted browser receipt instead of accepting a caller claim.
 {
@@ -1338,6 +1812,33 @@ const defaultPolicy = defaultContract.visual_composition_policy;
   assert.equal(review.checks.visual_composition.trusted_evidence_present, true);
   assert.equal(review.implementation_review_status, "passed");
   assert.equal(review.next_agent_action, "accept");
+}
+
+// External policies do not inherit JudgmentKit's action-button auto rule when
+// their active component authority has no action_button contract.
+{
+  const { sha256: _defaultDigest, ...externalPolicy } = structuredClone(defaultPolicy);
+  externalPolicy.id = `${EXTERNAL_POLICY_ID}.button-boundary`;
+  externalPolicy.authority.presentation_owner = "Material UI";
+  const externalContract = createUiImplementationContract({
+    design_system_adapter: completeMaterialDesignSystemAdapter(externalPolicy),
+  }).implementation_contract;
+  const candidate = materialImplementationCandidate(externalContract, {
+    rendered_html: `
+      <main>
+        <span data-part="refund-label" style="display:inline-block;white-space:nowrap">
+          Refund decision reason
+        </span>
+        <button style="inline-size:80px;white-space:normal">Approve customer refund</button>
+      </main>`,
+    visual_composition_manifest: protectedAtomManifest(
+      externalContract.visual_composition_policy,
+    ),
+  });
+  const review = await reviewCandidateInBrowser(candidate, externalContract);
+
+  assert.equal(review.checks.visual_composition.status, "pass");
+  assert.equal(review.implementation_review_status, "passed");
 }
 
 process.stdout.write("Visual composition integration tests passed.\n");
