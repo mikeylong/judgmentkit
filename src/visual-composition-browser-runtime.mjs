@@ -101,6 +101,13 @@ function optionalString(value) {
   return typeof value === "string" && value.trim() ? value.trim() : "";
 }
 
+function canonicalActionLabel(value) {
+  return optionalString(value)
+    .replace(/\s+/g, " ")
+    .replace(/^[\s,;:]+|[\s,;:.]+$/g, "")
+    .trim();
+}
+
 function sha256(...parts) {
   const hash = createHash("sha256");
   for (const part of parts) {
@@ -218,6 +225,74 @@ function explicitDeclarations(candidate) {
     }
     return declaration;
   });
+}
+
+function candidateActionButtonContext(candidate, implementationContract) {
+  const contracts = Array.isArray(
+    implementationContract?.default_ai_native_design_system?.component_contracts,
+  )
+    ? implementationContract.default_ai_native_design_system.component_contracts
+    : [];
+  const contract = contracts.find(
+    (entry) => isPlainObject(entry) && entry.id === "action_button",
+  );
+  if (!contract) return null;
+
+  const evidence = isPlainObject(candidate)
+    ? candidate.component_contract_evidence ??
+      candidate.componentContractEvidence ??
+      null
+    : null;
+  const componentEntries = Array.isArray(evidence?.components)
+    ? evidence.components
+    : [];
+  const actionButtonEvidence = componentEntries.find(
+    (entry) =>
+      isPlainObject(entry) &&
+      optionalString(entry.id ?? entry.component_id ?? entry.componentId) ===
+        "action_button",
+  );
+  const labelsFrom = (...values) => [
+    ...new Set(
+      values
+        .flatMap((value) =>
+          Array.isArray(value)
+            ? value
+            : typeof value === "string"
+              ? [value]
+              : [],
+        )
+        .map(canonicalActionLabel)
+        .filter(Boolean),
+    ),
+  ];
+
+  return {
+    id: "action_button",
+    expected_action_labels: labelsFrom(
+      candidate?.actions,
+      candidate?.action_labels,
+      candidate?.actionLabels,
+      candidate?.expected_action_labels,
+      candidate?.expectedActionLabels,
+      actionButtonEvidence?.expected_action_labels,
+      actionButtonEvidence?.expectedActionLabels,
+      actionButtonEvidence?.action_labels,
+      actionButtonEvidence?.actionLabels,
+    ),
+    expected_progress_labels: labelsFrom(
+      candidate?.progress_labels,
+      candidate?.progressLabels,
+      candidate?.loading_labels,
+      candidate?.loadingLabels,
+      actionButtonEvidence?.expected_progress_labels,
+      actionButtonEvidence?.expectedProgressLabels,
+      actionButtonEvidence?.progress_labels,
+      actionButtonEvidence?.progressLabels,
+      actionButtonEvidence?.loading_labels,
+      actionButtonEvidence?.loadingLabels,
+    ),
+  };
 }
 
 function isExecutable(filePath) {
@@ -586,13 +661,20 @@ async function withBrowser(callback) {
   throw new Error("Configured Chrome failed to start.");
 }
 
-function measurementExpression({ declarations, policy, viewport, documentId }) {
+function measurementExpression({
+  declarations,
+  policy,
+  viewport,
+  documentId,
+  actionButtonContract,
+}) {
   return `
     (async () => {
       const declarations = ${JSON.stringify(declarations)};
       const policy = ${JSON.stringify(policy)};
       const viewport = ${JSON.stringify(viewport)};
       const documentId = ${JSON.stringify(documentId)};
+      const actionButtonContext = ${JSON.stringify(actionButtonContract)};
       const ruleById = new Map((policy.rules || []).map((rule) => [rule.id, rule]));
       const calibrations = policy.calibrations || {};
       const results = [];
@@ -651,6 +733,156 @@ function measurementExpression({ declarations, policy, viewport, documentId }) {
           x: bounds.x, y: bounds.y, width: bounds.width, height: bounds.height,
           top: bounds.top, right: bounds.right, bottom: bounds.bottom, left: bounds.left,
         };
+      };
+      const paintedTextRects = (textNode, root) => {
+        const parent = textNode.parentElement;
+        if (!parent || parent.closest("[aria-hidden='true'],[hidden]")) return [];
+        const range = document.createRange();
+        range.selectNodeContents(textNode);
+        const rawRects = [...range.getClientRects()].filter(
+          (bounds) => bounds.width > 0 && bounds.height > 0,
+        );
+        return rawRects.filter((rawBounds) => {
+          let left = rawBounds.left;
+          let top = rawBounds.top;
+          let right = rawBounds.right;
+          let bottom = rawBounds.bottom;
+          let ancestor = parent;
+          while (ancestor) {
+            const style = getComputedStyle(ancestor);
+            if (
+              style.display === "none" ||
+              style.visibility === "hidden" ||
+              Number.parseFloat(style.opacity || "1") <= 0
+            ) return false;
+            const bounds = ancestor.getBoundingClientRect();
+            const legacyClip = style.clip && style.clip !== "auto";
+            const pathClip = style.clipPath && style.clipPath !== "none";
+            if ((legacyClip || pathClip) && bounds.width <= 2 && bounds.height <= 2) {
+              return false;
+            }
+            const clipsInline = ["auto", "clip", "hidden", "scroll"].includes(
+              style.overflowX,
+            );
+            const clipsBlock = ["auto", "clip", "hidden", "scroll"].includes(
+              style.overflowY,
+            );
+            if (clipsInline) {
+              left = Math.max(left, bounds.left);
+              right = Math.min(right, bounds.right);
+            }
+            if (clipsBlock) {
+              top = Math.max(top, bounds.top);
+              bottom = Math.min(bottom, bounds.bottom);
+            }
+            if (right - left <= 1 || bottom - top <= 1) return false;
+            if (ancestor === root) break;
+            ancestor = ancestor.parentElement;
+          }
+          return true;
+        });
+      };
+      const visibleTextLineRects = (node) => {
+        const textNodes = [];
+        const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+        while (walker.nextNode()) textNodes.push(walker.currentNode);
+        const rectangles = [];
+        for (const textNode of textNodes) {
+          if (!(textNode.textContent || "").trim()) continue;
+          rectangles.push(...paintedTextRects(textNode, node));
+        }
+        const lines = [];
+        for (const bounds of rectangles.sort((left, right) =>
+          left.top - right.top || left.left - right.left
+        )) {
+          const matchingLine = lines.find((line) =>
+            bounds.bottom > line.top + 0.5 && bounds.top < line.bottom - 0.5
+          );
+          if (matchingLine) {
+            matchingLine.left = Math.min(matchingLine.left, bounds.left);
+            matchingLine.top = Math.min(matchingLine.top, bounds.top);
+            matchingLine.right = Math.max(matchingLine.right, bounds.right);
+            matchingLine.bottom = Math.max(matchingLine.bottom, bounds.bottom);
+            matchingLine.x = matchingLine.left;
+            matchingLine.y = matchingLine.top;
+            matchingLine.width = matchingLine.right - matchingLine.left;
+            matchingLine.height = matchingLine.bottom - matchingLine.top;
+          } else {
+            lines.push({
+              x: bounds.left,
+              y: bounds.top,
+              width: bounds.width,
+              height: bounds.height,
+              top: bounds.top,
+              right: bounds.right,
+              bottom: bounds.bottom,
+              left: bounds.left,
+            });
+          }
+        }
+        return lines;
+      };
+      const unionRects = (rectangles) => {
+        if (rectangles.length === 0) return null;
+        const left = Math.min(...rectangles.map((bounds) => bounds.left));
+        const top = Math.min(...rectangles.map((bounds) => bounds.top));
+        const right = Math.max(...rectangles.map((bounds) => bounds.right));
+        const bottom = Math.max(...rectangles.map((bounds) => bounds.bottom));
+        return {
+          x: left,
+          y: top,
+          width: right - left,
+          height: bottom - top,
+          top,
+          right,
+          bottom,
+          left,
+        };
+      };
+      const visibleTextContent = (root, { outside = null } = {}) => {
+        const values = [];
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        while (walker.nextNode()) {
+          const textNode = walker.currentNode;
+          if (!(textNode.textContent || "").trim()) continue;
+          if (outside?.contains(textNode)) continue;
+          if (paintedTextRects(textNode, root).length === 0) continue;
+          values.push(textNode.textContent.trim());
+        }
+        return values.join(" ").replace(/\\s+/g, " ").trim();
+      };
+      const generatedTextContent = (root) => {
+        const entries = [];
+        const elements = [root, ...root.querySelectorAll("*")];
+        for (const element of elements) {
+          if (element.closest("[aria-hidden='true'],[hidden]")) continue;
+          for (const pseudo of ["::before", "::after"]) {
+            const style = getComputedStyle(element, pseudo);
+            let content = (style.content || "").trim();
+            if (
+              !content ||
+              content === "none" ||
+              content === "normal" ||
+              style.display === "none" ||
+              style.visibility === "hidden" ||
+              Number.parseFloat(style.opacity || "1") <= 0
+            ) continue;
+            if (
+              (content.startsWith('"') && content.endsWith('"')) ||
+              (content.startsWith("'") && content.endsWith("'"))
+            ) {
+              try {
+                content = JSON.parse(content);
+              } catch {
+                content = content.slice(1, -1);
+              }
+            }
+            content = String(content).replace(/\\s+/g, " ").trim();
+            if (!/[\\p{L}\\p{N}]/u.test(content)) continue;
+            entries.push({ pseudo, content });
+          }
+        }
+        return entries;
       };
       const rendered = (element) => {
         if (!element) return false;
@@ -1407,6 +1639,196 @@ function measurementExpression({ declarations, policy, viewport, documentId }) {
         }
       }
 
+      const protectedAtomRule = ruleById.get("protected_atom.single_line");
+      if (actionButtonContext?.id === "action_button" && protectedAtomRule && !relationshipLimitExceeded) {
+        const actionButtons = safeAll("button,[role='button']").filter((button) =>
+          rendered(button)
+        );
+        for (const button of actionButtons) {
+          const labelCandidates = safeAll(
+            "[data-component-anatomy='visible-label'],[data-part='label'],[data-button-label],[data-action-label]",
+            button,
+          ).filter(rendered);
+          const label = labelCandidates.length > 0 ? labelCandidates[0] : button;
+          const generatedText = generatedTextContent(button);
+          const generatedTextPresent = generatedText.length > 0;
+          const lineRects = visibleTextLineRects(button);
+          if (lineRects.length === 0 && !generatedTextPresent) continue;
+          const selector = nextSelector(button, "action-button");
+          const targetSelector = label === button
+            ? selector
+            : nextSelector(label, "action-button-label");
+          const declaredDataState = (
+            button.getAttribute("data-component-state") ||
+            button.getAttribute("data-state") ||
+            ""
+          ).trim().toLowerCase().replace(/[-_]+/g, " ");
+          const ariaBusy = button.getAttribute("aria-busy") === "true";
+          const nativeDisabled = Boolean(button.disabled);
+          const ariaDisabled = button.getAttribute("aria-disabled") === "true";
+          const elementTagName = button.tagName.toLowerCase();
+          const activationBlocked =
+            elementTagName === "button" && nativeDisabled;
+          const declaredState = ariaBusy
+            ? "loading"
+            : declaredDataState || (activationBlocked ? "disabled" : "");
+          const stateSemanticsInvalid = Boolean(
+            (ariaBusy && declaredDataState && declaredDataState !== "loading") ||
+            (declaredDataState === "loading" && !ariaBusy) ||
+            ((ariaBusy || declaredDataState === "loading") && !activationBlocked) ||
+            (declaredDataState === "disabled" && !activationBlocked) ||
+            (activationBlocked &&
+              declaredDataState &&
+              !["disabled", "loading"].includes(declaredDataState))
+          );
+          const visibleLabel = visibleTextContent(button);
+          const outsideLabelText = label === button
+            ? ""
+            : visibleTextContent(button, { outside: label });
+          const expectedLabels = declaredState === "loading"
+            ? actionButtonContext.expected_progress_labels
+            : actionButtonContext.expected_action_labels;
+          const normalizedVisibleLabel = visibleLabel
+            .replace(/\\s+/g, " ")
+            .replace(/^[\\s,;:]+|[\\s,;:.]+$/g, "")
+            .trim()
+            .toLocaleLowerCase();
+          const matchingExpectedLabel = expectedLabels.find((expected) =>
+            expected.trim().toLocaleLowerCase() === normalizedVisibleLabel
+          ) || "";
+          const prefixedExpectedLabel = matchingExpectedLabel
+            ? ""
+            : expectedLabels.find((expected) =>
+                normalizedVisibleLabel.startsWith(
+                  expected.trim().toLocaleLowerCase() + " ",
+                )
+              ) || "";
+          const expectedLabelMissing = expectedLabels.length === 0;
+          const labelMatchesExpected = Boolean(matchingExpectedLabel);
+          const stateMetadataAppended = Boolean(
+            outsideLabelText || prefixedExpectedLabel,
+          );
+          const buttonRect = rect(button);
+          const labelRect = rect(label);
+          const rawTextRect = unionRects(lineRects);
+          const targetScrollWidth = label.scrollWidth;
+          const targetClientWidth = label.clientWidth;
+          const clippedOrTruncated = rawTextRect
+            ? targetScrollWidth > targetClientWidth + 0.5 ||
+              rawTextRect.left < labelRect.left - 0.5 ||
+              rawTextRect.right > labelRect.right + 0.5
+            : false;
+          const overflowsInline = rawTextRect
+            ? rawTextRect.left < buttonRect.left - 0.5 ||
+              rawTextRect.right > buttonRect.right + 0.5
+            : false;
+          const [calibrationRef, calibration] = calibrationFor(
+            {},
+            protectedAtomRule.id,
+          );
+          const limit = calibration?.max_text_line_boxes;
+          const evidence = {
+            classification: generatedTextPresent
+              ? "action_button_generated_label_content_unsupported"
+              : stateSemanticsInvalid
+                ? "action_button_state_semantics_invalid"
+              : stateMetadataAppended
+              ? "action_button_state_metadata_appended"
+              : expectedLabelMissing
+                ? declaredState === "loading"
+                  ? "action_button_progress_label_contract_missing"
+                  : "action_button_expected_action_contract_missing"
+              : !labelMatchesExpected
+                ? declaredState === "loading"
+                  ? "action_button_progress_label_mismatch"
+                  : "action_button_label_not_expected_action"
+              : lineRects.length > limit
+                ? "action_button_label_wrapped"
+                : clippedOrTruncated
+                  ? "action_button_label_clipped_or_truncated"
+                : overflowsInline
+                  ? "action_button_label_overflow"
+                  : "action_button_label_valid",
+            component_contract_id: "action_button",
+            line_box_count: lineRects.length,
+            line_rects: lineRects,
+            overflows_inline: overflowsInline,
+            clipped_or_truncated: clippedOrTruncated,
+            state_metadata_appended: stateMetadataAppended,
+            outside_label_text: outsideLabelText || null,
+            generated_text_content: generatedText,
+            generated_text_content_present: generatedTextPresent,
+            element_tag_name: elementTagName,
+            declared_data_state: declaredDataState || null,
+            aria_busy: ariaBusy,
+            native_disabled: nativeDisabled,
+            aria_disabled: ariaDisabled,
+            loading_activation_blocked: activationBlocked,
+            state_semantics_invalid: stateSemanticsInvalid,
+            declared_state: declaredState || null,
+            visible_label_text: visibleLabel,
+            expected_action_labels: actionButtonContext.expected_action_labels,
+            expected_progress_labels: actionButtonContext.expected_progress_labels,
+            expected_label_missing: expectedLabelMissing,
+            label_matches_expected: labelMatchesExpected,
+            matching_expected_label: matchingExpectedLabel || null,
+            prefixed_expected_label: prefixedExpectedLabel || null,
+            max_line_box_count: limit,
+            target_rect: labelRect,
+            raw_text_rect: rawTextRect,
+            container_rect: buttonRect,
+            target_scroll_width: targetScrollWidth,
+            target_client_width: targetClientWidth,
+          };
+          const sample = {
+            document_id: documentId,
+            viewport_id: viewport.id,
+            state_id: declaredState || "default",
+            sample_id: "auto-action-button-" + auto.length + "-" + viewport.id,
+            rule_id: protectedAtomRule.id,
+            ...(calibrationRef ? {
+              calibration_ref: calibrationRef,
+              component_family: calibration?.component_family,
+            } : {}),
+            selector,
+            target_selector: targetSelector,
+          };
+          const valid = Number.isInteger(limit) &&
+            lineRects.length <= limit &&
+            !overflowsInline &&
+            !clippedOrTruncated &&
+            !generatedTextPresent &&
+            !stateSemanticsInvalid &&
+            !stateMetadataAppended &&
+            !expectedLabelMissing &&
+            labelMatchesExpected;
+          const measuredSample = Number.isInteger(limit)
+            ? valid
+              ? outcome(sample, "pass", protectedAtomRule.id, evidence)
+              : outcome(
+                  sample,
+                  "fail",
+                  protectedAtomRule.failure_code,
+                  evidence,
+                  generatedTextPresent
+                    ? "Action-button state metadata or other textual label content must not be appended with CSS generated content."
+                    : stateSemanticsInvalid
+                      ? declaredState === "loading" && !activationBlocked
+                        ? "A loading action button must use the native disabled attribute to prevent repeat activation."
+                        : "Action-button loading and disabled states must agree with aria-busy and activation-blocking semantics."
+                  : stateMetadataAppended
+                    ? "Action-button state metadata must not be appended to the visible action label."
+                    : expectedLabelMissing
+                      ? "The candidate must bind each rendered action button to an expected workflow action, or to an explicit progress label while loading."
+                      : !labelMatchesExpected
+                        ? "The complete rendered action-button label must match its expected workflow action or loading progress label."
+                        : "The action-button label must remain a complete single rendered line without wrapping, clipping, truncation, or overflow.",
+                )
+            : outcome(sample, "review", "calibration_missing", evidence);
+          if (!addAuto({ __measured: measuredSample })) break;
+        }
+      }
+
       const inlineRule = ruleById.get("inline_pair.box_center");
       if (inlineRule && !relationshipLimitExceeded) {
         const containers = safeAll("body *").filter((container) => {
@@ -1514,7 +1936,14 @@ function measurementExpression({ declarations, policy, viewport, documentId }) {
   `;
 }
 
-async function measureViewport(client, html, declarations, policy, viewport) {
+async function measureViewport(
+  client,
+  html,
+  declarations,
+  policy,
+  viewport,
+  actionButtonContract,
+) {
   const target = await client.send("Target.createTarget", { url: "about:blank" });
   const attached = await client.send("Target.attachToTarget", {
     targetId: target.targetId,
@@ -1559,7 +1988,13 @@ async function measureViewport(client, html, declarations, policy, viewport) {
     }
 
     const evaluated = await client.send("Runtime.evaluate", {
-      expression: measurementExpression({ declarations, policy, viewport, documentId }),
+      expression: measurementExpression({
+        declarations,
+        policy,
+        viewport,
+        documentId,
+        actionButtonContract,
+      }),
       awaitPromise: true,
       returnByValue: true,
     }, sessionId);
@@ -1636,13 +2071,26 @@ export async function measureVisualCompositionInBrowser({
 
   const html = securedHtml(source);
   const declarations = explicitDeclarations(candidate);
+  const actionButtonContract = candidateActionButtonContext(
+    candidate,
+    implementationContract,
+  );
 
   try {
     return await withBrowser(async (client, endpointVersion) => {
       const browserVersion = await client.send("Browser.getVersion").catch(() => ({}));
       const measured = [];
       for (const viewport of VIEWPORTS) {
-        measured.push(await measureViewport(client, html, declarations, policy, viewport));
+        measured.push(
+          await measureViewport(
+            client,
+            html,
+            declarations,
+            policy,
+            viewport,
+            actionButtonContract,
+          ),
+        );
       }
       const samples = measured.flatMap((entry) => entry.samples);
       if (samples.length > MAX_SAMPLES) {

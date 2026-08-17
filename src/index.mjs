@@ -5234,12 +5234,39 @@ const DEFAULT_COMPONENT_CONTRACTS = [
     purpose: "Trigger one bounded user action.",
     use_when: ["the user can commit, cancel, navigate, disclose, or retry a clear action"],
     avoid_when: ["the action is a passive label, status, or unsupported shortcut"],
-    anatomy: ["visible label", "optional icon", "state affordance"],
+    anatomy: [
+      "visible label",
+      "optional icon",
+      "state affordance",
+      "progress indicator",
+    ],
     required_states: ["ready", "disabled", "focus-visible", "loading"],
     token_bindings: ["text", "border", "focus", "decision", "risk"],
-    accessibility_checks: ["accessible name", "keyboard activation", "focus visible", "target size"],
-    review_checks: ["action comes from the workflow", "risky actions have approval-boundary evidence"],
-    failure_signals: ["icon-only button has no accessible name", "destructive action appears without confirmation evidence"],
+    accessibility_checks: [
+      "accessible name",
+      "keyboard activation",
+      "focus visible",
+      "target size",
+      "loading exposes aria-busy",
+      "every state exposes a complete, task-specific accessible name",
+    ],
+    review_checks: [
+      "action comes from the workflow",
+      "risky actions have approval-boundary evidence",
+      "the visible label is a complete, task-specific action phrase and remains on one line at every supported viewport",
+      "for English copy, prefer one to four words when clarity permits; localization may use the wording needed for an unambiguous action",
+      "responsive layout allocates enough width or uses shorter copy instead of wrapping, clipping, or truncating the action",
+      "ready, disabled, focus-visible, and loading use semantic state and visual treatment instead of appending state metadata to the visible label",
+      "loading pairs a progress indicator with a concise progress label, exposes aria-busy, and prevents repeat activation",
+    ],
+    failure_signals: [
+      "icon-only button has no accessible name",
+      "destructive action appears without confirmation evidence",
+      "visible action label wraps onto multiple lines",
+      "state metadata is appended to the visible action label",
+      "a truncated or clipped label hides the complete action",
+      "button label overflows its container at a supported viewport",
+    ],
   },
   {
     id: "action_group",
@@ -11919,6 +11946,63 @@ function candidateComponentContractEvidence(candidate) {
   );
 }
 
+function candidateActionButtonReviewContext(candidate, implementationContract) {
+  if (!isPlainObject(candidate)) return null;
+  const system = normalizeDefaultAiNativeDesignSystem(
+    implementationContract.default_ai_native_design_system,
+    DEFAULT_AI_NATIVE_DESIGN_SYSTEM,
+  );
+  const actionButtonContract = normalizeComponentContracts(
+    system.component_contracts,
+  ).find((entry) => entry.id === "action_button");
+  if (!actionButtonContract) return null;
+
+  const evidence = candidateComponentContractEvidence(candidate);
+  const componentEntries = Array.isArray(evidence?.components)
+    ? evidence.components
+    : [];
+  const actionButtonEvidence = componentEntries.find(
+    (entry) =>
+      isPlainObject(entry) &&
+      optionalString(entry.id ?? entry.component_id ?? entry.componentId) ===
+        "action_button",
+  );
+  const labelsFrom = (...values) =>
+    unique(
+      values
+        .flatMap((value) => toStringArray(value))
+        .map(cleanClause)
+        .filter(Boolean),
+    );
+
+  return {
+    id: "action_button",
+    expected_action_labels: labelsFrom(
+      candidate.actions,
+      candidate.action_labels,
+      candidate.actionLabels,
+      candidate.expected_action_labels,
+      candidate.expectedActionLabels,
+      actionButtonEvidence?.expected_action_labels,
+      actionButtonEvidence?.expectedActionLabels,
+      actionButtonEvidence?.action_labels,
+      actionButtonEvidence?.actionLabels,
+    ),
+    expected_progress_labels: labelsFrom(
+      candidate.progress_labels,
+      candidate.progressLabels,
+      candidate.loading_labels,
+      candidate.loadingLabels,
+      actionButtonEvidence?.expected_progress_labels,
+      actionButtonEvidence?.expectedProgressLabels,
+      actionButtonEvidence?.progress_labels,
+      actionButtonEvidence?.progressLabels,
+      actionButtonEvidence?.loading_labels,
+      actionButtonEvidence?.loadingLabels,
+    ),
+  };
+}
+
 function candidatePatternContractEvidence(candidate) {
   if (!isPlainObject(candidate)) {
     return null;
@@ -12783,7 +12867,12 @@ function candidateVisualCompositionDigest(candidate) {
   });
 }
 
-function expectedVisualCompositionObservation(sample, rule, calibration) {
+function expectedVisualCompositionObservation(
+  sample,
+  rule,
+  calibration,
+  { actionButtonContext = null } = {},
+) {
   const evidence = isPlainObject(sample.evidence) ? sample.evidence : {};
 
   if (
@@ -12846,7 +12935,155 @@ function expectedVisualCompositionObservation(sample, rule, calibration) {
 
   if (rule?.kind === "protected_atom") {
     const lineBoxCount = evidence.line_box_count;
-    const overflowsInline = evidence.overflows_inline;
+    let overflowsInline = evidence.overflows_inline;
+    let clippedOrTruncated = evidence.clipped_or_truncated === true;
+    let stateMetadataAppended = evidence.state_metadata_appended === true;
+    if (optionalString(evidence.component_contract_id) === "action_button") {
+      const visibleLabel = optionalString(evidence.visible_label_text).replace(
+        /\s+/g,
+        " ",
+      );
+      const outsideLabelText = optionalString(evidence.outside_label_text);
+      const lineRects = Array.isArray(evidence.line_rects)
+        ? evidence.line_rects.filter(isPlainObject)
+        : [];
+      const rawTextRect = evidence.raw_text_rect;
+      const containerRect = evidence.container_rect;
+      const targetScrollWidth = evidence.target_scroll_width;
+      const targetClientWidth = evidence.target_client_width;
+      const declaredDataState = optionalString(evidence.declared_data_state)
+        .toLowerCase()
+        .replace(/[-_]+/g, " ");
+      const elementTagName = optionalString(evidence.element_tag_name).toLowerCase();
+      const ariaBusy = evidence.aria_busy;
+      const nativeDisabled = evidence.native_disabled;
+      const ariaDisabled = evidence.aria_disabled;
+      const activationBlocked = elementTagName === "button" && nativeDisabled;
+      const derivedState = ariaBusy
+        ? "loading"
+        : declaredDataState || (activationBlocked ? "disabled" : "");
+      const derivedStateSemanticsInvalid = Boolean(
+        (ariaBusy && declaredDataState && declaredDataState !== "loading") ||
+        (declaredDataState === "loading" && !ariaBusy) ||
+        ((ariaBusy || declaredDataState === "loading") && !activationBlocked) ||
+        (declaredDataState === "disabled" && !activationBlocked) ||
+        (activationBlocked &&
+          declaredDataState &&
+          !["disabled", "loading"].includes(declaredDataState))
+      );
+      const generatedTextContent = evidence.generated_text_content;
+      const generatedTextContentValid =
+        Array.isArray(generatedTextContent) &&
+        generatedTextContent.every(
+          (entry) =>
+            isPlainObject(entry) &&
+            ["::before", "::after"].includes(optionalRawString(entry.pseudo)) &&
+            Boolean(optionalRawString(entry.content)),
+        );
+      const derivedGeneratedTextPresent = generatedTextContentValid
+        ? generatedTextContent.length > 0
+        : null;
+      const expectedLabels = derivedState === "loading"
+        ? actionButtonContext?.expected_progress_labels ?? []
+        : actionButtonContext?.expected_action_labels ?? [];
+      const normalizedVisibleLabel = visibleLabel.toLocaleLowerCase();
+      const matchingExpectedLabel = expectedLabels.find(
+        (expected) =>
+          cleanClause(expected).toLocaleLowerCase() === normalizedVisibleLabel,
+      ) ?? "";
+      const prefixedExpectedLabel = matchingExpectedLabel
+        ? ""
+        : expectedLabels.find((expected) =>
+            normalizedVisibleLabel.startsWith(
+              `${cleanClause(expected).toLocaleLowerCase()} `,
+            ),
+          ) ?? "";
+      const derivedExpectedLabelMissing = expectedLabels.length === 0;
+      const derivedLabelMatchesExpected = Boolean(matchingExpectedLabel);
+      const derivedStateMetadataAppended = Boolean(
+        outsideLabelText || prefixedExpectedLabel,
+      );
+      const derivedOverflowsInline =
+        derivedGeneratedTextPresent
+          ? false
+          : isPlainObject(rawTextRect) &&
+              isPlainObject(containerRect) &&
+              [
+                rawTextRect.left,
+                rawTextRect.right,
+                containerRect.left,
+                containerRect.right,
+              ].every(Number.isFinite)
+            ? rawTextRect.left < containerRect.left - 0.5 ||
+              rawTextRect.right > containerRect.right + 0.5
+            : null;
+      const targetRect = evidence.target_rect;
+      const derivedClippedOrTruncated =
+        derivedGeneratedTextPresent
+          ? false
+          : Number.isFinite(targetScrollWidth) &&
+              Number.isFinite(targetClientWidth) &&
+              isPlainObject(rawTextRect) &&
+              isPlainObject(targetRect) &&
+              [
+                rawTextRect.left,
+                rawTextRect.right,
+                targetRect.left,
+                targetRect.right,
+              ].every(Number.isFinite)
+            ? targetScrollWidth > targetClientWidth + 0.5 ||
+              rawTextRect.left < targetRect.left - 0.5 ||
+              rawTextRect.right > targetRect.right + 0.5
+            : null;
+      if (
+        (!visibleLabel && !derivedGeneratedTextPresent) ||
+        !elementTagName ||
+        actionButtonContext?.id !== "action_button" ||
+        JSON.stringify(evidence.expected_action_labels) !==
+          JSON.stringify(actionButtonContext.expected_action_labels) ||
+        JSON.stringify(evidence.expected_progress_labels) !==
+          JSON.stringify(actionButtonContext.expected_progress_labels) ||
+        lineRects.length !== lineBoxCount ||
+        typeof ariaBusy !== "boolean" ||
+        typeof nativeDisabled !== "boolean" ||
+        typeof ariaDisabled !== "boolean" ||
+        typeof evidence.loading_activation_blocked !== "boolean" ||
+        typeof evidence.state_semantics_invalid !== "boolean" ||
+        typeof evidence.generated_text_content_present !== "boolean" ||
+        typeof evidence.state_metadata_appended !== "boolean" ||
+        typeof evidence.overflows_inline !== "boolean" ||
+        typeof evidence.clipped_or_truncated !== "boolean" ||
+        derivedGeneratedTextPresent === null ||
+        derivedOverflowsInline === null ||
+        derivedClippedOrTruncated === null ||
+        optionalString(evidence.declared_state) !== derivedState ||
+        evidence.loading_activation_blocked !== activationBlocked ||
+        evidence.state_semantics_invalid !== derivedStateSemanticsInvalid ||
+        evidence.generated_text_content_present !== derivedGeneratedTextPresent ||
+        derivedStateMetadataAppended !== evidence.state_metadata_appended ||
+        derivedExpectedLabelMissing !== evidence.expected_label_missing ||
+        derivedLabelMatchesExpected !== evidence.label_matches_expected ||
+        optionalString(evidence.matching_expected_label) !==
+          matchingExpectedLabel ||
+        optionalString(evidence.prefixed_expected_label) !==
+          prefixedExpectedLabel ||
+        derivedOverflowsInline !== evidence.overflows_inline ||
+        derivedClippedOrTruncated !== evidence.clipped_or_truncated
+      ) {
+        return null;
+      }
+      stateMetadataAppended = derivedStateMetadataAppended;
+      overflowsInline = derivedOverflowsInline;
+      clippedOrTruncated = derivedClippedOrTruncated;
+      if (
+        derivedGeneratedTextPresent ||
+        derivedStateSemanticsInvalid ||
+        derivedExpectedLabelMissing ||
+        !derivedLabelMatchesExpected
+      ) {
+        return { actual: "fail", code: rule.failure_code };
+      }
+    }
     const limit = calibration?.max_text_line_boxes;
     if (
       !Number.isInteger(lineBoxCount) ||
@@ -12855,7 +13092,10 @@ function expectedVisualCompositionObservation(sample, rule, calibration) {
     ) {
       return null;
     }
-    return lineBoxCount <= limit && !overflowsInline
+    return lineBoxCount <= limit &&
+      !overflowsInline &&
+      !clippedOrTruncated &&
+      !stateMetadataAppended
       ? { actual: "pass", code: rule.id }
       : { actual: "fail", code: rule.failure_code };
   }
@@ -13153,6 +13393,10 @@ function reviewVisualCompositionEvidence(candidate, implementationContract) {
   const acceptedCodes = isPlainObject(receiptContract.accepted_codes)
     ? receiptContract.accepted_codes
     : {};
+  const actionButtonContext = candidateActionButtonReviewContext(
+    candidate,
+    implementationContract,
+  );
   const invalidReasons = [];
   const warnings = [];
 
@@ -13402,6 +13646,7 @@ function reviewVisualCompositionEvidence(candidate, implementationContract) {
       sample,
       rule,
       calibrations.get(calibrationRef),
+      { actionButtonContext },
     );
 
     if (
@@ -13634,6 +13879,7 @@ function reviewVisualCompositionEvidence(candidate, implementationContract) {
               calibration_ref: optionalString(sample.calibration_ref) || null,
               actual: optionalString(sample.actual) || null,
               code: optionalString(sample.code) || null,
+              message: optionalString(sample.message) || null,
               evidence: sample.evidence ?? null,
             })),
           },
@@ -15390,6 +15636,11 @@ function buildFrontendImplementationInstructionMarkdown({
     frontendGenerationContext.implementation_contract
       ?.visual_composition_policy ??
     null;
+  const actionButtonContract = Array.isArray(designSystemPolicy.component_contracts)
+    ? designSystemPolicy.component_contracts.find(
+        (entry) => optionalString(entry?.id) === "action_button",
+      )
+    : null;
   const contrastTargets =
     accessibilityPolicy.contrast_targets ?? DEFAULT_ACCESSIBILITY_POLICY.contrast_targets;
   const standardsProfile =
@@ -15533,6 +15784,9 @@ function buildFrontendImplementationInstructionMarkdown({
         (entry) => `${entry.id}: ${entry.purpose}`,
       ) || "none supplied"
     }`,
+    `- Action-button label rules: ${toStringArray(actionButtonContract?.review_checks).join("; ") || "none supplied"}`,
+    `- Action-button accessibility: ${toStringArray(actionButtonContract?.accessibility_checks).join("; ") || "none supplied"}`,
+    `- Action-button failure signals: ${toStringArray(actionButtonContract?.failure_signals).join("; ") || "none supplied"}`,
     `- Pattern contracts: ${
       formatRoleEntries(
         designSystemPolicy.pattern_contracts,

@@ -175,3 +175,10 @@ assert.ok(skillContext.pattern_contracts.some((entry) => entry.id === "workbench
 assert.ok(skillContext.instruction_markdown.includes("Icon catalog"));
 assert.ok(skillContext.instruction_markdown.includes("--jk-color-surface"));
 assert.ok(skillContext.instruction_markdown.includes("Component contracts"));
+assert.ok(
+  skillContext.instruction_markdown.includes("Action-button label rules") &&
+    skillContext.instruction_markdown.includes("task-specific action phrase") &&
+    skillContext.instruction_markdown.includes("one line") &&
+    skillContext.instruction_markdown.includes("state metadata"),
+  "Compiled frontend guidance must carry the action-button label contract.",
+);

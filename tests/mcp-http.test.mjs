@@ -246,11 +246,29 @@ async function runMcpClient(endpoint, { verifyBrowserRuntime = false } = {}) {
           .visual_token_adapter,
       false,
     );
-    assert.ok(
+    const httpActionButtonContract =
       implementationContractResponse.structuredContent.implementation_contract
-        .default_ai_native_design_system.component_contracts.some(
+        .default_ai_native_design_system.component_contracts.find(
           (entry) => entry.id === "action_button",
-        ),
+        );
+    assert.ok(httpActionButtonContract);
+    assert.ok(
+      httpActionButtonContract.review_checks.some(
+        (check) =>
+          check.includes("task-specific action phrase") &&
+          check.includes("one line") &&
+          !check.includes("two to four words"),
+      ),
+    );
+    assert.ok(
+      httpActionButtonContract.review_checks.some(
+        (check) => check.includes("state metadata") && check.includes("visible label"),
+      ),
+    );
+    assert.ok(
+      httpActionButtonContract.accessibility_checks.some(
+        (check) => check.includes("aria-busy"),
+      ),
     );
     assert.ok(
       implementationContractResponse.structuredContent.implementation_contract

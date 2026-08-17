@@ -291,6 +291,107 @@ assert.ok(
   ),
   "The component contracts must include an actionable button contract.",
 );
+const defaultActionButtonContract =
+  contract.implementation_contract.default_ai_native_design_system.component_contracts.find(
+    (entry) => entry.id === "action_button",
+  );
+assert.ok(defaultActionButtonContract);
+assert.ok(
+  defaultActionButtonContract.anatomy.some((part) =>
+    part.includes("state affordance"),
+  ),
+  "The action-button contract must distinguish semantic state from label copy.",
+);
+assert.ok(
+  defaultActionButtonContract.anatomy.some((part) =>
+    part.includes("progress indicator"),
+  ),
+  "The action-button contract must name its loading progress indicator anatomy.",
+);
+assert.ok(
+  defaultActionButtonContract.review_checks.some(
+    (check) =>
+      check.includes("complete") &&
+      check.includes("task-specific action phrase"),
+  ),
+  "Action-button labels must remain complete and task-specific.",
+);
+assert.ok(
+  defaultActionButtonContract.review_checks.some(
+    (check) =>
+      check.includes("prefer one to four words") &&
+      check.includes("localization"),
+  ),
+  "The English brevity guideline must not become a universal localization limit.",
+);
+assert.ok(
+  defaultActionButtonContract.review_checks.some((check) =>
+    check.includes("one line"),
+  ),
+  "Action-button labels must remain on one line.",
+);
+assert.ok(
+  defaultActionButtonContract.review_checks.some(
+    (check) =>
+      check.includes("state metadata") &&
+      check.includes("label"),
+  ),
+  "Action-button state must be conveyed without appending metadata to its label.",
+);
+assert.ok(
+  defaultActionButtonContract.review_checks.some(
+    (check) =>
+      check.includes("loading") &&
+      check.includes("progress indicator") &&
+      check.includes("label"),
+  ),
+  "Loading buttons must pair a progress indicator with a concise progress label.",
+);
+assert.ok(
+  defaultActionButtonContract.accessibility_checks.some((check) =>
+    check.includes("aria-busy"),
+  ),
+  "Loading buttons must expose their busy state semantically.",
+);
+assert.ok(
+  defaultActionButtonContract.accessibility_checks.some(
+    (check) => check.includes("every state") && check.includes("task-specific accessible name"),
+  ),
+  "Every action-button state must retain a complete, task-specific accessible name.",
+);
+assert.ok(
+  defaultActionButtonContract.failure_signals.some(
+    (signal) => signal.includes("wrap") && signal.includes("multiple lines"),
+  ),
+  "The action-button contract must reject wrapped labels explicitly.",
+);
+assert.ok(
+  defaultActionButtonContract.failure_signals.some(
+    (signal) => signal.includes("state metadata") && signal.includes("label"),
+  ),
+  "The action-button contract must reject visible state metadata appended to labels.",
+);
+assert.ok(
+  defaultActionButtonContract.failure_signals.some(
+    (signal) =>
+      signal.includes("truncated") &&
+      signal.includes("complete action"),
+  ),
+  "The action-button contract must reject truncation that hides the complete action.",
+);
+const fallbackActivityContract = structuredClone(contract);
+delete fallbackActivityContract.implementation_contract.default_ai_native_design_system
+  .component_contracts;
+const runtimeActionButtonContract =
+  createUiImplementationContract({}, { contract: fallbackActivityContract }).implementation_contract
+    .default_ai_native_design_system.component_contracts.find(
+      (entry) => entry.id === "action_button",
+    );
+assert.deepEqual(
+  runtimeActionButtonContract,
+  defaultActionButtonContract,
+  "The runtime fallback and canonical action-button contracts must stay identical when the source contract omits component contracts.",
+);
 const defaultSelectFieldContract =
   contract.implementation_contract.default_ai_native_design_system.component_contracts.find(
     (entry) => entry.id === "select_field",
