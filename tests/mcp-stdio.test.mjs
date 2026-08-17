@@ -638,7 +638,16 @@ try {
   assert.ok(
     implementationContractResponse.structuredContent.implementation_contract
       .default_ai_native_design_system.component_contracts.some(
-        (entry) => entry.id === "action_button",
+        (entry) =>
+          entry.id === "action_button" &&
+          entry.review_checks.some(
+            (check) =>
+              check.includes("task-specific action phrase") &&
+              check.includes("one line"),
+          ) &&
+          entry.failure_signals.some(
+            (signal) => signal.includes("wrap") && signal.includes("multiple lines"),
+          ),
       ),
   );
   assert.ok(

@@ -298,7 +298,7 @@
         "focus-visible"
       ],
       "required_evidence": [
-        "long labels wrap without overlap",
+        "prose, field, and choice labels wrap without overlap while action-button labels remain concise, complete, and single-line",
         "controls preserve target size and spacing",
         "keyboard focus reveals equivalent information",
         "validation and disabled reasons are readable"
@@ -318,6 +318,7 @@
         "mobile viewport screenshot",
         "keyboard focus check for interactive controls",
         "overflow check for long labels, descriptions, and values",
+        "action-button label check for complete, task-specific copy on one line without appended state metadata",
         "modal or dialog footer order check when dialogs are present",
         "disabled, empty, error, and ready state review"
       ]
@@ -434,7 +435,8 @@
           "anatomy": [
             "visible label",
             "optional icon",
-            "state affordance"
+            "state affordance",
+            "progress indicator"
           ],
           "required_states": [
             "ready",
@@ -453,15 +455,26 @@
             "accessible name",
             "keyboard activation",
             "focus visible",
-            "target size"
+            "target size",
+            "loading exposes aria-busy",
+            "every state exposes a complete, task-specific accessible name"
           ],
           "review_checks": [
             "action comes from the workflow",
-            "risky actions have approval-boundary evidence"
+            "risky actions have approval-boundary evidence",
+            "the visible label is a complete, task-specific action phrase and remains on one line at every supported viewport",
+            "for English copy, prefer one to four words when clarity permits; localization may use the wording needed for an unambiguous action",
+            "responsive layout allocates enough width or uses shorter copy instead of wrapping, clipping, or truncating the action",
+            "ready, disabled, focus-visible, and loading use semantic state and visual treatment instead of appending state metadata to the visible label",
+            "loading pairs a progress indicator with a concise progress label, exposes aria-busy, and prevents repeat activation"
           ],
           "failure_signals": [
             "icon-only button has no accessible name",
-            "destructive action appears without confirmation evidence"
+            "destructive action appears without confirmation evidence",
+            "visible action label wraps onto multiple lines",
+            "state metadata is appended to the visible action label",
+            "a truncated or clipped label hides the complete action",
+            "button label overflows its container at a supported viewport"
           ]
         },
         {

@@ -5234,12 +5234,39 @@ const DEFAULT_COMPONENT_CONTRACTS = [
     purpose: "Trigger one bounded user action.",
     use_when: ["the user can commit, cancel, navigate, disclose, or retry a clear action"],
     avoid_when: ["the action is a passive label, status, or unsupported shortcut"],
-    anatomy: ["visible label", "optional icon", "state affordance"],
+    anatomy: [
+      "visible label",
+      "optional icon",
+      "state affordance",
+      "progress indicator",
+    ],
     required_states: ["ready", "disabled", "focus-visible", "loading"],
     token_bindings: ["text", "border", "focus", "decision", "risk"],
-    accessibility_checks: ["accessible name", "keyboard activation", "focus visible", "target size"],
-    review_checks: ["action comes from the workflow", "risky actions have approval-boundary evidence"],
-    failure_signals: ["icon-only button has no accessible name", "destructive action appears without confirmation evidence"],
+    accessibility_checks: [
+      "accessible name",
+      "keyboard activation",
+      "focus visible",
+      "target size",
+      "loading exposes aria-busy",
+      "every state exposes a complete, task-specific accessible name",
+    ],
+    review_checks: [
+      "action comes from the workflow",
+      "risky actions have approval-boundary evidence",
+      "the visible label is a complete, task-specific action phrase and remains on one line at every supported viewport",
+      "for English copy, prefer one to four words when clarity permits; localization may use the wording needed for an unambiguous action",
+      "responsive layout allocates enough width or uses shorter copy instead of wrapping, clipping, or truncating the action",
+      "ready, disabled, focus-visible, and loading use semantic state and visual treatment instead of appending state metadata to the visible label",
+      "loading pairs a progress indicator with a concise progress label, exposes aria-busy, and prevents repeat activation",
+    ],
+    failure_signals: [
+      "icon-only button has no accessible name",
+      "destructive action appears without confirmation evidence",
+      "visible action label wraps onto multiple lines",
+      "state metadata is appended to the visible action label",
+      "a truncated or clipped label hides the complete action",
+      "button label overflows its container at a supported viewport",
+    ],
   },
   {
     id: "action_group",
@@ -15390,6 +15417,11 @@ function buildFrontendImplementationInstructionMarkdown({
     frontendGenerationContext.implementation_contract
       ?.visual_composition_policy ??
     null;
+  const actionButtonContract = Array.isArray(designSystemPolicy.component_contracts)
+    ? designSystemPolicy.component_contracts.find(
+        (entry) => optionalString(entry?.id) === "action_button",
+      )
+    : null;
   const contrastTargets =
     accessibilityPolicy.contrast_targets ?? DEFAULT_ACCESSIBILITY_POLICY.contrast_targets;
   const standardsProfile =
@@ -15533,6 +15565,9 @@ function buildFrontendImplementationInstructionMarkdown({
         (entry) => `${entry.id}: ${entry.purpose}`,
       ) || "none supplied"
     }`,
+    `- Action-button label rules: ${toStringArray(actionButtonContract?.review_checks).join("; ") || "none supplied"}`,
+    `- Action-button accessibility: ${toStringArray(actionButtonContract?.accessibility_checks).join("; ") || "none supplied"}`,
+    `- Action-button failure signals: ${toStringArray(actionButtonContract?.failure_signals).join("; ") || "none supplied"}`,
     `- Pattern contracts: ${
       formatRoleEntries(
         designSystemPolicy.pattern_contracts,

@@ -2658,6 +2658,125 @@ assert.ok(
 assert.equal(componentContractsExport.source, "judgmentkit.ai-native-default.contract-v1");
 assert.equal(componentContractsExport.contracts.length, 17);
 assert.ok(componentContractsExport.contracts.some((entry) => entry.id === "action_button"));
+const actionButtonSpecimen = componentSpecimensExport.specimens.find(
+  (entry) => entry.contract_id === "action_button",
+);
+assert.ok(actionButtonSpecimen, "action_button should have a rendered specimen");
+assert.equal(
+  /<span[^>]*data-component-anatomy="state-affordance"/.test(
+    actionButtonSpecimen.rendered_html,
+  ),
+  false,
+  "Action-button specimens must not render a legacy visible state-affordance node.",
+);
+
+const expectedActionButtonLabels = new Map([
+  ["ready", "Approve refund"],
+  ["disabled", "Approve refund"],
+  ["focus-visible", "Approve refund"],
+  ["loading", "Approving refund"],
+]);
+for (const [state, expectedLabel] of expectedActionButtonLabels) {
+  const stateMarkup = actionButtonSpecimen.rendered_html.match(
+    new RegExp(
+      `<div[^>]*data-component-state="${state}"[\\s\\S]*?<\\/div>`,
+    ),
+  )?.[0];
+  assert.ok(stateMarkup, `action_button should render its ${state} state`);
+  const buttonMatch = stateMarkup.match(
+    /<button class="jk-sample-button"([^>]*)>([\s\S]*?)<\/button>/,
+  );
+  assert.ok(buttonMatch, `action_button ${state} should render one button`);
+  const [, buttonAttributes, buttonBody] = buttonMatch;
+  assert.ok(
+    buttonAttributes.includes(
+      'data-component-anatomy="state-affordance"',
+    ),
+    `action_button ${state} should carry its semantic state affordance on the button`,
+  );
+  const visibleLabel = buttonBody.match(
+    /data-component-anatomy="visible-label">\s*([^<]+?)\s*<\/span>/,
+  )?.[1];
+  assert.equal(
+    visibleLabel,
+    expectedLabel,
+    `action_button ${state} should use one complete action label without state metadata`,
+  );
+  const visibleButtonText = buttonBody
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  assert.equal(
+    visibleButtonText,
+    expectedLabel,
+    `action_button ${state} must not append unmarked state metadata to its label`,
+  );
+  assert.equal(
+    /<br\b/i.test(buttonBody),
+    false,
+    `action_button ${state} should not introduce a label line break`,
+  );
+
+  if (state === "loading") {
+    assert.ok(
+      buttonAttributes.includes(" disabled") &&
+        buttonAttributes.includes('aria-disabled="true"'),
+      "action_button loading should prevent repeat activation",
+    );
+    assert.ok(
+      buttonAttributes.includes('aria-busy="true"'),
+      "action_button loading should expose aria-busy on the button",
+    );
+    assert.ok(
+      buttonBody.includes('data-component-anatomy="progress-indicator"') &&
+        buttonBody.includes('aria-hidden="true"'),
+      "action_button loading should pair its progress label with a loading indicator",
+    );
+    assert.equal(
+      buttonBody.includes('data-component-anatomy="optional-icon"'),
+      false,
+      "action_button loading should replace its optional icon with the loading indicator",
+    );
+  }
+}
+
+const actionButtonCss = cssRuleBody(siteCss, ".jk-sample-button");
+assert.equal(
+  cssDeclarationValue(actionButtonCss, "flex-wrap"),
+  "nowrap",
+  "Action-button specimen contents must stay in one row.",
+);
+assert.equal(
+  cssDeclarationValue(actionButtonCss, "white-space"),
+  "nowrap",
+  "Action-button specimen labels must not wrap across lines.",
+);
+assert.ok(
+  cssRuleBody(siteCss, '.jk-sample-button [data-component-anatomy="visible-label"]').includes(
+    "white-space: nowrap;",
+  ),
+  "The action-button label part must preserve the one-line contract explicitly.",
+);
+const actionButtonExport = componentContractsExport.contracts.find(
+  (entry) => entry.id === "action_button",
+);
+assert.ok(
+  actionButtonExport.review_checks.some(
+    (check) => check.includes("task-specific action phrase") && check.includes("one line"),
+  ),
+  "The public component contract must publish the concise one-line label rule.",
+);
+const actionButtonArticle = designSystemComponents.match(
+  /<article class="design-system-specimen" id="action-button"[\s\S]*?<\/article>/,
+)?.[0];
+assert.ok(actionButtonArticle, "The public component page must render the action-button article.");
+assert.ok(
+  actionButtonArticle.includes("review_checks") &&
+    actionButtonArticle.includes("failure_signals") &&
+    actionButtonArticle.includes("state metadata") &&
+    actionButtonArticle.includes("aria-busy"),
+  "The action-button specimen excerpt must expose its one-line, state, loading, and failure rules.",
+);
 assert.ok(
   componentContractsExport.contracts
     .find((entry) => entry.id === "dialog")

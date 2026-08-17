@@ -2892,10 +2892,42 @@ pre {
 }
 .jk-sample-button {
   display: inline-flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 7px;
   align-items: center;
   justify-content: center;
+  max-width: 100%;
+  white-space: nowrap;
+}
+.jk-sample-button [data-component-anatomy="visible-label"] {
+  min-width: 0;
+  white-space: nowrap;
+}
+.jk-sample-button [data-component-anatomy="optional-icon"],
+.jk-sample-button [data-component-anatomy="progress-indicator"] {
+  display: inline-grid;
+  flex: 0 0 16px;
+  width: 16px;
+  height: 16px;
+  place-items: center;
+}
+.jk-sample-button [data-component-anatomy="optional-icon"] svg,
+.jk-sample-button [data-component-anatomy="progress-indicator"] svg {
+  display: block;
+  width: 16px;
+  height: 16px;
+}
+.jk-sample-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.56;
+}
+.jk-sample-button[aria-busy="true"] {
+  cursor: progress;
+  opacity: 0.82;
+}
+.jk-sample-button[data-focus-visible="true"] {
+  outline: 3px solid var(--jk-color-focus, var(--focus-ring));
+  outline-offset: 3px;
 }
 .jk-sample-action-group,
 .jk-sample-toggle,
@@ -5679,13 +5711,22 @@ function renderComponentStatePreview(contract, state) {
 
   let body;
   switch (id) {
-    case "action_button":
-      body = `<button class="jk-sample-button"${disabledAttr}${busyAttr}${focusAttr}>
-                <span data-component-anatomy="optional-icon" aria-hidden="true">ok</span>
-                <span data-component-anatomy="visible-label">${busy ? "Saving decision" : "Approve refund"}</span>
-                <span data-component-anatomy="state-affordance">${escapeHtml(stateLabel(state))}</span>
+    case "action_button": {
+      const iconId = busy ? "loader-circle" : "check";
+      const iconAnatomy = busy ? "progress-indicator" : "optional-icon";
+      const iconSvg = getIconSvg({ id: iconId }).inline_svg.replace(
+        "<svg ",
+        `<svg data-icon-id="${iconId}" `,
+      );
+      const actionButtonDisabledAttr = disabled || busy
+        ? " disabled aria-disabled=\"true\""
+        : "";
+      body = `<button class="jk-sample-button" type="button" data-component-anatomy="state-affordance"${actionButtonDisabledAttr}${busyAttr}${focusAttr}>
+                <span data-component-anatomy="${iconAnatomy}" aria-hidden="true">${iconSvg}</span>
+                <span data-component-anatomy="visible-label">${busy ? "Approving refund" : "Approve refund"}</span>
               </button>`;
       break;
+    }
     case "action_group":
       body = `<div class="jk-sample-action-group" role="group" aria-label="Refund decision actions"${focusAttr}>
                 <span data-component-anatomy="group-label-or-context">Case action</span>
@@ -6612,6 +6653,9 @@ function renderComponentSpecimenList(specimens) {
                   required_states: specimen.covered_states,
                   anatomy: specimen.covered_anatomy,
                   token_bindings: specimen.covered_token_bindings,
+                  accessibility_checks: specimen.accessibility_checks,
+                  review_checks: specimen.review_checks,
+                  failure_signals: specimen.contract.failure_signals ?? [],
                 };
 
                 return `<article class="design-system-specimen" id="${escapeHtml(specimenAnchor(specimen.contract_id))}" data-component-specimen="${escapeHtml(specimen.contract_id)}">

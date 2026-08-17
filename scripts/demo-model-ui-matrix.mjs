@@ -501,6 +501,7 @@ function isDefaultAdapterGuidanceLine(value) {
     "semantic content",
     "responsive no-overflow",
     "responsive reflow",
+    "action-button label check",
     "core accessibility evidence",
     "conditional accessibility evidence",
     "accessibility evidence",
