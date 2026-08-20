@@ -2917,6 +2917,15 @@ pre {
   width: 16px;
   height: 16px;
 }
+@keyframes jk-progress-indicator-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+.jk-sample-button[aria-busy="true"] [data-component-anatomy="progress-indicator"] svg[data-icon-id="loader-circle"] {
+  animation: jk-progress-indicator-spin 800ms linear infinite;
+  transform-origin: center;
+}
 .jk-sample-button:disabled {
   cursor: not-allowed;
   opacity: 0.56;
@@ -4595,6 +4604,9 @@ pre {
   }
 }
 @media (prefers-reduced-motion: reduce) {
+  .jk-sample-button[aria-busy="true"] [data-component-anatomy="progress-indicator"] svg[data-icon-id="loader-circle"] {
+    animation: none;
+  }
   .homepage-hero-art img {
     transform: none;
   }
