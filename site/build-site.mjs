@@ -5062,17 +5062,30 @@ function homepage() {
         let autoplayAttempted = false;
         let isInView = typeof window.IntersectionObserver !== "function";
         let playbackAttemptToken = 0;
+        let pendingPlaybackAttemptToken = null;
         let policyMutedFallback = false;
         let autoplayVisualFallbackPending = false;
         let userMuted = false;
+        let nativePlaybackInteractionAt = Number.NEGATIVE_INFINITY;
         let previousVideoTimeSeconds = 0;
         let loopResetPending = false;
 
         const setAutoplayStatus = (status) => {
           player.setAttribute("data-film-autoplay-status", status);
         };
+        const markNativePlaybackInteraction = () => {
+          if (!liveActive && !liveFailed && video.controls) {
+            nativePlaybackInteractionAt = clockNow();
+          }
+        };
+        const hasRecentNativePlaybackInteraction = () =>
+          clockNow() - nativePlaybackInteractionAt <= 1000;
+        const clearNativePlaybackInteraction = () => {
+          nativePlaybackInteractionAt = Number.NEGATIVE_INFINITY;
+        };
         const cancelPlaybackAttempt = () => {
           playbackAttemptToken += 1;
+          pendingPlaybackAttemptToken = null;
         };
         const restorePolicyAudioState = () => {
           if (!silentClockActive || soundtrackFailed) return;
@@ -5086,6 +5099,11 @@ function homepage() {
         const attemptVideoPlayback = ({ allowMutedFallback = false, preferAudible = false } = {}) => {
           if (soundtrackFailed) return;
           const attemptToken = ++playbackAttemptToken;
+          const clearPendingPlaybackAttempt = () => {
+            if (pendingPlaybackAttemptToken === attemptToken) {
+              pendingPlaybackAttemptToken = null;
+            }
+          };
           autoplayAttempted = true;
           if (silentClockActive) {
             try {
@@ -5132,7 +5150,9 @@ function homepage() {
               return;
             }
             if (!mutedRequest || typeof mutedRequest.then !== "function") return;
+            pendingPlaybackAttemptToken = attemptToken;
             mutedRequest.then(() => {
+              clearPendingPlaybackAttempt();
               if (attemptToken !== playbackAttemptToken) {
                 if (silentClockActive && (!isInView || userPaused || pausedForVisibility)) {
                   video.pause();
@@ -5148,7 +5168,10 @@ function homepage() {
               if (silentClockActive) adoptVideoClock();
               updatePlayState();
               updateMuteState();
-            }).catch(handlePlaybackFailure);
+            }).catch((error) => {
+              clearPendingPlaybackAttempt();
+              handlePlaybackFailure(error);
+            });
           };
 
           let request;
@@ -5171,7 +5194,9 @@ function homepage() {
           }
           if (!request || typeof request.then !== "function") return;
 
+          pendingPlaybackAttemptToken = attemptToken;
           request.then(() => {
+            clearPendingPlaybackAttempt();
             if (attemptToken !== playbackAttemptToken) {
               if (silentClockActive && (!isInView || userPaused || pausedForVisibility)) {
                 video.pause();
@@ -5189,6 +5214,7 @@ function homepage() {
             updatePlayState();
             updateMuteState();
           }).catch((error) => {
+            clearPendingPlaybackAttempt();
             if (attemptToken !== playbackAttemptToken) return;
             if (error?.name !== "NotAllowedError") {
               handlePlaybackFailure();
@@ -5427,6 +5453,13 @@ function homepage() {
         };
 
         try {
+          video.addEventListener("pointerdown", markNativePlaybackInteraction);
+          video.addEventListener("touchstart", markNativePlaybackInteraction, { passive: true });
+          video.addEventListener("keydown", (event) => {
+            if ([" ", "Spacebar", "Enter", "k", "K", "MediaPlayPause"].includes(event.key)) {
+              markNativePlaybackInteraction();
+            }
+          });
           playButton.addEventListener("click", () => {
             if (silentClockActive) {
               const timeMs = silentClockTimeMs();
@@ -5495,11 +5528,18 @@ function homepage() {
           });
 
           video.addEventListener("play", () => {
+            if (!liveActive && video.controls && hasRecentNativePlaybackInteraction()) {
+              userPaused = false;
+              pausedForVisibility = false;
+              autoplayVisualFallbackPending = false;
+              clearNativePlaybackInteraction();
+            }
+            if (!isInView || userPaused || pausedForVisibility) {
+              video.pause();
+              if (silentClockActive) restorePolicyAudioState();
+              return;
+            }
             if (silentClockActive) {
-              if (!isInView || userPaused || pausedForVisibility) {
-                video.pause();
-                restorePolicyAudioState();
-              }
               return;
             }
             if (!policyMutedFallback) setAutoplayStatus("playing");
@@ -5507,7 +5547,28 @@ function homepage() {
             if (liveReady) postToLive("PLAY", { timeMs: video.currentTime * 1000 });
           });
           video.addEventListener("pause", () => {
+            if (!video.paused) return;
+            if (
+              !liveActive
+              && !liveFailed
+              && video.controls
+              && isInView
+              && autoplayAttempted
+              && !pausedForVisibility
+              && hasRecentNativePlaybackInteraction()
+            ) {
+              userPaused = true;
+              clearNativePlaybackInteraction();
+              autoplayVisualFallbackPending = false;
+              cancelPlaybackAttempt();
+              updatePlayState();
+              return;
+            }
             if (silentClockActive) return;
+            if (liveActive && isInView && !userPaused && !pausedForVisibility) {
+              enterSilentLiveMode({ playing: true, audioUnavailable: false });
+              return;
+            }
             updatePlayState();
             if (liveReady) postToLive("PAUSE", { timeMs: video.currentTime * 1000 });
           });
@@ -5597,11 +5658,18 @@ function homepage() {
               player.setAttribute("data-film-live-status", "ready");
               if (handshakeTimer !== null) window.clearTimeout(handshakeTimer);
               handshakeTimer = null;
+              const playbackAttemptPending = pendingPlaybackAttemptToken === playbackAttemptToken;
               activateLive();
               const silentAutoplay = !userPaused && !pausedForVisibility;
               const shouldStartSilentClock = soundtrackErrorBeforeReady
                 || autoplayVisualFallbackPending
-                || (autoplayAttempted && isInView && video.paused && !userPaused && !pausedForVisibility);
+                || (
+                  (playbackAttemptPending || autoplayAttempted)
+                  && isInView
+                  && video.paused
+                  && !userPaused
+                  && !pausedForVisibility
+                );
               postToLive("INIT", {
                 theme: activeTheme,
                 timeMs: playbackCurrentTimeSeconds() * 1000,

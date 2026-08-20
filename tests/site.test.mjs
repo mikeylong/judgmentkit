@@ -1839,6 +1839,165 @@ assert.equal(
   "the browser's loop-generated seek must not rebuild the live timeline in a paused state",
 );
 
+const nativePauseBeforeReadyFilmBehavior = runHomepageLiveFilmBehavior(
+  homepageFilmScripts,
+);
+nativePauseBeforeReadyFilmBehavior.setInView(true);
+await nativePauseBeforeReadyFilmBehavior.settlePlayback();
+assert.equal(nativePauseBeforeReadyFilmBehavior.video.paused, false);
+nativePauseBeforeReadyFilmBehavior.video.dispatch("pointerdown", { isTrusted: true });
+nativePauseBeforeReadyFilmBehavior.video.paused = true;
+nativePauseBeforeReadyFilmBehavior.video.dispatch("pause", { isTrusted: true });
+nativePauseBeforeReadyFilmBehavior.dispatchReady();
+const nativePauseBeforeReadyCommands = homepageFilmControllerCommands(
+  nativePauseBeforeReadyFilmBehavior,
+);
+assert.ok(
+  nativePauseBeforeReadyCommands.some(
+    (message) => message.type === "INIT" && message.payload?.playing === false,
+  ),
+  "a native-control pause before READY must initialize the live renderer paused",
+);
+assert.equal(
+  nativePauseBeforeReadyCommands.some(controllerCommandPlays),
+  false,
+  "the live handoff must not reinterpret a native-control pause as failed autoplay",
+);
+assert.equal(
+  nativePauseBeforeReadyFilmBehavior.playButton.getAttribute("aria-label"),
+  "Play demo",
+);
+const nativePausedProgress = nativePauseBeforeReadyFilmBehavior.scrubber.value;
+nativePauseBeforeReadyFilmBehavior.advanceAnimationClock(1_000);
+assert.equal(
+  nativePauseBeforeReadyFilmBehavior.scrubber.value,
+  nativePausedProgress,
+  "the independent visual clock must not restart after a native-control pause",
+);
+nativePauseBeforeReadyFilmBehavior.setInView(false);
+nativePauseBeforeReadyFilmBehavior.setInView(true);
+assert.equal(
+  homepageFilmControllerCommands(nativePauseBeforeReadyFilmBehavior).some(controllerCommandPlays),
+  false,
+  "visibility re-entry must preserve the visitor's native pause intent",
+);
+
+const pendingNativePauseBeforeReadyFilmBehavior = runHomepageLiveFilmBehavior(
+  homepageFilmScripts,
+  { playOutcomes: ["defer"] },
+);
+pendingNativePauseBeforeReadyFilmBehavior.setInView(true);
+assert.equal(pendingNativePauseBeforeReadyFilmBehavior.video.playCalls, 1);
+pendingNativePauseBeforeReadyFilmBehavior.video.dispatch("pointerdown", { isTrusted: true });
+pendingNativePauseBeforeReadyFilmBehavior.video.pause();
+pendingNativePauseBeforeReadyFilmBehavior.dispatchReady();
+const pendingNativePauseCommands = homepageFilmControllerCommands(
+  pendingNativePauseBeforeReadyFilmBehavior,
+);
+assert.ok(
+  pendingNativePauseCommands.some(
+    (message) => message.type === "INIT" && message.payload?.playing === false,
+  ),
+  "a native pause must cancel a still-pending autoplay request before live handoff",
+);
+assert.equal(
+  pendingNativePauseCommands.some(controllerCommandPlays),
+  false,
+);
+pendingNativePauseBeforeReadyFilmBehavior.setInView(false);
+pendingNativePauseBeforeReadyFilmBehavior.setInView(true);
+assert.equal(
+  homepageFilmControllerCommands(pendingNativePauseBeforeReadyFilmBehavior).some(
+    controllerCommandPlays,
+  ),
+  false,
+  "visibility re-entry must not resume a demo paused during a pending native autoplay request",
+);
+pendingNativePauseBeforeReadyFilmBehavior.resolveFirstPlay();
+await pendingNativePauseBeforeReadyFilmBehavior.settlePlayback();
+assert.equal(
+  pendingNativePauseBeforeReadyFilmBehavior.video.paused,
+  true,
+  "a stale autoplay promise must not override native pause intent after live handoff",
+);
+assert.equal(
+  homepageFilmControllerCommands(pendingNativePauseBeforeReadyFilmBehavior).some(
+    controllerCommandPlays,
+  ),
+  false,
+);
+
+const pendingNativeResumeBeforeReadyFilmBehavior = runHomepageLiveFilmBehavior(
+  homepageFilmScripts,
+  { playOutcomes: ["defer"] },
+);
+pendingNativeResumeBeforeReadyFilmBehavior.setInView(true);
+pendingNativeResumeBeforeReadyFilmBehavior.video.dispatch("pointerdown", { isTrusted: true });
+pendingNativeResumeBeforeReadyFilmBehavior.video.pause();
+pendingNativeResumeBeforeReadyFilmBehavior.video.dispatch("pointerdown", { isTrusted: true });
+pendingNativeResumeBeforeReadyFilmBehavior.video.paused = false;
+pendingNativeResumeBeforeReadyFilmBehavior.video.dispatch("play", { isTrusted: true });
+pendingNativeResumeBeforeReadyFilmBehavior.dispatchReady();
+assert.ok(
+  homepageFilmControllerCommands(pendingNativeResumeBeforeReadyFilmBehavior).some(
+    (message) => message.type === "INIT" && message.payload?.playing === true,
+  ),
+  "native resume before READY must clear pause intent even after canceling a pending autoplay",
+);
+
+const nativeResumeBeforeReadyFilmBehavior = runHomepageLiveFilmBehavior(
+  homepageFilmScripts,
+);
+nativeResumeBeforeReadyFilmBehavior.setInView(true);
+await nativeResumeBeforeReadyFilmBehavior.settlePlayback();
+nativeResumeBeforeReadyFilmBehavior.video.dispatch("pointerdown", { isTrusted: true });
+nativeResumeBeforeReadyFilmBehavior.video.paused = true;
+nativeResumeBeforeReadyFilmBehavior.video.dispatch("pause", { isTrusted: true });
+nativeResumeBeforeReadyFilmBehavior.video.dispatch("pointerdown", { isTrusted: true });
+nativeResumeBeforeReadyFilmBehavior.video.paused = false;
+nativeResumeBeforeReadyFilmBehavior.video.dispatch("play", { isTrusted: true });
+nativeResumeBeforeReadyFilmBehavior.dispatchReady();
+assert.ok(
+  homepageFilmControllerCommands(nativeResumeBeforeReadyFilmBehavior).some(
+    (message) => message.type === "INIT" && message.payload?.playing === true,
+  ),
+  "native play before READY should clear the earlier pause intent",
+);
+const nativeResumeCommandCount = homepageFilmControllerCommands(
+  nativeResumeBeforeReadyFilmBehavior,
+).length;
+nativeResumeBeforeReadyFilmBehavior.video.dispatch("pause");
+assert.equal(
+  homepageFilmControllerCommands(nativeResumeBeforeReadyFilmBehavior).length,
+  nativeResumeCommandCount,
+  "a delayed pause event from an older programmatic pause must not stop resumed playback",
+);
+assert.equal(
+  nativeResumeBeforeReadyFilmBehavior.playButton.getAttribute("aria-label"),
+  "Pause demo",
+);
+
+const preReadyBrowserSuspensionFilmBehavior = runHomepageLiveFilmBehavior(
+  homepageFilmScripts,
+);
+preReadyBrowserSuspensionFilmBehavior.setInView(true);
+await preReadyBrowserSuspensionFilmBehavior.settlePlayback();
+preReadyBrowserSuspensionFilmBehavior.video.paused = true;
+preReadyBrowserSuspensionFilmBehavior.video.dispatch("pause");
+preReadyBrowserSuspensionFilmBehavior.dispatchReady();
+assert.ok(
+  homepageFilmControllerCommands(preReadyBrowserSuspensionFilmBehavior).some(
+    (message) => message.type === "INIT" && message.payload?.playing === true,
+  ),
+  "a browser suspension without native-control interaction must start the independent visual clock",
+);
+const preReadySuspensionProgress = Number(preReadyBrowserSuspensionFilmBehavior.scrubber.value);
+preReadyBrowserSuspensionFilmBehavior.advanceAnimationClock(1_000);
+assert.ok(
+  Number(preReadyBrowserSuspensionFilmBehavior.scrubber.value) > preReadySuspensionProgress,
+  "the independent visual clock must advance after a pre-READY browser suspension",
+);
+
 const blockedAutoplayFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
   blockFirstAudiblePlay: true,
 });
