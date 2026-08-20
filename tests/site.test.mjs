@@ -934,6 +934,7 @@ function runHomepageLiveFilmBehavior(
     darkPoster = "",
     blockFirstAudiblePlay = false,
     deferFirstPlay = false,
+    deferThemeMetadata = false,
   } = {},
 ) {
   class FakeNode {
@@ -1069,7 +1070,7 @@ function runHomepageLiveFilmBehavior(
   video.ended = false;
   video.duration = 38;
   video.currentTime = 0;
-  video.readyState = 1;
+  video.readyState = deferThemeMetadata ? 0 : 1;
   video.poster = "/light.png";
   video.playCalls = 0;
   video.pauseCalls = 0;
@@ -1271,6 +1272,10 @@ function runHomepageLiveFilmBehavior(
         origin,
         source: sourceWindow,
       });
+    },
+    dispatchVideoMetadata() {
+      video.readyState = 1;
+      video.dispatch("loadedmetadata");
     },
     resize(width) {
       stage.clientWidth = width;
@@ -1789,6 +1794,42 @@ assert.equal(
   blockedAutoplayFilmBehavior.video.muted,
   false,
   "the explicit Unmute gesture should restore the preferred audible state",
+);
+
+const delayedDarkAutoplayFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
+  blockFirstAudiblePlay: true,
+  darkSource: "/dark.mp4",
+  darkPoster: "/dark.png",
+  deferThemeMetadata: true,
+});
+delayedDarkAutoplayFilmBehavior.setInView(true);
+await delayedDarkAutoplayFilmBehavior.settlePlayback();
+assert.equal(delayedDarkAutoplayFilmBehavior.video.paused, false);
+assert.equal(delayedDarkAutoplayFilmBehavior.video.muted, true);
+delayedDarkAutoplayFilmBehavior.dispatchVideoMetadata();
+assert.equal(
+  delayedDarkAutoplayFilmBehavior.video.paused,
+  false,
+  "late dark-source metadata must not cancel a newer muted autoplay attempt",
+);
+assert.equal(
+  delayedDarkAutoplayFilmBehavior.video.muted,
+  true,
+  "late dark-source metadata must not restore the stale audible state after policy fallback",
+);
+
+const delayedDarkMuteFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {
+  darkSource: "/dark.mp4",
+  darkPoster: "/dark.png",
+  deferThemeMetadata: true,
+});
+delayedDarkMuteFilmBehavior.muteButton.dispatch("click");
+assert.equal(delayedDarkMuteFilmBehavior.video.muted, true);
+delayedDarkMuteFilmBehavior.dispatchVideoMetadata();
+assert.equal(
+  delayedDarkMuteFilmBehavior.video.muted,
+  true,
+  "late dark-source metadata must preserve a newer user mute choice",
 );
 
 const cancelledAutoplayFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts, {

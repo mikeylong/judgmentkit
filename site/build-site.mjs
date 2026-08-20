@@ -5225,10 +5225,10 @@ function homepage() {
           const savedTime = Number.isFinite(video.currentTime) ? video.currentTime : 0;
           const wasPlaying = !video.paused && !video.ended;
           const wasMuted = video.muted;
-          const savedVolume = video.volume;
           const swapToken = ++sourceSwapToken;
 
           cancelPlaybackAttempt();
+          const stateRestorePlaybackToken = playbackAttemptToken;
           video.pause();
           source.setAttribute("src", nextSource);
           video.load();
@@ -5236,8 +5236,12 @@ function homepage() {
           const restorePlaybackState = () => {
             if (swapToken !== sourceSwapToken) return;
             if (hasDuration()) video.currentTime = Math.min(savedTime, video.duration);
-            video.volume = savedVolume;
-            video.muted = wasMuted;
+            if (stateRestorePlaybackToken !== playbackAttemptToken) {
+              updateProgress();
+              updatePlayState();
+              updateMuteState();
+              return;
+            }
             updateProgress();
             updateMuteState();
             if (wasPlaying) {
