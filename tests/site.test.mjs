@@ -1645,6 +1645,11 @@ assert.doesNotMatch(
   /(?:radial|linear)-gradient\(/i,
   "the film section should not place a decorative container behind the recording",
 );
+assert.match(
+  homepageFilmSectionCss,
+  /padding:\s*0 clamp\(8px,\s*1\.5vw,\s*24px\) clamp\(18px,\s*2\.4vw,\s*34px\);/,
+  "the wide-viewport continuation calculation should stay bound to the film section gutters",
+);
 const homepageFilmMaxWidth = Number.parseFloat(
   cssDeclarationValue(homepageFilmShellCss, "max-width") ?? "0",
 );
@@ -1652,6 +1657,46 @@ assert.ok(
   homepageFilmMaxWidth === 1440,
   "the homepage live stage should grow to but not upscale beyond its 1440px source width",
 );
+const homepageFilmWideViewportCap = siteCss.match(
+  /@media \(min-width: 821px\) and \(min-height: 600px\)\s*\{\s*\.homepage-film-shell\s*\{([^}]*)\}/,
+);
+assert.ok(
+  homepageFilmWideViewportCap,
+  "standard-height wide viewports should cap the film so the next section remains discoverable without shrinking phone landscape",
+);
+assert.match(
+  homepageFilmWideViewportCap[1],
+  /max-width:\s*min\(1440px,\s*108vh\);/,
+  "the film should retain a viewport-height fallback before the small-viewport unit override",
+);
+assert.match(
+  homepageFilmWideViewportCap[1],
+  /max-width:\s*min\(1440px,\s*108svh\);/,
+  "the film should use the stable viewport height without changing its internal composition",
+);
+const homepageFilmViewportWidthFactor = Number.parseFloat(
+  homepageFilmWideViewportCap[1].match(/min\(1440px,\s*([\d.]+)svh\)/)?.[1] ?? "0",
+) / 100;
+for (const [viewportWidth, viewportHeight] of [
+  [1366, 600],
+  [1365, 768],
+  [1440, 900],
+  [1920, 1080],
+]) {
+  const renderedWidth = Math.min(
+    viewportWidth - 48,
+    1440,
+    viewportHeight * homepageFilmViewportWidthFactor,
+  );
+  const followingSectionVisibleHeight = viewportHeight
+    - 56
+    - 34
+    - (renderedWidth * 10 / 16);
+  assert.ok(
+    followingSectionVisibleHeight >= 100,
+    `${viewportWidth}x${viewportHeight} should reveal a meaningful slice of the following homepage section`,
+  );
+}
 assert.match(homepageFilmStageCss, /position:\s*relative;/);
 assert.match(homepageFilmSurfaceCss, /width:\s*100%;/);
 assert.match(homepageFilmSurfaceCss, /aspect-ratio:\s*16\s*\/\s*10;/);

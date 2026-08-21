@@ -1496,6 +1496,12 @@ h2 {
 .homepage-film-shell {
   max-width: 1440px;
 }
+@media (min-width: 821px) and (min-height: 600px) {
+  .homepage-film-shell {
+    max-width: min(1440px, 108vh);
+    max-width: min(1440px, 108svh);
+  }
+}
 .homepage-film-figure {
   margin: 0;
 }
