@@ -574,7 +574,7 @@ try {
     );
     assert.match(
       css,
-      /@media \(min-width: 821px\) and \(min-height: 600px\)\s*\{\s*\.homepage-film-shell\s*\{[^}]*max-width:\s*min\(1440px,\s*118vh\);[^}]*max-width:\s*min\(1440px,\s*118svh\);[^}]*\}/,
+      /@media \(min-width: 821px\) and \(min-height: 600px\)\s*\{\s*\.homepage-film-shell\s*\{[^}]*max-width:\s*min\(1440px,\s*108vh\);[^}]*max-width:\s*min\(1440px,\s*108svh\);[^}]*\}/,
       "served wide-view layout should cap the film by height and preserve a visible continuation below",
     );
     const stageCss = cssRuleBody(css, ".homepage-film-stage");

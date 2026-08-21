@@ -1666,18 +1666,19 @@ assert.ok(
 );
 assert.match(
   homepageFilmWideViewportCap[1],
-  /max-width:\s*min\(1440px,\s*118vh\);/,
+  /max-width:\s*min\(1440px,\s*108vh\);/,
   "the film should retain a viewport-height fallback before the small-viewport unit override",
 );
 assert.match(
   homepageFilmWideViewportCap[1],
-  /max-width:\s*min\(1440px,\s*118svh\);/,
+  /max-width:\s*min\(1440px,\s*108svh\);/,
   "the film should use the stable viewport height without changing its internal composition",
 );
 const homepageFilmViewportWidthFactor = Number.parseFloat(
   homepageFilmWideViewportCap[1].match(/min\(1440px,\s*([\d.]+)svh\)/)?.[1] ?? "0",
 ) / 100;
 for (const [viewportWidth, viewportHeight] of [
+  [1366, 600],
   [1365, 768],
   [1440, 900],
   [1920, 1080],
