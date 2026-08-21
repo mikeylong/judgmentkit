@@ -96,6 +96,8 @@ The first validation command is:
 npm test
 ```
 
+Homepage film media checks require `ffmpeg` on `PATH`.
+
 For daily local use:
 
 ```bash
