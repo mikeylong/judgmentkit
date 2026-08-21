@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
@@ -5069,6 +5070,90 @@ assert.notDeepEqual(
   releaseDarkRecordingBuilt,
   releaseRecordingBuilt,
   "the dark recording must contain independently rendered dark-theme pixels",
+);
+
+function decodedAudioRmsDb(mediaUrl, startSeconds, durationSeconds) {
+  const result = spawnSync(
+    "ffmpeg",
+    [
+      "-v", "error",
+      "-i", mediaUrl.pathname,
+      "-ss", String(startSeconds),
+      "-t", String(durationSeconds),
+      "-map", "0:a:0",
+      "-ac", "2",
+      "-ar", "48000",
+      "-f", "s16le",
+      "pipe:1",
+    ],
+    { encoding: null, maxBuffer: 2 * 1024 * 1024 },
+  );
+  assert.equal(
+    result.status,
+    0,
+    `ffmpeg should decode the homepage soundtrack handoff: ${result.stderr?.toString("utf8") ?? result.error?.message ?? "unknown error"}`,
+  );
+  assert.ok(result.stdout.length >= 48000, "the soundtrack handoff window should contain decoded PCM audio");
+  let squareSum = 0;
+  let sampleCount = 0;
+  for (let offset = 0; offset + 1 < result.stdout.length; offset += 2) {
+    const normalizedSample = result.stdout.readInt16LE(offset) / 32768;
+    squareSum += normalizedSample * normalizedSample;
+    sampleCount += 1;
+  }
+  return 20 * Math.log10(Math.sqrt(squareSum / sampleCount));
+}
+
+function encodedAudioSha256(mediaUrl) {
+  const result = spawnSync(
+    "ffmpeg",
+    [
+      "-v", "error",
+      "-i", mediaUrl.pathname,
+      "-map", "0:a:0",
+      "-c", "copy",
+      "-f", "hash",
+      "-hash", "sha256",
+      "pipe:1",
+    ],
+    { encoding: "utf8", maxBuffer: 1024 * 1024 },
+  );
+  assert.equal(
+    result.status,
+    0,
+    `ffmpeg should hash the homepage soundtrack: ${result.stderr ?? result.error?.message ?? "unknown error"}`,
+  );
+  return result.stdout.trim();
+}
+
+const lightHandoffRmsDb = decodedAudioRmsDb(
+  new URL("../site/assets/releases/judgmentkit-select-field-agent-demo.mp4", import.meta.url),
+  5.6,
+  0.7,
+);
+const darkHandoffRmsDb = decodedAudioRmsDb(
+  new URL("../site/assets/releases/judgmentkit-select-field-agent-demo-dark.mp4", import.meta.url),
+  5.6,
+  0.7,
+);
+for (const [theme, rmsDb] of [["light", lightHandoffRmsDb], ["dark", darkHandoffRmsDb]]) {
+  assert.ok(
+    rmsDb >= -24,
+    `${theme} soundtrack should maintain an audible bed through the 5.6–6.3s agent handoff; measured ${rmsDb.toFixed(2)} dBFS`,
+  );
+}
+assert.ok(
+  Math.abs(lightHandoffRmsDb - darkHandoffRmsDb) <= 0.1,
+  "light and dark films should preserve the same soundtrack handoff level",
+);
+assert.equal(
+  encodedAudioSha256(
+    new URL("../site/assets/releases/judgmentkit-select-field-agent-demo.mp4", import.meta.url),
+  ),
+  encodedAudioSha256(
+    new URL("../site/assets/releases/judgmentkit-select-field-agent-demo-dark.mp4", import.meta.url),
+  ),
+  "light and dark films should mux the exact same encoded soundtrack",
 );
 
 const releasePosterSource = fs.readFileSync(

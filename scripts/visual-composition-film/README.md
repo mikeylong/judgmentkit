@@ -6,4 +6,6 @@
 
 Keep the light and dark captures on the same 38.2-second timeline so the homepage can switch themes without moving the playhead to a different story beat.
 
+Keep a continuous musical bed through the Draftling-to-Judgment handoff. In the published mix, the 5.6–6.3 second window must average at least -24 dBFS so the intentional transition does not read as a playback dropout. The current release applies a smooth, localized lift centered at 6.0 seconds and muxes the same final AAC track into both theme videos; `tests/site.test.mjs` verifies that handoff level with FFmpeg.
+
 Opening the authored HTML directly autoplays and loops the full cinematic; the bottom-left control pauses and resumes that motion. Add `?autoplay=0` when you need the manual authoring surface. Homepage embeds remain parent-controlled so the synchronized soundtrack stays the single playback clock.
