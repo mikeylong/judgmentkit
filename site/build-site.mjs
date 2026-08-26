@@ -1525,6 +1525,7 @@ h2 {
 }
 .homepage-film-stage {
   position: relative;
+  z-index: 1;
   width: 100%;
   aspect-ratio: 16 / 10;
   overflow: hidden;
@@ -1551,13 +1552,11 @@ h2 {
 }
 .homepage-film-source-media--soundtrack {
   position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  opacity: 0;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   pointer-events: none;
 }
 .homepage-film-controls[hidden] {

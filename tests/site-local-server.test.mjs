@@ -583,6 +583,7 @@ try {
       ".homepage-film-stage,\n.homepage-film-source-media",
     );
     assert.match(stageCss, /position:\s*relative;/);
+    assert.match(stageCss, /z-index:\s*1;/);
     assert.match(surfaceCss, /width:\s*100%;/);
     assert.match(surfaceCss, /aspect-ratio:\s*16\s*\/\s*10;/);
     assert.match(stageCss, /overflow:\s*hidden;/);
@@ -606,10 +607,17 @@ try {
     assert.match(fallbackCss, /height:\s*auto;/);
     const clockCss = cssRuleBody(css, ".homepage-film-source-media--soundtrack");
     assert.match(clockCss, /position:\s*absolute;/);
-    assert.match(clockCss, /width:\s*1px;/);
-    assert.match(clockCss, /height:\s*1px;/);
-    assert.match(clockCss, /opacity:\s*0;/);
+    assert.match(clockCss, /inset:\s*0;/);
+    assert.match(clockCss, /z-index:\s*0;/);
+    assert.match(clockCss, /width:\s*100%;/);
+    assert.match(clockCss, /height:\s*100%;/);
+    assert.match(clockCss, /object-fit:\s*cover;/);
     assert.match(clockCss, /pointer-events:\s*none;/);
+    assert.doesNotMatch(
+      clockCss,
+      /(?:clip-path|opacity|visibility|display)\s*:/,
+      "served Safari playback must keep the video clock rendered onscreen",
+    );
   });
 
   await assertStaticGetAndHead(url, "/", "text/html; charset=utf-8", (body) => {
