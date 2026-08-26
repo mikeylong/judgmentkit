@@ -1699,6 +1699,7 @@ for (const [viewportWidth, viewportHeight] of [
   );
 }
 assert.match(homepageFilmStageCss, /position:\s*relative;/);
+assert.match(homepageFilmStageCss, /z-index:\s*1;/);
 assert.match(homepageFilmSurfaceCss, /width:\s*100%;/);
 assert.match(homepageFilmSurfaceCss, /aspect-ratio:\s*16\s*\/\s*10;/);
 assert.match(homepageFilmStageCss, /overflow:\s*hidden;/);
@@ -1724,10 +1725,17 @@ assert.match(homepageFilmFallbackCss, /width:\s*100%;/);
 assert.match(homepageFilmFallbackCss, /height:\s*auto;/);
 assert.match(homepageFilmFallbackCss, /border-radius:\s*0;/);
 assert.match(homepageFilmClockCss, /position:\s*absolute;/);
-assert.match(homepageFilmClockCss, /width:\s*1px;/);
-assert.match(homepageFilmClockCss, /height:\s*1px;/);
-assert.match(homepageFilmClockCss, /opacity:\s*0;/);
+assert.match(homepageFilmClockCss, /inset:\s*0;/);
+assert.match(homepageFilmClockCss, /z-index:\s*0;/);
+assert.match(homepageFilmClockCss, /width:\s*100%;/);
+assert.match(homepageFilmClockCss, /height:\s*100%;/);
+assert.match(homepageFilmClockCss, /object-fit:\s*cover;/);
 assert.match(homepageFilmClockCss, /pointer-events:\s*none;/);
+assert.doesNotMatch(
+  homepageFilmClockCss,
+  /(?:clip-path|opacity|visibility|display)\s*:/,
+  "Safari must receive an onscreen rendered video clock instead of a CSS-hidden one",
+);
 
 const progressiveFilmBehavior = runHomepageLiveFilmBehavior(homepageFilmScripts);
 assert.equal(progressiveFilmBehavior.stage.hidden, true);
