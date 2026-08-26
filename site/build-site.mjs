@@ -4760,6 +4760,7 @@ function homepage() {
             data-film-renderer="video"
             data-film-live-status="loading"
             data-film-autoplay-status="pending"
+            data-film-audio-status="pending"
             data-film-source-light="${VISUAL_COMPOSITION_RECORDING_PATH}"
             data-film-source-dark="${VISUAL_COMPOSITION_DARK_RECORDING_PATH}"
             data-film-poster-light="${VISUAL_COMPOSITION_POSTER_PATH}"
@@ -4974,6 +4975,7 @@ function homepage() {
         const LIVE_WIDTH = 1440;
         const LIVE_HEIGHT = 900;
         const LIVE_DURATION_MS = 38200;
+        const SOUNDTRACK_RECOVERY_TIMEOUT_MS = 1000;
         const instanceId = typeof window.crypto?.randomUUID === "function"
           ? window.crypto.randomUUID()
           : "homepage-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2);
@@ -5074,6 +5076,8 @@ function homepage() {
         let nativePlaybackInteractionAt = Number.NEGATIVE_INFINITY;
         let previousVideoTimeSeconds = 0;
         let loopResetPending = false;
+        let unexpectedPauseRecoveryAttempted = false;
+        let discardUnownedPlayback = false;
 
         const setAutoplayStatus = (status) => {
           player.setAttribute("data-film-autoplay-status", status);
@@ -5101,13 +5105,23 @@ function homepage() {
           muteButton.disabled = false;
           updateMuteState();
         };
-        const attemptVideoPlayback = ({ allowMutedFallback = false, preferAudible = false } = {}) => {
+        const attemptVideoPlayback = ({
+          allowMutedFallback = false,
+          preferAudible = false,
+          timeoutMs = 0,
+        } = {}) => {
           if (soundtrackFailed) return;
           const attemptToken = ++playbackAttemptToken;
+          let playbackTimeout = null;
+          discardUnownedPlayback = false;
           const clearPendingPlaybackAttempt = () => {
             if (pendingPlaybackAttemptToken === attemptToken) {
               pendingPlaybackAttemptToken = null;
             }
+          };
+          const clearPlaybackTimeout = () => {
+            if (playbackTimeout !== null) window.clearTimeout(playbackTimeout);
+            playbackTimeout = null;
           };
           autoplayAttempted = true;
           if (silentClockActive) {
@@ -5123,6 +5137,7 @@ function homepage() {
           updateMuteState();
 
           const handlePlaybackFailure = () => {
+            clearPlaybackTimeout();
             if (attemptToken !== playbackAttemptToken) return;
             if (!isInView || userPaused || pausedForVisibility) {
               restorePolicyAudioState();
@@ -5133,6 +5148,7 @@ function homepage() {
             policyMutedFallback = true;
             video.muted = true;
             setAutoplayStatus("blocked");
+            player.setAttribute("data-film-audio-status", "gesture-required");
             updateMuteState();
             if (liveActive) {
               autoplayVisualFallbackPending = false;
@@ -5141,11 +5157,23 @@ function homepage() {
               updatePlayState();
             }
           };
+          const schedulePlaybackTimeout = () => {
+            if (!(timeoutMs > 0)) return;
+            clearPlaybackTimeout();
+            playbackTimeout = window.setTimeout(() => {
+              playbackTimeout = null;
+              if (attemptToken !== playbackAttemptToken) return;
+              clearPendingPlaybackAttempt();
+              discardUnownedPlayback = true;
+              handlePlaybackFailure();
+            }, timeoutMs);
+          };
 
           const attemptMutedPlayback = () => {
             policyMutedFallback = true;
             video.muted = true;
             setAutoplayStatus("blocked");
+            player.setAttribute("data-film-audio-status", "gesture-required");
             updateMuteState();
             let mutedRequest;
             try {
@@ -5156,7 +5184,9 @@ function homepage() {
             }
             if (!mutedRequest || typeof mutedRequest.then !== "function") return;
             pendingPlaybackAttemptToken = attemptToken;
+            schedulePlaybackTimeout();
             mutedRequest.then(() => {
+              clearPlaybackTimeout();
               clearPendingPlaybackAttempt();
               if (attemptToken !== playbackAttemptToken) {
                 if (silentClockActive && (!isInView || userPaused || pausedForVisibility)) {
@@ -5171,9 +5201,14 @@ function homepage() {
                 return;
               }
               if (silentClockActive) adoptVideoClock();
+              player.setAttribute(
+                "data-film-audio-status",
+                policyMutedFallback ? "gesture-required" : "available",
+              );
               updatePlayState();
               updateMuteState();
             }).catch((error) => {
+              clearPlaybackTimeout();
               clearPendingPlaybackAttempt();
               handlePlaybackFailure(error);
             });
@@ -5200,7 +5235,9 @@ function homepage() {
           if (!request || typeof request.then !== "function") return;
 
           pendingPlaybackAttemptToken = attemptToken;
+          schedulePlaybackTimeout();
           request.then(() => {
+            clearPlaybackTimeout();
             clearPendingPlaybackAttempt();
             if (attemptToken !== playbackAttemptToken) {
               if (silentClockActive && (!isInView || userPaused || pausedForVisibility)) {
@@ -5216,9 +5253,14 @@ function homepage() {
             }
             if (silentClockActive) adoptVideoClock();
             if (!policyMutedFallback) setAutoplayStatus("playing");
+            player.setAttribute(
+              "data-film-audio-status",
+              policyMutedFallback ? "gesture-required" : "available",
+            );
             updatePlayState();
             updateMuteState();
           }).catch((error) => {
+            clearPlaybackTimeout();
             clearPendingPlaybackAttempt();
             if (attemptToken !== playbackAttemptToken) return;
             if (error?.name !== "NotAllowedError") {
@@ -5283,6 +5325,16 @@ function homepage() {
           if (silentClockPlaying && typeof window.requestAnimationFrame === "function") {
             silentClockFrame = window.requestAnimationFrame(renderSilentClock);
           }
+        };
+        const beginLiveSoundtrackRecovery = () => {
+          if (!liveActive || silentClockActive) return false;
+          const currentTimeMs = Number.isFinite(video.currentTime)
+            ? Math.min(LIVE_DURATION_MS, Math.max(0, video.currentTime * 1000))
+            : 0;
+          silentClockActive = true;
+          autoplayVisualFallbackPending = false;
+          setSilentClock(currentTimeMs, true);
+          return true;
         };
         const adoptVideoClock = () => {
           if (!silentClockActive || soundtrackFailed) return false;
@@ -5481,6 +5533,8 @@ function homepage() {
                 restorePolicyAudioState();
               }
               if (shouldPlay && !soundtrackFailed && isInView) {
+                unexpectedPauseRecoveryAttempted = false;
+                player.setAttribute("data-film-audio-status", "recovering");
                 if (!userMuted) {
                   policyMutedFallback = false;
                   video.muted = false;
@@ -5492,6 +5546,8 @@ function homepage() {
             if (video.paused || video.ended) {
               userPaused = false;
               pausedForVisibility = false;
+              unexpectedPauseRecoveryAttempted = false;
+              player.setAttribute("data-film-audio-status", "recovering");
               if (video.ended) video.currentTime = 0;
               if (!userMuted) {
                 policyMutedFallback = false;
@@ -5519,16 +5575,21 @@ function homepage() {
             if (video.muted || video.volume === 0) {
               userMuted = false;
               policyMutedFallback = false;
+              unexpectedPauseRecoveryAttempted = false;
               video.muted = false;
               if (video.volume === 0) video.volume = 1;
-              setAutoplayStatus("playing");
               if ((silentClockActive || video.paused) && !userPaused && isInView) {
+                player.setAttribute("data-film-audio-status", "recovering");
                 attemptVideoPlayback({ preferAudible: true });
+              } else {
+                player.setAttribute("data-film-audio-status", "available");
+                if (!video.paused) setAutoplayStatus("playing");
               }
             } else {
               userMuted = true;
               policyMutedFallback = false;
               video.muted = true;
+              player.setAttribute("data-film-audio-status", "available");
             }
           });
 
@@ -5545,6 +5606,10 @@ function homepage() {
               return;
             }
             if (silentClockActive) {
+              if (discardUnownedPlayback && pendingPlaybackAttemptToken === null) {
+                video.pause();
+                restorePolicyAudioState();
+              }
               return;
             }
             if (!policyMutedFallback) setAutoplayStatus("playing");
@@ -5571,6 +5636,16 @@ function homepage() {
             }
             if (silentClockActive) return;
             if (liveActive && isInView && !userPaused && !pausedForVisibility) {
+              if (!soundtrackFailed && !unexpectedPauseRecoveryAttempted) {
+                unexpectedPauseRecoveryAttempted = true;
+                player.setAttribute("data-film-audio-status", "recovering");
+                beginLiveSoundtrackRecovery();
+                attemptVideoPlayback({
+                  preferAudible: !userMuted,
+                  timeoutMs: SOUNDTRACK_RECOVERY_TIMEOUT_MS,
+                });
+                return;
+              }
               enterSilentLiveMode({ playing: true, audioUnavailable: false });
               return;
             }
@@ -5736,6 +5811,8 @@ function homepage() {
               }
               if (inView && !userPaused && !video.ended && (!autoplayAttempted || pausedForVisibility)) {
                 pausedForVisibility = false;
+                unexpectedPauseRecoveryAttempted = false;
+                player.setAttribute("data-film-audio-status", "recovering");
                 const preferAudible = !policyMutedFallback && !userMuted;
                 attemptVideoPlayback({
                   allowMutedFallback: preferAudible,
